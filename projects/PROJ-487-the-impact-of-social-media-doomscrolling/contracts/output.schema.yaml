@@ -1,107 +1,33 @@
-# Schema for processed and analysis output files
-# Defines structure for aligned timeseries, stationarity checks, and analysis results
-schema_name: output_schema
-version: "1.0"
-description: Schema for validating processed data and analysis report outputs
-
-# Common fields for processed timeseries
-processed_timeseries:
-  fields:
-    - name: date
-      type: string
-      description: ISO 8601 formatted date
-      constraints:
-        pattern: "^\\d{4}-\\d{2}-\\d{2}$"
-        required: true
-
-    - name: gdelt_negative_events
-      type: float
-      description: Normalized GDELT negative event count (z-score)
-      constraints:
-        required: true
-
-    - name: anxiety_trends
-      type: float
-      description: Normalized anxiety search trend index (z-score)
-      constraints:
-        required: true
-
-    - name: is_stationary
-      type: boolean
-      description: Whether the series passed ADF stationarity test
-      constraints:
-        required: true
-
-# Schema for Granger causality results
-granger_results:
-  fields:
-    - name: lag
-      type: integer
-      description: Lag value tested
-      constraints:
-        required: true
-        allowed_values: [1, 2, 3, 7, 14]
-
-    - name: f_statistic
-      type: float
-      description: F-statistic from Granger test
-      constraints:
-        required: true
-        min: 0.0
-
-    - name: p_value
-      type: float
-      description: P-value from Granger test
-      constraints:
-        required: true
-        min: 0.0
-        max: 1.0
-
-    - name: significant_at_alpha_0.05
-      type: boolean
-      description: Whether p < 0.05
-      constraints:
-        required: true
-
-    - name: significant_at_bonferroni
-      type: boolean
-      description: Whether p < 0.01 (Bonferroni corrected)
-      constraints:
-        required: true
-
-# Schema for correlation analysis
-correlation_results:
-  fields:
-    - name: method
-      type: string
-      description: Correlation method (pearson or spearman)
-      constraints:
-        required: true
-        allowed_values:
-          - pearson
-          - spearman
-
-    - name: correlation_coefficient
-      type: float
-      description: Correlation coefficient value
-      constraints:
-        required: true
-        min: -1.0
-        max: 1.0
-
-    - name: p_value
-      type: float
-      description: P-value for correlation test
-      constraints:
-        required: true
-        min: 0.0
-        max: 1.0
-
-validation_rules:
-  - rule: non_empty
-    description: Output files must contain data rows
-    check: "len(df) > 0"
-
-  - rule: column_presence
-    description: Required columns must exist
-    check: "all(col in df.columns for col in required_columns)"
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Preprocessed and Analyzed Output Schema"
+description: "Schema for the processed dataset containing aligned, stationary, and normalized time-series data."
+type: object
+properties:
+  date:
+    type: string
+    format: date
+    description: "ISO 8601 date (YYYY-MM-DD)"
+  gdelt_normalized:
+    type: number
+    description: "Z-score normalized GDELT event count"
+  anxiety_normalized:
+    type: number
+    description: "Z-score normalized combined anxiety trend score"
+  gdelt_stationary:
+    type: boolean
+    description: "True if the GDELT series passed ADF stationarity test"
+  anxiety_stationary:
+    type: boolean
+    description: "True if the anxiety series passed ADF stationarity test"
+  differences_applied:
+    type: integer
+    minimum: 0
+    description: "Number of differences applied to achieve stationarity"
+required:
+  - date
+  - gdelt_normalized
+  - anxiety_normalized
+  - gdelt_stationary
+  - anxiety_stationary
+  - differences_applied
+additionalProperties: false

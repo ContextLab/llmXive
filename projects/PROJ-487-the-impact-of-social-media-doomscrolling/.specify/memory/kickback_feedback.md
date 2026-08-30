@@ -4,12 +4,13 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No evidence of the required `projects/PROJ-487-the-impact-of-social-media-doomscrolling/` directory (or any files within it) is provided; the only artifacts shown are feature specifications, not the actual project root folder. The task’s core requirement—creating the project root directory—is therefore unmet.
-- `T002` (rejected 1x): No evidence of the required directories (`data/raw/`, `data/processed/`, `data/reports/`) inside `projects/PROJ-487-the-impact-of-social-media-doomscrolling/` is presented; the artifact list is empty, so the task is not satisfied.
-- `T003` (rejected 1x): No evidence of the required directories (`code/data/`, `code/tests/`, `code/utils/`) inside `projects/PROJ-487-the-impact-of-social-media-doomscrolling/` is provided; the artifact list is empty, so the task is not satisfied.
-- `T004` (rejected 1x): No evidence of a Python virtual environment (e.g., a `venv` or `.venv` directory with activation scripts and installed packages) exists in the specified path, and no related artifact was supplied. The required environment was not created.
-- `T006` (rejected 1x): No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml` with Black settings, or a `pre-commit` hook) were presented for the `projects/PROJ-487-the-impact-of-social-media-doomscrolling/` directory, so the required artifact does not exist. The task remains undone.
-- `T008` (rejected 1x): The `validation.py` module is present, but the required schema files (`contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`) are missing, so the utilities cannot actually validate against them. Additionally, the provided code is truncated and does not show concrete functions that load and apply those specific schemas. The missing schema files must be added (or created) and the validation utilities should be demonstrated to use them.
+- `T013` (rejected 1x): The submission provides no visible modifications to `fetch_gdelt.py` or `fetch_google_trends.py`, nor any logs, tests, or documentation showing retry logic and non‑zero exit on failure. Without the actual script changes or evidence that the error‑handling behavior works, the task requirement is not satisfied.
+- `T018` (rejected 1x): No `preprocess.py` file or code snippet was provided showing an Augmented Dickey‑Fuller test and iterative differencing logic; without the actual implementation we cannot confirm the requirement was met. The missing artifact is the preprocessing script containing the ADF test and automatic differencing until stationarity.
+- `T019` (rejected 1x): No `preprocess.py` file or code snippet was provided, and there is no evidence that z‑score normalization after stationarity testing has been implemented. The required artifact is missing, so the task is not satisfied.
+- `T020` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/aligned_timeseries.csv, data/processed/stationarity_check.csv
+- `T022` (rejected 1x): No artifact (e.g., updated `preprocess.py` containing a post‑interpolation completeness check) was provided; the claim lacks any code, tests, or documentation demonstrating that such a check was implemented. The required implementation is therefore missing.
+- `T026` (rejected 1x): No evidence of an `analyze.py` file containing a Granger causality implementation was provided; the claim lacks any code, function, or test output demonstrating the required statistical test. The required artifact is missing.
+- `T027` (rejected 1x): No `analyze.py` file or code implementing sensitivity analysis was provided; the evidence contains no artifacts, outputs, or documentation showing that the required analysis was added. The task’s core deliverable is missing.
 
 ## Required change
 

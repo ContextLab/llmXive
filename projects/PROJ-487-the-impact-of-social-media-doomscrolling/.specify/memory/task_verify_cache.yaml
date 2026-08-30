@@ -1,3 +1,29 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directory `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`
+    being present (or its contents) is provided; without a visible folder or listing,
+    we cannot confirm the implementer actually created the project root as specified.
+    The task remains incomplete until the directory exists on disk.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer did not provide any evidence (e.g., directory listings, screenshots,
+    or command output) showing that `projects/PROJ-487-the-impact-of-social-media-doomscrolling/data/raw/`,
+    `data/processed/`, and `data/reports/` actually exist. Without such proof, we
+    cannot confirm the required directories were created.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or screenshots were provided showing that `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/data/`,
+    `code/tests/`, and `code/utils/` actually exist; without concrete evidence the
+    claim cannot be verified.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No virtual environment directory or `bin/activate` file is present in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`;
+    the implementer provided no artifact showing the environment was created. The
+    required artifact is missing.
 T011:
   c: false
   h: 8ad0eaef581618ad7032c50afc4d1d923dba7c2340819fa6091be6b910e4ef3d
@@ -13,34 +39,12 @@ T012:
     \ `data/raw/google_trends.csv`. Moreover, the required CSV file is missing entirely.\
     \ The task\u2019s core requirement\u2014saving the Google Trends data to the specified\
     \ CSV\u2014has not been fulfilled."
-T013:
+T017b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The submission provides no visible modifications to `fetch_gdelt.py` or `fetch_google_trends.py`,\
-    \ nor any logs, tests, or documentation showing retry logic and non\u2011zero\
-    \ exit on failure. Without the actual script changes or evidence that the error\u2011\
-    handling behavior works, the task requirement is not satisfied."
-T017:
-  c: false
-  h: b78606058de20d14f4ad7e37a37235c1b876985bfd7a9a6cb7fca3521208d944
-  r: The `preprocess.py` file is only partially shown (truncated) and we cannot confirm
-    that the alignment logic fully implements the required behavior. Moreover, the
-    required input files `data/raw/gdelt_events.csv` and `data/raw/google_trends.csv`
-    are missing, so the script cannot be executed as specified. The missing data and
-    incomplete code mean the task is not genuinely completed.
-T018:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `preprocess.py` file or code snippet was provided showing an Augmented Dickey\u2011\
-    Fuller test and iterative differencing logic; without the actual implementation\
-    \ we cannot confirm the requirement was met. The missing artifact is the preprocessing\
-    \ script containing the ADF test and automatic differencing until stationarity."
-T019:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `preprocess.py` file or code snippet was provided, and there is no evidence\
-    \ that z\u2011score normalization after stationarity testing has been implemented.\
-    \ The required artifact is missing, so the task is not satisfied."
+  r: No `preprocess.py` file containing interpolation logic was provided; without
+    the script we cannot verify that missing values are filled via linear interpolation
+    while preserving zero-event counts as required. The required artifact is missing.
 T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -55,15 +59,6 @@ T028:
     wise p\u2011values or confirming that at least one of the lags {1,2,3,7,14} meets\
     \ the Bonferroni\u2011adjusted threshold (p\u202F<\u202F0.01). Consequently the\
     \ required statistical validity check cannot be verified."
-T030:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer supplied only the feature specification and user story text;\
-    \ there are no scripts, logs, benchmark results, or environment checks demonstrating\
-    \ that the analysis pipeline runs without CUDA/GPU dependencies and completes\
-    \ within six hours on a CPU\u2011only setup. Concrete evidence (e.g., a run log\
-    \ showing total runtime \u2264\u202F6\u202Fh on a CPU\u2011only machine and confirmation\
-    \ that no GPU libraries are imported) is missing."
 T031:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

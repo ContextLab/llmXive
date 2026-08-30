@@ -5,55 +5,59 @@ import tempfile
 import shutil
 from pathlib import Path
 
+# Add the parent directory to the path to allow imports
+# Assuming this test is run from code/tests/
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from setup_venv import setup_venv
 
 class TestVenvSetup(unittest.TestCase):
+    
     def setUp(self):
-        """Set up a temporary directory for testing."""
+        """Create a temporary directory to simulate the project root."""
         self.temp_dir = tempfile.mkdtemp()
         self.project_root = Path(self.temp_dir)
+        self.venv_path = self.project_root / "venv"
 
     def tearDown(self):
         """Clean up the temporary directory."""
-        shutil.rmtree(self.temp_dir, ignore_errors=True)
+        if os.path.exists(self.temp_dir):
+            shutil.rmtree(self.temp_dir)
 
-    def test_create_venv_success(self):
-        """Test that a virtual environment is created successfully."""
-        result = setup_venv(self.project_root)
-        venv_path = self.project_root / "venv"
-        
-        self.assertTrue(result)
-        self.assertTrue(venv_path.exists())
-        
-        # Check for activation script (Unix)
-        activate_script = venv_path / "bin" / "activate"
-        # Check for activation script (Windows)
-        activate_script_win = venv_path / "Scripts" / "activate.bat"
-        
-        self.assertTrue(activate_script.exists() or activate_script_win.exists())
-
-    def test_create_venv_already_exists(self):
-        """Test that setup returns True if venv already exists."""
-        # Create the venv directory first
-        venv_path = self.project_root / "venv"
-        venv_path.mkdir(parents=True)
+    def test_venv_creation(self):
+        """Test that setup_venv creates the virtual environment directory."""
+        self.assertFalse(self.venv_path.exists(), "Venv should not exist before test")
         
         result = setup_venv(self.project_root)
         
-        # Should return True since it already exists
-        self.assertTrue(result)
+        self.assertTrue(result, "setup_venv should return True on success")
+        self.assertTrue(self.venv_path.exists(), "Virtual environment directory should exist")
+        
+        # Check for bin/activate
+        activate_script = self.venv_path / "bin" / "activate"
+        self.assertTrue(activate_script.exists(), "bin/activate script should exist")
 
-    def test_create_venv_pip_installed(self):
-        """Test that pip is installed in the new virtual environment."""
+    def test_venv_skips_existing(self):
+        """Test that setup_venv returns True if venv already exists."""
+        # Create the venv manually first
+        import venv
+        venv.create(self.venv_path, with_pip=True)
+        
         result = setup_venv(self.project_root)
-        self.assertTrue(result)
         
-        venv_path = self.project_root / "venv"
-        pip_path = venv_path / "bin" / "pip"
-        pip_path_win = venv_path / "Scripts" / "pip.exe"
+        self.assertTrue(result, "setup_venv should return True if venv exists")
         
-        # At least one should exist
-        self.assertTrue(pip_path.exists() or pip_path_win.exists())
+        # Verify it wasn't recreated (still just one dir)
+        self.assertTrue(self.venv_path.exists())
 
-if __name__ == "__main__":
+    def test_venv_missing_activate_fails(self):
+        """Test that setup_venv returns False if bin/activate is missing in an existing dir."""
+        # Create the directory manually but without the activate script
+        self.venv_path.mkdir(parents=True)
+        
+        result = setup_venv(self.project_root)
+        
+        self.assertFalse(result, "setup_venv should return False if activate script is missing")
+
+if __name__ == '__main__':
     unittest.main()

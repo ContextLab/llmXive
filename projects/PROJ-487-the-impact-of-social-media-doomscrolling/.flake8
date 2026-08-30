@@ -1,15 +1,19 @@
 [flake8]
-max-line-length = 88
-extend-ignore = E203, W503
+max-line-length = 100
+ignore = E203, W503, E731
 exclude =
     .git,
     __pycache__,
-    venv,
     .venv,
+    venv,
     build,
-    dist
+    dist,
+    *.egg-info
 per-file-ignores =
-    # Allow unused imports in __init__.py for module exposure
+    # Allow unused imports in __init__.py
     */__init__.py: F401
-    # Allow docstrings in tests
-    */tests/*.py: D100,D101,D102,D103,D104
+    # Allow magic numbers in tests
+    */tests/*.py: E701, E702, W503
+    # Allow assertions in tests
+    */tests/*.py: S101
+max-complexity = 15

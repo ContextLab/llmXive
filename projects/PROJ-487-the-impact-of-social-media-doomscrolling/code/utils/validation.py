@@ -1,8 +1,8 @@
 """
-Schema validation utilities for the llmXive research pipeline.
+Validation utility for schema-based data validation.
 
-This module provides functions to validate data files against YAML schemas,
-ensuring data integrity before and after processing steps.
+This module provides functions to load YAML schemas and validate
+datasets and output files against them.
 """
 import os
 import sys
@@ -11,10 +11,26 @@ from typing import Dict, Any, Optional, List, Tuple
 import re
 import yaml
 import pandas as pd
-from pathlib import Path
+from datetime import datetime
 
-# Configure logger
-logger = logging.getLogger(__name__)
+# Import logging utility from sibling module
+try:
+    from utils.logging import get_logger
+except ImportError:
+    # Fallback if running as __main__ or direct import
+    def get_logger(name: str = __name__) -> logging.Logger:
+        logger = logging.getLogger(name)
+        if not logger.handlers:
+            handler = logging.StreamHandler(sys.stdout)
+            formatter = logging.Formatter(
+                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            )
+            handler.setFormatter(formatter)
+            logger.addHandler(handler)
+            logger.setLevel(logging.INFO)
+        return logger
+
+logger = get_logger(__name__)
 
 
 class ValidationError(Exception):
@@ -27,22 +43,25 @@ def load_schema(schema_path: str) -> Dict[str, Any]:
     Load a YAML schema file.
     
     Args:
-        schema_path: Path to the schema YAML file.
+        schema_path: Path to the YAML schema file.
         
     Returns:
         Dictionary containing the schema definition.
         
     Raises:
-        ValidationError: If the schema file cannot be loaded or is invalid.
+        ValidationError: If the file cannot be loaded or is invalid YAML.
     """
     if not os.path.exists(schema_path):
         raise ValidationError(f"Schema file not found: {schema_path}")
     
     try:
-        with open(schema_path, 'r') as f:
+        with open(schema_path, 'r', encoding='utf-8') as f:
             schema = yaml.safe_load(f)
+        
         if schema is None:
             raise ValidationError(f"Schema file is empty: {schema_path}")
+        
+        logger.info(f"Successfully loaded schema from {schema_path}")
         return schema
     except yaml.YAMLError as e:
         raise ValidationError(f"Invalid YAML in schema {schema_path}: {e}")
@@ -50,423 +69,376 @@ def load_schema(schema_path: str) -> Dict[str, Any]:
         raise ValidationError(f"Error loading schema {schema_path}: {e}")
 
 
-def validate_field_type(value: Any, expected_type: str, field_name: str) -> bool:
+def validate_field_type(value: Any, expected_type: str) -> bool:
     """
     Validate that a value matches the expected type.
     
     Args:
         value: The value to check.
-        expected_type: Expected type string ('string', 'float', 'integer', 'boolean').
-        field_name: Name of the field (for error messages).
+        expected_type: Expected type as string ('string', 'integer', 'float', 'boolean', 'date', 'datetime').
         
     Returns:
-        True if valid, False otherwise.
-        
-    Raises:
-        ValidationError: If the type does not match.
+        True if the type matches, False otherwise.
     """
-    type_mapping = {
-        'string': str,
-        'float': (int, float),
-        'integer': int,
-        'boolean': bool
-    }
-    
-    if expected_type not in type_mapping:
-        raise ValidationError(f"Unknown type '{expected_type}' for field '{field_name}'")
-    
-    expected_python_type = type_mapping[expected_type]
-    
-    # Special handling for booleans (since bool is subclass of int in Python)
-    if expected_type == 'boolean':
-        if not isinstance(value, bool):
-            raise ValidationError(f"Field '{field_name}' must be boolean, got {type(value).__name__}")
-        return True
-        
-    if expected_type == 'integer':
-        if isinstance(value, bool) or not isinstance(value, int):
-            raise ValidationError(f"Field '{field_name}' must be integer, got {type(value).__name__}")
-        return True
-        
-    if expected_type == 'float':
-        if isinstance(value, bool) or not isinstance(value, (int, float)):
-            raise ValidationError(f"Field '{field_name}' must be float, got {type(value).__name__}")
-        return True
-        
     if expected_type == 'string':
-        if not isinstance(value, str):
-            raise ValidationError(f"Field '{field_name}' must be string, got {type(value).__name__}")
-        return True
-        
-    return False
+        return isinstance(value, str)
+    elif expected_type == 'integer':
+        return isinstance(value, int) and not isinstance(value, bool)
+    elif expected_type == 'float':
+        return isinstance(value, (int, float)) and not isinstance(value, bool)
+    elif expected_type == 'boolean':
+        return isinstance(value, bool)
+    elif expected_type == 'date':
+        # Check if it's a string in ISO format or a datetime.date object
+        if isinstance(value, datetime):
+            return True
+        if isinstance(value, str):
+            try:
+                datetime.strptime(value, '%Y-%m-%d')
+                return True
+            except ValueError:
+                return False
+        return False
+    elif expected_type == 'datetime':
+        if isinstance(value, datetime):
+            return True
+        if isinstance(value, str):
+            try:
+                datetime.fromisoformat(value.replace('Z', '+00:00'))
+                return True
+            except ValueError:
+                return False
+        return False
+    else:
+        logger.warning(f"Unknown type: {expected_type}")
+        return False
 
 
-def validate_value_constraints(value: Any, constraints: Dict[str, Any], field_name: str) -> bool:
+def validate_value_constraints(value: Any, constraints: Dict[str, Any]) -> bool:
     """
-    Validate value against constraints (pattern, min, max, allowed_values).
+    Validate that a value meets specified constraints.
     
     Args:
         value: The value to check.
-        constraints: Dictionary of constraint definitions.
-        field_name: Name of the field (for error messages).
+        constraints: Dictionary of constraints (e.g., {'min': 0, 'max': 100, 'pattern': r'^[A-Z]+$'}).
         
     Returns:
-        True if valid, False otherwise.
-        
-    Raises:
-        ValidationError: If constraints are violated.
+        True if all constraints are satisfied, False otherwise.
     """
-    if not constraints:
-        return True
-    
-    # Check pattern (for strings)
-    if 'pattern' in constraints and isinstance(value, str):
-        pattern = constraints['pattern']
-        if not re.match(pattern, value):
-            raise ValidationError(
-                f"Field '{field_name}' value '{value}' does not match pattern '{pattern}'"
-            )
-    
-    # Check min/max (for numbers)
-    if 'min' in constraints and isinstance(value, (int, float)):
+    if 'min' in constraints and value is not None:
         if value < constraints['min']:
-            raise ValidationError(
-                f"Field '{field_name}' value {value} is less than minimum {constraints['min']}"
-            )
+            return False
     
-    if 'max' in constraints and isinstance(value, (int, float)):
+    if 'max' in constraints and value is not None:
         if value > constraints['max']:
-            raise ValidationError(
-                f"Field '{field_name}' value {value} is greater than maximum {constraints['max']}"
-            )
+            return False
     
-    # Check allowed values
-    if 'allowed_values' in constraints:
-        allowed = constraints['allowed_values']
-        if value not in allowed:
-            raise ValidationError(
-                f"Field '{field_name}' value '{value}' not in allowed values: {allowed}"
-            )
+    if 'pattern' in constraints and isinstance(value, str):
+        if not re.match(constraints['pattern'], value):
+            return False
+    
+    if 'enum' in constraints and value is not None:
+        if value not in constraints['enum']:
+            return False
+    
+    if 'min_length' in constraints and isinstance(value, str):
+        if len(value) < constraints['min_length']:
+            return False
+    
+    if 'max_length' in constraints and isinstance(value, str):
+        if len(value) > constraints['max_length']:
+            return False
     
     return True
 
 
 def validate_record(record: Dict[str, Any], schema: Dict[str, Any]) -> List[str]:
     """
-    Validate a single record (row) against a schema.
+    Validate a single record against a schema.
     
     Args:
-        record: Dictionary representing a row.
-        schema: Schema definition.
+        record: Dictionary representing a single row/record.
+        schema: The schema definition.
         
     Returns:
         List of error messages (empty if valid).
     """
     errors = []
-    fields = schema.get('fields', [])
+    properties = schema.get('properties', {})
+    required_fields = schema.get('required', [])
     
-    for field_def in fields:
-        field_name = field_def['name']
-        field_type = field_def['type']
-        constraints = field_def.get('constraints', {})
-        
-        # Check if required
-        if constraints.get('required', False):
-            if field_name not in record or record[field_name] is None:
-                errors.append(f"Required field '{field_name}' is missing or null")
-                continue
-        
-        if field_name not in record:
+    # Check required fields
+    for field in required_fields:
+        if field not in record or record[field] is None:
+            errors.append(f"Missing required field: {field}")
+    
+    # Validate each field
+    for field_name, field_value in record.items():
+        if field_name not in properties:
+            # Unknown field - could be an error or just ignored based on policy
+            # For now, we'll log a warning but not fail
+            logger.debug(f"Unknown field in record: {field_name}")
             continue
         
-        value = record[field_name]
+        field_def = properties[field_name]
+        expected_type = field_def.get('type')
+        constraints = field_def.get('constraints', {})
+        
+        # Skip validation for null values if not required
+        if field_value is None:
+            if field_name in required_fields:
+                errors.append(f"Field {field_name} is required but is null")
+            continue
         
         # Type validation
-        try:
-            validate_field_type(value, field_type, field_name)
-        except ValidationError as e:
-            errors.append(str(e))
+        if expected_type and not validate_field_type(field_value, expected_type):
+            errors.append(
+                f"Field '{field_name}' has invalid type. Expected {expected_type}, got {type(field_value).__name__}"
+            )
             continue
         
         # Constraint validation
-        try:
-            validate_value_constraints(value, constraints, field_name)
-        except ValidationError as e:
-            errors.append(str(e))
+        if constraints and not validate_value_constraints(field_value, constraints):
+            errors.append(
+                f"Field '{field_name}' violates constraints: {constraints}"
+            )
     
     return errors
 
 
-def validate_dataset_file(file_path: str, schema_path: str) -> Tuple[bool, Dict[str, Any]]:
+def validate_dataset_file(file_path: str, schema_path: str) -> Dict[str, Any]:
     """
-    Validate a dataset CSV file against a schema.
+    Validate a CSV dataset file against a schema.
     
     Args:
         file_path: Path to the CSV file.
-        schema_path: Path to the schema YAML file.
+        schema_path: Path to the YAML schema file.
         
     Returns:
-        Tuple of (is_valid, validation_report).
-        
-    Raises:
-        ValidationError: If file or schema cannot be loaded.
+        Dictionary with validation results.
     """
-    report = {
+    result = {
         'file': file_path,
         'schema': schema_path,
-        'valid': True,
+        'valid': False,
+        'total_rows': 0,
+        'valid_rows': 0,
+        'invalid_rows': 0,
         'errors': [],
-        'row_count': 0,
-        'error_count': 0
+        'timestamp': datetime.now().isoformat()
     }
     
-    # Load schema
-    schema = load_schema(schema_path)
-    
-    # Load CSV
-    if not os.path.exists(file_path):
-        raise ValidationError(f"Data file not found: {file_path}")
-    
     try:
-        df = pd.read_csv(file_path)
-    except Exception as e:
-        raise ValidationError(f"Error reading CSV {file_path}: {e}")
-    
-    report['row_count'] = len(df)
-    
-    # Check non-empty rule
-    if len(df) == 0:
-        report['valid'] = False
-        report['errors'].append("File is empty (no data rows)")
-        return False, report
-    
-    # Validate each row
-    for idx, row in df.iterrows():
-        row_dict = row.to_dict()
-        row_errors = validate_record(row_dict, schema)
-        if row_errors:
-            report['valid'] = False
-            for err in row_errors:
-                report['errors'].append(f"Row {idx}: {err}")
-            report['error_count'] += 1
-    
-    # Check validation rules from schema
-    for rule in schema.get('validation_rules', []):
-        rule_name = rule['rule']
-        check_code = rule['check']
+        # Load schema
+        schema = load_schema(schema_path)
         
-        try:
-            if rule_name == 'unique_dates':
-                # Check for duplicate dates per source/metric
-                if 'source' in df.columns and 'metric' in df.columns and 'date' in df.columns:
-                    duplicates = df.groupby(['source', 'metric', 'date']).size()
-                    if duplicates.max() > 1:
-                        report['valid'] = False
-                        report['errors'].append(f"Duplicate dates found: {duplicates[duplicates > 1].to_dict()}")
-            elif rule_name == 'non_empty':
-                # Already checked above
-                pass
-            elif rule_name == 'column_presence':
-                # Handled separately in validate_dataset_file_structure
-                pass
-        except Exception as e:
-            report['valid'] = False
-            report['errors'].append(f"Rule '{rule_name}' check failed: {e}")
+        # Load dataset
+        if not os.path.exists(file_path):
+            raise ValidationError(f"Dataset file not found: {file_path}")
+        
+        df = pd.read_csv(file_path)
+        result['total_rows'] = len(df)
+        
+        # Validate each row
+        invalid_indices = []
+        for idx, row in df.iterrows():
+            record = row.to_dict()
+            errors = validate_record(record, schema)
+            if errors:
+                invalid_indices.append(idx)
+                result['errors'].append({
+                    'row': idx,
+                    'errors': errors
+                })
+        
+        result['valid_rows'] = result['total_rows'] - len(invalid_indices)
+        result['invalid_rows'] = len(invalid_indices)
+        result['valid'] = result['invalid_rows'] == 0
+        
+        if result['valid']:
+            logger.info(f"Validation passed for {file_path}: {result['valid_rows']} rows")
+        else:
+            logger.warning(
+                f"Validation failed for {file_path}: {result['invalid_rows']} invalid rows out of {result['total_rows']}"
+            )
+        
+    except Exception as e:
+        result['errors'].append({'general': str(e)})
+        logger.error(f"Validation error for {file_path}: {e}")
     
-    return report['valid'], report
+    return result
 
 
-def validate_output_file(file_path: str, schema_path: str, output_type: str) -> Tuple[bool, Dict[str, Any]]:
+def validate_output_file_structure(file_path: str, schema_path: str) -> Dict[str, Any]:
     """
-    Validate an output file (processed data, results) against a schema.
+    Validate an output file (e.g., JSON, CSV) against a schema.
+    
+    This is a specialized version for output files that may have
+    different structure requirements.
     
     Args:
-        file_path: Path to the output CSV file.
-        schema_path: Path to the schema YAML file.
-        output_type: Type of output ('processed_timeseries', 'granger_results', 'correlation_results').
+        file_path: Path to the output file.
+        schema_path: Path to the YAML schema file.
         
     Returns:
-        Tuple of (is_valid, validation_report).
-        
-    Raises:
-        ValidationError: If file or schema cannot be loaded.
+        Dictionary with validation results.
     """
-    report = {
+    result = {
         'file': file_path,
         'schema': schema_path,
-        'output_type': output_type,
-        'valid': True,
+        'valid': False,
         'errors': [],
-        'row_count': 0,
-        'error_count': 0
+        'timestamp': datetime.now().isoformat()
     }
     
-    # Load schema
-    schema = load_schema(schema_path)
-    
-    # Get the specific schema for this output type
-    if output_type == 'processed_timeseries':
-        sub_schema = schema.get('processed_timeseries', {})
-    elif output_type == 'granger_results':
-        sub_schema = schema.get('granger_results', {})
-    elif output_type == 'correlation_results':
-        sub_schema = schema.get('correlation_results', {})
-    else:
-        raise ValidationError(f"Unknown output type: {output_type}")
-    
-    if not sub_schema:
-        raise ValidationError(f"No schema definition found for output type: {output_type}")
-    
-    # Load CSV
-    if not os.path.exists(file_path):
-        raise ValidationError(f"Output file not found: {file_path}")
-    
     try:
-        df = pd.read_csv(file_path)
+        # Load schema
+        schema = load_schema(schema_path)
+        
+        # Check file existence
+        if not os.path.exists(file_path):
+            raise ValidationError(f"Output file not found: {file_path}")
+        
+        # Determine file type and load accordingly
+        if file_path.endswith('.csv'):
+            df = pd.read_csv(file_path)
+            
+            # Validate structure based on schema
+            expected_columns = list(schema.get('properties', {}).keys())
+            actual_columns = list(df.columns)
+            
+            missing_columns = set(expected_columns) - set(actual_columns)
+            if missing_columns:
+                result['errors'].append(
+                    f"Missing columns: {missing_columns}"
+                )
+            
+            # Check for required columns
+            required_columns = schema.get('required', [])
+            missing_required = set(required_columns) - set(actual_columns)
+            if missing_required:
+                result['errors'].append(
+                    f"Missing required columns: {missing_required}"
+                )
+            
+            result['valid'] = len(result['errors']) == 0
+            
+        elif file_path.endswith('.json'):
+            import json
+            with open(file_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            
+            # Validate JSON structure
+            # This is a simplified check - more complex validation would depend on schema
+            if not isinstance(data, dict):
+                result['errors'].append("JSON root must be an object")
+            else:
+                # Check required fields
+                required = schema.get('required', [])
+                for field in required:
+                    if field not in data:
+                        result['errors'].append(f"Missing required field: {field}")
+            
+            result['valid'] = len(result['errors']) == 0
+        else:
+            raise ValidationError(f"Unsupported file type: {file_path}")
+        
+        if result['valid']:
+            logger.info(f"Output validation passed for {file_path}")
+        else:
+            logger.warning(f"Output validation failed for {file_path}: {result['errors']}")
+        
     except Exception as e:
-        raise ValidationError(f"Error reading CSV {file_path}: {e}")
+        result['errors'].append(str(e))
+        logger.error(f"Output validation error for {file_path}: {e}")
     
-    report['row_count'] = len(df)
-    
-    # Check non-empty
-    if len(df) == 0:
-        report['valid'] = False
-        report['errors'].append("Output file is empty (no data rows)")
-        return False, report
-    
-    # Validate each row
-    for idx, row in df.iterrows():
-        row_dict = row.to_dict()
-        row_errors = validate_record(row_dict, sub_schema)
-        if row_errors:
-            report['valid'] = False
-            for err in row_errors:
-                report['errors'].append(f"Row {idx}: {err}")
-            report['error_count'] += 1
-    
-    return report['valid'], report
+    return result
 
 
 def validate_against_schema(
     data_path: str,
     schema_path: str,
-    output_type: Optional[str] = None
-) -> Tuple[bool, Dict[str, Any]]:
+    output_format: str = 'dict'
+) -> Any:
     """
-    Generic validation function that selects the appropriate validator.
+    Main entry point for validating data against a schema.
     
     Args:
-        data_path: Path to the data file.
-        schema_path: Path to the schema file.
-        output_type: Optional output type hint. If None, tries to infer.
+        data_path: Path to the data file (CSV or JSON).
+        schema_path: Path to the YAML schema file.
+        output_format: 'dict' for dictionary result, 'bool' for simple pass/fail.
         
     Returns:
-        Tuple of (is_valid, report).
+        Validation result based on output_format.
     """
-    if output_type is None:
-        # Infer from filename
-        filename = os.path.basename(data_path).lower()
-        if 'granger' in filename:
-            output_type = 'granger_results'
-        elif 'correlation' in filename or 'analysis' in filename:
-            output_type = 'correlation_results'
-        elif 'aligned' in filename or 'timeseries' in filename:
-            output_type = 'processed_timeseries'
-        else:
-            # Default to dataset schema
-            return validate_dataset_file(data_path, schema_path)
+    if data_path.endswith('.csv'):
+        result = validate_dataset_file(data_path, schema_path)
+    else:
+        result = validate_output_file_structure(data_path, schema_path)
     
-    return validate_output_file(data_path, schema_path, output_type)
-
-
-def validate_output_file_structure(file_path: str, expected_columns: List[str]) -> Tuple[bool, List[str]]:
-    """
-    Validate that a file has the expected columns.
-    
-    Args:
-        file_path: Path to the CSV file.
-        expected_columns: List of expected column names.
-        
-    Returns:
-        Tuple of (is_valid, missing_columns).
-    """
-    if not os.path.exists(file_path):
-        return False, [f"File not found: {file_path}"]
-    
-    try:
-        df = pd.read_csv(file_path)
-    except Exception as e:
-        return False, [f"Error reading file: {e}"]
-    
-    missing = [col for col in expected_columns if col not in df.columns]
-    return len(missing) == 0, missing
-
-
-def validate_dataset_file_structure(file_path: str, expected_columns: List[str]) -> Tuple[bool, List[str]]:
-    """
-    Validate that a dataset file has the expected columns.
-    
-    Args:
-        file_path: Path to the CSV file.
-        expected_columns: List of expected column names.
-        
-    Returns:
-        Tuple of (is_valid, missing_columns).
-    """
-    return validate_output_file_structure(file_path, expected_columns)
+    if output_format == 'bool':
+        return result['valid']
+    return result
 
 
 def main():
     """
-    Command-line interface for schema validation.
+    Command-line interface for the validation utility.
     
     Usage:
-        python -m code.utils.validation --data <path> --schema <path> [--type <output_type>]
+        python -m utils.validation --data <path> --schema <path> [--format dict|bool]
     """
     import argparse
     
-    parser = argparse.ArgumentParser(description='Validate data files against YAML schemas.')
-    parser.add_argument('--data', required=True, help='Path to the data file to validate')
-    parser.add_argument('--schema', required=True, help='Path to the schema file')
-    parser.add_argument('--type', dest='output_type', default=None,
-                      help='Output type (processed_timeseries, granger_results, correlation_results)')
-    parser.add_argument('--verbose', '-v', action='store_true', help='Verbose output')
+    parser = argparse.ArgumentParser(
+        description='Validate data files against YAML schemas.'
+    )
+    parser.add_argument(
+        '--data',
+        required=True,
+        help='Path to the data file (CSV or JSON)'
+    )
+    parser.add_argument(
+        '--schema',
+        required=True,
+        help='Path to the YAML schema file'
+    )
+    parser.add_argument(
+        '--format',
+        choices=['dict', 'bool'],
+        default='dict',
+        help='Output format (default: dict)'
+    )
     
     args = parser.parse_args()
     
-    if args.verbose:
-        logging.basicConfig(level=logging.INFO)
-    else:
-        logging.basicConfig(level=logging.WARNING)
-    
     try:
-        is_valid, report = validate_against_schema(
+        result = validate_against_schema(
             args.data,
             args.schema,
-            args.output_type
+            args.format
         )
         
-        if is_valid:
-            logger.info(f"Validation PASSED for {args.data}")
-            logger.info(f"  Rows: {report['row_count']}")
-            logger.info(f"  Errors: {report['error_count']}")
-            sys.exit(0)
+        if args.format == 'bool':
+            if result:
+                print("VALID")
+                sys.exit(0)
+            else:
+                print("INVALID")
+                sys.exit(1)
         else:
-            logger.error(f"Validation FAILED for {args.data}")
-            logger.error(f"  Rows: {report['row_count']}")
-            logger.error(f"  Errors: {report['error_count']}")
-            for err in report['errors'][:10]:  # Show first 10 errors
-                logger.error(f"    - {err}")
-            if len(report['errors']) > 10:
-                logger.error(f"    ... and {len(report['errors']) - 10} more errors")
-            sys.exit(1)
+            import json
+            print(json.dumps(result, indent=2, default=str))
+            sys.exit(0 if result.get('valid') else 1)
             
     except ValidationError as e:
-        logger.error(f"Validation error: {e}")
+        logger.error(f"Validation failed: {e}")
+        print(f"ERROR: {e}", file=sys.stderr)
         sys.exit(1)
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
-        sys.exit(2)
+        print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == '__main__':

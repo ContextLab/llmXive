@@ -1,7 +1,3 @@
-"""
-Unit tests for the directory setup script (Task T002).
-Verifies that the required data directories exist after execution.
-"""
 import unittest
 import os
 import sys
@@ -9,91 +5,69 @@ import tempfile
 import shutil
 from pathlib import Path
 
-# Add the project root to the path to allow imports
-# Assuming this test is run from the project root or the code/tests directory
-project_root = Path(__file__).resolve().parent.parent
-if project_root.name == "code":
-    project_root = project_root.parent
+# Add code directory to path for imports
+current_dir = Path(__file__).resolve().parent
+code_dir = current_dir.parent
+sys.path.insert(0, str(code_dir))
 
-sys.path.insert(0, str(project_root / "code"))
+from setup_directories import create_data_directories
 
-from setup_directories import create_directories, PROJECT_ROOT
 
 class TestSetupDirectories(unittest.TestCase):
-    
+    """Test cases for T002: Data directory creation."""
+
     def setUp(self):
-        """Create a temporary directory to simulate the project root for testing."""
+        """Set up a temporary directory for testing."""
         self.temp_dir = tempfile.mkdtemp()
-        self.original_root = PROJECT_ROOT
-        
-        # Mock the PROJECT_ROOT to point to our temp directory
-        # We need to re-import or modify the module's variable
-        # Since PROJECT_ROOT is a global, we can't easily mock it without reloading
-        # Instead, we will test the logic by creating a temporary structure manually
-        
-        # Create a mock project structure
-        self.mock_project_root = Path(self.temp_dir) / "PROJ-487-the-impact-of-social-media-doomscrolling"
-        self.mock_project_root.mkdir()
-        
-        # Define expected directories relative to mock root
-        self.expected_dirs = [
-            "data/raw",
-            "data/processed",
-            "data/reports",
-            "code/data",
-            "code/tests",
-            "code/utils",
-        ]
-    
+        self.project_root = Path(self.temp_dir)
+
     def tearDown(self):
         """Clean up the temporary directory."""
-        shutil.rmtree(self.temp_dir)
-    
-    def test_directories_created(self):
-        """Verify that the create_directories function creates the required folders."""
-        # We need to test the logic. Since the script uses a global PROJECT_ROOT,
-        # we will verify the existence of directories by running the logic against our mock root.
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
+
+    def test_data_directories_created(self):
+        """Verify that all required data directories are created."""
+        create_data_directories(self.project_root)
         
-        # Temporarily override the module's PROJECT_ROOT
-        import setup_directories
-        original_root = setup_directories.PROJECT_ROOT
-        setup_directories.PROJECT_ROOT = self.mock_project_root
+        # Check that data/raw exists
+        raw_dir = self.project_root / "data" / "raw"
+        self.assertTrue(raw_dir.exists(), "data/raw directory was not created")
+        self.assertTrue(raw_dir.is_dir(), "data/raw is not a directory")
+
+        # Check that data/processed exists
+        processed_dir = self.project_root / "data" / "processed"
+        self.assertTrue(processed_dir.exists(), "data/processed directory was not created")
+        self.assertTrue(processed_dir.is_dir(), "data/processed is not a directory")
+
+        # Check that data/reports exists
+        reports_dir = self.project_root / "data" / "reports"
+        self.assertTrue(reports_dir.exists(), "data/reports directory was not created")
+        self.assertTrue(reports_dir.is_dir(), "data/reports is not a directory")
+
+    def test_existing_directories_not_recreated(self):
+        """Verify that existing directories are handled gracefully."""
+        # Create one directory beforehand
+        existing_dir = self.project_root / "data" / "raw"
+        existing_dir.mkdir(parents=True)
         
-        try:
-            # Run the creation logic
-            # We need to re-implement the creation logic here to test it specifically
-            # because the function relies on the global PROJECT_ROOT which we just swapped.
-            # However, the function `create_directories` uses the global `PROJECT_ROOT` variable
-            # at the time of definition or execution? It uses the global at runtime.
-            
-            # Let's just call the function. It will use the swapped global.
-            # But wait, the function uses `PROJECT_ROOT` which is a global variable.
-            # If we change the global, the function should see it.
-            
-            # To be safe, let's just manually verify the paths we expect.
-            for rel_path in self.expected_dirs:
-                full_path = self.mock_project_root / rel_path
-                # Ensure parent exists first if needed (the script does this)
-                full_path.mkdir(parents=True, exist_ok=True)
-            
-            # Now verify they exist
-            for rel_path in self.expected_dirs:
-                full_path = self.mock_project_root / rel_path
-                self.assertTrue(full_path.exists(), f"Directory {full_path} was not created.")
-                self.assertTrue(full_path.is_dir(), f"{full_path} is not a directory.")
+        # Should not raise an error
+        create_data_directories(self.project_root)
         
-        finally:
-            # Restore original
-            setup_directories.PROJECT_ROOT = original_root
-    
-    def test_data_directories_exist(self):
-        """Specific test for Task T002: data directories."""
-        data_dirs = ["data/raw", "data/processed", "data/reports"]
-        for rel_path in data_dirs:
-            full_path = self.mock_project_root / rel_path
-            # Create them to simulate the script running
-            full_path.mkdir(parents=True, exist_ok=True)
-            self.assertTrue(full_path.exists(), f"Data directory {full_path} missing.")
+        # Verify the directory still exists and is a directory
+        self.assertTrue(existing_dir.exists())
+        self.assertTrue(existing_dir.is_dir())
+
+    def test_nested_directory_creation(self):
+        """Verify that nested directories are created with parents=True."""
+        # Don't create parent 'data' directory beforehand
+        create_data_directories(self.project_root)
+        
+        # All three should exist
+        self.assertTrue((self.project_root / "data").exists())
+        self.assertTrue((self.project_root / "data" / "raw").exists())
+        self.assertTrue((self.project_root / "data" / "processed").exists())
+        self.assertTrue((self.project_root / "data" / "reports").exists())
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,12 +1,13 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "proj-487-doomscrolling"
+name = "proj-487-the-impact-of-social-media-doomscrolling"
 version = "0.1.0"
-description = "Impact of social media doomscrolling research pipeline"
-requires-python = ">=3.8"
+description = "Analysis of aggregate negative news publication volume on anticipatory anxiety"
+readme = "README.md"
+requires-python = ">=3.9"
 dependencies = [
     "pandas",
     "numpy",
@@ -17,34 +18,56 @@ dependencies = [
     "seaborn",
     "pyyaml",
     "pytrends",
-    "python-dotenv",
 ]
 
 [tool.black]
-line-length = 88
-target-version = ['py38', 'py39', 'py310', 'py311']
+line-length = 100
+target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
 [tool.isort]
 profile = "black"
-line_length = 88
-skip = [".git", ".venv", "venv", "__pycache__", "build", "dist"]
+line_length = 100
+known_first_party = ["data", "utils", "tests", "config"]
+known_third_party = ["pandas", "numpy", "statsmodels", "requests", "sklearn", "matplotlib", "seaborn", "yaml", "pytrends"]
+skip = [".git", ".venv", "venv", "build", "dist"]
 
 [tool.pytest.ini_options]
 testpaths = ["code/tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.coverage.run]
+source = ["code"]
+omit = [
+    "*/tests/*",
+    "*/__init__.py",
+    "*/setup_*.py",
+    "*/install_*.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
