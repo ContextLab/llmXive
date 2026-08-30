@@ -1,29 +1,36 @@
 T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directory `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`
-    being present (or its contents) is provided; without a visible folder or listing,
-    we cannot confirm the implementer actually created the project root as specified.
-    The task remains incomplete until the directory exists on disk.
+  r: No evidence of a `.project_init.json` file in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`
+    was provided, nor any displayed content matching the required JSON. The implementer
+    must create the file with the exact specified fields and values.
 T002:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer did not provide any evidence (e.g., directory listings, screenshots,
-    or command output) showing that `projects/PROJ-487-the-impact-of-social-media-doomscrolling/data/raw/`,
-    `data/processed/`, and `data/reports/` actually exist. Without such proof, we
-    cannot confirm the required directories were created.
+  r: No evidence of the required directories (`data/raw/`, `data/processed/`, `data/reports/`
+    under `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`) or the `.gitkeep`
+    files within them is provided. The implementer must add these folders and place
+    a `.gitkeep` file in each to satisfy the task.
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or screenshots were provided showing that `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/data/`,
-    `code/tests/`, and `code/utils/` actually exist; without concrete evidence the
-    claim cannot be verified.
+  r: No evidence of the required directories (`code/data/`, `code/tests/`, `code/utils/`)
+    or the `__init__.py` files within them is provided; without these artifacts the
+    task is not satisfied.
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No virtual environment directory or `bin/activate` file is present in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`;
-    the implementer provided no artifact showing the environment was created. The
-    required artifact is missing.
+  r: No evidence of a `venv` directory (or activation script) was provided in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`,
+    nor any documentation showing the environment was created and activated. The required
+    artifact is missing.
+T008:
+  c: false
+  h: beac17a4f42ec6e179ee58749766d306d215bb8999ca20136875563c5bf61227
+  r: "The `code/utils/validation.py` file is present, but it does not show any logic\
+    \ that specifically loads `contracts/dataset.schema.yaml` or `contracts/output.schema.yaml`,\
+    \ and the required schema files are absent from the repository. Without those\
+    \ schema files and explicit validation against them, the utility cannot fulfill\
+    \ the task\u2019s requirement."
 T011:
   c: false
   h: 8ad0eaef581618ad7032c50afc4d1d923dba7c2340819fa6091be6b910e4ef3d
@@ -33,18 +40,37 @@ T011:
     \ saving it to the specified CSV\u2014is not satisfied."
 T012:
   c: false
-  h: af933688234cdb29e3bcea77fe974d23223ce57871447b9ebbaaf099ca64209a
-  r: "The repository contains a partially shown `fetch_google_trends.py`, but it only\
-    \ defines a function and does not include code that writes the fetched data to\
-    \ `data/raw/google_trends.csv`. Moreover, the required CSV file is missing entirely.\
-    \ The task\u2019s core requirement\u2014saving the Google Trends data to the specified\
-    \ CSV\u2014has not been fulfilled."
-T017b:
+  h: 5164da81acc9769b97f103b6cd9788060103458bcae8325edcca0a46026ee8ff
+  r: "The provided `fetch_gdelt.py` contains retry logic and configuration, but the\
+    \ visible portion ends before any code that actually queries the GDELT EventCount\
+    \ API, filters for negative\u2011sentiment events, writes `data/raw/gdelt_events.csv`,\
+    \ or creates the accompanying MD5 checksum file. Moreover, the expected output\
+    \ CSV (and its .md5 file) are absent from the repository. The implementation must\
+    \ include the data\u2011fetching, CSV\u2011writing, and checksum\u2011generation\
+    \ steps to satisfy the task."
+T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `preprocess.py` file containing interpolation logic was provided; without
-    the script we cannot verify that missing values are filled via linear interpolation
-    while preserving zero-event counts as required. The required artifact is missing.
+  r: "No test code, mock setup, log output, or exit\u2011status evidence was provided\
+    \ to show that `fetch_gdelt.py` and `fetch_google_trends.py` were run with a mocked\
+    \ 500\u2011error, that retries occurred, and that the scripts logged the error\
+    \ and exited with a non\u2011zero code. The required artifacts are missing."
+T017:
+  c: false
+  h: b78606058de20d14f4ad7e37a37235c1b876985bfd7a9a6cb7fca3521208d944
+  r: The `preprocess.py` file is only partially shown (truncated) and we cannot confirm
+    that the alignment logic fully implements the required behavior. Moreover, the
+    required input files `data/raw/gdelt_events.csv` and `data/raw/google_trends.csv`
+    are missing, so the script cannot be executed as specified. The missing data and
+    incomplete code mean the task is not genuinely completed.
+T018:
+  c: true
+  h: af69301e69081d291d000616856e2acff78938bed15d199ca1784e96db765f08
+  r: The `code/data/preprocess.py` file exists and includes an `align_timestamps`
+    function that (1) merges the two raw CSVs on the intersection of their date indices,
+    (2) respects daily alignment, and (3) linearly interpolates only `NaN` values
+    while leaving zeroes untouched. The required raw CSV paths are referenced correctly,
+    satisfying the implementation requirement.
 T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

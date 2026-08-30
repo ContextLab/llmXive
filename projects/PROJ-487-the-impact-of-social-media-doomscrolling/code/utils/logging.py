@@ -1,146 +1,113 @@
 """
-Logging infrastructure for the llmXive research pipeline.
-
-Provides a centralized logging configuration that writes to both
-console (stdout) and a rotating file log.
+Logging utility configuration.
+Provides a standard logger setup for the project.
 """
 import logging
 import os
 import sys
+import json
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Optional
 
-# Default log level for the application
-DEFAULT_LEVEL = logging.INFO
+# Project root
+_project_root = Path(__file__).resolve().parent.parent.parent
+_log_dir = _project_root / "logs"
 
-# Log directory relative to project root
-LOG_DIR_NAME = "data/logs"
-LOG_FILE_NAME = "pipeline.log"
+class JSONFormatter(logging.Formatter):
+    """Custom formatter to output logs in JSON format."""
+    
+    def format(self, record: logging.LogRecord) -> str:
+        log_obj = {
+            "timestamp": self.formatTime(record, "%Y-%m-%dT%H:%M:%S"),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+            "module": record.module,
+            "function": record.funcName,
+            "line": record.lineno
+        }
+        if record.exc_info:
+            log_obj["exc_info"] = self.formatException(record.exc_info)
+        return json.dumps(log_obj)
 
-# Formatter string for log messages
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-
-def _ensure_log_dir(project_root: Optional[Path] = None) -> Path:
-    """Ensure the log directory exists.
+def setup_logging(
+    level: int = logging.INFO,
+    log_file: Optional[Path] = None,
+    console: bool = True
+) -> None:
+    """
+    Configures the root logger.
     
     Args:
-        project_root: Optional Path to project root. If None, uses current working directory.
-        
-    Returns:
-        Path to the log directory.
+        level: Logging level (e.g., logging.DEBUG, logging.INFO).
+        log_file: Path to the log file. If None, defaults to logs/app.log.
+        console: Whether to log to console.
     """
-    if project_root is None:
-        project_root = Path.cwd()
+    if log_file is None:
+        _log_dir.mkdir(exist_ok=True)
+        log_file = _log_dir / "app.log"
     
-    log_dir = project_root / LOG_DIR_NAME
-    log_dir.mkdir(parents=True, exist_ok=True)
-    return log_dir
+    # Ensure log directory exists
+    log_file.parent.mkdir(parents=True, exist_ok=True)
 
+    # Root logger configuration
+    root_logger = logging.getLogger()
+    root_logger.setLevel(level)
 
-def get_logger(
-    name: str,
-    level: int = DEFAULT_LEVEL,
-    project_root: Optional[Path] = None,
-    file_mode: bool = True,
-    console_mode: bool = True
-) -> logging.Logger:
-    """Get or create a configured logger instance.
-    
-    This function ensures a consistent logging configuration across the project.
-    It creates a logger with:
-    - A RotatingFileHandler (if file_mode is True)
-    - A StreamHandler for stdout (if console_mode is True)
-    - A consistent format string and date format
-    
-    Args:
-        name: Name of the logger (usually __name__ of the module).
-        level: Logging level (e.g., logging.INFO).
-        project_root: Optional Path to project root. Defaults to current working directory.
-        file_mode: If True, log to a file in data/logs/.
-        console_mode: If True, log to stdout.
-        
-    Returns:
-        A configured logging.Logger instance.
-    """
-    logger = logging.getLogger(name)
-    
-    # Avoid adding handlers multiple times if called repeatedly
-    if logger.handlers:
-        logger.setLevel(level)
-        return logger
-    
-    logger.setLevel(level)
-    logger.propagate = False  # Prevent duplicate logs from parent loggers
-    
-    # Create formatters
-    formatter = logging.Formatter(LOG_FORMAT, datefmt=DATE_FORMAT)
-    
-    log_dir = _ensure_log_dir(project_root)
-    log_file_path = log_dir / LOG_FILE_NAME
-    
-    # File handler (rotating)
-    if file_mode:
-        # 5MB max size, keep 5 backup files
-        file_handler = RotatingFileHandler(
-            log_file_path,
-            maxBytes=5 * 1024 * 1024,
-            backupCount=5,
-            encoding='utf-8'
-        )
-        file_handler.setLevel(level)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-    
-    # Console handler
-    if console_mode:
+    # Clear existing handlers to avoid duplicates
+    root_logger.handlers.clear()
+
+    # File Handler
+    file_handler = RotatingFileHandler(
+        log_file,
+        maxBytes=10*1024*1024, # 10MB
+        backupCount=5
+    )
+    file_handler.setLevel(level)
+    file_handler.setFormatter(JSONFormatter())
+    root_logger.addHandler(file_handler)
+
+    # Console Handler
+    if console:
         console_handler = logging.StreamHandler(sys.stdout)
         console_handler.setLevel(level)
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
-    
-    return logger
+        # Use a simpler format for console
+        console_formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        console_handler.setFormatter(console_formatter)
+        root_logger.addHandler(console_handler)
 
 
-def configure_root_logger(
-    level: int = DEFAULT_LEVEL,
-    project_root: Optional[Path] = None
-) -> None:
-    """Configure the root logger for the entire application.
-    
-    This should be called once at the entry point of the application
-    to set up the global logging behavior.
-    
-    Args:
-        level: Logging level for the root logger.
-        project_root: Optional Path to project root.
+def get_logger(name: str) -> logging.Logger:
     """
-    logger = get_logger(
-        name="root",
-        level=level,
-        project_root=project_root,
-        file_mode=True,
-        console_mode=True
-    )
-    # Ensure the root logger doesn't propagate to system loggers
-    logger.propagate = False
-
-
-# Convenience function for quick logging setup in scripts
-def setup_logging(
-    level: int = DEFAULT_LEVEL,
-    project_root: Optional[Path] = None
-) -> logging.Logger:
-    """Convenience function to set up logging and return the root logger.
+    Gets a logger with the specified name.
     
     Args:
-        level: Logging level.
-        project_root: Optional Path to project root.
+        name: Logger name (usually __name__).
         
     Returns:
-        The configured root logger.
+        Configured logger instance.
     """
-    configure_root_logger(level, project_root)
-    return logging.getLogger("root")
+    return logging.getLogger(name)
+
+
+def configure_root_logger() -> None:
+    """Alias for setup_logging with defaults."""
+    setup_logging()
+
+
+def main():
+    """Test the logging setup."""
+    setup_logging()
+    logger = get_logger(__name__)
+    logger.info("Logging setup test successful.")
+    logger.debug("This is a debug message.")
+    logger.warning("This is a warning message.")
+    logger.error("This is an error message.")
+
+
+if __name__ == "__main__":
+    main()

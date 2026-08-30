@@ -1,29 +1,28 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "GDELT and Google Trends Dataset Schema"
-description: "Schema for the raw dataset containing GDELT event counts and Google Trends anxiety metrics."
+$schema: http://json-schema.org/draft-07/schema#
+title: TimeSeriesRecord
+description: Schema for raw and processed time-series data records.
 type: object
+required:
+  - date
+  - value
 properties:
   date:
     type: string
-    format: date
-    description: "ISO 8601 date (YYYY-MM-DD)"
-  gdelt_negative_events:
-    type: integer
-    minimum: 0
-    description: "Count of negative sentiment events from GDELT for the day"
-  google_trends_anticipatory_anxiety:
-    type: integer
-    minimum: 0
-    maximum: 100
-    description: "Google Trends interest score (0-100) for 'anticipatory anxiety'"
-  google_trends_worry_future:
-    type: integer
-    minimum: 0
-    maximum: 100
-    description: "Google Trends interest score (0-100) for 'worry about future'"
-required:
-  - date
-  - gdelt_negative_events
-  - google_trends_anticipatory_anxiety
-  - google_trends_worry_future
+    description: ISO 8601 date string (YYYY-MM-DD).
+    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+  value:
+    type: number
+    description: The numeric value for the time series at this date.
+  source:
+    type: string
+    description: Source of the data (e.g., 'gdelt', 'google_trends').
+    enum:
+      - gdelt
+      - google_trends
+  metric:
+    type: string
+    description: The specific metric measured.
+    enum:
+      - event_count
+      - search_volume
 additionalProperties: false

@@ -9,13 +9,13 @@ import numpy as np
 # If the module doesn't exist yet, we mock the import for the test structure,
 # but the test will fail if the real function isn't implemented.
 try:
-    from data.analyze import granger_causality_fixed_sweep
+    from data.analyze import run_granger_causality_fixed_sweep
     HAS_ANALYZE = True
 except ImportError:
     HAS_ANALYZE = False
     # Define a dummy function to allow the test class to load if analyze.py is missing
-    def granger_causality_fixed_sweep(df):
-        raise NotImplementedError("granger_causality_fixed_sweep not implemented in data.analyze")
+    def run_granger_causality_fixed_sweep(df):
+        raise NotImplementedError("run_granger_causality_fixed_sweep not implemented in data.analyze")
 
 class TestGrangerCausalityFixedSweep(unittest.TestCase):
     """
@@ -58,7 +58,7 @@ class TestGrangerCausalityFixedSweep(unittest.TestCase):
         fixed_lags = [1, 2, 3, 7, 14]
         
         # Run the function
-        result = granger_causality_fixed_sweep(self.test_df)
+        result = run_granger_causality_fixed_sweep(self.test_df)
         
         # Verify return type
         self.assertIsInstance(result, pd.DataFrame)
@@ -80,7 +80,7 @@ class TestGrangerCausalityFixedSweep(unittest.TestCase):
     @unittest.skipIf(not HAS_ANALYZE, "data.analyze module not found")
     def test_significance_calculation(self):
         """Test that the significance column is correctly calculated based on p < 0.05."""
-        result = granger_causality_fixed_sweep(self.test_df)
+        result = run_granger_causality_fixed_sweep(self.test_df)
         
         # Manually check one row
         for _, row in result.iterrows():
@@ -93,14 +93,14 @@ class TestGrangerCausalityFixedSweep(unittest.TestCase):
         """Test that an empty DataFrame raises an appropriate error."""
         empty_df = pd.DataFrame(columns=['date', 'gdelt_negative', 'anxiety_search'])
         with self.assertRaises(ValueError):
-            granger_causality_fixed_sweep(empty_df)
+            run_granger_causality_fixed_sweep(empty_df)
 
     @unittest.skipIf(not HAS_ANALYZE, "data.analyze module not found")
     def test_missing_columns_raises(self):
         """Test that missing required columns raises an error."""
         bad_df = self.test_df.drop(columns=['gdelt_negative'])
         with self.assertRaises(ValueError):
-            granger_causality_fixed_sweep(bad_df)
+            run_granger_causality_fixed_sweep(bad_df)
 
 if __name__ == '__main__':
     unittest.main()

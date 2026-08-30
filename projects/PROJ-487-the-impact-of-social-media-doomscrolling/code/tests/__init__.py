@@ -1,1 +1,3 @@
-# Test package initialization
+"""
+Test suite for the news volume anxiety study pipeline.
+"""

@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import logging
+import hashlib
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional, Tuple
 
@@ -18,12 +19,28 @@ from pytrends.request import TrendReq
 # Configure logger
 logger = get_logger(__name__)
 
-# Constants
-MAX_RETRIES = 3
+# Configuration
+MAX_RETRIES = int(os.getenv("MAX_RETRIES", 3))
 RETRY_DELAY = 5  # seconds
 KEYWORDS = ["anticipatory anxiety", "worry about future"]
 
-def fetch_google_trends(start_date: str, end_date: str) -> List[Dict]:
+def calculate_md5(file_path: str) -> str:
+    """
+    Calculates the MD5 checksum of a file.
+    
+    Args:
+        file_path: Path to the file.
+    
+    Returns:
+        Hexadecimal MD5 hash string.
+    """
+    hash_md5 = hashlib.md5()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
+
+def fetch_google_trends(start_date: str, end_date: str, keywords: Optional[List[str]] = None) -> List[Dict]:
     """
     Fetch anxiety-related search trends from Google Trends.
     
@@ -35,8 +52,7 @@ def fetch_google_trends(start_date: str, end_date: str) -> List[Dict]:
         List of trend dictionaries
         
     Raises:
-        requests.exceptions.Timeout: If all retry attempts fail due to timeout
-        requests.exceptions.HTTPError: If all retry attempts fail due to HTTP error
+        RuntimeError: If all retry attempts fail or data cannot be fetched.
     """
     # Initialize pytrends
     pytrends = TrendReq(hl='en-US', tz=360)
@@ -45,16 +61,14 @@ def fetch_google_trends(start_date: str, end_date: str) -> List[Dict]:
     
     for attempt in range(1, MAX_RETRIES + 1):
         try:
-            logger.info(f"Attempt {attempt}/{MAX_RETRIES} to fetch Google Trends data...")
+            # Build the request
+            # Note: pytrends.build_keywords is the standard method
+            pytrends.build_keywords(keywords)
             
-            # Build payload
-            pytrends.build_payload(
-                kw_list=KEYWORDS,
-                cat=0,
-                timeframe=f"{start_date} {end_date}",
-                geo='US',
-                gprop=''
-            )
+            # Get interest over time
+            # The date format for pytrends is 'YYYY-MM-DD'
+            # We request the specific date range
+            df = pytrends.interest_over_time(time_range=(start_date, end_date))
             
             # Fetch data
             data = pytrends.interest_over_time()
@@ -92,41 +106,38 @@ def fetch_google_trends(start_date: str, end_date: str) -> List[Dict]:
             logger.error(f"Unexpected error on attempt {attempt}: {e}")
             raise
 
-    # If we reach here, all retries were exhausted
-    logger.error(f"Failed to fetch Google Trends data after {MAX_RETRIES} attempts.")
-    raise last_exception
-
-def save_to_csv(trends: List[Dict], output_path: str) -> None:
+def save_to_csv(data: List[Dict], output_path: str) -> str:
     """
-    Save fetched trends to a CSV file.
+    Saves the fetched data to a CSV file and calculates MD5 checksum.
     
     Args:
-        trends: List of trend dictionaries
-        output_path: Path to the output CSV file
+        data: List of dictionaries to save.
+        output_path: Path to the output CSV file.
+    
+    Returns:
+        MD5 checksum of the saved file.
     """
     if not trends:
         logger.warning("No trends to save.")
         # Write empty file with headers if no data
         with open(output_path, 'w', newline='', encoding='utf-8') as f:
             f.write("date,keyword,search_volume\n")
-        return
+        return calculate_md5(output_path)
 
-    # Define columns based on expected structure
-    fieldnames = ["date", "keyword", "search_volume"]
+    import pandas as pd
+    df = pd.DataFrame(data)
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved {len(df)} rows to {output_path}")
     
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        
-        for trend in trends:
-            row = {
-                "date": trend.get("date", ""),
-                "keyword": trend.get("keyword", ""),
-                "search_volume": trend.get("search_volume", 0)
-            }
-            writer.writerow(row)
+    checksum = calculate_md5(output_path)
+    logger.info(f"MD5 checksum for {output_path}: {checksum}")
     
-    logger.info(f"Saved {len(trends)} trend entries to {output_path}")
+    # Save checksum to a sidecar file
+    checksum_path = output_path + ".md5"
+    with open(checksum_path, 'w') as f:
+        f.write(checksum)
+    
+    return checksum
 
 def main():
     """Main entry point for Google Trends fetch script."""

@@ -1,1 +1,3 @@
-# Utils package initialization
+"""
+Utility modules for logging, validation, and configuration.
+"""

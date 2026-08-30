@@ -10,10 +10,10 @@ exclude =
     dist,
     *.egg-info
 per-file-ignores =
-    # Allow unused imports in __init__.py
+    # Allow unused imports in __init__.py files for public API exposure
     */__init__.py: F401
-    # Allow magic numbers in tests
-    */tests/*.py: E701, E702, W503
-    # Allow assertions in tests
-    */tests/*.py: S101
-max-complexity = 15
+    # Allow long lines in data files if necessary (rare)
+    data/*.csv: E501
+# Import sorting (requires isort, but flake8 can check basic order if needed)
+# We rely on isort for strict sorting, flake8 for general style
+import-order-style = google

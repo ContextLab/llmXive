@@ -7,3 +7,9 @@ matplotlib
 seaborn
 pyyaml
 pytrends
+reportlab
+jsonschema
+python-dotenv
+flake8
+black
+responses

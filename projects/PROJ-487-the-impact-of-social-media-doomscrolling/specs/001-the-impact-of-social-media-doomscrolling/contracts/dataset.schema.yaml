@@ -1,22 +1,36 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Time Series Dataset Schema"
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: TimeSeriesRecord
+description: Schema for raw and processed time-series data records (GDELT and Google Trends).
+type: object
 properties:
   date:
-    type: "string"
-    format: "date"
-    description: "Calendar date (YYYY-MM-DD)"
-  value:
-    type: "number"
-    description: "Aggregated metric value (news volume or search index)"
+    type: string
+    description: ISO 8601 formatted date (YYYY-MM-DD).
+    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
   source:
-    type: "string"
+    type: string
+    description: Source of the data (e.g., 'gdelt', 'google_trends').
     enum:
-      - "gdelt"
-      - "google_trends"
-    description: "Data source identifier"
+      - gdelt
+      - google_trends
+  metric_name:
+    type: string
+    description: Name of the metric being recorded.
+    minLength: 1
+  value:
+    type: number
+    description: The numeric value of the metric.
+  is_stationary:
+    type: boolean
+    description: Flag indicating if the series is stationary (for processed data).
+    default: false
+  z_score:
+    type: ["number", "null"]
+    description: Normalized z-score value (null if not yet normalized).
+    default: null
 required:
-  - "date"
-  - "value"
-  - "source"
+  - date
+  - source
+  - metric_name
+  - value
 additionalProperties: false

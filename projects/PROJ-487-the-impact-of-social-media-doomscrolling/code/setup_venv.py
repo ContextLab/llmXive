@@ -5,76 +5,60 @@ import subprocess
 from pathlib import Path
 import logging
 
-from utils.logging import get_logger
+# Ensure we can import utils.logging if needed, though we use basic logging here
+# to avoid circular dependencies during initial setup.
+logger = logging.getLogger(__name__)
 
 logger = get_logger(__name__)
 
 def setup_venv(project_root: str) -> bool:
     """
-    Create a Python virtual environment in the specified project root.
-    The environment is created at <project_root>/venv.
+    Initialize a Python virtual environment in the project root.
     
     Args:
         project_root: Path to the project root directory.
         
     Returns:
-        True if the virtual environment was created successfully, False otherwise.
+        True if successful, False otherwise.
     """
-    venv_path = Path(project_root) / "venv"
+    venv_dir = project_root / "venv"
     
-    if venv_path.exists():
-        logger.info(f"Virtual environment already exists at {venv_path}")
-        # Verify bin/activate exists
-        activate_script = venv_path / "bin" / "activate"
-        if activate_script.exists():
-            logger.info("Verification: bin/activate exists.")
-            return True
-        else:
-            logger.warning("Virtual environment exists but bin/activate is missing. Recreating.")
-            # Remove existing incomplete venv to recreate
-            import shutil
-            shutil.rmtree(venv_path)
+    if venv_dir.exists():
+        logger.info(f"Virtual environment already exists at {venv_dir}. Skipping creation.")
+        return True
     
-    logger.info(f"Creating virtual environment at {venv_path}...")
-    
+    logger.info(f"Creating virtual environment at {venv_dir}...")
     try:
-        venv.create(venv_path, with_pip=True)
+        venv.create(venv_dir, with_pip=True)
+        logger.info("Virtual environment created successfully.")
         
-        # Verify bin/activate exists
-        activate_script = venv_path / "bin" / "activate"
-        if not activate_script.exists():
-            logger.error("Virtual environment created but bin/activate is missing.")
+        # Verify pip is available in the new environment
+        pip_path = venv_dir / "bin" / "pip" if sys.platform != "win32" else venv_dir / "Scripts" / "pip"
+        if not pip_path.exists():
+            logger.error("Pip not found in the created virtual environment.")
             return False
         
-        logger.info("Virtual environment created successfully.")
-        logger.info(f"Verification: bin/activate exists at {activate_script}")
-        
-        # Upgrade pip to ensure latest version
-        logger.info("Upgrading pip...")
-        subprocess.run(
-            [str(venv_path / "bin" / "pip"), "install", "--upgrade", "pip"],
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-        logger.info("Pip upgraded successfully.")
-        
+        logger.info(f"Virtual environment ready. Activate with: source {venv_dir}/bin/activate")
         return True
-        
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Failed to upgrade pip: {e}")
-        return False
     except Exception as e:
         logger.error(f"Error creating virtual environment: {e}")
         return False
 
 def main():
-    """Main entry point for the virtual environment setup script."""
-    # Determine project root based on the task specification
-    # The project root is: projects/PROJ-487-the-impact-of-social-media-doomscrolling/
-    # We assume the script is run from the repository root or the project root is passed
+    """Main entry point for the script."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     
-    project_root = Path.cwd()
+    # Determine project root relative to this script's location
+    # Script is at: code/setup_venv.py
+    # Project root is: parent of code/
+    script_path = Path(__file__).resolve()
+    code_dir = script_path.parent
+    project_root = code_dir.parent
+    
+    logger.info(f"Project root detected at: {project_root}")
     
     # Check if we are inside the specific project directory
     # If the current directory is the project root, use it
@@ -105,10 +89,10 @@ def main():
     success = setup_venv(str(project_root))
     
     if success:
-        logger.info("Task T004 completed successfully: Virtual environment created and verified.")
+        logger.info("Task T004 completed successfully.")
         sys.exit(0)
     else:
-        logger.error("Task T004 failed: Virtual environment creation or verification failed.")
+        logger.error("Task T004 failed.")
         sys.exit(1)
 
 if __name__ == "__main__":

@@ -1,117 +1,95 @@
-"""
-Configuration manager for the llmXive Doomscrolling project.
-
-Handles environment variables for API keys, date ranges, and imputation thresholds.
-Provides a central `config` object for the rest of the application.
-"""
 import os
 from datetime import datetime
 from typing import Optional
 from dotenv import load_dotenv
 
-# Load .env file if it exists in the project root
-load_dotenv()
-
-
 class ConfigError(Exception):
-    """Raised when a required configuration value is missing or invalid."""
+    """Custom exception for configuration errors."""
     pass
 
-
 class Configuration:
-    """
-    Central configuration manager.
+    """Application configuration manager."""
     
-    Loads settings from environment variables with sensible defaults where appropriate,
-    but raises errors for critical missing values (like API keys).
-    """
-
-    def __init__(self):
-        # --- API Keys ---
-        self.gdelt_api_key: Optional[str] = os.getenv("GDELT_API_KEY")
-        self.google_trends_key: Optional[str] = os.getenv("GOOGLE_TRENDS_KEY") 
-        # Note: pytrends usually doesn't require a key, but we allow override for proxy auth if needed
-
-        # --- Date Ranges ---
-        # Default to 2023-01-01 to 2023-12-31 if not specified
-        start_date_str = os.getenv("DATA_START_DATE", "2023-01-01")
-        end_date_str = os.getenv("DATA_END_DATE", "2023-12-31")
-
-        try:
-            self.start_date: datetime = datetime.strptime(start_date_str, "%Y-%m-%d")
-            self.end_date: datetime = datetime.strptime(end_date_str, "%Y-%m-%d")
-        except ValueError as e:
-            raise ConfigError(f"Invalid date format in environment variables. Expected YYYY-MM-DD. Error: {e}")
-
-        if self.start_date > self.end_date:
-            raise ConfigError("DATA_START_DATE must be before or equal to DATA_END_DATE")
-
-        # --- Imputation Thresholds ---
-        # Maximum number of consecutive days allowed for forward-fill imputation
-        # Default: 7 days
-        try:
-            self.imputation_threshold: int = int(os.getenv("IMPUTATION_THRESHOLD_DAYS", "7"))
-            if self.imputation_threshold < 1:
-                raise ConfigError("IMPUTATION_THRESHOLD_DAYS must be at least 1")
-        except ValueError:
-            raise ConfigError("IMPUTATION_THRESHOLD_DAYS must be an integer")
-
-        # --- Retry Logic ---
-        # Max attempts for API calls
-        self.max_retries: int = int(os.getenv("MAX_RETRIES", "3"))
-        # Base delay in seconds for exponential backoff
-        self.retry_base_delay: float = float(os.getenv("RETRY_BASE_DELAY", "2.0"))
-
-        # --- Paths (Relative to project root) ---
-        self.project_root = os.getenv("PROJECT_ROOT", ".")
-        self.data_raw_dir = os.path.join(self.project_root, "data", "raw")
-        self.data_processed_dir = os.path.join(self.project_root, "data", "processed")
-        self.output_reports_dir = os.path.join(self.project_root, "output", "reports")
-        self.output_logs_dir = os.path.join(self.project_root, "output", "logs")
-
-        # --- Validation ---
-        self._validate()
-
-    def _validate(self):
-        """Validates critical configuration values."""
-        if not self.gdelt_api_key:
-            # GDELT public API might not strictly require a key for basic queries, 
-            # but we flag it as recommended/required for production usage per spec.
-            # For this specific task, we allow it to be None but warn if used.
-            # However, if the task implies strict requirements, we might raise.
-            # Given the task is "base configuration manager", we store the value.
-            pass 
+    def __init__(self, env_file: Optional[str] = None):
+        """
+        Initialize configuration.
         
-        if not self.data_raw_dir:
-            raise ConfigError("DATA_RAW_DIR is not configured")
-
-    def get_date_range_str(self) -> tuple[str, str]:
-        """Returns the date range as a tuple of ISO format strings."""
-        return (
-            self.start_date.strftime("%Y-%m-%d"),
-            self.end_date.strftime("%Y-%m-%d")
-        )
-
-    def __repr__(self) -> str:
-        return (
-            f"Configuration(start={self.start_date.date()}, "
-            f"end={self.end_date.date()}, "
-            f"imputation_threshold={self.imputation_threshold} days)"
-        )
-
-
-# Singleton instance
-config = Configuration()
+        Args:
+            env_file: Path to .env file. If None, looks for .env in current directory.
+        """
+        load_dotenv(env_file)
+        self._config = {}
+        self._load_defaults()
+    
+    def _load_defaults(self):
+        """Load default configuration values."""
+        self._config = {
+            'GDLET_API_URL': os.getenv('GDLET_API_URL', 'https://api.gdeltproject.org/api/v2'),
+            'GOOGLE_TRENDS_TIMEOUT': int(os.getenv('GOOGLE_TRENDS_TIMEOUT', '30')),
+            'MAX_RETRIES': int(os.getenv('MAX_RETRIES', '3')),
+            'BACKOFF_FACTOR': float(os.getenv('BACKOFF_FACTOR', '1.0')),
+            'LOG_LEVEL': os.getenv('LOG_LEVEL', 'INFO'),
+            'DATA_DIR': os.getenv('DATA_DIR', 'data'),
+            'CODE_DIR': os.getenv('CODE_DIR', 'code'),
+            'OUTPUT_DIR': os.getenv('OUTPUT_DIR', 'data/reports'),
+            'START_DATE': os.getenv('START_DATE', '2020-01-01'),
+            'END_DATE': os.getenv('END_DATE', '2023-12-31'),
+        }
+    
+    def get(self, key: str, default: Optional[str] = None) -> str:
+        """
+        Get a configuration value.
+        
+        Args:
+            key: Configuration key.
+            default: Default value if key not found.
+        
+        Returns:
+            Configuration value.
+        
+        Raises:
+            ConfigError: If key not found and no default provided.
+        """
+        if key in self._config:
+            return self._config[key]
+        elif default is not None:
+            return default
+        else:
+            raise ConfigError(f"Configuration key '{key}' not found")
+    
+    def set(self, key: str, value: str):
+        """Set a configuration value."""
+        self._config[key] = value
+    
+    def validate(self) -> bool:
+        """Validate that all required configuration values are present."""
+        required_keys = [
+            'GDLET_API_URL',
+            'GOOGLE_TRENDS_TIMEOUT',
+            'MAX_RETRIES',
+            'DATA_DIR',
+            'CODE_DIR'
+        ]
+        
+        for key in required_keys:
+            if key not in self._config or not self._config[key]:
+                raise ConfigError(f"Required configuration '{key}' is missing or empty")
+        
+        return True
 
 def main():
-    """Main entry point to print current configuration."""
-    print("Current Configuration:")
-    print(f"  Start Date: {config.start_date}")
-    print(f"  End Date: {config.end_date}")
-    print(f"  Imputation Threshold: {config.imputation_threshold} days")
-    print(f"  Max Retries: {config.max_retries}")
-    print(f"  GDelt API Key Set: {'Yes' if config.gdelt_api_key else 'No'}")
-    print(f"  Data Raw Dir: {config.data_raw_dir}")
+    """Main entry point for configuration test."""
+    config = Configuration()
+    
+    try:
+        config.validate()
+        print("Configuration is valid")
+        print(f"GDLET API URL: {config.get('GDLET_API_URL')}")
+        print(f"Max Retries: {config.get('MAX_RETRIES')}")
+        print(f"Data Directory: {config.get('DATA_DIR')}")
+    except ConfigError as e:
+        print(f"Configuration error: {e}")
+        exit(1)
 
 if __name__ == "__main__":
     main()
