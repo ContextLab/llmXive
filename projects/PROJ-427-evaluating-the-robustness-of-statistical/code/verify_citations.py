@@ -1,285 +1,288 @@
 """
-verify_citations.py
---------------------
-This module provides a simple citation verification step that scans project
-artifacts for URLs (including arXiv identifiers) and checks whether they are
-reachable via an HTTP GET request. The results are written to
-``state/citation_log.yaml``. If any citation cannot be reached, the script
-exits with a non‑zero status, causing the task to fail as required.
+Citation verification utility.
 
-The implementation purposefully uses only the standard library plus the
-``requests`` and ``pyyaml`` packages, which are already declared in the
-project's ``requirements.txt``.
+This module scans the repository for files that may contain citations,
+extracts citation identifiers/URLs, validates them using a simple
+reachability check (HTTP HEAD request), and writes a log of the results
+to ``state/citation_log.yaml``.
+
+The implementation follows the public API surface defined in the
+project specification:
+
+- ``load_config``
+- ``find_artifacts``
+- ``extract_citations``
+- ``verify_citation``
+- ``verify_all_citations``
+- ``write_citation_log``
+- ``main``
+
+The script is intended to be invoked after any artifact that contains
+citations is written.  If any citation cannot be reached or is deemed a
+mismatch, the script exits with a non‑zero status, causing the task to
+fail as required.
 """
 
 import argparse
-import datetime
 import json
 import logging
 import os
 import re
 import sys
+import urllib.request
 from pathlib import Path
+from typing import Dict, List, Set, Tuple
 
-import requests
 import yaml
 
-# --------------------------------------------------------------------------- #
+# ----------------------------------------------------------------------
 # Configuration handling
-# --------------------------------------------------------------------------- #
-DEFAULT_CONFIG_PATH = Path("config") / "citation_validator.yaml"
-
-
-def load_config(config_path: str | None = None) -> dict:
+# ----------------------------------------------------------------------
+def load_config() -> Dict:
     """
-    Load a YAML configuration file for the citation validator.
+    Load optional YAML configuration for citation verification.
 
-    The configuration is optional; if the file does not exist we fall back
-    to a minimal default configuration.
+    The configuration file is expected at ``config/citation_validation.yaml``.
+    It may contain a list ``ignore`` of citation identifiers that should be
+    skipped during verification (e.g., internal references).
 
-    Parameters
-    ----------
-    config_path: str | None
-        Path to the configuration file. If ``None`` the default location
-        ``config/citation_validator.yaml`` is used.
-
-    Returns
-    -------
-    dict
-        Configuration dictionary.
+    Returns:
+        dict: Configuration dictionary (empty if file not found).
     """
-    path = Path(config_path) if config_path else DEFAULT_CONFIG_PATH
-    if path.is_file():
-        with path.open("r", encoding="utf-8") as f:
-            cfg = yaml.safe_load(f) or {}
-            logging.debug("Loaded citation validator config from %s", path)
-            return cfg
-    logging.debug("No config file found at %s – using defaults.", path)
-    return {
-        "file_extensions": [".py", ".md", ".txt", ".yaml", ".yml"],
-        "url_regex": r"https?://[^\s\)\"']+",
-        "timeout_seconds": 10,
-    }
+    cfg_path = Path("config") / "citation_validation.yaml"
+    if not cfg_path.is_file():
+        logging.debug("Citation verification config not found; using defaults.")
+        return {}
+    with cfg_path.open("r", encoding="utf-8") as f:
+        cfg = yaml.safe_load(f) or {}
+    logging.debug(f"Citation verification config loaded: {cfg}")
+    return cfg
 
-# --------------------------------------------------------------------------- #
+# ----------------------------------------------------------------------
 # Artifact discovery
-# --------------------------------------------------------------------------- #
-def find_artifacts(root: Path | str = Path("."), extensions: list[str] | None = None) -> list[Path]:
+# ----------------------------------------------------------------------
+def find_artifacts(root: Path = Path(".")) -> List[Path]:
     """
-    Recursively locate files that could contain citations.
+    Recursively locate files that may contain citations.
 
-    Parameters
-    ----------
-    root : Path | str
-        Directory from which to start the search.
-    extensions : list[str] | None
-        List of file extensions to include. If ``None`` the extensions from
-        the configuration are used.
+    The function looks for files with extensions that commonly hold
+    textual content: ``.py``, ``.md``, ``.txt`` and ``.json``.
 
-    Returns
-    -------
-    list[Path]
-        List of file paths.
+    Args:
+        root (Path): Directory to start the search from (default: repository root).
+
+    Returns:
+        List[Path]: List of file paths that will be scanned.
     """
-    root_path = Path(root)
-    if extensions is None:
-        cfg = load_config()
-        extensions = cfg.get("file_extensions", [])
+    extensions = {".py", ".md", ".txt", ".json"}
     artifacts = []
-    for path in root_path.rglob("*"):
+    for path in root.rglob("*"):
         if path.is_file() and path.suffix.lower() in extensions:
             artifacts.append(path)
-    logging.info("Discovered %d artifact(s) for citation scanning.", len(artifacts))
+    logging.debug(f"Found {len(artifacts)} potential citation artifacts.")
     return artifacts
 
-# --------------------------------------------------------------------------- #
+# ----------------------------------------------------------------------
 # Citation extraction
-# --------------------------------------------------------------------------- #
-URL_PATTERN = re.compile(r"https?://[^\s\)\"']+")
-ARXIV_PATTERN = re.compile(r"arxiv\.org/abs/[\d\.]+", re.IGNORECASE)
+# ----------------------------------------------------------------------
+_CITATION_REGEX = re.compile(
+    r"""
+    (                           # start group
+      https?://[^\s\]\}]+        # URLs (http/https) up to whitespace or closing delimiters
+    )|
+    (\{\{claim:([a-f0-9_]+)\}\}) # legacy {{claim:...}} pattern
+    """,
+    re.VERBOSE | re.IGNORECASE,
+)
 
-
-def extract_citations(file_path: Path) -> list[str]:
+def extract_citations(text: str) -> Set[str]:
     """
-    Extract citation URLs from a file.
+    Extract citation identifiers/URLs from a block of text.
 
-    Both generic HTTP(S) URLs and arXiv identifiers are captured.
+    Supports two patterns:
+    1. Plain URLs (http/https).
+    2. The legacy ``{{claim:<id>}}`` placeholder used elsewhere in the repo.
 
-    Parameters
-    ----------
-    file_path : Path
-        Path to the file to be scanned.
+    Args:
+        text (str): Text to scan.
 
-    Returns
-    -------
-    list[str]
-        List of unique citation strings found in the file.
+    Returns:
+        Set[str]: Unique citation strings.
     """
-    try:
-        text = file_path.read_text(encoding="utf-8")
-    except UnicodeDecodeError:
-        logging.warning("Unable to decode %s – skipping.", file_path)
-        return []
+    citations: Set[str] = set()
+    for match in _CITATION_REGEX.finditer(text):
+        url = match.group(1)
+        legacy = match.group(3)
+        if url:
+            citations.add(url.strip())
+        elif legacy:
+            # Convert the legacy claim into a pseudo‑URL for verification.
+            # Many projects map claim IDs to arXiv or DOI; we attempt a generic
+            # resolution to ``https://doi.org/<id>`` and also keep the raw ID.
+            citations.add(legacy.strip())
+    return citations
 
-    citations = set()
-    for match in URL_PATTERN.finditer(text):
-        citations.add(match.group(0).rstrip(".,"))
-
-    for match in ARXIV_PATTERN.finditer(text):
-        # Normalise to a full HTTPS URL for verification
-        url = f"https://{match.group(0)}"
-        citations.add(url)
-
-    return list(citations)
-
-# --------------------------------------------------------------------------- #
+# ----------------------------------------------------------------------
 # Citation verification
-# --------------------------------------------------------------------------- #
-def verify_citation(url: str, timeout: int = 10) -> dict:
+# ----------------------------------------------------------------------
+def _http_head(url: str, timeout: int = 10) -> bool:
     """
-    Verify that a citation URL is reachable.
+    Perform a lightweight HEAD request to check URL reachability.
 
-    Parameters
-    ----------
-    url : str
-        The URL to verify.
-    timeout : int
-        Seconds to wait for a response before considering it unreachable.
+    Args:
+        url (str): URL to check.
+        timeout (int): Seconds before timing out.
 
-    Returns
-    -------
-    dict
-        ``{'url': <url>, 'status': 'reachable'|'unreachable', 'http_code': int|None}``
+    Returns:
+        bool: True if the request succeeded (status 200‑399), False otherwise.
     """
     try:
-        response = requests.get(url, timeout=timeout, allow_redirects=True)
-        status = "reachable" if response.status_code == 200 else "unreachable"
-        return {"url": url, "status": status, "http_code": response.status_code}
-    except requests.RequestException as exc:
-        logging.debug("Request exception for %s: %s", url, exc)
-        return {"url": url, "status": "unreachable", "http_code": None}
+        req = urllib.request.Request(url, method="HEAD")
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return 200 <= resp.getcode() < 400
+    except Exception as exc:
+        logging.debug(f"HEAD request failed for {url}: {exc}")
+        return False
 
-# --------------------------------------------------------------------------- #
-# Orchestrator
-# --------------------------------------------------------------------------- #
-def verify_all_citations(root: Path | str = Path("."), config_path: str | None = None) -> dict:
+def verify_citation(citation: str) -> Tuple[bool, str]:
     """
-    Scan the project for citations, verify each, and return a consolidated
-    report.
+    Verify a single citation.
 
-    Parameters
-    ----------
-    root : Path | str
-        Directory to start scanning from.
-    config_path : str | None
-        Optional path to a custom configuration file.
+    For URLs we perform a HEAD request.  For legacy ``{{claim:...}}`` IDs we
+    attempt to resolve them to an arXiv URL (``https://arxiv.org/abs/<id>``) and
+    then perform the same check.  If resolution is impossible, the citation is
+    considered a mismatch.
 
-    Returns
-    -------
-    dict
-        Mapping ``url -> verification dict``.
+    Args:
+        citation (str): The citation string extracted from a file.
+
+    Returns:
+        Tuple[bool, str]: (is_valid, message) where ``is_valid`` is ``True`` if
+        the citation is reachable and matches expectations, otherwise ``False``.
     """
-    cfg = load_config(config_path)
-    extensions = cfg.get("file_extensions", [])
-    timeout = cfg.get("timeout_seconds", 10)
+    # Detect legacy claim IDs (they are alphanumeric strings without scheme)
+    if citation.startswith("c_") or citation.startswith("claim_"):
+        # Assume arXiv; strip potential leading "c_" prefix
+        claim_id = citation.lstrip("c_").lstrip("claim_")
+        resolved_url = f"https://arxiv.org/abs/{claim_id}"
+        reachable = _http_head(resolved_url)
+        if reachable:
+            return True, f"Resolved claim {citation} to {resolved_url}"
+        else:
+            return False, f"Unreachable claim URL {resolved_url}"
+    # Otherwise treat as a normal URL
+    if citation.startswith("http://") or citation.startswith("https://"):
+        reachable = _http_head(citation)
+        if reachable:
+            return True, "OK"
+        else:
+            return False, "Unreachable"
+    # Anything else is considered a mismatch
+    return False, "Unrecognised citation format"
 
-    artifacts = find_artifacts(root=root, extensions=extensions)
-    all_citations = set()
-    for artifact in artifacts:
-        citations = extract_citations(artifact)
-        all_citations.update(citations)
-
-    logging.info("Found %d unique citation(s) to verify.", len(all_citations))
-
-    report = {}
-    for citation in sorted(all_citations):
-        result = verify_citation(citation, timeout=timeout)
-        report[citation] = result
-    return report
-
-# --------------------------------------------------------------------------- #
-# Persistence
-# --------------------------------------------------------------------------- #
-def write_citation_log(report: dict, output_path: Path | str = Path("state") / "citation_log.yaml") -> None:
+def verify_all_citations(citations: Set[str], ignore: Set[str] = None) -> Dict[str, Tuple[bool, str]]:
     """
-    Write the verification report to a YAML file.
+    Verify a collection of citations.
 
-    Parameters
-    ----------
-    report : dict
-        The verification dictionary produced by ``verify_all_citations``.
-    output_path : Path | str
-        Destination path for the log file.
+    Args:
+        citations (Set[str]): Set of citation strings.
+        ignore (Set[str]): Optional set of citations to skip.
+
+    Returns:
+        Dict[str, Tuple[bool, str]]: Mapping from citation to verification result.
     """
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    if ignore is None:
+        ignore = set()
+    results: Dict[str, Tuple[bool, str]] = {}
+    for cit in citations:
+        if cit in ignore:
+            logging.debug(f"Ignoring citation per config: {cit}")
+            continue
+        is_valid, message = verify_citation(cit)
+        results[cit] = (is_valid, message)
+    return results
 
-    # Enrich with timestamp
-    payload = {
-        "generated_at": datetime.datetime.utcnow().isoformat() + "Z",
-        "citations": report,
+# ----------------------------------------------------------------------
+# Logging results
+# ----------------------------------------------------------------------
+def write_citation_log(
+    results: Dict[str, Tuple[bool, str]],
+    log_path: Path = Path("state") / "citation_log.yaml",
+) -> None:
+    """
+    Persist verification results to a YAML log.
+
+    The log format is a mapping from citation string to a dictionary with
+    ``valid`` (bool) and ``message`` (str) fields.
+
+    Args:
+        results (Dict[str, Tuple[bool, str]]): Verification outcomes.
+        log_path (Path): Destination file path.
+    """
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    serialisable = {
+        cit: {"valid": valid, "message": msg} for cit, (valid, msg) in results.items()
     }
-    with output_path.open("w", encoding="utf-8") as f:
-        yaml.safe_dump(payload, f, sort_keys=False)
-    logging.info("Citation verification log written to %s", output_path)
+    with log_path.open("w", encoding="utf-8") as f:
+        yaml.safe_dump(serialisable, f, sort_keys=False)
+    logging.info(f"Citation verification log written to {log_path}")
 
-# --------------------------------------------------------------------------- #
+# ----------------------------------------------------------------------
 # CLI entry point
-# --------------------------------------------------------------------------- #
-def main(argv: list[str] | None = None) -> int:
+# ----------------------------------------------------------------------
+def main(argv: List[str] | None = None) -> int:
     """
-    Command‑line interface for the citation verification step.
+    Execute the citation verification pipeline.
 
-    Returns
-    -------
-    int
-        Exit code: ``0`` on success, ``1`` if any citation is unreachable.
+    Returns:
+        int: Exit code (0 = success, non‑zero = failure).
     """
     parser = argparse.ArgumentParser(
-        description="Verify citations in project artifacts and record results."
+        description="Verify citations across repository artifacts."
     )
     parser.add_argument(
         "--root",
-        type=str,
-        default=".",
-        help="Root directory from which to scan for artifacts (default: current directory).",
-    )
-    parser.add_argument(
-        "--config",
-        type=str,
-        default=None,
-        help="Optional path to a YAML configuration file.",
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        default=str(Path("state") / "citation_log.yaml"),
-        help="Path where the citation verification log will be written.",
+        type=Path,
+        default=Path("."),
+        help="Root directory to scan for artifacts (default: repository root).",
     )
     args = parser.parse_args(argv)
 
-    # Configure a basic logger
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s %(levelname)s %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    report = verify_all_citations(root=args.root, config_path=args.config)
-    write_citation_log(report, output_path=args.output)
+    config = load_config()
+    ignore_set = set(config.get("ignore", []))
+
+    artifacts = find_artifacts(root=args.root)
+    all_citations: Set[str] = set()
+    for artifact in artifacts:
+        try:
+            text = artifact.read_text(encoding="utf-8")
+        except Exception as exc:
+            logging.warning(f"Could not read {artifact}: {exc}")
+            continue
+        citations = extract_citations(text)
+        if citations:
+            logging.debug(f"Found citations in {artifact}: {citations}")
+        all_citations.update(citations)
+
+    if not all_citations:
+        logging.info("No citations found; nothing to verify.")
+        return 0
+
+    verification_results = verify_all_citations(all_citations, ignore=ignore_set)
+    write_citation_log(verification_results)
 
     # Determine overall success
-    unreachable = [url for url, info in report.items() if info["status"] != "reachable"]
-    if unreachable:
-        logging.error(
-            "Citation verification failed – %d unreachable citation(s): %s",
-            len(unreachable),
-            ", ".join(unreachable),
-        )
+    failed = [cit for cit, (valid, _) in verification_results.items() if not valid]
+    if failed:
+        logging.error(f"Citation verification failed for {len(failed)} items: {failed}")
         return 1
     logging.info("All citations verified successfully.")
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

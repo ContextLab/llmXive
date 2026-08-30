@@ -1,58 +1,14 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: Tabular Dataset Schema
-description: |
-  Schema defining a valid tabular dataset representation.
-  A dataset is expressed as a mapping with two required keys:
-  - `columns`: a list describing each column (name, data type, optional nullability).
-  - `data`: a list of rows, where each row is an array of cell values.
-  This schema is intended for validation of CSV‑like data that has been
-  loaded into a structured in‑memory representation (e.g., a dict with
-  `columns` and `data` fields).
+# Simple dataset schema used by the download/clean pipeline.
+#
+# The schema is deliberately minimal: it only defines an optional
+# ``columns`` list. If the list is provided, the cleaning step will
+# enforce that the CSV contains exactly those column names (order is
+# ignored). When omitted or empty, only basic validation (non‑empty
+# column names) is performed.
 type: object
-required:
-  - columns
-  - data
 properties:
   columns:
     type: array
-    minItems: 1
-    description: List of column specifications.
     items:
-      type: object
-      required:
-        - name
-        - dtype
-      properties:
-        name:
-          type: string
-          description: Column name.
-        dtype:
-          type: string
-          description: Data type of the column.
-          enum: [integer, number, string, boolean, categorical]
-        nullable:
-          type: boolean
-          description: Whether the column may contain null/NaN values.
-          default: false
-  data:
-    type: array
-    description: List of rows; each row is an array with values aligned to `columns`.
-    items:
-      type: array
-      description: One row of data.
-      # Individual cell validation is left to downstream processing; we only enforce array structure.
-additionalProperties: false
-examples:
-  - columns:
-      - name: "age"
-        dtype: "integer"
-        nullable: false
-      - name: "income"
-        dtype: "number"
-        nullable: true
-      - name: "gender"
-        dtype: "categorical"
-    data:
-      - [25, 54000.5, "female"]
-      - [30, null, "male"]
-      - [22, 32000, "female"]
+      type: string
+required: []

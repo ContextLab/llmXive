@@ -1,20 +1,39 @@
-# Project configuration file
+# pyproject.toml – Project metadata and tool configuration
 #
-# This pyproject.toml provides configuration for Black (code formatting)
-# and also declares the project's optional development dependencies.
-# It can be extended later with tool‑specific sections (e.g., mypy,
-# isort) as the project evolves.
-
+# This file defines the build system requirements and configures the
+# Black code formatter. Linting tools (ruff, flake8) use their own
+# dedicated configuration files (.ruff.toml and .flake8).
+#
+# For more information on the format, see https://peps.python.org/pep-0518/
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "proj-427-evaluating-robustness-of-statistical"
+version = "0.1.0"
+description = "Evaluating the robustness of statistical methods to common data errors."
+authors = [{name = "Your Name", email = "you@example.com"}]
+requires-python = ">=3.11"
+# Core dependencies – the full list is defined in requirements.txt,
+# but we also declare them here for completeness.
+dependencies = [
+    "pandas",
+    "numpy",
+    "scipy",
+    "statsmodels",
+    "matplotlib",
+    "seaborn",
+    "pyyaml",
+    "pytest",
+]
+
 [tool.black]
-# Black is the code formatter used throughout the repository.
-# The line length matches the settings in ruff and flake8.
+# Black formatting configuration – line length must match the linting tools.
 line-length = 88
-target-version = ["py38"]
+target-version = ["py311"]
 include = '\.pyi?$'
+# Exclude typical non‑source directories.
 exclude = '''
 /(
     \.git
@@ -26,19 +45,11 @@ exclude = '''
   | buck-out
   | build
   | dist
+  | data
+  | results
+  | state
+  | docs
 )/
 '''
-
-# Optional: list development dependencies for linting/formatting.
-# These are not installed by default when the project is used as a
-# library but can be installed with `pip install -r requirements-dev.txt`.
-#
-# NOTE: The actual `requirements-dev.txt` file is not part of the
-# repository specification, but developers may create it based on
-# the versions listed here.
-[project.optional-dependencies]
-dev = [
-    "black==24.1.1",
-    "ruff==0.4.2",
-    "flake8==7.0.0",
-]
+# Use the default Black behavior (no string normalization, no trailing commas for
+# single‑line collections, etc.). Adjust if project conventions differ.

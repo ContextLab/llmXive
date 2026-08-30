@@ -6,4 +6,4 @@ matplotlib
 seaborn
 pyyaml
 pytest
-# The orchestrator relies on the standard library and the above packages only.
+jsonschema

@@ -5,56 +5,35 @@ import logging
 import pandas as pd
 from pathlib import Path
 
-from ablation import load_trajectories, simulate_ablation_engine, generate_ablation_config, run_ablation_study
-from config import load_config_from_file
+from ablation import main as run_ablation_main
+from t008d_ablation_failure_handler import main as run_ablation_failure_handler_main
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger('llmXive.run_ablation_validation')
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 def main():
     """
-    T008b: Generate Ground Truth Labels (Validation).
-    
-    Logic:
-    1. Verify 'data/processed/validation_set.csv' exists and is non-empty.
-    2. Execute run_ablation_study on the 'validation' dataset split.
-    3. Output: 'data/processed/ablation_labels_validation.json'.
+    Orchestrates the ablation study (T008) and the failure handling (T008d).
+    1. Runs T008.
+    2. If T008 fails, runs T008d.
     """
-    logger.info("Starting T008b: Generate Ground Truth Labels (Validation).")
-    
-    # 1. Verify Input
-    config = load_config_from_file('config.json')
-    input_path = Path(config['data']['processed']) / 'validation_set.csv'
-    
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        logger.error("Dependency T014a (Splitter) has not produced validation_set.csv.")
-        raise FileNotFoundError(f"Required input file missing: {input_path}")
+    logger.info("Starting Ablation Validation Phase (T008 + T008d)")
     
     try:
-        df = pd.read_csv(input_path)
+        # Run T008
+        run_ablation_main()
+        logger.info("T008 completed successfully.")
     except Exception as e:
-        logger.error(f"Failed to read input file: {e}")
-        raise
-    
-    if df.empty:
-        logger.error(f"Input file {input_path} is empty.")
-        raise ValueError(f"Validation set is empty. Cannot generate ablation labels.")
-    
-    logger.info(f"Input validated: {len(df)} rows in validation_set.csv.")
-    
-    # 2. Execute Ablation Study
-    # The function run_ablation_study is defined in ablation.py and expects the dataset name (without '_set')
-    # to construct the path internally or via config.
-    # Based on T008 implementation, it calls load_trajectories('ablation_train') which looks for 'ablation_train_set.csv'.
-    # Here we need to run on 'validation', so it will look for 'validation_set.csv'.
-    
-    try:
-        run_ablation_study('validation')
-        logger.info("Ablation study on validation set completed successfully.")
-    except Exception as e:
-        logger.error(f"Ablation study failed: {e}")
-        raise
+        logger.error(f"T008 failed with error: {e}")
+        logger.info("Triggering T008d (Failure Handling)...")
+        try:
+            run_ablation_failure_handler_main()
+        except Exception as e2:
+            logger.critical(f"T008d failed: {e2}")
+            sys.exit(1)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

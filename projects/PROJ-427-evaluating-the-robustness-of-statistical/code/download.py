@@ -1,29 +1,3 @@
-"""
-download.py
--------------
-Implements the dataset download, cleaning, and checksum recording pipeline
-for the project.
-
-The public API (as declared in the project specification) includes:
-  - load_config
-  - download_dataset
-  - clean_dataset
-  - compute_checksum
-  - main
-
-The script is intentionally self‑contained: it can be executed directly
-(`python code/download.py`) and will:
-  1. Load the dataset list from ``config/datasets.yaml``.
-  2. Download each CSV into ``data/raw/`` (skipping any that raise HTTP errors).
-  3. Clean each downloaded CSV and write the cleaned version to
-     ``data/raw/cleaned/``.
-  4. Compute a SHA‑256 checksum for every cleaned file.
-  5. Record the mapping ``relative_path: checksum`` in
-     ``state/dataset_checksums.yaml`` (creating the ``state`` directory if needed).
-
-All steps log progress and errors via the standard ``logging`` module.
-"""
-
 import argparse
 import hashlib
 import logging
@@ -31,144 +5,166 @@ import os
 import sys
 import urllib.request
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Dict, List
 
 import pandas as pd
 import yaml
 
+# Configure basic logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    stream=sys.stdout,
+)
+logger = logging.getLogger(__name__)
+
 # ----------------------------------------------------------------------
-# Configuration loading
+# Public API (as declared in the project specification)
 # ----------------------------------------------------------------------
-def load_config(config_path: Path = Path("config/datasets.yaml")) -> List[Dict[str, Any]]:
+__all__ = [
+    "load_config",
+    "download_dataset",
+    "clean_dataset",
+    "compute_checksum",
+    "record_checksums",
+    "main",
+]
+
+
+def load_config(config_path: str = "config/datasets.yaml") -> List[Dict]:
     """
     Load the dataset configuration file.
 
-    The expected format is a YAML list where each entry is a mapping with at
-    least the keys ``url`` and ``filename``. Example::
-
-        - url: https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data
-          filename: iris.csv
-          type: numerical
-
-    Returns a list of dictionaries.
-    """
-    if not config_path.is_file():
-        logging.error("Configuration file %s does not exist.", config_path)
-        raise FileNotFoundError(f"Configuration file {config_path} not found")
-    with config_path.open("r", encoding="utf-8") as f:
-        try:
-            cfg = yaml.safe_load(f)
-        except yaml.YAMLError as e:
-            logging.error("Failed to parse %s: %s", config_path, e)
-            raise
-    if not isinstance(cfg, list):
-        raise ValueError(f"Expected a list of datasets in {config_path}")
-    return cfg
-
-# ----------------------------------------------------------------------
-# Download helper
-# ----------------------------------------------------------------------
-def download_dataset(entry: Dict[str, Any],
-                     raw_dir: Path = Path("data/raw")) -> Path:
-    """
-    Download a single dataset described by ``entry`` into ``raw_dir``.
+    The configuration file is expected to be a YAML file containing a list of
+    dataset entries. Each entry should have at least a ``url`` field; a
+    ``filename`` field is optional – if omitted the filename is derived from
+    the URL.
 
     Parameters
     ----------
-    entry: dict
-        Must contain at least ``url`` and ``filename``.
+    config_path: str
+        Path to the YAML configuration file.
+
+    Returns
+    -------
+    List[Dict]
+        List of dataset specifications.
+    """
+    config_file = Path(config_path)
+    if not config_file.is_file():
+        logger.error("Configuration file %s does not exist.", config_path)
+        raise FileNotFoundError(f"Configuration file {config_path} not found.")
+    with config_file.open("r", encoding="utf-8") as f:
+        config = yaml.safe_load(f) or []
+    if not isinstance(config, list):
+        logger.error("Configuration file %s must contain a list.", config_path)
+        raise ValueError("Configuration file must contain a list of datasets.")
+    logger.info("Loaded %d dataset specifications from %s.", len(config), config_path)
+    return config
+
+
+def download_dataset(entry: Dict, raw_dir: Path = Path("data/raw")) -> Path:
+    """
+    Download a single dataset CSV given its specification.
+
+    Parameters
+    ----------
+    entry: Dict
+        Dictionary with at least a ``url`` key. Optionally a ``filename`` key.
     raw_dir: Path
-        Destination directory for the raw CSV files.
+        Directory where the raw file will be saved.
 
     Returns
     -------
     Path
         Path to the downloaded file.
-
-    Raises
-    ------
-    urllib.error.HTTPError
-        If the HTTP request fails (e.g., 404). The caller should handle this.
     """
-    url = entry["url"]
-    filename = entry["filename"]
-    dest_path = raw_dir / filename
-
     raw_dir.mkdir(parents=True, exist_ok=True)
 
+    url = entry.get("url")
+    if not url:
+        raise ValueError("Dataset entry must contain a 'url' key.")
+
+    # Derive filename from URL if not explicitly provided
+    filename = entry.get("filename") or Path(urllib.parse.urlparse(url).path).name
+    if not filename:
+        raise ValueError(f"Could not determine filename from URL: {url}")
+
+    dest_path = raw_dir / filename
+
+    # Skip download if file already exists (useful for re‑runs)
+    if dest_path.is_file():
+        logger.info("File %s already exists, skipping download.", dest_path)
+        return dest_path
+
+    logger.info("Downloading %s to %s", url, dest_path)
     try:
-        logging.info("Downloading %s → %s", url, dest_path)
-        # urllib.request.urlretrieve will raise an HTTPError for non‑200 responses.
-        urllib.request.urlretrieve(url, dest_path)
+        with urllib.request.urlopen(url) as response, dest_path.open("wb") as out_file:
+            out_file.write(response.read())
     except urllib.error.HTTPError as e:
-        logging.warning("Failed to download %s (HTTP %s). Skipping.", url, e.code)
+        # Gracefully handle 404 and other HTTP errors
+        logger.warning("Failed to download %s: %s (HTTP %s). Skipping.", url, e.reason, e.code)
         raise
     except Exception as e:
-        logging.warning("Unexpected error while downloading %s: %s", url, e)
+        logger.error("Unexpected error while downloading %s: %s", url, e)
         raise
+
+    logger.info("Successfully downloaded %s", dest_path)
     return dest_path
 
-# ----------------------------------------------------------------------
-# Cleaning helper
-# ----------------------------------------------------------------------
-def clean_dataset(raw_path: Path,
-                  cleaned_dir: Path = Path("data/raw/cleaned")) -> Path:
+
+def clean_dataset(
+    input_path: Path,
+    output_path: Path = Path("data/raw/cleaned"),
+) -> Path:
     """
-    Perform basic cleaning on a raw CSV file.
+    Clean a raw CSV file.
 
     Cleaning steps:
-      * Read CSV with pandas (let pandas infer types).
-      * Replace empty strings with ``NaN``.
-      * Coerce numeric columns where possible.
-      * Write the cleaned DataFrame to ``cleaned_dir`` preserving the filename.
+    * Replace empty strings with NaN.
+    * Coerce column types where possible (pandas will infer dtypes).
+    * Write the cleaned CSV to the cleaned data directory, preserving the
+      original filename.
 
     Parameters
     ----------
-    raw_path: Path
+    input_path: Path
         Path to the raw CSV file.
-    cleaned_dir: Path
-        Destination directory for cleaned CSV files.
+    output_path: Path
+        Directory where the cleaned CSV will be written.
 
     Returns
     -------
     Path
         Path to the cleaned CSV file.
     """
-    cleaned_dir.mkdir(parents=True, exist_ok=True)
-    cleaned_path = cleaned_dir / raw_path.name
+    output_path.mkdir(parents=True, exist_ok=True)
 
-    logging.info("Cleaning %s → %s", raw_path, cleaned_path)
+    logger.info("Cleaning dataset %s", input_path)
 
-    # pandas will treat empty strings as NaN if we specify na_values.
-    df = pd.read_csv(raw_path, na_values=["", " "], keep_default_na=True)
+    # Read CSV, treat empty strings as NaN
+    df = pd.read_csv(input_path, dtype=str, na_values=["", " "], keep_default_na=True)
 
-    # Attempt to convert object columns that look numeric.
-    for col in df.select_dtypes(include=["object"]).columns:
-        try:
-            df[col] = pd.to_numeric(df[col])
-        except ValueError:
-            # Column is genuinely non‑numeric; leave as‑is.
-            pass
+    # Replace any remaining empty string cells with NaN (pandas already does this,
+    # but we keep the step for explicitness)
+    df = df.replace(r"^\s*$", pd.NA, regex=True)
 
-    df.to_csv(cleaned_path, index=False)
-    return cleaned_path
+    cleaned_file = output_path / input_path.name
+    df.to_csv(cleaned_file, index=False)
+    logger.info("Cleaned dataset written to %s", cleaned_file)
+    return cleaned_file
 
-# ----------------------------------------------------------------------
-# Checksum helper
-# ----------------------------------------------------------------------
+
 def compute_checksum(file_path: Path, chunk_size: int = 8192) -> str:
     """
-    Compute the SHA‑256 checksum of ``file_path``.
-
-    The file is read in ``chunk_size`` byte blocks to avoid loading large
-    files entirely into memory.
+    Compute the SHA‑256 checksum of a file.
 
     Parameters
     ----------
     file_path: Path
-        Path to the file whose checksum should be computed.
-    chunk_size: int, optional
-        Number of bytes to read per iteration (default 8192).
+        Path to the file.
+    chunk_size: int
+        Number of bytes to read per iteration.
 
     Returns
     -------
@@ -179,110 +175,84 @@ def compute_checksum(file_path: Path, chunk_size: int = 8192) -> str:
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(chunk_size), b""):
             sha256.update(chunk)
-    return sha256.hexdigest()
+    checksum = sha256.hexdigest()
+    logger.debug("Checksum for %s: %s", file_path, checksum)
+    return checksum
 
-# ----------------------------------------------------------------------
-# Orchestration
-# ----------------------------------------------------------------------
-def record_checksums(cleaned_dir: Path = Path("data/raw/cleaned"),
-                    output_yaml: Path = Path("state/dataset_checksums.yaml")) -> None:
+
+def record_checksums(
+    cleaned_dir: Path = Path("data/raw/cleaned"),
+    output_yaml: Path = Path("state/dataset_checksums.yaml"),
+) -> None:
     """
-    Compute checksums for all files in ``cleaned_dir`` and write them to
-    ``output_yaml`` (as a mapping of relative POSIX paths → checksum strings).
+    Compute SHA‑256 checksums for all cleaned CSV files and write them to a
+    YAML file.
 
-    The function creates the ``state`` directory if it does not exist.
+    The resulting YAML file maps each filename (relative to the cleaned
+    directory) to its checksum.
+
+    Parameters
+    ----------
+    cleaned_dir: Path
+        Directory containing cleaned CSV files.
+    output_yaml: Path
+        Destination YAML file to store the checksums.
     """
-    if not cleaned_dir.is_dir():
-        logging.error("Cleaned data directory %s does not exist.", cleaned_dir)
-        raise FileNotFoundError(f"{cleaned_dir} not found")
-
+    cleaned_dir.mkdir(parents=True, exist_ok=True)
     output_yaml.parent.mkdir(parents=True, exist_ok=True)
 
     checksums: Dict[str, str] = {}
-    for file_path in cleaned_dir.rglob("*"):
-        if file_path.is_file():
-            rel_path = file_path.relative_to(Path.cwd()).as_posix()
+    for file_path in cleaned_dir.iterdir():
+        if file_path.is_file() and file_path.suffix.lower() == ".csv":
             checksum = compute_checksum(file_path)
-            checksums[rel_path] = checksum
-            logging.debug("Checksum for %s: %s", rel_path, checksum)
+            checksums[file_path.name] = checksum
+            logger.info("Recorded checksum for %s", file_path.name)
 
     with output_yaml.open("w", encoding="utf-8") as f:
         yaml.safe_dump(checksums, f, default_flow_style=False)
 
-    logging.info("Recorded %d checksums in %s", len(checksums), output_yaml)
+    logger.info("All checksums written to %s", output_yaml)
 
-# ----------------------------------------------------------------------
-# CLI entry point
-# ----------------------------------------------------------------------
-def main(argv: List[str] | None = None) -> int:
+
+def _process_all_datasets(config_path: str = "config/datasets.yaml") -> None:
     """
-    Command‑line interface for the download‑clean‑checksum pipeline.
+    Helper that runs the full download → clean → checksum pipeline.
+    """
+    # Load configuration
+    datasets = load_config(config_path)
 
-    Usage example::
-        python code/download.py --config config/datasets.yaml
+    # Process each dataset
+    for entry in datasets:
+        try:
+            raw_file = download_dataset(entry)
+            clean_dataset(raw_file)
+        except Exception as e:
+            # Errors are already logged inside the called functions; continue
+            logger.warning("Skipping dataset due to error: %s", e)
+            continue
 
-    Returns exit code ``0`` on success, non‑zero on failure.
+    # After all cleaning is done, compute checksums
+    record_checksums()
+
+
+def main(argv: List[str] = None) -> None:
+    """
+    Entry‑point for the script. Supports an optional ``--config`` argument
+    to point to a custom datasets configuration file.
     """
     parser = argparse.ArgumentParser(
-        description="Download datasets, clean them, and record SHA‑256 checksums."
+        description="Download, clean, and checksum UCI datasets."
     )
     parser.add_argument(
         "--config",
-        type=Path,
-        default=Path("config/datasets.yaml"),
-        help="Path to the YAML configuration listing datasets to download.",
+        type=str,
+        default="config/datasets.yaml",
+        help="Path to the datasets YAML configuration file.",
     )
     args = parser.parse_args(argv)
 
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s %(levelname)s %(message)s",
-        handlers=[logging.StreamHandler(sys.stdout)],
-    )
+    _process_all_datasets(config_path=args.config)
 
-    try:
-        dataset_entries = load_config(args.config)
-    except Exception as e:
-        logging.error("Failed to load configuration: %s", e)
-        return 1
-
-    # Step 1: download each dataset (skip those that error)
-    downloaded_paths: List[Path] = []
-    for entry in dataset_entries:
-        try:
-            downloaded = download_dataset(entry)
-            downloaded_paths.append(downloaded)
-        except Exception:
-            # Error already logged inside download_dataset; continue with next.
-            continue
-
-    if not downloaded_paths:
-        logging.warning("No datasets were successfully downloaded.")
-    else:
-        logging.info("Downloaded %d dataset(s).", len(downloaded_paths))
-
-    # Step 2: clean each downloaded file
-    cleaned_paths: List[Path] = []
-    for raw_path in downloaded_paths:
-        try:
-            cleaned = clean_dataset(raw_path)
-            cleaned_paths.append(cleaned)
-        except Exception as e:
-            logging.error("Failed to clean %s: %s", raw_path, e)
-
-    if not cleaned_paths:
-        logging.warning("No datasets were successfully cleaned.")
-    else:
-        logging.info("Cleaned %d dataset(s).", len(cleaned_paths))
-
-    # Step 3: compute and record checksums
-    try:
-        record_checksums()
-    except Exception as e:
-        logging.error("Failed to record checksums: %s", e)
-        return 1
-
-    return 0
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

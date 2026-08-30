@@ -1,44 +1,29 @@
-# Injection configuration schema
-#
-# This schema validates the structure of an injection configuration file.
-# It defines the allowed error types and requires an `error_rates` field
-# that must be a list of floats.  The schema does **not** enforce any
-# particular numeric values – only that the list exists, contains at
-# least one element, and that each element is a number (float or integer).
-#
-# Expected YAML configuration example:
-#
-#   error_type: replacement
-#   error_rates:
-#     - 0.01
-#     - 0.05
-#     - 0.10
-#
-# The schema can be used with libraries such as `jsonschema` or `cerberus`.
+# Schema for injection metadata files produced by ``code/inject.py``.
+# The metadata JSON is written alongside each injected CSV (same basename,
+# ``.json`` extension) and must conform to this schema.
 $schema: "http://json-schema.org/draft-07/schema#"
+title: InjectionMetadata
 type: object
 additionalProperties: false
 required:
   - error_type
-  - error_rates
+  - error_rate
+  - total_rows
+  - injected_rows
 properties:
   error_type:
     type: string
-    description: |
-      The type of error to inject into a dataset.
-      Must be one of the supported injection error types.
     enum:
-      - replacement
-      - misclassification
-      - MCAR
-  error_rates:
-    type: array
-    description: |
-      A list of error rates (as floats) to be applied.
-      The list must contain at least one float value.
-    minItems: 1
-    items:
-      type: number
-      description: |
-        Each entry represents an error rate (e.g., 0.01 for 1%).
-        Values are not constrained beyond being numeric.
+      - random_replacement
+      - category_misclassification
+      - mcar_missingness
+  error_rate:
+    type: number
+    minimum: 0
+    maximum: 1
+  total_rows:
+    type: integer
+    minimum: 0
+  injected_rows:
+    type: integer
+    minimum: 0

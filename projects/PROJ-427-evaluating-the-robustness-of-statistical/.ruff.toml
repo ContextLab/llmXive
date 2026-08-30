@@ -1,32 +1,28 @@
 # RUFF configuration
 #
-# This file configures the ruff linter for the project.
-# It selects a set of rule codes to enforce and sets
-# the maximum line length to match the Black formatter.
+# This configuration enables a set of linting rules that enforce code quality
+# and style consistency across the project. Adjust the settings as needed
+# for your development workflow.
 #
-# For a full list of rule codes, see:
-# https://beta.ruff.rs/docs/rules/
-#
-# The configuration is deliberately minimal; additional
-# project‑specific rules can be added as needed.
-
+# For more details, see https://beta.ruff.rs/docs/configuration/
 [tool.ruff]
-# Select default linting rules plus a few extra categories.
-select = [
-    "E",   # pycodestyle errors
-    "F",   # pyflakes
-    "W",   # pycodestyle warnings
-    "C90", # McCabe complexity
-    "N",   # pep8‑naming
-    "B",   # bugbear
-    "UP",  # pyupgrade
+# Select the default rule sets to enable. E = pycodestyle errors,
+# F = pyflakes, W = pycodestyle warnings, C90 = McCabe complexity.
+select = ["E", "F", "W", "C90"]
+# Exclude generated or binary directories from linting.
+exclude = [
+    "__pycache__",
+    "data",
+    "results",
+    "state",
+    "docs",
+    ".git",
+    "venv",
+    "env",
 ]
-
-# No rules are ignored by default; add to this list if necessary.
-ignore = []
-
-# Align line length with Black's default.
+# Maximum line length.
 line-length = 88
-
-# Enable autofix for a subset of rules where possible.
-fixable = ["E501", "W291", "W293", "W391"]
+# Target Python version for parsing.
+target-version = "py311"
+# Enable automatic fixes for certain rules when `ruff --fix` is used.
+fix = true

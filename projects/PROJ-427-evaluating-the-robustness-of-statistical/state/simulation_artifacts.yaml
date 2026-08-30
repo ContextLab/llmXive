@@ -1,0 +1,6 @@
+# This file records SHA‑256 checksums and validation status for each artifact
+# produced by the simulation pipeline.
+# Example entry:
+# data/corrupted/synthetic_grid/dataset_01.json:
+#   checksum: "3a7bd3c..."
+#   validated: true

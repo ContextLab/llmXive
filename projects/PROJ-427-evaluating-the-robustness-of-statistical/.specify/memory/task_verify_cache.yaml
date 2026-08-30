@@ -20,27 +20,44 @@ T003:
     `pyproject.toml` with Black settings) or setup scripts were presented. Without
     such artifacts, the requirement to configure ruff/flake8 and Black is not satisfied.
 T005b:
-  c: false
-  h: abd78b1758a867a278f7036c219e0139fc5330b5169816dd5272ae83c54f0d5e
-  r: "The test file `tests/unit/test_schema_validation.py` exists and correctly checks\
-    \ that `error_rates` is a non\u2011empty list of numeric values, but it also asserts\
-    \ that `contracts/injection.schema.yaml` exists \u2013 that file is missing from\
-    \ the repository, so the test cannot actually load the schema and will fail. The\
-    \ required schema file must be present (or the test adjusted) for the task to\
-    \ be fulfilled."
+  c: true
+  h: b0d83e61a4c12236ae9499159765bae8332c54a40455c3e18d95ec541d2da92d
+  r: "The repository contains `tests/unit/test_schema_validation.py` (1.7\u202FKB)\
+    \ with code that loads `contracts/injection.schema.yaml` (checking its existence)\
+    \ and `config/error_rates.yaml`, and asserts that `error_rates` is a non\u2011\
+    empty list of numeric values. The sample `config/error_rates.yaml` is also present\
+    \ and correctly formatted."
 T014:
   c: false
-  h: 30a2495b47082709038a6f2eeca2166cb418bd54651da2885b75888114fd7f79
-  r: "The repository lacks the required `contracts/result.schema.yaml` and `state/simulation_artifacts.yaml`\
-    \ files, and the provided `code/simulate.py` is truncated before any logic that\
-    \ validates synthetic/null\u2011hypothesis outputs, records SHA\u2011256 checksums,\
-    \ or writes status to the state file. Consequently the task\u2019s core requirements\
-    \ are not met."
+  h: 4a7af7a5bbd868e7e84449d61e8c0c7547f4dcd8675b5501815246fe350adea0
+  r: "The repository lacks the required `contracts/result.schema.yaml` file, so validation\
+    \ against the schema cannot be performed. `code/simulate.py` does not contain\
+    \ a concrete implementation of the validation\u2011and\u2011recording logic (the\
+    \ file is truncated and only defines stubs). The `state/simulation_artifacts.yaml`\
+    \ file contains only placeholder comments and no actual checksum or validation\
+    \ entries. These missing/unfinished components prevent the task from being fulfilled."
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No script, workflow file, or documentation was provided that actually invokes\
+    \ the subtasks T019a\u2011e in sequence, so the required orchestration artifact\
+    \ is missing. The implementer must supply a concrete pipeline (e.g., a shell script,\
+    \ Makefile, or workflow definition) that runs the download, clean, and verify\
+    \ steps in order."
 T019c:
   c: false
-  h: 130b6526e229e41b49c2aa4bc6e31703ef9427388c7008510c349aefecbc0276
-  r: "The repository lacks the required `contracts/dataset.schema.yaml` file, so validation\
-    \ cannot be performed. Moreover, the provided `code/download.py` (truncated) does\
-    \ not show any implementation of schema validation, type coercion, or empty\u2011\
-    string\u2011to\u2011NaN replacement before writing cleaned files to `data/raw/cleaned/`.\
-    \ Both the schema and the cleaning logic are missing, so the task is not satisfied."
+  h: 54425c429cf25d7d477732dc30eba967e840c146a9eaec430389d3d7095dbc4e
+  r: "The provided `code/download.py` only shows the start of the download logic and\
+    \ declares a `clean_dataset` function, but its implementation is absent (the file\
+    \ is truncated and no cleaning code is visible). Moreover, the required schema\
+    \ file `contracts/dataset.schema.yaml` is missing entirely, so validation against\
+    \ it cannot be performed. Consequently, the task of validating, coercing types,\
+    \ replacing empty strings with\u202FNaN, and writing cleaned files to `data/raw/cleaned/`\
+    \ is not fulfilled."
+T019e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No script, notebook, or output file was supplied that actually enumerates the\
+    \ datasets and reports the counts of numerical\u2011only, categorical\u2011only,\
+    \ and mixed datasets. Without such an artifact, the requirement to verify dataset\
+    \ diversity cannot be confirmed."

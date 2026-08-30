@@ -44,3 +44,16 @@ T022:
     \ must supply the analysis script (or notebook) and the resulting output (e.g.,\
     \ a table of VIFs with flags and a written interpretation) that explicitly addresses\
     \ the VIF \u2265\u202F5 scenario."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, script, or result file was provided that computes the confidence\u2011\
+    interval width variance from bootstrap outputs nor that flags cases where the\
+    \ variance meets or exceeds 0.01. Consequently the required artifact is missing."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No JSON report was provided; the claim lacks any artifact containing the required\
+    \ fields (data path, model results, bootstrap stability, parameter recovery, sensitivity\
+    \ findings). The implementer must supply a non\u2011empty JSON file that includes\
+    \ all specified sections."

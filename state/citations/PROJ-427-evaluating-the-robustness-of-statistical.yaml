@@ -42,7 +42,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/UCI/adult/resolve/main/adult.csv
   verified_at: '2026-07-11T01:24:34.915539Z'
-- artifact_hash: 35b684135c1db00b20401f32843f9b38807ad5bbca1a34b8ad2c909d443b7b6b
+- artifact_hash: d0187d9f7205c6a16b27d7cffa1680f4b12ca4f4f69f7e7736735ae122a7114a
   artifact_path: projects/PROJ-427-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -53,4 +53,4 @@
   value: https://arxiv.org/abs/2505.02906
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2505.02906
-  verified_at: '2026-07-31T04:50:01.719905Z'
+  verified_at: '2026-08-30T04:10:43.299033Z'

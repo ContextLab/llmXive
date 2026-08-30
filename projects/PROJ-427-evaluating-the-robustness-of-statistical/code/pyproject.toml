@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "robust-statistics-evaluation"
+version = "0.1.0"
+description = "Evaluating the robustness of statistical methods to common data errors"
+authors = [{name = "Your Name", email = "you@example.com"}]
+dependencies = [
+    "pandas",
+    "numpy",
+    "scipy",
+    "statsmodels",
+    "matplotlib",
+    "seaborn",
+    "pyyaml",
+    "pytest"
+]
+requires-python = ">=3.9"

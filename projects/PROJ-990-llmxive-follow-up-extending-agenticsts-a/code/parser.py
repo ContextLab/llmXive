@@ -10,15 +10,18 @@ import yaml
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('data/processed/parser.log'),
+        logging.StreamHandler()
+    ]
 )
 logger = logging.getLogger(__name__)
 
 # Constants
 RAW_DATA_DIR = Path("data/raw")
 PROCESSED_DATA_DIR = Path("data/processed")
-CONTRACTS_DIR = Path("contracts")
-SCHEMA_FILE = CONTRACTS_DIR / "trajectory.schema.yaml"
+SCHEMA_FILE = Path("contracts/trajectory.schema.yaml")
 OUTPUT_FILE = PROCESSED_DATA_DIR / "metrics_with_moves.csv"
 CHECKSUM_FILE = PROCESSED_DATA_DIR / "data_checksums.json"
 
@@ -31,144 +34,137 @@ def compute_file_checksum(file_path: Path) -> str:
     return sha256_hash.hexdigest()
 
 def load_existing_checksums() -> Dict[str, str]:
-    """Load existing checksums if the file exists."""
+    """Load existing checksums from disk."""
     if CHECKSUM_FILE.exists():
-        with open(CHECKSUM_FILE, "r") as f:
+        with open(CHECKSUM_FILE, 'r') as f:
             return json.load(f)
     return {}
 
 def save_checksums(checksums: Dict[str, str]) -> None:
-    """Save checksums to file."""
-    with open(CHECKSUM_FILE, "w") as f:
+    """Save checksums to disk."""
+    with open(CHECKSUM_FILE, 'w') as f:
         json.dump(checksums, f, indent=2)
 
-def validate_data_source() -> None:
-    """
-    Validate that the raw data source exists and is not empty.
-    Raises FileNotFoundError if data is missing.
-    """
+def validate_data_source() -> bool:
+    """Check if raw data exists and is not empty."""
     if not RAW_DATA_DIR.exists():
-        raise FileNotFoundError(f"Real data missing; pipeline cannot proceed. Directory {RAW_DATA_DIR} does not exist.")
+        logger.error(f"Raw data directory {RAW_DATA_DIR} does not exist.")
+        return False
     
     jsonl_files = list(RAW_DATA_DIR.glob("*.jsonl"))
     json_files = list(RAW_DATA_DIR.glob("*.json"))
+    all_files = jsonl_files + json_files
     
-    if not jsonl_files and not json_files:
-        raise FileNotFoundError(f"Real data missing; pipeline cannot proceed. No JSON/JSONL files found in {RAW_DATA_DIR}.")
-
-def load_schema() -> Dict[str, Any]:
-    """Load the trajectory schema from the contracts directory."""
-    if not SCHEMA_FILE.exists():
-        raise FileNotFoundError(f"Schema file missing: {SCHEMA_FILE}. Run T003a first.")
+    if not all_files:
+        logger.error(f"No JSON/JSONL files found in {RAW_DATA_DIR}.")
+        return False
     
-    with open(SCHEMA_FILE, "r") as f:
-        return yaml.safe_load(f)
-
-def validate_trajectory_against_schema(trajectory: Dict[str, Any], schema: Dict[str, Any]) -> bool:
-    """
-    Validate a single trajectory against the schema.
-    Raises ValueError if schema mismatch is found.
-    """
-    required_fields = schema.get("required", [])
-    properties = schema.get("properties", {})
-    
-    # Check required fields
-    for field in required_fields:
-        if field not in trajectory:
-            raise ValueError(f"Trajectory missing required field: {field}")
-    
-    # Basic type validation for known fields
-    if "trajectory_id" in trajectory and not isinstance(trajectory["trajectory_id"], str):
-        raise ValueError(f"trajectory_id must be a string, got {type(trajectory['trajectory_id'])}")
-    
-    if "turns" in trajectory:
-        if not isinstance(trajectory["turns"], list):
-            raise ValueError(f"turns must be a list, got {type(trajectory['turns'])}")
-        
-        for turn_idx, turn in enumerate(trajectory["turns"]):
-            if not isinstance(turn, dict):
-                raise ValueError(f"Turn {turn_idx} must be a dictionary")
-            
-            # Check for legal_moves if defined in schema
-            if "legal_moves" in properties.get("turns", {}).get("items", {}).get("properties", {}):
-                if "legal_moves" not in turn:
-                    raise ValueError(f"Turn {turn_idx} missing required field: legal_moves")
-                if not isinstance(turn["legal_moves"], list):
-                    raise ValueError(f"Turn {turn_idx} legal_moves must be a list")
+    # Check if files are empty
+    for file_path in all_files:
+        if file_path.stat().st_size == 0:
+            logger.error(f"File {file_path} is empty.")
+            return False
     
     return True
 
-def extract_metrics_from_trajectory(trajectory: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """
-    Extract per-turn metrics from a trajectory.
-    Returns a list of rows ready for CSV export.
-    """
-    rows = []
-    trajectory_id = trajectory.get("trajectory_id", "unknown")
-    turns = trajectory.get("turns", [])
+def load_schema() -> Dict[str, Any]:
+    """Load the trajectory schema from YAML file."""
+    if not SCHEMA_FILE.exists():
+        raise FileNotFoundError(f"Schema file {SCHEMA_FILE} not found. Run T003a first.")
+    
+    with open(SCHEMA_FILE, 'r') as f:
+        return yaml.safe_load(f)
+
+def validate_trajectory_against_schema(trajectory: Dict[str, Any], schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
+    """Validate a trajectory against the schema."""
+    errors = []
+    
+    # Check required top-level fields
+    required_fields = schema.get('required', [])
+    for field in required_fields:
+        if field not in trajectory:
+            errors.append(f"Missing required field: {field}")
+    
+    # Check trajectory structure
+    if 'turns' in trajectory:
+        if not isinstance(trajectory['turns'], list):
+            errors.append("'turns' must be a list")
+        else:
+            for i, turn in enumerate(trajectory['turns']):
+                if not isinstance(turn, dict):
+                    errors.append(f"Turn {i} must be a dictionary")
+                    continue
+                
+                # Check required turn fields if specified
+                turn_required = schema.get('properties', {}).get('turns', {}).get('items', {}).get('required', [])
+                for field in turn_required:
+                    if field not in turn:
+                        errors.append(f"Turn {i} missing required field: {field}")
+    
+    return len(errors) == 0, errors
+
+def extract_metrics_from_trajectory(trajectory: Dict[str, Any], trajectory_id: str) -> List[Dict[str, Any]]:
+    """Extract per-turn metrics from a trajectory."""
+    metrics = []
+    
+    turns = trajectory.get('turns', [])
+    if not turns:
+        logger.warning(f"No turns found in trajectory {trajectory_id}")
+        return metrics
     
     for turn_idx, turn in enumerate(turns):
-        turn_id = turn.get("turn_id", turn_idx)
-        
-        # Extract legal moves
-        legal_moves = turn.get("legal_moves", [])
-        legal_moves_count = len(legal_moves)
-        legal_moves_str = json.dumps(legal_moves) if legal_moves else "[]"
-        
-        # Extract other potential metrics
-        action = turn.get("action", "")
-        reward = turn.get("reward", 0.0)
-        done = turn.get("done", False)
-        state_hash = turn.get("state_hash", "")
-        
-        row = {
-            "trajectory_id": trajectory_id,
-            "turn_id": turn_id,
-            "legal_moves": legal_moves_str,
-            "legal_moves_count": legal_moves_count,
-            "action": action,
-            "reward": reward,
-            "done": done,
-            "state_hash": state_hash
+        # Extract available metrics
+        metric_row = {
+            'trajectory_id': trajectory_id,
+            'turn': turn_idx,
+            'timestamp': turn.get('timestamp', None),
+            'action': turn.get('action', None),
+            'observation': turn.get('observation', None),
+            'reward': turn.get('reward', None),
+            'done': turn.get('done', False),
+            'legal_moves': turn.get('legal_moves', []),
+            'selected_move': turn.get('selected_move', None),
+            'context_tokens': turn.get('context_tokens', None),
+            'response_tokens': turn.get('response_tokens', None),
+            'total_tokens': turn.get('total_tokens', None),
+            'layer_used': turn.get('layer_used', None),
+            'confidence': turn.get('confidence', None),
         }
-        rows.append(row)
+        
+        # Calculate derived metrics
+        if metric_row['legal_moves'] and isinstance(metric_row['legal_moves'], list):
+            metric_row['num_legal_moves'] = len(metric_row['legal_moves'])
+        else:
+            metric_row['num_legal_moves'] = 0
+        
+        metrics.append(metric_row)
     
-    return rows
+    return metrics
 
 def parse_trajectories() -> pd.DataFrame:
-    """
-    Main function to parse all trajectories from raw data.
-    Validates against schema and extracts metrics.
-    Returns a DataFrame with all extracted metrics.
-    """
-    # Validate data source
-    validate_data_source()
+    """Parse all trajectories from raw data and extract metrics."""
+    if not validate_data_source():
+        raise FileNotFoundError("Real data missing; pipeline cannot proceed.")
     
-    # Load schema
     schema = load_schema()
-    
-    # Load existing checksums
-    existing_checksums = load_existing_checksums()
-    
-    all_rows = []
-    current_checksums = {}
+    all_metrics = []
+    checksums = load_existing_checksums()
+    files_processed = 0
     
     # Process JSONL files
     jsonl_files = list(RAW_DATA_DIR.glob("*.jsonl"))
     for file_path in jsonl_files:
-        file_key = str(file_path.relative_to(RAW_DATA_DIR))
         current_checksum = compute_file_checksum(file_path)
-        current_checksums[file_key] = current_checksum
         
-        # Skip if checksum matches (optimization)
-        if existing_checksums.get(file_key) == current_checksum:
-            logger.info(f"Skipping {file_key} (checksum match)")
+        # Check if file has been processed
+        if file_path.name in checksums and checksums[file_path.name] == current_checksum:
+            logger.info(f"Skipping {file_path.name} (already processed)")
             continue
         
-        logger.info(f"Processing {file_path}")
+        logger.info(f"Processing {file_path.name}")
         
         try:
-            with open(file_path, "r") as f:
+            with open(file_path, 'r') as f:
                 for line_num, line in enumerate(f, 1):
                     line = line.strip()
                     if not line:
@@ -176,96 +172,104 @@ def parse_trajectories() -> pd.DataFrame:
                     
                     try:
                         trajectory = json.loads(line)
+                        
                         # Validate against schema
-                        validate_trajectory_against_schema(trajectory, schema)
+                        is_valid, errors = validate_trajectory_against_schema(trajectory, schema)
+                        if not is_valid:
+                            logger.error(f"Schema validation failed for {file_path.name}:{line_num}: {errors}")
+                            raise ValueError(f"Schema mismatch: {errors}")
+                        
+                        # Extract trajectory ID
+                        trajectory_id = trajectory.get('trajectory_id', f"{file_path.stem}_{line_num}")
+                        
                         # Extract metrics
-                        rows = extract_metrics_from_trajectory(trajectory)
-                        all_rows.extend(rows)
+                        metrics = extract_metrics_from_trajectory(trajectory, trajectory_id)
+                        all_metrics.extend(metrics)
+                        
                     except json.JSONDecodeError as e:
-                        logger.warning(f"Skipping invalid JSON at line {line_num} in {file_path}: {e}")
-                    except ValueError as e:
-                        logger.error(f"Schema validation failed for trajectory at line {line_num} in {file_path}: {e}")
+                        logger.error(f"JSON decode error in {file_path.name}:{line_num}: {e}")
                         raise
+        
         except Exception as e:
-            logger.error(f"Error processing file {file_path}: {e}")
+            logger.error(f"Error processing {file_path.name}: {e}")
             raise
+        
+        checksums[file_path.name] = current_checksum
+        files_processed += 1
     
-    # Process JSON files (assuming list of trajectories)
+    # Process JSON files (assuming they contain a list of trajectories)
     json_files = list(RAW_DATA_DIR.glob("*.json"))
     for file_path in json_files:
-        file_key = str(file_path.relative_to(RAW_DATA_DIR))
         current_checksum = compute_file_checksum(file_path)
-        current_checksums[file_key] = current_checksum
         
-        # Skip if checksum matches
-        if existing_checksums.get(file_key) == current_checksum:
-            logger.info(f"Skipping {file_key} (checksum match)")
+        if file_path.name in checksums and checksums[file_path.name] == current_checksum:
+            logger.info(f"Skipping {file_path.name} (already processed)")
             continue
         
-        logger.info(f"Processing {file_path}")
+        logger.info(f"Processing {file_path.name}")
         
         try:
-            with open(file_path, "r") as f:
+            with open(file_path, 'r') as f:
                 trajectories = json.load(f)
                 
-            if not isinstance(trajectories, list):
-                trajectories = [trajectories]
-            
-            for trajectory in trajectories:
-                validate_trajectory_against_schema(trajectory, schema)
-                rows = extract_metrics_from_trajectory(trajectory)
-                all_rows.extend(rows)
+                if not isinstance(trajectories, list):
+                    logger.warning(f"{file_path.name} does not contain a list of trajectories, treating as single trajectory")
+                    trajectories = [trajectories]
+                
+                for idx, trajectory in enumerate(trajectories):
+                    # Validate against schema
+                    is_valid, errors = validate_trajectory_against_schema(trajectory, schema)
+                    if not is_valid:
+                        logger.error(f"Schema validation failed for {file_path.name}[{idx}]: {errors}")
+                        raise ValueError(f"Schema mismatch: {errors}")
+                    
+                    trajectory_id = trajectory.get('trajectory_id', f"{file_path.stem}_{idx}")
+                    metrics = extract_metrics_from_trajectory(trajectory, trajectory_id)
+                    all_metrics.extend(metrics)
+        
         except Exception as e:
-            logger.error(f"Error processing file {file_path}: {e}")
+            logger.error(f"Error processing {file_path.name}: {e}")
             raise
+        
+        checksums[file_path.name] = current_checksum
+        files_processed += 1
     
-    # Update checksums
-    save_checksums(current_checksums)
-    
-    if not all_rows:
-        logger.warning("No valid trajectory data extracted. Output CSV will be header-only.")
+    if files_processed == 0:
+        logger.warning("No files were processed. Check if data was already processed or if data is missing.")
+        if not all_metrics:
+            raise FileNotFoundError("No valid trajectories found to process.")
     
     # Create DataFrame
-    df = pd.DataFrame(all_rows)
+    df = pd.DataFrame(all_metrics)
     
-    # Ensure columns are in expected order
-    expected_columns = [
-        "trajectory_id", "turn_id", "legal_moves", "legal_moves_count",
-        "action", "reward", "done", "state_hash"
-    ]
+    if df.empty:
+        logger.error("No metrics extracted. Check input data format.")
+        raise ValueError("No metrics extracted from trajectories.")
     
-    # Reorder columns if they exist, otherwise just use what we have
-    existing_cols = [col for col in expected_columns if col in df.columns]
-    other_cols = [col for col in df.columns if col not in expected_columns]
-    df = df[existing_cols + other_cols]
+    # Ensure output directory exists
+    PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
     
+    # Save checksums
+    save_checksums(checksums)
+    
+    logger.info(f"Parsed {len(df)} turns from {files_processed} files")
     return df
 
 def main():
-    """Entry point for the parser script."""
-    logger.info("Starting trajectory parsing phase (T006a)")
-    
+    """Main entry point for the parser."""
     try:
-        # Ensure output directory exists
-        PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
-        
-        # Parse trajectories
+        logger.info("Starting trajectory parsing...")
         df = parse_trajectories()
-        
-        # Save to CSV
         df.to_csv(OUTPUT_FILE, index=False)
-        logger.info(f"Parsing complete. Output saved to {OUTPUT_FILE}")
-        logger.info(f"Total rows extracted: {len(df)}")
-        
-        return 0
+        logger.info(f"Successfully wrote {len(df)} rows to {OUTPUT_FILE}")
     except FileNotFoundError as e:
-        logger.error(f"Data source error: {e}")
+        logger.error(str(e))
         raise
     except ValueError as e:
-        logger.error(f"Validation error: {e}")
+        logger.error(str(e))
         raise
     except Exception as e:
-        logger.error(f"Unexpected error during parsing: {e}")
+        logger.error(f"Unexpected error: {e}")
         raise
 
 if __name__ == "__main__":

@@ -4,8 +4,6 @@ import logging
 from pathlib import Path
 from typing import Optional, Dict, Any, Tuple
 import time
-import yaml
-import pandas as pd
 
 from utils.logger import get_logger, log_execution_start, log_execution_end
 from data.config import get_config
@@ -14,145 +12,147 @@ logger = get_logger(__name__)
 
 def discover_real_datasets() -> Tuple[Optional[Dict[str, Any]], str]:
     """
-    Attempt to discover real datasets containing RSES, INCOM, and Pre/Post scores.
-    Returns (metadata_dict, status) where status is 'found' or 'not_found'.
-    
-    NOTE: This is a placeholder for the actual discovery logic (HuggingFace, OpenML, OSF).
-    For the purpose of this pipeline, we simulate a 'not found' state to trigger
-    the synthetic fallback as per FR-009 and FR-011.
+    Attempt to discover real datasets matching the research requirements.
+    Returns (dataset_info, status) where status is 'found', 'blocked', or 'not_found'.
     """
-    logger.info("Attempting to discover real datasets from HuggingFace, OpenML, OSF...")
+    log_execution_start(logger, "discover_real_datasets")
     
-    # Simulating a search that yields no valid results for this specific study design
-    # In a real implementation, this would query APIs and parse metadata.
-    # We return None to indicate no valid real dataset was found.
-    return None, "not_found"
+    # Simulate search logic (in a real implementation, this would query HF/OpenML/OSF)
+    # For T011 implementation, we assume the search returns nothing or is blocked
+    # based on T009 logic which blocks if IRB/Consent is missing.
+    
+    # Placeholder for actual discovery logic
+    # In a real run, this would return a dict if found, None otherwise
+    dataset_info = None
+    status = "not_found"
+    
+    log_execution_end(logger, f"Real dataset search result: {status}")
+    return dataset_info, status
 
-def verify_irb_consent(metadata: Dict[str, Any]) -> Tuple[bool, str]:
+def verify_irb_consent(dataset_info: Dict[str, Any]) -> bool:
     """
-    Verify IRB approval or consent metadata.
-    Returns (is_valid, reason).
+    Verify IRB approval and consent metadata for a dataset.
+    Returns True if valid, False otherwise.
     """
-    if not metadata:
-        return False, "No metadata provided"
+    if not dataset_info:
+        return False
     
-    license_field = metadata.get("license", "").lower()
-    consent_field = metadata.get("consent_form_url", "")
+    # Check for license/consent fields
+    license_info = dataset_info.get("license", "")
+    consent_url = dataset_info.get("consent_form_url")
     
-    if "irb" in license_field or "consent" in license_field:
-        return True, "IRB/Consent verified in metadata"
+    if "IRB" not in license_info and not consent_url:
+        logger.warning(f"Dataset missing IRB/Consent verification: {dataset_info.get('id')}")
+        return False
     
-    if consent_field:
-        return True, "Consent form URL present"
-        
-    return False, "Missing IRB or explicit consent metadata"
+    return True
 
-def generate_synthetic_dataset(n: int = 100, seed: int = 42) -> pd.DataFrame:
+def generate_synthetic_dataset(n_samples: int = 100, seed: Optional[int] = None) -> Dict[str, Any]:
     """
-    Generate a synthetic dataset with N >= 100 participants.
-    Includes: avatar_condition, pre_self_esteem, post_self_esteem, comparison_tendency.
-    
-    Ground truth parameters (FR-011):
-    - Interaction beta = 0.2
-    - Label: "Pipeline Validation Only"
+    Generate a synthetic dataset for pipeline validation when real data is unavailable.
+    Implements FR-011 (Pipeline Validation Only) labeling.
     """
-    logger.info(f"Generating synthetic dataset with N={n}, seed={seed}")
-    random.seed(seed)
+    log_execution_start(logger, "generate_synthetic_dataset")
     
-    # Define ground truth parameters
+    if seed is not None:
+        random.seed(seed)
+    
+    # Generate synthetic data matching the schema
+    import pandas as pd
+    import numpy as np
+    
+    # Define ground truth parameters (for FR-011 validation)
     beta_interaction = 0.2
-    beta_condition = 0.5
-    beta_comparison = -0.3
-    intercept = 50.0
-    noise_std = 5.0
     
-    # Generate predictors
-    # avatar_condition: 0 (control) or 1 (high comparison)
-    avatar_condition = [random.choice([0, 1]) for _ in range(n)]
+    data = {
+        "avatar_condition": np.random.choice([0, 1], n_samples),
+        "pre_self_esteem": np.random.normal(3.5, 0.8, n_samples),
+        "comparison_tendency": np.random.normal(3.0, 0.9, n_samples),
+        "participant_id": range(1, n_samples + 1)
+    }
     
-    # comparison_tendency: Normal distribution centered around 50
-    comparison_tendency = [random.gauss(50, 10) for _ in range(n)]
+    # Generate post_self_esteem based on interaction
+    # post = pre + beta * (avatar * comparison) + noise
+    interaction_term = data["avatar_condition"] * data["comparison_tendency"]
+    noise = np.random.normal(0, 0.5, n_samples)
+    data["post_self_esteem"] = (
+        data["pre_self_esteem"] + 
+        beta_interaction * interaction_term + 
+        noise
+    )
     
-    # pre_self_esteem: Normal distribution centered around 50
-    pre_self_esteem = [random.gauss(50, 10) for _ in range(n)]
+    df = pd.DataFrame(data)
     
-    # Generate post_self_esteem based on linear model with interaction
-    post_self_esteem = []
-    for ac, ct, pre in zip(avatar_condition, comparison_tendency, pre_self_esteem):
-        # Model: Post = Intercept + Beta_cond*Cond + Beta_comp*Comp + Beta_pre*Pre + Beta_int*(Cond*Comp) + Noise
-        val = (intercept 
-               + beta_condition * ac 
-               + beta_comparison * ct 
-               + 0.8 * pre  # Pre is a strong predictor of Post
-               + beta_interaction * ac * ct 
-               + random.gauss(0, noise_std))
-        post_self_esteem.append(val)
+    result = {
+        "data": df,
+        "source": "synthetic",
+        "ground_truth": {"interaction_beta": beta_interaction},
+        "label": "Pipeline Validation Only"
+    }
     
-    df = pd.DataFrame({
-        "avatar_condition": avatar_condition,
-        "pre_self_esteem": pre_self_esteem,
-        "post_self_esteem": post_self_esteem,
-        "comparison_tendency": comparison_tendency,
-        "data_source_type": "synthetic",
-        "label": "Pipeline Validation Only",
-        "ground_truth_interaction_beta": beta_interaction
-    })
-    
-    return df
+    log_execution_end(logger, f"Generated synthetic dataset with {n_samples} samples")
+    return result
 
-def load_or_generate_data() -> Tuple[pd.DataFrame, str]:
+def load_or_generate_data() -> Tuple[Path, str]:
     """
-    Main entry point for data acquisition (US1).
-    Implements fallback logic (FR-009):
-    1. Attempt to discover real data.
-    2. If real data found, verify IRB/Consent.
-       - If valid, return real data.
-       - If invalid, log and trigger synthetic fallback.
-    3. If real data not found, trigger synthetic generation.
-    
-    Returns:
-        Tuple[pd.DataFrame, str]: The dataset and the source type ('real' or 'synthetic').
+    Main fallback logic for T011.
+    1. Attempts to discover real data.
+    2. If not found or blocked, triggers synthetic generation.
+    3. Sets data_source_type flag accordingly.
+    4. Saves the data to data/raw/ and returns the path and source type.
     """
     log_execution_start(logger, "load_or_generate_data")
     
     config = get_config()
-    raw_dir = Path(config.data_raw_dir)
+    raw_dir = Path("data/raw")
     raw_dir.mkdir(parents=True, exist_ok=True)
     
-    # Step 1: Discover real datasets
-    real_meta, status = discover_real_datasets()
+    # Step 1: Try to find real data
+    dataset_info, search_status = discover_real_datasets()
     
     data_source_type = "synthetic"
-    df = None
+    final_df = None
     
-    if status == "found" and real_meta:
-        # Step 2: Verify IRB/Consent
-        is_valid, reason = verify_irb_consent(real_meta)
-        if is_valid:
-            logger.info(f"Real data found and verified: {reason}")
-            # In a real implementation, we would download and load the data here.
-            # For this task, we assume the discovery logic would return a path or loader.
-            # Since we don't have a real download link in this context, we treat 'found'
-            # as a hypothetical success path that eventually falls back if download fails,
-            # but per FR-009, if we can't get real data, we MUST use synthetic.
-            # To satisfy the "Real Data Only" constraint for the pipeline to run,
-            # and given the simulated 'not found' in discover_real_datasets,
-            # we proceed to synthetic generation.
-            # NOTE: If a real URL were provided, we would fetch it here.
-            pass
-        else:
-            logger.warning(f"Real data found but IRB/Consent verification failed: {reason}. Triggering fallback.")
+    if search_status == "found" and dataset_info:
+        if verify_irb_consent(dataset_info):
+            # In a real implementation, download the dataset here
+            # For this task, we assume discovery fails or is blocked to trigger fallback
+            logger.info("Real data found and verified (simulated path)")
+            # Placeholder: load_real_data(dataset_info)
+            # Since we can't fetch real data without a specific URL/package in this context,
+            # and the task requires a fallback mechanism, we proceed to synthetic if 'found' 
+            # is just a simulation state without actual file access.
+            pass 
+        
+        logger.warning("Real data found but consent verification failed or download unavailable.")
     
-    # Step 3: Fallback to Synthetic (FR-009, FR-011)
-    # This block executes if real data was not found, or if found but invalid/blocked.
-    logger.info("Triggering synthetic data generation fallback.")
-    df = generate_synthetic_dataset(n=150, seed=config.seed)
+    # Step 2: Fallback to synthetic (The core of T011)
+    logger.info("Real data not available or blocked. Triggering synthetic generation fallback.")
+    synthetic_result = generate_synthetic_dataset(n_samples=100, seed=config.seed)
+    final_df = synthetic_result["data"]
     data_source_type = "synthetic"
     
-    # Save the synthetic data to data/raw
-    output_path = raw_dir / "synthetic_dataset.csv"
-    df.to_csv(output_path, index=False)
-    logger.info(f"Synthetic data saved to {output_path}")
+    # Step 3: Save to data/raw
+    timestamp = int(time.time())
+    output_filename = f"raw_data_{timestamp}.csv"
+    output_path = raw_dir / output_filename
+    final_df.to_csv(output_path, index=False)
     
-    log_execution_end(logger, "load_or_generate_data")
-    return df, data_source_type
+    logger.info(f"Saved data to {output_path} with source type: {data_source_type}")
+    
+    log_execution_end(logger, f"Data loading complete. Source: {data_source_type}")
+    return output_path, data_source_type
+
+def run_loader():
+    """
+    Entry point for the data loading pipeline.
+    """
+    path, source_type = load_or_generate_data()
+    return {"path": str(path), "source_type": source_type}
+
+if __name__ == "__main__":
+    result = run_loader()
+    print(f"Data loaded from: {result['path']}")
+    print(f"Data source type: {result['source_type']}")
+    if result['source_type'] == 'synthetic':
+        print("WARNING: Using synthetic data for pipeline validation (FR-009, FR-011).")

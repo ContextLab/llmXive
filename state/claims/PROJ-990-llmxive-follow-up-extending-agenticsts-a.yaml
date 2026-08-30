@@ -2392,3 +2392,191 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-31T08:16:17Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: token budget 4096 tokens, minimum context 256 tokens, random baseline
+    k=2
+  claim_id: c_e3cdbf66
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T004 Implement code/config.py
+    for paths, seeds, and hyperparameters.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define TOKEN_BUDGET=4096, MIN_CONTEXT=256, AND K_RANDOM_BASELINE=2 as
+    explicit constants.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:28:52Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: statistical power warning threshold n less than 300
+  claim_id: c_e1dfce1b
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T014a Implement data
+    splitting logic. Edge Case Handling: If training set size n < 300...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_power_warning_threshold_n_less_than_300
+  kind: magnitude
+  raw_text: If training set size n < 300, log a WARNING stating 'Statistical power
+    marginal (n < 300)'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:30:18Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: validation hold-out set minimum 20 trajectories
+  claim_id: c_141f3f87
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T014 Implement Proxy
+    Validation Logic. Constraint: Validation MUST use the hold-out set of at least
+    20 trajectories...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_hold-out_set_minimum_20_trajectories
+  kind: magnitude
+  raw_text: Validation MUST use the hold-out set of at least 20 trajectories where
+    ground truth is established via ablation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:30:53Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: proxy utility validation correlation threshold 0.7
+  claim_id: c_86264c67
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T014 Implement Proxy
+    Validation Logic. Gate: If correlation < 0.7...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If correlation < 0.7, set proxy_valid=false and trigger fallback heuristic
+    path.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:30:54Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Shannon entropy calculation on legal move distributions
+  claim_id: c_df4aa199
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T006b Implement entropy
+    calculation in code/entropy.py.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Shannon_entropy_calculation_on_legal_move_distributions
+  kind: entity_fact
+  raw_text: Calculate Shannon entropy of the legal move distributions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:31:26Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: token reduction percentage threshold 30 percent
+  claim_id: c_868d6d53
+  context: 'Phase 3: User Story 1 & 2 - T022 Generate summary CSV output. Constraint:
+    If token_reduction_pct < 30...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If token_reduction_pct < 30, set threshold_met=false in data/processed/build_status.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:31:27Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: token savings standard deviation threshold 10 percent of mean
+  claim_id: c_320c58d2
+  context: 'Phase 3: User Story 1 & 2 - T023 Implement verification logic to calculate
+    token reduction consistency.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If std_dev < 0.10 * mean_savings, passed=true.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:31:27Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: simulation runtime threshold 6 hours
+  claim_id: c_6531ba76
+  context: 'Phase 5: Performance & Validation - T031c Runtime Monitoring. Action:
+    If total_runtime (in hours) > 6...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total_runtime (in hours) > 6, refactor code to enable streaming or
+    reduce batch size.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:31:27Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: peak memory usage threshold 7 GB on 1 GB file
+  claim_id: c_e14aa93b
+  context: 'Phase 5: Performance & Validation - T039 Memory Usage Verification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify memory usage < 7GB with --stream on a 1GB file.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:31:28Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: power analysis parameters alpha 0.05 power 0.8 effect size 0.2
+  claim_id: c_46a27fab
+  context: 'Phase 5: Performance & Validation - T044 Power Analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform power analysis with alpha=0.05, power=0.8, and expected effect
+    size=0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:32:12Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: trajectory divergence threshold 10 percent
+  claim_id: c_db368aa5
+  context: 'Phase 5: Performance & Validation - T050 Divergence Check. Logic: Calculate
+    divergence... Flag if divergence > 10%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag if divergence > 10%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:32:12Z'

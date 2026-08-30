@@ -42,7 +42,7 @@ description: "Task list template for feature implementation"
 
 - [ ] T004 [P] Create `contracts/dataset.schema.yaml` defining valid tabular dataset structures
 - [ ] T005a [P] Create `contracts/injection.schema.yaml` defining error types (replacement, misclassification, MCAR) and a field `error_rates: list[float]` to be loaded from a configuration file. **MUST explicitly state that the schema validates the structure of a list of floats, not specific values.**
-- [ ] T005b [P] [TDD] [FR-002] [Constitution-VI] Write a unit test in `tests/unit/test_schema_validation.py` that loads `contracts/injection.schema.yaml` and a sample `config/error_rates.yaml`, asserting that `error_rates` is a non-empty list of floats. **This test must be written BEFORE implementation tasks T020‑T022 to ensure schema consistency, validating the structure of deferred values without asserting specific rates.**
+- [X] T005b [P] [TDD] [FR-002] [Constitution-VI] Write a unit test in `tests/unit/test_schema_validation.py` that loads `contracts/injection.schema.yaml` and a sample `config/error_rates.yaml`, asserting that `error_rates` is a non-empty list of floats. **This test must be written BEFORE implementation tasks T020‑T022 to ensure schema consistency, validating the structure of deferred values without asserting specific rates.**
 - [ ] T006 [P] Create `contracts/result.schema.yaml` defining output metrics (p-value, CI bounds, effect size, Type I flag)
 - [X] T007 [P] Create `code/download.py` skeleton (empty file with imports and main function stub)
 - [X] T008 [P] Create `code/inject.py` skeleton (empty file with imports and main function stub)
@@ -80,13 +80,13 @@ description: "Task list template for feature implementation"
 - [X] T019b [P] Implement `code/download.py` to iterate over `config/datasets.yaml`, download each CSV to `data/raw/`, verify HTTP success, and preserve original filenames. **MUST handle 404 errors gracefully by logging and skipping, ensuring the pipeline continues.**
 - [ ] T019c [P] Extend `code/download.py` (or a new helper) to **clean** each downloaded file: validate against `contracts/dataset.schema.yaml`, coerce column types, replace empty strings with `NaN`, and write cleaned files to `data/raw/cleaned/`.
 - [ ] T019d [P] Compute SHA‑256 checksums for each cleaned dataset and record them in `state/dataset_checksums.yaml`.
-- [~] T019e [P] Verify dataset diversity: count numerical‑only, categorical‑only, and mixed datasets; assert **≥ 2** numerical‑only and **≥ 2** categorical‑only datasets. Fail the pipeline otherwise.
-- [~] T019 [P] Orchestrate the full download‑clean‑verify pipeline by invoking T019a‑e in sequence. This task has no parallel tag because it aggregates the subtasks.
+- [ ] T019e [P] Verify dataset diversity: count numerical‑only, categorical‑only, and mixed datasets; {{claim:c_f6f1253a}} Fail the pipeline otherwise.
+- [ ] T019 [P] Orchestrate the full download‑clean‑verify pipeline by invoking T019a‑e in sequence. This task has no parallel tag because it aggregates the subtasks.
 - [X] T018a [P] [US1] Write integration test `tests/integration/test_download.py` that validates `code/download.py` correctly downloads, cleans, checksums, and records diversity. **Depends: T019, T004**.
 - [X] T020 [US1] Implement `code/inject.py` to perform **random value replacement** using a uniform distribution spanning each column's observed min/max. Iterate over `error_rates` loaded from `config/error_rates.yaml`. Output injected files to `data/corrupted/`.
-- [ ] T021 [US1] Implement `code/inject.py` to perform **category misclassification** based on observed frequency distributions, iterating over the same error rates. Output to `data/corrupted/`.
-- [ ] T022 [US1] Implement `code/inject.py` to introduce **MCAR missingness** (NaN) randomly across rows/columns, iterating over the same error rates. Output to `data/corrupted/`.
-- [ ] T023 [US1] Ensure `code/inject.py` logs the specific error rate, error type, and random seed for every generated file in `data/corrupted/`.
+- [X] T021 [US1] Implement `code/inject.py` to perform **category misclassification** based on observed frequency distributions, iterating over the same error rates. Output to `data/corrupted/`.
+- [X] T022 [US1] Implement `code/inject.py` to introduce **MCAR missingness** (NaN) randomly across rows/columns, iterating over the same error rates. Output to `data/corrupted/`.
+- [X] T023 [US1] Ensure `code/inject.py` logs the specific error rate, error type, and random seed for every generated file in `data/corrupted/`.
 - [ ] T024 [US1] Add validation logic to ensure each injected dataset conforms to `contracts/injection.schema.yaml` and that the actual injected proportion matches the declared rate.
 
 **Checkpoint**: User Story 1 should be fully functional and testable independently.

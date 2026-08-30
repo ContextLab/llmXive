@@ -1,17 +1,84 @@
 type: object
 required:
   - trajectory_id
-  - turn
-  - legal_moves
+  - turns
 properties:
   trajectory_id:
     type: string
     description: Unique identifier for the trajectory
-  turn:
-    type: integer
-    description: Turn number within the trajectory
-  legal_moves:
+  agent_id:
+    type: string
+    description: Identifier for the agent
+  environment_id:
+    type: string
+    description: Identifier for the environment
+  start_time:
+    type: string
+    format: date-time
+    description: When the trajectory started
+  end_time:
+    type: string
+    format: date-time
+    description: When the trajectory ended
+  total_reward:
+    type: number
+    description: Cumulative reward for the trajectory
+  is_successful:
+    type: boolean
+    description: Whether the trajectory achieved its goal
+  turns:
     type: array
     items:
-      type: string
-    description: List of legal moves available at this turn
+      type: object
+      required:
+        - turn
+        - action
+        - observation
+      properties:
+        turn:
+          type: integer
+          description: Turn number (0-indexed)
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp of this turn
+        action:
+          type: string
+          description: Action taken by the agent
+        observation:
+          type: string
+          description: Observation received from the environment
+        reward:
+          type: number
+          description: Reward received for this action
+        done:
+          type: boolean
+          description: Whether the episode is finished
+        legal_moves:
+          type: array
+          items:
+            type: string
+          description: List of legal moves available at this turn
+        selected_move:
+          type: string
+          description: The move actually selected by the agent
+        context_tokens:
+          type: integer
+          description: Number of tokens in the context
+        response_tokens:
+          type: integer
+          description: Number of tokens in the response
+        total_tokens:
+          type: integer
+          description: Total tokens used in this turn
+        layer_used:
+          type: string
+          description: Which memory layer was used
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Agent's confidence in the action
+        metadata:
+          type: object
+          description: Additional metadata for the turn

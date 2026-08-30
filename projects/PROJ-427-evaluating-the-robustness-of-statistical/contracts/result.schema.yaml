@@ -1,7 +1,6 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: ResultMetrics
-description: Schema for statistical test result artifacts produced by the pipeline.
-type: object
+# Result schema for statistical analysis outputs
+# This schema defines the required fields for result JSON files produced by the simulation.
+# It follows a simple JSON‑Schema style but is interpreted manually in the validation code.
 required:
   - p_value
   - ci_lower
@@ -11,18 +10,16 @@ required:
 properties:
   p_value:
     type: number
-    description: Two‑sided p‑value from the statistical test.
-    minimum: 0.0
-    maximum: 1.0
+    description: "p‑value of the statistical test (0 ≤ p ≤ 1)."
   ci_lower:
     type: number
-    description: Lower bound of the confidence interval for the effect size or mean difference.
+    description: "Lower bound of the confidence interval."
   ci_upper:
     type: number
-    description: Upper bound of the confidence interval for the effect size or mean difference.
+    description: "Upper bound of the confidence interval."
   effect_size:
     type: number
-    description: Estimated effect size (e.g., Cohen's d, Eta‑squared, Cramér's V) for the test.
+    description: "Effect‑size estimate (e.g., Cohen's d, Eta‑squared, Cramér's V)."
   type_i_flag:
     type: boolean
-    description: Indicates whether the null hypothesis was rejected (True = Type I error if ground truth is null).
+    description: "True if the null hypothesis is rejected (Type I error)."

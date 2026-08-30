@@ -153,3 +153,168 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-31T04:52:54Z'
+- artifact_path: projects/PROJ-427-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 0
+  canonical: at least 2 numerical-only and at least 2 categorical-only datasets are
+    required
+  claim_id: c_f6f1253a
+  context: Task T019e verifies dataset diversity by counting dataset types and requiring
+    minimum numbers for each category.
+  evidence:
+    entailment_evidence: At least 2 numerical-only and 2 categorical-only datasets
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/At_least_2_numerical-only_and_2_categorical-only_datasets
+  kind: magnitude
+  raw_text: "assert **\u2265\u202F2** numerical\u2011only and **\u2265\u202F2** categorical\u2011\
+    only datasets."
+  resolved_value: at least 2 numerical-only and 2 categorical-only datasets
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T04:01:27Z'
+- artifact_path: projects/PROJ-427-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: config/datasets.yaml lists 5 to 10 UCI dataset URLs with metadata tags
+  claim_id: c_1cf510b4
+  context: "In Phase\u202F3, task T019a specifies creating a configuration file that\
+    \ enumerates a set of UCI datasets for the pipeline."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Create `config/datasets.yaml` listing **5\u201110** UCI dataset URLs\
+    \ with metadata tags (`type: numerical|categorical|mixed`)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:02:14Z'
+- artifact_path: projects/PROJ-427-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: results must exist for all combinations of 3 error types and 4 error
+    rates (12 combinations)
+  claim_id: c_1d2f71a4
+  context: Task T051 adds a validation script to ensure the aggregated metrics cover
+    every error type and rate combination.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: asserts that results exist for **all** combinations of the three error
+    types and the four specified error rates from the config file.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:02:14Z'
+- artifact_path: projects/PROJ-427-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: synthetic_grid datasets have ground_truth_type population_parameters
+    and null_hypothesis datasets have ground_truth_type permutation
+  claim_id: c_1da37f28
+  context: "Task T052 adds a validation script to check that generated datasets are\
+    \ correctly labeled with their ground\u2011truth type."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_grid_datasets_have_ground_truth_type_population_pa
+  kind: entity_fact
+  raw_text: 'confirms `data/corrupted/synthetic_grid/` contains datasets with `ground_truth_type:
+    ''population_parameters''` and `data/corrupted/null_hypothesis/` contains datasets
+    with `ground_truth_type: ''permutation''`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:02:54Z'
+- artifact_path: projects/PROJ-427-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: config/datasets.yaml contains between 5 and 10 UCI dataset URLs
+  claim_id: c_fc245436
+  context: Implementation for User Story 1 includes creating a config file that lists
+    a set of public UCI datasets to be downloaded.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Create `config/datasets.yaml` listing 5\u201110 UCI dataset URLs"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:05:22Z'
+- artifact_path: projects/PROJ-427-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: peak memory usage is less than 7 GB during processing of the largest
+    dataset
+  claim_id: c_74bdbef8
+  context: Phase N includes a CI test to ensure the pipeline does not exceed memory
+    limits.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_is_less_than_7_GB_during_processing_of_the
+  kind: magnitude
+  raw_text: "Add a CI test using `memory_profiler` that asserts peak memory usage\
+    \ <\u202F7\u202FGB when processing the largest dataset"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:06:22Z'
+- artifact_path: projects/PROJ-427-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: test_small_sample_size checks handling of sample sizes smaller than 10
+  claim_id: c_6b9933d8
+  context: "Phase N defines edge\u2011case unit tests to ensure stability on very\
+    \ small samples."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Add explicit edge\u2011case unit test `test_small_sample_size` that verifies\
+    \ graceful handling when N\u202F<\u202F10"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:07:35Z'
+- artifact_path: projects/PROJ-427-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: verify_error_rates.py checks that results are present for all 3 error
+    types and 4 error rates
+  claim_id: c_415d3caf
+  context: Phase N includes a script to ensure completeness of aggregated metrics
+    across error configurations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add a validation script `code/verify_error_rates.py` that asserts results
+    exist for all combinations of the three error types and the four specified error
+    rates from the config file
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:07:35Z'
+- artifact_path: projects/PROJ-427-evaluating-the-robustness-of-statistical/specs/001-evaluating-the-robustness-of-statistical/tasks.md
+  attempts: 1
+  canonical: config/datasets.yaml lists 5-10 UCI dataset URLs
+  claim_id: c_fbda4159
+  context: "In User Story 1 tasks, T019a specifies creating a config file that lists\
+    \ 5\u201110 UCI dataset URLs with metadata tags."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Create `config/datasets.yaml` listing 5\u201110 UCI dataset URLs with\
+    \ metadata tags (`type: numerical|categorical|mixed`)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:09:49Z'

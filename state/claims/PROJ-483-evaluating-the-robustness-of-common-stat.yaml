@@ -481,3 +481,148 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-25T22:22:11Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Sweep AR(1) strength r across range including zero
+  claim_id: c_bf8c5677
+  context: 'T013 [US1] Execution: Implement sensitivity analysis sweep in code/main.py:
+    Sweep r across a range of values including zero and positive increments.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement sensitivity analysis sweep in code/main.py: Sweep r across
+    a range of values including zero and positive increments.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:45:06Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Report specific r where error rate exceeds 0.10
+  claim_id: c_ec7add55
+  context: T023 [US2] Implement threshold detection logic to report specific $r$ where
+    error rate exceeds $\alpha=0.10$ per AC-2
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement threshold detection logic to report specific r where error rate
+    exceeds alpha=0.10 per AC-2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:45:38Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Inject mean shift delta=1.0 sigma for power analysis
+  claim_id: c_28acd083
+  context: 'Independent Test: Inject true effects (mean shift $\delta=1.0\sigma$)
+    into dependency-injected data and measure proportion of significant results vs.
+    baseline.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Inject true effects (mean shift delta=1.0 sigma) into dependency-injected
+    data and measure proportion of significant results vs. baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:46:17Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Ensure 10000 replications complete in under 6 hours
+  claim_id: c_6669aeed
+  context: T032a [P] Profile code/simulation_runner.py and optimize vectorized operations
+    to ensure 10,000 replications complete in < 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Profile code/simulation_runner.py and optimize vectorized operations to
+    ensure 10,000 replications complete in < 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:46:56Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Verify injected autocorrelation matches target within 5% tolerance
+  claim_id: c_a5017295
+  context: 'T006a [P] Implement code/dependency_injector.py (FR-003): Vectorized AR(1)
+    resampling function with tunable strength r in [0, 0.9]. Validation: Verify injected
+    autocorrelation matches target r within 5% tolerance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify injected autocorrelation matches target r within 5% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:46:56Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Block bootstrap with tunable block size up to 50
+  claim_id: c_71e9fc7e
+  context: 'T006b [P] Implement code/dependency_injector.py (FR-003): Block bootstrap
+    function for hierarchical dependency with tunable block size (range starting from
+    a small lower bound up to 50) and strength parameters.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement block bootstrap function for hierarchical dependency with tunable
+    block size (range starting from a small lower bound up to 50) and strength parameters.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:47:42Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Verify dataset size N is at least 50
+  claim_id: c_302107ee
+  context: 'T035 [P] Implement code/data_loader.py (FR-001, Spec Assumptions): Dataset
+    validation logic to verify N >= 50. If N < 50, skip the dataset and log a violation
+    to results/validation_report.json.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_dataset_size_N_is_at_least_50
+  kind: magnitude
+  raw_text: Implement dataset validation logic to verify N >= 50. If N < 50, skip
+    the dataset and log a violation to results/validation_report.json.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:48:44Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Logistic regression model convergence and AUC greater than 0.5
+  claim_id: c_0d579deb
+  context: 'T016-logistic [P] Library Definition: Extend code/metrics.py (Constitution
+    Principle VII): Define the logic to train and save logistic regression models
+    relating error rate to dependency strength to results/logistic_models.pkl. Verification:
+    Ensure model convergence and AUC > 0.5 logic is defined.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Logistic_regression_model_convergence_and_AUC_greater_than_0
+  kind: magnitude
+  raw_text: Ensure model convergence and AUC > 0.5 logic is defined for logistic regression
+    models relating error rate to dependency strength.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:49:42Z'

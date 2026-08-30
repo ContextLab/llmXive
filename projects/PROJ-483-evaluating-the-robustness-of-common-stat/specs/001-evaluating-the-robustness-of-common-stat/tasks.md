@@ -152,7 +152,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T030 [P] Documentation updates in `docs/` and `README.md`
-- [ ] T031a [P] Refactor: Extract simulation loop into `run_single_replication` function in `code/simulation_runner.py`
+- [X] T031a [P] Refactor: Extract simulation loop into `run_single_replication` function in `code/simulation_runner.py`
 - [ ] T031b [P] Refactor: Vectorize aggregation logic in `code/main.py` for CPU efficiency
 - [ ] T032a [P] Profile `code/simulation_runner.py` and optimize vectorized operations to ensure 10,000 replications complete in < 6 hours.
 - [ ] T032b [P] Log execution time and memory usage to `results/perf_log.json` to verify FR-008.

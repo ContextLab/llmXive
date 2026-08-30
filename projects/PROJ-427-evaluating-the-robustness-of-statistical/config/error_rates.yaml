@@ -1,3 +1,5 @@
+# Sample error‑rates configuration for data injection.
+# The list must contain at least one numeric value between 0 and 1.
 error_rates:
   - 0.01
   - 0.05
