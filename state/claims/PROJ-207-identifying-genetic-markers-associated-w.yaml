@@ -2812,3 +2812,1575 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-27T10:12:34Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: NCBI BioProject accession numbers PRJNA639195 and PRJNA566029 contain
+    honeybee CCD and healthy control datasets
+  claim_id: c_f2a5cab4
+  context: 'Primary Source: Use prefetch SRRxxxxx and fasterq-dump --split-files SRRxxxxx
+    to download FASTQ files into data/raw from NCBI BioProject. Replace ''SRRxxxxx''
+    with the appropriate accession numbers for PRJNA639195 and PRJNA566029.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NCBI_BioProject_accession_numbers_PRJNA639195_and_PRJNA56602
+  kind: entity_fact
+  raw_text: Replace 'SRRxxxxx' with the appropriate accession numbers for PRJNA639195
+    and PRJNA566029.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:13:17Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: GitHub Actions disk limit is 14GB
+  claim_id: c_38861ff2
+  context: 'Large Dataset Handling: If the dataset exceeds 14GB (GitHub Actions disk
+    limit), implement reservoir sampling with a fixed seed of 42 to extract a representative
+    subset of N=5000 rows.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the dataset exceeds 14GB (GitHub Actions disk limit), implement reservoir
+    sampling with a fixed seed of 42 to extract a representative subset of N=5000
+    rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:14:01Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: dwgsim insert size distribution Normal(mean=350, std=50)
+  claim_id: c_b5810ed9
+  context: 'Implementation: Use dwgsim with a fixed random seed to ensure reproducibility.
+    Command Example: dwgsim -e 0.001 -l 150 -1 350 -2 50 -N 10 -s 42 data/interim/synthetic.vcf
+    data/interim/synthetic_R1.fq data/interim/synthetic_R2.fq. (Insert size distribution:
+    Normal(mean=350, std=50)).'
+  evidence:
+    asserted: '0.001'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: 'Use dwgsim with a fixed random seed to ensure reproducibility. Command
+    Example: dwgsim -e 0.001 -l 150 -1 350 -2 50 -N 10 -s 42 data/interim/synthetic.vcf
+    data/interim/synthetic_R1.fq data/interim/synthetic_R2.fq. (Insert size distribution:
+    Normal(mean=350, std=50)).'
+  resolved_value: '2.718'
+  resolver: approximate
+  source_hash: c42126af63d6f3e1733df60489fbce5dbbc11ecc37f9424cad0a8c9026806d71
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T22:14:02Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Ensembl Bees API version usage
+  claim_id: c_9e53a38e
+  context: 'Implementation: 1. Use Ensembl Bees API version. 2. If a SNP maps to multiple
+    genes, select the one with the shortest genomic distance.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ensembl_Bees_API_version_usage
+  kind: entity_fact
+  raw_text: Use Ensembl Bees API version.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:14:40Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 0
+  canonical: dwgsim insert size distribution Normal mean 350 std 50
+  claim_id: c_971b3da0
+  context: 'Implementation: Use dwgsim with a fixed random seed to ensure reproducibility.
+    Command Example: dwgsim -e 0.001 -l 150 -1 350 -2 50 -N 10 -s 42 data/interim/synthetic.vcf
+    data/interim/synthetic_R1.fq data/interim/synthetic_R2.fq. (Insert size distribution:
+    Normal(mean=350, std=50)).'
+  evidence:
+    asserted: '0.001'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: 'Use dwgsim with a fixed random seed to ensure reproducibility. Command
+    Example: dwgsim -e 0.001 -l 150 -1 350 -2 50 -N 10 -s 42 data/interim/synthetic.vcf
+    data/interim/synthetic_R1.fq data/interim/synthetic_R2.fq. (Insert size distribution:
+    Normal(mean=350, std=50)).'
+  resolved_value: '2.718'
+  resolver: approximate
+  source_hash: c42126af63d6f3e1733df60489fbce5dbbc11ecc37f9424cad0a8c9026806d71
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T22:16:31Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 0
+  canonical: flag SNPs with q value less than 0.05 as significant
+  claim_id: c_67cad75f
+  context: 'Logic: Apply BH correction. Flag SNPs with q < 0.05 as significant.'
+  evidence:
+    entailment_evidence: SNPs are flagged as significant if q-value is less than 0.05
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/SNPs_are_flagged_as_significant_if_q-value_is_less_than_0.05
+  kind: magnitude
+  raw_text: Flag SNPs with q < 0.05 as significant.
+  resolved_value: SNPs are flagged as significant if q-value is less than 0.05
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T22:16:33Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: reservoir sampling seed 42 subset 5000 rows for datasets exceeding 14GB
+  claim_id: c_53250906
+  context: 'Large Dataset Handling: If the dataset exceeds 14GB (GitHub Actions disk
+    limit), implement reservoir sampling with a fixed seed of 42 to extract a representative
+    subset of N=5000 rows.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the dataset exceeds 14GB (GitHub Actions disk limit), implement reservoir
+    sampling with a fixed seed of 42 to extract a representative subset of N=5000
+    rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:16:37Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Ensembl Bees API version unspecified
+  claim_id: c_f94efc95
+  context: 'Implementation: 1. Use Ensembl Bees API version. 2. If a SNP maps to multiple
+    genes, select the one with the shortest genomic distance.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ensembl_Bees_API_version_unspecified
+  kind: entity_fact
+  raw_text: Use Ensembl Bees API version.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:16:40Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: power analysis halts if sample size less than 80
+  claim_id: c_7a40c8f5
+  context: 'MUST: 1. Calculate power using non-central chi-squared distribution. 2.
+    If n < 80: HALT with error code ERR_SAMPLE_SIZE_INSUFFICIENT.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_if_sample_size_less_than_80
+  kind: magnitude
+  raw_text: 'If n < 80: HALT with error code ERR_SAMPLE_SIZE_INSUFFICIENT.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:18:58Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: power analysis detects effect sizes OR 2.5 at alpha 0.05
+  claim_id: c_642eb076
+  context: 'If Power >= 20%: Report the calculated power for detecting large effect
+    sizes (OR >= 2.5) at alpha=0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Report the calculated power for detecting large effect sizes (OR >= 2.5)
+    at alpha=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:20:36Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: p-values formatted to 10 decimal places
+  claim_id: c_fdce05d6
+  context: 'Input: data/interim/gwas_raw.tsv. MUST be sorted by p-value in ascending
+    order. P-values must be formatted to 10 decimal places.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: P-values must be formatted to 10 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:21:23Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: lasso logistic regression random state 42
+  claim_id: c_01bea1fe
+  context: Train LASSO on the designated training set using k-fold cross-validation.
+    Use random_state=42 for reproducibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use random_state=42 for reproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:22:30Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: lasso logistic regression 5-fold cross-validation
+  claim_id: c_f5db7272
+  context: T027 [US3] Implement LASSO logistic regression with 5-fold cross-validation
+    in code/04_ml_validation.py (FR-006) and report out-of-sample AUC value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement LASSO logistic regression with 5-fold cross-validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:23:11Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: NCBI BioProject accession numbers PRJNA639195 and PRJNA566029
+  claim_id: c_8518cd02
+  context: 'Primary Source: Use prefetch SRRxxxxx and fasterq-dump --split-files SRRxxxxx
+    to download FASTQ files into data/raw from NCBI BioProject. Replace ''SRRxxxxx''
+    with the appropriate accession numbers for PRJNA639195 and PRJNA566029.'
+  evidence:
+    entailment_evidence: NCBI BioProject accession numbers PRJNA639195 and PRJNA56602
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/NCBI_BioProject_accession_numbers_PRJNA639195_and_PRJNA56602
+  kind: entity_fact
+  raw_text: Replace 'SRRxxxxx' with the appropriate accession numbers for PRJNA639195
+    and PRJNA566029.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-30T22:23:16Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: pipeline halts if power less than 20 percent
+  claim_id: c_f0563441
+  context: 'CRITICAL: If Power < 20% (Power={power}). Pipeline halted.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_power_less_than_20_percent
+  kind: magnitude
+  raw_text: If Power < 20% (Power={power}). Pipeline halted.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:24:04Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: dataset over 14GB triggers reservoir sampling with seed 42 and N=5000
+  claim_id: c_65ac2965
+  context: 'Large Dataset Handling: If the dataset exceeds 14GB (GitHub Actions disk
+    limit), implement reservoir sampling with a fixed seed of 42 to extract a representative
+    subset of N=5000 rows.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the dataset exceeds 14GB (GitHub Actions disk limit), implement reservoir
+    sampling with a fixed seed of 42 to extract a representative subset of N=5000
+    rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:25:18Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: dwgsim insert size distribution Normal(mean=350, std=50)
+  claim_id: c_92e0d290
+  context: 'Command Example: ''dwgsim -e 0.001 -l 150 -1 350 -2 50 -N 10 -s 42 data/interim/synthetic.vcf
+    data/interim/synthetic_R1.fq data/interim/synthetic_R2.fq''. (Insert size distribution:
+    Normal(mean=350, std=50)).'
+  evidence:
+    asserted: '0.001'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: The command 'dwgsim -e 0.001 -l 150 -1 350 -2 50 -N 10 -s 42' uses an
+    insert size distribution of Normal(mean=350, std=50).
+  resolved_value: '2.718'
+  resolver: approximate
+  source_hash: c42126af63d6f3e1733df60489fbce5dbbc11ecc37f9424cad0a8c9026806d71
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T22:25:19Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: p-values formatted to 10 decimal places for BH FDR correction
+  claim_id: c_02539560
+  context: 'Input: data/interim/gwas_raw.tsv. MUST be sorted by p-value in ascending
+    order. P-values must be formatted to 10 decimal places.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: P-values must be formatted to 10 decimal places for Benjamini-Hochberg
+    FDR correction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:25:53Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: power analysis uses non-central chi-squared distribution
+  claim_id: c_40667baf
+  context: 1. Calculate power using non-central chi-squared distribution.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_uses_non-central_chi-squared_distribution
+  kind: entity_fact
+  raw_text: Power analysis uses a non-central chi-squared distribution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:26:50Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: power analysis halts if n < 80
+  claim_id: c_5d93bfb6
+  context: '2. If n < 80: HALT with error code ERR_SAMPLE_SIZE_INSUFFICIENT.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/power_analysis_halts_if_n_%3C_80
+  kind: magnitude
+  raw_text: Power analysis halts if sample size n is less than 80.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:28:32Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: power analysis halts if power < 20%
+  claim_id: c_f4004047
+  context: '4. CRITICAL: If Power < 20% (Power={power}). Pipeline halted.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/power_analysis_halts_if_power_%3C_20%25
+  kind: magnitude
+  raw_text: Power analysis halts if calculated power is less than 20%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:29:20Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: power analysis reports for OR >= 2.5 at alpha=0.05
+  claim_id: c_3337d9de
+  context: '5. If Power >= 20%: Report the calculated power for detecting large effect
+    sizes (OR >= 2.5) at alpha=0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis reports power for detecting large effect sizes with Odds
+    Ratio (OR) >= 2.5 at alpha=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:30:38Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: "LD pruning uses r\xB2 < 0.2 threshold"
+  claim_id: c_6ed34ede
+  context: "Implement code/utils/preprocess_phenotype.py for LD pruning (r\xB2 < 0.2)\
+    \ and covariate encoding."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LD_pruning_uses_r%C2%B2_%3C_0.2_threshold
+  kind: magnitude
+  raw_text: "LD pruning uses an r\xB2 threshold of less than 0.2."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:31:24Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LASSO logistic regression uses 5-fold cross-validation
+  claim_id: c_0714cb3e
+  context: Implement LASSO logistic regression with 5-fold cross-validation in code/04_ml_validation.py
+    (FR-006) and report out-of-sample AUC value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: LASSO logistic regression uses 5-fold cross-validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:32:11Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LASSO logistic regression uses random_state=42
+  claim_id: c_1443fb70
+  context: 3. Use random_state=42 for reproducibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: LASSO logistic regression uses random_state=42 for reproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:33:04Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: SNP with no gene map assigned 'INTERGENIC'
+  claim_id: c_486d9261
+  context: 3. If a SNP maps to no genes, assign the value 'INTERGENIC' in the output
+    schema.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SNP_with_no_gene_map_assigned_'INTERGENIC'
+  kind: entity_fact
+  raw_text: If a SNP maps to no genes, the value 'INTERGENIC' is assigned in the output
+    schema.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:33:50Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Ensembl API unavailable assigned 'UNAVAILABLE'
+  claim_id: c_0b1bfb71
+  context: 4. If the API is unavailable, assign 'UNAVAILABLE'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ensembl_API_unavailable_assigned_'UNAVAILABLE'
+  kind: entity_fact
+  raw_text: If the Ensembl Bees API is unavailable, the value 'UNAVAILABLE' is assigned
+    in the output schema.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:34:25Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Dataset limit 14GB triggers reservoir sampling with seed 42 and N=5000
+  claim_id: c_51de6e1d
+  context: T012a implementation details for handling large datasets from NCBI BioProject.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the dataset exceeds 14GB (GitHub Actions disk limit), implement reservoir
+    sampling with a fixed seed of 42 to extract a representative subset of N=5000
+    rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:36:39Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: NCBI BioProject accession numbers PRJNA639195 and PRJNA566029
+  claim_id: c_f1a7fdaa
+  context: T012a implementation details for fetching data from NCBI BioProject.
+  evidence:
+    entailment_evidence: NCBI BioProject accession numbers PRJNA639195 and PRJNA56602
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/NCBI_BioProject_accession_numbers_PRJNA639195_and_PRJNA56602
+  kind: entity_fact
+  raw_text: Replace 'SRRxxxxx' with the appropriate accession numbers for PRJNA639195
+    and PRJNA566029.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-30T22:36:44Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: dwgsim used with fixed random seed for reproducibility
+  claim_id: c_5863d555
+  context: T045 implementation details for simulating FASTQ data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dwgsim_used_with_fixed_random_seed_for_reproducibility
+  kind: entity_fact
+  raw_text: Use dwgsim with a fixed random seed to ensure reproducibility.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:37:34Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Insert size distribution Normal with mean 350 and std 50
+  claim_id: c_d033842e
+  context: T045 command example for dwgsim simulation parameters.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Insert size distribution: Normal(mean=350, std=50).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:38:10Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LASSO logistic regression uses random_state 42
+  claim_id: c_5edc0054
+  context: T027 implementation details for LASSO logistic regression.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use random_state=42 for reproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:38:11Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: P-values formatted to 10 decimal places
+  claim_id: c_ff4649e4
+  context: T020 implementation details for Benjamini-Hochberg FDR correction input
+    requirements.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: P-values must be formatted to 10 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:38:11Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LD pruning threshold r squared less than 0.2
+  claim_id: c_a37e1c93
+  context: T016 implementation details for preprocessing phenotypes and LD pruning.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LD_pruning_threshold_r_squared_less_than_0.2
+  kind: magnitude
+  raw_text: "Implement LD pruning with r\xB2 < 0.2."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:39:12Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis halts if sample size n is less than 80
+  claim_id: c_48b7dfa3
+  context: T005 implementation details for power analysis logic.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_if_sample_size_n_is_less_than_80
+  kind: magnitude
+  raw_text: 'If n < 80: HALT with error code ERR_SAMPLE_SIZE_INSUFFICIENT.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:39:16Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis halts if calculated power is less than 20 percent
+  claim_id: c_9f514f3f
+  context: T005 implementation details for power analysis logic.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_if_calculated_power_is_less_than_20_per
+  kind: magnitude
+  raw_text: If Power < 20% (Power={power}). Pipeline halted.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:39:21Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis reports power for effect size OR greater than or equal
+    to 2.5 at alpha 0.05
+  claim_id: c_60647e3c
+  context: T005 implementation details for power analysis logic.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_reports_power_for_effect_size_OR_greater_than
+  kind: magnitude
+  raw_text: Report the calculated power for detecting large effect sizes (OR >= 2.5)
+    at alpha=0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:39:23Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: CCD diagnosis requires live bee population less than 10 percent relative
+    to peak season
+  claim_id: c_24897fbc
+  context: T009 implementation details for CCD diagnosis validation logic.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CCD_diagnosis_requires_live_bee_population_less_than_10_perc
+  kind: magnitude
+  raw_text: Live bee population < 10% relative to peak season.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:40:27Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis halts if sample size is less than 80
+  claim_id: c_e892d8e3
+  context: Task T005 requires power analysis to calculate power using non-central
+    chi-squared distribution and halt if sample size is insufficient.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_if_sample_size_is_less_than_80
+  kind: magnitude
+  raw_text: 'If n < 80: HALT with error code ERR_SAMPLE_SIZE_INSUFFICIENT.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:42:06Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis pipeline halts if calculated power is less than 20 percent
+  claim_id: c_8c5e4914
+  context: Task T005 specifies that the pipeline must halt if the calculated power
+    is below 20%.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_pipeline_halts_if_calculated_power_is_less_th
+  kind: magnitude
+  raw_text: If Power < 20% (Power={power}). Pipeline halted.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:42:11Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis reports power for detecting effect sizes with odds ratio
+    greater than or equal to 2.5 at alpha 0.05
+  claim_id: c_9b5c0424
+  context: Task T005 requires reporting power for specific effect size thresholds.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_reports_power_for_detecting_effect_sizes_with
+  kind: magnitude
+  raw_text: Report the calculated power for detecting large effect sizes (OR >= 2.5)
+    at alpha=0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:42:16Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: CCD diagnosis validation fails if live bee population is less than 10
+    percent of peak season
+  claim_id: c_1b28e795
+  context: Task T009 defines CCD diagnosis validation logic requiring live bee population
+    to be at least 10% of peak season.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CCD_diagnosis_validation_fails_if_live_bee_population_is_les
+  kind: magnitude
+  raw_text: Logic MUST fail validation if live bee population is less than 10% relative
+    to peak season.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:43:35Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Reservoir sampling uses fixed seed 42 to extract 5000 rows when dataset
+    exceeds 14GB
+  claim_id: c_25ac06eb
+  context: Task T012a mandates reservoir sampling with a specific seed and row count
+    for large datasets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement reservoir sampling with a fixed seed of 42 to extract a representative
+    subset of N=5000 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:44:35Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Dataset size threshold for reservoir sampling is 14 gigabytes
+  claim_id: c_604feb6b
+  context: Task T012a specifies a 14GB limit triggering reservoir sampling due to
+    GitHub Actions disk constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the dataset exceeds 14GB (GitHub Actions disk limit), implement reservoir
+    sampling...
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:45:20Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Reservoir sampling extracts a subset of 5000 rows
+  claim_id: c_0a48e441
+  context: Task T012a specifies the target sample size for reservoir sampling.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=5000 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:46:26Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: dwgsim simulation uses error rate 0.001, read length 150, insert size
+    mean 350, std 50, 10 read pairs, seed 42
+  claim_id: c_18082b91
+  context: Task T045 provides a specific command example for generating simulated
+    FASTQ files using dwgsim.
+  evidence:
+    asserted: '0.001'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: 'dwgsim command example: dwgsim -e 0.001 -l 150 -1 350 -2 50 -N 10 -s
+    42 data/interim/synthetic.vcf data/interim/synthetic_R1.fq data/interim/synthetic_R2.fq'
+  resolved_value: '2.718'
+  resolver: approximate
+  source_hash: c42126af63d6f3e1733df60489fbce5dbbc11ecc37f9424cad0a8c9026806d71
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T22:46:26Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: dwgsim insert size distribution is Normal with mean 350 and standard
+    deviation 50
+  claim_id: c_ca263d7b
+  context: Task T045 specifies the statistical parameters for the insert size distribution
+    in simulated data.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Insert size distribution: Normal(mean=350, std=50).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:46:27Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction requires p-values formatted to 10 decimal
+    places
+  claim_id: c_a80b1b4e
+  context: Task T020 specifies formatting requirements for p-values in the FDR correction
+    input.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: P-values must be formatted to 10 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:46:28Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LASSO logistic regression uses 5-fold cross-validation
+  claim_id: c_0cdd1221
+  context: Task T027 requires implementing LASSO with a specific cross-validation
+    fold count.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement LASSO logistic regression with 5-fold cross-validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:46:28Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LASSO implementation uses random state 42
+  claim_id: c_ac38d382
+  context: Task T027 mandates a specific random seed for reproducibility in LASSO
+    training.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use random_state=42 for reproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:46:29Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LD pruning uses r squared threshold less than 0.2
+  claim_id: c_2037ad4b
+  context: Task T016 specifies the correlation threshold for LD pruning in phenotype
+    preprocessing.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LD_pruning_uses_r_squared_threshold_less_than_0.2
+  kind: magnitude
+  raw_text: "Pre-filter SNPs to immune pathway (Candidate-Gene approach) with r\xB2\
+    \ < 0.2 for LD pruning."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:47:18Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis halts if sample size n is less than 80
+  claim_id: c_9304b747
+  context: Task T005 requires calculating power using non-central chi-squared distribution
+    and halting if n < 80.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_if_sample_size_n_is_less_than_80
+  kind: magnitude
+  raw_text: 'If n < 80: HALT with error code ERR_SAMPLE_SIZE_INSUFFICIENT.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:48:20Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis pipeline halts if calculated power is less than 20 percent
+  claim_id: c_f83b87fc
+  context: Task T005 specifies halting the pipeline if the calculated power is below
+    20%.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_pipeline_halts_if_calculated_power_is_less_th
+  kind: magnitude
+  raw_text: If Power < 20% (Power={power}). Pipeline halted.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:48:24Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis reports power for detecting odds ratio greater than or
+    equal to 2.5 at alpha 0.05
+  claim_id: c_444f8e3f
+  context: Task T005 requires reporting power for specific effect sizes and significance
+    levels.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_reports_power_for_detecting_odds_ratio_greate
+  kind: magnitude
+  raw_text: Report the calculated power for detecting large effect sizes (OR >= 2.5)
+    at alpha=0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:48:27Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: CCD diagnosis validation fails if live bee population is less than 10
+    percent of peak season
+  claim_id: c_b24b0841
+  context: Task T009 defines CCD diagnosis validation logic including the 10% live
+    bee population threshold.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CCD_diagnosis_validation_fails_if_live_bee_population_is_les
+  kind: magnitude
+  raw_text: Logic MUST fail validation if Live bee population < 10% relative to peak
+    season.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:49:11Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 3
+  canonical: Dataset sampling uses fixed seed 42 to extract 5000 rows if dataset exceeds
+    14GB
+  claim_id: c_6ae2b81f
+  context: Task T012a describes handling large datasets exceeding 14GB by using reservoir
+    sampling with specific parameters.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the dataset exceeds 14GB (GitHub Actions disk limit), implement reservoir
+    sampling with a fixed seed of 42 to extract a representative subset of N=5000
+    rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:49:13Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Simulated FASTQ generation uses dwgsim with insert size distribution
+    Normal(mean=350, std=50)
+  claim_id: c_3fa225be
+  context: Task T045 specifies parameters for generating simulated FASTQ files using
+    dwgsim.
+  evidence:
+    asserted: '0.001'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: 'Command Example: dwgsim -e 0.001 -l 150 -1 350 -2 50 -N 10 -s 42 data/interim/synthetic.vcf
+    data/interim/synthetic_R1.fq data/interim/synthetic_R2.fq. (Insert size distribution:
+    Normal(mean=350, std=50)).'
+  resolved_value: '2.718'
+  resolver: approximate
+  source_hash: c42126af63d6f3e1733df60489fbce5dbbc11ecc37f9424cad0a8c9026806d71
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T22:49:14Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LD pruning threshold is r squared less than 0.2
+  claim_id: c_49bddc2e
+  context: Task T016 specifies implementing LD pruning with an r-squared threshold
+    of 0.2.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LD_pruning_threshold_is_r_squared_less_than_0.2
+  kind: magnitude
+  raw_text: "Preprocess phenotypes for LD pruning (r\xB2 < 0.2) and covariate encoding."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:49:55Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: P-values in FDR correction output must be formatted to 10 decimal places
+  claim_id: c_542ca670
+  context: Task T020 specifies formatting requirements for P-values in the FDR correction
+    output.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: P-values must be formatted to 10 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:49:56Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LASSO logistic regression uses 5-fold cross-validation
+  claim_id: c_92509f9a
+  context: Task T027 specifies implementing LASSO logistic regression with 5-fold
+    cross-validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train LASSO on the designated training set using k-fold cross-validation
+    with 5 folds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:50:37Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LASSO implementation uses random state 42 for reproducibility
+  claim_id: c_ee22eea6
+  context: Task T027 specifies using a fixed random state for reproducibility in LASSO
+    training.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use random_state=42 for reproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:50:37Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 2
+  canonical: Data fetch targets NCBI BioProject accession numbers PRJNA639195 and
+    PRJNA566029
+  claim_id: c_660abac6
+  context: Task T012a specifies fetching data from specific NCBI BioProject accession
+    numbers.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_fetch_targets_NCBI_BioProject_accession_numbers_PRJNA63
+  kind: entity_fact
+  raw_text: Replace 'SRRxxxxx' with the appropriate accession numbers for PRJNA639195
+    and PRJNA566029.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:50:44Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: dataset limit 14GB triggers reservoir sampling seed 42 N=5000
+  claim_id: c_f15eab5d
+  context: 'Large Dataset Handling: If the dataset exceeds 14GB (GitHub Actions disk
+    limit), implement reservoir sampling with a fixed seed of 42 to extract a representative
+    subset of N=5000 rows.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the dataset exceeds 14GB, implement reservoir sampling with a fixed
+    seed of 42 to extract a representative subset of N=5000 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:51:34Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: sample size threshold n<80 triggers halt
+  claim_id: c_32219239
+  context: 'If n < 80: HALT with error code ERR_SAMPLE_SIZE_INSUFFICIENT.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If n < 80, halt with error code ERR_SAMPLE_SIZE_INSUFFICIENT.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:51:35Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: power threshold 20% triggers pipeline halt
+  claim_id: c_bd49c1a7
+  context: 'CRITICAL: If Power < 20% (Power={power}). Pipeline halted.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If Power < 20%, the pipeline halts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:51:35Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: power analysis detects OR>=2.5 at alpha 0.05
+  claim_id: c_f2457533
+  context: 'If Power >= 20%: Report the calculated power for detecting large effect
+    sizes (OR >= 2.5) at alpha=0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Report power for detecting large effect sizes with OR >= 2.5 at alpha=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:52:35Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: dwgsim insert size normal mean 350 std 50
+  claim_id: c_d453ef75
+  context: 'Command Example: dwgsim -e 0.001 -l 150 -1 350 -2 50 -N 10 -s 42 data/interim/synthetic.vcf
+    data/interim/synthetic_R1.fq data/interim/synthetic_R2.fq. (Insert size distribution:
+    Normal(mean=350, std=50)).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use dwgsim with insert size distribution Normal(mean=350, std=50).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:53:00Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: dwgsim error rate 0.001
+  claim_id: c_b865d0ab
+  context: 'Command Example: dwgsim -e 0.001 -l 150 -1 350 -2 50 -N 10 -s 42 data/interim/synthetic.vcf
+    data/interim/synthetic_R1.fq data/interim/synthetic_R2.fq.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use dwgsim with error rate 0.001.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:53:28Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: dwgsim read length 150
+  claim_id: c_7d49a225
+  context: 'Command Example: dwgsim -e 0.001 -l 150 -1 350 -2 50 -N 10 -s 42 data/interim/synthetic.vcf
+    data/interim/synthetic_R1.fq data/interim/synthetic_R2.fq.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use dwgsim with read length 150.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:54:14Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: dwgsim random seed 42
+  claim_id: c_2b1a9fca
+  context: 'Use dwgsim with a fixed random seed to ensure reproducibility. Command
+    Example: ... -s 42 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use dwgsim with random seed 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:54:44Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LD pruning threshold r2 < 0.2
+  claim_id: c_3683c8cc
+  context: "Implement code/utils/preprocess_phenotype.py for LD pruning (r\xB2 < 0.2)\
+    \ and covariate encoding."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform LD pruning with r\xB2 < 0.2."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:54:45Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: P-values formatted to 10 decimal places
+  claim_id: c_1e441a62
+  context: MUST be sorted by p-value in ascending order. P-values must be formatted
+    to 10 decimal places.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Format P-values to 10 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:55:28Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LASSO uses 5-fold cross-validation
+  claim_id: c_1940f0b7
+  context: Implement LASSO logistic regression with 5-fold cross-validation in code/04_ml_validation.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use 5-fold cross-validation for LASSO logistic regression.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:55:29Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LASSO random_state 42
+  claim_id: c_62a78159
+  context: Use random_state=42 for reproducibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use random_state=42 for LASSO reproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:56:16Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: CCD diagnosis live bee population < 10% of peak
+  claim_id: c_84f73723
+  context: 'CCD diagnosis validation logic that explicitly checks: ... 3. Live bee
+    population < 10% relative to peak season.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CCD_diagnosis_live_bee_population_%3C_10%25_of_peak
+  kind: magnitude
+  raw_text: Live bee population must be less than 10% relative to peak season for
+    CCD diagnosis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:57:03Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Dataset size exceeds 14GB GitHub Actions disk limit
+  claim_id: c_fc1196a2
+  context: If the dataset exceeds 14GB (GitHub Actions disk limit), implement reservoir
+    sampling with a fixed seed of 42 to extract a representative subset of N=5000
+    rows.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_size_exceeds_14GB_GitHub_Actions_disk_limit
+  kind: entity_fact
+  raw_text: The dataset exceeds 14GB (GitHub Actions disk limit).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:59:12Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Reservoir sampling fixed seed 42 subset N 5000 rows
+  claim_id: c_5b297d4a
+  context: If the dataset exceeds 14GB (GitHub Actions disk limit), implement reservoir
+    sampling with a fixed seed of 42 to extract a representative subset of N=5000
+    rows.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reservoir sampling uses a fixed seed of 42 to extract a representative
+    subset of N=5000 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T22:59:57Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis halts if sample size n less than 80
+  claim_id: c_3e67d85e
+  context: 'If n < 80: HALT with error code ERR_SAMPLE_SIZE_INSUFFICIENT. If n >=
+    80: Calculate power.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_if_sample_size_n_less_than_80
+  kind: magnitude
+  raw_text: If n < 80, the power analysis halts with error code ERR_SAMPLE_SIZE_INSUFFICIENT.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T23:01:28Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if statistical power less than 20 percent
+  claim_id: c_18230348
+  context: 'CRITICAL: If Power < 20% (Power={power}). Pipeline halted.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_statistical_power_less_than_20_percent
+  kind: magnitude
+  raw_text: The pipeline halts if Power is less than 20%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T23:04:11Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power reported for OR greater than or equal to 2.5 at alpha 0.05
+  claim_id: c_207573ce
+  context: 'If Power >= 20%: Report the calculated power for detecting large effect
+    sizes (OR >= 2.5) at alpha=0.05.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_reported_for_OR_greater_than_or_equal_to_2.5_at_alpha
+  kind: magnitude
+  raw_text: Power is reported for detecting large effect sizes with an Odds Ratio
+    (OR) greater than or equal to 2.5 at alpha=0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T23:05:16Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Simulated FASTQ insert size Normal mean 350 std 50
+  claim_id: c_dc0e759c
+  context: 'Command Example: dwgsim -e 0.001 -l 150 -1 350 -2 50 -N 10 -s 42 data/interim/synthetic.vcf
+    data/interim/synthetic_R1.fq data/interim/synthetic_R2.fq. (Insert size distribution:
+    Normal(mean=350, std=50)).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The insert size distribution for simulated FASTQ is Normal with mean=350
+    and std=50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T23:05:43Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LASSO logistic regression random_state 42
+  claim_id: c_1fe51ad2
+  context: Use random_state=42 for reproducibility. Compute AUC on the held-out [deferred]
+    test set.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: LASSO logistic regression uses a random_state of 42 for reproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T23:05:44Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: SNPs pre-filtered to immune pathway Candidate-Gene approach
+  claim_id: c_972d9556
+  context: Implement code/03_filter_snps.py to pre-filter SNPs to immune pathway (Candidate-Gene
+    approach) (FR-003).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SNPs_pre-filtered_to_immune_pathway_Candidate-Gene_approach
+  kind: entity_fact
+  raw_text: SNPs are pre-filtered to the immune pathway using a Candidate-Gene approach.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T23:06:24Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LD pruning r squared less than 0.2
+  claim_id: c_f20fcb0f
+  context: "Implement code/utils/preprocess_phenotype.py for LD pruning (r\xB2 < 0.2)\
+    \ and covariate encoding (geographic region, sampling year, Varroa mite count)\
+    \ (FR-003)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LD_pruning_r_squared_less_than_0.2
+  kind: magnitude
+  raw_text: "LD pruning uses an r\xB2 threshold of less than 0.2."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T23:06:28Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: P-values formatted to 10 decimal places for FDR correction
+  claim_id: c_f295e11a
+  context: 'Input: data/interim/gwas_raw.tsv. MUST be sorted by p-value in ascending
+    order. P-values must be formatted to 10 decimal places.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: P-values in the FDR correction input must be formatted to 10 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T23:07:02Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: CCD diagnosis live bee population less than 10 percent relative to peak
+  claim_id: c_9f6bf173
+  context: Logic MUST fail validation if any of these criteria are not met in the
+    synthetic data generation process (FR-011). ... 3. Live bee population < 10% relative
+    to peak season.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CCD_diagnosis_live_bee_population_less_than_10_percent_relat
+  kind: magnitude
+  raw_text: The live bee population must be less than 10% relative to peak season
+    for CCD diagnosis validation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T23:07:32Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Primary data source NCBI BioProject
+  claim_id: c_d18b6aed
+  context: 'Primary Source: Use prefetch SRRxxxxx and fasterq-dump --split-files SRRxxxxx
+    to download FASTQ files into data/raw from NCBI BioProject. Replace ''SRRxxxxx''
+    with the appropriate accession numbers for PRJNA639195 and PRJNA566029.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_data_source_NCBI_BioProject
+  kind: entity_fact
+  raw_text: The primary data source for fetching is NCBI BioProject.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T23:08:10Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 2
+  canonical: NCBI BioProject accession numbers PRJNA639195 and PRJNA566029
+  claim_id: c_f636d33a
+  context: Replace 'SRRxxxxx' with the appropriate accession numbers for PRJNA639195
+    and PRJNA566029.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NCBI_BioProject_accession_numbers_PRJNA639195_and_PRJNA56602
+  kind: entity_fact
+  raw_text: The study uses NCBI BioProject accession numbers PRJNA639195 and PRJNA566029.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T23:08:13Z'

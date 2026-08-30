@@ -82,13 +82,13 @@ samtools
  1. Calculate power using non-central chi-squared distribution.
  2. If n < 80: HALT with error code `ERR_SAMPLE_SIZE_INSUFFICIENT`.
  3. If n >= 80: Calculate power.
- 4. **CRITICAL**: If Power < 20% (Power={power}). Pipeline halted."
+ 4. **CRITICAL**: If Power < 20% (Power={power}). Pipeline halted. "
  5. If Power >= 20%: Report the calculated power for detecting large effect sizes (OR >= 2.5) at alpha=0.05.
  6. Output: Write power value and status to `data/processed/power_analysis.txt`.
 - [X] T006 [P] Implement `code/utils/collinearity_diag.py` for FR-010 (VIF calculation, correlation matrix)
 - [X] T007 [P] Create base data schema validators for `Colony` and `SNP` entities: create `code/utils/validators/colony_schema.py` and `code/utils/validators/snp_schema.py` based on `specs/001-gene-regulation/contracts/dataset.schema.yaml` and `specs/001-gene-regulation/contracts/gwas_output.schema.yaml`
 - [X] T008 [P] Create `.env.example` with keys `NCBI_API_KEY`, `ENSEMBL_API_KEY` and default values for SSL CA bundle paths
-- [X] T009 [P] Implement `code/00_generate_synthetic_data.py` to create deterministic synthetic VCF + Phenotypes for validation. MUST implement CCD diagnosis validation logic that explicitly checks:
+- [X] T009 [P] Implement `code/00_generate_synthetic_data.py` to create deterministic synthetic VCF + Phenotypes for validation. MUST implement CCD diagnosis validation logic that explicitly checks: <!-- FAILED: unspecified -->
  1. Presence of dead adult bees in the hive.
  2. Absence of dead pupae.
  3. Live bee population < 10% relative to peak season.
@@ -128,12 +128,12 @@ samtools
 
 - [X] T012a [US1] Implement `code/01_download.py` to fetch data from NCBI BioProject CCD colonies and healthy controls datasets with associated metadata from BeeBase repository using SRA Toolkit.
  - **Implementation**:
- 1.  **Primary Source**: Use `prefetch SRRxxxxx` and `fasterq-dump --split-files SRRxxxxx` to download FASTQ files into `data/raw` from NCBI BioProject. Replace 'SRRxxxxx' with the appropriate accession numbers for PRJNA639195 and PRJNA566029.
- 2.  **Validation**: Validate downloaded data using checksums against a known good source.
- 3.  **CCD Criteria**: Explicitly validate that the metadata contains "validated instruments for CCD diagnosis criteria consistent across BeeBase and NCBI metadata sources" (FR-011) during the fetch step.
- 4.  **Fallback**: If the NCBI fetch fails completely (network error, SSL failure), attempt fetch from the verified Hugging Face mirror (`bee_genome_variants`).
- 5.  **Large Dataset Handling**: If the dataset exceeds 14GB (GitHub Actions disk limit), implement **reservoir sampling** with a **fixed seed of 42** to extract a representative subset of N=5000 rows. Explicitly log: "Dataset too large for full processing. Using fixed-seed reservoir sampling (seed=42, N=5000). Limitations documented in `data/processed/sampling_methodology.md`."
- 6.  **Output Artifacts**: `data/raw/fastq_files`, `data/processed/sampling_methodology.md`, `data/processed/ncbi_fetch_log.json`.
+ 1. **Primary Source**: Use `prefetch SRRxxxxx` and `fasterq-dump --split-files SRRxxxxx` to download FASTQ files into `data/raw` from NCBI BioProject. Replace 'SRRxxxxx' with the appropriate accession numbers for PRJNA639195 and PRJNA566029.
+ 2. **Validation**: Validate downloaded data using checksums against a known good source.
+ 3. **CCD Criteria**: Explicitly validate that the metadata contains "validated instruments for CCD diagnosis criteria consistent across BeeBase and NCBI metadata sources" (FR-011) during the fetch step.
+ 4. **Fallback**: If the NCBI fetch fails completely (network error, SSL failure), attempt fetch from the verified Hugging Face mirror (`bee_genome_variants`).
+ 5. **Large Dataset Handling**: If the dataset exceeds 14GB (GitHub Actions disk limit), implement **reservoir sampling** with a **fixed seed of 42** to extract a representative subset of N=5000 rows. Explicitly log: "Dataset too large for full processing. Using fixed-seed reservoir sampling (seed=42, N=5000). Limitations documented in `data/processed/sampling_methodology.md`."
+ 6. **Output Artifacts**: `data/raw/fastq_files`, `data/processed/sampling_methodology.md`, `data/processed/ncbi_fetch_log.json`.
  - **Note on Plan vs Spec**: While Plan Phase 0 mentions fetching HF, FR-001 of the Spec mandates NCBI as the primary source. This task enforces NCBI priority.
 
 - [X] T045 [P] [US1] [Validation Only] Implement `code/00_generate_simulated_fastq.py` to simulate FASTQ for *validation/testing* of the alignment pipeline (FR-002).
@@ -157,9 +157,9 @@ samtools
  - **Input**: `data/interim/gwas_raw.tsv`. MUST be sorted by p-value in **ascending order**. P-values must be formatted to **10 decimal places**.
  - **Output**: `data/interim/gwas_fdr.tsv`.
  - **Output Schema**: Columns must be: `rank`, `raw_p`, `q_value`, `significant` (boolean).
- - **Logic**: Apply BH correction. Flag SNPs with q < 0.05 as significant.
+ - **Logic**: Apply BH correction. {{claim:c_67cad75f}}
 
-- [X] T022 [US1] Create `code/04_apply_fdr.sh` to merge PLINK raw results (T017) with FDR-corrected results (T020) into the final artifact `data/processed/gwas_results_fdr.tsv`.
+- [ ] T022 [US1] Create `code/04_apply_fdr.sh` to merge PLINK raw results (T017) with FDR-corrected results (T020) into the final artifact `data/processed/gwas_results_fdr.tsv`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -238,8 +238,17 @@ samtools
 - [X] T037 [P] Run quickstart.md validation to ensure reproducibility.
 - [X] T038 [P] Create `docs/report_template.md` to include the mandatory disclaimer text: "Findings are associational, not causal..." (FR-009)
 - [X] T044 [P] Implement `code/06_edge_case_handler.py` to explicitly handle missing Varroa metadata (Assumption 1):
-- [X] T051 [P] [Review Fix] Update `code/01_download.py` (T012a) to explicitly log the exact number of samples with Varroa data vs total samples before the `ERR_VARROA_COVARIATE_MISSING` check.
+- [ ] T051 [P] [Review Fix] Update `code/01_download.py` (T012a) to explicitly log the exact number of samples with Varroa data vs total samples before the `ERR_VARROA_COVARIATE_MISSING` check.
 
 **Note on GPU Constraint**: Task T074 was removed to align with the Spec's explicit Assumption that "No GPU or CUDA accelerators are required" and to prevent architectural drift. The project remains CPU-tractable.
 
-- [X] T061 [P] [Review Fix] Update `code/05_annotation.py` (T032) to handle "no gene found" cases explicitly.
+- [ ] T061 [P] [Review Fix] Update `code/05_annotation.py` (T032) to handle "no gene found" cases explicitly.
+
+<!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
+- [ ] T075 Reconcile run-book vs implementation for `code/06_power_analysis.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/06_power_analysis.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [ ] T076 Reconcile run-book vs implementation for `code/08_apply_fdr.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/08_apply_fdr.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [ ] T077 Reconcile run-book vs implementation for `code/09_threshold_sensitivity.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/09_threshold_sensitivity.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [ ] T078 Reconcile run-book vs implementation for `code/10_lasso_validation.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/10_lasso_validation.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [ ] T079 Reconcile run-book vs implementation for `code/11_prs_and_lr_test.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/11_prs_and_lr_test.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [ ] T080 Reconcile run-book vs implementation for `code/12_annotate_genes.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/12_annotate_genes.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [ ] T081 Reconcile run-book vs implementation for `code/13_format_results.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/13_format_results.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.

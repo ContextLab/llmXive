@@ -17,33 +17,33 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…"""Main entry point for synthetic data generation."""     parse…”
 - code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…umentParser(description="Generate synthetic VCF and Phenotype data f…”
 
-## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
 
-These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
 
-- `python code/02_harmonize_phenotypes.py`
-- `python code/04_filter_snps.py`
-- `python code/05_collinearity_diag.py`
-- `python code/06_power_analysis.py`
-- `python code/08_apply_fdr.py`
-- `python code/09_threshold_sensitivity.py`
-- `python code/10_lasso_validation.py`
-- `python code/11_prs_and_lr_test.py`
-- `python code/12_annotate_genes.py`
-- `python code/13_format_results.py`
+- run-book command: `python code/02_harmonize_phenotypes.py`
+  - script usage: `02_harmonize_phenotypes.py [-h] --input INPUT [--output-dir OUTPUT_DIR]`
+  - argparse error: `02_harmonize_phenotypes.py: error: the following arguments are required: --input`
+- run-book command: `python code/04_filter_snps.py`
+  - script usage: `04_filter_snps.py [-h] --input-bed INPUT_BED --input-pheno INPUT_PHENO`
+  - argparse error: `04_filter_snps.py: error: the following arguments are required: --input-bed, --input-pheno`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 15 fabricated/simulated-result signal(s) — results are not real measurements: code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator for Honeybee C…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…Validation.  This module generates deterministic synthetic VCF and Phenotype data f…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…[str, Any]]:     """     Generate synthetic colony data with CCD dia…”; 10 run-book script(s) missing (plan/impl path mismatch): python code/02_harmonize_phenotypes.py; python code/04_filter_snps.py; python code/05_collinearity_diag.py; 4 declared deliverable(s) absent: data/interim/gwas_raw.tsv; data/processed/annotated_snps.tsv; data/processed/gwas_results_fdr.tsv
+**Summary**: 16 fabricated/simulated-result signal(s) — results are not real measurements: code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic Data Generator for Honeybee C…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…Validation.  This module generates deterministic synthetic VCF and Phenotype data f…”; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec — “…[str, Any]]:     """     Generate synthetic colony data with CCD dia…”; 7 run-book script(s) missing (plan/impl path mismatch): python code/06_power_analysis.py; python code/08_apply_fdr.py; python code/09_threshold_sensitivity.py; 3 command(s) failed: python code/02_harmonize_phenotypes.py (rc=2); python code/04_filter_snps.py (rc=2); python code/05_collinearity_diag.py (rc=1); 2 declared deliverable(s) absent: data/interim/gwas_raw.tsv; data/processed/gwas_results_fdr.tsv
 
 ## Failing / missing run-book commands
 
-- python code/02_harmonize_phenotypes.py -> rc=2 [script missing]
-    /home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/02_harmonize_phenotypes.py': [Errno 2] No such file or directory
-- python code/04_filter_snps.py -> rc=2 [script missing]
-    /home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/04_filter_snps.py': [Errno 2] No such file or directory
-- python code/05_collinearity_diag.py -> rc=2 [script missing]
-    /home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/05_collinearity_diag.py': [Errno 2] No such file or directory
+- python code/02_harmonize_phenotypes.py -> rc=2
+    usage: 02_harmonize_phenotypes.py [-h] --input INPUT [--output-dir OUTPUT_DIR]
+02_harmonize_phenotypes.py: error: the following arguments are required: --input
+- python code/04_filter_snps.py -> rc=2
+    usage: 04_filter_snps.py [-h] --input-bed INPUT_BED --input-pheno INPUT_PHENO
+                         [--output-prefix OUTPUT_PREFIX]
+                         [--r2-threshold R2_THRESHOLD]
+04_filter_snps.py: error: the following arguments are required: --input-bed, --input-pheno
+- python code/05_collinearity_diag.py -> rc=1
+    Error: Input file not found: data/processed/phenotypes_cleaned.pheno
 - python code/06_power_analysis.py -> rc=2 [script missing]
     /home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/06_power_analysis.py': [Errno 2] No such file or directory
 - python code/08_apply_fdr.py -> rc=2 [script missing]
@@ -62,9 +62,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Declared deliverables still missing
 
 - data/interim/gwas_raw.tsv
-- data/processed/annotated_snps.tsv
 - data/processed/gwas_results_fdr.tsv
-- data/processed/threshold_sensitivity_report.tsv
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -74,16 +72,10 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/03_gwas.py` — NOT invoked by the run-book
     - `code/utils/fdr_correction.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/interim/gwas_raw.tsv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/annotated_snps.tsv` is declared but was NOT written. Scripts referencing it:
-    - `code/05_annotation.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/annotated_snps.tsv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/gwas_results_fdr.tsv` is declared but was NOT written. Scripts referencing it:
     - `code/05_annotation.py` — NOT invoked by the run-book
     - `code/utils/threshold_sensitivity.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/gwas_results_fdr.tsv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/threshold_sensitivity_report.tsv` is declared but was NOT written. Scripts referencing it:
-    - `code/utils/threshold_sensitivity.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/threshold_sensitivity_report.tsv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 
 ## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
 

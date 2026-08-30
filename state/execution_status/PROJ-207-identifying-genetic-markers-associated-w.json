@@ -1,12 +1,12 @@
 {
   "project_id": "PROJ-207-identifying-genetic-markers-associated-w",
   "ok": false,
-  "reason": "15 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"\"\" Synthetic Data Generator for Honeybee C\u2026\u201d; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026Validation.  This module generates deterministic synthetic VCF and Phenotype data f\u2026\u201d; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026[str, Any]]:     \"\"\"     Generate synthetic colony data with CCD dia\u2026\u201d; 10 run-book script(s) missing (plan/impl path mismatch): python code/02_harmonize_phenotypes.py; python code/04_filter_snps.py; python code/05_collinearity_diag.py; 4 declared deliverable(s) absent: data/interim/gwas_raw.tsv; data/processed/annotated_snps.tsv; data/processed/gwas_results_fdr.tsv",
+  "reason": "16 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"\"\" Synthetic Data Generator for Honeybee C\u2026\u201d; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026Validation.  This module generates deterministic synthetic VCF and Phenotype data f\u2026\u201d; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026[str, Any]]:     \"\"\"     Generate synthetic colony data with CCD dia\u2026\u201d; 7 run-book script(s) missing (plan/impl path mismatch): python code/06_power_analysis.py; python code/08_apply_fdr.py; python code/09_threshold_sensitivity.py; 3 command(s) failed: python code/02_harmonize_phenotypes.py (rc=2); python code/04_filter_snps.py (rc=2); python code/05_collinearity_diag.py (rc=1); 2 declared deliverable(s) absent: data/interim/gwas_raw.tsv; data/processed/gwas_results_fdr.tsv",
   "artifacts": [],
   "failures": [
-    "python code/02_harmonize_phenotypes.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/02_harmonize_phenotypes.py': [Errno 2] No such file or directory",
-    "python code/04_filter_snps.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/04_filter_snps.py': [Errno 2] No such file or directory",
-    "python code/05_collinearity_diag.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/05_collinearity_diag.py': [Errno 2] No such file or directory",
+    "python code/02_harmonize_phenotypes.py -> rc=2\n    usage: 02_harmonize_phenotypes.py [-h] --input INPUT [--output-dir OUTPUT_DIR]\n02_harmonize_phenotypes.py: error: the following arguments are required: --input",
+    "python code/04_filter_snps.py -> rc=2\n    usage: 04_filter_snps.py [-h] --input-bed INPUT_BED --input-pheno INPUT_PHENO\n                         [--output-prefix OUTPUT_PREFIX]\n                         [--r2-threshold R2_THRESHOLD]\n04_filter_snps.py: error: the following arguments are required: --input-bed, --input-pheno",
+    "python code/05_collinearity_diag.py -> rc=1\n    Error: Input file not found: data/processed/phenotypes_cleaned.pheno",
     "python code/06_power_analysis.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/06_power_analysis.py': [Errno 2] No such file or directory",
     "python code/08_apply_fdr.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/08_apply_fdr.py': [Errno 2] No such file or directory",
     "python code/09_threshold_sensitivity.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/09_threshold_sensitivity.py': [Errno 2] No such file or directory",
@@ -15,11 +15,11 @@
     "python code/12_annotate_genes.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/12_annotate_genes.py': [Errno 2] No such file or directory",
     "python code/13_format_results.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-207-identifying-genetic-markers-associated-w/code/13_format_results.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 6,
+  "fix_rounds": 7,
   "model_tier": 0,
-  "total_attempts": 6,
+  "total_attempts": 7,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-08-02T01:42:12Z"
+  "updated_at": "2026-08-30T22:10:34Z"
 }

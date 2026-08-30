@@ -1,111 +1,81 @@
 #!/bin/bash
-set -e
-
 # T017: Execute PLINK logistic regression for GWAS
-# Input: data/processed/model_config.yaml (from T046)
-#        data/processed/phenotypes_cleaned.fam (from T016)
-#        data/processed/pruned_genotypes.bed (from T016)
-# Output: data/interim/gwas_raw.tsv
+# Outputs raw association statistics to data/interim/gwas_raw.tsv
+# Does NOT include FDR logic (handled by T020)
 
-echo "Starting GWAS execution (T017)..."
+set -euo pipefail
 
-# Verify required inputs exist
-if [ ! -f "data/processed/model_config.yaml" ]; then
-    echo "ERROR: data/processed/model_config.yaml not found. Run T046 first."
+# Paths
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+CODE_DIR="${PROJECT_ROOT}/code"
+DATA_DIR="${PROJECT_ROOT}/data"
+INTERIM_DIR="${DATA_DIR}/interim"
+PROCESSED_DIR="${DATA_DIR}/processed"
+
+# Input files (produced by previous steps)
+# T015: VCF to PLINK conversion -> data/interim/gwas_cleaned
+# T016: Phenotype preprocessing -> data/interim/phenotypes_cleaned
+# T046: Covariates (encoded) -> typically merged into .pheno or separate file
+# T064: Collinearity diagnostics passed (assumed)
+
+PLINK_PREFIX="${INTERIM_DIR}/gwas_cleaned"
+PHENO_FILE="${INTERIM_DIR}/phenotypes_cleaned.pheno"
+COV_FILE="${INTERIM_DIR}/covariates_cleaned.cov"
+OUTPUT_PREFIX="${INTERIM_DIR}/gwas_raw"
+
+# Check prerequisites
+if [ ! -f "${PLINK_PREFIX}.bed" ]; then
+    echo "ERROR: PLINK binary file not found: ${PLINK_PREFIX}.bed"
+    echo "Ensure T015 (vcf_to_plink) and T016 (preprocess_phenotype) have completed successfully."
     exit 1
 fi
 
-if [ ! -f "data/processed/phenotypes_cleaned.fam" ]; then
-    echo "ERROR: data/processed/phenotypes_cleaned.fam not found. Run T016 first."
+if [ ! -f "${PHENO_FILE}" ]; then
+    echo "ERROR: Phenotype file not found: ${PHENO_FILE}"
     exit 1
 fi
 
-if [ ! -f "data/processed/pruned_genotypes.bed" ]; then
-    echo "ERROR: data/processed/pruned_genotypes.bed not found. Run T016 first."
+if [ ! -f "${COV_FILE}" ]; then
+    echo "ERROR: Covariate file not found: ${COV_FILE}"
+    echo "Ensure T016 (preprocess_phenotype) generated covariates."
     exit 1
 fi
 
-# Read model configuration
-STRATEGY=$(grep "^strategy:" data/processed/model_config.yaml | awk '{print $2}')
-echo "Detected model strategy: $STRATEGY"
+# Ensure output directory exists
+mkdir -p "${INTERIM_DIR}"
 
-COVAR_FILE=""
-if [ "$STRATEGY" == "Covariates" ]; then
-    COVAR_FILE="data/processed/phenotypes_cleaned.pheno"
-    if [ ! -f "$COVAR_FILE" ]; then
-        echo "ERROR: Covariate strategy selected but $COVAR_FILE not found."
-        exit 1
-    fi
-    echo "Using covariates from: $COVAR_FILE"
-elif [ "$STRATEGY" == "PCA" ]; then
-    COVAR_FILE="data/processed/pruned_genotypes.eigenvec"
-    if [ ! -f "$COVAR_FILE" ]; then
-        echo "ERROR: PCA strategy selected but PCA file not found. Run PLINK PCA first."
-        exit 1
-    fi
-    echo "Using PCA components from: $COVAR_FILE"
-else
-    echo "ERROR: Unknown strategy in model_config.yaml: $STRATEGY"
-    exit 1
-fi
+# Execute PLINK logistic regression
+# --logistic: Perform logistic regression for binary trait
+# --covar: Include covariates (geographic region, sampling year, Varroa count)
+# --covar-name: Explicitly specify covariate columns if needed (optional, PLINK auto-detects header)
+# --out: Output prefix
+# --adjust: Output basic adjustments (optional, but good for debugging)
+# --ci: Confidence intervals for odds ratios (optional)
 
-# Define output paths
-OUTPUT_PREFIX="data/interim/gwas_raw"
+echo "Starting PLINK logistic regression..."
+echo "Input: ${PLINK_PREFIX}"
+echo "Phenotype: ${PHENO_FILE}"
+echo "Covariates: ${COV_FILE}"
+echo "Output: ${OUTPUT_PREFIX}"
 
-echo "Running PLINK2 logistic regression..."
-echo "Input: data/processed/pruned_genotypes"
-echo "Phenotype: data/processed/phenotypes_cleaned.fam"
-echo "Covariates: $COVAR_FILE"
-echo "Output: $OUTPUT_PREFIX"
-
-# Execute PLINK2
-# --logistic hide-covar: Run logistic regression, hide covariate details in output
-# --ci 0.95: Calculate 95% confidence intervals for OR
-# --covar: Provide covariate file
-# --pheno: Explicitly specify phenotype file (though .fam is often used, explicit is safer)
-# --family: Specify family structure (0=unrelated)
 plink2 \
-    --bfile data/processed/pruned_genotypes \
-    --pheno data/processed/phenotypes_cleaned.fam \
-    --family 0 \
-    --covar "$COVAR_FILE" \
+    --bfile "${PLINK_PREFIX}" \
     --logistic hide-covar \
-    --ci 0.95 \
-    --out "$OUTPUT_PREFIX"
-
-# Post-processing: Ensure column names match schema (Odds_Ratio instead of OR)
-# PLINK2 outputs 'OR' by default. We need to rename it to 'Odds_Ratio' for downstream compatibility.
-echo "Post-processing GWAS output to match schema..."
-
-INPUT_FILE="${OUTPUT_PREFIX}.assoc.logistic"
-if [ ! -f "$INPUT_FILE" ]; then
-    echo "ERROR: PLINK2 did not produce expected output file: $INPUT_FILE"
-    exit 1
-fi
-
-OUTPUT_TSV="${OUTPUT_PREFIX}.tsv"
-
-# Use awk to rename the column 'OR' to 'Odds_Ratio'
-# This assumes the header line contains 'OR' as the 8th column (standard PLINK logistic output)
-# If the column index varies, a more robust header scan is needed.
-# Standard PLINK2 logistic header: CHR SNP BP A1 TEST NMISS OR SE P
-awk 'BEGIN {FS="\t"; OFS="\t"} 
-     NR==1 {
-         for(i=1; i<=NF; i++) {
-             if($i == "OR") $i = "Odds_Ratio"
-         }
-         print
-         next
-     }
-     {print}' "$INPUT_FILE" > "$OUTPUT_TSV"
+    --covar "${COV_FILE}" \
+    --pheno "${PHENO_FILE}" \
+    --pheno-name "CCD_Status" \
+    --out "${OUTPUT_PREFIX}" \
+    2>&1 | tee "${INTERIM_DIR}/gwas_run.log"
 
 # Verify output
-if [ -f "$OUTPUT_TSV" ]; then
-    echo "SUCCESS: GWAS raw results written to $OUTPUT_TSV"
-    echo "Columns:"
-    head -1 "$OUTPUT_TSV"
+if [ -f "${OUTPUT_PREFIX}.assoc.logistic" ]; then
+    echo "SUCCESS: Raw association statistics written to ${OUTPUT_PREFIX}.assoc.logistic"
+    # The task requires output to `data/interim/gwas_raw.tsv`
+    # PLINK outputs `*.assoc.logistic`. We move/rename it to match the spec.
+    mv "${OUTPUT_PREFIX}.assoc.logistic" "${OUTPUT_PREFIX}.tsv"
+    echo "Renamed output to: ${OUTPUT_PREFIX}.tsv"
 else
-    echo "ERROR: Failed to write output file $OUTPUT_TSV"
+    echo "ERROR: PLINK did not produce the expected output file: ${OUTPUT_PREFIX}.assoc.logistic"
     exit 1
 fi
 
