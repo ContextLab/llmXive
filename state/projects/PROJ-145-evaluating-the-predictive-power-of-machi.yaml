@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T12:28:55.953044Z'
-current_stage: analyzed
+current_stage: planned
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-145-evaluating-the-predictive-power-of-machi
-last_run_id: 3024c303-0c34-4e74-b580-7629915de2db
+last_run_id: db0ac42c-1be2-4138-ad00-0fe038fd5465
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi
 title: Evaluating the Predictive Power of Machine Learning for Identifying Novel High-Entropy
   Alloy Compositions
-updated_at: '2026-08-29T16:00:14.279909Z'
+updated_at: '2026-08-30T04:54:10.582403Z'

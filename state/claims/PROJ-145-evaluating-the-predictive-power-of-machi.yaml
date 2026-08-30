@@ -581,3 +581,963 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-11T13:00:36Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: N_NOVEL_SAMPLES set to 1000
+  claim_id: c_8e418767
+  context: 'T002a [P] [US1] Config Definitions: Add N_NOVEL_SAMPLES = 1000, ELEMENT_SUBSET
+    = ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N_NOVEL_SAMPLES = 1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:11:18Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: ELEMENT_SUBSET contains 30 specific transition and post-transition metals
+  claim_id: c_b3aa3e2d
+  context: 'T002a [P] [US1] Config Definitions: Add N_NOVEL_SAMPLES = 1000, ELEMENT_SUBSET
+    = ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ELEMENT_SUBSET = ["Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu",
+    "Zn", "Y", "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "Hf", "Ta", "W",
+    "Re", "Os", "Ir", "Pt", "Au", "Hg", "Al"]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:11:18Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: API client uses maximum of 3 retries with exponential backoff
+  claim_id: c_71b95e31
+  context: 'T017c [US1] Live API Client Implementation: ... Query the API with exponential
+    backoff (max 3 retries).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: max 3 retries
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:12:12Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: True Novel generation uses fixed random seed 42
+  claim_id: c_a6ee3b61
+  context: 'T015 [US1] True Novel Generation: ... using itertools.combinations and
+    a fixed random seed (42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fixed random seed (42)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:12:52Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Hold-out known sampling iterates all 5-element subsets of the periodic
+    table
+  claim_id: c_108a6d0e
+  context: 'T014b [US1] Hold-out Known Sampling: ... Iterate all 5-element subsets
+    of the periodic table, filter by exclusion criteria.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 5-element subsets
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:13:25Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Threshold calculated at 10th percentile of training set variance distribution
+  claim_id: c_60a8020c
+  context: 'T035a [US3] Threshold Calculation: ... Calculate the 10th percentile of
+    this distribution.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Threshold_calculated_at_10th_percentile_of_training_set_vari
+  kind: entity_fact
+  raw_text: 10th percentile
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:14:23Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: DFT input files generated for top 5 candidates
+  claim_id: c_2ec48ab0
+  context: 'T041 [US3] DFT Attempt: ... Generate input files (POTCAR, KPOINTS, etc.)
+    for the top 5 candidates.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: top 5 candidates
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:15:20Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Streaming logic optimized to ensure less than 7GB RAM usage
+  claim_id: c_be24eb23
+  context: T038 Profile code/data_ingestion.py and optimize streaming logic to ensure
+    <7GB RAM usage
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Streaming_logic_optimized_to_ensure_less_than_7GB_RAM_usage
+  kind: magnitude
+  raw_text: <7GB RAM usage
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:16:16Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Statistical tests raise ValueError if dataset has less than 10 samples
+  claim_id: c_91616e13
+  context: 'T032 [US3] Statistical Test (Permutation): ... If the dataset size is
+    insufficient for the permutation test (e.g., < 10 samples in either set), raise
+    a ValueError...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_tests_raise_ValueError_if_dataset_has_less_than
+  kind: magnitude
+  raw_text: < 10 samples
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:17:04Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: hmao dataset loaded with streaming=True
+  claim_id: c_0953d4a5
+  context: 'T012 Data Ingestion Implementation: Implement code/data_ingestion.py to
+    load hmao/all_apis_for_multiapi using datasets.load_dataset(..., streaming=True).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hmao_dataset_loaded_with_streaming%3DTrue
+  kind: entity_fact
+  raw_text: The dataset 'hmao/all_apis_for_multiapi' is loaded using 'datasets.load_dataset(...,
+    streaming=True)'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:21:30Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: random seed 42 used for novel sampling
+  claim_id: c_ca969d04
+  context: 'T015 True Novel Generation: Sample config.N_NOVEL_SAMPLES unique 5-element
+    combinations from config.ELEMENT_SUBSET using itertools.combinations and a fixed
+    random seed (42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random seed for sampling novel combinations is fixed at 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:22:55Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: element subset contains 30 metals
+  claim_id: c_ad828c66
+  context: 'T002a Config Definitions: Add N_NOVEL_SAMPLES = 1000, ELEMENT_SUBSET =
+    ["Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Y", "Zr", "Nb", "Mo",
+    "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au",
+    "Hg", "Al"] to code/config.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The element subset includes 30 specific transition and post-transition
+    metals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:23:50Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: N_NOVEL_SAMPLES set to 1000
+  claim_id: c_7802128a
+  context: 'T002a Config Definitions: Add N_NOVEL_SAMPLES = 1000, ELEMENT_SUBSET =
+    [...] to code/config.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target number of novel samples is 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:24:24Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: API client uses max 3 retries with exponential backoff
+  claim_id: c_8d16ed3c
+  context: 'T017c Live API Client Implementation: Implement code/api_client.py...
+    Query the API with exponential backoff (max 3 retries).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The API client implementation uses exponential backoff with a maximum
+    of 3 retries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:25:05Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: '8 descriptors calculated: mean/var radius, electronegativity, VEC, melting
+    point'
+  claim_id: c_3674c9b1
+  context: 'T021 Implement code/feature_engineering.py... Output: data/processed/heas_train_features.csv
+    with columns: mean_atomic_radius, var_atomic_radius, mean_electronegativity, var_electronegativity,
+    mean_VEC, var_VEC, mean_melting_point, var_melting_point.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The feature engineering process calculates 8 specific descriptors: mean
+    and variance for atomic radius, electronegativity, VEC, and melting point.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:25:36Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: permutation test fails if sample size < 10
+  claim_id: c_9e4694ef
+  context: 'T032 Statistical Test (Permutation): Constraint: If the dataset size is
+    insufficient for the permutation test (e.g., < 10 samples in either set), raise
+    a ValueError with a clear message.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/permutation_test_fails_if_sample_size_%3C_10
+  kind: magnitude
+  raw_text: The permutation test raises a ValueError if either set has fewer than
+    10 samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:26:44Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: filtering threshold is 10th percentile of variance
+  claim_id: c_9ebd7787
+  context: 'T035a Threshold Calculation: Calculate the 10th percentile of this distribution.
+    Output: A single float value (threshold) to be used by T034.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Filtering_threshold_is_10th_percentile_of_variance
+  kind: entity_fact
+  raw_text: The threshold for candidate filtering is calculated as the 10th percentile
+    of the training set's variance distribution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:27:36Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: 10 models used for threshold calculation
+  claim_id: c_eb687a59
+  context: 'T035a Threshold Calculation: Train multiple independent Random Forest
+    models on the full training set using distinct random seeds. For each sample in
+    the training set, collect the 10 predictions and calculate the variance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold calculation uses 10 independent Random Forest models with
+    distinct random seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:28:14Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: DFT input generated for top 5 candidates
+  claim_id: c_c7349d99
+  context: 'T041 DFT Attempt: Generate input files (POTCAR, KPOINTS, etc.) for the
+    top 5 candidates.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: DFT input files are generated for the top 5 novel candidates.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:28:50Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: DFT job timeout is 1 hour
+  claim_id: c_8d7df01a
+  context: 'T041 DFT Attempt: Submit job with a timeout appropriate for the task duration
+    (e.g., an hour per job).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The DFT job submission uses a timeout of one hour per job.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:28:50Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: streaming fetch retry limit is 3
+  claim_id: c_ca8f45f7
+  context: 'T016 Streaming Integrity Check: Implement streaming integrity check...
+    and implement exponential backoff with a maximum of 3 retries if the fetch fails.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The streaming integrity check implements exponential backoff with a maximum
+    of 3 retries if the fetch fails.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:29:18Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: N_NOVEL_SAMPLES set to 1000
+  claim_id: c_7ef0ef00
+  context: Task T002a defines the constant and a concrete subset of transition/post-transition
+    metals to sample from.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add N_NOVEL_SAMPLES = 1000 to code/config.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:30:52Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: ELEMENT_SUBSET contains 30 specific elements
+  claim_id: c_982bf8e8
+  context: Task T002a defines a concrete subset of transition/post-transition metals
+    to sample from.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ELEMENT_SUBSET includes Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn, Y, Zr,
+    Nb, Mo, Tc, Ru, Rh, Pd, Ag, Cd, Hf, Ta, W, Re, Os, Ir, Pt, Au, Hg, and Al.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:30:53Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Dataset fetch uses max 3 retries with exponential backoff
+  claim_id: c_b94f979d
+  context: Task T016 implements streaming integrity check with exponential backoff.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset fetch must use exponential backoff with a maximum of 3 retries
+    if it fails.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:31:35Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: API client uses max 3 retries with exponential backoff
+  claim_id: c_00fabb32
+  context: Task T017c implements a live API client with exponential backoff.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The API client must use exponential backoff with a maximum of 3 retries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:32:00Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: True Novel generation uses random seed 42
+  claim_id: c_be9cf75f
+  context: Task T015 samples unique 5-element combinations using a fixed random seed
+    for reproducibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: True Novel generation must use a fixed random seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:32:43Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Permutation test requires minimum 10 samples per set
+  claim_id: c_84df6ac6
+  context: Task T032 raises a ValueError if the dataset size is insufficient (e.g.,
+    < 10 samples) for the permutation test.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_requires_minimum_10_samples_per_set
+  kind: magnitude
+  raw_text: The permutation test requires at least 10 samples in either set to proceed.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:33:09Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Variance threshold calculated at 10th percentile
+  claim_id: c_d7b5c06f
+  context: Task T035a calculates the 10th percentile of the variance distribution
+    to assess tail behavior.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Variance_threshold_calculated_at_10th_percentile
+  kind: entity_fact
+  raw_text: The variance distribution threshold is calculated as the 10th percentile.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:33:51Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: 10 independent Random Forest models trained for variance calculation
+  claim_id: c_0a7c4947
+  context: Task T035a trains multiple independent models using distinct random seeds
+    to collect predictions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ten independent Random Forest models are trained on the full training
+    set to calculate the variance threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:33:51Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Top 5 candidates selected for DFT input generation
+  claim_id: c_fade4a10
+  context: Task T041 generates input files for the top 5 candidates.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Top 5 candidates are selected for DFT calculation input file generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:34:21Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: DFT job timeout set to 1 hour per job
+  claim_id: c_aa780e1e
+  context: Task T041 submits jobs with a timeout appropriate for the task duration.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The DFT job timeout is set to an hour per job.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:34:21Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: 8 descriptor columns calculated in feature engineering
+  claim_id: c_ee5f8e0f
+  context: Task T021 calculates mean and variance for atomic radius, electronegativity,
+    VEC, and melting point.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Feature engineering calculates 8 specific descriptor columns.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:34:54Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Streaming logic optimized for <7GB RAM usage
+  claim_id: c_78ecaccd
+  context: Task T038 profiles and optimizes streaming logic to ensure memory constraints
+    are met.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Streaming_logic_optimized_for_%3C7GB_RAM_usage
+  kind: magnitude
+  raw_text: The code must ensure less than 7GB RAM usage during streaming logic optimization.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:35:32Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Hold-out sampling iterates 5-element subsets
+  claim_id: c_69daccbe
+  context: Task T014b samples unique combinations ensuring each contains a small,
+    fixed number of elements.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hold-out known sampling iterates all 5-element subsets of the periodic
+    table.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:36:59Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: True novel generation samples 5-element combinations
+  claim_id: c_14da2be0
+  context: Task T015 samples unique 5-element combinations from the element subset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The true novel generation samples 5-element combinations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:37:47Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Number of novel samples set to 1000
+  claim_id: c_fb4a446f
+  context: Task T002a defines the constant N_NOVEL_SAMPLES = 1000 in code/config.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N_NOVEL_SAMPLES = 1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:39:27Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Element subset contains 30 specific transition and post-transition metals
+  claim_id: c_9c6b3eaa
+  context: Task T002a defines a concrete subset of 30 elements to sample from for
+    novel composition generation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ELEMENT_SUBSET = ["Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu",
+    "Zn", "Y", "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "Hf", "Ta", "W",
+    "Re", "Os", "Ir", "Pt", "Au", "Hg", "Al"]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:39:27Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: API client configured for max 3 retries
+  claim_id: c_8dcab445
+  context: Task T017c specifies that the live API client must query with exponential
+    backoff and a maximum of 3 retries.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Maximum 3 retries with exponential backoff
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:40:00Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Random seed fixed at 42 for reproducibility
+  claim_id: c_49d74fd0
+  context: Task T015 requires sampling unique 5-element combinations using a fixed
+    random seed of 42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fixed random seed of 42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:40:00Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Feature engineering produces 8 specific descriptor columns
+  claim_id: c_fc80ad9d
+  context: Task T021 lists the 8 columns generated for the training features dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '8 descriptor columns: mean_atomic_radius, var_atomic_radius, mean_electronegativity,
+    var_electronegativity, mean_VEC, var_VEC, mean_melting_point, var_melting_point'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:40:28Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: 10 independent models used for variance distribution calculation
+  claim_id: c_f9dbeff0
+  context: Task T035a describes training 10 independent models on the full training
+    set using distinct random seeds to calculate variance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 10 independent Random Forest models trained with distinct random seeds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:41:16Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Threshold set to 10th percentile of variance
+  claim_id: c_166e1a20
+  context: Task T035a specifies calculating the 10th percentile of the variance distribution
+    to use as a filtering threshold.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Threshold_set_to_10th_percentile_of_variance
+  kind: entity_fact
+  raw_text: 10th percentile of variance distribution used as threshold
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:41:55Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: DFT attempt performed on top 5 candidates
+  claim_id: c_7f6cf297
+  context: Task T041 states that input files will be generated for the top 5 candidates
+    for DFT calculation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Top 5 candidates selected for DFT calculation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:42:43Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: DFT job timeout set to 1 hour
+  claim_id: c_32120177
+  context: Task T041 specifies submitting the DFT job with a timeout appropriate for
+    the task duration, e.g., an hour per job.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Timeout of an hour per job for DFT submission
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:42:44Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Permutation test requires minimum 10 samples per set
+  claim_id: c_a89f7e9e
+  context: Task T032 raises a ValueError if the dataset size is insufficient for the
+    permutation test, specifically citing < 10 samples in either set.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Minimum 10 samples required for permutation test
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:43:33Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Statistical correlation requires minimum 10 samples
+  claim_id: c_c33051c5
+  context: Task T035b ensures the code handles cases where the true_novel set is too
+    small (< 10 samples) for statistical correlation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Minimum 10 samples required for statistical correlation check
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:44:16Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Streaming logic optimized for under 7GB RAM usage
+  claim_id: c_f8162117
+  context: Task T038 aims to profile and optimize streaming logic to ensure usage
+    remains under 7GB RAM.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Streaming_logic_optimized_for_under_7GB_RAM_usage
+  kind: magnitude
+  raw_text: RAM usage target of less than 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:44:55Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Train 10 independent Random Forest models with seeds 0-9 for variance
+    threshold calculation
+  claim_id: c_5654cd8a
+  context: 'T035a [US3] **Threshold Calculation**: Compute a lower percentile of the
+    *training set''s* variance distribution... **Algorithm**: Train multiple independent
+    Random Forest models on the full training set using distinct random seeds.. For
+    each sample in the training set, collect the 10 predictions and calculate the
+    variance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train multiple independent Random Forest models on the full training set
+    using distinct random seeds (0-9) to collect 10 predictions per sample.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:47:52Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Calculate 10th percentile of variance distribution for threshold
+  claim_id: c_fe31b575
+  context: 'T035a [US3] **Threshold Calculation**: ...Calculate the 10th percentile
+    of this distribution. **Output**: A single float value (threshold) to be used
+    by T034.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_10th_percentile_of_variance_distribution_for_thres
+  kind: entity_fact
+  raw_text: Calculate the 10th percentile of the variance distribution to determine
+    the threshold for candidate filtering.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:48:29Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Sample N_NOVEL_SAMPLES unique 5-element combinations with random seed
+    42
+  claim_id: c_89a44f30
+  context: 'T015 [US1] **True Novel Generation**: Sample `config.N_NOVEL_SAMPLES`
+    unique 5-element combinations from `config.ELEMENT_SUBSET` (defined in T002a)
+    using `itertools.combinations` and a fixed random seed (42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sample exactly `config.N_NOVEL_SAMPLES` unique 5-element combinations
+    from `config.ELEMENT_SUBSET` using a fixed random seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:49:58Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Download hmao dataset using streaming=True
+  claim_id: c_6f93fbea
+  context: 'T017a [US1] **Download Raw Data**: Download the raw `hmao` dataset to
+    `data/raw/` using `datasets.load_dataset(..., streaming=True). **Constraint**:
+    Must use `streaming=True` to respect RAM limits.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_hmao_dataset_using_streaming=True
+  kind: entity_fact
+  raw_text: The `hmao` dataset is downloaded using `datasets.load_dataset(..., streaming=True)`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:50:35Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Live API client uses exponential backoff with max 3 retries
+  claim_id: c_36aa8aae
+  context: 'T017c [US1] **Live API Client Implementation**: ...2. Query the API with
+    exponential backoff (max 3 retries).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The live API client implementation for T017c must use exponential backoff
+    with a maximum of 3 retries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:51:02Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Statistical test raises ValueError if true_novel set size < 10
+  claim_id: c_6584330f
+  context: 'T035b [US3] **Statistical Robustness Check**: Ensure `code/evaluate.py`
+    explicitly handles the case where `true_novel` set is empty or too small (< 10
+    samples) for statistical correlation by raising a `ValueError`...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical robustness check (T035b) raises a ValueError if the `true_novel`
+    set is empty or too small (< 10 samples).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:52:02Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Generate DFT input files for top 5 candidates using Quantum ESPRESSO
+  claim_id: c_6ff7110a
+  context: 'T041 [US3] **DFT Attempt**: ...1. Generate input files (POTCAR, KPOINTS,
+    etc.) for the top 5 candidates. 2. Submit job with a timeout appropriate for the
+    task duration (e.g., an hour per job).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: DFT input files are generated for the top 5 candidates using Quantum ESPRESSO.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:52:38Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: ELEMENT_SUBSET contains 30 specific transition and post-transition metals
+  claim_id: c_4c593873
+  context: 'T002a [P] [US1] **Config Definitions**: Add `N_NOVEL_SAMPLES = 1000 `,
+    `ELEMENT_SUBSET = ["Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn",
+    "Y", "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "Hf", "Ta", "W", "Re",
+    "Os", "Ir", "Pt", "Au", "Hg", "Al"] ` to `code/config.py`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The `ELEMENT_SUBSET` in `code/config.py` includes exactly 30 elements:
+    Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn, Y, Zr, Nb, Mo, Tc, Ru, Rh, Pd, Ag, Cd,
+    Hf, Ta, W, Re, Os, Ir, Pt, Au, Hg, Al.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:53:23Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: N_NOVEL_SAMPLES set to 1000
+  claim_id: c_8a7300e4
+  context: 'T002a [P] [US1] **Config Definitions**: Add `N_NOVEL_SAMPLES = 1000 `,
+    `ELEMENT_SUBSET = [...]` to `code/config.py`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration defines `N_NOVEL_SAMPLES` as 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T04:54:07Z'

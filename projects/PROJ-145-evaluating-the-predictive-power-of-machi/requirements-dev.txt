@@ -1,2 +1,17 @@
-ruff>=0.1.0
-black>=23.0.0
+# Development dependencies
+# Includes linting and formatting tools
+
+# Core project dependencies (pinned to ensure reproducibility)
+-r requirements.txt
+
+# Linting and Formatting
+ruff>=0.3.0
+black>=24.3.0
+pre-commit>=3.6.0
+
+# Testing
+pytest>=8.0.0
+pytest-cov>=4.1.0
+
+# Optional: for IDE integration
+mypy>=1.8.0

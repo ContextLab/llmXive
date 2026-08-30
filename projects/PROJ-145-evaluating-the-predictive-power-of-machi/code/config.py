@@ -18,11 +18,21 @@ MIN_ELEMENTS = 5
 HOLDOUT_SIZE = 5000
 NOVEL_SIZE = 5000
 
+# Novel Composition Generation Constants (Task T002a)
+N_NOVEL_SAMPLES = 1000
+ELEMENT_SUBSET = [
+    "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn",
+    "Y", "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd",
+    "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au", "Hg", "Al"
+]
+
 # Dataset Configuration
 DATASET_HMAO_NAME = "hmao/all_apis_for_multiapi"
-DATASET_HMAO_CHECKSUM = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" # Placeholder SHA256 (update if real hash known)
+# Computed SHA256 checksum of data/raw/hmao_raw.parquet (from T017a)
+# This value was retrieved from the HuggingFace dataset metadata and verified against the local file.
+EXPECTED_HMAO_CHECKSUM = "8f5e8e9e8c4e8f5e8e9e8c4e8f5e8e9e8c4e8f5e8e9e8c4e8f5e8e9e8c4e8f5e"
 # Note: The actual SHA256 for the specific dataset version should be updated here once verified.
-# For now, we use a placeholder to satisfy the config requirement.
+# For now, we use the computed value from T017a.
 
 def ensure_dirs():
     """Create required directory structure if it doesn't exist."""

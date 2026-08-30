@@ -1,1 +1,1 @@
-# llmXive Research Pipeline - Code Package
+# llmXive research-implementer package

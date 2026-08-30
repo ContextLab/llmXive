@@ -1,3 +1,4 @@
-# Standalone black configuration (used if pyproject.toml is not found)
-# Inherits settings from pyproject.toml if available.
+# Extends pyproject.toml if needed, or standalone config
+# For this project, we rely on pyproject.toml [tool.black] section.
+# This file exists to satisfy tooling that looks for .black.toml specifically.
 extend = "pyproject.toml"

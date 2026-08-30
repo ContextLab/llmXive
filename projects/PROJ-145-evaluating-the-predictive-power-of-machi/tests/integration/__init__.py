@@ -1,1 +1,3 @@
-# Integration tests package initialization
+"""
+Integration tests for end-to-end workflows.
+"""

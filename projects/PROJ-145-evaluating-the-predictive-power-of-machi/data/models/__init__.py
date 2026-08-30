@@ -1,1 +1,1 @@
-# llmXive Research Pipeline - Models Package
+# Models package

@@ -1,0 +1,7 @@
+T017b:
+  c: false
+  h: 7fc44f4ee66e3d32d1f472696cfc0fde982e63c3e7fc81203de328191d9868e7
+  r: "The required `data/raw/hmao_raw.parquet` file is missing, so no checksum could\
+    \ be computed or compared, and the `code/config.py` entry appears to be a placeholder\
+    \ value rather than a verified checksum. Consequently the task\u2019s core requirement\
+    \ is not satisfied."
