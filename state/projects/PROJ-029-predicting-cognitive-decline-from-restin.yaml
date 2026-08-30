@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T09:50:58.183735Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-029-predicting-cognitive-decline-from-restin
-last_run_id: 2a29eeee-1091-47af-b9c8-a9fe148bc29c
+last_run_id: fe3f9af2-1877-44ca-a178-d5282ce196cb
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin
 title: Predicting Cognitive Decline from Resting-State fMRI Network Topology
-updated_at: '2026-08-28T09:48:26.208059Z'
+updated_at: '2026-08-30T18:47:52.866980Z'

@@ -15418,3 +15418,301 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-22T17:59:19Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Task T004c uses dataset ds000246
+  claim_id: c_6d5f7df7
+  context: 'Implement code/00_data_gate.py: Verify OpenNeuro ds000246 (Constitution
+    VI, FR-001) availability. Parse metadata to ensure rs-fMRI and longitudinal MMSE/MOCA
+    scores exist. Exit with EXIT_CODE_NO_LABELS = 2 if missing. Log verification status.
+    **Note**: This task uses ds000246 as mandated by Spec/Constitution, overriding
+    any conflicting references in plan.md.'
+  evidence:
+    entailment_evidence: Task T004c uses dataset ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Task_T004c_uses_dataset_ds000246
+  kind: entity_fact
+  raw_text: This task uses ds000246 as mandated by Spec/Constitution, overriding any
+    conflicting references in plan.md.
+  resolved_value: Task T004c uses dataset ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T18:50:19Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Task T017a uses dataset ds000246
+  claim_id: c_c6b35e2f
+  context: "Implement code/01_download_and_filter.py (Part 1): Download ds000246 (Constitution\
+    \ VI, FR-001), parse BIDS metadata, and filter for subjects with non\u2011null\
+    \ MMSE/MOCA at both timepoints. Limit to a sample size defined by the minimum\
+    \ of a predetermined upper threshold and the total number of available eligible\
+    \ participants. Fail if zero eligible subjects. Output data/processed/eligible_subjects.csv\
+    \ and data/artifacts/data_gate_status.json. Exit with EXIT_CODE_NO_ELIGIBLE =\
+    \ 3 if no eligible subjects found. **Note**: This task uses ds000246 as mandated\
+    \ by Spec/Constitution, overriding any conflicting references in plan.md."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Task_T017a_uses_dataset_ds000246
+  kind: entity_fact
+  raw_text: This task uses ds000246 as mandated by Spec/Constitution, overriding any
+    conflicting references in plan.md.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T18:51:00Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Exit code 3 for no eligible subjects
+  claim_id: c_e8fc35b8
+  context: "Implement code/01_download_and_filter.py (Part 1): Download ds000246 (Constitution\
+    \ VI, FR-001), parse BIDS metadata, and filter for subjects with non\u2011null\
+    \ MMSE/MOCA at both timepoints. Limit to a sample size defined by the minimum\
+    \ of a predetermined upper threshold and the total number of available eligible\
+    \ participants. Fail if zero eligible subjects. Output data/processed/eligible_subjects.csv\
+    \ and data/artifacts/data_gate_status.json. Exit with EXIT_CODE_NO_ELIGIBLE =\
+    \ 3 if no eligible subjects found."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exit with EXIT_CODE_NO_ELIGIBLE = 3 if no eligible subjects found.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T18:51:34Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Graph degree metric range less than 90
+  claim_id: c_13d8a434
+  context: 'Unit test for graph metric calculation (degree, efficiency) in tests/unit/test_graph_metrics.py.
+    Implementation: Create test function test_graph_metrics_calculation that generates
+    a dummy adjacency matrix of a moderate scale, runs the metric calculation logic,
+    and asserts that degree, efficiency, and clustering coefficient are non-null and
+    within valid ranges (e.g., degree < 90).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Graph_degree_metric_range_less_than_90
+  kind: magnitude
+  raw_text: Assert that degree, efficiency, and clustering coefficient are non-null
+    and within valid ranges (e.g., degree < 90).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T18:52:05Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Graph metrics calculation RAM limit 7GB
+  claim_id: c_b00ab963
+  context: "Implement code/03_compute_graph_metrics.py: Calculate node degree, global\
+    \ efficiency, clustering coefficient, and path length for every subject; output\
+    \ to data/processed/graph_metrics.csv. Process subject\u2011by\u2011subject to\
+    \ stay within 7GB RAM."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Graph_metrics_calculation_RAM_limit_7GB
+  kind: entity_fact
+  raw_text: "Process subject\u2011by\u2011subject to stay within 7GB RAM."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T18:53:04Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Graph metrics calculation RAM failure threshold 1GB available or 7GB
+    total
+  claim_id: c_81aa5a95
+  context: 'Internal Validation: Include psutil to monitor peak RAM during calculation.
+    Constraint: Before processing each subject, check available RAM using psutil.virtual_memory().
+    If available RAM < 1GB OR if loading the current subject''s NIfTI would exceed
+    7GB total (estimated by file size), log a warning and FAIL immediately by raising
+    a generic RuntimeError with a descriptive message.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Graph_metrics_calculation_RAM_failure_threshold_1GB_availabl
+  kind: entity_fact
+  raw_text: If available RAM < 1GB OR if loading the current subject's NIfTI would
+    exceed 7GB total (estimated by file size), log a warning and FAIL immediately
+    by raising a generic RuntimeError with a descriptive message.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T18:54:11Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Exit code 1 for memory or runtime error in graph metrics
+  claim_id: c_a7c201ec
+  context: 'Implementation Requirement: Wrap the entire subject processing loop in
+    a try/except block that catches MemoryError and RuntimeError. If caught, log the
+    error and exit with sys.exit(1) (standard error). Do not continue or warn silently.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If caught, log the error and exit with sys.exit(1) (standard error).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T18:54:40Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Cognitive decline label definition drop 3 points
+  claim_id: c_fde086f7
+  context: "Implement code/04_train_model.py: Define decline label (drop \u2265 3\
+    \ points). Implement Nested Cross-Validation with an outer -fold loop and an inner\
+    \ grid search."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Define decline label (drop \u2265 3 points)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T18:54:42Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Feature selection variance threshold 0.01 and max 20 features
+  claim_id: c_3b7e98b7
+  context: "Inside the inner CV loop: perform collinearity check (exclude features\
+    \ with correlation > 0.95, keep higher\u2011variance feature), apply Variance\
+    \ Thresholding (variance > 0.01) and RFE to select \u2264 20 features, then fit\
+    \ Random Forest with the grid search parameters."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Variance Thresholding (variance > 0.01) and RFE to select \u2264\
+    \ 20 features."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T18:54:44Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Collinearity filter correlation threshold 0.95
+  claim_id: c_c6427512
+  context: 'Unit test verifying that the collinearity filter correctly drops one of
+    a pair of features with Pearson > 0.95. Implementation: Create test function test_collinearity_filter
+    that generates a feature matrix with two identical columns. Assert that the filter
+    removes one and keeps the other.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude features with correlation > 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T18:54:45Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Permutation test runtime limit 7200 seconds
+  claim_id: c_81e5a0e6
+  context: 'Implement code/06_permutation_test.py: Runtime-Bounded Permutation Test.
+    Target n=500 (as per FR-005). Bounded by max_runtime=2 hours (7200 seconds).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bounded by max_runtime=2 hours (7200 seconds).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T18:55:45Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Permutation test abort if executed count less than 10
+  claim_id: c_3aa139bf
+  context: 'Decision: If estimated_total_time > 7200, calculate n_executed = floor(7200
+    / pilot_time). If n_executed < 10, abort with EXIT_CODE_RUNTIME_EXCEEDED = 4 and
+    error ''Runtime limit exceeded even for minimum n=10''. Otherwise, proceed with
+    n_executed.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_abort_if_executed_count_less_than_10
+  kind: magnitude
+  raw_text: If n_executed < 10, abort with EXIT_CODE_RUNTIME_EXCEEDED = 4 and error
+    'Runtime limit exceeded even for minimum n=10'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T18:56:39Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Decision threshold sweep range 0.40 to 0.60 step 0.05
+  claim_id: c_6b72e1e4
+  context: "Part 1 (Decision Threshold Sweep - FR-006): Perform decision threshold\
+    \ sweep over a range of values 0.40 to 0.60 in steps of 0.05 on the baseline trained\
+    \ model (from T023). Report false\u2011positive/false\u2011negative rates."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform decision threshold sweep over a range of values 0.40 to 0.60 in
+    steps of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T18:57:41Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Performance optimization target runtime less than 30 minutes
+  claim_id: c_59d63697
+  context: 'Performance optimization: Refactor code/03_compute_graph_metrics.py to
+    use joblib.Parallel(n_jobs=2, backend=''loky'') and verify runtime reduction (target
+    < 30 min for A cohort of subjects).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_optimization_target_runtime_less_than_30_minutes
+  kind: magnitude
+  raw_text: Verify runtime reduction (target < 30 min for A cohort of subjects).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T18:59:02Z'
+- artifact_path: projects/PROJ-029-predicting-cognitive-decline-from-restin/specs/001-predicting-cognitive-decline-from-restin/tasks.md
+  attempts: 1
+  canonical: Fail if RAM exceeds 7GB in graph metrics script
+  claim_id: c_a9da4659
+  context: 'Critical: Ensure code/03_compute_graph_metrics.py fails immediately with
+    a descriptive error if RAM > 7GB.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fail_if_RAM_exceeds_7GB_in_graph_metrics_script
+  kind: entity_fact
+  raw_text: Ensure code/03_compute_graph_metrics.py fails immediately with a descriptive
+    error if RAM > 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T18:59:39Z'
