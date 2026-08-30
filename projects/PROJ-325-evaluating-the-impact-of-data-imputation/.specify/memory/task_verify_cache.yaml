@@ -1,27 +1,11 @@
-T004:
-  c: false
-  h: e894097247809887f9da15d2ea8cf3c96a3738472e82498c7b5e02cdfb8f2028
-  r: "The provided `code/data/loader.py` only parses arguments and calls external\
-    \ `data_fetcher` functions; it does not itself enforce the required URL, cache\
-    \ fallback, column checks, or abort\u2011and\u2011log behavior. Moreover, the\
-    \ expected cache file `data/raw/cache/GSS2018.dta` and the output CSV `data/raw/gss_2018_subset.csv`\
-    \ are absent, and the manifest still shows a pending status. The task\u2019s core\
-    \ requirements are therefore not satisfied."
-T004b:
-  c: false
-  h: 0df3a814e7a13427a780c67e470c773cd7f31377d4ad733680102fd680ffb68e
-  r: "The required `data/raw/gss_2018_subset.csv` file is absent, and the manifest\
-    \ still marks the artifact as \u201Cpending\u201D with no checksum. Consequently\
-    \ the fetcher was not executed, no data was saved, and no SHA\u2011256 hash was\
-    \ recorded, so the task\u2019s requirements are not met."
 T005:
   c: false
-  h: 40fee5a4f8d8bed15f6bc623192ee58cd6fa1de2e18acafc88e905280735175c
-  r: The repository contains a `code/data/synthetic.py` module, but it never writes
-    the required CSV or JSON files (no code invoking `to_csv` or `json.dump` is present),
-    and the expected schema file `contracts/dataset.schema.yaml` is absent. Consequently
-    the required output artifacts `data/processed/synthetic_mar_v1.csv`, `data/processed/synthetic_mar_v1_meta.json`,
-    and the schema are missing.
+  h: a56b0080cc59b68be99a5ea7244d0bcddfba441c1e4b3b8de8fa9335a5af8b3d
+  r: "The repository contains a partially\u2011implemented `code/data/synthetic.py`,\
+    \ but the required output files `data/processed/synthetic_mar_v1.csv` and `data/processed/synthetic_mar_v1_meta.json`\
+    \ are absent, and the referenced schema file `contracts/dataset.schema.yaml` (or\
+    \ `schema.yaml`) does not exist. Consequently the generator does not produce the\
+    \ mandated artifacts, so the task is not fulfilled."
 T007:
   c: false
   h: 96491d4791e9f7209093734f7285318b4d0eae48350da0d42da199f73f1ba205
@@ -37,3 +21,11 @@ T017:
   r: "No code, tests, or documentation were provided showing that error handling for\
     \ PSU\u202F=\u202F1 clusters was added, nor any evidence of warnings or exclusion\
     \ logic integrated into T009b/T015. The required implementation artifact is missing."
+T020:
+  c: false
+  h: 4b684515ba274eb09eb8baed9c30a56ba73cd2217bf7a3dbea13d9b29695bc34
+  r: "The required `data/processed/baseline_results.json` file does not exist, and\
+    \ neither `code/main.py` nor `code/imputation/run_all.py` contain code that writes\
+    \ a baseline results dictionary to that path with the required keys (`mean`, `variance`,\
+    \ `status` = \"success\", `design_type`). The task\u2019s serialization step is\
+    \ therefore missing."

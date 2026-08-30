@@ -11,3 +11,5 @@ black==23.10.1
 ruff==0.1.6
 psi4==1.8.1
 dftbplus==22.1.0
+numpy  # auto-added: imported by run-book but missing from venv
+scipy  # auto-added: imported by run-book but missing from venv

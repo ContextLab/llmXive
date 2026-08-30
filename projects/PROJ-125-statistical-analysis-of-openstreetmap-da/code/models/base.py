@@ -1,56 +1,52 @@
 """
-Base model class providing common serialization and validation utilities.
+Base model class with common validation and serialization utilities.
 """
 from typing import Any, Dict, Optional
 import json
 from pathlib import Path
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class BaseModel:
-    """Base class for all data models with JSON serialization support."""
+    """Base class for all data models with common serialization methods."""
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the model instance to a dictionary."""
-        return self.__dict__.copy()
+        """Convert model instance to dictionary."""
+        return {
+            k: v for k, v in self.__dict__.items()
+            if not k.startswith('_') and v is not None
+        }
 
-    def to_json(self, indent: Optional[int] = 2) -> str:
-        """Serialize the model to a JSON string."""
-        return json.dumps(self.to_dict(), indent=indent)
+    def to_json(self, indent: int = 2) -> str:
+        """Serialize model to JSON string."""
+        return json.dumps(self.to_dict(), indent=indent, default=str)
 
-    def save(self, path: Path) -> None:
-        """Save the model to a JSON file."""
-        path = Path(path)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "w", encoding="utf-8") as f:
+    def save_to_file(self, path: str | Path) -> None:
+        """Save model metadata to a JSON file."""
+        filepath = Path(path)
+        filepath.parent.mkdir(parents=True, exist_ok=True)
+        with open(filepath, 'w', encoding='utf-8') as f:
             f.write(self.to_json())
+        logger.info(f"Saved model metadata to {filepath}")
 
     @classmethod
-    def from_json_file(cls, path: Path) -> "BaseModel":
-        """Load a model instance from a JSON file."""
-        path = Path(path)
-        if not path.exists():
-            raise FileNotFoundError(f"Model file not found: {path}")
+    def load_from_file(cls, path: str | Path) -> "BaseModel":
+        """Load model metadata from a JSON file and instantiate."""
+        filepath = Path(path)
+        if not filepath.exists():
+            raise FileNotFoundError(f"Metadata file not found: {filepath}")
         
-        with open(path, "r", encoding="utf-8") as f:
+        with open(filepath, 'r', encoding='utf-8') as f:
             data = json.load(f)
         
+        # Validate required fields
+        cls._validate_required_fields(data)
         return cls(**data)
 
     @classmethod
-    def validate_schema(cls, data: Dict[str, Any], required_fields: list) -> None:
-        """
-        Validate that the data dictionary contains all required fields.
-        
-        Args:
-            data: The dictionary to validate.
-            required_fields: List of field names that must be present.
-        
-        Raises:
-            ValueError: If any required field is missing or None.
-        """
-        missing = []
-        for field in required_fields:
-            if field not in data or data[field] is None:
-                missing.append(field)
-        
-        if missing:
-            raise ValueError(f"Missing required fields: {missing}")
+    def _validate_required_fields(cls, data: Dict[str, Any]) -> None:
+        """Validate that required fields are present in loaded data."""
+        # Override in subclasses to define required fields
+        pass

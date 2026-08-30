@@ -223,3 +223,288 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-28T22:16:06Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: GSS data source URL is https://gss.norc.org/documents/stata/GSS2018.dta
+  claim_id: c_f23e4056
+  context: 'T004 [FR-001] Implement Data Fetcher: Implement code/data/loader.py with
+    a configurable, verified URL fetcher for GSS/ACS data. The system MUST: (1) Use
+    the specific URL...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GSS_data_source_URL_is_https://gss.norc.org/documents/stata/
+  kind: entity_fact
+  raw_text: The system MUST use the specific URL https://gss.norc.org/documents/stata/GSS2018.dta
+    (or verified CSV equivalent).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T21:47:29Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Synthetic dataset output path is data/processed/synthetic_mar_v1.csv
+  claim_id: c_420b23d8
+  context: 'T005 [FR-002b] Implement Synthetic Data Generator... The generator MUST:
+    (1) Output the synthetic dataset artifact to data/processed/synthetic_mar_v1.csv...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_dataset_output_path_is_data/processed/synthetic_ma
+  kind: entity_fact
+  raw_text: The generator MUST output the synthetic dataset artifact to data/processed/synthetic_mar_v1.csv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T21:48:09Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Synthetic metadata output path is data/processed/synthetic_mar_v1_meta.json
+  claim_id: c_fcc6ca9c
+  context: T005 [FR-002b] Implement Synthetic Data Generator... (2) Output a metadata
+    JSON file data/processed/synthetic_mar_v1_meta.json...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_metadata_output_path_is_data/processed/synthetic_m
+  kind: entity_fact
+  raw_text: The generator MUST output a metadata JSON file data/processed/synthetic_mar_v1_meta.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T21:48:44Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: MICE implementation uses 4 independent chains
+  claim_id: c_c2891412
+  context: 'T025a [US2] MICE Chain Runner: Implement run_mice_chains()... Explicitly
+    run 4 independent instances of miceforest.ImputedDataSet...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must run 4 independent instances of miceforest.ImputedDataSet.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T21:49:25Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: MICE max iterations is 1000
+  claim_id: c_c6467416
+  context: T025a [US2] MICE Chain Runner... Explicitly run 4 independent instances
+    of miceforest.ImputedDataSet with max_iter=1000 each...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MICE chains must run with max_iter=1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T21:49:54Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: MICE burn-in iterations is 500
+  claim_id: c_8a5b6250
+  context: T025b [US2] Burn-in & Pooling... Explicitly discard the initial 500 iterations
+    per chain before pooling...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The initial 500 iterations per chain must be discarded as burn-in.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T21:51:01Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Convergence retry limit is 3 attempts
+  claim_id: c_9b5429e6
+  context: 'T026 [US2] [FR-002] Implement Retry Logic: On convergence failure (R-hat
+    >= 1.05), retry up to 3 times...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The retry logic must retry up to 3 times on convergence failure.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T21:52:15Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: MICE convergence failure threshold is R-hat 1.05
+  claim_id: c_1b0dc0ae
+  context: 'T026 [US2] [FR-002] Implement Retry Logic: On convergence failure (R-hat
+    >= 1.05)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MICE_convergence_failure_threshold_is_R-hat_1.05
+  kind: entity_fact
+  raw_text: Convergence failure is defined as R-hat >= 1.05.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T21:53:26Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: MICE bias must be <= 80% of Single Imputation bias
+  claim_id: c_a4ee64cd
+  context: T027 [US2] [FR-003] Bias Calculation... (5) Logs the result and sets is_pass_sc002
+    boolean based on whether MICE bias magnitude is <= 80% of Single Imputation bias
+    magnitude.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bias calculation must verify if MICE bias magnitude is <= 80% of Single
+    Imputation bias magnitude.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T21:53:26Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Imputation parameter m is swept over small integers
+  claim_id: c_ac951729
+  context: 'T033a [US3] [FR-005] Sweep Orchestrator: Implement the sweep orchestrator...
+    that defines the parameter loop for m over a range of small integer values.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Imputation_parameter_m_is_swept_over_small_integers
+  kind: entity_fact
+  raw_text: The sweep orchestrator defines the parameter loop for m over a range of
+    small integer values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T21:55:15Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis tests m values 5, 10, and 20
+  claim_id: c_09052ec8
+  context: T031 [P] [US3] Integration test for sensitivity analysis sweep... asserts
+    that the standard deviation of bias rates across {5, 10, 20} is < 5%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweep tests m values {5, 10, 20}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T21:57:11Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Stability condition requires bias variation less than 5%
+  claim_id: c_7515bcd8
+  context: T035 [US3] [FR-005] Stability Analysis... Verifies the condition 'variation
+    in bias < 5%' as per SC-003...
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Stability_condition_requires_bias_variation_less_than_5%25
+  kind: magnitude
+  raw_text: The stability analysis condition requires variation in bias < 5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-30T21:58:00Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Final report must label findings as associational
+  claim_id: c_c4aad1b2
+  context: T034 [US3] [FR-006] Generate final report... (1) Explicitly inserts the
+    phrase 'associational' to label all findings...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Final_report_must_label_findings_as_associational
+  kind: entity_fact
+  raw_text: The final report must explicitly insert the phrase 'associational' to
+    label all findings.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T21:58:33Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Final report footer is 'All findings are associational; no causal claims
+    are made.'
+  claim_id: c_5b3b5a18
+  context: 'T034 [US3] [FR-006] Generate final report... (3) Includes the mandatory
+    footer: ''All findings are associational; no causal claims are made.''...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Final_report_footer_is_'All_findings_are_associational;_no_c
+  kind: entity_fact
+  raw_text: 'The final report must include the mandatory footer: ''All findings are
+    associational; no causal claims are made.'''
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T21:59:28Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Dataset subset limit is 50000 rows
+  claim_id: c_bec55fa1
+  context: "T041 [P] Enforce Subset Limit: Update code/data/loader.py to explicitly\
+    \ enforce the subset limit of \u2264 50,000 rows as per Plan.md Technical Context..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The subset limit is enforced at \u2264 50,000 rows."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T21:59:28Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime limit is 6 hours
+  claim_id: c_3fab7044
+  context: "T046 [P] Runtime Monitoring: Implement a runtime monitoring script...\
+    \ that asserts runtime \u2264 6 hours (the standard time limit of the GitHub Actions\
+    \ free-tier runner as per SC-004)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The runtime must be \u2264 6 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T21:59:28Z'

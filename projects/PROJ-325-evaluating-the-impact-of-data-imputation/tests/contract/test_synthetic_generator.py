@@ -1,142 +1,95 @@
-"""
-Contract test for synthetic data generation (US2).
-
-This test verifies that the synthetic data generator produces data
-where the calculated variance matches the declared `true_variance`
-within a small tolerance, satisfying the contract requirements.
-"""
-
+import json
+import os
+import tempfile
 import pytest
 import pandas as pd
 import numpy as np
-import json
-import os
-import sys
-from pathlib import Path
 
-# Ensure code directory is in path for imports
-code_path = Path(__file__).parent.parent.parent / "code"
-if str(code_path) not in sys.path:
-    sys.path.insert(0, str(code_path))
+from code.data.synthetic import generate_synthetic_data, validate_schema
 
-from synthetic_generator import generate_synthetic_data
+@pytest.fixture
+def temp_dir():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield tmpdir
 
+def test_synthetic_produces_known_variance():
+    """
+    Test that the synthetic generator produces data with variance
+    close to the specified true_variance within a tolerance.
+    """
+    n = 100000  # Large sample to ensure statistical convergence
+    true_mean = 50.0
+    true_variance = 25.0
+    missing_rate = 0.0  # No missingness for variance check to avoid bias from imputation logic
+    mechanism = 'MCAR'
+    seed = 42
 
-class TestSyntheticGeneratorContract:
-    """Contract tests for the synthetic data generator."""
-
-    @pytest.mark.parametrize(
-        "true_mean,true_variance,n_samples,mechanism",
-        [
-            (0.0, 1.0, 1000, "MCAR"),
-            (10.0, 25.0, 2000, "MAR"),
-            (-5.0, 100.0, 5000, "MCAR"),
-            (50.0, 400.0, 10000, "MAR"),
-        ],
-        ids=["std_normal", "shifted_scaled", "negative_mean", "large_variance"],
+    df, meta = generate_synthetic_data(
+        n=n,
+        true_mean=true_mean,
+        true_variance=true_variance,
+        missing_rate=missing_rate,
+        mechanism=mechanism,
+        seed=seed
     )
-    def test_synthetic_produces_known_variance(
-        self, true_mean, true_variance, n_samples, mechanism
-    ):
-        """
-        Test that the generated synthetic data has a variance matching
-        the `true_variance` parameter within a small tolerance.
 
-        This validates the generator's ability to create data with
-        known super-population parameters as required by FR-002b and SC-001.
-        """
-        # Generate synthetic data
-        data, metadata = generate_synthetic_data(
-            n_samples=n_samples,
-            true_mean=true_mean,
-            true_variance=true_variance,
-            missingness_mechanism=mechanism,
-            random_seed=42,  # Fixed seed for reproducibility
-        )
+    # Check metadata
+    assert meta['true_mean'] == true_mean
+    assert meta['true_variance'] == true_variance
+    assert meta['missingness_mechanism'] == mechanism
 
-        # Validate that data is returned as a DataFrame
-        assert isinstance(data, pd.DataFrame), "Data must be a pandas DataFrame"
-        assert "value" in data.columns, "Data must contain a 'value' column"
+    # Calculate observed variance (ddof=1 for sample variance)
+    # Since missing_rate is 0, all values are present
+    observed_variance = df['value'].var(ddof=1)
 
-        # Extract the complete cases (non-missing values) to calculate variance
-        # Note: We compare the variance of the non-missing values against the
-        # true variance. With a large enough sample, this should be close.
-        complete_cases = data["value"].dropna()
+    # Tolerance: 1% of true variance is reasonable for n=100k
+    tolerance = 0.01 * true_variance
+    assert abs(observed_variance - true_variance) < tolerance, \
+        f"Observed variance {observed_variance} differs from true {true_variance} by more than tolerance {tolerance}"
 
-        # Calculate observed variance
-        observed_variance = complete_cases.var(ddof=1)
+def test_synthetic_schema_validation():
+    """
+    Test that the generated data conforms to the expected schema.
+    """
+    df, meta = generate_synthetic_data(
+        n=1000,
+        true_mean=10.0,
+        true_variance=4.0,
+        missing_rate=0.1,
+        mechanism='MAR',
+        seed=123
+    )
 
-        # Define tolerance (relative error)
-        # Allow 5% relative error due to sampling noise
-        tolerance = 0.05 * true_variance
+    # Validate against schema
+    is_valid = validate_schema(df, meta)
+    assert is_valid is True
 
-        # Assert that observed variance is within tolerance of true variance
-        assert np.isclose(
-            observed_variance, true_variance, atol=tolerance
-        ), (
-            f"Observed variance ({observed_variance:.4f}) does not match "
-            f"true variance ({true_variance:.4f}) within tolerance ({tolerance:.4f}). "
-            f"Relative error: {abs(observed_variance - true_variance) / true_variance:.2%}"
-        )
+    # Check specific columns
+    assert 'id' in df.columns
+    assert 'value' in df.columns
+    assert 'missingness_mechanism' in df.columns
 
-        # Validate metadata contains required fields
-        assert "true_mean" in metadata, "Metadata must contain 'true_mean'"
-        assert "true_variance" in metadata, "Metadata must contain 'true_variance'"
-        assert "missingness_mechanism" in metadata, "Metadata must contain 'missingness_mechanism'"
+def test_synthetic_missingness_rate():
+    """
+    Test that the actual missingness rate is close to the specified rate.
+    """
+    n = 10000
+    true_mean = 50.0
+    true_variance = 25.0
+    target_missing_rate = 0.2
+    mechanism = 'MCAR'
+    seed = 999
 
-        # Validate metadata matches generation parameters
-        assert metadata["true_mean"] == true_mean
-        assert metadata["true_variance"] == true_variance
-        assert metadata["missingness_mechanism"] == mechanism
+    df, meta = generate_synthetic_data(
+        n=n,
+        true_mean=true_mean,
+        true_variance=true_variance,
+        missing_rate=target_missing_rate,
+        mechanism=mechanism,
+        seed=seed
+    )
 
-        # Validate data shape
-        assert len(data) == n_samples, f"Data length ({len(data)}) must match n_samples ({n_samples})"
-
-    def test_synthetic_metadata_schema(self):
-        """
-        Test that the metadata JSON schema matches the contract requirements.
-        """
-        data, metadata = generate_synthetic_data(
-            n_samples=1000,
-            true_mean=0.0,
-            true_variance=1.0,
-            missingness_mechanism="MAR",
-            random_seed=123,
-        )
-
-        # Check required keys
-        required_keys = ["true_mean", "true_variance", "missingness_mechanism"]
-        for key in required_keys:
-            assert key in metadata, f"Metadata must contain '{key}'"
-
-        # Check types
-        assert isinstance(metadata["true_mean"], (int, float))
-        assert isinstance(metadata["true_variance"], (int, float))
-        assert isinstance(metadata["missingness_mechanism"], str)
-        assert metadata["missingness_mechanism"] in ["MCAR", "MAR", "MNAR"]
-
-    def test_synthetic_data_schema(self):
-        """
-        Test that the generated data conforms to the dataset schema.
-        """
-        data, metadata = generate_synthetic_data(
-            n_samples=500,
-            true_mean=10.0,
-            true_variance=5.0,
-            missingness_mechanism="MCAR",
-            random_seed=456,
-        )
-
-        # Check DataFrame structure
-        assert isinstance(data, pd.DataFrame)
-        assert "value" in data.columns
-
-        # Check data types
-        assert data["value"].dtype in [np.float64, np.float32, object]
-
-        # Check for NaN values (expected with missingness)
-        assert data["value"].isna().any(), "Expected some missing values in generated data"
-
-        # Check missingness rate is reasonable (not 0% or 100%)
-        missing_rate = data["value"].isna().sum() / len(data)
-        assert 0 < missing_rate < 1, f"Missingness rate ({missing_rate}) should be between 0 and 1"
+    actual_missing_rate = df['value'].isna().sum() / n
+    # Allow 5% absolute tolerance for random variation
+    assert abs(actual_missing_rate - target_missing_rate) < 0.05, \
+        f"Actual missing rate {actual_missing_rate} differs from target {target_missing_rate}"

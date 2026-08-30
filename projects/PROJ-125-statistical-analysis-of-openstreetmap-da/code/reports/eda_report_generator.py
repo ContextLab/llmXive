@@ -1,3 +1,9 @@
+"""
+EDA Report Generator for User Story 2.
+
+Generates a markdown summary report based on correlation matrices,
+spatial autocorrelation statistics, and socioeconomic proxy availability.
+"""
 import os
 import json
 import logging
@@ -5,231 +11,288 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any, Optional
 
-import pandas as pd
-import numpy as np
-
+from config import get_path
 from utils.logging import get_logger
 
+# Configure logger
 logger = get_logger(__name__)
 
-def load_correlation_matrix() -> pd.DataFrame:
-    """Load the correlation matrix from data/results/correlation_matrix.csv."""
-    path = Path("data/results/correlation_matrix.csv")
-    if not path.exists():
-        raise FileNotFoundError(f"Correlation matrix not found at {path}. "
-                                "Run T019 (compute_correlation_matrix) first.")
-    df = pd.read_csv(path, index_col=0)
-    return df
 
-def load_spatial_stats() -> Dict[str, Any]:
-    """Load spatial autocorrelation statistics from data/results/spatial_stats.json."""
-    path = Path("data/results/spatial_stats.json")
-    if not path.exists():
-        raise FileNotFoundError(f"Spatial stats not found at {path}. "
-                                "Run T020 (compute_spatial_autocorrelation) first.")
-    with open(path, "r") as f:
-        return json.load(f)
+def load_correlation_matrix() -> Optional[Dict[str, Any]]:
+    """
+    Load the correlation matrix from the results directory.
+    
+    Returns:
+        Dictionary containing correlation data or None if file missing.
+    """
+    path = get_path("data/results/correlation_matrix.csv")
+    if not os.path.exists(path):
+        logger.warning(f"Correlation matrix not found at {path}. Skipping correlation section.")
+        return None
+    
+    try:
+        import pandas as pd
+        df = pd.read_csv(path)
+        
+        # Convert to a JSON-serializable dict structure for the report
+        # Assuming first column is variable names, rest are correlations
+        if df.empty:
+            logger.warning("Correlation matrix is empty.")
+            return None
+        
+        variables = df.iloc[:, 0].tolist()
+        correlations = {}
+        
+        for i, var in enumerate(variables):
+            correlations[var] = {}
+            for j, other_var in enumerate(variables):
+                # Handle potential float conversion issues
+                val = df.iloc[i, j]
+                try:
+                    val = float(val)
+                except (ValueError, TypeError):
+                    val = str(val)
+                correlations[var][other_var] = val
+        
+        return {
+            "variables": variables,
+            "matrix": correlations,
+            "source_path": str(path)
+        }
+    except Exception as e:
+        logger.error(f"Failed to parse correlation matrix: {e}")
+        return None
+
+
+def load_spatial_stats() -> Optional[Dict[str, Any]]:
+    """
+    Load spatial autocorrelation statistics from the results directory.
+    
+    Returns:
+        Dictionary containing spatial stats or None if file missing.
+    """
+    path = get_path("data/results/spatial_stats.json")
+    if not os.path.exists(path):
+        logger.warning(f"Spatial stats not found at {path}. Skipping spatial stats section.")
+        return None
+    
+    try:
+        with open(path, 'r') as f:
+            data = json.load(f)
+        return data
+    except Exception as e:
+        logger.error(f"Failed to parse spatial stats: {e}")
+        return None
+
 
 def check_socioeconomic_proxies() -> Dict[str, Any]:
     """
-    Attempt to ingest socioeconomic proxies (WorldPop/OSM height).
-    Since T032 (Proxy Validity) is not yet complete and no real socioeconomic
-    data is ingested, this returns a status indicating data is missing.
+    Check if socioeconomic proxies were successfully ingested.
+    
+    Returns:
+        Dictionary with availability status and path.
     """
-    # Check for expected files that would come from T032 or external ingestion
-    worldpop_path = Path("data/processed/worldpop_population.tif")
-    osm_height_path = Path("data/processed/osm_building_height.tif")
-    
-    found = {}
-    missing = []
-    
-    for name, p in [("WorldPop", worldpop_path), ("OSM_Height", osm_height_path)]:
-        if p.exists():
-            found[name] = str(p)
-        else:
-            missing.append(name)
+    path = get_path("data/processed/socioeconomic_proxies.tif")
+    exists = os.path.exists(path)
     
     return {
-        "status": "missing" if missing else "partial" if found else "none",
-        "found": found,
-        "missing": missing,
-        "note": "Socioeconomic proxies (WorldPop/OSM height) are not yet ingested. "
-                "This is a known limitation pending T032 completion."
+        "available": exists,
+        "path": str(path) if exists else None,
+        "message": "Socioeconomic proxies (WorldPop/OSM height) included." if exists else "Socioeconomic proxies unavailable (T021a warning logged during ingestion)."
     }
 
+
+def interpret_morans_i(moran_i: float, p_value: Optional[float] = None) -> str:
+    """
+    Generate a textual interpretation of Moran's I statistic.
+    """
+    if moran_i > 0.5:
+        strength = "strong"
+    elif moran_i > 0.2:
+        strength = "moderate"
+    elif moran_i > 0:
+        strength = "weak"
+    else:
+        strength = "negligible or negative"
+    
+    direction = "positive spatial autocorrelation" if moran_i > 0 else "negative spatial autocorrelation"
+    
+    significance = ""
+    if p_value is not None:
+        if p_value < 0.05:
+            significance = " (statistically significant)"
+        else:
+            significance = " (not statistically significant)"
+    
+    return f"The temperature data exhibits {strength} {direction}{significance} (I={moran_i:.4f}{significance})."
+
+
+def interpret_correlations(correlations: Dict[str, Dict[str, float]], target_var: str = "temperature") -> str:
+    """
+    Generate a summary of linear relationships.
+    """
+    if not correlations:
+        return "No correlation data available."
+    
+    if target_var not in correlations:
+        # Try to find a key that looks like temperature
+        keys = [k for k in correlations.keys() if "temp" in k.lower()]
+        if keys:
+            target_var = keys[0]
+        else:
+            return f"Target variable '{target_var}' not found in correlation matrix keys: {list(correlations.keys())}."
+    
+    summary = []
+    # Get correlations for the target variable
+    target_corrs = correlations[target_var]
+    
+    # Sort by absolute value
+    sorted_vars = sorted(target_corrs.items(), key=lambda x: abs(x[1]) if isinstance(x[1], float) else 0, reverse=True)
+    
+    for var, val in sorted_vars:
+        if var == target_var:
+            continue
+        if not isinstance(val, float):
+            continue
+        
+        direction = "positive" if val > 0 else "negative"
+        strength = "strong" if abs(val) > 0.7 else "moderate" if abs(val) > 0.4 else "weak"
+        summary.append(f"{strength} {direction} relationship with {var} (r={val:.3f})")
+    
+    if not summary:
+        return "No significant linear relationships identified."
+        
+    return "; ".join(summary)
+
+
 def generate_report_content(
-    corr_df: pd.DataFrame,
-    spatial_stats: Dict[str, Any],
-    socio_data: Dict[str, Any]
+    correlation_data: Optional[Dict[str, Any]],
+    spatial_data: Optional[Dict[str, Any]],
+    proxy_info: Dict[str, Any]
 ) -> str:
-    """Generate the Markdown content for the EDA report."""
+    """
+    Assemble the markdown report content.
+    """
+    lines = []
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
-    # Determine strongest correlations
-    target_col = "temperature"
-    if target_col not in corr_df.columns:
-        # Fallback if column naming differs, look for 'temp' or similar
-        cols = [c for c in corr_df.columns if 'temp' in c.lower()]
-        if cols:
-            target_col = cols[0]
-        else:
-            # If absolutely no target, use first column as placeholder
-            target_col = corr_df.columns[0]
-    
-    # Get correlations with target, exclude self-correlation (1.0)
-    if target_col in corr_df.index and target_col in corr_df.columns:
-        corrs = corr_df[target_col].drop(target_col).abs()
-        top_pos = corrs.nlargest(3)
-        # Sort by absolute value descending
-        sorted_top = top_pos.sort_values(ascending=False)
-    else:
-        sorted_top = pd.Series(dtype=float)
-    
-    lines = []
     lines.append("# Exploratory Data Analysis (EDA) Report")
-    lines.append("")
     lines.append(f"**Generated:** {timestamp}")
     lines.append("")
-    lines.append("## 1. Executive Summary")
-    lines.append("")
-    lines.append("This report summarizes the exploratory spatial analysis of OpenStreetMap-derived")
-    lines.append("covariates and satellite thermal data to investigate Urban Heat Island (UHI) effects.")
-    lines.append("")
-    
-    # Socioeconomic Proxy Section
-    lines.append("## 2. Socioeconomic Proxy Data Status")
-    lines.append("")
-    if socio_data["status"] == "missing":
-        lines.append("**Status: NOT INGESTED**")
-        lines.append("")
-        lines.append("Socioeconomic proxy data (WorldPop population density, OSM building height)")
-        lines.append("was not available for this analysis run. This is a known limitation.")
-        lines.append("")
-        lines.append("The analysis relies solely on OSM vector features (building footprint, land use,")
-        lines.append("vegetation, roads) and satellite thermal data.")
-        lines.append("")
-        lines.append(f"**Missing Data Sources:** {', '.join(socio_data['missing'])}")
-    else:
-        lines.append("**Status: PARTIAL/INGESTED**")
-        lines.append("")
-        lines.append(f"Found data: {socio_data['found']}")
-    
-    lines.append("")
-    lines.append("## 3. Linear Relationships (Correlation Analysis)")
-    lines.append("")
-    lines.append("The following table shows the strength and direction of linear relationships")
-    lines.append(f"between covariates and the target variable (`{target_col}`).")
-    lines.append("")
-    lines.append("| Variable | Correlation Coefficient | Strength |")
-    lines.append("| :--- | :---: | :--- |")
-    
-    for var, val in sorted_top.items():
-        strength = "Strong" if abs(val) > 0.7 else "Moderate" if abs(val) > 0.4 else "Weak"
-        lines.append(f"| {var} | {val:.3f} | {strength} |")
-    
-    lines.append("")
-    lines.append("**Interpretation:**")
-    if len(sorted_top) > 0:
-        best_var = sorted_top.index[0]
-        best_val = sorted_top.iloc[0]
-        direction = "positive" if best_val > 0 else "negative"
-        lines.append(f"- The strongest linear relationship is with `{best_var}` (r = {best_val:.3f}, {direction}).")
-    else:
-        lines.append("- No significant correlations could be computed.")
-    
-    lines.append("")
-    lines.append("## 4. Spatial Autocorrelation")
-    lines.append("")
-    lines.append("Spatial autocorrelation metrics (Moran's I) indicate the degree to which")
-    lines.append("temperature values are clustered in space.")
-    lines.append("")
-    
-    moran_i = spatial_stats.get("moran_i", {}).get("statistic", "N/A")
-    p_value = spatial_stats.get("moran_i", {}).get("p_value", "N/A")
-    z_score = spatial_stats.get("moran_i", {}).get("z_score", "N/A")
-    
-    lines.append(f"- **Moran's I Statistic:** {moran_i}")
-    lines.append(f"- **P-value:** {p_value}")
-    lines.append(f"- **Z-score:** {z_score}")
-    lines.append("")
-    
-    if moran_i != "N/A" and isinstance(moran_i, (int, float)):
-        if moran_i > 0.5:
-            interpretation = "Strong positive spatial clustering"
-        elif moran_i > 0:
-            interpretation = "Moderate positive spatial clustering"
-        else:
-            interpretation = "Weak or negative spatial clustering"
-        lines.append(f"**Interpretation:** {interpretation}. Temperature values are significantly")
-        lines.append("spatially dependent, justifying the use of spatial regression models (SAR/GWR).")
-    
-    lines.append("")
-    lines.append("## 5. Variogram Analysis")
-    lines.append("")
-    lines.append("Empirical variograms were computed to characterize the spatial range and")
-    lines.append("sill of the temperature field.")
-    lines.append("")
-    
-    variogram_stats = spatial_stats.get("variogram", {})
-    if variogram_stats:
-        lines.append(f"- **Nugget:** {variogram_stats.get('nugget', 'N/A')}")
-        lines.append(f"- **Sill:** {variogram_stats.get('sill', 'N/A')}")
-        lines.append(f"- **Range:** {variogram_stats.get('range', 'N/A')} meters")
-    else:
-        lines.append("- Variogram statistics could not be computed or are missing.")
-    
-    lines.append("")
-    lines.append("## 6. Limitations and Next Steps")
-    lines.append("")
-    lines.append("1. **Socioeconomic Proxies:** As noted, WorldPop and OSM height data are missing.")
-    lines.append("   Inclusion of these variables is expected to improve model explanatory power.")
-    lines.append("")
-    lines.append("2. **Temporal Scope:** This analysis uses a single composite thermal layer.")
-    lines.append("   Multi-temporal analysis could reveal seasonal UHI dynamics.")
-    lines.append("")
-    lines.append("3. **Resolution:** All data is resampled to 30m. Finer resolution OSM features")
-    lines.append("   may have been smoothed during rasterization.")
-    lines.append("")
     lines.append("---")
-    lines.append("*Report generated by llmXive pipeline (Task T021)*")
+    lines.append("")
+    
+    # Section 1: Spatial Autocorrelation
+    lines.append("## 1. Spatial Autocorrelation Analysis")
+    lines.append("")
+    
+    if spatial_data:
+        moran_i = spatial_data.get("temperature", {}).get("moran_i")
+        p_value = spatial_data.get("temperature", {}).get("p_value")
+        
+        if moran_i is not None:
+            lines.append(interpret_morans_i(moran_i, p_value))
+            lines.append("")
+            
+            # Include variogram info if available
+            if "variogram" in spatial_data:
+                lines.append("**Variogram Analysis:**")
+                lines.append(f"- Range: {spatial_data['variogram'].get('range', 'N/A')}")
+                lines.append(f"- Nugget: {spatial_data['variogram'].get('nugget', 'N/A')}")
+                lines.append(f"- Sill: {spatial_data['variogram'].get('sill', 'N/A')}")
+                lines.append("")
+        else:
+            lines.append("Moran's I statistic could not be computed or retrieved.")
+            lines.append("")
+    else:
+        lines.append("Spatial statistics file not found. Autocorrelation analysis could not be performed.")
+        lines.append("")
+    
+    lines.append("---")
+    lines.append("")
+    
+    # Section 2: Correlation Analysis
+    lines.append("## 2. Correlation Analysis")
+    lines.append("")
+    
+    if correlation_data:
+        lines.append("### Linear Relationships with Temperature")
+        lines.append("")
+        summary = interpret_correlations(correlation_data.get("matrix", {}))
+        lines.append(summary)
+        lines.append("")
+        
+        lines.append("### Full Correlation Matrix")
+        lines.append("")
+        lines.append("| Variable | ")
+        header_row = correlation_data.get("variables", [])
+        lines.append(" | ".join([f"{v[:15]}..." if len(v) > 15 else v for v in header_row]))
+        lines.append("|")
+        lines.append("|" + "---|" * len(header_row))
+        
+        matrix = correlation_data.get("matrix", {})
+        for var in header_row:
+            row_vals = matrix.get(var, {})
+            row_strs = []
+            for other_var in header_row:
+                val = row_vals.get(other_var, "N/A")
+                if isinstance(val, float):
+                    row_strs.append(f"{val:.3f}")
+                else:
+                    row_strs.append(str(val))
+            lines.append(f"| {var[:15]}... | " + " | ".join(row_strs))
+        lines.append("")
+    else:
+        lines.append("Correlation matrix not found. Linear relationships could not be analyzed.")
+        lines.append("")
+    
+    lines.append("---")
+    lines.append("")
+    
+    # Section 3: Socioeconomic Proxies
+    lines.append("## 3. Socioeconomic Proxies")
+    lines.append("")
+    lines.append(proxy_info["message"])
+    lines.append("")
+    if proxy_info["available"]:
+        lines.append(f"**Source File:** `{proxy_info['path']}`")
+        lines.append("")
+        lines.append("These proxies (WorldPop population density and/or OSM building heights) were successfully ingested and aligned with the thermal raster stack.")
+    else:
+        lines.append("Note: The ingestion of socioeconomic proxies (T021a) encountered issues or the data source was unavailable. The analysis proceeded without this layer.")
+    lines.append("")
+    
+    lines.append("---")
+    lines.append("")
+    lines.append("*End of Report*")
     
     return "\n".join(lines)
 
+
 def main():
-    """Main entry point to generate the EDA report."""
-    logger.info("Starting EDA report generation (T021)...")
+    """
+    Main entry point to generate the EDA report.
+    """
+    logger.info("Starting EDA Report Generation (T021)...")
     
+    # Load dependencies
+    correlation_data = load_correlation_matrix()
+    spatial_data = load_spatial_stats()
+    proxy_info = check_socioeconomic_proxies()
+    
+    # Generate content
+    report_content = generate_report_content(correlation_data, spatial_data, proxy_info)
+    
+    # Write output
+    output_path = get_path("data/results/eda_report.md")
     try:
-        # Load dependencies
-        logger.info("Loading correlation matrix...")
-        corr_df = load_correlation_matrix()
-        
-        logger.info("Loading spatial statistics...")
-        spatial_stats = load_spatial_stats()
-        
-        logger.info("Checking socioeconomic proxies...")
-        socio_data = check_socioeconomic_proxies()
-        
-        # Generate content
-        logger.info("Generating report content...")
-        content = generate_report_content(corr_df, spatial_stats, socio_data)
-        
-        # Write output
-        output_path = Path("data/results/eda_report.md")
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(output_path, "w", encoding="utf-8") as f:
-            f.write(content)
-        
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(report_content)
         logger.info(f"EDA report successfully written to {output_path}")
-        return 0
-        
-    except FileNotFoundError as e:
-        logger.error(f"Missing required input file: {e}")
-        return 1
     except Exception as e:
-        logger.exception(f"Unexpected error during report generation: {e}")
-        return 1
+        logger.error(f"Failed to write report to {output_path}: {e}")
+        raise
+
 
 if __name__ == "__main__":
-    exit(main())
+    main()

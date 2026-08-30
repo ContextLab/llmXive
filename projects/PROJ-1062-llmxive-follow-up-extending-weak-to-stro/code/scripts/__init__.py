@@ -1,3 +1,3 @@
 """
-Executable scripts for running experiments and utilities
+Executable scripts for running experiments, validation, and artifact management.
 """

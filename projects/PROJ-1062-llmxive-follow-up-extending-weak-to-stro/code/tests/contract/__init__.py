@@ -1,3 +1,3 @@
 """
-Contract tests for component interfaces
+Contract tests for component interfaces.
 """

@@ -103,7 +103,7 @@
  - Generate `data/metadata.json` with fetch timestamps and checksums **ONLY if the pipeline completed successfully (exit code 0)**.
  - **Constraint**: If T014b triggers an exit (code 1), T015 MUST NOT generate `data/metadata.json`.
 - [X] T016 [US1] Add validation logic to verify non-null overlap region in `code/ingest.py`
-- [ ] T021a [US1] Implement ingestion of socioeconomic proxies (WorldPop/OSM height) in `code/ingest.py`
+- [X] T021a [US1] Implement ingestion of socioeconomic proxies (WorldPop/OSM height) in `code/ingest.py`
  - Attempt to fetch data; if unavailable, **log WARNING and continue** (do NOT raise error).
  - Output to `data/processed/socioeconomic_proxies.tif` if successful.
  - **Constraint**: If fetch fails, log limitation and proceed; do NOT generate synthetic proxies.
@@ -121,15 +121,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T017 [P] [US2] Unit test for Moran's I calculation in `tests/unit/test_eda.py`
-- [ ] T018 [P] [US2] Unit test for variogram computation in `tests/unit/test_eda.py`
+- [X] T017 [P] [US2] Unit test for Moran's I calculation in `tests/unit/test_eda.py`
+- [X] T018 [P] [US2] Unit test for variogram computation in `tests/unit/test_eda.py`
 
 ### Implementation for User Story 2
 
-- [ ] T019 [US2] Implement correlation matrix generation in `code/eda.py` (FR-004)
+- [X] T019 [US2] Implement correlation matrix generation in `code/eda.py` (FR-004)
  - Calculate Pearson/Spearman correlations between covariates and temperature.
  - Output to `data/results/correlation_matrix.csv`.
-- [ ] T020 [US2] Implement spatial autocorrelation analysis in `code/eda.py` (FR-004)
+- [X] T020 [US2] Implement spatial autocorrelation analysis in `code/eda.py` (FR-004)
  - Compute Moran's I for the temperature raster.
  - Compute variograms for the target variable.
  - Output statistics to `data/results/spatial_stats.json`.

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-15T02:41:59.099435Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-1062-llmxive-follow-up-extending-weak-to-stro
-last_run_id: bf15685e-8b96-4af5-a34d-b6b87777303b
+last_run_id: 64093d2a-3d03-4d06-b839-12f380bbd9b6
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro
 title: 'llmXive follow-up: extending "Weak-to-Strong Generalization via Direct On-Policy
   Distillation"'
-updated_at: '2026-08-18T10:53:52.277907Z'
+updated_at: '2026-08-30T22:12:31.310043Z'

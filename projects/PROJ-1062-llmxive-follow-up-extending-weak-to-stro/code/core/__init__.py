@@ -1,3 +1,3 @@
 """
-Core utilities for distillation, training, and evaluation
+Core logic modules for distillation, evaluation, and memory management.
 """

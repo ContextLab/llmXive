@@ -1,10 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory `projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/code/`
-    or any file listing was provided, so the required project structure cannot be
-    verified as existing or populated. The implementer must supply the actual folder
-    hierarchy and its contents.
 T002:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

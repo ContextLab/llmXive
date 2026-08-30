@@ -1,16 +1,22 @@
 {
   "project_id": "PROJ-546-predicting-molecular-properties-from-qua",
   "ok": false,
-  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python code/main.py; 3 declared deliverable(s) absent: data/confounds.csv; data/descriptors_dft.csv; data/descriptors_semi.csv",
+  "reason": "7 command(s) failed: python code/fetch_data.py (rc=1); python code/confound_analysis.py (rc=1); python code/descriptor_pipeline.py (rc=1); 4 declared deliverable(s) absent: data/confounds.csv; data/descriptors_dft.csv; data/descriptors_semi.csv",
   "artifacts": [],
   "failures": [
-    "python code/main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/main.py': [Errno 2] No such file or directory"
+    "python code/fetch_data.py -> rc=1\n    2026-08-30 22:13:03,091 - fetch_data - INFO - Starting data fetch and verification process.\n2026-08-30 22:13:03,091 - fetch_data - ERROR - Could not resolve Zenodo ID from idea file.\n2026-08-30 22:13:03,091 - fetch_data - ERROR - Data fetch and verification failed.",
+    "python code/confound_analysis.py -> rc=1\n    Error: No CSV files found in data/raw/",
+    "python code/descriptor_pipeline.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/descriptor_pipeline.py\", line 207, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/descriptor_pipeline.py\", line 175, in main\n    parser = argparse.ArgumentParser(description=\"Run descriptor pipeline on barrier dataset\")\n             ^^^^^^^^\nNameError: name 'argparse' is not defined",
+    "python code/dft_calculator.py -> rc=1\n    -qua/code/dft_calculator.py\", line 332, in main\n    logger = log_setup()\n             ^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/dft_calculator.py\", line 35, in log_setup\n    logger = setup_logger(\"dft_calculator\", LOG_FILE)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/utils/logging_utils.py\", line 47, in setup_logger\n    file_handler = logging.FileHandler(log_path)",
+    "python code/train_models.py -> rc=1\n    ",
+    "python code/evaluate_models.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/evaluate_models.py\", line 38, in <module>\n    logger = setup_logger(\"evaluate_models\", \"logs/evaluation.log\")\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/utils/logging_utils.py\", line 47, in setup_logger\n    file_handler = logging.FileHandler(log_path)\n                   ^^^^^^^^^^^^^^",
+    "python code/sensitivity_analysis.py -> rc=1\n    2026-08-30 22:13:06,816 - sensitivity_analysis - INFO - Loading model and data...\n2026-08-30 22:13:06,816 - sensitivity_analysis - ERROR - Error during sensitivity analysis: Model file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/models/rf_semi.pkl\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-546-predicting-molecular-properties-from-qua/code/sensitivity_analysis.py\", line 275, in main\n    model = load_model(args.model_path)\n            ^^"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-08-20T03:41:32Z"
+  "updated_at": "2026-08-30T22:13:08Z"
 }

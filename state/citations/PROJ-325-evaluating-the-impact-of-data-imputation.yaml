@@ -9,7 +9,7 @@
   verification_status: pending
   verified_against_url: https://gss.norc.org/page-not-found.html
   verified_at: '2026-07-28T21:35:24.089321Z'
-- artifact_hash: 6f6e210cb0abc13206fef666812efbeb05a91e24440eb4b580f282360ba17db1
+- artifact_hash: e0f2826060541bd1b17dd5fb77a3428e5eca5268942497af22760feb516a4942
   artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,4 +19,4 @@
   value: https://gss.norc.org/documents/stata/GSS2018.dta`
   verification_status: pending
   verified_against_url: https://gss.norc.org/page-not-found.html
-  verified_at: '2026-07-28T22:12:57.120285Z'
+  verified_at: '2026-08-30T21:45:58.483674Z'

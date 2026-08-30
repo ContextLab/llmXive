@@ -1,30 +1,30 @@
 """
-Descriptor Extractor for Molecular Interface Pairs.
+Descriptor Extractor for Molecular Graphs.
 
-This script extracts hand-crafted topological descriptors (degree, density,
-clustering coefficient) from the curated dataset of molecular graphs and
-saves them to a CSV file for downstream analysis.
+This module extracts hand-crafted topological descriptors from the curated
+molecular dataset. It reads SMILES strings from the curated dataset, constructs
+molecular graphs using RDKit, and calculates:
+- Degree (average node degree)
+- Graph Density
+- Clustering Coefficient (average)
 
-Input: data/curated/curated_dataset.csv
-Output: data/processed/descriptors.csv
+Output is saved to data/processed/descriptors.csv.
 """
-
 import os
 import sys
 import logging
 import json
 import math
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
-import csv
-import numpy as np
+from typing import List, Dict, Any, Tuple, Optional
+
+import networkx as nx
+from rdkit import Chem
+from rdkit.Chem import rdMolDescriptors
 
 # Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
-
-from utils.seed_utils import set_seed
-from utils.exceptions import DataError
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
 # Configure logging
 logging.basicConfig(
@@ -34,215 +34,285 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Constants
-CURATED_DATA_PATH = project_root / "data" / "curated" / "curated_dataset.csv"
-OUTPUT_PATH = project_root / "data" / "processed" / "descriptors.csv"
-SEED_VALUE = 42
+INPUT_PATH = PROJECT_ROOT / "data" / "curated" / "curated_dataset.csv"
+OUTPUT_PATH = PROJECT_ROOT / "data" / "processed" / "descriptors.csv"
 
-def parse_smiles_to_adjacency(smiles: str) -> Tuple[np.ndarray, int]:
+# Exit codes
+E_INPUT_MISSING = 101
+E_NO_DATA = 102
+E_WRITE_FAILED = 103
+
+
+def parse_smiles_to_adjacency(smiles: str) -> Optional[nx.Graph]:
     """
-    Parse a SMILES string into an adjacency matrix and atom count.
-    Uses RDKit for robust parsing.
+    Convert a SMILES string to a NetworkX graph representing the molecular structure.
 
     Args:
-        smiles: SMILES string representing the molecule.
+        smiles: SMILES string of the molecule.
 
     Returns:
-        Tuple of (adjacency_matrix, num_atoms)
+        NetworkX graph where nodes are atoms and edges are bonds.
+        Returns None if the SMILES is invalid.
     """
     try:
-        from rdkit import Chem
-        from rdkit.Chem import rdmolops
-    except ImportError:
-        raise DataError("RDKit is required for SMILES parsing but not installed.")
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            logger.warning(f"Could not parse SMILES: {smiles}")
+            return None
 
-    mol = Chem.MolFromSmiles(smiles)
-    if mol is None:
-        logger.warning(f"Failed to parse SMILES: {smiles}")
-        return np.zeros((0, 0)), 0
+        G = nx.Graph()
+        # Add atoms as nodes
+        for atom in mol.GetAtoms():
+            G.add_node(atom.GetIdx(), symbol=atom.GetSymbol(), atomic_num=atom.GetAtomicNum())
 
-    # Get adjacency matrix from RDKit
-    adj = rdmolops.GetAdjacencyMatrix(mol)
-    return adj, mol.GetNumAtoms()
+        # Add bonds as edges
+        for bond in mol.GetBonds():
+            G.add_edge(
+                bond.GetBeginAtomIdx(),
+                bond.GetEndAtomIdx(),
+                bond_type=bond.GetBondType()
+            )
+        return G
+    except Exception as e:
+        logger.error(f"Error parsing SMILES '{smiles}': {e}")
+        return None
 
-def calculate_degree(adj: np.ndarray) -> List[float]:
+
+def calculate_degree(G: nx.Graph) -> float:
     """
-    Calculate the degree (number of connections) for each node.
+    Calculate the average degree of the graph.
 
     Args:
-        adj: Adjacency matrix (N x N)
+        G: NetworkX graph.
 
     Returns:
-        List of degrees for each node
+        Average degree of the graph.
     """
-    if adj.size == 0:
-        return []
-    return np.sum(adj, axis=1).tolist()
-
-def calculate_graph_density(adj: np.ndarray) -> float:
-    """
-    Calculate the density of the graph (actual edges / possible edges).
-
-    Args:
-        adj: Adjacency matrix (N x N)
-
-    Returns:
-        Graph density (0.0 to 1.0)
-    """
-    n = adj.shape[0]
-    if n <= 1:
+    if G.number_of_nodes() == 0:
         return 0.0
-    actual_edges = np.sum(adj) / 2  # Undirected graph
-    possible_edges = n * (n - 1) / 2
-    if possible_edges == 0:
-        return 0.0
-    return actual_edges / possible_edges
+    return sum(dict(G.degree()).values()) / G.number_of_nodes()
 
-def calculate_clustering_coefficient(adj: np.ndarray) -> List[float]:
+
+def calculate_graph_density(G: nx.Graph) -> float:
     """
-    Calculate the local clustering coefficient for each node.
-    CC_i = (2 * triangles_i) / (k_i * (k_i - 1))
+    Calculate the density of the graph.
+
+    Density is the ratio of actual edges to possible edges.
 
     Args:
-        adj: Adjacency matrix (N x N)
+        G: NetworkX graph.
 
     Returns:
-        List of clustering coefficients for each node
+        Graph density (0.0 to 1.0).
     """
-    n = adj.shape[0]
-    if n == 0:
-        return []
+    if G.number_of_nodes() <= 1:
+        return 0.0
+    return nx.density(G)
 
-    degrees = np.sum(adj, axis=1)
-    coefficients = []
 
-    for i in range(n):
-        k = degrees[i]
-        if k < 2:
-            coefficients.append(0.0)
+def calculate_clustering_coefficient(G: nx.Graph) -> float:
+    """
+    Calculate the average clustering coefficient of the graph.
+
+    Args:
+        G: NetworkX graph.
+
+    Returns:
+        Average clustering coefficient.
+    """
+    if G.number_of_nodes() == 0:
+        return 0.0
+    return nx.average_clustering(G)
+
+
+def load_curated_data(input_path: Path) -> List[Dict[str, Any]]:
+    """
+    Load the curated dataset from CSV.
+
+    Args:
+        input_path: Path to the curated dataset CSV.
+
+    Returns:
+        List of dictionaries representing rows.
+
+    Raises:
+        FileNotFoundError: If the input file does not exist.
+        ValueError: If required columns are missing.
+    """
+    import csv
+
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+
+    rows = []
+    with open(input_path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        if 'polymer_smiles' not in reader.fieldnames or 'filler_smiles' not in reader.fieldnames:
+            raise ValueError("Input CSV must contain 'polymer_smiles' and 'filler_smiles' columns.")
+        for row in reader:
+            rows.append(row)
+
+    if len(rows) == 0:
+        raise ValueError("Input CSV is empty.")
+
+    return rows
+
+
+def extract_descriptors(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Extract topological descriptors for each row in the dataset.
+
+    For each row, we construct graphs for both polymer and filler molecules
+    and calculate descriptors for each, plus combined statistics.
+
+    Args:
+        rows: List of dictionaries from the curated dataset.
+
+    Returns:
+        List of dictionaries containing original data plus descriptors.
+    """
+    results = []
+    total_processed = 0
+    total_skipped = 0
+
+    for idx, row in enumerate(rows):
+        polymer_smiles = row.get('polymer_smiles', '').strip()
+        filler_smiles = row.get('filler_smiles', '').strip()
+
+        if not polymer_smiles or not filler_smiles:
+            logger.warning(f"Row {idx}: Missing SMILES. Skipping.")
+            total_skipped += 1
             continue
 
-        # Get neighbors
-        neighbors = np.where(adj[i] > 0)[0]
-        # Count edges between neighbors
-        subgraph = adj[np.ix_(neighbors, neighbors)]
-        triangles = np.sum(subgraph) / 2
-        possible_triangles = k * (k - 1) / 2
+        # Process Polymer
+        poly_G = parse_smiles_to_adjacency(polymer_smiles)
+        if poly_G is None:
+            logger.warning(f"Row {idx}: Invalid polymer SMILES. Skipping.")
+            total_skipped += 1
+            continue
 
-        if possible_triangles == 0:
-            coefficients.append(0.0)
-        else:
-            coefficients.append(triangles / possible_triangles)
+        # Process Filler
+        fill_G = parse_smiles_to_adjacency(filler_smiles)
+        if fill_G is None:
+            logger.warning(f"Row {idx}: Invalid filler SMILES. Skipping.")
+            total_skipped += 1
+            continue
 
-    return coefficients
+        # Calculate Descriptors
+        poly_degree = calculate_degree(poly_G)
+        poly_density = calculate_graph_density(poly_G)
+        poly_clustering = calculate_clustering_coefficient(poly_G)
 
-def extract_descriptors(smiles_polymer: str, smiles_filler: str) -> Dict[str, float]:
+        fill_degree = calculate_degree(fill_G)
+        fill_density = calculate_graph_density(fill_G)
+        fill_clustering = calculate_clustering_coefficient(fill_G)
+
+        # Combined/Interaction descriptors (simple aggregation for now)
+        total_nodes = poly_G.number_of_nodes() + fill_G.number_of_nodes()
+        total_edges = poly_G.number_of_edges() + fill_G.number_of_edges()
+
+        combined_degree = (poly_degree + fill_degree) / 2.0
+        combined_density = (poly_density + fill_density) / 2.0
+        combined_clustering = (poly_clustering + fill_clustering) / 2.0
+
+        result_row = {
+            'row_id': idx,
+            'polymer_smiles': polymer_smiles,
+            'filler_smiles': filler_smiles,
+            'polymer_degree': poly_degree,
+            'polymer_density': poly_density,
+            'polymer_clustering': poly_clustering,
+            'filler_degree': fill_degree,
+            'filler_density': fill_density,
+            'filler_clustering': fill_clustering,
+            'combined_degree': combined_degree,
+            'combined_density': combined_density,
+            'combined_clustering': combined_clustering,
+            'total_nodes': total_nodes,
+            'total_edges': total_edges
+        }
+
+        # Preserve original adhesion energy if present
+        if 'adhesion_energy' in row:
+            result_row['adhesion_energy'] = row['adhesion_energy']
+
+        results.append(result_row)
+        total_processed += 1
+
+        if (total_processed + total_skipped) % 100 == 0:
+            logger.info(f"Processed {total_processed + total_skipped} rows...")
+
+    logger.info(f"Extraction complete. Processed: {total_processed}, Skipped: {total_skipped}")
+    return results
+
+
+def save_descriptors(results: List[Dict[str, Any]], output_path: Path) -> None:
     """
-    Extract topological descriptors for a pair of molecules.
+    Save the extracted descriptors to a CSV file.
 
     Args:
-        smiles_polymer: SMILES string for the polymer
-        smiles_filler: SMILES string for the filler
-
-    Returns:
-        Dictionary of descriptors
+        results: List of dictionaries with descriptor data.
+        output_path: Path to the output CSV file.
     """
-    descriptors = {}
+    if not results:
+        logger.error("No results to save.")
+        raise ValueError("Cannot save empty results.")
 
-    # Process polymer
-    adj_poly, n_poly = parse_smiles_to_adjacency(smiles_polymer)
-    if n_poly == 0:
-        raise DataError(f"Invalid polymer SMILES: {smiles_polymer}")
-
-    deg_poly = calculate_degree(adj_poly)
-    descriptors['polymer_avg_degree'] = float(np.mean(deg_poly)) if deg_poly else 0.0
-    descriptors['polymer_max_degree'] = float(np.max(deg_poly)) if deg_poly else 0.0
-    descriptors['polymer_density'] = calculate_graph_density(adj_poly)
-    descriptors['polymer_clustering'] = float(np.mean(calculate_clustering_coefficient(adj_poly)))
-
-    # Process filler
-    adj_fill, n_fill = parse_smiles_to_adjacency(smiles_filler)
-    if n_fill == 0:
-        raise DataError(f"Invalid filler SMILES: {smiles_filler}")
-
-    deg_fill = calculate_degree(adj_fill)
-    descriptors['filler_avg_degree'] = float(np.mean(deg_fill)) if deg_fill else 0.0
-    descriptors['filler_max_degree'] = float(np.max(deg_fill)) if deg_fill else 0.0
-    descriptors['filler_density'] = calculate_graph_density(adj_fill)
-    descriptors['filler_clustering'] = float(np.mean(calculate_clustering_coefficient(adj_fill)))
-
-    # Combined descriptors
-    descriptors['total_atoms'] = n_poly + n_fill
-    descriptors['combined_density'] = (descriptors['polymer_density'] + descriptors['filler_density']) / 2.0
-
-    return descriptors
-
-def main():
-    """
-    Main function to extract descriptors from the curated dataset.
-    """
-    logger.info("Starting descriptor extraction...")
-    set_seed(SEED_VALUE)
-
-    if not CURATED_DATA_PATH.exists():
-        raise FileNotFoundError(f"Curated dataset not found at {CURATED_DATA_PATH}")
-
-    output_path = OUTPUT_PATH
+    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    descriptors_list = []
-    row_count = 0
+    fieldnames = list(results[0].keys())
+
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(results)
+
+    logger.info(f"Saved {len(results)} rows to {output_path}")
+
+
+def main() -> int:
+    """
+    Main entry point for the descriptor extraction pipeline.
+
+    Returns:
+        Exit code (0 for success, non-zero for failure).
+    """
+    logger.info(f"Starting descriptor extraction. Input: {INPUT_PATH}")
 
     try:
-        with open(CURATED_DATA_PATH, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            fieldnames = reader.fieldnames
+        # 1. Load data
+        if not INPUT_PATH.exists():
+            logger.error(f"Input file does not exist: {INPUT_PATH}")
+            logger.error("Please ensure T016 (curated dataset generation) has completed successfully.")
+            return E_INPUT_MISSING
 
-            if 'polymer_smiles' not in fieldnames or 'filler_smiles' not in fieldnames:
-                raise DataError("Curated dataset missing 'polymer_smiles' or 'filler_smiles' columns")
+        rows = load_curated_data(INPUT_PATH)
+        logger.info(f"Loaded {len(rows)} rows from curated dataset.")
 
-            for row in reader:
-                try:
-                    desc = extract_descriptors(row['polymer_smiles'], row['filler_smiles'])
-                    # Preserve original identifiers
-                    desc['id'] = row.get('id', f"row_{row_count}")
-                    desc['polymer_smiles'] = row['polymer_smiles']
-                    desc['filler_smiles'] = row['filler_smiles']
+        # 2. Extract descriptors
+        descriptors = extract_descriptors(rows)
 
-                    # Include adhesion energy if present
-                    if 'adhesion_energy' in row and row['adhesion_energy']:
-                        try:
-                            desc['adhesion_energy'] = float(row['adhesion_energy'])
-                        except ValueError:
-                            desc['adhesion_energy'] = None
+        if not descriptors:
+            logger.error("No valid descriptors could be extracted.")
+            return E_NO_DATA
 
-                    descriptors_list.append(desc)
-                    row_count += 1
+        # 3. Save results
+        save_descriptors(descriptors, OUTPUT_PATH)
 
-                    if row_count % 100 == 0:
-                        logger.info(f"Processed {row_count} rows...")
+        logger.info("Descriptor extraction completed successfully.")
+        return 0
 
-                except Exception as e:
-                    logger.warning(f"Skipping row {row_count}: {e}")
-                    continue
-
-        if row_count == 0:
-            raise DataError("No valid rows processed from curated dataset")
-
-        # Write output
-        if descriptors_list:
-            output_fieldnames = list(descriptors_list[0].keys())
-            with open(output_path, 'w', newline='', encoding='utf-8') as f:
-                writer = csv.DictWriter(f, fieldnames=output_fieldnames)
-                writer.writeheader()
-                writer.writerows(descriptors_list)
-
-            logger.info(f"Successfully extracted descriptors for {row_count} rows to {output_path}")
-        else:
-            raise DataError("No descriptors were extracted")
-
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        return E_INPUT_MISSING
+    except ValueError as e:
+        logger.error(f"Value error: {e}")
+        return E_NO_DATA
     except Exception as e:
-        logger.error(f"Descriptor extraction failed: {e}")
-        raise
+        logger.exception(f"Unexpected error during extraction: {e}")
+        return E_WRITE_FAILED
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

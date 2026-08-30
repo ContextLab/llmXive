@@ -20,7 +20,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/MathArena/aime_2024
   verified_at: '2026-08-16T11:56:25.069524Z'
-- artifact_hash: 582a76432899a124f297d487fe2293f1e17aa53f8c9258091c8698f70346cf72
+- artifact_hash: a2acd88815135832cd09c91c829294f02e09f0932adb91192215fc870c4b422f
   artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,8 +30,8 @@
   value: https://download.pytorch.org/whl/cpu`
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-08-18T11:04:41.183268Z'
-- artifact_hash: 582a76432899a124f297d487fe2293f1e17aa53f8c9258091c8698f70346cf72
+  verified_at: '2026-08-30T22:12:31.133079Z'
+- artifact_hash: a2acd88815135832cd09c91c829294f02e09f0932adb91192215fc870c4b422f
   artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -42,4 +42,4 @@
   value: https://arxiv.org/abs/2507.07101
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2507.07101
-  verified_at: '2026-08-18T11:04:41.183268Z'
+  verified_at: '2026-08-30T22:12:31.133079Z'

@@ -1,1 +1,3 @@
-"""Data directory placeholder."""
+"""
+Data directory for raw, processed, and results artifacts.
+"""

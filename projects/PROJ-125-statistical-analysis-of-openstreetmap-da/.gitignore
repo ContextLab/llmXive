@@ -1,12 +1,8 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
-
-# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -24,56 +20,51 @@ wheels/
 .installed.cfg
 *.egg
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.coverage
-.coverage.*
-coverage.xml
-.tox/
-.nox/
-
-# Virtual environments
+# Virtual Environments
 .venv/
 venv/
 ENV/
 env/
-.env/
 
-# IDEs
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
+.project
+.pydevproject
+.settings/
+
+# Environment variables
+.env
+.env.local
+*.local
+
+# Data (Raw and Processed)
+data/raw/
+data/processed/
+data/results/
+data/literature_bounds.json
+
+# Logs
+*.log
+logs/
+
+# Jupyter
+.ipynb_checkpoints
+notebooks/
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Project specific
-data/raw/
-data/processed/
-data/results/
-figures/
-logs/
-.env
-*.log
+# Testing
 .pytest_cache/
-.mypy_cache/
-.ruff_cache/
+.coverage
+htmlcov/
+.hypothesis/
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# Environment variables (sensitive)
-*.pem
-*.key
-*.crt
+# Models and Artifacts
+models/
+figures/

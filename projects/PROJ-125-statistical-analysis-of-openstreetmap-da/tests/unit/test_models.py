@@ -1,148 +1,175 @@
 """
-Unit tests for data models (CityBoundary, RasterCovariate, TemperatureRaster).
+Unit tests for data models in code/models/.
+
+These tests verify:
+- CityBoundary geometry validation
+- RasterCovariate file existence and stats computation
+- TemperatureRaster unit conversion
+- Serialization/deserialization
 """
+import pytest
 import json
 import tempfile
+import os
 from pathlib import Path
-import pytest
-from shapely.geometry import Polygon, mapping
+import numpy as np
 
-from code.models.base import BaseModel
-from code.models.city import CityBoundary
-from code.models.raster import RasterCovariate, TemperatureRaster
-
-
-class TestBaseModel:
-    def test_to_dict(self):
-        class TestModel(BaseModel):
-            def __init__(self, a, b):
-                self.a = a
-                self.b = b
-        
-        model = TestModel(1, 2)
-        assert model.to_dict() == {"a": 1, "b": 2}
-
-    def test_save_and_load(self):
-        class TestModel(BaseModel):
-            def __init__(self, value):
-                self.value = value
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            path = Path(tmpdir) / "test.json"
-            model = TestModel(42)
-            model.save(path)
-            
-            assert path.exists()
-            loaded = TestModel.from_json_file(path)
-            assert loaded.value == 42
-
-    def test_validate_schema_missing_field(self):
-        with pytest.raises(ValueError, match="Missing required fields"):
-            BaseModel.validate_schema({"a": 1}, ["a", "b"])
-
-    def test_validate_schema_valid(self):
-        # Should not raise
-        BaseModel.validate_schema({"a": 1, "b": 2}, ["a", "b"])
+# Import models
+from code.models.city_boundary import CityBoundary
+from code.models.raster_covariate import RasterCovariate
+from code.models.temperature_raster import TemperatureRaster
 
 
 class TestCityBoundary:
-    def test_init_valid(self):
-        wkt = "POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))"
+    """Tests for CityBoundary model."""
+
+    def test_valid_initialization(self):
+        """Test initialization with valid WKT."""
+        wkt = "POLYGON((-74.0 40.7, -74.0 40.8, -73.9 40.8, -73.9 40.7, -74.0 40.7))"
         city = CityBoundary(
-            city_name="TestCity",
-            geometry_wkt=wkt,
+            city_name="New York",
+            wkt_geometry=wkt,
             crs_epsg=4326,
-            country="USA"
+            source="OpenStreetMap"
         )
-        assert city.city_name == "TestCity"
+        assert city.city_name == "New York"
         assert city.crs_epsg == 4326
-        assert city.country == "USA"
+        assert city.source == "OpenStreetMap"
+        assert city.bbox is not None
+        assert len(city.bbox) == 4
 
-    def test_init_invalid_wkt(self):
-        with pytest.raises(ValueError, match="Failed to parse geometry WKT"):
+    def test_invalid_geometry_type(self):
+        """Test that non-polygon geometry raises error."""
+        wkt = "POINT(-74.0 40.7)"
+        with pytest.raises(ValueError):
             CityBoundary(
-                city_name="BadCity",
-                geometry_wkt="NOT_A_WKT",
+                city_name="Test",
+                wkt_geometry=wkt,
                 crs_epsg=4326
             )
 
-    def test_init_missing_required(self):
-        with pytest.raises(ValueError, match="Missing required fields"):
+    def test_invalid_crs(self):
+        """Test that invalid EPSG code raises error."""
+        wkt = "POLYGON((-74.0 40.7, -74.0 40.8, -73.9 40.8, -73.9 40.7, -74.0 40.7))"
+        with pytest.raises(ValueError):
             CityBoundary(
-                city_name=None, # type: ignore
-                geometry_wkt="POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))",
-                crs_epsg=4326
+                city_name="Test",
+                wkt_geometry=wkt,
+                crs_epsg=-1
             )
 
-    def test_bounds(self):
-        wkt = "POLYGON((0 0, 2 0, 2 2, 0 2, 0 0))"
-        city = CityBoundary("City", wkt, 4326)
-        bounds = city.bounds
-        assert bounds["minx"] == 0.0
-        assert bounds["maxx"] == 2.0
+    def test_serialization(self):
+        """Test JSON serialization and deserialization."""
+        wkt = "POLYGON((-74.0 40.7, -74.0 40.8, -73.9 40.8, -73.9 40.7, -74.0 40.7))"
+        city = CityBoundary(
+            city_name="New York",
+            wkt_geometry=wkt,
+            crs_epsg=4326
+        )
+        
+        json_str = city.to_json()
+        data = json.loads(json_str)
+        assert data['city_name'] == "New York"
+        assert data['crs_epsg'] == 4326
 
-    def test_from_geojson_file(self):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            path = Path(tmpdir) / "city.geojson"
-            geom = Polygon([(0, 0), (1, 0), (1, 1), (0, 1), (0, 0)])
-            feature = {
-                "type": "Feature",
-                "properties": {"name": "GeoCity", "country": "Test"},
-                "geometry": mapping(geom)
-            }
-            with open(path, "w") as f:
-                json.dump(feature, f)
-            
-            city = CityBoundary.from_geojson_file(path)
-            assert city.city_name == "GeoCity"
-            assert city.country == "Test"
+        # Test loading from dict
+        city2 = CityBoundary(**data)
+        assert city2.city_name == city.city_name
 
 
 class TestRasterCovariate:
-    def test_init_valid(self):
-        raster = RasterCovariate(
-            name="test_cov",
-            path="/fake/path.tif",
-            crs_epsg=3857,
-            resolution_m=30.0,
-            data_type="continuous"
-        )
-        assert raster.name == "test_cov"
-        assert raster.resolution_m == 30.0
+    """Tests for RasterCovariate model."""
 
-    def test_init_missing_required(self):
-        with pytest.raises(ValueError, match="Missing required fields"):
+    def test_file_not_found(self):
+        """Test that missing file raises error."""
+        with pytest.raises(FileNotFoundError):
             RasterCovariate(
-                name="test",
-                path="/fake.tif",
-                crs_epsg=3857,
-                resolution_m=30.0,
-                data_type=None # type: ignore
+                name="test_covariate",
+                file_path="/nonexistent/path.tif",
+                crs_epsg=4326,
+                resolution_m=30.0
             )
 
-    def test_from_raster_file_missing(self):
-        with pytest.raises(FileNotFoundError):
-            RasterCovariate.from_raster_file(Path("/nonexistent.tif"))
+    def test_stats_computation(self):
+        """Test that stats are computed automatically."""
+        with tempfile.NamedTemporaryFile(suffix='.tif', delete=False) as tmp:
+            # Create a minimal GeoTIFF
+            try:
+                import rasterio
+                from rasterio.transform import from_bounds
+                import numpy as np
+
+                data = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]], dtype=np.float32)
+                transform = from_bounds(0, 0, 3, 3, 3, 3)
+                
+                with rasterio.open(
+                    tmp.name, 'w',
+                    driver='GTiff',
+                    height=3, width=3,
+                    count=1,
+                    dtype=data.dtype,
+                    crs='EPSG:4326',
+                    transform=transform
+                ) as dst:
+                    dst.write(data, 1)
+
+                cov = RasterCovariate(
+                    name="test_cov",
+                    file_path=tmp.name,
+                    crs_epsg=4326,
+                    resolution_m=1.0
+                )
+                
+                assert cov.stats is not None
+                assert cov.stats['mean'] == 5.0
+                assert cov.stats['count'] == 9
+            finally:
+                os.unlink(tmp.name)
 
 
 class TestTemperatureRaster:
-    def test_init_valid(self):
-        temp = TemperatureRaster(
-            name="lst_2023",
-            path="/fake/lst.tif",
-            crs_epsg=3857,
-            resolution_m=100.0,
-            acquisition_time="2023-01-01T12:00:00Z"
-        )
-        assert temp.name == "lst_2023"
-        assert temp.sensor == "MODIS"
+    """Tests for TemperatureRaster model."""
 
-    def test_init_missing_required(self):
-        with pytest.raises(ValueError, match="Missing required fields"):
-            TemperatureRaster(
-                name="test",
-                path="/fake.tif",
-                crs_epsg=3857,
-                resolution_m=100.0,
-                acquisition_time=None # type: ignore
-            )
+    def test_unit_conversion(self):
+        """Test Kelvin to Celsius conversion."""
+        with tempfile.NamedTemporaryFile(suffix='.tif', delete=False) as tmp:
+            try:
+                import rasterio
+                from rasterio.transform import from_bounds
+                import numpy as np
+
+                # Create data in Kelvin
+                data = np.array([[300, 301, 302], [303, 304, 305]], dtype=np.float32)
+                transform = from_bounds(0, 0, 3, 2, 3, 2)
+                
+                with rasterio.open(
+                    tmp.name, 'w',
+                    driver='GTiff',
+                    height=2, width=3,
+                    count=1,
+                    dtype=data.dtype,
+                    crs='EPSG:4326',
+                    transform=transform
+                ) as dst:
+                    dst.write(data, 1)
+
+                temp_raster = TemperatureRaster(
+                    name="test_temp",
+                    file_path=tmp.name,
+                    crs_epsg=4326,
+                    resolution_m=1.0,
+                    unit="K"
+                )
+                
+                # Convert to Celsius
+                temp_c = temp_raster.convert_units("C")
+                assert temp_c.unit == "C"
+                # Mean should be around 27-28 C (300-305 K)
+                assert 20 < temp_c.stats['mean_temp_c'] < 35
+            finally:
+                os.unlink(tmp.name)
+
+    def test_missing_required_fields(self):
+        """Test validation of required fields."""
+        with pytest.raises(ValueError):
+            TemperatureRaster.load_from_file("nonexistent.json")

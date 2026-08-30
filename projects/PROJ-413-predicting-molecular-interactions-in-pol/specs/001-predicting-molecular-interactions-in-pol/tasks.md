@@ -75,9 +75,9 @@
 - [X] T013 [US1] Implement hard abort logic with exit code E-DATA-001 if adhesion energy is missing OR row count <100 in `code/data/clean.py`. **Note**: This task enforces the Plan's "hard abort" logic, overriding the Spec's proxy fallback as scientifically invalid.
 - [X] T014 [US1] Implement data cleaning and validation script in `code/data/clean.py` to flag missing values (≤5% threshold) and process data if row count ≥100.
 - [X] T015 [US1] Implement 'Limited Power' warning logic in `code/data/clean.py`: if 100 ≤ rows < 500, log warning and calculate margin of error (e.g., `1.96 * std / sqrt(n)`).
-- [ ] T016 [US1] Generate `data/curated/curated_dataset.csv` with complete molecular graph structures and adhesion energy measurements.
+- [ ] T016 [US1] Generate `data/curated/curated_dataset.csv` with complete molecular graph structures and adhesion energy measurements. <!-- FAILED: unspecified -->
 - [ ] T017 [US1] Extract hand-crafted descriptors (degree, density, clustering coefficient) from `data/curated/curated_dataset.csv` and save to `data/processed/descriptors.csv` in `code/data/descriptor_extractor.py`. <!-- FAILED: unspecified -->
-- [ ] T018 [US1] Update `state/projects/PROJ-413-...yaml` with SHA256 hash of `curated_dataset.csv` via `utils/hash_state.py`. <!-- ATOMIZE: requested -->
+- [ ] T018 [US1] Update `state/projects/PROJ-413-...yaml` with SHA256 hash of `curated_dataset.csv` via `utils/hash_state.py`. <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -97,13 +97,13 @@
 ### Implementation for User Story 2
 
 - [X] T021 [P] [US2] Implement 3-layer Graph Attention Network (GAT) using `torch_geometric.nn.GATConv` in `code/models/gat.py` (3 layers, hidden=64, dropout=0.5). **CRITICAL NOTE**: Although Spec FR-003 mandates a GCN, the Plan's "Critical Note on Spec Alignment" explicitly states the model MUST be a GAT to satisfy attention requirements and handle feature weighting. This task implements the GAT as per the Plan, overriding the Spec's GCN requirement.
-- [ ] T022 [US2] Implement SMILES-to-heterogeneous graph conversion in `code/data/graph_build.py` using `rdkit.Chem.rdmolfiles.MolFromSmiles` to generate `data/processed/graphs.pt` from `data/curated/curated_dataset.csv`. <!-- FAILED: unspecified -->
+- [ ] T022 [US2] Implement SMILES-to-heterogeneous graph conversion in `code/data/graph_build.py` using `rdkit.Chem.rdmolfiles.MolFromSmiles` to generate `data/processed/graphs.pt` from `data/curated/curated_dataset.csv`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [ ] T023 [US2] Generate `analysis/topology_audit.md` from `graph_build.py` listing node counts, edge counts, and pruning statistics.
-- [ ] T024 [US2] Save processed graphs to `data/processed/graphs.pt`. <!-- FAILED: unspecified -->
+- [ ] T024 [US2] Save processed graphs to `data/processed/graphs.pt`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T025 [US2] Implement checkpointing logic every 10 epochs to `results/checkpoint_{epoch}.pt` in `code/models/train.py`.
 - [X] T026 [US2] Implement training loop in `code/models/train.py` with 80/20 train-test split, batch ≤32, MSE loss, fixed seed, and logic to trigger T025 if runtime > 4.5h.
 - [X] T027 [US2] Implement timeout logic (hard fail >6h) in `code/models/train.py` that triggers T025 checkpointing if 4.5h < runtime ≤ 6h, and fails if >6h.
-- [ ] T028 [US2] Train final model and save to `results/model.pt`. <!-- FAILED: unspecified -->
+- [ ] T028 [US2] Train final model and save to `results/model.pt`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [ ] T029 [US2] Log runtime and memory usage to `results/performance.json`.
 - [ ] T030 [US2] Update `state/projects/PROJ-413-...yaml` with hashes for `model.pt` and `graphs.pt`.
 
@@ -125,13 +125,13 @@
 ### Implementation for User Story 3
 
 - [ ] T033 [US3] Implement full re-training permutation test in `code/analysis/perm_test.py` with 1000 permutations on the full dataset, using 5 epochs per permutation to fit the 6h runtime limit. Compare MSE against baseline and save permuted MSEs to `results/permuted_mses.csv`. *Note: This meets FR-005's 1000 iteration count while respecting the Plan's feasibility constraints.* <!-- FAILED: unspecified -->
-- [ ] T034 [US3] Calculate 0.95 quantile of permuted baseline MSEs from `results/permuted_mses.csv` and compute p-value in `code/analysis/stat_utils.py`.
-- [ ] T035 [US3] Implement gradient-based Integrated Gradients attribution in `code/analysis/attribution.py` on a set of test samples using the trained model from T028. <!-- FAILED: unspecified -->
-- [ ] T036 [US3] Implement VIF calculation on hand-crafted descriptors from `data/processed/descriptors.csv` in `code/analysis/collinearity.py`.
+- [ ] T034 [US3] Calculate 0.95 quantile of permuted baseline MSEs from `results/permuted_mses.csv` and compute p-value in `code/analysis/stat_utils.py`. <!-- FAILED: unspecified -->
+- [X] T035 [US3] Implement gradient-based Integrated Gradients attribution in `code/analysis/attribution.py` on a set of test samples using the trained model from T028. <!-- FAILED: unspecified -->
+- [ ] T036 [US3] Implement VIF calculation on hand-crafted descriptors from `data/processed/descriptors.csv` in `code/analysis/collinearity.py`. <!-- FAILED: unspecified -->
 - [ ] T037 [US3] Aggregate attribution results and identify topological features with std > 0.1.
 - [ ] T038 [US3] **DELETED**: Task removed. The Plan explicitly states that attention mechanisms do NOT handle collinearity; VIF (T036) handles collinearity reporting. Verifying that "attention handles collinearity" is scientifically incorrect and contradicts the Plan.
-- [~] T039 [US3] Apply Bonferroni/Holm correction to p-values in `results/stats.csv` if >1 metric present. <!-- FAILED: unspecified -->
-- [~] T040 [US3] Calculate Family-Wise Error Rate (FWER) and verify correction effectiveness, logging result in `results/stats.csv`.
+- [ ] T039 [US3] Apply Bonferroni/Holm correction to p-values in `results/stats.csv` if >1 metric present. <!-- FAILED: unspecified -->
+- [ ] T040 [US3] Calculate Family-Wise Error Rate (FWER) and verify correction effectiveness, logging result in `results/stats.csv`.
 - [ ] T041 [US3] Generate `results/stats.csv` with columns: metric, observed_value, p_value, corrected_p_value, vif_score, fwer.
 - [ ] T042 [US3] Generate `results/attribution.json` with feature importance rankings.
 - [ ] T043 [US3] Update `state/projects/PROJ-413-...yaml` with hashes for `stats.csv`, `attribution.json`, `performance.json`.
@@ -145,8 +145,8 @@
 **Purpose**: Document power analysis and final packaging
 
 - [ ] T051 [P] Document power analysis assumptions (medium effect size, α=0.05) and determine Required N in `analysis/power_analysis.md` with sections: Effect Size, Alpha, Power, Required N, Limitations.
-- [ ] T052 [P] Compile final report referencing `results/` and `analysis/` artifacts exclusively.
-- [ ] T053 [P] Verify all artifacts have corresponding SHA256 hashes in `state/projects/PROJ-413-...yaml`.
+- [~] T052 [P] Compile final report referencing `results/` and `analysis/` artifacts exclusively.
+- [~] T053 [P] Verify all artifacts have corresponding SHA256 hashes in `state/projects/PROJ-413-...yaml`.
 
 ---
 

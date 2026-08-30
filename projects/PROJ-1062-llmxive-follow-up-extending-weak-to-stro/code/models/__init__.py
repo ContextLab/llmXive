@@ -1,3 +1,3 @@
 """
-Model loading utilities for teachers and students
+Model loaders for teachers and student architectures (MoE, SSM).
 """
