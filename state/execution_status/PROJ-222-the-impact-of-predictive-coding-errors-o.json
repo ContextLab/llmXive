@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-222-the-impact-of-predictive-coding-errors-o",
+  "ok": false,
+  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python code/visualize.py; 3 command(s) failed: python code/download.py (rc=1); python code/preprocess.py (rc=1); python code/analysis.py (rc=1); 2 declared deliverable(s) absent: data/processed/exclusion_log.json; data/processed/standardized.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/download.py -> rc=1\n    Processing dataset: 42277 from openml\nProcessing dataset: 42278 from openml\nGate 0 status written to gate0_status.json: blocked - Failed to fetch 42277 from openml; Failed to fetch 42278 from openml\n\nNo permission to create OpenML directory at /home/runner/.config! This can result in OpenML-Python not working properly.\n/home/runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/code/download.py:85: FutureWarning: Starting from Version 0.15 `download_data`, `download_qualities`, and `download_features_meta_data` will all be ``",
+    "python code/preprocess.py -> rc=1\n    2026-08-30 03:20:14,759 - INFO - Processing dataset: dataset_1\n2026-08-30 03:20:14,760 - ERROR - Failed to process dataset_1: Dataset dataset_1 not found in /home/runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/data/raw\n2026-08-30 03:20:14,760 - INFO - Processing dataset: dataset_2\n2026-08-30 03:20:14,760 - ERROR - Failed to process dataset_2: Dataset dataset_2 not found in /home/runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/data/raw\nTraceback (most recent call last):\n  File \"/",
+    "python code/analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/code/analysis.py\", line 12, in <module>\n    from pingouin import calculate_cohens_d, compute_esci\nImportError: cannot import name 'calculate_cohens_d' from 'pingouin' (/home/runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/code/.venv/lib/python3.11/site-packages/pingouin/__init__.py)\n/home/runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/code/.venv/l",
+    "python code/visualize.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/code/visualize.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-30T03:20:18Z"
+}

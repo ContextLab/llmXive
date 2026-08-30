@@ -1,27 +1,17 @@
 {
-  "model_converged": true,
-  "coefficients": {
-    "(Intercept)": 1.234,
-    "surprisal": 0.456,
-    "sequence_length": 0.123,
-    "modality": 0.089
-  },
-  "p_values": {
-    "(Intercept)": 0.001,
-    "surprisal": 0.032,
-    "sequence_length": 0.150,
-    "modality": 0.210
-  },
-  "effect_size": {
-    "cohen_d": 0.45,
-    "ci_95": [0.12, 0.78]
-  },
-  "mde": 0.15,
-  "fwer_control_status": "controlled",
-  "fwer_details": {
-    "fwer_control_status": "controlled",
-    "reason": "Correction applied (per T023) or single test.",
-    "alpha": 0.05,
-    "num_tests": 3
-  }
+  "formula": "Duration ~ Surprisal + Sequence_Length + Modality + (1 | Participant_ID)",
+  "n_observations": 0,
+  "convergence_status": "failed",
+  "fallback_applied": false,
+  "coef_surprisal": null,
+  "pval_surprisal": null,
+  "ci_lower": null,
+  "ci_upper": null,
+  "adjusted_pvalues": [],
+  "fwer_control_status": true,
+  "effect_sizes": {},
+  "mde": null,
+  "normality_test_pval": null,
+  "test_method_used": null,
+  "cutoff_sensitivity": []
 }

@@ -5,244 +5,269 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 from typing import List, Dict, Any, Optional
+from datetime import datetime
 
 from config import get_data_dir
-from download import fetch_openml_dataset, fetch_huggingface_dataset
 
-# Setup logging
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-EXCLUSION_LOG_PATH = Path("data/processed/exclusion_log.json")
+def get_data_dir() -> Path:
+    """Get the project data directory."""
+    return get_data_dir()
+
+def get_processed_dir() -> Path:
+    """Get the processed data directory."""
+    data_dir = get_data_dir()
+    processed_dir = data_dir / "processed"
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    return processed_dir
 
 def load_exclusion_log() -> List[Dict[str, Any]]:
-    """Load the exclusion log if it exists."""
-    if EXCLUSION_LOG_PATH.exists():
-        with open(EXCLUSION_LOG_PATH, 'r') as f:
+    """Load existing exclusion log if it exists."""
+    processed_dir = get_processed_dir()
+    log_path = processed_dir / "exclusion_log.json"
+    if log_path.exists():
+        with open(log_path, 'r') as f:
             return json.load(f)
     return []
 
-def save_exclusion_log(log: List[Dict[str, Any]]) -> None:
-    """Save the exclusion log to disk."""
-    EXCLUSION_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(EXCLUSION_LOG_PATH, 'w') as f:
-        json.dump(log, f, indent=2)
+def save_exclusion_log(exclusion_log: List[Dict[str, Any]]) -> None:
+    """Save exclusion log to JSON file."""
+    processed_dir = get_processed_dir()
+    log_path = processed_dir / "exclusion_log.json"
+    with open(log_path, 'w') as f:
+        json.dump(exclusion_log, f, indent=2)
+    logger.info(f"Exclusion log saved to {log_path}")
 
-def log_exclusion(dataset_id: str, reason: str, details: Optional[Dict] = None) -> None:
-    """Log a dataset exclusion."""
-    log = load_exclusion_log()
-    log.append({
+def log_exclusion(dataset_id: str, reason: str) -> Dict[str, Any]:
+    """Log an exclusion event."""
+    entry = {
         "dataset_id": dataset_id,
-        "status": "excluded",
         "reason": reason,
-        "details": details or {},
-        "timestamp": pd.Timestamp.now().isoformat()
-    })
-    save_exclusion_log(log)
+        "timestamp": datetime.utcnow().isoformat()
+    }
     logger.warning(f"Excluded dataset {dataset_id}: {reason}")
+    return entry
 
-def log_inclusion(dataset_id: str, details: Optional[Dict] = None) -> None:
-    """Log a dataset inclusion."""
-    log = load_exclusion_log()
-    log.append({
-        "dataset_id": dataset_id,
-        "status": "included",
-        "reason": None,
-        "details": details or {},
-        "timestamp": pd.Timestamp.now().isoformat()
-    })
-    save_exclusion_log(log)
-    logger.info(f"Included dataset {dataset_id}")
+def log_inclusion(dataset_id: str) -> None:
+    """Log an inclusion event."""
+    logger.info(f"Dataset {dataset_id} passed filtering criteria.")
 
-def check_sequential_stimuli(df: pd.DataFrame, stimulus_col: str = "stimulus_sequence") -> bool:
+def check_sequential_stimuli(df: pd.DataFrame, dataset_id: str) -> Optional[str]:
     """
-    Check if the dataset contains sequential stimuli.
-    Returns False if the data appears to be random noise or non-sequential.
+    Check if dataset contains sequential stimuli.
     
-    Heuristics:
-    1. The stimulus column must exist.
-    2. The stimulus column should have a non-trivial sequence structure.
-       We check for transitions. If the column is constant or has no transitions,
-       it might not be a valid sequential task.
-    3. We assume valid sequential data has at least some variation in transitions.
+    A dataset is considered sequential if:
+    1. It has a 'stimulus_sequence' or 'raw_stimulus_sequence' column
+    2. OR it has a 'stimulus_onset' or 'stimulus_timing' column that implies sequence
+    3. OR the data can be ordered by a 'trial_id' or 'time' column with multiple distinct stimuli
+    
+    Returns None if sequential stimuli are found, otherwise returns a reason string.
     """
-    if stimulus_col not in df.columns:
-        return False
+    required_cols = ['stimulus_sequence', 'raw_stimulus_sequence', 'stimulus_onset', 'stimulus_timing', 'trial_id', 'time', 'stimulus']
+    available_cols = set(df.columns)
+    
+    # Check for explicit sequence columns
+    if 'stimulus_sequence' in available_cols or 'raw_stimulus_sequence' in available_cols:
+        # Verify the sequence is not empty or constant
+        seq_col = 'stimulus_sequence' if 'stimulus_sequence' in available_cols else 'raw_stimulus_sequence'
+        if df[seq_col].dropna().nunique() > 1:
+            log_inclusion(dataset_id)
+            return None
+        else:
+            return "Stimulus sequence exists but contains only one unique value (no variation)."
+    
+    # Check for timing columns that imply sequence
+    if 'stimulus_onset' in available_cols or 'stimulus_timing' in available_cols:
+        timing_col = 'stimulus_onset' if 'stimulus_onset' in available_cols else 'stimulus_timing'
+        if df[timing_col].dropna().nunique() > 1:
+            log_inclusion(dataset_id)
+            return None
+        else:
+            return "Stimulus timing exists but contains only one unique value."
+    
+    # Check for trial-based structure with multiple stimuli
+    if 'trial_id' in available_cols or 'time' in available_cols:
+        id_col = 'trial_id' if 'trial_id' in available_cols else 'time'
+        if df[id_col].nunique() > 1:
+            # Check if there's a stimulus column
+            if 'stimulus' in available_cols:
+                if df['stimulus'].dropna().nunique() > 1:
+                    log_inclusion(dataset_id)
+                    return None
+                else:
+                    return "Multiple trials exist but all have the same stimulus."
+            else:
+                # No explicit stimulus column, but multiple trials exist
+                # This is ambiguous, but we'll accept it as sequential if there are many trials
+                if df[id_col].nunique() > 5:
+                    log_inclusion(dataset_id)
+                    return None
+                else:
+                    return "Multiple trials exist but no stimulus column and trial count is low."
+    
+    # No sequential structure found
+    return "Dataset lacks sequential stimuli structure (no sequence, timing, or multi-trial stimulus columns)."
 
-    series = df[stimulus_col]
-    if series.isna().all():
-        return False
-
-    # Check for constant sequence (no sequence)
-    if series.nunique() == 1:
-        return False
-
-    # Check for randomness vs structure.
-    # A purely random sequence might still be valid, but we need to ensure
-    # there is a sequence to analyze.
-    # We simply verify that there are transitions (length > 1 and not constant).
-    # More advanced: Check autocorrelation? For now, basic sequence check.
-    if len(series) < 2:
-        return False
-
-    return True
-
-def check_predictability_manipulation(df: pd.DataFrame) -> bool:
+def check_predictability_manipulation(df: pd.DataFrame, dataset_id: str) -> Optional[str]:
     """
-    Check if the dataset contains predictability manipulations.
+    Check if dataset contains predictability manipulations.
     
-    Heuristics:
-    1. Look for columns indicating condition, block, or probability.
-    2. If the dataset is purely random (no structure), it might not have
-       the necessary predictability manipulations for this study.
-    3. We check for the presence of columns that typically denote conditions
-       (e.g., 'condition', 'block', 'predictability', 'prob').
+    A dataset has predictability manipulation if:
+    1. It has a 'condition' or 'predictability' column with multiple distinct values
+    2. OR it has a 'surprisal' or 'probability' column that varies
+    3. OR the stimulus sequence shows statistical structure (e.g., Markov chains)
+    
+    Returns None if predictability manipulation is found, otherwise returns a reason string.
     """
-    # Columns that suggest predictability manipulation
-    target_keywords = ['condition', 'block', 'predict', 'prob', 'high', 'low', 'sequence_type']
+    required_cols = ['condition', 'predictability', 'surprisal', 'probability', 'stimulus']
+    available_cols = set(df.columns)
     
-    cols_lower = [str(c).lower() for c in df.columns]
+    # Check for explicit condition/predictability columns
+    cond_cols = ['condition', 'predictability']
+    for col in cond_cols:
+        if col in available_cols:
+            if df[col].dropna().nunique() > 1:
+                log_inclusion(dataset_id)
+                return None
     
-    has_structure = any(kw in ' '.join(cols_lower) for kw in target_keywords)
+    # Check for surprisal/probability columns
+    prob_cols = ['surprisal', 'probability']
+    for col in prob_cols:
+        if col in available_cols:
+            if df[col].dropna().nunique() > 1:
+                log_inclusion(dataset_id)
+                return None
     
-    # If we have a stimulus sequence and it's not constant, we assume
-    # there is some structure to analyze, but strictly speaking,
-    # we want to exclude datasets that are just "random noise" without
-    # a designed manipulation (e.g. high vs low probability blocks).
-    # Since we don't have a schema for the manipulation itself, we rely on
-    # column names or the existence of a sequence column that varies.
+    # Check if stimulus column has multiple values (implies potential predictability structure)
+    if 'stimulus' in available_cols:
+        if df['stimulus'].dropna().nunique() > 1:
+            # Further check: if we have a sequence, we can compute transition probabilities
+            # For now, if there are multiple stimuli, we assume predictability manipulation exists
+            log_inclusion(dataset_id)
+            return None
     
-    # Fallback: If we have a varying sequence, we tentatively include it,
-    # assuming the study design implies the manipulation.
-    # However, the task asks to exclude "random noise".
-    # We will assume if a column named 'condition' or similar exists, it's valid.
-    # If not, and it's just a raw sequence, we might need to inspect entropy.
-    
-    # For this implementation, we require at least one of the structural columns
-    # OR a sequence that shows non-random transition patterns (simplified: just varies).
-    # To be strict per FR-002: "exclude datasets lacking sequential stimuli or predictability manipulations".
-    # If we can't find a 'condition' column, we might be looking at raw noise.
-    # Let's enforce the presence of a 'condition' or 'block' column as a proxy for manipulation.
-    
-    if not has_structure:
-        # Check if there is a 'stimulus_sequence' column that is the primary feature
-        # If the dataset ONLY has a sequence and no condition labels, it might be
-        # a simple reaction time task without the predictive coding manipulation.
-        # We will exclude it to be safe, as we need to compare conditions.
-        return False
+    # No predictability manipulation found
+    return "Dataset lacks predictability manipulations (no condition, predictability, surprisal, or variable stimulus columns)."
 
-    return True
-
-def filter_datasets(dataset_ids: List[str]) -> Dict[str, Any]:
+def filter_datasets(dataset_ids: List[str], exclusion_log: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Filter datasets based on sequential stimuli and predictability manipulations.
+    Filter datasets based on sequential stimuli and predictability manipulation criteria.
     
     Args:
-        dataset_ids: List of dataset IDs to check.
+        dataset_ids: List of dataset identifiers to filter
+        exclusion_log: Existing exclusion log entries
         
     Returns:
-        Dictionary with 'included' and 'excluded' lists of dataset IDs.
+        Updated exclusion log with new entries
     """
-    results = {
-        "included": [],
-        "excluded": [],
-        "details": {}
-    }
-
-    for ds_id in dataset_ids:
+    data_dir = get_data_dir()
+    raw_dir = data_dir / "raw"
+    
+    for dataset_id in dataset_ids:
+        # Look for dataset file in raw directory
+        possible_paths = [
+            raw_dir / f"{dataset_id}.csv",
+            raw_dir / f"{dataset_id}.parquet",
+            raw_dir / f"dataset_{dataset_id}.csv",
+            raw_dir / dataset_id / "data.csv",
+            raw_dir / dataset_id / "dataset.csv"
+        ]
+        
+        dataset_path = None
+        for path in possible_paths:
+            if path.exists():
+                dataset_path = path
+                break
+        
+        if dataset_path is None:
+            # Dataset not found, log as excluded
+            entry = log_exclusion(dataset_id, "Dataset file not found in raw directory.")
+            exclusion_log.append(entry)
+            continue
+        
         try:
-            # Attempt to fetch a small sample to inspect structure
-            # We use a chunked approach or just load a few rows if possible
-            # For OpenML/HF, we might need to load metadata or a sample.
-            # Assuming fetch functions can return a sample or we load locally if cached.
-            
-            # Strategy: Try to load the dataset (or a sample) to check columns.
-            # Since we don't have the full file yet, we might need to fetch metadata.
-            # For this task, we assume the dataset is already downloaded or we fetch a sample.
-            # Let's try to fetch a sample.
-            
-            # Note: In a real pipeline, T012 would have downloaded these.
-            # We assume they are in data/raw or we fetch a sample.
-            # For robustness, we try to fetch a sample of 100 rows.
-            
-            df_sample = None
-            source = None
-            
-            # Try OpenML
-            try:
-                df_sample, source = fetch_openml_dataset(ds_id, sample_size=100)
-            except Exception as e_openml:
-                try:
-                    df_sample, source = fetch_huggingface_dataset(ds_id, sample_size=100)
-                except Exception as e_hf:
-                    logger.error(f"Failed to fetch {ds_id} from any source: {e_openml}, {e_hf}")
-                    log_exclusion(ds_id, "fetch_failed", {"error": str(e_openml)})
-                    results["excluded"].append(ds_id)
-                    results["details"][ds_id] = {"reason": "fetch_failed"}
-                    continue
-
-            if df_sample is None:
-                log_exclusion(ds_id, "empty_dataset")
-                results["excluded"].append(ds_id)
-                results["details"][ds_id] = {"reason": "empty_dataset"}
+            # Load dataset
+            if dataset_path.suffix == '.csv':
+                df = pd.read_csv(dataset_path)
+            elif dataset_path.suffix == '.parquet':
+                df = pd.read_parquet(dataset_path)
+            else:
+                entry = log_exclusion(dataset_id, f"Unsupported file format: {dataset_path.suffix}")
+                exclusion_log.append(entry)
                 continue
-
-            # Check Sequential Stimuli
-            if not check_sequential_stimuli(df_sample):
-                log_exclusion(ds_id, "non_sequential_stimuli")
-                results["excluded"].append(ds_id)
-                results["details"][ds_id] = {"reason": "non_sequential_stimuli"}
+            
+            # Check for sequential stimuli
+            seq_reason = check_sequential_stimuli(df, dataset_id)
+            if seq_reason:
+                entry = log_exclusion(dataset_id, seq_reason)
+                exclusion_log.append(entry)
                 continue
-
-            # Check Predictability Manipulation
-            if not check_predictability_manipulation(df_sample):
-                log_exclusion(ds_id, "no_predictability_manipulation")
-                results["excluded"].append(ds_id)
-                results["details"][ds_id] = {"reason": "no_predictability_manipulation"}
+            
+            # Check for predictability manipulation
+            pred_reason = check_predictability_manipulation(df, dataset_id)
+            if pred_reason:
+                entry = log_exclusion(dataset_id, pred_reason)
+                exclusion_log.append(entry)
                 continue
-
-            # If passed
-            log_inclusion(ds_id)
-            results["included"].append(ds_id)
-            results["details"][ds_id] = {"reason": "passed_filters"}
-
+            
+            # Dataset passed all checks
+            log_inclusion(dataset_id)
+            
         except Exception as e:
-            logger.error(f"Error processing dataset {ds_id}: {e}")
-            log_exclusion(ds_id, "processing_error", {"error": str(e)})
-            results["excluded"].append(ds_id)
-            results["details"][ds_id] = {"reason": "processing_error"}
+            entry = log_exclusion(dataset_id, f"Error processing dataset: {str(e)}")
+            exclusion_log.append(entry)
+            logger.error(f"Failed to process dataset {dataset_id}: {e}")
+    
+    return exclusion_log
 
-    return results
-
-def run_filtering_pipeline() -> Dict[str, Any]:
+def run_filtering_pipeline(dataset_ids: List[str]) -> List[Dict[str, Any]]:
     """
-    Main entry point for the filtering pipeline.
-    Reads dataset IDs from data/README.md (via download module logic or direct parsing)
-    and filters them.
+    Run the full filtering pipeline.
+    
+    Args:
+        dataset_ids: List of dataset identifiers to process
+        
+    Returns:
+        Final exclusion log
     """
-    # We need to get the list of dataset IDs.
-    # The download.py module has parse_readme_datasets.
-    # We import it here to reuse.
-    from download import parse_readme_datasets
+    logger.info("Starting dataset filtering pipeline...")
     
-    readme_path = Path("data/README.md")
-    if not readme_path.exists():
-        logger.error("data/README.md not found. Cannot proceed.")
-        return {"included": [], "excluded": [], "error": "README not found"}
+    # Load existing exclusion log
+    exclusion_log = load_exclusion_log()
+    
+    # Filter datasets
+    exclusion_log = filter_datasets(dataset_ids, exclusion_log)
+    
+    # Save updated exclusion log
+    save_exclusion_log(exclusion_log)
+    
+    logger.info(f"Filtering pipeline complete. {len(exclusion_log)} exclusion entries recorded.")
+    return exclusion_log
 
-    datasets_info = parse_readme_datasets(readme_path)
-    dataset_ids = [d['id'] for d in datasets_info]
+def main():
+    """Main entry point for the filtering script."""
+    from config import get_config
     
-    logger.info(f"Found {len(dataset_ids)} datasets to filter.")
+    config = get_config()
+    dataset_ids = config.get('dataset_ids', [])
     
-    results = filter_datasets(dataset_ids)
+    if not dataset_ids:
+        logger.error("No dataset IDs provided in configuration.")
+        sys.exit(1)
     
-    logger.info(f"Filtering complete. Included: {len(results['included'])}, Excluded: {len(results['excluded'])}")
+    exclusion_log = run_filtering_pipeline(dataset_ids)
     
-    return results
+    # Print summary
+    print(f"\nFiltering Summary:")
+    print(f"  Total datasets processed: {len(dataset_ids)}")
+    print(f"  Exclusions recorded: {len(exclusion_log)}")
+    print(f"  Exclusion log saved to: {get_processed_dir() / 'exclusion_log.json'}")
 
 if __name__ == "__main__":
-    run_filtering_pipeline()
+    main()

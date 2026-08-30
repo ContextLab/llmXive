@@ -4,13 +4,6 @@ T017b:
   r: No evidence of `data/processed/transition_probs.json` or `data/processed/markov_state.json`
     (or any equivalent files) was provided; thus the required versioned artifacts
     are missing. The task is not satisfied.
-T022:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `analysis/results.json` file was found containing the required `convergence_status`\
-    \ and `fallback_applied` fields, and there is no evidence of code that implements\
-    \ a convergence check with a fallback to a random\u2011intercept\u2011only model.\
-    \ The task\u2019s core artifact is missing."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -53,10 +46,3 @@ T026:
     rank test is present; the only artifacts described relate to data acquisition\
     \ and mixed\u2011effects modeling, not the required normality\u2011check functionality.\
     \ The task\u2019s core requirement is therefore unmet."
-T027:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `analysis/results.json` file (or its contents) was presented, and therefore\
-    \ there is no evidence that coefficients, p\u2011values, MDE, and convergence\
-    \ status have been logged as required. The implementer must create a non\u2011\
-    empty JSON file at that path containing all specified result fields."

@@ -1,11 +1,15 @@
+"""
+Preprocessing module for time perception data.
+Implements data loading, filtering, sampling, and Markov surprisal calculation.
+"""
 import os
 import json
 import logging
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple, Union
-from collections import defaultdict
+from typing import Dict, Any, List, Tuple, Optional
+from datetime import datetime
 
 from config import get_data_dir, set_seed
 from utils import load_dataset_chunked
@@ -17,228 +21,324 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_dataset(dataset_id: str, source: str = 'openml') -> pd.DataFrame:
+def load_dataset(dataset_id: str, raw_dir: Path) -> pd.DataFrame:
     """
-    Load a dataset from the specified source.
-    Note: This is a placeholder for the actual implementation which would
-    interface with the download.py module to fetch real data.
-    For T016, we assume the data is already available in data/raw/ or data/processed/
-    as per the pipeline flow from T012/T013/T014.
+    Load a dataset from the raw directory.
+    
+    Args:
+        dataset_id: Identifier for the dataset (e.g., 'dataset_1')
+        raw_dir: Path to the raw data directory
+        
+    Returns:
+        DataFrame containing the dataset
+        
+    Raises:
+        FileNotFoundError: If the dataset file is not found
     """
-    # In a real scenario, this would call fetch_openml_dataset or fetch_huggingface_dataset
-    # For now, we assume the data has been downloaded and filtered by previous tasks.
-    # We expect the data to be in data/raw/ or data/processed/
-    data_dir = get_data_dir()
-    raw_dir = data_dir / 'raw'
+    # Try common file extensions
+    extensions = ['.csv', '.tsv', '.parquet']
+    for ext in extensions:
+        file_path = raw_dir / f"{dataset_id}{ext}"
+        if file_path.exists():
+            logger.info(f"Loading dataset {dataset_id} from {file_path}")
+            if ext == '.parquet':
+                return pd.read_parquet(file_path)
+            elif ext == '.tsv':
+                return pd.read_csv(file_path, sep='\t')
+            else:
+                return pd.read_csv(file_path)
     
-    # Look for the dataset file
-    possible_paths = [
-        raw_dir / f"{dataset_id}.csv",
-        raw_dir / f"{dataset_id}.parquet",
-        raw_dir / f"{dataset_id}.json"
-    ]
-    
-    for path in possible_paths:
-        if path.exists():
-            logger.info(f"Loading dataset from {path}")
-            if path.suffix == '.csv':
-                return pd.read_csv(path)
-            elif path.suffix == '.parquet':
-                return pd.read_parquet(path)
-            elif path.suffix == '.json':
-                return pd.read_json(path)
-    
-    raise FileNotFoundError(f"Dataset {dataset_id} not found in {raw_dir}")
+    raise FileNotFoundError(f"Dataset {dataset_id} not found in {raw_dir} with supported extensions")
 
 def is_sequential_stimuli(df: pd.DataFrame) -> bool:
     """
     Check if the dataset contains sequential stimuli.
-    This is a heuristic check based on the presence of a 'stimulus_sequence' column
-    or similar temporal ordering.
+    
+    Args:
+        df: DataFrame to check
+        
+    Returns:
+        True if sequential stimuli are present, False otherwise
     """
-    # Check for common column names indicating sequential data
-    sequential_cols = ['stimulus_sequence', 'trial_sequence', 'stimulus_order', 'sequence_id']
-    return any(col in df.columns for col in sequential_cols) or len(df) > 1
+    # Check for columns that indicate sequential stimuli
+    sequential_columns = ['stimulus_sequence', 'raw_stimulus_sequence', 'trial_order', 'stimulus_order']
+    return any(col in df.columns for col in sequential_columns)
 
 def has_predictability_manipulation(df: pd.DataFrame) -> bool:
     """
-    Check if the dataset contains a predictability manipulation.
-    This is a heuristic check based on the presence of a 'condition' or 'predictability' column.
+    Check if the dataset contains predictability manipulations.
+    
+    Args:
+        df: DataFrame to check
+        
+    Returns:
+        True if predictability manipulation is present, False otherwise
     """
-    predictability_cols = ['condition', 'predictability', 'stimulus_type', 'manipulation']
-    return any(col in df.columns for col in predictability_cols)
+    # Check for columns that indicate predictability manipulation
+    predictability_columns = ['condition', 'predictability', 'probability', 'surprisal', 'transition_prob']
+    return any(col in df.columns for col in predictability_columns)
 
-def filter_datasets(df: pd.DataFrame) -> pd.DataFrame:
+def filter_datasets(dataset_ids: List[str], raw_dir: Path) -> Tuple[List[str], List[Dict[str, Any]]]:
     """
-    Filter the dataset to ensure it meets the requirements for sequential stimuli
-    and predictability manipulation.
+    Filter datasets based on sequential stimuli and predictability manipulation.
+    
+    Args:
+        dataset_ids: List of dataset IDs to filter
+        raw_dir: Path to the raw data directory
+        
+    Returns:
+        Tuple of (valid_dataset_ids, exclusion_log)
     """
-    if not is_sequential_stimuli(df):
-        raise ValueError("Dataset does not contain sequential stimuli.")
-    if not has_predictability_manipulation(df):
-        raise ValueError("Dataset does not contain a predictability manipulation.")
-    return df
+    valid_ids = []
+    exclusion_log = []
+    
+    for dataset_id in dataset_ids:
+        try:
+            df = load_dataset(dataset_id, raw_dir)
+            
+            # Check for sequential stimuli
+            if not is_sequential_stimuli(df):
+                reason = "Missing sequential stimuli columns"
+                exclusion_log.append({
+                    'dataset_id': dataset_id,
+                    'reason': reason,
+                    'timestamp': datetime.now().isoformat()
+                })
+                logger.warning(f"Excluding {dataset_id}: {reason}")
+                continue
+            
+            # Check for predictability manipulation
+            if not has_predictability_manipulation(df):
+                reason = "Missing predictability manipulation columns"
+                exclusion_log.append({
+                    'dataset_id': dataset_id,
+                    'reason': reason,
+                    'timestamp': datetime.now().isoformat()
+                })
+                logger.warning(f"Excluding {dataset_id}: {reason}")
+                continue
+            
+            valid_ids.append(dataset_id)
+            logger.info(f"Included {dataset_id}: meets all criteria")
+            
+        except Exception as e:
+            reason = f"Error loading dataset: {str(e)}"
+            exclusion_log.append({
+                'dataset_id': dataset_id,
+                'reason': reason,
+                'timestamp': datetime.now().isoformat()
+            })
+            logger.error(f"Failed to process {dataset_id}: {reason}")
+    
+    return valid_ids, exclusion_log
+
+def save_exclusion_log(exclusion_log: List[Dict[str, Any]], processed_dir: Path) -> None:
+    """
+    Save the exclusion log to a JSON file.
+    
+    Args:
+        exclusion_log: List of exclusion records
+        processed_dir: Path to the processed data directory
+    """
+    exclusion_path = processed_dir / 'exclusion_log.json'
+    with open(exclusion_path, 'w') as f:
+        json.dump(exclusion_log, f, indent=2)
+    logger.info(f"Exclusion log saved to {exclusion_path}")
 
 def enforce_sampling_limit(df: pd.DataFrame, max_trials: int = 5000) -> pd.DataFrame:
     """
-    Enforce a sampling limit on the dataset to ensure it fits within memory constraints.
-    """
-    if len(df) > max_trials:
-        logger.info(f"Dataset has {len(df)} trials, sampling to {max_trials} trials.")
-        # Sample randomly but deterministically
-        np.random.seed(42)  # Fixed seed for reproducibility
-        return df.sample(n=max_trials, random_state=42)
-    return df
-
-def compute_markov_surprisal(df: pd.DataFrame, stimulus_col: str = 'stimulus_sequence', 
-                             condition_col: str = 'condition', 
-                             participant_col: str = 'participant_id') -> pd.DataFrame:
-    """
-    Compute Markov surprisal for the dataset using Shannon entropy of the transition.
-    
-    This function:
-    1. Groups data by participant and condition (if applicable).
-    2. Computes first-order transition probabilities for the stimulus sequence.
-    3. Calculates the surprisal (negative log probability) for each transition.
-    4. Adds the surprisal metric to the dataframe.
+    Enforce a sampling limit on the dataset.
     
     Args:
-        df: Input DataFrame with stimulus sequence and other relevant columns.
-        stimulus_col: Name of the column containing the stimulus sequence.
-        condition_col: Name of the column containing condition labels (optional).
-        participant_col: Name of the column containing participant IDs.
+        df: DataFrame to sample
+        max_trials: Maximum number of trials to keep
         
     Returns:
-        DataFrame with an additional 'surprisal' column.
+        Sampled DataFrame
     """
-    logger.info("Computing Markov surprisal...")
+    if len(df) <= max_trials:
+        return df
     
-    # Ensure the stimulus column is categorical for efficient transition counting
-    df = df.copy()
-    df[stimulus_col] = df[stimulus_col].astype(str)
-    
-    # Group by participant and condition if available
-    if condition_col in df.columns:
-        groups = df.groupby([participant_col, condition_col])
-    else:
-        groups = df.groupby(participant_col)
-    
-    surprisal_list = []
-    
-    for group_name, group_df in groups:
-        # Extract the stimulus sequence for this group
-        sequence = group_df[stimulus_col].values
-        
-        # Compute transition counts
-        transition_counts = defaultdict(lambda: defaultdict(int))
-        for i in range(len(sequence) - 1):
-            current = sequence[i]
-            next_stim = sequence[i + 1]
-            transition_counts[current][next_stim] += 1
-        
-        # Compute transition probabilities
-        transition_probs = {}
-        for current, next_stims in transition_counts.items():
-            total = sum(next_stims.values())
-            transition_probs[current] = {next_stim: count / total 
-                                         for next_stim, count in next_stims.items()}
-        
-        # Compute surprisal for each transition
-        group_surprisal = []
-        for i in range(len(sequence) - 1):
-            current = sequence[i]
-            next_stim = sequence[i + 1]
-            
-            if current in transition_probs and next_stim in transition_probs[current]:
-                prob = transition_probs[current][next_stim]
-                surprisal = -np.log2(prob) if prob > 0 else 0
-            else:
-                # If transition is unseen, assign a high surprisal (or handle as needed)
-                surprisal = -np.log2(1e-10)  # Small probability fallback
-            
-            group_surprisal.append(surprisal)
-        
-        # Add a NaN for the last trial (no next state)
-        group_surprisal.append(np.nan)
-        
-        # Assign surprisal values back to the group
-        group_df = group_df.copy()
-        group_df['surprisal'] = group_surprisal
-        surprisal_list.append(group_df)
-    
-    # Concatenate all groups back together
-    result_df = pd.concat(surprisal_list, ignore_index=True)
-    
-    logger.info(f"Markov surprisal computed. Shape: {result_df.shape}")
-    return result_df
+    logger.info(f"Sampling dataset from {len(df)} to {max_trials} trials")
+    # Use a deterministic seed for reproducibility
+    np.random.seed(42)
+    sampled_indices = np.random.choice(len(df), size=max_trials, replace=False)
+    return df.iloc[sampled_indices].reset_index(drop=True)
 
-def run_preprocessing_pipeline(dataset_ids: List[str], output_path: Path) -> None:
+def compute_markov_surprisal(df: pd.DataFrame, stimulus_col: str = 'stimulus_sequence') -> pd.DataFrame:
     """
-    Run the full preprocessing pipeline:
-    1. Load datasets.
-    2. Filter for sequential stimuli and predictability.
-    3. Enforce sampling limit.
-    4. Compute Markov surprisal.
-    5. Save the standardized output.
+    Compute Markov surprisal using Shannon entropy of the transition.
+    
+    This implements a first-order Markov model where the surprisal of a stimulus
+    is calculated as -log2(P(current_stimulus | previous_stimulus)).
     
     Args:
-        dataset_ids: List of dataset IDs to process.
-        output_path: Path to save the standardized output CSV.
+        df: DataFrame containing the data
+        stimulus_col: Name of the column containing the stimulus sequence
+        
+    Returns:
+        DataFrame with added 'surprisal' column
     """
-    all_dataframes = []
+    if stimulus_col not in df.columns:
+        raise ValueError(f"Column '{stimulus_col}' not found in DataFrame")
     
-    for dataset_id in dataset_ids:
-        logger.info(f"Processing dataset: {dataset_id}")
-        try:
-            # Load dataset
-            df = load_dataset(dataset_id)
-            
-            # Filter datasets
-            df = filter_datasets(df)
-            
-            # Enforce sampling limit
-            df = enforce_sampling_limit(df)
-            
-            # Compute Markov surprisal
-            df = compute_markov_surprisal(df)
-            
-            all_dataframes.append(df)
-            logger.info(f"Successfully processed {dataset_id}.")
-        except Exception as e:
-            logger.error(f"Failed to process {dataset_id}: {e}")
-            continue
+    # Get the stimulus sequence
+    sequence = df[stimulus_col].values
     
-    if not all_dataframes:
+    # Build transition counts
+    transition_counts = {}
+    alphabet = sorted(list(set(sequence)))
+    
+    for i in range(1, len(sequence)):
+        prev_stim = sequence[i-1]
+        curr_stim = sequence[i]
+        
+        if prev_stim not in transition_counts:
+            transition_counts[prev_stim] = {}
+        
+        if curr_stim not in transition_counts[prev_stim]:
+            transition_counts[prev_stim][curr_stim] = 0
+        
+        transition_counts[prev_stim][curr_stim] += 1
+    
+    # Calculate transition probabilities
+    transition_probs = {}
+    for prev_stim in transition_counts:
+        total = sum(transition_counts[prev_stim].values())
+        transition_probs[prev_stim] = {}
+        for curr_stim in transition_counts[prev_stim]:
+            transition_probs[prev_stim][curr_stim] = transition_counts[prev_stim][curr_stim] / total
+    
+    # Compute surprisal for each transition
+    surprisal_values = []
+    for i in range(len(sequence)):
+        if i == 0:
+            # First element has no previous context, use uniform prior or skip
+            # For consistency, we'll use a small epsilon to avoid log(0)
+            surprisal_values.append(0.0)  # Or could use -log2(1/len(alphabet))
+        else:
+            prev_stim = sequence[i-1]
+            curr_stim = sequence[i]
+            
+            if prev_stim in transition_probs and curr_stim in transition_probs[prev_stim]:
+                prob = transition_probs[prev_stim][curr_stim]
+                # Shannon entropy: -log2(p)
+                surprisal = -np.log2(prob) if prob > 0 else 0.0
+            else:
+                # Unseen transition, use a small probability
+                surprisal = -np.log2(1e-6)
+            
+            surprisal_values.append(surprisal)
+    
+    # Add surprisal column to the dataframe
+    df = df.copy()
+    df['surprisal'] = surprisal_values
+    
+    return df
+
+def run_preprocessing_pipeline(
+    dataset_ids: List[str],
+    output_path: Path,
+    max_trials: int = 5000
+) -> None:
+    """
+    Run the full preprocessing pipeline.
+    
+    Args:
+        dataset_ids: List of dataset IDs to process
+        output_path: Path to save the standardized output
+        max_trials: Maximum number of trials per dataset
+    """
+    data_dir = get_data_dir()
+    raw_dir = data_dir / 'raw'
+    processed_dir = data_dir / 'processed'
+    
+    # Ensure processed directory exists
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Filter datasets
+    valid_ids, exclusion_log = filter_datasets(dataset_ids, raw_dir)
+    
+    # Save exclusion log
+    save_exclusion_log(exclusion_log, processed_dir)
+    
+    if not valid_ids:
         raise ValueError("No datasets were successfully processed.")
     
-    # Concatenate all processed dataframes
-    standardized_df = pd.concat(all_dataframes, ignore_index=True)
+    # Process each dataset
+    all_data = []
     
-    # Ensure required columns are present
-    required_cols = ['duration_estimate', 'stimulus_sequence', 'participant_id', 'surprisal']
-    missing_cols = [col for col in required_cols if col not in standardized_df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns: {missing_cols}")
+    for dataset_id in valid_ids:
+        try:
+            logger.info(f"Processing dataset: {dataset_id}")
+            
+            # Load dataset
+            df = load_dataset(dataset_id, raw_dir)
+            
+            # Enforce sampling limit
+            df = enforce_sampling_limit(df, max_trials)
+            
+            # Compute Markov surprisal
+            # Try common column names for stimulus sequence
+            stimulus_col = None
+            for col in ['stimulus_sequence', 'raw_stimulus_sequence', 'stimulus', 'sequence']:
+                if col in df.columns:
+                    stimulus_col = col
+                    break
+            
+            if stimulus_col is None:
+                raise ValueError("No stimulus sequence column found")
+            
+            df = compute_markov_surprisal(df, stimulus_col)
+            
+            # Add dataset ID column
+            df['dataset_id'] = dataset_id
+            
+            all_data.append(df)
+            logger.info(f"Successfully processed {dataset_id}: {len(df)} rows")
+            
+        except Exception as e:
+            logger.error(f"Failed to process {dataset_id}: {str(e)}")
+            # Continue with other datasets
+            continue
     
-    # Save to output path
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    standardized_df.to_csv(output_path, index=False)
+    if not all_data:
+        raise ValueError("No datasets were successfully processed.")
+    
+    # Combine all data
+    combined_df = pd.concat(all_data, ignore_index=True)
+    
+    # Ensure required columns exist
+    required_columns = ['duration_estimate', 'stimulus_sequence', 'participant_id', 'surprisal']
+    for col in required_columns:
+        if col not in combined_df.columns:
+            # Try to find similar columns
+            similar_cols = [c for c in combined_df.columns if col.lower() in c.lower()]
+            if similar_cols:
+                logger.warning(f"Column '{col}' not found, using '{similar_cols[0]}'")
+                combined_df = combined_df.rename(columns={similar_cols[0]: col})
+            else:
+                raise ValueError(f"Required column '{col}' not found in processed data")
+    
+    # Save standardized output
+    combined_df.to_csv(output_path, index=False)
     logger.info(f"Standardized output saved to {output_path}")
 
 def main():
-    """
-    Main entry point for the preprocessing pipeline.
-    """
+    """Main entry point for preprocessing pipeline."""
     set_seed(42)
     
-    # Get dataset IDs from data/README.md or a configuration file
-    # For now, we assume a list of dataset IDs is provided or hardcoded
-    # In a real scenario, this would be read from data/README.md
-    dataset_ids = ['dataset_1', 'dataset_2']  # Placeholder, replace with real IDs
+    # Get dataset IDs from data/README.md or use default
+    # For now, we'll use a default list that should be updated based on Gate 0 results
+    dataset_ids = ['dataset_1', 'dataset_2']  # This should be replaced with actual IDs from Gate 0
     
     output_path = get_data_dir() / 'processed' / 'standardized.csv'
     
-    run_preprocessing_pipeline(dataset_ids, output_path)
+    try:
+        run_preprocessing_pipeline(dataset_ids, output_path)
+    except Exception as e:
+        logger.error(f"Preprocessing pipeline failed: {str(e)}")
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()

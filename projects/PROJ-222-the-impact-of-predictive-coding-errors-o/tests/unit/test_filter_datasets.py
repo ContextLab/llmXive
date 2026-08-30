@@ -5,79 +5,97 @@ from pathlib import Path
 import json
 import tempfile
 import os
+from datetime import datetime
 
-# Mock the config to avoid path issues in tests
-import sys
-from unittest.mock import patch, MagicMock
-
-# Add code to path if not already
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
-
+# Import the functions to test
 from filter_datasets import (
     check_sequential_stimuli,
     check_predictability_manipulation,
     log_exclusion,
-    load_exclusion_log,
-    save_exclusion_log,
-    EXCLUSION_LOG_PATH
+    log_inclusion
 )
 
-def test_check_sequential_stimuli_valid():
-    """Test with valid sequential data."""
-    data = {
-        "stimulus_sequence": [1, 2, 3, 1, 2, 3, 1, 2, 3],
-        "duration_estimate": [100, 110, 105, 100, 110, 105, 100, 110, 105]
-    }
-    df = pd.DataFrame(data)
-    assert check_sequential_stimuli(df) is True
+@pytest.fixture
+def temp_dir():
+    """Create a temporary directory for testing."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
-def test_check_sequential_stimuli_constant():
-    """Test with constant sequence (no sequence)."""
+@pytest.fixture
+def sequential_dataset():
+    """Create a dataset with sequential stimuli."""
     data = {
-        "stimulus_sequence": [1, 1, 1, 1, 1],
-        "duration_estimate": [100, 100, 100, 100, 100]
+        'trial_id': range(100),
+        'stimulus': ['A', 'B', 'A', 'B', 'C'] * 20,
+        'stimulus_sequence': ['A', 'B', 'A', 'B', 'C'] * 20,
+        'duration_estimate': np.random.rand(100)
     }
-    df = pd.DataFrame(data)
-    assert check_sequential_stimuli(df) is False
+    return pd.DataFrame(data)
 
-def test_check_sequential_stimuli_missing_column():
-    """Test with missing stimulus column."""
+@pytest.fixture
+def non_sequential_dataset():
+    """Create a dataset without sequential stimuli."""
     data = {
-        "duration_estimate": [100, 100, 100]
+        'trial_id': range(100),
+        'stimulus': ['A'] * 100,  # Only one stimulus type
+        'duration_estimate': np.random.rand(100)
     }
-    df = pd.DataFrame(data)
-    assert check_sequential_stimuli(df) is False
+    return pd.DataFrame(data)
 
-def test_check_predictability_manipulation_with_condition():
-    """Test with condition column indicating manipulation."""
+@pytest.fixture
+def predictability_dataset():
+    """Create a dataset with predictability manipulation."""
     data = {
-        "stimulus_sequence": [1, 2, 1, 2],
-        "condition": ["high_prob", "low_prob", "high_prob", "low_prob"],
-        "duration_estimate": [100, 110, 100, 110]
+        'trial_id': range(100),
+        'stimulus': ['A', 'B'] * 50,
+        'condition': ['high_prob', 'low_prob'] * 50,
+        'surprisal': [0.1, 2.0] * 50,
+        'duration_estimate': np.random.rand(100)
     }
-    df = pd.DataFrame(data)
-    assert check_predictability_manipulation(df) is True
+    return pd.DataFrame(data)
 
-def test_check_predictability_manipulation_no_condition():
-    """Test with no condition column (assumed random/no manipulation)."""
+@pytest.fixture
+def no_predictability_dataset():
+    """Create a dataset without predictability manipulation."""
     data = {
-        "stimulus_sequence": [1, 2, 3, 4, 5],
-        "duration_estimate": [100, 110, 105, 102, 108]
+        'trial_id': range(100),
+        'stimulus': ['A'] * 100,
+        'duration_estimate': np.random.rand(100)
     }
-    df = pd.DataFrame(data)
-    # Should return False as per implementation logic requiring structural columns
-    assert check_predictability_manipulation(df) is False
+    return pd.DataFrame(data)
 
-def test_log_exclusion_and_load(tmp_path, monkeypatch):
-    """Test exclusion logging and loading."""
-    # Mock the path
-    mock_path = tmp_path / "test_exclusion.json"
-    monkeypatch.setattr("filter_datasets.EXCLUSION_LOG_PATH", mock_path)
-    
-    log_exclusion("test_ds_1", "test_reason", {"detail": "test"})
-    
-    log = load_exclusion_log()
-    assert len(log) == 1
-    assert log[0]["dataset_id"] == "test_ds_1"
-    assert log[0]["reason"] == "test_reason"
-    assert log[0]["status"] == "excluded"
+def test_check_sequential_stimuli_with_sequence(sequential_dataset):
+    """Test that sequential stimuli are correctly identified."""
+    result = check_sequential_stimuli(sequential_dataset, "test_dataset")
+    assert result is None, "Sequential dataset should not be excluded."
+
+def test_check_sequential_stimuli_without_sequence(non_sequential_dataset):
+    """Test that non-sequential stimuli are correctly identified."""
+    result = check_sequential_stimuli(non_sequential_dataset, "test_dataset")
+    assert result is not None, "Non-sequential dataset should be excluded."
+    assert "lacks sequential stimuli" in result.lower() or "only one unique" in result.lower()
+
+def test_check_predictability_manipulation_with_manipulation(predictability_dataset):
+    """Test that predictability manipulation is correctly identified."""
+    result = check_predictability_manipulation(predictability_dataset, "test_dataset")
+    assert result is None, "Dataset with predictability manipulation should not be excluded."
+
+def test_check_predictability_manipulation_without_manipulation(no_predictability_dataset):
+    """Test that lack of predictability manipulation is correctly identified."""
+    result = check_predictability_manipulation(no_predictability_dataset, "test_dataset")
+    assert result is not None, "Dataset without predictability manipulation should be excluded."
+    assert "lacks predictability" in result.lower()
+
+def test_log_exclusion():
+    """Test the log_exclusion function."""
+    entry = log_exclusion("test_id", "test reason")
+    assert entry["dataset_id"] == "test_id"
+    assert entry["reason"] == "test reason"
+    assert "timestamp" in entry
+
+def test_log_inclusion(capsys):
+    """Test the log_inclusion function."""
+    log_inclusion("test_id")
+    captured = capsys.readouterr()
+    assert "test_id" in captured.out or "test_id" in captured.err
+    assert "passed" in captured.out.lower() or "passed" in captured.err.lower()

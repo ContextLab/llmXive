@@ -1,0 +1,12 @@
+status: none
+intent: download time perception datasets from OpenML and HuggingFace Datasets python
+  package dataset
+required_fields:
+- duration_estimate
+- stimulus_timing
+- condition_label
+- participant_id
+- surprisal_metric
+cache_key: 7ce8fc6eca3640482fc1b4b4aafef11756875856fe24205e0f727ae14b01c787
+searched_at: '2026-08-30T03:22:08.146374+00:00'
+retry_count: 1
