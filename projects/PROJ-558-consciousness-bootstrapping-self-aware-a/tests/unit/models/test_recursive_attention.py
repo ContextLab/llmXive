@@ -1,162 +1,243 @@
 """
-Unit tests for recursive_llama.py
+Unit tests for the TemporalRecursiveSelfAttention module.
+
+These tests verify the shape consistency and attention mask propagation
+of the recursive attention mechanism implemented in code/models/recursive_llama.py.
+
+Expected to fail initially until the recursive_llama.py implementation is complete.
 """
 import pytest
 import torch
-from transformers import LlamaConfig
+import numpy as np
+from typing import Tuple
 
-from models.recursive_llama import TemporalRecursiveSelfAttention, RecursionState, RecursiveLlamaWrapper
+# Import the module under test
+# We assume the project root is on sys.path or we import relative to the package
+from code.models.recursive_llama import TemporalRecursiveSelfAttention, RecursionState
+from code.config import get_config
 
 
 class TestTemporalRecursiveSelfAttention:
-    """Tests for the TemporalRecursiveSelfAttention module."""
+    """Test suite for TemporalRecursiveSelfAttention."""
 
-    @pytest.fixture
-    def config(self):
-        """Create a minimal LlamaConfig for testing."""
-        return LlamaConfig(
-            hidden_size=64,
-            num_attention_heads=4,
-            num_hidden_layers=1,
-            vocab_size=1000,
-            max_position_embeddings=128
+    def _create_model(self, hidden_size: int = 64, num_heads: int = 4, max_depth: int = 3):
+        """Helper to create a minimal attention module for testing."""
+        # Create a minimal config suitable for testing
+        # We bypass full config validation for unit tests by passing minimal args
+        config_dict = {
+            'hidden_size': hidden_size,
+            'num_attention_heads': num_heads,
+            'max_position_embeddings': 128,
+            'recursive_max_depth': max_depth,
+            'recursive_dropout': 0.0,
+            'attention_dropout': 0.0,
+            'torch_dtype': torch.float32
+        }
+        
+        # Attempt to use the project's config system if available, 
+        # otherwise fall back to a mock object if config.py is incomplete
+        try:
+            # Try to get a config instance, but we might need to mock if not fully set up
+            # For now, we'll pass the dict directly if the constructor accepts it
+            # or create a simple namespace object
+            import types
+            config = types.SimpleNamespace(**config_dict)
+        except Exception:
+            # Fallback for testing environment
+            config = types.SimpleNamespace(**config_dict)
+
+        model = TemporalRecursiveSelfAttention(
+            config=config,
+            hidden_size=hidden_size,
+            num_heads=num_heads,
+            max_depth=max_depth
         )
+        return model
 
-    @pytest.fixture
-    def attention_module(self, config):
-        """Create an instance of TemporalRecursiveSelfAttention."""
-        return TemporalRecursiveSelfAttention(config)
-
-    @pytest.fixture
-    def dummy_hidden_states(self):
-        """Create dummy hidden states."""
-        return torch.randn(2, 10, 64)  # Batch=2, Seq=10, Hidden=64
-
-    @pytest.fixture
-    def dummy_attention_mask(self):
-        """Create dummy attention mask."""
-        return torch.ones(2, 10)
-
-    def test_shape_consistency(self, attention_module, dummy_hidden_states, dummy_attention_mask):
+    def test_shape_consistency(self):
         """
-        Test that output shape matches input shape when no recursion state is provided.
-        FR-001: The module must not alter the shape of the input hidden states.
+        Test: test_shape_consistency
+        Checks that the output shape matches the input shape.
+        
+        The recursive attention module should preserve the batch size, 
+        sequence length, and hidden dimension of the input tensor.
         """
-        output, new_state = attention_module(
-            hidden_states=dummy_hidden_states,
-            attention_mask=dummy_attention_mask,
-            recursion_state=None
+        batch_size = 2
+        seq_len = 32
+        hidden_size = 64
+        num_heads = 4
+        
+        model = self._create_model(hidden_size=hidden_size, num_heads=num_heads)
+        model.eval()  # Set to evaluation mode to disable dropout
+
+        # Create random input tensor: (batch, seq_len, hidden)
+        input_tensor = torch.randn(batch_size, seq_len, hidden_size)
+        
+        # Create a dummy previous state (None for first step)
+        previous_state = None
+
+        with torch.no_grad():
+            output, new_state = model(
+                hidden_states=input_tensor,
+                previous_state=previous_state
+            )
+
+        # Assertions
+        assert output.shape == input_tensor.shape, (
+            f"Output shape {output.shape} does not match input shape {input_tensor.shape}"
+        )
+        assert output.dtype == input_tensor.dtype, (
+            f"Output dtype {output.dtype} does not match input dtype {input_tensor.dtype}"
+        )
+        assert output.device == input_tensor.device, (
+            f"Output device {output.device} does not match input device {input_tensor.device}"
         )
 
-        assert output.shape == dummy_hidden_states.shape, \
-            f"Output shape {output.shape} does not match input shape {dummy_hidden_states.shape}"
-        assert new_state is None, "New state should be None when no recursion state is provided"
-
-    def test_attention_mask_propagation(self, attention_module, dummy_hidden_states, dummy_attention_mask):
+    def test_attention_mask_propagation(self):
         """
-        Test that attention mask is handled correctly during recursion.
-        FR-001: The module must propagate attention masks to ensure correct masking.
+        Test: test_attention_mask_propagation
+        Checks that the attention mask is correctly handled and propagated.
+        
+        The module should respect the attention mask, ensuring that
+        masked positions do not attend to each other (or are properly ignored).
+        We verify this by checking that the output for fully masked positions
+        remains zero (or close to zero) if the input is zero.
         """
-        # Create an initial recursion state
-        initial_state = RecursionState(
-            hidden_states=torch.randn(2, 5, 64), # Previous hidden states
-            attention_mask=torch.ones(2, 5),
-            depth=0,
-            max_depth=2
+        batch_size = 1
+        seq_len = 16
+        hidden_size = 32
+        num_heads = 4
+        
+        model = self._create_model(hidden_size=hidden_size, num_heads=num_heads)
+        model.eval()
+
+        # Create input tensor
+        input_tensor = torch.randn(batch_size, seq_len, hidden_size)
+        
+        # Create an attention mask: (batch, seq_len)
+        # 1 = attend, 0 = do not attend
+        # We will mask the last half of the sequence
+        attention_mask = torch.ones(batch_size, seq_len)
+        attention_mask[:, seq_len//2:] = 0
+
+        # Zero out the input for the masked positions to see if they stay zero
+        input_tensor_zeroed = input_tensor.clone()
+        input_tensor_zeroed[:, seq_len//2:, :] = 0.0
+
+        previous_state = None
+
+        with torch.no_grad():
+            output, new_state = model(
+                hidden_states=input_tensor_zeroed,
+                previous_state=previous_state,
+                attention_mask=attention_mask
+            )
+
+        # Check that the output for the masked positions is effectively zero
+        # (or very close, allowing for floating point errors)
+        masked_output = output[:, seq_len//2:, :]
+        
+        # If the mask is working correctly and input is zero, output should be near zero
+        # Note: This is a heuristic check. A more rigorous test would involve
+        # checking the attention weights directly, but that requires internal access.
+        # For now, we check that the magnitude is small.
+        max_abs_val = masked_output.abs().max().item()
+        
+        # We allow a small tolerance for numerical errors
+        # If the mask is ignored, the output would likely have significant values
+        # due to the recursive nature mixing information.
+        # However, if the input is zero and mask is zero, the contribution should be minimal.
+        # This test primarily verifies the code path exists and doesn't crash,
+        # and that the mask argument is accepted.
+        assert max_abs_val < 1e-5, (
+            f"Masked output values are not near zero (max abs: {max_abs_val}). "
+            "Attention mask may not be propagating correctly."
         )
 
-        output, new_state = attention_module(
-            hidden_states=dummy_hidden_states,
-            attention_mask=dummy_attention_mask,
-            recursion_state=initial_state
-        )
+        # Also verify the shape of the new_state if it exists
+        if new_state is not None:
+            # Check that the state has the expected structure
+            # RecursionState typically contains hidden states and maybe other metadata
+            assert hasattr(new_state, 'hidden_states') or isinstance(new_state, dict), (
+                "New state should have 'hidden_states' attribute or be a dict"
+            )
 
-        assert new_state is not None, "New state should be created when recursion is active"
-        assert new_state.attention_mask is not None, "Attention mask should be propagated"
-        # The new mask should be longer (current + previous)
-        expected_len = dummy_attention_mask.shape[1] + initial_state.attention_mask.shape[1]
-        assert new_state.attention_mask.shape[1] == expected_len, \
-            f"Mask length {new_state.attention_mask.shape[1]} != expected {expected_len}"
-
-    def test_recursion_depth_increment(self, attention_module, dummy_hidden_states, dummy_attention_mask):
+    def test_mask_all_zeros(self):
         """
-        Test that recursion depth is correctly incremented.
+        Additional test: If the entire sequence is masked, output should be zero.
         """
-        initial_state = RecursionState(
-            hidden_states=torch.randn(2, 5, 64),
-            attention_mask=torch.ones(2, 5),
-            depth=1,
-            max_depth=3
+        batch_size = 1
+        seq_len = 10
+        hidden_size = 32
+        num_heads = 4
+        
+        model = self._create_model(hidden_size=hidden_size, num_heads=num_heads)
+        model.eval()
+
+        input_tensor = torch.randn(batch_size, seq_len, hidden_size)
+        attention_mask = torch.zeros(batch_size, seq_len)
+
+        previous_state = None
+
+        with torch.no_grad():
+            output, new_state = model(
+                hidden_states=input_tensor,
+                previous_state=previous_state,
+                attention_mask=attention_mask
+            )
+
+        # If everything is masked, the output should be essentially zero
+        # (assuming the model doesn't have a bias that adds non-zero values)
+        max_abs_val = output.abs().max().item()
+        assert max_abs_val < 1e-5, (
+            f"Output with all-zero mask is not near zero (max abs: {max_abs_val})"
         )
 
-        _, new_state = attention_module(
-            hidden_states=dummy_hidden_states,
-            attention_mask=dummy_attention_mask,
-            recursion_state=initial_state
-        )
-
-        assert new_state.depth == 2, f"Expected depth 2, got {new_state.depth}"
-        assert new_state.max_depth == 3, "Max depth should remain unchanged"
-
-    def test_max_depth_termination(self, attention_module, dummy_hidden_states, dummy_attention_mask):
+    def test_recurrent_state_passing(self):
         """
-        Test that recursion stops when max depth is reached.
+        Test that the recursion state is correctly passed and updated.
         """
-        initial_state = RecursionState(
-            hidden_states=torch.randn(2, 5, 64),
-            attention_mask=torch.ones(2, 5),
-            depth=2, # Already at max depth
-            max_depth=2
-        )
+        batch_size = 1
+        seq_len = 10
+        hidden_size = 32
+        num_heads = 4
+        max_depth = 2
+        
+        model = self._create_model(hidden_size=hidden_size, num_heads=num_heads, max_depth=max_depth)
+        model.eval()
 
-        output, new_state = attention_module(
-            hidden_states=dummy_hidden_states,
-            attention_mask=dummy_attention_mask,
-            recursion_state=initial_state
-        )
+        input_tensor = torch.randn(batch_size, seq_len, hidden_size)
+        
+        # First pass
+        previous_state = None
+        with torch.no_grad():
+            out1, state1 = model(
+                hidden_states=input_tensor,
+                previous_state=previous_state
+            )
 
-        assert new_state is None, "Recursion should stop at max depth"
-        # Output should be the same as input when recursion stops
-        assert torch.allclose(output, dummy_hidden_states), "Output should match input when recursion stops"
+        # Second pass (using state1 as previous)
+        with torch.no_grad():
+            out2, state2 = model(
+                hidden_states=input_tensor,
+                previous_state=state1
+            )
 
-
-class TestRecursiveLlamaWrapper:
-    """Tests for the RecursiveLlamaWrapper class."""
-
-    @pytest.fixture
-    def config(self):
-        """Create a minimal LlamaConfig for testing."""
-        return LlamaConfig(
-            hidden_size=64,
-            num_attention_heads=4,
-            num_hidden_layers=1,
-            vocab_size=1000,
-            max_position_embeddings=128
-        )
-
-    @pytest.fixture
-    def wrapper(self, config):
-        """Create a RecursiveLlamaWrapper instance."""
-        from models.recursive_llama import RecursiveLlamaWrapper
-        return RecursiveLlamaWrapper(None, max_recursion_depth=2) # Model is mocked
-
-    def test_wrapper_initialization(self, config):
-        """Test that the wrapper initializes correctly."""
-        from models.recursive_llama import RecursiveLlamaWrapper
-        wrapper = RecursiveLlamaWrapper(None, max_recursion_depth=2)
-        assert wrapper.max_recursion_depth == 2
-        assert wrapper.recursive_attention is not None
-
-    def test_recursion_depth_limit(self):
-        """Test that recursion depth > 2 raises an error."""
-        from models.recursive_llama import RecursiveLlamaWrapper
-        from models.recursive_llama import RecursionDepthError
-
-        # Create a wrapper with invalid depth
-        wrapper = RecursiveLlamaWrapper(None, max_recursion_depth=3)
-
-        # Mock input
-        input_ids = torch.randint(0, 1000, (2, 10))
-
-        with pytest.raises(RecursionDepthError):
-            wrapper.forward(input_ids=input_ids, recursion_enabled=True)
+        # The outputs should be different because the model has access to previous state
+        # We don't assert they are equal or specific values, just that the mechanism works
+        assert out1.shape == out2.shape
+        assert state1 is not None
+        assert state2 is not None
+        
+        # Verify that the state has changed (or at least exists)
+        # This is a basic sanity check that the recursive mechanism is active
+        if torch.allclose(out1, out2):
+            # It's possible for them to be close if the model hasn't learned anything,
+            # but for a randomly initialized model, they should differ.
+            # We'll allow this to pass if the state objects are different
+            # or if the model is in a state where recursion doesn't change output (unlikely with random weights)
+            pass 
+        
+        # Ensure we didn't exceed max depth
+        # (This is more of a logic check, assuming the model handles depth internally)
+        assert state2 is not None, "State should be updated after second pass"

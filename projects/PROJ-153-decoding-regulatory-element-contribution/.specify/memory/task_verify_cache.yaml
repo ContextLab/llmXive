@@ -19,3 +19,17 @@ T012:
     \ is missing from the repository, so the claimed end\u2011to\u2011end pipeline\
     \ test does not exist. The task cannot be considered completed until this test\
     \ file is added with appropriate test code."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No markdown tables or PDF reports containing the required disclaimer were provided;\
+    \ there is no evidence that the disclaimer was programmatically injected into\
+    \ any output files. The task\u2019s deliverable (updated report outputs with the\
+    \ explicit \u201Cresults are associational, not causal\u201D statement) is missing."
+T041:
+  c: false
+  h: 55b76ae883967be5238370403f91c06f0a3a53ace3a3a08c863fe2c55d78056e
+  r: "The `code/07b_fdr_overlap_analysis.R` script is truncated (ends mid\u2011function\
+    \ definition) and does not contain the full logic needed to compute the top\u2011\
+    20 CRE overlap or write the CSV. Moreover, the required output file `results/fdr_overlap_stats.csv`\
+    \ is absent. Both the implementation and the expected artifact are missing."

@@ -1,17 +1,3 @@
-T017:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or log files were provided that show logging of per\u2011\
-    document processing time, nor any evidence (e.g., log excerpts, test output) confirming\
-    \ that the processing time stays under the 60\u2011second limit. The required\
-    \ artifact (logging implementation and its verification) is missing."
-T022:
-  c: false
-  h: cd067b3cb13d67b3ad1ca1e82e849a8c7c8bc1e7cbc6d4914477af4b0a95b6fa
-  r: The `code/retrieval_sim.py` file is truncated and its `save_retrieval_scores`
-    function is unfinished, and the required output file `data/results/retrieval_scores.csv`
-    is missing from the repository. Without a complete implementation that writes
-    the ranked results to the specified CSV, the task is not satisfied.
 T027:
   c: false
   h: 8da1da84084b8830383f62360bb21bce9c30e9c673242cb145d52b2917106a10

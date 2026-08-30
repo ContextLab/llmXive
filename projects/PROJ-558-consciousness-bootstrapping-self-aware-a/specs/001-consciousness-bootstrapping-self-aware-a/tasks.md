@@ -65,11 +65,11 @@
 ### Resource Constraint Derivation & Configuration
 
 - [ ] T005-DERIVE [S] **Derivation Script**: Create `scripts/derive_token_limit.py` to calculate the `token_limit` based on Constitution Principle VII (A constrained RAM limit). **Logic**:
- - Available RAM: 7 GB (GitHub Actions) - 2 GB (OS) - 0.5 GB (Safety Margin) = 4.5 GB. [UNRESOLVED-CLAIM: c_a6860e7b — status=not_enough_info]
+ - Available RAM: 7 GB (GitHub Actions) - 2 GB (OS) - 0.5 GB (Safety Margin) = 4.5 GB. [UNRESOLVED-CLAIM: c_e6d2f3d6 — status=not_enough_info]
  - Model Size (TinyLlama): Compact footprint.
  - Remaining for data: 4.5 GB - 2 GB = 2.5 GB.
  - Memory per token (with recursive overhead): **Explicitly defined as 28 KB** based on TinyLlama FP16 overhead estimates.
- - Raw Limit: floor(2.5 GB / 28 KB) = 92,857 tokens. [UNRESOLVED-CLAIM: c_43b1b9c9 — status=not_enough_info]
+ - Raw Limit: floor(2.5 GB / 28 KB) = 92,857 tokens. [UNRESOLVED-CLAIM: c_78e99166 — status=not_enough_info]
  - Plan Summary Cap: The plan summary mentions 100k tokens.
  - **Output**: `token_limit = min(100000, 92857) = 92857`.
  - **Constraint**: This ensures the value is derived, not magic. **Dependency**: None.
@@ -96,7 +96,7 @@
 
 **Goal**: Construct a TinyLlama-based model with temporal recursive self-attention and train it on a sampled Pile subset to produce recursive and baseline checkpoints.
 
-**Independent Test**: The training pipeline is expected to execute on GitHub Actions CPU runner, produce two checkpoints, and complete within 120 minutes without OOM. [UNRESOLVED-CLAIM: c_b30cb15d — status=not_enough_info]
+**Independent Test**: The training pipeline is expected to execute on GitHub Actions CPU runner, produce two checkpoints, and complete within 120 minutes without OOM. [UNRESOLVED-CLAIM: c_0e2e4958 — status=not_enough_info]
 
 **NOTE on Spec vs Plan Divergence**: The `plan.md` Summary has been updated to remove "pre-computed teacher model labels" and now correctly reflects the "internal self-consistency proxy" requirement from `spec.md` Assumptions. This task strictly implements the `spec.md` requirement.
 
@@ -104,8 +104,8 @@
 
 > **NOTE**: These are **Test Definition** tasks. They create the test file content. The CI runner executes these tests **AFTER** the implementation tasks (T011-T015) are merged. **NOTE**: The [P] tag on Test Definition tasks applies only to file creation. Test execution will fail if the implementation code (T011-T015) is not yet present.
 
-- [ ] T009 [P] [US1] **Definition**: Create unit test file `tests/unit/models/test_recursive_attention.py` with test cases: `test_shape_consistency` (checks output shape matches input), `test_attention_mask_propagation` (checks mask handling). (Expected to fail initially)
-- [ ] T010 [P] [US1] **Definition**: Create unit test file `tests/unit/training/test_loss_functions.py` with test cases: `test_joint_loss_computation` (checks loss calculation with dummy tensors), `test_confidence_proxy_logic` (checks single-path proxy logic). (Expected to fail initially)
+- [X] T009 [P] [US1] **Definition**: Create unit test file `tests/unit/models/test_recursive_attention.py` with test cases: `test_shape_consistency` (checks output shape matches input), `test_attention_mask_propagation` (checks mask handling). (Expected to fail initially)
+- [X] T010 [P] [US1] **Definition**: Create unit test file `tests/unit/training/test_loss_functions.py` with test cases: `test_joint_loss_computation` (checks loss calculation with dummy tensors), `test_confidence_proxy_logic` (checks single-path proxy logic). (Expected to fail initially)
 
 ### Implementation for User Story 1
 
@@ -165,7 +165,7 @@
 - [ ] T024 [P] [US3] Implement `stats.py` to perform paired t-tests, Cohen's d, confidence intervals, and Bonferroni correction (FR-005, FR-007) in `code/analysis/stats.py`. **Must include**: Logic to calculate the **percentage difference in self-consistency scores** between recursive and baseline models (SC-001) and output to `artifacts/reports/statistical_report.json`. **Constraint**: Must configure and validate the alpha threshold for all significance tests. **Validation**: Script must explicitly check `alpha` from `config.py` (default a conventional significance threshold) and log a warning if it deviates, but MUST NOT fail hard if it differs, to allow flexibility. **Dependency**: Requires T018 (metrics calculation logic), T020b-METRICS (control metrics), and T020 (shuffled-attention control) to be complete. **Parallel Note**: T024 does NOT depend on T019a-SAVE or T019c-SAVE. It can run as soon as T018 (in-memory metrics) is complete, enabling independent execution of US3 while US2 file I/O continues.
 - [ ] T025 [US3] **Implementation**: Implement sensitivity analysis sweep for confidence thresholds. **Logic**: Implement a loop over a discrete set of values {0.3, 0.5, 0.7} (FR-006) and output results to `artifacts/reports/sensitivity_analysis.csv` (or JSON) reporting the variation in error rates for each threshold (to satisfy FR-006's requirement to report variation) in `code/analysis/stats.py`. **Justification**: The set {0.3, 0.5, 0.7} satisfies FR-006's 'range of moderate thresholds' requirement and SC-005's 'at least three distinct threshold values' requirement as mandated by plan.md 'Evaluation Protocol'. **Output Schema**: CSV with columns `threshold,float;false_positive_rate,float;false_negative_rate,float`. **Must also**: Integrate the `calculate_error_detection_calibration` output from T018 (imported from `code/evaluation/metrics.py`) to generate the sensitivity plot for the calibration curve across thresholds. **Dependency**: Requires T018 (metrics calculation logic) and T020b-METRICS (control metrics) to be complete. **Note**: T025 is now unblocked and depends on T018 and T020b-METRICS. **Parallel Note**: T025 does NOT depend on T019a-SAVE or T019c-SAVE. It can run as soon as T018 (in-memory metrics) is complete.
 - [ ] T026 [US3] Implement report generation to output `StatisticalReport` with p-values, effect sizes, confidence intervals, sensitivity plots, and the percentage difference metric (US-03) in `code/analysis/stats.py`. **Must define**: JSON schema for the report with keys: `p_values` (dict), `effect_sizes` (dict), `confidence_intervals` (dict), `sensitivity_data` (list), `tie_breaking_rule` (string). **Schema**: `{"p_values": {"metric_name": float}, "effect_sizes": {"metric_name": float},...}`. **CRITICAL**: MUST read `data/processed/ece_binning.json` (generated by T018) to populate the calibration curve section of the report. **CRITICAL**: MUST include the tie-breaking rule (from T019a-TIE/T019c-TIE) in the report. **Dependency**: Requires T024 and T025 to be complete.
-- [ ] T027 [US3] Add logic to exclude invalid seeds (non-converged confidence loss) from statistical comparison (Edge Case) in `code/analysis/stats.py`. **Constraint**: If excluding seeds results in an insufficient number of valid seeds, the script MUST fail with a clear error message. **Convergence Criteria**: A seed is invalid if the confidence-prediction loss > 1.0 for 5 consecutive epochs OR if NaN/Inf is detected. [UNRESOLVED-CLAIM: c_8bee1d39 — status=not_enough_info] **Dependency**: Requires T013 (Training) to have logged convergence data. **Note**: This satisfies Constitution Principle VI (Statistical Rigor).
+- [ ] T027 [US3] Add logic to exclude invalid seeds (non-converged confidence loss) from statistical comparison (Edge Case) in `code/analysis/stats.py`. **Constraint**: If excluding seeds results in an insufficient number of valid seeds, the script MUST fail with a clear error message. **Convergence Criteria**: A seed is invalid if the confidence-prediction loss > 1.0 for 5 consecutive epochs OR if NaN/Inf is detected. [UNRESOLVED-CLAIM: c_3939d226 — status=not_enough_info] **Dependency**: Requires T013 (Training) to have logged convergence data. **Note**: This satisfies Constitution Principle VI (Statistical Rigor).
 
 **Checkpoint**: All user stories should now be independently functional
 

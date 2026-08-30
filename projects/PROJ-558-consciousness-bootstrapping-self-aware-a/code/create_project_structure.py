@@ -1,61 +1,57 @@
+"""
+Project Structure Creation Script.
+
+This module provides functionality to create the required directory structure
+for the PROJ-558-consciousness-bootstrapping-self-aware-a project.
+"""
 import os
 from pathlib import Path
 
-def create_structure():
+
+def create_structure(base_dir: str = "projects/PROJ-558-consciousness-bootstrapping-self-aware-a") -> None:
     """
-    Creates the directory structure for the project.
-    This script is the implementation of T001a and T001b.
+    Create the directory structure for the project.
+
+    Creates the following hierarchy relative to the current working directory:
+    - data/raw
+    - data/processed
+    - code
+    - tests
+    - artifacts
+    - artifacts/checkpoints
+    - artifacts/reports
+
+    Args:
+        base_dir: The base directory path for the project structure.
     """
-    base_dir = Path("projects/PROJ-558-consciousness-bootstrapping-self-aware-a")
-    
-    # Define directories as per task T001a
-    dirs = [
+    project_path = Path(base_dir)
+
+    # Define all required subdirectories
+    subdirs = [
         "data/raw",
         "data/processed",
         "code",
-        "code/models",
-        "code/training",
-        "code/evaluation",
-        "code/analysis",
-        "code/utils",
         "tests",
         "artifacts",
         "artifacts/checkpoints",
         "artifacts/reports",
     ]
-    
-    created_count = 0
-    for d in dirs:
-        target = base_dir / d
-        if not target.exists():
-            target.mkdir(parents=True, exist_ok=True)
-            created_count += 1
-            print(f"Created directory: {target}")
-        else:
-            print(f"Directory exists: {target}")
-    
-    # Define __init__.py files as per task T001b
-    init_files = [
-        "code/__init__.py",
-        "code/models/__init__.py",
-        "code/training/__init__.py",
-        "code/evaluation/__init__.py",
-        "code/analysis/__init__.py",
-        "code/utils/__init__.py",
-    ]
-    
-    init_created = 0
-    for f in init_files:
-        target = base_dir / f
-        if not target.exists():
-            target.write_text("# Package initialization\n")
-            init_created += 1
-            print(f"Created file: {target}")
-        else:
-            print(f"File exists: {target}")
-    
-    print(f"\nSummary: Created {created_count} directories and {init_created} __init__.py files.")
-    return True
+
+    created_dirs = []
+    for subdir in subdirs:
+        full_path = project_path / subdir
+        full_path.mkdir(parents=True, exist_ok=True)
+        created_dirs.append(str(full_path))
+
+    print(f"Created project structure at: {project_path}")
+    for d in created_dirs:
+        print(f"  - {d}")
+
+
+def main() -> None:
+    """Entry point for the script."""
+    create_structure()
+
 
 if __name__ == "__main__":
-    create_structure()
+    main()

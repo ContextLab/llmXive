@@ -1,0 +1,5 @@
+projects:
+  - name: mock_stress
+    stress: heatshock
+    samples:
+      - id: sample_1

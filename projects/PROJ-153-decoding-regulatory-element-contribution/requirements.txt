@@ -1,14 +1,15 @@
-# Python dependencies for the pipeline
-# Note: R packages (nlme, data.table, dplyr, readr) are installed via R or Conda
-# This file lists Python dependencies only.
+# Existing dependencies
+pandas
+numpy
+pyyaml
+requests
+scikit-learn
+statsmodels
+matplotlib
+seaborn
 
-# Data handling
-pandas>=2.0.0
-numpy>=1.24.0
-pyyaml>=6.0
-
-# Testing
-pytest>=7.0.0
-
-# Utilities
-requests>=2.31.0
+# R dependencies (managed via conda/environment.yml, listed for documentation)
+# dplyr
+# readr
+# stringr
+# tools (base R)

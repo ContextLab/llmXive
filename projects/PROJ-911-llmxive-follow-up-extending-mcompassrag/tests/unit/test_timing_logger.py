@@ -1,130 +1,120 @@
 import pytest
-import json
 import time
+import json
+import os
 from pathlib import Path
-import logging
-import sys
-from unittest.mock import patch, mock_open
-
-# Add project root to path if running standalone
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from unittest.mock import patch, MagicMock
 
 from code.timing_logger import (
     setup_timing_logging,
     log_document_processing_time,
     measure_document_processing,
     run_timing_validation,
-    TIMING_LOG_PATH,
-    TIMING_LOG_FILE
+    TIMING_LOG_PATH
 )
 from code.config import RESULTS_DIR
 
 @pytest.fixture
-def mock_json_file(tmp_path):
-    """Fixture to mock the JSON log file path"""
-    # Override the global path for testing
-    original_path = TIMING_LOG_PATH
-    test_path = tmp_path / "timing_logs.json"
-    test_path.touch()
-    return test_path
+def clean_log_file(tmp_path, monkeypatch):
+    """Fixture to ensure a clean log file for each test."""
+    # Override the global path to a temporary file
+    temp_log = tmp_path / "timing_logs.json"
+    monkeypatch.setattr("code.timing_logger.TIMING_LOG_PATH", temp_log)
+    return temp_log
 
-def test_setup_timing_logging_creates_file(tmp_path):
-    """Test that setup_timing_logging creates the log file"""
-    # We can't easily mock the global constants in the module, so we test the behavior
-    # by checking if the file is created when the logger is used.
-    # For this unit test, we assume the directory exists.
+def test_setup_timing_logging(clean_log_file):
+    """Test that logging is configured and the file path exists."""
     logger = setup_timing_logging()
-    assert isinstance(logger, logging.Logger)
+    assert logger is not None
     assert logger.level == logging.INFO
 
-def test_log_document_processing_time_writes_json(tmp_path):
-    """Test that log_document_processing_time writes to the JSON file"""
-    # Mock the file operations
-    test_log_path = tmp_path / "test_timing.json"
+def test_log_document_processing_time_pass(clean_log_file):
+    """Test logging a document that meets the 60s constraint."""
+    log_document_processing_time("doc_123", 15.5)
     
-    # We need to patch the module's TIMING_LOG_PATH
-    with patch('code.timing_logger.TIMING_LOG_PATH', test_log_path):
-        logger = setup_timing_logging()
-        start = time.perf_counter()
-        time.sleep(0.01) # Small delay
-        end = time.perf_counter()
-        
-        log_document_processing_time(logger, "doc_123", start, end, "completed")
-        
-        assert test_log_path.exists()
-        with open(test_log_path, 'r') as f:
-            data = json.load(f)
-        
-        assert len(data) == 1
-        assert data[0]["doc_id"] == "doc_123"
-        assert data[0]["status"] == "completed"
-        assert 0 < data[0]["duration_seconds"] < 1.0
-
-def test_measure_document_processing_success():
-    """Test measure_document_processing with a successful function"""
-    def dummy_process(doc_id):
-        time.sleep(0.01)
-        return f"Processed {doc_id}"
+    assert clean_log_file.exists()
+    with open(clean_log_file, 'r') as f:
+        content = f.read()
     
-    # Mock the logger to avoid file I/O in test
-    with patch('code.timing_logger.setup_timing_logging') as mock_logger_setup:
-        mock_logger = mock_logger_setup.return_value
-        
-        result = measure_document_processing("test_doc", dummy_process, "test_doc")
-        
-        assert result == "Processed test_doc"
-        mock_logger.info.assert_called()
+    entry = json.loads(content.strip())
+    assert entry['doc_id'] == 'doc_123'
+    assert entry['duration_seconds'] == 15.5
+    assert entry['status'] == 'PASS'
+    assert entry['threshold_seconds'] == 60.0
 
-def test_measure_document_processing_timeout_warning():
-    """Test that measure_document_processing logs a warning if > 60s"""
-    def slow_process(doc_id):
-        # Simulate a long process without actually sleeping 60s
-        # We will mock the time check logic or just test the logging path
-        # by manually triggering the warning condition in the logic
-        pass
+def test_log_document_processing_time_fail(clean_log_file):
+    """Test logging a document that exceeds the 60s constraint."""
+    log_document_processing_time("doc_456", 75.2)
     
-    # We test the logic by mocking time.perf_counter to simulate a long duration
-    with patch('code.timing_logger.time.perf_counter') as mock_time:
-        mock_time.side_effect = [0, 65.0] # Start at 0, end at 65
-        
-        with patch('code.timing_logger.setup_timing_logging') as mock_logger_setup:
-            mock_logger = mock_logger_setup.return_value
-            
-            # This should trigger the warning path
-            try:
-                measure_document_processing("slow_doc", lambda x: None, "slow_doc")
-            except:
-                pass # Ignore any exceptions from the mock function
-            
-            # Check that warning was logged
-            # The function logs warning if duration >= 60
-            # We need to verify the log call happened
-            assert mock_logger.warning.called
-
-def test_run_timing_validation_no_logs(tmp_path):
-    """Test run_timing_validation when log file is missing"""
-    with patch('code.timing_logger.TIMING_LOG_PATH', tmp_path / "missing.json"):
-        report = run_timing_validation()
-        assert report["status"] == "no_logs_found"
-
-def test_run_timing_validation_with_violations(tmp_path):
-    """Test run_timing_validation correctly identifies violations"""
-    test_log_path = tmp_path / "timing_logs.json"
-    test_data = [
-        {"doc_id": "doc_1", "duration_seconds": 10.0},
-        {"doc_id": "doc_2", "duration_seconds": 65.0},
-        {"doc_id": "doc_3", "duration_seconds": 5.0}
-    ]
-    test_log_path.write_text(json.dumps(test_data))
+    with open(clean_log_file, 'r') as f:
+        entry = json.loads(f.read().strip())
     
-    with patch('code.timing_logger.TIMING_LOG_PATH', test_log_path):
-        report = run_timing_validation()
-        
-        assert report["status"] == "failed"
-        assert report["violation_count"] == 1
-        assert len(report["violations"]) == 1
-        assert report["violations"][0]["doc_id"] == "doc_2"
-        assert report["all_within_limit"] is False
-        
-        assert report["average_processing_time"] == pytest.approx(26.666, rel=0.01)
-        assert report["max_processing_time"] == 65.0
+    assert entry['status'] == 'FAIL'
+    assert entry['duration_seconds'] == 75.2
+
+def test_measure_document_processing_success(clean_log_file):
+    """Test the wrapper measures time correctly for a successful function."""
+    def mock_process(doc_id):
+        time.sleep(0.1)
+        return {"result": "ok"}
+    
+    result = measure_document_processing("doc_789", mock_process)
+    assert result == {"result": "ok"}
+    
+    # Verify log was written
+    with open(clean_log_file, 'r') as f:
+        entry = json.loads(f.read().strip())
+    assert entry['doc_id'] == 'doc_789'
+    assert entry['status'] == 'PASS' # 0.1s < 60s
+
+def test_measure_document_processing_failure(clean_log_file):
+    """Test that the wrapper logs the duration even if the function raises."""
+    def mock_fail(doc_id):
+        time.sleep(0.05)
+        raise ValueError("Simulated error")
+    
+    with pytest.raises(ValueError):
+        measure_document_processing("doc_error", mock_fail)
+    
+    # Verify log was written despite error
+    with open(clean_log_file, 'r') as f:
+        entry = json.loads(f.read().strip())
+    assert entry['doc_id'] == 'doc_error'
+    assert entry['status'] == 'PASS' # 0.05s < 60s, error doesn't change duration status logic here
+
+def test_run_timing_validation_empty(clean_log_file):
+    """Test validation when no logs exist."""
+    # Ensure file is empty
+    if clean_log_file.exists():
+        clean_log_file.unlink()
+    
+    summary = run_timing_validation()
+    assert "error" in summary or summary.get("total_processed") == 0
+
+def test_run_timing_validation_with_violations(clean_log_file):
+    """Test validation logic with mixed pass/fail entries."""
+    # Manually write logs
+    with open(clean_log_file, 'w') as f:
+        f.write(json.dumps({"doc_id": "d1", "duration_seconds": 10.0, "status": "PASS"}) + '\n')
+        f.write(json.dumps({"doc_id": "d2", "duration_seconds": 100.0, "status": "FAIL"}) + '\n')
+        f.write(json.dumps({"doc_id": "d3", "duration_seconds": 20.0, "status": "PASS"}) + '\n')
+    
+    summary = run_timing_validation()
+    
+    assert summary['total_processed'] == 3
+    assert summary['violations'] == 1
+    assert summary['constraint_met'] == False
+    assert abs(summary['avg_duration'] - 43.33) < 0.1
+    assert summary['max_duration'] == 100.0
+
+def test_run_timing_validation_all_pass(clean_log_file):
+    """Test validation when all entries pass."""
+    with open(clean_log_file, 'w') as f:
+        f.write(json.dumps({"doc_id": "d1", "duration_seconds": 10.0, "status": "PASS"}) + '\n')
+        f.write(json.dumps({"doc_id": "d2", "duration_seconds": 50.0, "status": "PASS"}) + '\n')
+    
+    summary = run_timing_validation()
+    assert summary['violations'] == 0
+    assert summary['constraint_met'] == True
+
+import logging

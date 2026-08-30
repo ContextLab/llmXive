@@ -20,9 +20,18 @@ T009:
     \ to be considered complete."
 T023:
   c: false
-  h: 51a1527a400765b7c387fca0d64632eb32ba813f7e9c1b34a4b1a5bc083f2e4c
-  r: "The provided `preprocessing.py` contains data loading, interaction feature generation,\
-    \ and normalization logic but no implementation of collinearity detection (correlation\
-    \ >\u202F0.8) nor code that writes a `collinearity_report.json`. Moreover, the\
-    \ required `data/artifacts/collinearity_report.json` file does not exist. Both\
-    \ the functional code and the artifact are missing, so the task is not satisfied."
+  h: 5d59864f8747e29cf36284949b4cac3643468cd4b90d87ea36e9842ce9728353
+  r: "The provided `preprocessing.py` shows only data loading, interaction feature\
+    \ creation, and normalization; there is no function that computes pairwise correlations,\
+    \ flags pairs with correlation\u202F>\u202F0.8, or writes a JSON report. Moreover,\
+    \ the required `data/artifacts/collinearity_report.json` file does not exist.\
+    \ Both the code implementation and the artifact are missing, so the task is not\
+    \ satisfied."
+T032:
+  c: false
+  h: 5ef7080e350019ef5d46549bb782dcb72470d76c821599dd4607d29d1a9f9e0e
+  r: "The required output file `data/artifacts/sensitivity_report.json` does not exist,\
+    \ and the provided `code/analysis/diagnostics.py` is truncated and does not clearly\
+    \ implement the full threshold sweep, stability calculation, confounder refit,\
+    \ or JSON generation as specified. The task\u2019s deliverables are therefore\
+    \ not satisfied."

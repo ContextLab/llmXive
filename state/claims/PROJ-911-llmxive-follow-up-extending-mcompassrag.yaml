@@ -1023,26 +1023,6 @@
   status: not_enough_info
   updated_at: '2026-07-14T17:35:00Z'
 - artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
-  attempts: 3
-  canonical: Topological signatures extracted from retrieved documents only, not used
-    for ranking
-  claim_id: c_0b92a3c7
-  context: 'Methodology: Topological signatures are extracted from *retrieved* documents
-    only; they are NOT used for ranking. {{claim:c_3531658b}} (1406.5617, https://arxiv.org/abs/1406.5617)'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Topological_signatures_extracted_from_retrieved_documents_on
-  kind: entity_fact
-  raw_text: Topological signatures are extracted from retrieved documents only; they
-    are NOT used for ranking.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T17:35:02Z'
-- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
   attempts: 1
   canonical: dataset sample size strictly limited to 360 documents
   claim_id: c_6f7f4982
@@ -1418,27 +1398,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-05T07:59:08Z'
-- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
-  attempts: 2
-  canonical: Topological signatures extracted from retrieved documents only, not used
-    for ranking
-  claim_id: c_d407097e
-  context: '**Methodology**: Topological signatures are extracted from *retrieved*
-    documents only; they are NOT used for ranking. {{claim:c_3531658b}} (1406.5617,
-    https://arxiv.org/abs/1406.5617)'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Topological_signatures_extracted_from_retrieved_documents_on
-  kind: entity_fact
-  raw_text: Topological signatures are extracted from *retrieved* documents only;
-    they are NOT used for ranking.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-05T07:59:28Z'
 - artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
   attempts: 1
   canonical: model performance evaluated on HotpotQA using Recall@K
@@ -1996,3 +1955,272 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-09T21:27:03Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: Dataset sample size N strictly less than or equal to 360
+  claim_id: c_e39d214f
+  context: "Implement sampling logic in code/data_loader.py to ensure the sample size\
+    \ N is strictly \u2264 360 before execution, enforcing the \u2011hour time budget\
+    \ constraint (FR\u2011007)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_sample_size_N_strictly_less_than_or_equal_to_360
+  kind: magnitude
+  raw_text: "The loader should truncate or randomly sample the dataset to N \u2264\
+    \ 360; it must not raise an exception if the raw dataset exceeds this limit."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:38:36Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: Research question on multi-hop reasoning with knowledge graph embeddings
+    in transformer architecture
+  claim_id: c_fe3b21cb
+  context: 'The research question is: Can we improve multi-hop reasoning performance
+    by incorporating knowledge graph embeddings into a transformer-based architecture?
+    We will evaluate the performance of our model on the HotpotQA dataset, using Recall@K
+    as a key metric.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_question_on_multi-hop_reasoning_with_knowledge_grap
+  kind: entity_fact
+  raw_text: 'The research question is: Can we improve multi-hop reasoning performance
+    by incorporating knowledge graph embeddings into a transformer-based architecture?'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:39:03Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 4
+  canonical: Topological signatures extracted from retrieved documents only, not used
+    for ranking
+  claim_id: c_0b92a3c7
+  context: 'Methodology: Topological signatures are extracted from *retrieved* documents
+    only; they are NOT used for ranking. {{claim:c_3531658b}} (1406.5617, https://arxiv.org/abs/1406.5617)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Topological_signatures_extracted_from_retrieved_documents_on
+  kind: entity_fact
+  raw_text: Topological signatures are extracted from retrieved documents only; they
+    are NOT used for ranking.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:39:57Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: 'Research question: improve multi-hop reasoning via knowledge graph embeddings
+    in transformer-based architecture'
+  claim_id: c_1662f346
+  context: 'The research question is: Can we improve multi-hop reasoning performance
+    by incorporating knowledge graph embeddings into a transformer-based architecture?
+    We will evaluate the performance of our model on the HotpotQA dataset, using Recall@K
+    as a key metric.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_question:_improve_multi-hop_reasoning_via_knowledge
+  kind: entity_fact
+  raw_text: 'The research question is: Can we improve multi-hop reasoning performance
+    by incorporating knowledge graph embeddings into a transformer-based architecture?'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:41:06Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 2
+  canonical: Model performance evaluation on HotpotQA dataset using Recall@K metric
+  claim_id: c_52ae7720
+  context: 'The research question is: Can we improve multi-hop reasoning performance
+    by incorporating knowledge graph embeddings into a transformer-based architecture?
+    We will evaluate the performance of our model on the HotpotQA dataset, using Recall@K
+    as a key metric.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_performance_evaluation_on_HotpotQA_dataset_using_Recal
+  kind: entity_fact
+  raw_text: We will evaluate the performance of our model on the HotpotQA dataset,
+    using Recall@K as a key metric.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:41:10Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: Topological signatures extracted from retrieved documents only, not used
+    for ranking
+  claim_id: c_33f33d51
+  context: 'Data Integrity: All datasets must be real (HotpotQA, Wikipedia) via datasets
+    library. No synthetic data generation. Methodology: Topological signatures are
+    extracted from retrieved documents only; they are NOT used for ranking. {{claim:c_3531658b}}
+    (1406.5617, https://arxiv.org/abs/1406.5617)'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 'Methodology: Topological signatures are extracted from retrieved documents
+    only; they are NOT used for ranking. (1406.5617, https://arxiv.org/abs/1406.5617)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:41:26Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: 'Research question: improving multi-hop reasoning with knowledge graph
+    embeddings in transformer-based architecture'
+  claim_id: c_6203ff72
+  context: 'The research question is: Can we improve multi-hop reasoning performance
+    by incorporating knowledge graph embeddings into a transformer-based architecture?
+    We will evaluate the performance of our model on the HotpotQA dataset, using Recall@K
+    as a key metric.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_question:_improving_multi-hop_reasoning_with_knowle
+  kind: entity_fact
+  raw_text: 'The research question is: Can we improve multi-hop reasoning performance
+    by incorporating knowledge graph embeddings into a transformer-based architecture?'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:42:02Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: Evaluation on HotpotQA dataset using Recall@K metric
+  claim_id: c_a0417c61
+  context: 'The research question is: Can we improve multi-hop reasoning performance
+    by incorporating knowledge graph embeddings into a transformer-based architecture?
+    We will evaluate the performance of our model on the HotpotQA dataset, using Recall@K
+    as a key metric.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluation_on_HotpotQA_dataset_using_Recall@K_metric
+  kind: entity_fact
+  raw_text: We will evaluate the performance of our model on the HotpotQA dataset,
+    using Recall@K as a key metric.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:42:05Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: evaluate performance on HotpotQA dataset using Recall@K metric
+  claim_id: c_9339ab85
+  context: 'The research question is: Can we improve multi-hop reasoning performance
+    by incorporating knowledge graph embeddings into a transformer-based architecture?
+    We will evaluate the performance of our model on the HotpotQA dataset, using Recall@K
+    as a key metric.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluate_performance_on_HotpotQA_dataset_using_Recall@K_metr
+  kind: entity_fact
+  raw_text: We will evaluate the performance of our model on the HotpotQA dataset,
+    using Recall@K as a key metric.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:43:53Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: examples include test tasks
+  claim_id: c_0ffdfd80
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Examples_include_test_tasks
+  kind: entity_fact
+  raw_text: The examples below include test tasks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:44:13Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 4
+  canonical: Topological signatures extracted from retrieved documents only, not used
+    for ranking
+  claim_id: c_d407097e
+  context: '**Methodology**: Topological signatures are extracted from *retrieved*
+    documents only; they are NOT used for ranking. {{claim:c_3531658b}} (1406.5617,
+    https://arxiv.org/abs/1406.5617)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Topological_signatures_extracted_from_retrieved_documents_on
+  kind: entity_fact
+  raw_text: Topological signatures are extracted from *retrieved* documents only;
+    they are NOT used for ranking.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:46:06Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: sample size N strictly less than or equal to 360
+  claim_id: c_bc243598
+  context: "T008 Implement sampling logic in `code/data_loader.py` to ensure the sample\
+    \ size N is strictly \u2264 360 before execution, enforcing the \u2011hour time\
+    \ budget constraint (FR\u2011007)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_size_N_strictly_less_than_or_equal_to_360
+  kind: magnitude
+  raw_text: "The loader should truncate or randomly sample the dataset to N \u2264\
+    \ 360; it must **not raise an exception** if the raw dataset exceeds this limit."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:48:13Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: topological signatures extracted only from retrieved documents not used
+    for ranking
+  claim_id: c_21acefb2
+  context: 'Methodology: Topological signatures are extracted from *retrieved* documents
+    only; they are NOT used for ranking. {{claim:c_3531658b}} (1406.5617, https://arxiv.org/abs/1406.5617)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Topological_signatures_extracted_only_from_retrieved_documen
+  kind: entity_fact
+  raw_text: Topological signatures are extracted from *retrieved* documents only;
+    they are NOT used for ranking.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:48:16Z'

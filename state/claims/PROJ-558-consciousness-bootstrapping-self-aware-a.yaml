@@ -5286,23 +5286,6 @@
   updated_at: '2026-08-29T04:44:48Z'
 - artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
   attempts: 1
-  canonical: Memory per token with recursive overhead is 28 KB for TinyLlama FP16
-  claim_id: c_34a1f942
-  context: 'Memory per token (with recursive overhead): Explicitly defined as 28 KB
-    based on TinyLlama FP16 overhead estimates.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Memory per token (with recursive overhead): Explicitly defined as 28
-    KB based on TinyLlama FP16 overhead estimates.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-29T04:45:17Z'
-- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
-  attempts: 1
   canonical: Raw token limit calculated as 92857 tokens
   claim_id: c_f0cb0287
   context: 'Raw Limit: floor(2.5 GB / 28 KB) = 92,857 tokens.'
@@ -5316,21 +5299,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-29T04:46:00Z'
-- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
-  attempts: 1
-  canonical: Final token limit set to 92857
-  claim_id: c_baa1f0b7
-  context: 'Output: token_limit = min(100000, 92857) = 92857.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Output: token_limit = min(100000, 92857) = 92857.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-29T04:46:28Z'
 - artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
   attempts: 1
   canonical: Seed invalidity defined as confidence loss > 1.0 for 5 consecutive epochs
@@ -5457,27 +5425,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-29T04:49:07Z'
-- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
-  attempts: 1
-  canonical: 'Seed invalidity criteria: confidence-prediction loss greater than 1.0
-    for 5 consecutive epochs or detection of NaN/Inf'
-  claim_id: c_8bb46079
-  context: 'Convergence Criteria: A seed is invalid if the confidence-prediction loss
-    > 1.0 for 5 consecutive epochs OR if NaN/Inf is detected. Dependency: Requires
-    T013 (Training) to have logged convergence data.'
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Seed_invalidity_criteria:_confidence-prediction_loss_greater
-  kind: magnitude
-  raw_text: A seed is invalid if the confidence-prediction loss > 1.0 for 5 consecutive
-    epochs OR if NaN/Inf is detected.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-29T04:50:25Z'
 - artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
   attempts: 1
   canonical: 7 GB available RAM on GitHub Actions minus OS and safety margin equals
@@ -5800,3 +5747,707 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-29T04:57:31Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: 'Available RAM calculation: 7 GB GitHub Actions minus 2 GB OS minus 0.5
+    GB safety margin equals 4.5 GB'
+  claim_id: c_c99726ec
+  context: 'Logic: Available RAM: 7 GB (GitHub Actions) - 2 GB (OS) - 0.5 GB (Safety
+    Margin) = 4.5 GB. Model Size (TinyLlama): Compact footprint.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Available RAM: 7 GB (GitHub Actions) - 2 GB (OS) - 0.5 GB (Safety Margin)
+    = 4.5 GB.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:50:12Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: 'Remaining data memory calculation: 4.5 GB minus 2 GB equals 2.5 GB'
+  claim_id: c_80e35530
+  context: 'Model Size (TinyLlama): Compact footprint. Remaining for data: 4.5 GB
+    - 2 GB = 2.5 GB. Memory per token (with recursive overhead): Explicitly defined
+    as 28 KB based on TinyLlama FP16 overhead estimates.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Remaining for data: 4.5 GB - 2 GB = 2.5 GB.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:50:36Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Memory per token with recursive overhead is 28 KB based on TinyLlama
+    FP16 overhead estimates
+  claim_id: c_815e45d0
+  context: 'Remaining for data: 4.5 GB - 2 GB = 2.5 GB. Memory per token (with recursive
+    overhead): Explicitly defined as 28 KB based on TinyLlama FP16 overhead estimates.
+    Raw Limit: floor(2.5 GB / 28 KB) = 92,857 tokens.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Memory per token (with recursive overhead): Explicitly defined as 28
+    KB based on TinyLlama FP16 overhead estimates.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:50:49Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Raw token limit calculation floor(2.5 GB / 28 KB) equals 92,857 tokens
+  claim_id: c_b5888a1c
+  context: 'Memory per token (with recursive overhead): Explicitly defined as 28 KB
+    based on TinyLlama FP16 overhead estimates. Raw Limit: floor(2.5 GB / 28 KB) =
+    92,857 tokens. Plan Summary Cap: The plan summary mentions 100k tokens.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Raw Limit: floor(2.5 GB / 28 KB) = 92,857 tokens.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:51:01Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Final token limit is 92,857 derived from min(100000, 92857)
+  claim_id: c_e878ac15
+  context: 'Plan Summary Cap: The plan summary mentions 100k tokens. Output: token_limit
+    = min(100000, 92857) = 92857. Constraint: This ensures the value is derived, not
+    magic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Output: token_limit = min(100000, 92857) = 92857.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:51:15Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Training pipeline expected to complete within 120 minutes on GitHub Actions
+    CPU runner producing two checkpoints without OOM
+  claim_id: c_71e1340f
+  context: 'Independent Test: The training pipeline is expected to execute on GitHub
+    Actions CPU runner, produce two checkpoints, and complete within 120 minutes without
+    OOM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training pipeline is expected to execute on GitHub Actions CPU runner,
+    produce two checkpoints, and complete within 120 minutes without OOM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:51:28Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Benchmark processing limits memory to 7GB RAM by processing one question
+    at a time generating 10 paths then discarding
+  claim_id: c_2c82f835
+  context: 'Constraint: Process one question at a time: generate 10 paths, compute
+    metrics, discard paths, move to next question to keep memory usage within acceptable
+    limits (7GB RAM). Stream results to disk immediately after each question.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Process one question at a time: generate 10 paths, compute metrics, discard
+    paths, move to next question to keep memory usage within acceptable limits (7GB
+    RAM).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:51:50Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 2
+  canonical: 'Seed invalidity criteria: confidence-prediction loss greater than 1.0
+    for 5 consecutive epochs or detection of NaN/Inf'
+  claim_id: c_8bb46079
+  context: 'Convergence Criteria: A seed is invalid if the confidence-prediction loss
+    > 1.0 for 5 consecutive epochs OR if NaN/Inf is detected. Dependency: Requires
+    T013 (Training) to have logged convergence data.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Seed_invalidity_criteria:_confidence-prediction_loss_greater
+  kind: magnitude
+  raw_text: A seed is invalid if the confidence-prediction loss > 1.0 for 5 consecutive
+    epochs OR if NaN/Inf is detected.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:52:21Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Memory profiling verifies peak RSS is less than 7GB
+  claim_id: c_cda842c1
+  context: 'Run memory profiling on the training script (train.py) with max batch
+    size; verify peak RSS < 7GB and log result to artifacts/reports/memory_profile.log.
+    Note: While the spec requires the run to fail if the limit is exceeded, this task
+    logs profiling data for review.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_profiling_verifies_peak_RSS_is_less_than_7GB
+  kind: magnitude
+  raw_text: Verify peak RSS < 7GB and log result to artifacts/reports/memory_profile.log.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:52:41Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Available RAM on GitHub Actions is 7 GB
+  claim_id: c_68e5c984
+  context: 'Logic for token limit derivation: Available RAM: 7 GB (GitHub Actions)
+    - 2 GB (OS) - 0.5 GB (Safety Margin) = 4.5 GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Available RAM: 7 GB (GitHub Actions) - 2 GB (OS) - 0.5 GB (Safety Margin)
+    = 4.5 GB.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:53:36Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 2
+  canonical: Memory per token with recursive overhead is 28 KB for TinyLlama FP16
+  claim_id: c_34a1f942
+  context: 'Memory per token (with recursive overhead): Explicitly defined as 28 KB
+    based on TinyLlama FP16 overhead estimates.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Memory per token (with recursive overhead): Explicitly defined as 28
+    KB based on TinyLlama FP16 overhead estimates.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:53:37Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Raw token limit calculated as 92857 based on 2.5 GB and 28 KB per token
+  claim_id: c_41f5d5ab
+  context: 'Raw Limit: floor(2.5 GB / 28 KB) = 92,857 tokens.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Raw Limit: floor(2.5 GB / 28 KB) = 92,857 tokens.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:53:38Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 2
+  canonical: Final token limit set to 92857
+  claim_id: c_baa1f0b7
+  context: 'Output: token_limit = min(100000, 92857) = 92857.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Output: token_limit = min(100000, 92857) = 92857.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:53:39Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: 'Seed validity criteria: confidence-prediction loss > 1.0 for 5 consecutive
+    epochs or NaN/Inf detection'
+  claim_id: c_99692d9d
+  context: 'Convergence Criteria: A seed is invalid if the confidence-prediction loss
+    > 1.0 for 5 consecutive epochs OR if NaN/Inf is detected.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A seed is invalid if the confidence-prediction loss > 1.0 for 5 consecutive
+    epochs OR if NaN/Inf is detected.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:53:40Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Training pipeline completes within 120 minutes on GitHub Actions CPU
+    runner
+  claim_id: c_74b9650a
+  context: 'Independent Test: The training pipeline is expected to execute on GitHub
+    Actions CPU runner, produce two checkpoints, and complete within 120 minutes without
+    OOM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training pipeline is expected to execute on GitHub Actions CPU runner,
+    produce two checkpoints, and complete within 120 minutes without OOM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:53:41Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Training proxy uses 3 samples for majority vote
+  claim_id: c_aca30c1f
+  context: Define a function compute_confidence_loss(model, batch, generate_paths_callback,
+    temperature=0.7, top_p=0.9, max_tokens=256, n_samples=3)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `compute_confidence_loss` with n_samples=3 for the training
+    proxy.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:54:01Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Available RAM on GitHub Actions is 7 GB minus 2 GB OS and 0.5 GB safety
+    margin equals 4.5 GB
+  claim_id: c_d6f10ebc
+  context: 'Derivation Script: Create scripts/derive_token_limit.py to calculate the
+    token_limit based on Constitution Principle VII (A constrained RAM limit). Logic:
+    Available RAM: 7 GB (GitHub Actions) - 2 GB (OS) - 0.5 GB (Safety Margin) = 4.5
+    GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Available RAM: 7 GB (GitHub Actions) - 2 GB (OS) - 0.5 GB (Safety Margin)
+    = 4.5 GB.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:55:23Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Memory per token with recursive overhead is 28 KB based on TinyLlama
+    FP16 overhead estimates
+  claim_id: c_a9b3b6b3
+  context: 'Memory per token (with recursive overhead): Explicitly defined as 28 KB
+    based on TinyLlama FP16 overhead estimates. Raw Limit: floor(2.5 GB / 28 KB) =
+    92,857 tokens.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Memory per token (with recursive overhead): Explicitly defined as 28
+    KB based on TinyLlama FP16 overhead estimates.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:55:24Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Raw token limit calculated as floor(2.5 GB divided by 28 KB) equals 92857
+    tokens
+  claim_id: c_2e98f18a
+  context: 'Remaining for data: 4.5 GB - 2 GB = 2.5 GB. Memory per token (with recursive
+    overhead): Explicitly defined as 28 KB based on TinyLlama FP16 overhead estimates.
+    Raw Limit: floor(2.5 GB / 28 KB) = 92,857 tokens.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Raw Limit: floor(2.5 GB / 28 KB) = 92,857 tokens.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:55:25Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Token limit is set to 92857 as the minimum of 100000 and 92857
+  claim_id: c_70d82fc9
+  context: 'Plan Summary Cap: The plan summary mentions 100k tokens. Output: token_limit
+    = min(100000, 92857) = 92857. Constraint: This ensures the value is derived, not
+    magic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Output: token_limit = min(100000, 92857) = 92857.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:55:26Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Base Llama wrapper is for a small transformer with fewer than 300 million
+    parameters
+  claim_id: c_00a268f5
+  context: 'T007 [P] Implement base_llama.py wrapper for a small transformer (<300M
+    params) in code/models/base_llama.py. Note: Use TinyLlama as per Spec US-01.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Base_Llama_wrapper_is_for_a_small_transformer_with_fewer_tha
+  kind: magnitude
+  raw_text: Implement base_llama.py wrapper for a small transformer (<300M params)
+    in code/models/base_llama.py.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:55:44Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: 7 GB GitHub Actions RAM minus 2 GB OS and 0.5 GB safety margin equals
+    4.5 GB available
+  claim_id: c_1aad7bd0
+  context: 'Logic: Available RAM: 7 GB (GitHub Actions) - 2 GB (OS) - 0.5 GB (Safety
+    Margin) = 4.5 GB. Model Size (TinyLlama): Compact footprint.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Available RAM: 7 GB (GitHub Actions) - 2 GB (OS) - 0.5 GB (Safety Margin)
+    = 4.5 GB.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:57:11Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Memory per token defined as 28 KB based on TinyLlama FP16 overhead estimates
+  claim_id: c_78b47870
+  context: 'Remaining for data: 4.5 GB - 2 GB = 2.5 GB. Memory per token (with recursive
+    overhead): Explicitly defined as 28 KB based on TinyLlama FP16 overhead estimates.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Memory per token (with recursive overhead): Explicitly defined as 28
+    KB based on TinyLlama FP16 overhead estimates.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:57:12Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Raw token limit calculated as 92857 tokens
+  claim_id: c_83a6e3e7
+  context: 'Memory per token (with recursive overhead): Explicitly defined as 28 KB
+    based on TinyLlama FP16 overhead estimates. Raw Limit: floor(2.5 GB / 28 KB) =
+    92,857 tokens.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Raw Limit: floor(2.5 GB / 28 KB) = 92,857 tokens.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:57:13Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Plan summary mentions 100k token cap
+  claim_id: c_eaaee664
+  context: 'Raw Limit: floor(2.5 GB / 28 KB) = 92,857 tokens. Plan Summary Cap: The
+    plan summary mentions 100k tokens.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The plan summary mentions 100k tokens.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:57:34Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Token limit set to 92857
+  claim_id: c_725157cd
+  context: 'Plan Summary Cap: The plan summary mentions 100k tokens. Output: token_limit
+    = min(100000, 92857) = 92857.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Output: token_limit = min(100000, 92857) = 92857.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:57:35Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Base Llama wrapper for small transformer under 300M parameters
+  claim_id: c_3bd4b42d
+  context: '[X] T007 [P] Implement `base_llama.py` wrapper for a small transformer
+    (<300M params) in `code/models/base_llama.py`. **Note**: Use TinyLlama as per
+    Spec US-01.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Base_Llama_wrapper_for_small_transformer_under_300M_paramete
+  kind: entity_fact
+  raw_text: Implement `base_llama.py` wrapper for a small transformer (<300M params)
+    in `code/models/base_llama.py`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:57:38Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Training pipeline completes within 120 minutes on GitHub Actions CPU
+    runner
+  claim_id: c_d56ffaec
+  context: '**Independent Test**: The training pipeline is expected to execute on
+    GitHub Actions CPU runner, produce two checkpoints, and complete within 120 minutes
+    without OOM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training pipeline is expected to execute on GitHub Actions CPU runner,
+    produce two checkpoints, and complete within 120 minutes without OOM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:57:39Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Seed invalidity defined as confidence loss greater than 1.0 for 5 consecutive
+    epochs
+  claim_id: c_ba8d36b4
+  context: 'Convergence Criteria**: A seed is invalid if the confidence-prediction
+    loss > 1.0 for 5 consecutive epochs OR if NaN/Inf is detected.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Seed_invalidity_defined_as_confidence_loss_greater_than_1.0
+  kind: magnitude
+  raw_text: A seed is invalid if the confidence-prediction loss > 1.0 for 5 consecutive
+    epochs OR if NaN/Inf is detected.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:57:42Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Memory profiling verifies peak RSS under 7GB
+  claim_id: c_8ca48b96
+  context: '[ ] T039 [P] Run memory profiling on the training script (`train.py`)
+    with max batch size; verify peak RSS < 7GB and log result to `artifacts/reports/memory_profile.log`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_profiling_verifies_peak_RSS_under_7GB
+  kind: entity_fact
+  raw_text: verify peak RSS < 7GB and log result to `artifacts/reports/memory_profile.log`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:57:46Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: 'Available RAM calculation: 7 GB GitHub Actions minus 2 GB OS minus 0.5
+    GB Safety Margin equals 4.5 GB'
+  claim_id: c_e6d2f3d6
+  context: 'Logic for T005-DERIVE: Available RAM: 7 GB (GitHub Actions) - 2 GB (OS)
+    - 0.5 GB (Safety Margin) = 4.5 GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Available RAM: 7 GB (GitHub Actions) - 2 GB (OS) - 0.5 GB (Safety Margin)
+    = 4.5 GB.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:59:25Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Memory per token with recursive overhead defined as 28 KB based on TinyLlama
+    FP16 overhead estimates
+  claim_id: c_1f121815
+  context: 'Logic for T005-DERIVE: Memory per token (with recursive overhead): Explicitly
+    defined as 28 KB based on TinyLlama FP16 overhead estimates.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Memory per token (with recursive overhead): Explicitly defined as 28
+    KB based on TinyLlama FP16 overhead estimates.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:59:26Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Raw token limit calculated as floor(2.5 GB / 28 KB) equals 92,857 tokens
+  claim_id: c_78e99166
+  context: 'Logic for T005-DERIVE: Raw Limit: floor(2.5 GB / 28 KB) = 92,857 tokens.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Raw Limit: floor(2.5 GB / 28 KB) = 92,857 tokens.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:59:27Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Token limit set to min(100000, 92857) which equals 92857
+  claim_id: c_e0de9b33
+  context: 'Logic for T005-DERIVE: Output: token_limit = min(100000, 92857) = 92857.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Output: token_limit = min(100000, 92857) = 92857.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:59:28Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 2
+  canonical: Training pipeline expected to complete within 120 minutes on GitHub Actions
+    CPU runner without OOM
+  claim_id: c_0e2e4958
+  context: 'Independent Test: The training pipeline is expected to execute on GitHub
+    Actions CPU runner, produce two checkpoints, and complete within 120 minutes without
+    OOM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training pipeline is expected to execute on GitHub Actions CPU runner,
+    produce two checkpoints, and complete within 120 minutes without OOM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:59:29Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: N=3 samples used for training proxy to meet 120-minute budget while allowing
+    majority vote
+  claim_id: c_02ee65e4
+  context: 'Constraint Note: N=3 is used for the training proxy to meet the 120-minute
+    budget (Constitution VII: Resource-Constrained Architectural Fidelity) while allowing
+    a true majority vote, while FR-003 mandates N=10 for the *evaluation* benchmark.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'N=3 is used for the training proxy to meet the 120-minute budget (Constitution
+    VII: Resource-Constrained Architectural Fidelity) while allowing a true majority
+    vote.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:59:53Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Process one question at a time with 10 paths to keep memory usage within
+    7 GB RAM
+  claim_id: c_0eaf9596
+  context: 'Constraint: Process one question at a time: generate 10 paths, compute
+    metrics, discard paths, move to next question to keep memory usage within acceptable
+    limits (7GB RAM).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Process one question at a time: generate 10 paths, compute metrics, discard
+    paths, move to next question to keep memory usage within acceptable limits (7GB
+    RAM).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:59:54Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: 'Seed invalidity criteria: confidence-prediction loss greater than 1.0
+    for 5 consecutive epochs or detection of NaN/Inf'
+  claim_id: c_3939d226
+  context: 'Convergence Criteria: A seed is invalid if the confidence-prediction loss
+    > 1.0 for 5 consecutive epochs OR if NaN/Inf is detected.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Seed_invalidity_criteria:_confidence-prediction_loss_greater
+  kind: magnitude
+  raw_text: A seed is invalid if the confidence-prediction loss > 1.0 for 5 consecutive
+    epochs OR if NaN/Inf is detected.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:59:58Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Verify peak RSS is less than 7 GB
+  claim_id: c_a9102d08
+  context: Run memory profiling on the training script (train.py) with max batch size;
+    verify peak RSS < 7GB and log result to artifacts/reports/memory_profile.log.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_peak_RSS_is_less_than_7_GB
+  kind: magnitude
+  raw_text: Verify peak RSS < 7GB and log result to artifacts/reports/memory_profile.log.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T07:00:02Z'

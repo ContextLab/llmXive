@@ -88,9 +88,9 @@
 - [X] T043 Implement `code/05b_compute_delta_signal.py` to explicitly compute **ΔPeakSignal** (CRE signal minus null signal) by joining `CRE_merged.bed` signal with `null_region_signal.bed` (T009b), outputting `delta_peak_signal.tsv` (FR-015)
 - [X] T015 Implement weight calculation in `code/05_validate_cre_gating.py` using conditional logic to choose `log(motif_score + 1)` OR `log(hi_c_score + 1)` based on which validation passed, **applied to the ΔPeakSignal from T043** (FR-015)
 - [X] T016 Implement `code/06_fit_gls.R` to fit a **Fixed-Effects GLS model (no random intercepts)** per stress, testing the fixed effect β₁ for `weighted_ΔPeakSignal`. *Note: This substitutes the spec's Linear Mixed-Model due to CPU constraints (Plan e001), but preserves the statistical goal of testing β₁.* (FR-005, Methodology-5525a25f)
-- [ ] T023 Implement Likelihood-Ratio Test (LRT) in `code/06_fit_gls.R` comparing full vs reduced model (FR-005)
-- [ ] T017 Implement Benjamini-Hochberg FDR correction in `code/06_fit_gls.R` and enforce q ≤ 0.05 cutoff, **ensuring T018 consumes only this filtered subset** (FR-007)
-- [ ] T018 Implement `code/10_generate_reports.R` to generate `results/CRE_ranked_<stress>.md` sorted by q-value and |β₁|, containing ONLY significant CREs (FR-008, SC-001)
+- [X] T023 Implement Likelihood-Ratio Test (LRT) in `code/06_fit_gls.R` comparing full vs reduced model (FR-005)
+- [X] T017 Implement Benjamini-Hochberg FDR correction in `code/06_fit_gls.R` and enforce q ≤ 0.05 cutoff, **ensuring T018 consumes only this filtered subset** (FR-007)
+- [X] T018 Implement `code/10_generate_reports.R` to generate `results/CRE_ranked_<stress>.md` sorted by q-value and |β₁|, containing ONLY significant CREs (FR-008, SC-001)
 - [ ] T041 [P] Implement `code/07b_fdr_overlap_analysis.R` to calculate the **top-20 CRE overlap percentage** between FDR thresholds (0.01, 0.05, 0.10) **using the GLS outputs (adjusted p-value, |β₁|)** from T016/T017, outputting `results/fdr_overlap_stats.csv` (FR-003, SC-004)
 - [ ] T027 Add explicit disclaimer "results are associational, not causal" to all report outputs (FR-016), programmatically injecting into Markdown tables and PDFs
 
@@ -106,14 +106,14 @@
 
 ### Tests for User Story 2 (OPTIONAL) ⚠️
 
-- [ ] T020 [P] [US2] Contract test for statistical report schema in `tests/contract/test_stats_schema.py`
-- [ ] T021 [P] [US2] Integration test for permutation test logic in `tests/integration/test_permutation.py`
+- [X] T020 [P] [US2] Contract test for statistical report schema in `tests/contract/test_stats_schema.py`
+- [X] T021 [P] [US2] Integration test for permutation test logic in `tests/integration/test_permutation.py`
 
 ### Implementation for User Story 2
 
 - [ ] T022 Implement `code/07_permutation_test.R` for **spatially-constrained block permutation** (shuffles) to generate empirical p-value, outputting `results/permutation_pvalue.csv` (FR-006, US-2). *Note: Depends on T016 and T023 completion to obtain observed β₁.*
-- [ ] T024 Implement variance explained (ΔR²) calculation in `code/06_fit_gls.R` and `code/10_generate_reports.R`
-- [ ] T025 Implement GO enrichment analysis (hypergeometric test) in `code/10_generate_reports.R` for stress-response genes (FR-010)
+- [X] T024 Implement variance explained (ΔR²) calculation in `code/06_fit_gls.R` and `code/10_generate_reports.R`
+- [X] T025 Implement GO enrichment analysis (hypergeometric test) in `code/10_generate_reports.R` for stress-response genes (FR-010)
 - [ ] T026 Implement bias sensitivity analysis in `code/08_sensitivity_analysis.R` comparing the **full set (post-FR-014)** against the **filtered set (post-VIF)** to explicitly **quantify selection bias** (FR-017)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently

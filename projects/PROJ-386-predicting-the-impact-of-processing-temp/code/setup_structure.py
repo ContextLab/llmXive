@@ -1,36 +1,41 @@
-"""
-Project Structure Initialization Script.
-Creates the required directory hierarchy for the llmXive science pipeline.
-"""
 import os
 import sys
 from pathlib import Path
 
 def main():
-    """Create the standard project directory structure."""
-    root = Path(__file__).resolve().parent.parent
+    """
+    Creates the project directory structure as defined in plan.md.
     
-    required_dirs = [
+    Required directories:
+    - code/
+    - data/raw/
+    - data/processed/
+    - data/artifacts/
+    - tests/
+    - state/
+    """
+    project_root = Path(__file__).resolve().parent.parent
+    
+    directories = [
         "code",
         "data/raw",
         "data/processed",
         "data/artifacts",
         "tests",
-        "state",
-        "specs"
+        "state"
     ]
-
+    
     created_count = 0
-    for dir_name in required_dirs:
-        dir_path = root / dir_name
+    for dir_name in directories:
+        dir_path = project_root / dir_name
         if not dir_path.exists():
             dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path.relative_to(root)}")
+            print(f"Created directory: {dir_path}")
             created_count += 1
         else:
-            print(f"Directory exists: {dir_path.relative_to(root)}")
-
-    print(f"\nProject structure verification complete. Created {created_count} new directories.")
+            print(f"Directory already exists: {dir_path}")
+    
+    print(f"Project structure setup complete. Created {created_count} new directories.")
     return 0
 
 if __name__ == "__main__":

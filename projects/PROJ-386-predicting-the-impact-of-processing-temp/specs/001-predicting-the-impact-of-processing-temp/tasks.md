@@ -52,7 +52,7 @@
 
 ### Tests for User Story 1
 
-- [ ] T009 [P] [US1] Contract test for schema pre-check logic in `tests/contract/test_ingestion_schema.py` (verify skip logic for missing fields)
+- [X] T009 [P] [US1] Contract test for schema pre-check logic in `tests/contract/test_ingestion_schema.py` (verify skip logic for missing fields)
 - [X] T010 [P] [US1] Unit test for filtering logic in `tests/unit/test_filtering.py` (verify rows with missing temp/grain_size are excluded)
 - [X] T011 [P] [US1] Integration test for "Data Missing" halt scenario in `tests/integration/test_data_halt.py` (verify Exit Code 1 when all sources fail)
 
@@ -88,8 +88,8 @@
 - [ ] T023 [US2] Implement `code/data/preprocessing.py` collinearity detection (Correlation > 0.8) and JSON report generation (`data/artifacts/collinearity_report.json`) **with schema requiring `flagged_pairs` list of tuples/strings of correlated feature names**.
 - [X] T024 [US2] Implement `code/modeling/baseline.py` Linear Regression training on residuals with interaction terms
 - [X] T025 [US2] Implement `code/modeling/baseline.py` coefficient extraction and logging (R², MAE, coefficients for Temp, Composition, Interactions) **AND** logic to check `collinearity_report.json` to suppress independent interpretation for flagged pairs, framing them descriptively as joint effects.
-- [ ] T026 [US2] Implement `code/modeling/baseline.py` "Limited Interaction Effects" flagging logic (if interaction coefficients ~0)
-- [ ] T022b [US2] Implement `code/modeling/baseline.py` **Stratified Group K-Fold** cross-validation logic, explicitly **consuming 'Alloy Series' grouping variable from preprocessed data** to prevent leakage as per Constitution Principle VII.
+- [X] T026 [US2] Implement `code/modeling/baseline.py` "Limited Interaction Effects" flagging logic (if interaction coefficients ~0)
+- [X] T022b [US2] Implement `code/modeling/baseline.py` **Stratified Group K-Fold** cross-validation logic, explicitly **consuming 'Alloy Series' grouping variable from preprocessed data** to prevent leakage as per Constitution Principle VII.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -103,15 +103,15 @@
 
 ### Tests for User Story 3
 
-- [ ] T027 [P] [US3] Unit test for grid search timeout fallback in `tests/unit/test_rf_timeout.py` (verify fallback to single-pass if >4h simulated)
-- [ ] T028 [P] [US3] Unit test for sensitivity analysis logic in `tests/unit/test_sensitivity.py` (verify threshold sweep across a range of low-magnitude values)
-- [ ] T029 [P] [US3] Integration test for full RF pipeline in `tests/integration/test_rf_pipeline.py`
+- [X] T027 [P] [US3] Unit test for grid search timeout fallback in `tests/unit/test_rf_timeout.py` (verify fallback to single-pass if >4h simulated)
+- [X] T028 [P] [US3] Unit test for sensitivity analysis logic in `tests/unit/test_sensitivity.py` (verify threshold sweep across a range of low-magnitude values)
+- [X] T029 [P] [US3] Integration test for full RF pipeline in `tests/integration/test_rf_pipeline.py`
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement `code/modeling/rf_model.py` Random Forest training with GridSearchCV (n_estimators: -200, max_depth: -20) **AND** hard timeout enforcement: **detect -hour elapsed time, interrupt GridSearchCV, and re-run with n_estimators=100, max_depth=10** if timeout occurs. **Consume residuals from T022 and collinearity report from T023.**
+- [X] T030 [US3] Implement `code/modeling/rf_model.py` Random Forest training with GridSearchCV (n_estimators: -200, max_depth: -20) **AND** hard timeout enforcement: **detect -hour elapsed time, interrupt GridSearchCV, and re-run with n_estimators=100, max_depth=10** if timeout occurs. **Consume residuals from T022 and collinearity report from T023.**
 - [ ] T032 [US3] Implement `code/analysis/diagnostics.py` **Unified Sensitivity Analysis**: (1) **Threshold Sweep**: identify **top-k significant interaction terms by Feature Importance**, sweep thresholds {, 0.05, 0.1}, calculate **stability percentage** (>80% required); (2) **Confounder Check**: attempt to refit model with proxy variables (e.g., strain rate) if present, calculate and report **R² delta**; if missing, log "No proxy variables available". **Generate `data/artifacts/sensitivity_report.json` with schema: `{threshold, top_5_terms, stability_pct, confounder_r2_delta}`.**
-- [ ] T033 [US3] Implement `code/analysis/reporting.py` partial dependence plot generation (visualize Grain Size vs. Temp for specific compositions)
+- [X] T033 [US3] Implement `code/analysis/reporting.py` partial dependence plot generation (visualize Grain Size vs. Temp for specific compositions)
 - [ ] T034 [US3] Implement `code/analysis/reporting.py` **Permutation Test** for R² improvement significance (p < 0.05) as required by SC-001, generating `data/artifacts/permutation_test_results.json` with `p_value` field.
 - [ ] T035 [US3] Implement `code/analysis/reporting.py` final metrics aggregation (R², MAE, **p-value from T034**, stability scores from T032) **AND** logic to consume `collinearity_report.json` from T023 to enforce descriptive framing in final report.
 - [ ] T036 [US3] Implement `code/analysis/reporting.py` "Associational Nature" disclaimer injection in final report

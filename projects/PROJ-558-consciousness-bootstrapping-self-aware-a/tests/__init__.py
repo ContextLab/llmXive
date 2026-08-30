@@ -1,1 +1,3 @@
-# Tests package initialization
+"""
+Tests package for the Consciousness Bootstrapping project.
+"""

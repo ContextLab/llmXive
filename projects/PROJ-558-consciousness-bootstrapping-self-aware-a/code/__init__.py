@@ -1,6 +1,5 @@
 """
-llmXive Consciousness Bootstrapping Project - Code Package.
+llmXive Consciousness Bootstrapping Project.
 
-This package contains the core implementation modules for the
-self-aware AI recursive introspection pipeline.
+Core code modules for recursive self-modeling and meta-cognitive evaluation.
 """
