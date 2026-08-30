@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmXive-proj-367"
 version = "0.1.0"
-description = "The Influence of Algorithmic Recommendations on Exploration vs. Exploitation"
+description = "The influence of algorithmic recommendations on exploration vs. exploitation"
 requires-python = ">=3.11"
 dependencies = []
 
@@ -19,33 +19,72 @@ exclude = '''
   | \.git
   | \.hg
   | \.mypy_cache
-  | \.nox
-  | \.pants.d
-  | \.ruff_cache
-  | \.svn
   | \.tox
   | \.venv
-  | __pypackages__
   | _build
   | buck-out
   | build
   | dist
-  | node_modules
-  | venv
-  | data
-  | figures
-  | docs
 )/
 '''
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = "test_*.py"
-python_classes = "Test*"
-python_functions = "test_*"
-addopts = "-v --tb=short"
-
 [tool.ruff]
-# Inherit settings from ruff.toml for CLI usage if needed, 
-# but ruff.toml is the primary source of truth for this project.
-extend = "ruff.toml"
+# Same as Black.
+line-length = 88
+indent-width = 4
+target-version = "py311"
+
+[tool.ruff.lint]
+# Enable Pyflakes (`F`) and a subset of pycodestyle (`E`) codes.
+select = ["E", "F", "W", "I", "N", "UP", "ANN", "S", "BLE", "B", "A", "C4", "COM", "DTZ", "T10", "EM", "ISC", "ICN", "G", "INP", "PIE", "T20", "PT", "Q", "RSE", "RET", "SLF", "SIM", "TID", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "TRY", "FLY", "NPY", "PERF", "RUF"]
+ignore = [
+  "ANN101", # Missing type annotation for `self` in method
+  "ANN102", # Missing type annotation for `cls` in classmethod
+  "S101",   # Use of `assert` detected (allowed for tests)
+  "B008",   # Do not perform function call in argument defaults (common in fastapi/pytest)
+  "PERF203",# `try`-`except` within a loop incurs performance overhead
+]
+
+# Allow autofix for all enabled rules (when `--fix` is provided).
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few specific files/directories.
+exclude = [
+  ".bzr",
+  ".direnv",
+  ".eggs",
+  ".git",
+  ".git-rewrite",
+  ".hg",
+  ".mypy_cache",
+  ".nox",
+  ".pants.d",
+  ".pytype",
+  ".ruff_cache",
+  ".svn",
+  ".tox",
+  ".venv",
+  "__pypackages__",
+  "_build",
+  "buck-out",
+  "build",
+  "dist",
+  "node_modules",
+  "venv",
+]
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101", "ANN"]
+"code/main.py" = ["T201"] # Allow print in main entry point if needed
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = false
+docstring-code-line-length = "dynamic"

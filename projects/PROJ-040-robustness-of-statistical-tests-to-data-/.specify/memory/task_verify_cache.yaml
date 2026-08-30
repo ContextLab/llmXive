@@ -13,12 +13,12 @@ T016:
     \ No test code is present to verify Type I error calculation on clean data."
 T018:
   c: false
-  h: 56f0aa7a7b3c4255d32f138c79344ab9b3c4dc9cdc8b4541fa38186e56d21315
-  r: "The `run_simulation.py` file is present but the shown code is truncated and\
-    \ does not contain a loop over datasets, contamination rates, and magnitude values,\
-    \ nor does it aggregate error rates/power or write `data/results/simulation_results.csv`.\
-    \ Moreover, the required results CSV file is missing from the repository. The\
-    \ task\u2019s core output is therefore not produced."
+  h: c8848a2666fb063906218d9b829d18c8779d23713e78bbafe0d9f4c69d8d81e4
+  r: "The provided `run_simulation.py` is truncated and shows no loop over datasets,\
+    \ contamination rates, or magnitude values, nor any code that writes a CSV with\
+    \ the required columns. Moreover, the expected output file `data/results/simulation_results.csv`\
+    \ is absent. The implementation does not demonstrably fulfill the task\u2019s\
+    \ specifications."
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

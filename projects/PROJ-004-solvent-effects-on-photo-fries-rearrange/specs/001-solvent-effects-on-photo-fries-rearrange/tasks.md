@@ -84,7 +84,7 @@
 - [X] T014 [US1] Implement `code/analysis/environment.py` to {{claim:c_100de0a3}}
 - [X] T013 [US1] Implement `code/main.py` CLI entry point to configure solvent series (multiple solvents, ε range low to moderate) (depends on T014)
 - [ ] T017 [US1] Implement `code/analysis/validation.py` to flag runs where logged dielectric constants deviate >2% from `solvents.yaml` (addressing SC-010)
-- [ ] T017b [US1] Implement `code/analysis/validation.py` to calculate and verify environmental compliance percentage (≥95% of runs within tolerance) by reading `data/processed/environment_logs.json` and write result to `data/processed/compliance_report.json` with field `environmental_compliance_percent` (addressing SC-004)
+- [X] T017b [US1] Implement `code/analysis/validation.py` to calculate and verify environmental compliance percentage (≥95% of runs within tolerance) by reading `data/processed/environment_logs.json` and write result to `data/processed/compliance_report.json` with field `environmental_compliance_percent` (addressing SC-004)
 - [X] T018 [US1] Implement `code/analysis/validation.py` to detect and flag runs where temperature or humidity exceeds tolerance (addressing Edge Cases in spec)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -105,12 +105,12 @@
 ### Implementation for User Story 2
 
 - [X] T016 [US2] Implement `code/analysis/calibration.py` to apply instrument calibration factors and log detector response/wavelength stability per `FR-004`
-- [ ] T021 [P] [US2] Implement `code/analysis/kinetic_fit.py` to perform global kinetic analysis (exponential fitting) on `data/processed/calibrated_traces.csv` (or synthetic equivalent)
+- [X] T021 [P] [US2] Implement `code/analysis/kinetic_fit.py` to perform global kinetic analysis (exponential fitting) on `data/processed/calibrated_traces.csv` (or synthetic equivalent)
 - [X] T022 [US2] Implement `code/analysis/kinetic_fit.py` to calculate mean lifetime and standard deviation for n ≥ 3 replicates per solvent
 - [X] T023 [US2] Implement `code/analysis/kinetic_fit.py` to flag outliers beyond a statistically significant threshold. (addressing US-2 acceptance scenario)
 - [X] T024 [US2] Implement `code/analysis/power.py` to document power analysis for n=3 and estimate detectable effect size (addressing SC-007)
 - [X] T025 [US2] Implement `code/analysis/kinetic_fit.py` to perform threshold sensitivity analysis on lifetime discrepancy cutoffs across a range of values. and report false-positive/negative rates (addressing SC-008)
-- [ ] T026 [US2] Create `data/processed/kinetic_metrics.csv` containing extracted lifetimes, CIs, and replicate statistics
+- [X] T026 [US2] Create `data/processed/kinetic_metrics.csv` containing extracted lifetimes, CIs, and replicate statistics
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -129,7 +129,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] **Integrated Solvent Model Data Generation**: Implement `code/data/compute/solvent_models.py` to generate or fetch DFT solvation data. **Logic**: Accept a list of N solvents. Select a subset of size `floor(N * 0.8)` (or fewer) for implicit solvent models (SMD/PCM) and the remaining `N - subset_size` (guaranteed ≥ 20% if N ≥ 5) for explicit solvent models (QM/MM or cluster-continuum). Ensure the total count equals N. Output combined results to `data/compute/solvent_solvation.csv`. This task satisfies FR-005 (≤80% implicit, ≥20% explicit) by dynamically partitioning the input set. (Replaces T029a, T029c, T029d, T029b).
+- [X] T029 [US3] **Integrated Solvent Model Data Generation**: Implement `code/data/compute/solvent_models.py` to generate or fetch DFT solvation data. **Logic**: Accept a list of N solvents. Select a subset of size `floor(N * 0.8)` (or fewer) for implicit solvent models (SMD/PCM) and the remaining `N - subset_size` (guaranteed ≥ 20% if N ≥ 5) for explicit solvent models (QM/MM or cluster-continuum). Ensure the total count equals N. Output combined results to `data/compute/solvent_solvation.csv`. This task satisfies FR-005 (≤80% implicit, ≥20% explicit) by dynamically partitioning the input set. (Replaces T029a, T029c, T029d, T029b).
 - [X] T030a [US3] **Bayesian Correlation**: Implement `code/analysis/correlation.py` to perform **Bayesian Hierarchical Modeling (BHM)** to correlate lifetime with Solvation Energy and Dielectric Constant. **Constraint**: Do NOT use standard ANOVA or Linear Regression as the primary model. Use a PCA-derived "Solvent Polarity Index" as the primary predictor to avoid tautology. Output posterior distributions for slope and intercept. **Dependency**: This task must complete before T030b.
 - [X] T030b [US3] **Statistical Reporting**: Implement `code/analysis/correlation.py` to report **Posterior Probability of Effect**, **Bayes Factors**, AND **exact p-value** (via scipy.stats or equivalent) to satisfy SC-003. Calculate **Bayesian R²** and **credible intervals (CI)**. Explicitly frame all findings as associational and exploratory due to low N (n=3). (Addressing SC-001, SC-003, SC-006). **Dependency**: This task must complete after T030a.
 - [X] T031 [US3] Implement `code/analysis/correlation.py` to perform VIF analysis to distinguish dielectric vs. solvation effects (addressing SC-009 and Rosalind Franklin review)

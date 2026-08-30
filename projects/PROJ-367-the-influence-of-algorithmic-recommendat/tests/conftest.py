@@ -1,53 +1,41 @@
 """
-Pytest configuration and fixtures for the PROJ-367 pipeline.
+Pytest configuration and shared fixtures for the research pipeline.
 
-This module provides shared fixtures and configuration to ensure
-consistent test execution across all unit and integration tests.
+This file configures pytest to:
+1. Automatically discover tests in this directory and subdirectories.
+2. Add the project root to sys.path to allow imports from `code/` modules.
+3. Configure logging to output at INFO level during tests.
+4. Provide a shared fixture for the project root path.
 """
-import os
 import sys
+import os
 import logging
-from pathlib import Path
 import pytest
+from pathlib import Path
 
-# Ensure the project code directory is on the path for imports
-# This assumes tests are run from the project root or via pytest discovery
-PROJECT_ROOT = Path(__file__).parent.parent
-CODE_DIR = PROJECT_ROOT / "code"
+# Add the project root to sys.path to allow imports like `from code.metrics import ...`
+# We assume this file is at: <project_root>/tests/conftest.py
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-if str(CODE_DIR) not in sys.path:
-    sys.path.insert(0, str(CODE_DIR))
-
-# Configure logging for tests to capture INFO/DEBUG logs if needed
+# Configure logging for test runs
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 
-@pytest.fixture(scope="session")
-def project_root():
-    """Return the root path of the project."""
-    return PROJECT_ROOT
+@pytest.fixture
+def project_root_path():
+    """Returns the Path object for the project root directory."""
+    return project_root
 
-@pytest.fixture(scope="session")
-def code_dir(project_root):
-    """Return the path to the code directory."""
-    return project_root / "code"
+@pytest.fixture
+def data_dir(project_root_path):
+    """Returns the Path object for the data directory."""
+    return project_root_path / "data"
 
-@pytest.fixture(scope="session")
-def data_dir(project_root):
-    """Return the path to the data directory."""
-    return project_root / "data"
-
-@pytest.fixture(scope="session")
-def output_dir(project_root):
-    """Return the path to the output directory (for test artifacts)."""
-    return project_root / "data" / "test_output"
-
-@pytest.fixture(autouse=True)
-def setup_test_environment(output_dir):
-    """Ensure test output directory exists and is clean before each test session."""
-    output_dir.mkdir(parents=True, exist_ok=True)
-    yield
-    # Cleanup could be added here if necessary, but often pytest temp dirs are used.
-    # For now, we leave the directory to allow inspection of artifacts if needed.
+@pytest.fixture
+def code_dir(project_root_path):
+    """Returns the Path object for the code directory."""
+    return project_root_path / "code"

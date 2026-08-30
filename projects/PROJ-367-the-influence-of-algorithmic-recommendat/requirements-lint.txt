@@ -1,0 +1,5 @@
+# Linting and Formatting dependencies for PROJ-367
+# Install these alongside the main requirements.txt
+black>=24.0.0
+ruff>=0.3.0
+isort>=5.13.0

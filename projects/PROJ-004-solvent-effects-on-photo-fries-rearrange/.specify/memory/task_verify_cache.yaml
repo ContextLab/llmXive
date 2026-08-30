@@ -1,20 +1,11 @@
-T017:
-  c: false
-  h: 585f4bdab8ef979afea4b285e3da1b9ddee67e05958375122081b5777cce9dfb
-  r: "The provided `validation.py` contains the core checking functions, but the required\
-    \ `solvents.yaml` reference file is missing, so the code cannot actually compare\
-    \ logged dielectric constants to the reference values. Without this file the implementation\
-    \ cannot fulfill the task of flagging >2\u202F% deviations. The missing `solvents.yaml`\
-    \ must be added (or the code adjusted to handle its absence) for the task to be\
-    \ complete."
 T017b:
   c: false
-  h: 7cb5de789f230e799c8f4f6f0d069b4ebea68df635a1a00367d17518f68b92b6
-  r: "The repository lacks the required input file `data/processed/environment_logs.json`\
-    \ and the expected output `data/processed/compliance_report.json`. Moreover, `code/analysis/validation.py`\
-    \ does not contain a function that computes the overall environmental compliance\
-    \ percentage (\u226595% of runs) and writes it to `compliance_report.json` as\
-    \ specified. These essential artifacts and functionality are missing."
+  h: f72052a5a6cbc73b560e8c048d73942f433a4d843eaf7095e0923c79cd2b7ff0
+  r: "The provided `code/analysis/validation.py` is truncated and does not contain\
+    \ the logic to compute the overall compliance percentage or write `data/processed/compliance_report.json`.\
+    \ Moreover, the required input file `data/processed/environment_logs.json` and\
+    \ the expected output file `data/processed/compliance_report.json` are absent.\
+    \ The task\u2019s core requirement is therefore unmet."
 T021:
   c: false
   h: c4e526b805d68afd4f2f59fa47a20e04401abec8e34e76d4c83ddf05f96d549f
@@ -25,12 +16,11 @@ T021:
     necessary input artifact and a complete implementation.
 T029:
   c: false
-  h: 983479d8eadaef92d3554654d7badd37511815d09818335693539c0a81e31524
-  r: "The repository contains `code/data/compute/solvent_models.py`, but the file\
-    \ is truncated and does not show a complete implementation that writes the required\
-    \ `data/compute/solvent_solvation.csv`. Moreover, the CSV output file is absent\
-    \ from the project. Without the generated CSV (or a fully functional script that\
-    \ creates it), the task\u2019s core requirement is not satisfied."
+  h: 0ce0dee49d0ba48ee142900e6128d007c3ad912e7e7db27a1712879cdc45c50e
+  r: The repository contains `code/data/compute/solvent_models.py`, but the file is
+    truncated and does not show any logic that writes the combined results to `data/compute/solvent_solvation.csv`.
+    Moreover, the CSV file itself is missing from the project. Without a concrete
+    implementation that produces the required output file, the task is not fulfilled.
 T035:
   c: true
   h: 886eabc2e4e0256c8c5c64aa93460da6849f071ac5116646ac5855232079c62b

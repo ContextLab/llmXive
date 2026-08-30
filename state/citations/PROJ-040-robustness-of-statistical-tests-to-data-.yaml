@@ -20,7 +20,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/uci-ml-repository/wine-quality-red/resolve/main/winequality-red.csv
   verified_at: '2026-07-05T10:14:52.984495Z'
-- artifact_hash: 3962d28202fd102d414d77d32611d91d50d0d95323783c6d7b1df738ed05d27b
+- artifact_hash: eb59f58aab8ee218b35df04cc9bb8561ae6a8b6e0793555339be9802427ad712
   artifact_path: projects/PROJ-040-robustness-of-statistical-tests-to-data-/specs/001-robustness-of-statistical-tests-to-data/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -31,4 +31,4 @@
   value: https://arxiv.org/abs/2505.06730
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2505.06730
-  verified_at: '2026-08-30T01:23:34.817324Z'
+  verified_at: '2026-08-30T16:40:30.985812Z'

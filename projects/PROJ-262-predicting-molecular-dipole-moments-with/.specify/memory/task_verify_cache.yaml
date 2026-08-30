@@ -1,0 +1,14 @@
+T016:
+  c: false
+  h: 46c3c95c681dc23b2404b8d8967eed06e4f87091280ec6fc47d5f5c2948dde21
+  r: "The `create_subset.py` script is incomplete (truncated) and does not contain\
+    \ logic to select a deterministic 5000\u2011molecule subset or write it to a Parquet\
+    \ file, and the required `data/processed/subset_final.parquet` file is missing.\
+    \ The task\u2019s core output is therefore not present."
+T019:
+  c: false
+  h: 9d2ff2ff52f526a695a84175f59eacad85a6f0312fb74037dca07bf8278faa4a
+  r: "The required `data/reports/excluded_molecules.csv` file does not exist, and\
+    \ the `state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml`\
+    \ file is also missing, so the script\u2019s output and the state\u2011update\
+    \ step are not present. The task\u2019s core deliverables are therefore not satisfied."

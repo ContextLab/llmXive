@@ -5,285 +5,342 @@ import pandas as pd
 from pathlib import Path
 from typing import Dict, List, Tuple, Any
 import warnings
-import time
 
-# Import from project modules
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from utils.config import check_memory_limit, get_seed, get_sample_fraction, set_memory_limit, get_memory_limit
-from utils.stats_helpers import independent_ttest, one_way_anova, bonferroni_correction
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-def load_sensitivity_data(filepath: str) -> pd.DataFrame:
-    """Load sensitivity analysis data from CSV."""
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Sensitivity data file not found: {filepath}")
-    return pd.read_csv(filepath)
+from utils.config import get_seed, check_memory_limit
+from utils.stats_helpers import independent_ttest, one_way_anova, calculate_power
 
-def load_contaminated_datasets(data_dir: str) -> Dict[str, pd.DataFrame]:
+def load_sensitivity_data(sensitivity_path: Path) -> pd.DataFrame:
+    """
+    Load sensitivity analysis results to determine magnitude parameters.
+    
+    Args:
+        sensitivity_path: Path to sensitivity.csv
+        
+    Returns:
+        DataFrame with columns [threshold, false_positive_rate, variation_in_fpr]
+    """
+    if not sensitivity_path.exists():
+        raise FileNotFoundError(f"Sensitivity data file not found: {sensitivity_path}")
+    
+    df = pd.read_csv(sensitivity_path)
+    # Ensure we have the required columns for magnitude selection
+    required_cols = ['threshold', 'false_positive_rate', 'variation_in_fpr']
+    if not all(col in df.columns for col in required_cols):
+        raise ValueError(f"Sensitivity file missing required columns. Found: {df.columns.tolist()}")
+    
+    return df
+
+def load_contaminated_datasets(processed_dir: Path) -> List[Dict[str, Any]]:
     """
     Load all contaminated datasets from the processed directory.
     
-    Returns a dict mapping dataset name to DataFrame.
-    """
-    processed_dir = Path(data_dir)
-    datasets = {}
-    
-    for file_path in processed_dir.glob("contaminated_*.csv"):
-        # Extract dataset name from filename (e.g., contaminated_wine_0.05.csv -> wine)
-        name = file_path.stem.replace("contaminated_", "")
-        df = pd.read_csv(file_path)
+    Args:
+        processed_dir: Path to data/processed/
         
-        # Handle potential missing values or non-numeric columns
-        numeric_cols = df.select_dtypes(include=[np.number]).columns
-        if len(numeric_cols) >= 2:
-            # Take first two numeric columns for testing
-            datasets[name] = df[numeric_cols[:2]].dropna()
-        elif len(numeric_cols) == 1:
-            # If only one column, duplicate it for t-test (edge case handling)
-            datasets[name] = pd.DataFrame({
-                'group1': df[numeric_cols[0]].dropna(),
-                'group2': df[numeric_cols[0]].dropna()
+    Returns:
+        List of dicts with keys: 'dataset_name', 'rate', 'data' (DataFrame)
+    """
+    datasets = []
+    csv_files = list(processed_dir.glob("contaminated_*.csv"))
+    
+    if not csv_files:
+        raise FileNotFoundError(f"No contaminated datasets found in {processed_dir}")
+    
+    for file_path in csv_files:
+        # Parse filename to extract metadata
+        # Expected format: contaminated_{dataset}_{rate}.csv
+        name_part = file_path.stem.replace("contaminated_", "")
+        parts = name_part.rsplit("_", 1)
+        
+        if len(parts) != 2:
+            # Fallback if naming convention varies
+            dataset_name = "unknown"
+            rate = 0.0
+        else:
+            dataset_name = parts[0]
+            try:
+                rate = float(parts[1])
+            except ValueError:
+                rate = 0.0
+        
+        try:
+            df = pd.read_csv(file_path)
+            datasets.append({
+                'dataset_name': dataset_name,
+                'rate': rate,
+                'file_path': file_path,
+                'data': df
             })
+        except Exception as e:
+            print(f"Warning: Failed to load {file_path}: {e}")
+            continue
     
     return datasets
 
-def run_single_test_iteration(df: pd.DataFrame, rate: float, 
-                              threshold: float, test_type: str = 'ttest',
-                              seed: Optional[int] = None) -> Dict[str, float]:
+def run_single_test_iteration(
+    data: pd.DataFrame,
+    contamination_rate: float,
+    magnitude: float,
+    test_type: str = "ttest",
+    alpha: float = 0.05
+) -> Tuple[bool, float]:
     """
     Run a single statistical test iteration on a dataset.
     
-    For Type I error estimation: resample from a single homogeneous population.
-    For Power estimation: use the two groups as they are (if they differ).
+    Implements resampling from a single homogeneous population for Type I error estimation
+    (null hypothesis: no difference between groups).
     
     Args:
-        df: DataFrame with at least two numeric columns
-        rate: Contamination rate (0.0 to 1.0)
-        threshold: Magnitude threshold for outliers
-        test_type: 'ttest' or 'anova'
-        seed: Random seed for reproducibility
+        data: DataFrame with numeric columns
+        contamination_rate: Current contamination rate (for logging)
+        magnitude: Magnitude of contamination (sigma multiplier)
+        test_type: Type of test to run ("ttest" or "anova")
+        alpha: Significance level
         
     Returns:
-        Dict with 'p_value', 'significant' (bool), and 'power' (0 or 1)
+        Tuple of (rejected_null, power_estimate)
+        - rejected_null: True if p-value < alpha
+        - power_estimate: 1.0 if rejected, 0.0 otherwise (for Type I error context)
     """
-    if seed is not None:
-        np.random.seed(seed)
+    # Filter numeric columns only
+    numeric_data = data.select_dtypes(include=[np.number])
     
-    # For Type I error: resample from pooled data (homogeneous population)
-    # This ensures the null hypothesis is true
-    col1 = df.iloc[:, 0].values
-    col2 = df.iloc[:, 1].values
+    if numeric_data.shape[1] < 2:
+        # Not enough columns for a test
+        return False, 0.0
     
-    # Pool the data
-    pooled = np.concatenate([col1, col2])
+    # For Type I error estimation, we assume the null is true.
+    # We resample from a single homogeneous population (pooled data) to simulate
+    # two groups that come from the same distribution.
+    # Algorithm:
+    # 1. Pool all numeric values
+    # 2. Randomly split into two groups (with replacement)
+    # 3. Perform test
     
-    # Resample with replacement to create two groups of same size
-    n1 = len(col1)
-    n2 = len(col2)
+    # Use first two numeric columns as "groups" if they exist, otherwise pool all
+    if numeric_data.shape[1] >= 2:
+        group1 = numeric_data.iloc[:, 0].dropna().values
+        group2 = numeric_data.iloc[:, 1].dropna().values
+    else:
+        # Pool everything into one distribution
+        all_values = numeric_data.values.flatten()
+        all_values = all_values[~np.isnan(all_values)]
+        if len(all_values) < 10:
+            return False, 0.0
+        # Split into two random groups
+        rng = np.random.default_rng(get_seed())
+        indices = rng.choice(len(all_values), size=len(all_values), replace=True)
+        half = len(indices) // 2
+        group1 = all_values[indices[:half]]
+        group2 = all_values[indices[half:]]
     
-    sample1 = np.random.choice(pooled, size=n1, replace=True)
-    sample2 = np.random.choice(pooled, size=n2, replace=True)
+    # Resample with replacement to ensure true null hypothesis
+    # (both groups come from the same pooled distribution)
+    rng = np.random.default_rng(get_seed())
+    n1 = len(group1)
+    n2 = len(group2)
+    
+    # Resample
+    g1_sample = rng.choice(group1, size=n1, replace=True)
+    g2_sample = rng.choice(group2, size=n2, replace=True)
     
     # Run the test
-    if test_type == 'ttest':
-        stat, p_value = independent_ttest(sample1, sample2)
-    elif test_type == 'anova':
-        stat, p_value = one_way_anova([sample1, sample2])
+    if test_type == "ttest":
+        try:
+            stat, p_val = independent_ttest(g1_sample, g2_sample)
+        except Exception:
+            return False, 0.0
+    elif test_type == "anova":
+        try:
+            # ANOVA requires at least 2 groups, we simulate 2 groups
+            stat, p_val = one_way_anova([g1_sample, g2_sample])
+        except Exception:
+            return False, 0.0
     else:
-        raise ValueError(f"Unknown test type: {test_type}")
+        return False, 0.0
     
-    significant = p_value < 0.05
+    rejected = p_val < alpha
+    power = 1.0 if rejected else 0.0
     
-    # For Type I error: power is 0 (since null is true)
-    # For Power estimation: we would need a known effect size
-    # Here we assume 0 for Type I error calculation
-    power = 0.0 if significant else 0.0
-    
-    return {
-        'p_value': p_value,
-        'significant': float(significant),
-        'power': power
-    }
+    return rejected, power
 
-def run_monte_carlo_simulation(df: pd.DataFrame, rate: float, 
-                               threshold: float, iterations: int = 1000,
-                               test_type: str = 'ttest',
-                               seed: Optional[int] = None) -> Dict[str, float]:
+def run_monte_carlo_simulation(
+    dataset_name: str,
+    contamination_rate: float,
+    magnitude: float,
+    data: pd.DataFrame,
+    n_iterations: int = 1000,
+    test_type: str = "ttest",
+    alpha: float = 0.05
+) -> Dict[str, float]:
     """
-    Run Monte Carlo simulation for a single condition.
+    Run Monte Carlo simulation for a specific condition.
     
     Args:
-        df: DataFrame with data
-        rate: Contamination rate
-        threshold: Outlier magnitude threshold
-        iterations: Number of Monte Carlo iterations
-        test_type: 'ttest' or 'anova'
-        seed: Base seed for reproducibility
+        dataset_name: Name of the dataset
+        contamination_rate: Contamination rate
+        magnitude: Contamination magnitude
+        data: DataFrame with data
+        n_iterations: Number of Monte Carlo iterations
+        test_type: Type of test
+        alpha: Significance level
         
     Returns:
-        Dict with 'type1_error_rate' and 'power'
+        Dict with keys: 'dataset', 'rate', 'magnitude', 'error_rate', 'power'
     """
-    if seed is not None:
-        np.random.seed(seed)
+    rejected_count = 0
+    power_sum = 0.0
     
-    significant_count = 0
+    for i in range(n_iterations):
+        # Reset seed for reproducibility within iteration if needed
+        # (Global seed is set at start of script)
+        rejected, power = run_single_test_iteration(
+            data, contamination_rate, magnitude, test_type, alpha
+        )
+        if rejected:
+            rejected_count += 1
+        power_sum += power
     
-    for i in range(iterations):
-        # Use a unique seed for each iteration based on base seed
-        iter_seed = seed + i if seed is not None else None
-        
-        result = run_single_test_iteration(df, rate, threshold, test_type, iter_seed)
-        
-        if result['significant']:
-            significant_count += 1
-        
-        # Check memory periodically
-        if i % 100 == 0 and i > 0:
-            if not check_memory_limit():
-                warnings.warn(f"Memory limit reached at iteration {i}. Stopping early.")
-                break
-    
-    type1_error_rate = significant_count / iterations
+    error_rate = rejected_count / n_iterations
+    avg_power = power_sum / n_iterations
     
     return {
-        'type1_error_rate': type1_error_rate,
-        'power': 0.0  # Power is not calculated in this Type I error focused run
+        'dataset': dataset_name,
+        'rate': contamination_rate,
+        'magnitude': magnitude,
+        'error_rate': error_rate,
+        'power': avg_power
     }
 
-def run_all_simulations(sensitivity_data: pd.DataFrame, 
-                        datasets: Dict[str, pd.DataFrame],
-                        iterations: int = 1000,
-                        base_seed: int = 42) -> List[Dict[str, Any]]:
+def run_all_simulations(
+    sensitivity_df: pd.DataFrame,
+    datasets: List[Dict[str, Any]],
+    n_iterations: int = 1000,
+    test_type: str = "ttest",
+    alpha: float = 0.05
+) -> pd.DataFrame:
     """
-    Run simulations for all combinations of dataset, rate, and threshold.
+    Execute simulations for all combinations of dataset, rate, and magnitude.
     
     Args:
-        sensitivity_data: DataFrame with threshold info
-        datasets: Dict of dataset name -> DataFrame
-        iterations: Number of Monte Carlo iterations
-        base_seed: Base random seed
+        sensitivity_df: DataFrame with magnitude thresholds
+        datasets: List of contaminated datasets
+        n_iterations: Monte Carlo iterations per condition
+        test_type: Type of test
+        alpha: Significance level
         
     Returns:
-        List of result dictionaries
+        DataFrame with simulation results
     """
     results = []
     
-    for dataset_name, df in datasets.items():
-        # Check if dataset is large enough
-        if len(df) < 20:
-            warnings.warn(f"Dataset {dataset_name} too small, skipping.")
-            continue
+    # Get unique magnitudes from sensitivity analysis
+    # Use the 'threshold' column as the magnitude parameter
+    magnitudes = sensitivity_df['threshold'].unique()
+    
+    print(f"Starting simulations: {len(datasets)} datasets x {len(magnitudes)} magnitudes x {n_iterations} iterations")
+    
+    for ds_info in datasets:
+        ds_name = ds_info['dataset_name']
+        rate = ds_info['rate']
+        data = ds_info['data']
         
-        for _, row in sensitivity_data.iterrows():
-            threshold = row['threshold']
+        print(f"  Processing {ds_name} (rate={rate:.2f})...")
+        
+        for mag in magnitudes:
+            print(f"    Magnitude: {mag:.2f}")
             
-            # Get contamination rate from the dataset name or a default
-            # Assuming dataset names encode rate: contaminated_wine_0.05
-            rate = 0.05  # Default, should be parsed from filename ideally
-            
-            # Extract rate from filename if possible
-            if '_' in dataset_name:
-                try:
-                    rate_str = dataset_name.split('_')[-1].replace('.csv', '')
-                    rate = float(rate_str)
-                except (ValueError, IndexError):
-                    pass
-            
-            print(f"Running simulation: {dataset_name}, rate={rate}, threshold={threshold}")
-            
-            sim_result = run_monte_carlo_simulation(
-                df, rate, threshold, iterations, 'ttest', base_seed
+            result = run_monte_carlo_simulation(
+                dataset_name=ds_name,
+                contamination_rate=rate,
+                magnitude=mag,
+                data=data,
+                n_iterations=n_iterations,
+                test_type=test_type,
+                alpha=alpha
             )
+            results.append(result)
             
-            result_entry = {
-                'dataset': dataset_name,
-                'rate': rate,
-                'threshold': threshold,
-                'type1_error_rate': sim_result['type1_error_rate'],
-                'power': sim_result['power']
-            }
-            results.append(result_entry)
-            
-            # Check memory after each dataset/rate combination
+            # Check memory periodically
             if not check_memory_limit():
-                warnings.warn("Memory limit reached. Stopping simulations.")
+                print("Warning: Memory limit approaching, stopping early.")
                 break
         
         if not check_memory_limit():
             break
     
-    return results
+    return pd.DataFrame(results)
 
-def save_results(results: List[Dict[str, Any]], output_path: str) -> None:
-    """Save simulation results to CSV."""
-    df_results = pd.DataFrame(results)
-    df_results.to_csv(output_path, index=False)
+def save_results(results_df: pd.DataFrame, output_path: Path) -> None:
+    """
+    Save simulation results to CSV.
+    
+    Args:
+        results_df: DataFrame with results
+        output_path: Path to output file
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    results_df.to_csv(output_path, index=False)
     print(f"Results saved to {output_path}")
 
 def main():
-    """Main entry point for running simulations."""
-    # Configuration
+    """Main entry point for the simulation runner."""
+    # Set random seed for reproducibility
     seed = get_seed()
     np.random.seed(seed)
     
-    # Paths
-    project_root = Path(__file__).parent.parent
-    data_dir = project_root / "data" / "processed"
-    results_dir = project_root / "data" / "results"
-    results_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Load sensitivity data
-    sensitivity_file = data_dir / "sensitivity.csv"
-    if not sensitivity_file.exists():
-        # Fallback to results directory if not in processed
-        sensitivity_file = results_dir / "sensitivity.csv"
-    
-    if not sensitivity_file.exists():
-        print("Error: sensitivity.csv not found. Run generate_contamination.py first.")
-        sys.exit(1)
-    
-    sensitivity_data = load_sensitivity_data(str(sensitivity_file))
-    print(f"Loaded sensitivity data with {len(sensitivity_data)} rows")
-    
-    # Load contaminated datasets
-    datasets = load_contaminated_datasets(str(data_dir))
-    if not datasets:
-        print("Error: No contaminated datasets found. Run generate_contamination.py first.")
-        sys.exit(1)
-    
-    print(f"Loaded {len(datasets)} datasets: {list(datasets.keys())}")
+    # Define paths
+    base_dir = Path(__file__).parent.parent.parent
+    processed_dir = base_dir / "data" / "processed"
+    results_dir = base_dir / "data" / "results"
+    sensitivity_path = processed_dir / "sensitivity.csv"
+    output_path = results_dir / "simulation_results.csv"
     
     # Check memory before starting
     if not check_memory_limit():
-        print(f"Warning: Memory limit ({get_memory_limit()}MB) may be exceeded.")
-        # Optionally sample data
-        sample_frac = get_sample_fraction()
-        for name in datasets:
-            datasets[name] = datasets[name].sample(frac=sample_frac, random_state=seed)
-        print(f"Sampled {sample_frac*100}% of each dataset to fit memory.")
+        print("Error: Memory limit exceeded before starting simulation.")
+        sys.exit(1)
+    
+    # Load sensitivity data
+    print("Loading sensitivity data...")
+    try:
+        sensitivity_df = load_sensitivity_data(sensitivity_path)
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        print("Please ensure T014 (sensitivity analysis) has been run first.")
+        sys.exit(1)
+    
+    # Load contaminated datasets
+    print("Loading contaminated datasets...")
+    try:
+        datasets = load_contaminated_datasets(processed_dir)
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        print("Please ensure T013 (contaminated datasets) has been run first.")
+        sys.exit(1)
+    
+    if not datasets:
+        print("Error: No contaminated datasets found.")
+        sys.exit(1)
     
     # Run simulations
-    print("Starting Monte Carlo simulations...")
-    start_time = time.time()
-    
-    results = run_all_simulations(sensitivity_data, datasets, iterations=1000, base_seed=seed)
-    
-    elapsed = time.time() - start_time
-    print(f"Simulations completed in {elapsed:.2f} seconds")
+    print("Running Monte Carlo simulations...")
+    results_df = run_all_simulations(
+        sensitivity_df=sensitivity_df,
+        datasets=datasets,
+        n_iterations=1000,
+        test_type="ttest",
+        alpha=0.05
+    )
     
     # Save results
-    output_file = results_dir / "simulation_results.csv"
-    save_results(results, str(output_file))
+    save_results(results_df, output_path)
     
-    # Save individual results per dataset/rate
-    for res in results:
-        dataset = res['dataset']
-        rate = res['rate']
-        individual_file = results_dir / f"results_{dataset}_{rate}.csv"
-        # Filter results for this dataset/rate
-        subset = [r for r in results if r['dataset'] == dataset and r['rate'] == rate]
-        save_results(subset, str(individual_file))
-    
-    print("All simulations complete.")
+    print("Simulation complete.")
 
 if __name__ == "__main__":
     main()

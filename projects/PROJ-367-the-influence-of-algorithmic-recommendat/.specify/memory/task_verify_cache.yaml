@@ -8,11 +8,11 @@ T001:
     \ The task cannot be considered complete without these concrete deliverables."
 T002:
   c: false
-  h: da5c6b4df4bee5ffdeb1521f5678a02f3ea7d23e39ecea955ec76a7cf1853388
-  r: The required file `projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/requirements.txt`
-    does not exist, so the project has not been initialized with dependencies at the
-    specified location. The existing `code/requirements.txt` is irrelevant to the
-    task.
+  h: cc7c95a512b86e24cae76bd795f02f94d65c29ee81f44452a1de7e85ad32f9d4
+  r: "The required file `projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/requirements.txt`\
+    \ is missing; only a different `code/requirements.txt` exists, which does not\
+    \ satisfy the specified path. The task\u2019s core artifact is absent, so the\
+    \ requirement is not met."
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -29,9 +29,38 @@ T009:
     is missing, so the task is not satisfied.
 T015:
   c: false
-  h: 4951f45e07f42ed168373239dca93a5d6e3617a8fce7d7b47b1f90a7cfa6d6fe
-  r: "The repository contains `code/main.py`, but the required output file `data/processed/diversity_scores.parquet`\
-    \ is absent, and there is no accompanying test script that runs a hard\u2011coded\
-    \ dataset and checks the calculated scores against manual entropy values within\
-    \ the 0.001 tolerance. Both the output artifact and the verification step are\
-    \ missing."
+  h: 05e56ea883ccf3d6c8cc34ce9c7ba158f28674b749352dfc34675b5ee9015a2f
+  r: "The required output file `data/processed/diversity_scores.parquet` does not\
+    \ exist, and the provided `code/main.py` snippet does not show any logic that\
+    \ writes such a parquet file or completes the verification comparison. The task\u2019\
+    s core deliverable\u2014producing the parquet with the specified columns and validated\
+    \ scores\u2014is missing."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or log output was provided that demonstrates added error handling
+    for missing data or a count of excluded sessions. Without any artifact showing
+    the implementation (e.g., updated preprocessing script with try/except blocks
+    and logging statements), the requirement cannot be verified as met.
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing the required fallback to Generalized\
+    \ Least Squares with robust standard errors is present; the only artifacts shown\
+    \ relate to data ingestion and PSW, not to the GLS fallback logic. Consequently,\
+    \ the task\u2019s core requirement is unfulfilled."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log output was provided that implements the required logic\
+    \ to detect extreme propensity\u2011score weights and to flag methodological changes\
+    \ in the logs, so the claimed feature cannot be verified. The necessary artifact\
+    \ is missing."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., revised report, checklist, or automated scan output) was\
+    \ provided to demonstrate that all generated reports have been edited to use only\
+    \ associational language and avoid causal phrasing, as required by task T025.\
+    \ The implementer must supply the actual report files or verification evidence\
+    \ showing compliance with FR\u2011006."

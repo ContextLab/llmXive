@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan
-- [ ] T002 Initialize Python 3.11 project with dependencies in `projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/requirements.txt`
+- [ ] T002 Initialize Python 3.11 project with dependencies in `projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/requirements.txt` <!-- FAILED: unspecified -->
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 - [X] T036 [P] Initialize Pipeline Runtime Instrumentation in `code/main.py` to log start/end timestamps and calculate total duration for SC-005.
 
@@ -100,14 +100,14 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T040 [P] [US2] Unit test for baseline vector derivation in `tests/unit/test_modeling.py`
-- [ ] T041 [P] [US2] Unit test for PSW weight stability check (extreme weights > 10x median) in `tests/unit/test_modeling.py`
+- [X] T040 [P] [US2] Unit test for baseline vector derivation in `tests/unit/test_modeling.py`
+- [X] T041 [P] [US2] Unit test for PSW weight stability check (extreme weights > 10x median) in `tests/unit/test_modeling.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `code/modeling.py` to derive `Baseline_Interest_Vector` from pre-study history (FR-002)
-- [ ] T021 [US2] Implement PSW logic in `code/modeling.py` to calculate propensity scores and stabilized weights (FR-003)
-- [ ] T022 [US2] Implement weighted linear regression in `code/modeling.py` with VIF diagnostic (FR-003, FR-004)
+- [X] T020 [P] [US2] Implement `code/modeling.py` to derive `Baseline_Interest_Vector` from pre-study history (FR-002)
+- [X] T021 [US2] Implement PSW logic in `code/modeling.py` to calculate propensity scores and stabilized weights (FR-003)
+- [X] T022 [US2] Implement weighted linear regression in `code/modeling.py` with VIF diagnostic (FR-003, FR-004)
 - [ ] T023 [US2] Implement fallback logic to Generalized Least Squares (GLS) with robust standard errors if N < 30 or PSW fails (FR-008, Edge Cases)
 - [ ] T024 [US2] Add logic to detect extreme weights and flag methodological changes in logs
 - [ ] T025 [US2] Ensure all output reports frame findings as **associational** only (FR-006), avoiding causal language
@@ -124,8 +124,8 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T042 [P] [US3] Unit test for residual permutation test logic in `tests/unit/test_robustness.py`
-- [ ] T043 [P] [US3] Integration test for sensitivity analysis sweep in `tests/integration/test_robustness.py`
+- [X] T042 [P] [US3] Unit test for residual permutation test logic in `tests/unit/test_robustness.py`
+- [X] T043 [P] [US3] Integration test for sensitivity analysis sweep in `tests/integration/test_robustness.py`
 
 ### Implementation for User Story 3
 

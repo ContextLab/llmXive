@@ -1,203 +1,297 @@
-"""
-Unit tests for exponential fitting in kinetic analysis (Task T019).
-
-This module validates the core exponential decay fitting logic used to
-extract singlet-radical-pair intermediate lifetimes from transient-absorption
-data. It ensures that the fitting engine correctly recovers known parameters
-from synthetic noise and handles edge cases gracefully.
-
-Dependencies:
-  - numpy
-  - scipy.optimize
-  - pytest
-
-Usage:
-  pytest tests/unit/test_kinetic_fit.py -v
-"""
-
+import os
+import sys
+import tempfile
 import numpy as np
+import pandas as pd
+from pathlib import Path
 import pytest
-from scipy.optimize import curve_fit
-from scipy.stats import norm
 
-# Local imports
-# Note: The actual fitting logic is implemented in code/analysis/kinetic_fit.py.
-# Since T021 (the implementation) is not yet complete, we implement the
-# necessary fitting helper functions here to test the *logic* of the unit,
-# or we mock the external dependency if T021 were present.
-#
-# Per the "extend, don't re-author" rule, we assume the existence of a
-# fitting function in `code/analysis/kinetic_fit`. However, since T021 is
-# not done, we cannot import it. To satisfy the "real code" constraint
-# for T019 (which is a test task), we define the *expected* interface
-# and test the mathematical correctness of the fitting approach directly
-# using scipy, ensuring that when T021 is implemented, it will pass these
-# logical checks.
-#
-# Alternatively, we can implement the `fit_decay` function here as a
-# private helper to test the *testing framework's* ability to validate
-# exponential fits, which is the core of T019.
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-def _exponential_decay(t, amplitude, tau, offset):
-    """
-    Helper function for single exponential decay:
-    A(t) = A0 * exp(-t/tau) + offset
-    """
-    return amplitude * np.exp(-t / tau) + offset
+from analysis.kinetic_fit import (
+    exponential_decay,
+    fit_single_decay,
+    calculate_confidence_interval,
+    process_trace_file,
+    run_global_kinetic_analysis,
+    perform_threshold_sensitivity_analysis
+)
 
-def _fit_decay_logic(t, signal, sigma=None):
-    """
-    Core fitting logic that would eventually live in kinetic_fit.py.
-    Implemented here to allow T019 to run independently of T021's completion.
+class TestExponentialDecay:
+    """Test the exponential decay model function."""
     
-    Args:
-        t: Time points (array-like)
-        signal: Absorbance values (array-like)
-        sigma: Uncertainty in signal (array-like), optional
+    def test_exponential_decay_basic(self):
+        """Test basic exponential decay calculation."""
+        t = np.array([0, 1, 2, 3, 4, 5])
+        A, tau, offset = 10.0, 2.0, 1.0
+        
+        expected = A * np.exp(-t / tau) + offset
+        actual = exponential_decay(t, A, tau, offset)
+        
+        np.testing.assert_array_almost_equal(actual, expected)
     
-    Returns:
-        Dictionary with 'tau', 'amplitude', 'offset', 'covariance', 'success'
-    """
-    t = np.asarray(t)
-    signal = np.asarray(signal)
-    
-    # Initial guesses: 
-    # amplitude ~ max(signal) - min(signal)
-    # tau ~ 10% of total time range
-    # offset ~ min(signal)
-    initial_amplitude = np.max(signal) - np.min(signal)
-    initial_tau = np.max(t) * 0.1
-    initial_offset = np.min(signal)
-    
-    p0 = [initial_amplitude, initial_tau, initial_offset]
-    
-    try:
-        popt, pcov = curve_fit(
-            _exponential_decay, 
-            t, 
-            signal, 
-            p0=p0,
-            sigma=sigma,
-            absolute_sigma=(sigma is not None),
-            bounds=([0, 0, -np.inf], [np.inf, np.inf, np.inf])
-        )
-        amplitude, tau, offset = popt
-        return {
-            'tau': tau,
-            'amplitude': amplitude,
-            'offset': offset,
-            'covariance': pcov,
-            'success': True
-        }
-    except Exception as e:
-        return {
-            'tau': None,
-            'amplitude': None,
-            'offset': None,
-            'covariance': None,
-            'success': False,
-            'error': str(e)
-        }
+    def test_exponential_decay_limits(self):
+        """Test decay approaches offset at large t."""
+        t = np.array([0, 10, 100])
+        A, tau, offset = 10.0, 2.0, 1.0
+        
+        result = exponential_decay(t, A, tau, offset)
+        
+        # At t=0, should be A + offset = 11
+        assert result[0] == pytest.approx(11.0, rel=1e-5)
+        # At large t, should approach offset = 1
+        assert result[2] == pytest.approx(1.0, rel=1e-2)
 
-# --- Test Cases ---
+class TestFitSingleDecay:
+    """Test single exponential decay fitting."""
+    
+    def test_fit_perfect_data(self):
+        """Test fitting on perfect synthetic data."""
+        t = np.linspace(0, 10, 100)
+        A_true, tau_true, offset_true = 5.0, 1.5, 0.5
+        y_true = exponential_decay(t, A_true, tau_true, offset_true)
+        
+        # Add small noise
+        np.random.seed(42)
+        y_noisy = y_true + np.random.normal(0, 0.01, size=y_true.shape)
+        
+        tau_fit, tau_std, fit_info = fit_single_decay(t, y_noisy)
+        
+        # Should recover tau within 10%
+        assert abs(tau_fit - tau_true) / tau_true < 0.1
+        assert fit_info['r_squared'] > 0.99
+    
+    def test_fit_with_initial_guess(self):
+        """Test fitting with custom initial guess."""
+        t = np.linspace(0, 10, 100)
+        A_true, tau_true, offset_true = 8.0, 2.5, 0.2
+        y_true = exponential_decay(t, A_true, tau_true, offset_true)
+        
+        np.random.seed(42)
+        y_noisy = y_true + np.random.normal(0, 0.02, size=y_true.shape)
+        
+        initial_guess = {'A': 10.0, 'tau': 2.0, 'offset': 0.5}
+        tau_fit, tau_std, fit_info = fit_single_decay(t, y_noisy, initial_guess)
+        
+        assert abs(tau_fit - tau_true) / tau_true < 0.15
+        assert fit_info['r_squared'] > 0.95
+    
+    def test_fit_convergence_error(self):
+        """Test that fitting fails appropriately on bad data."""
+        t = np.array([0, 1, 2])
+        y = np.array([1, 1, 1])  # Flat line, cannot fit decay
+        
+        with pytest.raises(ValueError):
+            fit_single_decay(t, y)
+    
+    def test_fit_nan_handling(self):
+        """Test fitting with NaN values."""
+        t = np.array([0, 1, 2, 3, 4])
+        y = np.array([5.0, np.nan, 3.0, 2.0, 1.0])
+        
+        # Should handle NaN gracefully (filter them out)
+        tau_fit, tau_std, fit_info = fit_single_decay(t, y)
+        
+        assert tau_fit > 0
+        assert tau_std > 0
 
-def test_fit_perfect_decay():
-    """Test that the fit recovers known parameters from noiseless data."""
-    np.random.seed(42)
-    t = np.linspace(0, 10, 50)
-    true_tau = 2.5
-    true_amp = 1.0
-    true_offset = 0.1
+class TestCalculateConfidenceInterval:
+    """Test confidence interval calculation."""
     
-    signal = _exponential_decay(t, true_amp, true_tau, true_offset)
+    def test_ci_calculation(self):
+        """Test basic CI calculation."""
+        tau = 2.0
+        tau_std = 0.1
+        n_replicates = 3
+        
+        ci_lower, ci_upper = calculate_confidence_interval(tau, tau_std, n_replicates)
+        
+        # Should be symmetric around tau
+        assert ci_lower < tau < ci_upper
+        assert abs((ci_lower + ci_upper) / 2 - tau) < 1e-10
     
-    result = _fit_decay_logic(t, signal)
+    def test_ci_with_single_replicate(self):
+        """Test CI with n=1 (should still work with dof=1)."""
+        tau = 2.0
+        tau_std = 0.1
+        
+        ci_lower, ci_upper = calculate_confidence_interval(tau, tau_std, n_replicates=1)
+        
+        assert ci_lower < tau < ci_upper
     
-    assert result['success'] is True
-    assert np.isclose(result['tau'], true_tau, rtol=1e-5)
-    assert np.isclose(result['amplitude'], true_amp, rtol=1e-5)
-    assert np.isclose(result['offset'], true_offset, rtol=1e-5)
+    def test_ci_confidence_level(self):
+        """Test that higher confidence gives wider intervals."""
+        tau = 2.0
+        tau_std = 0.1
+        
+        ci_95_lower, ci_95_upper = calculate_confidence_interval(tau, tau_std, confidence_level=0.95)
+        ci_99_lower, ci_99_upper = calculate_confidence_interval(tau, tau_std, confidence_level=0.99)
+        
+        # 99% CI should be wider than 95% CI
+        assert (ci_99_upper - ci_99_lower) > (ci_95_upper - ci_95_lower)
 
-def test_fit_with_noise():
-    """Test recovery of parameters from noisy data."""
-    np.random.seed(123)
-    t = np.linspace(0, 10, 100)
-    true_tau = 1.5
-    true_amp = 2.0
-    true_offset = 0.05
+class TestProcessTraceFile:
+    """Test trace file processing."""
     
-    signal = _exponential_decay(t, true_amp, true_tau, true_offset)
-    noise = np.random.normal(0, 0.05, size=signal.shape)
-    noisy_signal = signal + noise
+    def test_process_valid_file(self):
+        """Test processing a valid trace file."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("time_us,absorbance\n")
+            for t in np.linspace(0, 10, 50):
+                y = 5.0 * np.exp(-t / 2.0) + 0.5 + np.random.normal(0, 0.01)
+                f.write(f"{t:.4f},{y:.4f}\n")
+            temp_path = Path(f.name)
+        
+        try:
+            result = process_trace_file(temp_path)
+            
+            assert 'tau' in result
+            assert 'tau_std' in result
+            assert 'r_squared' in result
+            assert result['tau'] > 0
+            assert result['r_squared'] > 0.9
+        finally:
+            temp_path.unlink()
     
-    result = _fit_decay_logic(t, noisy_signal)
+    def test_process_missing_columns(self):
+        """Test processing file with missing required columns."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("time,signal\n")
+            f.write("0,1\n")
+            temp_path = Path(f.name)
+        
+        try:
+            with pytest.raises(ValueError):
+                process_trace_file(temp_path)
+        finally:
+            temp_path.unlink()
     
-    assert result['success'] is True
-    # Allow 10% tolerance due to noise
-    assert np.isclose(result['tau'], true_tau, rtol=0.10)
-    assert np.isclose(result['amplitude'], true_amp, rtol=0.10)
+    def test_process_insufficient_points(self):
+        """Test processing file with too few points."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("time_us,absorbance\n")
+            f.write("0,1\n")
+            f.write("1,0.8\n")
+            temp_path = Path(f.name)
+        
+        try:
+            with pytest.raises(ValueError):
+                process_trace_file(temp_path)
+        finally:
+            temp_path.unlink()
 
-def test_fit_with_sigma_weighting():
-    """Test that sigma weighting improves fit when uncertainty varies."""
-    np.random.seed(456)
-    t = np.linspace(0, 10, 50)
-    true_tau = 3.0
-    true_amp = 1.5
-    true_offset = 0.2
+class TestRunGlobalKineticAnalysis:
+    """Test global kinetic analysis."""
     
-    signal = _exponential_decay(t, true_amp, true_tau, true_offset)
+    def test_global_analysis_basic(self):
+        """Test basic global kinetic analysis."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = Path(tmpdir) / "calibrated_traces.csv"
+            output_path = Path(tmpdir) / "kinetic_results.csv"
+            
+            # Create synthetic data for 2 solvents with 3 replicates each
+            np.random.seed(42)
+            data = []
+            
+            solvents = ['hexane', 'acetonitrile']
+            for solvent in solvents:
+                for replicate in range(3):
+                    t = np.linspace(0, 10, 50)
+                    tau_true = 1.5 if solvent == 'hexane' else 2.5
+                    y = 5.0 * np.exp(-t / tau_true) + 0.5 + np.random.normal(0, 0.02, size=t.shape)
+                    
+                    for ti, yi in zip(t, y):
+                        data.append({
+                            'solvent': solvent,
+                            'replicate': replicate,
+                            'time_us': ti,
+                            'absorbance': yi
+                        })
+            
+            df = pd.DataFrame(data)
+            df.to_csv(input_path, index=False)
+            
+            summary = run_global_kinetic_analysis(input_path, output_path)
+            
+            assert summary['status'] == 'success'
+            assert summary['n_solvents'] == 2
+            assert summary['n_total_fits'] == 6
+            
+            # Verify output file exists and has content
+            assert output_path.exists()
+            result_df = pd.read_csv(output_path)
+            assert len(result_df) == 6
+            assert 'tau' in result_df.columns
+            assert 'r_squared' in result_df.columns
     
-    # Create heteroscedastic noise (higher noise at later times)
-    sigma = 0.01 + 0.05 * (t / t.max())
-    noise = np.random.normal(0, 1, size=signal.shape) * sigma
-    noisy_signal = signal + noise
+    def test_global_analysis_missing_input(self):
+        """Test analysis with missing input file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = Path(tmpdir) / "nonexistent.csv"
+            output_path = Path(tmpdir) / "kinetic_results.csv"
+            
+            with pytest.raises(FileNotFoundError):
+                run_global_kinetic_analysis(input_path, output_path)
     
-    # Fit with sigma
-    result_weighted = _fit_decay_logic(t, noisy_signal, sigma=sigma)
-    
-    # Fit without sigma (should be worse)
-    result_unweighted = _fit_decay_logic(t, noisy_signal)
-    
-    assert result_weighted['success'] is True
-    assert result_unweighted['success'] is True
-    
-    # The weighted fit should be closer to the true value
-    error_weighted = abs(result_weighted['tau'] - true_tau)
-    error_unweighted = abs(result_unweighted['tau'] - true_tau)
-    
-    # Note: Due to randomness, this might occasionally fail, but generally
-    # weighted fits perform better on heteroscedastic data.
-    # We assert that the weighted fit is at least reasonable.
-    assert error_weighted < 0.5  # 500ms tolerance
+    def test_global_analysis_invalid_columns(self):
+        """Test analysis with invalid column names."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = Path(tmpdir) / "calibrated_traces.csv"
+            output_path = Path(tmpdir) / "kinetic_results.csv"
+            
+            df = pd.DataFrame({'wrong_col': [1, 2, 3]})
+            df.to_csv(input_path, index=False)
+            
+            with pytest.raises(ValueError):
+                run_global_kinetic_analysis(input_path, output_path)
 
-def test_fit_convergence_failure():
-    """Test behavior when fitting fails due to bad data."""
-    t = np.linspace(0, 10, 10)
-    # Flat line (no decay)
-    signal = np.ones_like(t) * 0.5
+class TestPerformThresholdSensitivityAnalysis:
+    """Test threshold sensitivity analysis."""
     
-    result = _fit_decay_logic(t, signal)
-    
-    # The fit might succeed with tau -> infinity or fail.
-    # We just check that it returns a structured result.
-    assert 'tau' in result
-    assert 'success' in result
+    def test_sensitivity_analysis_basic(self):
+        """Test basic sensitivity analysis."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = Path(tmpdir) / "calibrated_traces.csv"
+            output_path = Path(tmpdir) / "sensitivity_results.csv"
+            
+            # Create synthetic data for 3 solvents with distinct lifetimes
+            np.random.seed(42)
+            data = []
+            
+            solvents = ['hexane', 'toluene', 'acetonitrile']
+            taus = [1.0, 1.5, 2.5]  # Distinct lifetimes
+            
+            for solvent, tau_true in zip(solvents, taus):
+                for replicate in range(3):
+                    t = np.linspace(0, 10, 50)
+                    y = 5.0 * np.exp(-t / tau_true) + 0.5 + np.random.normal(0, 0.02, size=t.shape)
+                    
+                    for ti, yi in zip(t, y):
+                        data.append({
+                            'solvent': solvent,
+                            'replicate': replicate,
+                            'time_us': ti,
+                            'absorbance': yi
+                        })
+            
+            df = pd.DataFrame(data)
+            df.to_csv(input_path, index=False)
+            
+            result = perform_threshold_sensitivity_analysis(
+                input_path, 
+                output_path,
+                threshold_range=[0.1, 0.5, 1.0]
+            )
+            
+            assert result['status'] == 'success'
+            assert result['n_thresholds'] == 3
+            
+            # Verify output file
+            assert output_path.exists()
+            result_df = pd.read_csv(output_path)
+            assert 'threshold' in result_df.columns
+            assert 'false_positive_rate' in result_df.columns
 
-def test_fit_bounds_enforcement():
-    """Test that physical bounds (positive tau, amplitude) are respected."""
-    np.random.seed(789)
-    t = np.linspace(0, 10, 50)
-    true_tau = 1.0
-    true_amp = 1.0
-    true_offset = 0.0
-    
-    signal = _exponential_decay(t, true_amp, true_tau, true_offset)
-    # Add significant noise to try to push fit out of bounds
-    noise = np.random.normal(0, 0.5, size=signal.shape)
-    noisy_signal = signal + noise
-    
-    result = _fit_decay_logic(t, noisy_signal)
-    
-    assert result['success'] is True
-    assert result['tau'] > 0
-    assert result['amplitude'] > 0
+if __name__ == '__main__':
+    pytest.main([__file__, '-v'])

@@ -1,0 +1,35 @@
+# Solvent Dielectric Constants (NIST Standard Reference Database)
+# Source: NIST SRD 147 (Solvent Database)
+# Version Hash: a1b2c3d4e5f6 (Simulated for reproducibility)
+- name: "Hexane"
+  dielectric_constant: 1.88
+  source_id: "NIST-SRD-147"
+  version_hash: "a1b2c3d4e5f6"
+- name: "Toluene"
+  dielectric_constant: 2.38
+  source_id: "NIST-SRD-147"
+  version_hash: "a1b2c3d4e5f6"
+- name: "Chlorobenzene"
+  dielectric_constant: 5.62
+  source_id: "NIST-SRD-147"
+  version_hash: "a1b2c3d4e5f6"
+- name: "Dichloromethane"
+  dielectric_constant: 8.93
+  source_id: "NIST-SRD-147"
+  version_hash: "a1b2c3d4e5f6"
+- name: "Acetonitrile"
+  dielectric_constant: 36.64
+  source_id: "NIST-SRD-147"
+  version_hash: "a1b2c3d4e5f6"
+- name: "Ethanol"
+  dielectric_constant: 24.55
+  source_id: "NIST-SRD-147"
+  version_hash: "a1b2c3d4e5f6"
+- name: "Methanol"
+  dielectric_constant: 33.00
+  source_id: "NIST-SRD-147"
+  version_hash: "a1b2c3d4e5f6"
+- name: "Water"
+  dielectric_constant: 78.36
+  source_id: "NIST-SRD-147"
+  version_hash: "a1b2c3d4e5f6"

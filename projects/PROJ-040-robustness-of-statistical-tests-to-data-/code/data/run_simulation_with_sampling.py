@@ -1,177 +1,140 @@
-"""
-Enhanced simulation runner with memory-aware sampling.
-
-This script wraps run_simulation.py to handle large datasets by:
-1. Checking memory limits before loading
-2. Sampling data if memory is insufficient
-3. Providing detailed logging
-"""
-
 import os
 import sys
 import numpy as np
 import pandas as pd
 from pathlib import Path
 import time
-import warnings
 import psutil
 
-# Add parent to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root to path
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-from utils.config import check_memory_limit, get_seed, get_sample_fraction, get_memory_limit
-from data.run_simulation import (
-    load_sensitivity_data, 
-    load_contaminated_datasets, 
-    run_all_simulations, 
-    save_results
-)
+from utils.config import get_memory_limit, check_memory_limit, get_sample_fraction
 
 def get_memory_usage_mb() -> float:
-    """Get current memory usage in MB."""
-    process = psutil.Process(os.getpid())
-    return process.memory_info().rss / (1024 * 1024)
-
-def estimate_dataset_memory(df: pd.DataFrame) -> float:
-    """Estimate memory usage of a DataFrame in MB."""
-    return df.memory_usage(deep=True).sum() / (1024 * 1024)
-
-def smart_load_datasets(data_dir: str, max_memory_mb: Optional[float] = None) -> Dict[str, pd.DataFrame]:
     """
-    Load datasets with memory-aware sampling.
+    Get current memory usage of the process in MB.
+    
+    Returns:
+        Memory usage in MB
+    """
+    process = psutil.Process(os.getpid())
+    mem_info = process.memory_info()
+    return mem_info.rss / (1024 * 1024)
+
+def estimate_dataset_memory(data: pd.DataFrame) -> float:
+    """
+    Estimate memory usage of a DataFrame in MB.
     
     Args:
-        data_dir: Path to processed data directory
-        max_memory_mb: Maximum memory to use for datasets (default: 50% of limit)
+        data: DataFrame to estimate
         
     Returns:
-        Dict of dataset name -> sampled DataFrame
+        Estimated memory in MB
+    """
+    return data.memory_usage(deep=True).sum() / (1024 * 1024)
+
+def smart_load_datasets(
+    processed_dir: Path,
+    max_memory_mb: float = None
+) -> list:
+    """
+    Load contaminated datasets with memory-aware sampling.
+    
+    If a dataset is too large, it will be downsampled to fit within memory limits.
+    
+    Args:
+        processed_dir: Path to data/processed/
+        max_memory_mb: Maximum memory to use for a single dataset (default: limit from config)
+        
+    Returns:
+        List of dicts with keys: 'dataset_name', 'rate', 'data'
     """
     if max_memory_mb is None:
-        limit = get_memory_limit()
-        max_memory_mb = limit * 0.5  # Reserve half for processing
+        max_memory_mb = get_memory_limit()
     
-    processed_dir = Path(data_dir)
-    datasets = {}
-    total_memory = 0
+    # Safety margin: use 80% of limit
+    target_memory_mb = max_memory_mb * 0.8
     
-    # First, collect all dataset info
-    dataset_info = []
-    for file_path in processed_dir.glob("contaminated_*.csv"):
-        name = file_path.stem.replace("contaminated_", "")
-        # Check size without loading full data
-        try:
-            # Read just the header and a few rows to estimate size
-            sample_df = pd.read_csv(file_path, nrows=1000)
-            rows_total = sum(1 for _ in open(file_path)) - 1  # -1 for header
-            cols = len(sample_df.columns)
-            # Rough estimate: 8 bytes per float64
-            estimated_mb = (rows_total * cols * 8) / (1024 * 1024)
-            dataset_info.append((name, file_path, estimated_mb, rows_total))
-        except Exception as e:
-            warnings.warn(f"Could not estimate size for {file_path}: {e}")
-            continue
+    datasets = []
+    csv_files = list(processed_dir.glob("contaminated_*.csv"))
     
-    # Sort by size (smallest first) to maximize number of datasets loaded
-    dataset_info.sort(key=lambda x: x[2])
+    if not csv_files:
+        raise FileNotFoundError(f"No contaminated datasets found in {processed_dir}")
     
-    for name, file_path, est_mb, rows_total in dataset_info:
-        current_usage = get_memory_usage_mb()
-        remaining = max_memory_mb - total_memory - current_usage
-        
-        if est_mb > remaining:
-            # Need to sample
-            sample_frac = remaining / est_mb if est_mb > 0 else 0.5
-            sample_frac = max(0.1, min(sample_frac, 1.0))  # At least 10%, at most 100%
-            
-            print(f"Sampling {name} ({est_mb:.1f}MB -> {est_mb*sample_frac:.1f}MB) to fit memory")
-            df = pd.read_csv(file_path).sample(frac=sample_frac, random_state=get_seed())
-        else:
-            print(f"Loading {name} fully ({est_mb:.1f}MB)")
-            df = pd.read_csv(file_path)
-        
-        # Clean up data
-        numeric_cols = df.select_dtypes(include=[np.number]).columns
-        if len(numeric_cols) >= 2:
-            df = df[numeric_cols[:2]].dropna()
-            datasets[name] = df
-            total_memory += estimate_dataset_memory(df)
-        elif len(numeric_cols) == 1:
-            df = pd.DataFrame({
-                'group1': df[numeric_cols[0]].dropna(),
-                'group2': df[numeric_cols[0]].dropna()
-            })
-            datasets[name] = df
-            total_memory += estimate_dataset_memory(df)
-        
-        # Check memory again
-        if not check_memory_limit():
-            warnings.warn("Memory limit reached during loading. Stopping.")
+    for file_path in csv_files:
+        # Check current memory
+        current_mem = get_memory_usage_mb()
+        if current_mem > target_memory_mb:
+            print(f"Warning: Current memory usage ({current_mem:.1f} MB) is high. Stopping load.")
             break
+        
+        # Parse filename
+        name_part = file_path.stem.replace("contaminated_", "")
+        parts = name_part.rsplit("_", 1)
+        
+        if len(parts) != 2:
+            dataset_name = "unknown"
+            rate = 0.0
+        else:
+            dataset_name = parts[0]
+            try:
+                rate = float(parts[1])
+            except ValueError:
+                rate = 0.0
+        
+        try:
+            # Load data
+            df = pd.read_csv(file_path)
+            
+            # Estimate memory
+            est_mem = estimate_dataset_memory(df)
+            
+            if est_mem > target_memory_mb:
+                print(f"  Dataset {dataset_name} too large ({est_mem:.1f} MB > {target_memory_mb:.1f} MB). Sampling...")
+                
+                # Calculate sample fraction
+                sample_fraction = target_memory_mb / est_mem
+                sample_fraction = min(sample_fraction, 1.0)
+                sample_fraction = max(sample_fraction, 0.1) # At least 10%
+                
+                n_rows = len(df)
+                n_sample = max(int(n_rows * sample_fraction), 100) # At least 100 rows
+                
+                df = df.sample(n=n_sample, random_state=42).reset_index(drop=True)
+                print(f"    Sampled {n_sample} rows ({sample_fraction:.1%} of original)")
+            
+            datasets.append({
+                'dataset_name': dataset_name,
+                'rate': rate,
+                'file_path': file_path,
+                'data': df
+            })
+            
+        except Exception as e:
+            print(f"Warning: Failed to load {file_path}: {e}")
+            continue
     
     return datasets
 
 def main():
-    """Main entry point with memory management."""
-    seed = get_seed()
-    np.random.seed(seed)
+    """Main entry point for memory-aware dataset loading."""
+    base_dir = Path(__file__).parent.parent.parent
+    processed_dir = base_dir / "data" / "processed"
     
-    project_root = Path(__file__).parent.parent
-    data_dir = project_root / "data" / "processed"
-    results_dir = project_root / "data" / "results"
-    results_dir.mkdir(parents=True, exist_ok=True)
+    print("Memory-aware dataset loading...")
+    print(f"Memory limit: {get_memory_limit()} MB")
+    print(f"Current usage: {get_memory_usage_mb():.1f} MB")
     
-    print(f"Memory limit: {get_memory_limit()}MB")
-    print(f"Current usage: {get_memory_usage_mb():.1f}MB")
-    
-    # Load sensitivity data
-    sensitivity_file = data_dir / "sensitivity.csv"
-    if not sensitivity_file.exists():
-        sensitivity_file = results_dir / "sensitivity.csv"
-    
-    if not sensitivity_file.exists():
-        print("Error: sensitivity.csv not found.")
+    try:
+        datasets = smart_load_datasets(processed_dir)
+        print(f"Successfully loaded {len(datasets)} datasets.")
+        for ds in datasets:
+            print(f"  - {ds['dataset_name']}: {len(ds['data'])} rows, {estimate_dataset_memory(ds['data']):.1f} MB")
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
         sys.exit(1)
-    
-    sensitivity_data = load_sensitivity_data(str(sensitivity_file))
-    print(f"Loaded {len(sensitivity_data)} sensitivity parameters")
-    
-    # Load datasets with memory awareness
-    print("Loading datasets with memory-aware sampling...")
-    start_load = time.time()
-    datasets = smart_load_datasets(str(data_dir))
-    load_time = time.time() - start_load
-    
-    if not datasets:
-        print("Error: No datasets loaded.")
-        sys.exit(1)
-    
-    print(f"Loaded {len(datasets)} datasets in {load_time:.1f}s")
-    for name, df in datasets.items():
-        print(f"  {name}: {len(df)} rows, {estimate_dataset_memory(df):.2f}MB")
-    
-    # Run simulations
-    print("Starting simulations...")
-    start_sim = time.time()
-    results = run_all_simulations(sensitivity_data, datasets, iterations=1000, base_seed=seed)
-    sim_time = time.time() - start_sim
-    
-    print(f"Simulations completed in {sim_time:.1f}s")
-    print(f"Total results: {len(results)}")
-    
-    # Save
-    output_file = results_dir / "simulation_results.csv"
-    save_results(results, str(output_file))
-    
-    # Save individual files
-    for res in results:
-        dataset = res['dataset']
-        rate = res['rate']
-        individual_file = results_dir / f"results_{dataset}_{rate}.csv"
-        subset = [r for r in results if r['dataset'] == dataset and r['rate'] == rate]
-        save_results(subset, str(individual_file))
-    
-    print("Done.")
 
 if __name__ == "__main__":
     main()

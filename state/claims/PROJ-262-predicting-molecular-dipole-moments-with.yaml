@@ -17902,3 +17902,462 @@
   source_type: external
   status: verified
   updated_at: '2026-08-21T18:24:30Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 0
+  canonical: DOI 10.1038/sdata.2014.22 exists in local registry
+  claim_id: c_712130f3
+  context: Verify DOI 10.1038/sdata.2014.22 exists in local reference registry and
+    record its hash in state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml.
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Verify DOI 10.1038/sdata.2014.22 exists in local reference registry
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T15:17:46Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset subset size is 5000 molecules
+  claim_id: c_30b463f0
+  context: Implement deterministic subset generation in create_subset.py (seed 42).
+    This task creates a fixed subset of 5000 molecules from the downloaded QM9 data
+    and outputs data/processed/subset_final.parquet.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This task creates a fixed subset of 5000 molecules from the downloaded
+    QM9 data
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:18:38Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Model evaluation uses 50 epochs with early stopping patience of 10
+  claim_id: c_69773444
+  context: "Goal: Train lightweight SchNet\u2011style GNN and Random Forest baseline\
+    \ on identical train/test splits, evaluate both on held\u2011out test set using\
+    \ MAE and RMSE for dipole moments (50 epochs with early stopping patience=10)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train lightweight SchNet\u2011style GNN and Random Forest baseline on\
+    \ identical train/test splits, evaluate both on held\u2011out test set using MAE\
+    \ and RMSE for dipole moments (50 epochs with early stopping patience=10)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:19:32Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: GNN training uses 5 random seeds
+  claim_id: c_57fd26e4
+  context: Implement GNN training with 5 random seeds, 50 epochs, early stopping (hard-coded
+    patience=10) in train_gnn.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement GNN training with 5 random seeds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:20:03Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Random Forest training uses 5 seeds
+  claim_id: c_e1d019dd
+  context: "Train Random Forest baseline with 5 seeds in train_rf.py \u2013 also records\
+    \ RMSE variance and confidence intervals."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Random Forest baseline with 5 seeds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:20:43Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Ablation study models use 5 seeds
+  claim_id: c_05b3ab39
+  context: Train SchNet-Randomized and SchNet-2D models with 5 seeds, 50 epochs, early
+    stopping in train_ablation.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train SchNet-Randomized and SchNet-2D models with 5 seeds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:21:18Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: At least 3 structural features identified as significant
+  claim_id: c_c230b17d
+  context: 'Independent Test: Verify that at least 3 structural features are identified,
+    and t-tests confirm significance with explicit reporting of error margins.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P31: YouTube channel'
+      source_id: Q126592664
+      url: https://www.wikidata.org/wiki/Q126592664
+      value: '3'
+    filled: true
+  kind: magnitude
+  raw_text: Verify that at least 3 structural features are identified
+  resolved_value: '3'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T15:21:47Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Attribution analysis identifies at least 3 distinct physical features
+    with significant scores
+  claim_id: c_efae49f3
+  context: The output must explicitly rank features by type (e.g., Electronegativity
+    of Atom X, Bond Angle Y, Hybridization Z) based on the model's learned weights
+    and data-driven importance scores, verifying that at least 3 distinct physical
+    features (per SC-002) have statistically significant attribution scores.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Attribution_analysis_identifies_at_least_3_distinct_physical
+  kind: magnitude
+  raw_text: The output must explicitly rank features by type based on the model's
+    learned weights and data-driven importance scores, verifying that at least 3 distinct
+    physical features have statistically significant attribution scores
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:22:34Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: RMSE variance is less than 10 percent
+  claim_id: c_4bf9328f
+  context: Run the full pipeline end-to-end with the new constraints to verify the
+    runtime limit is still met and the RMSE variance remains < 10% (verify the value
+    in results/metrics.csv).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RMSE_variance_is_less_than_10_percent
+  kind: magnitude
+  raw_text: RMSE variance remains < 10%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:23:29Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 0
+  canonical: DOI 10.1038/sdata.2014.22 verified in local registry
+  claim_id: c_ebedf33c
+  context: T015 [Foundational] [P] Verify DOI 10.1038/sdata.2014.22 exists in local
+    reference registry and record its hash in state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml
+    (depends on T090, T091). This is a prerequisite for US1.
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Verify DOI 10.1038/sdata.2014.22 exists in local reference registry and
+    record its hash in state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T15:24:45Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset subset size fixed at 5000 molecules
+  claim_id: c_87a22c6e
+  context: T016 [US1] Implement deterministic subset generation in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/create_subset.py
+    (seed 42). This task creates a fixed subset of 5000 molecules from the downloaded
+    QM9 data and outputs data/processed/subset_final.parquet.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This task creates a fixed subset of 5000 molecules from the downloaded
+    QM9 data and outputs data/processed/subset_final.parquet.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:26:09Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset ground truth is DFT data not experimental
+  claim_id: c_87c11156
+  context: 'This tool must generate a data/reports/validation_protocol.md that explicitly
+    states: (1) The ground truth is QM9 DFT data (not experimental)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/QM9_dataset_ground_truth_is_DFT_data_not_experimental
+  kind: entity_fact
+  raw_text: The ground truth is QM9 DFT data (not experimental)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:26:45Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: GNN and Random Forest models trained for 50 epochs with early stopping
+    patience 10
+  claim_id: c_65b4f6dc
+  context: "Goal: Train lightweight SchNet\u2011style GNN and Random Forest baseline\
+    \ on identical train/test splits, evaluate both on held\u2011out test set using\
+    \ MAE and RMSE for dipole moments (50 epochs with early stopping patience=10)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train lightweight SchNet\u2011style GNN and Random Forest baseline on\
+    \ identical train/test splits, evaluate both on held\u2011out test set using MAE\
+    \ and RMSE for dipole moments (50 epochs with early stopping patience=10)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:26:49Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: GNN training uses 5 random seeds
+  claim_id: c_6d297e42
+  context: T028 [US2] Implement GNN training with 5 random seeds, 50 epochs, early
+    stopping (hard-coded patience=10) in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_gnn.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement GNN training with 5 random seeds, 50 epochs, early stopping
+    (hard-coded patience=10)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:27:32Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Random Forest training uses 5 seeds
+  claim_id: c_12145101
+  context: T029 [US2] Train Random Forest baseline with 5 seeds in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_rf.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Random Forest baseline with 5 seeds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:27:35Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Ablation study models trained with 5 seeds
+  claim_id: c_7ddfd5d7
+  context: T044 [US2] [P] Train SchNet-Randomized and SchNet-2D models with 5 seeds,
+    50 epochs, early stopping in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_ablation.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train SchNet-Randomized and SchNet-2D models with 5 seeds, 50 epochs,
+    early stopping
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:28:37Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: RDKit used to map feature indices to chemical descriptions
+  claim_id: c_c40a841f
+  context: 'Mapping Logic: Use RDKit to map feature indices to chemical descriptions.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RDKit_used_to_map_feature_indices_to_chemical_descriptions
+  kind: entity_fact
+  raw_text: Use RDKit to map feature indices to chemical descriptions
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:29:14Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Permutation Importance and Saliency Mapping used for feature attribution
+  claim_id: c_8e5ccce0
+  context: Implement enhanced attribution analysis... using Permutation Importance
+    for Random Forest and Saliency Mapping (Input Gradients and Integrated Gradients)
+    for GNN.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_Importance_and_Saliency_Mapping_used_for_feature
+  kind: entity_fact
+  raw_text: Use Permutation Importance for Random Forest and Saliency Mapping (Input
+    Gradients and Integrated Gradients) for GNN
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:32:26Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Single Lowest-Energy Conformer used per molecule
+  claim_id: c_f1320dea
+  context: This tool must generate a data/reports/validation_protocol.md that explicitly
+    states... the use of a Single Lowest-Energy Conformer per molecule (documenting
+    that conformational ensemble sampling is out-of-scope per Spec Assumptions)...
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Single_Lowest-Energy_Conformer_used_per_molecule
+  kind: magnitude
+  raw_text: Implement a 'Validation Protocol & Limitations' report generator... that
+    explicitly states... the use of a Single Lowest-Energy Conformer per molecule
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:33:50Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Wilcoxon signed-rank test used as primary statistical method
+  claim_id: c_46dbbe9f
+  context: Update projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/evaluate.py
+    to compute and report the Wilcoxon signed-rank test (primary) comparing RMSE distributions
+    between GNN and baseline, as mandated by Plan.md Methodology and FR-008/SC-004.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test_used_as_primary_statistical_method
+  kind: entity_fact
+  raw_text: compute and report the Wilcoxon signed-rank test (primary) comparing RMSE
+    distributions between GNN and baseline
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:34:27Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Memory constraint enforced at less than 8 GB
+  claim_id: c_43513c59
+  context: "T052 [P] Enforce memory constraint (< 8 GB) (@memory_limit(8*1024**3))\
+    \ in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/utils/memory_constraint.py\
+    \ (FR\u2011013)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_constraint_enforced_at_less_than_8_GB
+  kind: magnitude
+  raw_text: Enforce memory constraint (< 8 GB)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:35:35Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: CPU core constraint enforced via decorator
+  claim_id: c_3e9d7faa
+  context: "T050 [P] Enforce a CPU\u2011core constraint using the @cpu_limit() decorator\
+    \ in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/utils/cpu_constraint.py\
+    \ (FR\u2011010, SC\u2011003)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CPU_core_constraint_enforced_via_decorator
+  kind: entity_fact
+  raw_text: "Enforce a CPU\u2011core constraint using the @cpu_limit() decorator"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:36:05Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Time limit wrapper implemented with configurable duration
+  claim_id: c_a6d457fe
+  context: "T049 [P] Implement a time\u2011limit wrapper (@time_limit(T*60*60)) in\
+    \ projects/PROJ-262-predicting-molecular-dipole-moments-with/code/utils/pipeline_time_limit.py\
+    \ (FR\u2011010, SC\u2011003), where T represents a configurable time duration."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement a time\u2011limit wrapper (@time_limit(T*60*60))"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:36:29Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Subset size of 5000 ensures 6 hour runtime constraint
+  claim_id: c_615e3cc0
+  context: 'Note: The subset size is fixed at 5000 to ensure reproducibility and meet
+    the 6h runtime constraint (Plan: Complexity Tracking).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The subset size is fixed at 5000 to ensure reproducibility and meet the
+    6h runtime constraint
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:36:52Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: RMSE variance verified to be less than 10%
+  claim_id: c_b8a90b56
+  context: Run the full pipeline end-to-end with the new constraints to verify the
+    runtime limit is still met and the RMSE variance remains < 10% (verify the value
+    in results/metrics.csv).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RMSE_variance_verified_to_be_less_than_10%25
+  kind: magnitude
+  raw_text: verify the value in results/metrics.csv
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:37:44Z'
