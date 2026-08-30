@@ -11,7 +11,7 @@ The approach involves ingesting images (synthetic or user-provided), preprocessi
 
 > **Spec Contradiction Note**: The source `spec.md` mandates "Grad-CAM" in FR-006, FR-007, and SC-003. However, Grad-CAM is mathematically undefined for regression tasks without arbitrary adaptations. This plan adopts **InputXGrad** (Integrated Gradients) as the scientifically rigorous standard for regression attribution. This creates a direct conflict with the spec. The plan proceeds with InputXGrad to ensure scientific soundness; the `spec.md` must be updated to reflect this change (FR-006/FR-007/SC-003) to align with Constitution Principle IV (Single Source of Truth).
 
-> **Spec Assumption Correction**: The `spec.md` Assumptions state "The dataset size is sufficient... targeting an effective sample size of ≥ 500 images." Analysis shows 500 images is likely insufficient for a 3-block CNN to learn robust microstructural features on a regression task, leading to high variance. This plan targets **≥ 2,000** synthetic images to mitigate this risk. This is a necessary correction to the spec's assumptions to ensure model generalization.
+> **Spec Assumption Correction**: The `spec.md` Assumptions state "The dataset size is sufficient... targeting an effective sample size of ≥ 500 images." Analysis suggests that a limited number of images is likely insufficient for a 3-block CNN to learn robust microstructural features on a regression task, leading to high variance. This plan targets **≥ 2,000** synthetic images to mitigate this risk. This is a necessary correction to the spec's assumptions to ensure model generalization.
 
 ## Technical Context
 
