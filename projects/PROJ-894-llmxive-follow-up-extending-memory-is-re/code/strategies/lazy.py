@@ -10,7 +10,7 @@ import networkx as nx
 import logging
 import time
 from strategies.base import BaseTraversal
-from graph_utils import validate_graph, get_graph_statistics
+from graph_utils import validate_graph, get_graph_statistics, check_graph_connectivity
 
 logger = logging.getLogger(__name__)
 
@@ -63,8 +63,19 @@ class LazyTraversal(BaseTraversal):
                 'path': []
             }
 
-        # Simple BFS with threshold check (simplified for demonstration)
-        # In a real implementation, this would involve confidence scores
+        # Check connectivity first to handle disconnected graphs early
+        is_connected, component_nodes = check_graph_connectivity(graph, start_node)
+        if not is_connected and target_node not in component_nodes:
+            logger.warning(f"Target node unreachable from start node in current component.")
+            return {
+                'status': 'unreachable',
+                'nodes_visited': 0,
+                'latency_ms': 0,
+                'path': [],
+                'degenerate_flag': 'disconnected'
+            }
+
+        # BFS with threshold check
         queue = [(start_node, [start_node])]
         visited = set()
         path = []
@@ -73,7 +84,7 @@ class LazyTraversal(BaseTraversal):
             current, current_path = queue.pop(0)
             if current in visited:
                 continue
-            
+
             visited.add(current)
             self.nodes_visited += 1
 
@@ -81,12 +92,14 @@ class LazyTraversal(BaseTraversal):
                 path = current_path
                 break
 
-            # Check evidence threshold (simplified: assume all edges have high confidence)
-            # In real implementation, this would check edge weights/confidence
+            # Check evidence threshold for neighbors
             for neighbor in graph.neighbors(current):
                 if neighbor not in visited:
-                    # Simulate threshold check
-                    confidence = 1.0  # Placeholder
+                    # In a real implementation, this would check edge weights/confidence
+                    # For now, we simulate by checking if edge has a 'confidence' attribute
+                    edge_data = graph.get_edge_data(current, neighbor)
+                    confidence = edge_data.get('confidence', 1.0) if edge_data else 1.0
+
                     if confidence >= self.threshold:
                         queue.append((neighbor, current_path + [neighbor]))
 
@@ -115,8 +128,21 @@ def run_lazy_strategy(task: Dict[str, Any], graph_data: Dict[str, Any], threshol
     # Convert graph_data to networkx graph
     G = nx.DiGraph()
     edges = graph_data.get('edges', [])
+    nodes = graph_data.get('nodes', [])
+
+    # Add nodes
+    for node in nodes:
+        if isinstance(node, dict):
+            G.add_node(node.get('id', node), **node.get('attributes', {}))
+        else:
+            G.add_node(node)
+
+    # Add edges
     for edge in edges:
-        G.add_edge(edge['source'], edge['target'], relation=edge.get('relation_string', ''))
+        source = edge.get('source')
+        target = edge.get('target')
+        if source and target:
+            G.add_edge(source, target, **{k: v for k, v in edge.items() if k not in ['source', 'target']})
 
     # Determine start and target nodes
     # Simplified: start from first node, target is answer

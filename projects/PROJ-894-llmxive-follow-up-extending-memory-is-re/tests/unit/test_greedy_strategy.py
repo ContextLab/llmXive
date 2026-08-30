@@ -1,99 +1,115 @@
 """
 Unit tests for the Greedy Traversal Strategy.
 """
+
 import pytest
 import networkx as nx
 from strategies.greedy import GreedyTraversal, run_greedy_strategy
-from graph_utils import validate_graph
+from graph_utils import inject_noise
+
 
 class TestGreedyTraversal:
-    """Tests for GreedyTraversal class."""
+    """Tests for the GreedyTraversal class."""
 
-    def test_init(self):
-        """Test initialization with default and custom parameters."""
-        g = GreedyTraversal()
-        assert g.top_k == 3
-        assert g.max_iterations == 100
-
-        g_custom = GreedyTraversal(top_k=5, max_iterations=50)
-        assert g_custom.top_k == 5
-        assert g_custom.max_iterations == 50
-
-    def test_run_simple_graph(self):
+    def test_simple_path(self):
         """Test traversal on a simple linear graph."""
         G = nx.DiGraph()
-        G.add_edge("A", "B", confidence=0.9)
-        G.add_edge("B", "C", confidence=0.8)
-        G.add_edge("C", "D", confidence=0.7)
-        
-        strategy = GreedyTraversal(top_k=1)
-        result = strategy.run(G, "Find D")
-        
-        assert result["status"] == "success"
-        assert result["nodes_visited"] >= 1
-        assert len(result["path"]) > 0
-        assert "D" in result["answer"]
+        G.add_edge("A", "B", weight=1.0)
+        G.add_edge("B", "C", weight=1.0)
+        G.add_edge("C", "D", weight=1.0)
 
-    def test_run_disconnected_graph(self):
-        """Test handling of a graph where the target is unreachable."""
-        G = nx.DiGraph()
-        G.add_edge("A", "B", confidence=0.9)
-        G.add_edge("C", "D", confidence=0.9) # Disconnected component
-        
-        strategy = GreedyTraversal(top_k=1)
-        # Start at A, trying to find D (unreachable)
-        result = strategy.run(G, "Find D")
-        
-        # Should not crash, status should be incomplete
-        assert result["status"] in ["incomplete", "success"] # Depends on fallback logic
-        assert result["nodes_visited"] > 0
-
-    def test_run_empty_graph(self):
-        """Test handling of an empty graph."""
-        G = nx.DiGraph()
         strategy = GreedyTraversal()
-        result = strategy.run(G, "Find anything")
-        
-        assert result["status"] == "degenerate"
-        assert result["nodes_visited"] == 0
-        assert result["answer"] == ""
+        path, stats = strategy.traverse(G, "A", "D")
 
-    def test_top_k_selection(self):
-        """Test that the strategy correctly selects top-k edges."""
-        G = nx.DiGraph()
-        # Node A connects to B, C, D with different confidences
-        G.add_edge("A", "B", confidence=0.5)
-        G.add_edge("A", "C", confidence=0.9)
-        G.add_edge("A", "D", confidence=0.7)
-        
-        strategy = GreedyTraversal(top_k=2)
-        result = strategy.run(G, "Start at A")
-        
-        # Should visit C (0.9) and D (0.7), but not B (0.5)
-        assert result["nodes_visited"] == 2
-        # Check path contains C and D
-        path_nodes = [p["v"] for p in result["path"]]
-        assert "C" in path_nodes
-        assert "D" in path_nodes
-        assert "B" not in path_nodes
+        assert path == ["A", "B", "C", "D"]
+        assert stats["status"] == "SUCCESS"
+        assert stats["nodes_visited"] == 4
 
-    def test_degenerate_single_node(self):
-        """Test handling of a single-node graph."""
+    def test_greedy_choice_higher_weight(self):
+        """Test that greedy strategy picks the higher weight edge."""
         G = nx.DiGraph()
-        G.add_node("X")
+        G.add_edge("A", "B", weight=0.5)
+        G.add_edge("A", "C", weight=0.9)
+        G.add_edge("C", "D", weight=1.0)
+        G.add_edge("B", "D", weight=1.0)
+
         strategy = GreedyTraversal()
-        result = strategy.run(G, "Find X")
-        
-        # Should handle gracefully, likely incomplete or success if X matches
-        assert result["status"] in ["success", "incomplete"]
-        assert result["nodes_visited"] == 1
+        path, stats = strategy.traverse(G, "A", "D")
 
-def test_run_greedy_strategy_wrapper():
-    """Test the convenience wrapper function."""
-    G = nx.DiGraph()
-    G.add_edge("Start", "End", confidence=0.99)
-    
-    result = run_greedy_strategy(G, "Find End")
-    
-    assert result["status"] == "success"
-    assert "End" in result["answer"]
+        # Should prefer A -> C because 0.9 > 0.5
+        assert path[0] == "A"
+        assert path[1] == "C"
+        assert path[-1] == "D"
+        assert stats["status"] == "SUCCESS"
+
+    def test_dead_end(self):
+        """Test behavior when a dead end is encountered."""
+        G = nx.DiGraph()
+        G.add_edge("A", "B", weight=1.0)
+        G.add_edge("B", "C", weight=1.0)
+        # No edge from C to D, and D is not reachable from C
+        G.add_node("D")
+
+        strategy = GreedyTraversal()
+        path, stats = strategy.traverse(G, "A", "D")
+
+        assert stats["status"] == "DEAD_END"
+        assert "D" not in path
+
+    def test_unreachable_target(self):
+        """Test behavior when target is in a disconnected component."""
+        G = nx.DiGraph()
+        G.add_edge("A", "B", weight=1.0)
+        G.add_edge("C", "D", weight=1.0)
+
+        strategy = GreedyTraversal()
+        path, stats = strategy.traverse(G, "A", "D")
+
+        assert stats["status"] == "UNREACHABLE"
+
+    def test_start_equals_target(self):
+        """Test when start node is the same as target node."""
+        G = nx.DiGraph()
+        G.add_node("A")
+
+        strategy = GreedyTraversal()
+        path, stats = strategy.traverse(G, "A", "A")
+
+        assert path == ["A"]
+        assert stats["status"] == "SUCCESS"
+        assert stats["nodes_visited"] == 1
+
+    def test_invalid_start_node(self):
+        """Test when start node is not in graph."""
+        G = nx.DiGraph()
+        G.add_edge("A", "B", weight=1.0)
+
+        strategy = GreedyTraversal()
+        path, stats = strategy.traverse(G, "X", "B")
+
+        assert path == []
+        assert stats["status"] == "NODE_NOT_FOUND"
+
+    def test_max_visits_limit(self):
+        """Test that traversal stops when max_visits is reached."""
+        G = nx.DiGraph()
+        # Create a long chain
+        for i in range(50):
+            G.add_edge(str(i), str(i+1), weight=1.0)
+
+        strategy = GreedyTraversal(config={"max_visits": 10})
+        path, stats = strategy.traverse(G, "0", "50")
+
+        assert stats["nodes_visited"] == 10
+        assert stats["status"] != "SUCCESS"  # Should not have reached target
+
+    def test_run_greedy_strategy_function(self):
+        """Test the convenience function run_greedy_strategy."""
+        G = nx.DiGraph()
+        G.add_edge("A", "B", weight=1.0)
+        G.add_edge("B", "C", weight=1.0)
+
+        path, stats = run_greedy_strategy(G, "A", "C")
+
+        assert path == ["A", "B", "C"]
+        assert stats["status"] == "SUCCESS"

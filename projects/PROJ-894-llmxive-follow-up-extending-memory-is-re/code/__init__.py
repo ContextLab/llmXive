@@ -61,14 +61,16 @@ class MemoryGraph:
 class ExecutionLog:
     """
     Records the execution details of a strategy on a task.
+    Fields match the task specification: task_id, strategy, accuracy, nodes_visited, latency_ms, evidence_threshold.
     """
     task_id: str
-    strategy_name: str
-    success: bool
+    strategy: str
     accuracy: float
     nodes_visited: int
-    edges_visited: int
     latency_ms: float
+    evidence_threshold: float
+    success: bool = True
+    edges_visited: int = 0
     timestamp: datetime = field(default_factory=datetime.now)
     error_message: Optional[str] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
@@ -77,12 +79,13 @@ class ExecutionLog:
         """Convert log entry to a dictionary for CSV export."""
         return {
             'task_id': self.task_id,
-            'strategy_name': self.strategy_name,
-            'success': self.success,
+            'strategy': self.strategy,
             'accuracy': self.accuracy,
             'nodes_visited': self.nodes_visited,
-            'edges_visited': self.edges_visited,
             'latency_ms': self.latency_ms,
+            'evidence_threshold': self.evidence_threshold,
+            'success': self.success,
+            'edges_visited': self.edges_visited,
             'timestamp': self.timestamp.isoformat(),
             'error_message': self.error_message,
             **self.metadata

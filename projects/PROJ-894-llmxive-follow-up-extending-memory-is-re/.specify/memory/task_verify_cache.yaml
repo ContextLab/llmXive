@@ -1,28 +1,55 @@
-T013b:
+T001a:
   c: false
-  h: fd491f4aa9c1f265e67dcb528c38d9cd4203d0db88e0048ea0f29e528409e9f3
-  r: "The required output file `data/processed/noisy_baseline_results.csv` does not\
-    \ exist, and the provided `code/runner.py` is truncated (e.g., `ensure_output_dirs`\
-    \ is incomplete) with no visible logic that actually runs the noisy baseline on\
-    \ synthetic graphs and writes the required columns to the CSV. The task\u2019\
-    s core artifact is missing."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure or any of the required subfolders (e.g., `code/`, `data/raw`,
+    `data/processed/graphs`, `data/intermediate`, etc.) were presented as evidence,
+    so we cannot confirm that the specified project hierarchy was actually created.
+    The implementer must provide a listing or screenshot showing the full directory
+    tree with all required folders.
+T001b:
+  c: false
+  h: 6415a97e5c9e230fc736c4f0f5d9b890c85f9290c93b02087362c6c022e462e6
+  r: The required file `projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/code/requirements.txt`
+    does not exist, so the specified dependencies are not placed at the correct location
+    despite a correctly formatted `code/requirements.txt` elsewhere. The task remains
+    unfinished until the file is created at the mandated path with the listed packages.
+T011a#1:
+  c: false
+  h: 8f7679d0245880f6478c713e90b8633dcbfd97fc61ce5bbfcfaace480a48ea7e
+  r: The script `code/scripts/download_locomo.py` is present and appears to implement
+    the required logic, but the required output artifact `data/raw/locomo.jsonl` does
+    not exist, so the benchmark was never actually downloaded and saved. The missing
+    JSONL file must be generated (with the correct columns) for the task to be considered
+    complete.
+T013b:
+  c: true
+  h: be5ab0cf280f827e980f2b24b6b48da6269a4c41022dfc2e2d91d5ddacb99c73
+  r: "The repository contains the required `code/run_noisy_baseline.py` script (non\u2011\
+    empty, implements loading noisy graphs, running the Full strategy, and importing\
+    \ a CSV\u2011saving helper). The task\u2019s only output file is meant to be generated\
+    \ when the script is executed, so its absence does not indicate incompleteness."
 T019a:
   c: false
-  h: 2310f4ef77082b82c86bfdf04d2dc6f0eee4fc7cb2d037e80baf8d6f7238d185
-  r: "The repository contains a `code/runner.py` file, but it does not show any logic\
-    \ that actually executes the Lazy strategy and writes the required fields to `data/processed/lazy_results.csv`.\
-    \ Moreover, the expected output CSV (`data/processed/lazy_results.csv`) is absent\
-    \ from the project. Without the CSV generation and confirmed Lazy\u2011strategy\
-    \ execution, the task\u2019s requirement is not satisfied."
-T039:
+  h: dd4190bdf6e12a6b164b699f0546203162a4b29c2cbdc85aabb4a5e4ec14b04d
+  r: "The repository contains `code/run_lazy.py`, but the script is truncated and\
+    \ does not show any logic that writes results to `data/processed/lazy_results.csv`.\
+    \ Moreover, the required output file `data/processed/lazy_results.csv` is absent\
+    \ from the project. Without the CSV being generated (and without a complete runner\
+    \ implementation), the task\u2019s core requirement is not met."
+T019b:
   c: false
-  h: 55c71be9c32d4d999d2cb07aa829e375cbdc4be7171d95cb089fbcd7584f9933
-  r: "The required input artifacts (`data/processed/graphs/graph_noise_42.json` and\
-    \ `data/processed/baseline_results.csv`) are missing, and the provided `verify_seeds.py`\
-    \ script (truncated) does not show the re\u2011execution of the noise injection\
-    \ or baseline logic nor the writing of initial hashes to the state file. Without\
-    \ the actual data files and full script functionality, the task is not genuinely\
-    \ completed."
+  h: dd3d040e9558d5d9309d053a53556dab5fb788b1cbd2266312a8bd997f19a1be
+  r: The repository contains the required `code/run_greedy.py` script, but the expected
+    output file `data/processed/greedy_results.csv` is absent, so the runner does
+    not demonstrably log results as specified. The missing CSV must be created (and
+    populated) for the task to be considered complete.
+T024a:
+  c: false
+  h: 507654204de31cff68a482b1dd02cc71a999e247cf5de5ca3861287ca1dd98f8
+  r: "The repository contains a `code/stats.py` file, but the `run_ttest_clean` function\
+    \ is truncated and not fully implemented, and the required output file `data/processed/stats_clean.json`\
+    \ does not exist. Consequently, the task\u2019s core requirement\u2014performing\
+    \ the statistical test and saving the results\u2014is not satisfied."
 T042:
   c: false
   h: 075a4075f4a74f58f77684da496eb853e6dacda150e2b9d334085c8e1d312939
@@ -53,10 +80,10 @@ T060c:
     are absent, and the script has not produced the expected `docs/research_report.md`.
     Without these files the script cannot generate the mandated report sections, so
     the task is not fulfilled.
-T064:
+T070:
   c: false
-  h: 1acf7e5328e3520e24b3b022004f23eddb025e628fd7e1e564977aa3cc6210bd
-  r: "The repository contains the `code/report/categorize_status_counts.py` script,\
-    \ but the file is truncated and does not show the logic that writes `data/processed/status_counts.json`.\
-    \ Moreover, the required `status_counts.json` output file is missing entirely,\
-    \ so the task\u2019s core deliverable is not present."
+  h: 9642d2b89446fcebdf8dd9bd3e8ad87b6a158d561cf162486720fdebdee1d09f
+  r: "The provided `code/runner.py` excerpt shows no logic that checks for `data/intermediate/graphs_raw.json`\
+    \ before running tasks, and the repository lacks the `data/intermediate/graphs_raw.json`\
+    \ file entirely. The required existence\u2011verification step is absent, so the\
+    \ task is not satisfied."

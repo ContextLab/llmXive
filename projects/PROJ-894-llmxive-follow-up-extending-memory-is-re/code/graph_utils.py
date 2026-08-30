@@ -4,165 +4,383 @@ from typing import List, Dict, Tuple, Any, Optional, Set
 import re
 import logging
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def build_memory_graph(context: str) -> nx.DiGraph:
+def build_memory_graph(triples: List[Tuple[str, str, str]]) -> nx.DiGraph:
     """
-    Constructs a directed graph from a context string.
-    NOTE: This is a placeholder for T011a-1 logic which uses spaCy.
-    For the purpose of this task (T011b), we assume the graph is already
-    provided or constructed via the pipeline. This function is kept for API compatibility
-    but T011b focuses on `inject_noise`.
-    """
-    G = nx.DiGraph()
-    # Placeholder: In a real implementation, this would parse 'context' using spaCy
-    # to extract (subject, relation, object) triples.
-    # Since T011a-1 is the one responsible for this, and T011b depends on the output of T011a-1,
-    # we assume the input 'graph' to inject_noise is already built.
-    return G
-
-def inject_noise(graph: nx.DiGraph, ratio: float, seed: int) -> nx.DiGraph:
-    """
-    Implements noise injection by replacing a proportion of existing edges with random edges.
+    Build a directed memory graph from a list of (subject, verb, object) triples.
     
-    Parameters:
-        graph (nx.DiGraph): The original memory graph.
-        ratio (float): The proportion of edges to replace (e.g., 0.1 for 10%).
-        seed (int): Random seed for reproducibility.
+    Args:
+        triples: List of tuples (subject, predicate, object)
     
     Returns:
-        nx.DiGraph: A new graph with injected noise.
-    
-    Algorithm:
-        1. Set random seed.
-        2. Identify all existing edges.
-        3. Select `k = floor(ratio * total_edges)` edges to remove.
-        4. Identify all possible non-adjacent node pairs (excluding self-loops).
-        5. Select `k` random pairs from the non-adjacent set to add as new edges.
-        6. Return the modified graph.
+        networkx.DiGraph: The constructed memory graph
     """
-    if ratio < 0 or ratio > 1:
-        raise ValueError("Noise ratio must be between 0 and 1.")
+    G = nx.DiGraph()
     
-    # Initialize random state for reproducibility
-    rng = np.random.RandomState(seed)
+    for s, p, o in triples:
+        # Add nodes if they don't exist
+        if not G.has_node(s):
+            G.add_node(s)
+        if not G.has_node(o):
+            G.add_node(o)
+        
+        # Add edge with predicate as attribute
+        G.add_edge(s, o, predicate=p)
     
-    # Work on a copy to avoid modifying the original graph
+    return G
+
+def inject_noise(graph: nx.DiGraph, density: float, seed: int) -> nx.DiGraph:
+    """
+    Inject noise into a graph by adding random edges.
+    
+    This function implements the "Edge Addition" logic as mandated by the spec:
+    It adds random edges to the existing set at a fixed density relative to the
+    original edge count, ensuring the total edge count increases.
+    
+    Args:
+        graph: The original clean graph (nx.DiGraph)
+        density: The density of noise to add (e.g., 0.1 means add 10% of original edge count)
+        seed: Random seed for reproducibility
+    
+    Returns:
+        nx.DiGraph: A new graph with injected noise (original graph is not modified)
+    
+    Raises:
+        ValueError: If density is negative or seed is invalid
+    """
+    if density < 0:
+        raise ValueError(f"Density must be non-negative, got {density}")
+    
+    # Set seed for reproducibility
+    np.random.seed(seed)
+    
+    # Create a copy of the graph to avoid modifying the original
     noisy_graph = graph.copy()
     
-    total_edges = noisy_graph.number_of_edges()
-    if total_edges == 0:
-        logger.warning("Graph has no edges. Cannot inject noise.")
-        return noisy_graph
+    # Calculate the number of edges to add based on density
+    original_edge_count = graph.number_of_edges()
+    edges_to_add = max(1, int(original_edge_count * density))
     
-    # Number of edges to replace
-    num_to_replace = int(np.floor(ratio * total_edges))
-    
-    if num_to_replace == 0:
-        logger.info(f"No edges to replace (ratio={ratio}, total={total_edges}).")
-        return noisy_graph
-    
-    # 1. Select edges to remove
-    all_edges = list(noisy_graph.edges())
-    edges_to_remove = rng.choice(all_edges, size=num_to_replace, replace=False)
-    
-    # Remove selected edges
-    for edge in edges_to_remove:
-        noisy_graph.remove_edge(*edge)
-    
-    # 2. Identify potential new edges (non-adjacent pairs, no self-loops)
+    # Get all nodes
     nodes = list(noisy_graph.nodes())
-    if len(nodes) < 2:
-        logger.warning("Not enough nodes to generate new edges.")
+    n_nodes = len(nodes)
+    
+    if n_nodes < 2:
+        logger.warning("Graph has fewer than 2 nodes, cannot add edges.")
         return noisy_graph
     
-    current_edges_set = set(noisy_graph.edges())
-    potential_new_edges = []
+    # Generate candidate edges that don't already exist
+    existing_edges = set(noisy_graph.edges())
+    candidates = []
     
     for u in nodes:
         for v in nodes:
-            if u == v:
-                continue # No self-loops
-            if (u, v) not in current_edges_set:
-                potential_new_edges.append((u, v))
+            if u != v and (u, v) not in existing_edges:
+                candidates.append((u, v))
     
-    if not potential_new_edges:
-        logger.warning("No potential new edges available to add (fully connected or single node).")
+    if not candidates:
+        logger.warning("No candidate edges available to add. Graph is fully connected.")
         return noisy_graph
     
-    # 3. Select edges to add
-    num_to_add = min(num_to_replace, len(potential_new_edges))
-    edges_to_add = rng.choice(potential_new_edges, size=num_to_add, replace=False)
+    # Randomly select edges to add
+    num_to_add = min(edges_to_add, len(candidates))
+    selected_edges = np.random.choice(len(candidates), size=num_to_add, replace=False)
     
-    # Add selected edges
-    for edge in edges_to_add:
-        noisy_graph.add_edge(*edge)
+    for idx in selected_edges:
+        u, v = candidates[idx]
+        noisy_graph.add_edge(u, v, predicate="NOISE_ADDED")
     
-    logger.info(f"Noise injection complete: removed {len(edges_to_remove)} edges, added {len(edges_to_add)} edges.")
+    logger.info(f"Injected {num_to_add} noise edges into graph. "
+               f"Original edges: {original_edge_count}, New total: {noisy_graph.number_of_edges()}")
+    
     return noisy_graph
 
-def validate_graph(graph: nx.DiGraph) -> Dict[str, Any]:
+def validate_graph(graph: nx.DiGraph) -> Tuple[bool, List[str]]:
     """
-    Validates the structure of a graph.
-    Returns a dict with validation status and statistics.
+    Validate a graph structure and return validation status and issues.
+    
+    Args:
+        graph: The graph to validate
+    
+    Returns:
+        Tuple of (is_valid, list_of_issues)
     """
-    stats = get_graph_statistics(graph)
-    is_valid = True
     issues = []
     
-    if not nx.is_directed(graph):
-        issues.append("Graph is not directed.")
-        is_valid = False
-        
-    if any(deg < 0 for _, deg in graph.in_degree()):
-        issues.append("Invalid in-degree detected.")
-        is_valid = False
-        
-    return {
-        "is_valid": is_valid,
-        "issues": issues,
-        "statistics": stats
-    }
+    if graph.number_of_nodes() == 0:
+        issues.append("Graph has no nodes")
+    
+    if graph.number_of_edges() == 0 and graph.number_of_nodes() > 1:
+        issues.append("Graph has nodes but no edges (disconnected)")
+    
+    # Check for self-loops (optional, depending on requirements)
+    self_loops = [e for e in graph.edges() if e[0] == e[1]]
+    if self_loops:
+        issues.append(f"Graph contains {len(self_loops)} self-loops")
+    
+    is_valid = len(issues) == 0
+    return is_valid, issues
 
 def get_graph_statistics(graph: nx.DiGraph) -> Dict[str, Any]:
     """
-    Computes basic statistics for a graph.
+    Calculate and return basic statistics about the graph.
+    
+    Args:
+        graph: The graph to analyze
+    
+    Returns:
+        Dictionary containing graph statistics
     """
     stats = {
         "num_nodes": graph.number_of_nodes(),
         "num_edges": graph.number_of_edges(),
+        "is_connected": nx.is_strongly_connected(graph) if graph.number_of_nodes() > 0 else False,
+        "num_components": nx.number_strongly_connected_components(graph) if graph.number_of_nodes() > 0 else 0,
+        "avg_degree": graph.number_of_edges() * 2 / graph.number_of_nodes() if graph.number_of_nodes() > 0 else 0,
         "density": nx.density(graph),
-        "avg_in_degree": np.mean([d for _, d in graph.in_degree()]) if graph.number_of_nodes() > 0 else 0,
-        "avg_out_degree": np.mean([d for _, d in graph.out_degree()]) if graph.number_of_nodes() > 0 else 0,
     }
     
-    # Check for weakly connected components
-    if graph.number_of_nodes() > 0:
-        components = list(nx.weakly_connected_components(graph))
+    # Calculate connected components if not fully connected
+    if not stats["is_connected"]:
+        components = list(nx.strongly_connected_components(graph))
+        stats["largest_component_size"] = max(len(c) for c in components) if components else 0
         stats["num_components"] = len(components)
-        stats["largest_component_size"] = max(len(c) for c in components)
-    else:
-        stats["num_components"] = 0
-        stats["largest_component_size"] = 0
-        
+    
     return stats
 
-def extract_subgraph_by_entities(graph: nx.DiGraph, entities: List[str]) -> nx.DiGraph:
+def extract_subgraph_by_entities(graph: nx.DiGraph, entities: Set[str]) -> nx.DiGraph:
     """
-    Extracts a subgraph containing only the specified entities and their connecting edges.
-    """
-    entity_set = set(entities)
-    nodes_to_keep = set()
+    Extract a subgraph containing only the specified entities and edges between them.
     
-    # Find all nodes that are in the entity set or connected to them
-    for node in graph.nodes():
-        if node in entity_set:
-            nodes_to_keep.add(node)
+    Args:
+        graph: The original graph
+        entities: Set of entity names to include in the subgraph
+    
+    Returns:
+        nx.DiGraph: The extracted subgraph
+    """
+    # Filter nodes that are in the entities set
+    valid_nodes = [n for n in graph.nodes() if n in entities]
+    
+    if not valid_nodes:
+        return nx.DiGraph()
+    
+    # Create subgraph
+    subgraph = graph.subgraph(valid_nodes).copy()
+    
+    logger.debug(f"Extracted subgraph with {subgraph.number_of_nodes()} nodes "
+                f"and {subgraph.number_of_edges()} edges from {len(entities)} requested entities")
+    
+    return subgraph
+
+def detect_degenerate_graph(graph: nx.DiGraph) -> Tuple[bool, List[str]]:
+    """
+    Detect degenerate graph conditions: disconnected components and single-node graphs.
+    
+    This function explicitly checks for:
+    1. Single-node graphs (only one node, no edges)
+    2. Disconnected graphs (multiple strongly connected components)
+    3. Empty graphs (no nodes)
+    
+    Args:
+        graph: The graph to check for degeneracy
+    
+    Returns:
+        Tuple of (is_degenerate, list_of_degeneracy_reasons)
+    """
+    degeneracy_reasons = []
+    
+    num_nodes = graph.number_of_nodes()
+    num_edges = graph.number_of_edges()
+    
+    # Check for empty graph
+    if num_nodes == 0:
+        degeneracy_reasons.append("EMPTY_GRAPH: No nodes in the graph")
+        return True, degeneracy_reasons
+    
+    # Check for single-node graph
+    if num_nodes == 1:
+        degeneracy_reasons.append("SINGLE_NODE: Graph contains only one node")
+        # A single node with no edges is degenerate
+        if num_edges == 0:
+            degeneracy_reasons.append("NO_EDGES: Single node has no edges")
+        return True, degeneracy_reasons
+    
+    # Check for disconnected components
+    try:
+        num_components = nx.number_strongly_connected_components(graph)
+        if num_components > 1:
+            degeneracy_reasons.append(f"DISCONNECTED: Graph has {num_components} strongly connected components")
+            
+            # Log sizes of components for debugging
+            components = list(nx.strongly_connected_components(graph))
+            component_sizes = [len(c) for c in components]
+            logger.debug(f"Component sizes: {component_sizes}")
+            
+            return True, degeneracy_reasons
+    except nx.NetworkXError as e:
+        logger.warning(f"Error checking connectivity: {e}")
+        degeneracy_reasons.append(f"CONNECTIVITY_CHECK_ERROR: {str(e)}")
+        return True, degeneracy_reasons
+    
+    return False, degeneracy_reasons
+
+def handle_degenerate_graph(graph: nx.DiGraph, strategy_name: str) -> Tuple[nx.DiGraph, Dict[str, Any]]:
+    """
+    Handle degenerate graphs by applying appropriate fallback logic.
+    
+    For degenerate graphs:
+    - Empty graphs: Return an empty graph with metadata
+    - Single-node graphs: Return the graph with metadata flag
+    - Disconnected graphs: Return the largest connected component with metadata
+    
+    Args:
+        graph: The potentially degenerate graph
+        strategy_name: Name of the strategy being executed (for logging)
+    
+    Returns:
+        Tuple of (processed_graph, metadata_dict)
+        metadata_dict contains:
+            - 'is_degenerate': bool
+            - 'degeneracy_reasons': list of strings
+            - 'original_num_nodes': int
+            - 'original_num_edges': int
+            - 'processed_num_nodes': int
+            - 'processed_num_edges': int
+            - 'component_info': dict with component details if applicable
+    """
+    original_num_nodes = graph.number_of_nodes()
+    original_num_edges = graph.number_of_edges()
+    
+    is_degenerate, reasons = detect_degenerate_graph(graph)
+    
+    metadata = {
+        'is_degenerate': is_degenerate,
+        'degeneracy_reasons': reasons,
+        'original_num_nodes': original_num_nodes,
+        'original_num_edges': original_num_edges,
+        'processed_num_nodes': original_num_nodes,
+        'processed_num_edges': original_num_edges,
+        'component_info': {}
+    }
+    
+    if not is_degenerate:
+        logger.info(f"Graph is NOT degenerate. Proceeding with {strategy_name} strategy.")
+        return graph, metadata
+    
+    logger.warning(f"DEGENERATE GRAPH detected for {strategy_name} strategy: {reasons}")
+    
+    processed_graph = graph.copy()
+    
+    if original_num_nodes == 0:
+        # Empty graph - return as is
+        metadata['degeneracy_flag'] = 'EMPTY'
+        logger.warning(f"Empty graph encountered. Returning empty graph for {strategy_name}.")
+        return processed_graph, metadata
+    
+    if original_num_nodes == 1:
+        # Single node - return as is but flag it
+        metadata['degeneracy_flag'] = 'SINGLE_NODE'
+        logger.warning(f"Single-node graph encountered. Returning single node for {strategy_name}.")
+        return processed_graph, metadata
+    
+    if len(reasons) > 0 and "DISCONNECTED" in reasons[0]:
+        # Disconnected graph - extract largest connected component
+        try:
+            components = list(nx.strongly_connected_components(graph))
+            if components:
+                # Sort by size, largest first
+                components.sort(key=len, reverse=True)
+                largest_component = components[0]
+                
+                # Extract subgraph
+                processed_graph = graph.subgraph(largest_component).copy()
+                
+                metadata['degeneracy_flag'] = 'DISCONNECTED_LARGEST_COMPONENT'
+                metadata['component_info'] = {
+                    'total_components': len(components),
+                    'largest_component_size': len(largest_component),
+                    'component_sizes': [len(c) for c in components]
+                }
+                
+                metadata['processed_num_nodes'] = processed_graph.number_of_nodes()
+                metadata['processed_num_edges'] = processed_graph.number_of_edges()
+                
+                logger.info(f"Extracted largest component ({len(largest_component)} nodes) "
+                           f"from {len(components)} total components for {strategy_name}.")
+        except nx.NetworkXError as e:
+            logger.error(f"Error extracting largest component: {e}")
+            metadata['degeneracy_flag'] = 'DISCONNECTED_ERROR'
+    
+    return processed_graph, metadata
+
+def check_graph_connectivity(graph: nx.DiGraph, strategy_name: str = "unknown") -> Dict[str, Any]:
+    """
+    Check graph connectivity and return detailed information.
+    
+    This function is used by traversal strategies (full.py, lazy.py) to explicitly
+    check for graph connectivity and log a "DEGENERATE" flag when appropriate.
+    
+    Args:
+        graph: The graph to check
+        strategy_name: Name of the calling strategy for logging context
+    
+    Returns:
+        Dictionary with connectivity information:
+            - 'is_connected': bool
+            - 'is_degenerate': bool
+            - 'degeneracy_reasons': list of strings
+            - 'num_components': int
+            - 'largest_component_size': int
+            - 'degenerate_flag': str or None
+    """
+    result = {
+        'is_connected': False,
+        'is_degenerate': False,
+        'degeneracy_reasons': [],
+        'num_components': 0,
+        'largest_component_size': 0,
+        'degenerate_flag': None
+    }
+    
+    num_nodes = graph.number_of_nodes()
+    
+    if num_nodes == 0:
+        result['is_degenerate'] = True
+        result['degeneracy_reasons'].append("EMPTY_GRAPH")
+        result['degenerate_flag'] = "DEGENERATE"
+        logger.warning(f"[{strategy_name}] Graph is empty - DEGENERATE flag set.")
+        return result
+    
+    if num_nodes == 1:
+        result['is_degenerate'] = True
+        result['degeneracy_reasons'].append("SINGLE_NODE")
+        result['degenerate_flag'] = "DEGENERATE"
+        logger.warning(f"[{strategy_name}] Graph has only one node - DEGENERATE flag set.")
+        result['num_components'] = 1
+        result['largest_component_size'] = 1
+        return result
+    
+    try:
+        components = list(nx.strongly_connected_components(graph))
+        result['num_components'] = len(components)
+        result['largest_component_size'] = max(len(c) for c in components) if components else 0
+        
+        if len(components) == 1 and num_nodes > 0:
+            result['is_connected'] = True
+            logger.debug(f"[{strategy_name}] Graph is fully connected ({num_nodes} nodes).")
         else:
-            # Check neighbors
-            neighbors = set(graph.successors(node)) | set(graph.predecessors(node))
-            if neighbors & entity_set:
-                nodes_to_keep.add(node)
+            result['is_connected'] = False
+            result['is_degenerate'] = True
+            result['degeneracy_reasons'].append(f"DISCONNECTED_{len(components)}_COMPONENTS")
+            result['degenerate_flag'] = "DEGENERATE"
+            logger.warning(f"[{strategy_name}] Graph is disconnected ({len(components)} components) - DEGENERATE flag set.")
+            
+    except nx.NetworkXError as e:
+        logger.error(f"[{strategy_name}] Error checking connectivity: {e}")
+        result['is_degenerate'] = True
+        result['degeneracy_reasons'].append(f"CONNECTIVITY_ERROR_{str(e)}")
+        result['degenerate_flag'] = "DEGENERATE"
     
-    return graph.subgraph(nodes_to_keep).copy()
+    return result

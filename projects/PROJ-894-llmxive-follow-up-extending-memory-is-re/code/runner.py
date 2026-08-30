@@ -1,8 +1,3 @@
-"""
-Runner module for the llmXive automated science pipeline.
-Executes tasks with timeout handling and logs results to CSV.
-"""
-
 import os
 import sys
 import time
@@ -11,312 +6,345 @@ import logging
 import csv
 import json
 import argparse
-import traceback
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple, Callable
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, field
 from contextlib import contextmanager
 
-# Project relative imports
+# Import from existing API surface
+from data_loader import load_graphs, load_noisy_graphs, load_locomo_strict
 from strategies.full import run_full_strategy
 from strategies.lazy import run_lazy_strategy
 from strategies.greedy import run_greedy_strategy
-from inference import LLMInferenceEngine
 from graph_utils import validate_graph, get_graph_statistics
-from data_loader import load_graphs, load_noisy_graphs, load_config
+from config import get_model_path
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Constants for status
-STATUS_COMPLETED = "COMPLETED"
-STATUS_TIMEOUT = "TIMEOUT"
-STATUS_DEGENERATE = "DEGENERATE"
-STATUS_UNRESOLVED = "UNRESOLVED"
-STATUS_ERROR = "ERROR"
-
-VALID_STATUSES = [STATUS_COMPLETED, STATUS_TIMEOUT, STATUS_DEGENERATE, STATUS_UNRESOLVED, STATUS_ERROR]
-
 @dataclass
 class TaskResult:
-    """Data class to hold the result of a single task execution."""
     task_id: str
+    strategy: str
     accuracy: float
     nodes_visited: int
     latency_ms: float
-    status: str
+    evidence_threshold: float
+    status: str = "COMPLETED"
     error_message: Optional[str] = None
 
-    def to_row(self) -> Dict[str, Any]:
-        """Convert to a dictionary suitable for CSV row."""
-        return {
-            'task_id': self.task_id,
-            'accuracy': self.accuracy,
-            'nodes_visited': self.nodes_visited,
-            'latency_ms': self.latency_ms,
-            'status': self.status,
-            'error_message': self.error_message or ''
-        }
-
 class TimeoutError(Exception):
-    """Custom exception for timeout events."""
     pass
 
 class TimeoutHandler:
-    """Handler for OS signal timeouts."""
-    def __init__(self, timeout_seconds: int):
-        self.timeout_seconds = timeout_seconds
-        self.old_handler = None
+    def __init__(self, seconds: int):
+        self.seconds = seconds
+        self.original_handler = None
 
-    def _handler(self, signum, frame):
-        raise TimeoutError(f"Task timed out after {self.timeout_seconds} seconds")
+    def handle_timeout(self, signum, frame):
+        raise TimeoutError(f"Task timed out after {self.seconds} seconds")
 
     def __enter__(self):
-        # Set the signal handler
-        self.old_handler = signal.signal(signal.SIGALRM, self._handler)
-        signal.alarm(self.timeout_seconds)
+        self.original_handler = signal.signal(signal.SIGALRM, self.handle_timeout)
+        signal.alarm(self.seconds)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        # Reset the alarm and handler
         signal.alarm(0)
-        if self.old_handler is not None:
-            signal.signal(signal.SIGALRM, self.old_handler)
-        # Don't suppress exceptions
+        if self.original_handler:
+            signal.signal(signal.SIGALRM, self.original_handler)
         return False
 
 @contextmanager
-def timeout_context(timeout_seconds: int):
-    """Context manager for timeout handling."""
-    handler = TimeoutHandler(timeout_seconds)
+def timeout_context(seconds: int):
+    """Context manager for enforcing hard timeouts."""
+    handler = TimeoutHandler(seconds)
     with handler:
         yield
 
 def ensure_output_dirs(output_path: str):
     """Ensure the directory for the output file exists."""
-    output_dir = os.path.dirname(output_path)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir, exist_ok=True)
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
 
-def load_tasks(graph_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+def load_tasks(graph_path: str, noisy: bool = False) -> List[Dict[str, Any]]:
     """
-    Extract tasks from the loaded graph data.
-    Expects graph_data to be a dict where keys are task_ids and values are graph structures.
+    Load tasks from the graph file.
+    If noisy is True, load noisy graphs; otherwise load clean graphs.
     """
+    if noisy:
+        graphs = load_noisy_graphs(graph_path)
+    else:
+        graphs = load_graphs(graph_path)
+    
     tasks = []
-    for task_id, graph_info in graph_data.items():
-        # We assume the graph_info contains the necessary context for the task.
-        # In a real scenario, we might need to load the specific context/answer from the raw data.
-        # For this runner, we assume the graph structure itself is the task input.
+    for task_id, graph_data in graphs.items():
+        # Assuming graph_data contains task context
         tasks.append({
-            'task_id': task_id,
-            'graph': graph_info.get('edges', []),
-            # Placeholder for context/answer if needed by the strategy
-            'context': graph_info.get('context', ''),
-            'answer': graph_info.get('answer', '')
+            "task_id": task_id,
+            "graph": graph_data,
+            "context": graph_data.get("context", "")
         })
     return tasks
 
-def load_graph(graph_path: str, is_noisy: bool = False) -> Dict[str, Any]:
-    """Load graph data from file."""
-    if is_noisy:
+def load_graph(graph_path: str, noisy: bool = False) -> Dict[str, Any]:
+    """Load a specific graph structure."""
+    if noisy:
         return load_noisy_graphs(graph_path)
     return load_graphs(graph_path)
 
 def run_task(
-    task: Dict[str, Any],
-    strategy_name: str,
-    llm_engine: LLMInferenceEngine,
-    timeout_seconds: int = 300
+    task: Dict[str, Any], 
+    strategy: str, 
+    model_path: str, 
+    timeout_seconds: int = 60
 ) -> TaskResult:
     """
-    Execute a single task using the specified strategy.
-    Maps degenerate/unresolved states to the CSV status column.
+    Execute a single task with the specified strategy.
     """
-    task_id = task['task_id']
-    graph_edges = task['graph']
-    
-    # Construct a simple graph structure for the strategy
-    # Strategies expect a NetworkX graph or a compatible structure.
-    # We'll build a minimal graph from edges for the strategy to traverse.
-    import networkx as nx
-    G = nx.DiGraph()
-    for edge in graph_edges:
-        G.add_edge(edge['source'], edge['target'], relation=edge.get('relation_string', ''))
-
-    # Check for degenerate graphs (T037 requirement)
-    if len(G.nodes()) == 0 or (len(G.nodes()) == 1 and len(G.edges()) == 0):
-        logger.warning(f"Task {task_id}: Degenerate graph detected (single node or no edges).")
-        return TaskResult(
-            task_id=task_id,
-            accuracy=0.0,
-            nodes_visited=0,
-            latency_ms=0.0,
-            status=STATUS_DEGENERATE,
-            error_message="Degenerate graph: single node or no edges."
-        )
-
     start_time = time.time()
+    nodes_visited = 0
+    accuracy = 0.0
+    status = "COMPLETED"
+    error_message = None
+    evidence_threshold = 0.5  # Default threshold
+
     try:
         with timeout_context(timeout_seconds):
-            # Select strategy
-            if strategy_name == "Full":
-                result = run_full_strategy(G, task.get('context', ''), task.get('answer', ''), llm_engine)
-            elif strategy_name == "Lazy":
-                # Lazy might need a threshold, defaulting to 0.7 for now if not passed
-                result = run_lazy_strategy(G, task.get('context', ''), task.get('answer', ''), llm_engine, evidence_threshold=0.7)
-            elif strategy_name == "Greedy":
-                result = run_greedy_strategy(G, task.get('context', ''), task.get('answer', ''), llm_engine, top_k=5)
+            graph = task["graph"]
+            
+            # Validate graph before traversal
+            if not validate_graph(graph):
+                logger.warning(f"Invalid graph for task {task['task_id']}")
+                status = "DEGENERATE"
+                return TaskResult(
+                    task_id=task["task_id"],
+                    strategy=strategy,
+                    accuracy=0.0,
+                    nodes_visited=0,
+                    latency_ms=(time.time() - start_time) * 1000,
+                    evidence_threshold=evidence_threshold,
+                    status=status,
+                    error_message="Invalid graph structure"
+                )
+
+            # Execute strategy
+            if strategy == "Full":
+                result = run_full_strategy(graph, task.get("context", ""), model_path)
+            elif strategy == "Lazy":
+                result = run_lazy_strategy(graph, task.get("context", ""), model_path)
+            elif strategy == "Greedy":
+                result = run_greedy_strategy(graph, task.get("context", ""), model_path)
             else:
-                raise ValueError(f"Unknown strategy: {strategy_name}")
+                raise ValueError(f"Unknown strategy: {strategy}")
 
-        # Extract metrics from strategy result
-        # Strategies return dict: {'accuracy': float, 'nodes_visited': int, 'latency_ms': float, ...}
-        accuracy = float(result.get('accuracy', 0.0))
-        nodes_visited = int(result.get('nodes_visited', 0))
-        latency_ms = float(result.get('latency_ms', 0.0))
-        
-        # Determine status
-        # If the strategy returned a specific flag for unresolved, map it.
-        # Assuming standard return contract for now.
-        status = STATUS_COMPLETED
-
-        # Check if the result indicates an unresolved state (e.g., if accuracy is 0 and nodes visited > 0 but no answer found)
-        # This depends on the strategy implementation's return values.
-        # For robustness, if the strategy explicitly sets a status in its return dict, we respect it.
-        if 'status' in result:
-            status = result['status']
-            if status not in VALID_STATUSES:
-                logger.warning(f"Invalid status returned by strategy for {task_id}: {status}. Defaulting to UNRESOLVED.")
-                status = STATUS_UNRESOLVED
-
-        return TaskResult(
-            task_id=task_id,
-            accuracy=accuracy,
-            nodes_visited=nodes_visited,
-            latency_ms=latency_ms,
-            status=status
-        )
+            nodes_visited = result.get("nodes_visited", 0)
+            accuracy = result.get("accuracy", 0.0)
+            evidence_threshold = result.get("evidence_threshold", 0.5)
+            
+            # Check for specific status flags
+            if result.get("status") == "UNREACHABLE":
+                status = "UNREACHABLE"
+            elif result.get("status") == "TIMEOUT":
+                status = "TIMEOUT"
 
     except TimeoutError as e:
-        logger.error(f"Task {task_id} timed out.")
-        return TaskResult(
-            task_id=task_id,
-            accuracy=0.0,
-            nodes_visited=0,
-            latency_ms=0.0,
-            status=STATUS_TIMEOUT,
-            error_message=str(e)
-        )
+        status = "TIMEOUT"
+        error_message = str(e)
     except Exception as e:
-        logger.error(f"Task {task_id} failed with error: {e}", exc_info=True)
-        return TaskResult(
-            task_id=task_id,
-            accuracy=0.0,
-            nodes_visited=0,
-            latency_ms=0.0,
-            status=STATUS_ERROR,
-            error_message=str(e)
-        )
+        status = "ERROR"
+        error_message = str(e)
+        logger.exception(f"Error executing task {task['task_id']}: {e}")
+
+    latency_ms = (time.time() - start_time) * 1000
+
+    return TaskResult(
+        task_id=task["task_id"],
+        strategy=strategy,
+        accuracy=accuracy,
+        nodes_visited=nodes_visited,
+        latency_ms=latency_ms,
+        evidence_threshold=evidence_threshold,
+        status=status,
+        error_message=error_message
+    )
 
 def run_batch(
     tasks: List[Dict[str, Any]],
-    strategy_name: str,
+    strategy: str,
     output_path: str,
-    llm_engine: LLMInferenceEngine,
-    timeout_seconds: int = 300
+    model_path: str,
+    timeout_seconds: int = 60,
+    chunk_size: int = 10
 ):
-    """Run a batch of tasks and save results to CSV."""
+    """
+    Run a batch of tasks and save results to CSV.
+    """
     ensure_output_dirs(output_path)
     
     results = []
-    for task in tasks:
-        logger.info(f"Running task {task['task_id']} with strategy {strategy_name}")
-        result = run_task(task, strategy_name, llm_engine, timeout_seconds)
-        results.append(result)
-        # Log progress
-        logger.info(f"Task {task['task_id']} finished: status={result.status}, accuracy={result.accuracy}")
+    for i in range(0, len(tasks), chunk_size):
+        chunk = tasks[i:i+chunk_size]
+        logger.info(f"Processing chunk {i//chunk_size + 1}: {len(chunk)} tasks")
+        
+        for task in chunk:
+            result = run_task(task, strategy, model_path, timeout_seconds)
+            results.append(result)
+            
+            # Log progress
+            if result.status != "COMPLETED":
+                logger.warning(f"Task {result.task_id} failed: {result.status} - {result.error_message}")
 
-    # Write to CSV
-    fieldnames = ['task_id', 'accuracy', 'nodes_visited', 'latency_ms', 'status', 'error_message']
-    with open(output_path, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        for res in results:
-            writer.writerow(res.to_row())
+    # Write results to CSV
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow([
+            'task_id', 'strategy', 'accuracy', 'nodes_visited', 
+            'latency_ms', 'evidence_threshold', 'status', 'error_message'
+        ])
+        for r in results:
+            writer.writerow([
+                r.task_id, r.strategy, r.accuracy, r.nodes_visited,
+                r.latency_ms, r.evidence_threshold, r.status, r.error_message
+            ])
     
-    logger.info(f"Results saved to {output_path}")
+    logger.info(f"Results written to {output_path}")
+    return results
 
-def process_in_chunks_streaming(tasks, strategy_name, output_path, llm_engine, timeout_seconds=300):
+def process_in_chunks_streaming(
+    tasks_iter: Any, 
+    strategy: str, 
+    output_path: str, 
+    model_path: str, 
+    timeout_seconds: int = 60,
+    batch_size: int = 5
+):
     """
-    Process tasks in chunks (streaming) to manage memory.
-    For this implementation, it's similar to run_batch but could be extended to yield results.
+    Process tasks in a streaming fashion to avoid memory overflow.
+    Tasks are yielded from an iterator.
     """
-    run_batch(tasks, strategy_name, output_path, llm_engine, timeout_seconds)
+    ensure_output_dirs(output_path)
+    
+    # Initialize CSV with headers
+    header_written = False
+    fieldnames = ['task_id', 'strategy', 'accuracy', 'nodes_visited', 
+                 'latency_ms', 'evidence_threshold', 'status', 'error_message']
+    
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        
+        batch = []
+        for task in tasks_iter:
+            batch.append(task)
+            
+            if len(batch) >= batch_size:
+                if not header_written:
+                    writer.writeheader()
+                    header_written = True
+                
+                for task in batch:
+                    result = run_task(task, strategy, model_path, timeout_seconds)
+                    writer.writerow({
+                        'task_id': result.task_id,
+                        'strategy': result.strategy,
+                        'accuracy': result.accuracy,
+                        'nodes_visited': result.nodes_visited,
+                        'latency_ms': result.latency_ms,
+                        'evidence_threshold': result.evidence_threshold,
+                        'status': result.status,
+                        'error_message': result.error_message
+                    })
+                batch = []
+        
+        # Process remaining tasks
+        if batch:
+            if not header_written:
+                writer.writeheader()
+                header_written = True
+            for task in batch:
+                result = run_task(task, strategy, model_path, timeout_seconds)
+                writer.writerow({
+                    'task_id': result.task_id,
+                    'strategy': result.strategy,
+                    'accuracy': result.accuracy,
+                    'nodes_visited': result.nodes_visited,
+                    'latency_ms': result.latency_ms,
+                    'evidence_threshold': result.evidence_threshold,
+                    'status': result.status,
+                    'error_message': result.error_message
+                })
+    
+    logger.info(f"Streaming results written to {output_path}")
 
 def main():
-    """Main entry point for the runner."""
-    parser = argparse.ArgumentParser(description="Run baseline/heuristic strategies on graph memory tasks.")
-    parser.add_argument('--strategy', type=str, required=True, choices=['Full', 'Lazy', 'Greedy'],
-                        help='Traversal strategy to use.')
-    parser.add_argument('--input', type=str, required=True,
-                        help='Path to the input graph JSON file (clean or noisy).')
-    parser.add_argument('--output', type=str, required=True,
-                        help='Path to the output CSV file for results.')
-    parser.add_argument('--noisy', action='store_true',
-                        help='Set if the input graph is a noisy graph.')
-    parser.add_argument('--timeout', type=int, default=300,
-                        help='Timeout in seconds per task.')
-    parser.add_argument('--model-path', type=str, default=None,
-                        help='Path to the quantized model (optional, will use config default).')
+    parser = argparse.ArgumentParser(description="Run memory graph traversal strategies")
+    parser.add_argument("--strategy", type=str, required=True, 
+                      choices=["Full", "Lazy", "Greedy"], 
+                      help="Traversal strategy to use")
+    parser.add_argument("--input", type=str, required=True,
+                      help="Path to the input graph file (JSON)")
+    parser.add_argument("--output", type=str, required=True,
+                      help="Path to the output CSV file")
+    parser.add_argument("--noisy", action="store_true",
+                      help="Use noisy graphs instead of clean ones")
+    parser.add_argument("--timeout", type=int, default=60,
+                      help="Timeout in seconds per task")
+    parser.add_argument("--threshold", type=float, default=0.5,
+                      help="Evidence threshold for decision making")
     
     args = parser.parse_args()
 
-    # Load configuration
-    config = load_config()
+    # T070: Fix Data Flow Dependency - Verify existence of graphs_raw.json
+    # If the input is the intermediate graph file, verify it exists first
+    input_path = Path(args.input)
+    if args.input.endswith("graphs_raw.json") or "intermediate" in args.input:
+        if not input_path.exists():
+            logger.error(f"Critical dependency missing: {args.input}")
+            logger.error("Please run the data extraction pipeline (T011a-1a, T011a-1b-serialize) first.")
+            sys.exit(1)
     
-    # Initialize LLM Engine
-    model_path = args.model_path or config.get('model_path', None)
-    if not model_path:
-        logger.warning("No model path provided. LLM inference will likely fail or use a default if configured.")
+    # Load model path
+    model_path = get_model_path()
+    if not model_path or not os.path.exists(model_path):
+        logger.warning(f"Model not found at {model_path}. Using placeholder logic.")
+        # In a real scenario, we might exit or use a mock
     
-    llm_engine = LLMInferenceEngine(model_path=model_path)
-
-    # Load Graph Data
-    logger.info(f"Loading graph from {args.input}")
+    # Load tasks
+    logger.info(f"Loading tasks from {args.input}")
     try:
-        graph_data = load_graph(args.input, is_noisy=args.noisy)
-    except FileNotFoundError:
-        logger.error(f"Input file not found: {args.input}")
+        tasks = load_tasks(args.input, noisy=args.noisy)
+    except FileNotFoundError as e:
+        logger.error(f"Failed to load tasks: {e}")
         sys.exit(1)
     except Exception as e:
-        logger.error(f"Error loading graph: {e}")
+        logger.error(f"Error loading tasks: {e}")
         sys.exit(1)
 
-    # Extract tasks
-    tasks = load_tasks(graph_data)
     if not tasks:
-        logger.warning("No tasks found in the input graph file.")
+        logger.warning("No tasks found in the input file.")
         # Create an empty output file with headers
         ensure_output_dirs(args.output)
-        with open(args.output, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=['task_id', 'accuracy', 'nodes_visited', 'latency_ms', 'status', 'error_message'])
-            writer.writeheader()
+        with open(args.output, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(['task_id', 'strategy', 'accuracy', 'nodes_visited', 
+                           'latency_ms', 'evidence_threshold', 'status', 'error_message'])
         return
 
+    logger.info(f"Running strategy '{args.strategy}' on {len(tasks)} tasks")
+    
     # Run batch
-    logger.info(f"Starting execution for {len(tasks)} tasks with strategy {args.strategy}")
     run_batch(
         tasks=tasks,
-        strategy_name=args.strategy,
+        strategy=args.strategy,
         output_path=args.output,
-        llm_engine=llm_engine,
+        model_path=model_path,
         timeout_seconds=args.timeout
     )
 
-if __name__ == '__main__':
+    logger.info("Execution completed successfully.")
+
+if __name__ == "__main__":
     main()
