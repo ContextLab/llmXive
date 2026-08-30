@@ -1,0 +1,5 @@
+# This file exists to ensure ruff can be run directly on the project root
+# without needing to specify the pyproject.toml path explicitly if desired,
+# though pyproject.toml is the preferred configuration location.
+# It extends the settings defined in pyproject.toml.
+extend = "pyproject.toml"

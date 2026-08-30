@@ -1,0 +1,16 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`src/`, `tests/`, `data/`, `outputs/`)
+    is provided; the implementer did not supply a directory listing or any files showing
+    that the project structure has been created.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided material contains only the feature specification for data ingestion\
+    \ and analysis; there are no configuration files, scripts, or documentation showing\
+    \ that ruff linting and black formatting have been set up for the project. To\
+    \ satisfy T003, the repository must include the appropriate tool configuration\
+    \ (e.g., `pyproject.toml` or `.ruff.toml` for ruff, a `pyproject.toml` or `black.toml`\
+    \ for black) and any integration steps (e.g., pre\u2011commit hooks). These artifacts\
+    \ are missing."

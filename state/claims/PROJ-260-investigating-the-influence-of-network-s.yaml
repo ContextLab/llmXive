@@ -1,0 +1,402 @@
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: average coordination reference value 4.00 +/- 0.05
+  claim_id: c_baf74344
+  context: "Validate average coordination against reference value (4.00 \xB1 0.05)\
+    \ and flag result"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate average coordination against reference value (4.00 \xB1 0.05)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:48:51Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: flag physical anomaly for coordination greater than 6
+  claim_id: c_d9bbc514
+  context: Flag 'Physical Anomaly' for any atom with coordination > 6 (do not halt)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_physical_anomaly_for_coordination_greater_than_6
+  kind: magnitude
+  raw_text: Flag 'Physical Anomaly' for any atom with coordination > 6
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:49:25Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: verify bootstrap resampling accuracy within 1e-6 of manual calculation
+  claim_id: c_a3b6a39c
+  context: Unit test for Bootstrap resampling... Verifies multiple iterations and
+    CI calculation accuracy vs manual calculation with |output - manual| < 1e-6
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify accuracy with |output - manual| < 1e-6
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:49:25Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: runtime threshold 30 minutes on 4000-atom system
+  claim_id: c_4637a3a5
+  context: "Integration test for runtime threshold in tests/integration/test_runtime_threshold.py\
+    \ (Verifies \u226430 mins on 4000-atom system)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify runtime threshold of \u226430 mins on 4000-atom system"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:49:25Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: low power warning triggers when statistical power less than 0.8
+  claim_id: c_e12ebf09
+  context: Integration test for Low Power warning in tests/integration/test_low_power_warning.py
+    (Verifies warning triggers when power < 0.8)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Low_power_warning_triggers_when_statistical_power_less_than
+  kind: magnitude
+  raw_text: Verify warning triggers when power < 0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:50:02Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: aggregate metrics across three distinct system sizes N=1000 N=2000 N=4000
+  claim_id: c_8df50ba4
+  context: "Aggregate topology, VDOS, and \u03BA data across three distinct system\
+    \ sizes: N=1000, N=2000, N=4000 (per Spec FR-006)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Aggregate metrics across three distinct system sizes: N=1000, N=2000,
+    N=4000'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:50:45Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: verify bottleneck density stability with threshold sweep +/- 0.5
+  claim_id: c_b2cd6550
+  context: "Integration test for sensitivity analysis in tests/integration/test_sensitivity.py\
+    \ (Verifies bottleneck density stability with threshold sweep \xB10.5)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify bottleneck density stability with threshold sweep \xB10.5"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:51:42Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: verify high frequency peak at negative 15 THz
+  claim_id: c_36280518
+  context: Add validation for acoustic modes (non-zero low-freq) and high-freq peak
+    (-15 THz) in src/services/vdos_calculator.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify high-freq peak at -15 THz
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:52:06Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: streaming logic for large datasets greater than 7GB
+  claim_id: c_99da9dee
+  context: Implement streaming logic for large datasets (if >7GB) using datasets.load_dataset(...,
+    streaming=True)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Streaming_logic_for_large_datasets_greater_than_7GB
+  kind: magnitude
+  raw_text: Process chunks for datasets >7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:53:37Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: validate average coordination against reference value 4.00 plus or minus
+    0.05
+  claim_id: c_a0633ebf
+  context: "Validate average coordination against reference value (4.00 \xB1 0.05)\
+    \ and flag result"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate average coordination against reference value (4.00 \xB1 0.05)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:54:57Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: flag physical anomaly for atom with coordination greater than 6
+  claim_id: c_44df7ace
+  context: Flag 'Physical Anomaly' for any atom with coordination > 6 (do not halt)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_physical_anomaly_for_atom_with_coordination_greater_tha
+  kind: magnitude
+  raw_text: Flag 'Physical Anomaly' for any atom with coordination > 6
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:55:01Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: verify bottleneck density stability with threshold sweep plus or minus
+    0.5
+  claim_id: c_ef0c3706
+  context: "Integration test for sensitivity analysis in tests/integration/test_sensitivity.py\
+    \ (Verifies bottleneck density stability with threshold sweep \xB10.5)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify bottleneck density stability with threshold sweep \xB10.5"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:55:01Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: identify localized modes with high participation ratio and low frequency
+  claim_id: c_ecb89d6d
+  context: Identify localized modes (high PR, low frequency)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Identify_localized_modes_with_high_participation_ratio_and_l
+  kind: entity_fact
+  raw_text: Identify localized modes (high PR, low frequency)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:55:43Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: calculate bottleneck density for coordination less than 3
+  claim_id: c_ed49b6d0
+  context: Calculate bottleneck density (coordination < 3)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Calculate_bottleneck_density_for_coordination_less_than_3
+  kind: magnitude
+  raw_text: Calculate bottleneck density (coordination < 3)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:56:32Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: verify accuracy against manual calculation with absolute difference less
+    than 1e-6
+  claim_id: c_a521ca2f
+  context: Unit test for Bootstrap resampling in tests/unit/test_bootstrap.py (Verifies
+    multiple iterations and CI calculation accuracy vs manual calculation with |output
+    - manual| < 1e-6)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_accuracy_against_manual_calculation_with_absolute_dif
+  kind: magnitude
+  raw_text: Verify accuracy vs manual calculation with |output - manual| < 1e-6
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:57:09Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: verify runtime less than or equal to 30 minutes on 4000 atom system
+  claim_id: c_0c5509ad
+  context: "Integration test for runtime threshold in tests/integration/test_runtime_threshold.py\
+    \ (Verifies \u226430 mins on 4000-atom system)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_runtime_less_than_or_equal_to_30_minutes_on_4000_atom
+  kind: magnitude
+  raw_text: "Verify \u226430 mins on 4000-atom system"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:57:40Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: verify low power warning triggers when statistical power is less than
+    0.8
+  claim_id: c_91dc4c31
+  context: Integration test for Low Power warning in tests/integration/test_low_power_warning.py
+    (Verifies warning triggers when power < 0.8)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_low_power_warning_triggers_when_statistical_power_is
+  kind: magnitude
+  raw_text: Verify warning triggers when power < 0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:57:41Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: aggregate metrics across three distinct system sizes N equals 1000 N
+    equals 2000 and N equals 4000
+  claim_id: c_60d70a56
+  context: "Aggregate topology, VDOS, and \u03BA data across three distinct system\
+    \ sizes: N=1000, N=2000, N=4000 (per Spec FR-006)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Aggregate metrics across three distinct system sizes: N=1000, N=2000,
+    N=4000'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:57:41Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: output variance value of correlation coefficients across three system
+    sizes
+  claim_id: c_00c98af2
+  context: Explicitly output the variance value of correlation coefficients across
+    the three system sizes
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_variance_value_of_correlation_coefficients_across_thr
+  kind: entity_fact
+  raw_text: Output the variance value of correlation coefficients across the three
+    system sizes
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:58:31Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: flag low power if statistical power is less than 0.8
+  claim_id: c_29c838ad
+  context: Flag 'Low Power' if < 0.8
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_low_power_if_statistical_power_is_less_than_0.8
+  kind: magnitude
+  raw_text: Flag 'Low Power' if power < 0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T23:59:09Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: ensure calculated statistical power is reported in final summary table
+    and report
+  claim_id: c_079fd510
+  context: Ensure the calculated statistical power is reported in the final summary
+    table and report
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ensure_calculated_statistical_power_is_reported_in_final_sum
+  kind: entity_fact
+  raw_text: Ensure the calculated statistical power is reported in the final summary
+    table and report
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T00:00:09Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: all VDOS and statistical analysis must run on CPU within 7GB RAM
+  claim_id: c_4dbb3776
+  context: 'Compute: All VDOS and statistical analysis must run on CPU within 7GB
+    RAM.'
+  evidence:
+    entailment_evidence: All VDOS and statistical analysis must run on CPU within
+      7GB
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/All_VDOS_and_statistical_analysis_must_run_on_CPU_within_7GB
+  kind: entity_fact
+  raw_text: All VDOS and statistical analysis must run on CPU within 7GB RAM
+  resolved_value: all VDOS and statistical analysis must run on CPU within 7GB RAM
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T00:00:11Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: process data for three distinct system sizes 1000 2000 and 4000
+  claim_id: c_b23bb1f4
+  context: Ensure data for three distinct system sizes (1000, 2000, 4000) is processed
+    to satisfy FR-006 and SC-002.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Process data for three distinct system sizes (1000, 2000, 4000)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T00:02:17Z'

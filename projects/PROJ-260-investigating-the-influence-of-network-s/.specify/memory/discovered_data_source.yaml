@@ -1,0 +1,14 @@
+status: none
+intent: amorphous silicon MD trajectory aSi-2023-Ref Materials Cloud Zenodo python
+  package dataset
+required_fields:
+- atom_id
+- element
+- x
+- y
+- z
+- timestep
+- box_lengths
+cache_key: c2d9f7b90f5f684d5a953760e41f84b32bbe21a0eda5bf67669e80967f08ff6a
+searched_at: '2026-08-29T23:14:18.407022+00:00'
+retry_count: 1

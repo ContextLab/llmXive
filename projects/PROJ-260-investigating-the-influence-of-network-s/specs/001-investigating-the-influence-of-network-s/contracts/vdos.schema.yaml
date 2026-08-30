@@ -1,0 +1,41 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "Vibrational Density of States Schema"
+description: "Schema for VDOS and participation ratio data."
+type: object
+properties:
+  simulation_box_id:
+    type: string
+    description: "Unique identifier for the simulation box."
+  spectrum_data:
+    type: array
+    items:
+      type: object
+      properties:
+        frequency_THz:
+          type: number
+          minimum: 0
+        density_of_states:
+          type: number
+          minimum: 0
+        participation_ratio:
+          type: number
+          minimum: 0
+          maximum: 1
+      required:
+        - frequency_THz
+        - density_of_states
+        - participation_ratio
+  localized_mode_density:
+    type: number
+    minimum: 0
+    description: "Integrated density of localized modes in high-frequency range (10-15 THz)."
+  high_freq_peak_THz:
+    type: number
+    minimum: 10
+    maximum: 15
+    description: "Frequency of the peak in the high-frequency range."
+required:
+  - simulation_box_id
+  - spectrum_data
+  - localized_mode_density
+  - high_freq_peak_THz
