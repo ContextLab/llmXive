@@ -1,3 +1,11 @@
+T016b:
+  c: false
+  h: bbdd0af5991ed51b1adb49beb9ec056c2642da847199496f53c697c2a35b8fcb
+  r: "The repository contains `code/src/data/stratified_subset.py` with the required\
+    \ logic, but the required output file `data/processed/stratified_subset_manifest.json`\
+    \ is absent. Without this manifest, the task\u2019s core deliverable is not present.\
+    \ The next implementer must run the script (or ensure it writes to the correct\
+    \ location) to produce the stratified subset manifest."
 T021:
   c: false
   h: 4db3a34dcb876f7b20327408949893091115417fe7dd40b940911d4ad5f64a54
@@ -37,10 +45,3 @@ T040:
     or a CI report) are present. Without evidence that `pytest` was run and all unit/integration
     tests passed, the requirement cannot be confirmed. The implementer must provide
     the pytest run results showing a successful pass.
-T050:
-  c: false
-  h: dd1714d1c233e67c6384cccf086fc5bad53d2ff58a0dd676ad2adb2b2d9572c4
-  r: The `streaming_flow_processor` function is only partially shown and ends abruptly,
-    indicating it is not fully implemented. Additionally, the required output file
-    `data/processed/motion_labels.json` does not exist. Both the functional implementation
-    and the incremental JSON writing are missing.

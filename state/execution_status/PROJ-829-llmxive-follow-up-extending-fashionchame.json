@@ -1,16 +1,17 @@
 {
   "project_id": "PROJ-829-llmxive-follow-up-extending-fashionchame",
   "ok": false,
-  "reason": "3 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/src/adapters/text_cross_attention.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026a forward pass with dummy inputs to ensure no CUDA calls\u2026\u201d; code/src/adapters/text_cross_attention.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026=2, help='Batch size for dummy input')     parser.add_argumen\u2026\u201d; code/src/adapters/text_cross_attention.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026# Create dummy inputs on CPU         batch_siz\u2026\u201d; 1 command(s) failed: python code/scripts/run_full_benchmark.py --mode benchmark --subset-size 500 (rc=1); 7 declared deliverable(s) absent: data/processed/fidelity_report.json; data/processed/filtered_subset_manifest.json; data/processed/latency_verification_report.json",
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/src/adapters/text_cross_attention.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026is replaces the previous dummy input approach which was rejec\u2026\u201d; 2 command(s) failed: python code/scripts/run_full_benchmark.py --mode prepare (rc=2); python code/scripts/run_full_benchmark.py --mode benchmark --subset-size 500 (rc=2); 8 declared deliverable(s) absent: data/processed/fidelity_report.json; data/processed/filtered_subset_manifest.json; data/processed/latency_verification_report.json",
   "artifacts": [],
   "failures": [
-    "python code/scripts/run_full_benchmark.py --mode benchmark --subset-size 500 -> rc=1\n    in main\n    run_text_adapter_pipeline_with_bottleneck_analysis(\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-829-llmxive-follow-up-extending-fashionchame/code/src/pipeline/runner.py\", line 141, in run_text_adapter_pipeline_with_bottleneck_analysis\n    adapter = TextCrossAttentionAdapter(config) # Assuming config has necessary params\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-829-llmxive-follow-up-extending-fashionchame/code/src/adapter"
+    "python code/scripts/run_full_benchmark.py --mode prepare -> rc=2\n    usage: run_full_benchmark.py [-h] [--subset-size SUBSET_SIZE]\n                             [--config CONFIG] [--output-dir OUTPUT_DIR]\nrun_full_benchmark.py: error: unrecognized arguments: --mode prepare",
+    "python code/scripts/run_full_benchmark.py --mode benchmark --subset-size 500 -> rc=2\n    usage: run_full_benchmark.py [-h] [--subset-size SUBSET_SIZE]\n                             [--config CONFIG] [--output-dir OUTPUT_DIR]\nrun_full_benchmark.py: error: unrecognized arguments: --mode benchmark"
   ],
-  "fix_rounds": 2,
+  "fix_rounds": 3,
   "model_tier": 0,
-  "total_attempts": 2,
+  "total_attempts": 3,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-08-27T05:16:49Z"
+  "updated_at": "2026-08-30T05:41:56Z"
 }

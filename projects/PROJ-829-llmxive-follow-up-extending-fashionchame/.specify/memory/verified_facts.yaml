@@ -1,18 +1,10 @@
-1|pyyaml:
-  quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
-  source_id: pi
-  url: https://en.wikipedia.org/wiki/Pi
-  value: '3.141592653589793'
-'|attribute confidence conflicting vlm':
-  quote: + PE 101 48.6 48.1 60.0 47.4 59.5 70.2 84.5 62.6 34.2 51.2 51.7 48.7 48.5
-    42.7 50.4 57.0 47.2 63.7 57.7 69.2 60.2 27.7 32.7 39.2 42.2 33.2 37.2 36.9 31.7
-    37.7 52.2
-  source_id: '2606.02564'
-  url: https://arxiv.org/abs/2606.02564
-  value: '0.22'
-'|confidence threshold vlm':
-  quote: VBVR-Wan2.2-14B 160 0.682 0.763 0.733 0.713 0.795 0.776 0.827 0.601 0.732
-    0.596 0.542 0.628 0.600
-  source_id: '2606.02564'
-  url: https://arxiv.org/abs/2606.02564
-  value: '0.8'
+'|alpha anova test use':
+  quote: "The critical value is the number that the test statistic must exceed to\
+    \ reject the test.  In this case, Fcrit(2,15) = 3.68 at \u03B1 = 0.05.  Since\
+    \ F=9.3 > 3.68, the results are significant at the 5% significance level. One\
+    \ would not accept the null hypothesis, concluding that there is strong evidence\
+    \ that the expected values in the three groups differ.  The p-value for this test\
+    \ is 0.002."
+  source_id: One-way analysis of variance
+  url: https://en.wikipedia.org/wiki/One-way_analysis_of_variance
+  value: '0.05'

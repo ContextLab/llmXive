@@ -2128,3 +2128,515 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-25T17:08:07Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: VLM verification uses Salesforce/blip-large model
+  claim_id: c_5124ee82
+  context: 'Task T015: Implement VLM verification step in code/src/data/feasibility_filter.py
+    to exclude low-confidence prompts. Specs: Use model ID ''Salesforce/blip-large'',
+    load with device=''cpu'', torch_dtype=torch.float, trust_remote_code=False.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/VLM_verification_uses_Salesforce/blip-large_model
+  kind: entity_fact
+  raw_text: The system uses the 'Salesforce/blip-large' model for VLM verification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T05:50:24Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Optical flow calculation uses cv2.calcOpticalFlowFarneback
+  claim_id: c_74b1652b
+  context: 'Task T034-extended: Implement code/src/stats/motion_labels.py to derive
+    ''ground-truth motion labels'' from optical flow magnitude (calculated from video
+    frames) using cv2.calcOpticalFlowFarneback on sampled frames.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Optical_flow_calculation_uses_cv2.calcOpticalFlowFarneback
+  kind: entity_fact
+  raw_text: The optical flow calculation uses the cv2.calcOpticalFlowFarneback function.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T05:50:51Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: System uses 5:1 frame downsampling ratio
+  claim_id: c_ea42cca6
+  context: 'Task T042a-034: Generate a patch to explicitly authorize the 5:1 frame
+    downsampling ratio in spec.md... Constraint: Must verify that spec.md contains
+    the authorized downsampling ratio ''5:1'' in Section 3.2 or 5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses a 5:1 frame downsampling ratio.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T05:51:19Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Default VLM confidence threshold is 0.95
+  claim_id: c_5517a205
+  context: 'Task T015: Apply a configurable confidence threshold (default 0.95 from
+    settings.yaml), output JSON to data/processed/vlm_confidence_log.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default VLM confidence threshold is 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T05:51:53Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: ANOVA test uses alpha of 0.05
+  claim_id: c_9f5e313e
+  context: 'Task T031: Implement code/src/stats/significance.py (FR-005) to perform
+    ANOVA on fidelity scores across feature classes... Constraint: Use alpha=0.05.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The critical value is the number that the test statistic must exceed\
+        \ to reject the test.  In this case, Fcrit(2,15) = 3.68 at \u03B1 = 0.05.\
+        \  Since F=9.3 > 3.68, the results are significant at the 5% significance\
+        \ level. One would not accept the null hypothesis, concluding that there is\
+        \ strong evidence that the expected values in the three groups differ.  The\
+        \ p-value for this test is 0.002."
+      source_id: One-way analysis of variance
+      url: https://en.wikipedia.org/wiki/One-way_analysis_of_variance
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The ANOVA test uses an alpha value of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T05:52:16Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Power analysis uses effect size 0.5 and power 0.8
+  claim_id: c_8efd0659
+  context: 'Task T036: Perform Power Analysis using statsmodels.stats.power.TTestIndPower
+    with effect_size=0.5, power=0.8.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis uses an effect size of 0.5 and target power of 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T05:52:56Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis iterates threshold 0.0 to 1.0 in 0.1 increments
+  claim_id: c_ea361b23
+  context: 'Task T035: Iterate threshold across the standard range 0.0 to 1.0 in fixed
+    increments of 0.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis iterates threshold values from 0.0 to 1.0 in increments
+    of 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T05:53:51Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Latency threshold formula is mean + 2 * standard_deviation
+  claim_id: c_aea7702e
+  context: 'Task T028-config: Update code/config/settings.yaml to set latency_threshold_ms
+    to the value determined by T028-pilot using the formula: mean + 2 * standard_deviation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The latency threshold formula is mean plus two times the standard deviation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T05:53:52Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Statistical power analysis requires 30 samples per class
+  claim_id: c_9179a963
+  context: 'Task T036: If N<30, output results with a ''Low Power Warning'' flag in
+    the report and explicitly state the limitation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system requires a minimum of 30 samples per class for statistical
+    power analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T05:55:28Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Statistical analysis requires 10 samples per class
+  claim_id: c_a13fe861
+  context: 'Task T031: If any class has < 10, raise ValueError with message ''Insufficient
+    samples for statistical analysis''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system requires a minimum of 10 samples per class to proceed with
+    statistical analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T05:56:09Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: ANOVA raises error if class has fewer than 10 samples
+  claim_id: c_b5d2ec04
+  context: 'Task T031: If any class has < 10, raise ValueError with message ''Insufficient
+    samples for statistical analysis''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ANOVA_raises_error_if_class_has_fewer_than_10_samples
+  kind: magnitude
+  raw_text: The ANOVA test raises an error if any class has fewer than 10 samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T05:56:44Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Latency threshold default placeholder is 50.0 ms
+  claim_id: c_4d743050
+  context: 'Task T006: latency_threshold_ms: 50.0 # Default placeholder, to be refined
+    by T028-config'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The latency threshold default placeholder is 50.0 ms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T05:56:59Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: System uses DeepFashion2 dataset instead of Human3.6M
+  claim_id: c_d028299d
+  context: 'Task T042a-002-identify: Identify exact lines in spec.md and plan.md where
+    ''Human3.6M'' appears and needs replacement with ''DeepFashion2''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_uses_DeepFashion2_dataset_instead_of_Human3.6M
+  kind: entity_fact
+  raw_text: The system uses the DeepFashion2 dataset instead of Human3.6M.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T05:57:47Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: System uses Salesforce/blip-large model
+  claim_id: c_c301bddf
+  context: 'Task T006: blip_model_id: ''Salesforce/blip-large'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_uses_Salesforce/blip-large_model
+  kind: entity_fact
+  raw_text: The system uses the 'Salesforce/blip-large' model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T05:58:43Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Project uses Python 3.11
+  claim_id: c_6485b175
+  context: 'Task T002: Initialize Python 3.11 project with requirements.txt.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T05:59:23Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: System pins torch version to 2.0.0+cpu
+  claim_id: c_6437d1d4
+  context: 'Task T002: MUST pin exact versions for all dependencies (e.g., torch==2.0.0+cpu...)'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The system pins the torch version to 2.0.0+cpu.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T05:59:23Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: System pins transformers version to 4.30.0
+  claim_id: c_f1b12023
+  context: 'Task T002: MUST pin exact versions for all dependencies (e.g., ...transformers==4.30.0...)'
+  evidence:
+    asserted: '4.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The system pins the transformers version to 4.30.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T05:59:24Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: System pins opencv-python version to 4.8.0.74
+  claim_id: c_c933d1fc
+  context: 'Task T002: MUST pin exact versions for all dependencies (e.g., ...opencv-python==4.8.0.74...)'
+  evidence:
+    asserted: '4.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The system pins the opencv-python version to 4.8.0.74.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T05:59:24Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: System pins scikit-learn version to 1.3.0
+  claim_id: c_1df675dd
+  context: 'Task T002: MUST pin exact versions for all dependencies (e.g., ...scikit-learn==1.3.0...)'
+  evidence:
+    asserted: '1.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The system pins the scikit-learn version to 1.3.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T05:59:24Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: System pins scipy version to 1.11.0
+  claim_id: c_5c626d7c
+  context: 'Task T002: MUST pin exact versions for all dependencies (e.g., ...scipy==1.11.0...)'
+  evidence:
+    asserted: '1.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The system pins the scipy version to 1.11.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T05:59:25Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: System pins datasets version to 2.14.0
+  claim_id: c_a83ff74c
+  context: 'Task T002: MUST pin exact versions for all dependencies (e.g., ...datasets==2.14.0...)'
+  evidence:
+    asserted: '2.14'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The system pins the datasets version to 2.14.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T05:59:25Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: System pins pandas version to 2.0.3
+  claim_id: c_b1eaa59a
+  context: 'Task T002: MUST pin exact versions for all dependencies (e.g., ...pandas==2.0.3...)'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The system pins the pandas version to 2.0.3.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T05:59:25Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: System pins jsonschema version to 4.18.0
+  claim_id: c_3de64421
+  context: 'Task T002: MUST pin exact versions for all dependencies (e.g., ...jsonschema==4.18.0...)'
+  evidence:
+    asserted: '4.18'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The system pins the jsonschema version to 4.18.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T05:59:26Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: System pins psutil version to 5.9.5
+  claim_id: c_3bc5ede9
+  context: 'Task T002: MUST pin exact versions for all dependencies (e.g., ...psutil==5.9.5...)'
+  evidence:
+    asserted: '5.9'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The system pins the psutil version to 5.9.5.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T05:59:26Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: System pins blake3 version to 1.0.0
+  claim_id: c_bff18ce2
+  context: 'Task T002: MUST pin exact versions for all dependencies (e.g., ...blake3==1.0.0).'
+  evidence:
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The system pins the blake3 version to 1.0.0.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T05:59:26Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: System runs full benchmark within 6 hours on CPU free-tier
+  claim_id: c_1ddd34a7
+  context: 'Task T041: Verify code/src/pipeline/runner.py completes within 6 hours
+    on CPU free-tier.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system runs the full benchmark within 6 hours on a CPU free-tier.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T05:59:59Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: Robustness Index is percentage of unchanged motion labels across adjacent
+    thresholds
+  claim_id: c_0f34a33c
+  context: 'Task T035: robustness_metric = Robustness Index defined as: (Number of
+    samples where motion label (High/Low) remains unchanged across adjacent threshold
+    steps) / (Total samples) * 100.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Robustness_Index_is_percentage_of_unchanged_motion_labels_ac
+  kind: entity_fact
+  raw_text: The sensitivity analysis calculates the Robustness Index as the percentage
+    of samples where the motion label remains unchanged across adjacent threshold
+    steps.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:01:40Z'
