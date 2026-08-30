@@ -14,16 +14,3 @@ T022:
     \ (e.g., a validation script, test results, or failure logs), the claim cannot\
     \ be verified. The implementer must provide the actual validation implementation\
     \ and accompanying logs."
-T024:
-  c: false
-  h: 086b1e3962b8ad6dc9aa989d012b6c10a176cec4665f9f4184174e9db9e24d3a
-  r: The required file `data/processed/feature_metadata.json` does not exist, so no
-    documentation of electrode collinearity or correlation structure is present. The
-    implementer must create this JSON file with the appropriate metadata.
-T025:
-  c: false
-  h: b599dc8befde169a8e8e20f6340a1ba9eef7449ffd68fde5014faf4392f942b5
-  r: "The required input file `data/processed/features_matrix.csv` does not exist,\
-    \ so the classifier cannot be trained as specified. Although `code/classification.py`\
-    \ contains functions for loading the CSV and performing k\u2011fold LDA training,\
-    \ the essential data artifact is missing, violating the task requirement."

@@ -1,3 +1,9 @@
+"""
+Data entities for the neural correlates pipeline.
+
+This module defines the data classes used throughout the pipeline to represent
+epochs, features, classification results, and metadata.
+"""
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict, Any
 import numpy as np
@@ -5,55 +11,58 @@ import numpy as np
 @dataclass
 class Epoch:
     """Represents a single EEG epoch."""
-    id: str
-    condition: str
-    start_time: float
-    end_time: float
     data: np.ndarray
+    time: np.ndarray
+    condition: str
+    electrode_labels: List[str]
     metadata: Dict[str, Any] = field(default_factory=dict)
 
 @dataclass
 class Feature:
-    """Represents a single extracted feature."""
+    """Represents a single feature extracted from an epoch."""
     name: str
-    electrode: str
-    frequency_band: str
     value: float
-    epoch_id: str
+    electrode: str
+    band: str
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
 @dataclass
 class ClassifierResult:
-    """Represents classification results."""
+    """Represents the result of a classification task."""
     accuracy: float
     precision: float
     recall: float
-    cv_mean_accuracy: float
-    cv_std_accuracy: float
-    cv_scores: List[float]
+    f1_score: float
+    confusion_matrix: np.ndarray
+    cv_scores: List[float] = field(default_factory=list)
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
 @dataclass
 class PermutationResult:
-    """Represents permutation testing results."""
-    observed_accuracy: float
+    """Represents the result of a permutation test."""
     p_value: float
-    is_significant: bool
+    null_distribution: np.ndarray
+    observed_statistic: float
     n_permutations: int
-    null_distribution_mean: float
-    null_distribution_std: float
-    null_distribution: List[float]
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
 @dataclass
 class PreprocessingReport:
-    """Report of preprocessing steps and outcomes."""
-    total_epochs: int
-    rejected_epochs: int
-    skipped_electrodes: List[str]
-    event_source: str
-    assumptions: Dict[str, Any] = field(default_factory=dict)
+    """Report of preprocessing steps applied to the data."""
+    n_epochs_total: int
+    n_epochs_rejected: int
+    rejected_components: List[int] = field(default_factory=list)
+    skipped_electrodes: List[str] = field(default_factory=list)
+    event_source: str = "raw"
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
 @dataclass
 class FeatureMetadata:
-    """Metadata about extracted features."""
-    electrode_collinearity: Dict[str, float]
-    correlation_structure: Dict[str, Dict[str, float]]
-    fwe_corrected_p_values: Optional[Dict[str, float]] = None
+    """Metadata about the extracted features."""
+    feature_count: int
+    epoch_count: int
+    electrodes: Dict[str, List[str]]
+    bands: Dict[str, str]
+    validation: Dict[str, Any] = field(default_factory=dict)
+    fwe_corrected_p_values: List[Dict[str, Any]] = field(default_factory=list)
+    metadata: Dict[str, Any] = field(default_factory=dict)

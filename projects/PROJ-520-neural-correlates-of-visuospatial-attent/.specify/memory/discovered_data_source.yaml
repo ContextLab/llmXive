@@ -1,0 +1,16 @@
+status: none
+intent: OpenNeuro navigation EEG dataset and HuggingFace seizure EEG for validation
+  python package dataset
+required_fields:
+- subject_id
+- session_id
+- eeg_signal
+- sampling_rate
+- event_markers
+- condition_label
+- epoch_start
+- epoch_end
+- channel_names
+cache_key: a587e1c36c757c82430764062ab9fdfdc83767276bb56ed63b92340771c8d6dd
+searched_at: '2026-08-30T11:04:41.901893+00:00'
+retry_count: 1

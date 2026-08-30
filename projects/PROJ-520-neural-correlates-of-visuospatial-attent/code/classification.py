@@ -7,225 +7,218 @@ import warnings
 
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.model_selection import cross_val_score, StratifiedKFold
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
-from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
-from scipy.stats import ttest_ind
-import json
+from sklearn.metrics import accuracy_score, precision_score, recall_score
+from sklearn.inspection import permutation_importance
 
-# Import project config and logging
-from config import get_paths, get_seed
+from config import load_config, get_paths
+from models import ClassifierResult, PermutationResult
 from logging_config import get_pipeline_logger, log_stage_start, log_stage_end
-from ci_limits import enforce_limits, get_cpu_count
 
-# Setup logger
 logger = get_pipeline_logger(__name__)
 
-def load_features(filepath: str) -> Tuple[np.ndarray, np.ndarray, List[str]]:
+def load_features(file_path: str) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Load features from the processed CSV file.
-    Returns: (X, y, feature_names)
+    Load features and labels from the CSV produced by T023.
+    Expects a CSV with a 'label' column and numeric feature columns.
     """
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Feature matrix not found at {filepath}")
-    
-    df = pd.read_csv(filepath)
-    
-    # Assume the last column is the label 'condition' and others are features
-    # Adjust if column names differ based on T023/T024 implementation
-    if 'condition' not in df.columns:
-        raise ValueError("CSV must contain a 'condition' column for classification labels")
-    
-    feature_cols = [c for c in df.columns if c != 'condition']
-    X = df[feature_cols].values
-    y = df['condition'].values
-    
-    logger.info(f"Loaded features: {X.shape[0]} epochs, {X.shape[1]} features")
-    return X, y, feature_cols
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Feature matrix not found at {file_path}. "
+                                "Ensure T023 (feature extraction) has run successfully.")
 
-def train_and_validate(X: np.ndarray, y: np.ndarray, n_folds: int = 5) -> Dict[str, Any]:
+    df = pd.read_csv(path)
+
+    if 'label' not in df.columns:
+        raise ValueError("Feature matrix must contain a 'label' column.")
+
+    X = df.drop(columns=['label']).values
+    y = df['label'].values
+
+    # Basic sanity check
+    if X.shape[0] != y.shape[0]:
+        raise ValueError("Number of samples in X and y do not match.")
+
+    logger.info(f"Loaded features: {X.shape[0]} epochs, {X.shape[1]} features.")
+    return X, y
+
+def train_and_validate(X: np.ndarray, y: np.ndarray, n_folds: int = 5, seed: int = 42) -> ClassifierResult:
     """
-    Train LDA classifier with k-fold cross-validation.
-    Reports accuracy, precision, recall with standard deviation.
+    Train an LDA classifier with 5-fold cross-validation.
+    Returns a ClassifierResult object with accuracy, precision, recall metrics.
     """
-    logger.info("Starting cross-validation for LDA classifier")
-    
-    # Enforce CPU limits
-    cpu_limit = get_cpu_count()
-    enforce_limits(cpu_limit=cpu_limit)
-    
-    # Create pipeline: Scaler -> LDA
-    pipeline = Pipeline([
+    log_stage_start(logger, "Training LDA classifier with 5-fold CV")
+
+    # Setup CV
+    cv = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
+
+    # Pipeline: Scaler -> LDA
+    pipe = Pipeline([
         ('scaler', StandardScaler()),
         ('lda', LDA())
     ])
+
+    # Compute metrics
+    scores_acc = cross_val_score(pipe, X, y, cv=cv, scoring='accuracy')
     
-    # Stratified K-Fold to maintain class balance
-    skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=get_seed())
+    # For precision/recall, we need to predict on each fold to aggregate
+    # Using a loop to get per-fold predictions for robust metric calculation
+    precisions = []
+    recalls = []
     
-    # Lists to store metrics for each fold
-    fold_accuracies = []
-    fold_precisions = []
-    fold_recalls = []
-    fold_scores = []
-    
-    for fold_idx, (train_idx, test_idx) in enumerate(skf.split(X, y)):
+    for train_idx, test_idx in cv.split(X, y):
         X_train, X_test = X[train_idx], X[test_idx]
         y_train, y_test = y[train_idx], y[test_idx]
         
-        # Train
-        pipeline.fit(X_train, y_train)
+        pipe.fit(X_train, y_train)
+        y_pred = pipe.predict(X_test)
         
-        # Predict
-        y_pred = pipeline.predict(X_test)
-        
-        # Calculate metrics
-        acc = accuracy_score(y_test, y_pred)
-        prec = precision_score(y_test, y_pred, average='weighted', zero_division=0)
-        rec = recall_score(y_test, y_pred, average='weighted', zero_division=0)
-        
-        fold_accuracies.append(acc)
-        fold_precisions.append(prec)
-        fold_recalls.append(rec)
-        fold_scores.append(acc)
-        
-        logger.debug(f"Fold {fold_idx + 1}: Acc={acc:.4f}, Prec={prec:.4f}, Rec={rec:.4f}")
-    
-    # Calculate statistics
-    results = {
-        "accuracy": {
-            "mean": float(np.mean(fold_accuracies)),
-            "std": float(np.std(fold_accuracies)),
-            "values": [float(v) for v in fold_accuracies]
-        },
-        "precision": {
-            "mean": float(np.mean(fold_precisions)),
-            "std": float(np.std(fold_precisions)),
-            "values": [float(v) for v in fold_precisions]
-        },
-        "recall": {
-            "mean": float(np.mean(fold_recalls)),
-            "std": float(np.std(fold_recalls)),
-            "values": [float(v) for v in fold_recalls]
-        },
-        "n_folds": n_folds,
-        "n_samples": len(y),
-        "class_distribution": {
-            str(k): int(v) for k, v in zip(*np.unique(y, return_counts=True))
-        }
-    }
-    
-    logger.info(f"Cross-validation complete. Accuracy: {results['accuracy']['mean']:.4f} (+/- {results['accuracy']['std']:.4f})")
-    
-    return results
+        precisions.append(precision_score(y_test, y_pred, zero_division=0))
+        recalls.append(recall_score(y_test, y_pred, zero_division=0))
 
-def permutation_test(X: np.ndarray, y: np.ndarray, n_permutations: int = 1000, n_folds: int = 5) -> Dict[str, Any]:
+    # Calculate means and stds
+    acc_mean = float(np.mean(scores_acc))
+    acc_std = float(np.std(scores_acc))
+    prec_mean = float(np.mean(precisions))
+    prec_std = float(np.std(precisions))
+    rec_mean = float(np.mean(recalls))
+    rec_std = float(np.std(recalls))
+
+    result = ClassifierResult(
+        accuracy_mean=acc_mean,
+        accuracy_std=acc_std,
+        precision_mean=prec_mean,
+        precision_std=prec_std,
+        recall_mean=rec_mean,
+        recall_std=rec_std,
+        n_folds=n_folds,
+        model_type="LDA"
+    )
+
+    log_stage_end(logger, "LDA classification complete", {
+        "accuracy": f"{acc_mean:.4f} (+/- {acc_std:.4f})",
+        "precision": f"{prec_mean:.4f} (+/- {prec_std:.4f})",
+        "recall": f"{rec_mean:.4f} (+/- {rec_std:.4f})"
+    })
+
+    return result
+
+def permutation_test(X: np.ndarray, y: np.ndarray, n_permutations: int = 1000, 
+                     cv: int = 5, seed: int = 42) -> PermutationResult:
     """
     Perform permutation testing to establish statistical significance.
-    Returns p-value and null distribution stats.
+    Returns a PermutationResult with p-value and null hypothesis decision.
     """
-    logger.info(f"Starting permutation test with {n_permutations} iterations")
-    
-    pipeline = Pipeline([
+    log_stage_start(logger, f"Running permutation test ({n_permutations} iterations)")
+
+    pipe = Pipeline([
         ('scaler', StandardScaler()),
         ('lda', LDA())
     ])
-    
-    # Observed score
-    observed_scores = cross_val_score(pipeline, X, y, cv=StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=get_seed()))
-    observed_mean = np.mean(observed_scores)
-    
-    perm_scores = []
-    rng = np.random.RandomState(get_seed())
-    
+
+    # Actual score
+    actual_scores = cross_val_score(pipe, X, y, cv=cv, scoring='accuracy')
+    actual_mean = np.mean(actual_scores)
+
+    # Permutation scores
+    perm_scores = np.zeros(n_permutations)
     for i in range(n_permutations):
         # Shuffle labels
-        y_perm = rng.permutation(y)
-        scores = cross_val_score(pipeline, X, y_perm, cv=StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=get_seed()))
-        perm_scores.append(np.mean(scores))
+        y_perm = np.random.permutation(y)
+        scores = cross_val_score(pipe, X, y_perm, cv=cv, scoring='accuracy')
+        perm_scores[i] = np.mean(scores)
         
         if (i + 1) % 100 == 0:
-            logger.debug(f"Permutation {i+1}/{n_permutations}")
+            logger.debug(f"Permutation {i+1}/{n_permutations} complete")
+
+    # Calculate p-value (one-sided: prob of perm_score >= actual_score)
+    # If actual is better than chance, we look at tail
+    p_value = (np.sum(perm_scores >= actual_mean) + 1) / (n_permutations + 1)
     
-    perm_scores = np.array(perm_scores)
+    # Null hypothesis rejection
+    alpha = 0.05
+    reject_null = p_value < alpha
+
+    result = PermutationResult(
+        actual_accuracy=actual_mean,
+        permuted_scores=perm_scores,
+        p_value=p_value,
+        alpha=alpha,
+        reject_null=reject_null,
+        n_permutations=n_permutations
+    )
+
+    log_stage_end(logger, "Permutation test complete", {
+        "p_value": p_value,
+        "reject_null": reject_null,
+        "actual_accuracy": actual_mean
+    })
+
+    return result
+
+def run_classification(config: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Main orchestration function for the classification task.
+    Loads data, trains model, runs permutation test, and saves results.
+    """
+    paths = get_paths(config)
+    features_path = paths['processed_features']
+    output_results_path = paths['results_json']
+
+    if not Path(features_path).exists():
+        raise FileNotFoundError(f"Input features file missing: {features_path}. "
+                                "Run T023 (feature extraction) first.")
+
+    X, y = load_features(features_path)
     
-    # Calculate p-value (one-sided: prob of perm score >= observed score)
-    # Note: If observed is better than random, we count how many perms were as good or better
-    p_value = (np.sum(perm_scores >= observed_mean) + 1) / (n_permutations + 1)
+    # Train and validate
+    cv_result = train_and_validate(X, y, n_folds=5, seed=config.get('seed', 42))
     
-    return {
-        "observed_mean": float(observed_mean),
-        "perm_mean": float(np.mean(perm_scores)),
-        "perm_std": float(np.std(perm_scores)),
-        "p_value": float(p_value),
-        "n_permutations": n_permutations,
-        "significant": p_value < 0.05
+    # Permutation test
+    perm_result = permutation_test(X, y, n_permutations=1000, cv=5, seed=config.get('seed', 42))
+
+    # Compile results
+    results = {
+        "classification_results": {
+            "accuracy_mean": cv_result.accuracy_mean,
+            "accuracy_std": cv_result.accuracy_std,
+            "precision_mean": cv_result.precision_mean,
+            "precision_std": cv_result.precision_std,
+            "recall_mean": cv_result.recall_mean,
+            "recall_std": cv_result.recall_std,
+            "n_folds": cv_result.n_folds,
+            "model_type": cv_result.model_type
+        },
+        "statistical_significance": {
+            "permutation_p_value": perm_result.p_value,
+            "actual_accuracy": perm_result.actual_accuracy,
+            "n_permutations": perm_result.n_permutations,
+            "alpha": perm_result.alpha,
+            "reject_null_hypothesis": perm_result.reject_null
+        }
     }
 
-def run_classification(input_path: str, output_path: str) -> Dict[str, Any]:
-    """
-    Main execution function for User Story 3 classification tasks.
-    1. Loads features.
-    2. Runs cross-validation (T025, T026).
-    3. Runs permutation test (T027).
-    4. Saves comprehensive results.
-    """
-    log_stage_start("Classification Pipeline")
-    
-    try:
-        # Load data
-        X, y, feature_names = load_features(input_path)
-        
-        # 1. Cross-Validation & Metrics (T025, T026)
-        cv_results = train_and_validate(X, y)
-        
-        # 2. Permutation Testing (T027)
-        perm_results = permutation_test(X, y)
-        
-        # Compile final report
-        report = {
-            "status": "success",
-            "input_file": input_path,
-            "classification_metrics": cv_results,
-            "permutation_test": perm_results,
-            "feature_count": len(feature_names),
-            "timestamp": None # Will be set by runner if needed
-        }
-        
-        # Ensure output directory exists
-        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-        
-        # Save results to JSON
-        with open(output_path, 'w') as f:
-            json.dump(report, f, indent=2)
-        
-        logger.info(f"Classification results saved to {output_path}")
-        return report
-        
-    except Exception as e:
-        logger.error(f"Classification pipeline failed: {str(e)}")
-        raise
-    finally:
-        log_stage_end("Classification Pipeline")
+    # Ensure output directory exists
+    Path(output_results_path).parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_results_path, 'w') as f:
+        json.dump(results, f, indent=2)
+
+    logger.info(f"Classification results saved to {output_results_path}")
+    return results
 
 def main():
     """Entry point for script execution."""
-    paths = get_paths()
-    input_file = paths.get('processed_features', 'data/processed/features_matrix.csv')
-    output_file = paths.get('classification_results', 'data/processed/classification_results.json')
-    
-    if not os.path.exists(input_file):
-        logger.error(f"Input file not found: {input_file}. Please ensure T023 has run.")
-        return 1
-    
+    config = load_config()
     try:
-        run_classification(input_file, output_file)
-        return 0
+        results = run_classification(config)
+        print(f"Classification Complete. P-value: {results['statistical_significance']['permutation_p_value']:.4f}")
     except Exception as e:
-        logger.critical(f"Fatal error in main: {e}")
-        return 1
+        logger.error(f"Classification failed: {e}")
+        raise
 
 if __name__ == "__main__":
-    exit(main())
+    main()

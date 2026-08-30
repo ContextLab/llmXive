@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-520-neural-correlates-of-visuospatial-attent",
+  "ok": false,
+  "reason": "4 command(s) failed: python code/main.py --task download (rc=1); python code/main.py --task preprocess (rc=1); python code/main.py --task features (rc=1); 2 declared deliverable(s) absent: data/processed/feature_metadata.json; data/processed/features_matrix.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --task download -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/main.py\", line 12, in <module>\n    from config import load_config, get_paths\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/config.py\", line 9, in <module>\n    from ci_limits import get_environment_report\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/ci_limits.py\", line 24, in <module>\n    f",
+    "python code/main.py --task preprocess -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/main.py\", line 12, in <module>\n    from config import load_config, get_paths\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/config.py\", line 9, in <module>\n    from ci_limits import get_environment_report\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/ci_limits.py\", line 24, in <module>\n   ",
+    "python code/main.py --task features -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/main.py\", line 12, in <module>\n    from config import load_config, get_paths\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/config.py\", line 9, in <module>\n    from ci_limits import get_environment_report\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/ci_limits.py\", line 24, in <module>\n    f",
+    "python code/main.py --task classify -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/main.py\", line 12, in <module>\n    from config import load_config, get_paths\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/config.py\", line 9, in <module>\n    from ci_limits import get_environment_report\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/ci_limits.py\", line 24, in <module>\n    f"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-30T11:03:30Z"
+}

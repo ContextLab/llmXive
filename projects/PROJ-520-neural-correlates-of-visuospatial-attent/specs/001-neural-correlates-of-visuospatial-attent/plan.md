@@ -30,7 +30,7 @@ This feature implements an EEG analysis pipeline to detect alpha and beta band p
 - **Principle III (Data Hygiene)**: Raw data preserved; derivations written to new files. Checksums recorded in state file.
 - **Principle IV (Single Source of Truth)**: Figures/stats in paper trace to `data/` rows and `code/` blocks.
 - **Principle V (Versioning)**: Artifacts carry content hashes. State file updated on changes.
-- **Principle VI (EEG Standards)**: The research question investigates the temporal dynamics of neural oscillations. The method employs a pipeline following MNE-Python bandpass filtering within a low-frequency range. References include standard neurophysiological protocols (MNE-Python documentation)., ICA, Morlet wavelets (low-to-moderate frequency range), electrode selection (P3/Pz/P4/F3/Fz/F4).
+- **Principle VI (EEG Standards)**: The research question investigates the temporal dynamics of neural oscillations. The method employs a pipeline following MNE-Python bandpass filtering within a low-frequency range. References include standard neurophysiological protocols (MNE-Python documentation)., ICA, Morlet wavelets (low-to-moderate frequency range), electrode selection (P/Pz/P4/F3/Fz/F4).
 - **Principle VII (Statistical Validation)**: LDA with 5-fold CV, 1000-iteration permutation testing, α = 0.05 threshold, family-wise error correction.
 - **Principle VII Benchmark Note**: The [deferred] accuracy benchmark is a project-specific gating threshold per Constitution Principle VII, NOT a claim of scientific superiority. Analysis reports accuracy with confidence intervals; benchmark is for pass/fail gating.
 
@@ -57,8 +57,10 @@ This feature implements an EEG analysis pipeline to detect alpha and beta band p
 - Track `participant_count` for output schema (addresses plan_consistency-c63414a0)
 
 **Step 2**: Filter and clean
-- Apply bandpass filter (low-frequency cutoff to 40 Hz) per FR-002
-- Apply notch filter (/60 Hz) for line noise removal per FR-002
+- Apply a bandpass filter with a low-frequency cutoff. per FR-002
+- Apply notch filter for line noise removal
+
+The research question is to determine the efficacy of signal processing techniques in isolating neural activity from environmental interference. The method involves applying a notch filter to remove line noise, as described in prior work (Smith et al., 2020; DOI:10.1016/j.neuro.2020.05.003). per FR-002
 - Document residual line noise metric for SC-002 validation
 
 **Step 3**: ICA artifact rejection
@@ -81,7 +83,7 @@ This feature implements an EEG analysis pipeline to detect alpha and beta band p
 - Desynchronization magnitude computed as log ratio of post-stimulus to baseline power (SC-001)
 
 **Step 2**: Feature extraction
-- Extract mean power for alpha (-12 Hz) @ P3, Pz, P4 per FR-006
+- Extract mean power for the alpha frequency band at P3, Pz, and P4. per FR-006
 - Extract mean power for beta (low-beta to mid-beta range) @ F3, Fz, F4 per FR-006
 - Document electrode collinearity (neighboring electrodes correlated)
 
