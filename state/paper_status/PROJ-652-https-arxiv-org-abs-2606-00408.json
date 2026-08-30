@@ -18,12 +18,12 @@
         "page": 50
       }
     ],
-    "audited_at": "2026-08-30T06:56:01.561964+00:00"
+    "audited_at": "2026-08-30T07:18:25.737838+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-652-https-arxiv-org-abs-2606-00408",
-  "updated_at": "2026-08-30T06:56:01.561977+00:00"
+  "updated_at": "2026-08-30T07:18:25.737854+00:00"
 }
