@@ -1,3 +1,12 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings, creation logs, or `.gitkeep` files were provided; thus
+    there is no evidence that the required folders (`code/`, `code/utils/`, `data/raw/`,
+    `data/raw/repos/`, `data/processed/`, `tests/unit/`, `tests/integration/`, `state/`,
+    `logs/`) actually exist. The implementer must supply proof (e.g., `ls -R` output,
+    test commands results, or the created `.gitkeep` files) to confirm the structure
+    was created.
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -6,10 +15,36 @@ T009:
     \ The claim lacks any tangible artifact, so the requirement is not satisfied."
 T010:
   c: false
-  h: 4f987487ff3be341cfd5ae1f2744f405801e379d3fbde6360ea0c76e5090b290
-  r: "The `repo_loader.py` file is incomplete \u2013 it ends with a dangling line\
-    \ (`if not isinstance(entry[\"name\"], str) or`) that makes the module syntactically\
-    \ invalid, so the validation logic is not fully implemented. Moreover, the required\
-    \ data file `data/raw/repo_list.json` is absent, meaning the loader cannot actually\
-    \ load and validate any repository list. Both the missing JSON file and the broken\
-    \ code prevent the task from being genuinely satisfied."
+  h: 18860b4ff39ebe9e24096a6978f09921a9ccfaa956fefba701e195517918b777
+  r: "The required `data/raw/repo_list.json` file does not exist, and the provided\
+    \ `repo_fetcher.py` snippet is incomplete\u2014it never writes a JSON with the\
+    \ required `repo_url`, `github_url`, and `star_count` fields, nor does it log\
+    \ exactly 20 selected URLs. The task\u2019s core output and validation steps are\
+    \ missing."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code or data artifact was presented showing that the generation batch JSON\
+    \ is read, that empty/whitespace docstrings are detected, and that the resulting\
+    \ records have `coverage_score` set to\u202F0.0 and `needs_review` set to\u202F\
+    true. The required changes are therefore not demonstrated."
+T030:
+  c: false
+  h: c74884a751bb8b8496426a848fc14f950e454016f78ca6f34eeebb2cb145372a
+  r: "The required file `tests/unit/test_stats.py` is missing from the repository,\
+    \ so no unit test for semantic similarity calculation exists. Without this artifact,\
+    \ the task\u2019s deliverable is not present."
+T031:
+  c: false
+  h: c74884a751bb8b8496426a848fc14f950e454016f78ca6f34eeebb2cb145372a
+  r: "The required artifact `tests/unit/test_stats.py` is missing from the repository,\
+    \ so no unit test for the Wilcoxon test with a small dataset warning is present.\
+    \ The task\u2019s core deliverable is therefore not satisfied."
+T033:
+  c: false
+  h: e8657b3a1a0768de8f3238919f8437b9b7ade38d3f897012cb1d8697db9e6269
+  r: The `calculate_parameter_coverage_score` function is present, but the required
+    `data/processed/results.json` file is missing, and the `process_results_for_coverage`
+    implementation is truncated and does not fully read the JSON, extract `ast_params`,
+    and apply the coverage calculation. The task therefore lacks the essential input
+    artifact and a complete processing pipeline.

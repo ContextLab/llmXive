@@ -11,7 +11,7 @@ This feature implements a reproducible pipeline to evaluate the documentation co
 
 ## Technical Context
 
-**Language/Version**: Python 3.10+ (required for `ast` compatibility and modern type hint parsing).
+**Language/Version**: Python + (required for `ast` compatibility and modern type hint parsing).
 **Primary Dependencies**:
 -   `datasets` (Hugging Face) for potential data loading (if mirroring used).
 -   `transformers`, `torch`, `bitsandbytes` (CPU fallback configured) for model inference.

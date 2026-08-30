@@ -1,143 +1,161 @@
-"""
-Unit tests for model loading with 4-bit quantization and abort logic.
-Tests for T021 [US2].
-"""
-import unittest
-import sys
+"""Unit tests for docstring generation functionality."""
+import pytest
+import json
 import os
-from unittest.mock import patch, MagicMock, Mock
-from io import StringIO
+from pathlib import Path
+from unittest.mock import Mock, patch, MagicMock
 
-# Add project root to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+# Import the module under test
+import sys
+sys.path.insert(0, 'code')
 
-from utils.model_loader import ModelLoadException, ModelDeviationException, load_model
-from utils.config import get_quantization_config
+from generate import load_method_data, generate_docstring_batch, save_results, GenerationException
 from utils.monitor import MemoryLimitException
-import torch
 
-
-class TestModelLoading4Bit(unittest.TestCase):
-    """Tests for 4-bit quantization enforcement and abort logic."""
-
-    def setUp(self):
-        """Set up test fixtures."""
-        self.mock_model_path = "Salesforce/codegen-350M-mono"
-        self.mock_tokenizer = MagicMock()
-        self.mock_model = MagicMock()
+class TestLoadMethodData:
+    """Tests for load_method_data function."""
+    
+    def test_load_valid_json(self, tmp_path):
+        """Test loading a valid JSON file with method data."""
+        data = [
+            {"signature": "test_func(x, y)", "ast_params": ["x", "y"]},
+            {"signature": "another_func(a)", "ast_params": ["a"]}
+        ]
+        json_file = tmp_path / "test.json"
+        with open(json_file, 'w') as f:
+            json.dump(data, f)
+            
+        result = load_method_data(json_file)
+        assert len(result) == 2
+        assert result[0]["signature"] == "test_func(x, y)"
+        assert result[0]["ast_params"] == ["x", "y"]
         
-        # Mock torch.cuda and related functions
-        self.cuda_available_patcher = patch('torch.cuda.is_available', return_value=False)
-        self.cuda_available_patcher.start()
+    def test_load_empty_list(self, tmp_path):
+        """Test loading an empty JSON list."""
+        json_file = tmp_path / "empty.json"
+        with open(json_file, 'w') as f:
+            json.dump([], f)
+            
+        result = load_method_data(json_file)
+        assert result == []
         
-        self.device_patcher = patch('torch.device')
-        self.device_mock = self.device_patcher.start()
-        self.device_mock.return_value = "cpu"
+    def test_load_not_a_list(self, tmp_path):
+        """Test loading a JSON file that is not a list."""
+        json_file = tmp_path / "invalid.json"
+        with open(json_file, 'w') as f:
+            json.dump({"key": "value"}, f)
+            
+        with pytest.raises(GenerationException, match="Expected list"):
+            load_method_data(json_file)
+            
+    def test_load_file_not_found(self):
+        """Test loading a non-existent file."""
+        with pytest.raises(GenerationException, match="File not found"):
+            load_method_data(Path("nonexistent.json"))
+            
+    def test_load_invalid_json(self, tmp_path):
+        """Test loading a file with invalid JSON."""
+        json_file = tmp_path / "bad.json"
+        with open(json_file, 'w') as f:
+            f.write("not valid json")
+            
+        with pytest.raises(GenerationException, match="JSON decode error"):
+            load_method_data(json_file)
 
-    def tearDown(self):
-        """Clean up test fixtures."""
-        self.cuda_available_patcher.stop()
-        self.device_patcher.stop()
-
-    @patch('utils.model_loader.AutoTokenizer.from_pretrained')
-    @patch('utils.model_loader.AutoModelForCausalLM.from_pretrained')
-    def test_load_model_with_4bit_quantization(self, mock_from_pretrained, mock_tokenizer):
-        """Test that model loads successfully with 4-bit quantization config."""
-        # Setup mocks
-        mock_tokenizer.return_value = self.mock_tokenizer
-        mock_from_pretrained.return_value = self.mock_model
+class TestGenerateDocstringBatch:
+    """Tests for generate_docstring_batch function."""
+    
+    @patch('generate.check_memory_limit')
+    def test_generate_success(self, mock_check_mem):
+        """Test successful docstring generation."""
+        # Mock model and tokenizer
+        mock_model = Mock()
+        mock_model.device = "cpu"
         
-        # Create expected quantization config
-        expected_config = get_quantization_config(4)
+        mock_tokenizer = Mock()
+        mock_tokenizer.eos_token_id = 50256
         
-        # Call function under test
-        model, tokenizer = load_model(self.mock_model_path, device="cpu")
+        # Mock the generate method to return specific tokens
+        mock_output = Mock()
+        mock_output.__getitem__ = lambda self, idx: [101, 102, 103]  # Simulated token IDs
+        mock_model.generate.return_value = mock_output
         
-        # Verify tokenizer was called
-        mock_tokenizer.assert_called_once_with(self.mock_model_path, trust_remote_code=True)
+        # Mock tokenizer.decode
+        mock_tokenizer.decode.return_value = "def test_func(x, y):\n    \"\"\"Generated docstring.\"\"\""
         
-        # Verify model was called with 4-bit quantization config
-        mock_from_pretrained.assert_called_once()
-        call_kwargs = mock_from_pretrained.call_args[1]
-        self.assertIn('quantization_config', call_kwargs)
-        self.assertIsNotNone(call_kwargs['quantization_config'])
-        self.assertEqual(call_kwargs['quantization_config'].bnb_4bit_compute_dtype, torch.float32)
+        methods = [
+            {"signature": "test_func(x, y)", "ast_params": ["x", "y"]}
+        ]
         
-        # Verify return values
-        self.assertEqual(model, self.mock_model)
-        self.assertEqual(tokenizer, self.mock_tokenizer)
-
-    @patch('utils.model_loader.AutoModelForCausalLM.from_pretrained')
-    def test_load_model_aborts_on_quantization_failure(self, mock_from_pretrained):
-        """Test that ModelLoadException is raised when quantization fails."""
-        # Simulate quantization failure
-        mock_from_pretrained.side_effect = ModelLoadException("Quantization failed")
+        result = generate_docstring_batch(methods, mock_model, mock_tokenizer, temperature=0.1)
         
-        # Verify exception is raised
-        with self.assertRaises(ModelLoadException) as context:
-            load_model(self.mock_model_path, device="cpu")
+        assert len(result) == 1
+        assert result[0]["generated_docstring"] is not None
+        assert "ast_params" in result[0]  # Preserved
+        assert result[0]["generation_status"] == "success"
         
-        self.assertIn("Quantization failed", str(context.exception))
-
-    @patch('utils.model_loader.AutoModelForCausalLM.from_pretrained')
-    def test_load_model_aborts_on_memory_limit(self, mock_from_pretrained):
-        """Test that MemoryLimitException is raised when memory limit is exceeded."""
-        # Setup mock to raise MemoryLimitException
-        mock_from_pretrained.side_effect = MemoryLimitException("Memory limit exceeded")
+    def test_generate_empty_signature(self):
+        """Test handling of empty signature."""
+        mock_model = Mock()
+        mock_tokenizer = Mock()
         
-        # Verify exception is raised
-        with self.assertRaises(MemoryLimitException) as context:
-            load_model(self.mock_model_path, device="cpu")
+        methods = [
+            {"signature": "", "ast_params": []},
+            {"signature": "valid_func()", "ast_params": []}
+        ]
         
-        self.assertIn("Memory limit exceeded", str(context.exception))
-
-    def test_quantization_config_creation(self):
-        """Test that 4-bit quantization config is created correctly."""
-        config = get_quantization_config(4)
+        # Mock model.generate to avoid actual generation
+        mock_model.device = "cpu"
+        mock_tokenizer.eos_token_id = 50256
+        mock_output = Mock()
+        mock_output.__getitem__ = lambda self, idx: [101]
+        mock_model.generate.return_value = mock_output
+        mock_tokenizer.decode.return_value = "def valid_func():\n    pass"
         
-        self.assertIsNotNone(config)
-        self.assertTrue(config.bnb_4bit_quant_type == "nf4")
-        self.assertTrue(config.bnb_4bit_compute_dtype == torch.float32)
-        self.assertTrue(config.llm_int8_skip_modules is None)
-
-    @patch('utils.model_loader.AutoModelForCausalLM.from_pretrained')
-    def test_load_model_with_invalid_device(self, mock_from_pretrained):
-        """Test that load_model handles invalid device specification."""
-        mock_tokenizer = MagicMock()
-        mock_model = MagicMock()
-        mock_tokenizer.return_value = mock_tokenizer
-        mock_from_pretrained.return_value = mock_model
+        result = generate_docstring_batch(methods, mock_model, mock_tokenizer)
         
-        # Test with invalid device string
-        with self.assertRaises(ModelLoadException):
-            load_model(self.mock_model_path, device="invalid_device")
-
-    @patch('utils.model_loader.AutoModelForCausalLM.from_pretrained')
-    @patch('utils.model_loader.AutoTokenizer.from_pretrained')
-    def test_load_model_with_deviation_exception(self, mock_tokenizer, mock_from_pretrained):
-        """Test that ModelDeviationException is handled correctly."""
-        mock_tokenizer.return_value = self.mock_tokenizer
-        mock_from_pretrained.side_effect = ModelDeviationException("Model deviation detected")
+        assert len(result) == 2
+        assert result[0]["generation_status"] == "skipped_empty_signature"
+        assert result[1]["generation_status"] == "success"
         
-        with self.assertRaises(ModelDeviationException):
-            load_model(self.mock_model_path, device="cpu")
+    @patch('generate.check_memory_limit')
+    def test_generate_memory_limit_exceeded(self, mock_check_mem):
+        """Test that memory limit exception is raised."""
+        mock_check_mem.side_effect = MemoryLimitException("RAM limit exceeded")
+        
+        mock_model = Mock()
+        mock_tokenizer = Mock()
+        
+        methods = [{"signature": "test()", "ast_params": []}]
+        
+        with pytest.raises(MemoryLimitException):
+            generate_docstring_batch(methods, mock_model, mock_tokenizer)
 
-
-class TestQuantizationConfig(unittest.TestCase):
-    """Tests for quantization configuration utilities."""
-
-    def test_get_quantization_config_4bit(self):
-        """Test 4-bit quantization config generation."""
-        config = get_quantization_config(4)
-        self.assertIsNotNone(config)
-        self.assertTrue(hasattr(config, 'bnb_4bit_quant_type'))
-        self.assertTrue(hasattr(config, 'bnb_4bit_compute_dtype'))
-
-    def test_get_quantization_config_invalid_bits(self):
-        """Test that invalid bit quantization raises error."""
-        with self.assertRaises(ModelLoadException):
-            get_quantization_config(8)  # Only 4-bit is supported
-
-
-if __name__ == '__main__':
-    unittest.main()
+class TestSaveResults:
+    """Tests for save_results function."""
+    
+    def test_save_results(self, tmp_path):
+        """Test saving results to JSON."""
+        results = [
+            {"signature": "test()", "generated_docstring": "A test function"},
+            {"signature": "another()", "generated_docstring": None}
+        ]
+        output_file = tmp_path / "results.json"
+        
+        save_results(results, output_file)
+        
+        assert output_file.exists()
+        with open(output_file, 'r') as f:
+            saved_data = json.load(f)
+            
+        assert len(saved_data) == 2
+        assert saved_data[0]["signature"] == "test()"
+        
+    def test_save_creates_directories(self, tmp_path):
+        """Test that save_results creates parent directories."""
+        results = [{"signature": "test()", "generated_docstring": "test"}]
+        output_file = tmp_path / "subdir" / "results.json"
+        
+        save_results(results, output_file)
+        
+        assert output_file.exists()

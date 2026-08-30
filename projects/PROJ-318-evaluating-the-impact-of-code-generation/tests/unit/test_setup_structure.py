@@ -1,89 +1,82 @@
-"""
-Unit tests for the project setup structure.
-Verifies that the required directories exist after running setup_structure.py.
-"""
 import os
-import sys
 import tempfile
-import shutil
-from pathlib import Path
 import pytest
+from pathlib import Path
+import sys
 
-# Add the parent directory to the path to import the setup script
-# We need to simulate the environment where code/setup_structure.py is run
+# Add the code directory to the path so we can import setup_structure
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+
+from setup_structure import create_directories, create_gitkeep_files, verify_structure, REQUIRED_DIRS
+
 @pytest.fixture
 def temp_project_root():
-    """Create a temporary directory to act as the project root."""
-    temp_dir = tempfile.mkdtemp()
-    yield temp_dir
-    shutil.rmtree(temp_dir)
+    """Create a temporary directory to act as the project root for testing."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        yield Path(tmp_dir)
 
-def test_directories_exist(temp_project_root):
-    """Test that the setup script creates all required directories."""
-    # Import the main logic here to avoid path issues
-    script_content = (Path(__file__).parent.parent.parent / "code" / "setup_structure.py").read_text()
+def test_create_directories_creates_all_required(temp_project_root):
+    """Test that create_directories creates all required directories."""
+    created = create_directories(temp_project_root)
     
-    # We need to modify the script to run against our temp root
-    # Instead of rewriting the script, we'll manually verify the logic
+    assert len(created) == len(REQUIRED_DIRS), f"Expected {len(REQUIRED_DIRS)} directories, created {len(created)}"
     
-    required_dirs = [
-        "code",
-        "code/utils",
-        "data/raw",
-        "data/raw/repos",
-        "data/processed",
-        "tests/unit",
-        "tests/integration",
-        "state",
-        "logs",
-    ]
+    for dir_name in REQUIRED_DIRS:
+        target_path = temp_project_root / dir_name
+        assert target_path.exists(), f"Directory {target_path} was not created"
+        assert target_path.is_dir(), f"{target_path} exists but is not a directory"
 
-    # Create the directories manually to simulate the script execution
-    for dir_path in required_dirs:
-        full_path = Path(temp_project_root) / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
+def test_create_directories_ignores_existing(temp_project_root):
+    """Test that create_directories does not fail if directories already exist."""
+    # Pre-create one directory
+    pre_created = temp_project_root / REQUIRED_DIRS[0]
+    pre_created.mkdir()
+    
+    created = create_directories(temp_project_root)
+    
+    # Should only return the ones that were actually created in this call
+    # or we can just check that no exception was raised and all exist
+    for dir_name in REQUIRED_DIRS:
+        target_path = temp_project_root / dir_name
+        assert target_path.exists()
 
-    # Verify all directories exist
-    for dir_path in required_dirs:
-        full_path = Path(temp_project_root) / dir_path
-        assert full_path.exists(), f"Directory {dir_path} was not created"
-        assert full_path.is_dir(), f"{dir_path} is not a directory"
+def test_create_gitkeep_files(temp_project_root):
+    """Test that create_gitkeep_files creates .gitkeep in all directories."""
+    # First create the directories
+    create_directories(temp_project_root)
+    
+    created_files = create_gitkeep_files(temp_project_root)
+    
+    assert len(created_files) == len(REQUIRED_DIRS), f"Expected {len(REQUIRED_DIRS)} .gitkeep files, created {len(created_files)}"
+    
+    for dir_name in REQUIRED_DIRS:
+        target_path = temp_project_root / dir_name / ".gitkeep"
+        assert target_path.exists(), f".gitkeep file not created in {target_path.parent}"
+        assert target_path.is_file(), f"{target_path} is not a file"
 
-def test_nested_directories_created(temp_project_root):
-    """Test that nested directories are created correctly."""
-    required_dirs = [
-        "data/raw/repos",
-        "code/utils",
-        "tests/integration",
-    ]
+def test_verify_structure_success(temp_project_root):
+    """Test verify_structure returns True when structure is complete."""
+    create_directories(temp_project_root)
+    create_gitkeep_files(temp_project_root)
+    
+    assert verify_structure(temp_project_root) is True
 
-    for dir_path in required_dirs:
-        full_path = Path(temp_project_root) / dir_path
-        # Ensure parent exists first
-        full_path.parent.mkdir(parents=True, exist_ok=True)
-        full_path.mkdir(exist_ok=True)
-        
-        assert full_path.exists()
-        assert full_path.is_dir()
-        # Check parent exists
-        assert full_path.parent.exists()
+def test_verify_structure_missing_dir(temp_project_root):
+    """Test verify_structure returns False when a directory is missing."""
+    create_directories(temp_project_root)
+    create_gitkeep_files(temp_project_root)
+    
+    # Remove one directory
+    (temp_project_root / REQUIRED_DIRS[0]).rmdir()
+    
+    assert verify_structure(temp_project_root) is False
 
-def test_no_files_in_directories_after_setup(temp_project_root):
-    """Test that the setup script only creates directories, not files."""
-    required_dirs = [
-        "code",
-        "data/raw",
-        "tests/unit",
-        "state",
-        "logs",
-    ]
-
-    for dir_path in required_dirs:
-        full_path = Path(temp_project_root) / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        
-        # Check that the directory is empty (no files)
-        files = list(full_path.iterdir())
-        # Note: This assumes no files were created by the script itself
-        # The script only creates directories
-        assert len(files) == 0, f"Directory {dir_path} should be empty after setup"
+def test_verify_structure_missing_gitkeep(temp_project_root):
+    """Test verify_structure returns False when a .gitkeep is missing."""
+    create_directories(temp_project_root)
+    create_gitkeep_files(temp_project_root)
+    
+    # Remove one .gitkeep
+    (temp_project_root / REQUIRED_DIRS[0] / ".gitkeep").unlink()
+    
+    assert verify_structure(temp_project_root) is False

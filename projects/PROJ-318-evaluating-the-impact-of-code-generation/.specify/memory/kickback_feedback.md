@@ -4,9 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No directory tree, `test -d` verification output, or `.gitkeep` files were provided; the claim contains only a description of the steps, not the actual artifacts confirming the required folders exist. The implementer must supply evidence that the listed directories were created and contain the placeholder files.
-- `T042` (rejected 1x): The claim provides no `logs/perf.log` file or any recorded execution time evidence; without that log we cannot verify that the full pipeline completed within the 6‑hour limit (including the safety buffer). The required artifact is missing.
-- `T013` (rejected 1x): The required artifact `tests/unit/test_coverage.py` is missing entirely, so no unit test exists to verify null handling for methods without docstrings. The task’s deliverable is absent.
+- `T024` (rejected 1x): No code, script, or output files were presented that iterate over `data/raw/repos/*.json`, generate docstrings at a fixed low temperature, and write `data/processed/generation_batch_{repo_id}.json` while preserving `ast_params`. The required artifact is missing, so the task is not satisfied.
 
 ## Required change
 
