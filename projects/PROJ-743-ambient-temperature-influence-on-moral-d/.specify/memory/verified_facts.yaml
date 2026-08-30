@@ -1,10 +1,4 @@
-5|2m dataset era5 temperature used variable:
-  quote: against ERA5. In doing so, we identify a recurrent, spatially coherent error
-    in 2m Temperature centred
-  source_id: '2601.04701'
-  url: https://arxiv.org/abs/2601.04701
-  value: 2m Temperature
-'|data era5 grid resolution source':
+'|era5 grid resolution':
   quote: Freely available Global Atmospheric Models such as ERA5 data are generated
     using Copernicus Climate Change Service Information developed for numerical weather
     prediction. These models can provide accurate and high-resolution (still is coarse
@@ -18,4 +12,4 @@
     level to 50 km.
   source_id: Atmospheric correction for interferometric synthetic aperture radar technique
   url: https://en.wikipedia.org/wiki/Atmospheric_correction_for_interferometric_synthetic_aperture_radar_technique
-  value: '0.25'
+  value: 0.25 degrees

@@ -1,3 +1,12 @@
+T001b:
+  c: false
+  h: eeda392e48836fc20d55c189ba9c6a3b099f72a3ed2b8b5ddb2c298d20b2602c
+  r: The required output file `data/raw/era_sample.h5` is missing, so the script was
+    either not executed or failed to produce the hourly temperature sample. Without
+    this HDF5 file the validation of hourly resolution and temperature values cannot
+    be confirmed. The implementer must run `code/validate_era5.py` (ensuring CDS API
+    access) so that `era_sample.h5` is created and the log reflects the actual validation
+    results.
 T002:
   c: false
   h: 9be714bd982907e82e44e439b7b488135b9a5598dc210c4b9fe370a62a74c708
@@ -5,13 +14,6 @@ T002:
     \ we cannot verify that it actually computes and writes the bounding box. Moreover,\
     \ the required output file `data/external/bounding_box.json` is missing. The task\u2019\
     s core deliverable (the JSON bounding\u2011box file) is not present."
-T002c:
-  c: false
-  h: bebd4fcc56bb6f1d1ad35aa31c8d7cd1f51176c5270323bb4b6842194fd905ec
-  r: "The required output file `data/raw/era5_full.h5` does not exist, and the log\
-    \ does not contain any entry confirming that `fetch_era_full.py` successfully\
-    \ fetched, merged, and saved the dataset. Without the H5 file (and a proper success/failure\
-    \ log entry), the task\u2019s core requirement is unmet."
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -20,6 +22,12 @@ T007:
     \ `results/stats/`, `tests/`) actually exist; thus the task\u2019s deliverable\
     \ cannot be confirmed. The implementer must supply a file\u2011system snapshot\
     \ or command output proving the structure is created."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `.flake8`, `black` settings) or related scripts are present in the provided evidence,
+    so the requirement to configure ruff/flake8 and black cannot be verified as fulfilled.
 T011:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

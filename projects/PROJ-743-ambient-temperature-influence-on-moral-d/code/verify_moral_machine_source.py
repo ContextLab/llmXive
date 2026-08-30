@@ -5,153 +5,187 @@ from datetime import datetime
 from pathlib import Path
 import requests
 import pandas as pd
+from io import StringIO
 
+# Import shared logging setup
 from setup_logging import setup_logging, get_data_quality_logger
-from config import get_path_env_override
 
-# Canonical URL for the Moral Machine dataset (verified source)
-MORAL_MACHINE_URL = "https://storage.googleapis.com/openml/data/200245852/200245852.csv.gz"
-# Alternative direct download if Google Storage is blocked, but primary is the OpenML/GCS link
-# Note: The project spec references a specific verified source. If the URL changes, update here.
-# Based on standard Moral Machine dataset hosting:
-# The dataset is often hosted on OpenML or direct GCS buckets.
-# We will attempt the primary canonical source.
-REQUIRED_COLUMNS = ['latitude', 'longitude', 'timestamp', 'response_time', 'country', 'dilemma_id']
+# Required columns as per task description
+REQUIRED_COLUMNS = {
+    'latitude': float,
+    'longitude': float,
+    'timestamp': str,  # Will parse later, but column must exist
+    'response_time': float,
+    'country': str,
+    'dilemma_id': str
+}
 
-def setup_logging_custom():
-    """Configure logging for this specific module if not already configured."""
-    setup_logging()
+# Canonical OSF URL for Moral Machine dataset
+# The task mentions "https://osf.io/..." - using the known public URL for the Moral Machine dataset
+MORAL_MACHINE_URL = "https://osf.io/download/60669a22d82e6c0046045264/"
+# Alternative direct CSV link if download endpoint fails
+MORAL_MACHINE_CSV_URL = "https://osf.io/60669a22d82e6c0046045264/?action=download"
 
-def verify_source_access(url: str, timeout: int = 30) -> bool:
-    """
-    Verify that the source URL is accessible (HTTP 200).
-    Returns True if accessible, False otherwise.
-    """
+def setup_logging_custom(log_file_path: Path):
+    """Configure logging to file and console."""
+    logger = logging.getLogger("moral_machine_verify")
+    logger.setLevel(logging.INFO)
+    
+    if not logger.handlers:
+        fh = logging.FileHandler(log_file_path)
+        fh.setLevel(logging.INFO)
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setLevel(logging.INFO)
+        
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        fh.setFormatter(formatter)
+        ch.setFormatter(formatter)
+        
+        logger.addHandler(fh)
+        logger.addHandler(ch)
+        
+    return logger
+
+def verify_source_access(logger: logging.Logger) -> bool:
+    """Check if the OSF URL is accessible."""
+    logger.info(f"Verifying accessibility of: {MORAL_MACHINE_URL}")
     try:
-        logging.info(f"Verifying access to source: {url}")
-        response = requests.head(url, timeout=timeout, allow_redirects=True)
-        if response.status_code == 200:
-            logging.info(f"Source accessible: HTTP {response.status_code}")
+        # Try the download endpoint first
+        response = requests.head(MORAL_MACHINE_URL, timeout=30)
+        if response.status_code == 200 or response.status_code == 302:
+            logger.info(f"Source accessible (Status: {response.status_code})")
             return True
-        else:
-            logging.warning(f"Source returned non-200 status: {response.status_code}")
-            return False
-    except requests.RequestException as e:
-        logging.error(f"Failed to access source {url}: {e}")
+        
+        # Fallback to CSV link
+        logger.info("Download endpoint returned unexpected status, trying CSV link...")
+        response = requests.head(MORAL_MACHINE_CSV_URL, timeout=30)
+        if response.status_code == 200:
+            logger.info(f"CSV Source accessible (Status: {response.status_code})")
+            return True
+        
+        logger.error(f"Source inaccessible. Status codes: Download={response.status_code}")
+        return False
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to verify source accessibility: {e}")
         return False
 
-def validate_schema(file_path: str) -> tuple[bool, list]:
-    """
-    Load a sample of the CSV and validate that required columns exist.
-    Returns (is_valid, missing_columns).
-    """
-    try:
-        # Read a small sample to avoid loading full dataset if possible,
-        # but for schema validation, just reading headers is enough.
-        # pandas can read just the header if nrows=0, but we need to ensure types match if we check deeper.
-        # For this task, we check column presence.
-        df = pd.read_csv(file_path, nrows=0)
-        existing_cols = set(df.columns)
-        missing = [col for col in REQUIRED_COLUMNS if col not in existing_cols]
-        
-        if not missing:
-            logging.info("Schema validation passed: All required columns present.")
-            return True, []
+def validate_schema(logger: logging.Logger, df: pd.DataFrame) -> bool:
+    """Validate that the dataset contains the required columns and types."""
+    logger.info("Validating dataset schema...")
+    missing_cols = []
+    type_mismatches = []
+    
+    for col, expected_type in REQUIRED_COLUMNS.items():
+        if col not in df.columns:
+            missing_cols.append(col)
         else:
-            logging.error(f"Schema validation failed: Missing columns {missing}")
-            return False, missing
-    except Exception as e:
-        logging.error(f"Failed to validate schema: {e}")
-        return False, REQUIRED_COLUMNS # Assume all missing if we can't read
+            # Basic type check (pandas might infer object for datetime strings)
+            # We check if the column is non-empty to ensure it's not just a header
+            if df[col].empty:
+                missing_cols.append(col)
+            elif expected_type == float and not pd.api.types.is_numeric_dtype(df[col]):
+                type_mismatches.append(col)
+            elif expected_type == str and not pd.api.types.is_string_dtype(df[col]) and not pd.api.types.is_object_dtype(df[col]):
+                type_mismatches.append(col)
+    
+    if missing_cols:
+        logger.error(f"Missing required columns: {missing_cols}")
+        return False
+    
+    if type_mismatches:
+        logger.warning(f"Columns with unexpected types (may need parsing): {type_mismatches}")
+        # We allow this for now as long as the column exists, but log it
+    
+    logger.info(f"Schema validation passed. Found columns: {list(df.columns)}")
+    return True
 
-def download_sample(url: str, dest_path: Path) -> bool:
-    """
-    Download a small sample of the data to validate schema.
-    We download the first N rows or the whole file if small.
-    For schema validation, we just need the headers, but we need a real file to check.
-    """
+def download_sample(logger: logging.Logger, output_path: Path) -> bool:
+    """Download a sample of the dataset to verify content."""
+    logger.info(f"Attempting to download sample from: {MORAL_MACHINE_CSV_URL}")
     try:
-        logging.info(f"Downloading sample from {url} to {dest_path}")
-        response = requests.get(url, stream=True, timeout=60)
-        response.raise_for_status()
+        # We only need the header and a few rows to verify schema
+        response = requests.get(MORAL_MACHINE_CSV_URL, timeout=60)
+        if response.status_code != 200:
+            logger.error(f"Download failed with status {response.status_code}")
+            return False
         
-        with open(dest_path, 'wb') as f:
-            # If the file is large, we might only want headers, but let's download a small chunk
-            # to ensure it's a valid CSV.
-            # Moral Machine dataset is ~100MB+, so we might just download the first 1MB to check headers.
-            for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
-                if f.tell() > 1024 * 1024: # Stop after 1MB
-                    break
+        # Save the raw file to data/raw for later use
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'wb') as f:
+            f.write(response.content)
+        
+        logger.info(f"Sample downloaded and saved to {output_path}")
         return True
     except Exception as e:
-        logging.error(f"Failed to download sample: {e}")
+        logger.error(f"Failed to download sample: {e}")
         return False
 
 def main():
-    """
-    Main entry point for T005.
-    Verifies the Moral Machine dataset source against 'Verified Accuracy' principle.
-    1. Check URL accessibility.
-    2. Download a sample to verify schema.
-    3. Log the result to data_validation_log.txt.
-    """
-    setup_logging_custom()
-    logger = get_data_quality_logger()
+    """Main entry point for T001."""
+    log_file = Path("results/logs/data_validation_log.txt")
+    output_file = Path("data/raw/moral_machine_sample.csv")
     
-    # Ensure output directory exists
-    log_dir = Path("results/logs")
-    log_dir.mkdir(parents=True, exist_ok=True)
-    log_file = log_dir / "data_validation_log.txt"
+    logger = setup_logging_custom(log_file)
+    logger.info("Starting Task T001: Verify Data Sources")
     
-    source_name = "Moral Machine Dataset (OpenML/GCS)"
-    status = "Fail"
-    details = []
-
+    # 1. Verify CDS API (delegated to verify_cds_api module if needed, but task focuses on Moral Machine here)
+    # The task description explicitly asks to verify CDS URL accessibility too.
+    # We assume verify_cds_api.py handles the CDS part, but we log the result here.
+    # Since T001 requires logging to data_validation_log.txt, we append the CDS status if we can check it.
+    # However, the API surface shows verify_cds_api.py exists. We will focus on Moral Machine here
+    # and assume CDS verification is handled or we just log the URL check.
+    cds_url = "https://cds.climate.copernicus.eu/api/v2"
     try:
-        # Step 1: Verify URL Access
-        if not verify_source_access(MORAL_MACHINE_URL):
-            details.append("Source URL inaccessible.")
-            raise RuntimeError("Source verification failed: URL inaccessible.")
-
-        # Step 2: Download Sample & Validate Schema
-        temp_sample = Path("data/raw/moral_machine_sample.csv.gz")
-        temp_sample.parent.mkdir(parents=True, exist_ok=True)
-        
-        if not download_sample(MORAL_MACHINE_URL, temp_sample):
-            details.append("Failed to download sample.")
-            raise RuntimeError("Source verification failed: Download failed.")
-
-        is_valid, missing_cols = validate_schema(str(temp_sample))
-        if not is_valid:
-            details.append(f"Schema mismatch. Missing: {missing_cols}")
-            raise RuntimeError(f"Source verification failed: Schema mismatch {missing_cols}")
-
-        # Cleanup sample
-        if temp_sample.exists():
-            temp_sample.unlink()
-
-        status = "Pass"
-        logger.info(f"Source: {source_name}, Status: {status}")
-
+        resp = requests.head(cds_url, timeout=10)
+        cds_status = "Pass" if resp.status_code in [200, 302] else "Fail"
+        logger.info(f"CDS API URL check: {cds_url} -> Status {resp.status_code} ({cds_status})")
     except Exception as e:
-        status = "Fail"
-        logger.error(f"Source: {source_name}, Status: {status}. Reason: {e}")
-        details.append(str(e))
+        logger.error(f"CDS API URL check failed: {e}")
+        cds_status = "Fail"
 
-    # Write standardized log entry to file
-    timestamp = datetime.now().isoformat()
-    log_entry = f"[{timestamp}] Source: {source_name}, Status: {status}"
-    if details:
-        log_entry += f" | Details: {'; '.join(details)}"
+    # 2. Verify Moral Machine Source
+    source_ok = verify_source_access(logger)
+    schema_ok = False
+    
+    if source_ok:
+        # Download sample to verify schema
+        if download_sample(logger, output_file):
+            try:
+                # Read just the header and first 5 rows to verify schema
+                df = pd.read_csv(output_file, nrows=5)
+                schema_ok = validate_schema(logger, df)
+            except Exception as e:
+                logger.error(f"Failed to read downloaded sample for schema validation: {e}")
+                schema_ok = False
+        else:
+            logger.error("Download failed, cannot validate schema.")
+    else:
+        logger.error("Source access failed, cannot download or validate schema.")
+
+    # 3. Final Status
+    overall_status = "Pass" if (source_ok and schema_ok) else "Fail"
+    logger.info(f"Task T001 Final Status: {overall_status}")
+    
+    # Log the specific status to the file in a parseable way if needed
+    # The task asks to log status and column schema to data_validation_log.txt
+    # We already logged it via logger which writes to the file.
+    
+    # Write a summary JSON-like line for easy parsing by other tasks
+    summary = {
+        "task": "T001",
+        "timestamp": datetime.now().isoformat(),
+        "cds_url_status": cds_status,
+        "moral_machine_source_status": "Pass" if source_ok else "Fail",
+        "schema_validation_status": "Pass" if schema_ok else "Fail",
+        "overall_status": overall_status,
+        "columns_verified": list(REQUIRED_COLUMNS.keys()) if schema_ok else []
+    }
     
     with open(log_file, 'a') as f:
-        f.write(log_entry + "\n")
+        f.write(f"\nSUMMARY: {summary}\n")
     
-    if status == "Fail":
+    if overall_status == "Fail":
         sys.exit(1)
-    else:
-        sys.exit(0)
 
 if __name__ == "__main__":
     main()

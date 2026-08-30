@@ -1901,22 +1901,6 @@
   status: refuted
   updated_at: '2026-08-23T10:59:11Z'
 - artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
-  attempts: 3
-  canonical: ERA5 grid resolution 0.25 degrees approx 25km
-  claim_id: c_a0690588
-  context: 'Parameters: Variable 2t (2m temperature), Time range 2014-01-01 to 2018-12-31,
-    Product type reanalysis, Grid resolution 0.25 (approx 25km).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The ERA5 dataset has a grid resolution of 0.25 degrees (approx 25km).
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-25T00:26:34Z'
-- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
   attempts: 1
   canonical: World Bank API endpoint SP.POP.TOTL.FE.ZS provides gender ratio
   claim_id: c_55f8b03d
@@ -2165,25 +2149,6 @@
   status: not_enough_info
   updated_at: '2026-08-25T00:38:28Z'
 - artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
-  attempts: 3
-  canonical: Geospatial matching threshold 100km
-  claim_id: c_7b7bc081
-  context: Implement geospatial matching logic in code/ingestion.py to link Moral
-    Machine records to nearest ERA5 grid within 100km threshold.
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Geospatial_matching_threshold_100km
-  kind: entity_fact
-  raw_text: The geospatial matching logic links Moral Machine records to the nearest
-    ERA5 grid within a 100km threshold.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-25T00:38:51Z'
-- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
   attempts: 1
   canonical: Temporal gap threshold 2 hours
   claim_id: c_598b63ed
@@ -2301,3 +2266,359 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-25T00:42:26Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: 'Moral Machine dataset columns: latitude, longitude, timestamp, response_time,
+    country, dilemma_id'
+  claim_id: c_dac4d38b
+  context: Verify the canonical URL for the Moral Machine dataset... Confirm the dataset
+    exists, is accessible, and contains the required columns...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Moral_Machine_dataset_columns:_latitude,_longitude,_timestam
+  kind: entity_fact
+  raw_text: 'The Moral Machine dataset contains the required columns: latitude (float),
+    longitude (float), timestamp (datetime), response_time (float), country (string),
+    dilemma_id (string).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:30:29Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 grid resolution 0.25 degrees approx 25km
+  claim_id: c_4fc9363d
+  context: 'Parameters: Variable 2t... Grid resolution 0.25 (approx 25km).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ERA5 data source has a grid resolution of 0.25 degrees (approx 25km).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:31:06Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 time range 2014-01-01 to 2018-12-31
+  claim_id: c_211ff514
+  context: 'Parameters: Variable 2t... Time range 2014-01-01 to 2018-12-31...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ERA5 dataset covers the time range from 2014-01-01 to 2018-12-31.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:31:46Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Anderson-Darling test sampling fraction 0.1
+  claim_id: c_2cdf8d91
+  context: Explicitly define the sampling fraction for the Anderson-Darling test in
+    code/config.py as 0.1.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Anderson-Darling_test_sampling_fraction_0.1
+  kind: entity_fact
+  raw_text: The sampling fraction for the Anderson-Darling test is defined as 0.1.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:33:20Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Filter response times <100ms or >10000ms
+  claim_id: c_16231488
+  context: 'Filter 2: Filter out records with impossible response times (<100ms or
+    >10,000ms).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_response_times_%3C100ms_or_%3E10000ms
+  kind: magnitude
+  raw_text: Records with response times less than 100ms or greater than 10,000ms are
+    filtered out.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:34:02Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 interpolation gap threshold 2 hours
+  claim_id: c_04bd40a7
+  context: "Implement time-based interpolation for missing ERA5 hourly values (linear\
+    \ interpolation only if gap \u2264 2 hours)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ERA5_interpolation_gap_threshold_2_hours
+  kind: magnitude
+  raw_text: Time-based interpolation is used for missing ERA5 hourly values only if
+    the gap is less than or equal to 2 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:35:42Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis threshold sweep 1.0 to 4.0 standard deviations
+  claim_id: c_daf1483f
+  context: Run sensitivity analysis on temperature outlier thresholds by sweeping
+    the threshold from 1.0 to 4.0 standard deviations...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis on temperature outlier thresholds sweeps the threshold
+    from 1.0 to 4.0 standard deviations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:36:23Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: 'Moral Machine dataset columns: latitude float, longitude float, timestamp
+    datetime, response_time float, country string, dilemma_id string'
+  claim_id: c_cc5a8c01
+  context: 'Verify the canonical URL for the Moral Machine dataset: https://osf.io/...
+    (OSF). Confirm the dataset exists, is accessible, and contains the required columns...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Moral_Machine_dataset_columns:_latitude_float,_longitude_flo
+  kind: entity_fact
+  raw_text: 'The Moral Machine dataset contains the required columns: latitude (float),
+    longitude (float), timestamp (datetime), response_time (float), country (string),
+    dilemma_id (string).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:39:03Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 2m temperature data range 2014-01-01 to 2018-12-31
+  claim_id: c_e4c58135
+  context: 'Parameters: Variable 2t (2m temperature), Time range 2014-01-01 to 2018-12-31,
+    Product type reanalysis, Grid resolution 0.25...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ERA5 2m temperature dataset covers the time range 2014-01-01 to 2018-12-31.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:39:50Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 4
+  canonical: ERA5 grid resolution 0.25 degrees approx 25km
+  claim_id: c_a0690588
+  context: 'Parameters: Variable 2t (2m temperature), Time range 2014-01-01 to 2018-12-31,
+    Product type reanalysis, Grid resolution 0.25 (approx 25km).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ERA5 dataset has a grid resolution of 0.25 degrees (approx 25km).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:40:26Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 sample validation Jan 1 2016 to Jan 7 2016 London 51.5074 -0.1278
+  claim_id: c_0f457f48
+  context: 'Write a Python script code/validate_era5.py to fetch a specific sample
+    subset for validation: Jan 1, 2016 to Jan 7, 2016 in London (51.5074, -0.1278).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ERA5 sample validation covers the period from Jan 1, 2016 to Jan 7,
+    2016 in London (51.5074, -0.1278).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:40:49Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Anderson-Darling test sampling fraction 0.1
+  claim_id: c_fc882cbd
+  context: Explicitly define the sampling fraction for the Anderson-Darling test in
+    code/config.py as 0.1. Document the specific sampling fraction in docs/research.md.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Anderson-Darling_test_sampling_fraction_0.1
+  kind: entity_fact
+  raw_text: The Anderson-Darling test sampling fraction is defined as 0.1.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:40:52Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Filter response times <100ms or >10000ms
+  claim_id: c_0689ec57
+  context: Filter out records with impossible response times (<100ms or >10,000ms).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_response_times_%3C100ms_or_%3E10000ms
+  kind: magnitude
+  raw_text: Records with response times less than 100ms or greater than 10,000ms are
+    filtered out.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:40:52Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 5
+  canonical: Geospatial matching threshold 100km
+  claim_id: c_7b7bc081
+  context: Implement geospatial matching logic in code/ingestion.py to link Moral
+    Machine records to nearest ERA5 grid within 100km threshold.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Geospatial_matching_threshold_100km
+  kind: entity_fact
+  raw_text: The geospatial matching logic links Moral Machine records to the nearest
+    ERA5 grid within a 100km threshold.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:40:55Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Linear interpolation gap <= 2 hours
+  claim_id: c_de3a05f7
+  context: "Implement time-based interpolation for missing ERA5 hourly values (linear\
+    \ interpolation only if gap \u2264 2 hours)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Linear_interpolation_gap_%3C=_2_hours
+  kind: magnitude
+  raw_text: Linear interpolation is used for missing ERA5 hourly values only if the
+    gap is less than or equal to 2 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:41:38Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis threshold sweep 1.0 to 4.0 standard deviations
+  claim_id: c_41ac5054
+  context: Run sensitivity analysis on temperature outlier thresholds by sweeping
+    the threshold from 1.0 to 4.0 standard deviations and reporting the variation
+    in the temperature coefficient.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis on temperature outlier thresholds sweeps from 1.0
+    to 4.0 standard deviations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:41:38Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Moral Machine dataset hosted at https://osf.io/...
+  claim_id: c_7d7e4d0d
+  context: 'Verify the canonical URL for the Moral Machine dataset: https://osf.io/...
+    (OSF). Confirm the dataset exists, is accessible, and contains the required columns...'
+  evidence:
+    entailment_evidence: Moral Machine dataset hosted at https://osf.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Moral_Machine_dataset_hosted_at_https://osf.io/...
+  kind: entity_fact
+  raw_text: 'Verify the canonical URL for the Moral Machine dataset: https://osf.io/...'
+  resolved_value: Moral Machine dataset hosted at https://osf.io/...
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T06:43:59Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 2m temperature dataset covers 2014-01-01 to 2018-12-31
+  claim_id: c_3e1172e4
+  context: Write a Python script code/fetch_era_full.py to fetch the full multi-year
+    ERA5 2m temperature dataset required for the primary analysis... Time range 2014-01-01
+    to 2018-12-31...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch the full multi-year ERA5 2m temperature dataset... Time range 2014-01-01
+    to 2018-12-31
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T06:44:58Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 grid resolution is 0.25 degrees (approx 25km)
+  claim_id: c_1a1b2d39
+  context: 'Parameters: Variable 2t (2m temperature), Time range 2014-01-01 to 2018-12-31,
+    Product type reanalysis, Grid resolution 0.25 (approx 25km).'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Freely available Global Atmospheric Models such as ERA5 data are generated
+        using Copernicus Climate Change Service Information developed for numerical
+        weather prediction. These models can provide accurate and high-resolution
+        (still is coarse for InSAR studies) parameters for characterizing the atmosphere
+        state. Therefore, these methods are promising and practical techniques for
+        atmospheric noise mitigation in InSAR technique. Based on the combination
+        of different input datasets, the ERA5 is a global atmospheric model calculated
+        by the European Center for Medium-Range Weather Forecasting (ECMWF). Several
+        meteorological parameters are provided, such as pressure, temperature, and
+        relative humidity, at hourly intervals with a horizontal resolution of 0.25
+        degrees and a vertical resolution of 37 intervals from sea level to 50 km.
+      source_id: Atmospheric correction for interferometric synthetic aperture radar
+        technique
+      url: https://en.wikipedia.org/wiki/Atmospheric_correction_for_interferometric_synthetic_aperture_radar_technique
+      value: 0.25 degrees
+    filled: true
+  kind: numeric
+  raw_text: ERA5 Grid resolution 0.25 (approx 25km)
+  resolved_value: 0.25 degrees
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T06:45:16Z'

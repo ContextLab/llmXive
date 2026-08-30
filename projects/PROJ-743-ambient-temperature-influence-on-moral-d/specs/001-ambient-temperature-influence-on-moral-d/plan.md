@@ -5,8 +5,8 @@
 
 ## Summary
 
-This feature implements a statistical analysis pipeline to investigate the correlation between ambient temperature and moral decision-making speed using the Moral Machine dataset merged with ERA5 Reanalysis data. The technical approach involves:
-1.  **Data Ingestion**: Downloading the Moral Machine dataset and fetching hourly ERA5 temperature data for the specific 2014-2018 period via the Copernicus Climate Data Store (CDS) API.
+This feature implements a statistical analysis pipeline to investigate the correlation between ambient temperature and moral decision-making speed using the Moral Machine dataset merged with ERA Reanalysis data. The technical approach involves:
+1.  **Data Ingestion**: Downloading the Moral Machine dataset and fetching hourly ERA temperature data for the specific 2014-2018 period via the Copernicus Climate Data Store (CDS) API.
 2.  **Preprocessing**: Filtering impossible response times, handling missing data, and calculating derived covariates (dilemma complexity, time-of-day, urban/rural proxy).
 3.  **Statistical Modeling**: Fitting Linear Mixed-Effects Models (LMM) with log-transformed response times, controlling for participant ID and cultural region, and testing for non-linearity.
 4.  **Robustness**: Performing sensitivity analyses on temperature thresholds, outlier definitions, and urban/rural stratification.
@@ -21,7 +21,7 @@ This feature implements a statistical analysis pipeline to investigate the corre
 **Target Platform**: Linux (GitHub Actions Free Tier: CPU, ~7GB RAM).  
 **Project Type**: Data Analysis / Statistical Research Pipeline.  
 **Performance Goals**: Process the merged dataset (estimated on the order of several gigabytes for the 2014‑2018 ERA5 subset.) within 4 hours on CPU; model convergence within 30 minutes.  
-**Constraints**: Must run on CPU-only environment; ERA5 data must be streamed/fetched in chunks to fit memory; no PII allowed in logs.  
+**Constraints**: Must run on CPU-only environment; ERA data must be streamed/fetched in chunks to fit memory; no PII allowed in logs.  
 **Scale/Scope**: ~k moral decisions (Moral Machine), A subset of ERA5 data (2014-2018).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.

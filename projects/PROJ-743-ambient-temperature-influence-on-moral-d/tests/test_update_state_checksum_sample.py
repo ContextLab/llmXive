@@ -1,66 +1,67 @@
 import os
-import sys
-import tempfile
 import hashlib
 import yaml
 from pathlib import Path
-from datetime import datetime, timezone
 import pytest
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "code"))
+# Import the main logic
+from update_state_checksum import compute_sha256, update_state_file
 
-from utils import compute_sha256
+@pytest.fixture
+def temp_test_files(tmp_path):
+    """Create a temporary sample file and state file for testing."""
+    # Create a dummy sample file
+    sample_file = tmp_path / "era_sample.h5"
+    sample_file.write_bytes(b"dummy_era5_sample_data_for_testing")
 
-def test_compute_sha256_correctness():
-    """Test that compute_sha256 returns the correct hash for a known file."""
-    with tempfile.NamedTemporaryFile(delete=False) as tmp:
-        content = b"test content for checksum"
-        tmp.write(content)
-        tmp_path = tmp.name
+    # Create a dummy state file
+    state_file = tmp_path / "project_state.yaml"
+    initial_state = {
+        "project_id": "PROJ-TEST",
+        "updated_at": "2026-01-01T00:00:00Z",
+        "artifact_hashes": {}
+    }
+    with open(state_file, "w") as f:
+        yaml.dump(initial_state, f)
 
-    try:
-        expected_hash = hashlib.sha256(content).hexdigest()
-        actual_hash = compute_sha256(Path(tmp_path))
-        assert actual_hash == expected_hash, f"Hash mismatch: {actual_hash} != {expected_hash}"
-    finally:
-        os.unlink(tmp_path)
+    return sample_file, state_file
 
-def test_state_update_logic():
-    """Test the logic of updating the state file with a checksum and timestamp."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        # Create a mock sample file
-        sample_file = Path(tmpdir) / "era5_sample.h5"
-        sample_content = b"mock era5 sample data"
-        sample_file.write_bytes(sample_content)
+def test_compute_sha256(temp_test_files):
+    """Test that compute_sha256 returns the correct hash."""
+    sample_file, _ = temp_test_files
+    expected_hash = hashlib.sha256(sample_file.read_bytes()).hexdigest()
+    actual_hash = compute_sha256(str(sample_file))
+    assert actual_hash == expected_hash
 
-        # Create a mock state file
-        state_file = Path(tmpdir) / "state.yaml"
-        initial_state = {
-            "artifact_hashes": {"era5_full": "some_old_hash"},
-            "updated_at": "2023-01-01T00:00:00+00:00"
-        }
-        with open(state_file, 'w') as f:
-            yaml.dump(initial_state, f)
+def test_update_state_file(temp_test_files):
+    """Test that update_state_file correctly updates the YAML with the new checksum and timestamp."""
+    sample_file, state_file = temp_test_files
+    hash_value = compute_sha256(str(sample_file))
+    artifact_key = "era5_sample"
 
-        # Simulate the logic from update_state_checksum_sample
-        checksum = compute_sha256(sample_file)
-        expected_hash = hashlib.sha256(sample_content).hexdigest()
-        assert checksum == expected_hash
+    update_state_file(str(state_file), artifact_key, hash_value)
 
-        with open(state_file, 'r') as f:
-            state_data = yaml.safe_load(f)
+    with open(state_file, "r") as f:
+        updated_state = yaml.safe_load(f)
 
-        state_data['artifact_hashes']['era5_sample'] = checksum
-        state_data['updated_at'] = datetime.now(timezone.utc).isoformat()
+    # Check that the hash was added
+    assert "artifact_hashes" in updated_state
+    assert artifact_key in updated_state["artifact_hashes"]
+    assert updated_state["artifact_hashes"][artifact_key] == hash_value
 
-        with open(state_file, 'w') as f:
-            yaml.dump(state_data, f)
+    # Check that the timestamp was updated
+    assert "updated_at" in updated_state
+    assert updated_state["updated_at"] != "2026-01-01T00:00:00Z"
 
-        # Verify
-        with open(state_file, 'r') as f:
-            final_state = yaml.safe_load(f)
+def test_main_entry_integration(temp_test_files, caplog):
+    """Integration test for the main entry point logic."""
+    sample_file, state_file = temp_test_files
+    # We can't easily test the CLI main without mocking sys.argv,
+    # but we can verify the functions it calls work correctly in sequence.
+    hash_val = compute_sha256(str(sample_file))
+    update_state_file(str(state_file), "era5_sample", hash_val)
 
-        assert final_state['artifact_hashes']['era5_sample'] == expected_hash
-        assert 'updated_at' in final_state
-        assert final_state['updated_at'] != initial_state['updated_at']
+    with open(state_file, "r") as f:
+        state = yaml.safe_load(f)
+
+    assert state["artifact_hashes"]["era5_sample"] == hash_val
