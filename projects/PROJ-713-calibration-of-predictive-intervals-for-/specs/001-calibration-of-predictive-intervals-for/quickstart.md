@@ -2,72 +2,75 @@
 
 ## Prerequisites
 
--   Python 3.11+
--   Git
--   Sufficient RAM (recommended for full runs, streaming used for large datasets)
+- Python 3.11+
+- Git
+- Sufficient RAM (required for full dataset processing; streaming enabled)
 
 ## Installation
 
-1.  **Clone and Setup**:
+1.  **Clone the repository** and navigate to the project directory:
     ```bash
-    git checkout 001-calibration-of-predictive-intervals
-    cd projects/PROJ-713-calibration-of-predictive-intervals-for-/code
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    pip install -r requirements.txt
+    git clone <repo-url>
+    cd projects/PROJ-713-calibration-of-predictive-intervals-for-
     ```
 
-2.  **Verify Dependencies**:
+2.  **Create a virtual environment**:
     ```bash
-    python -c "import statsmodels, prophet, torch, properscoring; print('All dependencies installed.')"
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
+
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Note: `prophet` may require additional system dependencies (e.g., `build-essential` on Linux). Ensure your environment is prepared.*
+
+## Data Preparation
+
+The pipeline automatically downloads datasets on the first run.
+
+1.  **Run the data fetcher**:
+    ```bash
+    python code/utils/checksum.py --download
+    ```
+    *This will attempt to download M4 and UCI Electricity from canonical sources (Hugging Face, with fallbacks). If a dataset is unavailable, it will log a fatal error.*
+
+2.  **Verify checksums**:
+    The script verifies the integrity of downloaded files against recorded hashes.
 
 ## Running the Pipeline
 
-### 1. Download Data
-The pipeline expects data in `data/raw/`.
+To run the full benchmark (ARIMA, Prophet, LSTM) on a **sample** (recommended for CI):
+
 ```bash
-# Note: M4 and UCI Electricity download scripts are in code/scripts/download_data.py
-# If the verified datasets block is used, this will download UCI HAR instead.
-python code/scripts/download_data.py
+python code/evaluation/runner.py --sample-size [QUALITATIVE_SAMPLE_SIZE_DESCRIPTOR]
 ```
 
-### 2. Run Benchmark
-Execute the main evaluation loop. This will process series sequentially.
+To run on the **full** dataset (may take >6 hours on CI):
+
 ```bash
-# Run on a sample of M (500 series) and full UCI HAR
-python code/evaluation/runner.py --dataset m4_sample --dataset uci_har --models arima prophet lstm
+python code/evaluation/runner.py
 ```
 
-### 3. View Results
-Results are saved to `results/`.
-```bash
-# View coverage summary
-cat results/coverage_summary.csv
+### Configuration
+Edit `code/config.yaml` to adjust:
+- `train_split_ratio`: Default **0.8**.
+- `nominal_levels`: Default **[0.80, 0.95]**
+- `lstm_epochs`: Default **50**
+- `bootstrap_resamples`: Default **1000**.
+- `sampling_strategy`: Default "stratified"
 
-# View statistical significance
-cat results/bootstrap_results.json
-```
+## Expected Outputs
 
-### 4. Generate Plots
-```bash
-python code/scripts/generate_plots.py --input results/coverage_summary.csv --output results/plots/
-```
-
-## Testing
-
-Run the unit tests to verify metric calculations:
-```bash
-pytest tests/unit/ -v
-```
-
-Run the integration test (small subset):
-```bash
-pytest tests/integration/test_pipeline.py -v --sample-size 10
-```
+After completion, check the `results/` directory:
+- `coverage.csv`: Empirical coverage rates.
+- `distributional_metrics.csv`: PIT and CRPS scores.
+- `significance_test.csv`: Bootstrap p-values.
+- `benchmark_timing.csv`: Runtime logs.
 
 ## Troubleshooting
 
--   **OOM Error**: Ensure `streaming=True` is set in `config.py` for large datasets.
--   **LSTM Failure**: Check `logs/` for "NaN detected" messages. The system will auto-retry with lower learning rate.
--   **Dataset Missing**: If M4/UCI-Elec is missing, the system will fall back to UCI HAR (verified) and log a warning.
+- **OOM Error**: Ensure `--sample-size` is used. The pipeline streams data, but very large individual series may still spike memory.
+- **LSTM Convergence Failure**: The pipeline logs "failed" series. Check `logs/runner.log` for details.
+- **Dataset Download Failure**: Verify internet connectivity and check if the canonical URLs (M4/UCI) are still active.

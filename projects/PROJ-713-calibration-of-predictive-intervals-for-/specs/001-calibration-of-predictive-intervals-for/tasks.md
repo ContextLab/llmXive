@@ -43,10 +43,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create `projects/PROJ-713-calibration-of-predictive-intervals-for-/code/` directory structure
-- [ ] T001b [P] Create `projects/PROJ-713-calibration-of-predictive-intervals-for-/tests/` directory structure
-- [ ] T001c [P] Create `data/raw/` and `data/processed/` directories
-- [ ] T001d [P] Create `results/` directory structure
+- [ ] T001a [P] Create `projects/PROJ-713-calibration-of-predictive-intervals-for-/code/` directory structure. **Verify**: `os.access(path, os.W_OK)` returns True.
+- [ ] T001b [P] Create `projects/PROJ-713-calibration-of-predictive-intervals-for-/tests/` directory structure. **Verify**: `os.access(path, os.W_OK)` returns True.
+- [ ] T001c [P] Create `data/raw/` and `data/processed/` directories. **Verify**: `os.access(path, os.W_OK)` returns True.
+- [ ] T001d [P] Create `results/` directory structure. **Verify**: `os.access(path, os.W_OK)` returns True.
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `statsmodels`, `prophet`, `torch`, `properscoring`, `scikit-learn`, `scipy`, `pandas`, `numpy`, `matplotlib`)
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools
 
@@ -60,16 +60,23 @@
 
 - [X] T004 Implement `code/config.py` for hyperparams, random seeds, and path constants
 - [X] T005 Implement `code/utils/logger.py` for structured logging and `code/utils/exceptions.py` for custom error handling
-- [X] T006 Implement `code/data_loader.py` with:
- - Verified URL fetchers for M4 (` fallback logic or specific M4 repo URL) and UCI Electricity (`)
- - **Hard-fail mechanism**: Raise `ValueError` immediately if checksums do not match or URLs are unreachable (per FR-007)
- - **Split Logic**: Implement 80/20 split ([deferred] training, [deferred] testing) as per Constitution Principle VII and Spec FR-001. Explicitly override the plan's previous mention of "72/8/20" split; the 80/20 split is the single source of truth.
- - Streaming/chunked loading logic to handle UCI multivariate data within 7GB RAM
- - Standardization (zero mean, unit variance)
+- [ ] T006 [P] Implement `code/data_loader.py` with:
+ - **Verified URL fetchers**: M4 (`) and UCI Electricity (`).
+ - **Sampling (Step 1)**: Implement stratified random sampling to select a representative subset of M4 and UCI series
+
+References: None specified in original passage.
+Research Question: Not specified in original passage.
+Method: Stratified random sampling. (per Plan: Power Analysis & Sampling Strategy).
+ - **Split Logic (Step 2)**: Implement / training / test split (per Plan: Power Analysis & Sampling Strategy and Constitution Principle VII).
+ - **Metadata Recording (Step 3)**: Write split boundaries (timestamps, indices) to `data/processed/split_metadata.json` (per Constitution Principle VII).
+ - **Variable Validation**: Raise `ValueError` immediately if required variables (timestamp, value) are missing (per Spec FR-007).
+ - **Streaming/Chunked loading**: Logic to handle UCI multivariate data within 7GB RAM.
+ - **Standardization**: Zero mean, unit variance.
+ - **Note**: Checksum verification is handled in T009.
 - [X] T007 Create `code/models/__init__.py` and base model interface definitions
 - [X] T008 Implement `code/metrics/__init__.py` and base metric interface definitions
-- [ ] T009 Setup `data/raw/` and `data/processed/` directory structures with checksum verification logic
-- [X] T010 Implement `tests/unit/test_data_loader.py` to verify split logic (80/20) and streaming behavior on a small mock dataset
+- [ ] T009 Implement `code/utils/checksum.py` with function `verify_checksums(data_dir: str) -> bool` that returns True if all files match recorded hashes, else raises ValueError. **Depends on**: T001c, T006.
+- [X] T010 Implement `tests/unit/test_data_loader.py` to verify split logic (80/20), sampling, and streaming behavior on a small mock dataset
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -92,14 +99,14 @@
 
 - [X] T013 [P] [US1] Implement `code/models/arima_model.py`: Statsmodels wrapper, conditional variance interval generation using `conf_int` with `method='conditional'` (or equivalent explicit parameter) to ensure compliance with FR-003, error handling for non-convergence (log/skip series)
 - [X] T014 [P] [US1] Implement `code/models/prophet_model.py`: Prophet wrapper, `uncertainty_samples` + residual simulation for intervals, error handling
-- [X] T015 [P] [US1] Implement `code/models/lstm_model.py`:
+- [ ] T015 [P] [US1] Implement `code/models/lstm_model.py`:
  - Single hidden layer (32 units), max 50 epochs, early stopping (patience=5)
  - CPU-only training (no CUDA, no `load_in_8bit`)
- - **Fallback**: If intervals are invalid (NaN/Inf) or residuals are non-Gaussian (detected via variance check), switch to Empirical CDF (quantile-based) intervals as per Spec fallback logic.
- - **Stability Check**: Detect NaN/Inf; retry with reduced learning rate (Initial: 0.01, Reduction: 0.1x, Max attempts: a limited number) as per Spec Edge Cases
+ - **Stability Check**: Detect NaN/Inf values. If found, retry with reduced learning rate (Initial: 0.01, Reduction: 0.1x, Max attempts: a limited number). If still invalid after 2 attempts, log series ID to `results/skipped_series.log` and fallback to Gaussian residuals or Conformal Wrapper (per Spec FR-003 and Edge Cases). Ensure main loop continues without crashing.
+ - **Note**: Do NOT implement Shapiro-Wilk test or Empirical CDF fallback (unapproved scope).
 - [X] T016 [US1] Implement `code/metrics/coverage.py`: Compute empirical coverage rates for standard confidence levels against test set
-- [X] T017 [US1] Implement `code/evaluation/runner.py` (partial): Implement single series loop for data loading, model fitting, and coverage calculation
-- [ ] T018 [US1] Implement `code/evaluation/runner.py` (complete): Extend loop to process all series in M4/UCI (streaming for UCI), aggregate results to `results/coverage.csv`
+- [ ] T017 [US1] Implement `code/evaluation/runner.py` (single series): Implement logic to process a single series: load data, fit model, compute coverage, and return a dict of metrics.
+- [ ] T018 [US1] Implement `code/evaluation/runner.py` (full pipeline): Implement the full pipeline loop to process pre-sampled series (250 M4, 250 UCI). Include streaming logic, aggregation, and write results to `results/coverage.csv`.
 - [ ] T019 [US1] Add error handling in `runner.py` to catch and log specific series failures (e.g., constant variance) without crashing the pipeline
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -122,13 +129,13 @@
 - [X] T022 [P] [US2] Implement `code/metrics/pit.py`:
  - Calculate Probability Integral Transform for forecast errors
  - Generate histogram data
- - Perform **Ljung-Box test** for uniformity (per Constitution Principle VI and Spec FR-004, SC-002) to account for autocorrelation. **Do NOT use Kolmogorov-Smirnov test.**
+ - Perform **Ljung-Box test** for uniformity (per Spec FR-004, SC-002, and Plan: Constitution Check - Active Deviation from Constitution Principle VI). **Do NOT use Kolmogorov-Smirnov test.**
  - Return p-value and histogram bins
 - [X] T023 [P] [US2] Implement `code/metrics/crps.py`:
  - Calculate Continuous Ranked Probability Score using `properscoring.crps_ensemble`
  - Ensure compatibility with both Gaussian and Empirical CDF interval types
-- [X] T024 [US2] Update `code/evaluation/runner.py` to integrate PIT and CRPS calculations into the main loop (requires T018 and T022/T023 complete)
-- [ ] T025 [US2] Aggregate PIT and CRPS results to `results/distributional_metrics.csv`
+- [X] T024 [US2] Update `code/evaluation/runner.py` to integrate PIT and CRPS calculations into the main loop (requires T018 and T022/T023 complete). **Verify**: `runner.py` calls `pit.py` and `crps.py` for each series and appends results to the in-memory list before aggregation.
+- [ ] T025 [US2] Implement aggregation logic in `code/evaluation/runner.py` to write PIT and CRPS results to `results/distributional_metrics.csv`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -148,15 +155,15 @@
 ### Implementation for User Story 3
 
 - [X] T029 [P] [US3] Implement `code/evaluation/bootstrap_test.py`:
- - Paired bootstrap test with a sufficient number of resamples at time-series level
+ - Paired bootstrap test with **1000 resamples** at time-series level
  - Compare coverage deviations between models
  - Return p-values for significance at α=0.05
 - [X] T030 [P] [US3] Implement `code/calibration/conformal.py`:
  - Self-Calibrating Conformal Prediction wrapper
  - CPU-optimized implementation (fixed sample size, no nested CV)
  - Compare baseline vs. wrapped empirical coverage
-- [X] T031 [US3] Update `code/evaluation/runner.py` to execute bootstrap tests and conformal wrapper on aggregated results (requires T024 and T029/T030 complete)
-- [ ] T032 [US3] Output significance results to `results/significance_test.csv` and conformal comparison to `results/conformal_results.csv`
+- [ ] T031 [US3] Implement the bootstrap test execution flow in `runner.py` that calls `bootstrap_test.py` and `conformal.py` and aggregates results into the final CSVs (requires T024, T029, T030 complete).
+- [ ] T032 [US3] Output significance test results to `results/significance_test.csv` and conformal comparison results to `results/conformal_results.csv`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -175,6 +182,7 @@
 - [ ] T036 [P] Additional unit tests for edge cases (constant variance, NaN handling) in `tests/unit/`
 - [ ] T037 Run `quickstart.md` validation to ensure end-to-end reproducibility
 - [ ] T038 Verify `state/` hashes and `updated_at` timestamps are correctly tracked
+- [X] T040 [P] Update `plan.md` Constitution Check table (Principle VI) to mandate 'Ljung-Box test' instead of 'Kolmogorov–Smirnov (KS) test' to align with Spec FR-004 and resolve contradiction
 
 ---
 

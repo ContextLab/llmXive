@@ -1,59 +1,84 @@
 # Data Model: Calibration of Predictive Intervals for Time‑Series Forecasts
 
-## 1. Conceptual Entities
+## Overview
+
+This document defines the data structures used for loading, processing, and evaluating time-series forecasts. All data flows through the `data/raw/` (immutable) and `data/processed/` (derived) directories.
+
+## Entities
 
 ### TimeSeries
 A single univariate time series.
--   `series_id`: Unique identifier (string).
--   `frequency`: Temporal frequency (e.g., "hourly", "daily").
--   `train_data`: Array of floats (values).
--   `train_timestamps`: Array of timestamps (optional).
--   `test_data`: Array of floats (values).
--   `test_timestamps`: Array of timestamps (optional).
+*   **Attributes**:
+    *   `series_id` (str): Unique identifier (e.g., "M4-1001", "UCI-E1").
+    *   `timestamp` (datetime): Sequence of timestamps.
+    *   `value` (float): Sequence of observed values.
+    *   `frequency` (str): e.g., "D", "M", "Y".
+*   **Split**:
+ * `train_values` (float): First **[deferred]** of `value`.
+ * `test_values` (float): Last **[deferred]** of `value`.
 
 ### PredictiveInterval
-The output of a model for a specific horizon.
--   `model_name`: String (e.g., "ARIMA", "Prophet", "LSTM").
--   `series_id`: String.
--   `forecast_horizon`: Integer.
--   `nominal_level`: Float (0.80 or 0.95).
--   `lower_bound`: Float.
--   `upper_bound`: Float.
--   `point_forecast`: Float.
+A tuple representing the forecast interval for a specific horizon.
+*   **Attributes**:
+    *   `series_id` (str)
+    *   `model` (str): "ARIMA", "Prophet", "LSTM".
+    *   `horizon` (int): Forecast step index.
+    *   `nominal_level` (float): e.g., 0.80, 0.95.
+    *   `lower_bound` (float)
+    *   `upper_bound` (float)
 
 ### CalibrationMetric
-Aggregated performance for a model on a series.
--   `series_id`: String.
--   `model_name`: String.
--   `nominal_level`: Float.
--   `empirical_coverage`: Float (0.0 to 1.0).
--   `coverage_deviation`: Float (empirical - nominal).
--   `pit_mean`: Float (should be ~0.5).
--   `pit_ljung_box_pvalue`: Float.
--   `crps_score`: Float.
+Aggregated performance metrics for a model-series pair.
+*   **Attributes**:
+    *   `series_id` (str)
+    *   `model` (str)
+    *   `nominal_level` (float)
+    *   `empirical_coverage` (float): Proportion of test values within bounds.
+    *   `coverage_deviation` (float): `empirical_coverage - nominal_level`.
+    *   `pit_p_value` (float): Ljung-Box test p-value for PIT uniformity.
+    *   `crps_score` (float): Continuous Ranked Probability Score.
 
-### BootstrapResult
-Result of statistical significance testing.
--   `comparison`: String (e.g., "ARIMA vs Prophet").
--   `metric`: String (e.g., "coverage_deviation").
--   `p_value`: Float.
--   `significant`: Boolean (p < 0.05).
+### SignificanceTestResult
+Result of a paired bootstrap test between two models.
+*   **Attributes**:
+    *   `model_a` (str)
+    *   `model_b` (str)
+    *   `metric` (str): e.g., "coverage_deviation".
+    *   `p_value` (float)
+    *   `is_significant` (bool): `p_value < 0.05`.
 
-## 2. File Formats
+## File Formats
 
-### Input: Raw Time Series (CSV/Parquet)
--   Columns: `timestamp`, `value`, `series_id` (if multivariate).
+### CSV: `results/coverage.csv`
+| series_id | model | nominal_level | empirical_coverage | coverage_deviation |
+| :--- | :--- | :--- | :--- | :--- |
+| M4-1001 | ARIMA | 0.95 | 0.92 | -0.03 |
 
-### Output: Results Summary (CSV)
--   Columns: `series_id`, `model_name`, `nominal_level`, `empirical_coverage`, `coverage_deviation`, `pit_pvalue`, `crps_score`.
+### CSV: `results/distributional_metrics.csv`
+| series_id | model | pit_p_value | crps_score |
+| :--- | :--- | :--- | :--- |
+| M4-1001 | ARIMA | 0.45 | 0.12 |
 
-### Output: PIT Histogram Data (JSON)
--   Structure: `{ "series_id": "...", "model": "...", "bins": [...], "counts": [...] }`.
+### CSV: `results/significance_test.csv`
+| model_a | model_b | metric | p_value | is_significant |
+| :--- | :--- | :--- | :--- | :--- |
+| ARIMA | Prophet | coverage_deviation | 0.03 | True |
 
-## 3. Data Flow
+### JSON: `data/processed/split_metadata.json`
+Records the split points for reproducibility.
+```json
+{
+  "series_id": "M4-1001",
+  "total_length": 100,
+  "train_length": 80,
+  "test_length": 20,
+  "split_index": 80
+}
+```
 
-1.  **Ingestion**: `data_loader` reads raw files -> `TimeSeries` objects.
-2.  **Split**: `TimeSeries` split into `train` and `test` (80/20).
-3.  **Training**: Models ingest `train` -> produce `PredictiveInterval` for `test`.
-4.  **Evaluation**: `metrics` module ingests `test` + `PredictiveInterval` -> produces `CalibrationMetric`.
-5.  **Aggregation**: `evaluation` module aggregates `CalibrationMetric` -> `BootstrapResult`.
+## Data Flow
+1.  **Load**: `loader.py` reads raw CSVs -> yields `TimeSeries` objects (streaming).
+2.  **Split**: `splitter.py` divides `TimeSeries` -> `train`/`test` sets (80/20).
+3.  **Fit**: `models/*.py` train on `train` -> generate `PredictiveInterval` for `test`.
+4.  **Evaluate**: `metrics/*.py` compare `PredictiveInterval` vs `test_values` -> `CalibrationMetric`.
+5.  **Aggregate**: `evaluation/runner.py` collects metrics -> writes CSVs.

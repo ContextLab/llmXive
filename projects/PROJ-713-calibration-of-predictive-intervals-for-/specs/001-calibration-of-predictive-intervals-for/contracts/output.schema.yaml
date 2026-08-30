@@ -29,7 +29,7 @@ properties:
     description: "Difference between empirical and nominal coverage"
   pit_pvalue:
     type: number
-    description: "P-value from Kolmogorov-Smirnov test against Uniform(0,1) distribution for PIT uniformity"
+    description: "P-value from Ljung-Box test against Uniform(0,1) distribution for PIT uniformity"
     minimum: 0.0
     maximum: 1.0
   crps_score:

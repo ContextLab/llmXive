@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Coverage Results Schema"
+type: "object"
+description: "Schema for results/coverage.csv containing empirical coverage metrics."
+properties:
+  series_id:
+    type: "string"
+    description: "Unique identifier for the time series."
+  model:
+    type: "string"
+    description: "Model name (ARIMA, Prophet, LSTM)."
+    enum:
+      - "ARIMA"
+      - "Prophet"
+      - "LSTM"
+  nominal_level:
+    type: "number"
+    description: "Target coverage level (e.g., 0.80, 0.95)."
+    minimum: 0.0
+    maximum: 1.0
+  empirical_coverage:
+    type: "number"
+    description: "Observed proportion of values within the interval."
+    minimum: 0.0
+    maximum: 1.0
+  coverage_deviation:
+    type: "number"
+    description: "Difference between empirical and nominal coverage."
+required:
+  - "series_id"
+  - "model"
+  - "nominal_level"
+  - "empirical_coverage"
+  - "coverage_deviation"
+additionalProperties: false
