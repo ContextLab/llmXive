@@ -2,83 +2,60 @@
 
 ## Overview
 
-This document defines the data structures, schemas, and flow for the calibration evaluation pipeline. All data is processed in `pandas` DataFrames or `pyarrow` tables, with intermediate results stored as Parquet for efficiency and final results as CSV for readability.
+This document defines the data structures used throughout the pipeline, from raw ingestion to final results. All data is processed in `pandas` DataFrames or saved as Parquet/CSV.
 
-## Key Entities
+## Entity Definitions
 
-### 1. Forecast Record
+### 1. Raw Forecast Record
 Represents a single ensemble forecast instance.
-*   **Attributes**:
-    *   `grid_id` (int): Unique identifier for the geographic grid point.
-    *   `lead_time` (int): Forecast lead time in hours (e.g., 24, 48, 72).
-    *   `season` (str): Season category (e.g., "Winter", "Summer") derived from `forecast_date`.
-    *   `forecast_date` (datetime): Date the forecast was issued.
-    *   `probability_value` (float): The raw ensemble-derived probability of the event (0.0 - 1.0). **CRITICAL**: Required for Brier/CRPS.
-    *   `raw_ensemble_mean` (float): Mean of the ensemble members (used for reference).
-    *   `variable` (str): Target variable (e.g., "precip", "temp").
+- `grid_id`: Integer (Grid point identifier).
+- `lead_time`: Integer (Hours/Days ahead).
+- `forecast_date`: Datetime (Date the forecast was issued).
+- `probability_value`: Float (Continuous probability 0.0–1.0). **CRITICAL**: Must exist for Brier/CRPS.
+- `raw_ensemble_mean`: Float (Mean of ensemble members).
 
 ### 2. Observation Record
-Represents the ground truth event.
-*   **Attributes**:
-    *   `grid_id` (int): Matches `ForecastRecord.grid_id`.
-    *   `observation_date` (datetime): Date of the event.
-    *   `event_occurred` (bool): Binary indicator (1 if event occurred, 0 otherwise).
-    *   `event_value` (float): Continuous value (e.g., mm of rain, degrees C).
+Represents ground truth.
+- `grid_id`: Integer.
+- `observation_date`: Datetime (Date of observation).
+- `event_occurred`: Binary (0/1, derived from thresholding `event_value`).
+- `event_value`: Float (Continuous measurement, e.g., mm rain or °C).
 
-### 3. Calibration Metric
-Represents a computed statistic.
-*   **Attributes**:
-    *   `metric_name` (str): "Brier", "CRPS", "PIT_KS".
-    *   `lead_time` (int): The lead time for this metric.
-    *   `variable` (str): The variable (precip/temp).
-    *   `method` (str): "raw", "isotonic", "bayesian".
-    *   `value` (float): The computed score.
-    *   `confidence_interval` (str): "95% CI: [lower, upper]".
-    *   `test_type` (str): "DM", "Wilcoxon", "Bootstrap", "N/A".
-    *   `p_value` (float): The p-value of the statistical test.
-    *   `convergence_status` (str): "Converged", "Unconverged", "Timeout", "Excluded", "N/A".
-    *   `prior_dominance_flag` (bool): True if Flat Prior outperforms Physics Prior.
+### 3. Aligned Record
+The joined dataset used for analysis.
+- `grid_id`, `lead_time`, `forecast_date` (mapped to `observation_date`).
+- `probability_value` (from forecast).
+- `event_occurred` (from observation).
+- `method`: String ('raw', 'isotonic', 'bayesian').
+- `calibrated_probability`: Float (Output of recalibration).
 
-### 4. Recalibrator Model
-Represents a fitted post-processing function.
-*   **Attributes**:
-    *   `method_type` (str): "Isotonic", "Bayesian".
-    *   `lead_time` (int): Lead time for this model.
-    *   `season` (str): Season for this model (if applicable).
-    *   `parameters` (dict): Serialized model parameters (e.g., knots for isotonic, coefficients for Bayesian).
-    *   `training_sample_size` (int): Number of samples used for training.
-    *   `pooling_strategy` (str): "None", "Adjacent_Lead", "Adjacent_Season", "Global_Fit", "Insufficient_Data".
-    *   `fallback_reason` (str): Reason for fallback (e.g., "Low_Sample", "Timeout").
+### 4. Calibration Metric
+Aggregated results.
+- `metric_name`: String ('Brier', 'CRPS', 'ReliabilitySlope', 'PIT_KS_Pval').
+- `lead_time`: Integer.
+- `variable`: String ('precip', 'temp').
+- `method`: String ('raw', 'isotonic', 'bayesian').
+- `value`: Float.
+- `confidence_interval_low`: Float.
+- `confidence_interval_high`: Float.
+- `convergence_status`: String ('Converged', 'Unconverged', 'Timeout').
 
 ## Data Flow
 
-1.  **Raw Ingestion**:
-    *   Source: Hugging Face (SubseasonalRodeo or NOAA/GFS).
-    *   Format: Parquet/CSV/ZIP.
-    *   Gate: Check for `probability_value` or `ensemble_members`.
-2.  **Autocorrelation Estimation**:
-    *   Calculate ACF of forecast errors.
-    *   Output: `data/processed/autocorr_metadata.json`.
-3.  **Alignment**:
-    *   Join `ForecastRecord` and `ObservationRecord` on `grid_id`, `lead_time`, `forecast_date`/`observation_date`.
-    *   Output: `data/processed/aligned_data.parquet`.
-4.  **Splitting**:
-    *   Blocked split (Time-based) into Train/Test using `effective_autocorrelation_length`.
-    *   Output: `data/processed/train.parquet`, `data/processed/test.parquet`.
-5.  **Metric Calculation**:
-    *   Input: Aligned data.
-    *   Output: `results/results_baseline.csv`.
-6.  **Recalibration**:
-    *   Input: Train/Test splits.
-    *   Process: Isotonic/Bayesian fitting.
-    *   Output: `results/results_isotonic.csv`, `results/results_bayesian.csv`.
-7.  **Visualization**:
-    *   Input: Metric results.
-    *   Output: `results/figures/*.png`.
+1.  **Ingestion**: `download.py` fetches raw files.
+2.  **Gate Check**: Verify `probability_value` column exists.
+3.  **Alignment**: Join on `grid_id`, `lead_time`, and `date`. Drop NaNs.
+4. **Split**: Time-based split ([deferred] train, [deferred] test).
+5.  **Processing**:
+    - **Baseline**: Compute metrics on train/test.
+    - **Isotonic**: Fit on train, predict on test.
+    - **Bayesian**: Sample on train, predict on test.
+6.  **Aggregation**: Metrics grouped by `lead_time`, `variable`, `method`.
+7.  **Output**: `results_*.csv` files.
 
-## Storage Strategy
+## Storage Constraints
 
-*   **Raw Data**: Stored in `data/raw/` with checksums. Read-only.
-*   **Processed Data**: Stored in `data/processed/`. Parquet format for fast I/O.
-*   **Results**: Stored in `results/`. CSV for metrics, PNG for figures.
-*   **Logs**: `logs/pipeline.log` for runtime errors and convergence status.
+- **Raw Data**: Stored in `data/raw/` with checksums.
+- **Processed Data**: Stored in `data/processed/aligned.parquet`.
+- **Results**: Stored in `results/` as CSVs and `results/figures/` as PNGs.
+- **Memory**: Streaming used if dataset > 7GB. Otherwise, load into RAM.

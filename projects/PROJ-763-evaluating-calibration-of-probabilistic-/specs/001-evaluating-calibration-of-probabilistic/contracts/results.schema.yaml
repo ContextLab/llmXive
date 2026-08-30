@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Calibration Results Schema"
+type: "object"
+properties:
+  metric_name:
+    type: "string"
+    enum:
+      - "Brier"
+      - "CRPS"
+      - "ReliabilitySlope"
+      - "PIT_KS_Pval"
+    description: "Name of the metric."
+  lead_time:
+    type: "integer"
+    description: "Lead time associated with the metric."
+  variable:
+    type: "string"
+    enum:
+      - "precip"
+      - "temp"
+    description: "Weather variable (precipitation or temperature)."
+  method:
+    type: "string"
+    enum:
+      - "raw"
+      - "isotonic"
+      - "bayesian"
+    description: "Method used to generate the forecast."
+  value:
+    type: "number"
+    description: "Computed metric value."
+  confidence_interval_low:
+    type: "number"
+    description: "Lower bound of the 95% confidence interval."
+  confidence_interval_high:
+    type: "number"
+    description: "Upper bound of the 95% confidence interval."
+  convergence_status:
+    type: "string"
+    enum:
+      - "Converged"
+      - "Unconverged"
+      - "Timeout"
+    description: "Status of the Bayesian model convergence (only relevant for 'bayesian' method)."
+required:
+  - "metric_name"
+  - "lead_time"
+  - "variable"
+  - "method"
+  - "value"
+  - "convergence_status"

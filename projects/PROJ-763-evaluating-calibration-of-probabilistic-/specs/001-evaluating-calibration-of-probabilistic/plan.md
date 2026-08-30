@@ -1,38 +1,38 @@
 # Implementation Plan: Evaluating Calibration of Probabilistic Weather Forecasts
 
-**Branch**: `001-evaluating-calibration-weather` | **Date**: 2026-06-22 | **Spec**: `spec.md`
-**Input**: Feature specification from `/specs/001-evaluating-calibration-weather/spec.md`
+**Branch**: `001-evaluating-calibration-weather` | **Date**: 2026-07-14 | **Spec**: `specs/001-evaluating-calibration-of-probabilistic/spec.md`
 
 ## Summary
 
-This project implements a rigorous statistical pipeline to evaluate and recalibrate probabilistic weather forecasts. The primary requirement is to quantify mis-calibration in raw NOAA GFS ensemble forecasts using Brier scores, CRPS, and reliability diagrams, then apply two post-processing methods: non-parametric Isotonic Regression and a Bayesian Hierarchical Logistic Regression model. The technical approach prioritizes CPU feasibility on GitHub Actions by streaming data, using quantized or small-scale MCMC, and enforcing strict fallback mechanisms.
+This project implements a rigorous pipeline to evaluate and recalibrate probabilistic weather forecasts. The technical approach involves downloading the dataset (strictly from verified sources), enforcing a strict "Data Availability Gate" to verify the presence of `probability_value` fields (FR-001), and computing baseline calibration metrics. It applies two recalibration methods: Isotonic Regression (P2) and a Bayesian Hierarchical Logistic Regression (P3). The pipeline includes mandatory sensitivity analyses, enforces computational fallbacks, and uses robust statistical comparisons (Diebold-Mariano with HAC or Bootstrap).
 
-**Critical Data Note**: The plan explicitly addresses the lack of a verified public dataset with `probability_value` fields. If no such dataset is found, the pipeline halts with a "Data Unavailability Report" or revises the scope to binary event calibration (if `ensemble_members` are available to derive probabilities).
+**CRITICAL DATA STATUS**: The primary dataset "SubseasonalRodeo" currently lacks a verified URL in the project's "Verified datasets" block. This plan is **BLOCKED** until a verified source is provided or an alternative from the verified list (e.g., NOAA parquet) is confirmed to contain the required schema. The pipeline will halt immediately if the dataset cannot be fetched from a verified source.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn` (isotonic), `pymc` (Bayesian), `properscoring` (CRPS/Brier), `arviz` (diagnostics), `diebold-mariano` (statistical testing), `matplotlib`, `seaborn`.
-**Storage**: Local filesystem (GitHub Actions ephemeral storage); data streamed from Hugging Face.
-**Testing**: `pytest` (unit tests for metric calculation, integration tests for pipeline flow).
-**Target Platform**: Linux (GitHub Actions Free Runner).
-**Project Type**: Data Science Pipeline / Statistical Research Tool.
-**Performance Goals**: Full pipeline ≤ 6 hours; Isotonic step ≤ 30 mins; Bayesian step ≤ 60 mins (with timeout fallback).
-**Constraints**: No local GPU; strict memory limit (~7GB); no external API calls requiring credentials; all data must be downloadable via programmatic means.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `pymc` (v5+), `arviz`, `properscoring`, `diebold-mariano` (or `statsmodels` equivalent), `requests`, `tqdm`.  
+**Storage**: Local file system (GitHub Actions runner); data streamed or downloaded to `data/` directory.  
+**Testing**: `pytest` (unit tests for metric calculation, integration tests for pipeline flow).  
+**Target Platform**: Linux (GitHub Actions Free Runner: 2 CPU, 7GB RAM).  
+**Project Type**: Data Science Pipeline / Research Code.  
+**Performance Goals**: Baseline/Isotonic < 30 mins; Bayesian < 60 mins (with hard timeout fallback).  
+**Constraints**: No local GPU; CPU-first execution with automatic Kaggle GPU offload for Bayesian steps if CUDA detected. Memory < 7GB.  
+**Scale/Scope**: Moderate-sized dataset; processing by lead time and variable.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*GATE: Must pass before Phase 0 research.*
 
-| Principle | Compliance Status | Implementation Detail |
+| Principle | Status | Verification |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | `requirements.txt` pins all versions. Random seeds set globally. Data fetched from canonical sources. |
-| **II. Verified Accuracy** | **PASS** | All citations restricted to verified sources. No invented URLs. |
-| **III. Data Hygiene** | **PASS** | Data downloaded to `data/raw/` with checksum verification. Derivations written to `data/processed/`. |
-| **IV. Single Source of Truth** | **PASS** | All results generated programmatically. No hand-typed numbers. |
-| **V. Versioning Discipline** | **PASS** | Artifact hashes recorded in state file. |
-| **VI. Meteorological Calibration Integrity** | **PASS** | Metrics computed **separately** for each `lead_time` and `variable`. |
-| **VII. Probabilistic Forecasting Rigor** | **PASS** | Proper scoring rules used. Reliability diagrams and PIT histograms generated. |
+| **I. Reproducibility** | PASS | All random seeds pinned in `code/`. Dataset download URL/ID fixed (pending verification). `requirements.txt` pins versions. |
+| **II. Verified Accuracy** | **BLOCKED** | **CRITICAL**: The primary dataset "SubseasonalRodeo" is NOT in the "Verified datasets" block. The plan cannot proceed until a verified URL is provided or an alternative is selected. No unverified URLs will be used. |
+| **III. Data Hygiene** | PASS | Data downloaded to `data/raw/` with checksum verification (if source verified). Derivations written to `data/processed/`. No in-place edits. |
+| **IV. Single Source of Truth** | PASS | All metrics in `results/*.csv` trace to specific code blocks. No hand-typed numbers in `paper/`. |
+| **V. Versioning Discipline** | PASS | Artifact hashes tracked in state file. Plan version 1.0.0. |
+| **VI. Meteorological Calibration Integrity** | PASS | Metrics computed separately for each lead time and variable (precip/temp) as required. |
+| **VII. Probabilistic Forecasting Rigor** | PASS | Brier, CRPS, PIT histograms used. No counter-intuitive Brier interpretations. |
 
 ## Project Structure
 
@@ -44,128 +44,81 @@ specs/001-evaluating-calibration-weather/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-└── contracts/
-    ├── dataset.schema.yaml
-    ├── metrics.schema.yaml
-    └── recalibrator_model.schema.yaml
+├── contracts/           # Phase 1 output
+│   ├── dataset.schema.yaml
+│   └── results.schema.yaml
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-src/
+projects/PROJ-763-evaluating-calibration-of-probabilistic-/
 ├── data/
-│   ├── download.py          # Handles HF download, checksum, Data Availability Gate
-│   ├── align.py             # Joins forecast/obs by grid/lead/date
-│   ├── autocorr.py          # Calculates effective autocorrelation length
-│   └── loaders.py           # Streaming loaders for large datasets
-├── models/
-│   ├── isotonic.py          # Isotonic regression fitting/prediction
-│   ├── bayesian.py          # PyMC hierarchical model definition
-│   └── calibration.py       # Recalibration logic
-├── metrics/
-│   ├── scoring.py           # Brier, CRPS, PIT calculation
-│   ├── diagrams.py          # Reliability diagram generation
-│   └── tests.py             # Diebold-Mariano, Shapiro-Wilk, Wilcoxon
-├── pipeline/
-│   ├── run_baseline.py
-│   ├── run_isotonic.py
-│   └── run_bayesian.py
-├── utils/
-│   ├── config.py            # Paths, seeds, timeouts
-│   └── logging.py           # Structured logging
-└── main.py                  # Orchestrator
-
-tests/
-├── contract/                # Schema validation tests
-├── integration/             # End-to-end pipeline tests
-└── unit/                    # Metric calculation unit tests
-
-data/
-├── raw/                     # Downloaded archives (checksummed)
-└── processed/               # Aligned CSV/Parquet
-results/
-├── results_baseline.csv
-├── results_isotonic.csv
-├── results_bayesian.csv
-└── figures/                 # PNGs
+│   ├── raw/                 # Downloaded files (checksummed)
+│   └── processed/           # Aligned CSV/Parquet, train/test splits
+├── code/
+│   ├── requirements.txt     # Pinned dependencies
+│   ├── __init__.py
+│   ├── download.py          # FR-001: Download + Data Availability Gate
+│   ├── align.py             # FR-002: Alignment logic
+│   ├── metrics.py           # FR-003: Brier, CRPS, Reliability Diagrams
+│   ├── isotonic.py          # FR-004: Isotonic Regression + Sensitivity
+│   ├── bayesian.py          # FR-005: Hierarchical Model + Timeout/Sensitivity
+│   ├── compare.py           # FR-006: Diebold-Mariano + Bootstrap
+│   └── main.py              # Orchestration
+├── results/
+│   ├── results_baseline.csv
+│   ├── results_isotonic.csv
+│   ├── results_bayesian.csv
+│   └── figures/             # PNG diagrams
+└── tests/
+    ├── unit/
+    └── integration/
 ```
 
-## Phase Breakdown
+**Structure Decision**: Single project structure selected. `code/` contains modular scripts for each functional requirement. `data/` separates raw vs. processed. `results/` is the single source of truth for metrics.
 
-### Phase 0: Data Acquisition, Autocorrelation Estimation & Alignment (FR-001, FR-002)
-1.  **Download & Gate**: Implement `download.py` to fetch data.
-    *   *Gate*: Check for `probability_value` OR `ensemble_members`.
-        *   If `probability_value` exists: Proceed.
-        *   If `ensemble_members` exist: Derive probabilities.
-        *   If neither: Halt with error `NO_PROB_DATA` and generate `data_unavailability_report.md`.
-2.  **Autocorrelation Estimation** (New): Implement `autocorr.py`.
-    *   Calculate the Autocorrelation Function (ACF) of forecast errors (raw forecast - observation) for each variable.
-    *   Determine `lag_95`: The first lag where ACF drops below 0.05.
-    *   Compute `effective_autocorrelation_length` = `max(30, floor(2 * lag_95))`.
-    *   Store this value in `data/processed/autocorr_metadata.json`.
-3.  **Alignment**: Implement `align.py` to join forecasts and observations.
-    *   Discard rows with missing values.
-    *   Output: `data/processed/aligned_data.parquet`.
+## Phase Execution Order
 
-### Phase 1: Baseline Calibration Assessment (FR-003, US-1)
-1.  **Metric Calculation**: Compute Brier Score and CRPS for raw forecasts.
-    *   *Constraint*: Compute separately for each `lead_time` and `variable`.
-2.  **Visualization**: Generate kernel-smoothed reliability diagrams (`reliability_diagram_raw.png`).
-3.  **Output**: `results_baseline.csv` with columns: `metric_name`, `lead_time`, `variable`, `value`, `confidence_interval`.
+1.  **Phase 0 (Data Acquisition)**: `download.py` runs.
+    -   **Step 1**: Fetch data ONLY from a verified URL (if available) or halt with "Data Source Not Verified".
+    -   **Step 2**: Verify file integrity (checksum).
+    -   **Step 3 (Data Availability Gate)**: Load dataset and verify presence of `probability_value` fields.
+    -   **HALT CONDITION**: If `probability_value` is missing, **HALT immediately** with error "Data Availability Gate Failed". Do not proceed to alignment.
 
-### Phase 2: Isotonic Recalibration (FR-004, US-2)
-1.  **Split Strategy**: Implement blocked/expanding window split using `effective_autocorrelation_length` calculated in Phase 0.
-    *   Block size = `effective_autocorrelation_length`.
-    *   *Sensitivity*: Run additional splits (60/40, 80/20).
-2.  **Model Fitting**: Fit `IsotonicRegression` per `lead_time`/`variable`.
-    *   *Constraint*: Enforce a sufficient minimum sample size per bin.
-    *   *Pooling*: If `sample_size < 100`, pool adjacent lead times or seasons until `sample_size >= 100` OR all adjacent bins exhausted.
-    *   *Fallback*: If global fit also `sample_size < 100`, mark model as `Insufficient_Data` and exclude from comparison.
-3.  **Evaluation**: Apply to test set, compute new Brier/CRPS.
-4.  **Statistical Test**:
-    *   Perform Diebold-Mariano test (with HAC) comparing Baseline vs. Isotonic.
-    *   *Normality Check*: If Shapiro-Wilk fails ($p < 0.05$), switch to Wilcoxon Signed-Rank test.
-    *   *Recorded Test Type*: Always record 'DM' or 'Wilcoxon' in `test_type` (never 'Shapiro-Wilk_Failed').
-    *   *Rank-Preserving Control*: Compare Isotonic against a 'Rank-Preserving Calibration' baseline to isolate calibration gain from rank gain.
-5.  **Output**: `results_isotonic.csv`, `reliability_diagram_isotonic.png`.
+2.  **Phase 1 (Alignment)**: `align.py` merges forecasts and observations by grid/lead/date. Outputs `processed_data.parquet`.
+    -   Discards records with missing values in either field.
 
-### Phase 3: Bayesian Hierarchical Recalibration (FR-005, US-3)
-1.  **Model Definition**: Define PyMC hierarchical logistic regression.
-    *   *Structure*: `logit(p) = alpha_season[season] + beta_lead[lead] * raw_prob`.
-    *   *Priors*: `alpha_season ~ Normal`, `beta_lead ~ Normal` with a hyperprior enforcing decay (negative mean).
-    *   *Control*: Run a 'Flat Prior' model (no decay constraint) as a null control.
-    *   *Decision Rule*: If 'Flat Prior' Brier < 'Physics Prior' Brier, flag as 'Prior_Dominated'.
-2.  **Sampling**: Run MCMC with a sufficient number of draws and multiple chains, subject to a 60-minute timeout.
-    *   *Convergence*: R-hat ≤ 1.05 for all parameters.
-    *   *Sample Size Check*: If effective draws < 1000, label as 'Exploratory'.
-    *   *Testing*: If 'Exploratory', **DO NOT** perform Diebold-Mariano test. Report descriptive metrics only.
-    *   *Fallback*: If timeout or R-hat > 1.05, log status 'Unconverged' or 'Timeout'.
-    *   *Zero-Valid-Samples*: If ALL runs are excluded, report 'Bayesian: Not Available' and set comparison metrics to 'N/A'.
-3.  **Sensitivity**: Vary prior strength (weak, medium, strong).
-4.  **Output**: `results_bayesian.csv` (always generated), `convergence_status` column.
+3.  **Phase 2 (Baseline)**: `metrics.py` computes Brier/CRPS for raw data. Generates `results_baseline.csv` and `reliability_diagram_raw.png`.
+    -   Computes metrics separately for each lead time and variable.
 
-### Phase 4: Comparative Analysis & Reporting (FR-006, FR-007)
-1.  **Comparison**:
-    *   Isotonic vs. Baseline: Diebold-Mariano (or Wilcoxon).
-    *   Bayesian vs. Isotonic: Only if Bayesian is 'Converged' AND 'Exploratory' is False.
-    *   *Bootstrap*: For sparse events, use Stratified Bootstrap (1000 iterations, stratified by `lead_time` and `season`). Only perform DM test if bootstrap IQR < 0.01.
-2.  **PIT Histograms**: Generate PIT histograms for all methods.
-3.  **Final Report**: Aggregate all results into a summary table.
-4.  **Validation**: Ensure all CSVs have `convergence_status`, `test_type`, and no null metric values.
+4.  **Phase 3 (Isotonic)**: `isotonic.py` fits models on training split.
+    -   **Blocking Strategy**: **Train on full historical years (e.g., 2017-2021), Test on the final full year (2022)**. This ensures seasonal cycles are respected and prevents data leakage.
+    -   **Sensitivity**: Runs repeated with 60/40 and 80/20 splits (using the same temporal boundary logic: train on years 1-N, test on N+1).
+    -   Generates `results_isotonic.csv`.
 
-## Compute Feasibility Strategy
+5.  **Phase 4 (Bayesian)**: `bayesian.py` runs MCMC.
+    -   **Configuration**: **4 chains** (mandatory for all runs, including sensitivity and control models), **minimum 2000 draws** (raised from 500 to ensure stability).
+    -   **Convergence**: R-hat ≤ 1.05 AND Effective Sample Size (ESS) > 200 per parameter.
+    -   **Dynamic Adjustment**: If ESS or R-hat targets are not met, the sampler will **extend draws** up to a maximum timeout (60 mins).
+    -   **Prior Sensitivity**: Includes a **"Flat Prior"** control model (weakly informative, no decay assumption) to decouple prior influence from data signal.
+    -   **Fallback**: If timeout exceeded or convergence fails (R-hat > 1.05 or ESS < 200), **fallback to Isotonic results** and log status as "Timeout" or "Unconverged".
+    -   Generates `results_bayesian.csv`.
 
-*   **CPU-First**: All data processing, Isotonic regression, and metric calculation are CPU-tractable.
-*   **Bayesian Escape Hatch**: The PyMC model is the only GPU-intensive component.
-    *   *Plan*: Use `target_accept=0.9`, short chains (500 draws), and `tune=500`.
-    *   *Constraint*: Hard 60-minute timeout enforced via `signal` module.
-    *   *Fallback*: If timeout/convergence fails, the pipeline automatically switches to Isotonic results and logs the failure, ensuring the job completes within the 6-hour runner limit.
-    *   *Streaming*: Data loaded via `datasets.load_dataset(..., streaming=True)` to avoid OOM on the 7GB RAM limit.
+6.  **Phase 5 (Comparison)**: `compare.py` compares methods.
+    -   **Test Input**: Uses the **time series of individual forecast errors** (daily/weekly loss differentials) for each lead time. **NOT** aggregated means.
+    -   **Primary Test**: Diebold-Mariano (DM) with HAC estimators.
+    -   **Non-Normal Handling**: If normality fails, use **Bootstrap** (preserving time-series structure) instead of Wilcoxon (which assumes i.i.d. and is invalid for autocorrelated errors).
+    -   **Scope**: DM tests are run *within* a single fixed test set. Sensitivity splits use bootstrapped CIs for meta-analysis.
+    -   Outputs final comparison table.
 
-## Risk Mitigation
+## Complexity Tracking
 
-*   **Data Unavailability**: The "Data Availability Gate" ensures the pipeline halts cleanly if `probability_value` is missing, preventing fabrication.
-*   **MCMC Failure**: Explicit timeout and R-hat checks ensure the pipeline never hangs or produces invalid Bayesian results.
-*   **Sparse Data**: Minimum sample size thresholds and pooling strategies prevent overfitting in Isotonic regression.
-*   **Prior Dominance**: The 'Flat Prior' control ensures that improvements are not artifacts of the prior choice.
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+| :--- | :--- | :--- |
+| **Bayesian Hierarchical Model** | Required by Spec (US-3) to borrow strength across lead times for sparse events. | A simple isotonic model cannot capture lead-time decay correlations or improve performance on rare events as effectively. |
+| **Strict Data Availability Gate** | Required by FR-001 to prevent silent failure on missing probability fields. | Standard file integrity checks do not verify schema content; proceeding without probability fields makes Brier/CRPS impossible. |
+| **Automatic Test Switching (to Bootstrap)** | Required to handle non-normal, autocorrelated error distributions. | Wilcoxon assumes i.i.d. and is invalid for autocorrelated forecast errors. Bootstrap preserves time-series structure. |
+| **4 Chains Mandatory** | Required for robust R-hat estimation. | 2 chains are insufficient for reliable convergence diagnostics in hierarchical models. |
+| **Minimum 2000 Draws** | Required to ensure stable R-hat and ESS for the hierarchical model with structured priors. | 500 draws are insufficient for complex hierarchical models, risking false convergence signals. |

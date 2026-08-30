@@ -1,15 +1,15 @@
 status: none
-intent: SubseasonalRodeo dataset download NOAA GFS ensemble observations python package
+intent: SubseasonalRodeo dataset NOAA GFS ensemble forecasts download python package
   dataset
 required_fields:
-- forecast_probability
-- observation
+- date
+- lead_time
 - latitude
 - longitude
-- lead_time
-- valid_date
 - variable
+- forecast_probability
+- observation
 - ensemble_member
-cache_key: 4741206b5ded8da57f69fd6ca026d22010675080190ab99081711adbc8b4d494
-searched_at: '2026-08-27T05:09:28.267594+00:00'
+cache_key: 491b0339e5ea8e9db26a91d023828d35aede9a05759057c79b545fc296048b01
+searched_at: '2026-08-30T04:17:15.427673+00:00'
 retry_count: 1

@@ -2,9 +2,9 @@
 
 ## Prerequisites
 
-*   Python 3.11+
-*   `pip` or `conda`
-*   Git
+- Python 3.11+
+- `pip`
+- Access to a GitHub Actions runner (or local machine with sufficient RAM).
 
 ## Installation
 
@@ -16,37 +16,38 @@
     ```
 3.  **Install dependencies**:
     ```bash
+    cd projects/PROJ-763-evaluating-calibration-of-probabilistic-/code/
     pip install -r requirements.txt
     ```
-    *Note: `requirements.txt` includes `pymc`, `properscoring`, `diebold-mariano`, `scikit-learn`, `pandas`, `numpy`, `matplotlib`.*
 
-## Running the Pipeline
+## Execution
 
-The pipeline is executed via the main entry point. It handles data download, alignment, baseline calculation, isotonic recalibration, and (if possible) Bayesian recalibration.
+Run the full pipeline:
 
 ```bash
-python src/main.py
+cd projects/PROJ-763-evaluating-calibration-of-probabilistic-/code/
+python main.py
 ```
 
-### Configuration
+### Steps Performed
+1.  **Download**: Fetches SubseasonalRodeo data. Checks for `probability_value`.
+2.  **Align**: Joins forecasts and observations.
+3.  **Baseline**: Computes Brier/CRPS for raw forecasts.
+4.  **Isotonic**: Applies recalibration and sensitivity analysis.
+5.  **Bayesian**: Runs MCMC (with a timeout fallback).
+6.  **Compare**: Runs Diebold-Mariano/Wilcoxon tests.
 
-Edit `src/utils/config.py` to adjust:
-*   `DATA_SOURCE`: Set to "subseasonal_rodeo" or "noaa_gfs".
-*   `TRAIN_SPLIT_RATIO`: Default 0.7.
-*   `BAYESIAN_TIMEOUT_MINUTES`: Default 60.
-*   `SEED`: Random seed for reproducibility (Default: 42).
+## Output
 
-### Expected Outputs
+Results are saved in `projects/PROJ-763-evaluating-calibration-of-probabilistic-/results/`:
 
-Upon successful completion, the `results/` directory will contain:
-*   `results_baseline.csv`: Brier/CRPS for raw forecasts.
-*   `results_isotonic.csv`: Metrics after isotonic recalibration.
-*   `results_bayesian.csv`: Metrics after Bayesian recalibration (or fallback status).
-*   `figures/`: Reliability diagrams and PIT histograms.
-*   `logs/pipeline.log`: Detailed execution logs.
+- `results_baseline.csv`: Raw metrics.
+- `results_isotonic.csv`: Isotonic metrics + sensitivity logs.
+- `results_bayesian.csv`: Bayesian metrics + convergence status.
+- `figures/`: Reliability diagrams and PIT histograms.
 
 ## Troubleshooting
 
-*   **"Data Availability Gate Failed"**: The dataset lacks `probability_value` fields. Check the `DATA_SOURCE` config. If using NOAA/GFS, ensure the correct files are downloaded.
-*   **"Bayesian Model Timeout"**: The MCMC sampler exceeded 60 minutes. The pipeline will fallback to Isotonic results. Check `logs/pipeline.log` for R-hat diagnostics.
-*   **"Memory Error"**: The dataset is too large for RAM. Ensure `streaming=True` is enabled in `src/data/loaders.py`.
+- **Data Availability Gate Failed**: The dataset lacks `probability_value`. Check the download source.
+- **Bayesian Timeout**: The model exceeded the time threshold. Results will fall back to Isotonic. Check logs for `convergence_status: Timeout`.
+- **Convergence Failed**: R-hat > 1.05. Check `results_bayesian.csv` for `Unconverged` status.

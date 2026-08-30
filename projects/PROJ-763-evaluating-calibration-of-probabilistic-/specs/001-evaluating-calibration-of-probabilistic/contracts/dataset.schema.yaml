@@ -1,46 +1,42 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Aligned Weather Forecast Dataset Schema"
-description: "Schema for the aligned dataset containing forecast probabilities and observations."
+title: "Aligned Weather Forecast Dataset"
 type: "object"
 properties:
   grid_id:
     type: "integer"
-    description: "Unique identifier for the geographic grid point."
+    description: "Unique identifier for the grid point."
   lead_time:
     type: "integer"
-    description: "Forecast lead time in hours."
+    description: "Forecast lead time (hours or days)."
   forecast_date:
     type: "string"
     format: "date-time"
-    description: "Date the forecast was issued."
+    description: "Date and time the forecast was issued."
   probability_value:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Raw ensemble-derived probability of the event. CRITICAL for Brier/CRPS."
-  raw_ensemble_mean:
-    type: "number"
-    description: "Mean of the ensemble members."
-  variable:
-    type: "string"
-    enum: ["precip", "temp"]
-    description: "Target variable."
-  observation_date:
-    type: "string"
-    format: "date-time"
-    description: "Date of the ground truth observation."
+    description: "Continuous probability of the event occurring. CRITICAL: Must exist for Brier/CRPS."
   event_occurred:
     type: "integer"
-    enum: [0, 1]
-    description: "Binary indicator of event occurrence."
-  event_value:
+    description: "Binary indicator (0 or 1) of whether the event occurred."
+  method:
+    type: "string"
+    enum:
+      - "raw"
+      - "isotonic"
+      - "bayesian"
+    description: "Recalibration method used."
+  calibrated_probability:
     type: "number"
-    description: "Continuous value of the event (e.g., mm rain, degrees C)."
+    minimum: 0.0
+    maximum: 1.0
+    description: "Recalibrated probability value."
 required:
-  - grid_id
-  - lead_time
-  - forecast_date
-  - probability_value
-  - variable
-  - observation_date
-  - event_occurred
+  - "grid_id"
+  - "lead_time"
+  - "forecast_date"
+  - "probability_value"
+  - "event_occurred"
+  - "method"
+  - "calibrated_probability"
