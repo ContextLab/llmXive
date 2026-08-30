@@ -1,20 +1,8 @@
-[lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-]
+# Extends pyproject.toml settings for specific directory overrides if needed
+# Currently relies on pyproject.toml for main configuration
+extend = "pyproject.toml"
 
-[format]
-line-length = 88
-indent-width = 4
-quote-style = "double"
-skip-magic-trailing-comma = false
-docstring-code-format = true
+[lint]
+# Add specific overrides for the code/ directory if necessary in the future
+# Example: Ignore specific rules for generated code
+# ignore = ["E402"]

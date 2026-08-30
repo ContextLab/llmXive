@@ -1,54 +1,64 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Material Sample Schema
-description: Schema for material sample data used in uncertainty quantification pipelines.
+description: >
+  Schema defining the structure of material sample data as derived from
+  the OQMD Formation Energy dataset. This schema is used to validate
+  input data before preprocessing and model training.
 type: object
 required:
   - sample_id
   - composition
-  - features
-  - target_value
-  - target_unit
+  - formation_energy_per_atom
+  - structure
 properties:
   sample_id:
-    type: string
+    type: integer
     description: Unique identifier for the material sample.
-    minLength: 1
   composition:
-    type: object
-    description: Chemical composition of the material.
-    required:
-      - elements
-      - ratios
-    properties:
-      elements:
-        type: array
-        items:
-          type: string
-        description: List of chemical element symbols (e.g., ["Cs", "Pb", "I"]).
-      ratios:
-        type: array
-        items:
-          type: number
-        description: Stoichiometric ratios corresponding to elements.
-  features:
-    type: array
-    items:
-      type: number
-    description: Numerical feature vector for the sample (e.g., after PCA or feature engineering).
-    minItems: 1
-  target_value:
-    type: number
-    description: The ground truth target value (e.g., formation energy).
-  target_unit:
     type: string
-    description: Unit of the target value (e.g., "eV/atom").
-  metadata:
+    description: >
+      Chemical composition string (e.g., "Li2O", "Fe2O3").
+      Format follows standard stoichiometric notation.
+  formation_energy_per_atom:
+    type: number
+    description: >
+      Formation energy per atom in eV/atom. This is the target variable
+      for the regression task.
+  structure:
     type: object
-    description: Optional metadata about the sample source or processing.
+    description: Structural information required for descriptor calculation.
+    required:
+      - lattice_vectors
+      - atomic_numbers
+      - fractional_coordinates
     properties:
-      source:
-        type: string
-      processed_date:
-        type: string
-        format: date-time
+      lattice_vectors:
+        type: array
+        description: 3x3 matrix of lattice vectors (Angstroms).
+        items:
+          type: array
+          items:
+            type: number
+          minItems: 3
+          maxItems: 3
+        minItems: 3
+        maxItems: 3
+      atomic_numbers:
+        type: array
+        description: List of atomic numbers for each atom in the structure.
+        items:
+          type: integer
+        minItems: 1
+      fractional_coordinates:
+        type: array
+        description: Fractional coordinates for each atom (0 to 1).
+        items:
+          type: array
+          items:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          minItems: 3
+          maxItems: 3
+        minItems: 1
 additionalProperties: false

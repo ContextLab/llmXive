@@ -42,3 +42,25 @@
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-07-07T15:48:26.220536Z'
+- artifact_hash: ecf69bd01145867f8027c06261812850b691a522501bba4ffa8b807f9a0d678a
+  artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/docs/data_source_rationale.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: OQMD
+  kind: url
+  value: http://oqmd.org/
+  verification_status: pending
+  verified_against_url: https://oqmd.org/
+  verified_at: '2026-08-30T11:55:01.367089Z'
+- artifact_hash: ecf69bd01145867f8027c06261812850b691a522501bba4ffa8b807f9a0d678a
+  artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/docs/data_source_rationale.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://materialsproject.org/
+  verification_status: pending
+  verified_against_url: https://next-gen.materialsproject.org/
+  verified_at: '2026-08-30T11:55:01.367089Z'

@@ -4,169 +4,157 @@ import json
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import numpy as np
-import yaml
-import pandas as pd
-import time
+from pathlib import Path
 import logging
-
-from utils.timing_logger import TimingLogger
-
-CONFIG_PATH = "code/config.yaml"
-PROCESSED_DATA_PATH = "data/processed/features_20pca.csv"
-MODEL_OUTPUT_PATH = "results/models/mc_dropout_model.pt"
-NUM_SAMPLES = 30
-
-# Ensure output directory exists
-os.makedirs(os.path.dirname(MODEL_OUTPUT_PATH), exist_ok=True)
+import numpy as np
+import pandas as pd
+import yaml
 
 logger = logging.getLogger(__name__)
 
 class MCDropoutModel(nn.Module):
-    def __init__(self, input_dim, hidden_dims=[64, 32], dropout_p=0.2):
+    def __init__(self, input_dim: int, hidden_dims: list = [64, 32], dropout_p: float = 0.2):
         super().__init__()
         self.dropout_p = dropout_p
         layers = []
         prev_dim = input_dim
-        for h_dim in hidden_dims:
-            layers.append(nn.Linear(prev_dim, h_dim))
+        for h in hidden_dims:
+            layers.append(nn.Linear(prev_dim, h))
             layers.append(nn.ReLU())
             layers.append(nn.Dropout(dropout_p))
-            prev_dim = h_dim
-        self.backbone = nn.Sequential(*layers)
+            prev_dim = h
+        self.fc = nn.Sequential(*layers)
         self.mean_head = nn.Linear(prev_dim, 1)
-        self.log_var_head = nn.Linear(prev_dim, 1)
+        self.var_head = nn.Linear(prev_dim, 1)
 
     def forward(self, x):
-        h = self.backbone(x)
+        h = self.fc(x)
         mean = self.mean_head(h)
-        log_var = self.log_var_head(h)
-        return mean, log_var
+        var = torch.exp(self.var_head(h))
+        return mean, var
 
-def load_config():
-    with open(CONFIG_PATH, 'r') as f:
+    def enable_dropout(self):
+        self.train()
+
+    def disable_dropout(self):
+        self.eval()
+
+def load_config(config_path: str = "code/config.yaml"):
+    with open(config_path) as f:
         return yaml.safe_load(f)
 
-def load_data():
-    if not os.path.exists(PROCESSED_DATA_PATH):
-        raise FileNotFoundError(f"Required processed data file not found: {PROCESSED_DATA_PATH}. "
-                                "Please run code/data/preprocess.py first.")
-    df = pd.read_csv(PROCESSED_DATA_PATH)
-    feature_cols = [col for col in df.columns if col.startswith('feature_')]
-    if not feature_cols:
-        raise ValueError("No feature columns found in processed data.")
-    X = df[feature_cols].values
-    if 'target' not in df.columns:
-        raise ValueError("Target column 'target' not found in processed data.")
-    y = df['target'].values
-    return torch.tensor(X, dtype=torch.float32), torch.tensor(y, dtype=torch.float32)
+def load_data(split: str = "train"):
+    path = Path(f"data/processed/features_{split}_20pca.csv")
+    if not path.exists():
+        raise FileNotFoundError(f"Processed data file not found: {path}. Run T006b first.")
+    df = pd.read_csv(path)
+    feature_cols = [f'pca_{i}' for i in range(20)]
+    # Ensure columns exist
+    if not all(col in df.columns for col in feature_cols):
+        raise ValueError(f"Expected PCA columns {feature_cols} not found in {path}")
+    
+    X = torch.tensor(df[feature_cols].values, dtype=torch.float32)
+    y = torch.tensor(df['formation_energy'].values, dtype=torch.float32).unsqueeze(1)
+    return X, y
 
-def train_mc_dropout(X, y, config):
-    seed = config.get('seed', 42)
+def train_mc_dropout(input_dim: int, seed: int, epochs: int = 50, lr: float = 1e-3):
     torch.manual_seed(seed)
     np.random.seed(seed)
+    model = MCDropoutModel(input_dim, dropout_p=0.2)
+    X, y = load_data("train")
+    train_dataset = torch.utils.data.TensorDataset(X, y)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=32, shuffle=True)
 
-    input_dim = X.shape[1]
-    model = MCDropoutModel(input_dim)
-    optimizer = optim.Adam(model.parameters(), lr=1e-3)
+    optimizer = optim.Adam(model.parameters(), lr=lr)
+    criterion = nn.MSELoss() # Not used directly, using heteroscedastic loss
 
-    model.train()
-    epochs = 100
-    batch_size = 64
-    n_samples = X.shape[0]
-
-    logger.info(f"Training MC Dropout model on {n_samples} samples, {input_dim} features.")
-    
+    logger.info(f"Starting MC Dropout training with seed {seed}, epochs {epochs}")
     for epoch in range(epochs):
-        indices = torch.randperm(n_samples)
-        X_shuffled = X[indices]
-        y_shuffled = y[indices]
-
+        model.train()
         epoch_loss = 0.0
-        for i in range(0, n_samples, batch_size):
-            batch_X = X_shuffled[i:i+batch_size]
-            batch_y = y_shuffled[i:i+batch_size]
-
+        for X_batch, y_batch in train_loader:
             optimizer.zero_grad()
-            mean, log_var = model(batch_X)
-            # Heteroscedastic loss: NLL for Gaussian
-            precision = torch.exp(-log_var)
-            loss = precision * (batch_y.unsqueeze(1) - mean) ** 2 + log_var
-            loss = loss.mean()
+            mean, var = model(X_batch)
+            # Heteroscedastic loss: 0.5 * (log(var) + (y - mean)^2 / var)
+            loss = 0.5 * torch.mean(torch.log(var) + ((y_batch - mean) ** 2) / var)
             loss.backward()
             optimizer.step()
             epoch_loss += loss.item()
         
-        if (epoch + 1) % 20 == 0:
-            logger.info(f"Epoch {epoch+1}/{epochs}, Loss: {epoch_loss / (n_samples/batch_size):.4f}")
+        if (epoch + 1) % 10 == 0:
+            logger.info(f"Epoch {epoch+1}/{epochs}, Loss: {epoch_loss / len(train_loader):.6f}")
 
     return model
 
-def run_mc_dropout_inference(model, X):
+def run_mc_dropout_inference(model: MCDropoutModel, X: torch.Tensor, n_samples: int = 30):
     """
-    Runs NUM_SAMPLES stochastic forward passes with dropout enabled.
-    Returns mean prediction, total variance (epistemic + aleatoric).
-    """
-    model.train() # Crucial: Enable dropout for stochastic inference
-    predictions = []
-    variances = []
-
-    with torch.no_grad():
-        for _ in range(NUM_SAMPLES):
-            mean, log_var = model(X)
-            predictions.append(mean)
-            variances.append(torch.exp(log_var))
-
-    predictions = torch.stack(predictions, dim=0) # (num_samples, batch_size, 1)
-    variances = torch.stack(variances, dim=0)     # (num_samples, batch_size, 1)
-
-    # Aggregate results
-    mean_pred = predictions.mean(dim=0)
+    Runs multiple stochastic forward passes with dropout enabled.
     
-    # Epistemic uncertainty: variance of the predictions across samples
-    epistemic_var = predictions.var(dim=0)
-    
-    # Aleatoric uncertainty: mean of the predicted variances
-    aleatoric_var = variances.mean(dim=0)
-    
-    # Total uncertainty
-    total_var = epistemic_var + aleatoric_var
-
-    return mean_pred, total_var, epistemic_var, aleatoric_var
-
-def main():
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    timing_logger = TimingLogger()
-    
-    try:
-        config = load_config()
-        X, y = load_data()
-
-        timing_logger.start("mc_dropout_training")
-        model = train_mc_dropout(X, y, config)
-        timing_logger.stop("mc_dropout_training")
-
-        # Save the trained model state dict to the required artifact path
-        torch.save(model.state_dict(), MODEL_OUTPUT_PATH)
-        logger.info(f"MC Dropout model saved to {MODEL_OUTPUT_PATH}")
-
-        # Run inference on a small sample to verify functionality and log timing
-        timing_logger.start("mc_dropout_inference")
-        # Use a small subset for inference check to keep it fast
-        sample_size = min(100, X.shape[0])
-        X_sample = X[:sample_size]
-        mean, total_var, epistemic_var, aleatoric_var = run_mc_dropout_inference(model, X_sample)
-        timing_logger.stop("mc_dropout_inference")
+    Args:
+        model: The trained MCDropoutModel
+        X: Input tensor (N, input_dim)
+        n_samples: Number of stochastic forward passes
         
-        logger.info(f"Inference completed on {sample_size} samples.")
-        logger.info(f"Sample prediction stats - Mean: {mean.mean().item():.4f}, Std: {mean.std().item():.4f}")
-        logger.info(f"Sample variance stats - Total: {total_var.mean().item():.4f}, Epistemic: {epistemic_var.mean().item():.4f}, Aleatoric: {aleatoric_var.mean().item():.4f}")
+    Returns:
+        means: Tensor of shape (N, n_samples)
+        vars: Tensor of shape (N, n_samples)
+    """
+    model.enable_dropout()
+    means = []
+    vars_list = []
+    
+    with torch.no_grad():
+        for _ in range(n_samples):
+            mean, var = model(X)
+            means.append(mean)
+            vars_list.append(var)
+    
+    means = torch.stack(means, dim=1) # (N, n_samples)
+    vars_list = torch.stack(vars_list, dim=1) # (N, n_samples)
+    
+    return means, vars_list
 
-        timing_logger.save_report()
+def main(seed: int = 42):
+    """
+    Main entry point for T014.
+    Trains the MC Dropout model and saves it to results/models/mc_dropout_model.pt.
+    """
+    config = load_config()
+    input_dim = 20
+    epochs = config.get('epochs', 50)
+    
+    logger.info("Loading training data...")
+    try:
+        X, y = load_data("train")
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
 
-    except Exception as e:
-        logger.error(f"Error during MC Dropout execution: {e}")
-        raise
+    logger.info(f"Training MC Dropout model (seed={seed})...")
+    model = train_mc_dropout(input_dim, seed, epochs=epochs)
+    
+    # Save the model
+    out_dir = Path("results/models")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    output_path = out_dir / "mc_dropout_model.pt"
+    
+    torch.save({
+        'model_state_dict': model.state_dict(),
+        'seed': seed,
+        'dropout_p': 0.2
+    }, output_path)
+    
+    logger.info(f"MC Dropout model saved to {output_path}")
+    
+    # Verify inference works
+    logger.info("Verifying inference with 30 stochastic passes...")
+    model.load_state_dict(torch.load(output_path)['model_state_dict'])
+    test_means, test_vars = run_mc_dropout_inference(model, X[:10], n_samples=30)
+    logger.info(f"Inference successful. Mean shape: {test_means.shape}, Var shape: {test_vars.shape}")
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     main()

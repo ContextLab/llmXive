@@ -40,7 +40,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan
+- [ ] T001a [P] Create project directory structure: `code/`, `data/`, `results/`, `tests/`, `docs/`.
+- [X] T001b [P] Create initial empty files: `code/requirements.txt`, `code/config.yaml`, `README.md`.
+- [X] T001 [P] Document the deviation from Spec FR-001 (Materials Project) to Plan's OQMD source in `docs/data_source_rationale.md` to satisfy reproducibility principles while using an executable dataset.
 - [X] T002 Initialize Python project with pinned dependencies in `requirements.txt`
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
@@ -52,13 +54,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-Examples of foundational tasks (adjust based on your project):
+Examples of foundational tasks (adjust based on your plan.md):
 
-- [X] T004 [P] Implement `code/config.yaml` with the following exact keys and values: `seed` (int, default 42), `split_ratio` (list [0.8, 0.1, 0.1]), `split_type` (string, MUST be "stratified"), and `timeout_hours` (float, 5.0). Define exact keys: `seed`, `split_ratio`, `split_type`, `timeout_hours`. File path: `code/config.yaml`.
-- [ ] T005 [P] Implement `code/data/download.py` to fetch the OQMD Formation Energy dataset via HuggingFace (`datasets.load_dataset("oqmd/formation-energy")`) and save the raw data to `data/raw/oqmd.parquet`.
-- [ ] T006 [P] Implement `code/data/preprocess.py` to: 1) Read `code/config.yaml` for `split_type` and `seed`, 2) Apply a **stratified random split** (train/validation/test) based on the target variable if `split_type` is "stratified", 3) Apply PCA to reduce features to **exactly 20 components**, 4) Exclude rows with missing critical features, 5) Output `data/processed/features_20pca.csv` and generate a JSON log `data/processed/exclusion_log.json` with schema `{"excluded_count": int, "missing_columns": [str]}`.
-- [ ] T007 [P] Implement `code/data/validation_report.json` generator script that consumes `data/processed/exclusion_log.json` and writes `data/validation_report.json` with the count of excluded rows and list of missing variables, adhering to the schema `{"excluded_count": int, "missing_columns": [str]}`.
-- [X] T008 Implement global timeout wrapper in `code/main.py` to enforce 5-hour pipeline limit, exiting with code 1 on timeout.
+- [X] T004 [P] Implement `code/config.yaml` with the following exact keys and values: `seed` (int, default a predefined baseline value), `split_ratio` (list [0.8, 0.1, 0.1]), `split_type` (string, MUST be "stratified"), and `timeout_hours` (float, 5.0). Define exact keys: `seed`, `split_ratio`, `split_type`, `timeout_hours`. File path: `code/config.yaml`.
+- [ ] T005 [P] Implement `code/data/download.py` to fetch the **OQMD** Formation Energy dataset via HuggingFace (`datasets.load_dataset("oqmd/formation-energy")`). **Requirement**: Implement retry logic with exponential backoff (up to 3 attempts) for network failures. Output artifact: `data/raw/oqmd.parquet`.
+- [ ] T006a [P] [US1] Implement `code/data/preprocess.py` (Split Logic): Read `code/config.yaml` for `split_type` and `seed`. Apply a **stratified random split** (train/validation/test) based on the target variable (formation energy) using **quantile binning** to handle the continuous target. Output artifacts: `data/processed/raw_train.csv`, `data/processed/raw_val.csv`, `data/processed/raw_test.csv`. **Dependency**: T005.
+- [ ] T006b [P] [US1] Implement `code/data/preprocess.py` (PCA & Validation Logic): 1) Read the split files from T006a. 2) Exclude rows with missing critical features (including structural descriptors). 3) Generate `data/processed/exclusion_log.json` with schema `{"excluded_count": int, "missing_columns": [str]}`. 4) Fit PCA on **training set only** to reduce features to **exactly 20 components**. 5) Transform train/val/test sets using the fitted PCA. 6) Save `data/processed/features_train_20pca.csv`, `data/processed/features_val_20pca.csv`, `data/processed/features_test_20pca.csv`. 7) Save the PCA transformer object as `data/processed/pca_transformer.pkl`. **Dependency**: T006a.
+- [ ] T007 [P] [US1] Implement `code/data/validation_report.json` generator script that consumes `data/processed/exclusion_log.json` (from T006b) and writes `data/validation_report.json` with the count of excluded rows and list of missing variables, adhering to the schema `{"excluded_count": int, "missing_columns": [str]}` defined in FR-010. **Dependency**: T006b.
+- [X] T008 [X] Implement global timeout wrapper in `code/main.py` to enforce 5-hour pipeline limit, exiting with code 1 on timeout. (Logic merged into T016).
 - [ ] T009 Setup `code/contracts/` directory with `material_sample.schema.yaml` and `uq_prediction.schema.yaml`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -69,7 +72,7 @@ Examples of foundational tasks (adjust based on your project):
 
 **Goal**: Train a baseline FFNN and apply three UQ techniques (Deep Ensembles, MC Dropout, Sparse GP) to generate predictions and variance estimates on CPU.
 
-**Independent Test**: The system ingests the OQMD subset, trains the baseline, runs UQ inference, and outputs a CSV with (prediction, lower_bound, upper_bound, variance) without GPU errors within 5 hours. Note: The implementation tasks (T012-T018) MUST produce these outputs directly; T010/T011 are supplementary unit tests.
+**Independent Test**: The system ingests the dataset, trains the baseline, runs UQ inference, and outputs a CSV with (prediction, lower_bound, upper_bound, variance) without GPU errors within 5 hours. Note: The implementation tasks (T012-T018) MUST produce these outputs directly; T010/T011 are supplementary unit tests.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -82,10 +85,11 @@ Examples of foundational tasks (adjust based on your project):
 
 - [ ] T012 [P] [US1] Implement `code/models/baseline_nn.py`: 2 hidden layers, ≤10k params, heteroscedastic output head. Output artifact: `results/models/baseline_seed42.pt`.
 - [X] T013 [P] [US1] Implement `code/models/deep_ensemble.py`: Train multiple independent models, aggregate mean/variance. Output artifact: `results/models/ensemble_models/`.
-- [ ] T014 [P] [US1] Implement `code/models/mc_dropout.py`: Enable dropout (p=0.2), run 30 stochastic forward passes. Output artifact: `results/models/mc_dropout_model.pt`.
-- [ ] T015 [P] [US1] Implement `code/models/sparse_gp.py`: **Consume** `data/processed/features_20pca.csv` (do not re-apply PCA), use a set of inducing points, fit with GPyTorch (CPU mode). Output artifact: `results/models/sparse_gp_model.pt`.
-- [ ] T016 [US1] Implement `code/main.py` orchestrator to chain data load -> train -> UQ inference. Must generate `results/uq_predictions.csv` (base file) with columns: sample_id, method, prediction, variance, lower_50, upper_50, lower_90, upper_90, **exit with code 1 on timeout**, and generate `logs/pipeline.log`.
-- [~] T017 [US1] Add logging for model training times and UQ inference durations to monitor 5h budget.
+- [ ] T014 [P] [US1] Implement `code/models/mc_dropout.py`: Enable dropout (p=0.2), run multiple stochastic forward passes. Output artifact: `results/models/mc_dropout_model.pt`.
+- [ ] T015 [US1] Implement `code/models/sparse_gp.py`: **Consume** `data/processed/raw_test.csv` (T006a) and `data/processed/pca_transformer.pkl` (T006b). Apply the PCA transformer to the test data (do not re-fit). Use a set of inducing points, fit with GPyTorch (CPU mode). Output artifact: `results/models/sparse_gp_model.pt`. **Dependency**: T006b, T012, T013, T014. <!-- FAILED: unspecified -->
+- [ ] T016 [US1] Implement `code/main.py` orchestrator to chain data load -> train -> UQ inference. Must generate `results/uq_predictions.csv` with the **exact** following columns in order: `sample_id` (int), `method` (str), `prediction` (float64), `variance` (float64), `lower_50` (float64), `upper_50` (float64), `lower_90` (float64), `upper_90` (float64), `aleatoric` (float64, **NULL for all rows**), `epistemic` (float64, **NULL for all rows**), `total` (float64, **NULL for all rows**), `uncertainty_type` (str: **NULL**). **Enforcement**: Implement a hard 5-hour timeout logic directly in this script. Exit with code 1 on timeout and generate `logs/pipeline.log`. **Dependency**: T006b, T012, T013, T014, T015.
+- [X] T017a [P] [US1] Configure logging format in `code/utils/logging_config.py` to output to `logs/pipeline.log` with timestamps and metric keys.
+- [X] T017b [P] [US1] Implement metric recording logic in `code/utils/logging_config.py` to write `epoch_time` and `total_training_time` to `logs/pipeline.log`.
 - [ ] T018 [US1] Verify `results/uq_predictions.csv` generation and schema compliance.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -106,13 +110,16 @@ Examples of foundational tasks (adjust based on your project):
 ### Implementation for User Story 2
 
 - [X] T021 [P] [US2] Implement `code/uq/metrics.py`: ECE (quantile binning), Interval Score, Sharpness.
-- [X] T022a [US2] **REQUIRED**: Implement the calculation logic in `code/uq/metrics.py` to separate aleatoric and epistemic uncertainty: **Epistemic variance = variance of means across samples**, **Aleatoric variance = mean of predicted variances**. This task focuses strictly on the mathematical implementation.
-- [ ] T022b [US2] **REQUIRED**: Write the resulting `uncertainty_type` column to `results/uq_predictions.csv` and `results/calibration_report.csv` as required by FR-008. Also generate `results/uncertainty_decomposition.csv` with detailed breakdown including columns `aleatoric`, `epistemic`, and `total`. This task consumes the output of T022a.
+- [X] T022a [US2] **REQUIRED**: Implement the calculation logic in `code/uq/metrics.py` to separate aleatoric and epistemic uncertainty: **Epistemic variance = variance of means across samples**, **Aleatoric variance = mean of predicted variances**. **Condition**: If method is Sparse GP, set `aleatoric` and `epistemic` to `null` and `total` to `variance`. **Dependency**: T016.
+- [ ] T022b [US2] **REQUIRED**: Update `results/uq_predictions.csv` (from T016) to populate the `aleatoric`, `epistemic`, `total`, and `uncertainty_type` columns calculated in T022a. **Do not overwrite the file structure**; append/populate values to the existing rows. **Dependency**: T022a, T016.
+- [X] T022c [US2] **REQUIRED**: Implement a verification script in `code/uq/validate_uq.py` that explicitly asserts the aleatoric/epistemic decomposition logic is correctly applied to the *Deep Ensemble* and *MC-Dropout* outputs specifically, validating against expected theoretical bounds. Output artifact: `logs/uq_validation.log`. **Dependency**: T022a.
 - [~] T023 [US2] Generate reliability diagrams (PDF/PNG) for each method in `results/`.
 - [ ] T024 [US2] Compute final metrics and save to `results/calibration_report.csv`.
 - [~] T025 [US2] Implement ranking logic to identify best-performing method based on ECE and Interval Score.
-- [ ] T025a [US2] **REQUIRED**: Run the full pipeline (data load -> train -> eval) exactly **3 times** with seeds **42, 43, 44** and aggregate the resulting ECE scores for each method into a temporary file `results/ece_scores_by_seed.json`.
-- [ ] T026 [US2] Compute Coefficient of Variation (CV) of ECE scores across the 3 runs from `results/ece_scores_by_seed.json`. **MUST** output `results/robustness_report.json` containing the CV value and a boolean `pass` (true if CV ≤ 0.05). **DO NOT exit with code 1** if `pass` is false; report the finding and continue.
+- [ ] T025a [US2] **REQUIRED**: Run the full **training and evaluation** pipeline (T012-T016) exactly **3 times** with seeds **42, 43, 44**. **Optimization**: Re-use the preprocessing artifacts (T006) to avoid redundant data loading. Aggregate the resulting ECE scores for each method into a temporary file `results/ece_scores_by_seed.json`. **Note**: This is a sequential operation, not parallel. **Dependency**: T016. <!-- FAILED: unspecified -->
+- [~] T025b [US2] **REQUIRED**: Implement the statistical significance test logic (Bootstrap Paired T-Test) to compare ECE scores across seeds. **Dependency**: T025a.
+- [ ] T025c [US2] **REQUIRED**: Implement **Holm-Bonferroni correction** logic for multiple comparisons as required by Plan Phase 2 and SC-004. Output artifact: `results/significance_test_results.json`. **Dependency**: T025b.
+- [ ] T026 [US2] Compute Coefficient of Variation (CV) of ECE scores across the 3 runs from `results/ece_scores_by_seed.json`. **MUST** output `results/robustness_report.json` containing: `cv` (float, or null if calculation fails), `pass` (boolean, **true if CV ≤ 0.05 AND cv is not null, else false**), `seeds_used` (array of integers [42, 43, 44]). **Gate**: If `pass` is false, the pipeline MUST exit with a clear error code indicating robustness failure. **Error Handling**: If CV calculation fails (e.g., division by zero), set `cv=null` and `pass=false`. **Dependency**: T025a.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -130,11 +137,12 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] **REQUIRED**: Implement `code/uq/screening.py`: **Expected Loss ranking** (prediction + variance penalty) as required by FR-007 and Plan Phase 3. Output artifact: `results/screening_candidates.csv`.
+- [~] T028 [US3] **REQUIRED**: Implement `code/uq/screening.py`: **Expected Loss ranking** (prediction + variance penalty) as required by FR-007 and Plan Phase 3. Output artifact: `results/screening_candidates.csv`. **Dependency**: T022b.
 - [ ] T028b [US3] **REQUIRED**: Implement `code/uq/screening.py`: Point-prediction baseline screening logic for comparison. Output artifact: `results/screening_baseline.csv`.
+- [ ] T028c [US3] **REQUIRED**: Implement fallback logic in `code/uq/screening.py`: If the Sparse GP model fails to load or produce predictions, **exclude** GP results from the screening process and proceed with Deep Ensemble/MC-Dropout results only, logging a warning. **Dependency**: T028.
 - [ ] T029 [US3] Calculate precision/recall curves for both UQ (consumes output of T028) and baseline methods (T028b). **MUST** explicitly compare the filtered set from T028 against the baseline. **Dependency**: T028 and T028b must complete before T029 starts.
-- [ ] T030 [US3] Perform McNemar's test or bootstrap t-test to validate statistical significance of precision gain. Output artifact: `results/screening_significance.json` containing p-value and test statistic.
-- [ ] T031 [US3] Generate `results/screening_results.csv` with selection metrics and comparison p-values.
+- [ ] T029b [US3] **REQUIRED**: Perform **Bootstrap Paired T-Test** (1000 resamples) to validate statistical significance of precision gain, applying **Holm-Bonferroni correction** as required by Plan Phase 2. **Input**: Precision scores per bootstrap resample derived from T029. **Note**: Explicitly note in the output that McNemar's test was not used as it is inappropriate for regression metrics, but the Bootstrap T-Test provides the required statistical validation. Output artifact: `results/screening_significance.json` containing p-value, test statistic, and correction method. **Dependency**: T029.
+- [ ] T030 [US3] Generate `results/screening_results.csv` with selection metrics and comparison p-values.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -146,7 +154,8 @@ Examples of foundational tasks (adjust based on your project):
 
 - [ ] T033a [P] Update `README.md` with project overview and usage instructions.
 - [ ] T033b [P] Update `docs/api.md` with usage examples for `screening.py`.
-- [ ] T034 Code cleanup and refactoring of `code/models/` and `code/uq/`: **Remove unused imports** and **enforce black formatting**.
+- [ ] T034a [P] Run `ruff check code/` to identify unused imports and linting errors.
+- [ ] T034b [P] Run `black code/` to enforce formatting standards.
 - [ ] T035 Verify `results/` artifacts against `code/contracts/` schemas
 - [ ] T036 [P] Run `tests/unit/` and `tests/contract/` suites to ensure all pass
 

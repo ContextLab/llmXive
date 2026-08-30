@@ -285,3 +285,40 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-27T16:17:24Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/docs/data_source_rationale.md
+  attempts: 1
+  canonical: Pearson correlation coefficient > 0.95 between Materials Project and
+    OQMD formation energies for stable compounds
+  claim_id: c_2138b328
+  context: 'Both MP and OQMD are high-throughput DFT (Density Functional Theory) databases
+    calculated using similar functionals (GGA-PBE). - Correlation: Studies show a
+    Pearson correlation coefficient > 0.95 between MP and OQMD formation energies
+    for stable compounds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Studies show a Pearson correlation coefficient > 0.95 between MP and OQMD
+    formation energies for stable compounds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T11:54:16Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/docs/data_source_rationale.md
+  attempts: 1
+  canonical: Open Quantum Materials Database contains over 1.5 million entries
+  claim_id: c_7c748a93
+  context: 'Coverage: OQMD contains over 1.5 million entries, providing a sufficiently
+    large sample size for training robust Machine Learning models and assessing Uncertainty
+    Quantification (UQ) techniques.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: OQMD contains over 1.5 million entries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T11:55:01Z'

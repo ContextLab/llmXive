@@ -4,11 +4,13 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No project files or directory tree were presented; there is no evidence of a created codebase, folder hierarchy, or any non‑empty artifact that would constitute the required project structure. The implementer must add the actual project scaffold (e.g., README, src/, data/, scripts/, config files) to satisfy the task.
-- `T003` (rejected 1x): The implementer provided only a feature specification for uncertainty quantification and no linting/formatting configuration files (e.g., `pyproject.toml` with Black settings, `.ruff.toml`, or a pre‑commit hook). Consequently, the required artifact to configure Ruff and Black is missing.
-- `T005` (rejected 1x): The repository contains a `code/data/download.py` that defines a download function, but the required output file `data/raw/oqmd.parquet` does not exist. The task demands that the dataset be actually saved to that path, which is missing. The implementer must run the script (or otherwise provide the parquet file) so the raw data is present.
-- `T006` (rejected 1x): The provided `preprocess.py` defines loading, missing‑value exclusion, and a stub for stratified splitting, but it never performs PCA to 20 components, never writes `features_20pca.csv` or `exclusion_log.json`, and does not tie the config values (`split_type`, `seed`) into the processing flow. These required steps are missing, so the implementation does not satisfy the task.
-- `T007` (rejected 1x): declared artifact(s) missing/empty/invalid: code/data/validation_report.json, data/processed/exclusion_log.json, data/validation_report.json
+- `T009` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
+- `T012` (rejected 1x): The repository contains `code/models/baseline_nn.py`, but the required output file `results/models/baseline_seed42.pt` is missing, so the training artifact was never saved. Additionally, the implementation does not ensure the model stays ≤10 k parameters (the hidden sizes are fixed but the input dimension could push the total count above the limit). The task is therefore not fully satisfied.
+- `T018` (rejected 1x): declared artifact(s) missing/empty/invalid: results/uq_predictions.csv
+- `T014` (rejected 1x): The `results/models/mc_dropout_model.pt` file does not exist, and the provided `code/models/mc_dropout.py` contains bugs (e.g., returns undefined `mo`) and lacks a function that performs multiple stochastic forward passes as required. The implementation is therefore incomplete.
+- `T022b` (rejected 1x): declared artifact(s) missing/empty/invalid: results/uq_predictions.csv
+- `T024` (rejected 1x): declared artifact(s) missing/empty/invalid: results/calibration_report.csv
+- `T025a` (rejected 1x): declared artifact(s) missing/empty/invalid: results/ece_scores_by_seed.json
 
 ## Required change
 
