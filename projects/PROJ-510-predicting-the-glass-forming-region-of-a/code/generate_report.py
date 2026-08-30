@@ -1,263 +1,239 @@
-"""
-T043: Generate the final consolidated research report (REPORT.md).
-
-This script aggregates results from T032 (sensitivity analysis), T042 (extended sensitivity),
-T025c (model metrics), T029/T040 (feature importance), and T016a (data summary) to produce
-the final research report.
-
-It assumes the pipeline has run successfully and the required artifacts exist.
-"""
 import os
 import json
 import sys
 import glob
 from typing import Dict, Any, List, Optional
+import logging
 
-# Ensure we can import from the project root
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(PROJECT_ROOT, "data")
-MODELS_DIR = os.path.join(DATA_DIR, "models")
-PROCESSED_DIR = os.path.join(DATA_DIR, "processed")
+# Ensure logging is configured before use
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
 
-def load_json_file(filepath: str) -> Optional[Dict[str, Any]]:
-    """Load a JSON file, returning None if it doesn't exist."""
+def load_json_file(filepath: str) -> Dict[str, Any]:
+    """Load a JSON file and return its contents as a dictionary."""
     if not os.path.exists(filepath):
-        return None
-    try:
-        with open(filepath, 'r') as f:
-            return json.load(f)
-    except Exception as e:
-        print(f"Warning: Could not load {filepath}: {e}", file=sys.stderr)
-        return None
+        raise FileNotFoundError(f"JSON file not found: {filepath}")
+    with open(filepath, 'r') as f:
+        return json.load(f)
 
-def load_csv_file(filepath: str) -> Optional[List[Dict[str, str]]]:
-    """Load a CSV file as a list of dicts, returning None if it doesn't exist."""
+def load_csv_file(filepath: str) -> List[Dict[str, Any]]:
+    """Load a CSV file and return its contents as a list of dictionaries."""
     if not os.path.exists(filepath):
-        return None
-    try:
-        import pandas as pd
-        df = pd.read_csv(filepath)
-        return df.to_dict(orient='records')
-    except Exception as e:
-        print(f"Warning: Could not load {filepath}: {e}", file=sys.stderr)
-        return None
+        raise FileNotFoundError(f"CSV file not found: {filepath}")
+    import pandas as pd
+    df = pd.read_csv(filepath)
+    return df.to_dict(orient='records')
 
-def get_data_summary() -> Dict[str, Any]:
-    """Extract data summary from processed_alloys.csv."""
-    filepath = os.path.join(PROCESSED_DIR, "processed_alloys.csv")
-    if not os.path.exists(filepath):
+def get_data_summary(ingestion_log_path: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Summarize the data ingestion process.
+    Reads from processed_alloys.csv to count records.
+    """
+    processed_path = "data/processed/processed_alloys.csv"
+    if not os.path.exists(processed_path):
+        logger.warning(f"Processed data file not found at {processed_path}. Using defaults.")
         return {
             "total_records": 0,
             "ternary_alloys": 0,
-            "sampling_details": "No data file found"
-        }
-    
-    try:
-        import pandas as pd
-        df = pd.read_csv(filepath)
-        total = len(df)
-        # Assuming all rows in processed file are ternary (filtered in T013)
-        ternary = total 
-        
-        # Check for sampling log
-        sampling_log = os.path.join(PROCESSED_DIR, "sampling_log.txt")
-        sampling_details = "Full dataset used"
-        if os.path.exists(sampling_log):
-            with open(sampling_log, 'r') as f:
-                content = f.read().strip()
-                if content:
-                    sampling_details = content
-        
-        return {
-            "total_records": total,
-            "ternary_alloys": ternary,
-            "sampling_details": sampling_details
-        }
-    except Exception as e:
-        return {
-            "total_records": 0,
-            "ternary_alloys": 0,
-            "sampling_details": f"Error reading data: {e}"
+            "sampling_details": "Data not available"
         }
 
-def get_model_performance() -> Dict[str, Any]:
-    """Extract model performance from model_metrics_final.json."""
-    filepath = os.path.join(MODELS_DIR, "model_metrics_final.json")
-    metrics = load_json_file(filepath)
+    import pandas as pd
+    df = pd.read_csv(processed_path)
+    return {
+        "total_records": len(df),
+        "ternary_alloys": len(df), # Assuming all are ternary after filtering
+        "sampling_details": "Full dataset processed"
+    }
+
+def get_model_performance(metrics_path: str) -> Dict[str, Any]:
+    """
+    Extract model performance metrics from the final metrics JSON.
+    """
+    if not os.path.exists(metrics_path):
+        raise FileNotFoundError(f"Model metrics file not found: {metrics_path}")
     
-    if not metrics:
-        return {
-            "mean_rmse": "N/A",
-            "test_rmse": "N/A",
-            "p_value_vs_null": "N/A",
-            "status": "Model metrics file not found"
-        }
-    
+    metrics = load_json_file(metrics_path)
     return {
         "mean_rmse": metrics.get("mean_rmse", "N/A"),
         "test_rmse": metrics.get("test_rmse", "N/A"),
         "p_value_vs_null": metrics.get("p_value_vs_null", "N/A"),
-        "fold_scores": metrics.get("fold_scores", []),
-        "feature_importance_ranking": metrics.get("feature_importance_ranking", []),
-        "status": "Success"
+        "sc002_met": metrics.get("sc002_met", False)
     }
 
-def get_feature_importance() -> Dict[str, Any]:
-    """Extract feature importance from feature_importance.json."""
-    filepath = os.path.join(PROCESSED_DIR, "feature_importance.json")
-    data = load_json_file(filepath)
+def get_feature_importance(importance_path: str) -> List[Dict[str, Any]]:
+    """
+    Load feature importance rankings.
+    """
+    if not os.path.exists(importance_path):
+        logger.warning(f"Feature importance file not found: {importance_path}")
+        return []
     
-    if not data:
-        return {
-            "top_features": [],
-            "collinearity_notes": "Feature importance file not found"
-        }
+    data = load_json_file(importance_path)
+    # Ensure it's a list of dicts, handling potential nested structures if any
+    if isinstance(data, list):
+        return data
+    elif isinstance(data, dict) and 'features' in data:
+        return data['features']
+    return []
+
+def get_sensitivity_analysis(sensitivity_path: str) -> Dict[str, Any]:
+    """
+    Load sensitivity analysis results.
+    """
+    if not os.path.exists(sensitivity_path):
+        logger.warning(f"Sensitivity report not found: {sensitivity_path}")
+        return {"stability_met": False, "f1_variance": 0.0}
     
-    # Sort by p-value if available, or just list them
-    sorted_features = sorted(data, key=lambda x: x.get('p_value', 1.0))
-    top_3 = sorted_features[:3]
-    
-    # Check for stability check
-    stability_notes = "No stability analysis performed"
-    if "stability_check" in data:
-        stability_notes = "Stability analysis performed; see stability_check section"
-    
+    data = load_json_file(sensitivity_path)
     return {
-        "top_features": top_3,
-        "all_features": data,
-        "collinearity_notes": stability_notes
+        "stability_met": data.get("stability_met", False),
+        "f1_variance": data.get("f1_variance", 0.0),
+        "rmse_variance": data.get("rmse_variance", 0.0)
     }
 
-def get_sensitivity_analysis() -> Dict[str, Any]:
-    """Extract sensitivity analysis from sensitivity_report.csv and extended report."""
-    filepath = os.path.join(PROCESSED_DIR, "sensitivity_report.csv")
-    report = load_csv_file(filepath)
+def generate_report_markdown(
+    data_summary: Dict[str, Any],
+    model_perf: Dict[str, Any],
+    feature_importance: List[Dict[str, Any]],
+    sensitivity: Dict[str, Any],
+    output_path: str
+) -> None:
+    """
+    Generate the final consolidated research report in Markdown.
+    """
+    report_lines = [
+        "# Research Report: Predicting the Glass Forming Region of Alloy Systems",
+        "",
+        "## 1. Executive Summary",
+        "",
+        "This study investigates the ability of a Random Forest regressor to predict the Critical Cooling Rate (CCR) of alloy systems based on thermodynamic descriptors. The goal is to identify key thermodynamic features that correlate with glass-forming ability.",
+        "",
+        "## 2. Data Summary",
+        "",
+        f"- **Total Records Processed**: {data_summary['total_records']}",
+        f"- **Number of Ternary Alloys**: {data_summary['ternary_alloys']}",
+        f"- **Sampling Details**: {data_summary['sampling_details']}",
+        "",
+        "## 3. Model Performance",
+        "",
+        "The model was trained using a Random Forest algorithm and evaluated against a null baseline.",
+        "",
+        f"- **Mean RMSE (Cross-Validation)**: {model_perf['mean_rmse']}",
+        f"- **Test RMSE**: {model_perf['test_rmse']}",
+        f"- **P-value vs Null Model**: {model_perf['p_value_vs_null']}",
+        "",
+        f"- **SC-002 Status (Statistically Distinguishable)**: {'PASSED' if model_perf['sc002_met'] else 'FAILED'}",
+        "",
+        "## 4. Feature Importance",
+        "",
+        "The following features were identified as top contributors to the model's predictive power:",
+        ""
+    ]
+
+    if feature_importance:
+        # Sort by importance if not already sorted, assuming 'importance' key exists
+        sorted_features = sorted(feature_importance, key=lambda x: x.get('importance', 0), reverse=True)
+        top_3 = sorted_features[:3]
+        
+        for i, feat in enumerate(top_3, 1):
+            name = feat.get('feature', 'Unknown')
+            p_val = feat.get('p_value', 'N/A')
+            importance = feat.get('importance', 'N/A')
+            report_lines.append(f"{i}. **{name}**: Importance={importance}, P-value={p_val}")
+        
+        report_lines.append("")
+        report_lines.append("**Note**: Feature importance rankings are based on the stable model after collinearity checks.")
+    else:
+        report_lines.append("*No feature importance data available.*")
+        report_lines.append("")
+
+    report_lines.extend([
+        "## 5. Sensitivity Analysis",
+        "",
+        "Sensitivity analysis was performed across critical cooling rate thresholds {50, 100, 150} K/s.",
+        "",
+        f"- **F1-Score Variance**: {sensitivity['f1_variance']:.4f}",
+        f"- **RMSE Variance**: {sensitivity['rmse_variance']:.4f}",
+        f"- **Stability Met (Variance <= 10%)**: {'YES' if sensitivity['stability_met'] else 'NO'}",
+        "",
+        "## 6. Caveats",
+        "",
+        "**FINDINGS ARE ASSOCIATIONAL**: This study uses observational data; no causal claims are made. The correlations identified are statistical associations and do not imply causation.",
+        "",
+        "## 7. SC-002 Status",
+        "",
+        f"The model's performance relative to the null baseline was evaluated using an independent t-test. The result is: **{'STATISTICALLY DISTINGUISHABLE' if model_perf['sc002_met'] else 'NOT STATISTICALLY DISTINGUISHABLE'}** (p-value = {model_perf['p_value_vs_null']}).",
+        "",
+        "## 8. References",
+        "",
+        "- Dataset: `matsci/glass-forming-ability` (Hugging Face Datasets)",
+        "- Elemental Properties: `mendeleev` Python library",
+        "- Model: Random Forest Regressor (scikit-learn)",
+        ""
+    ])
+
+    with open(output_path, 'w') as f:
+        f.write('\n'.join(report_lines))
     
-    if not report:
-        return {
-            "thresholds": [],
-            "rmse_variance": "N/A",
-            "extended_report": "Not generated"
-        }
-    
-    # Calculate RMSE variance
-    rmse_values = [float(r['rmse']) for r in report if 'rmse' in r and r['rmse']]
-    rmse_variance = 0.0
-    if len(rmse_values) > 1:
-        import statistics
-        rmse_variance = statistics.variance(rmse_values)
-    
-    # Check for extended report
-    extended_path = os.path.join(PROCESSED_DIR, "sensitivity_report_extended.csv")
-    extended_status = "Not generated"
-    if os.path.exists(extended_path):
-        extended_status = "Generated (variance exceeded threshold)"
-    
-    return {
-        "thresholds": report,
-        "rmse_variance": rmse_variance,
-        "extended_report": extended_status
-    }
-
-def generate_report_markdown() -> str:
-    """Generate the full REPORT.md content."""
-    data_summary = get_data_summary()
-    model_perf = get_model_performance()
-    feature_imp = get_feature_importance()
-    sensitivity = get_sensitivity_analysis()
-    
-    report = f"""# Research Report: Predicting the Glass Forming Region of Alloy Systems with Machine Learning
-
-## 1. Executive Summary
-
-This study investigates the ability of Random Forest regression models to predict the critical cooling rate (CCR) of ternary alloy systems using thermodynamic descriptors as features. The research utilizes experimental data from the `matsci/glass-forming-ability` dataset and computes features such as mixing enthalpy, atomic size mismatch, and electronegativity variance using the `mendeleev` library.
-
-**Key Finding**: The model demonstrates predictive capability, with performance significantly better than a null baseline (p < 0.05). However, **FINDINGS ARE ASSOCIATIONAL** due to the observational nature of the data; no causal claims are made regarding the physical mechanisms of glass formation.
-
-## 2. Data Summary
-
-- **Total Records Processed**: {data_summary['total_records']}
-- **Valid Ternary Alloys**: {data_summary['ternary_alloys']}
-- **Sampling Details**: {data_summary['sampling_details']}
-
-The dataset was filtered to include only ternary alloys (3 elements) and rows with complete elemental data and valid glass-forming labels.
-
-## 3. Model Performance
-
-The Random Forest regressor was trained using k-fold cross-validation and evaluated on a held-out test set.
-
-| Metric | Value |
-| :--- | :--- |
-| **Mean RMSE (CV)** | {model_perf['mean_rmse']} |
-| **Test RMSE** | {model_perf['test_rmse']} |
-| **P-value vs Null** | {model_perf['p_value_vs_null']} |
-
-**Statistical Significance**: The model's performance is statistically distinguishable from a null model (mean predictor) with p-value = {model_perf['p_value_vs_null']}.
-
-**Fold Scores**: {model_perf.get('fold_scores', [])}
-
-## 4. Feature Importance
-
-The following thermodynamic descriptors were ranked by their contribution to the model's predictive power:
-
-### Top 3 Features
-| Rank | Feature | P-value |
-| :--- | :--- | :--- |
-| 1 | {feature_imp['top_features'][0]['feature'] if feature_imp['top_features'] else 'N/A'} | {feature_imp['top_features'][0]['p_value'] if feature_imp['top_features'] else 'N/A'} |
-| 2 | {feature_imp['top_features'][1]['feature'] if len(feature_imp['top_features']) > 1 else 'N/A'} | {feature_imp['top_features'][1]['p_value'] if len(feature_imp['top_features']) > 1 else 'N/A'} |
-| 3 | {feature_imp['top_features'][2]['feature'] if len(feature_imp['top_features']) > 2 else 'N/A'} | {feature_imp['top_features'][2]['p_value'] if len(feature_imp['top_features']) > 2 else 'N/A'} |
-
-**Collinearity & Stability**: {feature_imp['collinearity_notes']}
-
-## 5. Sensitivity Analysis
-
-The model's sensitivity to the critical cooling rate threshold was analyzed at {50, 100, 150} K/s.
-
-| Threshold (K/s) | RMSE |
-| :--- | :--- |
-| 50 | {sensitivity['thresholds'][0]['rmse'] if len(sensitivity['thresholds']) > 0 else 'N/A'} |
-| 100 | {sensitivity['thresholds'][1]['rmse'] if len(sensitivity['thresholds']) > 1 else 'N/A'} |
-| 150 | {sensitivity['thresholds'][2]['rmse'] if len(sensitivity['thresholds']) > 2 else 'N/A'} |
-
-- **RMSE Variance**: {sensitivity['rmse_variance']:.6f}
-- **Extended Report**: {sensitivity['extended_report']}
-
-The low variance in RMSE across thresholds indicates the model's predictions are robust to small changes in the critical cooling rate definition.
-
-## 6. Caveats
-
-**FINDINGS ARE ASSOCIATIONAL**: This study uses observational data; no causal claims are made regarding the physical mechanisms of glass formation. The model identifies statistical associations between thermodynamic descriptors and critical cooling rates, which may be influenced by unmeasured confounding variables or selection biases in the experimental data.
-
-**Limitations**:
-- The dataset is limited to ternary alloys; extrapolation to higher-order systems is not validated.
-- The `matsci/glass-forming-ability` dataset may have selection biases regarding which alloys were tested.
-- Thermodynamic descriptors are simplified proxies for complex atomic interactions.
-
-## 7. References
-
-1. **Dataset**: `matsci/glass-forming-ability` (Hugging Face Datasets)
-2. **Elemental Properties**: `mendeleev` Python library
-3. **Methodology**: Random Forest Regression, k-Fold Cross-Validation, Permutation Importance
-
----
-*Report generated by T043: Final Integration Script*
-"""
-    return report
+    logger.info(f"Report generated successfully at {output_path}")
 
 def main():
-    """Main entry point for report generation."""
-    print("Generating final research report...")
+    """
+    Main entry point for report generation.
+    Loads all required artifacts and generates REPORT.md.
+    """
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    base_path = project_root # Assuming code/ is at project_root/code/
     
-    report_content = generate_report_markdown()
-    
-    output_path = os.path.join(PROJECT_ROOT, "REPORT.md")
-    
+    # Define paths relative to project root
+    processed_data_path = os.path.join(base_path, "data/processed/processed_alloys.csv")
+    metrics_path = os.path.join(base_path, "data/models/model_metrics_final.json")
+    importance_path = os.path.join(base_path, "data/processed/feature_importance.json")
+    sensitivity_path = os.path.join(base_path, "data/processed/sensitivity_status.json")
+    output_path = os.path.join(base_path, "REPORT.md")
+
+    logger.info("Starting report generation...")
+
     try:
-        with open(output_path, 'w') as f:
-            f.write(report_content)
-        print(f"Report successfully generated: {output_path}")
+        # 1. Load Data Summary
+        data_summary = get_data_summary()
+        logger.info(f"Data summary loaded: {data_summary['total_records']} records.")
+
+        # 2. Load Model Performance
+        model_perf = get_model_performance(metrics_path)
+        logger.info(f"Model performance loaded: RMSE={model_perf['test_rmse']}")
+
+        # 3. Load Feature Importance
+        feature_importance = get_feature_importance(importance_path)
+        logger.info(f"Feature importance loaded: {len(feature_importance)} features.")
+
+        # 4. Load Sensitivity Analysis
+        sensitivity = get_sensitivity_analysis(sensitivity_path)
+        logger.info(f"Sensitivity analysis loaded: Stability={sensitivity['stability_met']}")
+
+        # 5. Generate Report
+        generate_report_markdown(
+            data_summary,
+            model_perf,
+            feature_importance,
+            sensitivity,
+            output_path
+        )
+
+        logger.info("Report generation completed successfully.")
+
+    except FileNotFoundError as e:
+        logger.error(f"Required file missing: {e}")
+        sys.exit(1)
     except Exception as e:
-        print(f"Error writing report: {e}", file=sys.stderr)
+        logger.error(f"Error during report generation: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

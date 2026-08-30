@@ -1,166 +1,180 @@
-"""
-Data ingestion module for the Glass Forming Region Prediction project.
-Handles downloading, filtering, and cleaning of alloy datasets.
-"""
 import logging
 import os
 import sys
 from typing import List, Dict, Any, Optional
 import pandas as pd
 from datasets import load_dataset
+import itertools
+import random
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
+)
 logger = logging.getLogger(__name__)
 
-# Verified real data source
 DATASET_NAME = "matsci/glass-forming-ability"
+PROJECT_ROOT = "projects/PROJ-510-predicting-the-glass-forming-region-of-a"
+DATA_DIR = os.path.join(PROJECT_ROOT, "data", "processed")
+OUTPUT_FILE = os.path.join(DATA_DIR, "processed_alloys.csv")
+SAMPLING_LOG = os.path.join(DATA_DIR, "sampling_log.txt")
+
+# Ensure directories exist
+os.makedirs(DATA_DIR, exist_ok=True)
 
 def load_glass_data() -> pd.DataFrame:
     """
     Load the glass forming ability dataset from Hugging Face.
-    
-    Returns:
-        DataFrame containing the raw alloy data
-        
-    Raises:
-        ValueError: If the dataset cannot be fetched
+    Uses streaming to handle large datasets.
     """
-    logger.info(f"Loading dataset: {DATASET_NAME}")
+    logger.info(f"Attempting to load dataset: {DATASET_NAME}")
     try:
-        dataset = load_dataset(DATASET_NAME, split="train")
-        df = dataset.to_pandas()
+        # Use streaming to avoid memory issues
+        dataset = load_dataset(DATASET_NAME, streaming=True)
         
-        # Verify critical column exists
-        if 'critical_cooling_rate' not in df.columns:
-            raise ValueError(f"Dataset missing required column 'critical_cooling_rate'. Columns: {df.columns.tolist()}")
+        # Get the first split (usually 'train')
+        split_name = list(dataset.keys())[0]
+        logger.info(f"Using split: {split_name}")
         
-        logger.info(f"Loaded {len(df)} rows from {DATASET_NAME}")
-        return df
-    except Exception as e:
-        raise ValueError(f"Data fetch failed: {DATASET_NAME} unavailable. Error: {str(e)}")
+        # Convert to dataframe (streaming)
+        # Note: load_dataset with streaming returns an iterable, we need to convert to list then DF
+        # For very large datasets, we might want to sample during iteration
+        data_list = []
+        count = 0
+        
+        # Iterate through the dataset
+        for item in dataset[split_name]:
+            data_list.append(item)
+            count += 1
+            
+            # Optional: Log progress every 10k items if needed, but for now just count
+            if count % 10000 == 0:
+                logger.info(f"Loaded {count} items...")
 
-def log_sampling_info(df: pd.DataFrame, n: int, method: str) -> None:
-    """Log information about data sampling if applied."""
-    logger.info(f"Sampling info: {n} rows selected using {method}")
+        if not data_list:
+            raise ValueError("Dataset is empty.")
+
+        df = pd.DataFrame(data_list)
+        logger.info(f"Successfully loaded {len(df)} rows.")
+        return df
+
+    except Exception as e:
+        logger.error(f"Failed to load dataset {DATASET_NAME}: {str(e)}")
+        # CRITICAL: Fail loudly, do not fallback to synthetic data
+        raise ValueError(f"Data fetch failed: {DATASET_NAME} unavailable. Error: {str(e)}")
 
 def filter_ternary_alloys(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Filter dataset to keep only ternary alloys (3 elements).
-    
-    Args:
-        df: Input DataFrame
-        
-    Returns:
-        Filtered DataFrame
+    Filter the dataframe to keep only ternary alloys (3 elements).
+    Assumes 'composition' column contains strings like "A_B_C" or "A B C".
     """
     logger.info("Filtering for ternary alloys...")
     
-    def count_elements(composition: str) -> int:
-        if not isinstance(composition, str):
+    def count_elements(comp_str):
+        if not isinstance(comp_str, str):
             return 0
-        # Assume format is "El1_El2_El3" or similar
-        parts = composition.replace('_', ' ').split()
-        return len(parts)
-    
-    # Count elements in composition string
-    df['_elem_count'] = df['composition'].apply(count_elements)
-    ternary_df = df[df['_elem_count'] == 3].copy()
-    ternary_df = ternary_df.drop(columns=['_elem_count'])
-    
-    logger.info(f"Filtered from {len(df)} to {len(ternary_df)} ternary alloys")
+        # Handle various separators: space, underscore, comma
+        comp_str = comp_str.replace(',', ' ').replace('_', ' ')
+        parts = comp_str.split()
+        # Filter out non-element tokens if any (simple heuristic: keep if starts with capital)
+        elements = [p for p in parts if p and p[0].isupper()]
+        return len(elements)
+
+    df['element_count'] = df['composition'].apply(count_elements)
+    ternary_df = df[df['element_count'] == 3].copy()
+    logger.info(f"Found {len(ternary_df)} ternary alloys.")
     return ternary_df
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Clean the dataset by removing rows with missing critical data.
-    
-    Args:
-        df: Input DataFrame
-        
-    Returns:
-        Cleaned DataFrame
+    Clean the dataframe: remove rows with missing critical_cooling_rate or other essential fields.
     """
     logger.info("Cleaning data...")
+    required_cols = ['composition', 'critical_cooling_rate']
+    # Check if columns exist, if not, try to find similar ones or fail
+    for col in required_cols:
+        if col not in df.columns:
+            # Try to find a column with 'ccr' or 'cooling' in name
+            matches = [c for c in df.columns if 'ccr' in c.lower() or 'cooling' in c.lower()]
+            if matches:
+                logger.warning(f"Column '{col}' not found. Using '{matches[0]}' instead.")
+                df = df.rename(columns={matches[0]: col})
+            else:
+                raise ValueError(f"Required column '{col}' not found in dataset.")
+    
+    # Drop rows with NaN in critical columns
     initial_count = len(df)
+    df = df.dropna(subset=required_cols)
+    dropped = initial_count - len(df)
+    if dropped > 0:
+        logger.warning(f"Dropped {dropped} rows due to missing values in required columns.")
     
-    # Drop rows with missing composition or critical_cooling_rate
-    df = df.dropna(subset=['composition', 'critical_cooling_rate'])
-    
-    # Drop rows where glass forming label is unknown (if column exists)
-    if 'glass_forming_label' in df.columns:
-        df = df[df['glass_forming_label'].notna()]
-        
-    logger.info(f"Cleaned data: {initial_count} -> {len(df)} rows")
     return df
 
-def validate_critical_cooling_rate(df: pd.DataFrame) -> None:
+def validate_critical_cooling_rate(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Validate that critical_cooling_rate has non-zero variance and sufficient entries.
+    Ensure critical_cooling_rate has non-zero variance and >= 500 entries.
+    """
+    logger.info("Validating critical_cooling_rate...")
     
-    Args:
-        df: DataFrame to validate
-        
-    Raises:
-        ValueError: If validation fails
-    """
     if len(df) < 500:
-        raise ValueError(f"Data availability error: <500 valid entries ({len(df)} found)")
+        raise ValueError(f"Data availability error: {len(df)} valid entries, expected >= 500")
     
     if df['critical_cooling_rate'].var() == 0:
         raise ValueError("Data availability error: zero variance in critical_cooling_rate")
     
-    logger.info("Critical cooling rate validation passed")
-
-def validate_data_quality(df: pd.DataFrame) -> None:
-    """
-    Perform general data quality checks.
-    
-    Args:
-        df: DataFrame to validate
-        
-    Raises:
-        ValueError: If data quality checks fail
-    """
-    # Check for NaN in target columns
-    target_cols = ['critical_cooling_rate', 'mixing_enthalpy', 'atomic_size_mismatch', 'electronegativity_variance']
-    for col in target_cols:
-        if col in df.columns and df[col].isna().any():
-            raise ValueError(f"Data quality error: NaN found in column {col}")
-    
-    logger.info("Data quality validation passed")
-
-def run_ingestion() -> pd.DataFrame:
-    """
-    Run the full ingestion pipeline.
-    
-    Returns:
-        Processed DataFrame ready for feature engineering
-    """
-    logger.info("Starting data ingestion pipeline...")
-    
-    # Load data
-    df = load_glass_data()
-    
-    # Filter for ternary alloys
-    df = filter_ternary_alloys(df)
-    
-    # Clean data
-    df = clean_data(df)
-    
-    # Validate critical cooling rate
-    validate_critical_cooling_rate(df)
-    
-    logger.info("Ingestion pipeline completed successfully")
+    logger.info("Validation passed.")
     return df
 
+def log_sampling_info(total: int, sampled: int, status: str):
+    """Log sampling information to a file."""
+    with open(SAMPLING_LOG, 'w') as f:
+        f.write(f"Total rows: {total}\n")
+        f.write(f"Sampled rows: {sampled}\n")
+        f.write(f"Status: {status}\n")
+        f.write(f"Random Seed: 42\n")
+    logger.info(f"Sampling status: {status}. Log written to {SAMPLING_LOG}")
+
+def run_ingestion():
+    """Main ingestion pipeline."""
+    try:
+        # 1. Load Data
+        df = load_glass_data()
+        
+        # 2. Filter Ternary
+        df = filter_ternary_alloys(df)
+        
+        # 3. Clean Data
+        df = clean_data(df)
+        
+        # 4. Validate
+        df = validate_critical_cooling_rate(df)
+        
+        # 5. Sampling Logic (if > 10k)
+        target_max = 10000
+        if len(df) > target_max:
+            logger.info(f"Dataset size ({len(df)}) > {target_max}. Sampling...")
+            random.seed(42)
+            # Use itertools.islice for sampling
+            indices = random.sample(range(len(df)), target_max)
+            df = df.iloc[indices].reset_index(drop=True)
+            log_sampling_info(len(df) + (len(df) - target_max), len(df), "SAMPLED")
+        else:
+            log_sampling_info(len(df), len(df), "FULL")
+
+        # 6. Save to CSV
+        df.to_csv(OUTPUT_FILE, index=False)
+        logger.info(f"Saved processed data to {OUTPUT_FILE}")
+        
+        return df
+
+    except Exception as e:
+        logger.error(f"Ingestion failed: {str(e)}")
+        raise
+
 if __name__ == "__main__":
-    # Ensure output directory exists
-    output_dir = os.path.join(os.path.dirname(__file__), "..", "..", "data", "processed")
-    os.makedirs(output_dir, exist_ok=True)
-    
-    # Run ingestion
-    df = run_ingestion()
-    
-    # Save processed data
-    output_path = os.path.join(output_dir, "processed_alloys.csv")
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved processed data to {output_path}")
+    run_ingestion()
