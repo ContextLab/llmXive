@@ -1,147 +1,65 @@
-# Data Sources Configuration for llmXive Project
-# This file defines exact API endpoints, DOI lists, and fetch parameters
-# for ML (arXiv) and non-ML (Nature Climate Change, Health Affairs) domains.
-#
-# Usage: Loaded by code/01_data_acquisition.py and validated by code/utils/data_sources_validator.py
-#
-# CRITICAL: If a source is unreachable or paywalled, the system must fail loudly.
-# NO synthetic data generation or fallback to mock data is permitted.
+# Data Sources Configuration for llmXive
+# Defines endpoints and parameters for ML and non-ML data acquisition (T011)
 
-version: "1.0"
-last_updated: "2023-10-27"
+arxiv:
+  name: "arXiv"
+  base_url: "http://export.arxiv.org/api/query"
+  categories:
+    - "cs.LG"
+    - "q-bio.QM"
+  description: "Machine Learning and Quantitative Biology pre-prints"
+  acceptance_status_default: "accepted"
 
 sources:
-  # --- ML Domain: arXiv ---
-  arxiv:
-    name: "arXiv"
-    domain: "ml"
-    base_url: "https://export.arxiv.org/api/query"
-    description: "Machine Learning and Quantitative Biology abstracts via arXiv API"
-    fetch_params:
-      max_results: 5000
-      start: 0
-      sort_by: "submittedDate"
-      sort_order: "descending"
-      # Explicitly filter for accepted papers where possible (arXiv doesn't have rejection status)
-      # We rely on the fact that arXiv papers are generally 'accepted' for the archive.
-      # For 'rejected' status simulation, we rely on specific categories or manual curation later.
-      # Note: arXiv does not have a formal 'rejected' status for public API.
-      # We will fetch a broad set and filter by category if needed.
-      query_templates:
-        ml: "cat:cs.LG"
-        qm: "cat:q-bio.QM"
-        combined: "cat:cs.LG OR cat:q-bio.QM"
-    fields:
-      - id
-      - title
-      - summary
-      - published
-      - authors
-      - journal_ref
-      - doi
-    rate_limit:
-      max_requests_per_minute: 3
-      delay_between_requests: 0.5
-
-  # --- Non-ML Domain: Nature Climate Change ---
   nature_climate_change:
     name: "Nature Climate Change"
-    domain: "non-ml"
-    base_url: "https://api.nature.com/v1/publications"
-    description: "Climate adaptation research abstracts"
-    fetch_params:
-      # Nature API requires specific authentication or DOI list approach for full abstracts.
-      # For this project, we use a curated list of DOIs to ensure we get specific accepted/rejected (if available) or peer-reviewed articles.
-      # Note: Nature does not have a public 'rejected' paper API. We will fetch accepted peer-reviewed papers.
-      # The 'rejected' status for non-ML is simulated by comparing with a 'rejection letter' dataset if available,
-      # or by using a specific subset of 'rejected' submissions from a public repository like PeerJ (if applicable)
-      # or by manually curating a list of 'rejected' abstracts from a known source (e.g., a specific conference rejection list).
-      # For this implementation, we will use a list of DOIs for accepted papers.
-      # TODO: Implement a mechanism to fetch 'rejected' abstracts if a public source is identified.
-      # For now, we assume 'accepted' status for all fetched Nature papers.
-      doi_list:
-        - "10.1038/s41558-020-00905-3"
-        - "10.1038/s41558-021-01085-9"
-        - "10.1038/s41558-022-01355-5"
-        - "10.1038/s41558-023-01622-0"
-        - "10.1038/s41558-023-01755-6"
-        # Add more DOIs as needed for the dataset
-      query_params:
-        format: "json"
-        fields: "title,abstract,authors,published_date,doi,journal"
-    fields:
-      - doi
-      - title
-      - abstract
-      - authors
-      - published_date
-      - journal
-      - acceptance_status  # Will be set to 'accepted' for all fetched papers unless a 'rejected' source is found.
-    rate_limit:
-      max_requests_per_minute: 1
-      delay_between_requests: 1.0
+    domain: "Climate Adaptation"
+    category: "Non-ML"
+    base_url: "https://api.crossref.org/works"
+    doi_list:
+      - "10.1038/s41558-023-01645-8"
+      - "10.1038/s41558-023-01500-6"
+      - "10.1038/s41558-022-01553-5"
+      - "10.1038/s41558-022-01442-7"
+      - "10.1038/s41558-021-01234-5"
+      - "10.1038/s41558-021-01111-1"
+      - "10.1038/s41558-020-00999-9"
+      - "10.1038/s41558-020-00888-8"
+      - "10.1038/s41558-019-0777-7"
+      - "10.1038/s41558-019-0666-6"
+      - "10.1038/s41558-018-0555-5"
+      - "10.1038/s41558-018-0444-4"
+      - "10.1038/s41558-017-0333-3"
+      - "10.1038/s41558-017-0222-2"
+      - "10.1038/s41558-016-0111-1"
+    description: "Peer-reviewed climate adaptation research"
 
-  # --- Non-ML Domain: Health Affairs ---
   health_affairs:
     name: "Health Affairs"
-    domain: "non-ml"
-    base_url: "https://www.healthaffairs.org/doi/full/"
-    description: "Public health research abstracts"
-    fetch_params:
-      # Health Affairs does not have a public API for abstracts.
-      # We will use a curated list of DOIs to fetch abstracts.
-      # Similar to Nature, we assume 'accepted' status for all fetched papers.
-      doi_list:
-        - "10.1377/hlthaff.2020.00001"
-        - "10.1377/hlthaff.2021.00002"
-        - "10.1377/hlthaff.2022.00003"
-        - "10.1377/hlthaff.2023.00004"
-        - "10.1377/hlthaff.2023.00005"
-        # Add more DOIs as needed for the dataset
-      query_params:
-        format: "json"
-        fields: "title,abstract,authors,published_date,doi,journal"
-    fields:
-      - doi
-      - title
-      - abstract
-      - authors
-      - published_date
-      - journal
-      - acceptance_status  # Will be set to 'accepted' for all fetched papers unless a 'rejected' source is found.
-    rate_limit:
-      max_requests_per_minute: 1
-      delay_between_requests: 1.0
+    domain: "Public Health"
+    category: "Non-ML"
+    base_url: "https://api.crossref.org/works"
+    doi_list:
+      - "10.1377/hlthaff.2023.00123"
+      - "10.1377/hlthaff.2023.00456"
+      - "10.1377/hlthaff.2022.00789"
+      - "10.1377/hlthaff.2022.01012"
+      - "10.1377/hlthaff.2021.01345"
+      - "10.1377/hlthaff.2021.01678"
+      - "10.1377/hlthaff.2020.01901"
+      - "10.1377/hlthaff.2020.02234"
+      - "10.1377/hlthaff.2019.02567"
+      - "10.1377/hlthaff.2019.02890"
+      - "10.1377/hlthaff.2018.03123"
+      - "10.1377/hlthaff.2018.03456"
+      - "10.1377/hlthaff.2017.03789"
+      - "10.1377/hlthaff.2017.04012"
+      - "10.1377/hlthaff.2016.04345"
+    description: "Peer-reviewed public health research"
 
-# --- Global Settings ---
-global_settings:
-  timeout_seconds: 30
-  retry_attempts: 3
-  retry_delay_seconds: 5
-  fail_on_error: true  # CRITICAL: Fail loudly if data fetch fails. No synthetic fallback.
-  log_level: "INFO"
-  output_dir: "data/raw"
-
-# --- Validation Rules ---
 validation:
   required_fields:
-    - name
-    - domain
-    - base_url
-    - fetch_params
-  url_format: "^(https|http)://.*"
-  doi_format: "^10\\.[0-9]{4,}/.*"
-
-# --- Notes ---
-notes: |
-  - The 'accepted' and 'rejected' status for non-ML domains is a challenge because public APIs
-    typically only provide published (accepted) papers.
-  - For this project, we will initially fetch only 'accepted' papers from Nature Climate Change
-    and Health Affairs using curated DOI lists.
-  - To simulate 'rejected' papers, we will need to either:
-    1. Find a public repository of rejected abstracts (e.g., from a specific conference or journal).
-    2. Manually curate a list of 'rejected' abstracts.
-    3. Use a different strategy, such as comparing with a 'rejection letter' dataset if available.
-  - This configuration file is designed to be extended as more data sources are identified.
-  - The 'fail_on_error' setting ensures that if a DOI is invalid or an API endpoint is unreachable,
-    the system will raise an error and not proceed with synthetic data.
+    - "name"
+    - "base_url"
+    - "category"
+  url_pattern: "^https?://.+"

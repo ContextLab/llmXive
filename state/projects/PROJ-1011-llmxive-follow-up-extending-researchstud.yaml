@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-1011-llmxive-follow-up-extending-researchstud
-last_run_id: 80017360-b61b-4616-b3e0-2913674edcb8
+last_run_id: 5201e418-5556-4db3-9a7e-bc6075f0c0bd
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-1011-llmxive-follow-up-extending-researchstud/specs/001-llmxive-follow-up-extending-researchstud
 title: 'llmXive follow-up: extending "ResearchStudio-Idea: An Evidence-Grounded Research-Ideation
   Skill Suit"'
-updated_at: '2026-08-27T08:21:40.573039Z'
+updated_at: '2026-08-30T07:08:08.417511Z'

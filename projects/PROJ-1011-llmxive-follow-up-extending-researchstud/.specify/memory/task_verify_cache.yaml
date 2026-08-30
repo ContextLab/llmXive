@@ -1,11 +1,10 @@
 T011:
   c: false
-  h: 857b1a82866ebefe8c522ab4de5f28bb245821d9ac3f69dbc6dbe8ab788b994e
-  r: "The provided `code/01_data_acquisition.py` contains placeholder logic (dummy\
-    \ DOI handling, hard\u2011coded acceptance status, incorrect arXiv response parsing)\
-    \ and is truncated, while the required `data-sources.yaml` file is missing entirely.\
-    \ Consequently the script does not actually download the specified ML and non\u2011\
-    ML abstracts nor respect acceptance\u2011status filters as the task demands."
+  h: 7272d05f58733bb681063d46350bbcbd46b29a1e15f9edc73a22a7528253b3bc
+  r: "The repository lacks the required `data/raw/corpus_raw.jsonl` file, and the\
+    \ provided `code/01_data_acquisition.py` is incomplete (truncated) with no implementation\
+    \ of arXiv queries, DOI list handling, or acceptance\u2011status filtering. Consequently\
+    \ the script does not fulfill the data\u2011acquisition task as specified."
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -31,3 +30,27 @@ T015:
     \ The next implementer should provide the modified acquisition/pre\u2011processing\
     \ code with appropriate log calls and example log entries showing failures being\
     \ recorded."
+T017:
+  c: false
+  h: 80edba5d2b8c9e7e8b566a1f6b61bbfd6c3514139e209c84788c9908ec306e3d
+  r: The required artifact `tests/unit/test_data_parsing.py` does not exist in the
+    repository, so the contract test for data download validation is missing. The
+    task cannot be considered complete until this test file is added with appropriate
+    test code.
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, logs, or performance measurements were provided to demonstrate\
+    \ that batch processing was added to T021/T022, that memory usage stays \u2264\
+    \u202F7\u202FGB, or that the full generation of 100 proposals completes within\
+    \ 4\u202Fhours. The claim lacks any concrete artifact (e.g., updated pipeline\
+    \ files, benchmark results, or CI logs) required to verify the requirement."
+T030a:
+  c: false
+  h: 31a8cbcefb31d9a380cf98752cbd4ee2963d845368aae8af963c93c703a9a051
+  r: "The repository contains a partially\u2011written `code/04_evaluation_recruitment.py`\
+    \ that is truncated and does not include logic to write `ratings_template.csv`\
+    \ or fully implement the metadata\u2011stripping routine. Moreover, the required\
+    \ output files `data/results/ratings_template.csv` and `data/results/generated_proposals.jsonl`\
+    \ are absent from the project. The task\u2019s core deliverables are therefore\
+    \ missing."

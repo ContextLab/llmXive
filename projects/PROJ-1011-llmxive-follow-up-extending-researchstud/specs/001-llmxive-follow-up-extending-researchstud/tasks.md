@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]****: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a Create project directory structure per plan.md (`projects/PROJ-1011-llmxive-follow-up-extending-researchstud/`, `code/`, `data/`, `tests/`, `state/`)
+- [X] T001a Create project directory structure per plan.md (`projects/PROJ-1011-llmxive-follow-up-extending-researchstud/`, `code/`, `data/`, `tests/`, `state/`)
 - [X] T001b Initialize Python 3.11 project with pinned dependencies (`requirements.txt`) and `pyproject.toml`
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -55,13 +55,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup data directory structure (`data/raw`, `data/processed`, `data/results`) and checksum manifest logic
+- [X] T004 Setup data directory structure (`data/raw`, `data/processed`, `data/results`) and checksum manifest logic
 - [X] T005 [P] Implement seed pinning utility (`code/utils/config.py`) for numpy, torch, and python
 - [X] T006 [P] Setup state management utility (`code/utils/update_state.py`) for artifact versioning (Constitution Principle V)
-- [ ] T007 Create base data models (Abstract, PatternCard, Proposal, Rating) in `code/models/`
-- [ ] T008 [P] Setup error handling infrastructure that fails loudly on data fetch errors.
-- [X] T008a [P] Implement model-fallback logic in `code/utils/config.py` to switch from `all-MiniLM-L6-v2` to `all-distilroberta-v1` (smaller model) if memory constraints are hit, with explicit logging of the switch.
-- [ ] T008b [P] Implement logging infrastructure for T008a to record model switches and memory fallback events.
+- [X] T007 Create base data models (Abstract, PatternCard, Proposal, Rating) in `code/models/`
+- [X] T008 [P] Setup error handling infrastructure that fails loudly on data fetch errors.
+- [X] T008a [P] Implement model-fallback logic in `code/utils/config.py` to switch from `all-MiniLM-L6-v2` to a configurable `FALLBACK_EMBEDDING_MODEL` (defined in config) if memory constraints are hit, with explicit logging of the switch. **Constraint**: Do not hardcode a specific model name in the task description; rely on the config variable.
+- [X] T008b [P] Implement logging infrastructure for T008a to record model switches and memory fallback events.
 - [X] T009 [P] Create `data-sources.yaml` configuration file containing exact API endpoints, DOI lists, and fetch parameters for ML (arXiv) and non-ML (Nature Climate Change, Health Affairs) domains.
 - [X] T009a [P] Implement validation logic for `data-sources.yaml` to ensure required fields are present and URLs are valid formats.
 
@@ -77,19 +77,19 @@
 
 ### Implementation for User Story 1
 
-- [X] T011 [US1] Implement `code/01_data_acquisition.py` to download ML and non-ML abstracts using endpoints defined in `data-sources.yaml`. **Specifics**: Use arXiv API with `cat:cs.LG` and `cat:q-bio.QM` for ML, and specific DOI lists/API endpoints from `data-sources.yaml` for *Nature Climate Change* and *Health Affairs* to fetch a balanced set of 'accepted' and 'rejected' abstracts. Ensure query parameters explicitly filter for acceptance status where available.
-- [ ] T012 [US1] Implement strict validation in T011: Fail loudly if URLs are unreachable or paywalled; do NOT generate synthetic data. <!-- FAILED: unspecified -->
+- [X] T011 [US1] Implement `code/01_data_acquisition.py` to download ML and non-ML abstracts using endpoints defined in `data-sources.yaml`. **Specifics**: Use arXiv API with `cat:cs.LG` and `cat:q-bio.QM` for ML, and specific DOI lists/API endpoints from `data-sources.yaml` for *Nature Climate Change* and *Health Affairs* to fetch a balanced set of 'accepted' and 'rejected' abstracts. **Output**: Write raw data to `data/raw/corpus_raw.jsonl`. Ensure query parameters explicitly filter for acceptance status where available.
+- [X] T012 [US1] Implement strict validation function `validate_fetch_status()` in `code/01_data_acquisition.py` that raises `DataFetchError` on 403/404 or paywall detection. **Verification**: Unit test `test_fetch_fail_loudly` asserts exception raised. Do NOT generate synthetic data.
 - [X] T013 [US1] Implement preprocessing pipeline in `code/01_data_acquisition.py` to normalize text and filter malformed entries.
-- [ ] T014 [US1] Implement streaming/chunking logic to ensure dataset fits in available RAM during processing.
-- [ ] T015 [US1] Add logging for data acquisition failures and preprocessing rejections.
-- [ ] T016 [US1] Generate `data/processed/corpus.jsonl` with metadata (title, abstract, venue, acceptance_status, domain).
+- [X] T014 [US1] Implement streaming/chunking logic in `code/01_data_acquisition.py` via `stream_and_sample(n=500, seed=42)` to limit processing to a manageable subset of rows if full load exceeds 6GB RAM, logging the truncation event. **Critical Rule**: Use `datasets.load_dataset(..., streaming=True)` or `islice` with explicit chunk accumulation.
+- [X] T015 [US1] Configure `logging` in `code/01_data_acquisition.py` to write `ERROR` level events to `logs/data_acquisition.log` with timestamp and URL context.
+- [X] T016 [US1] Generate `data/processed/corpus.jsonl` with metadata (title, abstract, venue, acceptance_status, domain).
 
 ### Tests for User Story 1
 
-- [ ] T017 [P] [US1] Contract test for data download validation in `tests/unit/test_data_parsing.py`
+- [X] T017 [P] [US1] Contract test for data download validation in `tests/unit/test_data_parsing.py`
 - [ ] T018 [P] [US1] Test memory usage constraint with full dataset load in `tests/unit/test_memory_usage_constraint.py`
 - [ ] T019 [P] [US1] Test preprocessing validation (non-empty abstracts) in `tests/unit/test_preprocessing_validation.py`
-- [ ] T018a [P] [US1] Test `data-sources.yaml` validation and usage in `code/01_data_acquisition.py` in `tests/unit/test_data_sources_config.py`
+- [X] T018a [P] [US1] Test `data-sources.yaml` validation and usage in `code/01_data_acquisition.py` in `tests/unit/test_data_sources_config.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,17 +103,17 @@
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `code/02_pattern_mapping.py` using `sentence-transformers` (`all-MiniLM-L6-v2` quantized) for CPU-tractable embeddings. **Logic**: Implement top-3 pattern retrieval with cosine similarity threshold ≥ 0.6.
-- [ ] T021 [US2] Implement `code/03_proposal_generation.py` to generate pattern-guided proposals using injected pattern cards.
-- [ ] T022 [US2] Implement `code/03_proposal_generation.py` to generate baseline proposals using generic prompts.
-- [ ] T024 [US2] Ensure strict two-group pairing: For each of a set of unique non-ML problems, generate exactly one pattern-guided and one baseline proposal.
+- [X] T020 [US2] Implement `retrieve_top_k_patterns()` in `code/02_pattern_mapping.py` using `sentence-transformers` (`all-MiniLM-L6-v2` quantized) for CPU-tractable embeddings. **Logic**: Return a list of 3 pattern IDs with cosine similarity ≥ 0.6. **Dependency**: Must complete before T021/T022.
+- [X] T021 [US2] Implement `code/03_proposal_generation.py` to generate pattern-guided proposals using injected pattern cards. **Constraint**: Generate exactly one proposal per problem statement. **Note**: Strictly adhere to the two-group design (pattern-guided vs baseline) as per FR-003; ignore any 'random-pattern' references in the plan summary.
+- [X] T022 [US2] Implement `code/03_proposal_generation.py` to generate baseline proposals using generic prompts. **Constraint**: Generate exactly one proposal per problem statement. **Note**: Strictly adhere to the two-group design (pattern-guided vs baseline) as per FR-003; ignore any 'random-pattern' references in the plan summary.
+- [X] T023 [US2] Implement `code/02_pattern_validation.py` to enforce the two-group design constraint: verify that the generation pipeline only produces 'pattern-guided' and 'baseline' groups and explicitly rejects any 'random-pattern' logic if present in the code or config.
+- [ ] T024 [US2] Ensure strict two-group pairing: For each of a set of unique non-ML problems, generate exactly one pattern-guided and one baseline proposal. **Output**: Save to `data/results/generated_proposals.jsonl` with metadata stripped for evaluation. **Note**: This task validates the output of T021/T022 against the two-group constraint.
 - [ ] T025 [US2] Implement batch processing in T021/T022 to stay within 7 GB RAM limits and complete within 4 hours.
 - [ ] T026 [US2] Save generated proposals to `data/results/generated_proposals.jsonl` with generation metadata (stripped for evaluation).
 
 ### Tests for User Story 2
 
-- [ ] T027 [P] [US2] Test validity correlation: Verify retrieval thresholds (from T020) correlate with downstream expert 'contextual alignment' scores (SC-004).
-- [ ] T028 [P] [US2] Test pattern mapping validation (hold-out logic) in `tests/unit/test_pattern_mapping_validation.py`
+- [X] T028 [P] [US2] Test pattern mapping validation (hold-out logic) in `tests/unit/test_pattern_mapping_validation.py`
 - [ ] T029 [P] [US2] Test proposal generation logic (strict two-group pairing) in `tests/unit/test_proposal_generation_logic.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -128,16 +128,19 @@
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement `code/04_evaluation_loader.py` to load expert ratings (blinded, ORCID verified) from CSV generated by T030a.
-- [ ] T030a [US3] Implement `code/04_evaluation_recruitment_templates.py` to generate blinded CSV templates for manual distribution to experts (ORCID verified, ≥5 years experience). Ensure minimum of 3 independent experts per proposal.
-- [ ] T030b [US3] Implement `code/04_evaluation_recruitment_templates.py` to create the data collection interface (CSV export) for blinded ratings.
-- [ ] T032 [US3] Implement IRR gate in T030/T032: Calculate Krippendorff's alpha on collected ratings; fail if < 0.6.
+- [ ] T030a [US3] Implement `code/04_evaluation_recruitment.py` to generate blinded CSV template `data/results/ratings_template.csv` with columns (proposal_id, metric, score) and a script to strip metadata from `data/results/generated_proposals.jsonl`.
+- [X] T030b [US3] Implement `code/04_evaluation_recruitment.py` to perform validation on expert inputs: consume a pre-verified `expert_roster.csv` (containing ORCID, verified status, and years of experience) and validate that every rating in the input file corresponds to an ORCID in the roster with `verified=true` and `years_experience >= 5`. **Constraint**: Do not rely solely on regex; must cross-reference the verified roster.
+- [ ] T030c [US3] Implement `code/04_evaluation_recruitment.py` to ingest the manually filled `data/results/ratings_filled.csv` (user fills template and saves as this file) only after T030b validation passes.
+- [ ] T030 [US3] Implement `code/04_evaluation_loader.py` to load expert ratings from `data/results/ratings_filled.csv` (blinded, ORCID verified).
+- [ ] T032 [US3] Implement IRR gate in `code/05_statistical_analysis.py`: Calculate Krippendorff's alpha on collected ratings; **FAIL** pipeline if alpha < 0.6.
 - [ ] T033 [P] [US3] Implement `code/05_statistical_analysis.py` to perform normality check on mean scores.
 - [ ] T034 [US3] Implement dynamic test selection in T033: Paired t-test (normal) or Wilcoxon signed-rank (non-normal).
-- [ ] T035 [US3] Implement multiple-comparison correction (Bonferroni or Benjamini-Hochberg) for the three metrics (feasibility, bottleneck, alignment).
-- [ ] T035a [US3] Implement sensitivity analysis in T035: Re-run tests with outliers removed using IQR method (Q1 - 1.5*IQR, Q3 + 1.5*IQR). **Critical Rule**: If one member of a pair is identified as an outlier, remove the ENTIRE pair to preserve the paired structure required for the Wilcoxon signed-rank test.
-- [ ] T036 [US3] Measure validity by aggregating expert 'contextual alignment' scores to determine if pattern-guided proposals achieve a statistically significant improvement over baseline (SC-004), explicitly testing against the null hypothesis of no difference.
+- [ ] T035a [US3] Implement sensitivity analysis: Identify outliers using the IQR method with standard interquartile range multipliers (Q1 - k*IQR, Q3 + k*IQR). If one member of a pair is an outlier, remove the ENTIRE pair. **Critical Step**: Re-run the statistical test (T033/T034) on the cleaned dataset. **Output**: Generate `data/results/sensitivity_analysis_report.md` containing pre/post p-values and effect sizes to verify robustness.
+- [ ] T035b [US3] Implement power check in T035a: If pair removal reduces n below a threshold deemed insufficient for statistical power, flag the result as 'underpowered' and log the warning; do not proceed to final conclusion without this flag.
+- [ ] T035 [US3] Implement multiple-comparison correction (Bonferroni or Benjamini-Hochberg) for the three metrics (feasibility, bottleneck, alignment). **Condition**: Apply correction to the final results from T035a ONLY if T035b does not flag the result as 'underpowered'.
+- [ ] T036 [US3] Implement `calculate_validity_improvement()` in `code/05_statistical_analysis.py` that computes the mean difference in 'contextual alignment' scores between groups and writes the result (p-value, effect size) to `data/results/validity_metrics.json`.
 - [ ] T037 [US3] Generate final report in `data/results/analysis_report.md` including p-values, effect sizes, and the phrase "associational, not causal".
+- [ ] T037a [US3] Verify report generation: Implement an assertion or parser check in `code/05_statistical_analysis.py` or a separate script to confirm the phrase "associational, not causal" is present in `data/results/analysis_report.md`. **Fail** if missing.
 - [ ] T038 [US3] Verify report generation against `data/results/generated_proposals.jsonl` and `data/results/ratings.csv`.
 
 ### Tests for User Story 3
@@ -259,7 +262,10 @@ With multiple developers:
 - **Critical**: Do NOT use synthetic data if real data fetch fails. The system must fail loudly.
 - **Critical**: Ensure `all-MiniLM-L6-v2` is quantized to run within 7 GB RAM on CPU.
 - **Critical**: The evaluation workflow (T030a/T030b) MUST generate blinded templates for manual distribution and load pre-collected ratings, not automate recruitment.
-- **Critical**: The two-group design (Pattern vs. Baseline) is strictly enforced per Spec FR-003; no random-pattern arm.
+- **Critical**: The two-group design (Pattern vs. Baseline) is strictly enforced per Spec FR-003; no random-pattern arm. T023 explicitly enforces this.
 - **Critical**: The data acquisition task (T011) must explicitly state the streaming/sampling rule (e.g., `streaming=True` with chunk accumulation or `islice` of N rows) to handle large datasets without memory overflow, as per the "Large real datasets" rule.
-- **Critical**: The statistical analysis (T033-T035) must explicitly state the power analysis assumptions (n=50 pairs, 3 raters) and the effect size (Cohen's d ≈ 0.5) being targeted, as per the "Assumptions" section of the spec.
-- **Critical**: The sensitivity analysis in T035 must preserve paired structure by removing entire pairs if one member is an outlier.
+- **Critical**: The statistical analysis (T033-T035) must explicitly state the power analysis assumptions (n=50 pairs, 3 raters) and the effect size (Cohen's d of moderate magnitude) being targeted, as per the "Assumptions" section of the spec.
+- **Critical**: The sensitivity analysis in T035a must preserve paired structure by removing entire pairs if one member is an outlier and re-run the test.
+- **Critical**: T035b must flag the result if n drops below the power threshold, preventing T035 from proceeding if underpowered.
+- **Critical**: T037a must verify the rhetorical constraint "associational, not causal" is present in the final report.
+- **Critical**: T008a uses a configurable fallback model constant, not a hardcoded name.

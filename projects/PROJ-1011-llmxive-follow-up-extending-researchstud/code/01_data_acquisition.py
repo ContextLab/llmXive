@@ -4,274 +4,284 @@ import logging
 import time
 import re
 import unicodedata
+import os
+import sys
 from pathlib import Path
-from typing import List, Dict, Any, Iterator, Optional
-from datetime import datetime
+from typing import List, Dict, Any, Optional, Iterator
+from urllib.parse import urlencode
+from itertools import islice
 
-# Import utilities from project structure
-from utils.logging_config import (
-    log_acquisition_failure,
-    log_preprocessing_rejection,
-    log_preprocessing_rejection_count,
-    get_logger,
-)
+# Project local imports
+from utils.logging_config import get_logger, ensure_log_dir
 from utils.data_sources_validator import load_and_validate_config
-from utils.error_handling import DataFetchError, handle_fetch_failure
-from utils.data_manifest import register_new_file, calculate_file_checksum
+from utils.error_handling import DataFetchError, fetch_with_strict_handling
 
-# Configure logger for this module
-logger = get_logger("data_acquisition", logging.INFO)
+# Configure logger
+logger = get_logger(__name__)
+ensure_log_dir("logs")
 
 # Constants
-DATA_DIR = Path("data")
-RAW_DIR = DATA_DIR / "raw"
-PROCESSED_DIR = DATA_DIR / "processed"
+DATA_RAW_DIR = Path("data/raw")
+DATA_PROCESSED_DIR = Path("data/processed")
+RAW_OUTPUT_PATH = DATA_RAW_DIR / "corpus_raw.jsonl"
+PROCESSED_OUTPUT_PATH = DATA_PROCESSED_DIR / "corpus.jsonl"
 CONFIG_PATH = Path("data-sources.yaml")
 
 def normalize_text(text: str) -> str:
-    """Normalize unicode and whitespace in text."""
+    """Normalize text by removing control characters and normalizing unicode."""
     if not text:
         return ""
+    # Remove control characters except newlines/tabs
+    text = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]', '', text)
     # Normalize unicode to NFC
-    text = unicodedata.normalize("NFC", text)
-    # Normalize whitespace
-    text = re.sub(r"\s+", " ", text).strip()
-    return text
+    text = unicodedata.normalize('NFC', text)
+    return text.strip()
 
 def is_valid_abstract(abstract: str) -> bool:
-    """Check if an abstract is valid (non-empty after normalization)."""
+    """Check if abstract is non-empty and has reasonable length."""
     if not abstract:
         return False
-    normalized = normalize_text(abstract)
-    return len(normalized) > 20  # Minimum meaningful length
+    text = normalize_text(abstract)
+    if len(text) < 50:  # Minimum meaningful abstract length
+        return False
+    return True
 
-def filter_malformed_entries(entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Filter out entries with missing or invalid abstracts/titles."""
+def filter_malformed_entries(entries: List[Dict]) -> List[Dict]:
+    """Filter out entries with missing required fields or invalid abstracts."""
     valid_entries = []
-    rejected_count = 0
-    total_count = len(entries)
-
-    for i, entry in enumerate(entries):
-        title = entry.get("title", "")
-        abstract = entry.get("abstract", "")
-        record_id = entry.get("id", f"record_{i}")
-
-        if not title or not is_valid_abstract(abstract):
-            reason = "Missing or invalid title/abstract"
-            if not title:
-                reason = "Missing title"
-            elif not is_valid_abstract(abstract):
-                reason = "Invalid abstract (too short or empty)"
-
-            log_preprocessing_rejection(record_id, reason)
-            rejected_count += 1
+    for entry in entries:
+        if not isinstance(entry, dict):
             continue
-
+        if 'abstract' not in entry or not entry.get('abstract'):
+            continue
+        if not is_valid_abstract(entry['abstract']):
+            continue
         valid_entries.append(entry)
-
-    log_preprocessing_rejection_count(total_count, rejected_count)
     return valid_entries
 
-def preprocess_corpus(entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Normalize text fields in the corpus entries."""
+def preprocess_corpus(entries: List[Dict]) -> List[Dict]:
+    """Normalize text fields and ensure required metadata is present."""
     processed = []
     for entry in entries:
-        entry["title"] = normalize_text(entry.get("title", ""))
-        entry["abstract"] = normalize_text(entry.get("abstract", ""))
-        processed.append(entry)
-    return filter_malformed_entries(processed)
-
-def stream_arxiv_abstracts(category: str, max_results: int = 100) -> Iterator[Dict[str, Any]]:
-    """
-    Stream abstracts from arXiv API.
-    Uses the arXiv API with streaming logic to handle large datasets.
-    """
-    base_url = "http://export.arxiv.org/api/query"
-    start = 0
-    batch_size = 50
-    count = 0
-
-    while count < max_results:
-        params = {
-            "search_query": f"cat:{category}",
-            "start": start,
-            "max_results": batch_size,
-            "sortBy": "submittedDate",
-            "sortOrder": "descending",
+        processed_entry = {
+            'title': normalize_text(entry.get('title', '')),
+            'abstract': normalize_text(entry['abstract']),
+            'venue': normalize_text(entry.get('venue', 'Unknown')),
+            'acceptance_status': entry.get('acceptance_status', 'unknown'),
+            'domain': entry.get('domain', 'unknown'),
+            'id': entry.get('id', ''),
+            'source_url': entry.get('source_url', '')
         }
+        processed.append(processed_entry)
+    return processed
 
+def validate_fetch_status(response: requests.Response, url: str) -> None:
+    """Raise DataFetchError on 403/404 or paywall detection."""
+    if response.status_code in [403, 404]:
+        raise DataFetchError(f"Fetch failed with status {response.status_code} for {url}")
+    if "paywall" in response.text.lower() or "access denied" in response.text.lower():
+        raise DataFetchError(f"Paywall detected for {url}")
+    if response.status_code >= 400:
+        raise DataFetchError(f"HTTP error {response.status_code} for {url}")
+
+def load_data_sources_config() -> Dict[str, Any]:
+    """Load and validate the data-sources.yaml configuration."""
+    return load_and_validate_config(CONFIG_PATH)
+
+def stream_arxiv_abstracts(config: Dict[str, Any], category: str, limit: Optional[int] = None) -> Iterator[Dict]:
+    """Stream abstracts from arXiv API for a specific category."""
+    base_url = "http://export.arxiv.org/api/query"
+    params = {
+        "search_query": f"cat:{category}",
+        "start": 0,
+        "max_results": 100,
+        "sortBy": "submittedDate",
+        "sortOrder": "descending"
+    }
+    
+    count = 0
+    while True:
         try:
-            response = requests.get(base_url, params=params, timeout=30)
-            response.raise_for_status()
-        except requests.RequestException as e:
-            log_acquisition_failure("arXiv", f"{base_url}?{params}", str(e))
-            raise DataFetchError(f"Failed to fetch from arXiv: {e}")
+            response = fetch_with_strict_handling(base_url, params=params)
+            # Simple XML parsing for arXiv Atom feed
+            # Extract entries manually
+            import xml.etree.ElementTree as ET
+            root = ET.fromstring(response.content)
+            ns = {'atom': 'http://www.w3.org/2005/Atom', 'arxiv': 'http://arxiv.org/schemas/atom'}
+            
+            entries = root.findall('atom:entry', ns)
+            if not entries:
+                break
+            
+            for entry in entries:
+                title = entry.find('atom:title', ns)
+                summary = entry.find('atom:summary', ns)
+                published = entry.find('atom:published', ns)
+                id_elem = entry.find('atom:id', ns)
+                
+                if title is None or summary is None:
+                    continue
+                
+                yield {
+                    'title': title.text.strip() if title.text else "",
+                    'abstract': summary.text.strip() if summary.text else "",
+                    'venue': 'arXiv',
+                    'acceptance_status': 'accepted', # arXiv is preprint, treated as accepted for this pipeline
+                    'domain': 'ML',
+                    'id': id_elem.text if id_elem is not None else "",
+                    'source_url': f"https://arxiv.org/abs/{id_elem.text.split('/')[-1]}",
+                    'date': published.text if published is not None else ""
+                }
+                count += 1
+                if limit and count >= limit:
+                    return
+            
+            # Pagination
+            next_params = params.copy()
+            next_params['start'] += params['max_results']
+            params = next_params
+            
+            # Rate limiting
+            time.sleep(3)
+            
+        except DataFetchError as e:
+            logger.error(f"Error fetching arXiv data: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error in arXiv stream: {e}")
+            raise
 
-        # Parse XML response manually or using a library if available
-        # For this implementation, we assume a simplified parsing logic
-        # In a real scenario, we would use xml.etree.ElementTree or similar
-        # Here we mock the parsing for the sake of the task implementation structure
-        # The actual parsing logic would be robust against arXiv XML format
+def stream_doi_entries(config: Dict[str, Any], source_name: str, limit: Optional[int] = None) -> Iterator[Dict]:
+    """Stream entries from a DOI-based source (e.g., Nature, Health Affairs)."""
+    if source_name not in config.get('sources', {}):
+        raise ValueError(f"Source {source_name} not found in config")
+    
+    source_config = config['sources'][source_name]
+    base_url = source_config.get('url')
+    if not base_url:
+        raise ValueError(f"No URL configured for {source_name}")
+    
+    # Note: Real implementation would use Crossref API or specific journal API
+    # For this implementation, we simulate the structure based on config
+    # In a real scenario, this would iterate over a list of DOIs or use an API endpoint
+    
+    # Simulating DOI list from config
+    dois = source_config.get('dois', [])
+    for i, doi in enumerate(dois):
+        if limit and i >= limit:
+            break
         
-        # Simulating parsing for the task (real implementation would parse XML)
-        # This block is a placeholder for the actual XML parsing logic
-        # which is omitted for brevity but assumed to exist in a full implementation
-        # The key is that it yields dictionaries
-        
-        # Since we cannot implement full XML parsing here without external libs,
-        # we assume the logic extracts entries.
-        # To satisfy the "real code" constraint without external XML libs,
-        # we assume the response text is processed.
-        
-        # NOTE: In a real execution, this would parse the XML.
-        # For the purpose of this task implementation, we simulate the extraction
-        # of a few entries to demonstrate the logging and streaming logic.
-        # The actual parsing would be:
-        # import xml.etree.ElementTree as ET
-        # root = ET.fromstring(response.content)
-        # ... iterate over entries ...
-        
-        # Simulated entries for demonstration of the streaming logic
-        # In reality, this loop would yield real parsed data.
-        # We will assume the 'entries' list is populated from the XML.
-        entries = [] # Placeholder for parsed entries from XML
+        try:
+            # In real implementation, fetch metadata from Crossref API
+            # Here we construct a placeholder based on the DOI
+            metadata_url = f"https://api.crossref.org/works/{doi}"
+            response = fetch_with_strict_handling(metadata_url)
+            data = response.json()
+            
+            item = data.get('message', {})
+            title = item.get('title', ['Unknown'])[0]
+            abstract = item.get('abstract', 'Abstract not available')
+            # Clean abstract if it's HTML
+            abstract = re.sub(r'<[^>]+>', '', abstract)
+            
+            yield {
+                'title': title,
+                'abstract': abstract,
+                'venue': source_config.get('venue', source_name),
+                'acceptance_status': source_config.get('acceptance_status', 'unknown'),
+                'domain': source_config.get('domain', 'Non-ML'),
+                'id': doi,
+                'source_url': f"https://doi.org/{doi}"
+            }
+        except DataFetchError:
+            logger.warning(f"Failed to fetch metadata for DOI {doi}, skipping")
+            continue
+        except Exception as e:
+            logger.error(f"Error processing DOI {doi}: {e}")
+            continue
 
-        # If we had real entries, we would yield them:
-        # for entry in entries:
-        #     yield entry
-        #     count += 1
-        
-        # To make this runnable and demonstrate the logging without external XML deps:
-        # We will simulate the structure.
-        if not entries:
-            break # End of results
+def stream_and_sample(n: int = 500, seed: int = 42) -> Iterator[Dict]:
+    """Stream data from all configured sources and sample n entries."""
+    import random
+    random.seed(seed)
+    
+    config = load_data_sources_config()
+    all_entries = []
+    
+    # Stream from arXiv
+    ml_sources = config.get('sources', {}).get('ml', {})
+    if ml_sources:
+        for cat, details in ml_sources.items():
+            logger.info(f"Streaming arXiv category: {cat}")
+            limit = details.get('limit')
+            for entry in stream_arxiv_abstracts(config, cat, limit=limit):
+                all_entries.append(entry)
+    
+    # Stream from non-ML sources
+    non_ml_sources = config.get('sources', {}).get('non_ml', {})
+    if non_ml_sources:
+        for source_name, details in non_ml_sources.items():
+            logger.info(f"Streaming non-ML source: {source_name}")
+            limit = details.get('limit')
+            for entry in stream_doi_entries(config, source_name, limit=limit):
+                all_entries.append(entry)
+    
+    # Log total collected
+    logger.info(f"Total entries collected: {len(all_entries)}")
+    
+    # Sample if necessary
+    if len(all_entries) > n:
+        logger.info(f"Sampling {n} entries from {len(all_entries)} collected")
+        sampled = random.sample(all_entries, n)
+        return iter(sampled)
+    
+    return iter(all_entries)
 
+def save_corpus_streaming(entries: Iterator[Dict], output_path: Path) -> None:
+    """Save entries to a JSONL file in streaming fashion."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    count = 0
+    with open(output_path, 'w', encoding='utf-8') as f:
         for entry in entries:
-            yield entry
+            f.write(json.dumps(entry, ensure_ascii=False) + '\n')
             count += 1
-
-        start += batch_size
-        time.sleep(3) # Be nice to the API
-
-def download_arxiv_abstracts(category: str, max_results: int = 100) -> List[Dict[str, Any]]:
-    """Download and collect abstracts from arXiv."""
-    logger.info(f"Downloading {max_results} abstracts from arXiv category {category}")
-    return list(stream_arxiv_abstracts(category, max_results))
-
-def stream_doi_entries(doi: str) -> Optional[Dict[str, Any]]:
-    """Fetch metadata for a single DOI."""
-    url = f"https://api.crossref.org/works/{doi}"
-    try:
-        response = requests.get(url, timeout=30)
-        response.raise_for_status()
-        data = response.json()
-        if data.get("status") == "ok":
-            return data.get("message", {})
-    except requests.RequestException as e:
-        log_acquisition_failure("Crossref", url, str(e))
-        return None
-    return None
-
-def download_nature_climate_change_abstracts(doi_list: List[str]) -> List[Dict[str, Any]]:
-    """Fetch abstracts for a list of DOIs from Nature Climate Change."""
-    entries = []
-    for doi in doi_list:
-        data = stream_doi_entries(doi)
-        if data:
-            entry = {
-                "title": data.get("title", [""])[0],
-                "abstract": data.get("abstract", ""),
-                "venue": "Nature Climate Change",
-                "id": doi,
-                "domain": "climate",
-                "acceptance_status": "accepted", # Assumed for published
-            }
-            if entry["title"] and entry["abstract"]:
-                entries.append(entry)
-            else:
-                log_preprocessing_rejection(doi, "Missing title or abstract from DOI fetch")
-        else:
-            log_acquisition_failure("Nature Climate Change", f"DOI: {doi}", "Fetch failed")
-    return entries
-
-def download_health_affairs_abstracts(doi_list: List[str]) -> List[Dict[str, Any]]:
-    """Fetch abstracts for a list of DOIs from Health Affairs."""
-    entries = []
-    for doi in doi_list:
-        data = stream_doi_entries(doi)
-        if data:
-            entry = {
-                "title": data.get("title", [""])[0],
-                "abstract": data.get("abstract", ""),
-                "venue": "Health Affairs",
-                "id": doi,
-                "domain": "health",
-                "acceptance_status": "accepted",
-            }
-            if entry["title"] and entry["abstract"]:
-                entries.append(entry)
-            else:
-                log_preprocessing_rejection(doi, "Missing title or abstract from DOI fetch")
-        else:
-            log_acquisition_failure("Health Affairs", f"DOI: {doi}", "Fetch failed")
-    return entries
-
-def save_corpus_streaming(entries: List[Dict[str, Any]], output_path: str):
-    """Save the processed corpus to a JSONL file."""
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_file, "w", encoding="utf-8") as f:
-        for entry in entries:
-            f.write(json.dumps(entry) + "\n")
-    
-    checksum = calculate_file_checksum(output_file)
-    register_new_file(str(output_file), checksum)
-    logger.info(f"Saved corpus to {output_file} (Checksum: {checksum})")
+            if count % 100 == 0:
+                logger.debug(f"Written {count} entries")
+    logger.info(f"Saved {count} entries to {output_path}")
 
 def main():
-    """Main entry point for data acquisition."""
-    logger.info("Starting data acquisition pipeline")
-    
-    # Load configuration
+    """Main entry point for data acquisition and processing pipeline."""
     try:
-        config = load_and_validate_config(CONFIG_PATH)
+        # Ensure directories exist
+        DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+        DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+        
+        logger.info("Starting data acquisition pipeline...")
+        
+        # 1. Stream and sample raw data
+        logger.info("Streaming and sampling raw data...")
+        raw_entries = stream_and_sample(n=500, seed=42)
+        
+        # 2. Save raw data
+        save_corpus_streaming(raw_entries, RAW_OUTPUT_PATH)
+        
+        # 3. Reload and preprocess
+        logger.info("Preprocessing corpus...")
+        processed_entries = []
+        with open(RAW_OUTPUT_PATH, 'r', encoding='utf-8') as f:
+            raw_data = [json.loads(line) for line in f if line.strip()]
+        
+        valid_raw = filter_malformed_entries(raw_data)
+        processed = preprocess_corpus(valid_raw)
+        
+        # 4. Save processed data
+        save_corpus_streaming(iter(processed), PROCESSED_OUTPUT_PATH)
+        
+        logger.info(f"Pipeline complete. Processed {len(processed)} entries.")
+        
     except Exception as e:
-        logger.critical(f"Failed to load data sources config: {e}")
+        logger.error(f"Pipeline failed: {e}")
         raise
-
-    # 1. ArXiv ML Data
-    ml_category = "cs.LG"
-    ml_count = config.get("arxiv", {}).get("ml_count", 50)
-    try:
-        ml_data = download_arxiv_abstracts(ml_category, ml_count)
-        logger.info(f"Fetched {len(ml_data)} ML abstracts")
-    except DataFetchError:
-        logger.error("Terminating due to ML data fetch failure")
-        raise
-
-    # 2. Non-ML Data (Nature Climate Change)
-    nature_dois = config.get("nature_climate_change", {}).get("dois", [])
-    nature_data = download_nature_climate_change_abstracts(nature_dois)
-    logger.info(f"Fetched {len(nature_data)} Nature Climate Change abstracts")
-
-    # 3. Non-ML Data (Health Affairs)
-    health_dois = config.get("health_affairs", {}).get("dois", [])
-    health_data = download_health_affairs_abstracts(health_dois)
-    logger.info(f"Fetched {len(health_data)} Health Affairs abstracts")
-
-    # Combine
-    all_data = ml_data + nature_data + health_data
-    
-    # Preprocess
-    logger.info("Preprocessing corpus...")
-    processed_data = preprocess_corpus(all_data)
-    
-    # Save
-    output_path = str(PROCESSED_DIR / "corpus.jsonl")
-    save_corpus_streaming(processed_data, output_path)
-    
-    logger.info("Data acquisition pipeline completed successfully")
 
 if __name__ == "__main__":
     main()
