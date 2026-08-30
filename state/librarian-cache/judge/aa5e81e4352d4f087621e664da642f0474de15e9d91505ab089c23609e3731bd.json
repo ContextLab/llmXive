@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2212.11685",
+  "judged_at": "2026-08-30T04:50:26Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"blockpilot: instance-adaptive policy learning for diffusion-based spec\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (d) as it presents a foundational framework (GENIE) for diffusion-based language models, directly addressing the \"Diffusion-based Spec\" mechanism and the \"linguistics\" domain central to the user's question about extending diffusion-based policy learning for text generation.",
+  "relevant": true
+}

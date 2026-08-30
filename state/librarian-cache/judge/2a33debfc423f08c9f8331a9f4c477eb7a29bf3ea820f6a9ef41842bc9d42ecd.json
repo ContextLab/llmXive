@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2303.12869",
+  "judged_at": "2026-08-30T04:50:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"blockpilot: instance-adaptive policy learning for diffusion-based spec\" linguistics",
+  "rationale": "The paper focuses on Java code generation from natural language using standard Transformer architectures, which is a distinct task and domain from the user's question regarding \"Instance-Adaptive Policy Learning for Diffusion-based Spec\" (a specific reinforcement learning/diffusion control mechanism). It does not measure the same mechanism, variables, or empirical population, nor does it serve as a foundational reference for the specific \"BlockPilot\" or diffusion-based specification techniques m",
+  "relevant": false
+}

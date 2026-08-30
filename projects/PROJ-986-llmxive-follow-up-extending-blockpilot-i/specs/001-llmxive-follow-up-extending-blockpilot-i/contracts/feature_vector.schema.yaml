@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "FeatureVector"
+description: "Static prefilling features for a single sample"
+type: "object"
+properties:
+  sample_id:
+    type: "string"
+    description: "Unique identifier for the sample"
+  prompt_length:
+    type: "integer"
+    description: "Number of tokens in the prompt"
+  mean_attention_entropy:
+    type: "number"
+    description: "Mean attention entropy across all layers (calculated per diffusion architecture)"
+  hidden_state_norm:
+    type: "number"
+    description: "L2 norm of the final token hidden states"
+  vif_scores:
+    type: "object"
+    description: "Variance Inflation Factor scores for each feature (optional, diagnostic)"
+    additionalProperties:
+      type: "number"
+  is_decorrelated:
+    type: "boolean"
+    description: "True if features were transformed due to high collinearity"
+required:
+  - sample_id
+  - prompt_length
+  - mean_attention_entropy
+  - hidden_state_norm
+  - is_decorrelated
+additionalProperties: false
+examples:
+  - sample_id: "gsm8k-001"
+    prompt_length: 128
+    mean_attention_entropy: 2.34
+    hidden_state_norm: 1.56
+    vif_scores:
+      prompt_length: 1.2
+      mean_attention_entropy: 1.1
+      hidden_state_norm: 1.3
+    is_decorrelated: false

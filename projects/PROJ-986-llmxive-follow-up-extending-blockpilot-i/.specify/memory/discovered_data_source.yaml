@@ -1,0 +1,13 @@
+status: none
+intent: downloadable GSM8K HumanEval block size acceptance length python package dataset
+required_fields:
+- prompt_id
+- prompt_text
+- dataset_name
+- model_name
+- block_size
+- acceptance_length
+- optimal_block_size
+cache_key: d94f891b2c9c0226a6699adea75bcf8afbf5c357a0bfd6726e7ec1d7807ac03d
+searched_at: '2026-08-30T04:59:36.576088+00:00'
+retry_count: 1

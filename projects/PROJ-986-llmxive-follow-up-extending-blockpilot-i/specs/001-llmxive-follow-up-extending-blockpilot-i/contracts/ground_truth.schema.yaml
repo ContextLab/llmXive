@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GroundTruth"
+description: "Exhaustive sweep results for a single sample"
+type: "object"
+properties:
+  sample_id:
+    type: "string"
+    description: "Unique identifier for the sample"
+  block_sizes:
+    type: "array"
+    items:
+      type: "integer"
+    description: "List of tested block sizes"
+  acceptance_lengths:
+    type: "array"
+    items:
+      type: "number"
+    description: "Acceptance length for each block size"
+  B_star:
+    type: "integer"
+    description: "Optimal block size (max acceptance length)"
+  tie_breaker:
+    type: "string"
+    description: "Rule applied if tie (e.g., 'smallest_block_size')"
+  perplexity:
+    type: "number"
+    description: "Independent measure of model uncertainty (calculated via separate greedy pass)"
+required:
+  - sample_id
+  - block_sizes
+  - acceptance_lengths
+  - B_star
+  - tie_breaker
+  - perplexity
+additionalProperties: false
+examples:
+  - sample_id: "gsm8k-001"
+    block_sizes: [1, 2, 4, 8, 16, 32]
+    acceptance_lengths: [10.5, 12.3, 15.1, 14.8, 13.2, 11.0]
+    B_star: 4
+    tie_breaker: "smallest_block_size"
+    perplexity: 12.45

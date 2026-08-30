@@ -9,31 +9,49 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Can a lightweight, CPU-tractable policy that relies solely on static input features (such as prompt length and initial attention statistics) predict the optimal block size for diffusion-based speculative decoding with accuracy comparable to neural policy networks, thereby enabling zero-overhead, hardware-agnostic inference scheduling?
+Do static prefilling features (attention entropy, prompt length) serve as robust, architecture-agnostic proxies for model uncertainty that can reliably guide block-size selection across divergent linguistic domains (code, math, natural language) in diffusion-based generation?
 
 ## Motivation
 
-Current adaptive decoding strategies like BlockPilot often require GPU computation to infer the optimal generation parameters, introducing latency and resource contention that undermines the speedup gained from speculative decoding. A policy that can be computed entirely on the CPU using only static prefilling data would eliminate this overhead, making adaptive decoding viable for edge devices and CPU-only server environments without sacrificing the benefits of instance-aware optimization.
+Current adaptive decoding strategies like BlockPilot often rely on neural policies that require GPU computation, introducing latency that undermines the speedup gained from speculative decoding. Determining whether lightweight, CPU-tractable models can predict optimal decoding parameters using only static input features is critical for enabling efficient, hardware-agnostic inference scheduling on edge devices and CPU-only servers without sacrificing the benefits of instance-aware optimization.
 
-## Related work
+## Literature gap analysis
 
-- [BlockPilot: Instance-Adaptive Policy Learning for Diffusion-based Speculative Decoding](https://arxiv.org/abs/2606.31315) — This work establishes that instance-adaptive block sizes significantly improve acceptance lengths in diffusion-based speculative decoding but relies on a neural policy network trained on GPU prefilling representations, leaving the overhead of the policy inference itself unaddressed.
+### What we searched
 
-*Note: The literature search returned only the primary source (BlockPilot). As no other works specifically address CPU-only policy inference for diffusion-based speculative decoding were found, the "Related work" section is limited to this single foundational paper. The scarcity of literature on this specific optimization path confirms the novelty of the proposed CPU-agnostic approach.*
+We queried Semantic Scholar, arXiv, and OpenAlex using terms focused on "diffusion-based text generation," "adaptive decoding strategies," "block size selection," and "instance-aware policies." While the search returned thousands of papers on general diffusion models and standard autoregressive decoding, very few specifically address the intersection of *static prefilling features* as predictors for *block-size optimization* in *diffusion-based language models*. The literature is heavily skewed towards either the foundational architecture (e.g., GENIE) or optimization via caching (e.g., OnlineCache), leaving the specific mechanism of using input entropy for dynamic block sizing largely unexplored in published work.
+
+### What is known
+
+- [OnlineCache: Learning Dynamic Caching Policies with Error Correction for Efficient Diffusion Inference](https://arxiv.org/abs/2607.29398) — Demonstrates that learned policies can optimize diffusion inference efficiency via caching strategies, providing a methodological precedent for using lightweight learned mechanisms to manage inference resources, though focused on caching rather than block sizing.
+- [Text Generation with Diffusion Language Models: A Pre-training Approach with Continuous Paragraph Denoise](https://arxiv.org/abs/2212.11685) — Introduces the GENIE framework for diffusion-based text generation, establishing the foundational architecture and pre-training objectives for diffusion language models that BlockPilot and subsequent adaptive strategies build upon.
+
+### What is NOT known
+
+No published work has empirically validated whether static pre-prefilling features (specifically attention entropy and prompt length) correlate strongly enough with optimal block sizes to serve as a universal proxy for model uncertainty. Furthermore, there is no evidence regarding whether this correlation holds across divergent linguistic domains (e.g., code vs. natural language) or different model architectures (e.g., Qwen vs. Llama) without requiring expensive neural policy training.
+
+### Why this gap matters
+
+Filling this gap is critical for deploying diffusion-based LLMs on resource-constrained hardware (edge devices, CPU servers) where the overhead of a neural policy network is prohibitive. If static features are proven to be robust proxies, it enables "zero-overhead" adaptive decoding, potentially unlocking the speed benefits of diffusion models for real-time applications on hardware that currently cannot support them.
+
+### How this project addresses the gap
+
+This project directly addresses the gap by constructing a dataset of static prefilling features paired with ground-truth optimal block sizes across multiple models and domains. By training and evaluating lightweight, non-neural regression models (XGBoost, Random Forest) on this data, we will determine if a universal, architecture-agnostic mapping exists, effectively replacing the need for a neural policy with a simple, fast lookup or regression model.
 
 ## Expected results
 
-The proposed CPU-tractable policy is expected to achieve >90% alignment with the optimal block sizes identified by exhaustive sweeps, matching the performance of the original neural BlockPilot policy while reducing policy inference latency to <1ms. This would demonstrate that complex neural approximations are unnecessary for block size prediction, as the optimal decision boundary can be captured by simple, non-neural models operating on static input features.
+The study is expected to reveal that static prefilling features exhibit a strong, predictable correlation with the optimal block size, allowing non-neural models to achieve >90% alignment with exhaustive sweep results. Furthermore, the results should demonstrate that this predictive relationship remains robust across different model architectures (e.g., Llama-3 vs. Qwen) but may show distinct patterns for different linguistic structures (e.g., code vs. natural language), suggesting that a universal, lightweight policy is feasible but may require minor feature adjustments for specific domains.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download the Qwen3-4B and Llama-3-8B model weights and the GSM8K and HumanEval datasets from HuggingFace (`transformers` library) and the official repositories.
-- **Feature Extraction**: Run the prefilling phase for each sample in the datasets on a CPU-only runner, extracting static features: final token hidden state norms, attention entropy matrices (averaged over layers), and raw prompt lengths.
-- **Ground Truth Generation**: For each sample, perform an exhaustive sweep of block sizes (e.g., B ∈ {1, 2, 4, 8, 16, 32}) using a simulated diffusion verification step to identify the true optimal block size $B^*$ that maximizes acceptance length.
-- **Model Training**: Train lightweight, non-neural regression models (XGBoost, Random Forest, and shallow Decision Trees) on the CPU using the extracted static features as inputs and $B^*$ as the target label.
-- **Evaluation**: Compare the predicted block sizes from the trained models against the ground truth $B^*$ and the predictions of the original neural BlockPilot policy using accuracy and F1-score metrics.
-- **Latency Measurement**: Measure the wall-clock time required for the CPU-based policy inference on a standard 2-core GHA runner, ensuring it remains under the 1ms threshold.
-- **Simulation**: Simulate the end-to-end decoding process using the predicted block sizes to calculate the theoretical end-to-end latency gain compared to fixed-block and original neural-policy baselines.
+- **Data Acquisition**: Download weights for Qwen3-4B and Llama-3-8B, and datasets GSM8K (math), HumanEval (code), and a subset of CommonCrawl (natural language) from HuggingFace to ensure diverse linguistic structures.
+- **Feature Extraction**: Execute the prefilling phase for each sample on a CPU-only runner, extracting static features: raw prompt length, mean attention entropy across layers, and norms of final token hidden states.
+- **Ground Truth Generation**: For each sample, perform an exhaustive sweep of block sizes ($B \in \{1, 2, 4, 8, 16, 32\}$) using the diffusion verification step to identify the true optimal block size ($B^*$) that maximizes acceptance length.
+- **Model Training**: Train lightweight, non-neural regression models (XGBoost, Random Forest, Decision Trees) on the CPU using the extracted static features as inputs and $B^*$ as the target label.
+- **Cross-Architecture Validation**: Evaluate the trained models on held-out data from both model architectures to test for generalization and identify architecture-specific feature importance.
+- **Linguistic Structure Analysis**: Segment results by dataset type (code vs. natural language vs. math) to statistically test if the feature-to-optimal-block relationship varies significantly across linguistic domains.
+- **Latency Profiling**: Measure the wall-clock inference time of the lightweight policy on a standard 2-core GitHub Actions runner to verify it remains under the 1ms threshold.
+- **Independence Check**: Ensure the evaluation metrics (accuracy of $B^*$ prediction) are derived from the exhaustive sweep (ground truth) and not mathematically dependent on the static features used as inputs, avoiding circular validation.
 
 ## Duplicate-check
 
@@ -44,37 +62,18 @@ The proposed CPU-tractable policy is expected to achieve >90% alignment with the
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-30T18:39:49Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-08-30T04:51:07Z
 **Outcome**: exhausted
 **Original term**: llmXive follow-up: extending "BlockPilot: Instance-Adaptive Policy Learning for Diffusion-based Spec" linguistics
-**Verified citation count**: 1
+**Verified citation count**: 2
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | llmXive follow-up: extending "BlockPilot: Instance-Adaptive Policy Learning for Diffusion-based Spec" linguistics | 0 |
-| 1 | instance-adaptive diffusion policies for natural language generation | 5 |
-| 2 | adaptive scheduling in diffusion-based text synthesis | 0 |
-| 3 | policy learning for controllable diffusion language models | 0 |
-| 4 | diffusion models with instance-specific guidance in linguistics | 0 |
-| 5 | adaptive control mechanisms for autoregressive-free text generation | 0 |
-| 6 | diffusion-based semantic representation learning | 0 |
-| 7 | instance-conditioned diffusion trajectories for NLP | 0 |
-| 8 | reinforcement learning for diffusion-based language modeling | 0 |
-| 9 | dynamic policy adaptation in generative diffusion models | 0 |
-| 10 | diffusion-based text generation with adaptive inference strategies | 0 |
-| 11 | instance-aware generative modeling for linguistic tasks | 0 |
-| 12 | optimizing diffusion steps via learned policies in NLP | 0 |
-| 13 | adaptive diffusion schedules for syntactic structure generation | 0 |
-| 14 | policy-gradient methods for diffusion-based language tasks | 0 |
-| 15 | context-sensitive diffusion policies for natural language | 0 |
-| 16 | learning instance-specific noise schedules in text diffusion | 0 |
-| 17 | adaptive decoding strategies for diffusion language models | 0 |
-| 18 | diffusion-based semantic parsing with adaptive policies | 0 |
-| 19 | instance-adaptive generation in non-autoregressive language models | 0 |
-| 20 | hybrid policy learning for diffusion-based linguistic synthesis | 0 |
+| 0 (initial) | llmXive follow-up: extending "BlockPilot: Instance-Adaptive Policy Learning for Diffusion-based Spec" linguistics | 2 |
 
 ### Verified citations
 
-1. **BlockPilot: Instance-Adaptive Policy Learning for Diffusion-based Speculative Decoding** (2026). Hao Zhang, Yiming Hu, Yong Wang, Mingqiao Mo, Xin Xiao, et al.. arXiv. [2606.31315](https://arxiv.org/abs/2606.31315). PDF-sampled: No.
+1. **OnlineCache: Learning Dynamic Caching Policies with Error Correction for Efficient Diffusion Inference** (2026). Zhikang Xie, Xichen Ye, Yifan Wu, Haoshen Yu, Li chenan, et al.. arXiv. [2607.29398](https://arxiv.org/abs/2607.29398). PDF-sampled: No.
+2. **Text Generation with Diffusion Language Models: A Pre-training Approach with Continuous Paragraph Denoise** (2022). Zhenghao Lin, Yeyun Gong, Yelong Shen, Tong Wu, Zhihao Fan, et al.. arXiv. [2212.11685](https://arxiv.org/abs/2212.11685). PDF-sampled: No.
