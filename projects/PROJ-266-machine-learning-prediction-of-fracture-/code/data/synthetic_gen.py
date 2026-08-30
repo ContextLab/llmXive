@@ -1,14 +1,3 @@
-"""
-Synthetic Microstructure Generator for Fracture Toughness Prediction.
-
-Generates >= 2,000 synthetic microstructure images with physics-informed
-K_IC (fracture toughness) values based on simulated grain structures.
-
-Output:
-  - data/raw/synthetic_microstructures_*.png
-  - data/raw/synthetic_metadata.json
-"""
-
 import os
 import json
 import numpy as np
@@ -16,181 +5,204 @@ from PIL import Image, ImageDraw, ImageFilter
 import random
 import argparse
 from pathlib import Path
+from typing import List, Dict, Any, Tuple
 
-# Ensure reproducibility
-RANDOM_SEED = 42
-random.seed(RANDOM_SEED)
-np.random.seed(RANDOM_SEED)
-
-# Configuration
-NUM_SAMPLES = 2500  # Exceeds the >= 2000 requirement
-IMAGE_SIZE = 128    # Standardized size for downstream processing
-OUTPUT_DIR = Path("data/raw")
-METADATA_FILE = OUTPUT_DIR / "synthetic_metadata.json"
-
-# Physics-informed parameters (approximate ranges for common alloys)
-# K_IC ranges in MPa√m:
-# Aluminum alloys: 20 - 40
-# Steel alloys: 50 - 150
-# Titanium alloys: 50 - 120
-ALLOY_FAMILIES = {
-    "Al": {"min_k": 20.0, "max_k": 40.0, "color": (200, 200, 200)},
-    "Steel": {"min_k": 50.0, "max_k": 150.0, "color": (100, 100, 100)},
-    "Ti": {"min_k": 50.0, "max_k": 120.0, "color": (180, 180, 180)}
-}
-
-def generate_grain_structure(size: int, num_grains: int, seed: int) -> np.ndarray:
-    """
-    Generates a synthetic microstructure image using a Voronoi-like approach
-    to simulate grain boundaries.
-    """
+# Ensure deterministic behavior for reproducibility
+def set_seed(seed: int = 42) -> None:
+    random.seed(seed)
     np.random.seed(seed)
-    img = np.zeros((size, size), dtype=np.uint8)
-    draw = ImageDraw.ImageDraw(Image.fromarray(img))
 
-    # Generate random grain centers
-    centers = [(random.randint(0, size - 1), random.randint(0, size - 1)) for _ in range(num_grains)]
-
-    # Assign random colors/grayscale values to grains
+def generate_grain_structure(
+    width: int = 128,
+    height: int = 128,
+    num_grains: int = 15,
+    grain_size_min: int = 10,
+    grain_size_max: int = 40,
+    seed: int = 42
+) -> Image.Image:
+    """
+    Generates a synthetic microstructure image simulating polycrystalline grain boundaries.
+    Uses Voronoi-like segmentation with smoothed boundaries to mimic real metallography.
+    """
+    set_seed(seed)
+    
+    # Create blank image
+    img = Image.new('L', (width, height), color=128)
+    draw = ImageDraw.Draw(img)
+    
+    # Generate random seed points for grains
+    points = []
+    for _ in range(num_grains):
+        x = random.randint(0, width - 1)
+        y = random.randint(0, height - 1)
+        points.append((x, y))
+    
+    # Create a numpy array to store grain IDs
+    grid = np.zeros((height, width), dtype=int) - 1
+    
+    # Assign each pixel to the nearest seed point (Voronoi)
+    for y in range(height):
+        for x in range(width):
+            min_dist = float('inf')
+            nearest_idx = 0
+            for idx, (px, py) in enumerate(points):
+                dist = (x - px)**2 + (y - py)**2
+                if dist < min_dist:
+                    min_dist = dist
+                    nearest_idx = idx
+            grid[y, x] = nearest_idx
+    
+    # Assign random grayscale values to each grain
     grain_values = [random.randint(50, 200) for _ in range(num_grains)]
+    for y in range(height):
+        for x in range(width):
+            grain_id = grid[y, x]
+            img.putpixel((x, y), grain_values[grain_id])
+    
+    # Apply Gaussian blur to soften boundaries and simulate optical resolution limits
+    # Resolution limit assumption: 0.5 um per pixel, kernel simulates ~2-3 um blur
+    img = img.filter(ImageFilter.GaussianBlur(radius=1.5))
+    
+    return img
 
-    # Create a rough Voronoi-like segmentation by distance
-    # For efficiency in pure Python/PIL, we simulate grain shapes with polygons
-    # or simply fill regions from centers outward.
-    # A simpler, robust method for synthetic data: Random polygons.
+def calculate_physics_informed_k_ic(
+    img: Image.Image,
+    grain_count: int,
+    avg_grain_size: float,
+    alloy_family: str
+) -> float:
+    """
+    Calculates a physics-informed fracture toughness (K_IC) value based on:
+    1. Hall-Petch relationship: K_IC ~ k * d^(-0.5) (finer grains -> higher toughness)
+    2. Alloy family specific constants (Steel > Ti > Al in typical toughness)
+    3. Microstructural complexity factor (grain count variance)
     
-    # Create a blank image for drawing
-    pil_img = Image.new('L', (size, size), 0)
-    draw = ImageDraw.Draw(pil_img)
+    Returns K_IC in MPa√m
+    """
+    # Base constants by alloy family (approximate real-world ranges)
+    base_constants = {
+        'steel': 60.0,   # Typical structural steel range
+        'al': 25.0,      # Aluminum alloys
+        'ti': 45.0       # Titanium alloys
+    }
+    
+    if alloy_family not in base_constants:
+        alloy_family = 'steel'
+    
+    base_k = base_constants[alloy_family]
+    
+    # Hall-Petch effect: finer grains increase toughness
+    # K_IC = K_0 + k_y * d^(-0.5)
+    # Simplified: higher grain count (finer microstructure) -> higher K_IC
+    grain_factor = 1.0 + (0.5 * (1.0 / (avg_grain_size + 1e-6)))
+    
+    # Complexity factor: more uniform grain size distribution -> higher toughness
+    # (simulated by random noise around expected value)
+    complexity_noise = random.gauss(0, 0.05)
+    
+    # Calculate final K_IC
+    k_ic = base_k * grain_factor * (1.0 + complexity_noise)
+    
+    # Clamp to physically realistic ranges (MPa√m)
+    min_k = 15.0
+    max_k = 120.0
+    k_ic = max(min_k, min(max_k, k_ic))
+    
+    return round(k_ic, 2)
 
-    for i, center in enumerate(centers):
-        # Random grain size
-        radius = random.randint(5, 15)
-        # Random shape variation
-        points = []
-        for angle in np.linspace(0, 2 * np.pi, 8):
-            r = radius * (0.8 + 0.4 * np.random.rand())
-            x = int(center[0] + r * np.cos(angle))
-            y = int(center[1] + r * np.sin(angle))
-            points.append((x, y))
-        
-        draw.polygon(points, fill=grain_values[i])
-    
-    # Add some noise to simulate real imaging
-    np_img = np.array(pil_img)
-    noise = np.random.normal(0, 5, np_img.shape).astype(np.int16)
-    np_img = np.clip(np_img.astype(np.int16) + noise, 0, 255).astype(np.uint8)
-    
-    return np_img
-
-def calculate_physics_informed_k_ic(alloy_family: str, microstructure_params: dict) -> float:
+def generate_dataset(
+    output_dir: str,
+    num_images: int = 2000,
+    img_size: int = 128,
+    seed: int = 42
+) -> List[Dict[str, Any]]:
     """
-    Calculates K_IC based on alloy family and microstructure parameters.
-    
-    Physics-informed logic:
-    - Grain size (d): Hall-Petch relationship (K_IC ~ k * d^(-1/2))
-    - Porosity: Reduces toughness
-    - Precipitate density: Can increase or decrease depending on mechanism
+    Generates a synthetic dataset of microstructure images with physics-informed K_IC values.
+    Saves images as PNG and metadata as JSON.
     """
-    base_range = ALLOY_FAMILIES[alloy_family]
-    base_k = (base_range["min_k"] + base_range["max_k"]) / 2.0
+    set_seed(seed)
     
-    # Hall-Petch effect: Smaller grains -> Higher toughness (simplified)
-    grain_size = microstructure_params["grain_size"] # pixels
-    hp_factor = 1.0 + (20.0 / max(grain_size, 1)) # Normalize around 20px
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
     
-    # Porosity effect: Higher porosity -> Lower toughness
-    porosity = microstructure_params["porosity"]
-    porosity_factor = 1.0 - (porosity * 0.5) # Up to 50% reduction at max porosity
+    metadata = []
+    alloy_families = ['steel', 'al', 'ti']
     
-    # Combine factors
-    calculated_k = base_k * hp_factor * porosity_factor
+    print(f"Generating {num_images} synthetic microstructure images...")
     
-    # Clamp to physical limits
-    calculated_k = max(base_range["min_k"], min(base_range["max_k"], calculated_k))
-    
-    return round(calculated_k, 2)
-
-def main():
-    """
-    Main execution function to generate synthetic dataset.
-    """
-    print(f"Starting synthetic microstructure generation...")
-    print(f"Target samples: {NUM_SAMPLES}")
-    
-    # Ensure output directory exists
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    
-    metadata_records = []
-    
-    for i in range(NUM_SAMPLES):
-        # 1. Select Alloy Family (stratified roughly)
-        alloy_family = random.choice(list(ALLOY_FAMILIES.keys()))
-        
-        # 2. Generate Microstructure Parameters
+    for i in range(num_images):
+        # Randomize microstructure parameters
         num_grains = random.randint(10, 30)
-        grain_size = random.uniform(5.0, 20.0) # Simulated pixel scale
-        porosity = random.uniform(0.0, 0.15)   # 0% to 15%
-        resolution_um = random.uniform(0.5, 2.0) # um/pixel
+        grain_size_min = random.randint(8, 15)
+        grain_size_max = random.randint(25, 45)
+        alloy_family = random.choice(alloy_families)
         
-        # 3. Generate Image
-        seed_val = i + RANDOM_SEED
-        img_array = generate_grain_structure(IMAGE_SIZE, num_grains, seed_val)
+        # Generate image
+        img = generate_grain_structure(
+            width=img_size,
+            height=img_size,
+            num_grains=num_grains,
+            grain_size_min=grain_size_min,
+            grain_size_max=grain_size_max,
+            seed=seed + i
+        )
         
-        # 4. Calculate Physics-Informed K_IC
-        k_ic = calculate_physics_informed_k_ic(alloy_family, {
-            "grain_size": grain_size,
-            "porosity": porosity
-        })
+        # Calculate average grain size (approximate)
+        avg_grain_size = (grain_size_min + grain_size_max) / 2.0
         
-        # 5. Save Image
-        img_filename = f"synthetic_microstructure_{i:04d}.png"
-        img_path = OUTPUT_DIR / img_filename
+        # Calculate physics-informed K_IC
+        k_ic = calculate_physics_informed_k_ic(
+            img, num_grains, avg_grain_size, alloy_family
+        )
         
-        # Save as grayscale PNG
-        img_pil = Image.fromarray(img_array, mode='L')
-        img_pil.save(img_path)
+        # Save image
+        filename = f"image_{i+1:04d}.png"
+        img_path = output_path / filename
+        img.save(img_path, "PNG")
         
-        # 6. Record Metadata
-        record = {
-            "id": i,
-            "filename": img_filename,
+        # Record metadata
+        meta_entry = {
+            "image_id": f"image_{i+1:04d}",
+            "filename": filename,
             "alloy_family": alloy_family,
-            "k_ic_mpa_sqrtm": k_ic,
-            "microstructure_params": {
-                "num_grains": num_grains,
-                "grain_size_um": grain_size, # Approximate mapping
-                "porosity": porosity,
-                "resolution_um": resolution_um,
-                "preparation_protocol": "SEM" if random.random() > 0.5 else "TEM"
-            },
-            "seed": seed_val
+            "k_ic": k_ic,
+            "num_grains": num_grains,
+            "grain_size_min": grain_size_min,
+            "grain_size_max": grain_size_max,
+            "image_size": img_size
         }
-        metadata_records.append(record)
+        metadata.append(meta_entry)
         
         if (i + 1) % 500 == 0:
-            print(f"Generated {i + 1} / {NUM_SAMPLES} samples...")
+            print(f"  Generated {i+1}/{num_images} images...")
+    
+    # Save metadata
+    metadata_path = output_path / "metadata.json"
+    with open(metadata_path, 'w') as f:
+        json.dump(metadata, f, indent=2)
+    
+    print(f"Dataset generation complete.")
+    print(f"  Images saved to: {output_path}")
+    print(f"  Metadata saved to: {metadata_path}")
+    print(f"  Total images: {len(metadata)}")
+    
+    return metadata
 
-    # Save Metadata JSON
-    with open(METADATA_FILE, 'w') as f:
-        json.dump({
-            "version": "1.0",
-            "total_samples": len(metadata_records),
-            "generation_seed": RANDOM_SEED,
-            "records": metadata_records
-        }, f, indent=2)
+def main():
+    parser = argparse.ArgumentParser(description="Generate synthetic microstructure dataset")
+    parser.add_argument("--output", type=str, default="data/raw", help="Output directory for images and metadata")
+    parser.add_argument("--num-images", type=int, default=2000, help="Number of images to generate")
+    parser.add_argument("--img-size", type=int, default=128, help="Image size (width and height)")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
     
-    print(f"Generation complete.")
-    print(f"Total images saved: {len(metadata_records)}")
-    print(f"Metadata saved to: {METADATA_FILE}")
+    args = parser.parse_args()
     
-    # Verification Step
-    if len(metadata_records) < 2000:
-        print(f"ERROR: Generated {len(metadata_records)} samples, expected >= 2000.")
-        return 1
-    else:
-        print(f"VERIFICATION PASSED: Generated {len(metadata_records)} samples (>= 2000).")
-        return 0
+    generate_dataset(
+        output_dir=args.output,
+        num_images=args.num_images,
+        img_size=args.img_size,
+        seed=args.seed
+    )
 
 if __name__ == "__main__":
-    exit(main())
+    main()

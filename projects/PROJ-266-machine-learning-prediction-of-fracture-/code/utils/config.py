@@ -1,20 +1,22 @@
 """
-Configuration management for random seeds.
+Configuration management for random seeds and pipeline parameters.
 
-This module provides centralized seed management to ensure reproducibility
-across the machine learning pipeline.
+This module provides centralized seed management and configuration values
+to ensure reproducibility across the machine learning pipeline.
 
 - Fixed seed (42) is used for data splits to ensure consistent train/val/test
   distribution across experiments.
 - Variable seeds are supported for training runs to allow for multiple
   independent training instances.
+- Core pipeline parameters (image_size, batch_size, stability thresholds)
+  are defined here for single-source configuration.
 """
 
 import os
 import random
 import numpy as np
 import torch
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Tuple
 
 
 # Fixed seed for data splits (stratified split, etc.)
@@ -22,6 +24,15 @@ SPLIT_SEED = 42
 
 # Default seed for training if none is provided
 DEFAULT_TRAIN_SEED = 42
+
+# Image processing parameters
+IMAGE_SIZE: Tuple[int, int] = (128, 128)
+
+# Training parameters
+BATCH_SIZE = 32
+
+# Stability evaluation threshold
+STABILITY_IOU_THRESHOLD = 0.75
 
 
 def set_seed(seed: int) -> None:
@@ -107,9 +118,16 @@ def get_config_dict() -> Dict[str, Any]:
     Get a dictionary of all configuration values.
 
     Returns:
-        Dict[str, Any]: Configuration dictionary.
+        Dict[str, Any]: Configuration dictionary containing all pipeline parameters.
     """
     return {
         "split_seed": SPLIT_SEED,
-        "default_train_seed": DEFAULT_TRAIN_SEED,
+        "train_seed": DEFAULT_TRAIN_SEED,
+        "image_size": IMAGE_SIZE,
+        "batch_size": BATCH_SIZE,
+        "stability_iou_threshold": STABILITY_IOU_THRESHOLD,
     }
+
+
+# Export CONFIG dictionary for direct access
+CONFIG = get_config_dict()

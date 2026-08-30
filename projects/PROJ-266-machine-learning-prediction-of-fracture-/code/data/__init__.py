@@ -1,3 +1,1 @@
-"""
-Data ingestion, preprocessing, and generation modules.
-"""
+"""Data module for synthetic microstructure generation and ingestion."""

@@ -1,152 +1,106 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Model Evaluation Metrics Schema
-description: >
-  Schema defining the structure for model evaluation results, including
-  performance metrics, statistical tests, and confidence intervals.
-  Used to validate outputs from training and evaluation pipelines.
+title: Model Evaluation Schema
+description: >-
+  Schema for the results of model training and evaluation.
+  Captures performance metrics, statistical test results, and hyperparameters.
 type: object
 required:
-  - experiment_metadata
-  - model_performance
-  - statistical_significance
+  - model_name
+  - metrics
+  - dataset_splits
 properties:
-  experiment_metadata:
+  model_name:
+    type: string
+    description: Name of the model architecture evaluated.
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of the evaluation run.
+  dataset_splits:
     type: object
+    description: Counts of samples in each split.
     required:
-      - experiment_id
-      - timestamp
-      - seed
-      - model_architecture
-      - dataset_version
+      - train
+      - val
+      - test
     properties:
-      experiment_id:
-        type: string
-        description: Unique identifier for the experiment run
-      timestamp:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of evaluation
-      seed:
+      train:
         type: integer
-        description: Random seed used for reproducibility
-      model_architecture:
-        type: string
-        description: Name or description of the model architecture
-      dataset_version:
-        type: string
-        description: Version of the dataset used
-      split_info:
-        type: object
-        properties:
-          train_size:
-            type: integer
-            minimum: 0
-          val_size:
-            type: integer
-            minimum: 0
-          test_size:
-            type: integer
-            minimum: 0
-          stratification:
-            type: string
-            description: Description of stratification method used
-  model_performance:
+        minimum: 1
+      val:
+        type: integer
+        minimum: 0
+      test:
+        type: integer
+        minimum: 1
+  metrics:
     type: object
+    description: Regression performance metrics.
     required:
-      - r_squared
+      - r2
       - mae
       - rmse
     properties:
-      r_squared:
+      r2:
         type: number
-        description: Coefficient of determination (R²)
-        minimum: -1
+        description: Coefficient of determination.
       mae:
         type: number
-        description: Mean Absolute Error
-        minimum: 0
+        description: Mean Absolute Error.
       rmse:
         type: number
-        description: Root Mean Squared Error
-        minimum: 0
-      confidence_intervals:
-        type: object
-        description: Bootstrap confidence intervals for metrics
-        properties:
-          r_squared_ci:
-            type: array
-            items:
-              type: number
-            minItems: 2
-            maxItems: 2
-            description: [lower, upper] 95% CI for R²
-          mae_ci:
-            type: array
-            items:
-              type: number
-            minItems: 2
-            maxItems: 2
-            description: [lower, upper] 95% CI for MAE
-          rmse_ci:
-            type: array
-            items:
-              type: number
-            minItems: 2
-            maxItems: 2
-            description: [lower, upper] 95% CI for RMSE
-        required:
-          - r_squared_ci
-          - mae_ci
-          - rmse_ci
-  statistical_significance:
+        description: Root Mean Squared Error.
+      mape:
+        type: number
+        description: Mean Absolute Percentage Error (optional).
+  statistical_tests:
     type: object
-    description: Results of statistical tests comparing models
+    description: Results of statistical comparisons against baselines.
     properties:
-      permutation_test:
+      wilcoxon:
         type: object
-        required:
-          - p_value
-          - n_permutations
-          - null_distribution_mean
+        description: Wilcoxon signed-rank test results.
         properties:
+          statistic:
+            type: number
           p_value:
             type: number
             minimum: 0
             maximum: 1
-            description: P-value from permutation test
-          n_permutations:
-            type: integer
-            minimum: 1
-            description: Number of permutations performed
-          null_distribution_mean:
-            type: number
-            description: Mean of the null distribution
-          observed_statistic:
-            type: number
-            description: Observed test statistic
-      comparison_baseline:
-        type: string
-        description: Name of the baseline model being compared
-  feature_attribution:
-    type: object
-    description: Optional attribution analysis results
-    properties:
-      method:
-        type: string
-        description: Attribution method used (e.g., Grad-CAM)
-      stability_metrics:
+          alternative:
+            type: string
+            enum:
+              - two-sided
+              - less
+              - greater
+      permutation_test:
         type: object
+        description: Permutation test results.
         properties:
-          mean_iou:
+          statistic:
+            type: number
+          p_value:
             type: number
             minimum: 0
             maximum: 1
-            description: Mean Intersection over Union across augmentations
-          iou_std:
-            type: number
-            minimum: 0
-            description: Standard deviation of IoU
-          threshold_passed:
-            type: boolean
-            description: Whether mean IoU > 0.5 threshold
+          n_permutations:
+            type: integer
+            minimum: 1
+  hyperparameters:
+    type: object
+    description: Key hyperparameters used for the model.
+    additionalProperties: true
+  stability_metrics:
+    type: object
+    description: Metrics regarding model stability and explainability.
+    properties:
+      mean_iou:
+        type: number
+        description: Mean Intersection over Union for attribution stability.
+        minimum: 0
+        maximum: 1
+      std_iou:
+        type: number
+        description: Standard deviation of IoU scores.
+        minimum: 0
 additionalProperties: false

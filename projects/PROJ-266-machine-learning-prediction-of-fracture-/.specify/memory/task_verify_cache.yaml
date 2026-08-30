@@ -5,19 +5,47 @@ T003:
     \ or pre\u2011commit hooks) or any other evidence of ruff/black being set up are\
     \ present. The required artifacts to demonstrate that linting and formatting tools\
     \ are configured are missing."
-T004a:
+T005:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `data/raw`, `data/processed`, or `data/explainability`
-    directories is provided; the implementer did not supply any artifact showing these
-    folders exist or contain any files. The task therefore remains unfulfilled.
+  h: db8ff35fe377f5e63c30a8910535616c04d7d24c5b32f85afcfdd7102eb64d53
+  r: "The repository contains `code/data/synthetic_gen.py`, but the script does not\
+    \ include any code that actually writes \u2265\u202F2,000 PNG files to `data/raw/`\
+    \ nor creates a `metadata.json` with \u2265\u202F2,000 entries. Moreover, `data/raw/metadata.json`\
+    \ is missing entirely, so the verification command would fail. The required output\
+    \ artifacts are absent."
 T005b:
   c: false
+  h: 5fa47d63f66a32ae334ec3e5cc62e55bd64d420c8b552121e7b7866323077748
+  r: The `benchmark_gen.py` script is truncated and never writes the benchmark results
+    to `data/benchmarks/generator_runtime.json`; the JSON file is a static placeholder
+    with zero values and a comment. Consequently, the script does not actually measure
+    the generator runtime nor produce genuine metric values as required. The implementation
+    must be completed so that running the script generates real timing data and writes
+    it to the JSON file.
+T005c:
+  c: false
+  h: 5fa47d63f66a32ae334ec3e5cc62e55bd64d420c8b552121e7b7866323077748
+  r: The provided `generator_runtime.json` is a placeholder with zero values and a
+    comment stating it will be populated when the script runs, and the `benchmark_gen.py`
+    file is truncated before any code that writes the results to disk. There is no
+    evidence that the benchmark was actually executed or that a real JSON file with
+    measured `total_time_seconds` and `images_per_second` (as floats) was produced.
+    The task therefore remains unfinished.
+T005d:
+  c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No benchmark script, runtime logs, or report showing the synthetic image generator\u2019\
-    s execution time on a 2\u2011core CPU are present. The claim provides no measurable\
-    \ data to confirm the \u22646\u202Fhour constraint, so the required artifact is\
-    \ missing."
+  r: "No `research.md` file or its contents were provided, and there is no evidence\
+    \ that it contains the required line \u201CSpec assumed \u2265500; generated \u2265\
+    2000 images\u201D. The task\u2019s verification step cannot be satisfied without\
+    \ the actual file."
+T005e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No actual `spec.md` file or its contents were provided, and there is no output\
+    \ showing that the grep command succeeded. Without the file or proof that it contains\
+    \ the exact phrase \u201C\u2265\u202F500 images\u201D, the verification cannot\
+    \ be confirmed. The required artifact (the specification file with the stated\
+    \ assumption) is missing."
 T006a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -25,3 +53,40 @@ T006a:
     were presented; without these concrete schema definitions the requirement to create
     base data contracts is not satisfied. The next implementer must add the `contracts/`
     folder containing the specified schema files with appropriate content.
+T006c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `spec.md` file or its contents were provided, so we cannot confirm that it\
+    \ lacks any mention of a \u201CJSON side\u2011car\u201D. The required verification\
+    \ command cannot be run or its output shown, meaning the evidence needed to satisfy\
+    \ the task is missing."
+T006d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer only supplied a grep command but did not provide any output or
+    proof that `spec.md` was examined and indeed contains no `"mean_iou >"` line.
+    Without the actual verification result (e.g., command output confirming the absence),
+    the task requirement is not demonstrably satisfied.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` file was presented in `projects/PROJ-266-machine-learning-prediction-of-fracture-/`,\
+    \ nor any excerpt showing the required headings (\u201CIntroduction\u201D, \u201C\
+    Methodology\u201D, \u201CResolution Limits\u201D, \u201CResults\u201D, \u201C\
+    Discussion\u201D). Without the actual file or its contents, the verification script\
+    \ cannot succeed, so the task is not satisfied. The implementer must add the `research.md`\
+    \ artifact with the specified section headings."
+T025e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No actual `spec.md` file or its contents were provided, so we cannot confirm\
+    \ that it contains the required \u201CWilcoxon signed\u2011rank test\u201D phrase.\
+    \ The implementer\u2019s claim lacks the necessary artifact to verify the requirement."
+T042c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `spec.md` file or its contents was provided, and the required\
+    \ verification command output (`Spec Grad-CAM requirement verified`) is absent.\
+    \ The implementer must supply the actual `spec.md` file (or its relevant excerpt)\
+    \ showing the Grad\u2011CAM requirement for FR\u2011006/FR\u2011007, and/or the\
+    \ result of the `grep` verification."

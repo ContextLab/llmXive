@@ -3794,3 +3794,951 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-26T23:52:21Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: dataset of over 2,000 unique grain structures generated
+  claim_id: c_ba6282b9
+  context: A physics-informed synthetic microstructure generator was implemented to
+    produce a dataset of over 2,000 unique grain structures. Each image is paired
+    with a calculated $K_{IC}$ value derived from Hall-Petch relationships and precipitate
+    strengthening models.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A physics-informed synthetic microstructure generator was implemented
+    to produce a dataset of over 2,000 unique grain structures.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:10:18Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: CNN model achieved R-squared score of 0.85 on test set
+  claim_id: c_7a14b35a
+  context: 'Initial experiments on the synthetic dataset yielded the following observations:
+    The CNN model achieved an $R^2$ score of approximately 0.85 on the held-out test
+    set, significantly outperforming baseline Linear Regression and Random Forest
+    models trained on hand-crafted texture features (GLCM, power spectra).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CNN model achieved an $R^2$ score of approximately 0.85 on the held-out
+    test set, significantly outperforming baseline Linear Regression and Random Forest
+    models trained on hand-crafted texture features (GLCM, power spectra).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:10:51Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: mean Intersection over Union of 0.72 across augmented views
+  claim_id: c_091182e5
+  context: The IoU stability analysis showed a mean IoU of 0.72 across augmented views,
+    indicating that the model's explanations are robust to minor rotations and noise,
+    a prerequisite for real-world deployment.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The IoU stability analysis showed a mean IoU of 0.72 across augmented
+    views, indicating that the model's explanations are robust to minor rotations
+    and noise.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:11:21Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: smallest relevant microstructural feature typically less than 1 micrometer
+  claim_id: c_a7b404bd
+  context: Future work must explicitly model the resolution limit as an input feature
+    or ensure all training data is acquired at a resolution significantly higher than
+    the smallest relevant microstructural feature (typically $< 1 \mu m$).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Smallest_relevant_microstructural_feature_typically_less_tha
+  kind: magnitude
+  raw_text: Future work must ensure all training data is acquired at a resolution
+    significantly higher than the smallest relevant microstructural feature (typically
+    $< 1 \mu m$).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:12:11Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator produces at least 2000 images with physics-informed
+    K_IC values
+  claim_id: c_0d092eb6
+  context: "T005 [P] Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values. Verification:\
+    \ python -c \"import glob, json; assert len(glob.glob('data/raw/*.png')) >= 2000;\
+    \ meta=json.load(open('data/raw/metadata.json')); assert len(meta) >= 2000\"."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_produces_at_least_2000_images_with_physi
+  kind: magnitude
+  raw_text: "Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:13:55Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: spec sample size assumption is at least 500 images
+  claim_id: c_7027ce2f
+  context: "T005e [P] Verify that spec.md still states the sample\u2011size assumption\
+    \ as \u201C\u2265 500 images\u201D. Verification: grep -q \"\u2265 500 images\"\
+    \ spec.md && echo \"Spec sample size assumption verified\"."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Spec_sample_size_assumption_is_at_least_500_images
+  kind: magnitude
+  raw_text: "spec.md still states the sample-size assumption as \u2265 500 images."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:14:35Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: generated dataset exceeds spec assumption of 500 images
+  claim_id: c_c3bb2748
+  context: "T005d [P] Validate dataset size assumption: write a note in research.md\
+    \ documenting that the generated dataset exceeds the spec's \u2265 500 image assumption.\
+    \ Verification: test -f research.md && grep -q \"Spec assumed \u2265500; generated\
+    \ \u22652000 images\" research.md && echo \"research.md updated\"."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The generated dataset exceeds the spec's \u2265 500 image assumption."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:14:36Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project with specific pinned library versions
+  claim_id: c_3ab21c3a
+  context: 'Phase 1: Setup (Shared Infrastructure & Spec Alignment) - Task T002'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python 3.11 project with code/requirements.txt containing
+    exact pinned versions: torch==2.1.0+cpu, scikit-learn==1.3.2, opencv-python-headless==4.8.1.78,
+    pandas==2.1.3, numpy==1.26.2, matplotlib==3.8.2, captum==0.7.0, pytest==7.4.3,
+    black==23.12.1, ruff==0.1.8.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T15:15:04Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Synthetic microstructure generator produces at least 2,000 images
+  claim_id: c_aa92bc37
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T005'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_microstructure_generator_produces_at_least_2,000_i
+  kind: magnitude
+  raw_text: "Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:15:07Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Spec sample size assumption is at least 500 images
+  claim_id: c_a286cf39
+  context: 'Phase 1: Setup (Shared Infrastructure & Spec Alignment) - Task T005e'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Spec_sample_size_assumption_is_at_least_500_images
+  kind: magnitude
+  raw_text: "Verify that spec.md still states the sample\u2011size assumption as \u2265\
+    \ 500 images."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:15:37Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic microstructure generator produces at least 2000 images
+  claim_id: c_8ece810b
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T005 [P] Implement synthetic
+    microstructure generator logic...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_microstructure_generator_produces_at_least_2000_im
+  kind: magnitude
+  raw_text: "Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:16:10Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: spec sample size assumption is at least 500 images
+  claim_id: c_795d78ff
+  context: 'Phase 1: Setup (Shared Infrastructure & Spec Alignment) - T005e [P] Verify
+    that spec.md still states the sample-size assumption...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Spec_sample_size_assumption_is_at_least_500_images
+  kind: magnitude
+  raw_text: "Verify that spec.md still states the sample-size assumption as \u2265\
+    \ 500 images."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:16:12Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Synthetic generator produces at least 2000 images with physics-informed
+    K_IC values
+  claim_id: c_dd5077b8
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T005'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_produces_at_least_2000_images_with_physi
+  kind: magnitude
+  raw_text: "Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:16:53Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Spec sample size assumption is at least 500 images
+  claim_id: c_df1a8317
+  context: 'Phase 1: Setup - T005e'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Spec_sample_size_assumption_is_at_least_500_images
+  kind: magnitude
+  raw_text: "Verify that spec.md still states the sample-size assumption as \u2265\
+    \ 500 images."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:16:55Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Generated dataset exceeds the 500 image spec assumption
+  claim_id: c_eb0f0043
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T005d'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate dataset size assumption: write a note in research.md documenting\
+    \ that the generated dataset exceeds the spec's \u2265 500 image assumption."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:16:56Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 0
+  canonical: "Augmentation pipeline uses \xB110 degree rotations, 0.01 Gaussian noise,\
+    \ and \xB110% brightness jitter"
+  claim_id: c_7062acf6
+  context: "T043 [P] Implement augmentation pipeline for stability testing (code/explain/stability.py)\
+    \ \u2013 rotations \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter \xB1\
+    10%. Verification: python code/explain/stability.py --augment --image data/processed/test/sample_001.png\
+    \ --count 5 && test -d aug_views && echo \"augmentations created\"."
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Implement augmentation pipeline for stability testing (code/explain/stability.py)\
+    \ \u2013 rotations \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter \xB1\
+    10%."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T15:17:41Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 0
+  canonical: Project initialized with Python 3.11 and specific pinned package versions
+  claim_id: c_974cbff0
+  context: 'T002 [P] Initialize Python 3.11 project with code/requirements.txt containing
+    exact pinned versions: torch==2.1.0+cpu, scikit-learn==1.3.2, opencv-python-headless==4.8.1.78,
+    pandas==2.1.3, numpy==1.26.2, matplotlib==3.8.2, captum==0.7.0, pytest==7.4.3,
+    black==23.12.1, ruff==0.1.8. Verification: Run pip install -r code/requirements.txt
+    successfully.'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python 3.11 project with code/requirements.txt containing
+    exact pinned versions: torch==2.1.0+cpu, scikit-learn==1.3.2, opencv-python-headless==4.8.1.78,
+    pandas==2.1.3, numpy==1.26.2, matplotlib==3.8.2, captum==0.7.0, pytest==7.4.3,
+    black==23.12.1, ruff==0.1.8.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T15:17:42Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Synthetic generator produces at least 2000 images with physics-informed
+    K_IC values
+  claim_id: c_24511b25
+  context: "T005 [P] Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values. Verification:\
+    \ python -c \"import glob, json; assert len(glob.glob('data/raw/*.png')) >= 2000;\
+    \ meta=json.load(open('data/raw/metadata.json')); assert len(meta) >= 2000\"."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_produces_at_least_2000_images_with_physi
+  kind: magnitude
+  raw_text: "Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:17:47Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Spec sample size assumption is at least 500 images
+  claim_id: c_8b0e24dd
+  context: "T005e [P] Verify that spec.md still states the sample\u2011size assumption\
+    \ as \u2265 500 images. Verification: grep -q \"\u2265 500 images\" spec.md &&\
+    \ echo \"Spec sample size assumption verified\"."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Spec_sample_size_assumption_is_at_least_500_images
+  kind: magnitude
+  raw_text: "spec.md still states the sample\u2011size assumption as \u2265 500 images."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:17:50Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Generated dataset exceeds 500 image assumption with 2000 images
+  claim_id: c_b2f683ee
+  context: "T005d [P] Validate dataset size assumption: write a note in research.md\
+    \ documenting that the generated dataset exceeds the spec's \u2265 500 image assumption.\
+    \ Verification: test -f research.md && grep -q \"Spec assumed \u2265500; generated\
+    \ \u22652000 images\" research.md && echo \"research.md updated\"."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The generated dataset exceeds the spec's \u2265 500 image assumption."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:17:50Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: 3-block CNN architecture uses Conv-ReLU-BN-MaxPool
+  claim_id: c_67d070f4
+  context: "T020 [P] Implement 3\u2011block CNN architecture (Conv\u2011ReLU\u2011\
+    BN\u2011MaxPool) in code/models/cnn.py. Verification: python -c \"import code.models.cnn\
+    \ as m; assert hasattr(m, 'CNN')\"."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement 3\u2011block CNN architecture (Conv\u2011ReLU\u2011BN\u2011\
+    MaxPool) in code/models/cnn.py."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:18:27Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Stratified split uses seed 42 for steel, Al, and Ti alloy families
+  claim_id: c_ef7c7d2a
+  context: 'T014 [P] Implement stratified split logic (seed 42, alloy families steel/Al/Ti)
+    in code/data/preprocess.py. Verification: python -c "import pandas as pd; df=pd.read_csv(''data/processed/split_metadata.csv'');
+    assert set(df[''split''])=={''train'',''val'',''test''}".'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement stratified split logic (seed 42, alloy families steel/Al/Ti)
+    in code/data/preprocess.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:19:00Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: dataset consists of over 2000 images exceeding 500 samples
+  claim_id: c_d8b101ad
+  context: The dataset consists of over 2,000 images, exceeding the initial specification
+    assumption of 500 samples. All images are standardized to 128x128 pixels, converted
+    to grayscale, and intensity-normalized to [0, 1] before ingestion.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset consists of over 2,000 images, exceeding the initial specification
+    assumption of 500 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:20:56Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: average grain size approaches 3-4 pixels causes CNN to struggle with
+    grain boundary characteristics
+  claim_id: c_d5430f81
+  context: Our analysis indicates that when the average grain size approaches 3-4
+    pixels, the CNN struggles to distinguish grain boundary characteristics, leading
+    to a degradation in prediction accuracy. This 'resolution limit' suggests that
+    for real-world applications, the imaging technique (e.g., EBSD, SEM) must be selected
+    such that the smallest critical microstructural feature is resolved by at least
+    10 pixels.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Average_grain_size_approaches_3-4_pixels_causes_CNN_to_strug
+  kind: causal
+  raw_text: Our analysis indicates that when the average grain size approaches 3-4
+    pixels, the CNN struggles to distinguish grain boundary characteristics, leading
+    to a degradation in prediction accuracy.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:21:01Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: 3-block CNN achieved mean R2 score of 0.87 outperforming Linear Regression
+    0.62 and Random Forest 0.74
+  claim_id: c_33649d7a
+  context: The 3-block CNN achieved a mean $R^2$ score of 0.87 on the held-out test
+    set, outperforming the Linear Regression baseline ($R^2 = 0.62$) and the Random
+    Forest baseline ($R^2 = 0.74$). The CNN's ability to learn hierarchical features
+    allowed it to capture non-linear interactions between grain size and precipitate
+    distribution that linear models missed.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The 3-block CNN achieved a mean R^2 score of 0.87 on the held-out test
+    set, outperforming the Linear Regression baseline (R^2 = 0.62) and the Random
+    Forest baseline (R^2 = 0.74).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:21:52Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: Stability analysis using IoU metrics showed mean IoU of 0.82
+  claim_id: c_8e6308d2
+  context: Stability analysis using IoU metrics across augmented views showed a mean
+    IoU of 0.82, indicating that the model's attributions are robust to minor geometric
+    transformations and noise.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stability analysis using IoU metrics across augmented views showed a mean
+    IoU of 0.82, indicating that the model's attributions are robust to minor geometric
+    transformations and noise.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:22:18Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 0
+  canonical: stability augmentation uses 10 degree rotation, 0.01 Gaussian noise sigma,
+    10 percent brightness jitter
+  claim_id: c_70027b90
+  context: 'Phase 5: User Story 3, Task T043'
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Implement augmentation pipeline for stability testing \u2013 rotations\
+    \ \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter \xB110%."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T15:23:00Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 0
+  canonical: project initialized with specific pinned library versions including torch
+    2.1.0 and numpy 1.26.2
+  claim_id: c_2258feb8
+  context: 'Phase 1: Setup, Task T002'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python 3.11 project with `code/requirements.txt` containing
+    exact pinned versions: `torch==2.1.0+cpu`, `scikit-learn==1.3.2`, `opencv-python-headless==4.8.1.78`,
+    `pandas==2.1.3`, `numpy==1.26.2`, `matplotlib==3.8.2`, `captum==0.7.0`, `pytest==7.4.3`,
+    `black==23.12.1`, `ruff==0.1.8`.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T15:23:01Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator produces at least 2000 images
+  claim_id: c_e3cf1951
+  context: 'Phase 2: Foundational (Blocking Prerequisites), Task T005'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_produces_at_least_2000_images
+  kind: magnitude
+  raw_text: "Implement synthetic microstructure generator logic in `code/data/synthetic_gen.py`\
+    \ to produce **\u2265 2,000** images with physics-informed K_IC values."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:23:04Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: specification sample size assumption is at least 500 images
+  claim_id: c_0a31bbad
+  context: 'Phase 1: Setup, Spec Alignment Tasks, Task T005e'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Specification_sample_size_assumption_is_at_least_500_images
+  kind: magnitude
+  raw_text: "Verify that `spec.md` still states the sample\u2011size assumption as\
+    \ '\u2265 500 images'."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:23:08Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: stratified split uses seed 42 and alloy families steel, Al, Ti
+  claim_id: c_7a7bcd93
+  context: 'Phase 3: User Story 1, Task T014'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement stratified split logic (seed 42, alloy families steel/Al/Ti)
+    in `code/data/preprocess.py`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:23:09Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator produces 2000 images with physics-informed K_IC values
+  claim_id: c_8f696026
+  context: "- [~] T005 [P] Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce **\u2265 2,000** images with physics-informed K_IC values. **Verification**:\
+    \ `python -c \"import glob, json; assert len(glob.glob('data/raw/*.png')) >= 2000;\
+    \ meta=json.load(open('data/raw/metadata.json')); assert len(meta) >= 2000\"`.\
+    \ **Depends on**: T005e."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:23:35Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator produces at least 2000 images with physics-informed
+    K_IC values
+  claim_id: c_1f55dcad
+  context: "T005 [P] Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_produces_at_least_2000_images_with_physi
+  kind: magnitude
+  raw_text: "Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:24:13Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Synthetic microstructure generator produces at least 2000 images with
+    physics-informed K_IC values
+  claim_id: c_5d567354
+  context: "T005 [P] Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values. Verification:\
+    \ python -c \"import glob, json; assert len(glob.glob('data/raw/*.png')) >= 2000;\
+    \ meta=json.load(open('data/raw/metadata.json')); assert len(meta) >= 2000\"."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_microstructure_generator_produces_at_least_2000_im
+  kind: magnitude
+  raw_text: "Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:24:45Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Generated dataset exceeds the 500 image sample size assumption
+  claim_id: c_e705dd15
+  context: "T005d [P] Validate dataset size assumption: write a note in research.md\
+    \ documenting that the generated dataset exceeds the spec's \u2265 500 image assumption.\
+    \ Verification: test -f research.md && grep -q \"Spec assumed \u2265500; generated\
+    \ \u22652000 images\" research.md && echo \"research.md updated\"."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The generated dataset exceeds the spec's \u2265 500 image assumption."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:24:46Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 0
+  canonical: augmentation pipeline includes rotations 10 degrees, Gaussian noise 0.01,
+    brightness jitter 10%
+  claim_id: c_c59eed8f
+  context: "T043 [P] [US3] Implement augmentation pipeline for stability testing (code/explain/stability.py)\
+    \ \u2013 rotations \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter \xB1\
+    10%."
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Implement augmentation pipeline for stability testing \u2013 rotations\
+    \ \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter \xB110%."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T15:25:34Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic microstructure generator produces at least 2000 images with
+    physics-informed K_IC values
+  claim_id: c_d3248b16
+  context: "T005 [P] Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values. Verification:\
+    \ python -c \"import glob, json; assert len(glob.glob('data/raw/*.png')) >= 2000;\
+    \ meta=json.load(open('data/raw/metadata.json')); assert len(meta) >= 2000\"."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_microstructure_generator_produces_at_least_2000_im
+  kind: magnitude
+  raw_text: "Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:25:38Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: spec.md states sample-size assumption is at least 500 images
+  claim_id: c_a5dac65f
+  context: "T005e [P] Verify that spec.md still states the sample\u2011size assumption\
+    \ as '\u2265 500 images'. Verification: grep -q '\u2265 500 images' spec.md &&\
+    \ echo 'Spec sample size assumption verified'."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Spec.md_states_sample-size_assumption_is_at_least_500_images
+  kind: magnitude
+  raw_text: "Verify that spec.md still states the sample\u2011size assumption as '\u2265\
+    \ 500 images'."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:25:42Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: generated dataset exceeds spec assumption of 500 images
+  claim_id: c_9ae53297
+  context: "T005d [P] Validate dataset size assumption: write a note in research.md\
+    \ documenting that the generated dataset exceeds the spec's \u2265 500 image assumption.\
+    \ Verification: test -f research.md && grep -q 'Spec assumed \u2265500; generated\
+    \ \u22652000 images' research.md && echo 'research.md updated'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate dataset size assumption: write a note in research.md documenting\
+    \ that the generated dataset exceeds the spec's \u2265 500 image assumption."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:25:43Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: 3-block CNN architecture implemented with Conv-ReLU-BN-MaxPool
+  claim_id: c_c99bed87
+  context: "T020 [P] [US2] Implement 3\u2011block CNN architecture (Conv\u2011ReLU\u2011\
+    BN\u2011MaxPool) in code/models/cnn.py. Verification: python -c \"import code.models.cnn\
+    \ as m; assert hasattr(m, 'CNN')\"."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement 3\u2011block CNN architecture (Conv\u2011ReLU\u2011BN\u2011\
+    MaxPool)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:26:15Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: synthetic data generation pipeline produces over 2000 images with physics-informed
+    K_IC values
+  claim_id: c_ca9c9247
+  context: The model training loop supports multi-seed evaluation to ensure statistical
+    robustness.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Preliminary benchmarks indicate the synthetic data generation pipeline
+    can produce over 2,000 images with physics-informed $K_{IC}$ values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:27:27Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md
+  attempts: 1
+  canonical: generated 2000 images exceeding the 500 image specification
+  claim_id: c_bcccffc6
+  context: The generated dataset size significantly exceeds the initial specification
+    assumption.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Spec assumed \u2265500 images; generated \u22652000 images."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:27:27Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic microstructure generator produces 2000 images with physics-informed
+    K_IC values
+  claim_id: c_b18a3e66
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T005 [P] Implement synthetic
+    microstructure generator logic...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement synthetic microstructure generator logic in `code/data/synthetic_gen.py`\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:27:38Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: specification states sample-size assumption of 500 images
+  claim_id: c_d8384130
+  context: "Phase 1: Setup - T005e [P] Verify that `spec.md` still states the sample\u2011\
+    size assumption..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that `spec.md` still states the sample\u2011size assumption as\
+    \ '\u2265 500 images'."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:27:39Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: generated dataset exceeds 500 image assumption
+  claim_id: c_30ed64b6
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T005d [P] Validate dataset
+    size assumption...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate dataset size assumption: write a note in `research.md` documenting\
+    \ that the generated dataset exceeds the spec\u2019s \u2265 500 image assumption."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:27:40Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: synthetic generator produces 2000 images with physics-informed K_IC values
+  claim_id: c_cf4c7e0d
+  context: "T005 [P] Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values. Verification:\
+    \ python -c \"import glob, json; assert len(glob.glob('data/raw/*.png')) >= 2000;\
+    \ meta=json.load(open('data/raw/metadata.json')); assert len(meta) >= 2000\"."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement synthetic microstructure generator logic in code/data/synthetic_gen.py\
+    \ to produce \u2265 2,000 images with physics-informed K_IC values."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:29:18Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: spec sample size assumption is 500 images
+  claim_id: c_b8565da8
+  context: "T005e [P] Verify that spec.md still states the sample\u2011size assumption\
+    \ as '\u2265 500 images'. Verification: grep -q '\u2265 500 images' spec.md &&\
+    \ echo 'Spec sample size assumption verified'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "spec.md still states the sample\u2011size assumption as \u2265 500 images."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:29:19Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: generated dataset exceeds 500 image assumption
+  claim_id: c_5fd8a052
+  context: "T005d [P] Validate dataset size assumption: write a note in research.md\
+    \ documenting that the generated dataset exceeds the spec\u2019s \u2265 500 image\
+    \ assumption. Verification: test -f research.md && grep -q 'Spec assumed \u2265\
+    500; generated \u22652000 images' research.md && echo 'research.md updated'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate dataset size assumption: write a note in research.md documenting\
+    \ that the generated dataset exceeds the spec\u2019s \u2265 500 image assumption."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T15:29:20Z'

@@ -1,3 +1,1 @@
-"""
-Utility functions for configuration, logging, metrics, and statistics.
-"""
+"""Utility modules for configuration, logging, and benchmarking."""

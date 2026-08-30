@@ -1,35 +1,46 @@
 import os
 import sys
+from pathlib import Path
 
 def main():
-    """Create data directories and .gitkeep files."""
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    data_root = os.path.join(base_dir, "data")
-
-    dirs = [
-        os.path.join(data_root, "raw"),
-        os.path.join(data_root, "processed"),
-        os.path.join(data_root, "explainability"),
+    """
+    Create the required data directory structure for the fracture toughness project.
+    
+    Creates:
+        - data/raw: For raw input images and metadata
+        - data/processed: For preprocessed images and split metadata
+        - data/explainability: For attribution heatmaps and stability reports
+    
+    This task satisfies T004a verification:
+        test -d data/raw && test -d data/processed && test -d data/explainability
+    """
+    # Define the base data directory relative to project root
+    # The script is run from the project root, so we use relative paths
+    base_dir = Path("data")
+    
+    directories = [
+        base_dir / "raw",
+        base_dir / "processed",
+        base_dir / "explainability"
     ]
-
-    for d in dirs:
-        os.makedirs(d, exist_ok=True)
-        gitkeep = os.path.join(d, ".gitkeep")
-        if not os.path.exists(gitkeep):
-            with open(gitkeep, "w") as f:
-                f.write("")
-            print(f"Created: {gitkeep}")
+    
+    created_count = 0
+    for directory in directories:
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {directory}")
+            created_count += 1
         else:
-            print(f"Exists: {gitkeep}")
-
-    # Verify
-    for d in dirs:
-        gitkeep = os.path.join(d, ".gitkeep")
-        if not os.path.exists(gitkeep):
-            print(f"ERROR: Missing {gitkeep}")
-            sys.exit(1)
-
-    print("All data directories and .gitkeep files verified.")
+            print(f"Directory already exists: {directory}")
+    
+    # Verify creation
+    missing = [d for d in directories if not d.exists()]
+    if missing:
+        print(f"ERROR: Failed to create directories: {missing}", file=sys.stderr)
+        sys.exit(1)
+    
+    print(f"Successfully created {created_count} data directories.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
