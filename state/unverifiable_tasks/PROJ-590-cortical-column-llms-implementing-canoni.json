@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-590-cortical-column-llms-implementing-canoni",
+  "tasks": [
+    {
+      "task_key": "T003b",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: scripts/hash_artifacts.sh, src/utils/checksum.py",
+      "first_seen": "2026-08-30T21:56:38.010937+00:00",
+      "last_seen": "2026-08-30T21:56:38.010937+00:00"
+    }
+  ],
+  "updated_at": "2026-08-30T21:56:38.010937+00:00"
+}

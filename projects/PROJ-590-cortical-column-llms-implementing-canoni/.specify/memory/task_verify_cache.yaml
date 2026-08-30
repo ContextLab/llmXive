@@ -1,3 +1,16 @@
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was presented showing that `__init__.py` files were added to each
+    `src/` and `tests/` directory created in T001a; the required package initialization
+    files are missing from the provided artifacts.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.gitignore` file content or path was provided, so we cannot verify that a
+    file exists and contains the required exclusion patterns (`data/` except the three
+    subfolders, `__pycache__`, `*.pyc`, `*.log`). The implementer must supply the
+    actual `.gitignore` file with the specified entries.
 T008c:
   c: false
   h: a5eea4278bb9e9f6f7d43fcf558774d23d57cafd0364a2d099c7e6a9eeb190aa
@@ -31,14 +44,6 @@ T025b:
     output file `data/results/ablation_results.json` does not exist. Consequently
     the task of orchestrating the three variant trainings and writing the results
     JSON is not fulfilled.
-T031:
-  c: false
-  h: 3cd121e51f020776fc853b5ced4b4265fce22890aa880ea0116fdcad1bad659b
-  r: The repository lacks the required `data/logs/gradient_norms.json` baseline file
-    and the output `data/results/gradient_stability_baseline.json`. Moreover, the
-    provided `tests/integration/test_gradient_stability.py` only checks logging of
-    gradient norms and does not implement or verify the statistical stability test
-    described in the task. These essential artifacts and functionality are missing.
 T050:
   c: false
   h: 832ec11fdf01e9411f02961f150a96464783611551d4a8cfc3aa23fc2c84150e

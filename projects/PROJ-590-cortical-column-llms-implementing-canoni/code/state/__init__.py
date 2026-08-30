@@ -1,1 +1,1 @@
-# state package (marker file)
+"""State tracking and configuration templates."""

@@ -1,1 +1,1 @@
-# unit tests package
+"""Unit tests for individual components."""

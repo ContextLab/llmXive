@@ -1,38 +1,55 @@
-# Data directory exclusions (keep specific subdirs)
-data/
-!data/configs/
-!data/results/
-!data/logs/
-
-# Python cache and compiled files
+# Python
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
+*.py[cod]
+$py.class
 *.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
 .eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
 *.egg-info/
-.pytest_cache/
-.mypy_cache/
+.installed.cfg
+*.egg
 
-# Logs and temporary files
-*.log
-*.tmp
-*.temp
-.coverage
-htmlcov/
+# Virtual environments
+venv/
+ENV/
+env/
 
-# IDE and editor files
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
 
-# State files are tracked (per Constitution Principle V)
-# state/*.yaml is explicitly tracked
+# Logs
+*.log
 
-# OS specific
+# Data (Exclude everything except configs, results, logs)
+data/
+!data/configs/
+!data/results/
+!data/logs/
+data/*.npy
+data/*.csv
+data/*.json
+data/*.yaml
+data/*.pt
+data/*.h5
+data/*.parquet
+
+# State (Track state files)
+!state/
+
+# OS
 .DS_Store
 Thumbs.db

@@ -1,14 +1,8 @@
-# Data artifacts and logs (exclude large files, keep configs/results/logs tracked)
-data/
-!data/configs/
-!data/results/
-!data/logs/
-
-# Python cache and compiled files
+# Python
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
+*.so
 .Python
 build/
 develop-eggs/
@@ -25,60 +19,41 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
-# Virtual environments
+# Virtual Environments
 venv/
 ENV/
 env/
 .venv/
 
-# IDE and Editor files
+# IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
-.project
-.settings/
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Logs (general, but specific ones tracked above)
+# Logs
 *.log
 data/logs/
+
+# Data (except configs, results, logs which are tracked)
+data/
+!data/configs/
+!data/configs/**
+!data/results/
+!data/results/**
 !data/logs/
+!data/logs/**
 
-# State directory (CRITICAL: Must be tracked for Constitution Principle V)
-state/
-!state/
+# OS
+.DS_Store
+Thumbs.db
 
-# Temporary files
-*.tmp
-temp/
-.tmp/
-
-# Jupyter Notebook checkpoints
-.ipynb_checkpoints/
-
-# Coverage reports
-htmlcov/
-.coverage
-coverage.xml
-*.cover
-
-# MyPy cache
-.mypy_cache/
-.pytest_cache/
-
-# Ruff cache
-.ruff_cache/
-
-# Logs explicitly excluded from data/ but re-included if needed
-# (Handled by specific !data/logs/ above)
+# Project specific
+state/*.yaml
+!state/template.yaml
+*.pt
+*.pth
+data/models/

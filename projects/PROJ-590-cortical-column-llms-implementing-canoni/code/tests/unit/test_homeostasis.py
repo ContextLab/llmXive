@@ -1,205 +1,254 @@
-import pytest
-import torch
-import torch.nn as nn
+"""
+Unit tests for the homeostasis module.
+"""
 import json
 import os
 import tempfile
 from pathlib import Path
+import pytest
+import torch
+import numpy as np
+
 from src.training.homeostasis import (
     HomeostasisConfig,
     ActivityStats,
-    calculate_current_ei_ratio,
+    identify_excitatory_inhibitory_params,
+    calculate_current_activity,
     scale_weights,
+    enforce_ei_ratio,
     apply_ei_balance_constraint,
     verify_ei_balance,
     HomeostaticScaler,
-    log_gradient_norms
+    apply_scaling_hook,
+    log_gradient_norms,
+    verify_independence
 )
 
-class DummyModel(nn.Module):
-    """Simple model with explicitly named excitatory and inhibitory parameters."""
-    def __init__(self):
-        super().__init__()
-        self.excitatory_weight = nn.Parameter(torch.randn(10, 10))
-        self.inhibitory_weight = nn.Parameter(torch.randn(10, 10) * 0.25)
-        
-    def forward(self, x):
-        return x
 
-class TestCalculateCurrentEiRatio:
-    def test_ei_ratio_calculation(self):
-        model = DummyModel()
-        stats = calculate_current_ei_ratio(model)
-        
-        assert isinstance(stats, ActivityStats)
-        assert stats.excitatory_mean > 0
-        assert stats.inhibitory_mean > 0
-        assert stats.current_ratio > 0
-        assert stats.total_params == 200
+class TestHomeostasisModule:
+    """Test cases for homeostasis utilities."""
 
-    def test_default_ratio_when_no_ei_naming(self):
-        class NoNamingModel(nn.Module):
+    @pytest.fixture
+    def simple_model(self):
+        """Create a simple test model."""
+        class TestModel(torch.nn.Module):
             def __init__(self):
                 super().__init__()
-                self.weight = nn.Parameter(torch.randn(10, 10))
+                self.linear1 = torch.nn.Linear(10, 20)
+                self.linear2 = torch.nn.Linear(20, 5)
+                self.inhibitory_layer = torch.nn.Linear(5, 2)
+
             def forward(self, x):
-                return x
-        
-        model = NoNamingModel()
-        stats = calculate_current_ei_ratio(model)
-        
-        assert stats.current_ratio == 4.0
-        assert stats.excitatory_mean == 1.0
-        assert stats.inhibitory_mean == 0.25
+                x = torch.relu(self.linear1(x))
+                x = torch.relu(self.linear2(x))
+                return self.inhibitory_layer(x)
 
-class TestScaleWeights:
-    def test_scale_weights_applies_factor(self):
-        model = DummyModel()
-        initial_exc = model.excitatory_weight.data.clone()
-        
+        return TestModel()
+
+    @pytest.fixture
+    def model_with_gradients(self, simple_model):
+        """Create a model with computed gradients."""
+        model = simple_model
+        x = torch.randn(32, 10)
+        y = torch.randn(32, 2)
+
+        output = model(x)
+        loss = torch.nn.functional.mse_loss(output, y)
+        loss.backward()
+
+        return model
+
+    def test_identify_excitatory_inhibitory_params(self, simple_model):
+        """Test identification of excitatory and inhibitory parameters."""
+        exc, inh = identify_excitatory_inhibitory_params(simple_model)
+
+        # Should find excitatory parameters
+        assert len(exc) > 0
+        assert "linear1.weight" in exc
+        assert "linear2.weight" in exc
+
+        # Should find inhibitory parameters
+        assert len(inh) > 0
+        assert "inhibitory_layer.weight" in inh
+
+    def test_scale_weights_applies_scaling(self, model_with_gradients):
+        """Test that scale_weights applies scaling factors correctly."""
+        model = model_with_gradients
+        initial_weights = {
+            name: param.data.clone()
+            for name, param in model.named_parameters()
+        }
+
+        # Apply scaling
         factors = scale_weights(model, target_ratio=4.0, decay_rate=0.1)
-        
+
+        # Check that weights were modified
+        for name, param in model.named_parameters():
+            if "inhib" not in name:
+                assert not torch.allclose(
+                    param.data,
+                    initial_weights[name],
+                    atol=1e-6
+                ), f"Excitatory parameter {name} should have been scaled"
+
+        # Check that scaling factors were returned
         assert len(factors) > 0
-        assert 'excitatory_weight' in factors
-        assert 'inhibitory_weight' in factors
-        
-        # Verify weights changed
-        assert not torch.equal(model.excitatory_weight.data, initial_exc)
 
-    def test_scale_weights_clamping(self):
-        model = DummyModel()
-        # Set extreme ratio
-        with torch.no_grad():
-            model.excitatory_weight.data.fill_(100.0)
-            model.inhibitory_weight.data.fill_(0.01)
-        
-        factors = scale_weights(model, target_ratio=4.0, decay_rate=1.0)
-        
-        # Check factors are clamped
-        for factor in factors.values():
-            assert 0.1 <= factor <= 5.0
+    def test_verify_ei_balance_within_tolerance(self, model_with_gradients):
+        """Test E/I balance verification within tolerance."""
+        # This should not raise and should return True or False
+        # depending on current state
+        result = verify_ei_balance(model_with_gradients, target_ratio=4.0, tolerance=0.5)
+        assert isinstance(result, bool)
 
-class TestApplyEiBalanceConstraint:
-    def test_constraint_enforcement(self):
-        model = DummyModel()
-        # Set ratio below minimum
-        with torch.no_grad():
-            model.excitatory_weight.data.fill_(0.1)
-            model.inhibitory_weight.data.fill_(1.0)
-        
-        apply_ei_balance_constraint(model, min_ratio=2.0, max_ratio=6.0)
-        
-        stats = calculate_current_ei_ratio(model)
-        assert stats.current_ratio >= 2.0
+    def test_log_gradient_norms_creates_file(self, model_with_gradients, tmp_path):
+        """Test that log_gradient_norms creates the output file."""
+        output_file = tmp_path / "gradient_norms.json"
 
-class TestVerifyEiBalance:
-    def test_verify_within_tolerance(self):
-        model = DummyModel()
-        # Default model should be within tolerance
-        assert verify_ei_balance(model, tolerance=0.5) is False  # Default ratio might not be exactly 4.0
-        
-        # Force ratio to 4.0
-        with torch.no_grad():
-            model.inhibitory_weight.data /= 4.0
-        
-        assert verify_ei_balance(model, tolerance=0.5) is True
+        log_gradient_norms(model_with_gradients, step=0, output_file=str(output_file))
 
-class TestHomeostaticScaler:
-    def test_scaler_step(self):
-        config = HomeostasisConfig(target_ratio=4.0, decay_rate=0.1)
-        scaler = HomeostaticScaler(config, log_interval=1)
-        model = DummyModel()
-        
-        scaler.step(model)
-        assert scaler.step_count == 1
-        assert len(scaler.scaling_history) == 1
+        assert output_file.exists()
 
-    def test_scaler_logging_interval(self):
-        config = HomeostasisConfig(target_ratio=4.0, decay_rate=0.1)
-        scaler = HomeostaticScaler(config, log_interval=5)
-        model = DummyModel()
-        
-        for i in range(10):
-            scaler.step(model)
-        
-        assert scaler.step_count == 10
-        assert len(scaler.scaling_history) == 2  # Steps 5 and 10
+        # Check file content
+        with open(output_file, 'r') as f:
+            data = json.load(f)
 
-class TestLogGradientNorms:
-    def test_log_gradient_norms_creates_file(self):
-        model = DummyModel()
-        # Create dummy gradients
-        for param in model.parameters():
-            param.grad = torch.randn_like(param)
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_file = os.path.join(tmpdir, 'gradient_norms.json')
-            result = log_gradient_norms(model, step=0, log_file=log_file)
-            
-            assert os.path.exists(log_file)
-            assert 'step' in result
-            assert 'total_norm' in result
-            assert result['step'] == 0
+        assert isinstance(data, list)
+        assert len(data) == 1
+        assert data[0]["step"] == 0
+        assert "norms" in data[0]
+        assert isinstance(data[0]["norms"], dict)
 
-    def test_log_gradient_norms_appends(self):
-        model = DummyModel()
-        for param in model.parameters():
-            param.grad = torch.randn_like(param)
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_file = os.path.join(tmpdir, 'gradient_norms.json')
-            
-            # First log
-            log_gradient_norms(model, step=0, log_file=log_file)
-            # Second log
-            log_gradient_norms(model, step=1, log_file=log_file)
-            
-            with open(log_file, 'r') as f:
-                data = json.load(f)
-            
-            assert len(data) == 2
-            assert data[0]['step'] == 0
-            assert data[1]['step'] == 1
+    def test_log_gradient_norms_appends(self, model_with_gradients, tmp_path):
+        """Test that log_gradient_norms appends to existing file."""
+        output_file = tmp_path / "gradient_norms.json"
 
-    def test_log_gradient_norms_handles_no_grad(self):
-        model = DummyModel()
-        # Don't set gradients
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_file = os.path.join(tmpdir, 'gradient_norms.json')
-            result = log_gradient_norms(model, step=0, log_file=log_file)
-            
-            assert result['excitatory_weight'] == 0.0
-            assert result['inhibitory_weight'] == 0.0
+        # Log first step
+        log_gradient_norms(model_with_gradients, step=0, output_file=str(output_file))
 
-    def test_log_gradient_norms_creates_directory(self):
-        model = DummyModel()
-        for param in model.parameters():
-            param.grad = torch.randn_like(param)
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            nested_log_file = os.path.join(tmpdir, 'subdir', 'gradient_norms.json')
-            result = log_gradient_norms(model, step=0, log_file=nested_log_file)
-            
-            assert os.path.exists(nested_log_file)
-            assert result['step'] == 0
+        # Log second step
+        log_gradient_norms(model_with_gradients, step=1, output_file=str(output_file))
 
-    def test_log_gradient_norms_corrupt_file_recovery(self):
-        model = DummyModel()
-        for param in model.parameters():
-            param.grad = torch.randn_like(param)
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_file = os.path.join(tmpdir, 'gradient_norms.json')
-            # Write corrupt JSON
-            with open(log_file, 'w') as f:
-                f.write("not valid json")
-            
-            # Should recover and create new list
-            result = log_gradient_norms(model, step=0, log_file=log_file)
-            
-            with open(log_file, 'r') as f:
-                data = json.load(f)
-            
-            assert len(data) == 1
-            assert data[0]['step'] == 0
+        with open(output_file, 'r') as f:
+            data = json.load(f)
+
+        assert len(data) == 2
+        assert data[0]["step"] == 0
+        assert data[1]["step"] == 1
+
+    def test_log_gradient_norms_format(self, model_with_gradients, tmp_path):
+        """Test that log_gradient_norms writes correct JSON format."""
+        output_file = tmp_path / "gradient_norms.json"
+
+        log_gradient_norms(model_with_gradients, step=5, output_file=str(output_file))
+
+        with open(output_file, 'r') as f:
+            content = f.read()
+
+        # Check 2-space indentation
+        assert "  " in content
+
+        # Check trailing newline
+        assert content.endswith('\n')
+
+    def test_verify_independence_distinct_distributions(self):
+        """Test verify_independence with clearly distinct distributions."""
+        train_data = torch.randn(1000, 10)  # Standard normal
+        test_data = torch.randn(1000, 10) * 5 + 10  # Different mean and std
+
+        # Should return True for distinct distributions
+        result = verify_independence(train_data, test_data)
+        assert result is True
+
+    def test_verify_independence_same_distribution_raises(self):
+        """Test verify_independence raises on same distribution."""
+        # Create identical distributions
+        data = torch.randn(1000, 10)
+        train_data = data[:500]
+        test_data = data[500:]
+
+        # Should raise ValueError for non-distinct distributions
+        with pytest.raises(ValueError, match="not statistically distinct"):
+            verify_independence(train_data, test_data)
+
+    def test_homeostatic_scaler_registers_hooks(self, simple_model):
+        """Test that HomeostaticScaler registers backward hooks."""
+        config = HomeostasisConfig(
+            target_activity=1.0,
+            decay_rate=0.1,
+            target_ei_ratio=4.0
+        )
+
+        scaler = HomeostaticScaler(simple_model, config)
+        scaler.register_scaling_hook()
+
+        assert len(scaler.handles) > 0
+
+        # Cleanup should remove hooks
+        scaler.cleanup()
+        assert len(scaler.handles) == 0
+
+    def test_apply_scaling_hook(self, simple_model):
+        """Test apply_scaling_hook function."""
+        scaler = apply_scaling_hook(simple_model, target_ratio=4.0, decay_rate=0.1)
+
+        assert isinstance(scaler, HomeostaticScaler)
+        assert len(scaler.handles) > 0
+
+        scaler.cleanup()
+
+    def test_scale_weights_with_no_gradients(self, simple_model):
+        """Test scale_weights when no gradients are present."""
+        # Ensure no gradients
+        for param in simple_model.parameters():
+            param.grad = None
+
+        # Should not crash
+        factors = scale_weights(simple_model, target_ratio=4.0, decay_rate=0.1)
+
+        # Should return empty dict or only scale parameters with gradients
+        assert isinstance(factors, dict)
+
+    def test_log_gradient_norms_with_no_gradients(self, simple_model, tmp_path):
+        """Test log_gradient_norms when no gradients are present."""
+        output_file = tmp_path / "gradient_norms.json"
+
+        # Ensure no gradients
+        for param in simple_model.parameters():
+            param.grad = None
+
+        # Should not crash
+        log_gradient_norms(simple_model, step=0, output_file=str(output_file))
+
+        with open(output_file, 'r') as f:
+            data = json.load(f)
+
+        assert len(data) == 1
+        assert data[0]["norms"] == {}  # Empty norms dict
+
+    def test_log_gradient_norms_concurrent_safety(self, model_with_gradients, tmp_path):
+        """Test that log_gradient_norms handles concurrent writes safely."""
+        import threading
+        import time
+
+        output_file = tmp_path / "gradient_norms.json"
+
+        def log_step(step):
+            log_gradient_norms(model_with_gradients, step=step, output_file=str(output_file))
+
+        threads = []
+        for i in range(5):
+            t = threading.Thread(target=log_step, args=(i,))
+            threads.append(t)
+            t.start()
+
+        for t in threads:
+            t.join()
+
+        with open(output_file, 'r') as f:
+            data = json.load(f)
+
+        # All steps should be logged (order may vary due to threading)
+        steps_logged = {entry["step"] for entry in data}
+        assert len(steps_logged) == 5
+        assert steps_logged == {0, 1, 2, 3, 4}

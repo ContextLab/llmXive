@@ -1,1 +1,1 @@
-# data package
+"""Data generation and loading utilities."""

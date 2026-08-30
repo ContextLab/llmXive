@@ -1,7 +1,6 @@
-experiment_id: template
-created_at: '2024-01-01T00:00:00'
+project: PROJ-590-cortical-column-llms-implementing-canoni
 version: 0.0.1
-parameters: {}
-metrics: {}
+created_at: 2026-01-01T00:00:00
 status: initialized
-notes: Template state file for experiment tracking.
+checksums: {}
+notes: Initial state template. Update as artifacts are generated.

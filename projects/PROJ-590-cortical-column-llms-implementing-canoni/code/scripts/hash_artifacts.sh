@@ -1,34 +1,38 @@
 #!/bin/bash
-# Hash artifacts script for Constitution Principle III and V
-# Generates and verifies SHA256 checksums for data artifacts
+# hash_artifacts.sh
+# Generates SHA256 checksums for all files in data/configs, data/results, data/logs, and state.
+# This script is a wrapper around the Python implementation in src/utils/checksum.py
+# to ensure deterministic execution and compliance with Constitution Principle III & V.
 
 set -e
 
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-DATA_DIR="$PROJECT_ROOT/data"
-CHECKSUM_FILE="$DATA_DIR/checksums.sha256"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
-echo "=== Generating SHA256 checksums ==="
+OUTPUT_FILE="$PROJECT_ROOT/state/checksums.json"
 
-# Find all relevant files in data/results, data/configs, data/logs, state
-FILES_TO_HASH=$(find "$DATA_DIR/results" "$DATA_DIR/configs" "$DATA_DIR/logs" "$PROJECT_ROOT/state" -type f 2>/dev/null || true)
+echo "Generating SHA256 checksums for project artifacts..."
+echo "Project Root: $PROJECT_ROOT"
+echo "Output File: $OUTPUT_FILE"
 
-if [ -z "$FILES_TO_HASH" ]; then
-    echo "No files found to hash."
-    exit 0
+# Run the Python script to generate checksums
+python "$PROJECT_ROOT/code/src/utils/checksum.py" --output "$OUTPUT_FILE"
+
+EXIT_CODE=$?
+
+if [ $EXIT_CODE -eq 0 ]; then
+    echo "Checksum generation successful."
+    echo "Output saved to: $OUTPUT_FILE"
+    
+    # Verify the file exists and is non-empty
+    if [ -s "$OUTPUT_FILE" ]; then
+        echo "Verification: Output file exists and is non-empty."
+        exit 0
+    else
+        echo "Error: Output file is empty."
+        exit 1
+    fi
+else
+    echo "Error: Checksum generation failed."
+    exit 1
 fi
-
-# Generate checksums
-echo "$FILES_TO_HASH" | xargs sha256sum > "$CHECKSUM_FILE"
-
-echo "Checksums written to: $CHECKSUM_FILE"
-echo "=== Verification complete ==="
-
-# Verify checksums if file exists
-if [ -f "$CHECKSUM_FILE" ]; then
-    echo "Verifying checksums..."
-    sha256sum -c "$CHECKSUM_FILE" > /dev/null
-    echo "✓ All checksums verified successfully"
-fi
-
-exit 0

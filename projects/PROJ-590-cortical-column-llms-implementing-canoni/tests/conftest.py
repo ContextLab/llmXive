@@ -85,7 +85,15 @@ def resource_monitor(request: pytest.FixtureRequest) -> Generator[Dict[str, Any]
     
     # Record initial state
     initial_memory = process.memory_info().rss
-    initial_cpu_count = len(os.sched_getaffinity(0)) if hasattr(os, 'sched_getaffinity') else os.cpu_count()
+    # Use os.sched_getaffinity if available (Linux), fallback to len(os.cpu_count()) logic
+    # psutil cpu_affinity returns list of allowed CPU ids
+    if hasattr(process, 'cpu_affinity'):
+        try:
+            initial_cpu_count = len(process.cpu_affinity())
+        except Exception:
+            initial_cpu_count = os.cpu_count() or 1
+    else:
+        initial_cpu_count = os.cpu_count() or 1
     
     start_time = time.time()
     peak_memory = initial_memory

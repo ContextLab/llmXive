@@ -810,3 +810,166 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-28T14:45:08Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: RSS memory limit 7GB during test execution
+  claim_id: c_1661d492
+  context: 'Configure `tests/conftest.py` with `pytest-timeout` settings for unit
+    tests and resource monitoring hooks using `psutil`. **CRITICAL**: Sets up both
+    `pytest-timeout` and `psutil.Process.cpu_affinity` in one atomic step to avoid
+    race conditions. Asserts RSS memory < 7GB during test execution.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RSS_memory_limit_7GB_during_test_execution
+  kind: entity_fact
+  raw_text: Asserts RSS memory < 7GB during test execution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T21:49:57Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: Baseline Transformer MAE < 0.05 within 6 hours on 4 CPU cores
+  claim_id: c_23dbd191
+  context: 'Independent Test: Execute training on held-out synthetic functions (Lorenz,
+    Fourier) and verify MAE < 0.05 within 6 hours on 4 CPU cores.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute training on held-out synthetic functions (Lorenz, Fourier) and
+    verify MAE < 0.05 within 6 hours on 4 CPU cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T21:49:57Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: Generalization degradation percent < 10%
+  claim_id: c_ee99bf49
+  context: 'Write Report: Implement `src/experiments/baseline_runner.py::write_generalization_report`
+    to generate `data/results/generalization_report.md` summarizing the MAE and comparing
+    it to the training set MAE. **CRITICAL**: Calculate `degradation_percent = (test_mae
+    - train_mae) / train_mae * 100`. Assert `degradation_percent < 10%`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate `degradation_percent = (test_mae - train_mae) / train_mae *
+    100`. Assert `degradation_percent < 10%`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T21:50:52Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: Hybrid network parameter count within 1% of baseline
+  claim_id: c_69320746
+  context: "Implement `src/models/hybrid_network.py` to instantiate the hybrid network\
+    \ by replacing standard Transformer MLP layers with `MicrocircuitModule`. **CRITICAL**:\
+    \ Verify parameter count is within \xB11% of baseline and this verification is\
+    \ a BLOCKING prerequisite for T049 (Scaling)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify parameter count is within \xB11% of baseline"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T21:50:52Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: E/I ratio deviation from 4:1 must be <= 5%
+  claim_id: c_9b16b2a5
+  context: 'Implement `src/utils/structure_verifier.py::verify_canonical_topology`
+    to assert that the instantiated `MicrocircuitModule` has the exact connectivity
+    masks for L2/3, L4, L5, L6 as defined in the spec. **Test**: Fail if any unexpected
+    connections exist or if the E/I ratio deviates from 4:1 by > 5%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fail if any unexpected connections exist or if the E/I ratio deviates
+    from 4:1 by > 5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T21:53:22Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: Gradient distribution KS test p-value > 0.05 and variance ratio < 1.5
+  claim_id: c_b4346e9d
+  context: 'Perform a two-sample Kolmogorov-Smirnov test. **CRITICAL Threshold**:
+    Assert p-value > 0.05 (no significant difference) AND variance ratio (microcircuit/baseline)
+    < 1.5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert p-value > 0.05 (no significant difference) AND variance ratio (microcircuit/baseline)
+    < 1.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T21:53:22Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: Base column count 10
+  claim_id: c_771fea9f
+  context: 'Implement `src/experiments/scaling.py::train_single_config` to train a
+    single model configuration with specified column count. **Parameters**: Base column
+    count `x=10`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Base column count `x=10`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T21:54:39Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: Scaling analysis column counts 10, 20, and 40
+  claim_id: c_6ac529d5
+  context: Implement `src/experiments/scaling.py::run_scaling_loop` to orchestrate
+    training for column counts `[10, 20, 40]` (1x, 2x, 4x of base x=10).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Orchestrate training for column counts `[10, 20, 40]` (1x, 2x, 4x of base
+    x=10).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T21:55:38Z'
+- artifact_path: projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/tasks.md
+  attempts: 1
+  canonical: Metabolic cost calculation handles zero MAE as 1e-6
+  claim_id: c_410d9024
+  context: 'Calculate relative MAE increase and training time increase for each ablation
+    variant. **CRITICAL**: Explicitly calculate ''Metabolic Cost'' as `Wall-Clock
+    Training Time (sec) / max(MAE, 1e-6)` for each variant to quantify the trade-off.
+    Handle MAE=0 by treating it as 1e-6 to prevent infinite cost values.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Handle MAE=0 by treating it as 1e-6 to prevent infinite cost values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T21:56:32Z'

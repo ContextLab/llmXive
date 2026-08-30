@@ -1,1 +1,1 @@
-# experiments package
+"""Experiment runners and analysis scripts."""
