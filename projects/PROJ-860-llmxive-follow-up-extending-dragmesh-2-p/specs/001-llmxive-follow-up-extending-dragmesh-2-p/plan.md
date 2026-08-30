@@ -17,7 +17,7 @@ This feature implements a "Virtual Tactile" estimator to enable zero-shot adapta
 **Project Type**: research-simulation  
 **Performance Goals**: Complete full experiment (100 trials, 50 objects) in ≤ 6 hours; Peak RAM < 7GB  
 **Constraints**: NO CUDA operations; NO GPU acceleration; deterministic random seeds; strict memory limits  
-**Scale/Scope**: Multiple randomized friction trials per object; A novel set of articulated object geometries (high-friction targeted and full-range)  
+**Scale/Scope**: A series of randomized friction trials per object; A set of novel articulated object geometries (25 high-friction targeted, 25 full-range)  
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -42,8 +42,8 @@ This feature implements a "Virtual Tactile" estimator to enable zero-shot adapta
 - **T001c (Revised)**: Compute SHA256 of the *populated* `requirements.txt` and `pytest.ini` created in T002/T003. Do NOT hash empty skeletons.
 - **T005c (Revised)**: Execute `verify_manifest.py` to compute SHA256 of the *populated* `data/raw/dataset_manifest.jsonl`. Record the hash under `artifact_hashes.data_raw` in the state YAML. Include `FileNotFoundError` handling to abort if the manifest is missing.
 - **T021a (Split)**: 
-  . **Implement sweep generator**: Create `object_generator.py` to generate a set of objects (half with friction in a high range, half with friction in a low range).
-  . **Execute sweep**: Run multiple trials per object for both static and adaptive policies. Output to `data/generated/sweep.csv` with columns: `trial_id`, `object_id`, `friction_coefficient`, `policy_type`, `success` (binary indicator), `k_est_mean`, `runtime_seconds`.
+  . **Implement sweep generator**: Create `object_generator.py` to generate a dataset of objects, with half having high friction and the other half having a wider range of friction values..
+  . **Execute sweep**: Run multiple trials per object for both static and adaptive policies. Output to `data/generated/sweep.csv` with columns: `trial_id`, `object_id`, `friction_coefficient`, `policy_type`, `success` (0/1), `k_est_mean`, `runtime_seconds`.
 
 ## Project Structure
 
@@ -79,7 +79,7 @@ projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/
 │   │   └── object_generator.py      # FR-003: Generates novel geometries (stratified)
 │   ├── experiments/
 │   │   ├── __init__.py
-│   │   ├── sweep_runner.py          # Executes multiple trials, range [0.0, 2.5]
+│   │   ├── sweep_runner.py          # Executes a substantial number of trials, range [0.0, 2.5]
 │   │   ├── stats_analyzer.py        # FR-005: GLMM analysis (not t-test)
 │   │   └── system_monitor.py        # Tracks RAM/CPU time for SC-003/004
 │   └── utils/
@@ -90,7 +90,7 @@ projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/
 │   ├── raw/
 │   │   └── dataset_manifest.jsonl   # Downloaded from HF
 │   ├── generated/
-│   │   ├── sweep.csv                # T021a output: 100 trials, friction [0.0, 2.5]
+│   │   ├── sweep.csv                # T021a output: multiple trials, friction [0.0, 2.5]
 │   │   └── novel_objects/           # Generated geometries
 │   └── results/
 │       ├── adaptive_success_rates.csv
@@ -113,4 +113,4 @@ projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| None | The scope is tightly bounded by the spec (CPU-only, a defined set of trials, specific friction ranges). The complexity of the estimator, scheduler, and GLMM analysis is intrinsic to the research hypothesis and cannot be simplified without invalidating the study. | N/A |
+| None | The scope is tightly bounded by the spec (CPU-only, a series of trials, specific friction ranges). The complexity of the estimator, scheduler, and GLMM analysis is intrinsic to the research hypothesis and cannot be simplified without invalidating the study. | N/A |
