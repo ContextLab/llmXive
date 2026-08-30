@@ -28,9 +28,26 @@ T013:
     \ is missing. The implementation therefore does not satisfy the stated requirements."
 T018:
   c: false
-  h: cff54771b00bebe1f60672bd18d9d8b18928ad3ecc99baee584c53a113518900
-  r: "The repository contains a `code/main.py` file, but it is truncated and does\
-    \ not show any logic that aggregates `ReproResult` objects or writes them to `artifacts/reports/repro_results.json`.\
-    \ Moreover, the required output file `artifacts/reports/repro_results.json` is\
-    \ missing entirely. The task\u2019s core requirement\u2014producing a JSON report\
-    \ with deviations and score S\u2014is therefore not met."
+  h: bd6c869226d2d1775cf4cf16f0c99c817b585602980cc41bcd45550f0be46a4b
+  r: The repository contains a `code/main.py` file, but the shown portion stops before
+    any logic that aggregates `ReproResult` objects or writes `artifacts/reports/repro_results.json`.
+    Moreover, the required `reports/repro_results.json` file is absent from the project.
+    Consequently, the implementation does not fulfill the task of producing the aggregated
+    JSON report. The missing aggregation code and the nonexistent output file must
+    be added.
+T029:
+  c: false
+  h: fde3c76096ff8c2568a0284984ec374eab2aaa3ffd1ab02472cd7ccc8c3c28a5
+  r: "The provided `code/stats.py` contains functions for loading results, extracting\
+    \ metrics, and running paired t\u2011tests, but it never computes heterogeneity\
+    \ (I\xB2) or a pooled effect size from mixed\u2011effects model results, nor does\
+    \ it write any JSON to `artifacts/reports/stat_summary.json`. Moreover, the required\
+    \ `stat_summary.json` file is absent from the repository. The task\u2019s core\
+    \ requirements are therefore unmet."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or output files were presented that implement a qualitative\
+    \ failure log for excluded papers or that flag these exclusions in the results\
+    \ log. Without any artifact showing the required logic or logs, the task\u2019\
+    s requirement is not satisfied."

@@ -99,7 +99,7 @@
 
 - [X] T020a [US1] Implement `code/main.py`: Orchestration logic. **Constraint**: Must distinguish between 'total data loss' (>20% species missing BOTH sequence and metabolite data -> HALT) and 'partial exclusion' (species missing KEGG only -> EXCLUDE from matrix, RETAIN in tree, LOG warning).
 
-- [ ] T020b [US1] Implement `code/main.py`/`code/report.py`: SC-003 Verification. **Logic**: Calculate final retention percentage (species with both data types / total target). Compare against the target threshold. **Deliverable**: Append status "SC-003: Retention X% (PASS/FAIL)" to `output/reports/validation_log.txt`.
+- [X] T020b [US1] Implement `code/main.py`/`code/report.py`: SC-003 Verification. **Logic**: Calculate final retention percentage (species with both data types / total target). Compare against the target threshold. **Deliverable**: Append status "SC-003: Retention X% (PASS/FAIL)" to `output/reports/validation_log.txt`.
 
 - [ ] T021 [US1] Save raw downloads to `data/raw/` with checksums. **Constraint**: Must update `state/projects/PROJ-408...yaml` `artifact_hashes` map with checksums (primary source of truth); local `checksums.txt` is secondary only.
 
@@ -117,13 +117,13 @@
 
 - [X] T022 [P] [US2] Contract test for climate distance matrix schema. **Deliverable**: Create `tests/contract/schemas/climate_matrix.yaml` and `tests/contract/test_climate_data.py` with function `test_climate_matrix_schema_matches`.
 
-- [ ] T023 [P] [US2] Integration test for Partial Mantel calculation. **Input**: `data/processed/phylo_dist_matrix.csv`, `data/processed/climate_dist_matrix.csv`. **Output**: `data/processed/partial_mantel_results.json`. **Assertion**: `assert partial_r` is calculated and differs from `standard_r` by > 0.0 (if signal exists).
+- [X] T023 [P] [US2] Integration test for Partial Mantel calculation. **Input**: `data/processed/phylo_dist_matrix.csv`, `data/processed/climate_dist_matrix.csv`. **Output**: `data/processed/partial_mantel_results.json`. **Assertion**: `assert partial_r` is calculated and differs from `standard_r` by > 0.0 (if signal exists).
 
 ### Implementation for User Story 2
 
 - [X] T024 [US2] Implement `code/data_loader.py`: USDA PLANTS climate zone fetcher (streaming if large, or direct URL fetch). **Constraint**: Must use verified real source; no mock data.
 
-- [ ] T025 [US2] Implement `code/stats_engine.py`: Climate distance matrix construction. **Input**: USDA PLANTS climate zone assignments. **Metric**: Euclidean distance on normalized continuous climate vectors derived from USDA PLANTS data. **Justification**: See plan.md Constitution Check Section VII (Continuous vectors used despite "zone" terminology for finer resolution). **Constraint**: Do NOT use binary metrics (Jaccard/Hamming).
+- [X] T025 [US2] Implement `code/stats_engine.py`: Climate distance matrix construction. **Input**: USDA PLANTS climate zone assignments. **Metric**: Euclidean distance on normalized continuous climate vectors derived from USDA PLANTS data. **Justification**: See plan.md Constitution Check Section VII (Continuous vectors used despite "zone" terminology for finer resolution). **Constraint**: Do NOT use binary metrics (Jaccard/Hamming).
 
 - [ ] T026 [US2] Implement `code/stats_engine.py`: Partial Mantel test implementation (controlling for climate matrix). **Dependencies**: T017 (Phylogenetic Distance Matrix), T025 (Climate Distance Matrix). **Note**: Does NOT depend on T019 (Standard Mantel result).
 

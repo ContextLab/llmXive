@@ -1,27 +1,28 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://llmxive.org/schemas/ReproResult.json",
   "title": "ReproResult",
-  "description": "Schema for the result of a reproducibility attempt for a single paper.",
+  "description": "Schema for storing the results of a single paper reproducibility attempt.",
   "type": "object",
-  "required": ["doi", "status", "metrics"],
+  "required": [
+    "doi",
+    "reproduced_metrics",
+    "deviations",
+    "reproducibility_score",
+    "status"
+  ],
   "properties": {
     "doi": {
       "type": "string",
-      "description": "DOI of the paper being reproduced."
+      "description": "Digital Object Identifier of the paper."
     },
     "status": {
       "type": "string",
-      "enum": ["success", "partial", "failed", "unavailable"],
+      "enum": ["success", "model_substituted", "data_unavailable", "failed"],
       "description": "Overall status of the reproduction attempt."
     },
-    "failure_reason": {
-      "type": "string",
-      "description": "Detailed reason if status is failed or unavailable."
-    },
-    "metrics": {
+    "reproduced_metrics": {
       "type": "object",
-      "required": ["mae", "r2"],
+      "required": ["mae", "r2", "spearman_rho"],
       "properties": {
         "mae": {
           "type": "number",
@@ -33,12 +34,13 @@
         },
         "spearman_rho": {
           "type": "number",
-          "description": "Reproduced Spearman's rank correlation."
+          "description": "Reproduced Spearman correlation coefficient."
         }
       }
     },
     "deviations": {
       "type": "object",
+      "required": ["delta_mae", "delta_r2", "delta_spearman_rho"],
       "properties": {
         "delta_mae": {
           "type": "number",
@@ -48,7 +50,7 @@
           "type": "number",
           "description": "Absolute difference between reproduced and reported R2."
         },
-        "delta_rho": {
+        "delta_spearman_rho": {
           "type": "number",
           "description": "Absolute difference between reproduced and reported Spearman rho."
         }
@@ -56,35 +58,36 @@
     },
     "reproducibility_score": {
       "type": "number",
-      "minimum": 0,
-      "maximum": 1,
-      "description": "Deviation Index S (FR-009)."
+      "description": "The Deviation Index S (0 to 1, where 1 is perfect reproduction)."
     },
-    "model_substituted": {
-      "type": "boolean",
-      "description": "True if the original model was too large and a baseline was used."
-    },
-    "seed_used": {
-      "type": ["integer", "null"],
-      "description": "The seed actually used for the run."
-    },
-    "seed_sweep_std": {
+    "sensitivity_analysis": {
       "type": "object",
-      "description": "Standard deviations from seed sensitivity analysis (FR-010).",
+      "description": "Results from seed sensitivity analysis.",
       "properties": {
-        "mae_std": { "type": "number" },
-        "r2_std": { "type": "number" },
-        "rho_std": { "type": "number" },
-        "max_metric_std": { "type": "number" }
+        "metric_std": {
+          "type": "object",
+          "properties": {
+            "mae": { "type": "number" },
+            "r2": { "type": "number" },
+            "spearman_rho": { "type": "number" }
+          }
+        },
+        "max_metric_std": {
+          "type": "number",
+          "description": "Maximum standard deviation observed across metrics."
+        }
       }
     },
-    "environment": {
-      "type": "object",
-      "properties": {
-        "python_version": { "type": "string" },
-        "os": { "type": "string" },
-        "docker_hash": { "type": "string" }
+    "flags": {
+      "type": "array",
+      "description": "List of flags indicating issues (e.g., missing seed, model substitution).",
+      "items": {
+        "type": "string"
       }
+    },
+    "environment_log": {
+      "type": "string",
+      "description": "Snapshot of the execution environment."
     }
   }
 }

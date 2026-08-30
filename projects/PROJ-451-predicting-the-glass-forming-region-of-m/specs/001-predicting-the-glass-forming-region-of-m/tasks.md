@@ -56,7 +56,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Implement `utils/io.py` with functions for loading CSV/JSON data and handling Materials Project API requests (API Key via env var, v3 endpoint)
-- [ ] T005 [P] Implement `utils/dedup.py` for deduplicating compositions by unique chemical formula (normalized atomic fractions) [UNRESOLVED-CLAIM: c_60fd6324 — status=not_enough_info], {{claim:c_6a2d6a3c}} (Wikidata Q19881044, https://www.wikidata.org/wiki/Q19881044)
+- [ ] T005 [P] Implement `utils/dedup.py` for deduplicating compositions by unique chemical formula (normalized atomic fractions), {{claim:c_6a2d6a3c}} ({{claim:c_a08f7f27}}, https://www.wikidata.org/wiki/Q19881044)
 - [X] T006 Create `data/provenance.json` schema for tracking source URLs (Zenodo) and checksums
 - [ ] T007 [P] Setup `data/raw/` and `data/processed/` directory structure with `.gitkeep`
 - [ ] T008 Configure environment configuration management for API keys (Materials Project) and dataset paths
@@ -69,7 +69,7 @@
 
 **Goal**: Load alloy composition data from Science Advances and Materials Project, compute atomic-scale descriptors, and output a structured dataset.
 
-**Independent Test**: Verify output dataset contains ≥1000 alloy compositions with ≥10 computed descriptors, and descriptor values fall within physically reasonable ranges (e.g., atomic size mismatch ∈ [non-negative, ]).
+**Independent Test**: verify output dataset contains ≥1000 alloy compositions with ≥10 computed descriptors [UNRESOLVED-CLAIM: c_48c7a230 — status=not_enough_info], and descriptor values fall within physically reasonable ranges (e.g., atomic size mismatch ∈ [non-negative, ]).
 
 ### Implementation for User Story 1
 
@@ -80,7 +80,7 @@
 - [ ] T013b [US1] Implement synthetic data generator `utils/synthetic.py` to generate valid alloy compositions with realistic descriptors when canonical DOI is unavailable (supports reproducibility per plan.md Constitution Check).
 - [X] T011 [US1] Integration test for data ingestion pipeline in `tests/integration/test_ingestion.py` (Requires T013 completion).
 - [ ] T014 [US1] Implement label filtering in `utils/io.py` to exclude compositions lacking definitive phase labels (amorphous/crystalline) per FR-009
-- [ ] T015 [US1] Implement dataset capping logic in `utils/io.py` to enforce ≤10,000 compositions limit per FR-007 using **stratified random sampling** by alloy system. This task ensures the hard cap is met before training.
+- [ ] T015 [US1] Implement dataset capping logic in `utils/io.py` to enforce ≤10,000 compositions limit [UNRESOLVED-CLAIM: c_4103d627 — status=not_enough_info] per FR-007 using **stratified random sampling** by alloy system. This task ensures the hard cap is met before training.
 - [ ] T016 [US1] Generate `data/processed/engineered_dataset.csv` with all required descriptors and metadata
 - [ ] T017 [US1] Add validation checks to ensure ≥95% descriptor completeness and drop compositions with missing elemental properties
 
@@ -119,7 +119,7 @@
 
 **Goal**: Extract permutation importance and generate SHAP plots to explain model predictions.
 
-**Independent Test**: Verify SHAP plots are generated for the top-ranked descriptors and permutation importance scores are non-negative and sum to unity.
+**Independent Test**: Verify SHAP plots are generated for the top-ranked descriptors and permutation importance scores are non-negative and sum to unity [UNRESOLVED-CLAIM: c_8bd65f87 — status=not_enough_info].
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -244,6 +244,6 @@ With multiple developers:
 - **Critical Constraint**: All data ingestion must use real sources (Zenodo DOI or Materials Project API); synthetic data is ONLY a fallback when the DOI is unavailable (T013b).
 - **Critical Constraint**: All models must run on CPU-only CI with limited cores and memory; no GPU/CUDA dependencies.
 - **Critical Constraint**: Dataset must be capped using stratified random sampling to preserve statistical validity (T015).
-- **Critical Constraint**: All 10 descriptors must be computed and verified (T012, T009).
+- **Critical Constraint**: All 10 descriptors must be computed and verified [UNRESOLVED-CLAIM: c_f042a138 — status=not_enough_info] (T012, T009).
 - **Critical Constraint**: Paired t-test must be the primary statistical test; Bonferroni correction is mandatory for multiple comparisons (T025, T026).
 - **Critical Constraint**: Bonferroni correction must be applied to final p-values (T031).

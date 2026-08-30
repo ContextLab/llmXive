@@ -84,7 +84,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Implement `code/model_runner.py` to load data from `data/processed/`, apply preprocessing, train model (CPU, seed 42 or reported), and evaluate. Output JSON to `artifacts/reports/repro_results.json`. Include logic to substitute models exceeding 1M parameters with a baseline and log "Model Substitution/Unavailable" (FR-004, FR-005). **Dependency**: Requires T006 (Schema) to be complete.
+- [ ] T013 [P] [US1] Implement `code/model_runner.py` to load data from `data/processed/`, apply preprocessing, train model (CPU, seed 42 or reported), and evaluate. Output JSON to `artifacts/reports/repro_results.json`. Include logic to substitute models exceeding 1M parameters with a baseline and log "Model Substitution/Unavailable" (FR-004, FR-005). **Dependency**: Requires T006 (Schema) to be complete. <!-- FAILED: unspecified -->
 - [X] T014 [US1] Implement logic in `code/model_runner.py` to handle missing seeds (default 42) and flag in results (US-1 Scenario 2)
 - [X] T015 [US1] Implement logic in `code/ingest.py` to verify dataset variables (SMILES, yield, covariates) against the manifest schema. If missing, generate a detailed flag in the results log for the specific missing variables and record in `ReproResult` as "Data Unavailable" (FR-003, Plan Phase 0).
 - [X] T016 [US1] Implement `code/model_runner.py` to enforce the ≤1M parameter limit; log "Model Substitution/Unavailable" if exceeded (Plan Phase 2)
@@ -110,10 +110,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T025 [P] [US2] Implement `code/stats.py` to run paired t-tests for each metric (MAE, R², ρ) unconditionally, applying Bonferroni correction for family-wise error control. **Primary Test**: This task satisfies Spec SC-002 (paired t-test). (FR-006)
-- [ ] T026 [US2] Implement `code/stats.py` with TOST (Two One-Sided Tests) for MAE, R², ρ against tolerance delta (use delta=0.1 as defined in plan.md) for supplementary equivalence analysis, including Bonferroni correction. **Supplementary**: This task satisfies Plan Phase 3 but is secondary to T025 for Spec SC-002. (FR-006, Plan Phase 3)
-- [ ] T027 [US2] Implement `code/stats.py` with a Linear Mixed-Effects Model (LME) with random intercepts for paper. **Note**: Spec FR-008 mandates fixed effects for (i) preprocessing script version, (ii) library version, and (iii) random-seed choice. However, Plan Phase 3 explicitly forbids modeling these as fixed effects because the environment is constant. This task implements the Plan's methodology (random intercepts only) and flags the Spec FR-008 deviation as a known limitation requiring a spec update. Report variance components as JSON.
-- [ ] T028 [US2] Implement `code/stats.py` to generate Bland-Altman plots for each metric and save as `{metric}_bland_altman.png` in `artifacts/plots/` (FR-007)
+- [X] T025 [P] [US2] Implement `code/stats.py` to run paired t-tests for each metric (MAE, R², ρ) unconditionally, applying Bonferroni correction for family-wise error control. **Primary Test**: This task satisfies Spec SC-002 (paired t-test). (FR-006)
+- [X] T026 [US2] Implement `code/stats.py` with TOST (Two One-Sided Tests) for MAE, R², ρ against tolerance delta (use delta=0.1 as defined in plan.md) for supplementary equivalence analysis, including Bonferroni correction. **Supplementary**: This task satisfies Plan Phase 3 but is secondary to T025 for Spec SC-002. (FR-006, Plan Phase 3)
+- [X] T027 [US2] Implement `code/stats.py` with a Linear Mixed-Effects Model (LME) with random intercepts for paper. **Note**: Spec FR-008 mandates fixed effects for (i) preprocessing script version, (ii) library version, and (iii) random-seed choice. However, Plan Phase 3 explicitly forbids modeling these as fixed effects because the environment is constant. This task implements the Plan's methodology (random intercepts only) and flags the Spec FR-008 deviation as a known limitation requiring a spec update. Report variance components as JSON.
+- [X] T028 [US2] Implement `code/stats.py` to generate Bland-Altman plots for each metric and save as `{metric}_bland_altman.png` in `artifacts/plots/` (FR-007)
 - [ ] T029 [US2] Implement `code/stats.py` to compute heterogeneity (I²) and pooled effect size from the LME results, outputting to `artifacts/reports/stat_summary.json` (Plan Phase 3)
 - [ ] T030 [US2] Implement logic to compile a qualitative failure log of excluded papers (model substitution, data gaps) and ensure these are explicitly flagged in the results log as per FR-003 (Plan Phase 3)
 

@@ -1,11 +1,11 @@
 import os
 import sys
 
-def main() -> None:
-    """Create the required project directory structure."""
-    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    
-    # Define required directories relative to project root
+def main():
+    """
+    Create the project directory structure as defined in T001.
+    Paths are relative to the project root.
+    """
     directories = [
         "data/raw",
         "data/processed",
@@ -16,20 +16,18 @@ def main() -> None:
         "artifacts/reports",
         "contracts"
     ]
-    
-    print(f"Creating project structure in: {project_root}")
-    
+
     created_count = 0
     for dir_path in directories:
-        full_path = os.path.join(project_root, dir_path)
-        if not os.path.exists(full_path):
-            os.makedirs(full_path)
-            print(f"  Created: {dir_path}")
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path, exist_ok=True)
+            print(f"Created directory: {dir_path}")
             created_count += 1
         else:
-            print(f"  Exists: {dir_path}")
-    
-    print(f"\nProject setup complete. {created_count} new directories created.")
+            print(f"Directory already exists: {dir_path}")
+
+    print(f"Project structure setup complete. {created_count} new directories created.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

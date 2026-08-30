@@ -1,40 +1,26 @@
-# Schema for data_loader output (US1)
-# This schema defines the expected structure of the dictionary returned by
-# the data loading functions in code/data_loader.py.
-#
-# The loader returns a dictionary with two main keys:
-#   1. "sequences": A dict mapping species_id -> dict of locus -> sequence_string
-#   2. "metabolites": A dict mapping species_id -> list of compound_ids (presence/absence)
-#
-# Note: Species missing either data type are excluded from the final combined
-# matrix, but the schema here describes the raw output before filtering.
-
+# Schema for data_loader output (T010)
+# This file defines the expected structure of the data returned by fetch_marker_genes
+# and fetch_metabolite_profiles.
 type: object
 required:
-  - sequences
-  - metabolites
+  - species_data
 properties:
-  sequences:
-    type: object
-    description: "Mapping of species_id to their fetched genomic sequences"
-    additionalProperties:
+  species_data:
+    type: array
+    items:
       type: object
-      description: "Mapping of locus name (e.g., '18S', 'rbcL') to sequence string"
-      patternProperties:
-        "^[0-9A-Za-z_]+$":
+      required:
+        - species_id
+        - marker_genes
+        - metabolite_profile
+      properties:
+        species_id:
           type: string
-          description: "FASTA sequence string (no header)"
-          minLength: 10
-          # Basic check to ensure it looks like DNA/RNA (A, C, G, T/U, N)
-          pattern: "^[ACGTUacgtun]+$"
-  metabolites:
-    type: object
-    description: "Mapping of species_id to list of KEGG compound IDs found"
-    additionalProperties:
-      type: array
-      description: "List of KEGG compound IDs (e.g., 'C00001')"
-      items:
-        type: string
-        pattern: "^C\\d{5}$"
-        minLength: 6
-        maxLength: 6
+        marker_genes:
+          type: object
+          additionalProperties:
+            type: string # FASTA sequence
+        metabolite_profile:
+          type: object
+          additionalProperties:
+            type: boolean # Presence/Absence

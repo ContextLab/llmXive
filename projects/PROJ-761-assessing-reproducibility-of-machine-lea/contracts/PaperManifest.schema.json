@@ -1,41 +1,35 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://llmxive.org/schemas/PaperManifest.json",
   "title": "PaperManifest",
   "description": "Schema for validating paper metadata and dataset references for reproducibility studies.",
   "type": "object",
-  "required": ["doi", "repo_url", "dataset_name", "reported_metrics"],
+  "required": [
+    "doi",
+    "repo_url",
+    "dataset_name",
+    "reported_metrics",
+    "reaction_conditions"
+  ],
   "properties": {
     "doi": {
       "type": "string",
       "description": "Digital Object Identifier of the paper.",
-      "pattern": "^10\\.[0-9]{4,}/[^\\s]+$"
+      "pattern": "^10\\.\\d{4,9}/[-._;()/:A-Z0-9]+$",
+      "examples": ["10.1021/acscatal.0c01234"]
     },
     "repo_url": {
       "type": "string",
+      "description": "URL to the code repository.",
       "format": "uri",
-      "description": "URL to the code repository."
+      "examples": ["https://github.com/example/reaction-yield-model"]
     },
     "dataset_name": {
       "type": "string",
       "description": "Name of the dataset used in the study."
     },
-    "dataset_url": {
-      "type": "string",
-      "format": "uri",
-      "description": "Direct URL to the dataset if available."
-    },
-    "supplementary_files": {
-      "type": "array",
-      "items": {
-        "type": "string",
-        "description": "Patterns or names of supplementary files to extract (e.g., '*_supp.csv')."
-      },
-      "minItems": 0
-    },
     "reported_metrics": {
       "type": "object",
-      "required": ["mae", "r2"],
+      "required": ["mae", "r2", "spearman_rho"],
       "properties": {
         "mae": {
           "type": "number",
@@ -47,34 +41,44 @@
         },
         "spearman_rho": {
           "type": "number",
-          "description": "Reported Spearman's rank correlation coefficient."
-        },
-        "n_replicates": {
-          "type": "integer",
-          "minimum": 1,
-          "description": "Number of experimental replicates (per reviewer feedback)."
+          "description": "Reported Spearman correlation coefficient."
         }
       }
     },
-    "model_params": {
-      "type": "integer",
-      "minimum": 0,
-      "description": "Number of parameters in the reported model."
-    },
-    "random_seed": {
-      "type": ["integer", "null"],
-      "description": "Reported random seed, or null if not specified."
-    },
-    "preprocessing_version": {
-      "type": "string",
-      "description": "Version of the preprocessing script used."
-    },
-    "library_versions": {
+    "reaction_conditions": {
       "type": "object",
-      "additionalProperties": {
+      "description": "Key experimental conditions to ensure reproducibility.",
+      "properties": {
+        "temperature_celsius": {
+          "type": "number",
+          "description": "Reaction temperature in Celsius."
+        },
+        "solvent": {
+          "type": "string",
+          "description": "Primary solvent used."
+        },
+        "catalyst_loading_mol_percent": {
+          "type": "number",
+          "description": "Catalyst loading in mol%."
+        }
+      }
+    },
+    "seed": {
+      "type": ["integer", "null"],
+      "description": "Random seed used in the original study, if reported."
+    },
+    "model_params": {
+      "type": "object",
+      "description": "Hyperparameters of the original model.",
+      "additionalProperties": true
+    },
+    "supplementary_files": {
+      "type": "array",
+      "description": "List of supplementary file patterns to extract.",
+      "items": {
         "type": "string"
       },
-      "description": "Key versions of critical libraries (e.g., 'torch': '2.2.0')."
+      "examples": ["*_supp.csv", "data.parquet"]
     }
   }
 }

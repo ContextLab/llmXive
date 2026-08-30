@@ -1,102 +1,85 @@
 """
-Setup script to verify and install linting/formatting tools.
-This script ensures ruff and black are available and validates configuration.
+Script to verify linting and formatting tool configuration.
+This script checks if ruff and black are installed and if the configuration
+files (pyproject.toml) are correctly set up to enforce specific error codes.
+
+It does not perform the linting itself (that is done via CLI), but validates
+the presence of the configuration required by T003.
 """
-import subprocess
 import sys
-import os
+import subprocess
+import tomli
 from pathlib import Path
 
-def run_command(cmd: list[str]) -> tuple[int, str, str]:
-    """Run a shell command and return (returncode, stdout, stderr)."""
+def check_tool_installed(tool_name: str) -> bool:
+    """Check if a tool is installed and available in PATH."""
     try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            check=False
+        subprocess.run(
+            [tool_name, "--version"],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
         )
-        return result.returncode, result.stdout, result.stderr
-    except FileNotFoundError:
-        return 127, "", f"Command not found: {cmd[0]}"
+        return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return False
 
-def main() -> int:
-    print("Setting up linting and formatting tools...")
+def verify_ruff_config() -> bool:
+    """Verify that ruff configuration enforces required error codes."""
+    config_path = Path("pyproject.toml")
+    if not config_path.exists():
+        print("ERROR: pyproject.toml not found.")
+        return False
+
+    try:
+        with open(config_path, "rb") as f:
+            config = tomli.load(f)
+        
+        ruff_config = config.get("tool", {}).get("ruff", {}).get("lint", {})
+        select_list = ruff_config.get("select", [])
+        
+        required_codes = {"F401", "E402"} # Unused imports, import not at top
+        
+        missing_codes = required_codes - set(select_list)
+        
+        if missing_codes:
+            print(f"ERROR: Missing required error codes in ruff config: {missing_codes}")
+            print(f"Current select list: {select_list}")
+            return False
+        
+        print("SUCCESS: Ruff configuration enforces required error codes.")
+        return True
+    except Exception as e:
+        print(f"ERROR: Failed to parse pyproject.toml: {e}")
+        return False
+
+def main():
+    print("Verifying Linting and Formatting Configuration (T003)...")
     
-    # Check if ruff is installed
-    code, stdout, stderr = run_command([sys.executable, "-m", "ruff", "--version"])
-    if code != 0:
-        print("Installing ruff...")
-        code, stdout, stderr = run_command([sys.executable, "-m", "pip", "install", "ruff"])
-        if code != 0:
-            print(f"Failed to install ruff: {stderr}")
-            return 1
-        print("Ruff installed.")
+    # Check tools
+    ruff_ok = check_tool_installed("ruff")
+    black_ok = check_tool_installed("black")
+    
+    if not ruff_ok:
+        print("ERROR: 'ruff' is not installed or not in PATH.")
     else:
-        print(f"Ruff found: {stdout.strip()}")
-
-    # Check if black is installed
-    code, stdout, stderr = run_command([sys.executable, "-m", "black", "--version"])
-    if code != 0:
-        print("Installing black...")
-        code, stdout, stderr = run_command([sys.executable, "-m", "pip", "install", "black"])
-        if code != 0:
-            print(f"Failed to install black: {stderr}")
-            return 1
-        print("Black installed.")
+        print("SUCCESS: 'ruff' is installed.")
+        
+    if not black_ok:
+        print("ERROR: 'black' is not installed or not in PATH.")
     else:
-        print(f"Black found: {stdout.strip()}")
-
-    # Validate configuration files exist
-    root = Path(__file__).parent.parent
-    ruff_config = root / ".ruff.toml"
-    black_config = root / ".black.toml"
-    pyproject = root / "pyproject.toml"
-
-    if not ruff_config.exists():
-        print(f"Error: {ruff_config} not found. Please create it.")
+        print("SUCCESS: 'black' is installed.")
+    
+    # Verify config
+    config_ok = verify_ruff_config()
+    
+    if ruff_ok and black_ok and config_ok:
+        print("\nAll checks passed. T003 configuration is valid.")
+        return 0
+    else:
+        print("\nSome checks failed. Please install missing tools or update pyproject.toml.")
         return 1
-    
-    if not black_config.exists():
-        print(f"Error: {black_config} not found. Please create it.")
-        return 1
-
-    # Run a dry-run check with ruff to verify config
-    print("\nValidating ruff configuration...")
-    code, stdout, stderr = run_command([
-        sys.executable, "-m", "ruff", "check", 
-        "--config", str(ruff_config),
-        "--select", "F401,ANN,E,W,I",
-        str(root / "code")
-    ])
-    
-    # We expect some errors in code that isn't fully typed yet, 
-    # but we want to ensure the tool runs and reads the config.
-    if code == 127:
-        print("Error: ruff command not found after installation.")
-        return 1
-    
-    print("Ruff configuration validated successfully.")
-
-    # Run a dry-run check with black
-    print("\nValidating black configuration...")
-    code, stdout, stderr = run_command([
-        sys.executable, "-m", "black",
-        "--config", str(black_config),
-        "--check",
-        "--diff",
-        str(root / "code")
-    ])
-    
-    if code == 127:
-        print("Error: black command not found after installation.")
-        return 1
-    
-    # Black returns 1 if files need reformatting, which is fine for validation
-    print("Black configuration validated successfully.")
-
-    print("\nLinting and formatting tools setup complete.")
-    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

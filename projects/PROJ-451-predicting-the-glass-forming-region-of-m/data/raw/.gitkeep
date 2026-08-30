@@ -1,2 +1,1 @@
-# This directory contains raw data downloaded from external sources (Zenodo, Materials Project).
-# Do not commit large binary files here. Use .gitignore to exclude raw data files.
+# Placeholder for raw data directory

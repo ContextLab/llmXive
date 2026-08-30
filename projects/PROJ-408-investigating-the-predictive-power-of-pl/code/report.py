@@ -1,123 +1,91 @@
-"""
-Reporting module for the phylogeny-metabolite prediction pipeline.
-Handles validation checks, result aggregation, and log generation.
-"""
 import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 from datetime import datetime
-
 from config import get_config
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("report")
 
-def append_validation_log(log_path: Path, message: str) -> None:
+def append_validation_log(message: str) -> None:
     """
-    Appends a timestamped message to the validation log file.
-    Ensures the directory exists before writing.
-    
-    Args:
-        log_path: Path to the validation log file.
-        message: The message string to append.
+    Appends a message to the validation log file.
+    Ensures the output directory exists before writing.
     """
+    config = get_config()
+    log_path = Path(config.output_dir) / "reports" / "validation_log.txt"
     log_path.parent.mkdir(parents=True, exist_ok=True)
-    timestamp = datetime.now().isoformat()
-    with open(log_path, 'a', encoding='utf-8') as f:
-        f.write(f"[{timestamp}] {message}\n")
-    logger.info(f"Validation log updated: {log_path}")
-
-def verify_sc003_retention(
-    total_target_species: int,
-    retained_species: int,
-    threshold: float = 0.80,
-    log_path: Optional[Path] = None
-) -> bool:
-    """
-    Verifies SC-003: Data Retention Threshold.
     
-    Calculates the retention percentage (species with both data types / total target)
-    and compares it against the configured threshold.
+    timestamp = datetime.now().isoformat()
+    with open(log_path, "a", encoding="utf-8") as f:
+        f.write(f"[{timestamp}] {message}\n")
+    
+    logger.info(f"Validation log updated: {message}")
+
+def verify_sc003_retention(total_species: int, retained_species: int) -> bool:
+    """
+    Verifies SC-003: Retention threshold compliance.
+    
+    Logic:
+    1. Calculate final retention percentage: (retained / total) * 100.
+    2. Compare against the target threshold (defined in config, default 80%).
+    3. Append status "SC-003: Retention X% (PASS/FAIL)" to validation_log.txt.
     
     Args:
-        total_target_species: Total number of species requested/targeted.
-        retained_species: Number of species that successfully retained both 
-                          sequence and metabolite data.
-        threshold: Minimum retention ratio required (default 0.80 for 80%).
-        log_path: Path to append the validation status. If None, uses config default.
-    
+        total_species: Total number of species requested.
+        retained_species: Number of species with both data types.
+        
     Returns:
-        bool: True if retention >= threshold, False otherwise.
-    
-    Raises:
-        ValueError: If total_target_species is 0.
+        True if retention passes threshold, False otherwise.
     """
-    if total_target_species == 0:
-        logger.error("SC-003 Check failed: Total target species is 0.")
-        return False
+    config = get_config()
+    threshold = config.retention_threshold_percent
     
-    retention_ratio = retained_species / total_target_species
-    retention_percent = retention_ratio * 100
+    if total_species == 0:
+        retention_pct = 0.0
+        passed = False
+    else:
+        retention_pct = (retained_species / total_species) * 100
+        passed = retention_pct >= threshold
     
-    # Determine pass/fail
-    passed = retention_ratio >= threshold
     status = "PASS" if passed else "FAIL"
+    message = f"SC-003: Retention {retention_pct:.1f}% (Threshold: {threshold}%) -> {status}"
     
-    # Format message
-    message = f"SC-003: Retention {retention_percent:.1f}% ({status})"
+    append_validation_log(message)
     
-    # Log to file
-    if log_path is None:
-        config = get_config()
-        log_path = Path(config.output_dir) / "reports" / "validation_log.txt"
-    
-    append_validation_log(log_path, message)
-    
-    logger.info(message)
+    if not passed:
+        logger.warning(f"SC-003 Check Failed: {retention_pct:.1f}% < {threshold}%")
     
     return passed
 
-def generate_analysis_summary(
-    results: Dict[str, Any],
-    output_path: Path
-) -> None:
+def generate_analysis_summary(results: Dict[str, Any]) -> None:
     """
-    Generates a text summary of the analysis results.
+    Generates the final analysis summary text file.
     
     Args:
-        results: Dictionary containing Mantel stats, partial Mantel stats, etc.
-        output_path: Path where the summary file will be saved.
+        results: Dictionary containing mantel_r, mantel_p, partial_r, etc.
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    config = get_config()
+    summary_path = Path(config.output_dir) / "reports" / "analysis_summary.txt"
+    summary_path.parent.mkdir(parents=True, exist_ok=True)
     
-    lines = [
-        "Phylogeny-Metabolite Prediction Analysis Summary",
-        "=" * 50,
-        f"Generated: {datetime.now().isoformat()}",
-        ""
-    ]
+    with open(summary_path, "w", encoding="utf-8") as f:
+        f.write("=== Phylogenetic Signal Analysis Summary ===\n")
+        f.write(f"Generated: {datetime.now().isoformat()}\n\n")
+        
+        if "mantel_r" in results:
+            f.write(f"Mantel Correlation (r): {results['mantel_r']:.4f}\n")
+        if "mantel_p" in results:
+            f.write(f"Mantel P-value: {results['mantel_p']:.4f}\n")
+        if "partial_r" in results:
+            f.write(f"Partial Mantel Correlation (r): {results['partial_r']:.4f}\n")
+        if "partial_p" in results:
+            f.write(f"Partial Mantel P-value: {results['partial_p']:.4f}\n")
+        
+        if "mantel_r" in results and "partial_r" in results:
+            if results['mantel_r'] != 0:
+                ratio = results['partial_r'] / results['mantel_r']
+                f.write(f"Robustness Ratio (Partial/Standard): {ratio:.4f}\n")
+        
+        f.write("\n=== End of Summary ===\n")
     
-    # Mantel Results
-    if 'mantel_r' in results:
-        lines.append(f"Mantel Correlation (r): {results['mantel_r']:.4f}")
-    if 'mantel_p' in results:
-        lines.append(f"Mantel P-value: {results['mantel_p']:.4f}")
-    
-    # Partial Mantel Results
-    if 'partial_mantel_r' in results:
-        lines.append(f"Partial Mantel Correlation (r): {results['partial_mantel_r']:.4f}")
-    if 'partial_mantel_p' in results:
-        lines.append(f"Partial Mantel P-value: {results['partial_mantel_p']:.4f}")
-    
-    # Robustness Check (SC-002)
-    if 'mantel_r' in results and 'partial_mantel_r' in results:
-        ratio = results['partial_mantel_r'] / results['mantel_r'] if results['mantel_r'] != 0 else 0
-        lines.append(f"Robustness Ratio (Partial/Standard r): {ratio:.4f}")
-    
-    # Retention Stats
-    if 'retention_percent' in results:
-        lines.append(f"Data Retention: {results['retention_percent']:.1f}%")
-    
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write('\n'.join(lines))
-    
-    logger.info(f"Analysis summary saved to {output_path}")
+    logger.info(f"Analysis summary generated: {summary_path}")

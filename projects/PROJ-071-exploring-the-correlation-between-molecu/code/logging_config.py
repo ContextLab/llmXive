@@ -73,51 +73,54 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 
 
-def log_error(error_type: str, message: str, **kwargs: Any) -> None:
-    """Log an error to the global logger."""
-    get_logger().log("error", error_type=error_type, message=message, **kwargs)
+def log_error(*args: Any, **kwargs: Any) -> None:
+    """Log an error message."""
+    logger = get_logger()
+    logger.log("error", **kwargs)
 
 
-def handle_pipeline_exception(exc: Exception, context: str = "") -> None:
-    """Handle a pipeline exception by logging it."""
-    log_error("PipelineException", str(exc), context=context)
+def handle_pipeline_exception(exception: Exception) -> None:
+    """Handle a pipeline exception."""
+    logger = get_logger()
+    logger.log("pipeline_exception", error=str(exception))
 
 
-def log_pipeline_start(operation: str, parameters: Optional[Dict] = None) -> LogEntry:
+def log_pipeline_start(operation: str = "pipeline", **kwargs: Any) -> None:
     """Log the start of a pipeline operation."""
-    if parameters is None:
-        parameters = {}
-    return get_logger().log(f"start_{operation}", **parameters)
+    logger = get_logger()
+    logger.log("pipeline_start", operation=operation, **kwargs)
 
 
-def log_pipeline_complete(operation: str, result: Optional[Dict] = None) -> LogEntry:
+def log_pipeline_complete(operation: str = "pipeline", **kwargs: Any) -> None:
     """Log the completion of a pipeline operation."""
-    if result is None:
-        result = {}
-    return get_logger().log(f"complete_{operation}", **result)
+    logger = get_logger()
+    logger.log("pipeline_complete", operation=operation, **kwargs)
 
 
-def log_pipeline_failure(operation: str, reason: str, **kwargs: Any) -> None:
-    """Log a pipeline failure. Accepts flexible arguments."""
+def log_pipeline_failure(*args: Any, **kwargs: Any) -> None:
+    """Log a pipeline failure. Accepts multiple call shapes."""
+    logger = get_logger()
     # Handle various call shapes:
     # log_pipeline_failure("op", "reason")
     # log_pipeline_failure(reason="reason")
     # log_pipeline_failure(str(e))
-    # log_pipeline_failure(logger, "op", "reason")
+    # log_pipeline_failure(logger, "op", "reason") -> ignore first arg if logger
     
-    args = [operation, reason] if operation and reason else []
-    if not args:
-        # Try to extract from kwargs or positional
-        if 'reason' in kwargs:
-            reason = kwargs.pop('reason')
-        else:
-            # Assume first arg was the reason if operation was missing
-            if operation and not reason:
-                reason = operation
-                operation = "pipeline"
+    op = ""
+    reason = ""
+    
+    # Filter out logger instances from args
+    clean_args = [a for a in args if not isinstance(a, ReproducibilityLogger)]
+    
+    if len(clean_args) >= 2:
+        op = str(clean_args[0])
+        reason = str(clean_args[1])
+    elif len(clean_args) == 1:
+        reason = str(clean_args[0])
+    
+    if "operation" in kwargs:
+        op = kwargs["operation"]
+    if "reason" in kwargs:
+        reason = kwargs["reason"]
         
-    # Normalize
-    op = operation if operation else "pipeline"
-    msg = reason if reason else "Unknown failure"
-    
-    get_logger().log(f"fail_{op}", operation=op, reason=msg, **kwargs)
+    logger.log("pipeline_failure", operation=op, reason=reason, **kwargs)

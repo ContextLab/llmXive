@@ -1,128 +1,379 @@
 """
-Unit tests for statistical analysis functions in code/stats.py.
-Specifically tests for User Story 2: Quantify Agreement Across Studies.
+Unit tests for statistical analysis functions.
 """
-import unittest
+
+import json
+import os
+import tempfile
+from pathlib import Path
+from unittest import TestCase
+from unittest.mock import patch, MagicMock
+
 import numpy as np
-from scipy import stats as scipy_stats
+import pytest
 
-# Import the function to be tested.
-# We assume stats.py will be implemented in T025.
-# For now, we import the expected signature.
-try:
-    from code.stats import run_mixed_effects_model
-except ImportError:
-    # Fallback for testing environment if stats.py is not yet generated
-    # This block ensures the test file itself is valid Python syntax
-    # even if the implementation is missing.
-    def run_mixed_effects_model(data, grouping_var, target_var):
-        """Mock implementation for syntax validation."""
-        raise NotImplementedError("stats.py not yet implemented")
+from stats import (
+    load_repro_results,
+    extract_metric_values,
+    run_paired_ttest,
+    apply_bonferroni_correction,
+    run_all_paired_ttests,
+    generate_stat_summary,
+    METRICS,
+    DEFAULT_ALPHA
+)
 
 
-class TestMixedEffectsModel(unittest.TestCase):
-    """Tests for the mixed-effects model implementation."""
-
+class TestLoadReproResults(TestCase):
+    """Tests for load_repro_results function."""
+    
     def setUp(self):
-        """Set up test data."""
-        # Simulate data structure: multiple papers (groups), each with multiple observations
-        # Columns: 'paper_id', 'metric_value', 'preprocessing_version', 'library_version', 'seed'
-        np.random.seed(42)
-        n_papers = 10
-        n_obs_per_paper = 5
-
-        self.paper_ids = np.repeat([f'Paper_{i}' for i in range(n_papers)], n_obs_per_paper)
-        # Metric values with random intercepts for papers
-        self.metric_values = np.random.normal(loc=0.1, scale=0.05, size=n_papers * n_obs_per_paper)
-        # Add paper-specific intercepts
-        paper_effects = np.random.normal(loc=0, scale=0.02, size=n_papers)
-        self.metric_values += np.repeat(paper_effects, n_obs_per_paper)
-
-        # Mock covariates
-        self.preprocessing_versions = np.random.choice(['v1.0', 'v1.1', 'v2.0'], size=n_papers * n_obs_per_paper)
-        self.library_versions = np.random.choice(['1.4', '1.5', '1.6'], size=n_papers * n_obs_per_paper)
-        self.seeds = np.random.randint(1, 1000, size=n_papers * n_obs_per_paper)
-
-        # Construct data dictionary expected by the function
-        self.data = {
-            'paper_id': self.paper_ids,
-            'metric_value': self.metric_values,
-            'preprocessing_version': self.preprocessing_versions,
-            'library_version': self.library_versions,
-            'seed': self.seeds
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.temp_path = Path(self.temp_dir.name)
+    
+    def tearDown(self):
+        self.temp_dir.cleanup()
+    
+    def test_load_list_format(self):
+        """Test loading results in list format."""
+        results_path = self.temp_path / "results.json"
+        test_data = [
+            {"paper_id": "1", "reported_metrics": {"mae": 0.5}, "reproduced_metrics": {"mae": 0.6}},
+            {"paper_id": "2", "reported_metrics": {"mae": 0.7}, "reproduced_metrics": {"mae": 0.8}}
+        ]
+        
+        with open(results_path, 'w') as f:
+            json.dump(test_data, f)
+        
+        loaded = load_repro_results(str(results_path))
+        self.assertEqual(len(loaded), 2)
+        self.assertEqual(loaded[0]["paper_id"], "1")
+    
+    def test_load_dict_format(self):
+        """Test loading results in dictionary format."""
+        results_path = self.temp_path / "results.json"
+        test_data = {
+            "paper_id": "1",
+            "reported_metrics": {"mae": 0.5},
+            "reproduced_metrics": {"mae": 0.6}
         }
-
-    def test_mixed_effects_model_returns_dict(self):
-        """Ensure the function returns a dictionary with expected keys."""
-        result = run_mixed_effects_model(self.data, 'paper_id', 'metric_value')
-        self.assertIsInstance(result, dict)
-        # Expected keys based on LME output structure
-        self.assertIn('variance_components', result)
-        self.assertIn('residual_variance', result)
-        self.assertIn('fixed_effects', result)
-        self.assertIn('model_summary', result)
-
-    def test_mixed_effects_model_variance_components(self):
-        """Verify that variance components are calculated and positive."""
-        result = run_mixed_effects_model(self.data, 'paper_id', 'metric_value')
         
-        vc = result['variance_components']
-        self.assertIn('paper_id', vc)
+        with open(results_path, 'w') as f:
+            json.dump(test_data, f)
         
-        # Variance components should be non-negative
-        self.assertGreaterEqual(vc['paper_id'], 0.0)
-        self.assertGreaterEqual(result['residual_variance'], 0.0)
+        loaded = load_repro_results(str(results_path))
+        self.assertEqual(len(loaded), 1)
+        self.assertEqual(loaded[0]["paper_id"], "1")
+    
+    def test_file_not_found(self):
+        """Test that FileNotFoundError is raised for missing file."""
+        with self.assertRaises(FileNotFoundError):
+            load_repro_results("/nonexistent/path.json")
+    
+    def test_invalid_json(self):
+        """Test that JSONDecodeError is raised for invalid JSON."""
+        results_path = self.temp_path / "invalid.json"
+        with open(results_path, 'w') as f:
+            f.write("not valid json")
+        
+        with self.assertRaises(json.JSONDecodeError):
+            load_repro_results(str(results_path))
 
-    def test_mixed_effects_model_random_intercepts(self):
-        """Test that the model correctly identifies random intercepts for papers."""
-        # With our simulated data, there should be significant between-paper variance
-        result = run_mixed_effects_model(self.data, 'paper_id', 'metric_value')
-        
-        # Check that the random effect variance is non-zero (or close to it given noise)
-        # Note: In small samples it might be estimated as 0, but with our setup it should be > 0
-        self.assertGreater(result['variance_components']['paper_id'], 0.001)
 
-    def test_mixed_effects_model_fixed_effects_structure(self):
-        """Test that fixed effects are returned in the expected format."""
-        result = run_mixed_effects_model(self.data, 'paper_id', 'metric_value')
+class TestExtractMetricValues(TestCase):
+    """Tests for extract_metric_values function."""
+    
+    def test_extract_mae(self):
+        """Test extracting MAE values."""
+        results = [
+            {
+                "paper_id": "1",
+                "reported_metrics": {"mae": 0.5, "r2": 0.8},
+                "reproduced_metrics": {"mae": 0.6, "r2": 0.75}
+            },
+            {
+                "paper_id": "2",
+                "reported_metrics": {"mae": 0.7, "r2": 0.85},
+                "reproduced_metrics": {"mae": 0.75, "r2": 0.82}
+            }
+        ]
         
-        fe = result['fixed_effects']
-        self.assertIsInstance(fe, dict)
-        # Should contain at least an intercept
-        self.assertIn('Intercept', fe)
+        reported, reproduced = extract_metric_values(results, "mae")
         
-        # Coefficients should be floats
-        self.assertIsInstance(fe['Intercept'], float)
-
-    def test_mixed_effects_model_input_validation_empty(self):
-        """Test handling of empty data."""
-        empty_data = {
-            'paper_id': [],
-            'metric_value': []
-        }
+        self.assertEqual(len(reported), 2)
+        self.assertEqual(len(reproduced), 2)
+        self.assertEqual(reported, [0.5, 0.7])
+        self.assertEqual(reproduced, [0.6, 0.75])
+    
+    def test_skip_missing_values(self):
+        """Test that results with missing values are skipped."""
+        results = [
+            {
+                "paper_id": "1",
+                "reported_metrics": {"mae": 0.5},
+                "reproduced_metrics": {"mae": 0.6}
+            },
+            {
+                "paper_id": "2",
+                "reported_metrics": {"mae": 0.7},
+                "reproduced_metrics": {}  # Missing reproduced mae
+            },
+            {
+                "paper_id": "3",
+                "reported_metrics": {},  # Missing reported mae
+                "reproduced_metrics": {"mae": 0.8}
+            },
+            {
+                "paper_id": "4",
+                "reported_metrics": {"mae": 0.9},
+                "reproduced_metrics": {"mae": 0.95}
+            }
+        ]
+        
+        reported, reproduced = extract_metric_values(results, "mae")
+        
+        # Should only get results 1 and 4
+        self.assertEqual(len(reported), 2)
+        self.assertEqual(reported, [0.5, 0.9])
+        self.assertEqual(reproduced, [0.6, 0.95])
+    
+    def test_no_valid_values(self):
+        """Test that ValueError is raised when no valid values found."""
+        results = [
+            {
+                "paper_id": "1",
+                "reported_metrics": {},
+                "reproduced_metrics": {}
+            }
+        ]
+        
         with self.assertRaises(ValueError):
-            run_mixed_effects_model(empty_data, 'paper_id', 'metric_value')
+            extract_metric_values(results, "mae")
 
-    def test_mixed_effects_model_input_validation_missing_columns(self):
-        """Test handling of missing required columns."""
-        incomplete_data = {
-            'paper_id': self.paper_ids,
-            # Missing 'metric_value'
-        }
+class TestRunPairedTtest(TestCase):
+    """Tests for run_paired_ttest function."""
+    
+    def test_basic_ttest(self):
+        """Test basic paired t-test execution."""
+        reported = [0.5, 0.6, 0.7, 0.8, 0.9]
+        reproduced = [0.52, 0.58, 0.72, 0.78, 0.91]
+        
+        result = run_paired_ttest(reported, reproduced, "mae")
+        
+        self.assertEqual(result["metric"], "mae")
+        self.assertEqual(result["n_samples"], 5)
+        self.assertIn("t_statistic", result)
+        self.assertIn("p_value", result)
+        self.assertIn("mean_reported", result)
+        self.assertIn("mean_reproduced", result)
+        self.assertEqual(result["test_type"], "paired_ttest")
+    
+    def test_different_lengths_error(self):
+        """Test that ValueError is raised for different length lists."""
         with self.assertRaises(ValueError):
-            run_mixed_effects_model(incomplete_data, 'paper_id', 'metric_value')
+            run_paired_ttest([1, 2, 3], [1, 2], "mae")
+    
+    def test_insufficient_samples_error(self):
+        """Test that ValueError is raised for insufficient samples."""
+        with self.assertRaises(ValueError):
+            run_paired_ttest([1], [1.1], "mae")
+    
+    def test_ttest_results(self):
+        """Test that t-test produces reasonable results."""
+        # Identical values should give p-value = 1.0
+        reported = [0.5, 0.6, 0.7, 0.8, 0.9]
+        reproduced = [0.5, 0.6, 0.7, 0.8, 0.9]
+        
+        result = run_paired_ttest(reported, reproduced, "mae")
+        
+        self.assertAlmostEqual(result["t_statistic"], 0.0, places=5)
+        self.assertAlmostEqual(result["p_value"], 1.0, places=5)
 
-    def test_mixed_effects_model_single_group(self):
-        """Test behavior when all data belongs to a single group."""
-        single_group_data = {
-            'paper_id': np.array(['Paper_A'] * 10),
-            'metric_value': np.random.normal(0.1, 0.05, 10)
-        }
-        # Should not crash, but variance for random effect might be 0 or undefined
-        result = run_mixed_effects_model(single_group_data, 'paper_id', 'metric_value')
-        self.assertIsInstance(result, dict)
-        self.assertIn('variance_components', result)
+class TestApplyBonferroniCorrection(TestCase):
+    """Tests for apply_bonferroni_correction function."""
+    
+    def test_basic_correction(self):
+        """Test basic Bonferroni correction."""
+        test_results = [
+            {"p_value": 0.01, "metric": "mae"},
+            {"p_value": 0.03, "metric": "r2"},
+            {"p_value": 0.05, "metric": "rho"}
+        ]
+        
+        corrected = apply_bonferroni_correction(test_results, alpha=0.05)
+        
+        self.assertEqual(len(corrected), 3)
+        
+        # Check that corrected values are present
+        for result in corrected:
+            self.assertIn("p_value_corrected", result)
+            self.assertIn("is_significant", result)
+            self.assertEqual(result["method"], "bonferroni")
+            self.assertEqual(result["alpha"], 0.05)
+            self.assertEqual(result["n_tests"], 3)
+    
+    def test_empty_list(self):
+        """Test that empty list returns empty list."""
+        corrected = apply_bonferroni_correction([], alpha=0.05)
+        self.assertEqual(len(corrected), 0)
+    
+    def test_significance_threshold(self):
+        """Test that significance is correctly determined."""
+        test_results = [
+            {"p_value": 0.01},  # Should be significant after correction
+            {"p_value": 0.04},  # May or may not be significant
+            {"p_value": 0.06}   # Should not be significant
+        ]
+        
+        corrected = apply_bonferroni_correction(test_results, alpha=0.05)
+        
+        # First result should be significant (0.01 * 3 = 0.03 < 0.05)
+        self.assertTrue(corrected[0]["is_significant"])
 
+class TestRunAllPairedTtests(TestCase):
+    """Tests for run_all_paired_ttests function."""
+    
+    def test_all_metrics(self):
+        """Test that all metrics are tested."""
+        results = [
+            {
+                "paper_id": f"paper_{i}",
+                "reported_metrics": {"mae": 0.5 + i*0.1, "r2": 0.8 - i*0.05, "rho": 0.9 - i*0.05},
+                "reproduced_metrics": {"mae": 0.52 + i*0.1, "r2": 0.78 - i*0.05, "rho": 0.88 - i*0.05}
+            }
+            for i in range(10)
+        ]
+        
+        summary = run_all_paired_ttests(results, alpha=0.05)
+        
+        self.assertEqual(summary["n_papers"], 10)
+        self.assertEqual(summary["n_tests_performed"], 3)
+        self.assertEqual(summary["correction_method"], "bonferroni")
+        self.assertEqual(summary["alpha"], 0.05)
+        
+        # Check that all metrics are present
+        metrics_tested = [test["metric"] for test in summary["tests"]]
+        self.assertEqual(set(metrics_tested), set(METRICS))
+    
+    def test_skip_invalid_metrics(self):
+        """Test that invalid metrics are skipped with warning."""
+        results = [
+            {
+                "paper_id": "1",
+                "reported_metrics": {"mae": 0.5},  # Missing r2 and rho
+                "reproduced_metrics": {"mae": 0.6}
+            }
+        ]
+        
+        # Should not raise error, just skip missing metrics
+        summary = run_all_paired_ttests(results, alpha=0.05)
+        
+        self.assertEqual(summary["n_papers"], 1)
+        # Only mae should be tested
+        metrics_tested = [test["metric"] for test in summary["tests"]]
+        self.assertEqual(len(metrics_tested), 1)
+        self.assertEqual(metrics_tested[0], "mae")
 
-if __name__ == '__main__':
-    unittest.main()
+class TestGenerateStatSummary(TestCase):
+    """Tests for generate_stat_summary function."""
+    
+    def setUp(self):
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.temp_path = Path(self.temp_dir.name)
+    
+    def tearDown(self):
+        self.temp_dir.cleanup()
+    
+    def test_save_to_file(self):
+        """Test that summary is saved to file."""
+        results = [
+            {
+                "paper_id": f"paper_{i}",
+                "reported_metrics": {"mae": 0.5 + i*0.1, "r2": 0.8 - i*0.05, "rho": 0.9 - i*0.05},
+                "reproduced_metrics": {"mae": 0.52 + i*0.1, "r2": 0.78 - i*0.05, "rho": 0.88 - i*0.05}
+            }
+            for i in range(5)
+        ]
+        
+        output_path = self.temp_path / "stat_summary.json"
+        summary = generate_stat_summary(results, str(output_path), alpha=0.05)
+        
+        self.assertTrue(output_path.exists())
+        
+        # Verify file content
+        with open(output_path, 'r') as f:
+            saved_summary = json.load(f)
+        
+        self.assertEqual(saved_summary["n_papers"], 5)
+        self.assertEqual(saved_summary["n_tests_performed"], 3)
+    
+    def test_creates_directory(self):
+        """Test that output directory is created if it doesn't exist."""
+        results = [
+            {
+                "paper_id": "1",
+                "reported_metrics": {"mae": 0.5, "r2": 0.8, "rho": 0.9},
+                "reproduced_metrics": {"mae": 0.52, "r2": 0.78, "rho": 0.88}
+            }
+        ]
+        
+        output_path = self.temp_path / "nested" / "dir" / "stat_summary.json"
+        summary = generate_stat_summary(results, str(output_path), alpha=0.05)
+        
+        self.assertTrue(output_path.exists())
+
+class TestIntegration(TestCase):
+    """Integration tests for the stats module."""
+    
+    def setUp(self):
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.temp_path = Path(self.temp_dir.name)
+    
+    def tearDown(self):
+        self.temp_dir.cleanup()
+    
+    def test_full_pipeline(self):
+        """Test the complete pipeline from results to summary."""
+        # Create realistic test data
+        results = [
+            {
+                "paper_id": f"paper_{i}",
+                "reported_metrics": {
+                    "mae": 0.5 + np.random.normal(0, 0.1),
+                    "r2": 0.8 + np.random.normal(0, 0.05),
+                    "rho": 0.9 + np.random.normal(0, 0.05)
+                },
+                "reproduced_metrics": {
+                    "mae": 0.52 + np.random.normal(0, 0.1),
+                    "r2": 0.78 + np.random.normal(0, 0.05),
+                    "rho": 0.88 + np.random.normal(0, 0.05)
+                }
+            }
+            for i in range(20)
+        ]
+        
+        results_path = self.temp_path / "repro_results.json"
+        with open(results_path, 'w') as f:
+            json.dump(results, f)
+        
+        output_path = self.temp_path / "stat_summary.json"
+        
+        # Run the full pipeline
+        summary = generate_stat_summary(
+            load_repro_results(str(results_path)),
+            str(output_path),
+            alpha=0.05
+        )
+        
+        # Verify results
+        self.assertTrue(output_path.exists())
+        self.assertEqual(summary["n_papers"], 20)
+        self.assertEqual(summary["n_tests_performed"], 3)
+        self.assertEqual(len(summary["tests"]), 3)
+        
+        # Each test should have corrected p-value
+        for test in summary["tests"]:
+            self.assertIn("p_value_corrected", test)
+            self.assertIn("is_significant", test)
+            self.assertGreater(test["p_value_corrected"], 0)
+            self.assertLessEqual(test["p_value_corrected"], 1)

@@ -1,31 +1,34 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://llmxive.org/schemas/StatSummary.json",
   "title": "StatSummary",
-  "description": "Schema for aggregated statistical analysis across multiple reproducibility studies.",
+  "description": "Schema for aggregated statistical meta-analysis results across multiple papers.",
   "type": "object",
-  "required": ["n_papers", "paired_t_tests", "bland_altman_refs"],
+  "required": [
+    "total_papers",
+    "successful_reproductions",
+    "t_tests",
+    "mixed_effects_model",
+    "heterogeneity"
+  ],
   "properties": {
-    "n_papers": {
+    "total_papers": {
       "type": "integer",
-      "minimum": 0,
-      "description": "Total number of papers analyzed."
+      "description": "Total number of papers attempted."
     },
-    "n_successful": {
+    "successful_reproductions": {
       "type": "integer",
-      "minimum": 0,
-      "description": "Number of successful reproductions."
+      "description": "Number of papers successfully reproduced."
     },
-    "paired_t_tests": {
+    "t_tests": {
       "type": "object",
-      "description": "Results of paired t-tests between reported and reproduced metrics.",
+      "description": "Results of paired t-tests comparing reported vs. reproduced metrics.",
       "properties": {
         "mae": {
           "type": "object",
           "properties": {
             "t_statistic": { "type": "number" },
             "p_value": { "type": "number" },
-            "p_value_corrected": { "type": "number" }
+            "bonferroni_p_value": { "type": "number" }
           }
         },
         "r2": {
@@ -33,7 +36,7 @@
           "properties": {
             "t_statistic": { "type": "number" },
             "p_value": { "type": "number" },
-            "p_value_corrected": { "type": "number" }
+            "bonferroni_p_value": { "type": "number" }
           }
         },
         "spearman_rho": {
@@ -41,44 +44,79 @@
           "properties": {
             "t_statistic": { "type": "number" },
             "p_value": { "type": "number" },
-            "p_value_corrected": { "type": "number" }
+            "bonferroni_p_value": { "type": "number" }
           }
         }
       }
     },
     "mixed_effects_model": {
       "type": "object",
-      "description": "Variance components from Linear Mixed-Effects Model.",
+      "description": "Results from the Linear Mixed-Effects model analysis.",
       "properties": {
-        "variance_paper_intercept": { "type": "number" },
-        "variance_residual": { "type": "number" },
-        "icc": { "type": "number" }
+        "variance_components": {
+          "type": "object",
+          "description": "Variance attributed to random effects (e.g., paper ID).",
+          "additionalProperties": { "type": "number" }
+        },
+        "fixed_effects": {
+          "type": "object",
+          "description": "Coefficients for fixed effects (if any were modeled).",
+          "additionalProperties": { "type": "number" }
+        },
+        "convergence_status": {
+          "type": "string",
+          "description": "Convergence status of the optimization."
+        }
       }
     },
     "heterogeneity": {
       "type": "object",
-      "description": "I-squared and pooled effect size.",
+      "description": "Heterogeneity statistics (I-squared, etc.).",
       "properties": {
-        "i_squared": { "type": "number" },
-        "pooled_effect": { "type": "number" }
+        "i_squared": {
+          "type": "number",
+          "description": "I-squared statistic representing percentage of variation due to heterogeneity."
+        },
+        "pooled_effect_size": {
+          "type": "number",
+          "description": "Pooled effect size across studies."
+        }
       }
     },
-    "bland_altman_refs": {
+    "bland_altman_plots": {
       "type": "array",
-      "items": { "type": "string" },
-      "description": "List of paths to generated Bland-Altman plot PNGs."
+      "description": "List of generated Bland-Altman plot file paths.",
+      "items": { "type": "string" }
     },
-    "failure_log_summary": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "doi": { "type": "string" },
-          "reason": { "type": "string" },
-          "category": { "type": "string" }
+    "equivalence_tests": {
+      "type": "object",
+      "description": "Results of TOST (Two One-Sided Tests) for equivalence.",
+      "properties": {
+        "mae": {
+          "type": "object",
+          "properties": {
+            "equivalent": { "type": "boolean" },
+            "p_value_lower": { "type": "number" },
+            "p_value_upper": { "type": "number" }
+          }
+        },
+        "r2": {
+          "type": "object",
+          "properties": {
+            "equivalent": { "type": "boolean" },
+            "p_value_lower": { "type": "number" },
+            "p_value_upper": { "type": "number" }
+          }
+        },
+        "spearman_rho": {
+          "type": "object",
+          "properties": {
+            "equivalent": { "type": "boolean" },
+            "p_value_lower": { "type": "number" },
+            "p_value_upper": { "type": "number" }
+          }
         }
-      },
-      "description": "Summary of excluded papers and failure modes."
+      }
     }
   }
 }

@@ -7,22 +7,19 @@ __pycache__/
 *.so
 
 # Distribution / packaging
-.Python
+.eggs/
+*.egg-info/
 build/
-develop-eggs/
 dist/
+develop-eggs/
 downloads/
 eggs/
-.eggs/
 lib/
 lib64/
 parts/
 sdist/
 var/
 wheels/
-*.egg-info/
-.installed.cfg
-*.egg
 
 # PyInstaller
 *.manifest
@@ -57,24 +54,27 @@ ENV/
 env.bak/
 venv.bak/
 
-# IDEs
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
+# Project specific
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+output/figures/*
+!output/figures/.gitkeep
+output/reports/*
+!output/reports/.gitkeep
+state/projects/*
+!state/projects/.gitkeep
+logs/
+*.log
+
 # OS
 .DS_Store
 Thumbs.db
-
-# Project specific
-data/raw/*.fasta
-data/raw/*.txt
-data/processed/*.newick
-data/processed/*.csv
-data/processed/*.json
-output/figures/*.png
-output/reports/*.txt
-state/
-logs/

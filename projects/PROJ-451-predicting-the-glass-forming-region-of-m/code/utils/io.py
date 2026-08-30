@@ -4,201 +4,214 @@ import os
 from typing import Any, Dict, List, Optional, Union
 import requests
 import logging
-import random
-from collections import defaultdict
+from pathlib import Path
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+# Import config for paths and keys
+try:
+    from config import get_data_path, get_raw_data_path, get_processed_data_path
+except ImportError:
+    # Fallback for standalone execution or different project structure
+    def get_data_path():
+        return Path("data")
+    def get_raw_data_path():
+        return get_data_path() / "raw"
+    def get_processed_data_path():
+        return get_data_path() / "processed"
+
 logger = logging.getLogger(__name__)
 
-def get_materials_project_api_key() -> Optional[str]:
-    """Retrieve the Materials Project API key from environment variables."""
-    return os.getenv("MP_API_KEY")
+# Constants for phase labels
+VALID_PHASE_LABELS = {'amorphous', 'crystalline', 'glass', 'crystal'}
+AMORPHOUS_LABELS = {'amorphous', 'glass'}
+CRYSTALLINE_LABELS = {'crystalline', 'crystal'}
 
 def load_csv(filepath: str) -> List[Dict[str, Any]]:
     """Load a CSV file into a list of dictionaries."""
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"CSV file not found: {filepath}")
+    data = []
     with open(filepath, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
-        return list(reader)
-
-def load_json(filepath: str) -> Any:
-    """Load a JSON file."""
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"JSON file not found: {filepath}")
-    with open(filepath, 'r', encoding='utf-8') as f:
-        return json.load(f)
+        for row in reader:
+            data.append(row)
+    return data
 
 def save_csv(data: List[Dict[str, Any]], filepath: str) -> None:
     """Save a list of dictionaries to a CSV file."""
     if not data:
-        logger.warning("No data to save to CSV.")
+        logger.warning(f"No data to save to {filepath}")
         return
-    os.makedirs(os.path.dirname(filepath), exist_ok=True)
-    with open(filepath, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=data[0].keys())
+    
+    fieldnames = list(data[0].keys())
+    with open(filepath, 'w', encoding='utf-8', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(data)
 
+def load_json(filepath: str) -> Any:
+    """Load a JSON file."""
+    with open(filepath, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
 def save_json(data: Any, filepath: str) -> None:
     """Save data to a JSON file."""
-    os.makedirs(os.path.dirname(filepath), exist_ok=True)
     with open(filepath, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2)
 
 def fetch_materials_project_elements(api_key: str) -> Dict[str, Dict[str, Any]]:
-    """Fetch elemental properties from Materials Project API v3."""
-    url = "https://api.materialsproject.org/v3/elements"
+    """Fetch elemental properties from Materials Project API."""
+    base_url = os.getenv('MP_API_BASE_URL', 'https://api.materialsproject.org')
+    url = f"{base_url}/v3/elements"
     headers = {"X-API-Key": api_key}
+    
     try:
-        response = requests.get(url, headers=headers, timeout=30)
+        response = requests.get(url, headers=headers)
         response.raise_for_status()
-        data = response.json()
-        # Assume 'data' is a list of element objects
-        return {elem['element_id']: elem for elem in data.get('data', [])}
+        return response.json()
     except requests.RequestException as e:
         logger.error(f"Failed to fetch elements from Materials Project: {e}")
-        return {}
+        raise
 
 def fetch_materials_project_composition(api_key: str, composition: str) -> Optional[Dict[str, Any]]:
-    """Fetch composition data from Materials Project API v3."""
-    url = f"https://api.materialsproject.org/v3/compositions/{composition}"
+    """Fetch composition data from Materials Project API."""
+    base_url = os.getenv('MP_API_BASE_URL', 'https://api.materialsproject.org')
+    url = f"{base_url}/v3/materials/{composition}"
     headers = {"X-API-Key": api_key}
+    
     try:
-        response = requests.get(url, headers=headers, timeout=30)
+        response = requests.get(url, headers=headers)
         if response.status_code == 404:
             return None
         response.raise_for_status()
-        return response.json().get('data')
+        return response.json()
     except requests.RequestException as e:
         logger.error(f"Failed to fetch composition {composition}: {e}")
-        return None
+        raise
 
-def filter_by_phase_label(data: List[Dict[str, Any]], valid_labels: List[str] = None) -> List[Dict[str, Any]]:
-    """Filter dataset to only include rows with definitive phase labels."""
+def filter_by_phase_label(data: List[Dict[str, Any]], 
+                          phase_column: str = 'phase', 
+                          valid_labels: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+    """
+    Filter dataset to exclude compositions lacking definitive phase labels.
+    
+    Per FR-009: Exclude compositions where the phase label is missing, 
+    null, or not one of the definitive categories (amorphous/glass or crystalline/crystal).
+    
+    Args:
+        data: List of composition records.
+        phase_column: Name of the column containing phase labels.
+        valid_labels: Optional list of allowed labels. Defaults to VALID_PHASE_LABELS.
+    
+    Returns:
+        Filtered list of records with valid phase labels.
+    """
     if valid_labels is None:
-        valid_labels = ['amorphous', 'crystalline', 'glass', 'crystal']
-    # Normalize valid labels to lowercase for comparison
-    valid_labels_lower = [l.lower() for l in valid_labels]
+        valid_labels = list(VALID_PHASE_LABELS)
+    
+    valid_set = set(label.lower().strip() for label in valid_labels if label)
     filtered = []
-    for row in data:
-        # Look for common phase label keys
-        label = None
-        for key in ['phase', 'phase_label', 'structure_type', 'label']:
-            if key in row and row[key]:
-                label = str(row[key]).lower()
-                break
-        if label in valid_labels_lower:
-            filtered.append(row)
+    excluded_count = 0
+    
+    for record in data:
+        phase_val = record.get(phase_column)
+        
+        if phase_val is None or phase_val == '':
+            excluded_count += 1
+            continue
+        
+        normalized_phase = str(phase_val).lower().strip()
+        
+        if normalized_phase in valid_set:
+            filtered.append(record)
         else:
-            logger.debug(f"Dropped composition {row.get('composition', 'unknown')} due to invalid phase label: {label}")
-    logger.info(f"Filtered dataset: {len(filtered)} kept, {len(data) - len(filtered)} dropped.")
+            excluded_count += 1
+    
+    logger.info(f"Phase label filtering: {len(data)} -> {len(filtered)} records. "
+                f"Excluded {excluded_count} records with undefined phase labels.")
+    
     return filtered
 
-def load_and_filter_dataset(filepath: str, valid_labels: List[str] = None) -> List[Dict[str, Any]]:
-    """Load a dataset and filter by phase label."""
+def load_and_filter_dataset(filepath: str, 
+                            phase_column: str = 'phase',
+                            valid_labels: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+    """
+    Load a dataset from CSV and filter by phase labels.
+    
+    Combines load_csv and filter_by_phase_label for convenience.
+    
+    Args:
+        filepath: Path to the input CSV file.
+        phase_column: Column name containing phase labels.
+        valid_labels: List of acceptable phase labels.
+    
+    Returns:
+        Filtered list of records.
+    """
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Dataset file not found: {filepath}")
+    
     data = load_csv(filepath)
-    return filter_by_phase_label(data, valid_labels)
+    return filter_by_phase_label(data, phase_column, valid_labels)
 
 def ensure_data_directories() -> None:
     """Ensure required data directories exist."""
-    dirs = ['data/raw', 'data/processed', 'data/results', 'figures']
-    for d in dirs:
-        os.makedirs(d, exist_ok=True)
+    get_data_path().mkdir(parents=True, exist_ok=True)
+    get_raw_data_path().mkdir(parents=True, exist_ok=True)
+    get_processed_data_path().mkdir(parents=True, exist_ok=True)
+    (get_data_path() / "results").mkdir(parents=True, exist_ok=True)
 
-def cap_dataset_stratified(data: List[Dict[str, Any]], max_size: int = 10000, system_key: str = 'alloy_system') -> List[Dict[str, Any]]:
+def cap_dataset_stratified(data: List[Dict[str, Any]], 
+                           max_size: int = 10000,
+                           stratify_column: str = 'alloy_system',
+                           seed: int = 42) -> List[Dict[str, Any]]:
     """
-    Cap the dataset to max_size using stratified random sampling by alloy system.
+    Cap dataset size using stratified random sampling by alloy system.
     
-    This implements FR-007: Enforce a hard cap of 10,000 compositions.
-    Stratification ensures the relative distribution of alloy systems is preserved.
+    Ensures the dataset does not exceed max_size while preserving
+    the distribution of alloy systems.
     
     Args:
-        data: List of composition dictionaries.
-        max_size: Maximum number of rows to keep.
-        system_key: The key in the dictionary representing the alloy system (e.g., 'alloy_system', 'system').
+        data: Input dataset.
+        max_size: Maximum number of records to return.
+        stratify_column: Column name to use for stratification.
+        seed: Random seed for reproducibility.
     
     Returns:
-        A new list of dictionaries capped to max_size.
+        Capped dataset.
     """
-    if len(data) <= max_size:
-        logger.info(f"Dataset size ({len(data)}) is already within the limit ({max_size}). No capping needed.")
-        return data
-
-    logger.info(f"Dataset size ({len(data)}) exceeds limit ({max_size}). Applying stratified random sampling.")
-
-    # Group data by alloy system
-    system_groups = defaultdict(list)
-    for i, row in enumerate(data):
-        # Handle missing system key by assigning to 'unknown'
-        system = row.get(system_key, 'unknown')
-        if system is None:
-            system = 'unknown'
-        system_groups[system].append(row)
-
-    # Calculate sample size for each system
-    # We want to preserve the proportion of each system in the final dataset
-    system_counts = {k: len(v) for k, v in system_groups.items()}
-    total_items = len(data)
+    import random
+    random.seed(seed)
     
+    if len(data) <= max_size:
+        return data
+    
+    # Group by alloy system
+    groups: Dict[str, List[Dict[str, Any]]] = {}
+    for record in data:
+        key = record.get(stratify_column, 'unknown')
+        if key not in groups:
+            groups[key] = []
+        groups[key].append(record)
+    
+    # Calculate proportional sampling
+    total_count = len(data)
     sampled_data = []
     
-    # Calculate proportional allocation
-    for system, items in system_groups.items():
-        current_count = len(items)
-        # Calculate proportion
-        proportion = current_count / total_items
-        # Calculate sample size for this system
-        sample_size = int(proportion * max_size)
+    for key, group in groups.items():
+        group_size = len(group)
+        # Calculate proportional share
+        proportion = group_size / total_count
+        sample_size = int(round(proportion * max_size))
         
-        # Ensure we don't exceed the remaining capacity if proportions don't sum exactly to 1 due to rounding
-        # But since we iterate, we'll just cap at the calculated size for now. 
-        # A more robust approach is to handle the remainder, but for 10k cap, simple proportional is usually fine.
-        # We must ensure sample_size doesn't exceed the actual number of items available
-        sample_size = min(sample_size, current_count)
+        # Ensure at least 1 if group is represented, but don't exceed group size
+        sample_size = max(1, sample_size) if group_size > 0 else 0
+        sample_size = min(sample_size, group_size)
         
-        # Random sample
-        if sample_size > 0:
-            sampled_group = random.sample(items, sample_size)
-            sampled_data.extend(sampled_group)
-            logger.debug(f"Sampled {sample_size}/{current_count} from system '{system}'")
-
-    # If rounding errors caused us to be under the limit, fill the rest randomly from the remaining
-    if len(sampled_data) < max_size:
-        remaining_needed = max_size - len(sampled_data)
-        # Flatten all groups to find remaining items not yet sampled
-        # Since random.sample removes items from the list conceptually (we used new lists), 
-        # we need to track what was used or just sample from the original list excluding sampled.
-        # Simpler: Just take a random sample from the original data that isn't in sampled_data?
-        # That's O(N^2). Better to track indices or re-group.
-        # Given the scale, let's just do a second pass if needed, but usually proportional rounding is very close.
-        # Let's implement a simple fill from the groups that have leftovers.
-        
-        # Re-identify leftovers
-        leftovers = []
-        for system, items in system_groups.items():
-            # We need to know which specific items were picked. 
-            # Since we used random.sample on a list of references, we can't easily compare object identity if dicts are identical.
-            # However, we built 'sampled_data' from 'items'.
-            # Let's reconstruct the set of used items by index if we had indices, or just assume the proportional math is close enough.
-            # For strict correctness, we should track indices.
-            pass 
-        
-        # Fallback: If we are slightly under, just random sample from the whole original dataset to fill up, 
-        # acknowledging slight stratification drift is acceptable for the last few rows.
-        if remaining_needed > 0:
-            # Create a set of tuples of sorted items to identify used rows (assuming dicts are hashable? No)
-            # Convert to string representation for comparison? Expensive.
-            # Let's just assume the proportional allocation is sufficient for the cap logic.
-            # The requirement is "≤10,000", so being slightly under is fine.
-            pass
-
-    # Final check to ensure we don't exceed max_size (due to potential logic issues)
+        sampled_data.extend(random.sample(group, sample_size))
+    
+    # If we still have more than max_size due to rounding, truncate
     if len(sampled_data) > max_size:
-        # Truncate
-        random.shuffle(sampled_data)
-        sampled_data = sampled_data[:max_size]
-        
-    logger.info(f"Final dataset size after capping: {len(sampled_data)}")
+        sampled_data = random.sample(sampled_data, max_size)
+    
+    logger.info(f"Stratified cap: {len(data)} -> {len(sampled_data)} records "
+                f"(max: {max_size})")
+    
     return sampled_data

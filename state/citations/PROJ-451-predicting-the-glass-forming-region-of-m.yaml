@@ -44,7 +44,7 @@
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/
   verified_at: '2026-07-27T18:57:54.261635Z'
-- artifact_hash: c6baad867a09d28472e7096b8ecde724cae4d2fe97f876c512a3f5476b2eb7b6
+- artifact_hash: 8f5698dd2dfa51bae482b7c1a696002ac93d0f746fdbc72c0d61821371f369c3
   artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -54,4 +54,4 @@
   value: https://www.wikidata.org/wiki/Q19881044
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q19881044
-  verified_at: '2026-07-30T07:21:12.614782Z'
+  verified_at: '2026-08-30T09:41:51.140391Z'

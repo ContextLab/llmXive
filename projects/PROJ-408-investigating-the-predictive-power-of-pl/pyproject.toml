@@ -1,9 +1,9 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-phylogeny-metabolite"
+name = "llmxive-phylo-metabolite"
 version = "0.1.0"
 description = "Investigating the predictive power of plant phylogeny on secondary metabolite profiles"
 requires-python = ">=3.9"
@@ -19,31 +19,66 @@ dependencies = [
     "matplotlib",
     "seaborn",
     "pytest",
-]
-optional-dependencies.dev = [
     "ruff",
     "black",
 ]
 
 [tool.ruff]
-# Inherit from .ruff.toml if present, or define here
-line-length = 88
+# Target Python version
 target-version = "py39"
+# Line length for formatting and linting
+line-length = 100
 
 [tool.ruff.lint]
-select = [
-    "F401",
-    "ANN",
-    "E",
-    "W",
-    "I",
-]
-ignore = [
-    "ANN001",
-    "ANN201",
-]
+# Select specific error codes
+# E402: Module level import not at top of file
+# E501: Line too long (handled by black usually, but good to check)
+# F401: Unused imports
+# F403: 'from module import *' used
+# F405: Name may be undefined
+# W291: Trailing whitespace
+# W293: Blank line contains whitespace
+# W391: Blank line at end of file
+# UP035: Deprecated imports (optional but good practice)
+select = ["E402", "E501", "F401", "F403", "F405", "W291", "W293", "W391"]
+
+# Ignore specific rules if necessary (none for this strict config)
+ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+# Allow specific patterns if needed, e.g., __init__.py can have star imports
+"__init__.py" = ["F401", "F403"]
+
+[tool.ruff.format]
+# Enforce double quotes for strings (matching typical Python style)
+quote-style = "double"
+# Indent with spaces
+indent-style = "space"
+# Skip magic trailing comma
+skip-magic-trailing-comma = false
 
 [tool.black]
-line-length = 88
-target-version = ['py39', 'py310', 'py311']
-include = '\.pyi?$'
+# Line length must match ruff
+line-length = 100
+# Target version
+target-version = ["py39"]
+# Exclude generated files or specific directories
+extend-exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

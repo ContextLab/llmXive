@@ -1,86 +1,119 @@
-# Data Output Schema Definition for PROJ-071
-# This file defines the expected structure for all output artifacts.
+# Data Output Schema for PROJ-071
+# Defines the structure for all generated CSV and JSON files
 
 schemas:
-  merged_drugs:
-    description: "Merged dataset of structural and degradation data"
-    file: "data/processed/merged_drugs.csv"
-    columns:
-      - name: smiles
-        type: string
-        required: true
-      - name: canonical_smiles
-        type: string
-        required: false
-      - name: half_life
-        type: float
-        required: false
-      - name: rate_constant
-        type: float
-        required: false
-      - name: temperature
-        type: float
-        required: false
-      - name: ph
-        type: float
-        required: false
-
   excluded_molecules:
-    description: "Log of molecules excluded due to calculation errors"
-    file: "data/processed/excluded_molecules.csv"
+    file: data/processed/excluded_molecules.csv
+    description: Log of molecules that failed descriptor calculation
     columns:
       - name: smiles
         type: string
         required: true
-        description: "The SMILES string of the excluded molecule"
+        description: SMILES string of the failed molecule
       - name: error_type
         type: string
         required: true
-        description: "Type of error encountered (e.g., AtomValenceException)"
+        description: Type of error (e.g., AtomValenceException, MolSanitizeException)
       - name: timestamp
-        type: string
+        type: iso8601
         required: true
-        description: "ISO8601 timestamp of the error"
+        description: UTC timestamp of the failure
       - name: source_hash
         type: string
         required: true
-        description: "SHA256 hash of the source data file at the time of processing"
-
-  analysis_results:
-    description: "JSON file containing statistical analysis results"
-    file: "data/processed/analysis_results.json"
-    structure:
-      status: "PASS|FAIL|WARN|SKIPPED"
-      N: integer
-      R2: float (nullable)
-      p_values: object (nullable)
-      coefficients: object (nullable)
-      methodology: string
-      timestamp: string (ISO8601)
-      diagnostics:
-        shapiro_wilk:
-          stat: float
-          p: float
-        breusch_pagan:
-          stat: float
-          p: float
+        description: SHA256 hash of the source file containing the molecule
 
   gate_status:
-    description: "Status of the data availability gate"
-    file: "data/gate_status.json"
-    structure:
-      status: "PASS|FAIL"
-      reason: string (optional, if FAIL)
-      N: integer (optional, if FAIL)
-      column_found: string (optional)
+    file: data/gate_status.json
+    description: Data availability gate status
+    fields:
+      - name: status
+        type: string
+        required: true
+        enum: [PASS, FAIL]
+      - name: reason
+        type: string
+        required: false
+      - name: N
+        type: integer
+        required: false
+      - name: column_found
+        type: string
+        required: false
+
+  stat_gate_status:
+    file: data/stat_gate_status.json
+    description: Statistical gate status (Standard Conditions)
+    fields:
+      - name: status
+        type: string
+        required: true
+        enum: [PASS, FAIL]
+      - name: reason
+        type: string
+        required: false
+      - name: N_std
+        type: integer
+        required: false
+
+  analysis_results:
+    file: data/processed/analysis_results.json
+    description: Results of correlation and regression analysis
+    fields:
+      - name: status
+        type: string
+        required: true
+        enum: [PASS, FAIL, WARN, SKIPPED]
+      - name: N
+        type: integer
+        required: true
+      - name: R2
+        type: float
+        required: false
+        nullable: true
+      - name: p_values
+        type: object
+        required: false
+        nullable: true
+      - name: coefficients
+        type: object
+        required: false
+        nullable: true
+      - name: methodology
+        type: string
+        required: true
+      - name: timestamp
+        type: iso8601
+        required: true
+      - name: diagnostics
+        type: object
+        required: true
+        properties:
+          shapiro_wilk:
+            type: object
+            properties:
+              stat: float
+              p: float
+          breusch_pagan:
+            type: object
+            properties:
+              stat: float
+              p: float
 
   reproducibility_log:
-    description: "Machine-readable log for reproducibility"
-    file: "reproducibility_log.json"
-    structure:
-      artifacts:
-        - path: string
-          hash: string
-          lineage:
-            source_path: string
-            transformation: string
+    file: data/reproducibility_log.json
+    description: Machine-readable reproducibility log
+    fields:
+      - name: artifacts
+        type: array
+        required: true
+        items:
+          type: object
+          properties:
+            path: string
+            hash: string
+            lineage:
+              type: object
+              properties:
+                source_path: string
+                transformation: string

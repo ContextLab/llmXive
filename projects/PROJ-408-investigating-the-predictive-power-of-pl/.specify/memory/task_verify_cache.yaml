@@ -1,50 +1,21 @@
-T002a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No script, log, or command output showing that `mafft` and `fasttree` were installed
-    (e.g., an `apt-get install` command) and subsequently verified to be in the system
-    `PATH` is present. Without such evidence, we cannot confirm the binaries are installed
-    and discoverable, so the task requirement is not satisfied.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g.,\u202Fruff, flake8, black)\
-    \ are present, and there is no evidence that specific error codes for unused imports\
-    \ or missing type hints are being enforced. The required artifact (tool configuration)\
-    \ is missing."
-T011:
-  c: false
-  h: 2f427c0ecb4d8812fdc1272595301022b8b377a6b5c29d588ae34568a39f5cad
-  r: "The required output file `data/processed/test_tree.newick` does not exist, so\
-    \ the integration test cannot be verified and the asserted p\u2011value condition\
-    \ cannot be checked. The input file is present, but the essential pipeline output\
-    \ is missing."
-T012:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No actual artifact (e.g., script, output file, correlation value, or report)\
-    \ was provided showing that shuffled metabolite profiles were tested and yielded\
-    \ a correlation |r|\u202F<\u202F0.05. The claim lacks any concrete evidence, so\
-    \ the requirement is not satisfied."
 T019:
   c: false
-  h: 906f686c320e41320d958a0ba030dc05c99c196ac246ec64dbe3138e2a5f70b6
-  r: "The repository contains a partially implemented `code/stats_engine.py`, but\
-    \ it neither writes the null\u2011distribution histogram to `data/processed/null_distribution.json`\
-    \ nor creates the required `output/reports/validation_log.txt` entry. Both of\
-    \ those files are missing, so the deliverables and the explicit p\u2011value validation\
-    \ step are not satisfied."
+  h: 2b099a04eae4d181c1c870bb7f52b8e541b66e6dbbfcef41eff74f986dde818d
+  r: "The `code/stats_engine.py` file is truncated and does not contain a full Mantel\u2011\
+    test implementation, nor does it write the null\u2011distribution JSON or create\
+    \ the validation log. Both required output files (`data/processed/null_distribution.json`\
+    \ and `output/reports/validation_log.txt`) are missing. Consequently the task\u2019\
+    s deliverables are not satisfied."
 T020b:
-  c: false
-  h: 6dc4feddf31170743ba5791ee67f43a0c8c133017a18c1306c8432bd8a1b9e0e
-  r: "The `code/report.py` defines the required `verify_sc003_retention` function\
-    \ that writes the status line, but the expected output file `output/reports/validation_log.txt`\
-    \ is missing, and the provided `code/main.py` snippet is truncated before showing\
-    \ any call to this verification function. Without the log file being created/appended,\
-    \ the task\u2019s deliverable is not satisfied. The next implementer must ensure\
-    \ the pipeline invokes `verify_sc003_retention` with the correct counts and that\
-    \ the file `output/reports/validation_log.txt` is generated and contains the \u201C\
-    SC-003: Retention X% (PASS/FAIL)\u201D li"
+  c: true
+  h: 633c74618c76cdaf2325e1d6dc2644e1fad4257010b770fca981176238cd6682
+  r: "The `code/report.py` defines `verify_sc003_retention` that computes the retention\
+    \ percentage, compares it to the configured threshold, and appends the required\
+    \ \u201CSC-003: Retention X% (PASS/FAIL)\u201D line to `output/reports/validation_log.txt`\
+    \ via `append_validation_log`. `code/main.py` calls this verification function\
+    \ after filtering species, satisfying the implementation requirement. The log\
+    \ file itself is created at runtime, so its current absence does not indicate\
+    \ an incomplete implementation."
 T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

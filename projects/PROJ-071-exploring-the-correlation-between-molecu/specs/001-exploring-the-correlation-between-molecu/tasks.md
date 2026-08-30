@@ -154,21 +154,21 @@
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] Implement `code/viz.py`: **Action**:
+- [X] T032 [US3] Implement `code/viz.py`: **Action**: <!-- FAILED: unspecified -->
  1. Read `data/processed/analysis_results.json` (produced by T026).
  2. **IF** status is "PASS" **THEN** generate scatter plots with regression lines for top correlated features using `matplotlib.pyplot` (figure size 10x6, style `seaborn.whitegrid`); **save to `data/outputs/scatter_tpsa_vs_half_life.png`**, `scatter_rotatable_bonds_vs_half_life.png`.
  3. **ELSE** (Gate Fail) **SKIP** plot generation. **Dependency**: T026.
-- [ ] T033 [US3] Implement `code/viz.py`: **Action**:
+- [X] T033 [US3] Implement `code/viz.py`: **Action**:
  1. Read `data/processed/analysis_results.json` (produced by T026).
  2. **IF** status is "PASS" **THEN** generate residual diagnostic plots (histogram, QQ-plot, residuals vs fitted); **save to `data/outputs/residuals.png`**, `data/outputs/qq_plot.png`.
  3. **ELSE** (Gate Fail) **SKIP** plot generation. **Dependency**: T026.
-- [ ] T083 [US3] **Report Content Validation**: Implement `code/report.py` to include a **self-check** that verifies the presence of all mandatory sections (Methodology, Results, Reproducibility) before writing the file. **Action**: If any section is missing, raise `ReportGenerationError`. **Dependency**: T034.
-- [ ] T034 [US3] Implement `code/report.py`: Generate `results_report.md` summarizing methodology, coefficients, and R² scores. **Action**:
+- [X] T083 [US3] **Report Content Validation**: Implement `code/report.py` to include a **self-check** that verifies the presence of all mandatory sections (Methodology, Results, Reproducibility) before writing the file. **Action**: If any section is missing, raise `ReportGenerationError`. **Dependency**: T034.
+- [X] T034 [US3] Implement `code/report.py`: Generate `results_report.md` summarizing methodology, coefficients, and R² scores. **Action**:
  1. Read `data/gate_status.json`.
  2. **IF** Gate Failed, generate `data_insufficiency_report.md` instead of `results_report.md`.
  3. **IF** Gate Passed, generate `results_report.md`. **Dependency**: T026, T083.
-- [ ] T035 [US3] Implement reproducibility check in `code/report.py`: Log RDKit/scikit-learn versions, dataset URLs, retrieval dates, and **SHA256 hash values of raw and processed files directly in the report**. **Dependency**: T034.
-- [ ] T035b [US3] Implement machine-readable reproducibility log in `code/report.py`: Generate `reproducibility_log.json` containing versions, URLs, and SHA256 hashes of all data files (raw and processed). **Schema**: `{"artifacts": [{"path": str, "hash": str, "lineage": {"source_path": str, "transformation": str}}]}`. **Action**: Explicitly link derived file hashes to their source files and transformation steps. **Dependency**: T034.
+- [X] T035 [US3] Implement reproducibility check in `code/report.py`: Log RDKit/scikit-learn versions, dataset URLs, retrieval dates, and **SHA256 hash values of raw and processed files directly in the report**. **Dependency**: T034.
+- [X] T035b [US3] Implement machine-readable reproducibility log in `code/report.py`: Generate `reproducibility_log.json` containing versions, URLs, and SHA256 hashes of all data files (raw and processed). **Schema**: `{"artifacts": [{"path": str, "hash": str, "lineage": {"source_path": str, "transformation": str}}]}`. **Action**: Explicitly link derived file hashes to their source files and transformation steps. **Dependency**: T034.
 - [ ] T015c [US3] **Reproducibility Linkage for Excluded Molecules**: Update `code/report.py` (T035b) to include `excluded_molecules.csv` in the `reproducibility_log.json`. **Action**: Ensure the log explicitly maps `excluded_molecules.csv` back to `merged_drugs.csv` and `fda_structures.parquet` with their respective hashes. **Dependency**: T015, T034.
 - [ ] T036 [US3] Save all plots to `data/outputs/` and final report to `results_report.md`; verify the existence of the required plot files (`scatter_tpsa_vs_half_life.png`, `residuals.png`, `qq_plot.png`) and the report file. **Logic**: **IF** gate passed, verify each plot file has a non-zero size. **IF** gate failed, verify no plot files are generated (as per T032/T033) and only the report exists. **Dependency**: T032, T033, T034, T035.
 - [ ] T035c [US3] **Artifact Verification Fix**: Implement a final validation step in `code/report.py` to check the file size of `data/processed/analysis_results.json` (if Gate Pass) or `data/data_insufficiency_report.md` (if Gate Fail). **Logic**: Read `data/gate_status.json` to determine the expected artifact.

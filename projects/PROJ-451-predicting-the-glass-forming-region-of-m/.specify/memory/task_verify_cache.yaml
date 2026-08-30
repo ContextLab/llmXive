@@ -1,41 +1,12 @@
-T005:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `utils/dedup.py` file (or any non\u2011empty implementation) is present in\
-    \ the provided artifacts, so the required deduplication utility for normalizing\
-    \ and de\u2011duplicating chemical formulas has not been delivered. The task remains\
-    \ unfinished."
-T007:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the `data/raw/` and `data/processed/` directories or the required
-    `.gitkeep` placeholder files was provided; without these artifacts the task requirement
-    is not satisfied.
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No configuration files (e.g., .env, config.yaml, or Python settings) containing
-    the Materials Project API key or dataset path definitions were provided; the claim
-    lacks any tangible artifact demonstrating that environment configuration management
-    has been set up. The required files must be added and contain the actual keys/paths
-    for the task to be considered complete.
-T012:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `features/descriptors.py` file is present, and no code implementing the listed
-    atomic descriptors (Atomic Radius, Electronegativity, etc.) is provided. The claim
-    lacks the required artifact, so the task is not satisfied.
 T013:
   c: false
-  h: ce55314e7010e4c74b3f7cc2f58c470bce7b2bae293d81a9ee805d481aedda7c
-  r: The provided `code/main.py` exists and begins to implement Zenodo fetching and
-    imports a synthetic data generator, but the excerpt stops before any implementation
-    of the Materials Project API call, the required field selection (composition,
-    phase, elemental properties), the merging/deduplication logic, or the actual fallback
-    to the synthetic generator. Without seeing those sections, we cannot confirm the
-    script meets all stated requirements. The implementer must supply the complete
-    script (or `scripts/ingest.py`) showing the Materials Project API v3 request using
-    the environment API key, prope
+  h: b914bf1c760e906078dcc11d5b48bfe83b41e6360f363b86e90b52f75cd34175
+  r: "The provided `code/main.py` is present, but the visible portion only shows Zenodo\
+    \ fetching; there is no evidence of Materials Project API retrieval, merging of\
+    \ the two sources, or the required fallback to the synthetic generator when Zenodo\
+    \ is unavailable. Additionally, the script\u2019s handling of the API key, required\
+    \ fields, and final merged output are not demonstrated. The missing implementation\
+    \ details must be added to satisfy the task."
 T013b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

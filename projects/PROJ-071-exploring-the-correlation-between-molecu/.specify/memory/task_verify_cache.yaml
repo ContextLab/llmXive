@@ -22,12 +22,12 @@ T015:
     \ were implemented."
 T025:
   c: false
-  h: da7222876d9f66c9e1a2963d6faa48af850d31950e9063f56ac3ff003f8755e1
-  r: "The `data/processed/analysis_results.json` file is missing, so the required\
-    \ numeric results are not saved. Moreover, the `perform_residual_diagnostics`\
-    \ function in `code/analysis.py` is truncated and does not show the implementation\
-    \ of the Shapiro\u2011Wilk and Breusch\u2011Pagan tests, leaving it unclear whether\
-    \ the diagnostics are actually performed. The task therefore remains unfinished."
+  h: b8ee15d95c565d375a29d21a0f88e1ae000f5a5ff15b6fcedc533f8d4c90c1e8
+  r: "The repository lacks the required `data/processed/analysis_results.json` file,\
+    \ and the shown portion of `code/analysis.py` does not contain any implementation\
+    \ of Shapiro\u2011Wilk or Breusch\u2011Pagan tests nor code that writes those\
+    \ results to the JSON file. The task\u2019s core functionality and output artifact\
+    \ are missing."
 T033:
   c: false
   h: 2b13c68f134c741fead75b43ec95ff865248c5e79992fd122d9e123d08d54d04
