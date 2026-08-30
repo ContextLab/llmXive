@@ -1,19 +1,13 @@
 """
-Behavioral Data Parsing and Filtering (Task T013)
+T013: Implement behavioral parsing for RT data.
 
-Parses reaction time (RT) logs from the PhysioNet EEG Motor Movement/Imagery dataset.
-Excludes outliers (RT < 100ms or RT > 2000ms) and participants with insufficient trials.
-Generates behavioral metrics and exclusion logs.
-
-Inputs:
-    - data/interin/joined_metadata.csv (from T008a)
-    - Raw behavioral files from data/raw/ (downloaded by T007)
+Parses RT logs, excludes outliers (RT < 100ms, RT > 2000ms),
+retains participants with >= 70% trials remaining.
 
 Outputs:
-    - data/interim/behavioral_metrics.csv
-    - data/interim/behavioral_exclusion_log.csv
+  - data/interim/behavioral_metrics.csv
+  - data/interim/behavioral_exclusion_log.csv
 """
-
 import os
 import sys
 import glob
@@ -22,260 +16,213 @@ import argparse
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional, Any
 
-# Add project root to path to import config
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+# Add project root to path for imports if running as script
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
 from config import get_path, ensure_dirs
 
-# Constants
-MIN_RT_MS = 100.0
-MAX_RT_MS = 2000.0
-MIN_TRIAL_RETENTION_RATIO = 0.70  # 70%
+# Constants for outlier detection
+MIN_RT_MS = 100
+MAX_RT_MS = 2000
+MIN_TRIAL_RETENTION_RATIO = 0.70
 
-def load_physionet_behavioral_data(raw_data_dir: str) -> List[Dict[str, Any]]:
+def load_physionet_behavioral_data():
     """
-    Load behavioral data files from the PhysioNet dataset.
-    The dataset structure typically contains .edf files with annotations.
-    We look for annotation files or specific behavioral text files if available.
-    In the Motor Movement/Imagery dataset, reaction times are often embedded
-    in the annotations of the .edf files or separate CSVs if processed.
-
-    Since T007 downloads the raw data, we assume standard PhysioNet structure:
-    data_raw_dir / subject / sub-XX_task-YY_eeg.edf
-
-    We will attempt to extract RTs from annotations if present, or load
-    pre-extracted CSVs if T007/T008a produced them.
+    Load behavioral data from the downloaded RT dataset.
+    The dataset was downloaded by T007b to data/raw/rt_data/
+    We expect event files in TSV format.
     """
-    # Check for pre-extracted behavioral CSVs (common in pipeline intermediates)
-    # If T008a produced joined_metadata, it might have paths to behavioral data.
-    # For this implementation, we look for specific patterns in the raw directory.
-    
-    behavioral_data = []
-    
-    # Strategy: Look for CSV files in the raw directory that might contain RTs
-    # PhysioNet EEG Motor Movement/Imagery often has annotations.
-    # If the raw data is just .edf, we might need to parse annotations.
-    # However, for this task, we assume the existence of a parsed behavioral source
-    # or we attempt to find a 'behavioral' or 'rt' folder if created by previous steps.
-    
-    # Fallback: If we can't find specific RT files, we assume the 'joined_metadata'
-    # from T008a might contain the necessary info or we scan for .csv in raw.
-    
-    # Let's scan for any CSV files in the raw directory that look like behavioral data
-    # or look for a specific 'behavioral' subdirectory if it exists.
-    candidate_patterns = [
-        os.path.join(raw_data_dir, "**", "*.csv"),
-        os.path.join(raw_data_dir, "**", "*.txt"),
-    ]
-    
-    found_files = []
-    for pattern in candidate_patterns:
-        found_files.extend(glob.glob(pattern, recursive=True))
-    
-    # Filter for likely behavioral files (containing 'rt', 'behavior', 'response')
-    # or simply load all if they match a specific schema we expect.
-    # Given the constraints, we assume the raw data might have been partially processed
-    # by T007/T008a into a format we can read, or we look for the specific PhysioNet
-    # annotation CSVs if they exist.
-    
-    # For the purpose of this task, we will simulate the reading of a standard
-    # behavioral CSV format if found, or raise an error if no data is found.
-    # In a real run, T007/T008a should have prepared this.
-    
-    # Let's try to find a file named 'behavioral_data.csv' or similar in the interim
-    # or raw folder.
-    potential_rt_file = os.path.join(raw_data_dir, "behavioral_data.csv")
-    if os.path.exists(potential_rt_file):
-        df = pd.read_csv(potential_rt_file)
-        # Expected columns: participant_id, rt_ms, trial_type, etc.
-        # Normalize column names
-        df.columns = [c.strip().lower() for c in df.columns]
-        if 'participant_id' in df.columns and 'rt' in df.columns:
-            # Ensure RT is numeric
-            df['rt'] = pd.to_numeric(df['rt'], errors='coerce')
-            behavioral_data.append(df)
-    
-    # If not found in root, scan subdirectories
-    if not behavioral_data:
-        for root, dirs, files in os.walk(raw_data_dir):
-            for file in files:
-                if file.endswith('.csv') or file.endswith('.tsv'):
-                    # Heuristic: file contains 'rt' or 'behavior' or is in a subject folder
-                    # and has columns matching our expectation.
-                    try:
-                        df = pd.read_csv(os.path.join(root, file))
-                        cols = [c.strip().lower() for c in df.columns]
-                        if 'participant_id' in cols and any('rt' in c for c in cols):
-                            # Normalize RT column name to 'rt'
-                            rt_col = next(c for c in cols if 'rt' in c)
-                            if rt_col != 'rt':
-                                df = df.rename(columns={rt_col: 'rt'})
-                            df['rt'] = pd.to_numeric(df['rt'], errors='coerce')
-                            behavioral_data.append(df)
-                    except Exception:
-                        continue
-    
-    if not behavioral_data:
-        # If still nothing, we might need to look at the joined_metadata to see if
-        # it points to a specific file, or we assume the data is missing.
-        # For this task, we will raise an error if no data is found to avoid silent failure.
+    rt_data_dir = get_path("raw", "rt_data")
+    if not os.path.exists(rt_data_dir):
         raise FileNotFoundError(
-            "No behavioral data files (CSV/TSV with 'participant_id' and 'rt') found in raw_data_dir. "
-            "Ensure T007 and T008a have successfully downloaded and joined the data."
+            f"RT data directory not found: {rt_data_dir}. "
+            "Please run T007b (01_download_rt_data.py) first."
         )
     
-    return behavioral_data
+    # Look for TSV files containing RT events
+    # Based on OpenNeuro ds000224 structure: sub-*/task-rt_events.tsv
+    tsv_files = []
+    for root, dirs, files in os.walk(rt_data_dir):
+        for file in files:
+            if file.endswith('_events.tsv') or file.endswith('task-rt_events.tsv'):
+                tsv_files.append(os.path.join(root, file))
+    
+    if not tsv_files:
+        # Fallback: look for any .tsv in the rt_data directory
+        tsv_files = glob.glob(os.path.join(rt_data_dir, "**/*.tsv"), recursive=True)
+    
+    if not tsv_files:
+        raise FileNotFoundError(
+            f"No behavioral event TSV files found in {rt_data_dir}. "
+            "Ensure T007b successfully downloaded the dataset."
+        )
+    
+    all_data = []
+    for tsv_file in tsv_files:
+        try:
+            df = pd.read_csv(tsv_file, sep='\t')
+            # Try to identify participant ID from filename or path
+            # OpenNeuro format: sub-XX/task-rt_events.tsv
+            path_parts = Path(tsv_file).parts
+            sub_id = None
+            for part in path_parts:
+                if part.startswith('sub-'):
+                    sub_id = part.replace('sub-', '')
+                    break
+            
+            if sub_id:
+                df['participant_id'] = sub_id
+                all_data.append(df)
+        except Exception as e:
+            print(f"Warning: Could not parse {tsv_file}: {e}")
+            continue
+    
+    if not all_data:
+        raise ValueError("No valid behavioral data could be loaded from TSV files.")
+    
+    combined_df = pd.concat(all_data, ignore_index=True)
+    return combined_df
 
-def extract_rt_from_annotations(edf_path: str) -> Optional[pd.DataFrame]:
+def extract_rt_from_annotations(df):
     """
-    Attempt to extract RTs from EDF annotations if CSVs are not available.
-    This is a fallback for raw .edf files.
+    Extract Reaction Time values from the dataframe.
+    Looks for columns like 'reaction_time', 'rt', 'response_time', or 'onset'/'duration' based logic.
     """
-    try:
-        import mne
-        raw = mne.io.read_raw_edf(edf_path, preload=False)
-        events, event_id = mne.events_from_annotations(raw)
-        
-        # Look for annotations that might represent responses
-        # This is highly dataset-specific. In PhysioNet Motor Imagery,
-        # there aren't always explicit RT annotations unless it's a specific task.
-        # We'll return None if we can't find clear RT markers.
-        if not events.size:
-            return None
-        
-        # Construct a dummy dataframe if we find events, assuming event durations or
-        # specific codes represent RTs. This is a placeholder logic.
-        # In reality, we rely on the CSV extraction above.
-        return None
-    except Exception:
-        return None
+    # Common column names for RT
+    rt_columns = ['reaction_time', 'rt', 'response_time', 'trial_rt']
+    
+    rt_col = None
+    for col in rt_columns:
+        if col in df.columns:
+            rt_col = col
+            break
+    
+    if rt_col is None:
+        # If no explicit RT column, try to calculate from onset/duration if available
+        if 'onset' in df.columns and 'duration' in df.columns:
+            # Sometimes RT is encoded as duration of a response event
+            if 'duration' in df.columns:
+                df['calculated_rt'] = df['duration'] * 1000  # Convert to ms if in seconds
+                rt_col = 'calculated_rt'
+            else:
+                raise ValueError("Could not identify RT column in behavioral data.")
+        else:
+            raise ValueError("Could not identify RT column in behavioral data.")
+    
+    return df[rt_col].dropna()
 
-def process_behavioral_data(
-    behavioral_data: List[pd.DataFrame],
-    joined_metadata_path: str
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def process_behavioral_data(df):
     """
     Process behavioral data:
     1. Filter outliers (RT < 100ms or RT > 2000ms)
-    2. Calculate median RT per participant
-    3. Retain participants with >= 70% trials remaining
-    4. Generate exclusion log
+    2. Calculate median RT
+    3. Track exclusion counts
+    4. Exclude participants with < 70% trials remaining
+    
+    Returns:
+      metrics_df: DataFrame with participant_id, median_rt, n_trials, n_trials_excluded
+      exclusion_log_df: DataFrame with participant_id, reason
     """
-    # Load joined metadata to know which participants we expect
-    try:
-        joined_df = pd.read_csv(joined_metadata_path)
-    except FileNotFoundError:
-        # If no joined metadata, we process all found data
-        joined_ids = set()
-    else:
-        joined_ids = set(joined_df['participant_id'].astype(str))
+    metrics = []
+    exclusion_log = []
     
-    all_records = []
-    exclusion_records = []
+    # Group by participant
+    if 'participant_id' not in df.columns:
+        # If no participant ID, treat as a single batch (unlikely for this project)
+        df['participant_id'] = 'unknown'
     
-    for df in behavioral_data:
-        # Ensure participant_id is string for consistent joining
-        if 'participant_id' in df.columns:
-            df['participant_id'] = df['participant_id'].astype(str)
+    for pid, group in df.groupby('participant_id'):
+        # Extract RTs
+        rts = extract_rt_from_annotations(group)
+        total_trials = len(rts)
         
-        # If we have joined_ids, filter to only those
-        if joined_ids:
-            df = df[df['participant_id'].isin(joined_ids)]
-        
-        if df.empty:
+        if total_trials == 0:
+            exclusion_log.append({
+                'participant_id': pid,
+                'reason': 'no_trials'
+            })
             continue
         
-        # Group by participant
-        for pid, group in df.groupby('participant_id'):
-            total_trials = len(group)
-            if total_trials == 0:
-                exclusion_records.append({
-                    'participant_id': pid,
-                    'reason': 'no_trials'
-                })
-                continue
-            
-            # Filter outliers
-            valid_mask = (group['rt'] >= MIN_RT_MS) & (group['rt'] <= MAX_RT_MS)
-            valid_trials = group[valid_mask]
-            n_valid = len(valid_trials)
-            n_excluded = total_trials - n_valid
-            
-            # Check retention ratio
-            retention_ratio = n_valid / total_trials
-            
-            if retention_ratio < MIN_TRIAL_RETENTION_RATIO:
-                exclusion_records.append({
-                    'participant_id': pid,
-                    'reason': 'low_trial_retention'
-                })
-                continue
-            
-            # Calculate metrics
-            median_rt = valid_trials['rt'].median()
-            
-            all_records.append({
+        # Filter outliers
+        valid_mask = (rts >= MIN_RT_MS) & (rts <= MAX_RT_MS)
+        valid_rts = rts[valid_mask]
+        n_excluded = total_trials - len(valid_rts)
+        
+        # Check retention ratio
+        retention_ratio = len(valid_rts) / total_trials
+        
+        if retention_ratio < MIN_TRIAL_RETENTION_RATIO:
+            exclusion_log.append({
                 'participant_id': pid,
-                'median_rt': median_rt,
-                'n_trials': n_valid,
-                'n_trials_excluded': n_excluded
+                'reason': 'low_retention',
+                'retention_ratio': retention_ratio
             })
+            continue
+        
+        # Calculate metrics
+        median_rt = np.median(valid_rts)
+        
+        metrics.append({
+            'participant_id': pid,
+            'median_rt': median_rt,
+            'n_trials': len(valid_rts),
+            'n_trials_excluded': n_excluded
+        })
     
-    metrics_df = pd.DataFrame(all_records)
-    exclusion_df = pd.DataFrame(exclusion_records)
+    metrics_df = pd.DataFrame(metrics)
+    exclusion_log_df = pd.DataFrame(exclusion_log)
     
-    return metrics_df, exclusion_df
+    # Ensure columns are in correct order if not empty
+    if not metrics_df.empty:
+        metrics_df = metrics_df[['participant_id', 'median_rt', 'n_trials', 'n_trials_excluded']]
+    
+    return metrics_df, exclusion_log_df
 
 def main():
-    parser = argparse.ArgumentParser(description="Parse behavioral data and filter outliers.")
-    parser.add_argument("--raw-data-dir", type=str, default=None,
-                        help="Path to raw data directory. Defaults to config 'data_raw'.")
-    parser.add_argument("--joined-metadata", type=str, default=None,
-                        help="Path to joined metadata CSV. Defaults to config 'interim/joined_metadata.csv'.")
+    parser = argparse.ArgumentParser(description="T013: Parse behavioral RT data")
+    parser.add_argument('--input', type=str, default=None, help='Input directory override')
+    parser.add_argument('--output-metrics', type=str, default=None, help='Output metrics file override')
+    parser.add_argument('--output-exclusion', type=str, default=None, help='Output exclusion log override')
     args = parser.parse_args()
     
-    # Resolve paths
-    if args.raw_data_dir:
-        raw_data_dir = args.raw_data_dir
-    else:
-        raw_data_dir = get_path("data_raw")
-    
-    if args.joined_metadata:
-        joined_metadata_path = args.joined_metadata
-    else:
-        joined_metadata_path = get_path("interim", "joined_metadata.csv")
-    
-    # Ensure output directories exist
-    interim_dir = get_path("interim")
-    ensure_dirs(interim_dir)
-    
-    metrics_path = os.path.join(interim_dir, "behavioral_metrics.csv")
-    exclusion_path = os.path.join(interim_dir, "behavioral_exclusion_log.csv")
-    
-    print(f"Loading behavioral data from: {raw_data_dir}")
-    print(f"Using joined metadata: {joined_metadata_path}")
-    
-    # Load data
+    print("Loading behavioral data...")
     try:
-        behavioral_data_list = load_physionet_behavioral_data(raw_data_dir)
+        rt_df = load_physionet_behavioral_data()
     except FileNotFoundError as e:
-        print(f"ERROR: {e}")
+        print(f"Error: {e}")
         sys.exit(1)
     
-    print(f"Found {len(behavioral_data_list)} behavioral data files.")
+    print(f"Loaded {len(rt_df)} rows of behavioral data.")
     
-    # Process data
-    metrics_df, exclusion_df = process_behavioral_data(behavioral_data_list, joined_metadata_path)
+    print("Processing behavioral data...")
+    metrics_df, exclusion_log_df = process_behavioral_data(rt_df)
     
-    # Save outputs
-    metrics_df.to_csv(metrics_path, index=False)
-    exclusion_df.to_csv(exclusion_path, index=False)
+    # Determine output paths
+    output_metrics_path = args.output_metrics or get_path("interim", "behavioral_metrics.csv")
+    output_exclusion_path = args.output_exclusion or get_path("interim", "behavioral_exclusion_log.csv")
     
-    print(f"Saved behavioral metrics to: {metrics_path}")
-    print(f"Saved exclusion log to: {exclusion_path}")
-    print(f"Total participants processed: {len(metrics_df)}")
-    print(f"Total participants excluded: {len(exclusion_df)}")
+    # Ensure directories exist
+    ensure_dirs(output_metrics_path)
+    ensure_dirs(output_exclusion_path)
+    
+    # Write outputs
+    print(f"Writing behavioral metrics to {output_metrics_path}...")
+    metrics_df.to_csv(output_metrics_path, index=False)
+    
+    print(f"Writing exclusion log to {output_exclusion_path}...")
+    exclusion_log_df.to_csv(output_exclusion_path, index=False)
+    
+    print(f"Completed. {len(metrics_df)} participants retained, {len(exclusion_log_df)} excluded.")
+    
+    # Exit with code 1 if no participants remain (fail loudly)
+    if len(metrics_df) == 0:
+        print("Error: No participants met the retention criteria. Feasibility check failed.")
+        sys.exit(1)
+    
+    sys.exit(0)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

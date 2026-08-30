@@ -1,13 +1,17 @@
+---
+description: "Task list template for feature implementation"
+---
+
 # Tasks: Predicting Individual Differences in Sensory Processing Speed from Resting‑State EEG Power Spectra
 
 **Input**: Design documents from `/specs/001-predict-sensory-speed-from-eeg/`
-**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories)
+**Prerequisites**: plan.md (required), spec.md (required for user stories)
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
-## Format: `- [ ] T### [P?] [Story] Description`
+## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
 - **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
@@ -26,7 +30,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001a Create project directory structure (`code/`, `tests/`, `data/raw/`, `data/interim/`, `data/processed/`, `code/utils/`).
-- [X] T001b Create `code/requirements.txt` with pinned versions (mne, scikit-learn, pandas, numpy, scipy, matplotlib, seaborn, pyyaml, physionet_dl).
+- [X] T001b Create `code/requirements.txt` with pinned versions (mne, scikit-learn, pandas, numpy, scipy, matplotlib, seaborn, pyyaml, physionet).
 - [X] T003 [P] Configure linting (flake8/black) and formatting tools.
 
 ---
@@ -39,20 +43,22 @@
 - [X] T004b [P] Add configuration validation logic to `code/config.py`. Must run after T004a.
 - [X] T005 [P] Implement `code/utils/eeg_helpers.py` with band‑pass (low-frequency cutoff), notch (50/60 Hz), and variance‑rejection utilities. **Depends on** T004a & T004b.
 - [X] T006 [P] Implement `code/utils/stats_helpers.py` with Bonferroni correction, permutation utilities, and MDES calculations. **Depends on** T004a & T004b.
-- [ ] T007a [P] Create `code/01_download_data.py` to fetch the PhysioNet EEG Motor Movement/Imagery Dataset (Dataset ID: **100**, URL: `).
- - **Logic**: Use `physionet_dl` or `wget` to download raw EDF files. Verify cryptographic checksums against the manifest provided by PhysioNet. **Do not use placeholder checksums**. The script MUST fetch the `MANIFEST.md` or equivalent from the dataset root to verify file integrity. If checksum verification fails, exit with code 1.
+- [X] T007a [P] Create `code/download_data.py` to fetch the PhysioNet EEG Motor Movement/Imagery Dataset (Dataset ID: **100**).
+ - **URL**: `
+ - **Logic**: Use the `physionet` Python package to download raw EDF files. Verify cryptographic checksums against the manifest provided by PhysioNet. **Do not use placeholder checksums**. The script MUST fetch the `MANIFEST.md` or equivalent from the dataset root to verify file integrity. If checksum verification fails, exit with code 1 [UNRESOLVED-CLAIM: c_0824c13e — status=not_enough_info].
  - **Output**: `data/raw/eegmmidb/` and `data/interim/data_source_manifest.json` (containing file paths and verified hashes).
  - **Dependencies**: T001a, T001b, T003.
-- [ ] T007b [P] Create `code/01_download_rt_data.py` to fetch the Simple Reaction Time dataset (Dataset ID: **ds000224**, Source: OpenNeuro).
- - **Logic**: Download behavioral logs for simple RT tasks using `datalad` or `requests` targeting `https://openneuro.org/datasets/ds000224`. Verify integrity. **Note**: This dataset is distinct from the EEG dataset; linking will occur in T008a.
+- [X] T007b [P] Create `code/01_download_rt_data.py` to fetch the Simple Reaction Time dataset (Dataset ID: **ds000224**, Source: OpenNeuro).
+ - **URL**: `https://openneuro.org/datasets/ds000224`
+ - **Logic**: Download behavioral logs for simple RT tasks using `datalad` or `requests` targeting the specific subdirectory `sub-*/ses-*/beh/` or `sub-*/task-rt_events.tsv` on OpenNeuro. Verify integrity. **Note**: This dataset is distinct from the EEG dataset; linking will occur in T008a.
  - **Output**: `data/raw/rt_data/` and `data/interim/rt_data_manifest.json`.
  - **Dependencies**: T001a, T001b, T003.
-- [ ] T008a [P] [Plan-Phase-0.5] [FR-001] Create `code/00_feasibility_check_join.py` to join EEG and RT datasets on `participant_id`.
+- [X] T008a [P] [Plan-Phase-0.5] [FR-001] Create `code/00_feasibility_check_join.py` to join EEG and RT datasets on `participant_id`.
  - **Inputs**: `data/interim/data_source_manifest.json` (from T007a) AND `data/interim/rt_data_manifest.json` (from T007b).
  - **Outputs**:
  - `data/interim/joined_metadata.csv` (successful joins)
- - `data/interim/feasibility_exclusion_log.csv` (columns: `participant_id` (str), `reason` (enum: missing_rt, short_epoch, channels_rejected_ratio), `channels_rejected_ratio` (float))
- - **Logic**: Exclude participants if epoch duration < 5 minutes (`short_epoch`) or if `channels_rejected_ratio` > 0.30. **If no participants remain, generate `data/processed/feasibility_report.md` with status "failed" and exit 1.**
+ - `data/interim/feasibility_exclusion_log.csv` (columns: `participant_id` (str), `reason` (enum: missing_rt, short_epoch, channels_rejected_ratio), `channels_rejected_ratio` (float)).
+ - **Logic**: Exclude participants if epoch duration < 5 minutes (`short_epoch`) or if `channels_rejected_ratio > 0.30`. **If no participants remain, generate `data/processed/feasibility_report.md` with status "failed" and exit 1.**
  - **Dependencies**: T007a, T007b.
 - [ ] T008b [P] [Plan-Phase-0.5] [FR-001] Create `code/00_feasibility_report.py` to generate the feasibility report.
  - **Inputs**: `data/interim/feasibility_exclusion_log.csv` (from T008a).
@@ -67,22 +73,20 @@
 
 **Goal**: Ingest raw EEG and behavioral data, preprocess, extract PSD features, and compute median RTs.
 
-- [ ] T010 [US1] [FR-002] Implement `code/02_preprocess_eeg.py`:
- - Apply a low-frequency band‑pass filter and a /60 Hz notch filter.
- - Reject channels with variance > 3 SD from the session mean.
- - Apply ICA (retain high variance) to remove ocular/muscle artifacts.
- - Exclude participants if `rejected_channels / total_channels > 0.30`.
+- [X] T010 [US1] [FR-002] Implement `code/02_preprocess_eeg.py`:
+ - Apply a low-frequency band‑pass filter and a /60 Hz notch filter. Reject channels with variance > 3 SD from the session mean. Apply ICA (retain high variance) to remove ocular/muscle artifacts. Exclude participants if `rejected_channels / total_channels > 0.30`.
  - **Outputs**: `data/interim/preprocessed_eeg/` (`.fif`), `data/interim/ica_cleaned_eeg/` (`.fif`), and `data/interim/exclusion_log.csv` (columns: `participant_id` (str), `reason` (enum: high_variance, ica_failure, short_epoch), `channels_rejected_ratio` (float)).
  - **Dependencies**: T007a, T008a, T005, T006.
 
-- [ ] T013 [US1] Implement `code/03_behavioral_parsing.py`:
- - Parse RT logs, exclude outliers (`RT < 100 ms` or `RT > 2000 ms`).
- - Retain participants with ≥ 70 % trials remaining.
+- [X] T013 [US1] Implement `code/03_behavioral_parsing.py`:
+ - Parse RT logs, exclude outliers (`RT < 100ms`, `RT > 2000ms`). Retain participants with ≥ 70 % trials remaining.
  - **Outputs**: `data/interim/behavioral_metrics.csv` (`participant_id`, `median_rt`, `n_trials`, `n_trials_excluded`) and `data/interim/behavioral_exclusion_log.csv` (`participant_id`, `reason`).
  - **Dependencies**: T007b, T008a.
 
-- [ ] T012a [US1] [FR-003] Implement `code/04_extract_psd.py`:
- - Compute Welch's PSD on **continuous -minute epochs** using **fixed-duration windows**.
+- [ ] T012a [US1] [FR-003] Implement `code/04_extract_psd.py`: <!-- FAILED: unspecified -->
+ - Compute Welch's PSD on continuous fixed-length epochs
+
+The research question, method, and references remain unchanged. using **fixed-duration windows**.
  - **Windowing**: Use `config.WINDOW_SIZE` (4s). **Overlap**: Use `config.OVERLAP` (0.5) as the *baseline* value. The code MUST accept a `--overlap` flag to allow empirical adjustment (satisfying the `[deferred]` requirement).
  - **Output**: `data/interim/psd_spectra.npy` (shape: [n_participants, n_channels, n_frequencies]).
  - **Dependencies**: T010, T013, T007a, T008a.
@@ -93,11 +97,11 @@
  - **Dependencies**: T012a.
 
 - [ ] T012c [US1] [FR-010] Implement `code/04c_relative_power.py`:
- - Calculate **relative power** (band / total power across the frequency range) for each band and channel.
- - **Join Logic**: Explicitly joins `data/interim/band_powers.csv` (from T012b) with `data/interim/behavioral_metrics.csv` (from T013) on `participant_id` **after filtering the participant list using `data/interim/joined_metadata.csv` (from T008a)** to ensure consistency with the feasibility gate.
+ - Calculate relative power (band / total power across the frequency range) for each band and channel.
+ - **Join Logic**: Explicitly joins `data/interim/band_powers.csv` (from T012b) with `data/interim/behavioral_metrics.csv` (from T013) on `participant_id` **using an INNER JOIN** to exclude any participants not present in both datasets, and **filtering the participant list using `data/interim/joined_metadata.csv` (from T008a)** to ensure consistency with the feasibility gate.
  - Aggregate across channels (global mean) per participant.
  - **Output**: `data/processed/features.csv` (columns: `participant_id`, `median_rt`, `delta_rel`, `theta_rel`, `alpha_rel`, `low_beta_rel`, `high_beta_rel`, `gamma_rel`).
- - **Note on Plan**: Spec FR-010 mandates Relative Power. The Plan's suggestion of CLR is superseded by the Spec. This task implements Relative Power.
+ - **Note on Plan**: Spec FR-010 mandates Relative Power. The Plan's suggestion of CLR is superseded by the Spec. **This task explicitly confirms that CLR transformation is OMITTED** in favor of Relative Power as per Spec FR-010.
  - **Dependencies**: T012b, T013, T008a.
 
 - [ ] T035a [US1] Validate schema of `data/processed/features.csv`.
@@ -118,22 +122,26 @@
  - Perform a train/test split **before** 5‑fold CV on the training set.
  - Fit Multiple Linear Regression and LASSO (lambda tuned to minimize RMSE).
  - **Crucial**: Store split indices to ensure permutation tests (T022) can access the data.
- - **Outputs**: `data/interim/split_indices.json`, `data/processed/model_results.json` (keys: `adjusted_r2`, `optimal_lambda`, `rmse`, `test_r2`, `test_rmse`).
+ - **Outputs**: `data/processed/model_results.json` (keys: `adjusted_r2`, `optimal_lambda`, `rmse`, `test_r2`, `test_rmse`).
  - **Dependencies**: T012c, T013, T007a, T008a.
 
-- [ ] T020 [P] Implement Pearson correlation script `code/06_correlations.py` (FR‑006).
+- [ ] T020 [US2] [FR-006] Implement Pearson correlation script `code/06_correlations.py` (FR‑006).
  - Reads `features.csv`, computes correlation between each band's relative power and median RT.
  - **Output**: `data/interim/correlations_raw.csv` (`band`, `r_value`, `p_value`, `n`).
  - **Dependencies**: T012c.
 
-- [ ] T021 [US2] [FR-006] Apply Bonferroni correction for 6 bands (α = 0.0083). Flag significant results and write `data/processed/correlations_corrected.csv`.
- - **Logic**: Divide 0.05 by 6. Compare raw p-values against this threshold.
+- [ ] T021 [US2] [FR-006] Apply Bonferroni correction for 6 bands (α = 0.0083). [UNRESOLVED-CLAIM: c_8b28ac3f — status=not_enough_info]. Flag significant results and write `data/processed/correlations_corrected.csv`.
+ - **Logic**: Divide 0.05 by 6 [UNRESOLVED-CLAIM: c_5100ba2b — status=not_enough_info]. Compare raw p-values against this threshold.
  - **Dependencies**: T020.
 
 - [ ] T022 [US2] [FR-007] Implement permutation test `code/07_permutation_test.py`:
- - **Read** observed `test_r2` from `data/processed/model_results.json` and `split_indices.json` from T017.
- - **Shuffle** `median_rt` labels **ONLY within the training set** (using indices from `split_indices.json`) to establish a valid null distribution for the model's training performance, as required by FR-007 and Constitution VII.
- - **Retrain**: For each shuffle, load the training data (with shuffled labels), retrain the model, predict on the **original held-out test set**, and compute R².
+ - **Read** observed `test_r2` from `data/processed/model_results.json` and the full dataset from `features.csv`.
+ - **Shuffle**: Perform permutation by **shuffling the `median_rt` labels (y) on the FULL dataset** (before any train/test split) to generate a valid null distribution for the entire modeling pipeline. For each shuffle:
+ 1. Shuffle labels.
+ 2. Perform the same train/test split as the original run.
+ 3. Train the model on the shuffled training set.
+ 4. Predict on the shuffled test set (which corresponds to the original test set participants but with shuffled labels).
+ 5. Compute R².
  - **Optimization**: Use `warm_start=True` for LASSO and vectorized R² calculation.
  - **Store** null R² values in `data/interim/permutation_null_distribution.npy`.
  - **Compute** p-value by comparing observed R² against the null distribution.
@@ -142,7 +150,7 @@
 
 - [ ] T023 [US2] [FR-011] Perform post‑hoc power analysis using `statsmodels`.
  - **Logic**: Calculate `effect_size` corresponding to R²=0.10 using `sqrt(0.10 / (1-0.10))`. Pass this to `statsmodels.stats.power.FTestPower.solve_power` to find `required_n` for power ≥ 0.80.
- - **Output**: Append `post_hoc_power_analysis` block to `data/processed/model_results.json` with `required_n`, `observed_power`, `effect_size`.
+ - **Output**: **Append** `post_hoc_power_analysis` block to `data/processed/model_results.json` with `required_n`, `observed_power`, `effect_size`. **Ensure these values are included in the final report.**
  - **Dependencies**: T017.
 
 - [ ] T024a [US2] [FR-012] Implement `code/08a_prepare_polynomial_features.py`:
@@ -162,10 +170,10 @@
  - **Dependencies**: T024b.
 
 - [ ] T025a [US3] [FR-008] Implement `code/09_robustness_preprocess.py`:
- - Re-run `code/02_preprocess_eeg.py` with `--no-ica` AND `--window-size 2` flags.
- - **Output**: `data/interim/robustness_no_ica_eeg/` (`.fif`) and `data/interim/robustness_psd_spectra.npy` (2s window).
- - **Dependencies**: T004a (config), T008a (filtered participant list). **Note**: This task invokes the *script* logic of T010 but bypasses the *artifact* of T010.
- - **Dependency Clarification**: Depends on the *script* `code/02_preprocess_eeg.py` and raw data, not the ICA artifact.
+ - **Execute** `code/02_preprocess_eeg.py` with `--no-ica` AND `--window-size 2` flags.
+ - **Output**: `data/interim/robustness_no_ica_eeg/` (`.fif`) and **a new exclusion log** `data/interim/robustness_exclusion_log.csv` (generated specifically for this run, not reused from T010).
+ - **Dependencies**: T010 (script), T007a, T008a. **Note**: This task is only the preprocessing step for the robustness check.
+ - **Dependency Clarification**: Depends on the *script* `code/02_preprocess_eeg.py` and raw data, not the ICA artifact of T010.
 
 - [ ] T025b [US3] [FR-008] Implement `code/09_robustness_features.py`:
  - Re-run `code/04_extract_psd.py`, `code/04b_aggregate_bands.py`, `code/04c_relative_power.py` using the output from T025a (`--window-size 2` and `--no-ica` data).
@@ -197,9 +205,9 @@
  - **Dependencies**: T020, T021.
 
 - [ ] T035b [US2] Validate schemas of `model_results.json`, `correlations_corrected.csv`, `non_linear_comparison.json`, and `permutation_results.json` via contract tests.
- - **Test File**: `tests/contract/test_result_schema.py`.
- - **Command**: `pytest tests/contract/test_result_schema.py`.
- - **Dependencies**: T017, T021, T024c, T022.
+ - **Test Files**: `tests/contract/test_result_schema.py`.
+ - **Command**: `pytest tests/contract/`.
+ - **Dependencies**: T017, T020, T021, T022, T024c, T035a.
 
 **Checkpoint**: User Stories 1 & 2 functional.
 
@@ -224,7 +232,7 @@
  - **Dependencies**: T031a.
 
 - [ ] T031c [US3] [SC-001 to SC-004] Implement `code/11c_write_report.py` to assemble the final `data/processed/final_report.md`.
- - **Dependencies**: T031b, T023, T024c.
+ - **Dependencies**: T031b, T023.
 
 - [ ] T032 [US3] [SC-005] Implement feasibility measurement script `code/12_feasibility_check.py`:
  - Estimate RAM usage (`psutil.virtual_memory().used`) and runtime (proportional to the number of participants).
@@ -261,7 +269,7 @@
 - All data files are checksummed; hashes recorded in project state (outside this file).
 - No GPU code is used; all libraries are CPU‑compatible.
 - Tasks marked `[P]` may run in parallel provided their dependencies are satisfied.
-- **FR-010 Precedence**: The Spec's FR-010 (Relative Power) is the binding requirement. The Plan's generic suggestion of CLR transformation is superseded by FR-010; T012c implements Relative Power as mandated.
+- **FR-010 Precedence**: The Spec's FR-010 mandates Relative Power. The Plan's suggestion of CLR is superseded by the Spec. This task implements Relative Power and explicitly omits CLR.
 - **Data Integrity**: All data loading tasks (T007a, T007b) MUST fail loudly if the real source is unavailable; no synthetic fallbacks are permitted.
 - **Constitution VI vs Spec**: Window size is fixed at 4s per Spec FR-003 and US-1. The Plan's reference to '2s' windows is overridden by the Spec's explicit acceptance criteria.
-- **Plan vs Spec Conflict**: The Plan's mention of CLR in Phase 1 is superseded by Spec FR-010. This is noted in T012c.
+- **Plan vs Spec Conflict**: The Plan's mention of CLR is superseded by Spec FR-010. This is noted in T012c.
