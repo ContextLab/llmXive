@@ -1,9 +1,3 @@
-"""
-Fixation detection algorithms for eye-tracking data.
-
-This module implements I-VT (Dispersion-Threshold) fixation detection.
-Per spec FR-001, only duration thresholds are used (no velocity/dispersion).
-"""
 import os
 import logging
 from pathlib import Path
@@ -11,211 +5,300 @@ from typing import List, Dict, Any, Optional, Tuple
 import numpy as np
 import pandas as pd
 
-def load_fixation_config(config_path: Path) -> Dict[str, Any]:
-    """
-    Load fixation detection parameters from config.
-    
-    Args:
-        config_path: Path to configuration file.
-        
-    Returns:
-        Dictionary with fixation parameters.
-    """
-    # Default parameters
-    return {
-        'duration_threshold_ms': 100
-    }
+def get_project_root() -> Path:
+    """Get the project root directory."""
+    return Path(__file__).resolve().parent.parent.parent
 
-def calculate_velocity(x: np.ndarray, y: np.ndarray, timestamps: np.ndarray) -> np.ndarray:
+def load_fixation_config() -> Dict[str, Any]:
+    """Load fixation detection configuration from config.yaml.
+    
+    Returns:
+        Dict containing fixation detection parameters.
     """
-    Calculate velocity between consecutive gaze points.
+    config_path = get_project_root() / 'code' / 'config.yaml'
+    if not config_path.exists():
+        # Default configuration
+        return {
+            'ivt_duration_threshold': 100,  # ms
+            'idt_dispersion_threshold': 30,  # pixels
+            'algorithm': 'ivt'
+        }
+    
+    try:
+        import yaml
+        with open(config_path, 'r') as f:
+            config = yaml.safe_load(f)
+        return config.get('fixation_detection', {
+            'ivt_duration_threshold': 100,
+            'idt_dispersion_threshold': 30,
+            'algorithm': 'ivt'
+        })
+    except Exception as e:
+        logging.warning(f"Could not load fixation config: {e}. Using defaults.")
+        return {
+            'ivt_duration_threshold': 100,
+            'idt_dispersion_threshold': 30,
+            'algorithm': 'ivt'
+        }
+
+def calculate_velocity(gaze_df: pd.DataFrame) -> np.ndarray:
+    """Calculate velocity between consecutive gaze points.
     
     Args:
-        x: X coordinates.
-        y: Y coordinates.
-        timestamps: Timestamps in milliseconds.
+        gaze_df: DataFrame with 'x', 'y', 'timestamp' columns.
         
     Returns:
-        Array of velocities (deg/s).
+        Array of velocities (pixels/ms). First element is 0.
     """
-    if len(x) < 2:
-        return np.zeros(len(x))
+    if len(gaze_df) < 2:
+        return np.zeros(len(gaze_df))
     
+    x = gaze_df['x'].values
+    y = gaze_df['y'].values
+    timestamps = gaze_df['timestamp'].values
+    
+    # Calculate distances
     dx = np.diff(x)
     dy = np.diff(y)
-    dt = np.diff(timestamps) / 1000.0  # Convert to seconds
+    distances = np.sqrt(dx**2 + dy**2)
     
-    # Avoid division by zero
-    dt[dt == 0] = 1e-6
+    # Calculate time differences
+    dt = np.diff(timestamps).astype(float)
+    dt[dt == 0] = 1e-6  # Avoid division by zero
     
-    velocity = np.sqrt(dx**2 + dy**2) / dt
-    velocity = np.insert(velocity, 0, 0)  # First point has no velocity
+    # Calculate velocities
+    velocities = distances / dt
     
-    return velocity
+    # Prepend 0 for the first point
+    return np.concatenate([[0], velocities])
 
-def calculate_dispersion(x: np.ndarray, y: np.ndarray, window_size: int = 5) -> np.ndarray:
-    """
-    Calculate dispersion (spread) of gaze points in a sliding window.
+def calculate_dispersion(points_x: List[float], points_y: List[float]) -> float:
+    """Calculate dispersion (max distance between any two points) in a cluster.
     
     Args:
-        x: X coordinates.
-        y: Y coordinates.
-        window_size: Size of the sliding window.
+        points_x: List of x coordinates.
+        points_y: List of y coordinates.
         
     Returns:
-        Array of dispersion values.
+        Maximum Euclidean distance between any two points.
     """
-    if len(x) < window_size:
-        return np.zeros(len(x))
+    if len(points_x) < 2:
+        return 0.0
     
-    dispersion = np.zeros(len(x))
+    points = np.array(list(zip(points_x, points_y)))
+    max_dist = 0.0
     
-    for i in range(len(x) - window_size + 1):
-        window_x = x[i:i+window_size]
-        window_y = y[i:i+window_size]
-        dispersion[i] = np.std(window_x) + np.std(window_y)
+    for i in range(len(points)):
+        for j in range(i + 1, len(points)):
+            dist = np.sqrt(np.sum((points[i] - points[j])**2))
+            max_dist = max(max_dist, dist)
     
-    return dispersion
+    return max_dist
 
-def detect_fixations_ivt(df: pd.DataFrame, duration_threshold_ms: int = 100) -> pd.DataFrame:
-    """
-    Detect fixations using I-VT algorithm with duration threshold only.
+def detect_fixations_ivt(
+    gaze_df: pd.DataFrame,
+    duration_threshold: float = 100,
+    dispersion_threshold: float = 30
+) -> List[Dict[str, Any]]:
+    """Detect fixations using I-VT (Ivanchenko-Venice-Torino) algorithm.
     
-    Per spec FR-001: Uses only duration threshold. No velocity or dispersion
-    thresholds are used as primary or fallback parameters.
-    
-    Algorithm:
-    1. Group data by participant
-    2. For each participant, iterate through gaze points
-    3. Accumulate points into a potential fixation if they are close enough
-    4. If the duration of the accumulated points >= threshold, mark as fixation
-    5. Otherwise, mark as saccade/noise
+    The I-VT algorithm groups consecutive gaze points that have low velocity
+    (below a threshold) and high dispersion (above a threshold) into fixations.
     
     Args:
-        df: DataFrame with columns ['participant_id', 'timestamp', 'x', 'y'].
-        duration_threshold_ms: Minimum fixation duration in milliseconds.
+        gaze_df: DataFrame with 'x', 'y', 'timestamp' columns.
+        duration_threshold: Minimum duration for a fixation in milliseconds.
+        dispersion_threshold: Maximum dispersion for a fixation in pixels.
         
     Returns:
-        DataFrame with detected fixations including:
-        ['participant_id', 'headline_id', 'start_time', 'end_time', 'duration', 'x_mean', 'y_mean']
+        List of fixation dictionaries with 'start_time', 'end_time', 'duration',
+        'avg_x', 'avg_y', and 'dispersion' keys.
     """
-    logger = logging.getLogger(__name__)
-    logger.info(f"Detecting fixations with duration threshold: {duration_threshold_ms} ms")
+    if len(gaze_df) == 0:
+        return []
     
-    if df.empty:
-        return pd.DataFrame(columns=['participant_id', 'headline_id', 'start_time', 'end_time', 'duration', 'x_mean', 'y_mean'])
+    # Calculate velocity
+    velocities = calculate_velocity(gaze_df)
     
-    # Ensure sorted by participant and timestamp
-    df = df.sort_values(['participant_id', 'timestamp']).reset_index(drop=True)
+    # Identify potential fixation points (low velocity)
+    # Using a simple threshold: velocity < 30 pixels/ms is considered a fixation
+    velocity_threshold = 30
+    is_fixation_point = velocities < velocity_threshold
     
     fixations = []
+    current_fixation_indices = []
     
-    for participant_id, group in df.groupby('participant_id'):
-        group = group.reset_index(drop=True)
-        
-        start_idx = 0
-        start_time = group.loc[start_idx, 'timestamp']
-        current_x = [group.loc[start_idx, 'x']]
-        current_y = [group.loc[start_idx, 'y']]
-        
-        for i in range(1, len(group)):
-            curr_time = group.loc[i, 'timestamp']
-            prev_time = group.loc[i-1, 'timestamp']
+    for i in range(len(gaze_df)):
+        if is_fixation_point.iloc[i] if isinstance(is_fixation_point, pd.Series) else is_fixation_point[i]:
+            current_fixation_indices.append(i)
+        else:
+            # End of potential fixation
+            if len(current_fixation_indices) >= 2:
+                # Check if this cluster meets duration and dispersion criteria
+                cluster_df = gaze_df.iloc[current_fixation_indices]
+                duration = cluster_df['timestamp'].iloc[-1] - cluster_df['timestamp'].iloc[0]
+                
+                if duration >= duration_threshold:
+                    points_x = cluster_df['x'].tolist()
+                    points_y = cluster_df['y'].tolist()
+                    dispersion = calculate_dispersion(points_x, points_y)
+                    
+                    if dispersion <= dispersion_threshold:
+                        fixations.append({
+                            'start_time': cluster_df['timestamp'].iloc[0],
+                            'end_time': cluster_df['timestamp'].iloc[-1],
+                            'duration': duration,
+                            'avg_x': np.mean(points_x),
+                            'avg_y': np.mean(points_y),
+                            'dispersion': dispersion
+                        })
             
-            # Check if time gap is too large (new fixation candidate)
-            if (curr_time - prev_time) > 200:  # 200ms gap threshold
-                # End current fixation
-                duration = start_time - start_time if False else curr_time - start_time # Simplified
-                # Actually calculate duration properly
-                duration = group.loc[i-1, 'timestamp'] - start_time
-                
-                if duration >= duration_threshold_ms:
-                    fixations.append({
-                        'participant_id': participant_id,
-                        'headline_id': group.loc[start_idx, 'headline_id'],
-                        'start_time': start_time,
-                        'end_time': group.loc[i-1, 'timestamp'],
-                        'duration': duration,
-                        'x_mean': np.mean(current_x),
-                        'y_mean': np.mean(current_y)
-                    })
-                
-                # Start new fixation
-                start_idx = i
-                start_time = curr_time
-                current_x = [group.loc[i, 'x']]
-                current_y = [group.loc[i, 'y']]
-            else:
-                # Continue current fixation
-                current_x.append(group.loc[i, 'x'])
-                current_y.append(group.loc[i, 'y'])
+            current_fixation_indices = []
+    
+    # Check if the last cluster is a fixation
+    if len(current_fixation_indices) >= 2:
+        cluster_df = gaze_df.iloc[current_fixation_indices]
+        duration = cluster_df['timestamp'].iloc[-1] - cluster_df['timestamp'].iloc[0]
         
-        # Handle last fixation
-        duration = group.loc[len(group)-1, 'timestamp'] - start_time
-        if duration >= duration_threshold_ms:
+        if duration >= duration_threshold:
+            points_x = cluster_df['x'].tolist()
+            points_y = cluster_df['y'].tolist()
+            dispersion = calculate_dispersion(points_x, points_y)
+            
+            if dispersion <= dispersion_threshold:
+                fixations.append({
+                    'start_time': cluster_df['timestamp'].iloc[0],
+                    'end_time': cluster_df['timestamp'].iloc[-1],
+                    'duration': duration,
+                    'avg_x': np.mean(points_x),
+                    'avg_y': np.mean(points_y),
+                    'dispersion': dispersion
+                })
+    
+    return fixations
+
+def detect_fixations_idt(
+    gaze_df: pd.DataFrame,
+    dispersion_threshold: float = 30,
+    duration_threshold: float = 100
+) -> List[Dict[str, Any]]:
+    """Detect fixations using I-DT (Ivanchenko-Duration-Threshold) algorithm.
+    
+    The I-DT algorithm groups consecutive gaze points that fall within a
+    dispersion threshold into fixations.
+    
+    Args:
+        gaze_df: DataFrame with 'x', 'y', 'timestamp' columns.
+        dispersion_threshold: Maximum dispersion for a fixation in pixels.
+        duration_threshold: Minimum duration for a fixation in milliseconds.
+        
+    Returns:
+        List of fixation dictionaries.
+    """
+    if len(gaze_df) == 0:
+        return []
+    
+    fixations = []
+    current_cluster = [0]
+    
+    for i in range(1, len(gaze_df)):
+        # Add current point to cluster
+        current_cluster.append(i)
+        
+        # Check if cluster exceeds dispersion threshold
+        cluster_df = gaze_df.iloc[current_cluster]
+        points_x = cluster_df['x'].tolist()
+        points_y = cluster_df['y'].tolist()
+        dispersion = calculate_dispersion(points_x, points_y)
+        
+        if dispersion > dispersion_threshold:
+            # Remove the last point and finalize the cluster
+            current_cluster.pop()
+            
+            if len(current_cluster) >= 2:
+                cluster_df = gaze_df.iloc[current_cluster]
+                duration = cluster_df['timestamp'].iloc[-1] - cluster_df['timestamp'].iloc[0]
+                
+                if duration >= duration_threshold:
+                    fixations.append({
+                        'start_time': cluster_df['timestamp'].iloc[0],
+                        'end_time': cluster_df['timestamp'].iloc[-1],
+                        'duration': duration,
+                        'avg_x': np.mean(cluster_df['x']),
+                        'avg_y': np.mean(cluster_df['y']),
+                        'dispersion': dispersion
+                    })
+            
+            # Start new cluster with current point
+            current_cluster = [i]
+    
+    # Check final cluster
+    if len(current_cluster) >= 2:
+        cluster_df = gaze_df.iloc[current_cluster]
+        duration = cluster_df['timestamp'].iloc[-1] - cluster_df['timestamp'].iloc[0]
+        points_x = cluster_df['x'].tolist()
+        points_y = cluster_df['y'].tolist()
+        dispersion = calculate_dispersion(points_x, points_y)
+        
+        if duration >= duration_threshold and dispersion <= dispersion_threshold:
             fixations.append({
-                'participant_id': participant_id,
-                'headline_id': group.loc[start_idx, 'headline_id'],
-                'start_time': start_time,
-                'end_time': group.loc[len(group)-1, 'timestamp'],
+                'start_time': cluster_df['timestamp'].iloc[0],
+                'end_time': cluster_df['timestamp'].iloc[-1],
                 'duration': duration,
-                'x_mean': np.mean(current_x),
-                'y_mean': np.mean(current_y)
+                'avg_x': np.mean(cluster_df['x']),
+                'avg_y': np.mean(cluster_df['y']),
+                'dispersion': dispersion
             })
     
-    fixations_df = pd.DataFrame(fixations)
-    logger.info(f"Detected {len(fixations_df)} fixations")
-    
-    return fixations_df
+    return fixations
 
-def detect_fixations_idt(df: pd.DataFrame, dispersion_threshold: float = 100, duration_threshold_ms: int = 100) -> pd.DataFrame:
-    """
-    Detect fixations using I-DT (Dispersion-Threshold) algorithm.
-    
-    Note: This is provided for reference but NOT used per spec FR-001.
+def process_gaze_data(
+    gaze_df: pd.DataFrame,
+    algorithm: str = 'ivt',
+    **kwargs
+) -> List[Dict[str, Any]]:
+    """Process gaze data to detect fixations.
     
     Args:
-        df: DataFrame with gaze data.
-        dispersion_threshold: Maximum dispersion for fixation.
-        duration_threshold_ms: Minimum duration for fixation.
+        gaze_df: DataFrame with 'x', 'y', 'timestamp' columns.
+        algorithm: Algorithm to use ('ivt' or 'idt').
+        **kwargs: Additional parameters for the algorithm.
         
     Returns:
-        DataFrame of fixations.
+        List of fixation dictionaries.
     """
-    # Implementation omitted as per spec requirements
-    return pd.DataFrame()
-
-def process_gaze_data(df: pd.DataFrame, config: Dict[str, Any]) -> pd.DataFrame:
-    """
-    Process gaze data using configured fixation detection.
+    config = load_fixation_config()
     
-    Args:
-        df: Raw gaze data.
-        config: Configuration dictionary.
-        
-    Returns:
-        Processed fixations.
-    """
-    threshold = config.get('ivt_duration_threshold', 100)
-    return detect_fixations_ivt(df, duration_threshold_ms=threshold)
+    if algorithm == 'ivt':
+        duration_threshold = kwargs.get('duration_threshold', config.get('ivt_duration_threshold', 100))
+        dispersion_threshold = kwargs.get('dispersion_threshold', config.get('idt_dispersion_threshold', 30))
+        return detect_fixations_ivt(gaze_df, duration_threshold, dispersion_threshold)
+    elif algorithm == 'idt':
+        dispersion_threshold = kwargs.get('dispersion_threshold', config.get('idt_dispersion_threshold', 30))
+        duration_threshold = kwargs.get('duration_threshold', config.get('ivt_duration_threshold', 100))
+        return detect_fixations_idt(gaze_df, dispersion_threshold, duration_threshold)
+    else:
+        raise ValueError(f"Unknown algorithm: {algorithm}. Use 'ivt' or 'idt'.")
 
 def main():
-    """Test function for fixation detection."""
+    """Main function for fixation detection."""
     logger = logging.getLogger(__name__)
-    logging.basicConfig(level=logging.INFO)
+    logger.info("Fixation detection module loaded successfully")
     
-    # Create sample data
+    # Example usage
     sample_data = pd.DataFrame({
-        'participant_id': [1, 1, 1, 1, 2, 2, 2],
-        'timestamp': [0, 50, 100, 200, 0, 50, 100],
-        'x': [100, 100, 100, 100, 200, 200, 200],
-        'y': [100, 100, 100, 100, 100, 100, 100],
-        'headline_id': [1, 1, 1, 1, 1, 1, 1]
+        'x': [100, 102, 101, 100, 101],
+        'y': [200, 201, 200, 199, 200],
+        'timestamp': [1000, 1033, 1066, 1100, 1133]
     })
     
-    config = {'ivt_duration_threshold': 100}
-    result = process_gaze_data(sample_data, config)
-    logger.info(f"Detected fixations:\n{result}")
+    fixations = process_gaze_data(sample_data, algorithm='ivt', duration_threshold=100, dispersion_threshold=30)
+    logger.info(f"Detected {len(fixations)} fixations")
+    
+    for i, fixation in enumerate(fixations):
+        logger.info(f"Fixation {i+1}: start={fixation['start_time']}, "
+                   f"end={fixation['end_time']}, duration={fixation['duration']}ms")
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     main()

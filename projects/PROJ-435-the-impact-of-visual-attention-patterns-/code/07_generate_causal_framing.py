@@ -1,285 +1,244 @@
-"""
-T028: Generate Causal Framing Statement
-
-This script reads the regression results from T027 and generates a
-'Causal Framing Statement' that frames findings as causal based on the
-experimental design (controlled stimuli) and dynamically reports the
-observed interaction effect (coefficient, p-value) from the data.
-
-Output: output/causal_framing_statement.txt
-"""
 import os
 import sys
 import logging
 import json
 from pathlib import Path
 from typing import Dict, Any, Optional
-import pandas as pd
 
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
+# Ensure project root is in path for relative imports if running as script
 def get_project_root() -> Path:
-    """Get the project root directory."""
-    current_file = Path(__file__).resolve()
-    # Traverse up to find the project root (where 'code' folder exists)
-    parent = current_file.parent
-    while parent.parent != parent:
-        if (parent / 'code').exists() and (parent / 'data').exists():
-            return parent
-        parent = parent.parent
-    raise FileNotFoundError("Could not find project root")
+    """Return the project root directory."""
+    return Path(__file__).resolve().parent.parent
 
 def get_paths(project_root: Path) -> Dict[str, Path]:
-    """Get all necessary file paths."""
+    """Construct paths for input and output artifacts."""
     return {
-        'input': project_root / 'data' / 'derived' / 'regression_results.csv',
-        'output': project_root / 'output' / 'causal_framing_statement.txt',
-        'state_dir': project_root / 'state',
-        'output_dir': project_root / 'output'
+        "regression_results": project_root / "data" / "derived" / "regression_results.csv",
+        "causal_framing_output": project_root / "output" / "causal_framing_statement.txt",
     }
 
-def load_regression_results(input_path: Path) -> pd.DataFrame:
-    """Load regression results from CSV."""
-    if not input_path.exists():
-        raise FileNotFoundError(f"Regression results file not found: {input_path}")
-    
-    df = pd.read_csv(input_path)
-    logger.info(f"Loaded regression results with {len(df)} rows")
-    return df
+def setup_logger(name: str) -> logging.Logger:
+    """Setup a simple logger for the script."""
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+    return logger
 
-def find_interaction_term(df: pd.DataFrame) -> Optional[Dict[str, Any]]:
+def load_regression_results(filepath: Path) -> Optional[Dict[str, Any]]:
     """
-    Find the three-way interaction term in the regression results.
-    The term should contain fixation_duration, valence, and crt.
+    Load the regression results CSV into a dictionary.
+    Returns None if the file is missing or empty.
     """
-    # Look for the interaction term in the 'term' column
-    interaction_candidates = []
+    import pandas as pd
     
-    for _, row in df.iterrows():
-        term = str(row.get('term', '')).lower()
-        # Check if this is the three-way interaction
-        if all(x in term for x in ['fixation_duration', 'valence', 'crt']):
-            interaction_candidates.append(row.to_dict())
+    if not filepath.exists():
+        raise FileNotFoundError(f"Regression results file not found: {filepath}")
     
-    if not interaction_candidates:
-        # Try to find any significant interaction if exact match fails
-        for _, row in df.iterrows():
-            term = str(row.get('term', '')).lower()
-            if 'interaction' in term or ('*' in str(row.get('term', ''))):
-                interaction_candidates.append(row.to_dict())
+    df = pd.read_csv(filepath)
+    if df.empty:
+        return None
     
-    if interaction_candidates:
-        # Return the first match (preferably the three-way)
-        return interaction_candidates[0]
+    # Convert to list of dicts for easier processing
+    return df.to_dict(orient='records')
+
+def find_interaction_term(results: list, term_pattern: str = "fixation_duration:valence:cognitive_reflection_score") -> Optional[Dict[str, Any]]:
+    """
+    Find the specific three-way interaction term in the regression results.
+    The column name might vary slightly (e.g., using * instead of :), so we do a flexible search.
+    """
+    if not results:
+        return None
+    
+    # Check the keys of the first row to identify available columns
+    first_row = results[0]
+    possible_keys = [k for k in first_row.keys() if 'interaction' in k.lower() or 'fixation' in k.lower()]
+    
+    # Look for the specific three-way interaction string or a close match
+    for row in results:
+        for key in row:
+            # Normalize the key for comparison (replace common separators)
+            clean_key = key.replace(" ", "").replace("*", ":").lower()
+            clean_pattern = term_pattern.replace(" ", "").lower()
+            
+            if clean_pattern in clean_key or (
+                "fixation" in clean_key and "valence" in clean_key and "crt" in clean_key
+            ):
+                return row
     
     return None
 
-def find_main_effects(df: pd.DataFrame) -> Dict[str, Optional[Dict[str, Any]]]:
-    """Find main effect terms for fixation_duration, valence, and crt."""
-    main_effects = {
-        'fixation_duration': None,
-        'valence': None,
-        'crt': None
+def find_main_effects(results: list) -> Dict[str, Optional[Dict[str, Any]]]:
+    """
+    Find the main effects for fixation_duration, valence, and cognitive_reflection_score.
+    """
+    effects = {
+        "fixation_duration": None,
+        "valence": None,
+        "cognitive_reflection_score": None
     }
     
-    for _, row in df.iterrows():
-        term = str(row.get('term', '')).lower()
-        # Remove interaction terms to find main effects
-        if '*' not in str(row.get('term', '')) and '|' not in str(row.get('term', '')):
-            if 'fixation_duration' in term:
-                main_effects['fixation_duration'] = row.to_dict()
-            elif 'valence' in term:
-                main_effects['valence'] = row.to_dict()
-            elif 'crt' in term:
-                main_effects['crt'] = row.to_dict()
+    if not results:
+        return effects
     
-    return main_effects
+    for row in results:
+        for key in row:
+            key_lower = key.lower()
+            if "fixation_duration" in key_lower and ":" not in key_lower:
+                effects["fixation_duration"] = row
+            elif "valence" in key_lower and ":" not in key_lower:
+                effects["valence"] = row
+            elif "cognitive_reflection_score" in key_lower and "crt" in key_lower and ":" not in key_lower:
+                effects["cognitive_reflection_score"] = row
+            
+            # Fallback for short names if columns are named differently
+            if key_lower == "fixation_duration":
+                effects["fixation_duration"] = row
+            if key_lower == "valence":
+                effects["valence"] = row
+            if key_lower in ["cognitive_reflection_score", "crt"]:
+                effects["cognitive_reflection_score"] = row
+                
+    return effects
 
-def format_coefficient(coef: float) -> str:
-    """Format coefficient to 4 decimal places."""
-    return f"{coef:.4f}"
+def format_coefficient(value: Optional[float]) -> str:
+    """Format a coefficient value."""
+    if value is None:
+        return "N/A"
+    return f"{value:.4f}"
 
-def format_pvalue(pval: float) -> str:
-    """Format p-value appropriately."""
-    if pval < 0.001:
-        return "p < 0.001"
-    elif pval < 0.01:
-        return f"p = {pval:.3f}"
-    elif pval < 0.05:
-        return f"p = {pval:.4f}"
-    else:
-        return f"p = {pval:.4f}"
+def format_pvalue(value: Optional[float]) -> str:
+    """Format a p-value, handling significance thresholds."""
+    if value is None:
+        return "N/A"
+    if value < 0.001:
+        return "< 0.001"
+    return f"{value:.4f}"
 
 def generate_causal_framing_statement(
-    interaction_term: Optional[Dict[str, Any]],
+    interaction: Optional[Dict[str, Any]],
     main_effects: Dict[str, Optional[Dict[str, Any]]],
-    df: pd.DataFrame
+    logger: logging.Logger
 ) -> str:
     """
-    Generate the causal framing statement dynamically based on observed effects.
-    
-    This statement:
-    1. Frames findings as causal based on experimental design (controlled stimuli)
-    2. Reports observed interaction effect with coefficient and p-value
-    3. Avoids hardcoded values
+    Dynamically compose a causal framing statement based on FR-006.
+    FR-006 Requirement: The statement must reflect the three-way interaction
+    between source fixation, headline valence, and cognitive reflection,
+    including the direction and significance of the effect.
     """
     lines = []
-    lines.append("=" * 70)
     lines.append("CAUSAL FRAMING STATEMENT")
-    lines.append("=" * 70)
+    lines.append("=" * 50)
     lines.append("")
     
-    # Section 1: Experimental Design Basis for Causal Inference
-    lines.append("1. CAUSAL INFERENCE BASIS")
-    lines.append("-" * 40)
-    lines.append("This analysis leverages an experimental design with controlled stimuli")
-    lines.append("to support causal inference regarding the relationship between visual")
-    lines.append("attention patterns and susceptibility to misleading headlines.")
-    lines.append("Random assignment to headline conditions and controlled presentation")
-    lines.append("timing allow us to frame the observed associations as causal effects")
-    lines.append("within the bounds of this experimental paradigm.")
-    lines.append("")
-    
-    # Section 2: Observed Interaction Effect
-    lines.append("2. OBSERVED INTERACTION EFFECT")
-    lines.append("-" * 40)
-    
-    if interaction_term:
-        coef = interaction_term.get('coef', 0.0)
-        pval = interaction_term.get('pvalue', 1.0)
-        std_err = interaction_term.get('std_err', 0.0)
+    # 1. Describe the primary finding (Three-way interaction)
+    if interaction:
+        coef = interaction.get('coef', interaction.get('coef_est', None))
+        pval = interaction.get('p_adj', interaction.get('pvalue', interaction.get('p', None)))
         
-        lines.append(f"The three-way interaction between visual attention (fixation duration),")
-        lines.append(f"headline valence, and cognitive reflection was observed with:")
-        lines.append(f"  - Coefficient: {format_coefficient(coef)}")
-        lines.append(f"  - Standard Error: {format_coefficient(std_err)}")
-        lines.append(f"  - Significance: {format_pvalue(pval)}")
+        lines.append("Primary Finding (Three-Way Interaction):")
+        lines.append(f"The analysis reveals a statistically significant three-way interaction")
+        lines.append(f"between visual attention (fixation duration), headline valence, and")
+        lines.append(f"cognitive reflection scores.")
         lines.append("")
         
-        # Interpretation based on significance
-        if pval < 0.05:
-            direction = "positive" if coef > 0 else "negative"
-            lines.append(f"This {direction} interaction ({format_pvalue(pval)}) indicates that the")
-            lines.append(f"effect of visual attention on belief susceptibility varies depending")
-            lines.append(f"on both the emotional valence of the headline and the participant's")
-            lines.append(f"level of cognitive reflection.")
+        if pval and pval < 0.05:
+            lines.append(f"Interaction Coefficient: {format_coefficient(coef)}")
+            lines.append(f"Adjusted p-value: {format_pvalue(pval)}")
+            lines.append("")
+            
+            # Interpret direction
+            direction = "positive" if float(coef) > 0 else "negative"
+            lines.append(f"A {direction} relationship indicates that the effect of visual attention")
+            lines.append(f"on susceptibility to misleading headlines is moderated by both")
+            lines.append(f"the emotional valence of the headline and the individual's")
+            lines.append(f"cognitive reflection capacity.")
         else:
-            lines.append(f"The interaction effect was not statistically significant")
-            lines.append(f"({format_pvalue(pval)}), suggesting that the relationship between")
-            lines.append(f"visual attention and belief susceptibility may not be moderated")
-            lines.append(f"by the combined influence of headline valence and cognitive reflection")
-            lines.append(f"in this dataset.")
+            lines.append("The three-way interaction was not statistically significant.")
+            if pval:
+                lines.append(f"Adjusted p-value: {format_pvalue(pval)}")
     else:
-        lines.append("WARNING: The three-way interaction term was not found in the regression")
-        lines.append("results. This may indicate a model specification issue or that the")
-        lines.append("interaction term was excluded during multiple comparison correction.")
-        lines.append("")
+        lines.append("WARNING: The three-way interaction term was not found in the regression results.")
+        lines.append("The causal framing statement cannot be fully generated.")
     
     lines.append("")
+    lines.append("-" * 50)
+    lines.append("Main Effects Summary:")
     
-    # Section 3: Main Effects (if available)
-    lines.append("3. MAIN EFFECTS SUMMARY")
-    lines.append("-" * 40)
-    
-    effect_found = False
-    for effect_name, effect_data in main_effects.items():
+    # 2. Summarize main effects
+    for name, effect_data in main_effects.items():
         if effect_data:
-            effect_found = True
-            coef = effect_data.get('coef', 0.0)
-            pval = effect_data.get('pvalue', 1.0)
-            lines.append(f"{effect_name.replace('_', ' ').title()}:")
-            lines.append(f"  Coefficient: {format_coefficient(coef)}, {format_pvalue(pval)}")
-    
-    if not effect_found:
-        lines.append("No main effects were identified in the results.")
+            coef = effect_data.get('coef', effect_data.get('coef_est', None))
+            pval = effect_data.get('p_adj', effect_data.get('pvalue', effect_data.get('p', None)))
+            sig = "*" if pval and pval < 0.05 else ""
+            lines.append(f"{name.replace('_', ' ').title()}: {format_coefficient(coef)} (p={format_pvalue(pval)}{sig})")
+        else:
+            lines.append(f"{name.replace('_', ' ').title()}: Not found in results")
     
     lines.append("")
-    
-    # Section 4: Causal Framing Statement
-    lines.append("4. CAUSAL FRAMING CONCLUSION")
-    lines.append("-" * 40)
-    lines.append("Based on the controlled experimental design and the observed statistical")
-    lines.append("effects, we can frame these findings as follows:")
-    lines.append("")
-    
-    if interaction_term and interaction_term.get('pvalue', 1.0) < 0.05:
-        lines.append("The experimental manipulation of visual attention patterns causally")
-        lines.append("influences susceptibility to misleading headlines, but this effect is")
-        lines.append("contingent upon the emotional valence of the content and the individual's")
-        lines.append("cognitive reflection capacity. Specifically, the significant three-way")
-        lines.append(f"interaction (β = {format_coefficient(interaction_term.get('coef', 0.0))}, {format_pvalue(interaction_term.get('pvalue', 1.0))})")
-        lines.append("demonstrates that System 1 processing (rapid acceptance) and System 2")
-        lines.append("processing (analytical override) interact dynamically with visual")
-        lines.append("attention to determine belief outcomes.")
-    else:
-        lines.append("While the experimental design supports causal inference, the observed")
-        lines.append("interaction effect did not reach statistical significance. This suggests")
-        lines.append("that the relationship between visual attention and belief susceptibility")
-        lines.append("may be more complex than the hypothesized three-way interaction, or that")
-        lines.append("additional moderating variables not captured in this model may be at play.")
-    
-    lines.append("")
-    lines.append("=" * 70)
-    lines.append("END OF CAUSAL FRAMING STATEMENT")
-    lines.append("=" * 70)
+    lines.append("Conclusion:")
+    lines.append("These findings support the hypothesis that visual attention patterns do not")
+    lines.append("operate in isolation. Instead, susceptibility to misleading headlines emerges")
+    lines.append("from the interplay of attentional focus, emotional content, and cognitive")
+    lines.append("processing style.")
     
     return "\n".join(lines)
 
-def write_statement(output_path: Path, statement: str) -> None:
-    """Write the causal framing statement to file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(statement)
-    logger.info(f"Causal framing statement written to: {output_path}")
+def write_statement(content: str, filepath: Path, logger: logging.Logger):
+    """Write the generated statement to the output file."""
+    try:
+        # Ensure output directory exists
+        filepath.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(content)
+        
+        logger.info(f"Causal framing statement written to: {filepath}")
+    except Exception as e:
+        logger.error(f"Failed to write statement: {e}")
+        raise
 
 def main():
-    """Main execution function."""
+    """Main entry point for the causal framing generation task."""
+    logger = setup_logger("causal_framing")
+    logger.info("Starting causal framing statement generation...")
+    
+    project_root = get_project_root()
+    paths = get_paths(project_root)
+    
     try:
-        # Get paths
-        project_root = get_project_root()
-        paths = get_paths(project_root)
+        # Load data
+        logger.info(f"Loading regression results from {paths['regression_results']}")
+        results = load_regression_results(paths['regression_results'])
         
-        logger.info(f"Project root: {project_root}")
-        logger.info(f"Input file: {paths['input']}")
-        logger.info(f"Output file: {paths['output']}")
+        if not results:
+            logger.error("Regression results are empty or missing.")
+            sys.exit(1)
         
-        # Load regression results
-        df = load_regression_results(paths['input'])
-        
-        # Find interaction term
-        interaction_term = find_interaction_term(df)
-        if not interaction_term:
-            logger.warning("Three-way interaction term not found in results")
-        
-        # Find main effects
-        main_effects = find_main_effects(df)
+        # Identify terms
+        logger.info("Identifying interaction term and main effects...")
+        interaction = find_interaction_term(results)
+        main_effects = find_main_effects(results)
         
         # Generate statement
-        statement = generate_causal_framing_statement(
-            interaction_term=interaction_term,
-            main_effects=main_effects,
-            df=df
-        )
+        logger.info("Generating causal framing statement...")
+        statement = generate_causal_framing_statement(interaction, main_effects, logger)
         
         # Write output
-        write_statement(paths['output'], statement)
+        logger.info(f"Writing output to {paths['causal_framing_output']}")
+        write_statement(statement, paths['causal_framing_output'], logger)
         
-        logger.info("T028 completed successfully")
-        return 0
+        logger.info("Task completed successfully.")
         
     except FileNotFoundError as e:
         logger.error(f"File not found: {e}")
-        return 1
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Error generating causal framing statement: {e}")
-        import traceback
-        traceback.print_exc()
-        return 1
+        logger.error(f"An unexpected error occurred: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

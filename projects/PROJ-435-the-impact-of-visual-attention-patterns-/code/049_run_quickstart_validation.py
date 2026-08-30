@@ -1,276 +1,283 @@
-"""
-Quickstart Validation Script (T049)
-
-This script validates the project's quickstart procedure by:
-1. Verifying the existence of `quickstart.md`.
-2. Parsing the `quickstart.md` to extract shell commands (lines starting with `# Run:` or code blocks).
-3. Executing each command in a subprocess.
-4. Validating that expected output artifacts (defined in `tasks.md` or `quickstart.md`) are created.
-5. Writing a validation report to `output/quickstart_validation_report.json`.
-
-If any command fails or an expected artifact is missing, the script exits with code 1.
-"""
 import os
 import sys
 import json
 import hashlib
 import subprocess
 import logging
-import re
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 
-# Import logging setup from existing utils
-# We use the existing logging_init to ensure consistency with the rest of the pipeline
+# Import project utilities to ensure consistency with the rest of the pipeline
+# We assume utils.logging_init is available as per T008b
 try:
-    from utils.logging_init import setup_global_logger
+    from utils.logging_init import setup_global_logger, get_project_root
 except ImportError:
-    # Fallback if logging_init isn't fully wired in test environments, 
-    # though T008b/T008a should have ensured it exists.
-    import logging.config
-    def setup_global_logger():
-        logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+    # Fallback if logging_init isn't fully set up in this specific run context,
+    # though T008b should have completed.
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    def get_project_root():
+        return Path(__file__).parent.parent
 
-def get_project_root() -> Path:
-    """Returns the project root directory."""
-    return Path(__file__).resolve().parent.parent
-
-def compute_file_hash(file_path: Path) -> Optional[str]:
-    """Computes the SHA-256 hash of a file."""
-    if not file_path.exists():
-        return None
+def compute_file_hash(file_path: Path) -> str:
+    """Compute SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+    try:
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except FileNotFoundError:
+        raise FileNotFoundError(f"File not found for hashing: {file_path}")
 
-def run_script(script_path: Path, args: List[str] = None) -> subprocess.CompletedProcess:
-    """Runs a Python script with optional arguments."""
+def run_script(script_path: Path, args: Optional[List[str]] = None) -> Tuple[bool, str, str]:
+    """
+    Execute a script and capture stdout/stderr.
+    Returns (success, stdout, stderr).
+    """
     cmd = [sys.executable, str(script_path)]
     if args:
         cmd.extend(args)
-    logging.info(f"Running: {' '.join(cmd)}")
-    result = subprocess.run(
-        cmd,
-        cwd=get_project_root(),
-        capture_output=True,
-        text=True
-    )
-    if result.returncode != 0:
-        logging.error(f"Script failed with returncode {result.returncode}")
-        logging.error(f"STDOUT: {result.stdout}")
-        logging.error(f"STDERR: {result.stderr}")
-    return result
+    
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=300, # 5 minute timeout per script
+            cwd=str(script_path.parent)
+        )
+        return result.returncode == 0, result.stdout, result.stderr
+    except subprocess.TimeoutExpired:
+        return False, "", f"Script timed out: {script_path}"
+    except Exception as e:
+        return False, "", str(e)
 
-def validate_artifact(path: Path, expected_hash: Optional[str] = None) -> bool:
-    """Validates that an artifact exists and optionally matches a hash."""
-    if not path.exists():
-        logging.error(f"Artifact missing: {path}")
-        return False
+def validate_artifact(artifact_path: Path, expected_hash: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Validate an artifact exists and optionally matches a hash.
+    """
+    result = {
+        "path": str(artifact_path),
+        "exists": artifact_path.exists(),
+        "valid": False,
+        "hash": None,
+        "message": ""
+    }
     
-    if expected_hash:
-        actual_hash = compute_file_hash(path)
-        if actual_hash != expected_hash:
-            logging.warning(f"Hash mismatch for {path}: expected {expected_hash}, got {actual_hash}")
-            # We log a warning but return True for existence if the task didn't strictly require hash match
-            # However, for a strict validation, we might fail. Let's be strict.
-            return False
+    if not result["exists"]:
+        result["message"] = "Artifact does not exist"
+        return result
     
-    logging.info(f"Artifact validated: {path}")
-    return True
+    try:
+        current_hash = compute_file_hash(artifact_path)
+        result["hash"] = current_hash
+        
+        if expected_hash:
+            if current_hash == expected_hash:
+                result["valid"] = True
+                result["message"] = "Hash matches"
+            else:
+                result["valid"] = False
+                result["message"] = f"Hash mismatch. Expected: {expected_hash}, Got: {current_hash}"
+        else:
+            result["valid"] = True
+            result["message"] = "Artifact exists (no hash provided for verification)"
+    except Exception as e:
+        result["message"] = f"Error validating artifact: {str(e)}"
+    
+    return result
 
 def parse_quickstart_commands(quickstart_path: Path) -> List[Dict[str, Any]]:
     """
-    Parses quickstart.md to find commands to run.
-    Looks for:
-    - Lines starting with `# Run:`
-    - Code blocks in markdown (```bash ... ```)
-    - Explicit references to scripts in tasks.md if quickstart is vague
+    Parse quickstart.md to extract commands to run and artifacts to check.
+    This is a simplified parser assuming standard markdown code blocks for commands.
     """
     commands = []
     if not quickstart_path.exists():
-        logging.error("quickstart.md not found")
         return commands
-
+    
     content = quickstart_path.read_text()
+    lines = content.split('\n')
     
-    # Strategy 1: Look for explicit `# Run:` comments or markdown code blocks
-    # Pattern for code blocks
-    code_blocks = re.findall(r'```(?:bash|sh)?\n(.*?)```', content, re.DOTALL)
+    current_command = None
+    current_artifact_check = None
     
-    # Pattern for `# Run:` lines
-    run_lines = re.findall(r'# Run:\s*(.+)', content)
-
-    # We will prioritize code blocks as they are more likely to be actual commands
-    # If no code blocks, we fallback to run_lines or known scripts from tasks.md
+    in_code_block = False
     
-    if code_blocks:
-        for block in code_blocks:
-            for line in block.strip().split('\n'):
-                line = line.strip()
-                if line and not line.startswith('#'):
-                    commands.append({"command": line, "source": "code_block"})
-    elif run_lines:
-        for line in run_lines:
-            commands.append({"command": line, "source": "run_comment"})
+    for line in lines:
+        stripped = line.strip()
+        
+        if stripped.startswith("```bash") or stripped.startswith("```sh"):
+            in_code_block = True
+            current_command = []
+            continue
+        elif stripped.startswith("```"):
+            in_code_block = False
+            if current_command:
+                commands.append({
+                    "type": "run",
+                    "command": "\n".join(current_command),
+                    "description": "Quickstart command"
+                })
+                current_command = None
+            continue
+        
+        if in_code_block and current_command is not None:
+            current_command.append(stripped)
+        
+        # Look for artifact checks in comments or specific markdown patterns
+        if "data/derived/" in stripped or "output/" in stripped or "state/" in stripped:
+            if "verify" in stripped.lower() or "check" in stripped.lower() or "exists" in stripped.lower():
+                # Extract path
+                parts = stripped.split()
+                for part in parts:
+                    if part.startswith(("data/", "output/", "state/")):
+                        commands.append({
+                            "type": "check",
+                            "path": part.strip("()\"'`"),
+                            "description": "Artifact check"
+                        })
+                        break
     
-    # Fallback: If quickstart is empty or vague, check tasks.md for the "Phase N" execution order
+    # If no explicit commands found, try to infer from common pipeline steps
     if not commands:
-        logging.warning("No explicit commands found in quickstart.md. Checking tasks.md for execution order.")
-        tasks_path = get_project_root() / "tasks.md"
-        if tasks_path.exists():
-            tasks_content = tasks_path.read_text()
-            # Extract script names from tasks.md that are marked as executable
-            # Looking for patterns like `code/02_preprocess_gaze.py`
-            scripts = re.findall(r'code/(\d+_[a-z_]+\.py)', tasks_content)
-            for script_name in scripts:
-                # Skip setup scripts that might not produce artifacts if run in isolation without data
-                if script_name.startswith('01_') or script_name.startswith('02_') or script_name.startswith('03_') or script_name.startswith('04_') or script_name.startswith('05_'):
-                    commands.append({"command": f"python code/{script_name}", "source": "tasks_fallback"})
+        # Fallback: check for standard pipeline scripts
+        standard_scripts = [
+            "01_extract_empirical_outcome.py",
+            "02_preprocess_gaze.py",
+            "03_data_merge.py",
+            "05_regression_analysis.py",
+            "07_generate_causal_framing.py"
+        ]
+        for script_name in standard_scripts:
+            script_path = get_project_root() / "code" / script_name
+            if script_path.exists():
+                commands.append({
+                    "type": "run",
+                    "command": f"python code/{script_name}",
+                    "description": f"Run {script_name}"
+                })
     
     return commands
 
-def validate_artifacts_exist(artifacts: List[str]) -> Dict[str, bool]:
-    """Validates that a list of artifact paths exist."""
-    results = {}
-    for artifact in artifacts:
-        path = get_project_root() / artifact
-        results[artifact] = path.exists()
-        if not results[artifact]:
-            logging.error(f"Missing expected artifact: {artifact}")
+def validate_artifacts_exist(artifacts: List[str]) -> List[Dict[str, Any]]:
+    """Check if a list of artifact paths exist."""
+    results = []
+    for artifact_path in artifacts:
+        full_path = get_project_root() / artifact_path
+        res = validate_artifact(full_path)
+        results.append(res)
     return results
 
 def main():
-    setup_global_logger()
-    root = get_project_root()
-    quickstart_path = root / "quickstart.md"
-    output_dir = root / "output"
-    output_dir.mkdir(exist_ok=True)
+    project_root = get_project_root()
+    quickstart_path = project_root / "quickstart.md"
+    output_path = project_root / "output" / "quickstart_validation_report.json"
     
-    report = {
-        "status": "passed",
-        "timestamp": "",
-        "commands_executed": [],
-        "artifacts_validated": [],
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    logger = logging.getLogger(__name__)
+    logger.info(f"Starting Quickstart Validation for project: {project_root}")
+    
+    validation_report = {
+        "project_root": str(project_root),
+        "quickstart_path": str(quickstart_path),
+        "timestamp": None, # Will be set by caller or runtime
+        "status": "unknown",
+        "commands_run": [],
+        "artifacts_checked": [],
         "errors": []
     }
-
-    # 1. Verify quickstart.md exists
+    
     if not quickstart_path.exists():
-        report["status"] = "failed"
-        report["errors"].append("quickstart.md not found")
-        logging.error("Validation Failed: quickstart.md not found")
-        with open(output_dir / "quickstart_validation_report.json", "w") as f:
-            json.dump(report, f, indent=2)
-        sys.exit(1)
-
-    # 2. Parse commands
-    commands = parse_quickstart_commands(quickstart_path)
-    if not commands:
-        # If no commands found, we assume the task is to verify the project structure and key artifacts
-        # based on the completed tasks list
-        logging.info("No explicit commands found. Validating key artifacts from completed tasks.")
-        # Define key artifacts based on tasks.md
-        key_artifacts = [
-            "data/raw/eye_tracking_raw.parquet",
-            "data/derived/preprocessed_gaze.csv",
-            "data/derived/regression_results.csv",
-            "output/data_quality_report.csv",
-            "output/stability_check.json"
-        ]
-        artifact_results = validate_artifacts_exist(key_artifacts)
-        all_present = all(artifact_results.values())
-        if all_present:
-            logging.info("All key artifacts present.")
-        else:
-            report["status"] = "failed"
-            missing = [k for k, v in artifact_results.items() if not v]
-            report["errors"].append(f"Missing artifacts: {missing}")
-        
-        report["artifacts_validated"] = artifact_results
-        with open(output_dir / "quickstart_validation_report.json", "w") as f:
-            json.dump(report, f, indent=2)
-        
-        if not all_present:
-            sys.exit(1)
-        else:
-            sys.exit(0)
-
-    # 3. Execute commands
-    for cmd_info in commands:
-        cmd_str = cmd_info["command"]
-        logging.info(f"Executing: {cmd_str}")
-        
-        try:
-            # Handle python scripts specifically
-            if cmd_str.startswith("python "):
-                script_name = cmd_str.split(" ", 1)[1].split()[0]
-                script_path = root / script_name
-                args = cmd_str.split(" ", 2)[2].split() if " " in cmd_str.split(" ", 1)[1] else []
-                result = run_script(script_path, args)
-                if result.returncode != 0:
-                    report["status"] = "failed"
-                    report["errors"].append(f"Command failed: {cmd_str}\nError: {result.stderr}")
-                    report["commands_executed"].append({"command": cmd_str, "status": "failed"})
-                    break
-                else:
-                    report["commands_executed"].append({"command": cmd_str, "status": "success"})
-            else:
-                # Generic shell command
-                result = subprocess.run(
-                    cmd_str,
-                    shell=True,
-                    cwd=root,
-                    capture_output=True,
-                    text=True
-                )
-                if result.returncode != 0:
-                    report["status"] = "failed"
-                    report["errors"].append(f"Command failed: {cmd_str}\nError: {result.stderr}")
-                    report["commands_executed"].append({"command": cmd_str, "status": "failed"})
-                    break
-                else:
-                    report["commands_executed"].append({"command": cmd_str, "status": "success"})
-        except Exception as e:
-            report["status"] = "failed"
-            report["errors"].append(f"Exception running {cmd_str}: {str(e)}")
-            report["commands_executed"].append({"command": cmd_str, "status": "failed"})
-            break
-
-    # 4. Validate final artifacts if commands were successful
-    if report["status"] == "passed":
-        # Define expected outputs from the pipeline
-        expected_outputs = [
-            "data/derived/regression_results.csv",
-            "output/causal_framing_statement.txt",
-            "output/quickstart_validation_report.json" # This one
-        ]
-        
-        artifact_results = {}
-        for artifact in expected_outputs:
-            path = root / artifact
-            exists = path.exists()
-            artifact_results[artifact] = exists
-            if not exists:
-                report["status"] = "failed"
-                report["errors"].append(f"Expected artifact missing after quickstart: {artifact}")
-        
-        report["artifacts_validated"] = artifact_results
-
-    # 5. Write report
-    report_path = output_dir / "quickstart_validation_report.json"
-    with open(report_path, "w") as f:
-        json.dump(report, f, indent=2)
-    
-    logging.info(f"Validation report written to {report_path}")
-    
-    if report["status"] == "passed":
-        logging.info("Quickstart validation PASSED.")
-        sys.exit(0)
+        error_msg = "quickstart.md not found. Cannot validate."
+        logger.error(error_msg)
+        validation_report["status"] = "failed"
+        validation_report["errors"].append(error_msg)
     else:
-        logging.error("Quickstart validation FAILED.")
-        sys.exit(1)
+        try:
+            # 1. Parse commands
+            commands = parse_quickstart_commands(quickstart_path)
+            logger.info(f"Parsed {len(commands)} validation steps from quickstart.md")
+            
+            if not commands:
+                logger.warning("No commands found in quickstart.md. Running standard pipeline checks.")
+                # Fallback to checking key artifacts if no commands found
+                key_artifacts = [
+                    "data/derived/empirical_outcomes.csv",
+                    "data/derived/preprocessed_gaze.csv",
+                    "data/derived/merged_dataset_full.csv",
+                    "data/derived/regression_results.csv",
+                    "output/causal_framing_statement.txt",
+                    "state/data_hashes.json"
+                ]
+                validation_report["artifacts_checked"] = validate_artifacts_exist(key_artifacts)
+                all_exist = all(a["valid"] for a in validation_report["artifacts_checked"])
+                validation_report["status"] = "passed" if all_exist else "failed"
+                if not all_exist:
+                    validation_report["errors"].append("Key artifacts missing.")
+            else:
+                # 2. Execute commands and check artifacts
+                for step in commands:
+                    step_result = {"type": step["type"], "details": step.get("description", ""), "success": False}
+                    
+                    if step["type"] == "run":
+                        cmd_str = step["command"]
+                        logger.info(f"Executing: {cmd_str}")
+                        # Parse the command to get script path and args
+                        parts = cmd_str.split()
+                        if parts[0] == "python":
+                            script_name = parts[1]
+                            args = parts[2:]
+                            script_path = project_root / "code" / script_name
+                            
+                            if not script_path.exists():
+                                step_result["success"] = False
+                                step_result["error"] = f"Script not found: {script_path}"
+                                validation_report["errors"].append(step_result["error"])
+                            else:
+                                success, stdout, stderr = run_script(script_path, args)
+                                step_result["success"] = success
+                                step_result["stdout"] = stdout[:500] # Truncate for log
+                                step_result["stderr"] = stderr[:500]
+                                if not success:
+                                    error_msg = f"Script failed: {script_name}. Error: {stderr}"
+                                    validation_report["errors"].append(error_msg)
+                                    logger.error(error_msg)
+                    elif step["type"] == "check":
+                        artifact_path = step["path"]
+                        full_path = project_root / artifact_path
+                        res = validate_artifact(full_path)
+                        step_result["success"] = res["valid"]
+                        step_result["artifact_result"] = res
+                        if not res["valid"]:
+                            validation_report["errors"].append(f"Artifact missing or invalid: {artifact_path}")
+                    
+                    validation_report["commands_run"].append(step_result)
+                
+                # Determine overall status
+                all_success = all(r["success"] for r in validation_report["commands_run"])
+                validation_report["status"] = "passed" if all_success else "failed"
+        
+        except Exception as e:
+            error_msg = f"Validation process failed unexpectedly: {str(e)}"
+            logger.error(error_msg, exc_info=True)
+            validation_report["status"] = "failed"
+            validation_report["errors"].append(error_msg)
+    
+    # Write report
+    with open(output_path, 'w') as f:
+        json.dump(validation_report, f, indent=2)
+    
+    logger.info(f"Validation report written to: {output_path}")
+    print(f"Quickstart Validation Complete. Status: {validation_report['status']}")
+    print(f"Report saved to: {output_path}")
+    
+    # Return exit code based on status
+    sys.exit(0 if validation_report['status'] == 'passed' else 1)
 
 if __name__ == "__main__":
     main()

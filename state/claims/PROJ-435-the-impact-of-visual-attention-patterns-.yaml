@@ -843,3 +843,312 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-29T15:25:12Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: I-VT minimum duration threshold for fixation detection cites Holmqvist
+    et al., 2011
+  claim_id: c_8f7aec65
+  context: 'Constraint: Must enforce a minimum duration threshold for I-VT to distinguish
+    fixations from saccades (Holmqvist et al., 2011). as per FR-001.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script enforces a minimum duration threshold for I-VT to distinguish
+    fixations from saccades (Holmqvist et al., 2011).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:19:49Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: Random seed pinned to 42 in config
+  claim_id: c_70d9ef5d
+  context: All random seeds are pinned in code/config.yaml (seed = 42) and reset before
+    each robustness iteration.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random seed is pinned to 42 in code/config.yaml.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:20:54Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: True three-way interaction coefficient equals 0.5 in synthetic data generator
+  claim_id: c_040e5758
+  context: "Parameters: Generate n participants and m headlines. True three-way interaction\
+    \ coefficient = 0.5. Random intercepts ~ N(\u03BC, \u03C3\xB2)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: True three-way interaction coefficient = 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:27:47Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: Noise sigma equals 1.0 in synthetic data generator
+  claim_id: c_69d8d6b8
+  context: "Random intercepts ~ N(\u03BC, \u03C3\xB2). Noise sigma = 1.0. Outcome\
+    \ = linear combination of predictors + interaction + noise."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Noise sigma = 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:29:23Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: Random seed pinned to 42 in code/config.yaml
+  claim_id: c_bbaa3446
+  context: All random seeds are pinned in code/config.yaml (seed = 42) and reset before
+    each robustness iteration.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All random seeds are pinned in code/config.yaml (seed = 42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:30:12Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime under 300 minutes and memory under 7 GB on reference
+    dataset
+  claim_id: c_6cf0f510
+  context: Vectorize data merge in T023 and cache intermediate results in T018. Verify
+    runtime < 300 minutes and memory < 7 GB on the reference dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify runtime < 300 minutes and memory < 7 GB on the reference dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:30:12Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: I-VT fixation detection enforces minimum duration threshold per Holmqvist
+    et al. 2011
+  claim_id: c_48a2fe6f
+  context: T006 [P] Implement I-VT Fixation Detection... Must enforce a minimum duration
+    threshold for I-VT to distinguish fixations from saccades (Holmqvist et al., 2011).
+    as per FR-001.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script MUST enforce a minimum duration threshold for I-VT to distinguish
+    fixations from saccades (Holmqvist et al., 2011).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:35:12Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: Synthetic data generator uses true three-way interaction coefficient
+    of 0.5
+  claim_id: c_05839b4b
+  context: "T020a Synthetic Data Generator... True three-way interaction coefficient\
+    \ = 0.5. Random intercepts ~ N(\u03BC, \u03C3\xB2). Noise sigma = 1.0."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: True three-way interaction coefficient = 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:35:12Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: Synthetic data generator uses noise sigma of 1.0
+  claim_id: c_3ebb6266
+  context: "T020a Synthetic Data Generator... True three-way interaction coefficient\
+    \ = 0.5. Random intercepts ~ N(\u03BC, \u03C3\xB2). Noise sigma = 1.0."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Noise sigma = 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:35:12Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: Performance optimization verifies runtime under 300 minutes and memory
+    under 7 GB
+  claim_id: c_bb6594f2
+  context: T047 Performance Optimization... Verify runtime < 300 minutes and memory
+    < 7 GB on the reference dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify runtime < 300 minutes and memory < 7 GB on the reference dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:35:12Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: Random seeds pinned to 42 in config.yaml
+  claim_id: c_5321b82d
+  context: 'Notes: All random seeds are pinned in code/config.yaml (seed = 42) and
+    reset before each robustness iteration.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All random seeds are pinned in code/config.yaml (seed = 42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:35:12Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: Refactor fixation detection and ROI mapping to cyclomatic complexity
+    under 10
+  claim_id: c_d72a7122
+  context: 'T046 Code Cleanup and Refactoring: Refactor code/utils/fixation_detection.py
+    and code/utils/roi_mapping.py to reduce cyclomatic complexity to < 10. Run ruff
+    --max-complexity=10 to verify.'
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Refactor code/utils/fixation_detection.py and code/utils/roi_mapping.py
+    to reduce cyclomatic complexity to < 10.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T03:35:12Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: Filter participants with 20 percent or more data loss
+  claim_id: c_8730770b
+  context: "T018 Core Preprocessing (US1): ...filter participants with \u2265 20%\
+    \ data loss, map gaze points to ROIs..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Filter participants with \u2265 20% data loss."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:35:13Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: Switch to VADER lexicon if NRC lexical coverage is below 50 percent
+  claim_id: c_e9844f45
+  context: T021 Valence Calculation... If average coverage < 50%, switch to VADER
+    for all headlines and add a new column lexicon_used...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If average coverage < 50%, switch to VADER for all headlines.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:35:13Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: Cap cognitive reflection score at 1st and 99th percentiles
+  claim_id: c_a614d921
+  context: T023 Data Merge & Outlier Capping... 2. Cap cognitive_reflection_score
+    at extreme percentiles (1st and 99th).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cap_cognitive_reflection_score_at_1st_and_99th_percentiles
+  kind: entity_fact
+  raw_text: Cap cognitive_reflection_score at extreme percentiles (1st and 99th).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:36:15Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: synthetic dataset true three-way interaction coefficient is 0.5
+  claim_id: c_0591f798
+  context: "T020a Synthetic Data Generator: Generate n participants and m headlines.\
+    \ True three-way interaction coefficient = 0.5. Random intercepts ~ N(\u03BC,\
+    \ \u03C3\xB2). Noise sigma = 1.0."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: True three-way interaction coefficient = 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:53:47Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: synthetic dataset noise sigma is 1.0
+  claim_id: c_64e8e8fc
+  context: "T020a Synthetic Data Generator: Generate n participants and m headlines.\
+    \ True three-way interaction coefficient = 0.5. Random intercepts ~ N(\u03BC,\
+    \ \u03C3\xB2). Noise sigma = 1.0."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Noise sigma = 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:53:47Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: random seed pinned to 42 in code/config.yaml
+  claim_id: c_b8fc122a
+  context: 'Notes: All random seeds are pinned in code/config.yaml (seed = 42) and
+    reset before each robustness iteration.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All random seeds are pinned in code/config.yaml (seed = 42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T03:53:47Z'

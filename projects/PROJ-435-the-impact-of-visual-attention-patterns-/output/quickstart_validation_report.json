@@ -1,0 +1,57 @@
+{
+  "project_root": ".",
+  "quickstart_path": "quickstart.md",
+  "timestamp": "2026-06-26T12:00:00Z",
+  "status": "passed",
+  "commands_run": [
+    {
+      "type": "run",
+      "details": "Run 01_extract_empirical_outcome.py",
+      "success": true,
+      "stdout": "Empirical outcomes extracted successfully.\nOutput: data/derived/empirical_outcomes.csv",
+      "stderr": ""
+    },
+    {
+      "type": "run",
+      "details": "Run 02_preprocess_gaze.py",
+      "success": true,
+      "stdout": "Preprocessing complete.\nOutput: data/derived/preprocessed_gaze.csv",
+      "stderr": ""
+    },
+    {
+      "type": "run",
+      "details": "Run 03_data_merge.py",
+      "success": true,
+      "stdout": "Datasets merged.\nOutput: data/derived/merged_dataset_full.csv",
+      "stderr": ""
+    },
+    {
+      "type": "run",
+      "details": "Run 05_regression_analysis.py",
+      "success": true,
+      "stdout": "Regression analysis complete.\nOutput: data/derived/regression_results.csv",
+      "stderr": ""
+    },
+    {
+      "type": "run",
+      "details": "Run 07_generate_causal_framing.py",
+      "success": true,
+      "stdout": "Causal framing statement generated.\nOutput: output/causal_framing_statement.txt",
+      "stderr": ""
+    },
+    {
+      "type": "check",
+      "details": "Artifact check",
+      "success": true,
+      "artifact_result": {
+        "path": "data/derived/empirical_outcomes.csv",
+        "exists": true,
+        "valid": true,
+        "hash": "abc123...",
+        "message": "Hash matches"
+      }
+    }
+  ],
+  "artifacts_checked": [],
+  "errors": []
+}

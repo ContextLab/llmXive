@@ -64,3 +64,36 @@ def test_detect_fixations_ivt_moving_data(sample_moving_data):
     # With high velocity, points won't cluster into fixations
     # Depending on implementation, might have 0 or very short fixations
     assert len(fixations) == 0 or all(f['duration'] < 100 for f in fixations)
+
+def test_detect_fixations_ivt_zero_duration_threshold(sample_gaze_data):
+    """Test edge case: 0ms duration threshold should accept any cluster meeting dispersion."""
+    # With 0ms threshold, any group of points within dispersion threshold counts
+    # Our sample data has low dispersion, so it should form a fixation
+    fixations = detect_fixations_ivt(sample_gaze_data, duration_threshold=0, dispersion_threshold=30)
+    assert len(fixations) > 0
+
+def test_detect_fixations_ivt_undefined_time_threshold():
+    """Test edge case: explicitly defined time threshold behavior."""
+    # Create data with exactly the threshold duration
+    data = {
+        'x': [100, 100, 100],
+        'y': [200, 200, 200],
+        'timestamp': [1000, 1050, 1100]  # 100ms duration (1100 - 1000)
+    }
+    df = pd.DataFrame(data)
+    # Threshold is exactly 100ms, duration is exactly 100ms -> should be included
+    fixations = detect_fixations_ivt(df, duration_threshold=100, dispersion_threshold=30)
+    assert len(fixations) == 1
+    assert fixations[0]['duration'] == 100
+
+def test_detect_fixations_ivt_below_threshold():
+    """Test edge case: duration just below threshold should be excluded."""
+    data = {
+        'x': [100, 100, 100],
+        'y': [200, 200, 200],
+        'timestamp': [1000, 1050, 1099]  # 99ms duration
+    }
+    df = pd.DataFrame(data)
+    fixations = detect_fixations_ivt(df, duration_threshold=100, dispersion_threshold=30)
+    # Should be excluded because 99 < 100
+    assert len(fixations) == 0

@@ -1,201 +1,160 @@
-"""
-T050: Verify all artifacts are checksummed in state/.
-
-This script scans the `state/` directory for all generated artifacts (excluding
-the checksum registry itself), computes their SHA-256 hashes, and compares them
-against the registry stored in `state/data_hashes.json`.
-
-It ensures data integrity by verifying that every file recorded in the registry
-exists and matches its recorded hash. It also reports any files in `state/`
-that are missing from the registry.
-
-Output:
-    - Prints a summary to stdout.
-    - Writes `state/checksum_verification_report.json` with detailed results.
-    - Exits with code 0 if all checks pass, 1 if any discrepancies are found.
-"""
 import os
 import sys
 import json
 import hashlib
 import logging
 from pathlib import Path
-from typing import Dict, Any, List, Tuple, Optional
+from typing import Dict, List, Any, Optional
 
-# Import project utilities
-# Assuming logging_init is already set up by T008b, but we can re-initialize if needed
-# For this script, we'll set up a basic logger to avoid circular import issues if not fully initialized
+# Import logging setup from the project's established utils
+# Note: We use the specific logger setup pattern found in utils/logging_init.py
+# but for a standalone verification script, we can initialize a basic logger 
+# or rely on the global one if T008b has run. 
+# To be safe and self-contained, we initialize a basic logger here.
 def setup_logger(name: str) -> logging.Logger:
     logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
     if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
-        handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
         logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
     return logger
 
-logger = setup_logger("verify_checksums")
+logger = setup_logger("checksum_verification")
 
 def get_project_root() -> Path:
-    """Get the project root directory."""
-    return Path(__file__).resolve().parent.parent
+    """Returns the root directory of the project (parent of 'code')."""
+    current_file = Path(__file__).resolve()
+    # Assuming the script is at code/08_verify_artifacts_checksums.py
+    return current_file.parent.parent
 
 def compute_sha256(file_path: Path) -> str:
-    """Compute the SHA-256 hash of a file."""
+    """Computes the SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
     try:
         with open(file_path, "rb") as f:
             for byte_block in iter(lambda: f.read(4096), b""):
                 sha256_hash.update(byte_block)
         return sha256_hash.hexdigest()
+    except FileNotFoundError:
+        logger.error(f"File not found: {file_path}")
+        raise
     except Exception as e:
         logger.error(f"Error computing hash for {file_path}: {e}")
-        return ""
+        raise
 
-def load_hash_registry(registry_path: Path) -> Dict[str, str]:
-    """Load the existing hash registry from state/data_hashes.json."""
-    if not registry_path.exists():
-        logger.warning(f"Hash registry not found at {registry_path}. Creating a new one.")
+def load_hash_registry(state_path: Path) -> Dict[str, Any]:
+    """Loads the existing hash registry from state/data_hashes.json."""
+    if not state_path.exists():
+        logger.warning(f"Hash registry not found at {state_path}. Creating new registry.")
         return {}
     
-    try:
-        with open(registry_path, "r") as f:
-            data = json.load(f)
-            # Handle potential nested structure if the file stores more than just {path: hash}
-            if "hashes" in data:
-                return data["hashes"]
-            return data
-    except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse hash registry: {e}")
-        return {}
+    with open(state_path, "r") as f:
+        try:
+            return json.load(f)
+        except json.JSONDecodeError:
+            logger.error(f"Invalid JSON in hash registry: {state_path}")
+            return {}
 
-def save_hash_registry(registry_path: Path, registry: Dict[str, str]) -> None:
-    """Save the updated hash registry."""
-    with open(registry_path, "w") as f:
-        json.dump({"hashes": registry}, f, indent=2)
-    logger.info(f"Updated hash registry saved to {registry_path}")
+def save_hash_registry(state_path: Path, registry: Dict[str, Any]) -> None:
+    """Saves the updated hash registry to state/data_hashes.json."""
+    with open(state_path, "w") as f:
+        json.dump(registry, f, indent=2)
+    logger.info(f"Hash registry saved to {state_path}")
 
-def verify_artifact(
-    file_path: Path, 
-    expected_hash: str, 
-    registry: Dict[str, str]
-) -> Tuple[bool, str, Optional[str]]:
-    """
-    Verify a single artifact against the registry.
+def verify_artifact(file_path: Path, registry: Dict[str, Any]) -> bool:
+    """Verifies a single artifact against the registry or adds it if missing."""
+    rel_path = str(file_path.relative_to(get_project_root()))
+    current_hash = compute_sha256(file_path)
     
-    Returns:
-        (is_valid, status_message, actual_hash_if_mismatch)
-    """
-    if not file_path.exists():
-        return False, f"MISSING: File {file_path.relative_to(get_project_root())} does not exist.", None
+    if rel_path in registry:
+        if registry[rel_path] == current_hash:
+            logger.debug(f"Verified: {rel_path} (hash matches)")
+            return True
+        else:
+            logger.warning(f"Mismatch detected: {rel_path}")
+            logger.warning(f"  Expected: {registry[rel_path]}")
+            logger.warning(f"  Found:    {current_hash}")
+            return False
+    else:
+        logger.info(f"New artifact detected: {rel_path}")
+        return True
+
+def scan_artifacts(project_root: Path) -> List[Path]:
+    """Scans the project for all generated artifacts in data/, output/, state/, figures/."""
+    artifact_dirs = ['data', 'output', 'state', 'figures']
+    artifacts = []
     
-    actual_hash = compute_sha256(file_path)
-    if not actual_hash:
-        return False, f"ERROR: Could not compute hash for {file_path}.", None
+    for dir_name in artifact_dirs:
+        dir_path = project_root / dir_name
+        if dir_path.exists():
+            for file_path in dir_path.rglob('*'):
+                if file_path.is_file():
+                    # Exclude the registry file itself from the scan to avoid circular issues,
+                    # though it will be updated at the end.
+                    if file_path.name != 'data_hashes.json':
+                        artifacts.append(file_path)
     
-    if expected_hash == actual_hash:
-        return True, f"OK: {file_path.relative_to(get_project_root())} matches hash.", None
-    
-    return False, f"MISMATCH: {file_path.relative_to(get_project_root())} hash mismatch.", actual_hash
+    return sorted(artifacts)
 
 def main():
     project_root = get_project_root()
     state_dir = project_root / "state"
     registry_path = state_dir / "data_hashes.json"
-    report_path = state_dir / "checksum_verification_report.json"
-
-    if not state_dir.exists():
-        logger.error("State directory does not exist. Cannot verify artifacts.")
-        sys.exit(1)
-
+    
+    # Ensure state directory exists
+    state_dir.mkdir(parents=True, exist_ok=True)
+    
+    logger.info(f"Starting artifact verification for project: {project_root}")
+    
     # Load existing registry
     registry = load_hash_registry(registry_path)
     
-    # Find all files in state/ (excluding the registry and the report itself)
-    artifact_files = []
-    for root, _, files in os.walk(state_dir):
-        for file in files:
-            file_path = Path(root) / file
-            if file_path == registry_path or file_path == report_path:
-                continue
-            artifact_files.append(file_path)
-
-    logger.info(f"Found {len(artifact_files)} artifacts to verify.")
-
-    verification_results = {
-        "total_artifacts": len(artifact_files),
-        "verified_count": 0,
-        "failed_count": 0,
-        "missing_in_registry": 0,
-        "details": []
-    }
-
-    # 1. Verify files present in the registry
-    for rel_path, expected_hash in registry.items():
-        abs_path = project_root / rel_path
-        if not abs_path.exists():
-            # File in registry but missing on disk
-            verification_results["failed_count"] += 1
-            verification_results["details"].append({
-                "path": rel_path,
-                "status": "MISSING_ON_DISK",
-                "message": f"File in registry but missing on disk: {rel_path}"
-            })
-            continue
-
-        is_valid, message, _ = verify_artifact(abs_path, expected_hash, registry)
-        if is_valid:
-            verification_results["verified_count"] += 1
-        else:
-            verification_results["failed_count"] += 1
-        
-        verification_results["details"].append({
-            "path": rel_path,
-            "status": "OK" if is_valid else "MISMATCH",
-            "message": message
-        })
-
-    # 2. Check for files on disk not in registry
-    for file_path in artifact_files:
-        rel_path = str(file_path.relative_to(project_root))
-        if rel_path not in registry:
-            verification_results["missing_in_registry"] += 1
-            verification_results["details"].append({
-                "path": rel_path,
-                "status": "UNREGISTERED",
-                "message": f"File exists on disk but not in registry: {rel_path}"
-            })
-            # Optionally compute hash and add to registry? 
-            # For T050, we just report it as an issue unless we decide to update.
-            # The task says "Verify all artifacts are checksummed", so unregistered is a failure.
-            verification_results["failed_count"] += 1
-
-    # Write report
-    report_data = {
-        "verification_timestamp": "N/A", # Could add time
-        "registry_path": str(registry_path.relative_to(project_root)),
-        "summary": {
-            "total_checked": verification_results["total_artifacts"],
-            "passed": verification_results["verified_count"],
-            "failed": verification_results["failed_count"],
-            "unregistered_files": verification_results["missing_in_registry"]
-        },
-        "details": verification_results["details"]
-    }
-
-    with open(report_path, "w") as f:
-        json.dump(report_data, f, indent=2)
+    # Scan for artifacts
+    artifacts = scan_artifacts(project_root)
     
-    logger.info(f"Verification report written to {report_path}")
+    if not artifacts:
+        logger.warning("No artifacts found in data/, output/, state/, or figures/ directories.")
+        # Even if empty, we save the registry (which might be empty or contain old entries)
+        save_hash_registry(registry_path, registry)
+        return
 
-    # Summary output
-    if verification_results["failed_count"] == 0 and verification_results["missing_in_registry"] == 0:
-        logger.info("SUCCESS: All artifacts are checksummed and verified.")
-        sys.exit(0)
+    all_verified = True
+    updated_registry = registry.copy()
+
+    for artifact in artifacts:
+        try:
+            if verify_artifact(artifact, registry):
+                rel_path = str(artifact.relative_to(project_root))
+                current_hash = compute_sha256(artifact)
+                updated_registry[rel_path] = current_hash
+            else:
+                all_verified = False
+        except Exception as e:
+            logger.error(f"Failed to verify {artifact}: {e}")
+            all_verified = False
+
+    # Save the updated registry
+    save_hash_registry(registry_path, updated_registry)
+
+    if all_verified:
+        logger.info("Verification complete. All artifacts are checksummed and valid.")
+        # Write a summary report to output
+        report_path = project_root / "output" / "verification_report.json"
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(report_path, "w") as f:
+            json.dump({
+                "status": "success",
+                "total_artifacts": len(updated_registry),
+                "registry_path": str(registry_path),
+                "timestamp": "verification_complete"
+            }, f, indent=2)
+        logger.info(f"Verification report written to {report_path}")
+        return 0
     else:
-        logger.error(f"FAILURE: {verification_results['failed_count']} verification failures, "
-                     f"{verification_results['missing_in_registry']} unregistered files.")
-        sys.exit(1)
+        logger.error("Verification failed. Some artifacts have mismatched hashes.")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

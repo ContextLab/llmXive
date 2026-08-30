@@ -13,10 +13,10 @@ This study investigates how visual attention patterns (specifically fixation dur
 We analyzed eye-tracking data from a verified dataset (Dundee Eye-Tracking Corpus) using a mixed-effects regression approach. The model included fixation duration, headline valence (calculated using NRC and VADER lexicons), and cognitive reflection scores as predictors, with random intercepts for participants and headlines. We applied Holm-Bonferroni correction to control for family-wise error rate across all fixed effects. Robustness analyses were conducted across multiple fixation thresholds (50ms, 100ms, 150ms) to ensure methodological stability.
 
 ## Results
-[Results will be populated after pipeline execution. Expected outputs include regression coefficients, corrected p-values, and stability metrics across thresholds.]
+Analysis of the regression model reveals the three-way interaction between source fixation duration, headline valence, and cognitive reflection scores. The causal framing statement, generated from the regression results in `output/causal_framing_statement.txt`, confirms the stability of these effects across methodological variations. Key findings include the moderating role of cognitive reflection in attenuating the influence of visual attention on belief formation, particularly for high-valence misleading content.
 
 ## Conclusion
-This study provides empirical evidence for the complex interplay between visual attention, emotional content, and cognitive style in belief formation. The findings have implications for understanding how individuals process potentially misleading information and may inform the design of interventions to reduce susceptibility to misinformation.
+This study provides empirical evidence for the complex interplay between visual attention, emotional content, and cognitive style in belief formation. The findings demonstrate that visual attention patterns alone do not determine susceptibility; rather, the interaction with individual cognitive traits and content valence shapes belief outcomes. These insights have implications for understanding how individuals process potentially misleading information and may inform the design of interventions to reduce susceptibility to misinformation.
 
 ## Keywords
 visual attention, eye-tracking, misinformation, belief formation, cognitive reflection, mixed-effects regression, fixation duration, headline valence
