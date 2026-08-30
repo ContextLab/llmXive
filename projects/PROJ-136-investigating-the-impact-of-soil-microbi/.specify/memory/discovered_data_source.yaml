@@ -1,19 +1,17 @@
 status: none
-intent: Earth Microbiome Project agricultural subset 16S OTU tables MG-RAST Qiita
-  python package dataset
+intent: Earth Microbiome Project MG-RAST agricultural soil microbiome plant disease
+  incidence dataset python package dataset
 required_fields:
 - sample_id
-- otu_id
-- asv_id
-- taxonomy
-- read_count
+- otu_counts
+- asv_counts
+- taxa
 - plant_species
-- gps_latitude
-- gps_longitude
+- latitude
+- longitude
 - soil_type
 - disease_incidence_rate
 - collection_date
-- sequencing_depth
-cache_key: fb5244993b649a6d917585f3d14d760f72813d100d5894d31ce8871143fc7b6e
-searched_at: '2026-08-15T02:58:32.949886+00:00'
+cache_key: 872be2e7c167b930bda591f01d6a725a4d1783b1fb25c619031cb84954515e18
+searched_at: '2026-08-30T07:15:43.014953+00:00'
 retry_count: 1
