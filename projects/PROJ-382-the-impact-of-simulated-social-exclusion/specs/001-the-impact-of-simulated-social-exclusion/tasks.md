@@ -77,9 +77,9 @@
 - [X] T011 [P] [US1] Implement OSF downloader in `code/ingest.py` with retry logic and checksum verification
 - [X] T012 [US1] Implement schema validator in `code/ingest.py` to check for `condition`, `prosocial_amount`, `randomized` columns
 - [X] T013 [US1] Implement column normalizer in `code/ingest.py` to map variants (donation/allocation/transfer -> `prosocial_amount`) and condition strings (ignored/excluded -> 1)
-- [~] T014 [US1] Implement missing value handler in `code/preprocess.py`: median imputation (<5% NaN) or row exclusion (>=5% NaN), ensuring structural zeros (0) are preserved; **Output**: Write cleaned DataFrame to `data/processed/cleaned_data.parquet` and log imputation details to `data/processed/imputation_log.json`
+- [ ] T014 [US1] Implement missing value handler in `code/preprocess.py`: median imputation (<5% NaN) or row exclusion (>=5% NaN), ensuring structural zeros (0) are preserved; **Output**: Write cleaned DataFrame to `data/processed/cleaned_data.parquet` and log imputation details to `data/processed/imputation_log.json`
 - [X] T015 [US1] Implement dataset merger in `code/ingest.py` to combine valid datasets into a single DataFrame
-- [~] T016 [US1] Implement "Insufficient Data" halt logic: check if valid dataset count <3 and exit with non-zero status
+- [ ] T016 [US1] Implement "Insufficient Data" halt logic: check if valid dataset count <3 and exit with non-zero status
 - [X] T017 [US1] Implement keyword search fallback in `code/ingest.py`: **Trigger**: if the initial URL list yields **fewer than 3** valid datasets, perform a keyword-based search on OSF for "social exclusion" AND "prosocial" OR "donation"
 - [ ] T018 [US1] Write mapping log to `data/processed/mapping_log.json` recording raw-to-binary condition mappings for Principle VI compliance
 
@@ -95,19 +95,19 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Unit test for ZIG model fitting with synthetic data in `tests/unit/test_analysis_model.py`
-- [ ] T020 [P] [US2] Unit test for pool splitting logic (RCT vs Non-RCT) in `tests/unit/test_analysis_pools.py`
-- [ ] T021 [P] [US2] Integration test for meta-analysis aggregation in `tests/integration/test_analysis_meta.py`
+- [X] T019 [P] [US2] Unit test for ZIG model fitting with synthetic data in `tests/unit/test_analysis_model.py`
+- [X] T020 [P] [US2] Unit test for pool splitting logic (RCT vs Non-RCT) in `tests/unit/test_analysis_pools.py`
+- [X] T021 [P] [US2] Integration test for meta-analysis aggregation in `tests/integration/test_analysis_meta.py`
 
 ### Implementation for User Story 2
 
-- [ ] T022 [P] [US2] Implement pool splitter in `code/preprocess.py` to separate data into `causal_pool` (randomized=true) and `associational_pool` (randomized=false/unknown)
-- [ ] T024 [US2] Implement outcome type detector in `code/analysis.py` to identify binary (0/1) vs continuous `prosocial_amount`
-- [ ] T025a [US2] Verify/Implement ZIG wrapper in `code/analysis.py`: Implement a custom Zero-Inflated Gamma likelihood function or verify `statsmodels` ZeroInflated compatibility with Gamma distribution (since native support is limited); **Output**: A reusable `fit_zig_model` function
-- [ ] T025b [US2] Implement Zero-Inflated Gamma (ZIG) or Hurdle model wrapper in `code/analysis.py` using the verified wrapper for continuous outcomes
-- [ ] T026 [US2] Implement Logistic Regression wrapper in `code/analysis.py` for binary outcomes
+- [X] T022 [P] [US2] Implement pool splitter in `code/preprocess.py` to separate data into `causal_pool` (randomized=true) and `associational_pool` (randomized=false/unknown)
+- [X] T024 [US2] Implement outcome type detector in `code/analysis.py` to identify binary (0/1) vs continuous `prosocial_amount`
+- [X] T025a [US2] Verify/Implement ZIG wrapper in `code/analysis.py`: Implement a custom Zero-Inflated Gamma likelihood function or verify `statsmodels` ZeroInflated compatibility with Gamma distribution (since native support is limited); **Output**: A reusable `fit_zig_model` function
+- [X] T025b [US2] Implement Zero-Inflated Gamma (ZIG) or Hurdle model wrapper in `code/analysis.py` using the verified wrapper for continuous outcomes
+- [X] T026 [US2] Implement Logistic Regression wrapper in `code/analysis.py` for binary outcomes
 - [ ] T027 [US2] Implement coefficient extractor to output: (1) log-odds for zero-inflation, (2) log-scale for positive amounts (or log-odds ratio for binary)
-- [ ] T028 [US2] Implement meta-analysis aggregator in `code/analysis.py` to perform Random-Effects meta-analysis separately for Causal and Associational pools
+- [X] T028 [US2] Implement meta-analysis aggregator in `code/analysis.py` to perform Random-Effects meta-analysis separately for Causal and Associational pools
 - [ ] T029 [US2] Implement "Insufficient Causal Data" flag: if Causal Pool <3 datasets, report status but continue with Associational Pool
 - [ ] T030 [US2] Implement confidence interval calculator for both zero-inflation and positive components
 - [ ] T031 [US2] Implement detailed statistical reporter: Generate a `data/processed/causal_pool_test_result.json` artifact containing the **exact coefficient values, 95% confidence intervals, p-values, and sample size** for the Causal Pool effect size against $\beta=0$ (SC-002). **Do not** use a binary Pass/Fail flag as the primary output.

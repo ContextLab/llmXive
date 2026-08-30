@@ -1,4 +1,20 @@
 [flake8]
 max-line-length = 88
-exclude = venv,.git,build,dist,.eggs,*.egg-info
-ignore = E203, E266, W503
+extend-ignore = E203, W503
+exclude =
+    .venv,
+    venv,
+    .git,
+    build,
+    dist,
+    .eggs,
+    *.egg-info,
+    __pycache__,
+    .pytest_cache,
+    state,
+    data
+per-file-ignores =
+    # Allow longer lines in config files if necessary
+    */config.py: E501
+    # Allow unused imports in __init__ files
+    */__init__.py: F401

@@ -1,58 +1,70 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Correlation Analysis Results"
-type: "object"
+title: "Analysis Output Schema"
+description: "Schema for the summary report containing correlation results and hypothesis status."
+type: object
 properties:
-  metric_name:
-    type: "string"
-    description: "Name of the topological metric analyzed"
-  mode:
-    type: "string"
-    description: "Confinement mode analyzed (e.g., 'all', 'L-mode', 'H-mode')"
-  spearman_r:
-    type: "number"
-    description: "Spearman correlation coefficient"
-    minimum: -1
-    maximum: 1
-  spearman_p:
-    type: "number"
-    description: "Spearman p-value"
-    minimum: 0
-    maximum: 1
-  posterior_median_r:
-    type: "number"
-    description: "Posterior median of the correlation coefficient"
-    minimum: -1
-    maximum: 1
-  ci_lower:
-    type: "number"
-    description: "Lower bound of the 95% Credible Interval"
-    minimum: -1
-    maximum: 1
-  ci_upper:
-    type: "number"
-    description: "Upper bound of the 95% Credible Interval"
-    minimum: -1
-    maximum: 1
-  power:
-    type: "number"
-    description: "Statistical power to detect |r| = 0.5"
-    minimum: 0
-    maximum: 1
-  hypothesis_status:
-    type: "string"
-    enum:
-      - "supported"
-      - "inconclusive"
-      - "not supported"
-    description: "Status of the hypothesis test"
+  analysis_summary:
+    type: object
+    properties:
+      total_discharges_analyzed:
+        type: integer
+        description: "Number of valid discharges included in the analysis."
+      stratification_warning:
+        type: [string, "null"]
+        description: "Warning message if stratification was skipped due to low sample size."
+      power_analysis:
+        type: object
+        properties:
+          target_effect_size:
+            type: number
+            description: "Target correlation magnitude (|r|) for power calculation."
+          calculated_power:
+            type: number
+            description: "Estimated statistical power (0.0 to 1.0)."
+          power_status:
+            type: string
+            enum: ["sufficient", "low"]
+            description: "Status based on whether power >= 0.20."
+        required:
+          - target_effect_size
+          - calculated_power
+          - power_status
+    required:
+      - total_discharges_analyzed
+      - power_analysis
+  correlation_results:
+    type: array
+    items:
+      type: object
+      properties:
+        metric_name:
+          type: string
+          enum: ["island_width", "resonant_surface_density"]
+          description: "Name of the topological metric."
+        correlation:
+          type: number
+          description: "Spearman rank correlation coefficient."
+        p_value:
+          type: number
+          description: "Two-tailed p-value."
+        ci_lower:
+          type: number
+          description: "Lower bound of 95% confidence interval."
+        ci_upper:
+          type: number
+          description: "Upper bound of 95% confidence interval."
+        hypothesis_status:
+          type: string
+          enum: ["supported", "inconclusive", "not_supported"]
+          description: "Result of the hypothesis test."
+      required:
+        - metric_name
+        - correlation
+        - p_value
+        - ci_lower
+        - ci_upper
+        - hypothesis_status
 required:
-  - metric_name
-  - mode
-  - spearman_r
-  - spearman_p
-  - posterior_median_r
-  - ci_lower
-  - ci_upper
-  - power
-  - hypothesis_status
+  - analysis_summary
+  - correlation_results
 additionalProperties: false

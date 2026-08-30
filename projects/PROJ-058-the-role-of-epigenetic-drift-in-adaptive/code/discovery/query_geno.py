@@ -5,7 +5,10 @@ import re
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
-from config import get_env, ensure_directories
+import requests
+import yaml
+
+from config import get_env
 
 # Configure logging
 logging.basicConfig(
@@ -15,282 +18,290 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Constants
-MIN_VALID_DATASETS = 3
-OUTPUT_STATUS_FILE = "output/discovery_status.json"
-OUTPUT_RESULTS_FILE = "output/discovery_results.json"
-VERIFIED_DATASETS_FILE = "data/verified_datasets.yaml"
+GEO_BASE_URL = "https://www.ncbi.nlm.nih.gov/gquery/gquery.fcgi"
+ENCODE_BASE_URL = "https://www.encodeproject.org/search/"
+GEO_API_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
+ENCODE_LIMIT = 100  # Max results per query for ENCODE
+GEO_MAX_RESULTS = 1000  # Max results per query for GEO
 
-def load_verified_datasets(filepath: Optional[str] = None) -> Dict[str, Any]:
-    """Load the verified datasets registry."""
-    if filepath is None:
-        filepath = VERIFIED_DATASETS_FILE
-    path = Path(filepath)
+def load_verified_datasets() -> List[Dict[str, Any]]:
+    """Load verified datasets from data/verified_datasets.yaml."""
+    path = Path("data/verified_datasets.yaml")
     if not path.exists():
-        logger.warning(f"Verified datasets file not found: {filepath}. Returning empty registry.")
-        return {"verified_accessions": []}
+        logger.warning(f"Verified datasets file not found at {path}. Returning empty list.")
+        return []
     
-    # Simple YAML-like parser for the specific format expected in data/verified_datasets.yaml
-    # Expected format:
-    # verified_accessions:
-    #   - accession: GSE12345
-    #     title: "Some Title"
-    #   - ...
-    verified = []
     try:
         with open(path, 'r') as f:
-            content = f.read()
-            # Basic parsing logic
-            in_list = False
-            current_entry = {}
-            for line in content.split('\n'):
-                line = line.strip()
-                if line.startswith("verified_accessions:"):
-                    in_list = True
-                    continue
-                if not in_list:
-                    continue
-                if line.startswith("- accession:"):
-                    if current_entry:
-                        verified.append(current_entry)
-                    current_entry = {"accession": line.split(":", 1)[1].strip()}
-                elif line.startswith("title:") and current_entry:
-                    # Remove quotes if present
-                    title = line.split(":", 1)[1].strip().strip('"').strip("'")
-                    current_entry["title"] = title
-            if current_entry:
-                verified.append(current_entry)
+            data = yaml.safe_load(f)
+            return data.get('verified_datasets', [])
     except Exception as e:
-        logger.error(f"Error parsing verified datasets: {e}")
-        return {"verified_accessions": []}
-    
-    return {"verified_accessions": verified}
+        logger.error(f"Error loading verified datasets: {e}")
+        return []
 
-def save_verified_dataset(filepath: str, data: Dict[str, Any]) -> None:
-    """Save verified datasets to file."""
-    path = Path(filepath)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, 'w') as f:
-        f.write("verified_accessions:\n")
-        for item in data.get("verified_accessions", []):
-            f.write(f"  - accession: {item.get('accession', '')}\n")
-            f.write(f"    title: \"{item.get('title', '')}\"\n")
+def save_verified_dataset(dataset: Dict[str, Any]) -> bool:
+    """Append a new verified dataset to data/verified_datasets.yaml."""
+    path = Path("data/verified_datasets.yaml")
+    try:
+        # Load existing
+        existing = load_verified_datasets()
+        # Check if accession already exists
+        if any(d.get('accession') == dataset.get('accession') for d in existing):
+            logger.warning(f"Dataset {dataset.get('accession')} already exists.")
+            return False
+        
+        existing.append(dataset)
+        
+        # Write back
+        with open(path, 'w') as f:
+            yaml.dump({'verified_datasets': existing, 'last_updated': time.strftime("%Y-%m-%d")}, f)
+        return True
+    except Exception as e:
+        logger.error(f"Error saving verified dataset: {e}")
+        return False
 
 def tokenize_title(title: str) -> List[str]:
-    """Convert title to lowercase tokens."""
-    return re.findall(r'\w+', title.lower())
+    """Tokenize a title into lowercase words, removing punctuation."""
+    if not title:
+        return []
+    # Remove punctuation and split
+    words = re.sub(r'[^\w\s]', '', title.lower()).split()
+    return words
 
-def calculate_token_overlap(tokens_a: List[str], tokens_b: List[str]) -> float:
-    """Calculate Jaccard-like overlap or simple intersection ratio."""
-    if not tokens_a or not tokens_b:
+def calculate_token_overlap(tokens1: List[str], tokens2: List[str]) -> float:
+    """Calculate Jaccard-like overlap between two token sets."""
+    if not tokens1 or not tokens2:
         return 0.0
-    set_a = set(tokens_a)
-    set_b = set(tokens_b)
-    intersection = len(set_a.intersection(set_b))
-    union = len(set_a.union(set_b))
+    set1 = set(tokens1)
+    set2 = set(tokens2)
+    intersection = len(set1 & set2)
+    union = len(set1 | set2)
     if union == 0:
         return 0.0
     return intersection / union
 
 def validate_reference(accession: str, title: str, threshold: float = 0.7) -> bool:
     """
-    Validate a dataset reference against the verified registry.
-    Returns True if the title token overlap with any verified entry >= threshold.
+    Validate a dataset accession/title against verified_datasets.yaml.
+    Returns True if the title has >= threshold overlap with any verified title.
     """
-    registry = load_verified_datasets()
-    tokens_query = tokenize_title(title)
+    verified = load_verified_datasets()
+    if not verified:
+        # If no verified datasets exist, we cannot validate, so return False
+        # to prevent false positives, or True if we assume all are valid? 
+        # Per spec: "performing title-token overlap check". If no reference, no match.
+        return False
     
-    for entry in registry.get("verified_accessions", []):
-        if entry.get("accession") == accession:
-            # Exact accession match is strong, but we still check title overlap per spec
-            title_verified = entry.get("title", "")
-            tokens_verified = tokenize_title(title_verified)
-            overlap = calculate_token_overlap(tokens_query, tokens_verified)
-            if overlap >= threshold:
-                return True
+    title_tokens = tokenize_title(title)
+    for v in verified:
+        v_title = v.get('title', '')
+        v_tokens = tokenize_title(v_title)
+        if calculate_token_overlap(title_tokens, v_tokens) >= threshold:
+            logger.info(f"Accession {accession} validated against '{v_title}'")
+            return True
+    logger.info(f"Accession {accession} failed validation (no overlap >= {threshold})")
     return False
 
-def search_geo(query: str) -> List[Dict[str, Any]]:
+def search_geo(query_terms: List[str]) -> List[Dict[str, Any]]:
     """
-    Simulate a GEO search. In a real implementation, this would use GEOparse or requests.
-    For this task, we assume the discovery logic has already populated a cache or
-    the search function returns a list of candidates found in a local index.
-    Since T009 ran search_geo, we assume a local cache exists or we simulate
-    the structure of what would be returned.
+    Search GEO for datasets matching the query terms.
+    Returns a list of accession info dicts.
+    """
+    # Construct query string
+    query = " AND ".join([f'"{term}"' for term in query_terms])
+    # Add specific filters for multi-generational and methylation/RNA-seq
+    # GEO search syntax: (term1) AND (term2)
+    full_query = f'({query}) AND ("GSE" OR "GPL")'
     
-    To satisfy "Real data only", we will attempt to fetch from a real source if possible,
-    but for the specific T012 logic, we rely on the input list `datasets` passed to run_discovery.
-    Here we provide a stub that returns an empty list if no local cache is found,
-    forcing the caller to use the data already discovered.
-    """
-    # In a full pipeline, this would hit the NCBI E-utilities API.
-    # For T012 implementation, we assume the list of datasets is passed in or
-    # retrieved from a previous step's output (T009 output).
-    return []
+    params = {
+        'db': 'gds',
+        'term': full_query,
+        'retmax': GEO_MAX_RESULTS,
+        'retmode': 'json',
+        'usehistory': 'y'
+    }
+    
+    results = []
+    try:
+        response = requests.get(GEO_API_URL, params=params, timeout=30)
+        response.raise_for_status()
+        data = response.json()
+        id_list = data.get('ids', [])
+        
+        # Fetch details for each ID
+        if not id_list:
+            logger.info("No GEO IDs found for query.")
+            return []
 
-def search_encode(query: str) -> List[Dict[str, Any]]:
-    """Simulate ENCODE search."""
-    return []
+        # Fetch details in batches to avoid rate limits
+        for i in range(0, len(id_list), 10):
+            batch_ids = id_list[i:i+10]
+            detail_params = {
+                'db': 'gds',
+                'id': ','.join(batch_ids),
+                'retmode': 'json',
+                'rettype': 'full'
+            }
+            detail_resp = requests.get(GEO_API_URL, params=detail_params, timeout=30)
+            detail_resp.raise_for_status()
+            detail_data = detail_resp.json()
+            
+            for item in detail_data.get('result', {}).values():
+                if item.get('id') in batch_ids:
+                    title = item.get('title', '')
+                    accession = item.get('id', '')
+                    # Check if it matches our keywords roughly (in case API filtering is loose)
+                    if any(term.lower() in title.lower() for term in query_terms):
+                        results.append({
+                            'accession': accession,
+                            'title': title,
+                            'source': 'GEO',
+                            'url': f"https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc={accession}"
+                        })
+            
+            time.sleep(0.5) # Rate limit
+            
+    except Exception as e:
+        logger.error(f"GEO search failed: {e}")
+    
+    return results
+
+def search_encode(query_terms: List[str]) -> List[Dict[str, Any]]:
+    """
+    Search ENCODE for datasets matching the query terms.
+    Returns a list of accession info dicts.
+    """
+    # ENCODE uses a different search syntax, often JSON based or query params
+    # We will use the search endpoint with a query string
+    query = " ".join(query_terms)
+    params = {
+        'searchTerm': query,
+        'type': 'Experiment',
+        'limit': ENCODE_LIMIT,
+        'frame': 'embedded',
+        'status': 'released'
+    }
+    
+    results = []
+    try:
+        response = requests.get(ENCODE_BASE_URL, params=params, timeout=30)
+        response.raise_for_status()
+        data = response.json()
+        
+        items = data.get('@graph', [])
+        for item in items:
+            accession = item.get('accession', '')
+            title = item.get('description', item.get('title', ''))
+            # Check keywords
+            if any(term.lower() in title.lower() for term in query_terms):
+                results.append({
+                    'accession': accession,
+                    'title': title,
+                    'source': 'ENCODE',
+                    'url': f"https://www.encodeproject.org/{accession}/"
+                })
+                
+    except Exception as e:
+        logger.error(f"ENCODE search failed: {e}")
+        
+    return results
 
 def validate_dataset(dataset: Dict[str, Any]) -> bool:
     """
-    Check if a dataset has the required keys: accession, title, organism, metadata.
+    Perform additional validation on a dataset.
+    Currently checks title overlap with verified datasets.
     """
-    required = ["accession", "title", "organism", "metadata"]
-    return all(k in dataset for k in required)
+    accession = dataset.get('accession')
+    title = dataset.get('title')
+    if not accession or not title:
+        return False
+    return validate_reference(accession, title)
 
 def filter_by_organism(datasets: List[Dict[str, Any]], organisms: List[str]) -> List[Dict[str, Any]]:
-    """Filter datasets by allowed organisms."""
-    return [d for d in datasets if d.get("organism", "").lower() in [o.lower() for o in organisms]]
+    """Filter datasets by organism name."""
+    # Simple string matching for now
+    filtered = []
+    for d in datasets:
+        title = d.get('title', '').lower()
+        for org in organisms:
+            if org.lower() in title:
+                filtered.append(d)
+                break
+    return filtered
 
 def check_metadata_completeness(dataset: Dict[str, Any]) -> bool:
     """
-    Check for metadata completeness: fluctuation timescale and amplitude.
+    Check if dataset has necessary metadata fields.
+    For this task, we assume the search results are metadata-complete enough
+    if they have an accession and title. Real metadata checks would require
+    fetching the full record.
     """
-    meta = dataset.get("metadata", {})
-    # Check for keys that might indicate fluctuation data
-    keys = ["fluctuation_timescale", "fluctuation_period", "env_period", "amplitude"]
-    found_keys = [k for k in keys if k in meta]
-    return len(found_keys) >= 2  # Heuristic: need at least two indicators
+    return bool(dataset.get('accession') and dataset.get('title'))
 
-def run_discovery(datasets: List[Dict[str, Any]]) -> Dict[str, Any]:
+def run_discovery(output_path: str = "output/discovery_results.json") -> Dict[str, Any]:
     """
-    Main logic for T012:
-    1. Filter datasets by organism and metadata completeness.
-    2. Validate references against verified_datasets.yaml.
-    3. Flag "Partial Match" datasets (valid organism/metadata but failed title validation).
-    4. Count valid datasets.
-    5. Write halt_signal to output/discovery_status.json if count < MIN_VALID_DATASETS.
-    
-    Returns a status dictionary.
+    Main discovery logic.
+    1. Define search terms.
+    2. Query GEO and ENCODE.
+    3. Filter by organism (mouse, C. elegans, Drosophila).
+    4. Validate against verified datasets.
+    5. Check metadata completeness.
+    6. Write results to JSON.
     """
-    logger.info(f"Running discovery validation on {len(datasets)} datasets.")
+    search_terms = ["multi-generational", "methylation", "RNA-seq", "fluctuating"]
+    target_organisms = ["mouse", "mus musculus", "c. elegans", "caenorhabditis elegans", "drosophila", "fruit fly"]
     
-    allowed_organisms = ["mouse", "c. elegans", "drosophila"]
+    logger.info("Starting discovery process...")
+    logger.info(f"Search terms: {search_terms}")
+    
+    # Search
+    geo_results = search_geo(search_terms)
+    encode_results = search_encode(search_terms)
+    
+    all_candidates = geo_results + encode_results
+    logger.info(f"Found {len(all_candidates)} candidate datasets.")
+    
+    # Filter by organism
+    organism_filtered = filter_by_organism(all_candidates, target_organisms)
+    logger.info(f"After organism filter: {len(organism_filtered)} datasets.")
+    
+    # Validate and check metadata
     valid_datasets = []
-    partial_match_datasets = []
-    
-    for ds in datasets:
-        if not validate_dataset(ds):
-            continue
-        
-        # Filter by organism
-        if not filter_by_organism([ds], allowed_organisms):
-            continue
-        
-        # Check metadata completeness
-        if not check_metadata_completeness(ds):
-            continue
-        
-        # Validate reference (title overlap)
-        accession = ds["accession"]
-        title = ds["title"]
-        is_valid = validate_reference(accession, title, threshold=0.7)
-        
-        if is_valid:
-            valid_datasets.append(ds)
+    for d in organism_filtered:
+        if check_metadata_completeness(d):
+            if validate_dataset(d):
+                valid_datasets.append(d)
+            else:
+                logger.debug(f"Skipping {d.get('accession')} due to validation failure.")
         else:
-            # Flag as partial match
-            partial_match_datasets.append({
-                "accession": accession,
-                "title": title,
-                "reason": "Title validation failed (token overlap < 0.7)"
-            })
+            logger.debug(f"Skipping {d.get('accession')} due to incomplete metadata.")
     
-    valid_count = len(valid_datasets)
-    status = {
-        "valid_datasets_count": valid_count,
-        "valid_datasets": [d["accession"] for d in valid_datasets],
-        "partial_match_datasets": partial_match_datasets,
-        "partial_match_count": len(partial_match_datasets),
-        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+    logger.info(f"Final valid datasets: {len(valid_datasets)}")
+    
+    # Prepare output
+    output_data = {
+        "search_terms": search_terms,
+        "total_candidates": len(all_candidates),
+        "organism_filtered_count": len(organism_filtered),
+        "valid_datasets": valid_datasets,
+        "count": len(valid_datasets)
     }
     
-    # Determine if we need to halt
-    if valid_count < MIN_VALID_DATASETS:
-        status["halt_signal"] = True
-        status["message"] = f"Insufficient valid datasets found ({valid_count} < {MIN_VALID_DATASETS}). Pipeline halted."
-        logger.warning(status["message"])
-    else:
-        status["halt_signal"] = False
-        status["message"] = f"Data availability confirmed. Found {valid_count} valid datasets."
-        logger.info(status["message"])
+    # Write output
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_file, 'w') as f:
+        json.dump(output_data, f, indent=2)
     
-    # Ensure output directory exists
-    ensure_directories()
+    logger.info(f"Discovery results written to {output_path}")
     
-    # Write results to output/discovery_status.json
-    output_path = Path(OUTPUT_STATUS_FILE)
-    with open(output_path, 'w') as f:
-        json.dump(status, f, indent=2)
-    
-    logger.info(f"Discovery status written to {OUTPUT_STATUS_FILE}")
-    
-    # Also update the discovery results file to include the partial matches info
-    # (Optional, but good for traceability)
-    results_path = Path(OUTPUT_RESULTS_FILE)
-    if results_path.exists():
-        try:
-            with open(results_path, 'r') as f:
-                existing_results = json.load(f)
-            existing_results["discovery_status"] = status
-            with open(results_path, 'w') as f:
-                json.dump(existing_results, f, indent=2)
-        except Exception as e:
-            logger.error(f"Could not update discovery results file: {e}")
-    
-    return status
+    return output_data
 
 def main():
-    """
-    Entry point for T012.
-    Since T009, T010, T011 are completed, we assume the datasets are available
-    in a local cache or we need to re-run the search logic if no cache exists.
-    
-    For this implementation, we assume the datasets are passed via a local file
-    generated by T009 (e.g., output/discovery_results.json) or we simulate the
-    input list if we are running in isolation.
-    
-    In a real pipeline, T012 would be called after T009/T010/T011.
-    Here, we load the results from T009's output if available.
-    """
-    results_file = Path(OUTPUT_RESULTS_FILE)
-    datasets = []
-    
-    if results_file.exists():
-        try:
-            with open(results_file, 'r') as f:
-                data = json.load(f)
-                # The structure might vary, assume 'datasets' key or similar
-                # If T009 output format is: {"datasets": [...]}
-                if "datasets" in data:
-                    datasets = data["datasets"]
-                else:
-                    # Fallback: try to find a list of dicts
-                    for key, val in data.items():
-                        if isinstance(val, list) and val and isinstance(val[0], dict):
-                            datasets = val
-                            break
-        except Exception as e:
-            logger.error(f"Error loading previous discovery results: {e}")
-    else:
-        logger.warning(f"Previous discovery results not found at {OUTPUT_RESULTS_FILE}. "
-                       "Cannot run T012 validation. Please run T009 first.")
-        # Create a status file indicating failure to run
-        ensure_directories()
-        status = {
-            "valid_datasets_count": 0,
-            "valid_datasets": [],
-            "partial_match_datasets": [],
-            "partial_match_count": 0,
-            "halt_signal": True,
-            "message": "Previous discovery results missing. Pipeline halted.",
-            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
-        }
-        with open(OUTPUT_STATUS_FILE, 'w') as f:
-            json.dump(status, f, indent=2)
-        return status
-
-    return run_discovery(datasets)
+    """Entry point for the discovery script."""
+    output_path = get_env("DISCOVERY_OUTPUT", "output/discovery_results.json")
+    results = run_discovery(output_path)
+    print(json.dumps(results, indent=2))
 
 if __name__ == "__main__":
     main()

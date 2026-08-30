@@ -1,76 +1,70 @@
 # Research: Quantifying the Impact of Magnetic Field Topology on Plasma Confinement
 
-## Research Question
+## Summary
 
-Does the topology of the magnetic field (specifically the Chirikov Stochasticity Parameter derived from magnetic island widths and resonant surface separation) significantly impact the energy confinement time ($\tau_E$) in DIII-D tokamak plasmas?
+This research investigates the association between magnetic field topology (specifically magnetic island width) and energy confinement time ($\tau_E$) in DIII-D tokamak plasmas. The hypothesis is that increased topological complexity (larger islands) degrades confinement. 
 
-**Note**: Due to the small sample size (N=5-10), this study is a **Feasibility Pilot**. It aims to estimate the effect size rather than reject a null hypothesis.
+**Critical Methodological Note**: Given the pilot sample size (N=5-10), this study is statistically underpowered to confirm or reject the hypothesis (power < 10% for |r|=0.5). The primary goal is reframed from "quantify the impact" to "estimate effect size bounds and assess feasibility". The expected outcome is an "Inconclusive" flag, with the observed effect size and its wide confidence interval reported as exploratory data.
+
+## Theoretical Background
+
+### Magnetic Topology and Confinement
+In tokamaks, magnetic field lines ideally form nested toroidal surfaces. However, resonant magnetic perturbations or internal instabilities can create magnetic islands—regions where field lines close on themselves, breaking the nested structure. These islands can enhance transport by allowing heat and particles to leak across the field lines.
+
+- **Magnetic Island Width**: A measure of the radial extent of the island. Larger islands are generally associated with increased transport.
+- **Resonant Surface Density**: The number of rational surfaces (where safety factor $q = m/n$) per unit normalized minor radius. A higher density implies a more complex magnetic topology, potentially leading to stochastic field regions and degraded confinement. **Note**: This metric is definitionally determined by the q-profile range and is treated as a descriptive statistic only, not an independent predictor.
+
+### DIII-D Public Archive
+The DIII-D National Fusion Facility maintains a public archive of discharge data, including EFIT equilibrium reconstructions and derived confinement metrics. The `islands` and `taue` MDSplus trees are the primary sources for this study.
 
 ## Dataset Strategy
 
-| Dataset | Source | Access Method | Variables Used | Notes |
-|---------|--------|---------------|----------------|-------|
-| DIII-D Discharges | DIII-D Public MDSplus Archive | `wget` for manifest, `mdsplus` for data | EFIT q-profile, Island width, $\tau_E$, Confinement Mode | Authentication via GitHub Secrets. Discharge list is fixed in `code/config.py` (cited by content hash). |
-| EFIT Equilibria | DIII-D Public MDSplus Archive | `mdsplus` | q-profile, minor radius | Pre-reconstructed files retrieved via MDSplus. |
-| Island Widths | DIII-D Public MDSplus Archive (`islands` tree) | `mdsplus` | Primary resonant surface island width | Pre-calculated values. Missing data triggers exclusion. |
-| Confinement Time | DIII-D Public MDSplus Archive (`taue` tree) | `mdsplus` | $\tau_E$ | Pre-calculated or derived from `W_MHD`/`P_input`. |
-| Manifest File | Public HTTP Mirror (e.g., GitHub/Zenodo) | `wget` | List of discharge IDs | Downloaded via `wget` to satisfy FR-001. Fallback to `code/config.py` if unavailable. |
+| Dataset | Source | Access Method | Variables | Feasibility Note |
+| :--- | :--- | :--- | :--- | :--- |
+| **DIII-D MDSplus Archive** | Public DIII-D Server (e.g., `d3dmds.gat.com`) | Direct HTTP/HTTPS via `wget` or `requests` (No Auth) | `EFIT` (q-profile, shear), `islands` (width), `taue` ($\tau_E$, H98y2) | **Critical**: No verified URL found in the provided "Verified datasets" block. The plan attempts direct retrieval. If unreachable, pipeline fails. A fallback to static verified data (if available) is attempted only as a demonstration. |
+| **EFIT Parquet (Placeholder)** | HuggingFace (Test Data) | `datasets.load_dataset` | *None* | **NOT USED**. The provided HuggingFace URLs in the "Verified datasets" block are unrelated test data (Mahjong, GEMMsTream). They do not contain DIII-D physics variables. The plan relies on the live DIII-D archive or fails. |
 
-**Dataset Verification**: The DIII-D MDSplus archive is the sole source. The specific discharge list is versioned in `code/config.py` and its content hash is recorded in the project state, satisfying reproducibility. The general DIII-D Data Access URL is https://www.diii-d.org/program/science/data-access.
+**Data Availability Risk**: The primary risk is the unavailability of the DIII-D public MDSplus archive from the GitHub Actions runner (network restrictions, server downtime, or hidden authentication requirements). The plan mitigates this by:
+1.  Implementing a retry loop (3 attempts, 10s interval).
+2.  Failing the job explicitly if data cannot be retrieved (rather than synthesizing data).
+3.  Attempting a fallback to a static, verified dataset (if available) as a *demonstration* only.
+4.  Clearly documenting the "NO verified source found" status in this research document.
 
-## Methodology
+## Statistical Methodology
 
-### Data Retrieval & Preprocessing (FR-001, FR-002, FR-003)
-1.  **Manifest Download**: Use `wget` to download `discharges.txt` from a public mirror. If unavailable, use the hardcoded list in `code/config.py`.
-2.  **Connection**: Establish connection to DIII-D MDSplus archive using `mdsplus` library, injecting credentials from GitHub Secrets (`D3D_USERNAME`, `D3D_PASSWORD`).
-3.  **Retrieval**: Fetch data for up to 10 specified discharge numbers.
-    *   EFIT q-profiles (`q` vs. normalized radius).
-    *   Pre-calculated magnetic island widths (primary resonant surface).
-    *   Energy confinement time ($\tau_E$).
-    *   Confinement mode (L-mode/H-mode).
-4.  **Validation**:
-    *   Exclude discharges with missing island width or $\tau_E$.
-    *   Exclude discharges where island width > minor radius.
-    *   Enforce minimum sample size (N >= 5).
-5.  **Chirikov Stochasticity Parameter Calculation**:
-    *   Identify rational surfaces (q = m/n, m,n ∈ [1,10], |q - m/n| < 0.01).
-    *   Calculate $\Delta q$ as the minimum difference between adjacent rational q-values.
-    *   Retrieve or derive island widths ($w$) for these surfaces.
-    *   Calculate $K = (w_1 + w_2) / \Delta q$.
-    *   Normalize $K$ by the total q-profile range to decouple from q-range.
+### Correlation Analysis
+- **Metric**: Spearman rank correlation coefficient ($r_s$) is chosen over Pearson because the relationship between topology and confinement may be monotonic but non-linear, and the data may not be normally distributed.
+- **Hypothesis**: $H_0: r_s = 0$ vs $H_1: r_s \neq 0$ (specifically looking for negative correlation if larger islands degrade confinement, though the spec tests magnitude $|r| > 0.5$).
+- **Significance**: $\alpha = 0.05$.
+- **Power Limitation**: With N=5-10, power to detect |r|=0.5 is < 10%. The study is underpowered to confirm/reject the hypothesis. The goal is to report the observed effect size and its wide confidence interval.
 
-### Topological Metric Calculation (FR-002)
-*   **Chirikov Parameter**: Calculated as described above.
-*   **Collinearity Check**: Report the correlation between the Chirikov parameter and q-profile range. If > 0.9, flag as potentially tautological.
+### Bootstrap Resampling
+- **Method**: 1000 iterations of sampling with replacement from the valid discharge set.
+- **Purpose**: Estimate 95% confidence intervals for $r_s$ without assuming normality of the sampling distribution.
+- **Reproducibility**: Fixed random seed.
 
-### Statistical Analysis (FR-004, FR-005, FR-008, FR-010)
-1.  **Spearman Correlation (FR-004)**: Compute Spearman rank correlation and p-value as a descriptive statistic.
-2.  **Bayesian Estimation**: Use a Bayesian hierarchical model (or robust regression) to estimate the correlation between topological metrics and $\tau_E$.
-    *   Include 'confinement_mode' as a categorical covariate to adjust for Simpson's Paradox.
-    *   Use a weakly informative prior for the correlation coefficient.
-3.  **Output**: Report the posterior median and 95% Credible Interval for the correlation coefficient.
-4.  **Feasibility Status**:
-    *   If 95% CI includes 0: "Inconclusive due to low power".
-    *   If 95% CI is entirely > 0.5 or < -0.5: "Hypothesis supported" (with caution).
-5.  **Power Analysis (FR-008)**: Perform a formal power analysis. If power < 20% for |r| = 0.5, flag the result as "Inconclusive due to low power".
-6.  **Stratification (FR-010)**: Stratify analysis by confinement mode **only if** N >= 3 per mode. If N < 3, perform pooled analysis and report the limitation.
+### Power Analysis
+- **Goal**: Determine the probability of detecting an effect size of $|r| = 0.5$ given the sample size $N$.
+- **Threshold**: If Power < 20%, the result is flagged as "Inconclusive due to low power" (FR-008). **Expected outcome**: Power < 10% for N=5-10.
 
-### Visualization (FR-006)
-*   Generate scatter plot: Chirikov Parameter vs. $\tau_E$.
-*   Annotate with posterior median and 95% CI.
-*   Validate output JSON against `contracts/output.schema.yaml`.
+### Stratification (Simpson's Paradox)
+- **Logic**: L-mode and H-mode plasmas have fundamentally different confinement physics. Correlations might be spurious if the modes are mixed.
+- **Rule**: Stratify only if $N_{L-mode} \ge 3$ and $N_{H-mode} \ge 3$. Otherwise, run global correlation with a prominent warning: "Simpson's Paradox highly likely due to mixed modes; result is exploratory only".
 
-## Statistical Rigor & Limitations
+## Statistical Rigor & Assumptions
 
-*   **Causal Inference**: No causal claims. The study is observational; claims are strictly associational.
-*   **Sample Size**: N = 5-10 is a pilot study. The study is not powered to detect a specific effect size. It reports effect size estimates with uncertainty.
-*   **Data Quality**: Missing data handling is robust (exclusion). Physical outliers (island > radius) are excluded.
-*   **Collinearity**: The Chirikov parameter is designed to be less correlated with the q-profile range than simple rational surface counts.
-*   **Simpson's Paradox**: Addressed via covariate adjustment in the Bayesian model or stratification (if N permits).
-*   **Low Power**: Explicitly flagged if power < 20%.
+- **Causal Inference**: This is an observational study. Claims are strictly associational. No randomization of magnetic topology is performed.
+- **Collinearity**: The resonant surface density is derived from the q-profile range. It is treated as a descriptive statistic only, not an independent predictor. The hypothesis is narrowed to test only 'magnetic island width' against confinement.
+- **Measurement Validity**: DIII-D EFIT reconstructions are the standard for q-profiles. H98y2 is the standard metric for confinement mode.
+- **Multiple Comparisons**: Only one primary metric (island width) is tested against $\tau_E$. Given the pilot nature (N=5-10), a formal family-wise error correction (e.g., Bonferroni) is not applied to avoid excessive Type II error, but the strict $|r| > 0.5$ threshold serves as a robustness filter.
+- **Circularity**: The Rutherford fallback for island width requires independent perturbation amplitude data. If this data is not available in the public archive, the discharge is excluded to avoid circularity.
 
-## Decision Rationale
+## Risks & Mitigations
 
-*   **CPU-First**: The analysis (Bayesian estimation, plotting) is computationally light and runs entirely on the CPU-first GitHub Actions runner. No GPU is required.
-*   **Data Access**: The `mdsplus` library is the standard method for accessing DIII-D data. Authentication is handled via GitHub Secrets. The 'wget' requirement is satisfied by downloading the manifest file.
-*   **Statistical Validity**: Bayesian estimation is valid for small sample sizes (N=5-10), unlike frequentist correlation tests which require larger N for meaningful p-values. Spearman correlation is computed as a descriptive statistic per FR-004.
+| Risk | Impact | Mitigation |
+| :--- | :--- | :--- |
+| **DIII-D Archive Unreachable** | Pipeline fails, no results. | Retry logic; explicit failure (no fake data); clear error message. Fallback to static verified data (if available) as demonstration only. |
+| **Sample Size Too Small (N < 5)** | Statistical power negligible. | Pipeline fails early if N < 5 (FR-001). |
+| **Missing Island Width Data** | Cannot test hypothesis. | Derive via Rutherford equation **only if independent perturbation amplitude is available**. If inputs missing, exclude discharge. |
+| **All Discharges Same Mode** | Stratification impossible. | Run global correlation with warning: "Simpson's Paradox highly likely". |
+| **Underpowered Study** | Cannot confirm/reject hypothesis. | Acknowledge in report: "Inconclusive due to low power". Report observed effect size and wide CI as exploratory data. |

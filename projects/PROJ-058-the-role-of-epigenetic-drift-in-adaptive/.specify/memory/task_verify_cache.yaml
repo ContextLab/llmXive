@@ -1,0 +1,46 @@
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No filtering script, function, or dataset list was supplied; the response contains
+    only the task description and specification excerpt, with no actual code, files,
+    or output demonstrating logic to filter datasets by organism (mouse, C. elegans,
+    Drosophila) and by metadata completeness (fluctuation timescale/amplitude). The
+    required artifact is missing.
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `output/discovery_status.json` file (or any other artifact) was provided,\
+    \ and there is no code or script shown that implements the dataset\u2011discovery\
+    \ logic, flags \u201CPartial Match\u201D entries, or writes a `halt_signal`. Without\
+    \ these concrete outputs, the requirement to halt the pipeline when fewer than\
+    \ three valid datasets are found is not satisfied. The next implementer must add\
+    \ the discovery script and produce the required JSON file."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `rna_seq.py` or `methyl.py` files containing the requested Leave-One-Generation-Out
+    jackknife logic were provided; the evidence consists only of the task description
+    and specification excerpt, with no code, tests, or documentation to verify the
+    implementation. The required artifacts are missing.
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or test artifact implementing the required filtering logic (excluding
+    genes with zero variance in both layers or missing data in either layer) was provided.
+    The claim lacks any tangible implementation or evidence that the logic exists
+    and works as specified.
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., discovery script, preprocessing pipeline, or resulting CSV/TSV\
+    \ file) was supplied; the claim provides only a textual description without any\
+    \ code, data, or output to verify the global methylation level filter or non\u2011\
+    model organism exclusion. The required implementation and its results are missing."
+T019:
+  c: false
+  h: 25c58118d8370d135a18b90407d11ddf8a3590d2e792cdba9cc99a1d8e1f638f
+  r: "The provided `code/main.py` is incomplete (the shown code stops after defining\
+    \ `run_rna_seq_pipeline` and never shows calls to the methylation module, result\
+    \ unification, or runtime\u2011limit enforcement), and the required output file\
+    \ `data/processed/variance_matrix.csv` does not exist. The orchestrator therefore\
+    \ does not fulfill the specified steps."

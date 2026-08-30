@@ -1,9 +1,11 @@
 """
 Environment configuration management for reproducible research.
 
-This module handles the setup and validation of PYTHONHASHSEED and random seeds
-to ensure deterministic behavior across runs, which is critical for scientific
-reproducibility in the social exclusion study pipeline.
+This module handles:
+- PYTHONHASHSEED configuration
+- Random seed initialization for numpy, random, and torch (if available)
+- Validation of seed environment
+- Default configuration file creation
 """
 
 import os
@@ -11,229 +13,242 @@ import random
 import sys
 from pathlib import Path
 from typing import Optional, Dict, Any
-
 import numpy as np
-import yaml
 
-# Import existing logging infrastructure
-from logging_config import get_project_logger
+# Try to import torch for reproducibility if available
+try:
+    import torch
+    TORCH_AVAILABLE = True
+except ImportError:
+    TORCH_AVAILABLE = False
 
-
-logger = get_project_logger("environment_config")
-
-
-# Default configuration
 DEFAULT_SEED = 42
-DEFAULT_HASH_SEED = "42"
+SEED_ENV_VAR = "RANDOM_SEED"
+HASH_SEED_ENV_VAR = "PYTHONHASHSEED"
 
-
-def load_environment_config(config_path: Optional[str] = None) -> Dict[str, Any]:
+def load_environment_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
     """
     Load environment configuration from a YAML file or return defaults.
-
+    
     Args:
-        config_path: Path to the YAML configuration file. If None, looks for
-                    'environment_config.yaml' in the project root.
-
+        config_path: Path to the configuration file. If None, uses default location.
+        
     Returns:
-        Dictionary containing seed configuration.
+        Dictionary containing environment configuration.
     """
-    if config_path is None:
-        config_path = Path(__file__).parent.parent / "environment_config.yaml"
-
-    config_path = Path(config_path)
-
-    if not config_path.exists():
-        logger.warning(f"Config file {config_path} not found. Using defaults.")
-        return {
-            "random_seed": DEFAULT_SEED,
-            "hash_seed": DEFAULT_HASH_SEED,
-            "numpy_seed": DEFAULT_SEED,
-            "pytorch_seed": None,  # Optional, only if torch is used
-        }
-
-    with open(config_path, "r", encoding="utf-8") as f:
-        config = yaml.safe_load(f)
-
-    # Ensure required keys exist with defaults
-    defaults = {
+    default_config = {
         "random_seed": DEFAULT_SEED,
-        "hash_seed": DEFAULT_HASH_SEED,
-        "numpy_seed": DEFAULT_SEED,
+        "python_hash_seed": True,
+        "hash_seed_value": DEFAULT_SEED,
+        "deterministic_mode": True
     }
+    
+    if config_path is None:
+        config_path = Path("config/environment_config.yaml")
+    
+    if not config_path.exists():
+        return default_config
+    
+    try:
+        import yaml
+        with open(config_path, 'r') as f:
+            loaded_config = yaml.safe_load(f)
+            # Merge with defaults
+            return {**default_config, **loaded_config}
+    except Exception as e:
+        print(f"Warning: Could not load config from {config_path}: {e}")
+        return default_config
 
-    for key, value in defaults.items():
-        if key not in config:
-            config[key] = value
-
-    return config
-
-
-def set_python_hash_seed(seed_value: Optional[str] = None) -> None:
+def set_python_hash_seed(seed_value: Optional[int] = None) -> int:
     """
-    Set the PYTHONHASHSEED environment variable for deterministic hashing.
-
-    This must be called BEFORE any hashing operations occur (ideally at module load).
-    Setting this after imports may not have the desired effect.
-
+    Set PYTHONHASHSEED environment variable for reproducible hashing.
+    
     Args:
-        seed_value: The hash seed value as a string. If None, uses config default.
+        seed_value: The seed value to use. If None, uses default seed.
+        
+    Returns:
+        The seed value that was set.
     """
     if seed_value is None:
-        config = load_environment_config()
-        seed_value = str(config.get("hash_seed", DEFAULT_HASH_SEED))
+        seed_value = DEFAULT_SEED
+    
+    os.environ[HASH_SEED_ENV_VAR] = str(seed_value)
+    return seed_value
 
-    # Only set if not already set or if explicitly requested
-    if "PYTHONHASHSEED" not in os.environ or seed_value:
-        os.environ["PYTHONHASHSEED"] = str(seed_value)
-        logger.info(f"Set PYTHONHASHSEED to {seed_value}")
-    else:
-        logger.info(f"PYTHONHASHSEED already set to {os.environ['PYTHONHASHSEED']}")
-
-
-def set_random_seeds(config: Optional[Dict[str, Any]] = None) -> None:
+def set_random_seeds(seed: Optional[int] = None) -> int:
     """
-    Set random seeds for Python's random module, NumPy, and optionally PyTorch.
-
-    This ensures reproducible randomness across all libraries used in the pipeline.
-
+    Set random seeds for all relevant libraries.
+    
     Args:
-        config: Optional configuration dictionary. If None, loads from config file.
+        seed: The seed value to use. If None, uses default seed.
+        
+    Returns:
+        The seed value that was set.
+    """
+    if seed is None:
+        seed = DEFAULT_SEED
+    
+    # Set Python's random seed
+    random.seed(seed)
+    
+    # Set NumPy's random seed
+    np.random.seed(seed)
+    
+    # Set PyTorch's seeds if available
+    if TORCH_AVAILABLE:
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed(seed)
+            torch.cuda.manual_seed_all(seed)
+            torch.backends.cudnn.deterministic = True
+            torch.backends.cudnn.benchmark = False
+    
+    # Set environment variable for reproducibility
+    os.environ[SEED_ENV_VAR] = str(seed)
+    
+    return seed
+
+def validate_seed_environment() -> Dict[str, Any]:
+    """
+    Validate that the seed environment is correctly configured.
+    
+    Returns:
+        Dictionary with validation results.
+    """
+    results = {
+        "python_hash_seed_set": False,
+        "python_hash_seed_value": None,
+        "random_seed_set": False,
+        "random_seed_value": None,
+        "numpy_seed_set": False,
+        "numpy_seed_value": None,
+        "torch_seed_set": False if not TORCH_AVAILABLE else None,
+        "torch_seed_value": None if not TORCH_AVAILABLE else None,
+        "is_valid": True,
+        "warnings": []
+    }
+    
+    # Check PYTHONHASHSEED
+    hash_seed = os.environ.get(HASH_SEED_ENV_VAR)
+    if hash_seed is not None:
+        results["python_hash_seed_set"] = True
+        try:
+            results["python_hash_seed_value"] = int(hash_seed)
+        except ValueError:
+            results["warnings"].append(f"Invalid PYTHONHASHSEED value: {hash_seed}")
+    else:
+        results["warnings"].append("PYTHONHASHSEED not set")
+    
+    # Check random seed
+    random_seed = os.environ.get(SEED_ENV_VAR)
+    if random_seed is not None:
+        results["random_seed_set"] = True
+        try:
+            results["random_seed_value"] = int(random_seed)
+        except ValueError:
+            results["warnings"].append(f"Invalid RANDOM_SEED value: {random_seed}")
+    
+    # Note: We cannot directly check numpy/torch internal seeds,
+    # but we can verify they were initialized if the module was imported
+    results["numpy_seed_set"] = True  # Assumed if numpy is imported
+    if TORCH_AVAILABLE:
+        results["torch_seed_set"] = True
+    
+    # Overall validity
+    if not results["python_hash_seed_set"]:
+        results["is_valid"] = False
+    
+    return results
+
+def initialize_environment(config: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """
+    Initialize the environment with proper seeds and hash settings.
+    
+    Args:
+        config: Optional configuration dictionary. If None, loads from default config.
+        
+    Returns:
+        Dictionary with initialization results.
     """
     if config is None:
         config = load_environment_config()
-
-    # Get seeds from config
-    random_seed = config.get("random_seed", DEFAULT_SEED)
-    numpy_seed = config.get("numpy_seed", random_seed)
-
-    # Set Python's random seed
-    random.seed(random_seed)
-    logger.info(f"Set Python random seed to {random_seed}")
-
-    # Set NumPy seed
-    np.random.seed(numpy_seed)
-    logger.info(f"Set NumPy random seed to {numpy_seed}")
-
-    # Attempt to set PyTorch seed if available (optional)
-    try:
-        import torch
-        torch.manual_seed(random_seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(random_seed)
-        logger.info(f"Set PyTorch random seed to {random_seed}")
-    except ImportError:
-        logger.debug("PyTorch not installed, skipping PyTorch seed setup")
-
-
-def validate_seed_environment() -> bool:
-    """
-    Validate that the environment is properly configured for reproducibility.
-
-    Returns:
-        True if environment is valid, False otherwise.
-    """
-    is_valid = True
-
-    # Check PYTHONHASHSEED
-    hash_seed = os.environ.get("PYTHONHASHSEED")
-    if hash_seed is None:
-        logger.warning("PYTHONHASHSEED is not set. Results may be non-deterministic.")
-        is_valid = False
+    
+    results = {
+        "seed": DEFAULT_SEED,
+        "hash_seed": DEFAULT_SEED,
+        "torch_initialized": False,
+        "warnings": []
+    }
+    
+    # Set random seed
+    seed = config.get("random_seed", DEFAULT_SEED)
+    results["seed"] = set_random_seeds(seed)
+    
+    # Set PYTHONHASHSEED if enabled
+    if config.get("python_hash_seed", True):
+        hash_seed_value = config.get("hash_seed_value", DEFAULT_SEED)
+        results["hash_seed"] = set_python_hash_seed(hash_seed_value)
     else:
-        logger.info(f"PYTHONHASHSEED is set to {hash_seed}")
+        results["warnings"].append("PYTHONHASHSEED not set as per configuration")
+    
+    # Check torch
+    if TORCH_AVAILABLE:
+        results["torch_initialized"] = True
+    
+    # Validate
+    validation = validate_seed_environment()
+    if not validation["is_valid"]:
+        results["warnings"].extend(validation["warnings"])
+    
+    return results
 
-    # Check random module
-    try:
-        # Try to generate a number and see if it's consistent
-        val1 = random.random()
-        random.seed(42)
-        val2 = random.random()
-        if val1 == val2:
-            logger.debug("Random seed appears to be working correctly")
-        else:
-            logger.debug("Random seed behavior noted (expected if not reset)")
-    except Exception as e:
-        logger.error(f"Error validating random module: {e}")
-        is_valid = False
-
-    return is_valid
-
-
-def initialize_environment(config_path: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Initialize the entire environment for reproducible research.
-
-    This function should be called at the very beginning of the pipeline execution,
-    before any other imports or operations that might depend on randomness or hashing.
-
-    Args:
-        config_path: Path to the environment configuration YAML file.
-
-    Returns:
-        The loaded configuration dictionary.
-    """
-    logger.info("Initializing environment for reproducible research...")
-
-    # Load configuration
-    config = load_environment_config(config_path)
-
-    # Set PYTHONHASHSEED first (critical for determinism)
-    set_python_hash_seed(config.get("hash_seed"))
-
-    # Set random seeds
-    set_random_seeds(config)
-
-    # Validate environment
-    if not validate_seed_environment():
-        logger.warning("Environment validation completed with warnings. "
-                     "Consider setting PYTHONHASHSEED for full reproducibility.")
-    else:
-        logger.info("Environment validation passed.")
-
-    logger.info(f"Environment initialized with seed: {config.get('random_seed')}")
-    return config
-
-
-def create_default_config_file(output_path: Optional[str] = None) -> Path:
+def create_default_config_file(output_path: Optional[Path] = None) -> Path:
     """
     Create a default environment configuration file.
-
+    
     Args:
-        output_path: Path where the config file should be created. If None,
-                    creates 'environment_config.yaml' in the project root.
-
+        output_path: Path to write the configuration file. If None, uses default location.
+        
     Returns:
         Path to the created configuration file.
     """
     if output_path is None:
-        output_path = Path(__file__).parent.parent / "environment_config.yaml"
-
-    output_path = Path(output_path)
-
+        output_path = Path("config/environment_config.yaml")
+    
+    # Ensure directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
     default_config = {
         "random_seed": DEFAULT_SEED,
-        "hash_seed": DEFAULT_HASH_SEED,
-        "numpy_seed": DEFAULT_SEED,
-        "description": "Configuration for reproducible research in social exclusion study.",
-        "notes": [
-            "Set PYTHONHASHSEED for deterministic dictionary ordering.",
-            "All random seeds are set at pipeline initialization.",
-            "Change seeds to generate different random variations if needed."
-        ]
+        "python_hash_seed": True,
+        "hash_seed_value": DEFAULT_SEED,
+        "deterministic_mode": True,
+        "description": "Environment configuration for reproducible research"
     }
-
-    with open(output_path, "w", encoding="utf-8") as f:
-        yaml.dump(default_config, f, default_flow_style=False, sort_keys=False)
-
-    logger.info(f"Created default configuration file at {output_path}")
+    
+    import yaml
+    with open(output_path, 'w') as f:
+        yaml.dump(default_config, f, default_flow_style=False)
+    
     return output_path
 
-
 # Convenience function for quick initialization
-def init():
+def init(seed: Optional[int] = None, set_hash_seed: bool = True) -> int:
     """
-    Quick initialization of the environment with default settings.
-    Equivalent to calling initialize_environment() with no arguments.
+    Quick initialization function for common use cases.
+    
+    Args:
+        seed: Optional seed value. If None, uses default.
+        set_hash_seed: Whether to set PYTHONHASHSEED.
+        
+    Returns:
+        The seed value that was set.
     """
-    return initialize_environment()
+    if seed is None:
+        seed = DEFAULT_SEED
+    
+    if set_hash_seed:
+        set_python_hash_seed(seed)
+    
+    set_random_seeds(seed)
+    return seed

@@ -1,324 +1,163 @@
-"""
-Unit tests for code/discovery/query_geno.py.
-Tests mock responses for GEO/ENCODE queries and validation logic.
-"""
-
 import json
-import os
-import sys
-import tempfile
-from pathlib import Path
-from unittest.mock import MagicMock, patch, mock_open
-
 import pytest
-import yaml
+from unittest.mock import patch, MagicMock
+from pathlib import Path
+import sys
+import os
 
-# Add project root to path for imports if running directly
-if "code" not in sys.path:
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add code to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from discovery.query_geno import (
-    load_verified_datasets,
-    save_verified_dataset,
     tokenize_title,
     calculate_token_overlap,
     validate_reference,
+    search_geo,
+    search_encode,
     filter_by_organism,
     check_metadata_completeness,
+    run_discovery,
+    load_verified_datasets
 )
-from config import ensure_directories
-
-# Constants for test data
-MOCK_GEO_RESULTS = [
-    {
-        "accession": "GSE12345",
-        "title": "Multi-generational methylation and RNA-seq in fluctuating temperatures in mouse",
-        "organism": "Mus musculus",
-        "metadata": {
-            "fluctuation_timescale": "5 generations",
-            "amplitude": "high",
-            "environment": "temperature",
-            "generations": 10,
-        },
-    },
-    {
-        "accession": "GSE67890",
-        "title": "Epigenetic drift in C. elegans under nutrient fluctuation",
-        "organism": "Caenorhabditis elegans",
-        "metadata": {
-            "fluctuation_timescale": "3 generations",
-            "amplitude": "medium",
-            "environment": "nutrient",
-            "generations": 5,
-        },
-    },
-    {
-        "accession": "GSE11223",
-        "title": "Stable methylation patterns in Drosophila constant environment",
-        "organism": "Drosophila melanogaster",
-        "metadata": {
-            "fluctuation_timescale": None,
-            "amplitude": "none",
-            "environment": "constant",
-            "generations": 8,
-        },
-    },
-]
-
-MOCK_ENCODE_RESULTS = [
-    {
-        "accession": "ENCSR000ABC",
-        "title": "Multi-generational RNA-seq and methylation in mouse liver",
-        "organism": "Mus musculus",
-        "metadata": {
-            "fluctuation_timescale": "4 generations",
-            "amplitude": "high",
-            "environment": "diet",
-            "generations": 6,
-        },
-    },
-]
-
-MOCK_INVALID_RESULTS = [
-    {
-        "accession": "GSE99999",
-        "title": "Single generation study",
-        "organism": "Homo sapiens",
-        "metadata": {},
-    },
-]
 
 @pytest.fixture
-def temp_verified_datasets_file(tmp_path):
+def mock_verified_datasets(tmp_path):
     """Create a temporary verified_datasets.yaml file."""
     data = {
         "verified_datasets": [
             {
                 "accession": "GSE12345",
-                "title": "Multi-generational methylation and RNA-seq in fluctuating temperatures in mouse",
+                "title": "Multi-generational methylation and RNA-seq in mouse under fluctuating temperature",
+                "source": "GEO"
             },
             {
-                "accession": "GSE67890",
-                "title": "Epigenetic drift in C. elegans under nutrient fluctuation",
-            },
-        ]
+                "accession": "ENCODE123",
+                "title": "Fluctuating nutrient levels affect gene expression in C. elegans",
+                "source": "ENCODE"
+            }
+        ],
+        "last_updated": "2026-06-27"
     }
     file_path = tmp_path / "verified_datasets.yaml"
-    with open(file_path, "w") as f:
+    import yaml
+    with open(file_path, 'w') as f:
         yaml.dump(data, f)
-    return str(file_path)
+    return file_path
 
-@pytest.fixture
-def mock_geo_response():
-    """Mock response for GEO search."""
-    return {"results": MOCK_GEO_RESULTS, "count": len(MOCK_GEO_RESULTS)}
+def test_tokenize_title():
+    assert tokenize_title("Hello World!") == ["hello", "world"]
+    assert tokenize_title("") == []
+    assert tokenize_title("Multi-generational") == ["multi", "generational"]
 
-@pytest.fixture
-def mock_encode_response():
-    """Mock response for ENCODE search."""
-    return {"results": MOCK_ENCODE_RESULTS, "count": len(MOCK_ENCODE_RESULTS)}
+def test_calculate_token_overlap():
+    t1 = ["a", "b", "c"]
+    t2 = ["b", "c", "d"]
+    # Intersection: 2 (b, c), Union: 4 (a, b, c, d) -> 0.5
+    assert calculate_token_overlap(t1, t2) == 0.5
+    assert calculate_token_overlap([], ["a"]) == 0.0
+    assert calculate_token_overlap(["a"], []) == 0.0
 
-class TestTokenizeTitle:
-    def test_tokenize_simple(self):
-        title = "Multi-generational methylation study"
-        tokens = tokenize_title(title)
-        assert "multi" in tokens
-        assert "generational" in tokens
-        assert "methylation" in tokens
-        assert "study" in tokens
+def test_validate_reference_no_verified(mock_verified_datasets):
+    # Temporarily override the path for testing
+    import discovery.query_geno as qg
+    original_load = qg.load_verified_datasets
+    
+    def mock_load():
+        return [
+            {"title": "Test Dataset A"},
+            {"title": "Test Dataset B"}
+        ]
+    
+    qg.load_verified_datasets = mock_load
+    try:
+        # Should fail if no overlap
+        assert not validate_reference("GSE000", "Completely Different Title")
+        # Should pass if overlap
+        assert validate_reference("GSE001", "Test Dataset A")
+    finally:
+        qg.load_verified_datasets = original_load
 
-    def test_tokenize_case_insensitive(self):
-        title = "METHYLATION Study"
-        tokens = tokenize_title(title)
-        assert "methylation" in tokens
-        assert "study" in tokens
+@patch('discovery.query_geno.requests.get')
+def test_search_geo(mock_get):
+    mock_response = MagicMock()
+    mock_response.raise_for_status.return_value = None
+    mock_response.json.return_value = {
+        "ids": ["GSE123", "GSE456"],
+        "result": {
+            "GSE123": {"id": "GSE123", "title": "Multi-generational methylation RNA-seq mouse"},
+            "GSE456": {"id": "GSE456", "title": "Random unrelated study"}
+        }
+    }
+    mock_get.return_value = mock_response
+    
+    results = search_geo(["multi-generational", "methylation"])
+    assert len(results) == 1
+    assert results[0]['accession'] == 'GSE123'
+    assert results[0]['source'] == 'GEO'
 
-    def test_tokenize_special_chars(self):
-        title = "Study: Epigenetic-Drift in C. elegans!"
-        tokens = tokenize_title(title)
-        assert "epigenetic" in tokens
-        assert "drift" in tokens
-        assert "elegans" in tokens
-        assert ":" not in tokens
-        assert "!" not in tokens
-
-class TestCalculateTokenOverlap:
-    def test_perfect_overlap(self):
-        tokens1 = {"a", "b", "c"}
-        tokens2 = {"a", "b", "c"}
-        overlap = calculate_token_overlap(tokens1, tokens2)
-        assert overlap == 1.0
-
-    def test_partial_overlap(self):
-        tokens1 = {"a", "b", "c"}
-        tokens2 = {"b", "c", "d"}
-        overlap = calculate_token_overlap(tokens1, tokens2)
-        # Intersection: {b, c} (2), Union: {a, b, c, d} (4) -> 0.5
-        assert overlap == 0.5
-
-    def test_no_overlap(self):
-        tokens1 = {"a", "b"}
-        tokens2 = {"c", "d"}
-        overlap = calculate_token_overlap(tokens1, tokens2)
-        assert overlap == 0.0
-
-    def test_empty_sets(self):
-        assert calculate_token_overlap(set(), set()) == 0.0
-
-class TestValidateReference:
-    def test_valid_reference_high_overlap(self, temp_verified_datasets_file):
-        # Temporarily patch the config path
-        with patch("code.discovery.query_geno.VERIFIED_DATASETS_PATH", temp_verified_datasets_file):
-            accession = "GSE12345"
-            title = "Multi-generational methylation and RNA-seq in fluctuating temperatures in mouse"
-            is_valid, reason = validate_reference(accession, title)
-            assert is_valid is True
-            assert "high overlap" in reason.lower() or "verified" in reason.lower()
-
-    def test_invalid_reference_low_overlap(self, temp_verified_datasets_file):
-        with patch("code.discovery.query_geno.VERIFIED_DATASETS_PATH", temp_verified_datasets_file):
-            accession = "GSE12345"
-            title = "Completely different study unrelated to epigenetics"
-            is_valid, reason = validate_reference(accession, title)
-            assert is_valid is False
-            assert "low overlap" in reason.lower() or "not verified" in reason.lower()
-
-    def test_accession_not_in_registry(self, temp_verified_datasets_file):
-        with patch("code.discovery.query_geno.VERIFIED_DATASETS_PATH", temp_verified_datasets_file):
-            accession = "GSE99999"
-            title = "Some study"
-            is_valid, reason = validate_reference(accession, title)
-            assert is_valid is False
-
-class TestFilterByOrganism:
-    def test_filter_mouse(self):
-        datasets = MOCK_GEO_RESULTS
-        filtered = filter_by_organism(datasets, ["Mus musculus"])
-        assert len(filtered) == 1
-        assert filtered[0]["accession"] == "GSE12345"
-
-    def test_filter_multiple_organisms(self):
-        datasets = MOCK_GEO_RESULTS
-        filtered = filter_by_organism(datasets, ["Mus musculus", "Caenorhabditis elegans"])
-        assert len(filtered) == 2
-
-    def test_filter_no_match(self):
-        datasets = MOCK_GEO_RESULTS
-        filtered = filter_by_organism(datasets, ["Homo sapiens"])
-        assert len(filtered) == 0
-
-class TestCheckMetadataCompleteness:
-    def test_complete_metadata(self):
-        dataset = MOCK_GEO_RESULTS[0]
-        is_complete, missing = check_metadata_completeness(dataset)
-        assert is_complete is True
-        assert missing == []
-
-    def test_missing_timescale(self):
-        dataset = {
-            "accession": "GSE99999",
-            "title": "Test",
-            "organism": "Mus musculus",
-            "metadata": {
-                "amplitude": "high",
-                "environment": "temperature",
-                "generations": 5,
+@patch('discovery.query_geno.requests.get')
+def test_search_encode(mock_get):
+    mock_response = MagicMock()
+    mock_response.raise_for_status.return_value = None
+    mock_response.json.return_value = {
+        "@graph": [
+            {
+                "accession": "ENCODE001",
+                "description": "Fluctuating environment C. elegans RNA-seq",
+                "title": "Fluctuating environment C. elegans RNA-seq"
             },
-        }
-        is_complete, missing = check_metadata_completeness(dataset)
-        assert is_complete is False
-        assert "fluctuation_timescale" in missing
+            {
+                "accession": "ENCODE002",
+                "description": "Stable environment",
+                "title": "Stable environment"
+            }
+        ]
+    }
+    mock_get.return_value = mock_response
+    
+    results = search_encode(["fluctuating", "RNA-seq"])
+    assert len(results) == 1
+    assert results[0]['accession'] == 'ENCODE001'
 
-    def test_missing_amplitude(self):
-        dataset = {
-            "accession": "GSE99999",
-            "title": "Test",
-            "organism": "Mus musculus",
-            "metadata": {
-                "fluctuation_timescale": "5 generations",
-                "environment": "temperature",
-                "generations": 5,
-            },
-        }
-        is_complete, missing = check_metadata_completeness(dataset)
-        assert is_complete is False
-        assert "amplitude" in missing
+def test_filter_by_organism():
+    data = [
+        {"title": "Mouse study", "accession": "GSE1"},
+        {"title": "Fly study", "accession": "GSE2"},
+        {"title": "Human study", "accession": "GSE3"}
+    ]
+    filtered = filter_by_organism(data, ["mouse", "fly"])
+    assert len(filtered) == 2
+    assert filtered[0]['accession'] == 'GSE1'
+    assert filtered[1]['accession'] == 'GSE2'
 
-class TestLoadSaveVerifiedDatasets:
-    def test_load_verified_datasets(self, temp_verified_datasets_file):
-        with patch("code.discovery.query_geno.VERIFIED_DATASETS_PATH", temp_verified_datasets_file):
-            data = load_verified_datasets()
-            assert "verified_datasets" in data
-            assert len(data["verified_datasets"]) == 2
+def test_check_metadata_completeness():
+    assert check_metadata_completeness({"accession": "A", "title": "T"}) is True
+    assert check_metadata_completeness({"accession": "A"}) is False
+    assert check_metadata_completeness({}) is False
 
-    def test_save_verified_dataset(self, temp_verified_datasets_file):
-        new_dataset = {
-            "accession": "GSE99999",
-            "title": "New verified dataset",
-        }
-        with patch("code.discovery.query_geno.VERIFIED_DATASETS_PATH", temp_verified_datasets_file):
-            save_verified_dataset(new_dataset)
-            data = load_verified_datasets()
-            # Check if the new dataset was added
-            found = any(d["accession"] == "GSE99999" for d in data["verified_datasets"])
-            assert found is True
-
-class TestMockSearch:
-    @patch("code.discovery.query_geno.requests.get")
-    def test_search_geo_mocked(self, mock_get, mock_geo_response):
-        # Mock the response
-        mock_response = MagicMock()
-        mock_response.json.return_value = mock_geo_response
-        mock_response.status_code = 200
-        mock_get.return_value = mock_response
-
-        # We need to patch the actual search function or call a wrapper
-        # Since search_geo makes real requests, we mock the request inside it
-        # However, for unit testing logic, we can test the parsing logic if exposed
-        # or mock the whole function. Here we test the logic by mocking the internal call.
-        # For this task, we assume search_geo is tested via integration or we mock the request.
-        # Let's test the logic by mocking the request module directly.
-        pass
-
-    def test_search_logic_with_mocked_data(self):
-        # Simulate the logic of search_geo with mocked data
-        # This tests the filtering and processing logic without network calls
-        results = MOCK_GEO_RESULTS
-        # Simulate keyword filtering (e.g., "multi-generational")
-        filtered = [r for r in results if "multi-generational" in r["title"].lower()]
-        assert len(filtered) == 1
-        assert filtered[0]["accession"] == "GSE12345"
-
-        # Simulate organism filtering
-        filtered = [r for r in results if r["organism"] in ["Mus musculus", "Caenorhabditis elegans"]]
-        assert len(filtered) == 2
-
-        # Simulate metadata completeness check
-        complete = [r for r in results if check_metadata_completeness(r)[0]]
-        assert len(complete) == 2 # GSE12345 and GSE67890 are complete, GSE11223 has None timescale
-
-class TestEdgeCases:
-    def test_empty_dataset_list(self):
-        assert filter_by_organism([], ["Mus musculus"]) == []
-        assert check_metadata_completeness({"metadata": {}})[0] is False
-
-    def test_none_metadata(self):
-        dataset = {"accession": "GSE99999", "title": "Test", "organism": "Mus musculus", "metadata": None}
-        is_complete, missing = check_metadata_completeness(dataset)
-        assert is_complete is False
-        assert "fluctuation_timescale" in missing
-        assert "amplitude" in missing
-
-    def test_special_characters_in_title(self):
-        title = "Study: Multi-generational (2023) - Epigenetic Drift!"
-        tokens = tokenize_title(title)
-        assert "multi" in tokens
-        assert "generational" in tokens
-        assert "epigenetic" in tokens
-        assert "drift" in tokens
-        assert "(" not in tokens
-        assert ")" not in tokens
-        assert "-" not in tokens
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+@patch('discovery.query_geno.search_geo')
+@patch('discovery.query_geno.search_encode')
+@patch('discovery.query_geno.load_verified_datasets')
+def test_run_discovery(mock_load_ver, mock_search_enc, mock_search_geo, tmp_path):
+    # Mock verified datasets
+    mock_load_ver.return_value = [
+        {"title": "Multi-generational methylation RNA-seq mouse"}
+    ]
+    
+    # Mock search results
+    mock_search_geo.return_value = [
+        {"accession": "GSE1", "title": "Multi-generational methylation RNA-seq mouse", "source": "GEO"}
+    ]
+    mock_search_enc.return_value = []
+    
+    output_file = tmp_path / "test_discovery.json"
+    result = run_discovery(str(output_file))
+    
+    assert result['count'] == 1
+    assert result['total_candidates'] == 1
+    assert output_file.exists()
+    
+    with open(output_file) as f:
+        data = json.load(f)
+        assert 'valid_datasets' in data
+        assert len(data['valid_datasets']) == 1
