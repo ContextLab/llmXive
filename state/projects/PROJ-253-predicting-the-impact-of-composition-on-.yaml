@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T11:40:44.117382Z'
-current_stage: flesh_out_complete
+current_stage: validated
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-253-predicting-the-impact-of-composition-on-
-last_run_id: 18a23a06-9114-40dc-8fcc-147f1cf5e16e
+last_run_id: 8da287b2-0b44-4aba-873c-ae58923318b8
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Predicting the Impact of Composition on the Band Gap of Perovskite Materials
-updated_at: '2026-08-05T21:47:40.510668Z'
+updated_at: '2026-08-31T21:41:15.059036Z'

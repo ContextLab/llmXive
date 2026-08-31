@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+
+# Data
+data/raw/*.csv
+data/processed/*.csv
+data/processed/*.json
+data/figures/*.png
+
+# Logs
+*.log

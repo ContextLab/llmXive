@@ -1,0 +1,19 @@
+# Black configuration for llmXive project
+# Ensures consistent code formatting across the codebase
+
+target-version = ['py311']
+line-length = 100
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''

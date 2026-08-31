@@ -4,174 +4,202 @@ from typing import Dict, List, Any, Optional, Tuple
 from pathlib import Path
 from utils.logger import get_logger_for_task
 
-def validate_needle_presence(sample: Dict[str, Any], needle_field: str = "needle", context_field: str = "context") -> Tuple[bool, str]:
+def validate_needle_presence(sample: Dict[str, Any], needle_key: str = "needle") -> Tuple[bool, Optional[str]]:
     """
-    Validates if the 'needle' string exists within the 'context' field of a dataset sample.
+    Validate that a RULER dataset sample contains a valid needle string.
     
     Args:
-        sample: A dictionary representing a single dataset sample.
-        needle_field: The key in the sample dict containing the target string.
-        context_field: The key in the sample dict containing the text to search.
+        sample: A dictionary representing a dataset row.
+        needle_key: The key name where the needle string is expected.
         
     Returns:
-        A tuple (is_valid, reason). 
-        is_valid: True if needle is found, False otherwise.
-        reason: A string describing the result (e.g., "Found", "Missing needle string", "Context empty").
+        Tuple of (is_valid, reason). 
+        is_valid is True if needle exists and is non-empty.
+        reason is None if valid, or a string explaining why it's invalid.
     """
-    if not isinstance(sample, dict):
-        return False, "Sample is not a dictionary"
-
-    needle = sample.get(needle_field)
-    context = sample.get(context_field)
-
+    if needle_key not in sample:
+        return False, f"Missing key '{needle_key}' in sample"
+    
+    needle = sample[needle_key]
     if needle is None:
-        return False, f"Missing '{needle_field}' key in sample"
+        return False, f"Needle value is None"
     
-    if context is None:
-        return False, f"Missing '{context_field}' key in sample"
+    if not isinstance(needle, str):
+        return False, f"Needle is not a string (type: {type(needle).__name__})"
+    
+    if len(needle.strip()) == 0:
+        return False, "Needle string is empty or whitespace only"
+    
+    return True, None
 
-    if not isinstance(needle, str) or not isinstance(context, str):
-        return False, f"Invalid types: needle={type(needle)}, context={type(context)}"
-
-    if not needle:
-        return False, "Needle string is empty"
-
-    if not context:
-        return False, "Context string is empty"
-
-    if needle in context:
-        return True, "Found"
-    else:
-        return False, "Needle string not found in context"
-
-def log_exclusion(sample_id: str, reason: str, logger: logging.Logger, sample_preview: Optional[str] = None):
+def log_exclusion(sample_id: Any, reason: str, logger: logging.Logger) -> None:
     """
-    Logs a single exclusion event with structured details.
+    Log a single exclusion event with structured context.
     
     Args:
-        sample_id: Unique identifier for the sample (e.g., index or ID).
-        reason: The reason for exclusion (from validate_needle_presence).
+        sample_id: The identifier of the excluded sample.
+        reason: The reason for exclusion.
         logger: The logger instance to use.
-        sample_preview: Optional preview of the sample content for debugging.
     """
-    log_data = {
-        "event": "sample_excluded",
-        "sample_id": sample_id,
-        "reason": reason,
-        "task": "T025_exclusion_logging"
-    }
-    if sample_preview:
-        log_data["preview"] = sample_preview[:200] + "..." if len(sample_preview) > 200 else sample_preview
-    
-    logger.warning(f"Excluding sample {sample_id}: {reason}", extra=log_data)
+    logger.warning(
+        "Sample excluded",
+        extra={
+            "event_type": "sample_exclusion",
+            "sample_id": str(sample_id),
+            "exclusion_reason": reason,
+            "task_id": "T025"
+        }
+    )
 
-def scan_dataset_for_exclusions(dataset: List[Dict[str, Any]], logger: Optional[logging.Logger] = None, needle_field: str = "needle", context_field: str = "context") -> Dict[str, Any]:
+def scan_dataset_for_exclusions(
+    dataset: Any,
+    logger: Optional[logging.Logger] = None,
+    needle_key: str = "needle",
+    corruption_patterns: Optional[List[str]] = None
+) -> Dict[str, Any]:
     """
-    Scans a dataset list for samples missing the needle string and logs exclusions.
+    Scan the RULER dataset for corrupted samples or missing needles.
+    
+    This function iterates through the dataset, validates each sample,
+    and logs exclusions. It returns a summary report of the scan.
     
     Args:
-        dataset: List of sample dictionaries.
-        logger: Logger instance. If None, a default logger is created.
-        needle_field: Key for the needle string.
-        context_field: Key for the context string.
+        dataset: The RULER dataset object (iterable of dicts).
+        logger: Logger instance. If None, creates a temporary one.
+        needle_key: Key name for the needle string.
+        corruption_patterns: List of regex patterns that indicate corruption.
         
     Returns:
-        A dictionary containing exclusion statistics:
-        {
-            "total_samples": int,
-            "excluded_count": int,
-            "valid_count": int,
-            "exclusion_reasons": Dict[str, int]
-        }
+        A dictionary containing exclusion counts and reasons.
     """
     if logger is None:
-        logger = get_logger_for_task("T025")
-        logger.setLevel(logging.WARNING)
-        if not logger.handlers:
-            handler = logging.StreamHandler()
-            handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-            logger.addHandler(handler)
-
-    total_samples = len(dataset)
-    excluded_count = 0
-    exclusion_reasons: Dict[str, int] = {}
-
-    logger.info(f"Scanning {total_samples} samples for needle integrity...")
-
+        logger = get_logger_for_task("T025", level=logging.INFO)
+    
+    if corruption_patterns is None:
+        corruption_patterns = [
+            r"<corrupted>",
+            r"<missing>",
+            r"<error>",
+            r"\[REDACTED\]"
+        ]
+    
+    compiled_patterns = [re.compile(p, re.IGNORECASE) for p in corruption_patterns]
+    
+    stats = {
+        "total_samples": 0,
+        "valid_samples": 0,
+        "excluded_samples": 0,
+        "exclusion_reasons": {
+            "missing_needle_key": 0,
+            "needle_is_none": 0,
+            "needle_not_string": 0,
+            "needle_empty": 0,
+            "needle_corrupted": 0,
+            "other_corruption": 0
+        }
+    }
+    
+    logger.info(f"Starting dataset scan for exclusions (needle_key='{needle_key}')")
+    
     for idx, sample in enumerate(dataset):
-        sample_id = sample.get("id", f"index_{idx}")
-        is_valid, reason = validate_needle_presence(sample, needle_field, context_field)
+        stats["total_samples"] += 1
+        sample_id = sample.get("id", idx)
+        
+        # Check for missing or invalid needle
+        is_valid, reason = validate_needle_presence(sample, needle_key)
         
         if not is_valid:
-            excluded_count += 1
-            exclusion_reasons[reason] = exclusion_reasons.get(reason, 0) + 1
-            # Log the first few exclusions for debugging, then summarize
-            if excluded_count <= 5:
-                log_exclusion(sample_id, reason, logger, sample.get(context_field, ""))
-            elif excluded_count == 6:
-                logger.warning("Additional exclusions suppressed in logs. Check summary stats.")
-
-    valid_count = total_samples - excluded_count
-
-    logger.info(f"Scan complete. Total: {total_samples}, Excluded: {excluded_count}, Valid: {valid_count}")
+            stats["excluded_samples"] += 1
+            log_exclusion(sample_id, reason, logger)
+            
+            # Categorize the reason
+            if "Missing key" in reason:
+                stats["exclusion_reasons"]["missing_needle_key"] += 1
+            elif "is None" in reason:
+                stats["exclusion_reasons"]["needle_is_none"] += 1
+            elif "not a string" in reason:
+                stats["exclusion_reasons"]["needle_not_string"] += 1
+            elif "empty" in reason:
+                stats["exclusion_reasons"]["needle_empty"] += 1
+            else:
+                stats["exclusion_reasons"]["other_corruption"] += 1
+            continue
+        
+        # Check for corruption patterns in the needle
+        needle = sample[needle_key]
+        is_corrupted = False
+        for pattern in compiled_patterns:
+            if pattern.search(needle):
+                is_corrupted = True
+                break
+        
+        if is_corrupted:
+            stats["excluded_samples"] += 1
+            reason_str = f"Needle matches corruption pattern"
+            log_exclusion(sample_id, reason_str, logger)
+            stats["exclusion_reasons"]["needle_corrupted"] += 1
+            continue
+        
+        stats["valid_samples"] += 1
+        
+        # Progress logging every 1000 samples
+        if idx % 1000 == 0 and idx > 0:
+            logger.info(f"Scanned {idx} samples: {stats['valid_samples']} valid, {stats['excluded_samples']} excluded")
     
-    if excluded_count > 0:
-        logger.warning(f"Exclusion Summary: {exclusion_reasons}")
-
-    return {
-        "total_samples": total_samples,
-        "excluded_count": excluded_count,
-        "valid_count": valid_count,
-        "exclusion_reasons": exclusion_reasons
-    }
-
-def main():
-    """
-    Entry point for running the exclusion scan on a dataset.
-    This function demonstrates the logging of exclusion counts.
-    """
-    import sys
-    import os
-    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    # Final summary
+    exclusion_rate = (stats["excluded_samples"] / stats["total_samples"] * 100) if stats["total_samples"] > 0 else 0.0
+    logger.info(
+        f"Dataset scan complete: {stats['total_samples']} total, "
+        f"{stats['valid_samples']} valid, {stats['excluded_samples']} excluded ({exclusion_rate:.2f}%)"
+    )
     
+    return stats
+
+def main() -> None:
+    """
+    Entry point for running the exclusion scan on the RULER dataset.
+    
+    This function loads the RULER dataset, scans it for exclusions,
+    and logs the results. It is designed to be run as a standalone script
+    or called from the main pipeline.
+    """
     from data.loader import download_and_verify_ruler
     from utils.logger import setup_logger
     
-    logger = setup_logger("T025_ExclusionScan")
+    # Setup logging
+    logger = setup_logger("T025_ExclusionScan", level=logging.INFO)
+    logger.info("Starting exclusion scan for RULER dataset")
     
-    # Download/Verify data first to ensure we have real data to scan
-    # This assumes the standard RULER dataset structure
     try:
-        # Attempt to load a small subset for demonstration or the full dataset if available
-        # Using the loader's verify function which returns the dataset object
-        dataset = download_and_verify_ruler()
+        # Ensure dataset is downloaded
+        data_path = Path("data/raw")
+        if not data_path.exists():
+            logger.info("Data directory not found. Downloading RULER dataset...")
+            download_and_verify_ruler()
         
-        # Convert to list if it's a streaming dataset or map object for scanning
-        # Note: For very large datasets, this might need chunking, but for T025 
-        # we are focusing on the logging logic.
-        if hasattr(dataset, 'to_list'):
-            data_list = dataset.to_list()
-        else:
-            data_list = list(dataset)
-            
-        if not data_list:
-            logger.error("Dataset is empty or could not be loaded.")
-            return
-
-        # Run the scan
-        results = scan_dataset_for_exclusions(data_list, logger)
+        # Load dataset (using the loader module)
+        from data.ruler_loader import load_ruler_dataset
+        dataset = load_ruler_dataset(data_path / "ruler_dataset.json")
         
-        # Print summary to stdout as well
-        print(f"\n--- T025 Exclusion Scan Results ---")
-        print(f"Total Samples: {results['total_samples']}")
-        print(f"Excluded Count: {results['excluded_count']}")
-        print(f"Valid Count: {results['valid_count']}")
-        print(f"Reasons: {results['exclusion_reasons']}")
-        print("-------------------------------------\n")
+        # Run scan
+        results = scan_dataset_for_exclusions(dataset, logger=logger)
+        
+        # Log final report
+        logger.info("Exclusion Scan Report:")
+        logger.info(f"  Total Samples: {results['total_samples']}")
+        logger.info(f"  Valid Samples: {results['valid_samples']}")
+        logger.info(f"  Excluded Samples: {results['excluded_samples']}")
+        logger.info("  Exclusion Reasons:")
+        for reason, count in results['exclusion_reasons'].items():
+            if count > 0:
+                logger.info(f"    - {reason}: {count}")
+                
+        print(json.dumps(results, indent=2))
         
     except Exception as e:
-        logger.critical(f"Failed to scan dataset: {e}", exc_info=True)
+        logger.error(f"Exclusion scan failed: {e}", exc_info=True)
         raise
 
 if __name__ == "__main__":
+    import json
     main()

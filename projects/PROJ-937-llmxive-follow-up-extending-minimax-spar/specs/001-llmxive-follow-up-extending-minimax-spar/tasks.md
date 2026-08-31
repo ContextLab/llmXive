@@ -135,8 +135,8 @@
 **Purpose**: Address reviewer concerns regarding strict adherence to 7GB RAM and 6-hour time limits (Review Concern: "Compute feasibility")
 
 - [X] T040 [P] [US1] Implement `code/utils/resource_monitor.py`: A background thread that logs RAM usage at regular intervals and triggers an early exit with a failure code if usage exceeds 6.5 GB (documented safety buffer below GB limit) to prevent OOM crashes. (Supersedes T019).
-- [ ] T041 [US1] Add a "Timeout Guard" to `code/main.py`: Use `signal` or a subprocess wrapper to forcibly terminate the process if the RULER subset run exceeds a predefined time threshold, ensuring the -hour CI limit is respected.
-- [ ] T042 [P] [US3] Implement a "Batch Size Auto-Reducer" in `code/data/preprocess.py`: If a single batch causes memory pressure, automatically split the batch into smaller chunks (size 1) and re-aggregate results, logging the auto-reduction event.
+- [X] T041 [US1] Add a "Timeout Guard" to `code/main.py`: Use `signal` or a subprocess wrapper to forcibly terminate the process if the RULER subset run exceeds a predefined time threshold, ensuring the -hour CI limit is respected.
+- [X] T042 [P] [US3] Implement a "Batch Size Auto-Reducer" in `code/data/preprocess.py`: If a single batch causes memory pressure, automatically split the batch into smaller chunks (size 1) and re-aggregate results, logging the auto-reduction event.
 
 ---
 

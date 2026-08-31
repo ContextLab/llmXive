@@ -1,89 +1,138 @@
-# Quickstart Guide: MiniMax Sparse Attention Evaluation (CPU-Only)
+# llmXive: MiniMax Sparse Attention Extension - Quick Start
 
-This guide provides step-by-step instructions to run the `llmXive` pipeline for evaluating MiniMax Sparse Attention heuristics on a CPU-only environment with 7 GB RAM constraints.
+This guide provides instructions for running the MiniMax Sparse Attention evaluation pipeline on a **CPU-only** environment with **7 GB RAM** constraints.
 
 ## Prerequisites
 
-- **Hardware**: Multi-core CPU, 7 GB RAM (minimum), no GPU required.
-- **Software**: Python 3.11+, pip.
-- **Dependencies**: All required packages are listed in `requirements.txt`.
+- Python 3.11+
+- 7 GB+ available RAM
+- No GPU required (CPU-only execution enforced)
 
-## 1. Project Setup
+## Installation
 
-Ensure you are in the project root directory.
+1. **Clone and Navigate**:
+ ```bash
+ git clone <repository-url>
+ cd llmxive-follow-up-extending-minimax-spar
+ ```
 
-```bash
-# Create virtual environment (recommended)
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
+2. **Create Virtual Environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-# Install dependencies
-pip install -r requirements.txt
-```
+3. **Install Dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
-## 2. Configuration
+## Project Structure
 
-The pipeline enforces CPU-only execution and random seed pinning by default. You can override settings via environment variables or command-line arguments.
+The project is organized as follows:
+- `code/`: Source code for heuristics, evaluation, and utilities
+- `data/raw/`: Raw RULER dataset (automatically downloaded on first run)
+- `data/processed/`: Preprocessed data chunks
+- `results/`: Final benchmark reports and statistical analysis
+- `tests/`: Unit and integration tests
 
-- **Memory Limit**: The system will automatically exit if RAM usage exceeds 6.5 GB (safety buffer).
-- **Device**: Explicitly set to `cpu`.
-- **Model**: Uses the frozen `MiniMax-M3` model (Index Branch disabled).
+## Execution Workflow
 
-## 3. Data Download
+The pipeline executes in three phases: Data Loading & Verification, Heuristic Execution, and Statistical Analysis.
 
-The pipeline automatically downloads the RULER dataset from HuggingFace to `data/raw/` on the first run.
+### 1. Data Preparation (Automatic)
 
-```bash
-# Optional: Pre-download data to verify integrity
-python code/data/ruler_loader.py
-```
+The first run of `code/main.py` will automatically download and verify the RULER dataset from HuggingFace.
+- **Source**: `datasets.load_dataset("hkunlp/ruler")`
+- **Verification**: SHA-256 checksum validation (Task T037)
+- **Location**: `data/raw/ruler/`
 
-*Note: The loader includes checksum validation (T037) to ensure data integrity.*
+### 2. Running the Main Pipeline
 
-## 4. Running the Pipeline
-
-Execute the main entry point to run the full benchmark (Baseline + Heuristics + Statistical Analysis).
-
-```bash
-# Run the full evaluation on CPU
-python code/main.py --device cpu
-```
-
-### Command-Line Arguments
-
-- `--device`: Target device (default: `cpu`).
-- `--heuristic`: Specific heuristic to run (`entropy`, `gradient`, `recency`). If omitted, all are run.
-- `--threshold`: Sensitivity threshold for analysis (default: `0.05`).
-- `--batch-size`: Batch size for inference (default: `1` to ensure memory safety).
-
-## 5. Expected Outputs
-
-Upon successful completion, the following artifacts will be generated:
-
-- **`results/benchmark_report.json`**: Contains F1 scores, perplexity, p-values (Paired t-test), and false-positive rates.
-- **`data/processed/`**: Preprocessed dataset chunks.
-- **Logs**: Structured JSON logs in `logs/` showing resource usage and exclusion counts.
-
-## 6. Troubleshooting
-
-### Out of Memory (OOM)
-If the process exits with a memory error:
-1. Verify no other heavy applications are running.
-2. Ensure `--batch-size 1` is used.
-3. Check `logs/` for the `ResourceMonitor` warning before exit.
-
-### Missing "Needle" in Data
-If samples lack the target string, the pipeline will log exclusion counts (Task T025) and skip those samples. Check `logs/exclusions.log` for details.
-
-### Statistical Significance
-The report includes both **Paired t-test** (Primary) and **Wilcoxon signed-rank test** (Secondary) results. A p-value < 0.05 indicates statistical significance.
-
-## 7. Verification
-
-To verify the installation and run unit tests:
+Execute the full evaluation on CPU:
 
 ```bash
-pytest tests/unit/ -v
+python code/main.py --device cpu --heuristic block_entropy --subset small
 ```
 
-Ensure all tests pass before running the full benchmark.
+**Arguments**:
+- `--device`: Must be `cpu` (enforced by `utils/config.py`)
+- `--heuristic`: Select heuristic (`block_entropy`, `gradient_magnitude`, `recency_bias`)
+- `--subset`: Data subset size (`small`, `medium`, `full`)
+- `--threshold`: Heuristic selection threshold (default: 0.05)
+
+**Memory Safety**:
+- The `MemoryGuard` (Task T040) monitors RAM usage.
+- If usage exceeds **6.5 GB**, the process exits with code 1 to prevent OOM crashes.
+- `code/data/preprocess.py` automatically reduces batch size if memory pressure is detected.
+
+### 3. Running Baseline (Dense Attention)
+
+To generate the ground truth baseline for comparison:
+
+```bash
+python code/eval/baseline_runner.py --device cpu --subset small
+```
+
+This produces `results/baseline_metrics.json` required for statistical comparison.
+
+### 4. Statistical Analysis
+
+After running heuristics and baseline, run the statistical aggregation:
+
+```bash
+python code/eval/report_generator.py
+```
+
+This generates `results/benchmark_report.json` containing:
+- Exact Match & F1 scores
+- Perplexity (PPL)
+- Paired t-test p-values (Primary)
+- Wilcoxon signed-rank test (Secondary)
+- Sensitivity analysis tables
+- False positive rates
+
+## Unit Tests
+
+Run the full test suite to verify implementation:
+
+```bash
+pytest tests/unit/ -v --cpu-only
+```
+
+**Key Test Files**:
+- `tests/unit/test_heuristics.py`: Tests for entropy, gradient, and recency heuristics
+- `tests/unit/test_metrics.py`: Tests for Exact Match, F1, and Perplexity
+- `tests/unit/test_statistical.py`: Tests for t-test, Wilcoxon, and Holm-Bonferroni correction
+
+## Troubleshooting
+
+### Memory Errors
+If you encounter `MemoryError` or the process exits with code 1:
+1. Ensure no other heavy applications are running.
+2. Reduce the `--subset` size (e.g., use `small` instead of `medium`).
+3. Check `code/utils/resource_monitor.py` logs for memory usage history.
+
+### Data Integrity Failures
+If data verification fails:
+1. Delete `data/raw/ruler/` directory.
+2. Re-run `code/main.py` to trigger a fresh download and checksum verification.
+
+### CUDA Errors
+If CUDA errors appear:
+1. Ensure `--device cpu` is explicitly passed.
+2. Verify `utils/config.py` is enforcing CPU (`torch.set_device("cpu")`).
+3. Check that `CUDA_VISIBLE_DEVICES` is unset or set to empty string.
+
+## Output Artifacts
+
+Upon successful completion, the following files are generated:
+- `results/benchmark_report.json`: Final metrics and statistical significance
+- `results/baseline_metrics.json`: Dense attention ground truth
+- `results/sensitivity_analysis.json`: Threshold variance table
+- `logs/execution.log`: Detailed resource usage and heuristic logs
+
+## License
+
+This project is part of the llmXive automated science pipeline.
+See `LICENSE` for details.

@@ -1,2 +1,4 @@
-# Tests package for PROJ-517-neural-correlates-of-anticipatory-reward
-# This file marks the tests directory as a Python package.
+# Tests package initialization
+"""
+Test suite for llmXive Automated Science Pipeline - Neural Correlates of Anticipatory Reward
+"""

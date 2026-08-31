@@ -4,37 +4,64 @@ import argparse
 import logging
 import gc
 import json
+import signal
 import time
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Optional, Dict, Any
 
 # Local imports based on API surface
 from utils.config import Config, get_default_config, enforce_cpu, set_random_seed
 from utils.logger import setup_logger, get_structured_logger, log_resource_usage
+from utils.resource_monitor import start_monitor, stop_monitor, MemoryGuard
 from data.loader import download_and_verify_ruler
-from eval.baseline_runner import run_baseline_experiment, DenseAttentionRunner
-from eval.metrics import calculate_metrics, calculate_exact_match, calculate_f1, calculate_perplexity
-from heuristics.block_entropy import BlockEntropyHeuristic, HeuristicConfig as EntropyConfig
-from heuristics.gradient_magnitude import GradientMagnitudeHeuristic, HeuristicConfig as GradientConfig
-from heuristics.recency_bias import RecencyBiasHeuristic, HeuristicConfig as RecencyConfig
-from heuristics.fallback import apply_fallback_if_needed, FallbackConfig
-from models.mini_max_wrapper import MiniMaxConfig, create_minimax_wrapper
+from data.preprocess import preprocess_and_save, PreprocessConfig
+from heuristics.entropy import BlockEntropyHeuristic
+from heuristics.gradient import GradientMagnitudeHeuristic
+from heuristics.recency import RecencyBiasHeuristic
+from heuristics.fallback import FallbackHeuristicWrapper
+from eval.baseline_runner import DenseAttentionRunner, run_baseline_experiment
+from eval.metrics import calculate_metrics
+from eval.aggregator import run_aggregation
+from eval.report_generator import generate_final_report
+from models.mini_max_wrapper import create_minimax_wrapper
+
+# Global timeout limit for CI compliance (in seconds)
+# Default: 3 hours (10800 seconds) as per typical CI limits, configurable via env
+CI_TIMEOUT_SECONDS = int(os.getenv("CI_TIMEOUT_SECONDS", "10800"))
+
+# Global variable to track start time for timeout checks
+_experiment_start_time: Optional[float] = None
+
+def _timeout_handler(signum, frame):
+    """Signal handler for timeout. Raises an exception to break the loop."""
+    raise TimeoutError(
+        f"Experiment exceeded the time limit of {CI_TIMEOUT_SECONDS} seconds. "
+        "Terminating execution to respect CI constraints."
+    )
+
+def _check_timeout():
+    """Check if the experiment has exceeded the timeout limit."""
+    if _experiment_start_time is None:
+        return
+    elapsed = time.time() - _experiment_start_time
+    if elapsed > CI_TIMEOUT_SECONDS:
+        raise TimeoutError(
+            f"Experiment exceeded the time limit of {CI_TIMEOUT_SECONDS} seconds "
+            f"(elapsed: {elapsed:.2f}s). Terminating."
+        )
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="llmXive Sparse Attention Evaluation")
+    parser = argparse.ArgumentParser(description="llmXive Sparse Attention Heuristic Evaluation")
+    parser.add_argument("--config", type=str, default=None, help="Path to config JSON")
+    parser.add_argument("--heuristic", type=str, choices=["entropy", "gradient", "recency"], default="entropy")
     parser.add_argument("--device", type=str, default="cpu", help="Device to run on (cpu)")
-    parser.add_argument("--heuristic", type=str, default="entropy", choices=["entropy", "gradient", "recency"],
-                        help="Heuristic to use for sparse attention selection")
-    parser.add_argument("--baseline", type=bool, default=True, help="Run dense attention baseline")
-    parser.add_argument("--output_dir", type=str, default="results", help="Directory for results")
-    parser.add_argument("--data_dir", type=str, default="data/raw", help="Directory for raw data")
-    parser.add_argument("--threshold", type=float, default=0.5, help="Threshold for heuristic selection")
-    parser.add_argument("--top_k", type=int, default=4, help="Number of top blocks to keep if fallback needed")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
+    parser.add_argument("--timeout", type=int, default=CI_TIMEOUT_SECONDS, help="Timeout in seconds")
+    parser.add_argument("--subset-size", type=int, default=10, help="Number of samples to process for quick run")
+    parser.add_argument("--run-baseline", action="store_true", help="Run dense attention baseline")
+    parser.add_argument("--run-statistics", action="store_true", help="Run statistical analysis after experiments")
     return parser.parse_args()
 
-def get_heuristic_instance(name: str, config: Config) -> Any:
-    """Factory to instantiate the correct heuristic class based on name."""
+def get_heuristic_instance(name: str, config: Config):
     if name == "entropy":
         return BlockEntropyHeuristic(config)
     elif name == "gradient":
@@ -44,141 +71,153 @@ def get_heuristic_instance(name: str, config: Config) -> Any:
     else:
         raise ValueError(f"Unknown heuristic: {name}")
 
-def run_single_task(task_id: str, heuristic_name: str, model_wrapper, config: Config, logger):
+def run_single_task(heuristic_name: str, config: Config, logger: logging.Logger, subset_size: int):
     """
-    Executes a single RULER task using the specified heuristic.
-    Returns a dict with metrics for this task.
+    Runs a single heuristic experiment on the RULER dataset subset.
+    Includes timeout checks at critical points.
     """
-    logger.info(f"Running task {task_id} with heuristic {heuristic_name}")
-    start_time = time.time()
+    global _experiment_start_time
+    _experiment_start_time = time.time()
+
+    logger.info(f"Starting experiment for heuristic: {heuristic_name}")
+
+    # 1. Download and verify data
+    logger.info("Downloading RULER dataset...")
+    data_path = download_and_verify_ruler(subset_size=subset_size)
     
-    # 1. Load data for this specific task (simplified for integration)
-    # In a full implementation, this would stream from the preprocessed chunks
-    # For this integration, we assume the wrapper handles the task loading or we pass a subset
+    # Check timeout after download
+    _check_timeout()
+
+    # 2. Preprocess data
+    logger.info("Preprocessing data...")
+    preprocess_config = PreprocessConfig(
+        input_path=data_path,
+        output_path=Path("data/processed/preprocessed_ruler.json"),
+        chunk_size=4096,
+        max_batch_size=1
+    )
+    processed_data_path = preprocess_and_save(preprocess_config, logger)
+
+    # Check timeout after preprocess
+    _check_timeout()
+
+    # 3. Initialize Model
+    logger.info("Initializing MiniMax model wrapper...")
+    model_wrapper = create_minimax_wrapper(config, device=config.device)
+
+    # 4. Initialize Heuristic
+    heuristic = get_heuristic_instance(heuristic_name, config)
+    wrapped_heuristic = FallbackHeuristicWrapper(heuristic, config)
+
+    # 5. Run Inference Loop
+    logger.info("Running heuristic inference loop...")
+    results = []
     
     try:
-        # Run inference with the heuristic
-        # The wrapper is expected to use the heuristic to select blocks
-        # We simulate the call structure expected by the wrapper
-        result = model_wrapper.run_inference_with_heuristic(
-            task_id=task_id,
-            heuristic_name=heuristic_name,
-            threshold=config.get("threshold", 0.5),
-            top_k=config.get("top_k", 4)
-        )
-        
-        # Calculate metrics
-        # result should contain 'prediction', 'ground_truth', 'task_type'
-        metrics = calculate_metrics(
-            predictions=[result['prediction']],
-            ground_truths=[result['ground_truth']],
-            task_type=result.get('task_type', 'default')
-        )
-        
-        elapsed = time.time() - start_time
-        metrics['task_id'] = task_id
-        metrics['heuristic'] = heuristic_name
-        metrics['elapsed_seconds'] = elapsed
-        
-        logger.info(f"Task {task_id} completed: F1={metrics.get('f1', 0):.4f}, PPL={metrics.get('perplexity', 0):.4f}")
-        return metrics
+        for idx, sample in enumerate(model_wrapper.stream_dataset(processed_data_path)):
+            # Periodic timeout check inside the loop
+            if idx % 5 == 0:
+                _check_timeout()
 
-    except Exception as e:
-        logger.error(f"Error running task {task_id}: {str(e)}", exc_info=True)
-        return {
-            "task_id": task_id,
-            "heuristic": heuristic_name,
-            "error": str(e),
-            "f1": 0.0,
-            "exact_match": 0.0,
-            "perplexity": float('inf')
-        }
+            # Run heuristic selection
+            selected_blocks = wrapped_heuristic.select_blocks(sample, model_wrapper)
+            
+            # Run inference with selected blocks
+            prediction = model_wrapper.inference_with_sparse_attention(sample, selected_blocks)
+            
+            results.append({
+                "sample_id": idx,
+                "prediction": prediction,
+                "selected_blocks": selected_blocks,
+                "heuristic": heuristic_name
+            })
+            
+            # Cleanup to prevent memory bloat in long runs
+            if idx % 10 == 0:
+                gc.collect()
+                log_resource_usage(logger)
+
+    except TimeoutError as e:
+        logger.error(f"Timeout during inference loop: {e}")
+        raise
+
+    # Save results
+    output_file = Path(f"results/{heuristic_name}_results.json")
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_file, "w") as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Results saved to {output_file}")
+    return results
 
 def main():
     args = parse_args()
     
-    # Setup
-    set_random_seed(args.seed)
-    enforce_cpu(args.device)
-    
-    # Initialize logger
+    # Set global timeout based on argument
+    global CI_TIMEOUT_SECONDS
+    CI_TIMEOUT_SECONDS = args.timeout
+
+    # Setup logging
     logger = setup_logger("main", level=logging.INFO)
-    log_resource_usage(logger)
     
-    # Create output directory
-    output_path = Path(args.output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-    
-    # Load Config
+    # Load config
     config = get_default_config()
-    config.update({
-        "threshold": args.threshold,
-        "top_k": args.top_k,
-        "device": args.device
-    })
+    if args.config:
+        config = Config.from_json(args.config)
     
-    # Initialize Model
-    logger.info("Initializing MiniMax Model Wrapper...")
-    model_config = MiniMaxConfig(device=args.device, frozen=True)
-    model_wrapper = create_minimax_wrapper(model_config)
+    # Enforce constraints
+    enforce_cpu()
+    set_random_seed(config.seed)
     
-    results = []
-    baseline_results = {}
+    logger.info(f"Starting llmXive pipeline with timeout: {CI_TIMEOUT_SECONDS}s")
     
-    # 1. Run Baseline (Dense Attention) if requested (T022c integration)
-    if args.baseline:
-        logger.info("Running Dense Attention Baseline (T022c)...")
-        # We run the baseline runner which generates the ground truth set
-        # The runner returns a dict of task_id -> metrics
-        baseline_results = run_baseline_experiment(
-            model_wrapper=model_wrapper,
-            data_dir=args.data_dir,
-            output_dir=str(output_path / "baseline"),
-            logger=logger
-        )
-        logger.info(f"Baseline complete. {len(baseline_results)} tasks processed.")
-    
-    # 2. Run Heuristic Execution (T023 Core Logic)
-    logger.info(f"Starting Heuristic Execution: {args.heuristic}...")
-    
-    # Determine which tasks to run (subset for demo/CI, ideally full RULER)
-    # In a real run, this would iterate over the full dataset
-    task_ids = ["task_001", "task_002", "task_003"] # Placeholder for actual task list from loader
-    
-    for task_id in task_ids:
-        # Run heuristic
-        heuristic_metrics = run_single_task(
-            task_id=task_id,
-            heuristic_name=args.heuristic,
-            model_wrapper=model_wrapper,
-            config=config,
-            logger=logger
-        )
+    # Start Resource Monitor (T040)
+    start_monitor(logger)
+
+    # Set up signal handler for SIGALRM (Unix) or manual check (Windows fallback)
+    # Note: signal.SIGALRM is not available on Windows. We rely on _check_timeout() for cross-platform safety.
+    if hasattr(signal, 'SIGALRM'):
+        signal.signal(signal.SIGALRM, _timeout_handler)
+        signal.alarm(CI_TIMEOUT_SECONDS)
+        logger.info("SIGALRM timeout guard installed.")
+    else:
+        logger.warning("SIGALRM not available (Windows). Relying on periodic manual timeout checks.")
+
+    try:
+        all_results = {}
+
+        # Run Baseline if requested
+        if args.run_baseline:
+            logger.info("Running Dense Attention Baseline...")
+            baseline_results = run_baseline_experiment(args.subset_size, config, logger)
+            all_results["baseline"] = baseline_results
+            _check_timeout()
+
+        # Run Heuristic
+        logger.info(f"Running {args.heuristic} heuristic...")
+        heuristic_results = run_single_task(args.heuristic, config, logger, args.subset_size)
+        all_results[args.heuristic] = heuristic_results
+        _check_timeout()
+
+        # Run Aggregation and Report
+        if args.run_statistics:
+            logger.info("Running statistical analysis and report generation...")
+            run_aggregation(config, logger)
+            generate_final_report(config, logger)
         
-        # Compare against baseline
-        baseline_metrics = baseline_results.get(task_id, {})
-        if baseline_metrics:
-            baseline_f1 = baseline_metrics.get('f1', 0.0)
-            current_f1 = heuristic_metrics.get('f1', 0.0)
-            heuristic_metrics['baseline_f1'] = baseline_f1
-            heuristic_metrics['f1_delta'] = current_f1 - baseline_f1
-            heuristic_metrics['baseline_perplexity'] = baseline_metrics.get('perplexity', 0.0)
-            heuristic_metrics['perplexity_delta'] = heuristic_metrics.get('perplexity', 0.0) - baseline_metrics.get('perplexity', 0.0)
-        
-        results.append(heuristic_metrics)
-        
-        # Cleanup memory between tasks
-        gc.collect()
-    
-    # 3. Output Results
-    output_file = output_path / f"heuristic_results_{args.heuristic}.json"
-    with open(output_file, 'w') as f:
-        json.dump(results, f, indent=2, default=str)
-    
-    logger.info(f"Results written to {output_file}")
-    
-    # Return summary
-    return results
+        logger.info("Pipeline completed successfully.")
+
+    except TimeoutError as e:
+        logger.critical(f"Pipeline terminated due to timeout: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.critical(f"Pipeline failed with error: {e}", exc_info=True)
+        sys.exit(1)
+    finally:
+        # Stop resource monitor
+        stop_monitor()
+        if hasattr(signal, 'SIGALRM'):
+            signal.alarm(0)  # Cancel the alarm
 
 if __name__ == "__main__":
     main()

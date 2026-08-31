@@ -1,49 +1,73 @@
 # Data Model: Neural Correlates of Anticipatory Reward Processing
 
-## Overview
-
-This document defines the data structures used for ingestion, processing, and output. The data model is designed to be strict to ensure reproducibility and validation against the `contracts/` schemas.
-
 ## Entities
 
-### 1. Raw Trial Metadata
-Contains information about each trial, including reward magnitude and timing.
+### Trial
+- trial_id: str (unique identifier)
+- neuron_id: str (recorded neuron identifier)
+- cue_timestamps: List[float] (timestamps of cue presentations in seconds)
+- reward_timestamp: float (timestamp of reward delivery in seconds)
+- reward_magnitude: float (magnitude of reward, continuous variable)
+- spike_timestamps: List[float] (timestamps of detected spikes in seconds)
 
-*   `trial_id`: Unique string identifier for the trial.
-*   `reward_magnitude`: Float (μL). The volume of reward delivered.
-*   `reward_timestamp`: Float (ms). Time of reward delivery relative to session start.
-*   `cue_timestamp`: Float (ms). Time of the cue (if applicable).
-*   `session_id`: String identifier for the recording session.
+### Neuron
+- neuron_id: str (unique identifier)
+- brain_region: str (e.g., "NAcc", "VTA")
+- spike_sorting_metadata: Dict (SNR, isolation_distance, etc.)
 
-### 2. Raw Spike Data
-Contains raw spike timestamps for each neuron.
+### SpikeTrain
+- neuron_id: str (foreign key to Neuron)
+- trial_id: str (foreign key to Trial)
+- spike_timestamps: List[float] (spike times relative to trial start)
+- spike_count: int (number of spikes in analysis window)
 
-*   `neuron_id`: Unique string identifier for the neuron.
-*   `trial_id`: String identifier linking spike to trial.
-*   `spike_timestamp`: Float (ms). Absolute timestamp of the spike.
+## Relationships
 
-### 3. Processed Feature Matrix (Analysis DataFrame)
-The primary input for the GLM. One row per neuron-trial pair.
+- One Trial has one Neuron
+- One Trial has one SpikeTrain
+- One Neuron can have multiple Trials
+- One Neuron can have multiple SpikeTrains
 
-*   `trial_id`: String.
-*   `neuron_id`: String.
-*   `spike_count`: Integer. Number of spikes in the [-500ms, 0ms] window relative to `reward_timestamp`.
-*   `reward_magnitude`: Float.
-*   `is_valid_trial`: Boolean. True if the cue-reward delay allows for a valid -500ms window.
+## Data Flow
 
-### 4. Model Output
-Results from the GLM and permutation test.
+1. Raw Data (CSV/Neurodata) -> Ingestion Pipeline
+2. Ingestion -> Validation -> Unified DataFrame
+3. Unified DataFrame -> Statistical Modeling
+4. Model Results -> Visualization
+5. All Metrics -> Summary Report
 
-*   `neuron_id`: String.
-*   `coefficient`: Float. Estimated slope for `reward_magnitude`.
-*   `std_error`: Float. Standard error of the coefficient.
-*   `p_value_perm`: Float. P-value from the permutation test.
-*   `p_value_corrected`: Float. Bonferroni-corrected p-value.
-*   `dispersion_param`: Float. Estimated dispersion parameter.
-*   `converged`: Boolean. Did the model converge?
+## Data Quality Requirements
 
-## Schema Definitions
+- Minimum 30 trials per reward magnitude level
+- Cue-reward delay >= 500ms (flag if <500ms)
+- SNR > 3 for spike sorting acceptance
+- Isolation Distance > 20 for spike sorting acceptance
+- Handle zero-reward trials as valid
+- Filter silent neurons (0 spikes across all trials)
 
-The data model is enforced via the following YAML schemas located in `contracts/`:
-*   `contracts/dataset.schema.yaml`: Validates the input processed data.
-*   `contracts/output.schema.yaml`: Validates the model results.
+## Output Data Structures
+
+### Unified DataFrame Columns
+- trial_id: str
+- neuron_id: str
+- spike_count: int
+- reward_magnitude: float
+- timestamp_relative_to_reward: float
+
+### Validation Report (JSON)
+- ingestion_rows_total: int
+- ingestion_rows_valid: int
+- ingestion_rows_dropped: int
+- validation_status: str (PASS/FAIL/WARN)
+- flags: List[str] (validation issues)
+
+### Model Results (JSON)
+- coefficient: float
+- p_value: float
+- model_family: str (Poisson/NegativeBinomial)
+- dispersion: float
+- mdes_80_power: float
+- cv_score_mean: float
+- cv_score_std: float
+- neuron_count: int
+- bonferroni_corrected_p: float

@@ -42,9 +42,10 @@
 - [ ] T005 [P] Implement `src/utils/logging.py` with audit logging infrastructure for data exclusions (FR-007)
 - [ ] T006 [P] Implement `src/utils/chemistry.py` with SMILES validation, Gasteiger partial charge calculation, and pKa estimation logic
 - [ ] T007 Implement `src/data/descriptors.py` to compute independent descriptor vectors (Hammett σ, Taft Es, Charton ν, Verloop B1/B5, MR) for validation (SC-003)
-- [ ] T008 Implement `src/data/ingestion.py` skeleton with `validate_citations.py` logic (URL reachability, checksum verification, title overlap) to enforce Citation Validation Gate
-- [ ] T009 Implement `src/data/split.py` with scaffold-based split strategy (70/15/15) ensuring balanced partitions
-- [ ] T010 Configure environment configuration management and memory limit enforcement (FR-008)
+- [ ] T008 [P] Implement `src/utils/validate_citations.py` as a standalone script to enforce the Citation Validation Gate (URL reachability, checksum verification, title overlap) per plan.md
+- [ ] T009 [P] Integrate `validate_citations.py` as a pre-check in `src/data/ingestion.py` to ensure the gate triggers before any data fetch (Plan: Citation Validation Gate)
+- [ ] T010 Implement `src/data/split.py` with scaffold-based split strategy ensuring balanced partitions
+- [ ] T011 Configure environment configuration management and memory limit enforcement (FR-008)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -52,7 +53,7 @@
 
 ## Phase 3: User Story 1 - Data Ingestion and Graph Construction (Priority: P1) 🎯 MVP
 
-**Goal**: Download SN2 reaction data from ChEMBL/NIST, filter for amines, normalize kinetics, and construct heterogeneous molecular graphs.
+**Goal**: Download SN2 reaction data from ChEMBL/PubChem, filter for amines, normalize kinetics, and construct heterogeneous molecular graphs.
 
 **Independent Test**: The pipeline produces a JSON/CSV file containing molecular graphs (node/edge attributes), normalized log(rate) values, and calculated pKa values, with no missing values for required fields.
 
@@ -60,17 +61,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T011 [P] [US1] Contract test for data ingestion schema in `tests/contract/test_ingestion_schema.py`
-- [ ] T012 [P] [US1] Integration test for end-to-end ingestion and graph construction on a small subset in `tests/integration/test_ingestion_flow.py`
+- [ ] T012 [P] [US1] Contract test for data ingestion schema in `tests/contract/test_ingestion_schema.py`
+- [ ] T013 [P] [US1] Integration test for end-to-end ingestion and graph construction on a small subset in `tests/integration/test_ingestion_flow.py`
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `src/data/ingestion.py` logic to fetch from ChEMBL and NIST APIs, filter for primary/secondary amines and SN2 reactions, and handle invalid SMILES (US-1, FR-001)
-- [ ] T014 [US1] Implement kinetic data normalization logic (Arrhenius/Eyring) with fallback to reaction-class-specific average Ea; flag/exclude records missing necessary data (FR-001, FR-007)
-- [ ] T015 [US1] Implement `src/data/preprocessing.py` to construct heterogeneous molecular graphs using RDKit (node features: atom type, hybridization, Gasteiger charge, pKa; edge features: bond order) (FR-002, US-1)
-- [ ] T016 [US1] Implement streaming data loading logic to handle large datasets exceeding available RAM, accumulating statistics online without full memory load (Plan: Streaming Data Loading)
-- [ ] T017 [US1] Add logging for all data exclusions (missing kinetic data, invalid SMILES, missing temperature) to `data/raw/audit_log.json` (FR-007)
-- [ ] T018 [US1] Verify output dataset contains at least 500 valid records with complete SMILES, normalized kinetics, and calculated pKa (US-1 Acceptance Scenario 1)
+- [ ] T014 [US1] Implement `src/data/ingestion.py` logic to fetch from ChEMBL and PubChem APIs, filter for primary/secondary amines and SN2 reactions, and handle invalid SMILES (US-1, FR-001)
+- [ ] T015 [US1] Implement kinetic data normalization logic (Arrhenius/Eyring) with fallback to reaction-class-specific average Ea; flag/exclude records missing necessary data (FR-001, FR-007)
+- [ ] T016 [US1] Implement `src/data/preprocessing.py` to construct heterogeneous molecular graphs using RDKit (node features: atom type, hybridization, Gasteiger charge, pKa; edge features: bond order) (FR-002, US-1). **Note**: This task depends on the pKa logic implemented in T006.
+- [ ] T017 [US1] Implement `src/data/streaming_loader.py` with `load_batch()` generator yielding `ReactionRecord` objects to handle large datasets exceeding available RAM, accumulating statistics online without full memory load (Plan: Complexity Tracking)
+- [ ] T018 [US1] Add logging for all data exclusions (missing kinetic data, invalid SMILES, missing temperature) to `data/raw/audit_log.json` (FR-007)
+- [ ] T019 [US1] Verify output dataset contains valid records with no missing required fields (SMILES, normalized kinetics, calculated pKa) (US-1 Acceptance Scenario 1)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -84,18 +85,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Contract test for model artifact schema in `tests/contract/test_model_artifact.py`
-- [ ] T020 [P] [US2] Integration test for training pipeline completion within time/memory limits in `tests/integration/test_training_flow.py`
+- [ ] T020 [P] [US2] Contract test for model artifact schema in `tests/contract/test_model_artifact.py`
+- [ ] T021 [P] [US2] Integration test for training pipeline completion within time/memory limits in `tests/integration/test_training_flow.py`
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `src/models/baseline.py` with Random Forest/Linear Regression using traditional descriptors (pKa, MW, Taft Es) (FR-004, US-2)
-- [ ] T022 [US2] Implement `src/models/gnn.py` with a heterophily-aware GAT or GraphSAGE architecture (edge-type awareness) as primary/fallback method (FR-003, US-2, Plan: Heterophily-aware GNN)
-- [ ] T023 [US2] Implement training loop in `src/train.py` with 70/15/15 scaffold split, memory limit enforcement, and graceful exit/sampling if limits exceeded (FR-003, FR-008, US-2)
-- [ ] T024 [US2] Implement evaluation logic to compute R² and MAE for both models on the held-out test set (US-2 Acceptance Scenario 3)
-- [ ] T025 [US2] Implement permutation test or bootstrap-based 95% confidence interval on absolute errors to determine statistical significance (FR-006, SC-002)
-- [ ] T026 [US2] Verify training completes within 6 hours on 2-core CPU and memory usage < 7GB (SC-004, SC-005)
-- [ ] T027 [US2] Ensure GNN predictions contain no NaN values and cover every test sample (US-2 Acceptance Scenario 2)
+- [ ] T022 [US2] Implement `src/models/baseline.py` with Random Forest/Linear Regression using traditional descriptors (pKa, MW, Taft Es) (FR-004, US-2)
+- [ ] T023 [US2] Implement `src/models/gnn.py` with a heterophily-aware GAT or GraphSAGE architecture (edge-type awareness) as primary/fallback method (FR-003, US-2, Plan: Heterophily-aware GNN)
+- [ ] T024 [US2] Implement training loop in `src/train.py` with 70/15/15 scaffold split, memory limit enforcement, and graceful exit/sampling if limits exceeded. **Note**: This task consumes the graph dataset output from T016 (FR-003, FR-008, US-2)
+- [ ] T025 [US2] Implement evaluation logic to compute R² and MAE for both models on the held-out test set (US-2 Acceptance Scenario 3)
+- [ ] T026 [US2] Implement permutation test or bootstrap-based confidence interval on absolute errors to determine statistical significance (FR-006, SC-002)
+- [ ] T027 [US2] Verify training completes within 6 hours on 2-core CPU and memory usage < 7GB, and generate `data/derived/training_metrics.json` containing `duration_seconds` and `peak_memory_mb` fields (SC-004, SC-005)
+- [ ] T028 [US2] Ensure GNN predictions contain no NaN values and cover every test sample (US-2 Acceptance Scenario 2)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -109,16 +110,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US3] Contract test for feature importance schema in `tests/contract/test_feature_importance.py`
-- [ ] T029 [P] [US3] Integration test for SHAP analysis and correlation validation in `tests/integration/test_interpretability_flow.py`
+- [ ] T029 [P] [US3] Contract test for feature importance schema in `tests/contract/test_feature_importance.py`
+- [ ] T030 [P] [US3] Integration test for SHAP analysis and correlation validation in `tests/integration/test_interpretability_flow.py`
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement `src/models/interpret.py` to perform SHAP analysis on the trained GNN, generating ranked atomic feature importance (FR-005, US-3)
-- [ ] T031 [US3] Implement visualization logic to highlight top-contributing atoms/substructures in molecular graphs (US-3 Acceptance Scenario 2)
-- [ ] T032 [US3] Compute Pearson correlation between aggregated SHAP importance and the independent descriptor vector (Hammett/Taft/Verloop/MR) (FR-005, SC-003)
-- [ ] T033 [US3] Perform statistical significance testing (p < 0.05) and comparison against random baseline (shuffled labels) (SC-003, US-3 Acceptance Scenario 3)
-- [ ] T034 [US3] Verify top 5 features show Pearson correlation r ≥ 0.6 with the independent descriptor vector (US-3 Acceptance Scenario 1)
+- [ ] T031 [US3] Implement `src/models/interpret.py` to perform SHAP analysis on the trained GNN, generating ranked atomic feature importance. **Note**: This task depends on the independent descriptor vector computed in T007 (FR-005, US-3)
+- [ ] T032 [US3] Implement visualization logic to highlight top-contributing atoms/substructures in molecular graphs (US-3 Acceptance Scenario 2)
+- [ ] T033 [US3] Compute Pearson correlation between aggregated SHAP importance and the independent descriptor vector (Hammett/Taft/Verloop/MR) (FR-005, SC-003)
+- [ ] T034 [US3] Perform statistical significance testing (p < 0.05) and comparison against random baseline (shuffled labels) (SC-003, US-3 Acceptance Scenario 3)
+- [ ] T035 [US3] Verify top 5 features show Pearson correlation r ≥ 0.6 with the independent descriptor vector and generate `data/derived/interpretability_report.json` with `correlation_coefficient` and `p_value` (US-3 Acceptance Scenario 1)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -128,11 +129,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T035 [P] Documentation updates in `specs/001-predicting-amine-reactivity/quickstart.md` and `README.md`
-- [ ] T036 Code cleanup and refactoring of chemistry utilities
-- [ ] T037 Performance optimization for SHAP analysis on CPU
-- [ ] T038 [P] Additional unit tests for `src/utils/chemistry.py` and `src/data/split.py` in `tests/unit/`
-- [ ] T039 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [ ] T036 [P] Documentation updates in `specs/001-predicting-amine-reactivity/quickstart.md` and `README.md`
+- [ ] T037 Code cleanup and refactoring of chemistry utilities
+- [ ] T038 Performance optimization for SHAP analysis on CPU
+- [ ] T039 [P] Additional unit tests for `src/utils/chemistry.py` and `src/data/split.py` in `tests/unit/`
+- [ ] T040 Run `quickstart.md` validation to ensure end-to-end reproducibility
 
 ---
 
@@ -180,7 +181,7 @@ Task: "Contract test for data ingestion schema in tests/contract/test_ingestion_
 Task: "Integration test for end-to-end ingestion and graph construction on a small subset in tests/integration/test_ingestion_flow.py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement src/data/ingestion.py logic to fetch from ChEMBL and NIST APIs"
+Task: "Implement src/data/ingestion.py logic to fetch from ChEMBL and PubChem APIs"
 Task: "Implement src/data/preprocessing.py to construct heterogeneous molecular graphs"
 ```
 
@@ -226,6 +227,6 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical**: Data ingestion tasks (T013-T014) must implement strict failure on invalid data (no synthetic fallbacks) as per Constitution Principle II.
-- **Critical**: Streaming logic (T016) must be implemented to prevent OOM on GitHub Actions runner.
-- **Critical**: Heterophily-aware GNN (T022) is required; standard GCN is insufficient for reaction graphs.
+- **Critical**: Data ingestion tasks (T014-T015) must implement strict failure on invalid data (no synthetic fallbacks) as per Constitution Principle II.
+- **Critical**: Streaming logic (T017) must be implemented to prevent OOM on GitHub Actions runner.
+- **Critical**: Heterophily-aware GNN (T023) is required; standard GCN is insufficient for reaction graphs.

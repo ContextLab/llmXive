@@ -46,9 +46,9 @@
 - [ ] T001a [P] Create source code directories: `code/`, `tests/` (relative to project root)
 - [ ] T001b [P] Create data directories: `data/raw/`, `data/processed/`, `data/figures/` (relative to project root)
 - [ ] T001c [P] Create spec directories: `specs/001-neural-correlates-of-anticipatory-reward/` (relative to project root)
-- [ ] T002a [P] Create `code/__init__.py` and `tests/__init__.py`
+- [X] T002a [P] Create `code/__init__.py` and `tests/__init__.py`
 - [ ] T002b [P] Create `projects/PROJ-517-neural-correlates-of-anticipatory-reward/requirements.txt` with pinned versions: pandas, numpy, scipy, statsmodels, scikit-learn, matplotlib, seaborn, pyyaml, pytest
-- [ ] T002c [P] Initialize virtualenv in project root: Run `python -m venv.venv`, `source.venv/bin/activate`, and `pip install -r requirements.txt` (Ensure Python 3.10+) <!-- FAILED: unspecified -->
+- [X] T002c [P] Initialize virtualenv in project root: Run `python -m venv.venv`, `source.venv/bin/activate`, and `pip install -r requirements.txt` (Ensure Python 3.10+) <!-- FAILED: unspecified -->
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
 
 ---
@@ -60,7 +60,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T006 [P] Create `contracts/dataset.schema.yaml` defining trial_id, neuron_id, spike_timestamps, reward_magnitude, cue_timestamps, spike_sorting_metadata
-- [~] T005 Implement synthetic data generator in `code/synthetic_generator.py` adhering to `contracts/dataset.schema.yaml` for CI validation (Depends on T006; Output: `data/raw/synthetic_test.csv` with seed=42)
+- [ ] T005 Implement synthetic data generator in `code/synthetic_generator.py` adhering to `contracts/dataset.schema.yaml` for CI validation (Depends on T006; Output: `data/raw/synthetic_test.csv` with seed=42)
 - [ ] T007 Create `contracts/output.schema.yaml` defining expected report structure and plot metadata
 - [X] T008 Setup `code/__init__.py` and basic logging configuration in `code/logging_config.py`
 
@@ -79,7 +79,7 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T009 [P] [US1] Implement contract test `tests/contract/test_ingestion_schema.py::test_schema_validates_trial_id`: Assert that input CSV with valid `trial_id` passes schema validation; assert invalid `trial_id` format raises `ValidationError`
-- [~] T010 [P] [US1] Implement integration test `tests/integration/test_ingestion_pipeline.py::test_data_alignment`: Load `data/raw/synthetic_test.csv`, run `code/ingestion.py`, assert output DataFrame contains columns `['trial_id', 'neuron_id', 'spike_count', 'reward_magnitude']` and `spike_count.sum() == expected_total`
+- [ ] T010 [P] [US1] Implement integration test `tests/integration/test_ingestion_pipeline.py::test_data_alignment`: Load `data/raw/synthetic_test.csv`, run `code/ingestion.py`, assert output DataFrame contains columns `['trial_id', 'neuron_id', 'spike_count', 'reward_magnitude']` and `spike_count.sum() == expected_total`
 
 ### Implementation for User Story 1
 
@@ -89,7 +89,7 @@
 - [X] T013b [US1] Implement validation logic in `code/ingestion.py`: Check for >= 30 trials per reward magnitude level (FR-007); halt if any level < 30
 - [X] T013c [US1] Implement validation logic in `code/ingestion.py`: Handle zero-reward trials (keep as valid) and silent neurons (filter out with log warning)
 - [X] T013d [US1] Implement validation logic in `code/ingestion.py`: Check cue-reward delay; if ANY trial has delay < 500ms, FLAG the specific trials and HALT execution ONLY if the number of valid trials drops below 30 per level or if >50% of trials are confounded (FR-009)
-- [~] T013e [US1] Implement validation logic in `code/ingestion.py`: Validate upstream spike sorting metadata (SNR/Isolation Distance) and GENERATE `data/processed/spike_sorting_validation_report.md` documenting rejection criteria (SNR > 3, Isolation Distance > 20) (Constitution Principle VI)
+- [ ] T013e [US1] Implement validation logic in `code/ingestion.py`: Validate upstream spike sorting metadata (SNR/Isolation Distance) and GENERATE `data/processed/spike_sorting_validation_report.md` documenting rejection criteria (SNR > 3, Isolation Distance > 20) (Constitution Principle VI)
 - [~] T013f [US1] Implement validation logic in `code/ingestion.py`: Generate `data/processed/validation_report.json` containing data loss metrics (`ingestion_rows_total`, `ingestion_rows_valid`, `ingestion_rows_dropped`) and validation status flags (SC-004)
 - [X] T014 [US1] Implement `code/ingestion.py` output: unified Pandas DataFrame with `trial_id`, `neuron_id`, `spike_count`, `reward_magnitude`, `timestamp_relative_to_reward`
 - [~] T015 [US1] Implement error handling for missing/malformed metadata files (US-1 Acceptance Scenario 2)
@@ -150,7 +150,7 @@
 
 - [X] T029 [US3] Implement `code/visualization.py`: Generate scatter plot with `reward_magnitude` (x), `firing_rate` (y), regression line, and 95% CI (FR-005, SC-003)
 - [X] T030 [US3] Implement `code/reporting.py`: Generate `summary_report.txt` with coefficient, p-value, MDES, CV scores, and data loss metrics (FR-006)
-- [ ] T031 [US3] Implement `code/reporting.py`: Selection Bias Impact Analysis (compare included vs excluded trials)
+- [X] T031 [US3] Implement `code/reporting.py`: Selection Bias Impact Analysis (compare included vs excluded trials)
 
 **Checkpoint**: All user stories should now be independently functional
 

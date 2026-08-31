@@ -1,173 +1,320 @@
 # Output Schema for Neural Correlates of Anticipatory Reward Processing
 # Defines the expected structure of the final analysis report and plot metadata
-# Used for validation of the reporting pipeline (US3)
+# Version: 1.0
+# Generated for: PROJ-517-neural-correlates-of-anticipatory-reward
 
-$schema: http://json-schema.org/draft-07/schema#
-title: Output Report Schema
-description: >
-  Schema defining the structure of the summary report (summary_report.txt)
-  and the metadata required for generated figures (data/figures).
+schema_version: "1.0"
+description: "Schema for the final analysis output including model results, validation metrics, and visualization metadata."
 
-definitions:
-  plot_metadata:
-    type: object
-    description: Metadata for a single generated plot
-    required:
-      - figure_id
-      - figure_type
-      - x_axis_label
-      - y_axis_label
-      - output_path
-      - generated_at
-    properties:
-      figure_id:
-        type: string
-        description: Unique identifier for the figure (e.g., "fig_001_scatter")
-      figure_type:
-        type: string
-        enum:
-          - scatter_plot
-          - residual_plot
-          - histogram
-          - bar_chart
-        description: Type of visualization generated
-      x_axis_label:
-        type: string
-        description: Label for the X-axis
-      y_axis_label:
-        type: string
-        description: Label for the Y-axis
-      title:
-        type: string
-        description: Optional title of the figure
-      output_path:
-        type: string
-        description: Relative path to the generated file (e.g., "data/figures/scatter_reward_vs_fr.png")
-      generated_at:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of generation
-      statistics_summary:
-        type: object
-        description: Key statistics overlaid or referenced in the plot
-        properties:
-          n_points:
-            type: integer
-            description: Number of data points plotted
-          r_squared:
-            type: number
-            format: float
-            description: R-squared value if regression line is present
-          p_value:
-            type: number
-            format: float
-            description: P-value if significance testing is shown
-
-  report_metrics:
-    type: object
-    description: Core statistical metrics included in the summary report
-    required:
-      - coefficient
-      - p_value
-      - model_type
-      - mdes_80_power
-      - cv_score_mean
-      - cv_score_std
-    properties:
-      coefficient:
-        type: number
-        format: float
-        description: GLM coefficient for reward_magnitude
-      p_value:
-        type: number
-        format: float
-        description: P-value for the reward_magnitude coefficient
-      model_type:
-        type: string
-        enum:
-          - Poisson
-          - NegativeBinomial
-        description: Type of GLM fitted
-      dispersion:
-        type: number
-        format: float
-        description: Estimated dispersion parameter
-      mdes_80_power:
-        type: number
-        format: float
-        description: Minimum Detectable Effect Size at 80% power
-      cv_score_mean:
-        type: number
-        format: float
-        description: Mean R2 from k-fold cross-validation
-      cv_score_std:
-        type: number
-        format: float
-        description: Standard deviation of R2 from k-fold cross-validation
-      permutation_p_value:
-        type: number
-        format: float
-        description: P-value from the permutation test
-      neuron_count:
-        type: integer
-        description: Number of unique neurons analyzed
-      multiple_comparison_method:
-        type: string
-        description: Method used for multiple comparisons (e.g., "Bonferroni")
-
-  data_loss_metrics:
-    type: object
-    description: Metrics regarding data filtering and validation
-    required:
-      - ingestion_rows_total
-      - ingestion_rows_valid
-      - ingestion_rows_dropped
-    properties:
-      ingestion_rows_total:
-        type: integer
-      ingestion_rows_valid:
-        type: integer
-      ingestion_rows_dropped:
-        type: integer
-      drop_reasons:
-        type: array
-        items:
+report_structure:
+  type: object
+  required:
+    - metadata
+    - data_validation
+    - statistical_modeling
+    - power_analysis
+    - robustness_checks
+    - cross_validation
+    - neuron_grouping
+    - reward_independence
+    - summary_statistics
+  properties:
+    metadata:
+      type: object
+      description: "Run metadata and provenance"
+      properties:
+        timestamp:
           type: string
-        description: List of reasons why rows were dropped (e.g., "cue_reward_delay < 500ms")
+          format: date-time
+          description: "ISO 8601 timestamp of analysis run"
+        pipeline_version:
+          type: string
+          description: "Version of the analysis pipeline"
+        input_data_source:
+          type: string
+          description: "Path or identifier of the input dataset"
+        input_rows_total:
+          type: integer
+          description: "Total number of rows in input data"
+        input_rows_valid:
+          type: integer
+          description: "Number of rows passing validation"
+        input_rows_dropped:
+          type: integer
+          description: "Number of rows dropped due to validation failures"
 
-type: object
-required:
-  - report_metadata
-  - model_results
-  - plot_metadata_list
-  - data_quality
-properties:
-  report_metadata:
-    type: object
-    description: General information about the report generation
-    required:
-      - project_id
-      - generated_at
-      - pipeline_version
-    properties:
-      project_id:
+    data_validation:
+      type: object
+      description: "Results of data validation checks (from T013a-T013f)"
+      properties:
+        trials_per_reward_level:
+          type: object
+          description: "Count of trials for each reward magnitude level"
+          additionalProperties:
+            type: integer
+        validation_status:
+          type: string
+          enum: [PASS, FAIL, WARNING]
+          description: "Overall validation status"
+        validation_flags:
+          type: array
+          description: "List of specific validation flags or warnings"
+          items:
+            type: string
+        spike_sorting_quality:
+          type: object
+          description: "Summary of spike sorting metadata validation"
+          properties:
+            snr_threshold_met:
+              type: boolean
+              description: "Whether SNR > 3 threshold was met"
+            isolation_distance_met:
+              type: boolean
+              description: "Whether Isolation Distance > 20 threshold was met"
+            rejected_neurons:
+              type: array
+              items:
+                type: string
+              description: "List of neuron IDs rejected due to poor sorting quality"
+
+    statistical_modeling:
+      type: object
+      description: "GLM modeling results (from T019-T023)"
+      properties:
+        model_family:
+          type: string
+          enum: [Poisson, NegativeBinomial]
+          description: "Selected model family based on dispersion"
+        dispersion_parameter:
+          type: number
+          description: "Calculated dispersion parameter"
+        coefficient_reward_magnitude:
+          type: number
+          description: "Estimated coefficient for reward_magnitude"
+        std_error:
+          type: number
+          description: "Standard error of the coefficient"
+        p_value:
+          type: number
+          description: "P-value for the reward_magnitude coefficient"
+        p_value_adjusted:
+          type: number
+          description: "Bonferroni-corrected p-value if multiple neurons"
+        permutation_p_value:
+          type: number
+          description: "P-value from permutation test"
+        null_distribution_mean:
+          type: number
+          description: "Mean of the null distribution from permutation test"
+        null_distribution_std:
+          type: number
+          description: "Standard deviation of the null distribution"
+
+    power_analysis:
+      type: object
+      description: "Power analysis results (from T022)"
+      properties:
+        observed_variance:
+          type: number
+          description: "Observed variance of spike_count in validated dataset"
+        sample_size:
+          type: integer
+          description: "Final validated sample size"
+        effect_size_metric:
+          type: string
+          description: "Effect size metric used (e.g., Cohen's f2)"
+        mdes_80_power:
+          type: number
+          description: "Minimum Detectable Effect Size at 80% power"
+        alpha_level:
+          type: number
+          description: "Alpha level used (default 0.05)"
+        power_target:
+          type: number
+          description: "Target power (default 0.80)"
+
+    robustness_checks:
+      type: object
+      description: "Robustness checks (from T024a-T024b)"
+      properties:
+        categorical_model_fit:
+          type: object
+          description: "Results from categorical GLM (reward as factor)"
+          properties:
+            log_likelihood:
+              type: number
+            aic:
+              type: number
+            bic:
+              type: number
+        linear_model_fit:
+          type: object
+          description: "Results from linear GLM (reward as continuous)"
+          properties:
+            log_likelihood:
+              type: number
+            aic:
+              type: number
+            bic:
+              type: number
+        lrt_result:
+          type: object
+          description: "Likelihood Ratio Test comparing categorical vs linear"
+          properties:
+            chi_square_statistic:
+              type: number
+            degrees_of_freedom:
+              type: integer
+            p_value:
+              type: number
+            non_linearity_flag:
+              type: boolean
+              description: "True if p < 0.05, indicating non-linearity"
+
+    cross_validation:
+      type: object
+      description: "Cross-validation results (from T025)"
+      properties:
+        k_folds:
+          type: integer
+          description: "Number of folds used"
+        r2_scores:
+          type: array
+          items:
+            type: number
+          description: "R2 scores for each fold"
+        mse_scores:
+          type: array
+          items:
+            type: number
+          description: "MSE scores for each fold"
+        cv_score_mean:
+          type: number
+          description: "Mean R2 score across folds"
+        cv_score_std:
+          type: number
+          description: "Standard deviation of R2 scores across folds"
+        coefficient_stability:
+          type: number
+          description: "Standard deviation of coefficients across folds"
+
+    neuron_grouping:
+      type: object
+      description: "Neuron grouping and multiple comparisons (from T026a-T026b)"
+      properties:
+        neuron_count:
+          type: integer
+          description: "Total number of unique neurons analyzed"
+        neurons_analyzed:
+          type: array
+          items:
+            type: string
+          description: "List of neuron IDs included in analysis"
+        bonferroni_applied:
+          type: boolean
+          description: "Whether Bonferroni correction was applied"
+        correction_factor:
+          type: number
+          description: "Bonferroni correction factor (n if applied)"
+
+    reward_independence:
+      type: object
+      description: "Reward independence check (from T027)"
+      properties:
+        reward_type:
+          type: string
+          enum: [exogenous, endogenous, unknown]
+          description: "Classification of reward as exogenous or endogenous"
+        independence_flag:
+          type: string
+          description: "Flag indicating potential confounds"
+
+    summary_statistics:
+      type: object
+      description: "Summary statistics for the final report"
+      properties:
+        total_trials:
+          type: integer
+        total_spikes:
+          type: integer
+        mean_firing_rate:
+          type: number
+        std_firing_rate:
+          type: number
+        mean_reward_magnitude:
+          type: number
+        std_reward_magnitude:
+          type: number
+
+plot_metadata:
+  type: object
+  description: "Metadata for generated plots (from T029)"
+  required:
+    - scatter_plot
+  properties:
+    scatter_plot:
+      type: object
+      description: "Scatter plot of firing_rate vs reward_magnitude"
+      properties:
+        file_path:
+          type: string
+          description: "Relative path to the generated plot file (e.g., data/figures/scatter_plot.png)"
+        x_axis:
+          type: string
+          const: "reward_magnitude"
+        y_axis:
+          type: string
+          const: "firing_rate"
+        regression_line:
+          type: boolean
+          description: "Whether regression line is included"
+        confidence_interval:
+          type: object
+          description: "Confidence interval settings"
+          properties:
+            level:
+              type: number
+              const: 0.95
+            shaded:
+              type: boolean
+        data_points_count:
+          type: integer
+          description: "Number of data points plotted"
+        plot_title:
+          type: string
+        x_label:
+          type: string
+        y_label:
+          type: string
+        width_inches:
+          type: number
+        height_inches:
+          type: number
+        dpi:
+          type: integer
+          const: 300
+
+artifacts:
+  type: object
+  description: "List of generated artifacts"
+  properties:
+    summary_report:
+      type: string
+      description: "Path to summary_report.txt"
+    validation_report:
+      type: string
+      description: "Path to data/processed/validation_report.json"
+    spike_sorting_report:
+      type: string
+      description: "Path to data/processed/spike_sorting_validation_report.md"
+    observed_variance:
+      type: string
+      description: "Path to data/processed/observed_variance.json"
+    model_results:
+      type: string
+      description: "Path to data/processed/model_results.json"
+    plots:
+      type: array
+      items:
         type: string
-        const: PROJ-517-neural-correlates-of-anticipatory-reward
-      generated_at:
-        type: string
-        format: date-time
-      pipeline_version:
-        type: string
-        description: Version of the analysis pipeline used
-
-  model_results:
-    $ref: "#/definitions/report_metrics"
-
-  plot_metadata_list:
-    type: array
-    description: List of all generated figures and their metadata
-    items:
-      $ref: "#/definitions/plot_metadata"
-
-  data_quality:
-    $ref: "#/definitions/data_loss_metrics"
+      description: "List of paths to generated plot files"

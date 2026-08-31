@@ -1,2 +1,11 @@
-# Code package for PROJ-517-neural-correlates-of-anticipatory-reward
-# This file marks the code directory as a Python package.
+# Code package initialization
+"""
+llmXive Automated Science Pipeline - Neural Correlates of Anticipatory Reward
+"""
+
+from .logging_config import setup_logging, get_logger
+
+__all__ = [
+    "setup_logging",
+    "get_logger",
+]

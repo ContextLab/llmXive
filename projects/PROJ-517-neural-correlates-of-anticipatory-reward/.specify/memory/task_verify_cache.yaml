@@ -1,0 +1,27 @@
+T005:
+  c: false
+  h: 7e644c39dc885ee9868eda598e224732c5ede19600ef3f6236e07b6d1b3bd67f
+  r: The repository contains `code/synthetic_generator.py`, but it does not produce
+    the required `data/raw/synthetic_test.csv` (the file is missing) and the referenced
+    schema `contracts/dataset.schema.yaml` is absent, so we cannot verify adherence.
+    Moreover, the generated columns (`reward_timestamp`, `snr`, `isolation_distance`)
+    do not match the schema fields (`spike_sorting_metadata`, etc.). The task therefore
+    remains unfinished.
+T010:
+  c: false
+  h: 6e3c0293fe73f9a878e83076bcbd260dcbde20946229bb696ceec9a7f5e26cfc
+  r: The `tests/integration/test_ingestion_pipeline.py` file is present but its contents
+    are truncated, missing the full implementation of the `test_data_alignment` function
+    (e.g., the loop that computes `expected_sum` is cut off). Moreover, the required
+    synthetic data file `data/raw/synthetic_test.csv` does not exist, and there is
+    no evidence that the referenced `synthetic_generator` module or a working `run_ingestion_pipeline`
+    function are provided. Consequently the integration test cannot be executed or
+    verify the required behavior. The missing or incomplete test code and absent synthetic
+    datase
+T013e:
+  c: false
+  h: 9763bf9ba906f32d91aa6159d9a82fcde3445571c330462c918c99679aae6b0a
+  r: "The provided `code/ingestion.py` contains no logic that checks spike\u2011sorting\
+    \ metadata (SNR or Isolation Distance) and does not create a markdown report.\
+    \ Moreover, the required file `data/processed/spike_sorting_validation_report.md`\
+    \ is absent. Both the validation implementation and the generated report are missing."
