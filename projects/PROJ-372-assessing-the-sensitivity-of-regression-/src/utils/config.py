@@ -1,81 +1,68 @@
 """
-Configuration management for the Sensitivity Analysis Pipeline.
+Configuration module for the sensitivity analysis pipeline.
 
-This module handles loading dataset configurations, random seeds, and
-global constants like sample size tiers.
+This module defines constants, sample size tiers, and verified dataset
+sources. It serves as the single source of truth for dataset IDs and
+their corresponding access methods.
 """
 
-import os
-import yaml
-from pathlib import Path
-from typing import Dict, Any, List, Optional
-import logging
+from typing import Dict, Any
 
-logger = logging.getLogger(__name__)
+# Sample size tiers as percentages of the full dataset.
+# Defined in T017 as the representative tiered values.
+SAMPLE_SIZE_TIERS: list[int] = [10, 25, 50, 75, 90]
 
-# Global Constants
-SAMPLE_SIZE_TIERS = [10, 25, 50, 75, 90]
-RANDOM_SEED = 42
-MAX_ROWS_SUBSAMPLE = 100_000
+# Random seed for reproducibility across all experiments.
+RANDOM_SEED: int = 42
 
-# Default config file path
-DEFAULT_CONFIG_PATH = "data/configs/datasets.yaml"
+# Maximum number of rows to load into memory for profiling if the dataset is large.
+# Datasets exceeding this will be subsampled to ensure memory compliance.
+MAX_ROWS_FOR_PROFILING: int = 100_000
 
-def get_config_path() -> Path:
-    """Resolve the path to the path to the configuration file."""
-    if os.path.exists(DEFAULT_CONFIG_PATH):
-        return Path(DEFAULT_CONFIG_PATH)
-    # Fallback to project root relative path if running from different context
-    fallback = Path("data/configs/datasets.yaml")
-    if fallback.exists():
-        return fallback
-    raise FileNotFoundError(f"Configuration file not found at {DEFAULT_CONFIG_PATH}")
+# Threshold for condition number to flag multicollinearity.
+CONDITION_NUMBER_THRESHOLD: float = 30.0
 
-def load_dataset_configs() -> Dict[str, Any]:
-    """
-    Load all dataset configurations from the YAML file.
+# Convergence criteria for resampling experiments (Standard Error of SD).
+CONVERGENCE_THRESHOLD: float = 0.05
 
-    Returns:
-        Dictionary mapping dataset_id to configuration dict.
-    """
-    config_path = get_config_path()
-    logger.info(f"Loading dataset configs from {config_path}")
-    
-    with open(config_path, 'r') as f:
-        data = yaml.safe_load(f)
-    
-    return data.get("datasets", {})
+# Maximum number of subsets to generate per tier during convergence checks.
+MAX_SUBSETS_PER_TIER: int = 500
 
-def get_dataset_config(dataset_id: str) -> Dict[str, Any]:
-    """
-    Retrieve configuration for a specific dataset.
+# Initial number of subsets to generate per tier before convergence check.
+INITIAL_SUBSETS_PER_TIER: int = 200
 
-    Args:
-        dataset_id: The identifier for the dataset.
-
-    Returns:
-        Configuration dictionary for the dataset.
-
-    Raises:
-        ValueError: If dataset_id is not found.
-    """
-    configs = load_dataset_configs()
-    if dataset_id not in configs:
-        raise ValueError(f"Dataset configuration not found for ID: {dataset_id}")
-    return configs[dataset_id]
-
-def get_sample_size_tier_counts(total_rows: int) -> Dict[int, int]:
-    """
-    Calculate the number of rows for each sample size tier.
-
-    Args:
-        total_rows: Total number of rows in the dataset.
-
-    Returns:
-        Dictionary mapping tier percentage to row count.
-    """
-    return {tier: int(total_rows * (tier / 100.0)) for tier in SAMPLE_SIZE_TIERS}
-
-def get_random_seed() -> int:
-    """Get the global random seed."""
-    return RANDOM_SEED
+# Verified Dataset Registry
+# Keys are dataset IDs, values are dictionaries containing source type and
+# the specific identifier or URL needed to load the data.
+# This dictionary is the single source of truth for T012 (downloader).
+VERIFIED_DATASETS: Dict[str, Dict[str, Any]] = {
+    "UCI:Auto": {
+        "source": "UCI",
+        "name": "Auto",
+        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/auto-mpg/auto-mpg.data",
+        "description": "Auto MPG dataset for regression analysis.",
+        "target_column": "mpg",
+        "delimiter": " "
+    },
+    "HuggingFace:california_housing": {
+        "source": "HuggingFace",
+        "name": "california_housing",
+        "dataset_id": "skops/california_housing",
+        "description": "California Housing dataset for regression.",
+        "target_column": "MedHouseVal"
+    },
+    "UCI:Concrete": {
+        "source": "UCI",
+        "name": "Concrete Compressive Strength",
+        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/concrete/compressive/concrete_slump_and_compressive_strength.csv",
+        "description": "Concrete compressive strength dataset.",
+        "target_column": "Concrete compressive strength (MPa)"
+    },
+    "HuggingFace:concrete_strength": {
+        "source": "HuggingFace",
+        "name": "concrete_strength",
+        "dataset_id": "burtenshaw/concrete_strength",
+        "description": "Alternative source for concrete strength data.",
+        "target_column": "compressive_strength"
+    }
+}

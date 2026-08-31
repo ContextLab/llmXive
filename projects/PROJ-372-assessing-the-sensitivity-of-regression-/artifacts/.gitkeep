@@ -1,2 +1,3 @@
-# This directory stores experiment artifacts: logs, plots, model weights, and reports.
-# Generated during pipeline execution.
+# This file ensures the artifacts directory is tracked by git
+# Generated artifacts (models, plots, logs, reports) should be placed here
+# They are ignored by the parent .gitignore

@@ -1,1 +1,3 @@
-"""Test package for llmXive regression sensitivity project."""
+"""
+Root package for test suite.
+"""

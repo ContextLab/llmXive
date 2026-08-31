@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-proj-372"
+version = "0.1.0"
+description = "Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas>=2.0",
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "statsmodels>=0.14",
+    "scikit-learn>=1.2",
+    "pyyaml>=6.0",
+    "datasets>=2.14",
+    "pytest>=7.4",
+    "linearmodels>=4.3",
+    "ruff>=0.1.0",
+    "black>=23.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["code"]
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.nox
+  | \.pants.d
+  | \.pytype
+  | \.ruff_cache
+  | \.svn
+  | \.tox
+  | \.venv
+  | __pypackages__
+  | _build
+  | buck-out
+  | build
+  | dist
+  | node_modules
+  | venv
+)/
+'''
+
+[tool.ruff]
+# Inherit settings from ruff.toml for consistency if run via CLI, 
+# but pyproject.toml is the source of truth for project config
+extend = "code/ruff.toml"

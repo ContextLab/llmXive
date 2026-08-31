@@ -1,1 +1,4 @@
-"""Unit test package for llmXive regression sensitivity project."""
+"""
+Unit tests package.
+Contains tests for individual components and logic units.
+"""

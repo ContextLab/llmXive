@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a computational study to assess how OLS assumption violations (heteroscedasticity, outliers) and collinearity modify the **sensitivity of regression coefficients to dataset subset selection**. The technical approach involves: (1) ingesting verified numerical datasets with continuous outcomes; (2) profiling global violation metrics (Breusch-Pagan, Cook's Distance, Condition Number); (3) performing a resampling experiment to estimate the **rate of convergence** of coefficient variance as a function of sample size; and (4) fitting a **Hierarchical Linear Model (HLM)** to test if global violation metrics moderate this convergence rate. The implementation prioritizes CPU feasibility (limited core count, 7GB RAM) with a strict fallback protocol for memory overflow.
+This feature implements a computational study to assess how OLS assumption violations (heteroscedasticity, outliers) and collinearity modify the **sensitivity of regression coefficients to dataset subset selection**. The technical approach involves: (1) ingesting verified numerical datasets with continuous outcomes; (2) profiling global violation metrics (Breusch-Pagan, Cook's Distance, Condition Number); (3) performing a resampling experiment to estimate the **rate of convergence** of coefficient variance as a function of sample size; and (4) fitting a **Hierarchical Linear Model (HLM)** to test if global violation metrics moderate this convergence rate. The implementation prioritizes CPU feasibility (limited core count, constrained RAM) with a strict fallback protocol for memory overflow.
 
 ## Technical Context
 

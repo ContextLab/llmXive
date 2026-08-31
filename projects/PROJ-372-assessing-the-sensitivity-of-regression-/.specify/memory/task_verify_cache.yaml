@@ -1,10 +1,41 @@
-T004:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `data/raw`, `data/processed`, `artifacts` directories
-    or a `.gitignore` file was provided; the claim lacks any tangible artifact to
-    verify the setup. The implementer must add the directory structure and a `.gitignore`
-    that excludes large files.
+  r: "No evidence of a `src/ingestion` directory or an `__init__.py` file was provided;\
+    \ the claim cannot be verified without those artifacts present and non\u2011empty.\
+    \ The required directory and module file must be added to satisfy task T001a."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `src/resampling` directory or an `__init__.py` file was provided;
+    without these artifacts the claim that the task is completed cannot be verified.
+    The required directory and module file must be added to the repository.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `src/analysis` directory or an `__init__.py` file was provided;
+    the claim cannot be verified without those artifacts. The required directory and
+    initialization file are missing.
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided showing that a `src/utils` directory exists in the\
+    \ project, nor that it contains a non\u2011empty `__init__.py` file. The implementer\
+    \ must add the directory and the initialization file (with at least a placeholder\
+    \ comment or import) and ensure they are present in the repository."
+T001e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `tests/unit` and `tests/integration` directories
+    or their `__init__.py` files was presented; without these artifacts the task is
+    not satisfied.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer provided no linting or formatting configuration files (e.g.,
+    `pyproject.toml` with `[tool.ruff]` and `[tool.black]` sections, or separate `ruff.toml`/`black.toml`),
+    nor any scripts or documentation showing that ruff and black have been set up
+    for the project. Consequently, the required artifact for task T003 is missing.
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

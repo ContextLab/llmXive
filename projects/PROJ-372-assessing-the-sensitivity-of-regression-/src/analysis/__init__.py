@@ -1,22 +1,26 @@
 """
-Analysis module for assessing the sensitivity of regression coefficients.
+Analysis module for sensitivity analysis of regression coefficients.
 
-This module implements User Story 3 (US3): Interaction Analysis and Sensitivity Visualization.
-It provides tools for multiple regression with interaction terms, sensitivity sweeps,
-and visualization of stability curves.
-
-Key components:
-- hlm_analysis: Multiple regression analysis (per Spec FR-005)
-- Visualization utilities for stability curves
-- Report generation for associational findings
+This module provides tools for:
+- Hierarchical Linear Modeling (HLM) analysis
+- Meta-analysis of stability results
+- Sensitivity sweeps and visualization
+- Report generation
 """
 
-from .hlm_analysis import run_meta_analysis, sensitivity_sweep
-from .visualization import plot_stability_curves, plot_interaction_effects
+from .hlm_analysis import (
+    run_meta_analysis,
+    perform_sensitivity_sweep,
+    calculate_interaction_model,
+)
+from .visualization import generate_stability_curves, plot_convergence
+from .report_generator import generate_analysis_report
 
 __all__ = [
     "run_meta_analysis",
-    "sensitivity_sweep",
-    "plot_stability_curves",
-    "plot_interaction_effects",
+    "perform_sensitivity_sweep",
+    "calculate_interaction_model",
+    "generate_stability_curves",
+    "plot_convergence",
+    "generate_analysis_report",
 ]
