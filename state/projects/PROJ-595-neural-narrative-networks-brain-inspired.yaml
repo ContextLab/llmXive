@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-17T00:35:11.429106Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-595-neural-narrative-networks-brain-inspired
-last_run_id: 5f621859-8011-4f83-8138-0c6525612ec6
+last_run_id: 26ca4874-2a0c-4d5b-b6de-396363895c1b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired
 title: 'Neural Narrative Networks: Brain-Inspired Story Generation and Comprehension'
-updated_at: '2026-08-29T01:28:16.555759Z'
+updated_at: '2026-08-31T05:56:44.846920Z'
