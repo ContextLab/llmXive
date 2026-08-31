@@ -7,7 +7,7 @@
 
 This project implements a lightweight, CPU-tractable policy learning system to predict the optimal block size ($B^*$) for diffusion-based speculative decoding. The approach avoids neural policy networks in favor of classical **classification** models (XGBoost, Random Forest, Decision Trees) trained on static prefilling features (prompt length, mean attention entropy, hidden state norms). The system generates ground-truth labels via an exhaustive sweep of block sizes on open datasets (GSMK, HumanEval, Dolly) and validates the hypothesis that static features serve as robust, architecture-agnostic proxies for model uncertainty.
 
-**Critical Methodological Note**: The target variable ($B^*$) is derived from an exhaustive sweep maximizing acceptance length. While this creates a circular definition for the target within a single dataset, the validity of the "proxy" hypothesis is tested **exclusively** by the **generalization** of the learned mapping to unseen architectures and domains (e.g., Train on Qwen/Math -> Test on Llama/Code). If the model fails to generalize, the hypothesis is rejected. An independent correlation with perplexity (FR-006), calculated via a separate greedy pass, serves as secondary validation. All results are framed as **exploratory** due to sample size constraints. The task is explicitly framed as **Classification** (predicting discrete classes {1, 2, 4, 8, 16, 32}), not regression.
+**Critical Methodological Note**: The target variable ($B^*$) is derived from an exhaustive sweep maximizing acceptance length. While this creates a circular definition for the target within a single dataset, the validity of the "proxy" hypothesis is tested **exclusively** by the **generalization** of the learned mapping to unseen architectures and domains (e.g., Train on Qwen/Math -> Test on Llama/Code). If the model fails to generalize, the hypothesis is rejected. An independent correlation with perplexity (FR-006), calculated via a separate greedy pass, serves as secondary validation. All results are framed as **exploratory** due to sample size constraints. The task is explicitly framed as **Classification** (predicting discrete classes {2, 4, 8, 16, 32}), not regression.
 
 ## Technical Context
 
@@ -15,11 +15,11 @@ This project implements a lightweight, CPU-tractable policy learning system to p
 **Primary Dependencies**: `transformers` (CPU-optimized), `datasets`, `scikit-learn`, `xgboost`, `torch` (CPU-only build), `pandas`, `numpy`, `pyyaml`, `pytest`, `statsmodels` (for VIF)  
 **Storage**: Local ephemeral storage on GitHub Actions runner (streamed datasets, no persistent DB)  
 **Testing**: `pytest` (unit tests for feature extraction, integration tests for sweep logic, contract validation)  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 vCPU, ~7 GB RAM, ~14 GB disk, no GPU)  
+**Target Platform**: Linux (GitHub Actions free-tier: limited vCPU, ~7 GB RAM, ~14 GB disk, no GPU)  
 **Project Type**: Research pipeline / CLI tool  
-**Performance Goals**: Feature extraction latency ≤ 1ms per sample; full sweep for 500 samples (Qwen) / 100 samples (Llama) ≤ 6 hours  
-**Constraints**: Must run on CPU; must handle memory constraints via streaming; no unverified datasets; must not exceed 6h CI limit  
-**Scale/Scope**: A representative subset of samples per dataset (GSM8K, HumanEval, Dolly-15k) for Qwen3-4B; A sample set for Llama-3-8B (due to compute constraints); 3 models; Two architectures (Qwen3-4B, Llama-3-8B). **Validation includes cross-architecture tests in both directions (Train Qwen->Test Llama AND Train Llama->Test Qwen).**
+**Performance Goals**: Feature extraction latency ≤ 1ms per sample; full sweep for 500 samples (Qwen) / A sample set (Llama) ≤ 6 hours  
+**Constraints**: Must run on CPU; must handle memory constraints via streaming; no unverified datasets; must not exceed the established confidence interval limit  
+**Scale/Scope**: A representative subset of samples per dataset (GSMK, HumanEval, Dolly-15k) for Qwen3-4B; A sample set for Llama-8B (due to compute constraints); 3 models; Two architectures (Qwen-4B, Llama-3-8B). **Validation includes cross-architecture tests in both directions (Train Qwen->Test Llama AND Train Llama->Test Qwen).**
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -98,7 +98,7 @@ projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/
   - Confirm GSM8K/HumanEval/Dolly-15k URLs are accessible via `datasets.load_dataset`.
   - Test attention entropy extraction on a single sample with Qwen3-4B on CPU.
   - Run a mini-sweep (a small number of samples, 2 block sizes) to estimate runtime.
-  - **Verify** that perplexity calculation for Llama-3-8B (100 samples) fits within time budget.
+  - **Verify** that perplexity calculation for Llama-8B (100 samples) fits within time budget.
 - **Output**: `research.md` with dataset strategy, compute feasibility, and risk assessment.
 
 ### Phase 1: Data Model & Contracts

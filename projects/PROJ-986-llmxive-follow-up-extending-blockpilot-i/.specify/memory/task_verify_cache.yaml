@@ -1,0 +1,14 @@
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration files, scripts, or documentation for managing dataset paths
+    and model weight locations were provided; the claim lacks any tangible artifact
+    demonstrating that environment configuration management has been set up.
+T009a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact such as code, logs, or JSON output from a multi\u2011block\u2011\
+    size sweep on GSM8K is provided; the claim lacks any concrete evidence (e.g.,\
+    \ acceptance\u2011length values for each block size, identified\u202F\\(B^*\\\
+    ), or runtime measurements) required to verify the feasibility check. The task\
+    \ therefore remains unfinished."

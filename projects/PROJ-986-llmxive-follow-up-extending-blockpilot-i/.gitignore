@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+.pytest_cache/
+.mypy_cache/
+data/processed/*.json
+data/raw/*
+!data/raw/.gitkeep
+.DS_Store
+*.log

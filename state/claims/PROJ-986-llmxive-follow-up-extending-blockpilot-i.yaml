@@ -1,0 +1,100 @@
+- artifact_path: projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/specs/001-llmxive-follow-up-extending-blockpilot-i/tasks.md
+  attempts: 1
+  canonical: method involves comparative analysis of temporal constraints vs system
+    performance metrics
+  claim_id: c_8ef8a729
+  context: The research question is to determine the appropriate confidence interval
+    duration for the study. The method involves a comparative analysis of temporal
+    constraints against system performance metrics. References include Smith et al.
+    (2023) and arXiv:2105.12345.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Method_involves_comparative_analysis_of_temporal_constraints
+  kind: entity_fact
+  raw_text: The method involves a comparative analysis of temporal constraints against
+    system performance metrics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T13:21:29Z'
+- artifact_path: projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/specs/001-llmxive-follow-up-extending-blockpilot-i/tasks.md
+  attempts: 1
+  canonical: references include Smith et al. 2023 and arXiv:2105.12345
+  claim_id: c_1748e607
+  context: The research question is to determine the appropriate confidence interval
+    duration for the study. The method involves a comparative analysis of temporal
+    constraints against system performance metrics. References include Smith et al.
+    (2023) and arXiv:2105.12345.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: References include Smith et al. (2023) and arXiv:2105.12345.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T13:21:35Z'
+- artifact_path: projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/specs/001-llmxive-follow-up-extending-blockpilot-i/tasks.md
+  attempts: 1
+  canonical: comparative analysis of temporal constraints against system performance
+    metrics
+  claim_id: c_a21a3b05
+  context: The research question is to determine the appropriate confidence interval
+    duration for the study. The method involves a comparative analysis of temporal
+    constraints against system performance metrics. References include Smith et al.
+    (2023) and arXiv:2105.12345.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Comparative_analysis_of_temporal_constraints_against_system
+  kind: entity_fact
+  raw_text: The method involves a comparative analysis of temporal constraints against
+    system performance metrics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T13:22:35Z'
+- artifact_path: projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/specs/001-llmxive-follow-up-extending-blockpilot-i/tasks.md
+  attempts: 1
+  canonical: Random Forest trained on 80/20 GSM8K split for prediction accuracy evaluation
+  claim_id: c_b9487369
+  context: 'Independent Test for User Story 3: The system can be tested by training
+    a Random Forest on an 80/20 split of the GSM8K data and evaluating on the held-out
+    test set, reporting the prediction accuracy against the exhaustive sweep results.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system can be tested by training a Random Forest on an 80/20 split
+    of the GSM8K data and evaluating on the held-out test set, reporting the prediction
+    accuracy against the exhaustive sweep results.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T13:33:48Z'
+- artifact_path: projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/specs/001-llmxive-follow-up-extending-blockpilot-i/tasks.md
+  attempts: 1
+  canonical: Smith et al. 2023 and arXiv:2105.12345 referenced in feasibility check
+  claim_id: c_5f250a02
+  context: The method involves a comparative analysis of temporal constraints against
+    system performance metrics. References include Smith et al. (2023) and arXiv:2105.12345.
+    BEFORE full implementation (T012)
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: References include Smith et al. (2023) and arXiv:2105.12345.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T13:44:09Z'
