@@ -1,210 +1,127 @@
-"""
-Main orchestration script for the Zero-Shot Drift Detection pipeline.
-
-This script orchestrates the full scoring pipeline:
-1. Validates data integrity
-2. Loads taxonomy centroids
-3. Processes logs to compute drift scores
-4. Exports results to CSV
-"""
 import sys
 import os
 import logging
 from pathlib import Path
 from typing import Optional, List, Dict, Any
+from config import set_seed, get_config, get_path, ensure_directories, get_batch_size, RANDOM_SEED
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Import project modules
-from config import set_seed, get_config, get_path, ensure_directories, get_batch_size
-from data_loader import (
-    LoudFailureError,
-    validate_data_integrity,
-    fetch_advbench,
-    fetch_hf4,
-    fetch_taxonomy
-)
-from taxonomy_builder import main as build_taxonomy_main
-from drift_scoring import (
-    load_centroids,
-    batch_process_logs,
-    export_results
-)
-from utils import load_json_file, save_json_file
+def run_data_validation():
+    """Run data validation steps."""
+    logger.info("Running data validation...")
+    # Import and run data loading
+    from data_loader import fetch_atbench, map_atbench_labels
+    
+    # Fetch ATBench
+    atbench_path = get_path("raw_data") / "ATBench_raw.parquet"
+    if not atbench_path.exists():
+        df = fetch_atbench(output_path=atbench_path)
+        logger.info(f"Fetched ATBench with {len(df)} records")
+    
+    # Map labels
+    mapped_path = get_path("processed") / "ATBench_mapped.csv"
+    if not mapped_path.exists():
+        map_atbench_labels(atbench_path, mapped_path)
+        logger.info(f"Mapped ATBench labels to {mapped_path}")
 
-def run_data_validation(config: Dict[str, Any]) -> bool:
-    """
-    Validate that all required data files exist and have correct checksums.
+def run_taxonomy_building():
+    """Run taxonomy building steps."""
+    logger.info("Running taxonomy building...")
+    from taxonomy_builder import load_taxonomy, build_centroids, save_centroids
     
-    Returns:
-        bool: True if validation passes, False otherwise
-    """
-    logger.info("Running data integrity validation...")
-    try:
-        validate_data_integrity()
-        logger.info("Data integrity validation passed.")
-        return True
-    except LoudFailureError as e:
-        logger.error(f"Data validation failed: {e}")
-        return False
-    except Exception as e:
-        logger.error(f"Unexpected error during data validation: {e}")
-        return False
+    # Load taxonomy
+    taxonomy = load_taxonomy()
+    
+    # Build centroids
+    centroids = build_centroids(taxonomy)
+    
+    # Save centroids
+    output_path = get_path("processed") / "taxonomy_centroids.json"
+    save_centroids(centroids, output_path)
+    logger.info(f"Saved centroids to {output_path}")
 
-def run_taxonomy_building(config: Dict[str, Any]) -> bool:
-    """
-    Build taxonomy centroids if they don't exist or are outdated.
+def run_drift_scoring():
+    """Run drift scoring pipeline."""
+    logger.info("Running drift scoring...")
+    from drift_scoring import load_centroids, batch_process_logs, export_results
+    from sentence_transformers import SentenceTransformer
     
-    Returns:
-        bool: True if taxonomy building passes, False otherwise
-    """
-    logger.info("Checking taxonomy centroids...")
-    centroid_path = get_path("centroid_file")
+    # Load centroids
+    centroids_path = get_path("processed") / "taxonomy_centroids.json"
+    centroids = load_centroids(centroids_path)
     
-    if not centroid_path.exists():
-        logger.info(f"Centroid file not found at {centroid_path}. Building taxonomy...")
-        try:
-            build_taxonomy_main()
-            logger.info("Taxonomy building completed successfully.")
-            return True
-        except LoudFailureError as e:
-            logger.error(f"Taxonomy building failed: {e}")
-            return False
-        except Exception as e:
-            logger.error(f"Unexpected error during taxonomy building: {e}")
-            return False
+    # Load model
+    model = SentenceTransformer("all-MiniLM-L6-v2")
+    
+    # Load logs
+    logs_path = get_path("raw_data") / "ATBench_raw.parquet"
+    import pandas as pd
+    logs = pd.read_parquet(logs_path).to_dict('records')
+    
+    # Process logs
+    results = batch_process_logs(logs, model, centroids)
+    
+    # Export results
+    output_path = get_path("processed") / "drift_scores.csv"
+    export_results(results, output_path)
+    logger.info(f"Saved drift scores to {output_path}")
+
+def main():
+    """Main entry point for the pipeline."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Run the full drift detection pipeline")
+    parser.add_argument("--validate-only", action="store_true", help="Run only validation steps")
+    parser.add_argument("--skip-taxonomy", action="store_true", help="Skip taxonomy building")
+    parser.add_argument("--skip-dataset-fetch", action="store_true", help="Skip dataset fetching")
+    
+    args = parser.parse_args()
+    
+    # Set seed
+    set_seed(RANDOM_SEED)
+    
+    # Ensure directories
+    ensure_directories([
+        str(get_path("raw_data")),
+        str(get_path("processed")),
+        str(get_path("test"))
+    ])
+    
+    if not args.validate_only:
+        # Run data validation
+        if not args.skip_dataset_fetch:
+            run_data_validation()
+        
+        # Run taxonomy building
+        if not args.skip_taxonomy:
+            run_taxonomy_building()
+        
+        # Run drift scoring
+        run_drift_scoring()
+    
+    # Run validation
+    from validation import run_us01_validation, save_validation_results, check_acceptance_criteria
+    
+    results = run_us01_validation()
+    meets_criteria = check_acceptance_criteria(results)
+    results["meets_criteria"] = meets_criteria
+    
+    output_path = get_path("processed") / "us01_final_stats.json"
+    save_validation_results(results, output_path)
+    
+    logger.info(f"Validation results saved to {output_path}")
+    
+    if not meets_criteria:
+        logger.error("Validation FAILED: Acceptance criteria not met.")
+        sys.exit(1)
     else:
-        logger.info(f"Centroid file exists at {centroid_path}. Skipping taxonomy building.")
-        return True
-
-def run_drift_scoring(config: Dict[str, Any]) -> bool:
-    """
-    Run the full drift scoring pipeline.
-    
-    Returns:
-        bool: True if scoring completes successfully, False otherwise
-    """
-    logger.info("Starting drift scoring pipeline...")
-    
-    try:
-        # Load centroids
-        logger.info("Loading taxonomy centroids...")
-        centroids = load_centroids()
-        if not centroids:
-            logger.error("Failed to load centroids. Aborting.")
-            return False
-        logger.info(f"Loaded {len(centroids)} centroids.")
-        
-        # Fetch and process logs
-        logger.info("Fetching and processing logs...")
-        all_logs = []
-        
-        # Fetch AdvBench data
-        try:
-            advbench_logs = fetch_advbench()
-            logger.info(f"Fetched {len(advbench_logs)} logs from AdvBench.")
-            all_logs.extend(advbench_logs)
-        except Exception as e:
-            logger.warning(f"Failed to fetch AdvBench data: {e}. Continuing without it.")
-        
-        # Fetch HF4 data
-        try:
-            hf4_logs = fetch_hf4()
-            logger.info(f"Fetched {len(hf4_logs)} logs from HF4.")
-            all_logs.extend(hf4_logs)
-        except Exception as e:
-            logger.warning(f"Failed to fetch HF4 data: {e}. Continuing without it.")
-        
-        if not all_logs:
-            logger.error("No logs available for processing. Aborting.")
-            return False
-        
-        logger.info(f"Total logs to process: {len(all_logs)}")
-        
-        # Process logs in batches
-        logger.info("Processing logs in batches...")
-        batch_size = get_batch_size()
-        results = batch_process_logs(all_logs, centroids, batch_size)
-        
-        if not results:
-            logger.error("Drift scoring produced no results. Aborting.")
-            return False
-        
-        logger.info(f"Processed {len(results)} logs.")
-        
-        # Export results
-        logger.info("Exporting results to CSV...")
-        output_path = get_path("drift_scores_csv")
-        export_results(results, output_path)
-        
-        logger.info(f"Results exported to {output_path}")
-        return True
-        
-    except LoudFailureError as e:
-        logger.error(f"Drift scoring failed with LoudFailure: {e}")
-        return False
-    except Exception as e:
-        logger.error(f"Unexpected error during drift scoring: {e}")
-        import traceback
-        logger.debug(traceback.format_exc())
-        return False
-
-def main() -> int:
-    """
-    Main entry point for the orchestration script.
-    
-    Returns:
-        int: Exit code (0 for success, 1 for failure)
-    """
-    logger.info("=" * 60)
-    logger.info("Starting Zero-Shot Drift Detection Pipeline")
-    logger.info("=" * 60)
-    
-    try:
-        # Initialize configuration
-        config = get_config()
-        set_seed(config.get('random_seed', 42))
-        
-        # Ensure required directories exist
-        ensure_directories()
-        logger.info("Directories ensured.")
-        
-        # Step 1: Data Validation
-        if not run_data_validation(config):
-            logger.error("Data validation failed. Aborting pipeline.")
-            return 1
-        
-        # Step 2: Taxonomy Building (if needed)
-        if not run_taxonomy_building(config):
-            logger.error("Taxonomy building failed. Aborting pipeline.")
-            return 1
-        
-        # Step 3: Drift Scoring
-        if not run_drift_scoring(config):
-            logger.error("Drift scoring failed. Aborting pipeline.")
-            return 1
-        
-        logger.info("=" * 60)
-        logger.info("Pipeline completed successfully!")
-        logger.info("=" * 60)
-        return 0
-        
-    except KeyboardInterrupt:
-        logger.error("Pipeline interrupted by user.")
-        return 130
-    except Exception as e:
-        logger.error(f"Pipeline failed with unexpected error: {e}")
-        import traceback
-        logger.debug(traceback.format_exc())
-        return 1
+        logger.info("Validation PASSED: Acceptance criteria met.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

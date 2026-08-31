@@ -1,3 +1,15 @@
+? 'T-002-AmendUS03 [S] **Amend US-03 Acceptance Criteria**: Update `specs/PROJ-924/spec.md`
+  US-03 to explicitly state: "The system runs a zero-shot LLM classifier (google/flan-t-small)
+  on a subset of logs. " Update AUC-ROC comparison criteria to: "The drift-based method
+  is flagged as a ''computationally efficient alternative'' if its AUC is within 0.10
+  of the Flan-T5 baseline." **Action**: Modify `specs/PROJ-924/spec.md` text to reflect
+  the new model and criteria. **DEPENDS ON**: T-000-RatifySpecAmendment.'
+: c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `specs/PROJ-924/spec.md` file content is provided; the claim that\
+    \ the acceptance criteria were amended is not substantiated by any artifact. The\
+    \ required modification to mention the `google/flan-t-small` model and the new\
+    \ AUC\u2011ROC comparison clause is missing."
 T011a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

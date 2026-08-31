@@ -1,114 +1,81 @@
-# Quickstart Guide
+# Quick Start Guide
 
-## Overview
-
-This project implements a zero-shot drift detection system for AI agent logs,
-following the AgentDoG methodology. The system builds taxonomy centroids,
-computes drift scores, and validates results against human annotations.
+This guide walks you through the initial setup and execution of the llmXive AgentDoG drift detection pipeline.
 
 ## Prerequisites
 
-- Python 3.11+
+- Python 3.9+
 - pip
 - Access to Hugging Face datasets
 
 ## Installation
 
-```bash
-# Install dependencies
-pip install -r requirements.txt
-
-# Install development dependencies
-pip install pytest black ruff
-```
+1. Clone the repository
+2. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
 ## Directory Structure
 
-```
-projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/
-├── code/ # Source code
-├── data/
-│ ├── raw/ # Raw downloaded data
-│ ├── processed/ # Processed data and outputs
-│ └── test/ # Test fixtures
-├── specs/ # Specification documents
-├── docs/ # Documentation
-└── tests/ # Test suite
-```
+The project creates the following directories:
+- `code/`: Source code
+- `data/raw/`: Raw dataset files
+- `data/processed/`: Processed data files
+- `tests/`: Test files
+- `docs/`: Documentation
+- `specs/`: Specification files
 
-## Running the Pipeline
+## Execution Pipeline
 
-### 1. Build Taxonomy Centroids
+The main execution steps are:
 
-First, ensure the taxonomy data is available at `data/processed/taxonomy_agentdog.json`.
-Then run:
+1. **Fetch Validation Dataset (T012a-fetch)**:
+ ```bash
+ python code/data_loader.py --streaming --output data/raw/ATBench_raw.parquet
+ ```
 
+2. **Map Validation Dataset Labels (T012a-label)**:
+ ```bash
+ python code/data_loader.py --map-labels --input data/raw/ATBench_raw.parquet --output data/processed/ATBench_mapped.csv
+ ```
+
+3. **Fetch Agent Logs for Benchmarking (T012f)**:
+ ```bash
+ python code/data_loader.py --fetch-agent-logs --output data/raw/agent_logs.csv
+ ```
+
+4. **Define Taxonomy (T012d-gen)**:
+ ```bash
+ python code/taxonomy_builder.py --source agentdog_1_5_paper --output data/processed/taxonomy_centroids.json
+ ```
+
+5. **Run Drift Scoring (T021a-T021d)**:
+ ```bash
+ python code/drift_scoring.py --input data/raw/ATBench_raw.parquet --taxonomy data/processed/taxonomy_centroids.json --output data/processed/drift_scores.csv
+ ```
+
+6. **Run Validation (T025a)**:
+ ```bash
+ python code/validation.py --drift data/processed/drift_scores.csv --ground_truth data/raw/ATBench_raw.parquet --annotations data/processed/gold_standard_proxy.csv --output data/processed/us01_final_stats.json
+ ```
+
+## Running the Full Pipeline
+
+To run the entire pipeline:
 ```bash
-python -m code.taxonomy_builder --source "agentdog_1_5_paper" --output data/processed/taxonomy_centroids.json
+python code/main.py
 ```
 
-This command:
-- Loads the taxonomy from the configured path
-- Builds centroid embeddings using `all-MiniLM-L6-v2`
-- Saves centroids to `data/processed/taxonomy_centroids.json`
+## Validation
 
-### 2. Run Drift Scoring
-
+To validate only:
 ```bash
-python -m code.drift_scoring \
- --input data/raw/atbench.parquet \
- --taxonomy data/processed/taxonomy_centroids.json \
- --output data/processed/drift_results.csv
+python code/main.py --validate-only
 ```
 
-### 3. Run Validation
+## Troubleshooting
 
-```bash
-python -m code.validation \
- --drift data/processed/drift_results.csv \
- --ground_truth data/raw/atbench.parquet \
- --annotations data/processed/gold_standard_proxy.csv \
- --output data/processed/validation_report.json
-```
-
-### 4. Run Full Pipeline
-
-For end-to-end execution:
-
-```bash
-python code/main.py --validate
-```
-
-## Configuration
-
-Edit `code/config.py` to modify:
-- `RANDOM_SEED`: Random seed for reproducibility
-- `MAX_RAM_GB`: Maximum RAM limit (default: 7 GB)
-- `BATCH_SIZE`: Batch size for encoding (default: 64)
-
-## Testing
-
-Run the test suite:
-
-```bash
-pytest tests/
-```
-
-Run with coverage:
-
-```bash
-pytest tests/ --cov=code --cov-report=html
-```
-
-## Data Sources
-
-- **ATBench**: `AI45Research/ATBench` - Adversarial testing dataset
-- **Taxonomy**: `AgentDoG/safety-taxonomy` - Safety taxonomy from AgentDoG paper
-- **Agent Logs**: `mlfoundations/agent_logs` - Large-scale agent logs
-
-## Output Files
-
-- `data/processed/taxonomy_centroids.json`: Centroid embeddings for each category
-- `data/processed/drift_results.csv`: Drift scores for each log
-- `data/processed/validation_report.json`: Statistical validation results
-- `data/processed/us01_final_stats.json`: US-01 validation statistics
+- If you encounter memory issues, ensure you are using the `--streaming` flag for large datasets.
+- If dataset fetch fails, check your network connection and Hugging Face access.
+- For more detailed logs, add `--verbose` flag to any command.
