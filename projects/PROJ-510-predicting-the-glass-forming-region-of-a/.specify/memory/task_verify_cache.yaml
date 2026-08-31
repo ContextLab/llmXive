@@ -1,10 +1,3 @@
-T001b:
-  c: false
-  h: 0eb3eb6367f0dc9f1e16197002c64576d4e344d697dc76d055c22dcddafef78b
-  r: "The listed code files (__init__.py, utils.py, ingestion.py, features.py, train.py,\
-    \ analyze.py) are present and non\u2011empty, but there is no evidence that `projects/PROJ-510-predicting-the-glass-forming-region-of-a/requirements.txt`\
-    \ exists or contains any content. Without that file, the required source\u2011\
-    code structure is incomplete."
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

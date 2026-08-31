@@ -26,7 +26,7 @@ The system MUST successfully download a subset of ternary alloy entries from a c
 
 ### User Story 2 - Model Training and Cross-Validation (Priority: P2)
 
-The system MUST train a Random Forest regressor on the engineered features using an 80/20 train-test split and evaluate performance using k-fold cross-validation, reporting RMSE. If a binary classification task is performed (using a physically-grounded threshold), the system MUST also report F1-score.
+The system MUST train a Random Forest regressor on the engineered features using a standard train-test split and evaluate performance using k-fold cross-validation, reporting RMSE. If a binary classification task is performed (using a physically-grounded threshold), the system MUST also report F1-score.
 
 **Why this priority**: This implements the core methodology to answer the research question. It validates whether the thermodynamic descriptors have predictive power.
 
@@ -90,7 +90,7 @@ The system MUST perform permutation importance analysis to rank thermodynamic pa
 ## Assumptions
 
 - The data source (e.g., curated experimental CSV or OQMD) is accessible and contains the `critical_cooling_rate` field for a sufficient number of ternary alloys (≥ 500) to support machine learning training.
-- The Random Forest algorithm, as implemented in scikit-learn, is computationally feasible on a CPU-only environment with standard RAM for a dataset of ~1000 rows and ~10 features.
+- The Random Forest algorithm, as implemented in scikit-learn, is computationally feasible on a CPU-only environment with standard RAM for a dataset of moderate size and a standard number of features.
 - The thermodynamic formulas for mixing enthalpy and atomic size mismatch are well-defined and can be calculated using standard elemental properties available in a local periodic table database.
 - The relationship between thermodynamic parameters and glass-forming ability is non-linear, justifying the use of a Random Forest model over a linear regression model.
 - No GPU or CUDA acceleration is available or required for the training and inference steps of this specific model size and dataset.

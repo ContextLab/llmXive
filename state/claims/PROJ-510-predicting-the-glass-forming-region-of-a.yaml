@@ -368,3 +368,21 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-29T12:38:12Z'
+- artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/tasks.md
+  attempts: 1
+  canonical: mixing enthalpy for Fe 0.33 Cr 0.33 Ni 0.34 is approximately -15.5 kJ/mol
+  claim_id: c_320406b0
+  context: 'T010a [US1] Write unit test for thermodynamic formula calculation... Expected:
+    Assert mixing_enthalpy for Fe:0.33, Cr:0.33, Ni:0.34 is approximately -15.5 kJ/mol
+    (using mendeleev v0.20.0 values).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert mixing_enthalpy for Fe:0.33, Cr:0.33, Ni:0.34 is approximately
+    -15.5 kJ/mol (using mendeleev v0.20.0 values).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T05:26:18Z'

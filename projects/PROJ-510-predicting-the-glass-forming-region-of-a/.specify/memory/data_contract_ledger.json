@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "data_file": "home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/data/models/random_forest_model.pkl",
+    "required": []
+  },
+  {
+    "data_file": "home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/data/processed/processed_alloys.csv",
+    "required": []
+  }
+]

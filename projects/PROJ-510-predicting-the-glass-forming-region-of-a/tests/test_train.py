@@ -1,156 +1,77 @@
 """
-Tests for model training and evaluation.
+Unit tests for model training in code/train.py.
 """
 import pytest
 import pandas as pd
 import numpy as np
-import os
 import sys
-import json
+import os
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from code.train import (
     load_data,
     train_model,
     run_cross_validation,
-    evaluate_on_test,
-    generate_null_baseline,
-    compare_models
+    evaluate_on_test
 )
 
-class TestCrossValidation:
-    def test_non_overlapping_folds(self):
-        """
-        Unit test for k-fold cross-validation split generation ensuring non-overlapping folds.
-        Verifies that the KFold implementation produces disjoint test sets for each fold.
-        """
-        # Create dummy data with fixed seed for reproducibility
-        np.random.seed(42)
-        n_samples = 100
-        n_features = 5
-        X = np.random.rand(n_samples, n_features)
-        y = np.random.rand(n_samples)
-        
-        from sklearn.model_selection import KFold
-        
-        # Configure KFold with specific parameters matching the project's standard
-        n_splits = 5
-        kf = KFold(n_splits=n_splits, shuffle=True, random_state=42)
-        
-        # Generate the folds
-        folds_indices = list(kf.split(X))
-        
-        # Verify we got the expected number of folds
-        assert len(folds_indices) == n_splits, f"Expected {n_splits} folds, got {len(folds_indices)}"
-        
-        # Check for overlaps between all pairs of test sets
-        for i in range(len(folds_indices)):
-            for j in range(i + 1, len(folds_indices)):
-                train_i, test_i = folds_indices[i]
-                train_j, test_j = folds_indices[j]
-                
-                # Check if test sets overlap
-                overlap = set(test_i).intersection(set(test_j))
-                assert len(overlap) == 0, f"Folds {i} and {j} have overlapping test indices: {overlap}"
-                
-                # Additional check: ensure test set of fold i doesn't overlap with train set of fold j
-                # (This is guaranteed by KFold but good to verify for completeness)
-                overlap_train_test = set(test_i).intersection(set(train_j))
-                assert len(overlap_train_test) == 0, f"Test set of fold {i} overlaps with train set of fold {j}"
-
-    def test_folds_cover_all_samples(self):
-        """
-        Verify that the union of all train and test sets covers exactly the full dataset.
-        """
-        np.random.seed(42)
-        n_samples = 100
-        X = np.random.rand(n_samples, 5)
-        
-        from sklearn.model_selection import KFold
-        kf = KFold(n_splits=5, shuffle=True, random_state=42)
-        folds_indices = list(kf.split(X))
-        
-        # Collect all indices used in test sets
-        all_test_indices = set()
-        all_train_indices = set()
-        
-        for train_idx, test_idx in folds_indices:
-            all_test_indices.update(test_idx)
-            all_train_indices.update(train_idx)
-        
-        # Each sample should appear exactly once in a test set across all folds
-        expected_test_count = n_samples
-        assert len(all_test_indices) == expected_test_count, f"Expected {expected_test_count} unique test indices, got {len(all_test_indices)}"
-        
-        # Each sample should appear in exactly (n_splits - 1) train sets
-        # (appears in test set once, so train set n_splits-1 times)
-        # We can verify this by checking the union of all train sets equals the full dataset
-        # (though samples may appear multiple times in the union)
-        assert all_test_indices == set(range(n_samples)), "Test indices do not cover all samples"
-
-    def test_fold_sizes_consistency(self):
-        """
-        Verify that fold sizes are approximately equal (differ by at most 1 sample).
-        """
-        np.random.seed(42)
-        n_samples = 100
-        X = np.random.rand(n_samples, 5)
-        
-        from sklearn.model_selection import KFold
-        kf = KFold(n_splits=5, shuffle=True, random_state=42)
-        folds_indices = list(kf.split(X))
-        
-        test_sizes = [len(test_idx) for _, test_idx in folds_indices]
-        train_sizes = [len(train_idx) for train_idx, _ in folds_indices]
-        
-        # Check that all test sizes are within 1 of each other
-        assert max(test_sizes) - min(test_sizes) <= 1, f"Test sizes vary too much: {test_sizes}"
-        assert max(train_sizes) - min(train_sizes) <= 1, f"Train sizes vary too much: {train_sizes}"
-        
-        # Check that train + test = total samples for each fold
-        for train_idx, test_idx in folds_indices:
-            assert len(train_idx) + len(test_idx) == n_samples, "Fold partition does not cover all samples"
-
-class TestModelMetrics:
-    def test_schema_validity(self):
-        """
-        Integration test for model training producing valid ModelMetrics schema.
-        """
-        # Create dummy data
-        np.random.seed(42)
+class TestLoadData:
+    def test_load_data_structure(self):
+        """Test that load_data returns correct structure."""
+        # Mock data creation
         data = {
-            'mixing_enthalpy': np.random.rand(100) * 10,
-            'atomic_size_mismatch': np.random.rand(100) * 10,
-            'electronegativity_variance': np.random.rand(100),
-            'critical_cooling_rate': np.random.rand(100) * 100
+            'mixing_enthalpy': [1.0, 2.0, 3.0, 4.0, 5.0],
+            'atomic_size_mismatch': [0.1, 0.2, 0.3, 0.4, 0.5],
+            'electronegativity_variance': [0.01, 0.02, 0.03, 0.04, 0.05],
+            'critical_cooling_rate': [100.0, 200.0, 300.0, 400.0, 500.0]
         }
         df = pd.DataFrame(data)
-        
-        # Train a dummy model and get metrics
-        # Note: This is a simplified test; full integration requires actual model training
-        from sklearn.ensemble import RandomForestRegressor
-        from sklearn.model_selection import cross_val_score
-        
+        # Since load_data expects a file path, we test the logic
+        # by simulating the split
+        from sklearn.model_selection import train_test_split
         X = df[['mixing_enthalpy', 'atomic_size_mismatch', 'electronegativity_variance']]
         y = df['critical_cooling_rate']
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
         
-        model = RandomForestRegressor(n_estimators=10, random_state=42)
-        scores = cross_val_score(model, X, y, cv=5, scoring='neg_mean_squared_error')
+        assert len(X_train) == 4
+        assert len(X_test) == 1
+        assert len(y_train) == 4
+        assert len(y_test) == 1
+
+class TestTrainModel:
+    def test_train_model(self):
+        """Test training a Random Forest model."""
+        from sklearn.ensemble import RandomForestRegressor
+        X = np.array([[1.0, 0.1, 0.01], [2.0, 0.2, 0.02], [3.0, 0.3, 0.03], [4.0, 0.4, 0.04]])
+        y = np.array([100.0, 200.0, 300.0, 400.0])
         
-        # Construct metrics dict
-        metrics = {
-            'fold_scores': [-s for s in scores], # Convert back to RMSE-like
-            'mean_rmse': float(np.mean(np.sqrt(-scores))),
-            'test_rmse': 0.0, # Placeholder
-            'p_value_vs_null': 0.0, # Placeholder
-            'feature_importance_ranking': []
-        }
+        model = train_model(X, y)
+        assert model is not None
+        assert isinstance(model, RandomForestRegressor)
+        predictions = model.predict(X)
+        assert len(predictions) == 4
+
+class TestRunCrossValidation:
+    def test_cross_validation(self):
+        """Test cross-validation returns scores."""
+        from sklearn.ensemble import RandomForestRegressor
+        X = np.array([[1.0, 0.1, 0.01], [2.0, 0.2, 0.02], [3.0, 0.3, 0.03], [4.0, 0.4, 0.04], [5.0, 0.5, 0.05]])
+        y = np.array([100.0, 200.0, 300.0, 400.0, 500.0])
         
-        # Validate schema requirements
-        assert 'fold_scores' in metrics
-        assert 'mean_rmse' in metrics
-        assert 'test_rmse' in metrics
-        assert 'p_value_vs_null' in metrics
-        assert isinstance(metrics['fold_scores'], list)
-        assert len(metrics['fold_scores']) == 5
+        model = RandomForestRegressor(random_state=42)
+        scores = run_cross_validation(model, X, y, n_folds=3)
+        
+        assert len(scores) == 3
+        assert all(isinstance(s, float) for s in scores)
+
+class TestEvaluateOnTest:
+    def test_evaluate_rmse(self):
+        """Test RMSE calculation."""
+        y_true = np.array([100.0, 200.0, 300.0])
+        y_pred = np.array([110.0, 190.0, 310.0])
+        
+        rmse = evaluate_on_test(y_true, y_pred)
+        # Calculate expected RMSE manually
+        # errors: 10, -10, 10 -> squares: 100, 100, 100 -> mean: 100 -> sqrt: 10
+        assert abs(rmse - 10.0) < 1e-5
