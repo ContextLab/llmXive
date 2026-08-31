@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-08-31T21:35:10.531413+00:00'
+issue_number: 1327
+project_id: PROJ-295-predicting-cognitive-load-from-eeg-spect

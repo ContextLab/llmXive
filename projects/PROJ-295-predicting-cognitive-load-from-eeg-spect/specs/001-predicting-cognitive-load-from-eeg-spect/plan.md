@@ -104,7 +104,7 @@ projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/
 
 ### Phase 0: Data Verification & Power Analysis
 1.  **Dataset Check**: Verify `ds000246` (or `ds003465`) contains `gaze.tsv` and EEG data. **Halt with error if gaze data is missing.**
-2.  **Power Analysis**: Calculate minimum N required for R²=0.2 with ~128 predictors.
+2.  **Power Analysis**: Calculate minimum N required for R²=0.2 with ~ predictors.
     -   **Threshold**: If available N < 120 (calculated minimum), **HALT** and flag study as underpowered.
 3.  **Memory Check**: Verify chunked loading logic with a subset.
 
