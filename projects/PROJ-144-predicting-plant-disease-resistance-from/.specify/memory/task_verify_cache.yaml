@@ -23,13 +23,13 @@ T005:
     \ as specified."
 T013:
   c: false
-  h: e6b536f91c35309374984879559b4454694c28ee29b3b3bd50eb6f14318f2eb1
-  r: "The repository contains `code/data/validate_temporal.py`, but the file is truncated\
-    \ and shows no logic for reading the `{study_id}_phenotype.csv` files, iterating\
-    \ over studies, or writing `data/processed/temporal_validation_log.json`. Moreover,\
-    \ the required output log file is absent from the project. Consequently the task\u2019\
-    s core requirements (producing the JSON log and halting on missing temporal metadata)\
-    \ are not fulfilled."
+  h: 5ae21698219558c3b16e5c6eff6ae2495603d459fa35acef45e5f0e87a476020
+  r: "The repository contains a partially shown `code/data/validate_temporal.py`,\
+    \ but the file is truncated and does not demonstrate a complete pipeline that\
+    \ reads the raw phenotype CSVs, writes `data/processed/temporal_validation_log.json`,\
+    \ or guarantees the script halts on missing temporal markers. Moreover, the required\
+    \ output file `data/processed/temporal_validation_log.json` is absent. The task\u2019\
+    s core deliverables are therefore not fulfilled."
 T017:
   c: false
   h: bd53dce30904fd5aa2a8a29e549597c71b38707197111bf3cbb5de18d9f148dd
@@ -86,6 +86,29 @@ T026a:
     \ JSON, mapping pathways) with no implementation that extracts the top\u201110\
     \ metabolites from a Random Forest model or writes them to the required JSON file.\
     \ The core extraction and saving functionality is missing."
+T026b:
+  c: false
+  h: 2013ced0626131bd394469976f1511aebe48e5c771509c218b6a32db76ee839e
+  r: "The provided `interpret.py` does not contain the full mapping implementation\
+    \ (no KEGG API calls, synonym fallback, or success\u2011rate calculation) and\
+    \ the required input file `results/top_metabolites.json` as well as the expected\
+    \ output `results/pathway_mappings.json` are absent. The script therefore cannot\
+    \ fulfill the task\u2019s specifications."
+T026c:
+  c: false
+  h: 787d1098a45644ebbe53e87c0308b5c9fe9346632d021190c733b3eb5403ece3
+  r: The repository lacks the required `results/pathway_mappings.json` and `results/top_metabolites.json`
+    files, and no `results/pathway_report.json` was generated. Moreover, the provided
+    `interpret.py` is truncated and does not contain a full implementation that reads
+    the inputs, creates a narrative report with the mandatory framing text, and writes
+    the JSON output. These essential artifacts and functionality are missing.
+T028:
+  c: false
+  h: faf29073e03c08b8012040dd41b7f8892f2e877a2d0caec2102f890ff77d7609
+  r: The required visualization file `results/plots/pathway_barplot.png` does not
+    exist on disk, so the core artifact the task demanded is missing. The accompanying
+    `results/pathway_analysis.json` is present, but without the generated PNG the
+    task is not fulfilled.
 T029a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

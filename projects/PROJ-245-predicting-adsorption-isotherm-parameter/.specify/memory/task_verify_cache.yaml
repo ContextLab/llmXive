@@ -1,18 +1,20 @@
 T015:
   c: false
-  h: be329dc50bca60c2206b94d3dfd28667b1053e9e690049036176825694d4bd8f
-  r: "The `code/data/preprocess.py` file is truncated and the `handle_missing_pore_volume`\
-    \ function ends abruptly without writing the exclusion reasons to `data/validation/exclusion_log.json`.\
-    \ Moreover, the `exclusion_log.json` file does not exist, so the required logging\
-    \ of missing pore\u2011volume exclusions is not implemented."
+  h: be16b8537dae5317b34c441eb498f1ea417d6f9b117e524c3768abb139121c2e
+  r: "The `preprocess.py` script is present but the provided excerpt ends before the\
+    \ implementation of `handle_missing_pore_volume`, and there is no `data/validation/exclusion_log.json`\
+    \ file. Consequently, the required exclusion of entries with missing pore volume\
+    \ and logging of the exclusion reason are not demonstrably implemented. The missing\
+    \ log file and incomplete function mean the task\u2019s specifications are not\
+    \ fully met."
 T016:
   c: false
-  h: dd06fc27ae4605d2b5104c8e55f7a8587180f1de11281e8e061d0624a86ea892
-  r: "The provided `preprocess.py` does not contain any logic that groups by `descriptor_hash`,\
-    \ computes target variance/std, applies the 3\u2011sigma rule, excludes flagged\
-    \ rows, or logs the reason, and the required output file `data/processed/outliers.csv`\
-    \ is absent. Consequently the task\u2019s outlier\u2011detection requirement is\
-    \ not fulfilled."
+  h: d7c41ac82e1e5e311ec50950bfd3ba5b8cc97aad6dd5595c80610681aa8ee92f
+  r: "The required output file `data/processed/outliers.csv` is absent, and the shown\
+    \ portion of `code/data/preprocess.py` contains no implementation of the described\
+    \ outlier\u2011detection logic (grouping by `descriptor_hash`, 3\u2011sigma rule,\
+    \ exclusion logging). Without the CSV and the detection code, the task is not\
+    \ fulfilled."
 T029:
   c: false
   h: 48c8b8e4fb8ee101011b1779c5cad1a3a2735261e85048ff31661bc1b3677b71
@@ -43,12 +45,12 @@ T039b:
     \ the code changes that achieve the required runtime."
 T039c:
   c: false
-  h: e0077cd84b901189ce1e87b3ca231293293e1c0cbaf82eb81a4f26265f25cdcb
-  r: The provided `code/main.py` is truncated and does not contain a functional implementation
-    of a `--mode dry_run` CLI flag or the conditional logic to skip training/hyperparameter
-    tuning. Additionally, the required output file `data/benchmarks/runtime_log.json`
-    is missing from the repository. Both the code change and the generated artifact
-    are absent, so the task is not satisfied.
+  h: b78c9ce8fbedb4c1539f49852c4863b836ea5514b7335d2a13f1e1360f1867a9
+  r: The provided `code/main.py` does not define or parse a `--mode dry_run` flag,
+    nor does it show logic that conditionally skips training while still running SHAP
+    analysis. The file is truncated before completing the pipeline and does not call
+    `persist_runtime_log`, and the required `data/benchmarks/runtime_log.json` is
+    absent. These missing pieces prevent the task from being satisfied.
 T045:
   c: false
   h: bd02ab47037b53553133fdc1a3af351e0a99eb006646ec55d485a0361d7dac38
@@ -60,17 +62,16 @@ T045:
     task requirements.
 T061a:
   c: false
-  h: c1e8da88934f5ba0a2d0aff77e72c9ccef1df59a374760afc1da8f12102285bf
-  r: "The repository contains `code/data/verify_real.py`, but the required output\
-    \ file `data/validation/reference_hash.json` is absent, and the shown portion\
-    \ of the script is truncated before any code that writes the hash to that file.\
-    \ Without the reference hash file, the task\u2019s core requirement is not met."
+  h: 576449cd9bca5bd71ab164138b982f339af5fce1754ed2757c40b1e71d53adf9
+  r: The provided `code/data/verify_real.py` is truncated (ends with an incomplete
+    `def verify_ag` line) and does not contain a complete script that actually invokes
+    `generate_reference_hash` to write the JSON file. Moreover, the required output
+    file `data/validation/reference_hash.json` is missing from the repository.
 T061b:
   c: false
-  h: c1e8da88934f5ba0a2d0aff77e72c9ccef1df59a374760afc1da8f12102285bf
-  r: "The `verify_real.py` script is present but the code is truncated (e.g., a missing\
-    \ colon after `if i >= SAMPLE_SIZE`) and we cannot see any logic that actually\
-    \ reads `data/validation/reference_hash.json` and raises `DataIntegrityError`\
-    \ on a mismatch. Moreover, the required `data/validation/reference_hash.json`\
-    \ file does not exist, so the verification step cannot be performed. The task\u2019\
-    s core requirement is therefore not satisfied."
+  h: 576449cd9bca5bd71ab164138b982f339af5fce1754ed2757c40b1e71d53adf9
+  r: The provided `verify_real.py` is truncated and does not contain a function that
+    loads `data/validation/reference_hash.json`, computes the current data hash, compares
+    it, and raises `DataIntegrityError` on mismatch. Moreover, the required `data/validation/reference_hash.json`
+    file is absent from the repository. Both the essential artifact and its behavior
+    are missing.

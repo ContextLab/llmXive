@@ -1,134 +1,76 @@
+"""
+Unit tests for Null Model Comparison (T024).
+"""
 import pytest
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
 from models.null_comparison import (
-    predict_mean_null_model,
-    calculate_null_model_metrics,
-    compare_models_with_bootstrap,
+    predict_mean_null_model, 
+    calculate_null_model_metrics, 
     run_cross_fold_comparison
 )
 
-@pytest.fixture
-def sample_data():
-    """Create sample test data for unit tests."""
-    np.random.seed(42)
-    n_samples = 100
-    
-    X = pd.DataFrame({
-        'feature1': np.random.randn(n_samples),
-        'feature2': np.random.randn(n_samples),
-        'feature3': np.random.randn(n_samples)
-    })
-    
-    # Create a target with some signal
-    y = 2 * X['feature1'] + 3 * X['feature2'] + np.random.randn(n_samples) * 0.5
-    
-    return X, y
+def test_predict_mean_null_model():
+    """Test that null model predicts the mean of training data."""
+    X_train = np.array([[1], [2], [3]])
+    y_train = np.array([2.0, 4.0, 6.0])
+    X_test = np.array([[5], [6]])
+    y_test = np.array([10.0, 12.0]) # True values don't matter for prediction logic
 
-def test_predict_mean_null_model(sample_data):
-    """Test that null model predicts the mean of training targets."""
-    X_train, y_train = sample_data
-    X_test, y_test = sample_data  # Using same data for simplicity in test
+    predictions, mean_val = predict_mean_null_model(X_train, y_train, X_test, y_test)
     
-    predictions, mean_target = predict_mean_null_model(X_train, y_train, X_test, y_test)
-    
-    # Check that predictions are all equal to mean
-    assert np.allclose(predictions, mean_target)
+    assert mean_val == 4.0
+    assert np.all(predictions == 4.0)
     assert len(predictions) == len(y_test)
-    assert np.isclose(mean_target, y_train.mean())
 
-def test_calculate_null_model_metrics(sample_data):
+def test_calculate_null_model_metrics():
     """Test metric calculation for null model."""
-    X_train, y_train = sample_data
-    X_test, y_test = sample_data
-    
-    predictions, _ = predict_mean_null_model(X_train, y_train, X_test, y_test)
-    metrics = calculate_null_model_metrics(y_test, predictions)
-    
-    assert 'rmse' in metrics
-    assert 'r2' in metrics
-    assert 'mae' in metrics
-    assert isinstance(metrics['rmse'], float)
-    assert isinstance(metrics['r2'], float)
-    assert isinstance(metrics['mae'], float)
-    
-    # R2 should be 0 for null model predicting mean
-    assert np.isclose(metrics['r2'], 0.0, atol=0.01)
+    y_true = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+    y_pred = np.array([3.0, 3.0, 3.0, 3.0, 3.0]) # Mean is 3.0
 
-def test_compare_models_with_bootstrap(sample_data):
-    """Test model comparison with bootstrap confidence intervals."""
-    X, y = sample_data
-    
-    # Create a simple trained model
+    metrics = calculate_null_model_metrics(y_true, y_pred)
+
+    # R2 for constant prediction is 0 if mean is used correctly? 
+    # R2 = 1 - SS_res/SS_tot. SS_res = sum((y - mean)^2). SS_tot = sum((y - mean)^2). R2 = 0.
+    assert abs(metrics['r2']) < 1e-6
+    assert metrics['rmse'] > 0
+    assert metrics['mae'] > 0
+
+def test_run_cross_fold_comparison():
+    """Test the cross-fold comparison logic."""
+    # Generate simple linear data
+    np.random.seed(42)
+    X = np.random.rand(100, 2)
+    y = 3 * X[:, 0] + 2 * X[:, 1] + np.random.normal(0, 0.1, 100)
+
     model = LinearRegression()
     model.fit(X, y)
-    y_pred_trained = model.predict(X)
-    
-    # Null model predictions
-    y_pred_null, _ = predict_mean_null_model(X, y, X, y)
-    
-    # Compare models
-    results = compare_models_with_bootstrap(y, y_pred_trained, y_pred_null, n_bootstrap=100, seed=42)
-    
-    assert 'rmse_trained' in results
-    assert 'rmse_null' in results
-    assert 'r2_trained' in results
-    assert 'r2_null' in results
-    assert 'r2_ci_trained' in results
-    assert 'paired_t_test' in results
-    assert 'meets_improvement_threshold' in results
-    
-    # Trained model should have lower RMSE than null
-    assert results['rmse_trained'] < results['rmse_null']
-    
-    # CI should have lower < upper
-    assert results['r2_ci_trained']['lower'] < results['r2_ci_trained']['upper']
 
-def test_run_cross_fold_comparison(sample_data):
-    """Test cross-fold comparison logic."""
-    X, y = sample_data
-    
-    model = LinearRegression()
-    
-    results = run_cross_fold_comparison(X, y, model, n_splits=3, seed=42)
-    
-    assert 'n_folds' in results
-    assert 'avg_rmse_trained' in results
-    assert 'avg_rmse_null' in results
-    assert 'rmse_reduction_pct' in results
-    assert 'paired_t_test' in results
-    assert 'r2_ci_trained' in results
-    
-    # Should have positive RMSE reduction
-    assert results['rmse_reduction_pct'] > 0
-    
-    # Trained model should have better R2
-    assert results['avg_r2_trained'] > results['avg_r2_null']
+    results = run_cross_fold_comparison(X, y, "LinearRegression", model, n_splits=3)
 
-def test_null_model_with_constant_target():
-    """Test null model behavior with constant target."""
-    X = pd.DataFrame({'f1': [1, 2, 3, 4, 5]})
-    y = pd.Series([10, 10, 10, 10, 10])
+    assert 'fold_metrics' in results
+    assert 'statistical_test' in results
+    assert 'summary' in results
     
-    predictions, mean_target = predict_mean_null_model(X, y, X, y)
+    # Check that trained RMSE is generally lower than null RMSE
+    trained_rmses = results['fold_metrics']['trained_rmse']
+    null_rmses = results['fold_metrics']['null_rmse']
     
-    assert np.allclose(predictions, 10.0)
-    assert np.isclose(mean_target, 10.0)
-
-def test_comparison_with_no_improvement():
-    """Test comparison when trained model doesn't improve over null."""
-    # Create data where linear model won't help
-    X = pd.DataFrame({'f1': [1, 2, 3, 4, 5]})
-    y = pd.Series([1, 1, 1, 1, 1])  # Constant target
+    # It's possible for a fold to be worse by chance, but mean should be better
+    assert np.mean(trained_rmses) < np.mean(null_rmses), "Trained model should outperform null model on average"
     
-    model = LinearRegression()
-    model.fit(X, y)
-    y_pred_trained = model.predict(X)
-    y_pred_null, _ = predict_mean_null_model(X, y, X, y)
+    # Check statistical test structure
+    assert 'p_value' in results['statistical_test']
+    assert 'is_significant' in results['statistical_test']
     
-    results = compare_models_with_bootstrap(y, y_pred_trained, y_pred_null, n_bootstrap=50, seed=42)
+    # Check summary
+    assert 'improvement_pct' in results['summary']
+    assert results['summary']['improvement_pct'] > -100 # Should be a valid percentage
     
-    # Both models should have similar performance
-    assert np.isclose(results['rmse_trained'], results['rmse_null'], atol=0.1)
-    assert np.isclose(results['r2_trained'], results['r2_null'], atol=0.1)
+    # Check confidence intervals structure
+    assert 'confidence_intervals' in results
+    assert 'r2' in results['confidence_intervals']
+    assert 'ci_95_lower' in results['confidence_intervals']['r2']
+    assert 'ci_95_upper' in results['confidence_intervals']['r2']

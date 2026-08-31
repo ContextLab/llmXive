@@ -3467,3 +3467,414 @@
   source_type: external
   status: verified
   updated_at: '2026-08-22T06:15:59Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: at least 50 valid stories extracted from Project Gutenberg
+  claim_id: c_36e031ab
+  context: 'Verify: Ensure at least 50 valid stories are extracted and saved. Command:
+    python code/main.py fetch --authors "O. Henry, Guy de Maupassant" --output data/raw/gutenberg_stories.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_50_valid_stories_extracted_from_Project_Gutenberg
+  kind: magnitude
+  raw_text: Ensure at least 50 valid stories are extracted and saved.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:29:04Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: thresholds list contains 0.25, 0.30, 0.35, and 0.40
+  claim_id: c_98ac98a8
+  context: 'Output MUST be: A JSON object with a single key thresholds containing
+    the list [0.25, 0.30, 0.35, 0.40].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Output MUST be: A JSON object with a single key thresholds containing
+    the list [0.25, 0.30, 0.35, 0.40].'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:29:44Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: local moral judgement dataset contains 50 story-judgement pairs
+  claim_id: c_03cd13d8
+  context: 'Logic: Manually create a CSV file data/raw/moral_judgement_local.csv containing
+    50 story-judgement pairs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Manually create a CSV file data/raw/moral_judgement_local.csv containing
+    50 story-judgement pairs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:30:09Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: inter-rater reliability Cohen's Kappa must be greater than 0.7
+  claim_id: c_bf4d1170
+  context: 'Validation: Run a pilot with a small cohort of human raters on a subset
+    of generated responses and verify inter-rater reliability (Cohen''s Kappa) > 0.7.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Inter-rater_reliability_Cohen%27s_Kappa_must_be_greater_than_0
+  kind: magnitude
+  raw_text: verify inter-rater reliability (Cohen's Kappa) > 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:30:52Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: reader-response dataset contains exactly 50 rows
+  claim_id: c_3b3b550c
+  context: 'Verification: Ensure the dataset contains text, empathy_score, and moral_judgement_score
+    columns and exactly 50 rows (or all available stories if < 50).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure the dataset contains text, empathy_score, and moral_judgement_score
+    columns and exactly 50 rows (or all available stories if < 50).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:31:33Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: minimum sample size of 10 required for regression analysis
+  claim_id: c_86c57826
+  context: 'Check Sample Size: If the number of matched rows is less than 10, log
+    a warning Sample size insufficient for regression at threshold X and record slope
+    as null for this threshold.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_sample_size_of_10_required_for_regression_analysis
+  kind: magnitude
+  raw_text: If the number of matched rows is less than 10, log a warning Sample size
+    insufficient for regression at threshold X and record slope as null for this threshold.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:32:15Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor warning threshold is 5.0
+  claim_id: c_a023ddc9
+  context: 'Logic: Calculate VIF for predictors. Warn if VIF > 5.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Warn if VIF > 5.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:32:16Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: LLM protocol uses gpt-4o-mini with temperature 0.1 and seed 42
+  claim_id: c_7a9b4072
+  context: 'Protocol: Use gpt-4o-mini with temperature=0.1 and seed=42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use gpt-4o-mini with temperature=0.1 and seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:33:53Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: first-person density scores correlation with human labels must be at
+    least 0.85
+  claim_id: c_b199ee73
+  context: "Verification: Run the extraction pipeline on these stories and verify\
+    \ that the computed \"first-person density\" scores correlate \u2265 0.85 with\
+    \ the human_label in the external gold standard file."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/First-person_density_scores_correlation_with_human_labels_mu
+  kind: magnitude
+  raw_text: "Verify that the computed first-person density scores correlate \u2265\
+    \ 0.85 with the human_label in the external gold standard file."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:35:02Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: text-similarity matching precision must be at least 0.9
+  claim_id: c_681123b3
+  context: "Independent Test: The matching logic can be tested by running it against\
+    \ a \"gold standard\" a subset of manually annotated story-judgement pairs, verifying\
+    \ a precision \u2265 0.9."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Text-similarity_matching_precision_must_be_at_least_0.9
+  kind: magnitude
+  raw_text: "verifying a precision \u2265 0.9."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:36:08Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: Initial author list for Gutenberg corpus includes O. Henry, Guy de Maupassant,
+    Anton Chekhov, Jack London, and Mark Twain
+  claim_id: c_5d31404d
+  context: 'Logic: Use the gutenberg Python library (or requests to the Gutenberg
+    API) to search for and download short stories by verified authors. Author List:
+    Start with ["O. Henry", "Guy de Maupassant", "Anton Chekhov", "Jack London", "Mark
+    Twain"].'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Initial_author_list_for_Gutenberg_corpus_includes_O._Henry,
+  kind: entity_fact
+  raw_text: Start with ["O. Henry", "Guy de Maupassant", "Anton Chekhov", "Jack London",
+    "Mark Twain"].
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:39:09Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: Fallback author list for Gutenberg corpus includes Edgar Allan Poe, H.G.
+    Wells, Arthur Conan Doyle, Nathaniel Hawthorne, and Kate Chopin
+  claim_id: c_cc5373fa
+  context: 'Fallback: If a small number of stories are extracted from the initial
+    list, automatically expand the author list to include ["Edgar Allan Poe", "H.G.
+    Wells", "Arthur Conan Doyle", "Nathaniel Hawthorne", "Kate Chopin"] and retry.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_author_list_for_Gutenberg_corpus_includes_Edgar_All
+  kind: entity_fact
+  raw_text: automatically expand the author list to include ["Edgar Allan Poe", "H.G.
+    Wells", "Arthur Conan Doyle", "Nathaniel Hawthorne", "Kate Chopin"] and retry.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:39:58Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: Minimum corpus size of 50 valid stories required from Gutenberg extraction
+  claim_id: c_9955b247
+  context: 'Verification: Ensure at least 50 valid stories are extracted and saved.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_corpus_size_of_50_valid_stories_required_from_Gutenb
+  kind: magnitude
+  raw_text: Ensure at least 50 valid stories are extracted and saved.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:40:02Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: Warning logged for corpus size between 20 and 50 stories
+  claim_id: c_bbc74dea
+  context: 'Fail Condition: If fewer than 50 stories are extracted after expanding
+    the author list, the task must fail explicitly. Log the final count; if 20 <=
+    count < 50, log a warning "Insufficient corpus size (< 50)" but proceed only if
+    downstream tasks are adjusted (see T007.1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if 20 <= count < 50, log a warning "Insufficient corpus size (< 50)" but
+    proceed only if downstream tasks are adjusted
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:40:22Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: Gold standard annotations capped at 50 stories
+  claim_id: c_590ae2e1
+  context: 'Logic: Load the stories from data/raw/gutenberg_stories/. Annotate a subset
+    of up to 50 stories (or all available if < 50) with perspective labels (1st/3rd).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: annotate a subset of up to 50 stories (or all available if < 50) with
+    perspective labels (1st/3rd).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:40:55Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: First-person density scores must correlate >= 0.85 with human labels
+  claim_id: c_616eb2c9
+  context: "Verification: Run the extraction pipeline on these stories and verify\
+    \ that the computed \"first-person density\" scores correlate \u2265 0.85 with\
+    \ the human_label in the external gold standard file."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify that the computed \"first-person density\" scores correlate \u2265\
+    \ 0.85 with the human_label in the external gold standard file."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:40:55Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: Text-similarity matching algorithm precision must be >= 0.9
+  claim_id: c_40bc6fe7
+  context: "Independent Test: The matching logic can be tested by running it against\
+    \ a \"gold standard\" a subset of manually annotated story-judgement pairs, verifying\
+    \ a precision \u2265 0.9."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verifying a precision \u2265 0.9."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:40:56Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: Sensitivity thresholds list is [0.25, 0.30, 0.35, 0.40]
+  claim_id: c_4eb1ba36
+  context: 'Output MUST be: A JSON object with a single key thresholds containing
+    the list [0.25, 0.30, 0.35, 0.40].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Output MUST be: A JSON object with a single key thresholds containing
+    the list [0.25, 0.30, 0.35, 0.40].'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:40:56Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: Local moral judgement dataset contains 50 story-judgement pairs
+  claim_id: c_3e0a45a3
+  context: 'Logic: Manually create a CSV file data/raw/moral_judgement_local.csv containing
+    50 story-judgement pairs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Manually create a CSV file data/raw/moral_judgement_local.csv containing
+    50 story-judgement pairs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:40:57Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: Inter-rater reliability Cohen's Kappa must be > 0.7 for reader-response
+    proxy
+  claim_id: c_e615f2b5
+  context: 'Validation: Run a pilot with a small cohort of human raters on a subset
+    of generated responses and verify inter-rater reliability (Cohen''s Kappa) > 0.7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify inter-rater reliability (Cohen's Kappa) > 0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:40:57Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: Reader-response dataset contains 50 rows
+  claim_id: c_1fb8ee5a
+  context: 'Verification: Ensure the dataset contains text, empathy_score, and moral_judgement_score
+    columns and exactly 50 rows (or all available stories if < 50).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure the dataset contains text, empathy_score, and moral_judgement_score
+    columns and exactly 50 rows (or all available stories if < 50).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:40:58Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: VIF warning threshold is 5.0
+  claim_id: c_f64a8ed9
+  context: 'Logic: Calculate VIF for predictors. Warn if VIF > 5.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Warn if VIF > 5.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:40:58Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: Minimum sample size of 10 required for regression in sensitivity analysis
+  claim_id: c_54974747
+  context: 'Check Sample Size: If the number of matched rows is less than 10, log
+    a warning "Sample size insufficient for regression at threshold X" and record
+    slope as null for this threshold.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_sample_size_of_10_required_for_regression_in_sensiti
+  kind: magnitude
+  raw_text: If the number of matched rows is less than 10, log a warning "Sample size
+    insufficient for regression at threshold X"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:41:43Z'

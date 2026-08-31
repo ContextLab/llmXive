@@ -68,7 +68,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Implement `code/data/preprocess.py` to filter Type I isotherms, remove entries with missing targets, normalize units (m²/g), and **exclude entries with missing pore volume (logging the exclusion reason to `data/validation/exclusion_log.json`)** (FR-002); depends on T014a, T014ba, T014bb, T014bc, T060, T043a
+- [ ] T015 [US1] Implement `code/data/preprocess.py` to filter Type I isotherms, remove entries with missing targets, normalize units (m²/g), and **exclude entries with missing pore volume (logging the exclusion reason to `data/validation/exclusion_log.json`)** (FR-002); depends on T014a, T014ba, T014bb, T014bc, T060, T043a <!-- FAILED: unspecified -->
 - [ ] T016 [US1] Implement outlier detection in `code/data/preprocess.py` to flag adsorbates with identical descriptors but conflicting targets: Group by descriptor_hash, calculate variance of target. **Threshold**: Flag if `|value - mean_group| > 3 * std_group` (3-sigma rule). **Action**: Exclude flagged entries from the final training set and log the exclusion reason. Output `data/processed/outliers.csv` with columns [material_id, descriptor_hash, target_variance, exclusion_reason] (Edge Cases); depends on T014a, T014ba, T014bb, T014bc, T015
 - [X] T017 [US1] Update `code/main.py` orchestrator to run the full data curation pipeline (Download -> Preprocess -> Outlier Check); depends on T014a, T014ba, T014bb, T014bc, T060, T015, T016
 
@@ -136,7 +136,7 @@
 - [X] T038 Code cleanup and refactoring of `code/main.py` orchestrator
 - [X] T054 [US2] [P] **Implement Runtime Logger**: Create `code/utils/runtime_logger.py` with `start_timer()` and `end_timer()` functions to instrument `code/main.py`.
 - [X] T055 [US2] **Persist Runtime Log**: Ensure the logger writes the final JSON artifact to `data/benchmarks/runtime_log.json` containing `start_time` (ISO8601), `end_time` (ISO8601), `duration_seconds` (float), and `status` (string: success/failed). **Verification**: Validate that `duration_seconds` is recorded and check against the ≤ 4 hours threshold (SC-004) in the final report. **Dependencies**: T054.
-- [ ] T039c [US2] **Implement Dry-Run Mode**: Update `code/main.py` to support a new CLI flag `--mode dry_run`. **Logic**: When enabled, run the data curation and SHAP analysis pipeline but skip the full model training and hyperparameter tuning (to save time). **Output**: Verify `data/benchmarks/runtime_log.json` is generated. **Note**: This is a validation mode; the primary runtime check (SC-004) relies on the full pipeline execution (T055). **Dependencies**: T054, T055.
+- [ ] T039c [US2] **Implement Dry-Run Mode**: Update `code/main.py` to support a new CLI flag `--mode dry_run`. **Logic**: When enabled, run the data curation and SHAP analysis pipeline but skip the full model training and hyperparameter tuning (to save time). **Output**: Verify `data/benchmarks/runtime_log.json` is generated. **Note**: This is a validation mode; the primary runtime check (SC-004) relies on the full pipeline execution (T055). **Dependencies**: T054, T055. <!-- FAILED: unspecified -->
 - [X] T040a [US1] [P] Unit test for empty dataset edge case in `tests/unit/test_preprocess_empty.py::test_empty_dataset`
 - [X] T040b [US1] [P] Unit test for single material edge case in `tests/unit/test_preprocess_single.py`
 - [X] T041 Security hardening: Sanitize inputs in `code/data/download.py`

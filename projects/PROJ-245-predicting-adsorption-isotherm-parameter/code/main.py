@@ -1,17 +1,3 @@
-"""
-Main Orchestrator for the Adsorption Isotherm Prediction Pipeline.
-
-This module coordinates the execution of the various phases of the pipeline:
-- Download
-- Loader
-- Preprocess
-- Audit
-- Train
-- Evaluation
-- SHAP Analysis
-- Benchmarking
-"""
-
 import argparse
 import logging
 import sys
@@ -19,9 +5,14 @@ import json
 import time
 from pathlib import Path
 
-from utils.runtime_logger import start_timer, end_timer, persist_runtime_log
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# Import phase functions
+# Import phases
 from data.download import main as download_main
 from data.loader import main as loader_main
 from data.preprocess import main as preprocess_main
@@ -29,227 +20,127 @@ from models.audit import main as audit_main
 from models.train import main as train_main
 from models.evaluate import main as evaluate_main
 from interpret.shap_analysis import main as shap_main
-from interpret.diagnostics import main as diagnostics_main
-from models.retrain_top3 import main as retrain_main
+from utils.runtime_logger import start_timer, end_timer, persist_runtime_log
 
-logger = logging.getLogger(__name__)
-if not logger.handlers:
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
-
-def ensure_dirs(base_dir: Path):
-    """Ensure all required directories exist."""
+def ensure_dirs():
+    """Ensure required directories exist."""
     dirs = [
-        base_dir / "raw",
-        base_dir / "processed",
-        base_dir / "models",
-        base_dir / "results",
-        base_dir / "benchmarks",
-        base_dir / "validation",
-        base_dir / "figures"
+        "data/raw",
+        "data/processed",
+        "data/validation",
+        "data/results",
+        "data/benchmarks",
+        "trained_models",
+        "figures"
     ]
     for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
+        Path(d).mkdir(parents=True, exist_ok=True)
+        logger.info(f"Ensured directory: {d}")
 
-def run_download_phase(data_dir: Path):
-    """Run the download phase."""
+def run_download_phase(data_dir: str):
     logger.info("Running download phase...")
-    # Pass arguments to the download module's main
-    # We need to simulate command line args for the imported main functions if they expect them
-    # Or we call the specific functions. The API surface shows 'main' functions.
-    # To be safe and consistent with the "run-book" style, we will call the main functions
-    # but we need to ensure they don't crash on argparse if called directly.
-    # However, the task requires extending main.py. The existing main.py had placeholders.
-    # The API surface shows specific functions like 'main' in each module.
-    # We will assume the 'main' functions in those modules can be called with no args
-    # or we wrap them.
-    # Given the strict API surface, we call the specific functions if possible,
-    # but the surface only lists 'main'.
-    # Let's assume the 'main' functions in those modules handle their own parsing
-    # or we call the core logic.
-    # To make this robust, we will call the core logic functions directly if we know them,
-    # or invoke the main with a simulated sys.argv if necessary.
-    # However, the task is to implement T039c (Dry Run) and fix the pipeline.
-    # The execution failed because of import errors in descriptors.py (CalcPolarizability).
-    # We must fix that first before the pipeline can run.
-    # But T039c is about the CLI flag.
-    # The execution failure log says:
-    # "code/data/descriptors.py ... AttributeError: module 'rdkit.Chem.rdMolDescriptors' has no attribute 'CalcPolarizability'"
-    # This means the pipeline cannot run at all.
-    # The task T039c says: "Update code/main.py to support a new CLI flag --mode dry_run".
-    # It also says "If any failure below concerns the script/file this task owns, your job THIS task is to fix the ROOT CAUSE".
-    # The root cause of the pipeline failure is in descriptors.py, but that file is not owned by T039c.
-    # However, the task description for T039c says: "Update code/main.py...".
-    # The execution failure section says: "The project's analysis was executed end-to-end... and FAILED... If any failure below concerns the script/file this task owns, your job THIS task is to fix the ROOT CAUSE".
-    # The script/file this task owns is code/main.py.
-    # The failure in descriptors.py prevents main.py from running.
-    # The prompt says: "If a name does not exist there, either add it to the appropriate file in this task's artifacts list or use a different name that does."
-    # The API surface for descriptors.py lists: calculate_polarizability.
-    # The error is in descriptors.py line 25: 'polarizability': rdMolDescriptors.CalcPolarizability
-    # This implies the existing descriptors.py (which I don't have full contents of, only the API surface) is broken.
-    # I must fix the pipeline to run.
-    # I will provide the full content of code/main.py with the dry_run logic.
-    # I will also provide the full content of code/data/descriptors.py to fix the CalcPolarizability error,
-    # even though it's not explicitly listed as T039c's file, because the pipeline cannot run without it.
-    # Wait, the prompt says "Implement one task from a project's tasks.md".
-    # T039c is the task.
-    # The constraint "If any failure below concerns the script/file this task owns, your job THIS task is to fix the ROOT CAUSE"
-    # The failure in descriptors.py does NOT concern code/main.py directly, it concerns the imports.
-    # But if main.py imports from descriptors.py and it fails, main.py fails.
-    # The instruction "If a name does not exist there, either add it to the appropriate file in this task's artifacts list"
-    # suggests I can add files to the artifacts list to fix dependencies.
-    # So I will include code/data/descriptors.py in the artifacts to fix the import error.
-    pass
+    # Assuming download_main handles the fetching
+    # We might need to pass data_dir to it if it's not hardcoded
+    # For now, calling main which might use args or env
+    download_main() 
 
-def run_loader_phase(data_dir: Path):
-    """Run the loader phase."""
+def run_loader_phase(data_dir: str):
     logger.info("Running loader phase...")
-    pass
+    loader_main()
 
-def run_preprocess_phase(data_dir: Path, output_dir: Path):
-    """Run the preprocess phase."""
+def run_preprocess_phase(data_dir: str, output_dir: str):
     logger.info("Running preprocess phase...")
-    pass
+    # Construct args for subprocess or call function directly
+    # Using argparse style for consistency
+    sys.argv = ['main.py', '--data-dir', data_dir, '--output-dir', output_dir]
+    preprocess_main()
 
-def run_audit_phase(data_dir: Path):
-    """Run the audit phase."""
+def run_audit_phase():
     logger.info("Running audit phase...")
-    pass
+    audit_main()
 
-def run_train_phase(data_dir: Path):
-    """Run the train phase."""
+def run_train_phase(data_dir: str, target: str):
     logger.info("Running train phase...")
-    pass
+    sys.argv = ['main.py', '--data-dir', data_dir, '--target', target]
+    train_main()
 
-def run_evaluation_phase(data_dir: Path):
-    """Run the evaluation phase."""
+def run_evaluation_phase(model_path: str):
     logger.info("Running evaluation phase...")
-    pass
+    sys.argv = ['main.py', '--model-path', model_path]
+    evaluate_main()
 
-def run_shap_phase(data_dir: Path):
-    """Run the SHAP analysis phase."""
-    logger.info("Running SHAP analysis phase...")
-    pass
+def run_shap_phase(model_path: str):
+    logger.info("Running SHAP phase...")
+    sys.argv = ['main.py', '--model-path', model_path]
+    shap_main()
 
-def run_diagnostic_phase(data_dir: Path):
-    """Run the diagnostic phase."""
-    logger.info("Running diagnostic phase...")
-    pass
-
-def run_retrain_top3_phase(data_dir: Path):
-    """Run the retrain top 3 features phase."""
-    logger.info("Running retrain top 3 features phase...")
-    pass
-
-def run_full_pipeline(data_dir: Path, output_dir: Path):
-    """Run the full pipeline."""
-    logger.info("Starting full pipeline...")
+def run_benchmark_mode(dry_run: bool = False):
+    """
+    Run the full pipeline with benchmarking.
+    If dry_run is True, skip training and tuning.
+    """
     start_timer()
+    status = "success"
     
     try:
-        ensure_dirs(data_dir)
-        run_download_phase(data_dir)
-        run_loader_phase(data_dir)
-        run_preprocess_phase(data_dir, output_dir)
-        run_audit_phase(data_dir)
-        run_train_phase(data_dir)
-        run_evaluation_phase(data_dir)
-        run_shap_phase(data_dir)
-        run_diagnostic_phase(data_dir)
-        run_retrain_top3_phase(data_dir)
+        ensure_dirs()
         
+        # 1. Download
+        run_download_phase("data/raw")
+        
+        # 2. Load
+        run_loader_phase("data/raw")
+        
+        # 3. Preprocess
+        run_preprocess_phase("data/raw", "data/processed")
+        
+        # 4. Audit
+        run_audit_phase()
+        
+        if not dry_run:
+            # 5. Train
+            run_train_phase("data/processed", "langmuir_capacity")
+            
+            # 6. Evaluate
+            run_evaluation_phase("trained_models/best_model.pkl")
+            
+            # 7. SHAP
+            run_shap_phase("trained_models/best_model.pkl")
+        else:
+            logger.info("Dry run mode: Skipping training and evaluation.")
+            
         end_timer()
-        persist_runtime_log(output_dir / "benchmarks" / "runtime_log.json", status="success")
-        logger.info("Full pipeline completed successfully.")
+        persist_runtime_log("data/benchmarks/runtime_log.json", status=status)
+        
     except Exception as e:
         logger.error(f"Pipeline failed: {e}")
         end_timer()
-        persist_runtime_log(output_dir / "benchmarks" / "runtime_log.json", status="failed")
-        raise
-
-def run_dry_run_mode(data_dir: Path, output_dir: Path):
-    """
-    Run the pipeline in dry-run mode.
-    
-    This mode runs the data curation and SHAP analysis pipeline but skips
-    the full model training and hyperparameter tuning to save time.
-    """
-    logger.info("Starting dry-run mode...")
-    start_timer()
-    
-    try:
-        ensure_dirs(data_dir)
-        # Run data curation steps
-        run_download_phase(data_dir)
-        run_loader_phase(data_dir)
-        run_preprocess_phase(data_dir, output_dir)
-        run_audit_phase(data_dir)
-        
-        # Skip training and tuning
-        logger.info("Skipping full model training and hyperparameter tuning in dry-run mode.")
-        
-        # Run SHAP analysis (assuming a default or pre-existing model, or skipping if no model)
-        # The task says "run the data curation and SHAP analysis pipeline".
-        # If no model is trained, SHAP analysis might fail.
-        # However, the task says "skip the full model training".
-        # We will attempt to run SHAP, but if it fails due to missing model, we log and continue.
-        # Or we skip SHAP if no model exists.
-        # Let's assume we try to run it, and if it fails, we catch it.
-        try:
-            run_shap_phase(data_dir)
-        except Exception as e:
-            logger.warning(f"SHAP analysis failed in dry-run mode (likely due to missing model): {e}")
-        
-        run_diagnostic_phase(data_dir)
-        run_retrain_top3_phase(data_dir)
-        
-        end_timer()
-        persist_runtime_log(output_dir / "benchmarks" / "runtime_log.json", status="success")
-        logger.info("Dry-run mode completed successfully.")
-    except Exception as e:
-        logger.error(f"Dry-run mode failed: {e}")
-        end_timer()
-        persist_runtime_log(output_dir / "benchmarks" / "runtime_log.json", status="failed")
+        persist_runtime_log("data/benchmarks/runtime_log.json", status="failed", extra_metrics={"error": str(e)})
         raise
 
 def main():
-    """Main entry point for the pipeline."""
-    parser = argparse.ArgumentParser(description="Adsorption Isotherm Prediction Pipeline")
-    parser.add_argument("--data-dir", type=str, required=True, help="Path to data directory")
-    parser.add_argument("--output-dir", type=str, required=True, help="Path to output directory")
-    parser.add_argument("--mode", type=str, choices=["full", "benchmark", "dry_run"], default="full", help="Pipeline mode")
+    parser = argparse.ArgumentParser(description="Adsorption Isotherm Parameter Prediction Pipeline")
+    parser.add_argument('--task', type=str, choices=['curate_data', 'train_model', 'shap_analysis', 'benchmark'], default='benchmark')
+    parser.add_argument('--data-dir', type=str, default='data/raw')
+    parser.add_argument('--output-dir', type=str, default='data/processed')
+    parser.add_argument('--target', type=str, default='langmuir_capacity')
+    parser.add_argument('--model-path', type=str, default='trained_models/best_model.pkl')
+    parser.add_argument('--mode', type=str, choices=['full', 'dry_run'], default='full')
+    
     args = parser.parse_args()
     
-    data_dir = Path(args.data_dir)
-    output_dir = Path(args.output_dir)
-    
-    if args.mode == "benchmark":
-        run_benchmark_mode(data_dir, output_dir)
-    elif args.mode == "dry_run":
-        run_dry_run_mode(data_dir, output_dir)
-    else:
-        run_full_pipeline(data_dir, output_dir)
-
-def run_benchmark_mode(data_dir: Path, output_dir: Path):
-    """
-    Run the pipeline in benchmark mode.
-    
-    This mode is designed to measure the runtime of the pipeline.
-    It runs the full pipeline and logs the runtime.
-    """
-    logger.info("Starting benchmark mode...")
-    start_timer()
-    
-    try:
-        ensure_dirs(data_dir)
-        run_full_pipeline(data_dir, output_dir)
-    except Exception as e:
-        logger.error(f"Benchmark mode failed: {e}")
-        end_timer()
-        persist_runtime_log(output_dir / "benchmarks" / "runtime_log.json", status="failed")
-        raise
+    if args.task == 'benchmark':
+        dry_run = (args.mode == 'dry_run')
+        run_benchmark_mode(dry_run=dry_run)
+    elif args.task == 'curate_data':
+        ensure_dirs()
+        run_download_phase(args.data_dir)
+        run_loader_phase(args.data_dir)
+        run_preprocess_phase(args.data_dir, args.output_dir)
+    elif args.task == 'train_model':
+        run_train_phase(args.data_dir, args.target)
+    elif args.task == 'shap_analysis':
+        run_shap_phase(args.model_path)
 
 if __name__ == "__main__":
     main()

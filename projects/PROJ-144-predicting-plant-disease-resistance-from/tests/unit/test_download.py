@@ -1,69 +1,70 @@
-import pytest
-import json
 import os
+import json
 import tempfile
+import pytest
 from pathlib import Path
-from unittest.mock import patch, MagicMock, mock_open
+from unittest.mock import patch, MagicMock
 
-# Import the module under test
-from code.data.download_study import (
-    get_study_download_url,
-    verify_temporal_separation,
-    load_phenotype_metadata,
-    TemporalVerificationError
-)
+# Add parent to path
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
-class TestGetStudyDownloadUrl:
-    def test_url_construction(self):
-        study_id = "ST001234"
-        expected = f"https://www.metabolomicsworkbench.org/data/download.php?STUDY_ID={study_id}&TYPE=STUDY"
-        assert get_study_download_url(study_id) == expected
+from data.download_study import get_study_download_url, download_study, DataUnavailableError
 
-class TestVerifyTemporalSeparation:
-    def test_passes_with_pre_challenge(self):
-        metadata = [
-            {"Sample_ID": "S1", "Time_Point": "pre-challenge", "Value": 10.5},
-            {"Sample_ID": "S2", "Time_Point": "post-challenge", "Value": 12.0}
+class TestDownloadStudy:
+    def test_get_study_download_url_missing_manifest(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manifest_path = Path(tmpdir) / "missing.json"
+            with pytest.raises(DataUnavailableError):
+                get_study_download_url(manifest_path)
+
+    def test_get_study_download_url_empty_manifest(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manifest_path = Path(tmpdir) / "empty.json"
+            with open(manifest_path, 'w') as f:
+                json.dump([], f)
+            with pytest.raises(DataUnavailableError):
+                get_study_download_url(manifest_path)
+
+    @patch('data.download_study.requests.get')
+    @patch('data.download_study.zipfile.ZipFile')
+    def test_download_study_data_zip(self, mock_zip, mock_get):
+        # Mock response
+        mock_response = MagicMock()
+        mock_response.content = b"fake zip content"
+        mock_response.headers = {'Content-Type': 'application/zip'}
+        mock_get.return_value = mock_response
+        
+        # Mock zip file content
+        mock_zip_instance = MagicMock()
+        mock_zip_instance.__enter__ = MagicMock(return_value=mock_zip_instance)
+        mock_zip_instance.__exit__ = MagicMock(return_value=False)
+        mock_zip_instance.namelist.return_value = ['intensity.csv', 'phenotype.csv']
+        
+        # Mock file reads
+        mock_zip_instance.open.side_effect = [
+            MagicMock(read=MagicMock(return_value=b"intensity data")),
+            MagicMock(read=MagicMock(return_value=b"phenotype data"))
         ]
-        # Should not raise
-        assert verify_temporal_separation(metadata, "ST000001") is True
+        mock_zip.return_value = mock_zip_instance
 
-    def test_passes_with_baseline(self):
-        metadata = [
-            {"Sample_ID": "S1", "Baseline_Status": "True", "Value": 10.5}
-        ]
-        assert verify_temporal_separation(metadata, "ST000001") is True
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir)
+            study_id = "STUDY001"
+            
+            intensity_path, phenotype_path = download_study_data(
+                "http://example.com/study.zip", output_dir, study_id
+            )
+            
+            assert os.path.exists(intensity_path)
+            assert os.path.exists(phenotype_path)
+            assert os.path.getsize(intensity_path) > 0
+            assert os.path.getsize(phenotype_path) > 0
 
-    def test_passes_with_timestamp(self):
-        metadata = [
-            {"Sample_ID": "S1", "Time_Hours": 0, "Value": 10.5},
-            {"Sample_ID": "S2", "Time_Hours": 24, "Value": 12.0}
-        ]
-        assert verify_temporal_separation(metadata, "ST000001") is True
-
-    def test_fails_without_temporal_fields(self):
-        metadata = [
-            {"Sample_ID": "S1", "Treatment": "A", "Value": 10.5},
-            {"Sample_ID": "S2", "Treatment": "B", "Value": 12.0}
-        ]
-        with pytest.raises(TemporalVerificationError) as excinfo:
-            verify_temporal_separation(metadata, "ST000001")
-        assert "lacks temporal metadata" in str(excinfo.value)
-
-class TestLoadPhenotypeMetadata:
-    def test_loads_csv(self):
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-            f.write("Sample_ID,Time_Point,Value\nS1,pre-challenge,10.5\nS2,post-challenge,12.0")
-            temp_path = f.name
-
-        try:
-            data = load_phenotype_metadata(temp_path)
-            assert len(data) == 2
-            assert data[0]['Sample_ID'] == 'S1'
-            assert data[0]['Time_Point'] == 'pre-challenge'
-        finally:
-            os.unlink(temp_path)
-
-    def test_handles_missing_file(self):
-        with pytest.raises(RuntimeError):
-            load_phenotype_metadata("non_existent_file.csv")
+    def test_download_study_entry_error(self):
+        # Test with invalid entry
+        entry = {"study_id": "X"} # Missing URL
+        with tempfile.TemporaryDirectory() as tmpdir:
+            result = download_study(entry, Path(tmpdir))
+            assert result["status"] == "error"
+            assert "Missing study_id or download_url" in result["reason"]

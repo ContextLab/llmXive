@@ -15,13 +15,12 @@ T015:
     \ implementation with the described logging and skipping logic is missing."
 T016:
   c: false
-  h: fbb0846ebe5c4fca81e1f26690e15e0ea36b954b6ba8276dec637236be51efa3
-  r: "The required output file `data/processed/perspective_features.json` does not\
-    \ exist, so the pipeline\u2019s end\u2011to\u2011end result is missing. Additionally,\
-    \ the provided snippet of `code/main.py` does not show the CLI argument parsing\
-    \ for the `extract` subcommand, leaving it unclear whether the script can be invoked\
-    \ as specified. The implementer must ensure the script creates the JSON file with\
-    \ the correct schema and supports the documented CLI."
+  h: 845fcec77903640a6e699691064dad7c346584c157accd1667a9a3877b4fa05e
+  r: "The repository contains a `code/main.py` file, but it does not provide a complete\
+    \ CLI (no shown `if __name__ == \"__main__\"` block or sub\u2011command handling)\
+    \ and the required output file `data/processed/perspective_features.json` is missing.\
+    \ Consequently the extraction step cannot be verified to produce the correctly\u2011\
+    structured JSON records. The missing file and incomplete script must be added/fixed."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -31,13 +30,6 @@ T018:
     \ is not satisfied. The next implementer must add and commit the logging implementation\
     \ (e.g., a log statement in the extraction script and a sample log file) and provide\
     \ the corresponding artifact."
-T024:
-  c: false
-  h: 52f1e2bc122111d61bc6756a59414d9d5b7ccc7a927fbb800625d15a50628f66
-  r: "The `prepare_sensitivity_thresholds()` function returns the correct list, but\
-    \ it never writes the JSON file, and the required `data/processed/thresholds.json`\
-    \ does not exist. The CLI command `prepare-thresholds` is not shown to invoke\
-    \ saving, so the task\u2019s output requirement is unmet."
 T025#1:
   c: false
   h: 17b699e4569c0414ef51903bdf61cc296b0ff9d7a68c5ca33ff5d0f68924bbc5

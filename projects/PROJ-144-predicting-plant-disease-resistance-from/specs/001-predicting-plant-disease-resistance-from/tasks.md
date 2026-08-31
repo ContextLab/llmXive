@@ -88,7 +88,7 @@
  - **Handle InChIKey alignment failures**: Log missing metabolites to `results/alignment_missing.json` and proceed with the intersection of aligned metabolites. **Flag if intersection < 10 metabolites.**
  - **Input**: `data/raw/` files and `data/processed/harmonized_labels.csv` (from T014).
  - **Output**: Generate `data/processed/batch_corrected_matrix.csv`, `data/processed/labels.csv` (merged with harmonized), and `data/processed/preprocess_log.json`.
-- [ ] T017 [US1] **Execute** `code/data/preprocess.py` using the command `python code/data/preprocess.py --study_ids data/raw/study_manifest.json --output data/processed/`. **Pre-check**: Verify `data/raw/study_manifest.json` and `data/processed/harmonized_labels.csv` exist. If missing, raise `DataUnavailableError`. **Pre-requisite**: Requires T012b and T013 to complete successfully. **Output**: Generate `data/processed/batch_corrected_matrix.csv`, `data/processed/labels.csv`, and `data/processed/preprocess_log.json`. **Verify file existence, non-empty content, and record SHA256 checksums in `state/artifact_hashes.yaml`. If files are missing or empty, raise an error and halt.** <!-- FAILED: unspecified -->
+- [ ] T017 [US1] **Execute** `code/data/preprocess.py` using the command `python code/data/preprocess.py --study_ids data/raw/study_manifest.json --output data/processed/`. **Pre-check**: Verify `data/raw/study_manifest.json` and `data/processed/harmonized_labels.csv` exist. If missing, raise `DataUnavailableError`. **Pre-requisite**: Requires T012b and T013 to complete successfully. **Output**: Generate `data/processed/batch_corrected_matrix.csv`, `data/processed/labels.csv`, and `data/processed/preprocess_log.json`. **Verify file existence, non-empty content, and record SHA256 checksums in `state/artifact_hashes.yaml`. If files are missing or empty, raise an error and halt.** <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -114,7 +114,7 @@
  * If N < 50: **Mandatory Learning Curve Analysis**. Skip hold-out set for primary metric. Perform **Learning Curve Analysis** by training on subsamples at varying fractions of the training set: `[0.2, 0.4, 0.6, 0.8, 1.0]`. Plot **Balanced Accuracy vs. Sample Size**. Output to `results/learning_curve.json`. Flag power limitation in the report.
  - Train Random Forest (n_estimators=500, max_depth=10) with Stratified k-fold CV (FR-005). Use `param_grid={'max_depth': [5, 10, 15, 20]}` for `GridSearchCV`.
  - **Output**: Save `results/feature_importance_ranking.json` containing the top-ranked metabolites ranked by mean decrease in impurity. Also save `data/processed/split_indices.json` if N>=50.
-- [ ] T021a [US2] Implement `code/modeling/evaluate.py` (Correlation Analysis - Global Context): Load `data/processed/split_indices.json` and `data/processed/batch_corrected_matrix.csv`. Compute pairwise correlations (metabolite vs. resistance). Apply Benjamini-Hochberg FDR correction to p-values before filtering. Filter for |r| > 0.4, p < 0.01. Output to `results/shap_analysis.json` (key `correlations`). <!-- FAILED: unspecified -->
+- [ ] T021a [US2] Implement `code/modeling/evaluate.py` (Correlation Analysis - Global Context): Load `data/processed/split_indices.json` and `data/processed/batch_corrected_matrix.csv`. Compute pairwise correlations (metabolite vs. resistance). Apply Benjamini-Hochberg FDR correction to p-values before filtering. Filter for |r| > 0.4, p < 0.01. Output to `results/shap_analysis.json` (key `correlations`). <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T021b [US2] Implement `code/modeling/evaluate.py` (Model Validation & Learning Curve): <!-- FAILED: unspecified -->
  * **If N >= 50**: Compute Balanced Accuracy, ROC-AUC, Precision-Recall on the independent hold-out set. Run permutation testing with ≥1,000 permutations. **Output**: `results/model_validation.json`.
  * **If N < 50**: Ensure Learning Curve Analysis (triggered in T020) has generated `results/learning_curve.json`. Use the max accuracy from the curve as the metric. Run permutation testing on the full dataset.
@@ -139,11 +139,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T026a [US3] **Implement** `code/modeling/interpret.py` (Extraction): Extract top-ranked metabolites ranked by mean decrease in impurity from the trained Random Forest model. Save the list of top 10 metabolites to `results/top_metabolites.json`. <!-- FAILED: unspecified -->
-- [~] T026b [US3] **Implement** `code/modeling/interpret.py` (Mapping): Read `results/top_metabolites.json`. Map metabolites to KEGG/MetaCyc pathways using the KEGG REST API or InChIKey lookups. **Fallback Strategy**: If primary mapping fails, attempt secondary lookup via metabolite synonyms. **Soft Fail Strategy**: If <10 metabolites map, proceed with the available mappings and log a warning (do NOT raise an error). **Output**: `results/pathway_mappings.json` containing mapped pathways and a `mapping_success_rate` field.
-- [~] T026c [US3] **Implement** `code/modeling/interpret.py` (Reporting): Read `results/pathway_mappings.json` and `results/top_metabolites.json`. Generate interpretation report discussing biological plausibility. Include the mandatory "framing" text. **Output**: `results/pathway_report.json` containing the narrative report.
+- [ ] T026a [US3] **Implement** `code/modeling/interpret.py` (Extraction): Extract top-ranked metabolites ranked by mean decrease in impurity from the trained Random Forest model. Save the list of top 10 metabolites to `results/top_metabolites.json`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T026b [US3] **Implement** `code/modeling/interpret.py` (Mapping): Read `results/top_metabolites.json`. Map metabolites to KEGG/MetaCyc pathways using the KEGG REST API or InChIKey lookups. **Fallback Strategy**: If primary mapping fails, attempt secondary lookup via metabolite synonyms. **Soft Fail Strategy**: If <10 metabolites map, proceed with the available mappings and log a warning (do NOT raise an error). **Output**: `results/pathway_mappings.json` containing mapped pathways and a `mapping_success_rate` field.
+- [ ] T026c [US3] **Implement** `code/modeling/interpret.py` (Reporting): Read `results/pathway_mappings.json` and `results/top_metabolites.json`. Generate interpretation report discussing biological plausibility. Include the mandatory "framing" text. **Output**: `results/pathway_report.json` containing the narrative report.
 - [X] T027 [US3] **Execute** generation of `results/pathway_analysis.json` by merging results from T026a (`top_metabolites.json`), T026b (`pathway_mappings.json`), and T026c (`pathway_report.json`) into a single canonical output file. **Verification**: Ensure the merged file contains all keys and is valid JSON.
-- [~] T028 [US3] **Execute** generation of visualization `results/plots/pathway_barplot.png` based on data from `results/pathway_analysis.json`.
+- [ ] T028 [US3] **Execute** generation of visualization `results/plots/pathway_barplot.png` based on data from `results/pathway_analysis.json`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -168,8 +168,8 @@
  - `Upload artifacts: results/`
  - `timeout-minutes: 360`
  - **Verification**: Validate YAML syntax and ensure all steps are executable.
-- [ ] T030b [P] **Implement** `code/utils/ci_trigger.py` to write a self-contained Python script that triggers the GitHub Actions workflow and polls for completion with a timeout. **Logic**: Use GitHub API to trigger workflow_dispatch, then poll `runs` endpoint every 30s until status is 'completed' or timeout (15 min) is reached. **Pre-requisite**: T030a must be complete.
-- [ ] T030c [P] **Execute** `code/utils/ci_trigger.py` to trigger CI and verify success. **Logic**: Run the script generated in T030b. Verify it returns success or timeout error. Do not rely on manual triggers. **Pre-requisite**: T030b must be complete.
+- [X] T030b [P] **Implement** `code/utils/ci_trigger.py` to write a self-contained Python script that triggers the GitHub Actions workflow and polls for completion with a timeout. **Logic**: Use GitHub API to trigger workflow_dispatch, then poll `runs` endpoint every 30s until status is 'completed' or timeout (15 min) is reached. **Pre-requisite**: T030a must be complete.
+- [X] T030c [P] **Execute** `code/utils/ci_trigger.py` to trigger CI and verify success. **Logic**: Run the script generated in T030b. Verify it returns success or timeout error. Do not rely on manual triggers. **Pre-requisite**: T030b must be complete. <!-- FAILED: unspecified -->
 - [X] T033 [P] Verify `state/artifact_hashes.yaml` tracks all data and model artifacts correctly
 
 ---
