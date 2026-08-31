@@ -1,1 +1,33 @@
-[]
+- artifact_hash: 17108c20eaec5885bc3eab8dd6b56b59fa5ee80c33f6c0166584d80298a69b96
+  artifact_path: projects/PROJ-220-predicting-amine-reactivity-using-graph-/specs/001-predicting-amine-reactivity-using-graph/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: ChEMBL - ChEMBL
+  kind: url
+  value: https://www.ebi.ac.uk/chembl/`
+  verification_status: pending
+  verified_against_url: https://www.ebi.ac.uk/chembl/
+  verified_at: '2026-08-31T09:50:28.587664Z'
+- artifact_hash: 17108c20eaec5885bc3eab8dd6b56b59fa5ee80c33f6c0166584d80298a69b96
+  artifact_path: projects/PROJ-220-predicting-amine-reactivity-using-graph-/specs/001-predicting-amine-reactivity-using-graph/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Kinetics redirect
+  kind: url
+  value: https://kinetics.nist.gov/`
+  verification_status: pending
+  verified_against_url: https://kinetics.nist.gov/
+  verified_at: '2026-08-31T09:50:28.587664Z'
+- artifact_hash: 17108c20eaec5885bc3eab8dd6b56b59fa5ee80c33f6c0166584d80298a69b96
+  artifact_path: projects/PROJ-220-predicting-amine-reactivity-using-graph-/specs/001-predicting-amine-reactivity-using-graph/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: PubChem
+  kind: url
+  value: https://pubchem.ncbi.nlm.nih.gov/`
+  verification_status: pending
+  verified_against_url: https://pubchem.ncbi.nlm.nih.gov/
+  verified_at: '2026-08-31T09:50:28.587664Z'

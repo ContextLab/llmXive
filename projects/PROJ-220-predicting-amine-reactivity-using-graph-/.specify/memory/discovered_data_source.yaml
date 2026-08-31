@@ -1,0 +1,18 @@
+status: none
+intent: download SN2 amine kinetic dataset from ChEMBL PubChem python package dataset
+required_fields:
+- reaction_id
+- reactant_smiles
+- amine_class (primary_or_secondary)
+- reaction_type (SN2)
+- kinetic_value
+- kinetic_units
+- temperature_K
+- solvent
+- normalized_log_rate
+- activation_energy_Ea (optional)
+- gasteiger_partial_charges
+- pKa
+cache_key: ff6fb37bf3fc0b2601c9209ee30491f8c8119fd5c6bd55827e37a8b9e22f64d8
+searched_at: '2026-08-31T09:40:26.650213+00:00'
+retry_count: 1
