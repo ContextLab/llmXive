@@ -1,8 +1,8 @@
 # Python
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
+*.so
 .Python
 build/
 develop-eggs/
@@ -23,14 +23,16 @@ wheels/
 # Environment
 .env
 .venv
+env/
 venv/
 ENV/
 
-# Data (excluded from git, managed via checksums in state/)
-data/
-
-# State files (except .gitkeep)
+# State (exclude all yaml except .gitkeep)
 state/projects/*.yaml
+!state/projects/.gitkeep
+
+# Data (raw and processed)
+data/
 
 # IDE
 .idea/

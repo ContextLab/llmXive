@@ -1,0 +1,93 @@
+# Project Configuration for PROJ-772-testing-cosmic-ray-arrival-direction-iso
+# Generated for: Testing Cosmic Ray Arrival Direction Isotropy
+# Last Updated: 2026-06-24
+
+# --- Random Seeds ---
+# Pinned seeds for reproducibility of Monte Carlo simulations and stochastic processes.
+# All random number generators (numpy, python random) must be seeded with these values.
+random_seeds:
+  global_seed: 42
+  monte_carlo_seed: 12345
+  bootstrap_seed: 67890
+
+# --- Dataset Versions & Sources ---
+# Strictly pinned versions to ensure reproducibility.
+# No synthetic fallbacks are permitted; if these sources are unavailable, the pipeline must fail.
+datasets:
+  auger:
+    name: "Pierre Auger Open Data 2020"
+    version: "2020"
+    doi: "10.5281/zenodo.3966535"
+    zenodo_id: "3966535"
+    description: "Ultra-high-energy cosmic ray events from the Pierre Auger Observatory."
+    energy_threshold_eev: 50.0
+    exposure_map_source: "zenodo.3966535"
+    url_base: "https://zenodo.org/api/records/3966535/files/"
+  
+  telescope_array:
+    name: "Telescope Array Public Data"
+    version: "2023-01"
+    doi: "10.5281/zenodo.XXXXX" # Placeholder for actual TA DOI if different, otherwise use Zenodo ID
+    zenodo_id: "7506253" # Example ID, to be verified against actual TA release
+    description: "Ultra-high-energy cosmic ray events from the Telescope Array."
+    energy_threshold_eev: 50.0
+    exposure_map_source: "2023-01_release"
+    url_base: "https://zenodo.org/api/records/7506253/files/"
+
+# --- Path Definitions ---
+# All paths are relative to the project root (projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/)
+paths:
+  root: "."
+  data:
+    raw: "data/raw"
+    processed: "data/processed"
+    figures: "data/figures"
+  code: "code"
+  state: "state"
+  state_project_file: "state/projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso.yaml"
+  logs: "state/logs"
+  config: "code/config.yaml"
+
+# --- Analysis Parameters ---
+# Parameters governing the scientific analysis pipeline.
+analysis:
+  healpix:
+    nside: 64
+    nest: true
+  power_spectrum:
+    max_ell: 5
+    min_ell: 1
+  statistics:
+    alpha: 0.05
+    monte_carlo_simulations: 10000
+    shot_noise_subtraction: true
+  exposure:
+    method: "weighted_average"
+    combined_map_output: "data/processed/combined_exposure_map.fits"
+
+# --- Calibration & Instrumentation (Per Marie Curie Review) ---
+# Details on detector types and calibration methods used in the analysis.
+instrumentation:
+  auger:
+    detector_types:
+      - "Surface Detector (SD)"
+      - "Fluorescence Detector (FD)"
+    calibration_methods:
+      angular_resolution: "Atmospheric muon tracks for SD alignment"
+      timing: "Laser-based timing systems for FD"
+      energy_scale: "Standard candles (known cosmic ray spectrum features)"
+  telescope_array:
+    detector_types:
+      - "Surface Detector (SD)"
+      - "Fluorescence Detector (FD)"
+    calibration_methods:
+      angular_resolution: "Atmospheric muon tracks"
+      timing: "Laser facilities for atmospheric monitoring"
+      energy_scale: "Cross-calibration with Auger and standard candles"
+
+# --- Execution Limits ---
+# Constraints to ensure pipeline runs within allocated resources.
+execution:
+  max_runtime_hours: 6.0
+  max_memory_gb: 14.0
+  batch_size_monte_carlo: 1000

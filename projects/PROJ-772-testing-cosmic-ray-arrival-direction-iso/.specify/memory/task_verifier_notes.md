@@ -2,4 +2,4 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001a** — No evidence of the required directory `projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/` or its subfolders (`code/`, `data/`, `tests/`, `state/`) was provided; without a directory listing or files, we cannot confirm the artifact exists. The implementer must supply proof (e.g., a file tree screenshot or `ls` output) showing the created project root and subdirectories.
+- **T001** — The provided evidence includes only a `code/.pre-commit-config.yaml`; the required `requirements.txt` (with the exact pinned packages) is missing, as is the `.gitignore` and the overall project directory layout. Consequently the task’s specifications are not fully satisfied.

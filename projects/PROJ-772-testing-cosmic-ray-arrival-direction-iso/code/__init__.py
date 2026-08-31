@@ -1,2 +1,1 @@
-# llmXive Project: PROJ-772-testing-cosmic-ray-arrival-direction-iso
-# Code package initialization
+# PROJ-772: Testing Cosmic Ray Arrival Direction Isotropy

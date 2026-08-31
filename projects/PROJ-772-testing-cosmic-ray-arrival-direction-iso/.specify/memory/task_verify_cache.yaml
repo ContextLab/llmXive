@@ -1,7 +1,7 @@
-T001b:
+T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.gitignore` file was presented in the evidence, and therefore we cannot verify
-    that it exists or contains the required entries (`data/`, `__pycache__/`, `*.pyc`,
-    `.env`, `state/projects/*.yaml` except `.gitkeep`). The implementer must supply
-    the actual file with those exact patterns.
+  h: 329f882dd55e7c78e812fa3c22a375a23b8ef700f33081d4aea39f3c541b586e
+  r: "The provided evidence includes only a `code/.pre-commit-config.yaml`; the required\
+    \ `requirements.txt` (with the exact pinned packages) is missing, as is the `.gitignore`\
+    \ and the overall project directory layout. Consequently the task\u2019s specifications\
+    \ are not fully satisfied."

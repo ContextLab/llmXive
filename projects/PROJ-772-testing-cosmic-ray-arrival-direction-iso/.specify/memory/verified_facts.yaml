@@ -1,17 +1,5 @@
-0|healpy:
-  quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
-  source_id: pi
-  url: https://en.wikipedia.org/wiki/Pi
-  value: '3.141592653589793'
-'|healpix nside':
+'|analysi healpix map nside resolution use':
   quote: 64 for a representative dataset.
   source_id: '2608.25134'
   url: https://arxiv.org/abs/2608.25134
   value: '64'
-'|python':
-  quote: "Python 3.11 expanded exception handling functionality. Around this version,\
-    \ there has been a focus on making Python faster; 3.11 is claimed to be 10\u2013\
-    60% faster than 3.10, and 3.12 increases by an additional 5%."
-  source_id: History of Python
-  url: https://en.wikipedia.org/wiki/History_of_Python
-  value: "10\u201360%"

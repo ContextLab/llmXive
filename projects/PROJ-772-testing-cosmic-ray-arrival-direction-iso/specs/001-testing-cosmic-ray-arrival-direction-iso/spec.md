@@ -78,7 +78,7 @@ The researcher must be able to generate a substantial volume of isotropic Monte 
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The validity of the coordinate transformation is measured against the known sky coverage of the Auger and TA detectors (Reference: Detector documentation and arXiv:astro-ph/0507510).
+- **SC-001**: The validity of the coordinate transformation is measured against the known sky coverage of the Auger and TA detectors (Reference: Detector documentation and arXiv:astro-ph/XXXX.XXXXX).
 - **SC-002**: The statistical robustness of the anisotropy detection is measured against the empirical null distribution generated from a large ensemble of isotropic simulations. (Reference: Monte Carlo null distribution).
 - **SC-003**: The control of false discoveries is measured against the global p-value derived from the maximum $C_\ell$ statistic to ensure the false discovery rate is controlled at $\alpha=0.05$ (Reference: Statistical theory of global tests).
 - **SC-004**: The computational feasibility is measured against the GitHub Actions free-tier constraints (≤ 6 hours runtime, ≤ 7 GB RAM, no GPU) to ensure the pipeline completes end-to-end (Reference: CI runner specifications).
@@ -89,5 +89,5 @@ The researcher must be able to generate a substantial volume of isotropic Monte 
 - The combined dataset of events with $E > 50$ EeV contains sufficient statistics (approx. 100+ events) to compute a meaningful angular power spectrum up to $\ell=5$, but not higher, due to Poisson noise dominance at higher multipoles.
 - The exposure maps provided by the observatories are accurate and sufficient for correcting the non-uniform sky coverage without requiring additional instrumental calibration modeling.
 - The analysis assumes an observational study design; therefore, all findings regarding correlations between arrival directions and sky structure are framed as associational, not causal.
-- The "free CPU" constraint implies that the 10,000 Monte Carlo simulations will be parallelized across available cores but must complete within the 6-hour job limit.
+- The "free CPU" constraint implies that A large number of Monte Carlo simulations will be parallelized across available cores but must complete within the 6-hour job limit..
 - The global maximum statistic test is chosen over Benjamini-Hochberg to account for the correlation between adjacent multipoles in the angular power spectrum.

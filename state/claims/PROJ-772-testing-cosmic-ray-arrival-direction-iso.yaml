@@ -344,22 +344,6 @@
   updated_at: '2026-07-10T01:24:18Z'
 - artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
   attempts: 1
-  canonical: HEALPix Nside 64
-  claim_id: c_b5a9f1c8
-  context: 'Goal: Download public UHECR event catalogs from Pierre Auger and Telescope
-    Array, apply energy cut (E > 50 EeV), and convert RA/Dec to HEALPix map (Nside=64).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The analysis uses HEALPix Nside=64 for the map resolution.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-10T01:24:55Z'
-- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
-  attempts: 1
   canonical: Angular power spectrum ell 1 to 5
   claim_id: c_224d18ef
   context: "Goal: Compute angular power spectrum ($C_\ell$) for $\ell=1..5$ from HEALPix\
@@ -2069,3 +2053,673 @@
   source_type: external
   status: verified
   updated_at: '2026-08-28T22:33:45Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 0
+  canonical: Pierre Auger Open Data 2020 DOI 10.5281/zenodo.3966535
+  claim_id: c_59383371
+  context: 'Task T011 requires fetching Auger Open Data 2020 (DOI: 10.5281/zenodo.3966535)
+    and TA Public Data 2023-01 to data/raw/.'
+  evidence:
+    asserted: '2020.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: citation
+  raw_text: 'The Pierre Auger Open Data 2020 is available at DOI: 10.5281/zenodo.3966535.'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T03:27:06Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Telescope Array Public Data 2023-01 release
+  claim_id: c_1f90f9c0
+  context: Task T011 requires fetching Auger Open Data 2020 and TA Public Data 2023-01
+    to data/raw/.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Telescope Array (TA) Public Data is from the 2023-01 release.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:28:51Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Auger Open Data 2020 DOI 10.5281/zenodo.3966535
+  claim_id: c_c5ad1af3
+  context: 'Implement download_events.py to fetch Auger Open Data 2020 (DOI: 10.5281/zenodo.3966535)
+    and TA Public Data 2023-01 to data/raw/.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'The Auger Open Data 2020 is available at DOI: 10.5281/zenodo.3966535.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:29:41Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Telescope Array Public Data 2023-01 release
+  claim_id: c_7f9e59c9
+  context: 'Create code/config.yaml with pinned random seeds, dataset versions (Auger
+    DOI: 10.5281/zenodo.3966535, TA: 2023-01), and path definitions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Telescope Array Public Data 2023-01 release is used as a dataset version.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:33:39Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Pierre Auger detector types Surface and Fluorescence
+  claim_id: c_07a0fc24
+  context: Update research.md to document detector types (Pierre Auger Surface Detector
+    & Fluorescence Detector; Telescope Array Surface & Fluorescence)...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pierre_Auger_detector_types_Surface_and_Fluorescence
+  kind: entity_fact
+  raw_text: Pierre Auger Surface Detector and Fluorescence Detector are the detector
+    types used.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:33:55Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Telescope Array detector types Surface and Fluorescence
+  claim_id: c_f9bf339c
+  context: Update research.md to document detector types (Pierre Auger Surface Detector
+    & Fluorescence Detector; Telescope Array Surface & Fluorescence)...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Telescope_Array_detector_types_Surface_and_Fluorescence
+  kind: entity_fact
+  raw_text: Telescope Array Surface and Fluorescence detectors are the detector types
+    used.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:34:27Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Laser-based timing calibration method
+  claim_id: c_b6e4a23b
+  context: '...and calibration methods (laser-based timing systems, atmospheric muon
+    tracks for angular resolution, and standard candles for energy scale).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Laser-based_timing_calibration_method
+  kind: entity_fact
+  raw_text: Laser-based timing systems are used for calibration.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:36:52Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Atmospheric muon tracks angular resolution calibration
+  claim_id: c_665ff5f8
+  context: '...and calibration methods (laser-based timing systems, atmospheric muon
+    tracks for angular resolution, and standard candles for energy scale).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Atmospheric_muon_tracks_angular_resolution_calibration
+  kind: entity_fact
+  raw_text: Atmospheric muon tracks are used for angular resolution calibration.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:37:11Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Standard candles energy scale calibration
+  claim_id: c_1da15330
+  context: '...and calibration methods (laser-based timing systems, atmospheric muon
+    tracks for angular resolution, and standard candles for energy scale).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Standard_candles_energy_scale_calibration
+  kind: entity_fact
+  raw_text: Standard candles are used for energy scale calibration.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:37:22Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Statistical test confidence level alpha 0.05
+  claim_id: c_446ef4d5
+  context: Update data-model.md to explicitly define statistical test (Angular Power
+    Spectrum / Harmonic Analysis) and confidence level (alpha=0.05) for rejecting
+    isotropy.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical test for rejecting isotropy uses a confidence level of
+    alpha=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:37:28Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Angular Power Spectrum test definition
+  claim_id: c_649e4041
+  context: Update data-model.md to explicitly define statistical test (Angular Power
+    Spectrum / Harmonic Analysis) and confidence level (alpha=0.05) for rejecting
+    isotropy.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Angular_Power_Spectrum_test_definition
+  kind: entity_fact
+  raw_text: The Angular Power Spectrum test is defined as the statistical test for
+    isotropy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:39:56Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Harmonic Analysis test definition
+  claim_id: c_11ec4546
+  context: Update data-model.md to explicitly define statistical test (Angular Power
+    Spectrum / Harmonic Analysis) and confidence level (alpha=0.05) for rejecting
+    isotropy.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Harmonic_Analysis_test_definition
+  kind: entity_fact
+  raw_text: Harmonic Analysis is defined as the statistical test for isotropy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:40:47Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Monte Carlo simulations 6 hour limit 2 CPU
+  claim_id: c_b1e1fdd5
+  context: 'Critical Constraint: All Monte Carlo simulations must complete within
+    6 hours on 2-CPU CPU-only runner; optimize map2alm calls via T040 and batching
+    (T027).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete all Monte Carlo simulations within 6 hours
+    on a 2-CPU CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:41:24Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Energy cut 50 EeV
+  claim_id: c_5b974c3c
+  context: 'Goal: Download public UHECR event catalogs from Pierre Auger and Telescope
+    Array, apply energy cut (E > 50 EeV), and convert RA/Dec to HEALPix map (Nside=64).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The energy cut for event filtering is E > 50 EeV.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:41:25Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 2
+  canonical: HEALPix Nside 64
+  claim_id: c_b5a9f1c8
+  context: 'Goal: Download public UHECR event catalogs from Pierre Auger and Telescope
+    Array, apply energy cut (E > 50 EeV), and convert RA/Dec to HEALPix map (Nside=64).'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 64 for a representative dataset.
+      source_id: '2608.25134'
+      url: https://arxiv.org/abs/2608.25134
+      value: '64'
+    filled: true
+  kind: numeric
+  raw_text: The analysis uses HEALPix Nside=64 for the map resolution.
+  resolved_value: '64'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T03:42:09Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Angular power spectrum l range 1 to 5
+  claim_id: c_dfe68267
+  context: 'Goal: Compute angular power spectrum (C_l) for l=1..5 from HEALPix map,
+    using detector exposure to generate expected isotropic distribution and analyzing
+    residuals with shot-noise subtraction.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis computes the angular power spectrum for l=1 to 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:42:48Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Shot noise subtraction 1 over N total
+  claim_id: c_4a8c67b4
+  context: Implement analysis/power_spectrum.py to compute spherical-harmonic coefficients
+    a_lm from the exposure-corrected intensity map with shot-noise subtraction (1/N_tot).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The shot-noise subtraction logic uses 1/N_tot.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:43:22Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 0
+  canonical: Pierre Auger Open Data 2020 DOI 10.5281/zenodo.3966535
+  claim_id: c_4813e6f7
+  context: 'Implement download_events.py to fetch Auger Open Data 2020 (DOI: 10.5281/zenodo.3966535)
+    and TA Public Data 2023-01 to data/raw/.'
+  evidence:
+    asserted: '2020.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: citation
+  raw_text: 'The Pierre Auger Open Data 2020 is available at DOI: 10.5281/zenodo.3966535.'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T03:44:16Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Telescope Array Public Data 2023-01 release
+  claim_id: c_3fa48bd5
+  context: 'Implement download_events.py to fetch Auger Open Data 2020 (DOI: 10.5281/zenodo.3966535)
+    and TA Public Data 2023-01 to data/raw/.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Telescope Array Public Data 2023-01 release is available.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:44:58Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Auger exposure map DOI 10.5281/zenodo.3966535
+  claim_id: c_c7f6d2b1
+  context: 'Fetch pinned exposure maps (Auger and TA) to data/processed/ using official
+    exposure maps from the same release versions as the event catalogs (DOI: 10.5281/zenodo.3966535
+    for Auger, TA 2023-01 release).'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'The Auger exposure map is associated with DOI: 10.5281/zenodo.3966535.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:45:01Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Pierre Auger laser-based timing calibration
+  claim_id: c_c219e9f9
+  context: Update research.md to document detector types (Pierre Auger Surface Detector
+    & Fluorescence Detector; Telescope Array Surface & Fluorescence), and calibration
+    methods (laser-based timing systems, atmospheric muon tracks for angular resolution,
+    and standard candles for energy scale).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pierre_Auger_laser-based_timing_calibration
+  kind: entity_fact
+  raw_text: Pierre Auger uses laser-based timing systems for calibration.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:45:50Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Pierre Auger atmospheric muon tracks angular resolution
+  claim_id: c_aef41568
+  context: Update research.md to document detector types (Pierre Auger Surface Detector
+    & Fluorescence Detector; Telescope Array Surface & Fluorescence), and calibration
+    methods (laser-based timing systems, atmospheric muon tracks for angular resolution,
+    and standard candles for energy scale).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pierre_Auger_atmospheric_muon_tracks_angular_resolution
+  kind: entity_fact
+  raw_text: Pierre Auger uses atmospheric muon tracks for angular resolution calibration.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:46:26Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Pierre Auger standard candles energy scale calibration
+  claim_id: c_3a7833e7
+  context: Update research.md to document detector types (Pierre Auger Surface Detector
+    & Fluorescence Detector; Telescope Array Surface & Fluorescence), and calibration
+    methods (laser-based timing systems, atmospheric muon tracks for angular resolution,
+    and standard candles for energy scale).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pierre_Auger_standard_candles_energy_scale_calibration
+  kind: entity_fact
+  raw_text: Pierre Auger uses standard candles for energy scale calibration.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:47:14Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Pierre Auger Surface Detector
+  claim_id: c_f946c3f0
+  context: Update research.md to document detector types (Pierre Auger Surface Detector
+    & Fluorescence Detector; Telescope Array Surface & Fluorescence), and calibration
+    methods (laser-based timing systems, atmospheric muon tracks for angular resolution,
+    and standard candles for energy scale).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pierre_Auger_Surface_Detector
+  kind: entity_fact
+  raw_text: The Pierre Auger Surface Detector is a detector type used in this study.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:48:05Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Pierre Auger Fluorescence Detector
+  claim_id: c_5b1854a3
+  context: Update research.md to document detector types (Pierre Auger Surface Detector
+    & Fluorescence Detector; Telescope Array Surface & Fluorescence), and calibration
+    methods (laser-based timing systems, atmospheric muon tracks for angular resolution,
+    and standard candles for energy scale).
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: fluorescence detector
+      source_id: '1010.6162'
+      url: https://arxiv.org/abs/1010.6162
+      value: fluorescence detector
+    filled: true
+  kind: entity_fact
+  raw_text: The Pierre Auger Fluorescence Detector is a detector type used in this
+    study.
+  resolved_value: fluorescence detector
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T03:48:55Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Telescope Array Surface Detector
+  claim_id: c_2820a1c6
+  context: Update research.md to document detector types (Pierre Auger Surface Detector
+    & Fluorescence Detector; Telescope Array Surface & Fluorescence), and calibration
+    methods (laser-based timing systems, atmospheric muon tracks for angular resolution,
+    and standard candles for energy scale).
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 2. TA Surface Detector Data
+      source_id: '1403.0644'
+      url: https://arxiv.org/abs/1403.0644
+      value: Surface Detector
+    filled: true
+  kind: entity_fact
+  raw_text: The Telescope Array Surface Detector is a detector type used in this study.
+  resolved_value: Surface Detector
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T03:49:36Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Telescope Array Fluorescence Detector
+  claim_id: c_bc52dad8
+  context: Update research.md to document detector types (Pierre Auger Surface Detector
+    & Fluorescence Detector; Telescope Array Surface & Fluorescence), and calibration
+    methods (laser-based timing systems, atmospheric muon tracks for angular resolution,
+    and standard candles for energy scale).
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: divided into three sites at the periphery. The viewing directions of
+        th e 38
+      source_id: '1403.0644'
+      url: https://arxiv.org/abs/1403.0644
+      value: '38'
+    filled: true
+  kind: entity_fact
+  raw_text: The Telescope Array Fluorescence Detector is a detector type used in this
+    study.
+  resolved_value: '38'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T03:50:21Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Isotropy test confidence level alpha 0.05
+  claim_id: c_fd0e55f6
+  context: Update data-model.md to explicitly define statistical test (Angular Power
+    Spectrum / Harmonic Analysis) and confidence level ($alpha=0.05$) for rejecting
+    isotropy.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical test for isotropy uses a confidence level of alpha = 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:50:48Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Event filter energy greater than 50 EeV
+  claim_id: c_87a4f67f
+  context: 'Goal: Download public UHECR event catalogs from Pierre Auger and Telescope
+    Array, apply energy cut (E > 50 EeV), and convert RA/Dec to HEALPix map (Nside=64).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Event_filter_energy_greater_than_50_EeV
+  kind: magnitude
+  raw_text: The analysis filters events with energy greater than 50 EeV.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:51:38Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Angular Power Spectrum ell 1 to 5
+  claim_id: c_5624084d
+  context: 'Goal: Compute angular power spectrum ($C_l$) for $ell=1..5$ from HEALPix
+    map, using detector exposure to generate expected isotropic distribution and analyzing
+    residuals with shot-noise subtraction.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Angular Power Spectrum is computed for ell values from 1 to 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:52:13Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: 10000 Monte Carlo simulations required
+  claim_id: c_bb0fb97f
+  context: FR-004 explicitly requires 10,000 Monte Carlo simulations. The plan.md
+    Summary and Complexity Tracking sections currently authorize a scalable number
+    of simulations sufficient for robust statistical analysis. due to runtime constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires 10,000 Monte Carlo simulations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:52:50Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Pipeline halt if simulations exceed 5.5 hours
+  claim_id: c_b8d67bf7
+  context: 'If projected total time > 5.5 hours, the task MUST halt and output ''FEASIBILITY
+    FAILED: 10k simulations exceed 6h limit. Plan update required.'' (Do NOT proceed
+    to 1k).'
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pipeline must halt if 10,000 simulations are projected to take more
+    than 5.5 hours.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T03:52:50Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Monte Carlo simulation time limit 6 hours
+  claim_id: c_b8951994
+  context: 'Critical Constraint: All Monte Carlo simulations must complete within
+    6 hours on 2-CPU CPU-only runner; optimize map2alm calls via T040 and batching
+    (T027).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total time limit for Monte Carlo simulations is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:53:26Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Auger Open Data 2020 DOI 10.5281/zenodo.3966535
+  claim_id: c_3b2a3426
+  context: 'Task T011 instructs to fetch Auger Open Data 2020 (DOI: 10.5281/zenodo.3966535)
+    and TA Public Data 2023-01 to data/raw/.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'The Auger Open Data 2020 dataset is available at DOI: 10.5281/zenodo.3966535.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:53:43Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Telescope Array Public Data 2023-01 release
+  claim_id: c_157ed40b
+  context: Task T011 instructs to fetch Auger Open Data 2020 and TA Public Data 2023-01
+    to data/raw/.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Telescope Array Public Data 2023-01 release is referenced as TA 2023-01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T03:54:24Z'
