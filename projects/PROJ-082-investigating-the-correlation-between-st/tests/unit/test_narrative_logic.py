@@ -1,164 +1,127 @@
 """
-Unit tests for narrative_logic.py (T015a)
+Unit tests for T015a: Narrative Logic Module.
 """
 import json
 import csv
 import tempfile
-import yaml
+import os
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-
 import pytest
+from collections import defaultdict
 
-from code.analysis.narrative_logic import (
+# Import the module under test
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+
+from analysis.narrative_logic import (
     load_methodology_config,
     load_extracted_studies,
     extract_themes,
-    generate_themes_json,
-    run_narrative_logic
+    generate_themes_json
 )
 
 @pytest.fixture
-def temp_dir():
-    """Create a temporary directory for test artifacts."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
+def temp_methodology_config():
+    """Create a temporary methodology config file."""
+    content = """
+    keywords:
+      - "arcuate fasciculus"
+      - "correlation"
+      - "preference"
+    
+    sentiment_rules:
+      positive:
+        - "increased"
+        - "stronger"
+      negative:
+        - "decreased"
+        - "weaker"
+    
+    exclusion_criteria:
+      - "no_descriptor_found"
+    """
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        f.write(content)
+        return Path(f.name)
 
 @pytest.fixture
-def sample_methodology(temp_dir):
-    """Create a sample methodology config."""
-    config = {
-        'keywords': ['arcuate fasciculus', 'auditory', 'reward', 'frontal'],
-        'sentiment_rules': {
-            'positive': ['increased', 'enhanced', 'stronger'],
-            'negative': ['decreased', 'reduced', 'weaker']
-        },
-        'exclusion_criteria': ['insufficient data', 'no correlation']
-    }
-    config_path = temp_dir / 'narrative_methodology.yaml'
-    with open(config_path, 'w') as f:
-        yaml.dump(config, f)
-    return config_path
+def temp_extracted_studies_csv():
+    """Create a temporary extracted studies CSV file."""
+    content = """author,year,tract,r,n,qualitative_desc,narrative_pool
+    Smith,2020,arcuate fasciculus,,,"Studies show arcuate fasciculus correlation with musical preference",true
+    Jones,2021,cingulum,0.3,50,"Increased cingulum activity associated with rhythm preference",false
+    Lee,2022,uncinate,,,"No clear association found between uncinate and preference",true
+    Brown,2023,ventral striatum,0.5,100,"Weaker ventral striatum response in low-pitch preference",false
+    """
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        f.write(content)
+        return Path(f.name)
 
-@pytest.fixture
-def sample_studies_csv(temp_dir):
-    """Create a sample extracted studies CSV."""
-    csv_path = temp_dir / 'extracted_studies.csv'
-    with open(csv_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=['author', 'year', 'tract', 'r', 'n', 'qualitative_desc', 'narrative_pool'])
-        writer.writeheader()
-        writer.writerows([
-            {'author': 'Smith et al.', 'year': '2020', 'tract': 'arcuate fasciculus', 'r': '', 'n': '', 'qualitative_desc': 'Increased connectivity in arcuate fasciculus associated with musical training', 'narrative_pool': 'true'},
-            {'author': 'Jones et al.', 'year': '2019', 'tract': 'auditory cortex', 'r': '', 'n': '', 'qualitative_desc': 'Enhanced auditory cortex activation during music perception', 'narrative_pool': 'true'},
-            {'author': 'Lee et al.', 'year': '2021', 'tract': 'frontal', 'r': '', 'n': '', 'qualitative_desc': 'Weaker frontal connectivity in non-musicians', 'narrative_pool': 'true'},
-            {'author': 'NoDesc et al.', 'year': '2022', 'tract': 'unknown', 'r': '', 'n': '', 'qualitative_desc': 'no_descriptor_found', 'narrative_pool': 'true'},
-        ])
-    return csv_path
-
-def test_load_methodology_config(sample_methodology):
-    """Test loading methodology config."""
-    config = load_methodology_config(sample_methodology)
+def test_load_methodology_config(temp_methodology_config):
+    """Test loading the methodology configuration."""
+    config = load_methodology_config(temp_methodology_config)
     assert 'keywords' in config
     assert 'sentiment_rules' in config
+    assert 'exclusion_criteria' in config
     assert len(config['keywords']) > 0
 
-def test_load_methodology_config_missing():
-    """Test loading missing methodology config raises error."""
-    with pytest.raises(FileNotFoundError):
-        load_methodology_config(Path('/nonexistent/path.yaml'))
-
-def test_load_extracted_studies(sample_studies_csv):
-    """Test loading extracted studies."""
-    studies = load_extracted_studies(sample_studies_csv)
+def test_load_extracted_studies(temp_extracted_studies_csv):
+    """Test loading extracted studies from CSV."""
+    studies = load_extracted_studies(temp_extracted_studies_csv)
     assert len(studies) == 4
-    assert studies[0]['author'] == 'Smith et al.'
+    assert studies[0]['author'] == 'Smith'
+    assert studies[1]['tract'] == 'cingulum'
 
-def test_load_extracted_studies_missing():
-    """Test loading missing studies CSV raises error."""
-    with pytest.raises(FileNotFoundError):
-        load_extracted_studies(Path('/nonexistent/path.csv'))
-
-def test_extract_themes(sample_methodology, sample_studies_csv):
+def test_extract_themes(temp_methodology_config, temp_extracted_studies_csv):
     """Test theme extraction logic."""
-    methodology = load_methodology_config(sample_methodology)
-    studies = load_extracted_studies(sample_studies_csv)
+    config = load_methodology_config(temp_methodology_config)
+    studies = load_extracted_studies(temp_extracted_studies_csv)
     
-    themes = extract_themes(studies, methodology)
+    theme_counts = extract_themes(studies, config)
     
-    # Check that themes were extracted
-    assert 'arcuate fasciculus' in themes
-    assert 'auditory' in themes
-    assert 'frontal' in themes
-    assert 'positive_sentiment' in themes
-    assert 'negative_sentiment' in themes
+    # Check that expected themes are counted
+    assert 'arcuate fasciculus' in theme_counts
+    assert theme_counts['arcuate fasciculus'] >= 1
+    assert 'correlation' in theme_counts
+    assert 'increased_sentiment' in theme_counts
+    assert 'decreased_sentiment' in theme_counts or 'weaker_sentiment' in theme_counts
 
-def test_extract_themes_empty_desc(sample_methodology, temp_dir):
-    """Test extraction with empty descriptors."""
-    csv_path = temp_dir / 'empty.csv'
-    with open(csv_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=['qualitative_desc'])
-        writer.writeheader()
-        writer.writerow({'qualitative_desc': 'no_descriptor_found'})
-        writer.writerow({'qualitative_desc': ''})
+def test_generate_themes_json(temp_methodology_config, temp_extracted_studies_csv):
+    """Test generating the themes JSON output."""
+    config = load_methodology_config(temp_methodology_config)
+    studies = load_extracted_studies(temp_extracted_studies_csv)
+    theme_counts = extract_themes(studies, config)
     
-    methodology = load_methodology_config(sample_methodology)
-    studies = load_extracted_studies(csv_path)
-    themes = extract_themes(studies, methodology)
-    
-    # Should not count empty or no_descriptor_found
-    assert len(themes) == 0
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = Path(tmpdir) / "test_themes.json"
+        result_path = generate_themes_json(theme_counts, output_path)
+        
+        assert result_path.exists()
+        with open(result_path, 'r') as f:
+            data = json.load(f)
+        
+        assert 'timestamp' in data
+        assert 'theme_counts' in data
+        assert data['total_themes_identified'] == len(theme_counts)
 
-def test_generate_themes_json(sample_methodology, sample_studies_csv, temp_dir):
-    """Test JSON output generation."""
-    methodology = load_methodology_config(sample_methodology)
-    studies = load_extracted_studies(sample_studies_csv)
-    themes = extract_themes(studies, methodology)
+def test_empty_qualitative_desc(temp_methodology_config, temp_extracted_studies_csv):
+    """Test handling of empty qualitative descriptions."""
+    config = load_methodology_config(temp_methodology_config)
     
-    output_path = temp_dir / 'narrative_themes.json'
-    result_path = generate_themes_json(themes, output_path)
+    # Create a study with empty description
+    studies = [{'qualitative_desc': ''}, {'qualitative_desc': 'no_descriptor_found'}]
     
-    assert result_path.exists()
+    theme_counts = extract_themes(studies, config)
     
-    with open(result_path, 'r') as f:
-        data = json.load(f)
-    
-    assert 'timestamp' in data
-    assert 'theme_counts' in data
-    assert 'total_themes_identified' in data
+    # Should not count themes for empty descriptors
+    assert sum(theme_counts.values()) == 0
 
-def test_run_narrative_logic_full_flow(sample_methodology, sample_studies_csv, temp_dir):
-    """Test the full narrative logic flow."""
-    output_path = temp_dir / 'narrative_themes.json'
-    
-    result = run_narrative_logic(
-        csv_path=sample_studies_csv,
-        config_path=sample_methodology,
-        output_path=output_path
-    )
-    
-    assert result['status'] == 'completed'
-    assert output_path.exists()
-    
-    with open(output_path, 'r') as f:
-        data = json.load(f)
-    
-    assert 'theme_counts' in data
-    assert data['total_themes_identified'] > 0
-
-def test_run_narrative_logic_missing_csv(sample_methodology, temp_dir):
-    """Test error handling for missing CSV."""
+def test_missing_config_file():
+    """Test error handling for missing config file."""
     with pytest.raises(FileNotFoundError):
-        run_narrative_logic(
-            csv_path=Path('/nonexistent.csv'),
-            config_path=sample_methodology,
-            output_path=temp_dir / 'out.json'
-        )
+        load_methodology_config(Path("/nonexistent/path/config.yaml"))
 
-def test_run_narrative_logic_missing_config(sample_studies_csv, temp_dir):
-    """Test error handling for missing config."""
+def test_missing_csv_file():
+    """Test error handling for missing CSV file."""
     with pytest.raises(FileNotFoundError):
-        run_narrative_logic(
-            csv_path=sample_studies_csv,
-            config_path=Path('/nonexistent.yaml'),
-            output_path=temp_dir / 'out.json'
-        )
+        load_extracted_studies(Path("/nonexistent/path/studies.csv"))

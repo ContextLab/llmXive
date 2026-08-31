@@ -1,17 +1,14 @@
 status: none
-intent: Neurosynth diffusion MRI white matter music preference correlation dataset
-  python package dataset
+intent: UK Biobank diffusion MRI FA MD music preference dataset python package dataset
 required_fields:
-- study_id
-- author
-- year
-- tract_region
-- diffusion_metric
-- music_preference_score
 - correlation_coefficient_r
-- sample_size_n
 - t_value
 - f_statistic
-cache_key: 8018c6cb6d4ab07c71e1193b9b9f38bae6dd796d255bb65ae566bb93d2ad03af
-searched_at: '2026-08-29T09:46:40.024321+00:00'
+- sample_size_n
+- tract_identifier
+- diffusion_metric
+- music_preference_score
+- study_id
+cache_key: 5662ee1e75ebe88b1e38dca2a3725df71cef83cf5a6363a12cecd9938d0cf1df
+searched_at: '2026-08-31T11:25:49.588189+00:00'
 retry_count: 1

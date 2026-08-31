@@ -1,166 +1,105 @@
 """
-code/visualization/plots_funnel.py
-Generates the Funnel Plot for publication bias visualization.
-Plots Standard Error (Y) vs Effect Size (X) with a symmetry line at the pooled effect.
+Funnel Plot Generator (Task T025).
+Generates a funnel plot to assess publication bias.
 """
 import json
-import math
-import sys
 import logging
+import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import List, Dict, Any, Optional
 
+# Add project root to path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 
-try:
-    from visualization.memory_monitor import check_memory_usage
-    MEMORY_MONITOR_AVAILABLE = True
-except ImportError:
-    MEMORY_MONITOR_AVAILABLE = False
+from utils.config import get_project_root, ensure_directory
 
-def get_project_root() -> Path:
-    """Determine the project root directory."""
-    current = Path(__file__).resolve()
-    if "code" in current.parts:
-        return current.parents[1]
-    return current.parent.parent
+logger = logging.getLogger(__name__)
 
-def load_analysis_results() -> Dict[str, Any]:
-    """Load results from data/derived/results.json."""
-    root = get_project_root()
-    path = root / "data" / "derived" / "results.json"
-    if not path.exists():
-        raise FileNotFoundError(f"Missing results file: {path}")
-    with open(path, "r") as f:
+RESULTS_PATH = "data/derived/results.json"
+OUTPUT_PATH = "data/derived/funnel_plot.png"
+META_STATUS_PATH = "data/processed/meta_status.json"
+
+def load_json(path: str) -> Optional[Dict[str, Any]]:
+    full_path = get_project_root() / path
+    if not full_path.exists():
+        return None
+    with open(full_path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def load_effect_sizes_for_plotting(data: Dict[str, Any]) -> Tuple[List[float], List[float]]:
-    """Extract effect sizes (r) and standard errors (se) from the results JSON."""
-    studies = data.get("studies", [])
-    r_values = []
-    se_values = []
+def generate_funnel_plot(results: Dict[str, Any]) -> None:
+    """
+    Generate a funnel plot.
+    X-axis: Effect Size (r)
+    Y-axis: Standard Error (or Precision 1/SE)
+    """
+    if not results or "studies" not in results:
+        logger.warning("No studies found. Generating empty funnel plot.")
+        studies = []
+    else:
+        studies = results["studies"]
 
-    for s in studies:
-        if isinstance(s, dict):
-            r = s.get("r")
-            se = s.get("se")
-            # Ensure we have valid numeric data
-            if r is not None and se is not None:
-                try:
-                    r_val = float(r)
-                    se_val = float(se)
-                    if not math.isnan(r_val) and not math.isinf(r_val) and se_val > 0:
-                        r_values.append(r_val)
-                        se_values.append(se_val)
-                except (ValueError, TypeError):
-                    continue
+    r_values = [s.get("r", 0) for s in studies]
+    se_values = [s.get("se", 0.1) for s in studies]
 
-    return r_values, se_values
+    fig, ax = plt.subplots(figsize=(8, 8))
 
-def calculate_pooled_effect(r_values: List[float], se_values: List[float]) -> float:
-    """Calculate weighted pooled effect size (inverse variance weighting)."""
-    if not r_values or not se_values:
-        return 0.0
-    
-    # Inverse variance weights: w = 1 / se^2
-    weights = [1.0 / (se ** 2) for se in se_values]
-    total_weight = sum(weights)
-    
-    if total_weight == 0:
-        return np.mean(r_values)
-    
-    weighted_sum = sum(r * w for r, w in zip(r_values, weights))
-    return weighted_sum / total_weight
-
-def create_funnel_plot(r_values: List[float], se_values: List[float], 
-                       pooled_effect: float) -> None:
-    """Create and save the funnel plot to data/derived/funnel_plot.png."""
-    n = len(r_values)
-    if n == 0:
-        logging.warning("No studies to plot for funnel plot.")
-        return
-
-    if MEMORY_MONITOR_AVAILABLE:
-        check_memory_usage("Funnel Plot Generation")
-
-    plt.figure(figsize=(8, 8))
-    
-    # Convert to numpy arrays for plotting
-    se_arr = np.array(se_values)
-    r_arr = np.array(r_values)
-
-    # Plot points: Effect Size (X) vs Standard Error (Y)
-    plt.scatter(r_arr, se_arr, alpha=0.6, edgecolors='k', label='Studies', zorder=2)
-
-    # Plot vertical symmetry line at pooled effect
-    plt.axvline(x=pooled_effect, color='red', linestyle='--', linewidth=2, 
-                label=f'Pooled Effect ({pooled_effect:.3f})', zorder=3)
-
-    # Add pseudo-confidence limits (funnel shape)
-    # Calculate 95% CI bounds: pooled ± 1.96 * SE
-    se_min = min(se_arr)
-    se_max = max(se_arr)
-    se_range = np.linspace(se_min, se_max, 100)
-    
-    z = 1.96
-    upper_bound = pooled_effect + z * se_range
-    lower_bound = pooled_effect - z * se_range
-
-    plt.plot(upper_bound, se_range, 'r--', alpha=0.5, linewidth=1, zorder=1, label='95% CI')
-    plt.plot(lower_bound, se_range, 'r--', alpha=0.5, linewidth=1, zorder=1)
-
-    plt.xlabel('Effect Size (r)', fontsize=12)
-    plt.ylabel('Standard Error', fontsize=12)
-    plt.title('Funnel Plot: Publication Bias Assessment', fontsize=14)
-    plt.legend(loc='upper right')
-    plt.grid(True, linestyle=':', alpha=0.3)
-    
-    # Invert Y axis so smaller SE (more precise) is at the top
-    plt.gca().invert_yaxis()
+    if studies:
+        # Calculate pseudo 95% confidence limits
+        # Using the pooled effect if available, otherwise 0
+        pooled_effect = results.get("pooled_effect", 0)
+        
+        max_se = max(se_values) * 1.1 if se_values else 0.5
+        
+        # Generate lines for 95% CI
+        se_range = np.linspace(0, max_se, 100)
+        upper = pooled_effect + 1.96 * se_range
+        lower = pooled_effect - 1.96 * se_range
+        
+        ax.fill_betweenx(se_range, lower, upper, color='gray', alpha=0.2, label='95% CI')
+        ax.axhline(y=0, color='black', linewidth=1) # X-axis (SE=0)
+        ax.axvline(x=pooled_effect, color='red', linestyle='--', linewidth=1, label='Pooled Effect')
+        
+        # Plot studies
+        ax.scatter(r_values, se_values, color='blue', alpha=0.7, s=50, zorder=5)
+        
+        ax.set_xlabel("Effect Size (r)")
+        ax.set_ylabel("Standard Error")
+        ax.set_title("Funnel Plot")
+        ax.legend(loc='upper right')
+    else:
+        ax.text(0.5, 0.5, "No studies available for funnel plot", 
+                transform=ax.transAxes, ha='center', va='center', fontsize=14)
+        ax.set_xlim(-1, 1)
+        ax.set_ylim(0, 1)
+        ax.axis('off')
 
     plt.tight_layout()
-
-    root = get_project_root()
-    output_dir = root / "data" / "derived"
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / "funnel_plot.png"
-    
-    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    output_file = get_project_root() / OUTPUT_PATH
+    ensure_directory(output_file)
+    plt.savefig(output_file, dpi=150, bbox_inches='tight')
     plt.close()
-    
-    logging.info(f"Funnel plot saved to {output_path}")
+    logger.info(f"Funnel plot saved to {output_file}")
 
-def run_funnel_plot_generation() -> Dict[str, Any]:
-    """Main entry point for funnel plot generation."""
-    try:
-        data = load_analysis_results()
-    except FileNotFoundError as e:
-        return {"status": "error", "reason": f"Results file not found: {e}"}
-
-    # Check if we are in narrative mode (no quantitative data to plot)
-    if data.get("synthesis_mode") == "narrative":
-        return {"status": "skipped", "reason": "Meta-analysis skipped (narrative mode)"}
-
-    r_values, se_values = load_effect_sizes_for_plotting(data)
-
-    if not r_values:
-        return {"status": "error", "reason": "No valid effect sizes found for plotting"}
-
-    pooled_effect = calculate_pooled_effect(r_values, se_values)
-
-    try:
-        create_funnel_plot(r_values, se_values, pooled_effect)
-        return {"status": "completed", "output": "data/derived/funnel_plot.png"}
-    except Exception as e:
-        logging.error(f"Error generating funnel plot: {e}", exc_info=True)
-        return {"status": "error", "reason": str(e)}
-
-def main():
+def main() -> int:
     """CLI entry point."""
-    result = run_funnel_plot_generation()
-    print(json.dumps(result, indent=2))
-    sys.exit(0 if result.get("status") == "completed" else 1)
+    logging.basicConfig(level=logging.INFO)
+    
+    meta_status = load_json(META_STATUS_PATH)
+    if not meta_status or meta_status.get("status") != "completed":
+        logger.warning("Meta-analysis not completed. Skipping funnel plot.")
+        generate_funnel_plot({})
+        return 0
+
+    results = load_json(RESULTS_PATH)
+    generate_funnel_plot(results)
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

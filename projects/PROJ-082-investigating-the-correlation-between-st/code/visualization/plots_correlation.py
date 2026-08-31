@@ -1,176 +1,117 @@
 """
-code/visualization/plots_correlation.py
-Generates the Correlation Summary Plot.
-
-This module creates a bar chart visualizing the correlation coefficients (r-values)
-for different structural brain tracts found in the meta-analysis results.
+Correlation Summary Plot Generator (Task T026).
+Visualizes the distribution of correlation coefficients by tract.
 """
 import json
-import math
-import sys
 import logging
+import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import List, Dict, Any, Optional
 
+# Add project root to path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 
-try:
-    from visualization.memory_monitor import check_memory_usage
-    MEMORY_MONITOR_AVAILABLE = True
-except ImportError:
-    MEMORY_MONITOR_AVAILABLE = False
+from utils.config import get_project_root, ensure_directory
 
-# Configure logging for this module
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-def get_project_root() -> Path:
-    """Determine the project root directory."""
-    current = Path(__file__).resolve()
-    # Navigate up from code/visualization/ to the root
-    if "code" in current.parts:
-        return current.parents[1]
-    return current.parent.parent
+RESULTS_PATH = "data/derived/results.json"
+EXTRACTED_PATH = "data/processed/extracted_studies.csv"
+OUTPUT_PATH = "data/derived/correlation_summary.png"
+META_STATUS_PATH = "data/processed/meta_status.json"
 
-def load_analysis_results() -> Dict[str, Any]:
-    """Load results from data/derived/results.json."""
-    root = get_project_root()
-    path = root / "data" / "derived" / "results.json"
-    if not path.exists():
-        raise FileNotFoundError(f"Missing results file: {path}")
-    with open(path, "r") as f:
+def load_json(path: str) -> Optional[Dict[str, Any]]:
+    full_path = get_project_root() / path
+    if not full_path.exists():
+        return None
+    with open(full_path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def load_effect_sizes_for_plotting(data: Dict[str, Any]) -> Tuple[List[float], List[str]]:
-    """
-    Extract effect sizes (r) and tract names from the results data.
-    
-    Returns:
-        Tuple of (list of r values, list of tract names)
-    """
-    studies = data.get("studies", [])
-    r_values = []
-    tracts = []
+def load_csv(path: str) -> List[Dict[str, Any]]:
+    import csv
+    full_path = get_project_root() / path
+    if not full_path.exists():
+        return []
+    with open(full_path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        return list(reader)
 
-    for s in studies:
-        if isinstance(s, dict):
-            r = s.get("r")
-            tract = s.get("tract", "Unknown")
-            if r is not None and not math.isnan(r) if isinstance(r, float) else True:
-                try:
-                    r_val = float(r)
-                    if not math.isnan(r_val) and not math.isinf(r_val):
-                        r_values.append(r_val)
-                        tracts.append(str(tract))
-                except (ValueError, TypeError):
-                    continue
-
-    return r_values, tracts
-
-def create_correlation_summary_plot(r_values: List[float], tracts: List[str]) -> None:
+def generate_correlation_summary(results: Dict[str, Any], studies: List[Dict[str, Any]]) -> None:
     """
-    Create and save the correlation summary plot.
-    
-    Generates a bar chart sorted by effect size, with labels and a zero line.
-    Saves the output to data/derived/correlation_summary.png.
+    Generate a summary plot of correlations by tract.
     """
-    n = len(r_values)
-    if n == 0:
-        logging.warning("No studies with valid effect sizes to plot")
-        # Create an empty placeholder plot to satisfy file existence checks
-        plt.figure(figsize=(10, 6))
-        plt.text(0.5, 0.5, 'No valid data for Correlation Summary Plot', 
-                transform=plt.gca().transAxes, ha='center', va='center')
-        plt.title('Correlation Summary: Structural Connectivity vs Music Preferences')
-        plt.tight_layout()
+    # Group by tract
+    tract_data = {}
+    for study in studies:
+        tract = study.get("tract", "Unknown")
+        r_val = study.get("r")
+        if r_val is not None:
+            try:
+                r_val = float(r_val)
+                if tract not in tract_data:
+                    tract_data[tract] = []
+                tract_data[tract].append(r_val)
+            except (ValueError, TypeError):
+                continue
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    if tract_data:
+        tracts = list(tract_data.keys())
+        means = []
+        errors = []
+        
+        for tract in tracts:
+            vals = tract_data[tract]
+            means.append(np.mean(vals))
+            errors.append(np.std(vals) / np.sqrt(len(vals)) if len(vals) > 1 else 0.1)
+        
+        y_pos = np.arange(len(tracts))
+        ax.barh(y_pos, means, xerr=errors, align='center', alpha=0.7, ecolor='black', capsize=3)
+        ax.set_yticks(y_pos)
+        ax.set_yticklabels(tracts)
+        ax.set_xlabel("Mean Correlation Coefficient (r)")
+        ax.set_title("Correlation Summary by Brain Tract")
+        ax.axvline(x=0, color='red', linestyle='--', linewidth=1)
+        
+        # Add count labels
+        for i, (tract, vals) in enumerate(tract_data.items()):
+            ax.text(max(means) + 0.05, i, f"n={len(vals)}", va='center', fontsize=9)
     else:
-        if MEMORY_MONITOR_AVAILABLE:
-            check_memory_usage("Correlation Summary Plot Generation")
+        ax.text(0.5, 0.5, "No valid correlation data found", 
+                transform=ax.transAxes, ha='center', va='center', fontsize=14)
+        ax.set_xlim(-1, 1)
+        ax.set_ylim(0, 1)
+        ax.axis('off')
 
-        plt.figure(figsize=(10, 6))
-        
-        # Sort by effect size for better visualization
-        sorted_indices = np.argsort(r_values)
-        sorted_r = np.array(r_values)[sorted_indices]
-        sorted_tracts = np.array(tracts)[sorted_indices]
-
-        # Bar plot
-        x_pos = np.arange(n)
-        # Use a color map that distinguishes positive and negative correlations
-        colors = [plt.cm.RdYlBu_r((val + 1) / 2) for val in sorted_r]
-        
-        bars = plt.bar(x_pos, sorted_r, color=colors, edgecolor='black', alpha=0.8)
-        
-        # Add value labels on bars
-        for i, (bar, val) in enumerate(zip(bars, sorted_r)):
-            height = bar.get_height()
-            # Adjust text position based on bar direction
-            y_pos = height + 0.01 if height >= 0 else height - 0.02
-            plt.text(bar.get_x() + bar.get_width()/2., y_pos,
-                     f'{val:.2f}', ha='center', va='bottom' if height >= 0 else 'top', fontsize=8)
-
-        plt.xticks(x_pos, sorted_tracts, rotation=45, ha='right', fontsize=8)
-        plt.xlabel('Tract', fontsize=10)
-        plt.ylabel('Correlation Coefficient (r)', fontsize=10)
-        plt.title('Correlation Summary: Structural Connectivity vs Music Preferences', fontsize=12)
-        plt.axhline(y=0, color='black', linestyle='-', linewidth=0.5)
-        plt.grid(axis='y', linestyle=':', alpha=0.3)
-        
-        plt.tight_layout()
-
-    root = get_project_root()
-    output_path = root / "data" / "derived" / "correlation_summary.png"
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    plt.tight_layout()
+    output_file = get_project_root() / OUTPUT_PATH
+    ensure_directory(output_file)
+    plt.savefig(output_file, dpi=150, bbox_inches='tight')
     plt.close()
-    
-    logging.info(f"Correlation summary plot saved to {output_path}")
+    logger.info(f"Correlation summary plot saved to {output_file}")
 
-def run_correlation_plot_generation() -> Dict[str, Any]:
-    """
-    Main entry point for correlation summary plot generation.
-    
-    Returns:
-        Dictionary with status and output path or error reason.
-    """
-    try:
-        data = load_analysis_results()
-    except FileNotFoundError as e:
-        logging.error(f"Failed to load results: {e}")
-        return {"status": "error", "reason": str(e)}
-
-    # Check if we are in narrative mode (no quantitative results to plot)
-    if data.get("synthesis_mode") == "narrative":
-        logging.info("Skipping plot generation: synthesis mode is narrative")
-        return {"status": "skipped", "reason": "Meta-analysis skipped (narrative mode)"}
-
-    r_values, tracts = load_effect_sizes_for_plotting(data)
-
-    if not r_values:
-        logging.warning("No valid effect sizes found for plotting")
-        # Still generate an empty plot to satisfy file existence requirements
-        try:
-            create_correlation_summary_plot([], [])
-            return {"status": "completed", "output": "data/derived/correlation_summary.png", "note": "Empty plot generated due to no data"}
-        except Exception as e:
-            return {"status": "error", "reason": f"Failed to generate empty plot: {str(e)}"}
-
-    try:
-        create_correlation_summary_plot(r_values, tracts)
-        return {"status": "completed", "output": "data/derived/correlation_summary.png"}
-    except Exception as e:
-        logging.error(f"Error during plot generation: {e}")
-        return {"status": "error", "reason": str(e)}
-
-def main():
+def main() -> int:
     """CLI entry point."""
-    result = run_correlation_plot_generation()
-    print(json.dumps(result, indent=2))
-    sys.exit(0 if result["status"] in ["completed", "skipped"] else 1)
+    logging.basicConfig(level=logging.INFO)
+    
+    meta_status = load_json(META_STATUS_PATH)
+    if not meta_status or meta_status.get("status") != "completed":
+        logger.warning("Meta-analysis not completed. Skipping correlation plot.")
+        generate_correlation_summary({}, [])
+        return 0
+
+    results = load_json(RESULTS_PATH)
+    studies = load_csv(EXTRACTED_PATH)
+    generate_correlation_summary(results, studies)
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

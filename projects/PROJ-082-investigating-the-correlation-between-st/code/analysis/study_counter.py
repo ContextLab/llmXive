@@ -1,10 +1,8 @@
 """
-Study Counter Module (T014a)
+Study Counter (Task T014a).
 
-Reads the extracted studies CSV produced by T013, counts unique (Author, Year) pairs,
-and writes the result to data/processed/study_count.json.
-
-This task MUST run regardless of the value of N.
+Counts unique (author, year) pairs in extracted_studies.csv.
+Output: data/processed/study_count.json
 """
 import csv
 import json
@@ -13,130 +11,43 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Set, Tuple
 
-# Import local utilities from the project structure
-# Matching API surface: from utils.config import get_project_root
-from utils.logger import get_logger
-from utils.config import get_project_root
-
-logger = get_logger(__name__)
-
-# Relative paths from project root
-INPUT_FILE = "data/processed/extracted_studies.csv"
-OUTPUT_FILE = "data/processed/study_count.json"
-
-def load_extracted_studies(input_path: Path) -> List[Dict[str, Any]]:
-    """
-    Load the extracted studies CSV file.
-
-    Args:
-        input_path: Path to the CSV file.
-
-    Returns:
-        List of study dictionaries.
-
-    Raises:
-        FileNotFoundError: If the input file does not exist.
-    """
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-
-    studies = []
-    try:
-        with open(input_path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                studies.append(row)
-    except Exception as e:
-        logger.error(f"Failed to read CSV {input_path}: {e}")
-        raise
-
-    if not studies:
-        logger.warning(f"Input file {input_path} is empty. Returning 0 studies.")
-
-    return studies
+def load_extracted_studies(path: Path) -> List[Dict[str, Any]]:
+    if not path.exists():
+        return []
+    with open(path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        return list(reader)
 
 def count_unique_studies(studies: List[Dict[str, Any]]) -> int:
-    """
-    Count unique (Author, Year) pairs from the list of studies.
-
-    Args:
-        studies: List of study dictionaries.
-
-    Returns:
-        The count of unique studies.
-    """
-    unique_pairs: Set[Tuple[str, str]] = set()
-
+    unique_keys: Set[Tuple[str, str]] = set()
     for study in studies:
-        # Handle potential missing keys gracefully
-        # The parser produces 'Author' and 'Year' columns
-        author = study.get('Author', '').strip()
-        year = study.get('Year', '').strip()
+        author = study.get('author', '').strip()
+        year = study.get('year', '').strip()
+        if author and year:
+            unique_keys.add((author, year))
+    return len(unique_keys)
 
-        if not author:
-            logger.warning(f"Skipping study with missing Author: {study}")
-            continue
-
-        if not year:
-            logger.warning(f"Skipping study with missing Year: {study}")
-            continue
-
-        unique_pairs.add((author, year))
-
-    return len(unique_pairs)
-
-def save_study_count(n: int, output_path: Path) -> None:
-    """
-    Save the study count to a JSON file.
-
-    Args:
-        n: The count of unique studies.
-        output_path: Path to the output JSON file.
-    """
-    result = {"N": n}
-
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(result, f, indent=2)
-
-    logger.info(f"Saved study count: N={n} to {output_path}")
+def save_study_count(count: int, path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump({"N": count}, f, indent=2)
 
 def run_study_counter() -> int:
-    """
-    Main execution logic for the study counter.
-
-    Returns:
-        The calculated study count N.
-    """
-    root = get_project_root()
-    input_path = root / INPUT_FILE
-    output_path = root / OUTPUT_FILE
-
-    logger.info(f"Starting study counter. Input: {input_path}")
-
-    # Load data
+    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+    logger = logging.getLogger("study_counter")
+    
+    input_path = Path(__file__).resolve().parent.parent.parent / "data" / "processed" / "extracted_studies.csv"
+    output_path = Path(__file__).resolve().parent.parent.parent / "data" / "processed" / "study_count.json"
+    
     studies = load_extracted_studies(input_path)
+    N = count_unique_studies(studies)
+    
+    save_study_count(N, output_path)
+    logger.info(f"Unique studies counted: {N}")
+    return 0
 
-    # Count unique studies
-    n = count_unique_studies(studies)
-
-    # Save result
-    save_study_count(n, output_path)
-
-    return n
-
-def main() -> None:
-    """Entry point for the study counter script."""
-    try:
-        n = run_study_counter()
-        print(f"Study count completed. N = {n}")
-        sys.exit(0)
-    except Exception as e:
-        logger.error(f"Study counter failed: {e}")
-        print(f"Error: {e}")
-        sys.exit(1)
+def main() -> int:
+    return run_study_counter()
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

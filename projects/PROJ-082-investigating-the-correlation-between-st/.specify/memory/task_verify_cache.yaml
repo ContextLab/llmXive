@@ -22,6 +22,14 @@ T007c:
     the required tract names and verbs, but the required output file `data/config/tract_lexicon.yaml`
     does not exist on disk. The task demands that this YAML file be generated; its
     absence means the requirement is not satisfied.
+T008c:
+  c: true
+  h: 79244be024988f910d827f8e0099eaee77738fe1576c66011e346863aa65ff48
+  r: "The `code/analysis/tract_counter.py` script exists, is non\u2011empty, and correctly\
+    \ implements reading `data/processed/extracted_studies.csv`, counting distinct\
+    \ `tract_name` values, writing `data/derived/tract_count.json` as `{\"k\": count}`,\
+    \ and handling a missing input file by writing `{\"k\": 0}` with a warning. No\
+    \ further artifacts are required for the implementation task."
 T009:
   c: false
   h: c37ffdb325a41094c96a6b5b31da187c46df27d744abd0641d30c1217a060cb9
@@ -39,20 +47,44 @@ T014:
     \ file does not exist, so the gate\u2011logic cannot be satisfied. The implementation\
     \ therefore does not meet the task\u2019s specifications."
 T014a:
+  c: true
+  h: 2ce17ddaefcc9299b78a82e3e3c089be8df49d4f6787a2042a8ec6cfe4967df4
+  r: 'The repository contains a fully implemented `code/analysis/study_counter.py`
+    that reads `extracted_studies.csv`, counts unique (author, year) pairs, and writes
+    the result as `{"N": <count>}` to `data/processed/study_count.json`, handling
+    missing or empty input by outputting `{"N": 0}`. No placeholder or missing functionality
+    is evident.'
+T015b:
   c: false
-  h: 0ac75a41101dd63ec690247cf463efc42e2871caaf53b0a98463cb91e76a2a6b
-  r: The required input file `data/processed/extracted_studies.csv` is missing, so
-    the script cannot actually read and count studies. The produced `study_count.json`
-    appears fabricated (no evidence it was generated from real data), and the `run_study_counter`
-    function is truncated, lacking a complete execution flow. Provide the CSV file
-    and ensure the script fully runs to generate the correct JSON output.
-T014b:
+  h: 9104a56c3eac9b5881de5439d244ee1ad3444c27d7793bac124227c74bf06fda
+  r: "The provided `narrative_engine.py` is truncated (e.g., `path.parent.mkdi` typo\
+    \ and no logic to load `narrative_themes.json`, `study_count.json`, or `meta_status.json`\
+    \ and invoke the generation functions). Moreover, the required output file `data/derived/narrative_content.md`\
+    \ does not exist. The task\u2019s core requirement\u2014producing the markdown\
+    \ file based on the JSON inputs\u2014is therefore not satisfied."
+T017:
   c: false
-  h: e7233dc5aced403e8173c8f7c0fa7787255a92afac1dc98b69deb724578afaba
-  r: The provided `valid_pair_counter.py` is truncated (the `save_valid_pair` function
-    is incomplete) and no `extracted_studies.csv` or resulting `valid_pair_count.json`
-    are present, so the script cannot read data, count valid pairs, or write the required
-    JSON output. The task therefore remains unfinished.
+  h: 09ca9db3388a6976450728826029282ed06ac37c06bf83d91593fef69b519330
+  r: "The provided `code/analysis/bias.py` is truncated (e.g., missing `csv` import,\
+    \ the body of `load_effect_sizes_and_se`, the regression computation, and the\
+    \ code that writes results to `data/derived/results.json`). Moreover, the required\
+    \ output file `data/derived/results.json` does not exist. The task\u2019s functional\
+    \ requirements are therefore not satisfied."
+T018:
+  c: false
+  h: 4d26a9011cae94b627e4875d08c1c11fc643b0c062cab66bae5a1938db9f3772
+  r: The repository contains `code/analysis/heterogeneity.py`, but the file is truncated
+    before the `calculate_i_squared` implementation and there is no code shown that
+    writes an `i_squared` value (rounded to two decimals) to `data/derived/results.json`.
+    Moreover, `data/derived/results.json` is missing entirely. The required output
+    artifact is absent, so the task is not fulfilled.
+T024:
+  c: false
+  h: f2339a19b723cf660555f5bfa1856c1ea34da4b1fa3c9fbe746f51e93068c5a9
+  r: "The `plots_forest.py` file is truncated and never imports or uses `memory_safe_plots.py`;\
+    \ the required `code/visualization/memory_safe_plots.py` file is missing, and\
+    \ the expected output image `data/derived/forest_plot.png` does not exist. These\
+    \ missing/unfinished artifacts mean the task\u2019s requirements are not satisfied."
 T040:
   c: false
   h: 5321985311e7b4dcc173f179f6e7c9b2fd190fb069716594c6400fb0da79720b

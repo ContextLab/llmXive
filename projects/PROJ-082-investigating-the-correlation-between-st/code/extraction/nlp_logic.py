@@ -1,82 +1,94 @@
+"""
+NLP Logic for Qualitative Extraction (Task T012 dependency).
+
+Implements regex patterns to search for tract names (from the lexicon)
+in proximity (≤5 words) to directional verbs.
+"""
 import re
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-def extract_tract_descriptors(text: str, target_tract: str, lexicon: Dict[str, List[str]]) -> List[str]:
+def extract_tract_descriptors(text: str, lexicon: Dict, scheme: Dict) -> Optional[Dict[str, Any]]:
     """
-    Extract qualitative descriptors for a specific tract from text using the lexicon.
+    Extract qualitative descriptors from text based on the lexicon and scheme.
     
     Args:
-        text: The raw text (notes/description) to search.
-        target_tract: The specific tract name to look for (e.g., "arcuate").
-        lexicon: Dictionary of categories to lists of terms (from tract_lexicon.yaml).
+        text: The input text to process.
+        lexicon: Dictionary containing 'tracts' and 'verbs' lists.
+        scheme: Dictionary containing 'keywords', 'sentiment_rules', etc.
     
     Returns:
-        List of strings formatted as "category: term".
+        A dictionary with 'description', 'detected_tract', 'detected_verb', and 'confidence',
+        or None if no match is found.
     """
-    if not text or not target_tract:
-        return []
-    
+    if not text or not isinstance(text, str):
+        return None
+
     text_lower = text.lower()
-    target_lower = target_tract.lower()
+    words = text_lower.split()
     
-    # Normalize tract name for search (simple substring match for now)
-    # In a more complex scenario, we might use word boundaries or stemming.
-    if target_lower not in text_lower:
-        # If the specific tract isn't mentioned, return empty
-        # Or we could search for any tract in the lexicon? 
-        # The task implies searching for the tract found in the row.
-        return []
+    detected_tract = None
+    detected_verb = None
+    description = ""
     
-    descriptors = []
+    # Normalize tracts for regex (escape special chars)
+    tract_patterns = []
+    for tract in lexicon.get("tracts", []):
+        # Create a pattern that matches the tract name as a whole word or phrase
+        pattern = r'\b' + re.escape(tract.lower()) + r'\b'
+        tract_patterns.append((pattern, tract))
     
-    # We need to find directional verbs or adjectives near the tract name.
-    # Strategy: Find the index of the tract, then look at surrounding words.
-    # For simplicity with the lexicon structure (categories -> terms),
-    # we will check if any lexicon terms appear in the text, and if they are contextually relevant.
-    # A simple heuristic: if the term appears in the text, and the tract appears in the text.
-    # A better heuristic: check proximity.
+    # Normalize verbs
+    verb_patterns = []
+    for verb in lexicon.get("verbs", []):
+        pattern = r'\b' + re.escape(verb.lower()) + r'\b'
+        verb_patterns.append((pattern, verb))
     
-    tract_matches = list(re.finditer(re.escape(target_lower), text_lower))
+    # Search for tracts
+    tract_matches = []
+    for pattern, tract_name in tract_patterns:
+        matches = list(re.finditer(pattern, text_lower))
+        if matches:
+            tract_matches.append((matches[0].start(), tract_name))
     
-    if not tract_matches:
-        return []
+    # Search for verbs
+    verb_matches = []
+    for pattern, verb_name in verb_patterns:
+        matches = list(re.finditer(pattern, text_lower))
+        if matches:
+            verb_matches.append((matches[0].start(), verb_name))
     
-    # Define a window size (characters or words)
-    window_size = 100
-    
-    for match in tract_matches:
-        start = max(0, match.start() - window_size)
-        end = min(len(text), match.end() + window_size)
-        context_window = text[start:end]
-        context_lower = context_window.lower()
+    # Check proximity: tract and verb within 5 words
+    for t_start, t_name in tract_matches:
+        # Find the word index of the tract
+        t_word_idx = len(text_lower[:t_start].split())
         
-        for category, terms in lexicon.items():
-            for term in terms:
-                term_lower = term.lower()
-                if term_lower in context_lower:
-                    descriptors.append(f"{category}: {term}")
+        for v_start, v_name in verb_matches:
+            v_word_idx = len(text_lower[:v_start].split())
+            
+            # Check if within 5 words
+            if abs(t_word_idx - v_word_idx) <= 5:
+                detected_tract = t_name
+                detected_verb = v_name
+                # Construct a simple description
+                description = f"{t_name} {v_name}"
+                break
+        if detected_tract:
+            break
     
-    return list(set(descriptors)) # Remove duplicates
-
-def main() -> None:
-    """Main entry point for NLP logic (for testing)."""
-    import argparse
-    import yaml
+    if detected_tract and detected_verb:
+        # Determine confidence based on proximity
+        # Closer proximity = higher confidence
+        proximity = abs(len(text_lower[:tract_matches[0][0]].split()) - len(text_lower[:verb_matches[0][0]].split()))
+        confidence = max(0.5, 1.0 - (proximity * 0.1))
+        
+        return {
+            "description": description,
+            "detected_tract": detected_tract,
+            "detected_verb": detected_verb,
+            "confidence": round(confidence, 2)
+        }
     
-    parser = argparse.ArgumentParser(description="NLP Logic Test")
-    parser.add_argument("--text", type=str, required=True)
-    parser.add_argument("--tract", type=str, required=True)
-    parser.add_argument("--lexicon", type=str, required=True)
-    args = parser.parse_args()
-    
-    with open(args.lexicon, 'r') as f:
-        lexicon = yaml.safe_load(f)
-    
-    results = extract_tract_descriptors(args.text, args.tract, lexicon)
-    print(f"Descriptors: {results}")
-
-if __name__ == "__main__":
-    main()
+    return None
