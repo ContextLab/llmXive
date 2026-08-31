@@ -9,3 +9,14 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/materials/alloy-elastic
   verified_at: '2026-08-25T02:53:53.234038Z'
+- artifact_hash: eef0fb063b4e1896b70b96dbd93deb8a3f7f89db5d04668c8e89b13ed14b0147
+  artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://next-gen.materialsproject.org/api/v2/docs`
+  verification_status: pending
+  verified_against_url: https://next-gen.materialsproject.org/api/v2/docs
+  verified_at: '2026-08-31T00:33:33.396544Z'
