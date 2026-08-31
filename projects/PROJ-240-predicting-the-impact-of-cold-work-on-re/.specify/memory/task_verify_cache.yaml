@@ -22,12 +22,12 @@ T003:
     their presence.
 T007:
   c: false
-  h: 780984e9ccf082889c9c79418c589188286f359fe9e05c2e22dc6a47a96bb375
-  r: The repository contains a partially shown `code/generate_synthetic.py` that sets
-    the seed and defines the model, but the file is truncated and does not include
-    code that writes `data/raw/synthetic_baseline.csv`. Moreover, the expected CSV
-    file is absent from the `data/raw` directory. The required output artifact is
-    missing, so the task is not fulfilled.
+  h: ebc835b3b21c8d8f9b74d31656d377c5bb71d413c58c62cdc806dccaa7ff958a
+  r: "The `code/generate_synthetic.py` script is truncated and never writes the DataFrame\
+    \ to `data/raw/synthetic_baseline.csv` (the line ends with `outpu`). Consequently\
+    \ the required CSV file does not exist. The task\u2019s core requirement\u2014\
+    producing a deterministic synthetic dataset saved at the specified path with seed\u202F\
+    =\u202F42\u2014is not fulfilled."
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -37,9 +37,16 @@ T009:
     file is missing.
 T012:
   c: false
-  h: e44392eede9d801f2f5c5f524943b3a6ea301df466b0559f9cdeb5b1ac149ab7
-  r: "The repository lacks the required `data/raw/synthetic_baseline.csv` file, and\
-    \ the expected output files `data/processed/validated.csv` and `artifacts/reports/validation_log.json`\
-    \ are not present. Moreover, `code/ingest.py` is truncated and does not contain\
-    \ logic that actually reads the input and writes the specified outputs. The task\u2019\
-    s core artifacts are missing, so the implementation is not complete."
+  h: ff1c31391b865dcf5ba005e693b467f29f59669c2bb2508e9697a24473ebb815
+  r: "The required raw file `data/raw/synthetic_baseline.csv` is absent, and the expected\
+    \ output files `data/processed/validated.csv` and `artifacts/reports/validation_log.json`\
+    \ were not generated. Moreover, `code/ingest.py` is truncated and lacks a top\u2011\
+    level orchestration that loads the specified CSV and writes the required outputs.\
+    \ The task\u2019s core requirements are therefore unmet."
+T018:
+  c: false
+  h: 08f6a74cc1f11a108c890104b9fafa2fc0dfd57e9d7d9484dbf7caf0b8c0d5d1
+  r: The `code/engineer.py` script correctly implements the interaction calculations
+    and checks for the temperature column, but the required output file `data/processed/engineered_features.csv`
+    does not exist, so the primary artifact is missing. The pipeline must be run (or
+    the file added) to produce the engineered features CSV.

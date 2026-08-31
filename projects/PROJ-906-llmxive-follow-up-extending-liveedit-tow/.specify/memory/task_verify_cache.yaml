@@ -1,14 +1,12 @@
 T009a:
   c: false
-  h: 84a4531b38c19a33b497d9916e1ed8b4fc1f1dcc54c8a1145af875a2a4c8b5ee
-  r: "The provided `code/data/flow.py` is truncated and its `compute_flow_magnitude`\
-    \ expects separate x/y arrays, while the tests call it with a single (H,W,2) flow\
-    \ array and check NaN/inf handling. `extract_flow_magnitudes_for_dataset` has\
-    \ a different signature (expects `VideoClip` objects) than the test\u2019s call\
-    \ with `clip_paths` and `flow_method`, and the function never reaches the JSON\u2011\
-    writing step (the code ends abruptly). Moreover, `code/data/flow_mag.py` and the\
-    \ required output file `data/flow/magnitudes.json` are missing. The implementation\
-    \ therefore does not meet the task requirements nor pas"
+  h: 14b5027c8acef3a8e91505c9cd1e296fa8986295f988dc84876e44594134c4cf
+  r: "The provided `flow.py` raises errors on NaN/Inf values and on all\u2011invalid\
+    \ flow, while the unit tests expect graceful handling (return\u202F0.0 or ignore\
+    \ invalid entries). The test imports `data.flow`, but only `code/data/flow.py`\
+    \ exists, causing an import error. Moreover, the required output file `data/flow/magnitudes.json`\
+    \ is missing. The implementation does not satisfy the task\u2019s specifications\
+    \ or pass the tests."
 T013a:
   c: false
   h: 7ef88ad84643c596caace50ba16cd3f7c1214d09913f8ad769c8773f3ede1cc5
@@ -17,41 +15,38 @@ T013a:
     is absent, so the verification step cannot be executed.
 T013b:
   c: false
-  h: 20f422c8d3afb1c576649a47a59a8319d9062c8cf5c332ba707b63eeba3a20dd
-  r: "The `processor.py` does not read `STRATIFICATION_THRESHOLDS` from `code/config.py`\
-    \ (it uses a hard\u2011coded default), and it never loads `data/flow/magnitudes.json`\
-    \ as required. Moreover, the expected test file `tests/unit/test_processor.py`\
-    \ and the `magnitudes.json` data file are absent, so the verification step cannot\
-    \ be executed. The implementation therefore does not meet the task\u2019s specifications."
+  h: 9d19772e5c4a1ef5b0307d5e808a1f4900906ae35e5ca04b7831dd71633b8bdd
+  r: "The provided `code/data/processor.py` is truncated, missing the end of `process_video_clip`\
+    \ and does not define `process_dataset_stratification`. Its `stratify_by_motion`\
+    \ signature requires a `clip_id` argument, while the tests call it with only `flow_magnitude`.\
+    \ The test suite imports from `data.processor`, not `code/data/processor.py`,\
+    \ so the module path is wrong. Additionally, the required `data/flow/magnitudes.json`\
+    \ file is missing. Consequently, the implementation does not meet the task\u2019\
+    s specifications or pass the indicated tests."
 T017:
   c: false
-  h: 5412065ff5079c8084e040f4636f1d703bea84243e781b8c68aeaa7fca91b81a
-  r: The `generate_baseline_report` function writes a JSON with fields like `avg_peak_memory`,
-    `avg_ssim`, `avg_fps` and stores the raw input records, but the task requires
-    a report containing the keys `clip_id`, `peak_memory`, `inference_time`, `consecutive_ssim`,
-    and `temporal_gradient_variance`. Those fields are never produced, and the expected
-    output file `data/metrics/baseline_results.json` does not exist in the repository.
-    The provided unit test also checks different keys, so the implementation does
-    not meet the specification.
+  h: 579ad92a6ce98c2689ae553be40da749c7c34d95c1fea39eb427cbe2fd25c8cf
+  r: "The repository\u2019s `code/analysis/reporter.py` does not implement a function\
+    \ that writes a JSON file with the required summary fields (model, count, averages,\
+    \ individual_records) nor does it accept an output path argument as the test expects.\
+    \ Moreover, the expected output file `data/metrics/baseline_results.json` is missing.\
+    \ Consequently the provided unit test `test_generate_baseline_report` would fail."
 T024a:
   c: false
-  h: 5412065ff5079c8084e040f4636f1d703bea84243e781b8c68aeaa7fca91b81a
-  r: The repository contains a `generate_baseline_report` implementation, but the
-    required verification test `test_baseline_report_generation` does not exist (the
-    test is named `test_generate_baseline_report`). Consequently the exact command
-    given in the task cannot be run successfully, so the implementation cannot be
-    confirmed as meeting the specified verification step. Add a test with the expected
-    name or rename the existing one.
+  h: 579ad92a6ce98c2689ae553be40da749c7c34d95c1fea39eb427cbe2fd25c8cf
+  r: "The `reporter.py` implementation does not match the test\u2019s expected API:\
+    \ it returns a dict instead of writing a JSON file, lacks the required keys (`model`,\
+    \ `count`, `avg_*`, `individual_records`), and the function signature omits the\
+    \ `output_path` argument. Moreover, the expected output file `data/metrics/baseline_results.json`\
+    \ is missing. The test `test_generate_baseline_report` would therefore fail."
 T024b:
   c: false
-  h: 36a04b99b5a2eef852c123873b9e90539907f2d6e0a0ac3a82f7841411be8aa7
-  r: "The repository contains a `code/analysis/reporter.py` with only a partial implementation\
-    \ (the `generate_comparative_report` function is truncated, so we cannot verify\
-    \ it writes the required `\"comparison\"` fields). Moreover, the test suite imports\
-    \ `analysis.reporter`, but there is no top\u2011level `analysis` package\u2014\
-    only `code/analysis`\u2014so the import will fail. Consequently the required `data/metrics/flow_results.json`\
-    \ is not present, and the implementation does not demonstrably satisfy the task.\
-    \ The missing or incomplete parts must be fixed for the test to pass."
+  h: 73863b1c6da8e749eac2014b4cef60ad94d570d01b0f613dbca2ce158da1e08f
+  r: The repository lacks the required `data/metrics/flow_results.json` file, and
+    `code/analysis/reporter.py` does not implement the functions expected by the tests
+    (e.g., `generate_baseline_report` does not accept an output path nor write a JSON
+    file, and the file is truncated). Consequently the test `test_flow_report_generation`
+    cannot succeed.
 T025:
   c: false
   h: 89ff04cff3963f4afac40a2ca19512ee7840377826e739d8018a766aa60dcda4
@@ -59,3 +54,11 @@ T025:
     the repository, so the contract test for the AnalysisResult schema is missing.
     The task cannot be considered complete until this test file is created with appropriate
     content.
+T027a:
+  c: false
+  h: c81ce4c8bf2e35af68fa101f2afd3eecfda0f41e1b2d1cb524a3f7f84340dd48
+  r: The file `code/analysis/stats.py` does not define the required `load_baseline_and_flow_metrics`
+    function that the test imports, and the expected data files (`data/metrics/baseline_results.json`
+    and `data/metrics/flow_results.json`) are missing. Implement the loader function
+    (e.g., returning the two loaded lists) and ensure the module can be imported so
+    the test can run and verify the FileNotFoundError behavior.

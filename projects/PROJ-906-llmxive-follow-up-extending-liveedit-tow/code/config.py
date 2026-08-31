@@ -4,59 +4,77 @@ from typing import List, Set, Dict, Any, Optional, Union
 import numpy as np
 import torch
 from pathlib import Path
-from dataclasses import dataclass
 
-@dataclass
+# Constants for Sensitivity Analysis (FR-007)
+SENSITIVITY_CUTOFFS: Set[float] = {0.01, 0.05, 0.1}
+
+# Thresholds for Stratification (Plan.md)
+STRATIFICATION_THRESHOLDS: Set[float] = {0.5, 5.0}
+
+# Random seeds
+DEFAULT_SEED = 42
+
 class ExperimentConfig:
-    dataset: str = "davis"
-    batch_size: int = 1
-    num_steps: int = 50
-    seed: int = 42
-    output_dir: str = "data/metrics"
-    checkpoint_dir: str = "data/checkpoints"
-    # Sensitivity analysis cutoffs (FR-007)
-    sensitivity_cutoffs: Set[float] = None
-    # Stratification thresholds (Plan.md)
-    stratification_thresholds: Set[float] = None
-
-    def __post_init__(self):
-        if self.sensitivity_cutoffs is None:
-            self.sensitivity_cutoffs = {0.01, 0.05, 0.1}
-        if self.stratification_thresholds is None:
-            self.stratification_thresholds = {0.5, 5.0}
+    """Configuration container for the experiment."""
+    def __init__(
+        self,
+        dataset: str = "davis",
+        flow_method: str = "farneback",
+        model: str = "baseline",
+        output_dir: str = "data",
+        seed: int = DEFAULT_SEED,
+    ):
+        self.dataset = dataset
+        self.flow_method = flow_method
+        self.model = model
+        self.output_dir = output_dir
+        self.seed = seed
 
 def get_default_config() -> ExperimentConfig:
+    """Return the default experiment configuration."""
     return ExperimentConfig()
+
+def get_default_config_dict() -> Dict[str, Any]:
+    """Return the default configuration as a dictionary."""
+    cfg = get_default_config()
+    return {
+        "dataset": cfg.dataset,
+        "flow_method": cfg.flow_method,
+        "model": cfg.model,
+        "output_dir": cfg.output_dir,
+        "seed": cfg.seed,
+    }
 
 def ensure_directories(*paths: Union[str, Path, List[Union[str, Path]]]) -> None:
     """
-    Create directories for given paths.
+    Create directories for the given paths.
     Accepts:
-      - ensure_directories() -> No-op
-      - ensure_directories(path_str) -> Creates single path
-      - ensure_directories(path_obj) -> Creates single path
-      - ensure_directories([path1, path2, ...]) -> Creates all paths in list
-      - ensure_directories(*paths) -> Creates all paths passed as args
-      - ensure_directories(target_dir) -> Creates single path
+      - No args (no-op)
+      - Single string or Path
+      - List of strings/Paths
+      - Multiple string/Path args
     """
     if not paths:
         return
 
-    # Flatten arguments
-    all_paths = []
-    for arg in paths:
-        if isinstance(arg, (list, tuple)):
-            all_paths.extend(arg)
+    # Normalize inputs into a flat list of paths
+    path_list: List[Path] = []
+    for p in paths:
+        if isinstance(p, (list, tuple)):
+            path_list.extend([Path(x) for x in p])
+        elif isinstance(p, Path):
+            path_list.append(p)
+        elif isinstance(p, str):
+            path_list.append(Path(p))
         else:
-            all_paths.append(arg)
-
-    for p in all_paths:
-        if p is None:
+            # Ignore unexpected types
             continue
-        path_obj = Path(p) if isinstance(p, str) else p
-        path_obj.mkdir(parents=True, exist_ok=True)
 
-def set_random_seed(seed: int):
+    for p in path_list:
+        p.mkdir(parents=True, exist_ok=True)
+
+def set_random_seed(seed: int = DEFAULT_SEED) -> None:
+    """Set random seeds for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)

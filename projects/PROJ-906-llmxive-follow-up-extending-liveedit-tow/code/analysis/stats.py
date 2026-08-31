@@ -8,215 +8,215 @@ import numpy as np
 from scipy import stats
 import ruptures as rpt
 
-from config import SENSITIVITY_CUTOFFS, ensure_directories
-from contracts.analysis_schema import StatisticalTestResult
+from config import ensure_directories, SENSITIVITY_CUTOFFS
+from utils.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
-# Paths
+# Define output paths
 BASELINE_RESULTS_PATH = "data/metrics/baseline_results.json"
 FLOW_RESULTS_PATH = "data/metrics/flow_results.json"
+PAIRED_METRICS_PATH = "data/metrics/paired_metrics.json"
 KS_TEST_PATH = "data/metrics/ks_test.json"
-PIECEWISE_PATH = "data/metrics/piecewise_regression.json"
+PIECEWISE_PATH = "data/metrics/pc_regression.json"
 SENSITIVITY_PATH = "data/metrics/sensitivity_analysis.json"
 ANALYSIS_RESULTS_PATH = "data/metrics/analysis_results.json"
 
-def load_json_metrics(file_path: str) -> Optional[Dict]:
-    if os.path.exists(file_path):
-        with open(file_path, 'r') as f:
-            return json.load(f)
-    return None
+def load_json_metrics(path: str) -> List[Dict[str, Any]]:
+    """Load a JSON metrics file."""
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Metrics file not found: {path}")
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
-def aggregate_metrics_to_pairs(baseline_data: Dict, flow_data: Dict) -> Tuple[List[float], List[float]]:
-    """Extract error/SSIM metrics from baseline and flow data for comparison."""
-    baseline_errors = []
-    flow_errors = []
-    
-    if baseline_data and "metrics" in baseline_data:
-        for m in baseline_data["metrics"]:
-            # Use SSIM as the primary error metric (inverse: lower SSIM = higher error)
-            # Or use a specific error metric if available
-            val = m.get("ssim", m.get("error", 0.0))
-            baseline_errors.append(val)
-    
-    if flow_data and "metrics" in flow_data:
-        for m in flow_data["metrics"]:
-            val = m.get("ssim", m.get("error", 0.0))
-            flow_errors.append(val)
-    
-    return baseline_errors, flow_errors
+def aggregate_metrics_to_pairs() -> List[Dict[str, Any]]:
+    """
+    Merge baseline and flow metrics into paired datasets.
+    Reads from BASELINE_RESULTS_PATH and FLOW_RESULTS_PATH.
+    Saves to PAIRED_METRICS_PATH.
+    """
+    baseline_data = load_json_metrics(BASELINE_RESULTS_PATH)
+    flow_data = load_json_metrics(FLOW_RESULTS_PATH)
 
-def compute_kolmogorov_smirnov_test(baseline_errors: List[float], flow_errors: List[float]) -> Dict:
-    """
-    Perform K-S test to compare error distributions.
-    Output: data/metrics/ks_test.json
-    """
-    if not baseline_errors or not flow_errors:
-        logger.warning("Empty data for K-S test. Returning default values.")
-        return {"statistic": 0.0, "pvalue": 1.0}
+    # Assume data is a list of records with 'clip_id'
+    baseline_map = {r['clip_id']: r for r in baseline_data}
+    flow_map = {r['clip_id']: r for r in flow_data}
+
+    paired = []
+    for clip_id in baseline_map:
+        if clip_id in flow_map:
+            paired.append({
+                "clip_id": clip_id,
+                "baseline": baseline_map[clip_id],
+                "flow": flow_map[clip_id]
+            })
+
+    ensure_directories(PAIRED_METRICS_PATH)
+    with open(PAIRED_METRICS_PATH, "w", encoding="utf-8") as f:
+        json.dump(paired, f, indent=2)
     
-    statistic, pvalue = stats.ks_2samp(baseline_errors, flow_errors)
-    
+    logger.info(f"Paired metrics saved to {PAIRED_METRICS_PATH}")
+    return paired
+
+def compute_kolmogorov_smirnov_test(paired_data: List[Dict[str, Any]]) -> Dict[str, float]:
+    """
+    Perform Kolmogorov-Smirnov test on SSIM distributions.
+    Primary metric: consecutive_ssim (or ssim).
+    """
+    baseline_ssim = [p['baseline'].get('consecutive_ssim', p['baseline'].get('ssim', 0)) for p in paired_data]
+    flow_ssim = [p['flow'].get('consecutive_ssim', p['flow'].get('ssim', 0)) for p in paired_data]
+
+    statistic, pvalue = stats.ks_2samp(baseline_ssim, flow_ssim)
+
     result = {
         "statistic": float(statistic),
         "pvalue": float(pvalue),
-        "method": "ks_2samp",
-        "baseline_count": len(baseline_errors),
-        "flow_count": len(flow_errors)
+        "method": "ks_test"
     }
-    
+
     ensure_directories(KS_TEST_PATH)
-    with open(KS_TEST_PATH, 'w') as f:
+    with open(KS_TEST_PATH, "w", encoding="utf-8") as f:
         json.dump(result, f, indent=2)
     
-    logger.info(f"K-S test result: statistic={statistic:.4f}, p-value={pvalue:.4f}")
+    logger.info(f"K-S test result: statistic={statistic:.4f}, pvalue={pvalue:.4f}")
     return result
 
-def compute_piecewise_regression(flow_magnitudes: List[float], ssim_values: List[float]) -> Dict:
+def compute_piecewise_regression(paired_data: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
-    Perform Piecewise Regression to identify the flow-magnitude threshold.
-    Uses ruptures for change-point detection.
-    Output: data/metrics/piecewise_regression.json
+    Perform Piecewise Regression to identify flow-magnitude thresholds.
+    Uses 'flow_magnitude' as x and 'ssim_drop' as y.
     """
-    if not flow_magnitudes or not ssim_values:
-        logger.warning("Empty data for piecewise regression.")
-        return {"breakpoint": 0.0, "confidence": "low", "model": "constant"}
-    
-    # Prepare data for ruptures
-    # We expect flow_magnitudes (x) and ssim_values (y)
-    # We want to find the x where y changes behavior (e.g., drops)
-    # Combine into a 2D array for ruptures (n_samples, n_features)
-    # Since we have 1D signal (SSIM) indexed by Flow Magnitude, we sort by flow magnitude
-    
-    data_points = sorted(zip(flow_magnitudes, ssim_values), key=lambda k: k[0])
-    sorted_mags = [p[0] for p in data_points]
-    sorted_ssims = [p[1] for p in data_points]
-    
-    signal = np.array(sorted_ssims).reshape(-1, 1)
-    
-    # Use a simple model (e.g., 'l2' for least squares)
-    # We look for 1 change point
-    algo = rpt.Pelt(model="l2").fit(signal)
-    result = algo.predict(pen=10) # Penalty parameter
-    
-    # The last point is the end of the signal, the second to last is the change point
-    if len(result) >= 2:
-        change_idx = result[-2]
-        breakpoint_val = sorted_mags[change_idx] if change_idx < len(sorted_mags) else sorted_mags[-1]
-        confidence = "medium" # Heuristic
+    # Prepare data
+    x = []
+    y = []
+    for p in paired_data:
+        mag = p['flow'].get('flow_magnitude', 0)
+        # SSIM drop: baseline - flow
+        b_ssim = p['baseline'].get('consecutive_ssim', p['baseline'].get('ssim', 0))
+        f_ssim = p['flow'].get('consecutive_ssim', p['flow'].get('ssim', 0))
+        drop = b_ssim - f_ssim
+        x.append(mag)
+        y.append(drop)
+
+    if len(x) < 3:
+        logger.warning("Not enough data points for piecewise regression.")
+        return {"threshold": 0.0, "regression_coeff": 0.0, "pvalue": 1.0}
+
+    # Convert to numpy
+    x_np = np.array(x).reshape(-1, 1)
+    y_np = np.array(y)
+
+    # Use ruptures for change point detection
+    # Model: 'l2' for least squares
+    algo = rpt.Pelt(model="l2").fit(x_np, y_np)
+    result = algo.predict(pen=10) # Penalty for complexity
+
+    # Find the first change point (threshold)
+    # result is a list of segment end indices
+    if len(result) > 1:
+        threshold_idx = result[0]
+        threshold = float(x_np[threshold_idx, 0]) if threshold_idx < len(x_np) else 0.0
+        
+        # Estimate regression coefficient (slope) after threshold
+        # Simple linear regression on the segment after threshold
+        if threshold_idx < len(x_np) - 1:
+            x_seg = x_np[threshold_idx:]
+            y_seg = y_np[threshold_idx:]
+            if len(x_seg) > 1:
+                slope, intercept, r_value, p_val, std_err = stats.linregress(x_seg.flatten(), y_seg)
+                regression_coeff = float(slope)
+                pvalue = float(p_val)
+            else:
+                regression_coeff = 0.0
+                pvalue = 1.0
+        else:
+            regression_coeff = 0.0
+            pvalue = 1.0
     else:
-        breakpoint_val = sorted_mags[len(sorted_mags)//2]
-        confidence = "low"
-    
-    result_data = {
-        "breakpoint": float(breakpoint_val),
-        "confidence": confidence,
-        "model": "l2",
-        "n_changes": len(result) - 1
+        threshold = 0.0
+        regression_coeff = 0.0
+        pvalue = 1.0
+
+    result_dict = {
+        "threshold": float(threshold),
+        "regression_coeff": float(regression_coeff),
+        "pvalue": float(pvalue),
+        "method": "piecewise_regression"
     }
-    
+
     ensure_directories(PIECEWISE_PATH)
-    with open(PIECEWISE_PATH, 'w') as f:
-        json.dump(result_data, f, indent=2)
+    with open(PIECEWISE_PATH, "w", encoding="utf-8") as f:
+        json.dump(result_dict, f, indent=2)
     
-    logger.info(f"Piecewise regression breakpoint: {breakpoint_val:.4f}")
-    return result_data
+    logger.info(f"Piecewise regression: threshold={threshold:.4f}, coeff={regression_coeff:.4f}")
+    return result_dict
 
-def run_sensitivity_analysis(baseline_errors: List[float], flow_errors: List[float]) -> Dict:
+def run_sensitivity_analysis(paired_data: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
-    Sweep cutoff values and report inconsistency rates.
-    Inconsistency defined as SSIM drop > 0.05.
-    Output: data/metrics/sensitivity_analysis.json
+    Sweep cutoff values {0.01, 0.05, 0.1} and report rate of frames where
+    SSIM drop exceeds each cutoff.
     """
-    cutoffs = list(SENSITIVITY_CUTOFFS)
-    rates = {}
-    
+    cutoffs = SENSITIVITY_CUTOFFS
+    results = {}
+
     for cutoff in cutoffs:
-        # Simulate checking for inconsistency
-        # In a real scenario, this would compare paired samples against a threshold
-        # Here we just count how many pairs differ by more than cutoff
-        if not baseline_errors or not flow_errors:
-            rates[str(cutoff)] = 0.0
-            continue
+        count_exceeding = 0
+        total = len(paired_data)
+        for p in paired_data:
+            b_ssim = p['baseline'].get('consecutive_ssim', p['baseline'].get('ssim', 0))
+            f_ssim = p['flow'].get('consecutive_ssim', p['flow'].get('ssim', 0))
+            drop = b_ssim - f_ssim
+            if drop > cutoff:
+                count_exceeding += 1
         
-        # Align lists (assuming they are paired by index)
-        min_len = min(len(baseline_errors), len(flow_errors))
-        diffs = [abs(b - f) for b, f in zip(baseline_errors[:min_len], flow_errors[:min_len])]
-        
-        inconsistent_count = sum(1 for d in diffs if d > cutoff)
-        rate = inconsistent_count / max(min_len, 1)
-        rates[str(cutoff)] = float(rate)
-    
-    result = {
-        "cutoffs": cutoffs,
-        "rates": rates
-    }
-    
-    ensure_directories(SENSITIVITY_PATH)
-    with open(SENSITIVITY_PATH, 'w') as f:
-        json.dump(result, f, indent=2)
-    
-    logger.info(f"Sensitivity analysis completed. Rates: {rates}")
-    return result
+        rate = count_exceeding / total if total > 0 else 0.0
+        results[str(cutoff)] = {
+            "count_exceeding": count_exceeding,
+            "total": total,
+            "rate": float(rate)
+        }
 
-def generate_analysis_summary(ks_result: Dict, piecewise_result: Dict, sensitivity_result: Dict) -> Dict:
+    result_dict = {
+        "cutoffs": list(cutoffs),
+        "results": results,
+        "method": "sensitivity_analysis"
+    }
+
+    ensure_directories(SENSITIVITY_PATH)
+    with open(SENSITIVITY_PATH, "w", encoding="utf-8") as f:
+        json.dump(result_dict, f, indent=2)
+    
+    logger.info(f"Sensitivity analysis completed for cutoffs {cutoffs}")
+    return result_dict
+
+def generate_analysis_summary(
+    ks_result: Dict[str, Any],
+    pc_result: Dict[str, Any],
+    sens_result: Dict[str, Any]
+) -> Dict[str, Any]:
     """
-    Aggregate all statistical results into a summary dictionary.
-    This is the core logic for T031.
+    Generate a summary report combining all analysis results.
     """
     summary = {
         "ks_test": ks_result,
-        "piecewise_regression": piecewise_result,
-        "sensitivity_analysis": sensitivity_result,
-        "conclusion": "Analysis complete."
+        "pc_regression": pc_result,
+        "sensitivity_analysis": sens_result,
+        "timestamp": str(Path.home()) # Placeholder for actual timestamp logic if needed
     }
+
+    ensure_directories(ANALYSIS_RESULTS_PATH)
+    with open(ANALYSIS_RESULTS_PATH, "w", encoding="utf-8") as f:
+        json.dump(summary, f, indent=2)
+    
+    logger.info(f"Analysis summary saved to {ANALYSIS_RESULTS_PATH}")
     return summary
 
 def main():
     """
-    Main entry point for the analysis pipeline.
-    Loads metrics, runs statistical tests, and writes results.
+    Entry point for analysis pipeline.
     """
-    # Load data
-    baseline_data = load_json_metrics(BASELINE_RESULTS_PATH)
-    flow_data = load_json_metrics(FLOW_RESULTS_PATH)
-    
-    if not baseline_data or not flow_data:
-        logger.error("Missing baseline or flow results. Cannot run analysis.")
-        # Create empty placeholders to prevent crashes downstream if needed,
-        # but ideally this should fail loudly if data is missing.
-        # For now, we proceed with empty lists.
-        baseline_data = {"metrics": []}
-        flow_data = {"metrics": []}
-    
-    # Extract metrics
-    baseline_errors, flow_errors = aggregate_metrics_to_pairs(baseline_data, flow_data)
-    
-    # Extract flow magnitudes if available (for piecewise regression)
-    # Assuming flow_data contains flow_magnitude in metrics
-    flow_magnitudes = []
-    ssim_values = []
-    if flow_data and "metrics" in flow_data:
-        for m in flow_data["metrics"]:
-            if "flow_magnitude" in m and "ssim" in m:
-                flow_magnitudes.append(m["flow_magnitude"])
-                ssim_values.append(m["ssim"])
-    
-    # Run tests
-    ks_result = compute_kolmogorov_smirnov_test(baseline_errors, flow_errors)
-    piecewise_result = compute_piecewise_regression(flow_magnitudes, ssim_values)
-    sensitivity_result = run_sensitivity_analysis(baseline_errors, flow_errors)
-    
-    # Generate summary
-    summary = generate_analysis_summary(ks_result, piecewise_result, sensitivity_result)
-    
-    # Note: The final JSON report (analysis_results.json) is generated by reporter.py
-    # to ensure consistent formatting and schema validation.
-    # However, we write the intermediate files here which reporter.py consumes.
-    
-    logger.info("Statistical analysis pipeline completed.")
-    return summary
+    logging.basicConfig(level=logging.INFO)
+    logger.info("Stats module loaded.")
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
     main()

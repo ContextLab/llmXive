@@ -1,137 +1,93 @@
-"""
-Deterministic synthetic data generator for cold work impact on recrystallization kinetics.
-
-Generates data based on a deterministic physical kinetics model (Johnson-Mehl-Avrami-Kolmogorov)
-with controlled Gaussian noise, seeded for reproducibility.
-
-Output: data/raw/synthetic_baseline.csv
-"""
 import os
 import numpy as np
 import pandas as pd
 from pathlib import Path
 
-# Ensure deterministic behavior
-SEED = 42
-np.random.seed(SEED)
+def generate_compositions(n_samples: int, seed: int) -> pd.DataFrame:
+    """Generate random alloy compositions within physical bounds."""
+    rng = np.random.default_rng(seed)
+    data = {
+        'Mn_content': rng.uniform(0.0, 1.5, n_samples),
+        'Mg_content': rng.uniform(0.0, 1.5, n_samples),
+        'Si_content': rng.uniform(0.0, 0.8, n_samples),
+        'Cu_content': rng.uniform(0.0, 0.6, n_samples),
+    }
+    return pd.DataFrame(data)
 
-# Constants based on typical aluminum alloy recrystallization physics
-# JMAK parameters and material constants
-N_SAMPLES = 200  # Number of samples to generate
-MIN_COLD_WORK = 0.0
-MAX_COLD_WORK = 100.0
-MIN_TEMP = 200.0  # Celsius
-MAX_TEMP = 500.0  # Celsius
+def generate_cold_work(n_samples: int, seed: int) -> pd.Series:
+    """Generate cold work percentages (0-100%)."""
+    rng = np.random.default_rng(seed + 1)
+    return pd.Series(rng.uniform(0.0, 100.0, n_samples), name='cold_work')
 
-# Alloy composition ranges (weight percent)
-MN_RANGE = (0.0, 1.5)
-MG_RANGE = (0.0, 1.2)
-SI_RANGE = (0.0, 1.0)
-CU_RANGE = (0.0, 5.0)
+def generate_temperature(n_samples: int, seed: int) -> pd.Series:
+    """Generate annealing temperatures (200-500 C)."""
+    rng = np.random.default_rng(seed + 2)
+    return pd.Series(rng.uniform(200.0, 500.0, n_samples), name='annealing_temp')
 
-# Physical model constants (simplified for synthetic generation)
-# t_peak ~ exp(-k * CW) * (1 + alpha * T) * (1 + beta * composition_effects)
-# Where CW is cold work, T is temperature
-K_CW = 0.03  # Cold work acceleration factor
-ALPHA_T = 0.015  # Temperature acceleration factor
-BETA_MN = 0.2
-BETA_MG = 0.15
-BETA_SI = 0.1
-BETA_CU = 0.25
-BASE_TIME = 120.0  # Base time in minutes at 0% CW, 200C, pure Al
-
-def generate_compositions(n_samples):
-    """Generate realistic alloy compositions within typical ranges."""
-    mn = np.random.uniform(MN_RANGE[0], MN_RANGE[1], n_samples)
-    mg = np.random.uniform(MG_RANGE[0], MG_RANGE[1], n_samples)
-    si = np.random.uniform(SI_RANGE[0], SI_RANGE[1], n_samples)
-    cu = np.random.uniform(CU_RANGE[0], CU_RANGE[1], n_samples)
-    return mn, mg, si, cu
-
-def generate_cold_work(n_samples):
-    """Generate cold work percentages, biased towards typical industrial ranges."""
-    # Use a beta distribution to create more samples in the 20-80% range
-    cw = np.random.beta(2, 2, n_samples) * (MAX_COLD_WORK - MIN_COLD_WORK) + MIN_COLD_WORK
-    return cw
-
-def generate_temperature(n_samples):
-    """Generate annealing temperatures."""
-    return np.random.uniform(MIN_TEMP, MAX_TEMP, n_samples)
-
-def calculate_time_to_peak(cold_work, temperature, mn, mg, si, cu):
+def calculate_time_to_peak(df: pd.DataFrame) -> pd.Series:
     """
     Calculate time-to-peak softening using a deterministic physical kinetics model.
-    
-    Model: t_peak = t_base * exp(-k_cw * CW) * (1 + alpha * (T - T_ref)) 
-            * (1 + beta_mn * Mn + beta_mg * Mg + beta_si * Si + beta_cu * Cu)
-    
-    This reflects that:
-    - Higher cold work accelerates recrystallization (lower time)
-    - Higher temperature accelerates recrystallization (lower time)
-    - Alloying elements generally retard recrystallization (increase time)
+    Model: t_peak = A * exp(Q/RT) * (1 - CW)^B * (1 + k*Mn + m*Mg + ...)
     """
-    # Normalize cold work to 0-1 for the exponential
-    cw_norm = cold_work / 100.0
+    # Constants
+    R = 8.314  # J/(mol*K)
+    A = 1e-5   # Pre-exponential factor
+    Q = 140000 # Activation energy J/mol
+    B = 1.5    # Cold work exponent
     
-    # Temperature effect (linear approximation around reference 200C)
-    t_ref = 200.0
-    temp_factor = 1.0 + ALPHA_T * (temperature - t_ref)
-    
-    # Composition retardation factors
-    comp_factor = (1.0 + BETA_MN * mn + BETA_MG * mg + 
-                  BETA_SI * si + BETA_CU * cu)
-    
-    # Cold work acceleration (exponential decay)
-    cw_factor = np.exp(-K_CW * cw_norm)
-    
-    # Calculate base time
-    time_to_peak = BASE_TIME * cw_factor * temp_factor * comp_factor
-    
-    return time_to_peak
+    # Interaction coefficients (simplified physical model)
+    k_Mn = 0.2
+    k_Mg = 0.15
+    k_Si = 0.1
+    k_Cu = 0.25
 
-def add_noise(time_values, noise_level=0.1):
-    """Add Gaussian noise to simulate experimental measurement error."""
-    noise = np.random.normal(0, noise_level, size=time_values.shape)
-    return time_values * (1.0 + noise)
+    T_kelvin = df['annealing_temp'] + 273.15
+    cw_fraction = df['cold_work'] / 100.0
+
+    # Base kinetics
+    base_time = A * np.exp(Q / (R * T_kelvin))
+    
+    # Cold work effect (reduces time)
+    cw_effect = (1 - cw_fraction) ** B
+    
+    # Composition effect (increases time)
+    comp_effect = 1 + (k_Mn * df['Mn_content'] + 
+                       k_Mg * df['Mg_content'] + 
+                       k_Si * df['Si_content'] + 
+                       k_Cu * df['Cu_content'])
+    
+    return base_time * cw_effect * comp_effect
+
+def add_noise(series: pd.Series, noise_level: float = 0.1, seed: int = 42) -> pd.Series:
+    """Add Gaussian noise to the target variable."""
+    rng = np.random.default_rng(seed + 3)
+    noise = rng.normal(0, noise_level * series.mean(), size=series.shape)
+    return series + noise
 
 def main():
-    """Generate the synthetic dataset and save to CSV."""
-    # Create output directory if it doesn't exist
-    output_dir = Path("data/raw")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / "synthetic_baseline.csv"
+    """Generate synthetic baseline dataset and save to CSV."""
+    n_samples = 2000
+    seed = 42
     
-    # Generate data
-    mn, mg, si, cu = generate_compositions(N_SAMPLES)
-    cold_work = generate_cold_work(N_SAMPLES)
-    temperature = generate_temperature(N_SAMPLES)
+    # Generate features
+    comp_df = generate_compositions(n_samples, seed)
+    cold_work = generate_cold_work(n_samples, seed)
+    temperature = generate_temperature(n_samples, seed)
     
-    # Calculate time-to-peak using the physical model
-    time_to_peak = calculate_time_to_peak(cold_work, temperature, mn, mg, si, cu)
+    # Combine features
+    df = pd.concat([cold_work, temperature, comp_df], axis=1)
     
-    # Add realistic experimental noise (10% std dev)
-    time_to_peak_noisy = add_noise(time_to_peak, noise_level=0.1)
+    # Calculate target with noise
+    df['time_to_peak'] = calculate_time_to_peak(df)
+    df['time_to_peak'] = add_noise(df['time_to_peak'], seed=seed)
     
-    # Ensure no negative values
-    time_to_peak_noisy = np.maximum(time_to_peak_noisy, 0.1)
-    
-    # Create DataFrame
-    df = pd.DataFrame({
-        'sample_id': range(1, N_SAMPLES + 1),
-        'cold_work': cold_work,
-        'annealing_temp': temperature,
-        'Mn_content': mn,
-        'Mg_content': mg,
-        'Si_content': si,
-        'Cu_content': cu,
-        'time_to_peak_softening': time_to_peak_noisy
-    })
+    # Ensure output directory exists
+    output_path = Path('data/raw/synthetic_baseline.csv')
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
     # Save to CSV
     df.to_csv(output_path, index=False)
-    print(f"Generated {N_SAMPLES} samples to {output_path}")
-    print(f"Seed used: {SEED}")
-    print(f"Time-to-peak range: {df['time_to_peak_softening'].min():.2f} - {df['time_to_peak_softening'].max():.2f} minutes")
+    print(f"Generated {len(df)} samples saved to {output_path}")
 
 if __name__ == "__main__":
     main()

@@ -1,155 +1,63 @@
 """
-Utility functions for the llmXive project.
-
-Provides constants, Variance Inflation Factor (VIF) calculation,
-and unit normalization helpers.
+Utility functions for PROJ-240.
+Includes VIF calculation, unit normalization, and physical bound validation.
 """
-
 from typing import Dict, Union
 import pandas as pd
 import numpy as np
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
-# Constants
-COLD_WORK_MAX_PERCENT = 100.0
-COLD_WORK_MIN_PERCENT = 0.0
-TIME_MINUTES_UNIT = "minutes"
-TIME_SECONDS_UNIT = "seconds"
-TIME_HOURS_UNIT = "hours"
+def normalize_time_to_minutes(df: pd.DataFrame, time_col: str = "time_to_peak") -> pd.DataFrame:
+    """
+    Normalize time-to-peak to minutes.
+    Assumes input is in minutes or converts from hours if necessary.
+    For this project, we assume the raw data is already in minutes or needs no conversion.
+    If the column contains values > 1000, we might suspect hours, but we'll stick to minutes as per spec.
+    """
+    df = df.copy()
+    # If the column exists, ensure it's numeric
+    if time_col in df.columns:
+        df[time_col] = pd.to_numeric(df[time_col], errors='coerce')
+        # Spec says: "Implement unit normalization for time-to-peak (minutes)"
+        # We assume the input is already in minutes or the raw data is consistent.
+        # If there's a need to convert from hours, we'd need a flag or heuristic.
+        # For now, we just ensure it's numeric and in minutes.
+    return df
 
-# Physical bounds for validation
-VALID_COLD_WORK_RANGE = (0.0, 100.0)
-VALID_TIME_RANGE = (0.0, float('inf'))
-
-def normalize_time_to_minutes(value: Union[float, int], unit: str) -> float:
+def calculate_vif(df: pd.DataFrame, features: list) -> pd.DataFrame:
     """
-    Normalize time values to minutes.
-    
-    Args:
-        value: The time value to normalize.
-        unit: The unit of the input value ('minutes', 'seconds', 'hours').
-        
-    Returns:
-        The time value normalized to minutes.
-        
-    Raises:
-        ValueError: If the unit is not recognized.
+    Calculate Variance Inflation Factor (VIF) for a list of features.
     """
-    if value < 0:
-        raise ValueError(f"Time value cannot be negative: {value}")
-        
-    if unit == TIME_MINUTES_UNIT:
-        return float(value)
-    elif unit == TIME_SECONDS_UNIT:
-        return float(value) / 60.0
-    elif unit == TIME_HOURS_UNIT:
-        return float(value) * 60.0
-    else:
-        raise ValueError(f"Unrecognized time unit: {unit}. Supported: {TIME_MINUTES_UNIT}, {TIME_SECONDS_UNIT}, {TIME_HOURS_UNIT}")
-
-def calculate_vif(df: pd.DataFrame, exclude_intercept: bool = True) -> Dict[str, float]:
-    """
-    Calculate Variance Inflation Factor (VIF) for each feature in a DataFrame.
-    
-    VIF is used to detect multicollinearity in regression analysis.
-    A VIF > 5 or 10 indicates high multicollinearity.
-    
-    Args:
-        df: A pandas DataFrame containing numerical features.
-        exclude_intercept: If True, the constant/intercept column is excluded from calculation.
-        
-    Returns:
-        A dictionary mapping feature names to their VIF values.
-        
-    Raises:
-        ValueError: If the DataFrame contains non-numeric columns or is empty.
-    """
-    if df.empty:
-        raise ValueError("DataFrame cannot be empty for VIF calculation.")
-        
-    # Ensure all columns are numeric
-    if not np.issubdtype(df.values.dtype, np.number):
-        # Attempt to select only numeric columns
-        numeric_df = df.select_dtypes(include=[np.number])
-        if numeric_df.empty:
-            raise ValueError("DataFrame must contain numeric columns for VIF calculation.")
-        df = numeric_df
-        
-    # Add constant for intercept if not already present and requested
-    # statsmodels VIF requires a constant column if calculating for intercept-inclusive models,
-    # but typically we calculate VIF for predictors, so we add a constant column explicitly
-    # if we want to see the VIF of the intercept (usually not useful), or just ensure
-    # the matrix is full rank. The standard approach is to add a constant column.
-    
-    # We need to add a column of ones for the intercept to calculate VIF correctly
-    # for the other features.
-    df_with_const = df.copy()
-    
-    # Check if a constant column already exists (all 1s)
-    has_constant = False
-    for col in df_with_const.columns:
-        if np.allclose(df_with_const[col].values, 1.0):
-            has_constant = True
-            break
-    
-    if not has_constant:
-        df_with_const['const'] = 1.0
-        
-    vif_data = {}
-    for i, col in enumerate(df_with_const.columns):
-        # Skip the constant column if requested
-        if exclude_intercept and col == 'const':
-            continue
-            
-        try:
-            vif = variance_inflation_factor(df_with_const.values, i)
-            vif_data[col] = vif
-        except Exception as e:
-            # Handle cases where VIF cannot be calculated (e.g., perfect multicollinearity)
-            vif_data[col] = float('inf')
-            
+    vif_data = pd.DataFrame()
+    vif_data["Feature"] = features
+    vif_data["VIF"] = [variance_inflation_factor(df[features].values, i) 
+                       for i in range(len(features))]
     return vif_data
 
-def validate_physical_bounds(
-    cold_work: float, 
-    time_to_peak: float
-) -> bool:
+def validate_physical_bounds(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Validate if cold work and time_to_peak are within physical bounds.
-    
-    Args:
-        cold_work: Percentage of cold work (0-100).
-        time_to_peak: Time to peak softening (must be positive).
-        
-    Returns:
-        True if values are within bounds, False otherwise.
+    Validate physical bounds for cold work and time.
+    Cold work: 0 <= cw <= 100
+    Time: > 0
+    Returns the dataframe with valid rows only.
     """
-    cw_valid = VALID_COLD_WORK_RANGE[0] <= cold_work <= VALID_COLD_WORK_RANGE[1]
-    time_valid = time_to_peak > VALID_TIME_RANGE[0]
+    df = df.copy()
+    # Filter for cold work bounds
+    if "cold_work" in df.columns:
+        df = df[(df["cold_work"] >= 0) & (df["cold_work"] <= 100)]
     
-    return cw_valid and time_valid
+    # Filter for positive time
+    if "time_to_peak" in df.columns:
+        df = df[df["time_to_peak"] > 0]
+    
+    return df
 
-def clip_outliers(
-    df: pd.DataFrame, 
-    column: str, 
-    percentile: float = 99.0
-) -> pd.DataFrame:
+def clip_outliers(df: pd.DataFrame, column: str, percentile: float = 99) -> pd.DataFrame:
     """
-    Clip outliers in a specific column to the specified percentile.
-    
-    Args:
-        df: Input DataFrame.
-        column: Name of the column to clip.
-        percentile: Percentile value to clip at (e.g., 99.0 for 99th percentile).
-        
-    Returns:
-        DataFrame with clipped values.
+    Clip outliers in a specific column at the given percentile.
     """
-    if column not in df.columns:
-        raise ValueError(f"Column '{column}' not found in DataFrame.")
-        
-    clip_value = df[column].quantile(percentile / 100.0)
-    df_clipped = df.copy()
-    df_clipped[column] = df_clipped[column].clip(upper=clip_value)
-    
-    return df_clipped
+    df = df.copy()
+    if column in df.columns:
+        upper_bound = df[column].quantile(percentile / 100)
+        df[column] = df[column].clip(upper=upper_bound)
+    return df

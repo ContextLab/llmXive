@@ -156,14 +156,81 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1016/j.actamat.2021.05.034
   verified_at: '2026-08-29T21:25:32.066448Z'
-- artifact_hash: 2eccb3ef696ebacf4e13d4a9e66c43d3d59cc90d117bac0ed4fd2de495c99ec4
+- artifact_hash: f1f1dadd5c0e090c6dd6bf399f7d5c9551fa809a179bf461adf0a62409a3c558
   artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
+  fetched_title: records?q=Fe-Cr+APT+grain+boundary+site:zenodo.org
+  kind: url
+  value: https://zenodo.org/api/records?q=Fe-Cr+APT+grain+boundary+site:zenodo.org`
+  verification_status: pending
+  verified_against_url: https://zenodo.org/api/records?q=Fe-Cr+APT+grain+boundary+site:zenodo.org
+  verified_at: '2026-08-31T04:14:04.656513Z'
+- artifact_hash: f1f1dadd5c0e090c6dd6bf399f7d5c9551fa809a179bf461adf0a62409a3c558
+  artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: works?query=Fe-Cr-Mo+APT+grain+boundary
+  kind: url
+  value: https://api.crossref.org/works?query=Fe-Cr-Mo+APT+grain+boundary`
+  verification_status: pending
+  verified_against_url: https://api.crossref.org/works?query=Fe-Cr-Mo+APT+grain+boundary
+  verified_at: '2026-08-31T04:14:04.656513Z'
+- artifact_hash: f1f1dadd5c0e090c6dd6bf399f7d5c9551fa809a179bf461adf0a62409a3c558
+  artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
   fetched_title: null
   kind: url
-  value: https://doi.org/10.xxxx/xxxxx`
+  value: https://doi.org/10.5281/zenodo.1234567`
   verification_status: mismatch
-  verified_against_url: https://doi.org/10.xxxx/xxxxx
-  verified_at: '2026-08-29T21:49:11.725906Z'
+  verified_against_url: https://doi.org/10.5281/zenodo.1234567
+  verified_at: '2026-08-31T04:14:04.656513Z'
+- artifact_hash: f1f1dadd5c0e090c6dd6bf399f7d5c9551fa809a179bf461adf0a62409a3c558
+  artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: Incorrect upload | Zenodo
+  kind: url
+  value: https://doi.org/10.5281/zenodo.7654321`
+  verification_status: pending
+  verified_against_url: https://zenodo.org/records/7654322
+  verified_at: '2026-08-31T04:14:04.656513Z'
+- artifact_hash: f1f1dadd5c0e090c6dd6bf399f7d5c9551fa809a179bf461adf0a62409a3c558
+  artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  cite_id: c-005
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.1234567
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1234567
+  verified_at: '2026-08-31T04:14:04.656513Z'
+- artifact_hash: f1f1dadd5c0e090c6dd6bf399f7d5c9551fa809a179bf461adf0a62409a3c558
+  artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  cite_id: c-006
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.7654321
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.7654321
+  verified_at: '2026-08-31T04:14:04.656513Z'
+- artifact_hash: f1f1dadd5c0e090c6dd6bf399f7d5c9551fa809a179bf461adf0a62409a3c558
+  artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  cite_id: c-007
+  cited_authors: []
+  cited_title: null
+  fetched_title: Interfacial energy as the driving force for diffusion bonding of
+    ceramics
+  kind: doi
+  value: 10.1016/j.actamat.2020.01.015
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1016/j.actamat.2020.01.015
+  verified_at: '2026-08-31T04:14:04.656513Z'

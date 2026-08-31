@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a computational pipeline to quantify grain boundary (GB) segregation in BCC Fe-based alloys (Fe-Cr-Mo, Fe-Cr-V, Fe-Mo-V, Fe-Cr-W, Fe-Mo-W). The approach integrates three distinct computational layers: (1) extraction of equilibrium phase compositions from an open CALPHAD parameter set (derived from literature), (2) calculation of segregation energies using pre-computed DFT values from cited literature sources and the McLean isotherm model, and (3) statistical analysis of multicomponent cooperative effects via linear regression with interaction terms.
+This feature implements a computational pipeline to quantify grain boundary (GB) segregation in BCC Fe-based alloys (Fe-Cr-Mo, Fe-Cr-V, Fe-Mo-V, Fe-Cr-W, Fe-Mo-W). The approach integrates three distinct computational layers: () extraction of equilibrium phase compositions from an open CALPHAD parameter set (derived from literature), (2) calculation of segregation energies using pre-computed DFT values from cited literature sources and the McLean isotherm model, and (3) statistical analysis of multicomponent cooperative effects via linear regression with interaction terms.
 
 The pipeline addresses the scientific gap regarding non-linear cooperative segregation by comparing multicomponent regression models against additive binary baselines, validated through cross-validation. The implementation explicitly separates **Pipeline Validation** (using synthetic data with injected ground truth to verify the regression engine) from **Scientific Discovery** (using literature-parameterized data).
 
@@ -15,7 +15,7 @@ The pipeline addresses the scientific gap regarding non-linear cooperative segre
 **Primary Dependencies**: `pymatgen` (structure generation), `ase` (atomic simulation environment), `scikit-learn` (regression/CV), `pandas` (data manipulation), `numpy`, `matplotlib` (visualization), `requests` (data fetching), `pyyaml` (manifest).  
 **Storage**: Local `data/` directory for downloaded CALPHAD parameters, pre-computed DFT values, generated supercells (CIF/XYZ), and computed results (CSV/Parquet).  
 **Testing**: `pytest` with unit tests for thermodynamic calculations and integration tests for the full pipeline.  
-**Target Platform**: GitHub Actions free-tier runner (CPU-only, limited cores, 7 GB RAM).  
+**Target Platform**: GitHub Actions free-tier runner (CPU-only, limited cores, constrained RAM).  
 **Project Type**: Scientific computing library/cli.  
 **Performance Goals**: Complete pipeline execution within 6 hours; memory usage < 6 GB during DFT energy extraction (using pre-computed lookups).  
 **Constraints**: No local GPU; strict adherence to open-source data availability; no fabrication of DFT results (pre-computed literature values used).  

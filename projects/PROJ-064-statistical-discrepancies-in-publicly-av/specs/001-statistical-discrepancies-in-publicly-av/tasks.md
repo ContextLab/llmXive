@@ -77,18 +77,18 @@
 - [X] T017 [US1] Implement logic to calculate `precinct_sum`, `county_reported`, `discrepancy_abs`, and `discrepancy_pct` in `code/discrepancy.py`
 - [X] T018 [US1] Implement edge case handling: skip records with zero county votes, log warnings, and exclude from relative discrepancy analysis in `code/discrepancy.py`
 - [X] T019 [US1] Implement logic to flag "directional anomalies" (precinct sum > county total) and exclude from Negative Binomial fit if non-negative error assumption is violated in `code/discrepancy.py`
-- [ ] T020 [US1] Implement missing data handling: apply documented imputation rules or flag records with `missing_data` marker in `code/discrepancy.py`
-- [ ] T021 [US1] Ensure raw data is saved to `data/raw/` with checksums and processed data to `data/processed/` in `code/main.py`
-- [ ] T022 [US1] Implement logic to validate temporal alignment of precinct/county boundaries with election cycle year in `code/ingestion.py`
+- [X] T020 [US1] Implement missing data handling: apply documented imputation rules or flag records with `missing_data` marker in `code/discrepancy.py`
+- [X] T021 [US1] Ensure raw data is saved to `data/raw/` with checksums and processed data to `data/processed/` in `code/main.py`
+- [X] T022 [US1] Implement logic to validate temporal alignment of precinct/county boundaries with election cycle year in `code/ingestion.py`
 
 ### Tests for User Story 1 ⚠️
 
 > **NOTE**: Write these tests AFTER implementation to ensure they verify the correct schema and logic. Depends on T007 (Data Models & Schema).
 
-- [ ] T010 [P] [US1] Unit test for data ingestion with mock CSV files in `tests/test_ingestion.py` (Schema defined in T007)
-- [ ] T011 [P] [US1] Contract test verifying output schema (precinct_sum, county_reported, etc.) in `tests/test_ingestion.py`
-- [ ] T012 [P] [US1] Test for missing data handling (imputation vs. flagging) in `tests/test_ingestion.py`
-- [ ] T013 [P] [US1] Test for auto-detection of file delimiters in `tests/test_ingestion.py`
+- [X] T010 [P] [US1] Unit test for data ingestion with mock CSV files in `tests/test_ingestion.py` (Schema defined in T007)
+- [X] T011 [P] [US1] Contract test verifying output schema (precinct_sum, county_reported, etc.) in `tests/test_ingestion.py`
+- [X] T012 [P] [US1] Test for missing data handling (imputation vs. flagging) in `tests/test_ingestion.py`
+- [X] T013 [P] [US1] Test for auto-detection of file delimiters in `tests/test_ingestion.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

@@ -1,58 +1,61 @@
 """
-Project Initialization Script for PROJ-064.
-Creates the standard directory structure required for the statistical discrepancies pipeline.
+Project initialization script for PROJ-064.
+Creates the standard directory structure required by the llmXive pipeline.
 """
 import os
 import sys
 from pathlib import Path
 
-def initialize_project_structure(root_dir: str) -> None:
+
+def initialize_project_structure():
     """
-    Creates the directory structure for the project.
+    Creates the complete directory structure for the project.
     
-    Structure:
-    projects/PROJ-064-statistical-discrepancies-in-publicly-av/
-    ├── code/
-    ├── data/
-    │   ├── raw/
-    │   └── processed/
-    ├── tests/
-    ├── docs/
-    ├── state/
-    └── config/
+    Structure created under 'projects/PROJ-064-statistical-discrepancies-in-publicly-av/':
+    - code/
+    - data/raw/
+    - data/processed/
+    - tests/
+    - docs/
+    - state/
+    - config/
     
-    Args:
-        root_dir: The base directory where the project folder will be created.
+    Returns:
+        bool: True if successful, False otherwise.
     """
-    project_name = "PROJ-064-statistical-discrepancies-in-publicly-av"
-    project_root = Path(root_dir) / project_name
+    # Define the base project directory
+    base_dir = Path("projects/PROJ-064-statistical-discrepancies-in-publicly-av")
     
-    # Define all required directories
+    # Define all required subdirectories
     directories = [
-        project_root / "code",
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "tests",
-        project_root / "docs",
-        project_root / "state",
-        project_root / "config",
+        "code",
+        "data/raw",
+        "data/processed",
+        "tests",
+        "docs",
+        "state",
+        "config"
     ]
     
-    created_count = 0
-    for directory in directories:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {directory.relative_to(project_root)}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {directory.relative_to(project_root)}")
+    success = True
     
-    if created_count > 0:
-        print(f"\nSuccessfully initialized project structure at: {project_root}")
+    for dir_name in directories:
+        target_path = base_dir / dir_name
+        try:
+            target_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {target_path}")
+        except OSError as e:
+            print(f"Error creating directory {target_path}: {e}")
+            success = False
+    
+    if success:
+        print(f"Successfully initialized project structure at {base_dir}")
     else:
-        print("\nProject structure already fully initialized.")
+        print("Project initialization completed with errors.")
+        
+    return success
+
 
 if __name__ == "__main__":
-    # Default to current working directory if no argument provided
-    base_path = sys.argv[1] if len(sys.argv) > 1 else "."
-    initialize_project_structure(base_path)
+    success = initialize_project_structure()
+    sys.exit(0 if success else 1)

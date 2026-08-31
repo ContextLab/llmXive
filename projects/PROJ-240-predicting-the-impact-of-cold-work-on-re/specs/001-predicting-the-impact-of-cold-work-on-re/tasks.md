@@ -29,7 +29,7 @@
 - [ ] T001 Create project root directories: `code`, `tests`, `data`, `artifacts` in `projects/PROJ-240-predicting-the-impact-of-cold-work-on-re/`.
 - [ ] T002 Create data subdirectories: `data/raw`, `data/processed`, `data/split`.
 - [ ] T003 Create artifacts subdirectories: `artifacts/models`, `artifacts/reports`, `artifacts/figures`.
-- [ ] T004 Configure `pyproject.toml` with initial configuration for ruff and black (line-length 88, rules E, W, F).
+- [X] T004 Configure `pyproject.toml` with initial configuration for ruff and black (line-length 88, rules E, W, F).
 - [X] T005 [P] Create `code/__init__.py` and basic project scaffolding.
 - [X] T006 [P] Implement `code/utils.py` with constants, VIF calculation logic, and unit normalization helpers.
 - [ ] T007 Implement deterministic synthetic data generator in `code/generate_synthetic.py` that outputs `data/raw/synthetic_baseline.csv` with seed=42 (uses a deterministic physical kinetics model + noise).
@@ -55,13 +55,13 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement orchestration in `code/ingest.py`: Load `data/raw/synthetic_baseline.csv` (from T007) as the PRIMARY and mandatory source. Do NOT attempt to fetch external data in this step. Output `data/processed/validated.csv` and `artifacts/reports/validation_log.json`.
+- [ ] T012 [US1] Implement orchestration in `code/ingest.py`: Load `data/raw/synthetic_baseline.csv` (from T007) as the PRIMARY and mandatory source. Do NOT attempt to fetch external data in this step. Output `data/processed/validated.csv` and `artifacts/reports/validation_log.json`. <!-- FAILED: unspecified -->
 - [X] T013 [US1] Implement row filtering for missing "time-to-peak softening" in `code/ingest.py` (exclude rows, do not impute target).
 - [X] T014 [US1] Implement physical bound validation (0 ≤ cold work ≤ 100%, positive time) in `code/ingest.py`.
 - [X] T015 [US1] Implement missing composition value handling in `code/ingest.py`: Impute using the mean of the specific alloy series (group by alloy type or concentration range) or flag for exclusion as per spec Edge Cases. Do NOT use a global mean for all rows.
 - [X] T016 [US1] Implement unit normalization for time-to-peak (minutes) in `code/ingest.py`.
 - [X] T017 [US1] Implement outlier clipping on target variable at 99th percentile in `code/ingest.py` (FR-007) before any statistical analysis. Log clipped values.
-- [~] T018 [US1] Implement interaction feature engineering in `code/engineer.py`: Calculate `cold_work * Mn_content`, `cold_work * Mg_content`, `cold_work * Si_content`, and `cold_work * Cu_content`. Include annealing temperature as a direct feature. Output `data/processed/engineered_features.csv`.
+- [ ] T018 [US1] Implement interaction feature engineering in `code/engineer.py`: Calculate `cold_work * Mn_content`, `cold_work * Mg_content`, `cold_work * Si_content`, and `cold_work * Cu_content`. Include annealing temperature as a direct feature. Output `data/processed/engineered_features.csv`.
 - [X] T019 [US1] Implement dataset size validation in `code/engineer.py`: Raise `ValueError` if rows < 50 (FR-008).
 - [ ] T020 [US1] Generate final dataset artifact `data/processed/final_dataset.csv` ready for modeling. Enforce a hard cap on the number of rows here if the generator produced more, ensuring the training set does not exceed the limit.
 
@@ -86,8 +86,8 @@
 
 - [X] T023 [US2] Implement data splitting logic in `code/train.py`: /20 stratified split, random seed=42.
 - [X] T024 [US2] Implement Random Forest Regressor training (CPU-only) in `code/train.py`. Ensure dataset size ≤ 10,000 rows (FR-003). If larger, use synthetic generator to create a valid subset (do not truncate real data arbitrarily).
-- [ ] T025 [US2] Implement k-fold cross-validation in `code/train.py` and calculate mean R² and std dev.
-- [ ] T026 [US2] Implement held-out test set evaluation in `code/train.py`: Calculate MAE and R² on the test set.
+- [X] T025 [US2] Implement k-fold cross-validation in `code/train.py` and calculate mean R² and std dev.
+- [X] T026 [US2] Implement held-out test set evaluation in `code/train.py`: Calculate MAE and R² on the test set.
 - [ ] T027 [US2] Save trained model to `artifacts/models/kinetic_model.pkl`.
 - [ ] T028 [US2] Generate `artifacts/reports/training_metrics.json` containing CV scores and test set MAE/R².
 - [ ] T029 [US2] Implement fallback logic: If dataset is pure aluminum (zero variance in composition), log warning and skip interaction feature importance (handle gracefully).

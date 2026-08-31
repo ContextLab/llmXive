@@ -20,10 +20,26 @@ def temp_metrics_dir(tmp_path):
     return metrics_dir
 
 def test_generate_baseline_report(temp_metrics_dir):
-    """Test that generate_baseline_report creates a valid JSON file."""
+    """Test that generate_baseline_report creates a valid JSON file with required keys."""
     test_data = [
-        {"clip_id": "clip_001", "peak_memory": 1024.5, "fps": 25.0, "ssim": 0.95, "gradient_variance": 0.01, "flow_magnitude": 2.5, "invalid_flow": False},
-        {"clip_id": "clip_002", "peak_memory": 2048.0, "fps": 24.0, "ssim": 0.92, "gradient_variance": 0.02, "flow_magnitude": 5.1, "invalid_flow": True}
+        {
+            "clip_id": "clip_001", 
+            "peak_memory": 1024.5, 
+            "inference_time": 1.5,
+            "consecutive_ssim": 0.95, 
+            "temporal_gradient_variance": 0.01,
+            "flow_magnitude": 2.5,
+            "invalid_flow": False
+        },
+        {
+            "clip_id": "clip_002", 
+            "peak_memory": 2048.0, 
+            "inference_time": 2.0,
+            "consecutive_ssim": 0.92, 
+            "temporal_gradient_variance": 0.02,
+            "flow_magnitude": 5.1,
+            "invalid_flow": True
+        }
     ]
     
     output_path = "data/metrics/baseline_results.json"
@@ -36,16 +52,27 @@ def test_generate_baseline_report(temp_metrics_dir):
     assert data["model"] == "baseline"
     assert data["count"] == 2
     assert "avg_peak_memory" in data
+    assert "avg_inference_time" in data
+    assert "avg_consecutive_ssim" in data
+    assert "avg_temporal_gradient_variance" in data
     assert "individual_records" in data
     assert len(data["individual_records"]) == 2
+    
+    # Verify specific keys in individual records match task requirements
+    rec = data["individual_records"][0]
+    assert "clip_id" in rec
+    assert "peak_memory" in rec
+    assert "inference_time" in rec
+    assert "consecutive_ssim" in rec
+    assert "temporal_gradient_variance" in rec
 
 def test_generate_comparative_report(temp_metrics_dir):
     """Test that generate_comparative_report creates a valid comparison JSON."""
     baseline_data = [
-        {"clip_id": "c1", "peak_memory": 100.0, "ssim": 0.9, "fps": 30.0}
+        {"clip_id": "c1", "peak_memory": 100.0, "inference_time": 1.0, "consecutive_ssim": 0.9}
     ]
     flow_data = [
-        {"clip_id": "c1", "peak_memory": 80.0, "ssim": 0.88, "fps": 32.0}
+        {"clip_id": "c1", "peak_memory": 80.0, "inference_time": 1.2, "consecutive_ssim": 0.88}
     ]
     
     output_path = "data/metrics/flow_results.json"
@@ -62,7 +89,7 @@ def test_generate_comparative_report(temp_metrics_dir):
 def test_generate_analysis_report(temp_metrics_dir):
     """Test that generate_analysis_report creates a valid analysis JSON."""
     ks_result = {"statistic": 0.1, "pvalue": 0.01}
-    reg_result = {"change_point": 4.5, "slope1": 0.1, "slope2": -0.2}
+    reg_result = {"threshold": 4.5, "regression_coeff": -0.2}
     sens_result = {"cutoffs": [0.01, 0.05], "inconsistency_rates": [0.0, 0.1]}
     
     output_path = "data/metrics/analysis_results.json"
@@ -76,3 +103,37 @@ def test_generate_analysis_report(temp_metrics_dir):
     assert "piecewise_regression" in data
     assert "conclusion" in data
     assert data["conclusion"]["significant_difference"] == True
+
+def test_baseline_report_generation(temp_metrics_dir):
+    """
+    Specific test for T017 verification: 
+    Verify the report contains the exact keys required by the task.
+    """
+    # Simulate data that would come from T016a metrics
+    metrics = [
+        {
+            "clip_id": "davis_01",
+            "peak_memory": 1500.5,
+            "inference_time": 3.2,
+            "consecutive_ssim": 0.98,
+            "temporal_gradient_variance": 0.005
+        }
+    ]
+    
+    output_path = "data/metrics/baseline_results.json"
+    generate_baseline_report(metrics, output_path)
+    
+    assert os.path.exists(output_path)
+    with open(output_path, 'r') as f:
+        report = json.load(f)
+    
+    # Check top level
+    assert report["model"] == "baseline"
+    
+    # Check individual record structure matches T017 spec
+    assert len(report["individual_records"]) == 1
+    rec = report["individual_records"][0]
+    
+    required_keys = ["clip_id", "peak_memory", "inference_time", "consecutive_ssim", "temporal_gradient_variance"]
+    for key in required_keys:
+        assert key in rec, f"Missing required key: {key}"

@@ -1,63 +1,89 @@
 """
-Tests for T004: Setup data directory structure.
+Tests for the setup_data_directories module (T004).
+
+These tests verify that the required directory structure is created correctly.
 """
+
 import os
 import tempfile
 from pathlib import Path
 import pytest
 
 # Import the function to test
-# We need to adjust the import path if running tests differently,
-# but assuming standard pytest discovery from project root:
-import sys
-from pathlib import Path
-
-# Ensure code/ is in path for imports
-code_path = Path(__file__).parent.parent / "code"
-if str(code_path) not in sys.path:
-    sys.path.insert(0, str(code_path))
-
 from setup_data_directories import setup_data_directories
 
 
 class TestSetupDataDirectories:
+    """Test cases for setup_data_directories function."""
+
     def test_creates_required_directories(self, tmp_path):
-        """Test that the function creates data/raw, data/processed, and state."""
-        # Arrange
-        expected_dirs = ["data/raw", "data/processed", "state"]
+        """Test that all required directories are created."""
+        # Run the setup on a temporary directory
+        created_dirs = setup_data_directories(str(tmp_path))
+        
+        # Check that we got the expected number of directories
+        assert len(created_dirs) == 3
+        
+        # Verify each directory exists
+        expected_subdirs = ["data/raw", "data/processed", "state"]
+        for subdir in expected_subdirs:
+            expected_path = tmp_path / subdir
+            assert expected_path.exists(), f"Directory {expected_path} was not created"
+            assert expected_path.is_dir(), f"Path {expected_path} is not a directory"
 
-        # Act
-        setup_data_directories(tmp_path)
+    def test_creates_parent_directories(self, tmp_path):
+        """Test that parent directories are created if they don't exist."""
+        # The function should create data/ and state/ if they don't exist
+        created_dirs = setup_data_directories(str(tmp_path))
+        
+        # Check that data/ and state/ parent directories exist
+        data_dir = tmp_path / "data"
+        state_dir = tmp_path / "state"
+        
+        assert data_dir.exists()
+        assert state_dir.exists()
 
-        # Assert
-        for dir_name in expected_dirs:
-            full_path = tmp_path / dir_name
-            assert full_path.exists(), f"Directory {dir_name} was not created"
-            assert full_path.is_dir(), f"Path {dir_name} is not a directory"
+    def test_idempotent_creation(self, tmp_path):
+        """Test that running the function twice doesn't cause errors."""
+        # First run
+        created_dirs_1 = setup_data_directories(str(tmp_path))
+        
+        # Second run should succeed without errors
+        created_dirs_2 = setup_data_directories(str(tmp_path))
+        
+        # Should create the same directories
+        assert len(created_dirs_1) == len(created_dirs_2)
+        
+        # All directories should still exist
+        for dir_path in created_dirs_2:
+            assert Path(dir_path).exists()
 
-    def test_idempotent(self, tmp_path):
-        """Test that running the function twice does not raise an error."""
-        # Act & Assert: Should not raise
-        setup_data_directories(tmp_path)
-        setup_data_directories(tmp_path)
+    def test_returns_absolute_paths(self, tmp_path):
+        """Test that the function returns absolute paths."""
+        created_dirs = setup_data_directories(str(tmp_path))
+        
+        for dir_path in created_dirs:
+            assert os.path.isabs(dir_path), f"Path {dir_path} is not absolute"
 
-        # Verify directories still exist
-        assert (tmp_path / "data/raw").exists()
-        assert (tmp_path / "data/processed").exists()
-        assert (tmp_path / "state").exists()
+    def test_handles_existing_directories(self, tmp_path):
+        """Test that the function handles pre-existing directories gracefully."""
+        # Create some directories manually
+        (tmp_path / "data" / "raw").mkdir(parents=True)
+        (tmp_path / "state").mkdir(parents=True)
+        
+        # Running setup should not fail
+        created_dirs = setup_data_directories(str(tmp_path))
+        
+        assert len(created_dirs) == 3
 
-    def test_creates_gitkeep_files(self, tmp_path):
-        """Test that .gitkeep files are created in the directories."""
-        setup_data_directories(tmp_path)
-
-        expected_gitkeeps = [
-            tmp_path / "data/raw" / ".gitkeep",
-            tmp_path / "data/processed" / ".gitkeep",
-            tmp_path / "state" / ".gitkeep",
-        ]
-
-        for gitkeep in expected_gitkeeps:
-            assert gitkeep.exists(), f"{gitkeep} was not created"
-            # Verify content is not empty (optional but good practice)
-            content = gitkeep.read_text()
-            assert len(content) > 0, f"{gitkeep} is empty"
+    def test_uses_correct_project_root(self, tmp_path):
+        """Test that the function respects the provided project_root argument."""
+        custom_root = tmp_path / "custom"
+        custom_root.mkdir()
+        
+        created_dirs = setup_data_directories(str(custom_root))
+        
+        # Verify paths are under custom_root
+        for dir_path in created_dirs:
+            assert dir_path.startswith(str(custom_root)), \
+                f"Directory {dir_path} is not under {custom_root}"

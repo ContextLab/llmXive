@@ -1,29 +1,31 @@
 """
-Setup script to create the required data directory structure.
-
-Creates the following subdirectories under `data/`:
-- raw: For raw input data (synthetic or external)
-- processed: For cleaned and engineered datasets
-- split: For train/test/validation splits
+Script to create the required directory structure for the project.
+This ensures data/raw, data/processed, data/split, and artifact directories exist.
 """
 import os
 from pathlib import Path
 
 def main():
-    project_root = Path(__file__).resolve().parent.parent
-    data_root = project_root / "data"
+    """Create the project directory structure."""
+    project_root = Path("projects/PROJ-240-predicting-the-impact-of-cold-work-on-re")
     
-    directories = [
-        data_root / "raw",
-        data_root / "processed",
-        data_root / "split",
-    ]
+    # Create root directories
+    (project_root / "code").mkdir(parents=True, exist_ok=True)
+    (project_root / "tests").mkdir(parents=True, exist_ok=True)
+    (project_root / "data").mkdir(parents=True, exist_ok=True)
+    (project_root / "artifacts").mkdir(parents=True, exist_ok=True)
     
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {directory}")
+    # Create data subdirectories
+    (project_root / "data" / "raw").mkdir(parents=True, exist_ok=True)
+    (project_root / "data" / "processed").mkdir(parents=True, exist_ok=True)
+    (project_root / "data" / "split").mkdir(parents=True, exist_ok=True)
     
-    print(f"Data directory structure ready at: {data_root}")
+    # Create artifact subdirectories
+    (project_root / "artifacts" / "models").mkdir(parents=True, exist_ok=True)
+    (project_root / "artifacts" / "reports").mkdir(parents=True, exist_ok=True)
+    (project_root / "artifacts" / "figures").mkdir(parents=True, exist_ok=True)
+    
+    print("Directory structure created successfully.")
 
 if __name__ == "__main__":
     main()

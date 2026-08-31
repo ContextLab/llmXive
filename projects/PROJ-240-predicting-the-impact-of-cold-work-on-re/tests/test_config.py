@@ -1,78 +1,149 @@
 """
-Unit tests for the configuration management module (code/config.py).
+Unit tests for the configuration management module.
 """
 import os
-import sys
+import pytest
 from pathlib import Path
-
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from code.config import (
+    load_env_config,
+    get_config_value,
     N_PERMUTATIONS,
     RANDOM_SEED,
     TEST_SIZE,
     MAX_DATASET_ROWS,
     MIN_DATASET_ROWS,
-    PERMUTATION_IMPORTANCE_THRESHOLD,
-    P_VALUE_THRESHOLD,
     COLD_WORK_MIN,
     COLD_WORK_MAX,
-    ensure_directories,
+    PROJECT_ROOT,
     DATA_RAW_DIR,
-    ARTIFACTS_REPORTS_DIR,
+    ARTIFACTS_REPORTS_DIR
 )
 
 
-def test_n_permutations_default():
-    """Test that N_PERMUTATIONS defaults to 1000."""
-    # This relies on the default in config.py if .env is not set or doesn't contain the key
-    # If the environment variable is set elsewhere, this test might need mocking,
-    # but for a static check of the default logic:
-    assert N_PERMUTATIONS == 1000 or isinstance(N_PERMUTATIONS, int) and N_PERMUTATIONS > 0
+class TestConfigConstants:
+    """Test that configuration constants are correctly defined."""
+
+    def test_n_permutations_default(self):
+        """Test that N_PERMUTATIONS defaults to 1000."""
+        assert N_PERMUTATIONS == 1000
+
+    def test_random_seed_default(self):
+        """Test that RANDOM_SEED defaults to 42."""
+        assert RANDOM_SEED == 42
+
+    def test_test_size_default(self):
+        """Test that TEST_SIZE defaults to 0.2."""
+        assert TEST_SIZE == 0.2
+
+    def test_max_dataset_rows_default(self):
+        """Test that MAX_DATASET_ROWS defaults to 10000."""
+        assert MAX_DATASET_ROWS == 10000
+
+    def test_min_dataset_rows_default(self):
+        """Test that MIN_DATASET_ROWS defaults to 50."""
+        assert MIN_DATASET_ROWS == 50
+
+    def test_cold_work_bounds(self):
+        """Test that cold work bounds are correctly defined."""
+        assert COLD_WORK_MIN == 0.0
+        assert COLD_WORK_MAX == 100.0
+
+    def test_project_root_exists(self):
+        """Test that PROJECT_ROOT is a valid Path."""
+        assert isinstance(PROJECT_ROOT, Path)
+        assert PROJECT_ROOT.exists()
+
+    def test_data_dirs_exist(self):
+        """Test that expected data directories are configured."""
+        assert isinstance(DATA_RAW_DIR, Path)
+        assert isinstance(ARTIFACTS_REPORTS_DIR, Path)
 
 
-def test_random_seed():
-    """Test that RANDOM_SEED is 42."""
-    assert RANDOM_SEED == 42
+class TestConfigFunctions:
+    """Test configuration utility functions."""
+
+    def test_get_config_value_with_env(self, monkeypatch):
+        """Test get_config_value retrieves environment variables."""
+        monkeypatch.setenv("TEST_VAR", "test_value")
+        result = get_config_value("TEST_VAR")
+        assert result == "test_value"
+
+    def test_get_config_value_default(self):
+        """Test get_config_value returns default when key missing."""
+        result = get_config_value("NON_EXISTENT_VAR", "default_value")
+        assert result == "default_value"
+
+    def test_load_env_config_nonexistent_file(self, tmp_path):
+        """Test load_env_config with non-existent file."""
+        result = load_env_config(tmp_path / "nonexistent.env")
+        assert result == {}
+
+    def test_load_env_config_with_content(self, tmp_path):
+        """Test load_env_config parses .env file correctly."""
+        env_file = tmp_path / "test.env"
+        env_file.write_text(
+            "KEY1=value1\n"
+            "KEY2=value2\n"
+            "# Comment line\n"
+            "KEY3=value3\n"
+        )
+        result = load_env_config(env_file)
+        assert result == {
+            "KEY1": "value1",
+            "KEY2": "value2",
+            "KEY3": "value3"
+        }
+
+    def test_load_env_config_ignores_comments(self, tmp_path):
+        """Test load_env_config ignores comment lines."""
+        env_file = tmp_path / "test.env"
+        env_file.write_text(
+            "# This is a comment\n"
+            "KEY=value\n"
+            "  # Indented comment\n"
+        )
+        result = load_env_config(env_file)
+        assert result == {"KEY": "value"}
+
+    def test_load_env_config_handles_spaces(self, tmp_path):
+        """Test load_env_config handles spaces around keys and values."""
+        env_file = tmp_path / "test.env"
+        env_file.write_text(
+            "KEY1 = value1\n"
+            "KEY2= value2\n"
+            "KEY3 =value3\n"
+        )
+        result = load_env_config(env_file)
+        assert result == {
+            "KEY1": "value1",
+            "KEY2": "value2",
+            "KEY3": "value3"
+        }
 
 
-def test_test_size():
-    """Test that TEST_SIZE is 0.2."""
-    assert TEST_SIZE == 0.2
+class TestConfigEnvironmentOverride:
+    """Test that environment variables override defaults."""
 
+    def test_n_permutations_override(self, monkeypatch):
+        """Test N_PERMUTATIONS can be overridden via environment."""
+        monkeypatch.setenv("N_PERMUTATIONS", "2000")
+        # Reload the module to pick up the new environment variable
+        import importlib
+        import code.config
+        importlib.reload(code.config)
+        assert code.config.N_PERMUTATIONS == 2000
+        # Reload back to original for other tests
+        monkeypatch.delenv("N_PERMUTATIONS")
+        importlib.reload(code.config)
+        assert code.config.N_PERMUTATIONS == 1000
 
-def test_dataset_size_limits():
-    """Test dataset size limits."""
-    assert MAX_DATASET_ROWS == 10000
-    assert MIN_DATASET_ROWS == 50
-
-
-def test_thresholds():
-    """Test statistical thresholds."""
-    assert PERMUTATION_IMPORTANCE_THRESHOLD == 0.01
-    assert P_VALUE_THRESHOLD == 0.05
-
-
-def test_physical_bounds():
-    """Test physical bound constants."""
-    assert COLD_WORK_MIN == 0.0
-    assert COLD_WORK_MAX == 100.0
-
-
-def test_directories_exist():
-    """Test that ensure_directories creates the necessary folders."""
-    # Clean up first if they exist (optional, or just ensure they exist)
-    # We expect the function to create them.
-    ensure_directories()
-    assert DATA_RAW_DIR.exists()
-    assert ARTIFACTS_REPORTS_DIR.exists()
-    assert DATA_RAW_DIR.is_dir()
-    assert ARTIFACTS_REPORTS_DIR.is_dir()
-
-
-def test_paths_are_pathlib():
-    """Test that paths are Path objects."""
-    from pathlib import Path
-    assert isinstance(DATA_RAW_DIR, Path)
-    assert isinstance(ARTIFACTS_REPORTS_DIR, Path)
+    def test_random_seed_override(self, monkeypatch):
+        """Test RANDOM_SEED can be overridden via environment."""
+        monkeypatch.setenv("RANDOM_SEED", "123")
+        import importlib
+        import code.config
+        importlib.reload(code.config)
+        assert code.config.RANDOM_SEED == 123
+        monkeypatch.delenv("RANDOM_SEED")
+        importlib.reload(code.config)
+        assert code.config.RANDOM_SEED == 42

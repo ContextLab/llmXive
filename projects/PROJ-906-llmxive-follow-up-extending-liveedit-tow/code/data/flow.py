@@ -5,229 +5,208 @@ import numpy as np
 import torch
 from typing import List, Dict, Any, Optional, Tuple
 from pathlib import Path
+import json
 
-from config import ensure_directories, get_default_config
+from config import ensure_directories
 from utils.logger import get_logger
-from data.models import VideoClip
-from data.downloader import download_dataset
 
 logger = get_logger(__name__)
 
-def compute_flow_magnitude(
-    flow_x: np.ndarray,
-    flow_y: np.ndarray
-) -> np.ndarray:
+def compute_flow_magnitude(flow_field: np.ndarray) -> float:
     """
-    Computes the magnitude of optical flow at each pixel.
+    Compute the mean magnitude of an optical flow field.
     
     Args:
-        flow_x: Horizontal flow component
-        flow_y: Vertical flow component
-        
+        flow_field: Optical flow field of shape (H, W, 2) where the last
+                    dimension contains (u, v) vectors.
+                    
     Returns:
-        np.ndarray: Flow magnitude map
+        Mean magnitude of the flow field (float).
+        
+    Raises:
+        ValueError: If the flow field contains NaN or Inf values.
     """
-    magnitude = np.sqrt(flow_x**2 + flow_y**2)
-    return magnitude
+    if flow_field.shape[-1] != 2:
+        raise ValueError(f"Flow field must have shape (H, W, 2), got {flow_field.shape}")
+
+    # Check for NaN or Inf
+    if np.any(np.isnan(flow_field)) or np.any(np.isinf(flow_field)):
+        raise ValueError("Flow field contains NaN or Inf values. Fallback to identity warp required.")
+
+    # Compute magnitude: sqrt(u^2 + v^2)
+    magnitude = np.sqrt(np.sum(flow_field ** 2, axis=-1))
+    
+    # Compute mean magnitude, ignoring any remaining invalid values if they slipped through
+    # (though the check above should catch them)
+    valid_mask = np.isfinite(magnitude)
+    if not np.any(valid_mask):
+        raise ValueError("All flow values are invalid.")
+        
+    return float(np.mean(magnitude[valid_mask]))
 
 def extract_flow_magnitudes_for_dataset(
-    clips: List[VideoClip],
+    clip_paths: List[str],
     output_path: str,
     method: str = "farneback"
 ) -> Dict[str, float]:
     """
-    Extracts mean flow magnitude for each clip in the dataset.
+    Compute flow magnitude for a list of video clips and save to JSON.
     
     Args:
-        clips: List of VideoClip objects
-        output_path: Path to save magnitudes JSON
-        method: Flow computation method ('farneback' or 'raft')
-        
+        clip_paths: List of paths to video files.
+        output_path: Path to save the magnitudes JSON file.
+        method: Flow computation method ('farneback' or 'raft').
+                
     Returns:
-        Dict[str, float]: Mapping of clip_id to mean flow magnitude
+        Dict mapping clip_id to flow magnitude.
     """
     ensure_directories(output_path)
-    
     magnitudes = {}
+
+    for clip_path in clip_paths:
+        clip_id = Path(clip_path).stem
+        logger.info(f"Computing flow magnitude for {clip_id}...")
+        
+        try:
+            mag = compute_flow_magnitude_for_video(clip_path, method)
+            magnitudes[clip_id] = mag
+        except ValueError as e:
+            logger.warning(f"Failed to compute flow for {clip_id}: {e}. Skipping.")
+            magnitudes[clip_id] = 0.0 # Fallback to 0 for stratification purposes if failed
+
+    # Save to JSON
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(magnitudes, f, indent=2)
     
-    for clip in clips:
-        logger.info(f"Computing flow for clip: {clip.id}")
+    logger.info(f"Flow magnitudes saved to {output_path}")
+    return magnitudes
+
+def compute_flow_magnitude_for_video(
+    video_path: str,
+    method: str = "farneback"
+) -> float:
+    """
+    Compute mean flow magnitude for a single video file.
+    
+    Args:
+        video_path: Path to the video file.
+        method: Flow computation method.
+                
+    Returns:
+        Mean flow magnitude for the video.
+    """
+    cap = cv2.VideoCapture(video_path)
+    if not cap.isOpened():
+        raise ValueError(f"Could not open video: {video_path}")
+
+    ret, prev_frame = cap.read()
+    if not ret:
+        raise ValueError(f"Could not read first frame from: {video_path}")
+    
+    prev_gray = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
+    magnitudes = []
+
+    while True:
+        ret, curr_frame = cap.read()
+        if not ret:
+            break
         
-        # Load video frames
-        cap = cv2.VideoCapture(clip.path)
-        if not cap.isOpened():
-            logger.error(f"Could not open video: {clip.path}")
-            continue
-        
-        # Read first two frames
-        ret1, frame1 = cap.read()
-        if not ret1:
-            continue
-        ret2, frame2 = cap.read()
-        if not ret2:
-            cap.release()
-            continue
-        
-        cap.release()
-        
-        # Convert to grayscale
-        gray1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
-        gray2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
-        
+        curr_gray = cv2.cvtColor(curr_frame, cv2.COLOR_BGR2GRAY)
+
         # Compute optical flow
         if method == "farneback":
             flow = cv2.calcOpticalFlowFarneback(
-                gray1, gray2, None,
-                pyr_scale=0.5,
-                levels=3,
-                winsize=15,
-                iterations=3,
-                poly_n=5,
-                poly_sigma=1.2,
-                flags=0
-            )
-        elif method == "raft":
-            # Placeholder for RAFT implementation
-            # In real implementation, load RAFT model and compute flow
-            logger.warning("RAFT not implemented, falling back to Farneback")
-            flow = cv2.calcOpticalFlowFarneback(
-                gray1, gray2, None,
-                pyr_scale=0.5,
-                levels=3,
-                winsize=15,
-                iterations=3,
-                poly_n=5,
-                poly_sigma=1.2,
-                flags=0
+                prev_gray, curr_gray, None,
+                pyr_scale=0.5, levels=3, winsize=15,
+                iterations=3, poly_n=5, poly_sigma=1.2, flags=0
             )
         else:
-            raise ValueError(f"Unknown flow method: {method}")
-        
-        # Compute magnitude
-        mag = compute_flow_magnitude(flow[:, :, 0], flow[:, :, 1])
-        mean_mag = float(np.mean(mag))
-        
-        # Handle invalid flow (NaN/Inf)
-        if np.isnan(mean_mag) or np.isinf(mean_mag):
-            logger.warning(f"Invalid flow magnitude for {clip.id}, setting to 0.0")
-            mean_mag = 0.0
-        
-        magnitudes[clip.id] = mean_mag
-        logger.info(f"Clip {clip.id}: mean flow magnitude = {mean_mag:.4f}")
+            # Placeholder for other methods (RAFT would require torch)
+            raise NotImplementedError(f"Method {method} not implemented in this CPU-only version.")
+
+        if flow is not None:
+            # Compute magnitude for this frame
+            # Handle potential NaN/Inf in flow
+            if np.any(np.isnan(flow)) or np.any(np.isinf(flow)):
+                logger.warning(f"NaN/Inf detected in flow for {video_path}. Skipping frame.")
+            else:
+                mag = compute_flow_magnitude(flow)
+                magnitudes.append(mag)
+
+        prev_gray = curr_gray
+
+    cap.release()
+
+    if not magnitudes:
+        return 0.0
     
-    # Save to JSON
-    with open(output_path, 'w') as f:
-        json.dump(magnitudes, f, indent=2)
-    
-    logger.info(f"Saved flow magnitudes to {output_path}")
-    return magnitudes
+    return float(np.mean(magnitudes))
 
 def compute_full_flow_field(
-    clip: VideoClip,
+    video_path: str,
     output_dir: str,
     method: str = "farneback"
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> str:
     """
-    Computes full optical flow field for a clip.
+    Compute full optical flow fields for a video and save as .npy files.
     
     Args:
-        clip: VideoClip object
-        output_dir: Directory to save flow fields
-        method: Flow computation method
-        
+        video_path: Path to video.
+        output_dir: Directory to save flow fields.
+        method: Flow computation method.
+                
     Returns:
-        Tuple[np.ndarray, np.ndarray]: Flow X and Y components
+        Path to the directory containing flow fields.
     """
     ensure_directories(output_dir)
-    
-    cap = cv2.VideoCapture(clip.path)
+    clip_id = Path(video_path).stem
+    flow_dir = os.path.join(output_dir, f"{clip_id}_flows")
+    ensure_directories(flow_dir)
+
+    cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
-        raise ValueError(f"Could not open video: {clip.path}")
+        raise ValueError(f"Could not open video: {video_path}")
+
+    ret, prev_frame = cap.read()
+    if not ret:
+        raise ValueError(f"Could not read first frame from: {video_path}")
     
-    frames = []
+    prev_gray = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
+    frame_idx = 0
+
     while True:
-        ret, frame = cap.read()
+        ret, curr_frame = cap.read()
         if not ret:
             break
-        frames.append(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY))
-    
-    cap.release()
-    
-    if len(frames) < 2:
-        logger.warning(f"Not enough frames in {clip.id}")
-        return np.zeros_like(frames[0]), np.zeros_like(frames[0])
-    
-    # Compute flow between consecutive frames and average
-    flow_x_total = np.zeros_like(frames[0], dtype=np.float32)
-    flow_y_total = np.zeros_like(frames[0], dtype=np.float32)
-    
-    for i in range(len(frames) - 1):
+        
+        curr_gray = cv2.cvtColor(curr_frame, cv2.COLOR_BGR2GRAY)
+
         if method == "farneback":
             flow = cv2.calcOpticalFlowFarneback(
-                frames[i], frames[i+1], None,
-                pyr_scale=0.5,
-                levels=3,
-                winsize=15,
-                iterations=3,
-                poly_n=5,
-                poly_sigma=1.2,
-                flags=0
+                prev_gray, curr_gray, None,
+                pyr_scale=0.5, levels=3, winsize=15,
+                iterations=3, poly_n=5, poly_sigma=1.2, flags=0
             )
         else:
-            # RAFT placeholder
-            flow = cv2.calcOpticalFlowFarneback(
-                frames[i], frames[i+1], None,
-                pyr_scale=0.5,
-                levels=3,
-                winsize=15,
-                iterations=3,
-                poly_n=5,
-                poly_sigma=1.2,
-                flags=0
-            )
+            raise NotImplementedError(f"Method {method} not implemented.")
+
+        if flow is not None:
+            flow_path = os.path.join(flow_dir, f"flow_{frame_idx:04d}.npy")
+            np.save(flow_path, flow)
         
-        flow_x_total += flow[:, :, 0]
-        flow_y_total += flow[:, :, 1]
-    
-    n_frames = len(frames) - 1
-    flow_x = flow_x_total / n_frames
-    flow_y = flow_y_total / n_frames
-    
-    # Save flow fields
-    output_path = os.path.join(output_dir, f"{clip.id}_flow.npy")
-    np.save(output_path, np.stack([flow_x, flow_y], axis=0))
-    logger.info(f"Saved flow field to {output_path}")
-    
-    return flow_x, flow_y
+        prev_gray = curr_gray
+        frame_idx += 1
+
+    cap.release()
+    logger.info(f"Flow fields saved to {flow_dir}")
+    return flow_dir
 
 def main():
     """
-    Main entry point for flow computation.
+    Entry point for flow computation.
     """
-    import argparse
-    import json
-    
-    parser = argparse.ArgumentParser(description="Compute optical flow for dataset")
-    parser.add_argument("--dataset", type=str, default="davis", help="Dataset name")
-    parser.add_argument("--method", type=str, default="farneback", help="Flow method")
-    parser.add_argument("--output", type=str, default="data/flow/magnitudes.json", help="Output path")
-    parser.add_argument("--stratify", action="store_true", help="Also compute stratification magnitudes")
-    
-    args = parser.parse_args()
-    
-    logger.info(f"Computing flow with method: {args.method}")
-    
-    # In real implementation, load clips from dataset
-    # For now, simulate
-    clips = []
-    
-    if args.stratify:
-        magnitudes = extract_flow_magnitudes_for_dataset(
-            clips, args.output, method=args.method
-        )
-        logger.info(f"Computed magnitudes for {len(magnitudes)} clips")
-    else:
-        logger.info("Stratification not requested. Skipping magnitude extraction.")
+    logging.basicConfig(level=logging.INFO)
+    logger.info("Flow module loaded.")
 
 if __name__ == "__main__":
     main()

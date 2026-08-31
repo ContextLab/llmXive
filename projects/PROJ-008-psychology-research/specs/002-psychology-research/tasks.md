@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`projects/PROJ-008-psychology-research/`)
-- [X] T002 Initialize Python 3.11 project with `pyproject.toml` (dependencies: `pandas`, `scikit-learn`, `statsmodels`, `matplotlib`, `requests`, `pyyaml`, `pytest`, `bayesmeta`, `pdfplumber`, `pytesseract`)
+- [ ] T002 Initialize Python 3.11 project with `pyproject.toml` (dependencies: `pandas`, `scikit-learn`, `statsmodels`, `matplotlib`, `requests`, `pyyaml`, `pytest`, `bayesmeta`, `pdfplumber`, `pytesseract`)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -55,13 +55,15 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Create base Pydantic models for `Study`, `EffectSize`, and `MetaAnalysisResult` in `code/data/models.py`
-- [X] T005 [P] Implement structured logging infrastructure in `code/utils/logging.py` (FR-007)
-- [X] T006 [P] Setup configuration management and seed pinning in `code/utils/config.py`
+- [ ] T004 Create base Pydantic models for `Study`, `EffectSize`, and `MetaAnalysisResult` in `code/data/models.py`
+- [ ] T005 [P] Implement structured logging infrastructure in `code/utils/logging.py` (FR-007)
+- [ ] T006 [P] Setup configuration management and seed pinning in `code/utils/config.py`
 - [ ] T007 Create schema contracts in `contracts/` directory: `cleaned_study.schema.yaml` and `effect_size.schema.yaml`
-- [X] T008 Implement artifact hashing utility in `scripts/hash_artifacts.py` for Constitution Principle V
-- [X] T009 [P] Create `docs/ethics_determination.md` documenting the 'Exempt' status for secondary analysis of de-identified public registry data (ClinicalTrials.gov, OSF) and justification for no IRB requirement
-- [X] T010 Create `docs/analysis-plan.md` detailing missing-data handling and imputation strategies
+- [ ] T008 Implement artifact hashing utility in `scripts/hash_artifacts.py` for Constitution Principle V
+- [ ] T009 [P] Create `docs/ethics_determination.md` documenting the 'Exempt' status for secondary analysis of de-identified public registry data (ClinicalTrials.gov, OSF) and justification for no IRB requirement
+- [ ] T010 Create `docs/analysis-plan.md` detailing missing-data handling and imputation strategies
+- [ ] T011 **Novel Contribution & Citation Verification**: Update `docs/research.md` to explicitly articulate the novel contribution (6-12 age range, disaggregated components, delivery format) AND resolve all `[UNVERIFIED]` citations in `plan.md` and `research.md` (FR-018, FR-021).
+- [ ] T012 **Citation Verification**: Resolve all `[UNVERIFIED]` citations in `plan.md` and `research.md` by cross-referencing with primary sources and removing flags, addressing `research_reviewer_idea_quality` and `research_reviewer_implementation_completeness` concerns (FR-021).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,20 +79,22 @@
 
 ### Tests for User Story 1 (REQUIRED) ⚠️
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+> **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [X] T011 [P] [US1] Contract test for data extraction schema in `tests/contract/test_cleaned_study_schema.py`
-- [X] T012 [P] [US1] Integration test for API rate-limiting and backoff in `tests/integration/test_api_collector.py`
-- [X] T013 [P] [US1] Unit test for inclusion criteria filtering logic in `tests/unit/test_cleaner.py`
+- [ ] T013 [P] [US1] Contract test for data extraction schema in `tests/contract/test_cleaned_study_schema.py`
+- [ ] T014 [P] [US1] Integration test for API rate-limiting and backoff in `tests/integration/test_api_collector.py`
+- [ ] T015 [P] [US1] Unit test for inclusion criteria filtering logic in `tests/unit/test_cleaner.py`
 
 ### Implementation for User Story 1
 
-- [X] T014 [US1] Implement API collector in `code/data/collector.py` (FR-001, FR-002) with rate-limiting and exponential backoff for **ClinicalTrials.gov and OSF ONLY** (Constitution Principle VI override).
-- [X] T015 [P] [US1] Implement data extractor in `code/data/extractor.py` (FR-003) with regex patterns for intervention components
-- [X] T016 [US1] Implement data cleaner in `code/data/cleaner.py` (FR-007) to validate age (6-12), ASD diagnosis, and social skill outcomes
-- [X] T017 [US1] Implement multi-arm study handling logic in `code/data/cleaner.py` (FR-008) to split control groups proportionally
-- [X] T018 [US1] Implement **abstract-only** text extraction fallback in `code/data/extractor.py` (FR-009) using `pdfplumber` for abstract reconstruction if API metadata is missing. **Full-text OCR is disabled** to preserve CPU-only/7GB RAM constraints (Plan Assumptions).
-- [ ] T019 [US1] **Verify and archive output**: Ensure T014-T018 successfully generate `data/processed/cleaned_studies.csv` and `data/raw/excluded_studies.log`. (This is a validation step, not a generation step).
+- [ ] T016 [US1] Implement API collector in `code/data/collector.py` (FR-001, FR-002) with rate-limiting and exponential backoff for **ClinicalTrials.gov and OSF ONLY** (Constitution Principle VI override).
+- [ ] T017 [P] [US1] Implement data extractor in `code/data/extractor.py` (FR-003) with regex patterns for intervention components
+- [ ] T018 [US1] Implement data cleaner in `code/data/cleaner.py` (FR-007) to validate age (6-12), ASD diagnosis, and social skill outcomes
+- [ ] T019 [US1] Implement multi-arm study handling logic in `code/data/cleaner.py` (FR-008) to split control groups proportionally
+- [ ] T020 [US1] Implement **abstract-only** text extraction fallback in `code/data/extractor.py` (FR-009) using `pdfplumber` for abstract reconstruction if API metadata is missing. **Full-text OCR is disabled** to preserve CPU-only/7GB RAM constraints (Plan Assumptions).
+- [ ] T021 **Verify and archive output**: Create script `scripts/verify_output.py` that checks for existence of `data/processed/cleaned_studies.csv` and `data/raw/excluded_studies.log` and exits 0 on success, 1 on failure.
+- [ ] T022 [US1.5] **Blinded Assessment Extraction**: Extend `code/data/extractor.py` and `contracts/cleaned_study.schema.yaml` to capture **blinding status of outcome assessors** (e.g., "single-blind", "double-blind", "unblinded") for every study, addressing `daniel-kahneman-simulated` review concern regarding observer bias and WYSIATI (FR-015). **Depends on T007**.
+- [ ] T023 [US1.5] **Blinded Assessment Validation**: Add logic in `code/data/cleaner.py` to flag studies with unblinded or unknown assessor status for sensitivity analysis, ensuring the pipeline can distinguish between blinded and unblinded effect sizes (FR-015). **Depends on T007**.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -104,18 +108,19 @@
 
 ### Tests for User Story 2 (REQUIRED) ⚠️
 
-- [X] T021 [P] [US2] Contract test for effect size schema in `tests/contract/test_effect_size_schema.py`
-- [X] T022 [P] [US2] Unit test for Hedges' *g* calculation accuracy against `statsmodels` or manual calc in `tests/unit/test_effect_sizes.py`
-- [X] T023 [P] [US2] Unit test for random-effects model selection logic (I² > 50%) in `tests/unit/test_meta_analysis.py`
+- [ ] T024 [P] [US2] Contract test for effect size schema in `tests/contract/test_effect_size_schema.py`
+- [ ] T025 [P] [US2] Unit test for Hedges' *g* calculation accuracy against `statsmodels` or manual calc in `tests/unit/test_effect_sizes.py`
+- [ ] T026 [P] [US2] Unit test for random-effects model selection logic (I² > 50%) in `tests/unit/test_meta_analysis.py`
 
 ### Implementation for User Story 2
 
-- [X] T024 [US2] depends on T014, T015, T016, T017, T018: Implement Hedges' *g* calculator in `code/analysis/effect_sizes.py` (FR-004, FR-013) with small-sample correction
-- [X] T025 [US2] depends on T014, T015, T016, T017, T018: Implement random-effects meta-analysis engine in `code/analysis/meta_analysis.py` (FR-005) using `statsmodels` or `metafor` equivalent
-- [X] T026 [US2] depends on T024, T025: Implement subgroup analysis (Cochran's Q) for mindfulness components and delivery formats in `code/analysis/meta_analysis.py` (FR-005)
-- [X] T027 [US2] depends on T024, T025: Implement social skill domain extraction and subgroup analysis in `code/analysis/meta_analysis.py` (FR-010, FR-011)
-- [X] T028 [US2] depends on T024, T025: Implement follow-up duration subgroup analysis (3-month vs others) in `code/analysis/meta_analysis.py` (FR-012)
-- [ ] T029 [US2] depends on T024, T025: Implement conditional logic to suppress subgroup/meta-regression if N < 10 and switch to descriptive synthesis (FR-014)
+- [ ] T027 [US2] depends on T016, T017, T018, T019, T020: Implement Hedges' *g* calculator in `code/analysis/effect_sizes.py` (FR-004, FR-013) with small-sample correction
+- [ ] T028 [US2] depends on T016, T017, T018, T019, T020: Implement random-effects meta-analysis engine in `code/analysis/meta_analysis.py` (FR-005) using `statsmodels` or `metafor` equivalent
+- [ ] T029 [US2] depends on T027, T028: Implement subgroup analysis (Cochran's Q) for mindfulness components and delivery formats in `code/analysis/meta_analysis.py` (FR-005)
+- [ ] T030 [US2] depends on T027, T028: Implement social skill domain extraction and subgroup analysis in `code/analysis/meta_analysis.py` (FR-010, FR-011)
+- [ ] T031 [US2] depends on T027, T028: Implement follow-up duration subgroup analysis (3-month vs others) in `code/analysis/meta_analysis.py` (FR-012)
+- [ ] T032 [US2] depends on T027, T028: Implement conditional logic to suppress subgroup/meta-regression if N < 10 and switch to descriptive synthesis (FR-014)
+- [ ] T033 [US2.5] **Blinding Sensitivity Analysis**: Implement a comparative meta-analysis that calculates pooled effect sizes separately for **blinded** vs. **unblinded** assessments, and tests for significant differences between these subgroups, directly addressing `daniel-kahneman-simulated` review (FR-016). **Depends on T023**.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -129,18 +134,19 @@
 
 ### Tests for User Story 3 (REQUIRED) ⚠️
 
-- [X] T031 [P] [US3] Unit test for forest plot generation in `tests/unit/test_plots.py`
-- [X] T032 [P] [US3] Unit test for funnel plot suppression logic when N < 10 in `tests/unit/test_plots.py`
-- [ ] T033 [P] [US3] Integration test for publication bias assessment (Egger's test) in `tests/integration/test_bias.py`
+- [ ] T034 [P] [US3] Unit test for forest plot generation in `tests/unit/test_plots.py`
+- [ ] T035 [P] [US3] Unit test for funnel plot suppression logic when N < 10 in `tests/unit/test_plots.py`
+- [ ] T036 [P] [US3] Integration test for publication bias assessment (Egger's test) in `tests/integration/test_bias.py`
 
 ### Implementation for User Story 3
 
-- [X] T034 [US3] depends on T024-T029: Implement forest plot generator in `code/viz/plots.py` (FR-006) displaying study-specific CIs and pooled effect diamond
-- [X] T035 [US3] depends on T024-T029: Implement funnel plot generator in `code/viz/plots.py` (FR-006) with asymmetry visual cues (only if N ≥ 10)
-- [X] T036 [US3] depends on T024-T029: Implement Egger's test and publication bias assessment in `code/analysis/bias.py` (FR-006)
-- [ ] T037 [US3] depends on T036: Implement conditional logic to suppress funnel plot/Egger's test if N < 10 and add warning to report (FR-014)
-- [ ] T038 [US3] depends on T034, T035: Generate high-resolution PNGs for forest and funnel plots in `data/processed/`
-- [ ] T039 [US3] depends on T038: Generate final `docs/results.md` report including all plots, heterogeneity statistics, and narrative synthesis (if N < 10)
+- [ ] T037 [US3] depends on T027-T033: Implement forest plot generator in `code/viz/plots.py` (FR-006) displaying study-specific CIs and pooled effect diamond
+- [ ] T038 [US3] depends on T027-T033: Implement funnel plot generator in `code/viz/plots.py` (FR-006) with asymmetry visual cues (only if N ≥ 10)
+- [ ] T039 [US3] depends on T027-T033: Implement Egger's test and publication bias assessment in `code/analysis/bias.py` (FR-006)
+- [ ] T040 [US3] depends on T039: Implement conditional logic to suppress funnel plot/Egger's test if N < 10 and add warning to report (FR-014)
+- [ ] T041 [US3] depends on T037, T038: Generate `data/processed/forest_plot.png` and `data/processed/funnel_plot.png` at 300 DPI using matplotlib savefig() with explicit dpi parameter (FR-006).
+- [ ] T042 [US3] depends on T041: Generate `docs/results.md` containing: 1) Executive Summary, 2) Forest Plot (T037), 3) Funnel Plot (T038), 4) Heterogeneity Statistics (I², Q), 5) Subgroup Analysis Results, 6) Narrative Synthesis if N<10. Verify file exists and contains all 6 sections (FR-006).
+- [ ] T043 [US3.5] **Blinding Comparison Visualization**: Generate a specific forest plot or bar chart comparing the pooled effect sizes of **blinded** vs. **unblinded** assessments to visually demonstrate the impact of observer bias, addressing `daniel-kahneman-simulated` review (FR-017). **Depends on T023**.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -150,13 +156,12 @@
 
 **Purpose**: Improvements that affect multiple user stories and address current spec requirements
 
-- [ ] T041 [P] Create `.github/workflows/ci.yml` to automate pipeline execution on a fresh runner, verifying reproducibility (SC-005)
-- [ ] T042 [P] depends on T019, T007: Implement data integrity check script `scripts/validate_contracts.py` to run schema validation on `data/processed/cleaned_studies.csv` against `contracts/cleaned_study.schema.yaml`, writing a detailed `data/validation_report.json` with pass/fail status per record and summary statistics (SC-005, FR-007)
-- [ ] T043 [P] depends on T039: Generate final `docs/results.md` and `docs/protocol.md` with complete methodology and results summary
-- [ ] T044 [P] Create `quickstart.md` in `specs/001-mindfulness-asd-social-skills/` to document environment setup and verification steps (addressing filesystem_hygiene review)
-- [ ] T045 [P] Add `LICENSE` file specifying research data usage terms (addressing data_quality_review)
-- [ ] T047 [P] Update `research.md` with explicit "Novel Contribution" section distinguishing this meta-analysis from existing literature (addressing creativity review)
-- [ ] T048 [P] Verify and resolve all `[UNVERIFIED]` citations in `plan.md` and `research.md` (addressing idea_quality review)
+- [ ] T044 [P] Create `.github/workflows/ci.yml` to automate pipeline execution on a fresh runner, verifying reproducibility (SC-005)
+- [ ] T045 [P] depends on T007: Implement data integrity check script `scripts/validate_contracts.py` to run schema validation on `data/processed/cleaned_studies.csv` against `contracts/cleaned_study.schema.yaml`, writing a detailed `data/validation_report.json` with pass/fail status per record and summary statistics (SC-005, FR-007, FR-015).
+- [ ] T046 [P] depends on T042, T012: Generate final `docs/protocol.md` detailing the full methodology (search strategy, inclusion criteria, statistical methods) as per PRISMA guidelines. Verify file exists and includes PRISMA flow diagram description (FR-021).
+- [ ] T047 [P] Create `quickstart.md` in `specs/001-mindfulness-asd-social-skills/` to document environment setup and verification steps (FR-019).
+- [ ] T048 [P] Add `LICENSE` file specifying research data usage terms (FR-020).
+- [ ] T049 [P] **Artifact Generation Verification**: Create `scripts/verify_artifacts.py` that checks for existence of: `code/data/collector.py`, `code/analysis/meta_analysis.py`, `data/processed/cleaned_studies.csv`, `docs/results.md`, `tests/` directory. Fail if any missing (FR-022).
 
 ---
 
@@ -174,7 +179,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on clean data from US1 (T014-T018)
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on clean data from US1 (T016-T021)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on analysis results from US2
 
 ### Within Each User Story
@@ -253,9 +258,11 @@ With multiple developers:
 - **CPU Constraint**: All tasks must run on CPU-only CI (no GPU, no 8-bit models, no large LLM inference). Use `statsmodels` or `scikit-learn` for all statistical methods.
 - **Data Integrity**: No fake data generation. All analysis must use real data from the download/fetch task or documented gaps.
 - **Ethics**: T009 documents the 'Exempt' status for secondary analysis; no IRB protocol is required.
-- **PDF Extraction**: T018 uses `pdfplumber` for **abstract-only** reconstruction. Full-text OCR is disabled to comply with CPU-only constraints.
-- **CI/CD**: T041 ensures reproducibility on a fresh runner as per SC-005.
-- **Contract Validation**: T042 provides the concrete validation step required for data hygiene and reproducibility.
-- **Constitution Override**: T014 strictly enforces Constitution Principle VI (Clinical Trial Registry Integrity) by limiting sources to ClinicalTrials.gov and OSF, overriding FR-001's list of other sources. The spec is flagged for a kickback.
-- **Removed Hallucinated Tasks**: T019d (session count), T019c (blinding extraction), T027c (blinding analysis), T027b (Risk of Bias), T046 (interactive plots), T019b (markdown report), T040 (duplicate verification) have been removed as they were not in the spec or were unexecutable.
-- **Dependency Correction**: All analysis (T024-T029) and visualization (T034-T039) tasks now explicitly depend on the completion of their upstream calculation/data steps. [P] tags have been removed from sequential tasks.
+- **PDF Extraction**: T020 uses `pdfplumber` for **abstract-only** reconstruction. Full-text OCR is disabled to comply with CPU-only constraints.
+- **CI/CD**: T044 ensures reproducibility on a fresh runner as per SC-005.
+- **Contract Validation**: T045 provides the concrete validation step required for data hygiene and reproducibility.
+- **Constitution Override**: T016 strictly enforces Constitution Principle VI (Clinical Trial Registry Integrity) by limiting sources to ClinicalTrials.gov and OSF, overriding FR-001's list of other sources. The spec is flagged for a kickback.
+- **New Requirements**: Tasks T022, T023, T033, T043, T047, T048, T051 now reference new Functional Requirements (FR-015, FR-016, FR-017, FR-019, FR-020, FR-022) added to the plan to formally authorize scope expansion for blinding analysis, documentation, and verification.
+- **Merged Tasks**: T011 and T049 merged into T011; T012 and T050 merged into T012.
+- **Dependency Corrections**: All analysis (T027-T033) and visualization (T037-T043) tasks now explicitly depend on their upstream calculation/data steps. [P] tags removed from sequential tasks T011/T012.
+- **Status Reset**: All task statuses have been reset to '[ ]' (incomplete) to accurately reflect the current state of the filesystem and resolve contradictions from previous revisions.
