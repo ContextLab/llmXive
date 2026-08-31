@@ -1,10 +1,3 @@
-T004b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: 'No evidence was provided that `specs/amendment-001-fluid-intelligence-n10.md`
-    exists nor that it contains the required line `**Status**: Ratified`, and there
-    is no indication that `spec.md` was updated to reflect the amendment. Both required
-    artifacts are missing or unverified.'
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -38,3 +31,9 @@ T036:
     we cannot confirm that the required documentation artifacts exist or have been
     modified as requested. The implementer must provide the updated markdown files
     (or their relevant sections) to satisfy the task.
+T044:
+  c: true
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer explicitly marked T044 as deprecated and noted it has been moved\
+    \ to Phase\u202F1 (T015c), matching the task\u2019s requirement to mark it completed/deprecated.\
+    \ No additional artifacts are needed."

@@ -4829,3 +4829,474 @@
   source_type: external
   status: refuted
   updated_at: '2026-08-26T17:21:22Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: 'Dependency versions: nibabel 5.2.0, nilearn 0.10.4, networkx 3.2.1,
+    scikit-learn 1.5.0, pandas 2.2.2, numpy 1.26.4, openneuro-py 3.0.0, matplotlib
+    3.9.0, seaborn 0.13.2, reportlab 4.2.0, pytest 8.2.0'
+  claim_id: c_8dcc28e3
+  context: 'Initialize Python Project with Dependencies: Create requirements.txt at
+    repository root. Content: Pin specific library versions.'
+  evidence:
+    asserted: '5.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin nibabel==5.2.0, nilearn==0.10.4, networkx==3.2.1, scikit-learn==1.5.0,
+    pandas==2.2.2, numpy==1.26.4, openneuro-py==3.0.0, matplotlib==3.9.0, seaborn==0.13.2,
+    reportlab==4.2.0, pytest==8.2.0
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T08:33:38Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Spec mentions N=10 as CI sample size
+  claim_id: c_53c02ce1
+  context: 'Verify Spec Alignment - N=10: Verify that spec.md or plan.md explicitly
+    mentions N=10 as the CI sample size.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that spec.md explicitly mentions N=10 as the CI sample size
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:34:38Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Download OpenNeuro datasets ds000224 and ds000230
+  claim_id: c_111a2f20
+  context: 'Implement OpenNeuro Download and Validation (Real Data): Implement fetch_openneuro_data()
+    in code/download.py to download ds000224 (primary) and ds000230 (fallback).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_OpenNeuro_datasets_ds000224_and_ds000230
+  kind: entity_fact
+  raw_text: Download ds000224 (primary) and ds000230 (fallback) from OpenNeuro
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:35:37Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Proceed with N >= 1 subjects if valid count < 10
+  claim_id: c_a6cbd852
+  context: 'Constraint: If real data fetch succeeds but valid subjects < N=10, proceed
+    with available subjects (N >= 1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Proceed with available subjects if N >= 1 when valid subjects < N=10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:36:17Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Bandpass filter 0.01 to 0.1 Hz
+  claim_id: c_1515007a
+  context: 'Implement Preprocessing Pipeline: Order includes fslmaths (bandpass filter
+    0.01-0.1 Hz).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bandpass filter range 0.01-0.1 Hz
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:37:08Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Motion artifact threshold FD greater than 0.5mm
+  claim_id: c_b1bf7094
+  context: 'Implement Motion Artifact Detection: Implement logic to detect excessive
+    motion on preprocessed data (e.g., FD > 0.5mm) and flag subjects.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Motion_artifact_threshold_FD_greater_than_0.5mm
+  kind: magnitude
+  raw_text: Motion artifact threshold FD > 0.5mm
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:37:44Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Verify RAM usage less than 7GB for N=10
+  claim_id: c_d5783a39
+  context: 'Refactor preprocess.py for sequential processing: Verify RAM usage < 7GB
+    on N=10.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_RAM_usage_less_than_7GB_for_N=10
+  kind: magnitude
+  raw_text: Verify RAM usage < 7GB on N=10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:38:17Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Verify runtime less than 6 hours for N=10
+  claim_id: c_83005c44
+  context: 'Optimize matrix operations in graph_metrics.py: Verify runtime < 6h for
+    N=10.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_runtime_less_than_6_hours_for_N=10
+  kind: magnitude
+  raw_text: Verify runtime < 6h for N=10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:38:59Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Study sample size N=10 provides low statistical power
+  claim_id: c_27674a3a
+  context: 'Implement Power Analysis and Limitation Statement: The Limitations section
+    must explicitly state: This study utilizes a sample size of N=10 subjects, which
+    provides low statistical power for detecting small effect sizes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This study utilizes a sample size of N=10 subjects, which provides low
+    statistical power for detecting small effect sizes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:40:02Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction formula p multiplied by N_tests
+  claim_id: c_e466bd94
+  context: 'Implement Bonferroni Correction Verification Script: Verify the adjusted
+    p-values match the manual Bonferroni calculation (p * N_tests) exactly.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_formula_p_multiplied_by_N_tests
+  kind: entity_fact
+  raw_text: Bonferroni correction calculation is p * N_tests
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:41:24Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 0
+  canonical: dependency versions for Python project
+  claim_id: c_83afd8dd
+  context: 'Initialize Python Project with Dependencies: Create `requirements.txt`
+    at repository root.'
+  evidence:
+    asserted: '5.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin `nibabel==5.2.0`, `nilearn==0.10.4`, `networkx==3.2.1`, `scikit-learn==1.5.0`,
+    `pandas==2.2.2`, `numpy==1.26.4`, `openneuro-py==3.0.0`, `matplotlib==3.9.0`,
+    `seaborn==0.13.2`, `reportlab==4.2.0`, `pytest==8.2.0`.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T08:44:01Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: sample size N=10 specified in plan or spec
+  claim_id: c_8b4bc02f
+  context: 'Verify Spec Alignment - N=10: Verify that `spec.md` or `plan.md` explicitly
+    mentions ''N=10'' as the CI sample size.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that `spec.md` or `plan.md` explicitly mentions 'N=10' as the CI
+    sample size.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:45:01Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: study sample size is 10 subjects with low power
+  claim_id: c_5cd20c3f
+  context: 'Exact Text Requirement: The ''Limitations'' section must explicitly state:
+    ''This study utilizes a sample size of N=10 subjects, which provides low statistical
+    power for detecting small effect sizes.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study utilizes a sample size of N=10 subjects, which provides low
+    statistical power for detecting small effect sizes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:45:01Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: download ds000224 and ds000230 from OpenNeuro
+  claim_id: c_a589f2d0
+  context: 'Implement OpenNeuro Download and Validation (Real Data): Implement `fetch_openneuro_data()`
+    in `code/download.py` to download ds000224 (primary) and ds000230 (fallback).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_ds000224_and_ds000230_from_OpenNeuro
+  kind: entity_fact
+  raw_text: The system must attempt to download resting-state fMRI data from OpenNeuro
+    datasets ds000224 (primary) and ds000230 (fallback).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:45:37Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: proceed with N>=1 if N<10 available
+  claim_id: c_50459b49
+  context: 'Constraint: If real data fetch succeeds but valid subjects < N=10, proceed
+    with available subjects (N >= 1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If real data fetch succeeds but valid subjects < N=10, proceed with available
+    subjects (N >= 1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:46:22Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: bandpass filter 0.01 to 0.1 Hz
+  claim_id: c_35c7f2d8
+  context: 'Implement Preprocessing Pipeline: ... `fslmaths` (bandpass filter 0.01-0.1
+    Hz).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bandpass filter frequency range is 0.01-0.1 Hz.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:46:58Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: motion artifact threshold FD > 0.5mm
+  claim_id: c_a52474e3
+  context: 'Implement Motion Artifact Detection: Implement logic to detect excessive
+    motion on preprocessed data (e.g., FD > 0.5mm) and flag subjects.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Motion artifact detection flags subjects with FD > 0.5mm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:46:58Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: RAM usage less than 7GB for 10 subjects
+  claim_id: c_3657c380
+  context: Refactor `preprocess.py` for sequential processing ... Verify RAM usage
+    < 7GB on N=10
+  evidence:
+    candidates:
+    - - RAM usage less than 7GB for
+      - 10.0
+    - - Create account Log in RAM usage less than
+      - 7.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/RAM_usage_less_than_7GB_for_10_subjects
+  kind: magnitude
+  raw_text: Verify RAM usage < 7GB on N=10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-31T08:47:04Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: runtime less than 6 hours for 10 subjects
+  claim_id: c_c2fc1ae3
+  context: Optimize matrix operations in `graph_metrics.py` ... Verify runtime < 6h
+    for N=10
+  evidence:
+    candidates:
+    - - Runtime less than 6 hours for
+      - 10.0
+    - - Create account Log in Runtime less than
+      - 6.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Runtime_less_than_6_hours_for_10_subjects
+  kind: magnitude
+  raw_text: Verify runtime < 6h for N=10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-31T08:47:08Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: mock subject age range 18 to 80
+  claim_id: c_8dfc2094
+  context: 'Create Mock Input Data: ... `age` (range 18-80)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Age range for mock subjects is 18-80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:47:52Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 0
+  canonical: Primary dataset ds000224
+  claim_id: c_f2ed1ef8
+  context: 'Create config.yaml with the following content: primary_dataset: ds000224
+    fallback_dataset: ds000230 n_subjects: 10'
+  evidence:
+    entailment_evidence: Primary dataset is ds000224
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Primary_dataset_is_ds000224
+  kind: entity_fact
+  raw_text: The primary dataset is ds000224.
+  resolved_value: Primary dataset is ds000224
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T08:49:10Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 0
+  canonical: Fallback dataset ds000230
+  claim_id: c_0dd0ac4b
+  context: 'Create config.yaml with the following content: primary_dataset: ds000224
+    fallback_dataset: ds000230 n_subjects: 10'
+  evidence:
+    entailment_evidence: Fallback dataset is ds000230
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Fallback_dataset_is_ds000230
+  kind: entity_fact
+  raw_text: The fallback dataset is ds000230.
+  resolved_value: Fallback dataset is ds000230
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T08:49:10Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: N=10 CI sample size
+  claim_id: c_2fa4f5e4
+  context: 'Verify that spec.md or plan.md explicitly mentions ''N=10'' as the CI
+    sample size. Verification: Run python scripts/verify_spec_update.py --check n10
+    which must assert presence of ''N=10'' in SC-001 or Plan.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that spec.md or plan.md explicitly mentions 'N=10' as the CI sample
+    size.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:49:11Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Study utilizes sample size of 10 subjects
+  claim_id: c_c8a1163e
+  context: 'Exact Text Requirement: The ''Limitations'' section must explicitly state:
+    ''This study utilizes a sample size of N=10 subjects, which provides low statistical
+    power for detecting small effect sizes. Results should be interpreted as exploratory
+    and require validation in larger cohorts.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This study utilizes a sample size of N=10 subjects, which provides low
+    statistical power for detecting small effect sizes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:49:12Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: RAM usage under 7GB for 10 subjects
+  claim_id: c_e1ba0d11
+  context: 'Phase 5: Polish & Validation. T038b [P] Verify RAM usage < 7GB on N=10.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify RAM usage < 7GB on N=10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:49:13Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Runtime under 6 hours for 10 subjects
+  claim_id: c_b45e91d8
+  context: 'Phase 5: Polish & Validation. T039b [P] Verify runtime < 6h for N=10.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify runtime < 6h for N=10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:49:13Z'
