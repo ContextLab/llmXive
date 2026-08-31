@@ -4,7 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T014b` (rejected 1x): No Python wrapper script, command‑line integration, XML parsing logic, or syntax‑validation code was provided. The required artifact (a functional script that runs `pmd -f xml -d <dir> -rulesets rulesets/java/complexity.xml`, parses `<violation>` tags, and validates Java files) is missing, so the task is not satisfied.
+- `T000a` (rejected 1x): I looked for the required artifact `specs/001-code-complexity-bug-prediction/methodology_rationale.md` and its contents, but no such file or any excerpt of its text was provided. Without the actual markdown document documenting the conflict between Constitution Principle VI and the spec’s required methods, the task is not satisfied. The missing file must be created and populated with the described rationale.
+- `T001a` (rejected 1x): No evidence of the required `code/` directory hierarchy (e.g., `code/src`, `code/tests`, etc.) is provided; the claim cannot be verified without seeing the actual filesystem entries. The implementer must supply a listing or screenshot showing that the directories were created.
 
 ## Required change
 

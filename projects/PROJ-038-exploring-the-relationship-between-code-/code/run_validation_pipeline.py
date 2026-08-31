@@ -1,50 +1,41 @@
-"""
-Pipeline script to run the validation step (T018) on the generated features.csv.
-This script must be run after T017 generates the CSV but before the final artifact is accepted.
-It ensures no NaN values exist in metric columns.
-"""
 import sys
 import os
 from pathlib import Path
 import logging
-
-# Add project root to path
-project_root = Path(__file__).parent
-sys.path.insert(0, str(project_root / "code"))
-
-from src.validate_metrics import validate_schema_and_metrics
+from src.validate_metrics import validate_schema_and_metrics, DataIntegrityError
 from src.config import get_memory_limit_bytes
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
 def main():
-    features_path = project_root / "code" / "data" / "processed" / "features.csv"
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     
-    if not features_path.exists():
-        logger.error(f"Features file not found at {features_path}. Run T017 first.")
+    if len(sys.argv) < 2:
+        print("Usage: python run_validation_pipeline.py <input_csv_path> [output_csv_path]")
         sys.exit(1)
     
-    logger.info(f"Validating {features_path}...")
+    input_path = Path(sys.argv[1])
+    output_path = Path(sys.argv[2]) if len(sys.argv) > 2 else None
+    
+    if not input_path.exists():
+        logging.error(f"Input file not found: {input_path}")
+        sys.exit(1)
     
     try:
+        # Check memory limit
+        limit = get_memory_limit_bytes()
+        logging.info(f"Memory limit set to {limit / (1024*1024):.2f} MB")
+        
         import pandas as pd
-        df = pd.read_csv(features_path)
+        df = pd.read_csv(input_path)
+        logging.info(f"Loaded {len(df)} rows from {input_path}")
         
-        # Run the strict validation
-        validate_schema_and_metrics(df, features_path)
+        validated_df = validate_schema_and_metrics(df, output_path)
+        logging.info("Validation successful.")
         
-        logger.info("Validation PASSED. No NaN values in metric columns.")
-        logger.info("The features.csv is ready for downstream tasks (T021+).")
-        sys.exit(0)
-        
+    except DataIntegrityError as e:
+        logging.error(f"Data Integrity Error: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Validation FAILED: {e}")
-        logger.error("The features.csv contains invalid data (NaNs, missing columns, etc.).")
-        logger.error("Please fix the upstream data generation scripts (T013-T017).")
+        logging.error(f"Unexpected error: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

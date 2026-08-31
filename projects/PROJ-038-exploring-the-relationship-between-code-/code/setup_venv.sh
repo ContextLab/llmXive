@@ -1,49 +1,47 @@
 #!/bin/bash
-# Script to initialize a Python 3.11 virtual environment for the project.
-# This script creates a venv in the 'code/venv' directory and installs
-# initial dependencies from requirements.txt.
+# T001b: Initialize Python virtual environment
+# This script creates a virtual environment using python3.11 and verifies activation.
+# It must run in a single bash session to persist activation for subsequent checks.
 
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-VENV_DIR="${SCRIPT_DIR}/venv"
-REQUIREMENTS_FILE="${SCRIPT_DIR}/requirements.txt"
+# Ensure we are in the code directory
+cd "$(dirname "$0")"
 
-echo "=== Initializing Python 3.11 Virtual Environment ==="
+echo "Initializing Python virtual environment (T001b)..."
 
-# Check if Python 3.11 is available
+# Check for python3.11
 if ! command -v python3.11 &> /dev/null; then
-    echo "Error: Python 3.11 is not installed or not in PATH."
-    echo "Please install Python 3.11 and try again."
+    echo "ERROR: python3.11 is not installed or not in PATH."
     exit 1
 fi
 
-# Check if venv already exists
-if [ -d "$VENV_DIR" ]; then
-    echo "Virtual environment already exists at $VENV_DIR."
-    echo "Removing existing environment..."
-    rm -rf "$VENV_DIR"
+# Remove existing venv if present to ensure a clean state
+if [ -d ".venv" ]; then
+    echo "Removing existing .venv directory..."
+    rm -rf .venv
 fi
 
 # Create the virtual environment
-echo "Creating virtual environment with Python 3.11..."
-python3.11 -m venv "$VENV_DIR"
+echo "Creating virtual environment with python3.11..."
+python3.11 -m venv .venv
 
-# Activate and upgrade pip
-echo "Upgrading pip, setuptools, and wheel..."
-source "$VENV_DIR/bin/activate"
-pip install --upgrade pip setuptools wheel
+# Activate and verify in a single subshell to simulate the requirement
+# The task description implies the verification command runs in the same session.
+# We use a subshell to capture the version output as proof of activation.
+bash -c '
+    source .venv/bin/activate &&
+    echo "Virtual environment activated successfully." &&
+    echo "Python version: $(python --version)" &&
+    # Verify pip is available and working
+    pip --version > /dev/null &&
+    echo "Pip is available."
+'
 
-# Install dependencies if requirements.txt exists
-if [ -f "$REQUIREMENTS_FILE" ]; then
-    echo "Installing dependencies from requirements.txt..."
-    pip install -r "$REQUIREMENTS_FILE"
-else
-    echo "Warning: requirements.txt not found. Skipping dependency installation."
+if [ $? -ne 0 ]; then
+    echo "ERROR: Failed to activate or verify the virtual environment."
+    exit 1
 fi
 
-echo "=== Virtual Environment Ready ==="
-echo "To activate manually, run: source ${VENV_DIR}/bin/activate"
-echo "Python version: $(python --version)"
-deactivate
-echo "Script completed successfully."
+echo "T001b: Python virtual environment initialization completed successfully."
+exit 0

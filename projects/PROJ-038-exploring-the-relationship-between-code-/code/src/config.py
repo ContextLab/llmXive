@@ -17,6 +17,9 @@ DEFECTS4J_PATH: str = os.environ.get("DEFECTS4J_PATH", "/opt/defects4j")
 # Path to the PMD CLI tool installation.
 PMD_PATH: str = os.environ.get("PMD_PATH", "/usr/bin/pmd")
 
+# Path to the Java compiler (javac) for Halstead analysis.
+JAVA_HOME: str = os.environ.get("JAVA_HOME", "/usr/lib/jvm/default-java")
+
 # --- Random Seeds ---
 # Fixed seed for reproducibility across the entire pipeline.
 # Used by numpy, random, and scikit-learn.
@@ -49,10 +52,6 @@ DATA_RAW_DIR: Path = PROJECT_ROOT / "code" / "data" / "raw"
 DATA_PROCESSED_DIR: Path = PROJECT_ROOT / "code" / "data" / "processed"
 DATA_RESULTS_DIR: Path = PROJECT_ROOT / "code" / "data" / "results"
 
-# Ensure directories exist (optional, can be moved to a setup task if preferred)
-# For config, we just define them, but ensuring they exist helps downstream scripts.
-# We do not force creation here to keep config pure, but we define the paths.
-
 # --- Validation Helpers ---
 def validate_defects4j_path() -> bool:
     """Checks if the configured Defects4J path exists."""
@@ -70,6 +69,7 @@ def get_memory_limit_bytes() -> int:
 __all__ = [
     "DEFECTS4J_PATH",
     "PMD_PATH",
+    "JAVA_HOME",
     "RANDOM_SEED",
     "MEMORY_LIMIT_GB",
     "MAX_WORKERS",
