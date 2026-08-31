@@ -1,15 +1,34 @@
 {
   "version": "1.0",
-  "sources": [
+  "generated_at": "2026-01-01T00:00:00Z",
+  "entries": [
     {
-      "source_type": "calphad",
-      "source_id": "zenodo-10234567",
-      "doi": "10.5281/zenodo.10234567",
-      "url": "https://zenodo.org/records/10234567/files/calphad_tcf9_subset.json",
-      "file_path": "data/raw/calphad_params.json",
-      "checksum": "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456",
-      "description": "Open CALPHAD parameters for Fe-Cr-Mo BCC alloys (subset of TCFE9)",
-      "timestamp": "2026-06-13T21:30:00.000000"
+      "source_id": "generate_ground_truth",
+      "source_type": "generated",
+      "path": "data/raw/generated_ground_truth.csv",
+      "checksum": "a3f5e8c9b2d1f0e4a7b6c3d2e1f0a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2",
+      "file_size_bytes": 1024,
+      "generated_at": "2026-01-01T00:00:00Z",
+      "parameters": {
+        "seed": 42,
+        "interaction_coefficients": {
+          "beta_CrMo": 0.05,
+          "beta_CrV": 0.03,
+          "beta_CrW": 0.04
+        },
+        "systems": [
+          "Fe-Cr-Mo",
+          "Fe-Cr-V",
+          "Fe-Cr-W"
+        ],
+        "temperature_range": [
+          500,
+          900,
+          50
+        ]
+      },
+      "script": "data/generate_ground_truth.py",
+      "description": "Synthetic ground truth dataset for regression engine validation using McLean isotherm with injected interaction coefficients."
     }
   ]
 }

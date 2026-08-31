@@ -10,6 +10,34 @@ T010:
   r: The required file `tests/unit/test_mclean.py` does not exist in the repository,
     so no unit test for the McLean isotherm calculation is present. The implementer
     must add this test file with appropriate test cases.
+T013:
+  c: false
+  h: 5afc69e4840fa60935c2e59faf35986add5f92ba9e4667519e3ffc8f774897c7
+  r: "The `surrogate_service.py` file is truncated and contains an unfinished error\u2011\
+    handling block (`except DataLoadError as e: \u2026 r`), and it does not provide\
+    \ any method to actually compute segregation energies from the loaded data. Moreover,\
+    \ the required `data/raw/dft_energies.json` file is missing, so the service cannot\
+    \ load the real dataset as mandated. The implementation therefore does not meet\
+    \ the task\u2019s requirements."
+T013b:
+  c: false
+  h: 6aaef090a006442e35a76c1e19ddb47104f740b35239c5b38a1faaddba64e67b
+  r: "The `load_dft_energies.py` script is present, but the required source file `data/raw/dft_energies.json`\
+    \ does not exist, so the function cannot actually load any DFT energies (it would\
+    \ raise `DataLoadError`). No placeholder file is provided either, meaning the\
+    \ implementation cannot satisfy the task\u2019s core requirement."
+T017a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research/fr002_deviation.md` file is present in the provided evidence; the\
+    \ implementer did not supply the required markdown document, so the task\u2019\
+    s core deliverable is missing."
+T017b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: I could find no `research/spec_amendment_fr002.md` file or any content provided
+    in the submission; therefore the required specification document does not exist
+    or is empty, so the task is not satisfied.
 T045a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -46,3 +74,19 @@ T047b:
     raising the required warning, and setting the `"NO_TERNARY_DATA"` flag. The evidence
     consists only of the task description and project spec, without any concrete implementation
     artifact.
+T049b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or output artifacts were provided to demonstrate that the\
+    \ supercell metadata has been linked to a DFT energy lookup, nor any evidence\
+    \ that the required segregation\u2011energy calculations or McLean isotherm outputs\
+    \ were generated. The implementer must supply the implementation (e.g., a script\
+    \ or module) and example output files showing successful extraction of DFT energies\
+    \ and computed segregation profiles."
+T091:
+  c: false
+  h: 8ec0f7e17e3a841b74d93560efbd95a495a86fc3ad2711cc82ead93c6fa946c9
+  r: "The script `data/generate_ground_truth.py` is present, but the required output\
+    \ file `data/raw/generated_ground_truth.csv` does not exist, and there is no evidence\
+    \ that the script was executed or that a checksum was verified. The task\u2019\
+    s core deliverable is therefore missing."

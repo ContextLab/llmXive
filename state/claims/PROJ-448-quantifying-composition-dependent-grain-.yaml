@@ -1474,3 +1474,36 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-29T21:33:14Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
+  attempts: 1
+  canonical: APT detection limit 0.1 at%
+  claim_id: c_25b2d8f1
+  context: Experimental Validation Apparatus section details detection efficiency
+    and limits.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The detection limit is 0.1 at.%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T22:38:47Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/data_sources.md
+  attempts: 1
+  canonical: Literature reference DOI 10.1016/j.actamat.2020.01.015
+  claim_id: c_c0f6c8a6
+  context: Experimental Validation Apparatus section lists literature support.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: The literature reference for the experimental validation apparatus is
+    DOI 10.1016/j.actamat.2020.01.015.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T22:38:48Z'
