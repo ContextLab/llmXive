@@ -1,173 +1,76 @@
-# llmXive: Virtual Tactile Zero-Shot Adaptation
+# Project Documentation: Virtual Tactile Zero-Shot Adaptation
 
-## Project Overview
+## Table of Contents
+1. [Architecture Overview](#architecture-overview)
+2. [Module Descriptions](#module-descriptions)
+3. [Data Flow](#data-flow)
+4. [Configuration & Constants](#configuration--constants)
+5. [Troubleshooting](#troubleshooting)
 
-This project implements a virtual tactile sensing system for robotic manipulation
-that adapts to unseen friction conditions using zero-shot learning techniques.
-The system estimates friction coefficients in real-time and adjusts reward
-scheduling accordingly to improve manipulation success rates.
+## Architecture Overview
 
-## Key Features
+The system implements a closed-loop adaptive control policy for robotic manipulation. [UNRESOLVED-CLAIM: c_039ead9e — status=not_enough_info]
+It consists of three main phases:
+1. **Perception**: Estimating object stiffness ($k_{est}$) from contact dynamics.
+2. **Adaptation**: Adjusting reward weights dynamically based on $k_{est}$.
+3. **Evaluation**: Validating zero-shot performance on unseen high-friction objects.
 
-- **Virtual Tactile Estimation**: Real-time friction coefficient estimation using
- torque and velocity ratios (FR-001)
-- **Adaptive Reward Scheduling**: Dynamic adjustment of reward weights based on
- estimated friction (FR-002)
-- **Novel Object Generation**: Procedural generation of randomized articulated
- geometries with varying friction properties (FR-003)
-- **CPU-Only Execution**: Optimized for CPU-only environments with memory
- constraints (FR-004)
+## Module Descriptions
 
-## User Stories
+### Core Logic
+- `code/estimator.py`: Implements `VirtualTactileEstimator`.
+ - **Input**: Torque ($\tau$) and Velocity ($v$) time series.
+ - **Processing**:
+ - Applies a moving average filter (window size = 5) to torque.
+ - Computes derivatives $\Delta \tau$ and $\Delta v$.
+ - Applies epsilon clamping ($\epsilon = 10^{-4}$) to prevent division by zero.
+ - Calculates $k_{est} = |\Delta \tau| / |\Delta v|$.
+- `code/scheduler.py`: Implements `AdaptiveRewardScheduler`.
+ - Maps $k_{est}$ to reward multipliers.
+ - **Rule**: If $k_{est} > 1.0$, increase detach reward by $\ge 20\%$.
+ - **Rule**: If $k_{est} < 0.2$, decrease contact reward by $\le 15\%$.
 
-### US1: Zero-Shot Adaptation to Unseen Damping (P1 - MVP)
-Implements the full adaptive policy loop that detects friction via $k_{est}$ and
-adjusts rewards, verifying >15% improvement over static baseline on novel
-high-friction objects.
+### Simulation & Data
+- `code/environment.py`: CPU-only PyBullet wrapper. Enforces no CUDA usage.
+- `code/generator.py`: Generates articulated geometries with randomized friction.
+- `code/data_loader.py`: Fetches DragMesh-2 from HuggingFace.
 
-### US2: Virtual Tactile Stiffness Estimation (P2)
-Validates the $k_{est}$ estimator accuracy and stability under varying friction
-and noise conditions.
+### Analysis
+- `code/glmm_analysis.py`: Fits Generalized Linear Mixed Models (GLMM) to handle zero-success baselines.
+- `code/aggregate.py`: Aggregates trial logs into per-object statistics.
 
-### US3: CPU-Tractable Inference Pipeline (P3)
-Ensures the entire experiment runs within 6 hours and 7GB RAM on a CPU-only runner.
+## Data Flow
 
-## Architecture
-
-```
-code/
-├── environment.py # PyBullet physics environment setup
-├── estimator.py # VirtualTactileEstimator class
-├── scheduler.py # AdaptiveRewardScheduler class
-├── generator.py # NovelObjectSet generator
-├── train.py # Training loop integration
-├── evaluate.py # Evaluation and comparison
-├── baseline_runner.py # Static baseline policy execution
-├── aggregate.py # Log aggregation to CSV
-├── analysis.py # Statistical analysis (t-tests)
-├── seed_config.py # Reproducibility enforcement
-├── logging_config.py # Logging setup
-├── validation.py # Estimator validation suite
-├── stress_test.py # Noise injection tests
-├── memory_profiler.py # Memory profiling utilities
-├── benchmark_runner.py # End-to-end benchmark execution
-└── validate_citations.py # Citation verification
-
-data/
-├── raw/ # Raw experimental data
-├── generated/ # Generated geometry files
-└── results/ # Analysis results and metrics
-
-tests/
-├── unit/ # Unit tests
-└── integration/ # Integration tests
-
-state/ # Artifact hashes and tracking
-docs/ # Documentation
+```mermaid
+graph LR
+ A[DragMesh-2] --> B(Data Loader)
+ B --> C[data/raw]
+ C --> D[Generator]
+ D --> E[data/generated]
+ E --> F[Training Loop]
+ F --> G[Adaptive Policy]
+ E --> H[Evaluation]
+ G --> H
+ H --> I[data/results/eval_logs.csv]
+ I --> J[Aggregator]
+ J --> K[GLMM Analysis]
+ K --> L[Final Report]
 ```
 
-## Requirements
+## Configuration & Constants
 
-- Python 3.8+
-- CPU-only execution (no CUDA)
-- Maximum 7GB RAM
-- Maximum 6 hours wall-clock time
+Key constants used in the implementation (logged for reproducibility):
 
-## Installation
+| Parameter | Value | Description |
+|:--- |:--- |:--- |
+| `epsilon` | `1e-4` | Minimum denominator for stiffness calculation (FR-007) |
+| `filter_window` | `5` | Moving average window for torque smoothing (FR-006) |
+| `high_friction_min` | `0.8` | Lower bound for high-friction evaluation set |
+| `high_friction_max` | `1.2` | Upper bound for high-friction evaluation set |
+| `seed` | `42` | Random seed for generation and training |
 
-```bash
-cd code
-pip install -r requirements.txt
-```
+## Troubleshooting
 
-## Quick Start
-
-### 1. Generate Novel Objects
-```bash
-python generator.py --output../data/generated/ --count 30
-```
-
-### 2. Train Adaptive Policy
-```bash
-python train.py --objects../data/generated/ --epochs 100
-```
-
-### 3. Evaluate Both Policies
-```bash
-python evaluate.py --objects../data/generated/ --output../data/results/eval.csv
-```
-
-### 4. Aggregate Results
-```bash
-python aggregate.py --logs../data/results/ --output../data/results/aggregated.csv
-```
-
-### 5. Statistical Analysis
-```bash
-python analysis.py --input../data/results/aggregated.csv --output../data/results/analysis_report.json
-```
-
-### 6. Full Pipeline Benchmark
-```bash
-python benchmark_runner.py --output../data/results/benchmark.json
-```
-
-## Statistical Validation
-
-The system uses paired t-tests to compare adaptive vs static policies:
-- Null hypothesis: No difference in success rates
-- Alternative hypothesis: Adaptive policy has >15% improvement
-- Significance level: α = 0.05
-- Power analysis ensures adequate sample size
-
-## Reproducibility
-
-All experiments use fixed seeds for reproducibility:
-- Random seed: Set via `seed_config.py`
-- NumPy seed: Set via `seed_config.py`
-- PyBullet seed: Set via `seed_config.py`
-
-Verify reproducibility by running:
-```bash
-python validate_citations.py
-```
-
-## Testing
-
-```bash
-# Run all tests
-pytest tests/ -v
-
-# Run with timeout
-pytest tests/ --timeout=300
-
-# Run specific test suite
-pytest tests/unit/test_estimator.py -v
-pytest tests/integration/test_pipeline.py -v
-```
-
-## Performance Constraints
-
-- **Memory**: Peak usage ≤ 7GB (enforced via `memory_profiler.py`)
-- **Time**: Wall-clock ≤ 6 hours (enforced via `pytest-timeout`)
-- **Hardware**: CPU-only only (enforced via `environment.py`)
-
-## Citation Verification
-
-All external data sources and algorithms are verified via:
-```bash
-python validate_citations.py
-```
-
-This ensures:
-- Requirements file citations match documentation
-- Specification citations are accurate
-- All data sources are properly attributed
-
-## License
-
-[License information to be added]
-
-## Contributing
-
-[Contribution guidelines to be added]
+- **CUDA Detected**: The `environment.py` module will raise an error if GPU usage is detected. Ensure `CUDA_VISIBLE_DEVICES=""` or run on a CPU-only machine.
+- **Data Fetch Failure**: The `data_loader.py` will raise `ConnectionError` if the HuggingFace dataset is unreachable. No synthetic fallbacks are permitted.
+- **Statistical Failure**: If `p_value >= 0.05` in `glmm_analysis.py`, the pipeline logs a failure for SC-005.

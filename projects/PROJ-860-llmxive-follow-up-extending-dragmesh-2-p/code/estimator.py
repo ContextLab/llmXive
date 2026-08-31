@@ -4,6 +4,8 @@ Virtual Tactile Estimator Module.
 Implements the VirtualTactileEstimator class for estimating the friction coefficient
 (k_est) based on torque and velocity measurements, applying a moving average filter
 and epsilon clamping as per FR-001, FR-006, and FR-007.
+
+Refactored for clarity, type safety, and adherence to strict numerical stability.
 """
 
 import numpy as np

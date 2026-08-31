@@ -71,7 +71,7 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T010 Unit test for `AdaptiveRewardScheduler` logic in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/unit/test_scheduler.py` (verify weight scaling logic with explicit predefined thresholds)
+- [X] T010 Unit test for `AdaptiveRewardScheduler` logic in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/unit/test_scheduler.py` (verify weight scaling logic with explicit predefined thresholds)
  - **Requirement**: The test MUST explicitly assert that for $k_{est} > 1.0$, the reward weight increases by >=20%, and for $k_{est} < 0.2$, the reward weight decreases by <=15%.
 
 ### Implementation for User Story 1
@@ -106,9 +106,9 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T036 Unit test for moving average filter logic in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/unit/test_estimator_filter.py` (Consolidated into T033)
-- [ ] T037 Unit test for epsilon clamping logic in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/unit/test_estimator_epsilon.py` (Consolidated into T033)
-- [ ] T038 Unit test for range clamping logic in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/unit/test_estimator_clamping.py` (Consolidated into T033)
+- [X] T036 Unit test for moving average filter logic in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/unit/test_estimator_filter.py` (Consolidated into T033) <!-- ATOMIZE: requested -->
+- [X] T037 Unit test for epsilon clamping logic in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/unit/test_estimator_epsilon.py` (Consolidated into T033)
+- [X] T038 Unit test for range clamping logic in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/unit/test_estimator_clamping.py` (Consolidated into T033) <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 2
 
@@ -131,8 +131,8 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T040 Unit test for `run_benchmark.py` orchestration logic in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/unit/test_benchmark_orchestration.py` to verify step execution order.
-- [ ] T041 Unit test for `memory_profiler.py` in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/unit/test_memory_profiler.py` to verify peak memory capture.
+- [X] T040 Unit test for `run_benchmark.py` orchestration logic in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/unit/test_benchmark_orchestration.py` to verify step execution order.
+- [X] T041 Unit test for `memory_profiler.py` in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/unit/test_memory_profiler.py` to verify peak memory capture.
 
 ### Implementation for User Story 3
 
@@ -154,12 +154,12 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T030 Documentation updates in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/docs/` and `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/README.md`: Update 'Installation', 'Usage', and 'Results' sections with CLI examples and expected outputs.
-- [ ] T031 Code cleanup and refactoring of `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/estimator.py` and `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/scheduler.py`
-- [ ] T032 Performance optimization for simulation loop in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/environment.py`
+- [X] T031 Code cleanup and refactoring of `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/estimator.py` and `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/scheduler.py`
+- [X] T032 Performance optimization for simulation loop in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/environment.py`
 - [X] T033 Additional unit tests for edge cases (stiction, extreme friction, moving average filter, epsilon clamping) in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/unit/`: Consolidate T036-T080 scope into a single task covering: 1) Stiction handling (epsilon clamp), 2) Extreme friction clamping, 3) Moving average filter logic (window=5), 4) Noise robustness. (Consolidated from T036-T080)
-- [ ] T034 Run `quickstart.md` validation: Execute `python code/validate_quickstart.py` and verify exit code 0.
+- [X] T034 Run `quickstart.md` validation: Execute `python code/validate_quickstart.py` and verify exit code 0.
 - [ ] T035 Verify `validate_citations.py` passes against all data sources
-- [ ] T039 Implement reproducibility audit script in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/audit_reproducibility.py`: Generate a deterministic report of all random seeds, environment variables, and dependency hashes used in the final run to ensure exact re-runnability. (Addresses Constitution Principle I)
+- [X] T039 Implement reproducibility audit script in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/audit_reproducibility.py`: Generate a deterministic report of all random seeds, environment variables, and dependency hashes used in the final run to ensure exact re-runnability. (Addresses Constitution Principle I)
 - [ ] T042 Implement data stream validation in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/stream_validator.py`: Verify that the `sweep_generator` and `evaluate` scripts process data in a streaming/chunked fashion to prevent OOM on large trial counts, logging chunk sizes to `data/results/stream_metrics.json`. (Addresses SC-003/SC-004 memory constraints)
 
 ---

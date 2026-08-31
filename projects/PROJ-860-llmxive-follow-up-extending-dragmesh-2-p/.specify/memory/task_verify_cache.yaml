@@ -16,13 +16,6 @@ T008c:
     \ Consequently there is no evidence that citations were validated or that the\
     \ pipeline would halt on a failure. The required proof of execution and its result\
     \ is missing."
-T024:
-  c: false
-  h: f3685779d0ac6aa46131840d3578e1ce36108930e3c0213bbb65e10b0a76f1e2
-  r: The required file `.github/workflows/test-cpu-pipeline.yml` does not exist in
-    the repository, so the CI workflow definition (including the timeout enforcement)
-    is missing. The implementer must add the specified workflow file with the appropriate
-    timeout configuration.
 T029:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -31,11 +24,24 @@ T029:
     \ and peak memory were measured, or that the required assertions (\u2264\u202F\
     6\u202Fh, \u2264\u202F7\u202FGB) were satisfied. The implementer must provide\
     \ the actual benchmark run logs and metrics saved under `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/data/results/`."
-T030:
+T035:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No documentation files or their contents were presented for the paths `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/docs/`\
-    \ or `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/README.md`; therefore\
-    \ we cannot verify that the required updates exist or meet the specification.\
-    \ The implementer must supply the actual updated files (non\u2011empty) showing\
-    \ the documentation changes."
+  r: No `validate_citations.py` script, test suite, or verification results are present
+    in the provided artifacts. Without the script and evidence that it has been run
+    against all data sources, the task requirement is not satisfied. The implementer
+    must supply the script and concrete pass/fail output for each data source.
+T036:
+  c: false
+  h: 8bf67d5c0303767d305b084975b0162ad2a0b8c2f816bb558a043e4d16d5a30c
+  r: "The required unit test file `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/unit/test_estimator_filter.py`\
+    \ does not exist in the repository, so the task\u2019s deliverable is missing.\
+    \ The implementer must add the test file with appropriate moving\u2011average\
+    \ filter tests."
+T038:
+  c: false
+  h: d149aa7fb27d2a90c687692240374af8ccbc2e5c391df70bb00fc789ade5be46
+  r: "The required unit test file `tests/unit/test_estimator_clamping.py` does not\
+    \ exist in the repository, so no test code is present to verify the range\u2011\
+    clamping logic. The task\u2019s primary artifact is missing, making the claim\
+    \ unfulfilled."

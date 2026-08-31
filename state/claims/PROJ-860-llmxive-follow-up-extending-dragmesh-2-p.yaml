@@ -2402,3 +2402,477 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-24T06:36:11Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: GLMM p-value less than 0.05 and success-rate improvement greater than
+    15% for high-friction cases
+  claim_id: c_8b1a27e1
+  context: "Independent Test: Run adaptive vs static policies on a set of novel objects\
+    \ with randomized friction (low to moderate). Verify GLMM p\u2011value < 0.05\
+    \ and success\u2011rate improvement >15% for high\u2011friction cases."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GLMM_p-value_less_than_0.05_and_success-rate_improvement_gre
+  kind: magnitude
+  raw_text: "Verify GLMM p\u2011value < 0.05 and success\u2011rate improvement >15%\
+    \ for high\u2011friction cases."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:36:53Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Generate 25 high-friction objects with friction 0.8-1.2 and 25 objects
+    with friction 0.0-2.5
+  claim_id: c_e22dfdaf
+  context: "Execute python code/generator.py --count --seed 42 --high-friction-count\
+    \ 25 --friction-min 0.0 --friction-max 2.5 --output data/generated/ to produce\
+    \ 25 high\u2011friction objects (friction 0.8\u20131.2) and 25 objects covering\
+    \ the full friction range (0.0\u20132.5)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate 25 high\u2011friction objects (friction 0.8\u20131.2) and 25\
+    \ objects covering the full friction range (0.0\u20132.5)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:37:47Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Experiment runs within 6 hours and 7 GB RAM on CPU-only runner
+  claim_id: c_f936afc9
+  context: "Goal: Ensure the entire experiment (data gen, training, eval, analysis)\
+    \ runs within 6\u202Fh and 7\u202FGB RAM on a CPU\u2011only runner."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure the entire experiment runs within 6 h and 7 GB RAM on a CPU\u2011\
+    only runner."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:38:33Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: CI fails if wall clock time exceeds 21600 seconds or peak memory exceeds
+    7 GB
+  claim_id: c_4d4cb812
+  context: Read data/results/benchmark_metrics.json and FAIL the CI if wall_clock_time
+    > 21600 seconds (6 h) or peak_memory_gb > 7.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: FAIL the CI if wall_clock_time > 21600 seconds (6 h) or peak_memory_gb
+    > 7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:38:33Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Use Generalized Linear Mixed Model for zero-success baselines
+  claim_id: c_1c7f45a5
+  context: 'Use statsmodels to fit a Generalized Linear Mixed Model (GLMM) on data/results/aggregated.csv.
+    Note: This replaces the ''paired t-test'' mandated by FR-005/SC-005 because the
+    GLMM is required to handle zero-success baselines robustly.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_Generalized_Linear_Mixed_Model_for_zero-success_baseline
+  kind: entity_fact
+  raw_text: Use a Generalized Linear Mixed Model (GLMM) to handle zero-success baselines.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:39:31Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Verify citations in plan.md and spec.md before data download tasks
+  claim_id: c_f4fa910b
+  context: 'Execute validate_citations.py against DragMesh-2 and PICA baseline citations:
+    Run the script to verify all citations in plan.md and spec.md before any data
+    download tasks (T005d, T012d) are permitted.'
+  evidence:
+    entailment_evidence: 'md before data download " in existing articles.
+
+
+      ---
+
+
+      Verify citations in plan.'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Verify_citations_in_plan.md_and_spec.md_before_data_download
+  kind: entity_fact
+  raw_text: Verify all citations in plan.md and spec.md before any data download tasks.
+  resolved_value: Verify citations in plan.md and spec.md before data download tasks
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T01:39:34Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Fetch DragMesh-2 dataset from verified HuggingFace URL
+  claim_id: c_c5bef9fa
+  context: 'Download DragMesh-2 dataset from verified HuggingFace URL in projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py:
+    Use datasets.load_dataset to fetch the DragMesh-2 manifest and data to data/raw/.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: DragMesh-2 dataset is fetched from a verified HuggingFace URL.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:40:05Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Query PICA baseline policy from verified HuggingFace registry
+  claim_id: c_f228a394
+  context: 'Verify and fetch PICA baseline in projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/baseline_fetcher.py:
+    Query the verified HuggingFace registry for the dragmesh/pica-baseline-v checkpoint,
+    resolve the actual SHA256 hash, and write it to data/raw/baseline/.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Query_PICA_baseline_policy_from_verified_HuggingFace_registr
+  kind: entity_fact
+  raw_text: PICA baseline policy is queried from the verified HuggingFace registry.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:40:53Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Estimator uses moving average filter with window size 5
+  claim_id: c_d3127f68
+  context: Calculate k_est using the given formula k_est = |Delta tau_hand| / |Delta
+    v_object|, incorporating a moving average filter (window size = 5) applied to
+    the torque signal BEFORE computing the derivative.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The estimator uses a moving average filter with window size = 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:41:43Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Estimator uses epsilon clamping with epsilon 10^-4
+  claim_id: c_ed61450f
+  context: Calculate k_est using the given formula k_est = |Delta tau_hand| / |Delta
+    v_object|, incorporating a moving average filter (window size = 5) applied to
+    the torque signal BEFORE computing the derivative (FR-006), epsilon clamping (epsilon
+    = 10^-4) and range clamping to a positive bounded interval (FR-007).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The estimator uses epsilon clamping with epsilon = 10^-4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:42:22Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: If k_est greater than 1.0, increase r_detach by at least 20%
+  claim_id: c_f9186a10
+  context: "Implement AdaptiveRewardScheduler class in projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/scheduler.py\
+    \ mapping k_est to reward weights with EXPLICIT logic: if k_est > 1.0, increase\
+    \ r_detach by \u226520%; if k_est < 0.2, decrease r_contact by \u226415% (FR-002)"
+  evidence:
+    entailment_evidence: If k est greater than 1.0, increase r detach by at least
+      20%
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/If_k_est_greater_than_1.0,_increase_r_detach_by_at_least_20%25
+  kind: magnitude
+  raw_text: If k_est > 1.0, increase r_detach by at least 20%.
+  resolved_value: If k_est greater than 1.0, increase r_detach by at least 20%
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T01:42:27Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: If k_est less than 0.2, decrease r_contact by at most 15%
+  claim_id: c_21c3dfec
+  context: "Implement AdaptiveRewardScheduler class in projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/scheduler.py\
+    \ mapping k_est to reward weights with EXPLICIT logic: if k_est > 1.0, increase\
+    \ r_detach by \u226520%; if k_est < 0.2, decrease r_contact by \u226415% (FR-002)"
+  evidence:
+    entailment_evidence: If k est less than 0.2, decrease r contact by at most 15%
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/If_k_est_less_than_0.2,_decrease_r_contact_by_at_most_15%25
+  kind: magnitude
+  raw_text: If k_est < 0.2, decrease r_contact by at most 15%.
+  resolved_value: If k_est less than 0.2, decrease r_contact by at most 15%
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T01:42:31Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: Training loop excludes objects with friction 0.8-1.2
+  claim_id: c_a1574dc0
+  context: "Note: This trains on the base DragMesh\u20112 dataset EXCLUDING any objects\
+    \ with friction in the 0.8\u20131.2 range (pre\u2011training filter added) to\
+    \ ensure the 0.8\u20131.2 objects in T013a are truly novel."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The training loop excludes objects with friction in the 0.8\u20131.2\
+    \ range."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:43:18Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/specs/001-llmxive-follow-up-extending-dragmesh-2-p/tasks.md
+  attempts: 1
+  canonical: CI fails if improvement percentage for high friction is less than 15
+  claim_id: c_79b60192
+  context: Read data/results/analysis_validation.json and FAIL the CI if improvement_pct_high_friction
+    < 15. Log the specific outcome.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CI_fails_if_improvement_percentage_for_high_friction_is_less
+  kind: magnitude
+  raw_text: The CI fails if improvement_pct_high_friction is less than 15.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:44:13Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/docs/README.md
+  attempts: 1
+  canonical: System implements closed-loop adaptive control policy for robotic manipulation
+  claim_id: c_039ead9e
+  context: The system implements a closed-loop adaptive control policy for robotic
+    manipulation. It consists of three main phases.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_implements_closed-loop_adaptive_control_policy_for_ro
+  kind: entity_fact
+  raw_text: The system implements a closed-loop adaptive control policy for robotic
+    manipulation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:47:59Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/docs/README.md
+  attempts: 1
+  canonical: Generator generates articulated geometries with randomized friction
+  claim_id: c_847b2bca
+  context: 'code/generator.py: Generates articulated geometries with randomized friction.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generator_generates_articulated_geometries_with_randomized_f
+  kind: entity_fact
+  raw_text: The code/generator.py generates articulated geometries with randomized
+    friction.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:48:51Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/docs/README.md
+  attempts: 1
+  canonical: Data loader fetches DragMesh-2 from HuggingFace
+  claim_id: c_338d77bd
+  context: 'code/data_loader.py: Fetches DragMesh-2 from HuggingFace.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The code/data_loader.py fetches DragMesh-2 from HuggingFace.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:49:19Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/docs/README.md
+  attempts: 1
+  canonical: Estimator applies moving average filter with window size 5 to torque
+  claim_id: c_1cd02567
+  context: Applies a moving average filter (window size = 5) to torque.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The code/estimator.py applies a moving average filter with a window size
+    of 5 to torque.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:49:51Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/docs/README.md
+  attempts: 1
+  canonical: Estimator applies epsilon clamping with value 10^-4
+  claim_id: c_83e85bb9
+  context: Applies epsilon clamping (epsilon = 10^-4) to prevent division by zero.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The code/estimator.py applies epsilon clamping with a value of 10^-4 to
+    prevent division by zero.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:56:52Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/docs/README.md
+  attempts: 1
+  canonical: Estimated stiffness calculated as absolute delta torque divided by absolute
+    delta velocity
+  claim_id: c_704d5ed3
+  context: Calculates k_est = |Delta tau| / |Delta v|.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Estimated_stiffness_calculated_as_absolute_delta_torque_divi
+  kind: entity_fact
+  raw_text: The code/estimator.py calculates estimated stiffness as the absolute value
+    of delta torque divided by the absolute value of delta velocity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T02:04:47Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/docs/README.md
+  attempts: 1
+  canonical: Detach reward increased by at least 20% if estimated stiffness greater
+    than 1.0
+  claim_id: c_32fa096b
+  context: 'Rule: If k_est > 1.0, increase detach reward by >= 20%.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Detach_reward_increased_by_at_least_20%25_if_estimated_stiffne
+  kind: magnitude
+  raw_text: The AdaptiveRewardScheduler increases the detach reward by at least 20%
+    if estimated stiffness is greater than 1.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T02:06:43Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/docs/README.md
+  attempts: 1
+  canonical: Contact reward decreased by no more than 15% if estimated stiffness less
+    than 0.2
+  claim_id: c_e3c9402a
+  context: 'Rule: If k_est < 0.2, decrease contact reward by <= 15%.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Contact_reward_decreased_by_no_more_than_15%25_if_estimated_st
+  kind: magnitude
+  raw_text: The AdaptiveRewardScheduler decreases the contact reward by no more than
+    15% if estimated stiffness is less than 0.2.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T02:07:02Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/docs/README.md
+  attempts: 1
+  canonical: Environment is CPU-only PyBullet wrapper enforcing no CUDA usage
+  claim_id: c_d4eb281b
+  context: 'code/environment.py: CPU-only PyBullet wrapper. Enforces no CUDA usage.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Environment_is_CPU-only_PyBullet_wrapper_enforcing_no_CUDA_u
+  kind: entity_fact
+  raw_text: The code/environment.py enforces no CUDA usage and is a CPU-only PyBullet
+    wrapper.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T02:07:16Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/docs/README.md
+  attempts: 1
+  canonical: High-friction evaluation set lower bound is 0.8
+  claim_id: c_44db6d68
+  context: 'high_friction_min: 0.8 | Lower bound for high-friction evaluation set'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The high-friction evaluation set has a lower bound of 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T02:07:29Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/docs/README.md
+  attempts: 1
+  canonical: High-friction evaluation set upper bound is 1.2
+  claim_id: c_ac0c67cd
+  context: 'high_friction_max: 1.2 | Upper bound for high-friction evaluation set'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The high-friction evaluation set has an upper bound of 1.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T02:07:39Z'
+- artifact_path: projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/docs/README.md
+  attempts: 1
+  canonical: GLMM analysis fits Generalized Linear Mixed Models to handle zero-success
+    baselines
+  claim_id: c_5c05decf
+  context: 'code/glmm_analysis.py: Fits Generalized Linear Mixed Models (GLMM) to
+    handle zero-success baselines.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GLMM_analysis_fits_Generalized_Linear_Mixed_Models_to_handle
+  kind: entity_fact
+  raw_text: The glmm_analysis.py module fits Generalized Linear Mixed Models to handle
+    zero-success baselines.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T02:10:30Z'
