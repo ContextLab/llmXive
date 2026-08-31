@@ -1,11 +1,5 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)
-
-These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
-
-- `python code/main.py`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
 **Summary**: 1 command(s) failed: python code/main.py (rc=1)
@@ -13,18 +7,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/main.py", line 179, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/main.py", line 169, in main
-    generate_final_report(metrics_path, vif_path, importance_path, output_path)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/main.py", line 53, in generate_final_report
-    metrics = load_json_safe(metrics_path)
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/main.py", line 22, in load_json_safe
-    with open(path, 'r') as f:
-         ^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/data/processed/model_metrics.json'
+    
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -34,10 +17,8 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `setup_logging` — defined in `code/logging_config.py`; called 14 way(s):
+### `setup_logging` — defined in `code/logging_config.py`; called 12 way(s):
 
-- code/main.py: setup_logging(level="INFO")
-- code/main.py: setup_logging()
 - code/format_check.py: setup_logging()
 - code/validate_quickstart.py: logger = setup_logging(level="INFO")
 - code/memory_utils.py: setup_logging(config)

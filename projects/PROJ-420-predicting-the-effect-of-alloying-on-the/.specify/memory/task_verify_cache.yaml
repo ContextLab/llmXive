@@ -1,3 +1,11 @@
+T006:
+  c: false
+  h: 92a199773869ba60868529c593e8fb97825e433b3df0e83502938d135b5e4b2b
+  r: "The `code/logging_config.py` file exists and defines a JSON\u2011compatible\
+    \ `LogEntry` and a rotating handler, but the required schema file `contracts/logging_schema.yaml`\
+    \ is missing, and there is no test or assertion code confirming that logged entries\
+    \ conform to that schema or that rotation occurs after 10\u202FMB. These missing\
+    \ artifacts prevent the task from being fully satisfied."
 T014:
   c: false
   h: dc995f972425f645f30b08c05c2c144194b598347f1b8fcb32646f8594abced5
@@ -15,30 +23,15 @@ T016:
     \ function that writes (or creates) `exclusion_log.txt` in the logs directory,\
     \ adding a CSV header if needed and appending rows in the required `step,count,reason`\
     \ format. No placeholder or stub code is present, satisfying the task\u2019s specification."
-T020:
-  c: false
-  h: ee5834c482c5b472612652f33a087d42d543ef4ae189d901829d06066ed99e5c
-  r: "The repository lacks the required `data/processed/split_indices.json` file,\
-    \ and the shown portion of `code/modeling.py` contains only loading utilities\
-    \ and no implementation that performs the two\u2011step `train_test_split` and\
-    \ writes the split indices to that JSON file. Consequently the three\u2011way\
-    \ split logic and its output are not present."
-T021:
-  c: false
-  h: 6c1d168f63c3f71c2211ce14b2af1a8a5e127896dbe1f44cee2b24bc958ab5a2
-  r: "The required output file `results/model_metrics.json` does not exist, so the\
-    \ mean CV\u2011MAE and confidence interval are never saved. Additionally, the\
-    \ provided snippet of `code/modeling.py` is truncated before any repeated 5\u2011\
-    fold CV logic or JSON\u2011writing code, so we cannot verify that the implementation\
-    \ meets the specification. The missing JSON file (and likely missing implementation)\
-    \ must be added."
 T024:
   c: false
-  h: cb0c736e98a72c8beccdd1f7308ac17c0df5b3fd8057394f6a97cfdde5dfe719
-  r: The repository lacks the required `models/rf_model.pkl` file, and the provided
-    `code/modeling.py` excerpt shows no code that creates the `models/` directory
-    or calls `joblib.dump` to save a trained model. Consequently, the serialization
-    step described in the task has not been implemented.
+  h: dd9fe0e9e24f315d264900fa85fbc8e4b4bb945af69c48599064233fbb7c3663
+  r: The repository lacks the required input data (`data/processed/alloys_clean.parquet`)
+    and the hyperparameter file (`results/cv_best_hyperparameters.json`). No `models/rf_model.pkl`
+    is present, and the provided `code/modeling.py` is truncated and does not contain
+    logic to train the final model with the best hyperparameters and serialize it
+    as specified. These essential artifacts must be added for the task to be considered
+    complete.
 T025:
   c: false
   h: a1fed8b642f9c7433ef3638c2b8c7758e213a2b68c04b60e68ccfee06ad42c02
