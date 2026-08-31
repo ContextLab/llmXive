@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per `plan.md` by executing `mkdir -p projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/{code/{data,models,training,eval,utils},data/{raw,processed,annotations,results},specs/001-llmxive-moebius-dynamic,tests/{unit,integration},docs,paper,state/projects}` and creating empty `__init__.py` files in all Python directories (e.g., `touch projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/code/__init__.py`).
+- [X] T001 Create project structure per `plan.md` by executing `mkdir -p projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/{code/{data,models,training,eval,utils},data/{raw,processed,annotations,results},specs/001-llmxive-moebius-dynamic,tests/{unit,integration},docs,paper,state/projects}` and creating empty `__init__.py` files in all Python directories (e.g., `touch projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/code/__init__.py`).
 - [X] T002 Initialize a Python project with PyTorch (CPU-only), scikit-learn, pillow, numpy, pandas, scipy, datasets, lpips, torchmetrics, torchvision dependencies in `requirements.txt`
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
 
@@ -64,6 +64,7 @@ Examples of foundational tasks (adjust based on your plan):
 - [X] T007 Create base data model classes (`MaskedRegion`, `InferenceResult`, `GatingState`) in `code/models/data_models.py`
 - [X] T008 Configure error handling and logging infrastructure in `code/utils/logger.py`
 - [X] T009 [US1] Implement `code/utils/config_validator.py` to validate `dataset_paths` existence and `hash_registry` integrity against `config.py` values. **Dependency**: Must run after T004b.
+- [X] T020 [P] [US2] Implement `code/models/moebius_tiny.py` (Simplified CPU version, ≤15M params total) - **Moved to Phase 2 to ensure code availability before gating**.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -87,15 +88,16 @@ Examples of foundational tasks (adjust based on your plan):
 - [X] T012 [P] [US1] Implement `code/data/loader.py` to fetch Places365 subset from HuggingFace (`mit-places/Places365`) with checksum verification
 - [X] T013 [P] [US1] Implement `code/data/mask_generator.py` to create synthetic masks with varying complexity; record `gradient_variance` and `texture_entropy`
 - [X] T014 [US1] Implement `code/data/annotator.py` to provide CLI/JSON interface for crowdsourcing structure
- - [ ] T014a [US1] **CI Mode**: Generate `data/annotations/decoupled_scores.csv` with columns `[image_id, score, mode]`. Logic: Use `np.random.seed(config.seed)` and generate scores via `np.random.uniform(1, 5, size=50)` strictly decoupled from synthetic mask metrics to satisfy Spec Technical Constraints (CI Simulation only).
- - [ ] T014b [US1] **Research Mode**: Implement logic to load external human-annotated CSV. Validate schema and integrity.
- - [ ] T014c [US1] **Research Mode Ingestion**: Implement the specific mechanism to ingest, manage, and validate real human participant data for 'Research Mode' as required by FR-002. **Input**: `data/annotations/human_scores.csv`. **Validation**: Check schema (image_id, score, rater_id). **Error**: Raise `FileNotFoundError` if file missing **AND** `config.mode == 'RESEARCH'`. If `config.mode == 'CI'`, skip this check and proceed to T014a. This task assumes data is sourced externally per Plan Phase 0.
- - [ ] T014d [US1] **Participant Disagreement Logic**: Calculate Krippendorff's alpha on multi-rater scores using the `krippendorff` library. If alpha < 0.5, log `alpha` per image to `data/results/validation_log.txt`. **Do NOT** create `flags.json` or trigger manual review workflows.
- - [ ] T014e [US1] **Flow Control**: If CI Mode, skip T015 (IR) and explicitly log `[TIMESTAMP] [CI_MODE] Single-Rater Simulation: Ground truth decoupled from metrics.` to `data/results/validation_log.txt`. **CRITICAL**: Ensure `data/annotations/decoupled_scores.csv` includes a `mode` column set to 'CI_MODE' or 'SIMULATION_ONLY' to satisfy Constitution Principle IV. If Research Mode, **mark T015 as ready to execute** and proceed.
-- [ ] T015 [US1] **Conditional Execution**: Implement Inter-Rater Reliability calculation (Krippendorff's alpha) in `code/data/annotator.py`. **Input**: `data/annotations/human_scores.csv`. **Dependency**: T014e. **Conditional**: Only run if T014e determined Research Mode. **Library**: Use `krippendorff` package. **Function**: `krippendorff.alpha(data, level='ordinal')`. **Output**: Log alpha value to `data/results/validation_log.txt`.
- - [ ] T015a [US1] **Simulated Raters**: If multiple raters are simulated (future extensibility), calculate IR on simulated data. Currently, this task is a placeholder for potential multi-rater simulation logic if the spec expands.
+ - [X] T014a [US1] **CI Mode**: Generate `data/annotations/decoupled_scores.csv` with columns `[image_id, score, mode]`. Logic: Use `np.random.seed(config.seed)` and generate scores via `np.random.uniform(1, 5, size=50)` strictly decoupled from synthetic mask metrics. **Verification**: Calculate and assert correlation(r) < 0.1 between generated scores and mask metrics to satisfy Spec Technical Constraints (CI Simulation only).
+ - [X] T014b [US1] **Research Mode**: Implement logic to load external human-annotated CSV. Validate schema and integrity.
+ - [X] T014c [US1] **Research Mode Ingestion**: Implement the specific mechanism to ingest, manage, and validate real human participant data for 'Research Mode' as required by FR-002. **Input**: `data/annotations/human_scores.csv`. **Validation**: Check schema (image_id, score, rater_id). **Error**: Raise `SystemExit` with code 1 and clear error message if file missing **AND** `config.mode == 'RESEARCH'`. If `config.mode == 'CI'`, skip this check and proceed to T014a. This task assumes data is sourced externally per Plan Phase 0.
+ - [X] T014d [US1] **Participant Disagreement Logic**: Calculate Krippendorff's alpha on multi-rater scores using the `krippendorff` library. If alpha < 0.5, log `alpha` per image to `data/results/validation_log.txt`. **Do NOT** create `flags.json` or trigger manual review workflows.
+ - [X] T014e [US1] **Flow Control**: If CI Mode, skip T015 (IR) and explicitly log `[TIMESTAMP] [CI_MODE] Single-Rater Simulation: Ground truth decoupled from metrics.` to `data/results/validation_log.txt`. **CRITICAL**: Ensure `data/annotations/decoupled_scores.csv` includes a `mode` column set to 'CI_MODE' or 'SIMULATION_ONLY' to satisfy Constitution Principle IV. If Research Mode, **mark T015 as ready to execute** and proceed.
+ - [X] T014f [US1] **Logging**: Log the outcome of T014e (mode decision) to `data/results/validation_log.txt`.
+- [X] T015 [US1] **Conditional Execution**: Implement Inter-Rater Reliability calculation (Krippendorff's alpha) in `code/data/annotator.py`. **Input**: `data/annotations/human_scores.csv`. **Dependency**: T014e. **Conditional**: Only run if T014e determined Research Mode. **Library**: Use `krippendorff` package. **Function**: `krippendorff.alpha(data, level='ordinal')`. **Output**: Persist alpha value to `data/results/inter_rater_reliability.json` and log to `data/results/validation_log.txt`.
+ - [X] T015a [US1] **Simulated Raters**: If multiple raters are simulated (future extensibility), calculate IR on simulated data. Currently, this task is a placeholder for potential multi-rater simulation logic if the spec expands.
 - [X] T016 [US1] Add validation logic in `code/data/annotator.py` that raises an error if sample size < 50 or if label independence check fails. Log result to `data/results/validation_log.txt`.
-- [ ] T017 [US1] Persist masked images to `data/processed/masked_images/` and scores to `data/annotations/`. **Logic**: Use `os.makedirs(path, exist_ok=True)` to ensure directories exist. Save images as PNG and scores as CSV.
+- [X] T017 [US1] Persist masked images to `data/processed/masked_images/` and scores to `data/annotations/`. **Logic**: Use `os.makedirs(path, exist_ok=True)` to ensure directories exist. Save images as PNG and scores as CSV.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -109,9 +111,7 @@ Examples of foundational tasks (adjust based on your plan):
 
 ### Implementation for User Story 4
 
-- [ ] T035 [P] [US4] Implement correlation analysis in `code/eval/stats.py` (Pearson between synthetic metrics and ground truth). **Dependency**: T014e. **Logic**: Use `scipy.stats.pearsonr` on `gradient_variance`/`texture_entropy` vs `score`. **Output**: Save `r` value to `data/results/proxy_validation.json`.
-- [X] T036a [US4] **Research Mode Gate**: Check if correlation r ≥ 0.7. If not, update `data/results/proxy_validation.json` with `gate_status: BLOCKED` and raise `SystemExit` with code 1.
-- [X] T036b [US4] **CI Mode Log**: If CI Mode, log expected low correlation behavior to `data/results/proxy_validation.json` with `gate_status: EXPECTED_LOW_CORRELATION` and **continue execution** (do not exit).
+- [X] T035 [P] [US4] Implement correlation analysis in `code/eval/stats.py` (Pearson between synthetic metrics and ground truth). **Dependency**: T014e. **Logic**: Use `scipy.stats.pearsonr` on `gradient_variance`/`texture_entropy` vs `score`. **Gate Logic**: If `config.mode == 'RESEARCH'` and r < 0.7, update `data/results/proxy_validation.json` with `gate_status: BLOCKED` and raise `SystemExit` with code 1. If `config.mode == 'CI'`, log expected low correlation behavior to `data/results/proxy_validation.json` with `gate_status: EXPECTED_LOW_CORRELATION` and **continue execution** (do not exit). **Output**: Save `r` value and `gate_status` to `data/results/proxy_validation.json`.
 - [X] T037 [US4] Save validation results to `data/results/proxy_validation.json`
 
 **Checkpoint**: Proxy validation complete; gating mechanism training can proceed with confidence
@@ -124,7 +124,7 @@ Examples of foundational tasks (adjust based on your plan):
 
 **Independent Test**: Run on single CPU core with low-complexity mask; verify reduced rank output.
 
-**⚠️ GATE ENFORCEMENT**: Phase 5 tasks are BLOCKED until Phase 4 (US4) Gate (T036a) passes with exit code 0. **Note**: T020 (Implementation) is now in Phase 2 to ensure code exists before gating.
+**⚠️ GATE ENFORCEMENT**: Phase 5 tasks are BLOCKED until Phase 4 (US4) Gate (T035) passes with exit code 0. **Note**: T020 (Implementation) is now in Phase 2 to ensure code exists before gating.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -133,18 +133,17 @@ Examples of foundational tasks (adjust based on your plan):
 
 ### Implementation for User Story 2
 
-- [X] T020 [P] [US2] Implement `code/models/moebius_tiny.py` (Simplified CPU version, ≤15M params total) - **Moved to Phase 2 to ensure code availability before gating**.
 - [X] T021 [US2] Implement `code/models/gating_head.py` (Lightweight conv head, **≤5M parameters**) to output scalar complexity. **Verification**: Count parameters and fail if > 5M.
 - [X] T022 [US2] Implement `code/models/moebius_dynamic.py` (Deliverable: `code/models/moebius_dynamic.py`) integrating gating head with $L\lambda MI$ linear matrices rank modulation logic.
- - [ ] T022a [US2] **CI Mode**: Implement rank modulation logic specifically for the `Moebius-Tiny` model architecture. **Dependency**: T022. **Logic**: Map scalar score (-5) to rank indices (1-5).
- - [ ] T022b [US2] **Research Mode**: Implement rank modulation logic specifically for the full `Moebius 0.2B` model architecture (if memory permits) or a larger variant. **Dependency**: T022. **Logic**: Map scalar score (1-5) to rank indices (1-5).
- - [ ] T022c [US2] Handle edge case: interpolation for score=3
- - [ ] T022d [US2] Handle edge case: fallback to static high-rank if mask > 50%
+ - [X] T022a [US2] **CI Mode**: Implement rank modulation logic specifically for the `Moebius-Tiny` model architecture. **Dependency**: T022. **Logic**: Map scalar score (-5) to rank indices (1-5). **Output**: Update `code/models/moebius_dynamic.py` with the mapping function.
+ - [X] T022b [US2] **Research Mode**: Implement rank modulation logic specifically for the full `Moebius 0.2B` model architecture (if memory permits) or a larger variant. **Dependency**: T022. **Logic**: Map scalar score (1-5) to rank indices (1-5). **Memory Check**: Implement a check to verify if the model fits within 7GB RAM; if not, fallback to `Moebius-Tiny` and log a warning.
+ - [X] T022c [US2] Handle edge case: interpolation for score=3
+ - [X] T022d [US2] Handle edge case: fallback to static high-rank if mask > 50%
 - [X] T023 [US2] Implement `code/training/train_gating.py` with multi-task loss (reconstruction + regression + rank classification). **Hyperparameters**: Loss weights = {reconstruction: dominant, regression: minor, rank: minor}. **Optimizer**: AdamW.
 - [X] T024 [US2] Implement `code/training/train_end_to_end.py` for fine-tuning
 - [X] T025 [US2] Implement permutation test logic in `code/eval/stats.py` to verify no overfitting (FR-008)
-- [ ] T025a [US2] **Pre-Deployment Gate**: Implement a validation step that checks the permutation test p-value. **Logic**: Shuffle labels multiple times, re-evaluate model, calculate p-value. **Gate**: If p ≤ 0.05, model has learned shuffled labels (overfitting). Block deployment, raise `SystemExit`.
-- [ ] T026 [US2] Save model weights to `code/models/moebius_dynamic.pt` and gating weights to `data/results/` **ONLY IF T025a gate passes**. **Logic**: Use `torch.save`. **Verification**: Check parameter count ≤ 5M. **Dependency**: Success of T025a gate.
+ - [X] T025a [US2] **Pre-Deployment Gate**: Implement a validation step that checks the permutation test p-value. **Logic**: Shuffle labels multiple times, re-evaluate model, calculate p-value. **Gate**: If p ≤ 0.05, model has learned shuffled labels (overfitting). Block deployment, raise `SystemExit`. **Output**: Persist p-value and gate status to `data/results/permutation_test.json`.
+ - [X] T026 [US2] Save model weights to `code/models/moebius_dynamic.pt` and gating weights to `data/results/` **ONLY IF T025a gate passes**. **Logic**: Use `torch.save`. **Verification**: Check parameter count ≤ 5M. **Dependency**: Success of T025a gate.
 
 **Checkpoint**: At this point, User Stories 1, 4, AND 2 should all work independently
 
@@ -158,10 +157,10 @@ Examples of foundational tasks (adjust based on your plan):
 
 ### Implementation for Phase 3.5
 
-- [X] T032a [P] [US3] Implement counterfactual run logic in `code/eval/report.py`: Run static model with forced low rank (simulating dynamic outcome). **Dependency**: Success of T025a gate (T026). **Logic**: Force rank of LλMI matrices to 1 for all inputs.
-- [ ] T032b [US3] Run comparison: (Dynamic Model) vs (Static Low Rank) vs (Static High Rank). **Logic**: Calculate latency reduction % and FID delta.
-- [ ] T032c [US3] Analyze prediction overhead vs. reduction gain. **Logic**: Compare (Dynamic Latency) vs (Static Low Rank Latency + Prediction Overhead).
-- [ ] T032d [US3] Generate `data/results/ablation_report.json`.
+- [X] T032a [P] [US3] Implement counterfactual run logic in `code/eval/report.py`: Run static model with forced low rank (simulating dynamic outcome). **Dependency**: Completion of Phase 5 (T026). **Logic**: Force rank of LλMI matrices to 1 for all inputs.
+ - [X] T032b [US3] Run comparison: (Dynamic Model) vs (Static Low Rank) vs (Static High Rank). **Logic**: Calculate latency reduction % and FID delta. **Output**: Save results to `data/results/ablation_comparison.csv`.
+ - [X] T032c [US3] Analyze prediction overhead vs. reduction gain. **Logic**: Compare (Dynamic Latency) vs (Static Low Rank Latency + Prediction Overhead). **Output**: Generate `data/results/ablation_report.json`.
+ - [X] T032d [US3] Generate `data/results/ablation_report.json`.
 
 **Checkpoint**: Ablation complete; evaluation report can now be generated with full data.
 
@@ -175,19 +174,19 @@ Examples of foundational tasks (adjust based on your plan):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Unit test for FID/LPIPS calculation on CPU in `tests/unit/test_metrics.py`
-- [ ] T028 [P] [US3] Integration test for statistical significance (t-test) in `tests/integration/test_stats_eval.py`
+- [X] T027 [P] [US3] Unit test for FID/LPIPS calculation on CPU in `tests/unit/test_metrics.py`
+- [X] T028 [P] [US3] Integration test for statistical significance (t-test) in `tests/integration/test_stats_eval.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Implement `code/eval/metrics.py` for FID, LPIPS, and wall-clock latency measurement (CPU only)
-- [ ] T033a [US3] **Run Inference**: Execute inference on test set across complexity bins; save raw latency metrics to `data/results/latency_raw.csv`.
-- [ ] T033b [US3] **Verify Target**: Calculate latency reduction from `latency_raw.csv` against Static High Rank baseline. Verify ≥30% reduction for low-complexity regions (defined as score <= 2.0 or bottom [deferred] of bins) using mean latency per complexity bin. Update `data/results/evaluation_report.json`. **Dependency**: T033a.
-- [ ] T030a [P] [US3] Implement `code/eval/stats.py` power analysis calculation (SC-005). Output power value to `data/results/power_analysis.json`.
-- [ ] T030b [US3] **Decision Gate**: If power < 0.8, update `data/results/power_analysis.json` with `status: UNDERPOWERED` and **mark the statistical significance claim in the final report as INVALID**. If power ≥ 0.8, proceed.
-- [ ] T031 [US3] Implement `code/eval/report.py` to generate `data/results/evaluation_report.json` (Consumes T033a, T033b, T032d).
-- [ ] T032 [US3] Implement ablation logic in `code/eval/report.py` for counterfactual runs (Static Low Rank vs Dynamic) (Calls T032a-T032d).
-- [ ] T034 [US3] Verify FID difference ≤0.5 vs static baseline and statistical significance (p > 0.05) using paired t-test.
+- [X] T029 [P] [US3] Implement `code/eval/metrics.py` for FID, LPIPS, and wall-clock latency measurement (CPU only)
+- [X] T033a [US3] **Run Inference**: Execute inference on test set across complexity bins; save raw latency metrics to `data/results/latency_raw.csv`.
+- [X] T033b [US3] **Verify Target**: Calculate latency reduction from `latency_raw.csv` against Static High Rank baseline. Verify ≥30% reduction for low-complexity regions (defined as score <= 2.0 or bottom [deferred] of bins) using mean latency per complexity bin. **Output**: Write `data/results/evaluation_report.json` with field `latency_reduction_pct`. **Dependency**: T033a.
+- [X] T030a [P] [US3] Implement `code/eval/stats.py` power analysis calculation (SC-005). Output power value to `data/results/power_analysis.json`.
+ - [X] T030b [US3] **Decision Gate**: If power < 0.8, update `data/results/power_analysis.json` with `status: UNDERPOWERED` and **block further execution** or **require remediation** (e.g., re-sampling) before proceeding. If power ≥ 0.8, proceed. **Update**: Mark the statistical significance claim in the final report as INVALID if underpowered and no remediation is possible.
+ - [X] T031 [US3] Implement `code/eval/report.py` to generate `data/results/evaluation_report.json` (Consumes T033a, T033b, T032d).
+ - [X] T032 [US3] Implement ablation logic in `code/eval/report.py` for counterfactual runs (Static Low Rank vs Dynamic) (Calls T032a-T032d).
+ - [X] T034 [US3] Verify FID difference ≤0.5 vs static baseline and statistical significance (p > 0.05) using paired t-test.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -198,7 +197,7 @@ Examples of foundational tasks (adjust based on your plan):
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T038 [P] Documentation updates in `docs/` and `paper/draft.md` with mode labeling (CI vs Research)
-- [ ] T039 Code cleanup and refactoring
+- [ ] T039 Code cleanup and refactoring <!-- FAILED: unspecified -->
 - [ ] T040 Performance optimization (chunked processing for FID/LPIPS to stay within 7GB RAM)
 - [ ] T041 [P] Additional unit tests in `tests/unit/`
 - [ ] T042 Run `quickstart.md` validation and ensure all artifacts are checksummed
@@ -233,8 +232,8 @@ Examples of foundational tasks (adjust based on your plan):
 - **T014e (Flow Control)**: Must complete before T015. T014e determines if T015 is executed (Research Mode) or skipped (CI Mode).
 - **T015 (IR Calculation)**: **Depends on T014e**. Only runs if T014e confirms Research Mode.
 - **T035 (Proxy Validation)**: **Depends on T014e**. Ensures ground truth is finalized before correlation check.
-- **T036a/T036b**: Depend on T035.
-- **Phase 5 (US2)**: Depends on T036a passing (exit code 0).
+- **Phase 5 (US2)**: Depends on T035 passing (exit code 0).
+- **Phase 3.5 (Ablation)**: Depends on T026 (Model Save) from Phase 5.
 
 ### Parallel Opportunities
 
@@ -310,7 +309,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: All training and evaluation MUST run on CPU-only CI (cores, limited RAM). No CUDA, no 8-bit quantization.
+- **CRITICAL**: All training and evaluation MUST run on CPU-only CI (cores, limited RAM). No CUDA, no low-bit quantization.
 - **CRITICAL**: Ground truth must be decoupled from model metrics in CI mode to prevent circularity.
 - **CRITICAL**: US4 (Proxy Validation) MUST pass (r ≥ 0.7 for human data) before US2 (Training) begins.
-- **Dependency Clarification**: T015 (IR) is conditional on T014e (Flow Control). T035 (Proxy) depends on the completion of the relevant ground truth path (T015 or T014e).
+- **Dependency Clarification**: T015 (IR) is conditional on T014e (Flow Control). T035 (Proxy) depends on the completion of the relevant ground truth path (T015 or T014e). T032a (Ablation) depends on T026 (Model Save) from Phase 5.
