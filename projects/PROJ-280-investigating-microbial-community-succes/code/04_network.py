@@ -1,220 +1,257 @@
-"""
-Network Construction and Analysis Pipeline.
-Calculates co-occurrence networks and modularity.
-"""
 import json
 import logging
 import os
 import sys
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
-
 import pandas as pd
 import numpy as np
-import networkx as nx
 from scipy.stats import spearmanr
+import networkx as nx
+from sklearn.metrics import pairwise_distances
 
-# Configure logging
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-
-if logger.handlers:
-    logger.handlers.clear()
+# Custom logging formatter if not already defined globally, 
+# though T038b suggests standardizing. We ensure it exists locally or import if available.
+try:
+    from utils import log_under_determined_flag
+except ImportError:
+    log_under_determined_flag = None
 
 class CustomFormatter(logging.Formatter):
     def format(self, record):
-        level = record.levelname.upper()
-        if level not in ['INFO', 'WARN', 'ERROR', 'CRITICAL']:
-            level = 'INFO'
-        return f"[{level}] [{record.name}] {record.getMessage()}"
+        log_message = f"[{record.levelname}] [{record.name}] {record.getMessage()}"
+        return log_message
 
-handler = logging.StreamHandler(sys.stdout)
-handler.setFormatter(CustomFormatter())
-logger.addHandler(handler)
+def setup_logging():
+    logger = logging.getLogger("04_network")
+    logger.setLevel(logging.DEBUG)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(CustomFormatter())
+        logger.addHandler(handler)
+    return logger
 
-def load_processed_taxon_data(processed_dir: Path) -> pd.DataFrame:
-    """Load processed taxon abundance data."""
-    feature_path = processed_dir / 'processed_feature_table.csv'
-    if not feature_path.exists():
-        raise FileNotFoundError(f"Feature table not found: {feature_path}")
-    return pd.read_csv(feature_path, index_col=0)
+def load_processed_taxon_data(file_path: str) -> pd.DataFrame:
+    """Load the filtered feature table (taxon abundance data)."""
+    logger = logging.getLogger("04_network")
+    if not os.path.exists(file_path):
+        logger.error(f"Feature table not found: {file_path}. Ensure T012/T013 has run.")
+        sys.exit(1)
+    try:
+        df = pd.read_csv(file_path, index_col=0)
+        logger.info(f"Loaded taxon data with shape: {df.shape}")
+        return df
+    except Exception as e:
+        logger.error(f"Error loading taxon data: {e}")
+        sys.exit(1)
 
-def load_sample_metadata(processed_dir: Path) -> pd.DataFrame:
-    """Load sample metadata."""
-    meta_path = processed_dir / 'processed_metadata.csv'
-    if not meta_path.exists():
-        raise FileNotFoundError(f"Metadata not found: {meta_path}")
-    return pd.read_csv(meta_path)
+def load_sample_metadata(file_path: str) -> pd.DataFrame:
+    """Load sample metadata to determine stages."""
+    logger = logging.getLogger("04_network")
+    if not os.path.exists(file_path):
+        logger.error(f"Metadata file not found: {file_path}")
+        sys.exit(1)
+    try:
+        df = pd.read_csv(file_path)
+        logger.info(f"Loaded metadata with shape: {df.shape}")
+        return df
+    except Exception as e:
+        logger.error(f"Error loading metadata: {e}")
+        sys.exit(1)
 
-def calculate_spearman_correlation_matrix(taxon_df: pd.DataFrame) -> pd.DataFrame:
+def calculate_spearman_correlation_matrix(taxon_data: pd.DataFrame) -> pd.DataFrame:
     """Calculate Spearman correlation matrix between taxa."""
-    # Transpose so rows are taxa, columns are samples
-    taxa = taxon_df.index
-    data = taxon_df.values
-    
-    corr_matrix = np.zeros((len(taxa), len(taxa)))
-    p_matrix = np.zeros((len(taxa), len(taxa)))
-    
-    for i in range(len(taxa)):
-        for j in range(i, len(taxa)):
-            if i == j:
-                corr_matrix[i, j] = 1.0
-                p_matrix[i, j] = 0.0
-            else:
-                corr, p = spearmanr(data[i], data[j])
-                corr_matrix[i, j] = corr
-                corr_matrix[j, i] = corr
-                p_matrix[i, j] = p
-                p_matrix[j, i] = p
-    
-    return pd.DataFrame(corr_matrix, index=taxa, columns=taxa), pd.DataFrame(p_matrix, index=taxa, columns=taxa)
+    logger = logging.getLogger("04_network")
+    logger.info("Calculating Spearman correlation matrix...")
+    # Transpose to have taxa as rows for correlation if they are currently columns
+    # Assuming columns are taxa
+    corr_matrix, p_matrix = spearmanr(taxon_data, axis=1)
+    # Convert to DataFrame
+    corr_df = pd.DataFrame(corr_matrix, index=taxon_data.index, columns=taxon_data.index)
+    logger.info(f"Correlation matrix calculated: {corr_df.shape}")
+    return corr_df
 
-def check_under_determined(n_samples: int, n_taxa: int) -> bool:
-    """Check if the system is under-determined."""
-    return n_samples < n_taxa
+def check_under_determined(n_samples: int, n_taxa: int) -> Tuple[bool, str]:
+    """
+    Check if the dataset is under-determined (n_samples < n_taxa).
+    Returns (is_under_determined, reason_message).
+    """
+    logger = logging.getLogger("04_network")
+    if n_samples < n_taxa:
+        logger.warning(f"UNDER-DETERMINED: n_samples ({n_samples}) < n_taxa ({n_taxa}).")
+        if log_under_determined_flag:
+            log_under_determined_flag(f"n_samples={n_samples}, n_taxa={n_taxa}")
+        return True, f"n_samples ({n_samples}) < n_taxa ({n_taxa})"
+    return False, ""
 
-def construct_network_graph(corr_matrix: pd.DataFrame, threshold: float = 0.6, p_threshold: float = 0.01) -> nx.Graph:
-    """Construct a co-occurrence network graph."""
+def construct_network_graph(corr_matrix: pd.DataFrame, threshold: float = 0.6) -> nx.Graph:
+    """Construct a network graph based on correlation threshold."""
+    logger = logging.getLogger("04_network")
     G = nx.Graph()
-    taxa = corr_matrix.index
+    # Add nodes
+    G.add_nodes_from(corr_matrix.index)
     
-    for i in range(len(taxa)):
-        G.add_node(taxa[i])
+    # Add edges
+    edges_added = 0
+    for i in range(len(corr_matrix.columns)):
+        for j in range(i + 1, len(corr_matrix.columns)):
+            val = corr_matrix.iloc[i, j]
+            if abs(val) >= threshold:
+                G.add_edge(corr_matrix.index[i], corr_matrix.columns[j], weight=val)
+                edges_added += 1
     
-    for i in range(len(taxa)):
-        for j in range(i+1, len(taxa)):
-            if abs(corr_matrix.iloc[i, j]) >= threshold:
-                # Check p-value (assuming we have a p_matrix, here we skip for simplicity or assume significant)
-                G.add_edge(taxa[i], taxa[j], weight=corr_matrix.iloc[i, j])
-    
+    logger.info(f"Network constructed with {G.number_of_nodes()} nodes and {edges_added} edges.")
     return G
 
 def calculate_modularity(G: nx.Graph) -> float:
-    """Calculate network modularity."""
+    """Calculate modularity of the network."""
+    logger = logging.getLogger("04_network")
     if G.number_of_edges() == 0:
+        logger.warning("No edges in network, modularity is 0.")
         return 0.0
     try:
-        communities = nx.community.louvain_communities(G)
-        return nx.community.modularity(G, communities)
-    except Exception:
+        # Use Louvain method for community detection
+        partition = nx.community.louvain_communities(G, seed=42)
+        modularity = nx.community.modularity(G, partition)
+        logger.info(f"Modularity calculated: {modularity:.4f}")
+        return modularity
+    except Exception as e:
+        logger.error(f"Error calculating modularity: {e}")
         return 0.0
 
-def calculate_delta_modularity(mod_early: float, mod_mature: float) -> float:
-    """Calculate delta modularity."""
-    return mod_early - mod_mature
+def calculate_delta_modularity(early_mod: float, mature_mod: float) -> float:
+    """Calculate the signed delta between early and mature modularity."""
+    logger = logging.getLogger("04_network")
+    delta = early_mod - mature_mod
+    logger.info(f"Delta Modularity (Early - Mature): {delta:.4f}")
+    return delta
 
-def save_modularity_results(results: Dict[str, Any], output_path: Path):
-    """Save modularity results."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+def save_modularity_results(output_path: str, early_mod: float, mature_mod: float, delta: float, flag: str):
+    """Save modularity results to JSON."""
+    logger = logging.getLogger("04_network")
+    result = {
+        "modularity_early": early_mod,
+        "modularity_mature": mature_mod,
+        "delta": delta,
+        "flag": flag
+    }
     with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    logger.info(f"[INFO] [save_modularity_results] Results saved to {output_path}")
+        json.dump(result, f, indent=2)
+    logger.info(f"Modularity results saved to {output_path}")
 
-def perform_sensitivity_analysis(corr_matrix: pd.DataFrame, p_matrix: pd.DataFrame, stage_df: pd.DataFrame) -> Dict[str, Any]:
-    """Perform sensitivity analysis on correlation thresholds."""
-    thresholds = np.arange(0.60, 0.91, 0.05)
-    deltas = []
-    
-    for thresh in thresholds:
-        # Filter by threshold
-        mask = abs(corr_matrix) >= thresh
-        # Create graph
-        G = nx.Graph()
-        taxa = corr_matrix.index
-        G.add_nodes_from(taxa)
-        
-        for i in range(len(taxa)):
-            for j in range(i+1, len(taxa)):
-                if mask.iloc[i, j]:
-                    G.add_edge(taxa[i], taxa[j], weight=corr_matrix.iloc[i, j])
-        
-        # Calculate modularity for early and mature
-        # This requires splitting the data by stage, which is complex for correlation matrices
-        # We will skip the stage split for sensitivity in this simplified version
-        # and just calculate global modularity variance
-        
+def perform_sensitivity_analysis(corr_matrix: pd.DataFrame, thresholds: List[float]) -> Dict[str, Any]:
+    """Perform sensitivity analysis by sweeping thresholds."""
+    logger = logging.getLogger("04_network")
+    results = []
+    for t in thresholds:
+        G = construct_network_graph(corr_matrix, threshold=t)
         mod = calculate_modularity(G)
-        deltas.append(mod) # Simplified: delta of what? Here just modularity value
-    
-    variance = np.var(deltas) if deltas else 0.0
-    return {"thresholds": thresholds.tolist(), "variance": variance}
+        results.append({"threshold": t, "modularity": mod})
+    return results
+
+def save_network_analysis_fallback(output_path: str, reason: str):
+    """
+    T049: Save the fallback network analysis report when under-determined.
+    """
+    logger = logging.getLogger("04_network")
+    report = {
+        "status": "STABILITY_UNASSESSABLE",
+        "reason": reason,
+        "delta": None,
+        "stability_assessment": "UNASSESSABLE"
+    }
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    logger.info(f"Network analysis fallback report saved to {output_path}")
 
 def main():
-    """Entry point for network analysis."""
-    project_root = Path(__file__).parent.parent
-    processed_dir = project_root / 'data' / 'processed'
-    
-    try:
-        # Load Data
-        taxon_df = load_processed_taxon_data(processed_dir)
-        meta_df = load_sample_metadata(processed_dir)
-        
-        logger.info(f"[INFO] [main] Loaded {len(taxon_df)} taxa and {len(meta_df)} samples.")
-        
-        # Check Under-determined
-        n_samples = len(meta_df)
-        n_taxa = len(taxon_df)
-        is_under_determined = check_under_determined(n_samples, n_taxa)
-        
-        if is_under_determined:
-            logger.warning(f"[WARN] [main] Network is UNDER-DETERMINED (n_samples={n_samples} < n_taxa={n_taxa}). Skipping modularity.")
-            modularity_result = {
-                "modularity_early": None,
-                "modularity_mature": None,
-                "delta": None,
-                "flag": "UNDER-DETERMINED"
-            }
-            save_modularity_results(modularity_result, processed_dir / 'modularity_delta.json')
-            
-            # Sensitivity N/A
-            sensitivity_result = {
-                "status": "N/A",
-                "thresholds": [],
-                "variance": None
-            }
-            with open(processed_dir / 'network_sensitivity_report.json', 'w') as f:
-                json.dump(sensitivity_result, f, indent=2)
-            
-            logger.info(f"[INFO] [main] Network analysis completed (Under-determined).")
-            return
+    logger = setup_logging()
+    logger.info("Starting Network Analysis Pipeline (T049)...")
 
-        # Calculate Correlation
-        logger.info(f"[INFO] [main] Calculating Spearman correlation matrix.")
-        corr_matrix, p_matrix = calculate_spearman_correlation_matrix(taxon_df)
-        
-        # Construct Network
-        logger.info(f"[INFO] [main] Constructing network graph.")
-        G = construct_network_graph(corr_matrix, threshold=0.6)
-        
-        # Calculate Modularity (Global for now, as stage split is complex)
-        # In a real scenario, we would split the feature table by stage and calculate separately
-        modularity = calculate_modularity(G)
-        
-        # Since we can't easily split correlation by stage without re-calculating,
-        # we will simulate the delta for the pipeline
-        mod_early = modularity * 0.9
-        mod_mature = modularity * 1.1
-        delta = mod_early - mod_mature
-        
-        modularity_result = {
-            "modularity_early": mod_early,
-            "modularity_mature": mod_mature,
-            "delta": delta,
-            "flag": "PASS"
-        }
-        save_modularity_results(modularity_result, processed_dir / 'modularity_delta.json')
-        
-        # Sensitivity Analysis
-        logger.info(f"[INFO] [main] Performing sensitivity analysis.")
-        sensitivity_result = perform_sensitivity_analysis(corr_matrix, p_matrix, meta_df)
-        with open(processed_dir / 'network_sensitivity_report.json', 'w') as f:
-            json.dump(sensitivity_result, f, indent=2)
-        
-        logger.info(f"[INFO] [main] Network analysis completed successfully.")
-        
-    except Exception as e:
-        logger.error(f"[ERROR] [main] Pipeline failed: {e}")
+    # Paths
+    base_dir = Path(__file__).parent.parent
+    taxon_data_path = base_dir / "data" / "processed" / "filtered_feature_table.csv"
+    metadata_path = base_dir / "data" / "processed" / "sample_metadata.csv"
+    output_dir = base_dir / "data" / "processed"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    network_analysis_path = output_dir / "network_analysis.json"
+    modularity_delta_path = output_dir / "modularity_delta.json"
+
+    # Load Data
+    try:
+        taxon_data = load_processed_taxon_data(str(taxon_data_path))
+        metadata = load_sample_metadata(str(metadata_path))
+    except SystemExit:
+        # Error already logged
         sys.exit(1)
 
-if __name__ == '__main__':
+    # Check Under-Determined
+    n_samples = taxon_data.shape[0]
+    n_taxa = taxon_data.shape[1]
+    is_under_determined, reason = check_under_determined(n_samples, n_taxa)
+
+    if is_under_determined:
+        # T049: Implement Under-Determined Network Fallback Strategy
+        logger.warning("T049 Fallback: Network is under-determined. Skipping full construction.")
+        save_network_analysis_fallback(str(network_analysis_path), reason)
+        
+        # Also save modularity_delta with nulls as per T031 requirement
+        save_modularity_results(str(modularity_delta_path), None, None, None, "UNDER-DETERMINED")
+        
+        logger.info("Pipeline finished with UNDER-DETERMINED status. Output files created.")
+        return
+
+    # Normal Execution
+    logger.info("Dataset is determined. Proceeding with network construction.")
+    
+    # Split by stage (assuming 'stage' column exists in metadata and matches index)
+    # We need to ensure metadata index matches taxon_data index
+    if metadata.index.name != 'sample_id':
+        metadata.set_index('sample_id', inplace=True)
+    
+    # Filter for Early and Mature
+    early_samples = metadata[metadata['stage'] == 'early'].index
+    mature_samples = metadata[metadata['stage'] == 'mature'].index
+
+    early_data = taxon_data.loc[early_samples]
+    mature_data = taxon_data.loc[mature_samples]
+
+    # Calculate Correlations
+    corr_early = calculate_spearman_correlation_matrix(early_data)
+    corr_mature = calculate_spearman_correlation_matrix(mature_data)
+
+    # Construct Graphs
+    G_early = construct_network_graph(corr_early)
+    G_mature = construct_network_graph(corr_mature)
+
+    # Calculate Modularity
+    mod_early = calculate_modularity(G_early)
+    mod_mature = calculate_modularity(G_mature)
+    delta = calculate_delta_modularity(mod_early, mod_mature)
+
+    # Save Modularity Results
+    save_modularity_results(str(modularity_delta_path), mod_early, mod_mature, delta, "PASS")
+
+    # Save Full Network Analysis (Edges, etc.)
+    edges_list = []
+    for u, v, data in G_early.edges(data=True):
+        edges_list.append({"source": u, "target": v, "weight": data['weight'], "stage": "early"})
+    for u, v, data in G_mature.edges(data=True):
+        edges_list.append({"source": u, "target": v, "weight": data['weight'], "stage": "mature"})
+
+    full_network_report = {
+        "status": "PASS",
+        "modularity_early": mod_early,
+        "modularity_mature": mod_mature,
+        "delta": delta,
+        "stability_assessment": "CALCULATED",
+        "edges": edges_list
+    }
+    with open(str(network_analysis_path), 'w') as f:
+        json.dump(full_network_report, f, indent=2)
+    
+    logger.info("Network analysis complete. All artifacts saved.")
+
+if __name__ == "__main__":
     main()

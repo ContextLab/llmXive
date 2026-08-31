@@ -7,20 +7,6 @@ T001:
     confirm that the project structure was actually created. The implementer must
     provide the filesystem layout (or a screenshot/command output) and the contents
     of the manifest file.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listings or file system evidence were provided showing that the\
-    \ required subdirectories (`data/raw`, `data/processed`, `data/config`, `tests/unit`,\
-    \ `tests/contract`, `tests/integration`, `state/projects`) actually exist; thus\
-    \ the task\u2019s deliverable is missing."
-T007:
-  c: false
-  h: c37dce784147487b95b99c14681113f9fb2e6578fb1c49f7dd56b79508abe663
-  r: The `Taxon` class in `code/data_models.py` is correctly implemented with the
-    required attributes, but the required file `contracts/feature-table.schema.yaml`
-    does not exist, so the JSON schema for the feature table is missing. The task
-    is therefore not fully satisfied.
 T020:
   c: false
   h: 1a82ad41879153bb5ddfd6e8f03b55df3532f12f03ebc55c09951d235c93c3a0
@@ -37,14 +23,6 @@ T023:
     \ analysis script, template change, or example output) the requirement is not\
     \ satisfied. The next implementer must add and provide the actual implementation\
     \ and a sample report demonstrating the new annotation."
-T030:
-  c: false
-  h: ccf8a229a293e195a9b9781c4f32b6ed7263da0fa45c0f3b67b6fa824063cc6c
-  r: "The provided `code/04_network.py` does not contain any logic that sweeps correlation\
-    \ thresholds, computes early\u2011 vs\u2011mature modularity differences, or calculates\
-    \ their variance, nor does it write a JSON report. Moreover, the required output\
-    \ file `data/processed/network_sensitivity_report.json` is absent. The task\u2019\
-    s core requirements are therefore unmet."
 T031:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -52,14 +30,6 @@ T031:
     \ for early and mature stages, nor any calculation of the signed \u0394modularity.\
     \ The required artifact (e.g., a script and its output showing modularity values\
     \ and their difference) is missing."
-T035:
-  c: false
-  h: 42e63f03845bd98f16da495025f11324af5f0bb9136e213bfb46e5e9d8eb9cd9
-  r: The `data/processed/network_analysis.json` file is missing entirely, and the
-    required schema file `contracts/output-metrics.schema.yaml` (referred to as `schema.yaml`)
-    is also absent, so the existing `correlation_results.json` cannot be verified
-    against the contract. Both required artifacts must be present and conform to the
-    schema for the task to be considered complete.
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
