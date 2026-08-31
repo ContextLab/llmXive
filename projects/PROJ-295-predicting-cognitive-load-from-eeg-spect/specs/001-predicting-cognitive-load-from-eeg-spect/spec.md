@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1)
 
-The system must successfully download, clean, and prepare the OpenNeuro EEG dataset for analysis, ensuring that EEG data is artifact-free and aligned with behavioral logs within the 7GB RAM constraint.
+The system must successfully download, clean, and prepare the OpenNeuro EEG dataset for analysis, ensuring that EEG data is artifact-free and aligned with behavioral logs within the available system memory constraint.
 
 **Why this priority**: Without clean, aligned data, no feature extraction or modeling can occur. This is the foundational step; if the data pipeline fails or exceeds memory limits, the entire research project halts.
 
