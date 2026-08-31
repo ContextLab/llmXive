@@ -288,4 +288,104 @@
 
 - [ ] T045 [P] Add validation scripts to verify `participant.schema.yaml` compliance against `data/raw/` exports.
 
-- [ ] T046 [P] Run `quickstart.md` validation script; update instructions if any step fails.
+---
+
+## Dependencies & Execution Order
+
+### Phase Dependencies
+
+- **Pre-Phase 0 (Gates)**: T000 -> T000b. **CRITICAL**: If these fail, project halts.
+- **Phase 0 (Research)**: T000b -> T001a-1 -> T001a-2 -> T001b-1 -> T001b-2 -> T002 -> T003-1 -> T008 -> T010b -> T011 -> T007g. **Note**: T010b, T011, and T007g are **REQUIRED** for the transition to Phase 1 and Phase 2.
+- **Phase 1 (Setup)**: Depends on Phase 0 completion. Tasks T004, T005, T006, T010, T009, T012, T017i, T017h, T015, T016 can run in parallel as they depend only on T004 and T000/T010b where applicable. **Order within Phase 1**: T004 -> T010 -> T009 -> T012 -> T017i -> T017h.
+- **Phase 2 (Foundational)**: Depends on Phase 0 (including T010b/T011/T007g) and Phase 1 completion. **BLOCKS all user stories**.
+- **Phase 3 (US1)**: Depends on Phase 2 completion. T024b execution is additionally blocked by T007g completion.
+- **Phase 4 (US2)**: Depends on Phase 2 completion.
+- **Phase 5 (US3)**: Depends on Phase 4 completion AND T042 (Protocol) completion.
+- **Phase 6 (Polish)**: Depends on all desired user stories being complete.
+
+### User Story Dependencies
+
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories. **CRITICAL**: Must be completed before data collection begins. **Execution Note**: T024b runtime requires T007g.
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Can run on synthetic data independently of US1 completion, but requires US1 data schema.
+- **User Story 3 (P3)**: Can start ONLY AFTER Phase 4 (US2) completion AND T042 (Protocol) completion. Relies on US2 outputs (ANOVA, post-hoc) for sensitivity sweeps and post-hoc power.
+
+### Within Each User Story
+
+- Implementation MUST be written before tests (unless TDD explicitly requested).
+- Models before services.
+- Services before endpoints.
+- Core implementation before integration.
+- Story complete before moving to next priority.
+
+### Parallel Opportunities
+
+- All Setup tasks marked [P] can run in parallel.
+- All Foundational tasks marked [P] can run in parallel (within Phase 2).
+- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows).
+- All tests for a user story marked [P] can run in parallel.
+- Models within a story marked [P] can run in parallel.
+- Different user stories can be worked on in parallel by different team members.
+
+---
+
+## Parallel Example: User Story 1
+
+```bash
+# Launch interface implementations for User Story 1 together:
+Task: "Implement High Agency condition interface in code/experiment/app.py"
+Task: "Implement Low Agency condition interface in code/experiment/app.py"
+Task: "Implement Control condition interface in code/experiment/app.py"
+
+# Launch tests for User Story 1 together (after implementation):
+Task: "Unit test for randomization logic in code/experiment/tests/test_randomization.py"
+Task: "Integration test for session flow in code/experiment/tests/test_session_flow.py"
+```
+
+---
+
+## Implementation Strategy
+
+### MVP First (User Story 1 Only)
+
+1. Complete Pre-Phase 0: Gates (T000, T000b).
+2. Complete Phase 0: Research & Validation (Includes T0.80 Power Analysis AND T007g).
+3. Complete Phase 1: Setup.
+4. Complete Phase 2: Foundational (CRITICAL - blocks all stories).
+5. Complete Phase 3: User Story 1.
+6. **STOP and VALIDATE**: Test User Story 1 independently (run pilot with synthetic or real participants).
+7. Deploy experiment interface for recruitment.
+
+### Incremental Delivery
+
+1. Complete Pre-Phase 0 + Phase 0 + Setup + Foundational → Foundation ready.
+2. Add User Story 1 → Test independently → Deploy experiment interface (MVP!).
+3. Add User Story 2 → Test on synthetic data → Ready for real data analysis.
+4. Add User Story 3 → Test robustness → Generate final report.
+5. Each story adds value without breaking previous stories.
+
+### Parallel Team Strategy
+
+With multiple developers:
+
+1. Team completes Pre-Phase 0 + Phase 0 + Setup + Foundational together.
+2. Once Foundational is done:
+ - Developer A: User Story 1 (Experiment Interface).
+ - Developer B: User Story 2 (Analysis Core).
+ - Developer C: User Story 3 (Robustness & Reporting).
+3. Stories complete and integrate independently.
+
+---
+
+## Notes
+
+- [P] tasks = different files, no dependencies.
+- [Story] label maps task to specific user story for traceability.
+- Each user story should be independently completable and testable.
+- Commit after each task or logical group.
+- Stop at any checkpoint to validate story independently.
+- **Data Integrity**: Ensure `data/raw/` is never modified in-place. All cleaning must write to `data/processed/`.
+- **Compute Feasibility**: All statistical tasks (ANOVA, contrasts, sensitivity) are CPU-tractable and fit within GitHub Actions free-tier limits.
+- **Fabrication Guard**: Do NOT use `random.*` to generate input data for the analysis pipeline unless explicitly testing with synthetic data generators. Real analysis must use real CSV exports from `data/raw/`.
+- **Gate Tasks**: T000 (Reference Validation) is a mandatory gate. T034 is now a reporting step, not a gate.
+- **Critical Dependencies**: T002 must complete after T001a-2 and T001b-2. T008 depends on T002. T024 depends on T010b, T011, T000b, and T007g artifacts. T035 depends on T026 and T002. T038 depends on Phase 4 and T042. T039 depends on T002, Phase 4, T038, and T038b.
+- **Execution Flow**: T010b/T011/T007g are prerequisites for Phase 2. T007g is a prerequisite for T024b execution. T042 is a prerequisite for T038 execution.
