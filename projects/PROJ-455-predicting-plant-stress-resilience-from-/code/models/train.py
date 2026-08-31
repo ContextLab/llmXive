@@ -5,6 +5,7 @@ import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
 from sklearn.metrics import r2_score
+from sklearn.model_selection import cross_val_score
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -34,17 +35,34 @@ def calculate_metric(y_true: np.ndarray, y_pred: np.ndarray, mode: str = "indivi
 def train_random_forest(X: pd.DataFrame, y: pd.Series, cv: int = 5) -> Tuple[RandomForestRegressor, Dict[str, Any]]:
     """
     Train a Random Forest regressor and return the model plus metrics.
-    Logs training time, metric value (if provided by caller context or placeholder),
-    and top 5 features to the configured logger.
+    Performs K-Fold cross-validation to compute a real metric_value.
     """
     start_time = time.time()
+    
+    # Ensure feature names are available for the model
+    if hasattr(X, 'columns'):
+        X = X.copy()
+        X.columns = [str(c) for c in X.columns]
+    
     model = RandomForestRegressor(
         n_estimators=100,
         max_depth=None,
         random_state=42,
         n_jobs=-1
     )
+    
+    # Fit the model on the full data for the return object
     model.fit(X, y)
+    
+    # Perform Cross-Validation to get a real metric value
+    # We use negative MSE from sklearn and convert, or directly use scoring='r2'
+    try:
+        cv_scores = cross_val_score(model, X, y, cv=cv, scoring='r2')
+        mean_r2 = float(np.mean(cv_scores))
+    except Exception as e:
+        logger.warning(f"Cross-validation failed: {e}. Using 0.0 as metric value.")
+        mean_r2 = 0.0
+
     duration = time.time() - start_time
 
     # Extract top features for logging
@@ -52,11 +70,11 @@ def train_random_forest(X: pd.DataFrame, y: pd.Series, cv: int = 5) -> Tuple[Ran
     feature_str = ", ".join([f"{name} ({val:.4f})" for name, val in top_features])
 
     # Log the metrics as required by T027
-    # Note: metric_value is currently 0.0 here as CV logic is external, 
-    # but the logger records the training time and top features immediately.
     logger.info(
         f"RandomForest Training Complete | "
         f"Time: {duration:.2f}s | "
+        f"CV Folds: {cv} | "
+        f"Mean R²: {mean_r2:.4f} | "
         f"Top 5 Features: {feature_str}"
     )
 
@@ -65,7 +83,7 @@ def train_random_forest(X: pd.DataFrame, y: pd.Series, cv: int = 5) -> Tuple[Ran
         "training_time_sec": duration,
         "n_estimators": 100,
         "cv_folds": cv,
-        "metric_value": 0.0, # To be filled by caller if CV is done here
+        "metric_value": mean_r2,
         "metric_name": "R2",
         "top_features": top_features
     }
@@ -75,11 +93,25 @@ def train_random_forest(X: pd.DataFrame, y: pd.Series, cv: int = 5) -> Tuple[Ran
 def train_svm(X: pd.DataFrame, y: pd.Series, cv: int = 5) -> Tuple[SVR, Dict[str, Any]]:
     """
     Train an SVM regressor and return the model plus metrics.
-    Logs training time and top 5 features (if intrinsic/importance available) to the logger.
+    Performs K-Fold cross-validation to compute a real metric value.
     """
     start_time = time.time()
+    
+    if hasattr(X, 'columns'):
+        X = X.copy()
+        X.columns = [str(c) for c in X.columns]
+
     model = SVR(kernel='rbf', C=1.0, epsilon=0.2)
     model.fit(X, y)
+
+    # Perform Cross-Validation
+    try:
+        cv_scores = cross_val_score(model, X, y, cv=cv, scoring='r2')
+        mean_r2 = float(np.mean(cv_scores))
+    except Exception as e:
+        logger.warning(f"Cross-validation failed: {e}. Using 0.0 as metric value.")
+        mean_r2 = 0.0
+
     duration = time.time() - start_time
 
     # Extract top features for logging (may be empty for RBF SVR)
@@ -93,6 +125,8 @@ def train_svm(X: pd.DataFrame, y: pd.Series, cv: int = 5) -> Tuple[SVR, Dict[str
     logger.info(
         f"SVM Training Complete | "
         f"Time: {duration:.2f}s | "
+        f"CV Folds: {cv} | "
+        f"Mean R²: {mean_r2:.4f} | "
         f"Top 5 Features: {feature_str}"
     )
 
@@ -101,7 +135,7 @@ def train_svm(X: pd.DataFrame, y: pd.Series, cv: int = 5) -> Tuple[SVR, Dict[str
         "training_time_sec": duration,
         "kernel": "rbf",
         "cv_folds": cv,
-        "metric_value": 0.0,
+        "metric_value": mean_r2,
         "metric_name": "R2",
         "top_features": top_features
     }

@@ -1,51 +1,37 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: RecoveryMetric
-description: >-
-  Schema for recovery metrics derived from plant stress experiments,
-  including the normalized RecoveryIndex.
+description: Schema for recovery metrics derived from biomass or survival data.
 type: object
 required:
   - sample_id
-  - recovery_index
-  - raw_metrics
-  - calculation_method
+  - metric_type
+  - value
+  - normalized_index
 properties:
   sample_id:
     type: string
-    description: Unique identifier for the sample (must match MetabolomicProfile.sample_id)
-    pattern: "^[A-Za-z0-9_-]+$"
-  recovery_index:
-    type: number
-    description: >-
-      Normalized recovery index on a 0-1 scale, where 0 indicates no recovery
-      and 1 indicates full recovery to pre-stress state.
-    minimum: 0
-    maximum: 1
-  raw_metrics:
-    type: object
-    description: >-
-      Original unnormalized metrics used to calculate the recovery index
-      (e.g., biomass_change_percent, survival_rate, leaf_area_ratio).
-    additionalProperties:
-      type: number
-  calculation_method:
+    description: Reference to the sample this metric belongs to.
+  metric_type:
     type: string
-    description: Method used to normalize raw metrics into the recovery index
+    description: Original type of measurement.
     enum:
-      - weighted_average
-      - principal_component
-      - min_max_scaling
-      - custom_formula
-  weights:
-    type: object
-    description: >-
-      Optional weights applied to each raw metric if using weighted_average method.
-      Keys must match keys in raw_metrics.
-    additionalProperties:
-      type: number
-      minimum: 0
+      - biomass
+      - survival_rate
+      - chlorophyll_content
+      - root_length
+  value:
+    type: number
+    description: Raw measured value.
+  normalized_index:
+    type: number
+    description: Normalized Recovery Index (0.0 to 1.0).
+    minimum: 0.0
+    maximum: 1.0
+  timepoint:
+    type: integer
+    description: Days post-stress for this measurement.
+    minimum: 0
   metadata:
     type: object
-    description: Optional additional context about the calculation
+    description: Optional context for the measurement.
     additionalProperties: true
-additionalProperties: false

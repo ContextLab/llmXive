@@ -1,246 +1,310 @@
+"""
+Feature engineering module for Metallic Glass composition descriptors.
+
+Calculates:
+- Weighted mean atomic radius
+- Electronegativity variance
+- Valence Electron Concentration (VEC)
+- Atomic size mismatch (delta)
+"""
 import re
 from typing import Dict, List, Tuple, Any, Optional
 from collections import Counter
 import math
 import logging
-import mendeleev
+from mendeleev import element
 
-# Configure logger
 logger = logging.getLogger(__name__)
 
-# ---------------------------------------------------------------------------
-# Helper: Parse chemical formula into element: fraction dict
-# ---------------------------------------------------------------------------
+# Constants for property retrieval
+PROPERTIES = {
+    'radius': 'atomic_radius',
+    'electronegativity': 'electronegativity',
+    'valence': 'valence_electrons'
+}
+
 def parse_formula(formula: str) -> Dict[str, float]:
     """
     Parse a chemical formula string (e.g., 'Zr50Cu40Al10') into a dictionary
-    mapping element symbols to their atomic fractions (summing to 1.0).
-    
+    of element symbols and their atomic fractions.
+
     Args:
-        formula: Chemical formula string with element symbols and integer counts.
-                
+        formula: String in format ElementNumber... (e.g., Zr50Cu40Al10)
+
     Returns:
-        Dict mapping element symbols to atomic fractions.
-        
-    Raises:
-        ValueError: If the formula is malformed or elements are not found.
+        Dict mapping element symbol to atomic fraction (normalized to 1.0).
     """
-    # Pattern to match element symbols followed by optional integer counts
-    pattern = re.compile(r'([A-Z][a-z]*)(\d*)')
+    if not formula:
+        raise ValueError("Formula string cannot be empty")
+
+    # Regex to match element symbol followed by optional number
+    # Element symbols: Capital letter followed by optional lowercase
+    pattern = re.compile(r'([A-Z][a-z]?)(\d*)')
     matches = pattern.findall(formula)
-    
+
     if not matches:
         raise ValueError(f"Could not parse formula: {formula}")
-        
-    elements = {}
-    total_atoms = 0
-    
+
+    composition = {}
+    total_atoms = 0.0
+
     for symbol, count_str in matches:
-        count = int(count_str) if count_str else 1
-        # Mendeleev element lookup to validate
-        try:
-            _ = mendeleev.element(symbol)
-        except Exception:
-            raise ValueError(f"Unknown element symbol: {symbol}")
-            
-        elements[symbol] = count
+        count = int(count_str) if count_str else 1.0
+        composition[symbol] = float(count)
         total_atoms += count
-        
+
     if total_atoms == 0:
-        raise ValueError(f"Formula {formula} has zero atoms.")
-        
-    return {sym: count / total_atoms for sym, count in elements.items()}
+        raise ValueError(f"Total atom count is zero for formula: {formula}")
 
-# ---------------------------------------------------------------------------
-# Descriptor Calculations
-# ---------------------------------------------------------------------------
-def calculate_weighted_mean_radius(composition: Dict[str, float], 
-                                   radii: Optional[Dict[str, float]] = None) -> float:
+    # Normalize to fractions
+    return {k: v / total_atoms for k, v in composition.items()}
+
+
+def _get_property_from_mendeleev(symbol: str, prop_key: str) -> float:
     """
-    Calculate the weighted mean atomic radius based on atomic fractions.
-    
+    Safely retrieve a property from mendeleev element database.
+
     Args:
-        composition: Dict of element symbols to atomic fractions.
-        radii: Optional dict of element radii (pm). If None, fetched from mendeleev.
-                
+        symbol: Element symbol (e.g., 'Zr')
+        prop_key: Key in PROPERTIES mapping to mendeleev attribute
+
     Returns:
-        Weighted mean atomic radius in pm.
-    """
-    if radii is None:
-        radii = {}
-        for symbol in composition.keys():
-            try:
-                radii[symbol] = float(mendeleev.element(symbol).radius)
-            except Exception:
-                raise ValueError(f"Could not retrieve atomic radius for {symbol}")
-                
-    return sum(frac * radii[sym] for sym, frac in composition.items())
+        Property value as float.
 
-def calculate_weighted_mean_electronegativity(composition: Dict[str, float],
-                                              electronegativities: Optional[Dict[str, float]] = None) -> float:
+    Raises:
+        ValueError: If element not found or property missing.
     """
-    Calculate the weighted mean electronegativity.
-    """
-    if electronegativities is None:
-        electronegativities = {}
-        for symbol in composition.keys():
-            try:
-                electronegativities[symbol] = float(mendeleev.element(symbol).electronegativity)
-            except Exception:
-                raise ValueError(f"Could not retrieve electronegativity for {symbol}")
-                
-    return sum(frac * electronegativities[sym] for sym, frac in composition.items())
+    try:
+        elem = element(symbol)
+    except Exception as e:
+        raise ValueError(f"Element {symbol} not found in mendeleev database: {e}")
 
-def calculate_variance_electronegativity(composition: Dict[str, float],
-                                         electronegativities: Optional[Dict[str, float]] = None) -> float:
+    attr_name = PROPERTIES.get(prop_key)
+    if not attr_name:
+        raise ValueError(f"Unknown property key: {prop_key}")
+
+    value = getattr(elem, attr_name, None)
+    if value is None:
+        raise ValueError(f"Property '{attr_name}' is missing for element {symbol}")
+
+    # Handle potential non-numeric or missing values in mendeleev
+    if isinstance(value, (int, float)):
+        return float(value)
+    
+    # Some properties might be lists or other types in newer mendeleev versions
+    # We take the first value or average if it's a list of covalent radii etc.
+    if isinstance(value, list):
+        if len(value) > 0:
+            return float(value[0])
+        raise ValueError(f"Property '{attr_name}' is an empty list for {symbol}")
+    
+    raise ValueError(f"Unexpected type for property '{attr_name}' of {symbol}: {type(value)}")
+
+
+def calculate_weighted_mean_radius(composition: Dict[str, float]) -> float:
     """
-    Calculate the variance of electronegativity in the alloy.
+    Calculate the weighted mean atomic radius (R_bar).
+
+    R_bar = sum(c_i * R_i)
+
+    Args:
+        composition: Dict of {element: atomic_fraction}
+
+    Returns:
+        Weighted mean atomic radius in pm (or consistent units).
     """
-    if electronegativities is None:
-        electronegativities = {}
-        for symbol in composition.keys():
-            try:
-                electronegativities[symbol] = float(mendeleev.element(symbol).electronegativity)
-            except Exception:
-                raise ValueError(f"Could not retrieve electronegativity for {symbol}")
-                
-    mean_en = calculate_weighted_mean_electronegativity(composition, electronegativities)
-    variance = sum(frac * (electronegativities[sym] - mean_en) ** 2 
-                   for sym, frac in composition.items())
+    if not composition:
+        raise ValueError("Composition dictionary cannot be empty")
+
+    total = 0.0
+    for symbol, fraction in composition.items():
+        radius = _get_property_from_mendeleev(symbol, 'radius')
+        total += fraction * radius
+
+    return total
+
+
+def calculate_weighted_mean_electronegativity(composition: Dict[str, float]) -> float:
+    """
+    Calculate the weighted mean electronegativity (chi_bar).
+
+    chi_bar = sum(c_i * chi_i)
+
+    Args:
+        composition: Dict of {element: atomic_fraction}
+
+    Returns:
+        Weighted mean electronegativity (Pauling scale).
+    """
+    if not composition:
+        raise ValueError("Composition dictionary cannot be empty")
+
+    total = 0.0
+    for symbol, fraction in composition.items():
+        chi = _get_property_from_mendeleev(symbol, 'electronegativity')
+        total += fraction * chi
+
+    return total
+
+
+def calculate_variance_electronegativity(composition: Dict[str, float]) -> float:
+    """
+    Calculate the variance of electronegativity (Delta chi).
+
+    Delta chi = sum(c_i * (chi_i - chi_bar)^2)
+
+    Args:
+        composition: Dict of {element: atomic_fraction}
+
+    Returns:
+        Variance of electronegativity.
+    """
+    if not composition:
+        raise ValueError("Composition dictionary cannot be empty")
+
+    chi_bar = calculate_weighted_mean_electronegativity(composition)
+    variance = 0.0
+
+    for symbol, fraction in composition.items():
+        chi = _get_property_from_mendeleev(symbol, 'electronegativity')
+        variance += fraction * ((chi - chi_bar) ** 2)
+
     return variance
 
-def calculate_weighted_mean_VEC(composition: Dict[str, float],
-                                vec_values: Optional[Dict[str, float]] = None) -> float:
+
+def calculate_weighted_mean_VEC(composition: Dict[str, float]) -> float:
     """
     Calculate the weighted mean Valence Electron Concentration (VEC).
-    """
-    if vec_values is None:
-        vec_values = {}
-        for symbol in composition.keys():
-            try:
-                # Mendeleev doesn't have a direct 'VEC' property, we approximate by group number
-                # or use a standard lookup. For now, using group number as proxy for VEC.
-                # Note: This might need adjustment based on specific literature definitions.
-                el = mendeleev.element(symbol)
-                vec_values[symbol] = float(el.group) 
-            except Exception:
-                raise ValueError(f"Could not retrieve VEC (group) for {symbol}")
-                
-    return sum(frac * vec_values[sym] for sym, frac in composition.items())
 
-def calculate_atomic_size_mismatch(composition: Dict[str, float],
-                                   radii: Optional[Dict[str, float]] = None) -> float:
+    VEC_bar = sum(c_i * VEC_i)
+
+    Args:
+        composition: Dict of {element: atomic_fraction}
+
+    Returns:
+        Weighted mean VEC.
     """
-    Calculate the atomic size mismatch (delta) parameter.
-    Formula: delta = 1 - sum(c_i * (r_i / r_bar)) where r_bar is mean radius.
-    Often simplified to variance-based or absolute difference metrics in literature.
-    Here we use the standard definition: delta = sqrt( sum(c_i * (1 - r_i/r_bar)^2) )
+    if not composition:
+        raise ValueError("Composition dictionary cannot be empty")
+
+    total = 0.0
+    for symbol, fraction in composition.items():
+        vec = _get_property_from_mendeleev(symbol, 'valence')
+        total += fraction * vec
+
+    return total
+
+
+def calculate_atomic_size_mismatch(composition: Dict[str, float]) -> float:
     """
-    if radii is None:
-        radii = {}
-        for symbol in composition.keys():
-            try:
-                radii[symbol] = float(mendeleev.element(symbol).radius)
-            except Exception:
-                raise ValueError(f"Could not retrieve atomic radius for {symbol}")
-                
-    r_bar = calculate_weighted_mean_radius(composition, radii)
+    Calculate the atomic size mismatch parameter (delta).
+
+    delta = sqrt( sum(c_i * (1 - R_i / R_bar)^2) )
+
+    where R_bar is the weighted mean atomic radius.
+
+    Args:
+        composition: Dict of {element: atomic_fraction}
+
+    Returns:
+        Atomic size mismatch parameter (dimensionless).
+    """
+    if not composition:
+        raise ValueError("Composition dictionary cannot be empty")
+
+    r_bar = calculate_weighted_mean_radius(composition)
     if r_bar == 0:
-        return 0.0
-        
-    delta = math.sqrt(sum(frac * (1 - radii[sym] / r_bar) ** 2 
-                          for sym, frac in composition.items()))
-    return delta
+        raise ValueError("Calculated mean radius is zero, cannot compute mismatch.")
 
-# ---------------------------------------------------------------------------
-# Main Extraction Function
-# ---------------------------------------------------------------------------
-def extract_descriptors(row: Dict[str, Any]) -> Dict[str, float]:
+    sum_val = 0.0
+    for symbol, fraction in composition.items():
+        r_i = _get_property_from_mendeleev(symbol, 'radius')
+        sum_val += fraction * ((1.0 - (r_i / r_bar)) ** 2)
+
+    return math.sqrt(sum_val)
+
+
+def extract_descriptors(formula: str) -> Dict[str, float]:
     """
-    Extract all relevant descriptors for a single metallic glass entry.
-    
+    Main entry point to extract all required descriptors from a formula string.
+
     Args:
-        row: Dictionary containing at least 'composition' (string).
-                
+        formula: Chemical formula string (e.g., 'Zr50Cu40Al10')
+
     Returns:
-        Dictionary of calculated descriptors.
+        Dictionary containing:
+            - 'mean_atomic_radius': float
+            - 'mean_electronegativity': float
+            - 'electronegativity_variance': float
+            - 'vec': float
+            - 'size_mismatch': float
     """
-    composition_str = row['composition']
-    composition = parse_formula(composition_str)
-    
-    # Calculate descriptors
-    mean_radius = calculate_weighted_mean_radius(composition)
-    mean_en = calculate_weighted_mean_electronegativity(composition)
-    var_en = calculate_variance_electronegativity(composition)
-    mean_vec = calculate_weighted_mean_VEC(composition)
-    size_mismatch = calculate_atomic_size_mismatch(composition)
-    
-    return {
-        'mean_atomic_radius': mean_radius,
-        'mean_electronegativity': mean_en,
-        'electronegativity_variance': var_en,
-        'mean_VEC': mean_vec,
-        'size_mismatch': size_mismatch
-    }
+    try:
+        composition = parse_formula(formula)
+    except ValueError as e:
+        logger.error(f"Failed to parse formula '{formula}': {e}")
+        raise
 
-# ---------------------------------------------------------------------------
-# VIF Check and Constitution Principle VI Handling
-# ---------------------------------------------------------------------------
-def check_vif_conflict(features: Dict[str, List[float]], 
-                       threshold: float = 5.0) -> Dict[str, Any]:
+    try:
+        return {
+            'mean_atomic_radius': calculate_weighted_mean_radius(composition),
+            'mean_electronegativity': calculate_weighted_mean_electronegativity(composition),
+            'electronegativity_variance': calculate_variance_electronegativity(composition),
+            'vec': calculate_weighted_mean_VEC(composition),
+            'size_mismatch': calculate_atomic_size_mismatch(composition)
+        }
+    except ValueError as e:
+        logger.error(f"Failed to calculate descriptors for '{formula}': {e}")
+        raise
+
+
+def check_vif_conflict(descriptors: List[Dict[str, float]], threshold: float = 5.0) -> bool:
     """
-    Check for multicollinearity between 'mean_atomic_radius' and 'size_mismatch'.
+    Check for multicollinearity (VIF) between mean_atomic_radius and size_mismatch.
     
-    According to Constitution Principle VI, 'size_mismatch' MUST be retained
-    even if VIF > threshold, as it is physically critical for metallic glass
-    stability, despite statistical redundancy.
-    
+    Note: This is a simplified check. A full VIF calculation requires a regression model.
+    Here we check the correlation magnitude as a proxy for VIF > threshold.
+    If high correlation is detected, we log a warning but DO NOT exclude the feature
+    per Constitution Principle VI.
+
     Args:
-        features: Dict of feature names to lists of values.
+        descriptors: List of descriptor dictionaries.
         threshold: VIF threshold (default 5.0).
-                
+
     Returns:
-        Dict with 'vif_warning' boolean and 'vif_value' if warning triggered.
+        True if high multicollinearity is detected (VIF > threshold), False otherwise.
     """
-    # Simple VIF calculation for two features: VIF = 1 / (1 - R^2)
-    # where R is correlation coefficient.
-    x1 = features.get('mean_atomic_radius')
-    x2 = features.get('size_mismatch')
-    
-    if not x1 or not x2 or len(x1) != len(x2):
-        return {'vif_warning': False}
-        
-    n = len(x1)
-    if n < 2:
-        return {'vif_warning': False}
-        
-    # Calculate Pearson correlation
-    mean_x1 = sum(x1) / n
-    mean_x2 = sum(x2) / n
-    
-    numerator = sum((x1[i] - mean_x1) * (x2[i] - mean_x2) for i in range(n))
-    denom_x1 = math.sqrt(sum((xi - mean_x1)**2 for xi in x1))
-    denom_x2 = math.sqrt(sum((xi - mean_x2)**2 for xi in x2))
-    
-    if denom_x1 == 0 or denom_x2 == 0:
-        return {'vif_warning': False}
-        
-    r = numerator / (denom_x1 * denom_x2)
-    r_squared = r ** 2
-    
-    if r_squared >= 1.0:
-        vif = float('inf')
-    else:
-        vif = 1.0 / (1.0 - r_squared)
-        
-    result = {'vif_value': vif, 'vif_warning': False}
-    
-    if vif > threshold:
-        result['vif_warning'] = True
-        # Constitution Principle VI: Retain feature despite high VIF
-        logger.warning(
-            f"High VIF detected for size_mismatch (VIF={vif:.2f} > {threshold}). "
-            "Feature retained per Constitution Principle VI (physical significance > statistical independence)."
-        )
-        
-    return result
+    if len(descriptors) < 2:
+        return False
+
+    radii = [d.get('mean_atomic_radius') for d in descriptors if d.get('mean_atomic_radius') is not None]
+    mismatches = [d.get('size_mismatch') for d in descriptors if d.get('size_mismatch') is not None]
+
+    if len(radii) != len(mismatches) or len(radii) < 2:
+        return False
+
+    # Calculate Pearson correlation coefficient
+    n = len(radii)
+    mean_r = sum(radii) / n
+    mean_m = sum(mismatches) / n
+
+    numerator = sum((radii[i] - mean_r) * (mismatches[i] - mean_m) for i in range(n))
+    denom_r = math.sqrt(sum((x - mean_r) ** 2 for x in radii))
+    denom_m = math.sqrt(sum((x - mean_m) ** 2 for x in mismatches))
+
+    if denom_r == 0 or denom_m == 0:
+        return False
+
+    r_val = numerator / (denom_r * denom_m)
+
+    # VIF approx 1 / (1 - R^2). If R^2 is high, VIF is high.
+    # If r_val^2 > 0.8, VIF > 5.0 (approx)
+    r_squared = r_val ** 2
+    vif_approx = 1.0 / (1.0 - r_squared) if (1.0 - r_squared) > 1e-9 else float('inf')
+
+    if vif_approx > threshold:
+        logger.warning(f"High VIF detected for size_mismatch (approx VIF: {vif_approx:.2f}). "
+                     "Retaining feature per Constitution Principle VI.")
+        return True
+
+    return False

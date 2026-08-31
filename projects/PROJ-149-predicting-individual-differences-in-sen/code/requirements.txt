@@ -9,5 +9,6 @@ pyyaml>=6.0
 physionet>=0.3.0
 datasets>=2.14.0
 statsmodels>=0.14.0
-requests>=2.31.0
 datalad>=1.0.0
+requests>=2.31.0
+pytest>=7.4.0

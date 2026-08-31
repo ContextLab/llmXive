@@ -30,6 +30,11 @@ T032:
     \ there is no evidence that the pipeline was run, resource usage was logged, or\
     \ the failure conditions were checked. Without this file the task\u2019s verification\
     \ requirements are not satisfied."
+T035a:
+  c: false
+  h: 8e4588f5b62a7003b8b4e4bd95708867ba6e8622943afa57fcaf8b02948ffa09
+  r: The required artifact `data/processed/features.csv` does not exist, so there
+    is no schema to validate. Without the file, the task cannot be considered fulfilled.
 T036a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

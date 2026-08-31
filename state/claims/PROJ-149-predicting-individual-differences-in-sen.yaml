@@ -2141,22 +2141,6 @@
   updated_at: '2026-08-30T21:39:47Z'
 - artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
   attempts: 1
-  canonical: PhysioNet EEG Motor Movement/Imagery Dataset ID is 100
-  claim_id: c_af7cb446
-  context: 'Create code/download_data.py to fetch the PhysioNet EEG Motor Movement/Imagery
-    Dataset (Dataset ID: 100).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'The PhysioNet EEG Motor Movement/Imagery Dataset has Dataset ID: 100.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-30T21:41:54Z'
-- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
-  attempts: 1
   canonical: Bonferroni corrected alpha for 6 bands is 0.0083
   claim_id: c_cdaeff22
   context: "Apply Bonferroni correction for 6 bands (\u03B1 = 0.0083). Flag significant\
@@ -2542,3 +2526,269 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-30T22:01:43Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 2
+  canonical: PhysioNet EEG Motor Movement/Imagery Dataset ID is 100
+  claim_id: c_af7cb446
+  context: 'Create code/download_data.py to fetch the PhysioNet EEG Motor Movement/Imagery
+    Dataset (Dataset ID: 100).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The PhysioNet EEG Motor Movement/Imagery Dataset has Dataset ID: 100.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T15:25:24Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: PhysioNet EEG Motor Movement/Imagery Dataset ID 100
+  claim_id: c_2347d729
+  context: 'Create code/download_data.py to fetch the PhysioNet EEG Motor Movement/Imagery
+    Dataset (Dataset ID: 100).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Fetch the PhysioNet EEG Motor Movement/Imagery Dataset (Dataset ID: 100).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T15:26:39Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Exclude participants if epoch duration < 5 minutes
+  claim_id: c_f631087e
+  context: Exclude participants if epoch duration < 5 minutes (short_epoch) or if
+    channels_rejected_ratio > 0.30.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude participants if epoch duration < 5 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T15:26:39Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Exclude participants if channels_rejected_ratio > 0.30
+  claim_id: c_8604e4dd
+  context: Exclude participants if epoch duration < 5 minutes (short_epoch) or if
+    channels_rejected_ratio > 0.30.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude participants if channels_rejected_ratio > 0.30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T15:26:40Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Reject channels with variance > 3 SD from the session mean
+  claim_id: c_534efe1b
+  context: "Apply a low-frequency band\u2011pass filter and a /60 Hz notch filter.\
+    \ Reject channels with variance > 3 SD from the session mean."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reject channels with variance > 3 SD from the session mean.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T15:26:40Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Exclude participants if rejected_channels / total_channels > 0.30
+  claim_id: c_df7765c4
+  context: Reject channels with variance > 3 SD from the session mean. Apply ICA (retain
+    high variance) to remove ocular/muscle artifacts. Exclude participants if rejected_channels
+    / total_channels > 0.30.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude participants if rejected_channels / total_channels > 0.30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T15:26:41Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Exclude outliers with RT < 100ms or RT > 2000ms
+  claim_id: c_c0082a73
+  context: "Parse RT logs, exclude outliers (RT < 100ms, RT > 2000ms). Retain participants\
+    \ with \u2265 70 % trials remaining."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exclude_outliers_with_RT_%3C_100ms_or_RT_%3E_2000ms
+  kind: entity_fact
+  raw_text: Exclude outliers with RT < 100ms or RT > 2000ms.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T15:27:52Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Exclude outliers with RT > 2000ms
+  claim_id: c_e89487d7
+  context: "Parse RT logs, exclude outliers (RT < 100ms, RT > 2000ms). Retain participants\
+    \ with \u2265 70 % trials remaining."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exclude_outliers_with_RT_%3E_2000ms
+  kind: entity_fact
+  raw_text: Exclude outliers with RT > 2000ms.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T15:28:38Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Retain participants with at least 70 percent trials remaining
+  claim_id: c_64dca8e5
+  context: "Parse RT logs, exclude outliers (RT < 100ms, RT > 2000ms). Retain participants\
+    \ with \u2265 70 % trials remaining."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Retain_participants_with_at_least_70_percent_trials_remainin
+  kind: magnitude
+  raw_text: "Retain participants with \u2265 70 % trials remaining."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T15:29:19Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Use fixed-duration windows of 4 seconds
+  claim_id: c_feb6d134
+  context: 'Use config.WINDOW_SIZE (4s). Overlap: Use config.OVERLAP (0.5) as the
+    baseline value.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use fixed-duration windows of 4 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T15:29:57Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Use an overlap of 0.5 as the baseline value
+  claim_id: c_319e97b9
+  context: 'Use config.WINDOW_SIZE (4s). Overlap: Use config.OVERLAP (0.5) as the
+    baseline value.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use an overlap of 0.5 as the baseline value.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T15:30:33Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction for 6 bands with alpha 0.0083
+  claim_id: c_77797aca
+  context: "Apply Bonferroni correction for 6 bands (\u03B1 = 0.0083).. Flag significant\
+    \ results and write data/processed/correlations_corrected.csv."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Bonferroni correction for 6 bands with alpha = 0.0083.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T15:30:51Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Divide 0.05 by 6 for Bonferroni correction
+  claim_id: c_53ed7a88
+  context: 'Logic: Divide 0.05 by 6. Compare raw p-values against this threshold.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Divide 0.05 by 6 for Bonferroni correction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T15:31:43Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Find required_n for power at least 0.80
+  claim_id: c_22bb1664
+  context: "Pass this to statsmodels.stats.power.FTestPower.solve_power to find required_n\
+    \ for power \u2265 0.80."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Find_required_n_for_power_at_least_0.80
+  kind: magnitude
+  raw_text: "Find required_n for power \u2265 0.80."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T15:32:34Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Abort if estimated RAM usage exceeds 7GB
+  claim_id: c_112e6fc0
+  context: 'Hard Abort: If estimated RAM > 7GB or estimated runtime > 6h, log the
+    violation and exit with code 1.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Abort_if_estimated_RAM_usage_exceeds_7GB
+  kind: entity_fact
+  raw_text: Estimate RAM usage and abort if > 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T15:33:45Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Abort if estimated runtime exceeds 6 hours
+  claim_id: c_609401c7
+  context: 'Hard Abort: If estimated RAM > 7GB or estimated runtime > 6h, log the
+    violation and exit with code 1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Estimate runtime and abort if > 6h.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T15:33:46Z'

@@ -12,15 +12,21 @@ T004:
     evidence; the task required defining data schemas in that location, which is missing.
 T008:
   c: false
-  h: 57972372f19c28f1ec043262547e9cb540d9b4863b90753364dc54ca8c50b434
-  r: "The `MockAdapter` class is present, but it builds a hard\u2011coded DataFrame\
-    \ instead of invoking a synthetic generator, and the required `dataset.schema.yaml`\
-    \ file is missing, so we cannot confirm the DataFrame matches the schema. Both\
-    \ the generator call and the schema reference are absent."
+  h: f6b3c76186975dc770e6ee29c400b3369caa33b2992a5760c8c1f2ae5631cc42
+  r: The `MockAdapter` class is present and calls the synthetic generator, but the
+    required `dataset.schema.yaml` file is missing, so we cannot verify that the returned
+    DataFrame conforms to the specified schema. Add the `schema.yaml` (or place it
+    at the expected path) and ensure the mock data columns match it.
 T022:
   c: false
-  h: bc64d51f57db46d82e957d2b594f9c67578cc5b1c25d4bbf89d9307467bf6166
-  r: "The repository lacks the required `model_result.schema.yaml` file, and the `train_random_forest`\
-    \ implementation does not compute or return real cross\u2011validation metrics\
-    \ (it uses a placeholder `metric_value: 0.0` and no CV logic). Consequently the\
-    \ function\u2019s output does not meet the schema\u2011compliant metric requirement."
+  h: aeb5396c35c0e97b720c72f1dea0cb9ffabc66764432ad1ac041ea5bce7e7879
+  r: The repository lacks the required `model_result.schema.yaml` file, and the `train_random_forest`
+    implementation contains a bug (it returns an undefined variable `metric` instead
+    of the constructed `metrics` dict). Both the schema artifact and a correct return
+    value are missing, so the task is not genuinely fulfilled.
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `README.md` file containing the required sections (Installation,
+    Data Generation (Synthetic), Execution Command, Expected Output) was provided;
+    the artifact is missing or not shown, so the task cannot be confirmed as completed.

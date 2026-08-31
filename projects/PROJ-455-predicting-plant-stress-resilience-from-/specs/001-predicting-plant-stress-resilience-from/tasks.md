@@ -61,7 +61,7 @@
  - T004.3 Create `contracts/recovery.schema.yaml` defining JSON/YAML schema for `RecoveryMetric`.
 - [X] T005 [P] Implement base data models (`MetabolomicProfile`, `RecoveryMetric`, `RecoveryIndex`) with validation rules in `code/data/models.py` using Pydantic.
 - [X] T006 [P] Setup logging and error handling infrastructure in `code/utils/logging.py` by implementing a `get_logger` function that configures a standard JSON formatter and file/console handlers.
-- [ ] T007 Create the Mechanism-Guided Synthetic Generator in `code/data/generator.py` by implementing `generate_synthetic_data(n_samples, stress_type)` that outputs a Parquet file to `data/raw/synthetic_*.parquet` with embedded ground-truth pathways. <!-- FAILED: unspecified -->
+- [X] T007 Create the Mechanism-Guided Synthetic Generator in `code/data/generator.py` by implementing `generate_synthetic_data(n_samples, stress_type)` that outputs a Parquet file to `data/raw/synthetic_*.parquet` with embedded ground-truth pathways. <!-- FAILED: unspecified -->
 - [ ] T008 [P] Implement the Mock Adapter in `code/data/ingest.py` by creating `MockAdapter` class that calls the synthetic generator and returns a Pandas DataFrame matching `dataset.schema.yaml`.
 - [X] T009 [P] Implement the Real Adapter stub in `code/data/ingest.py` by creating `RealAdapter` class with a `fetch(accession_id)` method that validates URL format and returns a stub DataFrame or raises a NotImplementedError.
 - [ ] T009.1 [P] Implement ExternalDatasetManager in `code/data/ingest.py` by creating `ExternalDatasetManager` class that ingests, checksums, and validates multiple independent external datasets (NCBI GEO/Zenodo) for LODO.
@@ -147,9 +147,9 @@ expected alphabetic or numeric character, but found '*'
 - [X] T031 [US3] Implement `code/models/validate.py::cross_stress_eval(model, train_stress, test_stress)` calculating R²_drop or r_drop.
 - [X] T032 [US3] Implement `code/models/validate.py::permutation_test(model, X, y, n=1000)` returning a p-value.
 - [X] T033 [US3] Implement `code/analysis/pathway.py::enrichment_analysis(kegg_ids, pathways)` calculating Jaccard similarity and Enrichment p-value.
-- [ ] T034 [US3] Implement `code/analysis/pathway.py::validate_alignment(jaccard, p_value)` returning a boolean flag if Jaccard ≥ 0.3 or p < 0.05.
-- [ ] T035 [US3] Implement `code/models/validate.py` check: if `len(samples) < 50`, skip evaluation and log a warning.
-- [ ] T036 [US3] Implement `code/models/validate.py::baseline_null_model(y)` predicting mean and calculating its R²/r for comparison.
+- [X] T034 [US3] Implement `code/analysis/pathway.py::validate_alignment(jaccard, p_value)` returning a boolean flag if Jaccard ≥ 0.3 or p < 0.05.
+- [X] T035 [US3] Implement `code/models/validate.py` check: if `len(samples) < 50`, skip evaluation and log a warning.
+- [X] T036 [US3] Implement `code/models/validate.py::baseline_null_model(y)` predicting mean and calculating its R²/r for comparison.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -159,10 +159,10 @@ expected alphabetic or numeric character, but found '*'
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T037 [P] Implement `tests/benchmark/test_pipeline_timing.py` that runs the full pipeline and asserts `execution_time <= 6 hours`.
+- [X] T037 [P] Implement `tests/benchmark/test_pipeline_timing.py` that runs the full pipeline and asserts `execution_time <= 6 hours`.
 - [ ] T038 [P] Implement `code/analysis/sensitivity.py::sensitivity_rejection_threshold(thresholds=[0.08, 0.10, 0.12])` to analyze model robustness by varying the *rejection* threshold for missing values, satisfying the Assumptions section without violating the hard >10% constraint.
-- [ ] T039 Refactor `code/data/ingest.py` to use a factory pattern for adapters (MockAdapter, RealAdapter, ExternalDatasetManager).
-- [ ] T040 [P] Implement `tests/unit/test_edge_cases.py` with tests for: >10% missing, <50 samples, and missing individual pairing.
+- [X] T039 Refactor `code/data/ingest.py` to use a factory pattern for adapters (MockAdapter, RealAdapter, ExternalDatasetManager).
+- [X] T040 [P] Implement `tests/unit/test_edge_cases.py` with tests for: >10% missing, <50 samples, and missing individual pairing.
 - [ ] T041 Update `README.md` with sections: Installation, Data Generation (Synthetic), Execution Command, and Expected Output.
 - [ ] T042 Execute `quickstart.md` instructions in a fresh environment and verify success, logging any errors.
 

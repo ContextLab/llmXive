@@ -85,7 +85,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `fetch_data.py` in `code/ingestion/` to query Materials Project and AFLOWlib APIs using env vars, prioritizing collection of ALL available valid entries.
+- [ ] T013 [US1] Implement `fetch_data.py` in `code/ingestion/` to query Materials Project and AFLOWlib APIs using env vars, prioritizing collection of ALL available valid entries. <!-- FAILED: unspecified -->
 - [X] T014 [US1] Implement Zenodo fallback fetcher in `code/ingestion/fetch_data.py` (Zhang et al.,) ONLY if APIs return < 50 entries OR fail; document this as a contingency, not a standard path.
 - [X] T015 [US1] Implement robust filtering logic in `code/ingestion/fetch_data.py` to exclude non-amorphous entries and missing CTE values.
 - [ ] T016 [US1] Implement `descriptors.py` in `code/features/` to calculate weighted mean atomic radius, electronegativity variance, VEC, and atomic size mismatch.
@@ -123,7 +123,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T023 [P] [US2] Unit test: Add `tests/unit/test_baseline.py::test_null_model_predicts_mean` to verify null model baseline calculation. Assert: `NullModel().predict(X) == y_train.mean()`.
+- [X] T023 [P] [US2] Unit test: Add `tests/unit/test_baseline.py::test_null_model_predicts_mean` to verify null model baseline calculation. Assert: `NullModel().predict(X) == y_train.mean()`.
 - [X] T024 [P] [US2] Integration test: Add `tests/integration/test_training.py::test_training_pipeline_5fold_cv` to verify full training pipeline with 5-fold CV. Assert: `cv_scores` are finite and `model` is saved.
 
 ### Implementation for User Story 2
@@ -133,10 +133,10 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T026a [US2] Implement "Elemental Weighted Average" baseline in `code/modeling/train.py`: Use `mendeleev` to fetch elemental CTEs, calculate weighted average by stoichiometry, and use this as the primary baseline for SC-001. <!-- FAILED: unspecified -->
 - [X] T027 [US2] Log Spec-Root Cause flag: If elemental CTEs are unavailable, use Null Model and write `{"baseline_type": "null_model"}` to `results/metrics.json`. If elemental CTEs are available, write `{"baseline_type": "elemental_weighted_average"}`.
 - [X] T028 [US2] Implement Linear Regression training with 5-fold CV (or selected strategy) in `code/modeling/train.py`.
-- [ ] T029 [US2] Implement Random Forest training with 5-fold CV and grid search over `max_depth` and `n_estimators` in `code/modeling/train.py`.
-- [ ] T030 [US2] Enforce resource constraints: Add `n_jobs=2` and `memory_limit` to sklearn config in `code/modeling/train.py` to ensure training runs on ≤2 CPU cores and ≤7 GB RAM (no GPU).
+- [X] T029 [US2] Implement Random Forest training with 5-fold CV and grid search over `max_depth` and `n_estimators` in `code/modeling/train.py`.
+- [X] T030 [US2] Enforce resource constraints: Add `n_jobs=2` and `memory_limit` to sklearn config in `code/modeling/train.py` to ensure training runs on ≤2 CPU cores and ≤7 GB RAM (no GPU).
 - [ ] T031 [US2] Implement model serialization to `models/` directory with metadata (hyperparameters, CV scores).
-- [ ] T032 [US2] Implement evaluation script in `code/modeling/evaluate.py` to calculate R², MAE, RMSE on held-out test set.
+- [X] T032 [US2] Implement evaluation script in `code/modeling/evaluate.py` to calculate R², MAE, RMSE on held-out test set.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -150,13 +150,13 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T033 [P] [US3] Unit test: Add `tests/unit/test_significance.py::test_permutation_p_value_convergence` to verify permutation test logic and p-value calculation. Assert: `p_value` is between 0 and 1.
+- [X] T033 [P] [US3] Unit test: Add `tests/unit/test_significance.py::test_permutation_p_value_convergence` to verify permutation test logic and p-value calculation. Assert: `p_value` is between 0 and 1.
 - [ ] T034 [P] [US3] Integration test: Add `tests/integration/test_analysis.py::test_divergence_ranking_match` to verify Divergence Analysis (Importance vs. Correlation). Assert: `divergence_score` is calculated.
 
 ### Implementation for User Story 3
 
-- [ ] T035 [US3] Implement permutation test in `code/modeling/evaluate.py` with exactly 1000 iterations for all datasets with N >= 20, as required by FR-005.
-- [ ] T035a [US3] Handle N < 20 case: If N < 20, skip permutation test, log warning "N < 20: Permutation test skipped", and write `{"permutation_status": "skipped_low_n"}` to `results/metrics.json`.
+- [X] T035 [US3] Implement permutation test in `code/modeling/evaluate.py` with exactly 1000 iterations for all datasets with N >= 20, as required by FR-005.
+- [X] T035a [US3] Handle N < 20 case: If N < 20, skip permutation test, log warning "N < 20: Permutation test skipped", and write `{"permutation_status": "skipped_low_n"}` to `results/metrics.json`.
 - [ ] T036 [US3] Implement significance flagging logic: Flag 'Null Result' if performance does not exceed random chance (p-value > 0.05). If R² <= 0.3, write `{"sc003_match_status": "insufficient_data_for_significance"}` to `results/metrics.json`.
 - [ ] T037 [US3] Implement feature importance extraction from Random Forest model.
 - [ ] T038 [US3] Implement Pearson correlation calculation for each feature against CTE on a distinct validation set.

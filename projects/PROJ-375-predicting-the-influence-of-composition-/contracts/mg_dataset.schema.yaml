@@ -1,7 +1,37 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: MetallicGlassDatasetSchema
-description: Schema for the cleaned metallic glass dataset used in composition-CTE analysis.
+title: Metallic Glass Dataset Schema
+description: Schema for the metallic glass composition and thermal expansion dataset.
 type: object
+properties:
+  composition:
+    type: string
+    description: Chemical formula (e.g., "Zr50Cu40Al10")
+  cte:
+    type: number
+    description: Coefficient of Thermal Expansion (1e-6 /K)
+  weighted_mean_atomic_radius:
+    type: number
+    description: Weighted mean atomic radius in pm
+  electronegativity_variance:
+    type: number
+    description: Variance of electronegativity values
+  vec:
+    type: number
+    description: Valence Electron Concentration
+  atomic_size_mismatch:
+    type: number
+    description: Atomic size mismatch parameter (delta)
+  amorphous_state_flag:
+    type: integer
+    description: 1 if amorphous, 0 if crystalline
+    enum: [0, 1]
+  alloy_family:
+    type: string
+    description: Primary alloy family classification
+    enum: ["Zr", "Pd", "Fe", "Other"]
+  source:
+    type: string
+    description: Data source identifier (e.g., "MaterialsProject", "AFLOW", "Zenodo")
 required:
   - composition
   - cte
@@ -12,36 +42,3 @@ required:
   - amorphous_state_flag
   - alloy_family
   - source
-properties:
-  composition:
-    type: string
-    description: Chemical formula in standard notation (e.g., Zr50Cu40Al10).
-    pattern: "^[A-Z][a-z]?[0-9.]+([A-Z][a-z]?[0-9.]+)*$"
-  cte:
-    type: number
-    description: Coefficient of Thermal Expansion (10^-6 /K).
-    minimum: 0
-  weighted_mean_atomic_radius:
-    type: number
-    description: Weighted mean atomic radius in pm.
-  electronegativity_variance:
-    type: number
-    description: Variance of electronegativity values.
-  vec:
-    type: number
-    description: Valence Electron Concentration.
-  atomic_size_mismatch:
-    type: number
-    description: Atomic size mismatch parameter (delta).
-  amorphous_state_flag:
-    type: integer
-    description: Flag indicating amorphous state (1 for amorphous, 0 otherwise).
-    enum: [0, 1]
-  alloy_family:
-    type: string
-    description: Primary alloy family classification.
-    enum: ["Zr", "Pd", "Fe", "Other"]
-  source:
-    type: string
-    description: Origin of the data entry (e.g., Materials Project, AFLOW, Zenodo).
-additionalProperties: false

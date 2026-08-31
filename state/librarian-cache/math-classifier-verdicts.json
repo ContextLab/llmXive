@@ -287,6 +287,10 @@
     "classified_at": "2026-08-12T00:48:10Z",
     "verdict": false
   },
+  "PROJ-1073-llmxive-follow-up-extending-function-awa::1.6.0": {
+    "classified_at": "2026-08-31T15:44:40Z",
+    "verdict": false
+  },
   "PROJ-1073-llmxive-follow-up-extending-read-it-back::1.6.0": {
     "classified_at": "2026-08-22T12:34:40Z",
     "verdict": false

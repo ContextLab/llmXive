@@ -45,7 +45,7 @@ description: "Task list template for feature implementation"
 - [X] T006 [P] Implement `code/utils/stats_helpers.py` with Bonferroni correction, permutation utilities, and MDES calculations. **Depends on** T004a & T004b.
 - [X] T007a [P] Create `code/download_data.py` to fetch the PhysioNet EEG Motor Movement/Imagery Dataset (Dataset ID: **100**).
  - **URL**: `
- - **Logic**: Use the `physionet` Python package to download raw EDF files. Verify cryptographic checksums against the manifest provided by PhysioNet. **Do not use placeholder checksums**. The script MUST fetch the `MANIFEST.md` or equivalent from the dataset root to verify file integrity. If checksum verification fails, exit with code 1 [UNRESOLVED-CLAIM: c_0824c13e — status=not_enough_info].
+ - **Logic**: Use the `physionet` Python package to download raw EDF files. Verify cryptographic checksums against the manifest provided by PhysioNet. **Do not use placeholder checksums**. The script MUST fetch the `MANIFEST.md` or equivalent from the dataset root to verify file integrity. If checksum verification fails, exit with code 1.
  - **Output**: `data/raw/eegmmidb/` and `data/interim/data_source_manifest.json` (containing file paths and verified hashes).
  - **Dependencies**: T001a, T001b, T003.
 - [X] T007b [P] Create `code/01_download_rt_data.py` to fetch the Simple Reaction Time dataset (Dataset ID: **ds000224**, Source: OpenNeuro).
@@ -74,16 +74,16 @@ description: "Task list template for feature implementation"
 **Goal**: Ingest raw EEG and behavioral data, preprocess, extract PSD features, and compute median RTs.
 
 - [X] T010 [US1] [FR-002] Implement `code/02_preprocess_eeg.py`:
- - Apply a low-frequency band‑pass filter and a /60 Hz notch filter. Reject channels with variance > 3 SD from the session mean. Apply ICA (retain high variance) to remove ocular/muscle artifacts. Exclude participants if `rejected_channels / total_channels > 0.30`.
+ - Apply a low-frequency band‑pass filter and a /60 Hz notch filter. Reject channels with variance > 3 SD from the session mean. [UNRESOLVED-CLAIM: c_534efe1b — status=not_enough_info] Apply ICA (retain high variance) to remove ocular/muscle artifacts. Exclude participants if `rejected_channels / total_channels > 0.30`.
  - **Outputs**: `data/interim/preprocessed_eeg/` (`.fif`), `data/interim/ica_cleaned_eeg/` (`.fif`), and `data/interim/exclusion_log.csv` (columns: `participant_id` (str), `reason` (enum: high_variance, ica_failure, short_epoch), `channels_rejected_ratio` (float)).
  - **Dependencies**: T007a, T008a, T005, T006.
 
 - [X] T013 [US1] Implement `code/03_behavioral_parsing.py`:
- - Parse RT logs, exclude outliers (`RT < 100ms`, `RT > 2000ms`). Retain participants with ≥ 70 % trials remaining.
+ - Parse RT logs, exclude outliers (`RT < 100ms`, `RT > 2000ms`). Retain participants with ≥ 70 % trials remaining. [UNRESOLVED-CLAIM: c_64dca8e5 — status=not_enough_info]
  - **Outputs**: `data/interim/behavioral_metrics.csv` (`participant_id`, `median_rt`, `n_trials`, `n_trials_excluded`) and `data/interim/behavioral_exclusion_log.csv` (`participant_id`, `reason`).
  - **Dependencies**: T007b, T008a.
 
-- [ ] T012a [US1] [FR-003] Implement `code/04_extract_psd.py`: <!-- FAILED: unspecified -->
+- [X] T012a [US1] [FR-003] Implement `code/04_extract_psd.py`: <!-- FAILED: unspecified -->
  - Compute Welch's PSD on continuous fixed-length epochs
 
 The research question, method, and references remain unchanged. using **fixed-duration windows**.
@@ -96,7 +96,7 @@ The research question, method, and references remain unchanged. using **fixed-du
  - **Output**: `data/interim/band_powers.csv` (columns: `participant_id`, `channel_id`, `delta`, `theta`, `alpha`, `low_beta`, `high_beta`, `gamma`).
  - **Dependencies**: T012a.
 
-- [ ] T012c [US1] [FR-010] Implement `code/04c_relative_power.py`:
+- [X] T012c [US1] [FR-010] Implement `code/04c_relative_power.py`:
  - Calculate relative power (band / total power across the frequency range) for each band and channel.
  - **Join Logic**: Explicitly joins `data/interim/band_powers.csv` (from T012b) with `data/interim/behavioral_metrics.csv` (from T013) on `participant_id` **using an INNER JOIN** to exclude any participants not present in both datasets, and **filtering the participant list using `data/interim/joined_metadata.csv` (from T008a)** to ensure consistency with the feasibility gate.
  - Aggregate across channels (global mean) per participant.
@@ -104,7 +104,7 @@ The research question, method, and references remain unchanged. using **fixed-du
  - **Note on Plan**: Spec FR-010 mandates Relative Power. The Plan's suggestion of CLR is superseded by the Spec. **This task explicitly confirms that CLR transformation is OMITTED** in favor of Relative Power as per Spec FR-010.
  - **Dependencies**: T012b, T013, T008a.
 
-- [ ] T035a [US1] Validate schema of `data/processed/features.csv`.
+- [ ] T035a [US1] Validate schema of `data/processed/features.csv`. <!-- FAILED: unspecified -->
  - **Logic**: Check that columns `[participant_id, median_rt, delta_rel, theta_rel, alpha_rel, low_beta_rel, high_beta_rel, gamma_rel]` exist. Verify `median_rt` is in range [100, 2000] and all values are non-null. Run `pytest tests/contract/test_feature_schema.py`. Create contract file `tests/contract/test_feature_schema.py` if missing.
  - **Dependencies**: T012c.
  - **Tag**: `[P]` (reads pre-CLR file, independent of other writes).
@@ -117,7 +117,7 @@ The research question, method, and references remain unchanged. using **fixed-du
 
 **Goal**: Fit Linear/LASSO models, perform correlations, permutation tests, and non‑linear checks.
 
-- [ ] T017 [US2] [FR-005] Implement `code/05_modeling.py`:
+- [X] T017 [US2] [FR-005] Implement `code/05_modeling.py`:
  - Load `features.csv` (from T012c).
  - Perform a train/test split **before** 5‑fold CV on the training set.
  - Fit Multiple Linear Regression and LASSO (lambda tuned to minimize RMSE).
@@ -125,13 +125,13 @@ The research question, method, and references remain unchanged. using **fixed-du
  - **Outputs**: `data/processed/model_results.json` (keys: `adjusted_r2`, `optimal_lambda`, `rmse`, `test_r2`, `test_rmse`).
  - **Dependencies**: T012c, T013, T007a, T008a.
 
-- [ ] T020 [US2] [FR-006] Implement Pearson correlation script `code/06_correlations.py` (FR‑006).
+- [X] T020 [US2] [FR-006] Implement Pearson correlation script `code/06_correlations.py` (FR‑006). <!-- FAILED: unspecified -->
  - Reads `features.csv`, computes correlation between each band's relative power and median RT.
  - **Output**: `data/interim/correlations_raw.csv` (`band`, `r_value`, `p_value`, `n`).
  - **Dependencies**: T012c.
 
-- [ ] T021 [US2] [FR-006] Apply Bonferroni correction for 6 bands (α = 0.0083). [UNRESOLVED-CLAIM: c_8b28ac3f — status=not_enough_info]. Flag significant results and write `data/processed/correlations_corrected.csv`.
- - **Logic**: Divide 0.05 by 6 [UNRESOLVED-CLAIM: c_5100ba2b — status=not_enough_info]. Compare raw p-values against this threshold.
+- [ ] T021 [US2] [FR-006] Apply Bonferroni correction for 6 bands (α = 0.0083).. Flag significant results and write `data/processed/correlations_corrected.csv`.
+ - **Logic**: Divide 0.05 by 6. Compare raw p-values against this threshold.
  - **Dependencies**: T020.
 
 - [ ] T022 [US2] [FR-007] Implement permutation test `code/07_permutation_test.py`:

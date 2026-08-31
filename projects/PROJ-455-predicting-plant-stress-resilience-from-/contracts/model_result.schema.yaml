@@ -1,90 +1,47 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: ModelResult
-description: >-
-  Schema for the output of a trained predictive model, including performance
-  metrics and feature importance rankings.
+description: Schema for model training results including metrics and top features.
 type: object
 required:
   - model_type
-  - model_id
-  - training_date
-  - metrics
-  - feature_importance
-  - hyperparameters
+  - training_time_sec
+  - cv_folds
+  - metric_value
+  - metric_name
+  - top_features
 properties:
   model_type:
     type: string
-    description: Type of model used (e.g., RandomForest, SVM)
-    enum:
-      - RandomForest
-      - SVM
-      - LogisticRegression
-      - GradientBoosting
-  model_id:
-    type: string
-    description: Unique identifier for this model run
-    pattern: "^[A-Za-z0-9_-]+$"
-  training_date:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp when training was completed
-  dataset_source:
-    type: string
-    description: Source of the training data (e.g., synthetic, GEO accession list)
-  metrics:
-    type: object
-    description: Performance metrics calculated on the test set
-    required:
-      - r_squared
-      - correlation_coefficient
-      - rmse
-    properties:
-      r_squared:
-        type: number
-        description: R² score for regression tasks
-        minimum: -1
-        maximum: 1
-      correlation_coefficient:
-        type: number
-        description: Pearson correlation coefficient between predicted and actual
-        minimum: -1
-        maximum: 1
-      rmse:
-        type: number
-        description: Root Mean Squared Error
-        minimum: 0
-      mean_absolute_error:
-        type: number
-        description: Mean Absolute Error (optional)
-        minimum: 0
-  feature_importance:
-    type: array
-    description: List of top features ranked by importance
-    items:
-      type: object
-      required:
-        - feature_name
-        - importance_score
-        - rank
-      properties:
-        feature_name:
-          type: string
-          description: Name or ID of the metabolite feature
-        importance_score:
-          type: number
-          description: Normalized importance score (0-1)
-          minimum: 0
-          maximum: 1
-        rank:
-          type: integer
-          description: Rank of the feature (1 = most important)
-          minimum: 1
-  hyperparameters:
-    type: object
-    description: Dictionary of hyperparameters used for training
-    additionalProperties: true
-  training_time_seconds:
+    description: The type of model trained (e.g., RandomForest, SVM).
+  training_time_sec:
     type: number
-    description: Total time taken to train the model in seconds
-    minimum: 0
-additionalProperties: false
+    description: Time taken to train the model in seconds.
+  n_estimators:
+    type: integer
+    description: Number of estimators (only for tree-based models).
+    nullable: true
+  kernel:
+    type: string
+    description: Kernel type (only for SVM).
+    nullable: true
+  cv_folds:
+    type: integer
+    description: Number of cross-validation folds used.
+  metric_value:
+    type: number
+    description: The performance metric value (R² or Pearson r).
+  metric_name:
+    type: string
+    description: Name of the metric (e.g., R2, Pearson_r).
+  top_features:
+    type: array
+    description: List of top features with their importance scores.
+    items:
+      type: array
+      maxItems: 2
+      minItems: 2
+      items:
+        - type: string
+          description: Feature name.
+        - type: number
+          description: Importance score.
