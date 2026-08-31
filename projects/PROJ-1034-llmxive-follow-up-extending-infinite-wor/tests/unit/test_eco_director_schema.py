@@ -1,158 +1,222 @@
-"""
-Unit tests for parameter schema validation in src.sim.eco_director.
-
-This module verifies that the EcoDirector class correctly validates
-configuration parameters against its defined schema, ensuring type safety
-and constraint adherence before simulation execution.
-"""
-
 import pytest
-from src.sim.eco_director import EcoDirector
-from src.data_models import SimulationConfig
+import tempfile
+import os
+import yaml
+import numpy as np
+from src.sim.eco_director import validate_config, load_config
 
 class TestEcoDirectorSchemaValidation:
-    """Test suite for parameter schema validation in EcoDirector."""
+    """
+    Unit tests for parameter schema validation in src/sim/eco_director.py.
+    These tests verify that the validate_config function correctly enforces
+    the schema constraints required by the Eco-Director simulation.
+    """
 
-    def test_valid_config_initialization(self):
-        """Test that a valid configuration initializes without error."""
-        config = SimulationConfig(
-            grid_size=100,
-            neighborhood_radius=2,
-            update_rule="majority",
-            max_steps=1000,
-            initial_density=0.5
-        )
-        director = EcoDirector(config=config)
-        assert director is not None
-        assert director.config.grid_size == 100
+    def _create_temp_config(self, data: dict) -> str:
+        """Helper to create a temporary YAML config file."""
+        fd, path = tempfile.mkstemp(suffix='.yaml')
+        try:
+            with os.fdopen(fd, 'w') as f:
+                yaml.dump(data, f)
+            return path
+        except Exception:
+            os.close(fd)
+            raise
 
-    def test_invalid_grid_size_type(self):
-        """Test rejection of non-integer grid_size."""
-        config_dict = {
-            "grid_size": "invalid",
-            "neighborhood_radius": 2,
-            "update_rule": "majority",
-            "max_steps": 1000,
-            "initial_density": 0.5
+    def test_validate_config_valid_full_schema(self):
+        """Test that a valid, complete configuration passes validation."""
+        config_data = {
+            "simulation": {
+                "steps": 1000,
+                "seed": 42,
+                "population_size": 100,
+                "mutation_rate": 0.05,
+                "crossover_rate": 0.8,
+                "grid_size": [50, 50],
+                "max_memory_mb": 2048,
+                "time_limit_seconds": 3600
+            },
+            "metrics": {
+                "track_coherence": True,
+                "track_diversity": True,
+                "track_physics_violations": True
+            },
+            "physics_oracle": {
+                "enabled": True,
+                "tolerance_energy": 1e-6,
+                "tolerance_mass": 1e-6
+            }
         }
-        with pytest.raises(ValueError):
-            SimulationConfig(**config_dict)
+        assert validate_config(config_data) is True
 
-    def test_invalid_grid_size_range(self):
-        """Test rejection of grid_size outside valid range (1-10000)."""
-        config = SimulationConfig(
-            grid_size=0,  # Below minimum
-            neighborhood_radius=2,
-            update_rule="majority",
-            max_steps=1000,
-            initial_density=0.5
-        )
-        # The validation should catch this during config creation or director init
-        # Depending on where validation is enforced, we test the constraint
-        assert config.grid_size > 0  # This will fail if validation is in the model
+    def test_validate_config_missing_required_section(self):
+        """Test validation fails if a required top-level section is missing."""
+        config_data = {
+            "simulation": {
+                "steps": 1000,
+                "seed": 42
+            }
+        }
+        # Missing 'metrics' and 'physics_oracle' sections
+        with pytest.raises(ValueError) as exc_info:
+            validate_config(config_data)
+        assert "required" in str(exc_info.value).lower()
 
-    def test_invalid_neighborhood_radius(self):
-        """Test rejection of invalid neighborhood_radius."""
-        with pytest.raises(ValueError):
-            SimulationConfig(
-                grid_size=100,
-                neighborhood_radius=-1,  # Must be positive
-                update_rule="majority",
-                max_steps=1000,
-                initial_density=0.5
-            )
+    def test_validate_config_invalid_step_type(self):
+        """Test validation fails if steps is not an integer."""
+        config_data = {
+            "simulation": {
+                "steps": "one_thousand",  # Invalid type
+                "seed": 42,
+                "population_size": 100,
+                "mutation_rate": 0.05,
+                "crossover_rate": 0.8,
+                "grid_size": [50, 50],
+                "max_memory_mb": 2048,
+                "time_limit_seconds": 3600
+            },
+            "metrics": {
+                "track_coherence": True,
+                "track_diversity": True,
+                "track_physics_violations": True
+            },
+            "physics_oracle": {
+                "enabled": True,
+                "tolerance_energy": 1e-6,
+                "tolerance_mass": 1e-6
+            }
+        }
+        with pytest.raises(ValueError) as exc_info:
+            validate_config(config_data)
+        assert "steps" in str(exc_info.value)
 
-    def test_invalid_update_rule(self):
-        """Test rejection of unsupported update_rule."""
-        with pytest.raises(ValueError):
-            SimulationConfig(
-                grid_size=100,
-                neighborhood_radius=2,
-                update_rule="non_existent_rule",
-                max_steps=1000,
-                initial_density=0.5
-            )
+    def test_validate_config_negative_steps(self):
+        """Test validation fails if steps is negative."""
+        config_data = {
+            "simulation": {
+                "steps": -100,
+                "seed": 42,
+                "population_size": 100,
+                "mutation_rate": 0.05,
+                "crossover_rate": 0.8,
+                "grid_size": [50, 50],
+                "max_memory_mb": 2048,
+                "time_limit_seconds": 3600
+            },
+            "metrics": {
+                "track_coherence": True,
+                "track_diversity": True,
+                "track_physics_violations": True
+            },
+            "physics_oracle": {
+                "enabled": True,
+                "tolerance_energy": 1e-6,
+                "tolerance_mass": 1e-6
+            }
+        }
+        with pytest.raises(ValueError) as exc_info:
+            validate_config(config_data)
+        assert "positive" in str(exc_info.value).lower()
 
-    def test_invalid_max_steps_type(self):
-        """Test rejection of non-integer max_steps."""
-        with pytest.raises(ValueError):
-            SimulationConfig(
-                grid_size=100,
-                neighborhood_radius=2,
-                update_rule="majority",
-                max_steps="fast",
-                initial_density=0.5
-            )
+    def test_validate_config_invalid_rate_range(self):
+        """Test validation fails if mutation_rate is outside [0, 1]."""
+        config_data = {
+            "simulation": {
+                "steps": 1000,
+                "seed": 42,
+                "population_size": 100,
+                "mutation_rate": 1.5,  # Invalid: > 1.0
+                "crossover_rate": 0.8,
+                "grid_size": [50, 50],
+                "max_memory_mb": 2048,
+                "time_limit_seconds": 3600
+            },
+            "metrics": {
+                "track_coherence": True,
+                "track_diversity": True,
+                "track_physics_violations": True
+            },
+            "physics_oracle": {
+                "enabled": True,
+                "tolerance_energy": 1e-6,
+                "tolerance_mass": 1e-6
+            }
+        }
+        with pytest.raises(ValueError) as exc_info:
+            validate_config(config_data)
+        assert "mutation_rate" in str(exc_info.value)
 
-    def test_invalid_initial_density_range(self):
-        """Test rejection of initial_density outside [0.0, 1.0]."""
-        with pytest.raises(ValueError):
-            SimulationConfig(
-                grid_size=100,
-                neighborhood_radius=2,
-                update_rule="majority",
-                max_steps=1000,
-                initial_density=1.5  # > 1.0
-            )
+    def test_validate_config_invalid_grid_dimensions(self):
+        """Test validation fails if grid_size has wrong number of dimensions."""
+        config_data = {
+            "simulation": {
+                "steps": 1000,
+                "seed": 42,
+                "population_size": 100,
+                "mutation_rate": 0.05,
+                "crossover_rate": 0.8,
+                "grid_size": [50],  # Invalid: 1D instead of 2D
+                "max_memory_mb": 2048,
+                "time_limit_seconds": 3600
+            },
+            "metrics": {
+                "track_coherence": True,
+                "track_diversity": True,
+                "track_physics_violations": True
+            },
+            "physics_oracle": {
+                "enabled": True,
+                "tolerance_energy": 1e-6,
+                "tolerance_mass": 1e-6
+            }
+        }
+        with pytest.raises(ValueError) as exc_info:
+            validate_config(config_data)
+        assert "grid_size" in str(exc_info.value)
 
-        with pytest.raises(ValueError):
-            SimulationConfig(
-                grid_size=100,
-                neighborhood_radius=2,
-                update_rule="majority",
-                max_steps=1000,
-                initial_density=-0.1  # < 0.0
-            )
+    def test_validate_config_load_and_validate_integration(self):
+        """Test that load_config correctly validates a real file."""
+        config_data = {
+            "simulation": {
+                "steps": 500,
+                "seed": 123,
+                "population_size": 50,
+                "mutation_rate": 0.02,
+                "crossover_rate": 0.9,
+                "grid_size": [20, 20],
+                "max_memory_mb": 1024,
+                "time_limit_seconds": 1800
+            },
+            "metrics": {
+                "track_coherence": True,
+                "track_diversity": True,
+                "track_physics_violations": True
+            },
+            "physics_oracle": {
+                "enabled": True,
+                "tolerance_energy": 1e-5,
+                "tolerance_mass": 1e-5
+            }
+        }
+        config_path = self._create_temp_config(config_data)
+        try:
+            loaded_config = load_config(config_path)
+            assert loaded_config == config_data
+            assert validate_config(loaded_config) is True
+        finally:
+            os.unlink(config_path)
 
-    def test_missing_required_field(self):
-        """Test that missing required fields raise an error."""
-        # SimulationConfig requires all fields, so missing one should fail
-        with pytest.raises(TypeError):
-            SimulationConfig(
-                grid_size=100,
-                # neighborhood_radius missing
-                update_rule="majority",
-                max_steps=1000,
-                initial_density=0.5
-            )
-
-    def test_schema_enforcement_on_director_update(self):
-        """Test that updating parameters on an existing director validates against schema."""
-        config = SimulationConfig(
-            grid_size=100,
-            neighborhood_radius=2,
-            update_rule="majority",
-            max_steps=1000,
-            initial_density=0.5
-        )
-        director = EcoDirector(config=config)
-
-        # Attempt to update with invalid value
-        with pytest.raises(ValueError):
-            director.update_parameter("grid_size", "invalid")
-
-        # Valid update should succeed
-        director.update_parameter("max_steps", 2000)
-        assert director.config.max_steps == 2000
-    
-    def test_boundary_values_acceptance(self):
-        """Test that boundary values are accepted."""
-        config = SimulationConfig(
-            grid_size=1,  # Minimum
-            neighborhood_radius=1,  # Minimum
-            update_rule="majority",
-            max_steps=10000000,  # Large but valid
-            initial_density=0.0  # Minimum
-        )
-        director = EcoDirector(config=config)
-        assert director is not None
-
-        config_max = SimulationConfig(
-            grid_size=10000,  # Maximum
-            neighborhood_radius=50,  # Reasonable max for grid
-            update_rule="majority",
-            max_steps=10000000,
-            initial_density=1.0  # Maximum
-        )
-        director_max = EcoDirector(config=config_max)
-        assert director_max is not None
+    def test_validate_config_load_invalid_file(self):
+        """Test that load_config raises error for invalid schema in file."""
+        config_data = {
+            "simulation": {
+                "steps": "invalid",
+                "seed": 123
+            }
+        }
+        config_path = self._create_temp_config(config_data)
+        try:
+            with pytest.raises(ValueError):
+                load_config(config_path)
+        finally:
+            os.unlink(config_path)

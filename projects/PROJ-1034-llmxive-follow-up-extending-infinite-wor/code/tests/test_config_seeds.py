@@ -1,169 +1,197 @@
 """
-Unit tests for the deterministic seed configuration module.
+Tests for the configuration and seed management module.
+
+These tests verify that:
+1. Seeds are correctly initialized from environment variables
+2. Random number generation is deterministic across runs
+3. Configuration hashing works correctly for reproducibility tracking
 """
 import os
 import random
 import pytest
-
-try:
-    import numpy as np
-    HAS_NUMPY = True
-except ImportError:
-    HAS_NUMPY = False
-
-try:
-    import torch
-    HAS_TORCH = True
-except ImportError:
-    HAS_TORCH = False
-
-# Import the module under test
 import sys
-import importlib
-# Ensure we are importing from the code directory
-if 'code' not in sys.path:
-    sys.path.insert(0, 'code')
+import tempfile
+import numpy as np
+from unittest.mock import patch, MagicMock
+
+# Add code directory to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from config import (
-    get_seed_from_env, 
-    set_seed, 
-    initialize_reproducibility, 
-    DEFAULT_SEED, 
-    SEED_ENV_VAR,
-    get_config_hash
+    get_seed_from_env,
+    set_seed,
+    initialize_reproducibility,
+    get_config_hash,
+    is_seed_initialized,
+    get_current_seed
 )
 
 
 class TestSeedInitialization:
-    """Tests for seed retrieval and setting."""
+    """Tests for basic seed initialization functionality."""
 
-    def test_get_seed_from_env_default(self, monkeypatch):
-        """Test that default seed is returned when env var is missing."""
-        monkeypatch.delenv(SEED_ENV_VAR, raising=False)
+    def test_get_seed_from_env_default(self):
+        """Test that default seed is returned when env var is not set."""
+        # Ensure env var is not set
+        if 'LLMXIVE_SEED' in os.environ:
+            del os.environ['LLMXIVE_SEED']
+        
         seed = get_seed_from_env()
-        assert seed == DEFAULT_SEED
+        assert seed == 42
 
-    def test_get_seed_from_env_custom(self, monkeypatch):
-        """Test that custom seed is returned when env var is set."""
-        custom_seed = 12345
-        monkeypatch.setenv(SEED_ENV_VAR, str(custom_seed))
-        seed = get_seed_from_env()
-        assert seed == custom_seed
+    def test_get_seed_from_env_custom(self):
+        """Test that custom seed is returned from environment variable."""
+        with patch.dict(os.environ, {'LLMXIVE_SEED': '12345'}):
+            seed = get_seed_from_env()
+            assert seed == 12345
 
-    def test_get_seed_from_env_invalid_fallback(self, monkeypatch):
-        """Test fallback to default when env var is not an integer."""
-        monkeypatch.setenv(SEED_ENV_VAR, "not_a_number")
-        seed = get_seed_from_env(default=999)
-        assert seed == 999
+    def test_get_seed_from_env_invalid(self):
+        """Test that invalid seed value raises ValueError."""
+        with patch.dict(os.environ, {'LLMXIVE_SEED': 'not_a_number'}):
+            with pytest.raises(ValueError):
+                get_seed_from_env()
 
-    def test_set_seed_random(self):
-        """Test that random module is seeded correctly."""
-        seed = 42
-        set_seed(seed)
+    def test_set_seed_python_random(self):
+        """Test that set_seed affects Python's random module."""
+        set_seed(42)
         val1 = random.random()
         
-        set_seed(seed)
+        set_seed(42)
         val2 = random.random()
         
         assert val1 == val2
 
-    @pytest.mark.skipif(not HAS_NUMPY, reason="NumPy not installed")
-    def test_set_seed_numpy(self):
-        """Test that numpy random is seeded correctly."""
-        seed = 42
-        set_seed(seed)
-        arr1 = np.random.rand(5)
+    def test_set_seed_numpy_random(self):
+        """Test that set_seed affects NumPy's random module."""
+        set_seed(42)
+        val1 = np.random.random()
         
-        set_seed(seed)
-        arr2 = np.random.rand(5)
+        set_seed(42)
+        val2 = np.random.random()
         
-        assert np.array_equal(arr1, arr2)
+        assert val1 == val2
 
-    @pytest.mark.skipif(not HAS_TORCH, reason="PyTorch not installed")
-    def test_set_seed_torch(self):
-        """Test that torch random is seeded correctly."""
-        seed = 42
-        set_seed(seed)
-        tensor1 = torch.rand(5)
+    def test_is_seed_initialized(self):
+        """Test that is_seed_initialized returns correct state."""
+        assert not is_seed_initialized()
         
-        set_seed(seed)
-        tensor2 = torch.rand(5)
-        
-        assert torch.equal(tensor1, tensor2)
+        set_seed(42)
+        assert is_seed_initialized()
 
-    def test_set_seed_returns_status(self):
-        """Test that set_seed returns a status dictionary."""
-        status = set_seed(42)
-        assert isinstance(status, dict)
-        assert "random" in status
-        assert status["random"] is True
-        if HAS_NUMPY:
-            assert status["numpy"] is True
-        else:
-            assert status["numpy"] is False
-        if HAS_TORCH:
-            assert status["torch"] is True
-        else:
-            assert status["torch"] is False
-
-    def test_initialize_reproducibility(self, monkeypatch):
-        """Test the main initialization function."""
-        monkeypatch.delenv(SEED_ENV_VAR, raising=False)
-        result = initialize_reproducibility(seed=999)
+    def test_get_current_seed(self):
+        """Test that get_current_seed returns the correct value."""
+        assert get_current_seed() is None
         
-        assert result["seed"] == 999
-        assert "status" in result
-        assert "message" in result
-        assert "Reproducibility initialized" in result["message"]
+        set_seed(123)
+        assert get_current_seed() == 123
+
 
 class TestConfigHash:
-    """Tests for configuration hashing."""
+    """Tests for configuration hashing functionality."""
 
-    def test_config_hash_deterministic(self):
-        """Test that the same config produces the same hash."""
-        config = {"learning_rate": 0.01, "epochs": 10}
+    def test_get_config_hash_empty(self):
+        """Test hashing with empty configuration."""
+        hash1 = get_config_hash({})
+        hash2 = get_config_hash({})
+        assert hash1 == hash2
+        assert len(hash1) == 16
+
+    def test_get_config_hash_consistency(self):
+        """Test that same config produces same hash."""
+        config = {'seed': 42, 'steps': 1000, 'param': 0.5}
         hash1 = get_config_hash(config)
         hash2 = get_config_hash(config)
         assert hash1 == hash2
 
-    def test_config_hash_different(self):
+    def test_get_config_hash_different(self):
         """Test that different configs produce different hashes."""
-        config1 = {"learning_rate": 0.01}
-        config2 = {"learning_rate": 0.02}
-        assert get_config_hash(config1) != get_config_hash(config2)
+        config1 = {'seed': 42, 'steps': 1000}
+        config2 = {'seed': 42, 'steps': 2000}
+        
+        hash1 = get_config_hash(config1)
+        hash2 = get_config_hash(config2)
+        
+        assert hash1 != hash2
 
-    def test_config_hash_order_independent(self):
-        """Test that key order does not affect the hash."""
-        config1 = {"a": 1, "b": 2}
-        config2 = {"b": 2, "a": 1}
-        assert get_config_hash(config1) == get_config_hash(config2)
+    def test_get_config_hash_order_independent(self):
+        """Test that config key order doesn't affect hash."""
+        config1 = {'seed': 42, 'steps': 1000, 'param': 0.5}
+        config2 = {'param': 0.5, 'seed': 42, 'steps': 1000}
+        
+        hash1 = get_config_hash(config1)
+        hash2 = get_config_hash(config2)
+        
+        assert hash1 == hash2
+
 
 class TestReproducibilityIntegration:
-    """Integration test to verify reproducibility across multiple calls."""
+    """Integration tests for full reproducibility workflow."""
 
-    def test_full_reproducibility_cycle(self, monkeypatch):
-        """Verify that a full cycle of seeding produces identical results."""
-        monkeypatch.delenv(SEED_ENV_VAR, raising=False)
+    def test_initialize_reproducibility_from_env(self):
+        """Test initialization from environment variable."""
+        with patch.dict(os.environ, {'LLMXIVE_SEED': '999'}):
+            seed, config_hash = initialize_reproducibility()
+            assert seed == 999
+            assert get_current_seed() == 999
+            assert is_seed_initialized()
+
+    def test_initialize_reproducibility_from_config(self):
+        """Test initialization from config dictionary."""
+        config = {'seed': 777, 'other_param': 'value'}
+        seed, config_hash = initialize_reproducibility(config)
         
+        assert seed == 777
+        assert get_current_seed() == 777
+        assert config_hash is not None
+
+    def test_initialize_reproducibility_default(self):
+        """Test initialization with default seed."""
+        if 'LLMXIVE_SEED' in os.environ:
+            del os.environ['LLMXIVE_SEED']
+        
+        seed, config_hash = initialize_reproducibility()
+        assert seed == 42
+
+    def test_initialize_reproducibility_invalid_seed(self):
+        """Test that invalid seed raises ValueError."""
+        with pytest.raises(ValueError):
+            initialize_reproducibility({'seed': -1})
+
+    def test_reproducibility_across_multiple_generations(self):
+        """Test that multiple random generations are reproducible."""
         # First run
-        initialize_reproducibility(seed=123)
-        r1 = random.random()
-        if HAS_NUMPY:
-            n1 = np.random.rand(3)
-        if HAS_TORCH:
-            t1 = torch.rand(3)
-
+        initialize_reproducibility({'seed': 42})
+        run1_data = [random.random() for _ in range(10)]
+        run1_np = np.random.random(10).tolist()
+        
         # Second run with same seed
-        initialize_reproducibility(seed=123)
-        r2 = random.random()
-        if HAS_NUMPY:
-            n2 = np.random.rand(3)
-        if HAS_TORCH:
-            t2 = torch.rand(3)
+        initialize_reproducibility({'seed': 42})
+        run2_data = [random.random() for _ in range(10)]
+        run2_np = np.random.random(10).tolist()
+        
+        # Verify reproducibility
+        assert run1_data == run2_data
+        assert run1_np == run2_np
 
-        # Verify equality
-        assert r1 == r2
-        if HAS_NUMPY:
-            assert np.array_equal(n1, n2)
-        if HAS_TORCH:
-            assert torch.equal(t1, t2)
+    def test_reproducibility_with_numpy_and_random(self):
+        """Test reproducibility when using both random modules."""
+        initialize_reproducibility({'seed': 123})
+        data1 = [random.random() for _ in range(5)]
+        np_data1 = np.random.random(5).tolist()
+        
+        initialize_reproducibility({'seed': 123})
+        data2 = [random.random() for _ in range(5)]
+        np_data2 = np.random.random(5).tolist()
+        
+        assert data1 == data2
+        assert np_data1 == np_data2
+
+    def test_config_hash_includes_seed(self):
+        """Test that config hash changes with seed."""
+        config1 = {'seed': 42}
+        config2 = {'seed': 99}
+        
+        hash1 = get_config_hash(config1)
+        hash2 = get_config_hash(config2)
+        
+        assert hash1 != hash2

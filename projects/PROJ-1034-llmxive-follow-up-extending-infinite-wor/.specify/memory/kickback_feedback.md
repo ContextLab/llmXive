@@ -4,9 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No evidence of the required directory structure (`src/sim`, `src/analysis`, `src/data`, `src/cli`, `src/tests`) is provided; the artifact list is empty, so the task’s core requirement is not demonstrated.
-- `T002` (rejected 1x): No evidence of a Python project initialization (e.g., `requirements.txt`, `pyproject.toml`, or `environment.yml`) containing the listed dependencies (`numpy`, `pandas`, `scikit-learn`, `statsmodels`, `huggingface_hub`, `torch` (cpu‑only), `matplotlib`, `seaborn`, `pyyaml`) is present. The provided artifacts relate only to feature specifications and user stories, not to the required dependency setup.
-- `T003` (rejected 1x): No linting or formatting configuration files (e.g., `pyproject.toml` entries for ruff/black, `.ruff.toml`, `.pre-commit-config.yaml`, or related Makefile/CI scripts) were presented, nor any evidence that ruff and black have been set up in the repository. The required artifacts are missing, so the task is not satisfied.
+- `T016` (rejected 1x): The repository lacks the required `default.yaml` and the `data/raw/baseline_partial.parquet` file, and the provided `run_simulation.py` does not accept a `--config` argument nor produce the expected parquet output, so there is no evidence that a 10,000‑step run was performed or that a time‑bound baseline was recorded.
+- `T017` (rejected 1x): declared artifact(s) missing/empty/invalid: src/analysis/validate_metrics.py
 
 ## Required change
 

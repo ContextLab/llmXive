@@ -1,269 +1,320 @@
 """
-Unit tests for EcoDirector simulation engine.
-Tests parameter injection, schema validation, basic execution, and state transitions.
+Unit tests for eco_director.py state transitions.
+
+This module verifies that the Eco-Director simulation engine correctly
+transitions between states (INIT -> RUNNING -> TERMINATED/ABORTED) based
+on configuration, runtime limits, and internal logic.
+
+Dependencies:
+  - src.sim.eco_director: load_config, validate_config, run_simulation,
+    inject_runtime_params, handle_termination
+  - src.data_models: SimulationRun, MetricRecord
+  - src.config: set_seed
 """
-import json
-import os
-import tempfile
-import time
-from pathlib import Path
-from unittest.mock import patch, MagicMock
-
 import pytest
+import os
+import sys
+import tempfile
 import yaml
+import json
+from unittest.mock import patch, MagicMock
+from datetime import datetime
 
-from src.sim.eco_director import EcoDirector, DEFAULT_SCHEMA
+# Import project modules using the verified API surface
+# Note: The API surface lists 'src.sim.eco_director' with 'handle_termination'
+from src.sim.eco_director import (
+    load_config,
+    validate_config,
+    run_simulation,
+    inject_runtime_params,
+    handle_termination,
+    get_memory_usage_mb
+)
 from src.data_models import SimulationRun, MetricRecord
+from src.config import set_seed
+from src.sim.logging_config import SimulationLogger, MetricRecord as LogMetricRecord
 
 
-class TestEcoDirectorInitialization:
-    def test_init_with_no_config(self):
-        """Test initialization with default parameters."""
-        director = EcoDirector()
-        assert "sim_steps" in director.current_params
-        assert "population_size" in director.current_params
+class TestEcoDirectorStateTransitions:
+    """Tests for Eco-Director state machine logic."""
 
-    def test_init_with_yaml_config(self):
-        """Test loading parameters from a YAML file."""
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
-            yaml.dump({"sim_steps": 500, "population_size": 200}, f)
-            config_path = f.name
-
-        try:
-            director = EcoDirector(config_path=config_path)
-            assert director.current_params["sim_steps"] == 500
-            assert director.current_params["population_size"] == 200
-        finally:
-            os.unlink(config_path)
-
-    def test_init_with_invalid_yaml(self):
-        """Test that invalid YAML raises an error."""
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
-            f.write("not: valid: yaml: content")
-            config_path = f.name
-
-        try:
-            with pytest.raises(yaml.YAMLError):
-                EcoDirector(config_path=config_path)
-        finally:
-            os.unlink(config_path)
-
-    def test_init_missing_required_param(self):
-        """Test that missing required parameters raise an error."""
-        # Create a config missing sim_steps
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
-            yaml.dump({"population_size": 100}, f) # missing sim_steps
-            config_path = f.name
-
-        try:
-            with pytest.raises(ValueError, match="Missing required parameter: sim_steps"):
-                EcoDirector(config_path=config_path)
-        finally:
-            os.unlink(config_path)
-
-
-class TestParameterInjection:
-    def test_apply_cli_overrides(self):
-        """Test that CLI overrides update parameters."""
-        director = EcoDirector()
-        director.apply_parameters({"sim_steps": 999})
-        assert director.current_params["sim_steps"] == 999
-
-    def test_apply_invalid_type(self):
-        """Test that applying an invalid type raises an error."""
-        director = EcoDirector()
-        with pytest.raises(TypeError):
-            director.apply_parameters({"sim_steps": "not_an_int"})
-
-    def test_apply_unknown_param(self):
-        """Test that unknown parameters are ignored with a warning."""
-        from unittest.mock import patch
-        import logging
-
-        director = EcoDirector()
-        with patch("src.sim.eco_director.logger") as mock_logger:
-            director.apply_parameters({"unknown_param": 123})
-            mock_logger.warning.assert_called_once()
-
-    def test_type_coercion(self):
-        """Test that strings are coerced to correct types if possible."""
-        director = EcoDirector()
-        # sim_steps expects int
-        director.apply_parameters({"sim_steps": "500"})
-        assert director.current_params["sim_steps"] == 500
-
-
-class TestSimulationExecution:
-    def test_run_simulation_basic(self):
-        """Test a basic simulation run."""
-        director = EcoDirector(cli_overrides={"sim_steps": 10, "population_size": 50})
-        run = director.run_simulation()
-
-        assert isinstance(run, SimulationRun)
-        assert run.total_steps == 10
-        assert len(director.metrics) == 10
-
-    def test_run_simulation_with_timeout(self):
-        """Test that simulation respects timeout constraints."""
-        # Set a very small timeout to trigger early stop
-        director = EcoDirector(
-            cli_overrides={
-                "sim_steps": 1000,
-                "population_size": 50,
-                "timeout_seconds": 0.001 # Very short timeout
+    def setup_method(self):
+        """Create a temporary directory and default config for each test."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.config_path = os.path.join(self.temp_dir, "test_config.yaml")
+        
+        # Create a minimal valid config
+        self.default_config = {
+            "simulation": {
+                "steps": 100,
+                "seed": 42,
+                "memory_limit_mb": 1024,
+                "time_limit_seconds": 3600
+            },
+            "eco_director": {
+                "rule_set": "default",
+                "coherence_threshold": 0.5
+            },
+            "output": {
+                "log_dir": self.temp_dir,
+                "save_state": True
             }
+        }
+        
+        with open(self.config_path, "w") as f:
+            yaml.dump(self.default_config, f)
+
+    def teardown_method(self):
+        """Clean up temporary files."""
+        if os.path.exists(self.temp_dir):
+            import shutil
+            shutil.rmtree(self.temp_dir)
+
+    def test_initial_state_is_valid(self):
+        """Verify that a loaded config results in a valid initial state."""
+        config = load_config(self.config_path)
+        assert config is not None
+        assert "simulation" in config
+        assert "eco_director" in config
+        # Validate doesn't raise means state is valid
+        assert validate_config(config) is True
+
+    def test_run_simulation_transitions_to_running(self):
+        """
+        Verify that run_simulation enters the RUNNING state and produces
+        a SimulationRun object with status 'running' initially.
+        """
+        # Mock the simulation step to avoid heavy computation
+        # but still test the state transition logic
+        with patch('src.sim.eco_director.eco_director_step') as mock_step:
+            mock_step.return_value = (
+                {"state": "active", "metrics": {"coherence": 0.8}},
+                {"status": "ok"}
+            )
+            
+            run_result = run_simulation(
+                config_path=self.config_path,
+                steps=10
+            )
+            
+            assert run_result is not None
+            assert isinstance(run_result, SimulationRun)
+            # The final status should be 'completed' if no termination occurred
+            assert run_result.status in ['completed', 'terminated', 'aborted']
+
+    def test_memory_limit_triggers_termination(self):
+        """
+        Verify that exceeding memory_limit_mb triggers the termination handler
+        and transitions the state to 'aborted' with a specific reason.
+        """
+        # Configure a very low memory limit
+        low_memory_config = self.default_config.copy()
+        low_memory_config["simulation"]["memory_limit_mb"] = 1  # 1 MB
+        
+        config_path = os.path.join(self.temp_dir, "low_mem_config.yaml")
+        with open(config_path, "w") as f:
+            yaml.dump(low_memory_config, f)
+
+        # Mock get_memory_usage_mb to simulate an explosion
+        with patch('src.sim.eco_director.get_memory_usage_mb', return_value=5000):
+            with patch('src.sim.eco_director.eco_director_step') as mock_step:
+                # Step returns normally, but memory check fails
+                mock_step.return_value = (
+                    {"state": "active", "metrics": {"coherence": 0.5}},
+                    {"status": "ok"}
+                )
+                
+                run_result = run_simulation(
+                    config_path=config_path,
+                    steps=10
+                )
+                
+                assert run_result is not None
+                assert run_result.status == 'aborted'
+                assert "memory" in run_result.termination_reason.lower()
+
+    def test_time_limit_triggers_termination(self):
+        """
+        Verify that exceeding time_limit_seconds triggers termination
+        and sets status to 'aborted' with time-related reason.
+        """
+        # Configure a very low time limit
+        low_time_config = self.default_config.copy()
+        low_time_config["simulation"]["time_limit_seconds"] = 1  # 1 second
+        
+        config_path = os.path.join(self.temp_dir, "low_time_config.yaml")
+        with open(config_path, "w") as f:
+            yaml.dump(low_time_config, f)
+
+        # Mock time to simulate elapsed time exceeding limit
+        with patch('src.sim.eco_director.time.time') as mock_time:
+            # Start time
+            mock_time.side_effect = [0, 0, 5, 5, 10, 10]  # Simulate time passing
+            
+            with patch('src.sim.eco_director.eco_director_step') as mock_step:
+                mock_step.return_value = (
+                    {"state": "active", "metrics": {"coherence": 0.5}},
+                    {"status": "ok"}
+                )
+                
+                run_result = run_simulation(
+                    config_path=config_path,
+                    steps=10
+                )
+                
+                # Depending on implementation, this might be 'aborted' or 'terminated'
+                # The key is that it didn't complete normally
+                assert run_result.status in ['aborted', 'terminated']
+                assert "time" in run_result.termination_reason.lower() or "timeout" in run_result.termination_reason.lower()
+
+    def test_inject_runtime_params_updates_state(self):
+        """
+        Verify that inject_runtime_params correctly modifies the config
+        and that run_simulation respects these new parameters.
+        """
+        runtime_params = {
+            "simulation": {
+                "steps": 50,
+                "coherence_threshold": 0.9
+            }
+        }
+        
+        # Inject params
+        updated_config = inject_runtime_params(self.default_config, runtime_params)
+        
+        assert updated_config["simulation"]["steps"] == 50
+        assert updated_config["eco_director"]["coherence_threshold"] == 0.9
+        
+        # Verify the updated config can be loaded and validated
+        updated_path = os.path.join(self.temp_dir, "updated_config.yaml")
+        with open(updated_path, "w") as f:
+            yaml.dump(updated_config, f)
+        
+        loaded = load_config(updated_path)
+        assert validate_config(loaded) is True
+
+    def test_handle_termination_saves_partial_state(self):
+        """
+        Verify that handle_termination saves the current state to disk
+        before exiting, ensuring no data loss on abort.
+        """
+        # Create a mock SimulationRun with partial data
+        mock_run = SimulationRun(
+            run_id="test-termination-123",
+            status="aborted",
+            steps_completed=50,
+            total_steps=100,
+            metrics={"coherence": 0.7},
+            termination_reason="manual_abort",
+            start_time=datetime.now(),
+            end_time=datetime.now()
         )
-        # Note: In the current implementation, _check_constraints checks accumulated latency.
-        # If step latencies are > 0.001s, it will stop.
-        # We verify the method runs without crashing.
-        run = director.run_simulation()
-        assert run is not None
-
-    def test_metrics_recording(self):
-        """Test that metrics are recorded correctly."""
-        director = EcoDirector(cli_overrides={"sim_steps": 5, "population_size": 10})
-        director.run_simulation()
-
-        assert len(director.metrics) == 5
-        for metric in director.metrics:
-            assert isinstance(metric, MetricRecord)
-            assert "population" in metric.parameters_snapshot
-
-
-class TestStateTransitions:
-    """
-    Tests for EcoDirector state transitions.
-    Verifies the lifecycle: IDLE -> RUNNING -> (STOPPED | COMPLETED)
-    and state persistence across runs.
-    """
-
-    def test_initial_state_is_idle(self):
-        """Verify the director starts in IDLE state."""
-        director = EcoDirector()
-        assert director.state == "IDLE"
-
-    def test_state_transitions_to_running(self):
-        """Verify state changes to RUNNING when simulation starts."""
-        director = EcoDirector(cli_overrides={"sim_steps": 1, "population_size": 10})
         
-        # Patch the step loop to ensure it runs exactly one step then stops
-        # so we can check state immediately after start
-        original_step = director._run_single_step
-        step_count = 0
-        
-        def mock_step(step_idx):
-            nonlocal step_count
-            step_count += 1
-            if step_count > 1:
-                return False # Stop after 1 step
-            return True
+        # Mock the logger to capture output
+        with patch('src.sim.eco_director.SimulationLogger') as MockLogger:
+            mock_logger_instance = MagicMock()
+            MockLogger.return_value = mock_logger_instance
+            
+            # Call the termination handler
+            handle_termination(
+                run=mock_run,
+                config=self.default_config,
+                reason="manual_abort"
+            )
+            
+            # Verify that state was logged/saved
+            assert mock_logger_instance.log_status.called
+            # Check that the log contains the abort reason
+            call_args = mock_logger_instance.log_status.call_args
+            assert call_args is not None
 
-        with patch.object(director, '_run_single_step', side_effect=mock_step):
-            director.run_simulation()
+    def test_validation_fails_on_missing_required_fields(self):
+        """
+        Verify that validate_config returns False for configs missing
+        required simulation parameters.
+        """
+        invalid_config = {
+            "simulation": {},  # Missing steps, seed, etc.
+            "eco_director": {}
+        }
+        
+        assert validate_config(invalid_config) is False
 
-        # After run_simulation, the state should have been RUNNING during execution
-        # and then transitioned to COMPLETED or STOPPED.
-        # The critical check is that it wasn't IDLE during execution.
-        assert director.state != "IDLE"
+    def test_validation_fails_on_invalid_step_count(self):
+        """
+        Verify that validation fails if steps <= 0.
+        """
+        invalid_config = self.default_config.copy()
+        invalid_config["simulation"]["steps"] = 0
+        
+        assert validate_config(invalid_config) is False
 
-    def test_state_transitions_to_completed_on_normal_finish(self):
-        """Verify state becomes COMPLETED when all steps finish."""
-        director = EcoDirector(cli_overrides={"sim_steps": 3, "population_size": 10})
+    def test_run_simulation_handles_config_errors_gracefully(self):
+        """
+        Verify that run_simulation returns a failed SimulationRun
+        if the config is invalid, rather than crashing.
+        """
+        invalid_path = os.path.join(self.temp_dir, "invalid.yaml")
+        with open(invalid_path, "w") as f:
+            f.write("invalid: yaml: content")
         
-        # Run normally
-        director.run_simulation()
-        
-        # Should be COMPLETED if no constraints were hit
-        assert director.state in ["COMPLETED", "STOPPED"]
-        # If it stopped early due to timeout/memory, it's STOPPED. 
-        # If it ran full steps, it's COMPLETED.
-        # We assert it is not IDLE or RUNNING.
-        assert director.state != "IDLE"
-        assert director.state != "RUNNING"
+        try:
+            result = run_simulation(config_path=invalid_path, steps=10)
+            # If it doesn't crash, it should return a result indicating failure
+            # or raise a specific exception we can catch
+            assert result is not None
+        except Exception as e:
+            # If it raises, it must be a specific configuration error, not a generic crash
+            assert "config" in str(e).lower() or "yaml" in str(e).lower()
 
-    def test_state_transitions_to_stopped_on_constraint_violation(self):
-        """Verify state becomes STOPPED when a constraint (timeout) is hit."""
-        # Create a scenario where we force a constraint violation
-        # We override the internal time check to simulate a timeout immediately
-        director = EcoDirector(cli_overrides={"sim_steps": 100, "population_size": 10})
-        
-        original_check = director._check_constraints
-        call_count = 0
-        
-        def force_timeout_check():
-            nonlocal call_count
-            call_count += 1
-            if call_count == 1:
-                # Simulate a timeout on the first check
-                return False, "Timeout exceeded"
-            return True, None
+    def test_state_persistence_after_step(self):
+        """
+        Verify that intermediate states are logged correctly during simulation.
+        """
+        with patch('src.sim.eco_director.eco_director_step') as mock_step:
+            # Return a sequence of states
+            mock_step.side_effect = [
+                ({"state": "step_1", "metrics": {"val": 1}}, {"status": "ok"}),
+                ({"state": "step_2", "metrics": {"val": 2}}, {"status": "ok"}),
+                ({"state": "step_3", "metrics": {"val": 3}}, {"status": "ok"}),
+            ]
+            
+            # Run a short simulation
+            result = run_simulation(
+                config_path=self.config_path,
+                steps=3
+            )
+            
+            assert result is not None
+            assert result.steps_completed >= 1
+            # Verify that metrics were accumulated
+            assert "metrics" in result.__dict__ or hasattr(result, 'metrics')
 
-        with patch.object(director, '_check_constraints', side_effect=force_timeout_check):
-            director.run_simulation()
+    def test_termination_reason_is_specific(self):
+        """
+        Verify that the termination reason string is descriptive and
+        matches the specific failure mode (e.g., 'Memory Explosion' vs 'Time Out').
+        """
+        # Test Memory Explosion
+        low_mem_config = self.default_config.copy()
+        low_mem_config["simulation"]["memory_limit_mb"] = 1
+        mem_path = os.path.join(self.temp_dir, "mem_config.yaml")
+        with open(mem_path, "w") as f:
+            yaml.dump(low_mem_config, f)
+        
+        with patch('src.sim.eco_director.get_memory_usage_mb', return_value=5000):
+            with patch('src.sim.eco_director.eco_director_step', return_value=({"state": "a"}, {"status": "ok"})):
+                res_mem = run_simulation(config_path=mem_path, steps=5)
+                assert "memory" in res_mem.termination_reason.lower()
 
-        assert director.state == "STOPPED"
-
-    def test_state_persistence_across_runs(self):
-        """Verify state is maintained between separate run calls."""
-        director = EcoDirector(cli_overrides={"sim_steps": 1, "population_size": 10})
+        # Test Time Out
+        low_time_config = self.default_config.copy()
+        low_time_config["simulation"]["time_limit_seconds"] = 1
+        time_path = os.path.join(self.temp_dir, "time_config.yaml")
+        with open(time_path, "w") as f:
+            yaml.dump(low_time_config, f)
         
-        # First run
-        director.run_simulation()
-        first_state = director.state
-        
-        # Reset metrics but keep state (or verify state doesn't revert to IDLE automatically)
-        initial_metrics_len = len(director.metrics)
-        
-        # Try to run again (should handle state correctly)
-        # Depending on implementation, this might reset state to IDLE or fail.
-        # We test that the object remains in a valid non-IDLE state after the first run
-        # unless explicitly reset.
-        assert director.state == first_state
-        
-        # Verify metrics accumulated if the logic allows multiple runs
-        # or that it didn't crash
-        assert len(director.metrics) >= initial_metrics_len
-
-    def test_state_transition_to_idle_after_reset(self):
-        """Verify state can be reset to IDLE."""
-        director = EcoDirector(cli_overrides={"sim_steps": 1, "population_size": 10})
-        director.run_simulation()
-        
-        assert director.state != "IDLE"
-        
-        # Reset the director
-        director.reset()
-        
-        assert director.state == "IDLE"
-        assert len(director.metrics) == 0
-
-    def test_state_during_execution_context(self):
-        """Verify state is RUNNING while the loop is active."""
-        director = EcoDirector(cli_overrides={"sim_steps": 5, "population_size": 10})
-        
-        state_during_run = None
-        
-        def capture_state(*args, **kwargs):
-            nonlocal state_during_run
-            state_during_run = director.state
-            return True # Continue loop
-
-        # Patch the loop to capture state mid-execution
-        with patch.object(director, '_run_single_step', side_effect=capture_state):
-            # We need to force it to run at least one step to capture state
-            # The first call to _run_single_step happens inside run_simulation
-            director.run_simulation()
-        
-        # Note: In the current implementation, the state is set to RUNNING at the start
-        # of run_simulation. If _run_single_step is called, we expect state to be RUNNING.
-        # However, if the loop exits immediately (e.g. timeout), state might be STOPPED.
-        # We verify that if the loop runs, state is correctly set.
-        # Since we can't easily inspect the state *inside* the loop without more complex mocking,
-        # we rely on the fact that run_simulation sets state to RUNNING and only changes it
-        # upon exit.
-        # A more robust test would check that state is not IDLE during the run.
-        assert director.state != "IDLE"
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+        with patch('src.sim.eco_director.time.time', side_effect=[0, 0, 5, 5]):
+            with patch('src.sim.eco_director.eco_director_step', return_value=({"state": "a"}, {"status": "ok"})):
+                res_time = run_simulation(config_path=time_path, steps=5)
+                assert "time" in res_time.termination_reason.lower() or "timeout" in res_time.termination_reason.lower()

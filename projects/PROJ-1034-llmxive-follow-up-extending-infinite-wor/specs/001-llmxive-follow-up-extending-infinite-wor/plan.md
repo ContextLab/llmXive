@@ -13,7 +13,7 @@ This project implements a comparative simulation framework to evaluate a determi
 **Primary Dependencies**: `numpy`, `pandas`, `scikit-learn`, `statsmodels`, `huggingface_hub`, `torch` (CPU-only), `matplotlib`, `seaborn`, `pyyaml`  
 **Storage**: Local CSV/Parquet files in `data/` (streamed/processed in memory chunks)  
 **Testing**: `pytest` (unit tests for CA logic, integration tests for simulation pipeline)  
-**Target Platform**: Linux (GitHub Actions free-tier: CPU, 7GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier: CPU, limited RAM)  
 **Project Type**: computational simulation / research library  
 **Performance Goals**: ≤6h total job time, ≤7GB RAM peak, ≥90% latency reduction vs. neural baseline  
 **Constraints**: No GPU access; strict memory ceiling; deterministic reproducibility (fixed seeds); Stochastic Physics Sandbox for external validity  

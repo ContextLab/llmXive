@@ -1,0 +1,30 @@
+# Default configuration for T016 execution
+simulation:
+  mode: eco
+  steps: 10000
+  seed: 42
+  timeout_seconds: 21600  # 6 hours
+
+dataset:
+  path: null  # Will trigger fallback if null/unavailable
+
+eco_director:
+  population_size: 100
+  mutation_rate: 0.01
+  crossover_rate: 0.7
+  generations: 100
+  memory_limit_mb: 4096
+
+neural_baseline:
+  proxy_steps: 10000
+  throttling_factor: 1.0
+
+logging:
+  level: INFO
+  file: logs/simulation.log
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+output:
+  raw_dir: data/raw
+  processed_dir: data/processed
+  state_dir: state

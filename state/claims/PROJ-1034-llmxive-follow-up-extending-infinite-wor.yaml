@@ -34,3 +34,139 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-28T22:35:07Z'
+- artifact_path: projects/PROJ-1034-llmxive-follow-up-extending-infinite-wor/specs/001-llmxive-follow-up-extending-infinite-wor/tasks.md
+  attempts: 1
+  canonical: Execute minimum of 10000 time-steps
+  claim_id: c_41d5c1c9
+  context: 'Phase 3: User Story 1 - Execute CPU-Constrained Simulation Baseline. Implementation
+    task T016 requires running the simulation for a specific number of steps.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Execute a minimum of 10,000 time-steps: Run src/cli/run_simulation.py
+    --steps 10000 --config default.yaml.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T04:47:00Z'
+- artifact_path: projects/PROJ-1034-llmxive-follow-up-extending-infinite-wor/specs/001-llmxive-follow-up-extending-infinite-wor/tasks.md
+  attempts: 1
+  canonical: Neural baseline runs within 6 hour CPU limits
+  claim_id: c_313930c2
+  context: 'Phase 3: User Story 1. Task T013 specifies a time constraint for the baseline
+    simulation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement throttling logic in src/sim/neural_baseline.py to ensure it
+    runs within 6h CPU limits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T04:47:46Z'
+- artifact_path: projects/PROJ-1034-llmxive-follow-up-extending-infinite-wor/specs/001-llmxive-follow-up-extending-infinite-wor/tasks.md
+  attempts: 1
+  canonical: Memory usage stays within 7GB limits
+  claim_id: c_1dd5fee4
+  context: 'Phase 4: User Story 2. Task T027 specifies a memory constraint for the
+    LMM runner.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_stays_within_7GB_limits
+  kind: entity_fact
+  raw_text: Implement streaming data processing in src/analysis/lmm_runner.py to handle
+    large simulation logs via chunked iteration, ensuring memory usage stays within
+    7GB limits for long-horizon runs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T04:48:16Z'
+- artifact_path: projects/PROJ-1034-llmxive-follow-up-extending-infinite-wor/specs/001-llmxive-follow-up-extending-infinite-wor/tasks.md
+  attempts: 1
+  canonical: Partial correlation coefficient threshold is greater than or equal to
+    0.05
+  claim_id: c_3293ef9b
+  context: 'Phase 4: User Story 2. Task T032b defines a threshold for adjusting the
+    LMM configuration based on partial correlation.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Partial_correlation_coefficient_threshold_is_greater_than_or
+  kind: magnitude
+  raw_text: 'Implement logic to act on partial correlation results: If coefficient
+    >= 0.05, update the LMM configuration.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T04:48:47Z'
+- artifact_path: projects/PROJ-1034-llmxive-follow-up-extending-infinite-wor/specs/001-llmxive-follow-up-extending-infinite-wor/tasks.md
+  attempts: 1
+  canonical: Sweep coherence decision cutoffs at thresholds 0.01, 0.05, and 0.1
+  claim_id: c_bd069e30
+  context: 'Phase 5: User Story 3. Task T029 specifies specific thresholds for sensitivity
+    analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/analysis/sensitivity.py to sweep coherence decision cutoffs
+    at specific thresholds {0.01, 0.05, 0.1}, calculate inconsistency rates.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T04:49:10Z'
+- artifact_path: projects/PROJ-1034-llmxive-follow-up-extending-infinite-wor/specs/001-llmxive-follow-up-extending-infinite-wor/tasks.md
+  attempts: 1
+  canonical: Latency reduction target is greater than or equal to 90 percent
+  claim_id: c_b38cef33
+  context: 'Phase 5: User Story 3. The goal of the user story includes a specific
+    latency reduction target.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Latency_reduction_target_is_greater_than_or_equal_to_90_perc
+  kind: magnitude
+  raw_text: "Confirm if optimal CA configuration achieves statistical parity with\
+    \ neural baseline and meets \u226590% latency reduction target."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T04:49:46Z'
+- artifact_path: projects/PROJ-1034-llmxive-follow-up-extending-infinite-wor/specs/001-llmxive-follow-up-extending-infinite-wor/tasks.md
+  attempts: 1
+  canonical: Project dependencies include numpy>=1.24, pandas>=2.0, scikit-learn>=1.3,
+    statsmodels>=0.14, huggingface_hub>=0.19, torch==2.1.0+cpu, matplotlib>=3.8, seaborn>=0.13,
+    pyyaml>=6.0
+  claim_id: c_429ed087
+  context: 'Phase 1: Setup. Task T002 lists specific version constraints for project
+    dependencies.'
+  evidence:
+    asserted: '1.24'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python project with requirements.txt containing pinned versions:
+    numpy>=1.24, pandas>=2.0, scikit-learn>=1.3, statsmodels>=0.14, huggingface_hub>=0.19,
+    torch==2.1.0+cpu, matplotlib>=3.8, seaborn>=0.13, pyyaml>=6.0.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T04:49:46Z'

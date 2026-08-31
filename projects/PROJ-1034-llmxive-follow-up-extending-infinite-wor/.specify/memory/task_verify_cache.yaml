@@ -1,18 +1,10 @@
-T016:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No execution logs, data files, or script output are provided that demonstrate\
-    \ running at least 10,000 time\u2011steps for both the CA and neural baseline\
-    \ and recording `step_latency`. The required artifact (step\u2011latency log for\
-    \ \u226510\u202Fk steps per configuration) is missing."
-T017:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The submission contains only the feature specification and user stories but\
-    \ provides no actual artifact (e.g., test logs, code changes, or output files)\
-    \ demonstrating that metrics contain no NaN values or that state\u2011explosion\
-    \ warnings are caught and handled gracefully. Without concrete evidence, the requirement\
-    \ is not satisfied."
+  r: No directory listings or file system evidence were provided showing that the
+    required folders (`src/sim`, `src/analysis`, `src/data`, `src/cli`, `src/tests`,
+    `data/raw`, `data/processed`, `docs`, `state`) actually exist; without such artifacts
+    the claim cannot be confirmed.
 T019:
   c: false
   h: ce2c8c1687e344c040a912b5a13803cf319ef6b6a31b902df2a2a6805dcb850f

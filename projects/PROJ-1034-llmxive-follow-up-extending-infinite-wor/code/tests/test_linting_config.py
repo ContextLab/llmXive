@@ -1,81 +1,79 @@
 """
-Tests to verify that linting and formatting configurations are valid.
-These tests ensure that the project's pyproject.toml contains the required
-configurations for black and ruff, and that the pre-commit config is valid.
+Tests to verify linting and formatting configuration (Task T003).
+These tests ensure pyproject.toml and .pre-commit-config.yaml are correctly set up.
 """
 import os
 import tomli
 import yaml
 import pytest
+from pathlib import Path
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PYPROJECT_PATH = os.path.join(BASE_DIR, "pyproject.toml")
-PRE_COMMIT_PATH = os.path.join(BASE_DIR, ".pre-commit-config.yaml")
-
+# Get the project root (assuming tests are in code/tests/)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 @pytest.fixture
 def pyproject_config():
-    if not os.path.exists(PYPROJECT_PATH):
-        pytest.fail(f"pyproject.toml not found at {PYPROJECT_PATH}")
-    with open(PYPROJECT_PATH, "rb") as f:
+    pyproject_path = PROJECT_ROOT / "pyproject.toml"
+    assert pyproject_path.exists(), "pyproject.toml must exist"
+    with open(pyproject_path, "rb") as f:
         return tomli.load(f)
-
 
 @pytest.fixture
 def pre_commit_config():
-    if not os.path.exists(PRE_COMMIT_PATH):
-        pytest.fail(f".pre-commit-config.yaml not found at {PRE_COMMIT_PATH}")
-    with open(PRE_COMMIT_PATH, "r") as f:
+    pre_commit_path = PROJECT_ROOT / ".pre-commit-config.yaml"
+    assert pre_commit_path.exists(), ".pre-commit-config.yaml must exist"
+    with open(pre_commit_path, "r") as f:
         return yaml.safe_load(f)
 
-
 def test_black_config_exists(pyproject_config):
-    """Verify that Black configuration exists in pyproject.toml."""
+    """Verify Black is configured in pyproject.toml."""
     assert "tool" in pyproject_config
     assert "black" in pyproject_config["tool"]
     assert "line-length" in pyproject_config["tool"]["black"]
     assert pyproject_config["tool"]["black"]["line-length"] == 88
 
-
 def test_ruff_config_exists(pyproject_config):
-    """Verify that Ruff configuration exists in pyproject.toml."""
+    """Verify Ruff is configured in pyproject.toml."""
     assert "tool" in pyproject_config
     assert "ruff" in pyproject_config["tool"]
     assert "line-length" in pyproject_config["tool"]["ruff"]
     assert pyproject_config["tool"]["ruff"]["line-length"] == 88
 
-
 def test_ruff_lint_rules_selected(pyproject_config):
-    """Verify that Ruff has lint rules selected."""
-    lint_config = pyproject_config["tool"]["ruff"].get("lint", {})
-    assert "select" in lint_config
-    assert isinstance(lint_config["select"], list)
-    assert len(lint_config["select"]) > 0
-
+    """Verify Ruff has lint rules selected."""
+    assert "lint" in pyproject_config["tool"]["ruff"]
+    assert "select" in pyproject_config["tool"]["ruff"]["lint"]
+    rules = pyproject_config["tool"]["ruff"]["lint"]["select"]
+    # Check for essential rule groups
+    assert "E" in rules  # pycodestyle errors
+    assert "F" in rules  # pyflakes
+    assert "I" in rules  # isort
 
 def test_dev_dependencies_include_linters(pyproject_config):
-    """Verify that dev dependencies include ruff and black."""
-    deps = pyproject_config["project"]["optional-dependencies"]["dev"]
-    deps_str = " ".join(deps)
-    assert "ruff" in deps_str
-    assert "black" in deps_str
-
+    """Verify dev dependencies include ruff and black."""
+    deps = pyproject_config.get("project", {}).get("optional-dependencies", {})
+    assert "dev" in deps
+    dev_deps = deps["dev"]
+    has_ruff = any("ruff" in dep for dep in dev_deps)
+    has_black = any("black" in dep for dep in dev_deps)
+    assert has_ruff, "dev dependencies must include ruff"
+    assert has_black, "dev dependencies must include black"
 
 def test_pre_commit_hooks_configured(pre_commit_config):
-    """Verify that pre-commit is configured with Black and Ruff."""
+    """Verify pre-commit hooks for black and ruff are configured."""
     assert "repos" in pre_commit_config
     repos = pre_commit_config["repos"]
-    assert len(repos) > 0
-
-    hooks_found = {"black": False, "ruff": False}
-
+    
+    has_ruff = False
+    has_black = False
+    
     for repo in repos:
-        if "hooks" in repo:
-            for hook in repo["hooks"]:
-                if hook.get("id") == "black":
-                    hooks_found["black"] = True
-                if hook.get("id") == "ruff":
-                    hooks_found["ruff"] = True
-
-    assert hooks_found["black"], "Black hook not found in pre-commit config"
-    assert hooks_found["ruff"], "Ruff hook not found in pre-commit config"
+        if "ruff-pre-commit" in repo.get("repo", ""):
+            hooks = repo.get("hooks", [])
+            has_ruff = any(h.get("id") in ["ruff", "ruff-format"] for h in hooks)
+        if "psf/black" in repo.get("repo", ""):
+            hooks = repo.get("hooks", [])
+            has_black = any(h.get("id") == "black" for h in hooks)
+    
+    assert has_ruff, "pre-commit must configure ruff"
+    assert has_black, "pre-commit must configure black"

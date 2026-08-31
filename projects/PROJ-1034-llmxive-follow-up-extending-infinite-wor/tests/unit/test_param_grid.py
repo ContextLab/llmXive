@@ -1,5 +1,5 @@
 """
-Unit test for parameter grid generation (T018).
+Unit test for parameter grid generation (T043).
 
 This module tests the ParameterGrid class from src.data_models to ensure
 it correctly initializes parameters, descriptions, and generates Cartesian
@@ -33,9 +33,9 @@ class TestParameterGridCreation:
         grid = ParameterGrid(
             name="desc_grid",
             parameters={"x": [1]},
-            description="Test description for T018"
+            description="Test description for T043"
         )
-        assert grid.description == "Test description for T018"
+        assert grid.description == "Test description for T043"
 
     def test_parameter_grid_defaults(self):
         """Test that optional fields default to None or empty."""

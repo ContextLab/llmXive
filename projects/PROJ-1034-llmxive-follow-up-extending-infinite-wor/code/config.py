@@ -1,126 +1,133 @@
 """
-Central configuration for deterministic random seeds and reproducibility.
+Configuration module for deterministic random seeds and reproducibility.
 
-This module ensures that all random number generators (numpy, random, torch)
-are seeded consistently across runs to guarantee reproducibility of simulation results.
+This module provides utilities to ensure that all random number generation
+across the simulation pipeline is deterministic and reproducible.
 """
 import os
 import random
 import hashlib
-from typing import Optional, Dict, Any
-
-try:
-    import numpy as np
-    HAS_NUMPY = True
-except ImportError:
-    HAS_NUMPY = False
-
-try:
-    import torch
-    HAS_TORCH = True
-except ImportError:
-    HAS_TORCH = False
+import numpy as np
+from typing import Optional, Dict, Any, Tuple
 
 
-# Default seed if none is provided via environment or arguments
-DEFAULT_SEED = 42
-SEED_ENV_VAR = "LLMXIVE_SEED"
+# Global seed state to track initialization
+_seed_initialized: bool = False
+_current_seed: Optional[int] = None
 
 
-def get_seed_from_env(default: int = DEFAULT_SEED) -> int:
+def get_seed_from_env(default_seed: int = 42) -> int:
     """
-    Retrieve the seed from the environment variable LLMXIVE_SEED.
-    If not set, returns the provided default.
+    Retrieve the random seed from the environment variable 'LLMXIVE_SEED'.
+    
+    Args:
+        default_seed: Default seed value if environment variable is not set.
+    
+    Returns:
+        The seed value as an integer.
     """
-    seed_str = os.environ.get(SEED_ENV_VAR)
+    seed_str = os.environ.get("LLMXIVE_SEED")
     if seed_str is not None:
         try:
             return int(seed_str)
         except ValueError:
-            # If the env var is not a valid integer, log a warning and fallback
-            # In a real logging setup, we would print a warning here.
-            return default
-    return default
+            raise ValueError(f"Invalid seed value in LLMXIVE_SEED: {seed_str}")
+    return default_seed
 
 
-def set_seed(seed: int) -> Dict[str, bool]:
+def set_seed(seed: int) -> None:
     """
-    Set the random seed for all supported libraries to ensure reproducibility.
+    Set the random seed for all relevant random number generators.
+    
+    This function sets the seed for:
+    - Python's built-in random module
+    - NumPy's random number generator
     
     Args:
-        seed: The integer seed value.
-        
-    Returns:
-        A dictionary indicating which libraries were successfully seeded.
+        seed: The integer seed value to use.
     """
-    status = {
-        "random": False,
-        "numpy": False,
-        "torch": False,
-        "os_env": False
-    }
-
-    # Seed Python's built-in random module
+    global _seed_initialized, _current_seed
+    
     random.seed(seed)
-    status["random"] = True
-
-    # Seed numpy
-    if HAS_NUMPY:
-        np.random.seed(seed)
-        status["numpy"] = True
-
-    # Seed PyTorch (if available)
-    if HAS_TORCH:
-        torch.manual_seed(seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed(seed)
-            torch.cuda.manual_seed_all(seed)
-            # Ensure deterministic behavior in CUDA operations
-            torch.backends.cudnn.deterministic = True
-            torch.backends.cudnn.benchmark = False
-        status["torch"] = True
-
-    # Set environment variable for external processes (optional but good practice)
-    os.environ[SEED_ENV_VAR] = str(seed)
-    status["os_env"] = True
-
-    return status
-
-
-def initialize_reproducibility(seed: Optional[int] = None) -> Dict[str, Any]:
-    """
-    Main entry point for initializing reproducibility in the simulation pipeline.
+    np.random.seed(seed)
     
-    This function checks for a seed in the environment, uses a provided seed,
-    or falls back to the default. It then seeds all relevant libraries.
+    _seed_initialized = True
+    _current_seed = seed
+
+
+def initialize_reproducibility(config: Optional[Dict[str, Any]] = None) -> Tuple[int, str]:
+    """
+    Initialize reproducibility for the entire pipeline.
+    
+    This function:
+    1. Reads the seed from environment or config
+    2. Sets seeds for all random number generators
+    3. Returns the seed and a configuration hash for tracking
     
     Args:
-        seed: Optional explicit seed. If None, checks environment or uses default.
-        
-    Returns:
-        A dictionary containing the effective seed and the seeding status.
-    """
-    effective_seed = seed if seed is not None else get_seed_from_env()
-    seeding_status = set_seed(effective_seed)
+        config: Optional configuration dictionary. If provided, looks for
+               'seed' key. Otherwise, uses environment variable.
     
-    return {
-        "seed": effective_seed,
-        "status": seeding_status,
-        "message": f"Reproducibility initialized with seed={effective_seed}"
-    }
-
-
-def get_config_hash(config: Dict[str, Any]) -> str:
+    Returns:
+        Tuple of (seed_value, config_hash)
+    
+    Raises:
+        ValueError: If seed is invalid or configuration is malformed.
     """
-    Generate a deterministic hash of a configuration dictionary.
-    Useful for creating unique output filenames based on configuration.
+    # Determine seed source
+    if config and 'seed' in config:
+        seed = config['seed']
+    else:
+        seed = get_seed_from_env()
+    
+    # Validate seed
+    if not isinstance(seed, int) or seed < 0:
+        raise ValueError(f"Seed must be a non-negative integer, got: {seed}")
+    
+    # Set the seed
+    set_seed(seed)
+    
+    # Generate a hash for tracking this configuration
+    config_hash = get_config_hash(config)
+    
+    return seed, config_hash
+
+
+def get_config_hash(config: Optional[Dict[str, Any]] = None) -> str:
+    """
+    Generate a deterministic hash of the configuration for reproducibility tracking.
     
     Args:
-        config: The configuration dictionary to hash.
-        
+        config: Configuration dictionary to hash. If None, uses current seed.
+    
     Returns:
-        A hexadecimal string representing the hash of the sorted config.
+        Hexadecimal string representation of the hash.
     """
-    # Convert to a sorted string to ensure deterministic ordering
+    if config is None:
+        # Hash the current seed if no config provided
+        config = {'seed': _current_seed}
+    
+    # Create a deterministic string representation
     config_str = str(sorted(config.items()))
-    return hashlib.sha256(config_str.encode('utf-8')).hexdigest()[:16]
+    hash_obj = hashlib.sha256(config_str.encode('utf-8'))
+    return hash_obj.hexdigest()[:16]
+
+
+def is_seed_initialized() -> bool:
+    """
+    Check if the seed has been initialized.
+    
+    Returns:
+        True if set_seed has been called, False otherwise.
+    """
+    return _seed_initialized
+
+
+def get_current_seed() -> Optional[int]:
+    """
+    Get the currently set seed value.
+    
+    Returns:
+        The current seed value, or None if not initialized.
+    """
+    return _current_seed
