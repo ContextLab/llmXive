@@ -7,5 +7,6 @@ datasets
 statsmodels
 pytest
 requests
-transformers
-sentence-transformers
+transformers>=4.30.0
+torch>=2.0.0
+sentencepiece

@@ -1,53 +1,84 @@
 """
-Setup project directory structure for T001b.
-Creates code/, tests/, and docs/ directories using a single mkdir -p command.
+Setup script to initialize the project directory structure and core files.
+Creates all required directories and placeholder files as per T001.
 """
 import os
 import sys
 from pathlib import Path
 
 def main():
-    """Create the required project directories."""
-    # Define the directories to create relative to the project root
-    # Based on T001b description: code/, tests/, docs/
-    # Note: data/ directories were handled in T001a, but we ensure structure consistency.
-    dirs_to_create = [
+    """Create directory structure and core files."""
+    root = Path(__file__).resolve().parent.parent
+    
+    # Define required directories relative to project root
+    required_dirs = [
+        "data/raw",
+        "data/processed",
+        "data/explanation_tiers",
+        "data/simulation_results",
         "code",
         "tests",
         "docs"
     ]
+    
+    # Create directories
+    print(f"Creating directories in: {root}")
+    for dir_name in required_dirs:
+        dir_path = root / dir_name
+        dir_path.mkdir(parents=True, exist_ok=True)
+        print(f"  Created: {dir_path}")
+    
+    # Define core files to ensure existence
+    core_files = {
+        "code/__init__.py": """\"\"\"
+Code module for the Cognitive Load Optimization project.
+Contains data loading, model training, tier generation, simulation, and analysis modules.
+\"\"\"
+""",
+        "tests/__init__.py": """\"\"\"Test package for the Cognitive Load Optimization project.\"\"\"
+""",
+        "README.md": """# Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized Learning
 
-    project_root = Path(".")
+This project implements an adaptive learning system that adjusts explanation complexity based on estimated cognitive load.
+
+## Project Structure
+
+- `code/`: Source code for data loading, model training, tier generation, and simulation.
+- `data/`: Data storage (raw, processed, tiers, results).
+- `tests/`: Unit and integration tests.
+- `docs/`: Documentation.
+
+## Setup
+
+1. Install dependencies: `pip install -r requirements.txt`
+2. Run the pipeline: `python code/run_pipeline.py`
+""",
+        "requirements.txt": """# Core dependencies
+pandas>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+lightgbm>=4.0.0
+textstat>=0.7.0
+datasets>=2.14.0
+statsmodels>=0.14.0
+pytest>=7.4.0
+requests>=2.31.0
+ruff>=0.1.0
+black>=23.0.0
+"""
+    }
     
-    # Construct the full mkdir -p command string for logging/verification
-    # This satisfies the requirement of using a "single shell command" logic
-    command_parts = ["mkdir", "-p"] + dirs_to_create
-    command_str = " ".join(command_parts)
+    for file_path, content in core_files.items():
+        full_path = root / file_path
+        # Only write if file doesn't exist or content differs
+        if not full_path.exists() or full_path.read_text() != content:
+            full_path.write_text(content)
+            print(f"  Created/Updated: {full_path}")
+        else:
+            print(f"  Exists (skipped): {full_path}")
     
-    print(f"Executing directory creation: {command_str}")
-    
-    # Execute the creation
-    try:
-        for dir_name in dirs_to_create:
-            dir_path = project_root / dir_name
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created/Verified: {dir_path}")
-        
-        # Verification step: list the created directories
-        print("\nVerification - Directory Structure:")
-        for dir_name in dirs_to_create:
-            dir_path = project_root / dir_name
-            if dir_path.exists() and dir_path.is_dir():
-                print(f"  [OK] {dir_name}/")
-            else:
-                print(f"  [FAIL] {dir_name}/ - Missing")
-                sys.exit(1)
-                
-        print("\nT001b Setup Complete: code/, tests/, docs/ created successfully.")
-        
-    except Exception as e:
-        print(f"Error creating directories: {e}")
-        sys.exit(1)
+    print("\nProject structure initialization complete.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

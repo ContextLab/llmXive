@@ -1,141 +1,119 @@
 """
-Linting and Formatting Configuration Utilities.
-
-This module provides functions to configure and run linting (ruff/flake8)
-and formatting (black) tools for the project.
+Linting and formatting configuration utilities.
+Provides commands and runners for ruff and black.
 """
 from pathlib import Path
 import subprocess
 import sys
 from typing import Optional
 
-# Project root is assumed to be the parent of the 'code' directory
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-def get_ruff_command(check: bool = True) -> list[str]:
-    """
-    Generate the ruff command.
-    
-    Args:
-        check: If True, run in check-only mode (no fixes). If False, run fixes.
-    
-    Returns:
-        List of command arguments.
-    """
-    cmd = ["ruff"]
-    if check:
-        cmd.append("check")
-        cmd.append("--exit-non-zero-on-fix")
-    else:
-        cmd.append("check")
-        cmd.append("--fix")
-    cmd.append(str(PROJECT_ROOT))
-    return cmd
+def get_ruff_command() -> list[str]:
+    """Return the ruff check command with project-specific configuration."""
+    return [
+        "ruff", "check",
+        ".",
+        "--config=pyproject.toml",
+        "--output-format=full",
+    ]
 
-def get_black_command(check: bool = True) -> list[str]:
-    """
-    Generate the black command.
-    
-    Args:
-        check: If True, run in check-only mode. If False, format files.
-    
-    Returns:
-        List of command arguments.
-    """
-    cmd = ["black"]
-    if check:
-        cmd.append("--check")
-        cmd.append("--diff")
-    cmd.append(str(PROJECT_ROOT))
-    return cmd
+
+def get_black_command() -> list[str]:
+    """Return the black formatting command with project-specific configuration."""
+    return [
+        "black",
+        ".",
+        "--config=pyproject.toml",
+        "--line-length=88",
+    ]
+
 
 def get_format_check_command() -> list[str]:
-    """
-    Get the command to check formatting (black).
-    
-    Returns:
-        List of command arguments.
-    """
-    return get_black_command(check=True)
+    """Return the black check-only command."""
+    return [
+        "black",
+        ".",
+        "--config=pyproject.toml",
+        "--check",
+        "--line-length=88",
+    ]
+
 
 def get_lint_check_command() -> list[str]:
-    """
-    Get the command to check linting (ruff).
-    
-    Returns:
-        List of command arguments.
-    """
-    return get_ruff_command(check=True)
+    """Return the ruff check command."""
+    return get_ruff_command()
 
-def run_formatter(check: bool = True) -> int:
-    """
-    Run the formatter (black).
-    
-    Args:
-        check: If True, check only. If False, apply fixes.
-    
-    Returns:
-        Exit code (0 for success, non-zero for failure).
-    """
-    cmd = get_black_command(check=check)
-    print(f"Running formatter: {' '.join(cmd)}")
-    try:
-        result = subprocess.run(cmd, cwd=PROJECT_ROOT)
-        return result.returncode
-    except FileNotFoundError:
-        print("Error: 'black' not found. Please install it via pip.", file=sys.stderr)
-        return 1
-    except Exception as e:
-        print(f"Error running formatter: {e}", file=sys.stderr)
-        return 1
 
-def run_linter(check: bool = True) -> int:
+def run_formatter(path: Optional[Path] = None) -> int:
     """
-    Run the linter (ruff).
-    
-    Args:
-        check: If True, check only. If False, apply fixes.
-    
-    Returns:
-        Exit code (0 for success, non-zero for failure).
+    Run the black formatter on the specified path or the project root.
+    Returns 0 on success, non-zero on failure.
     """
-    cmd = get_ruff_command(check=check)
-    print(f"Running linter: {' '.join(cmd)}")
+    target = str(path) if path else "."
+    cmd = get_black_command()
+    cmd[-2:-2] = [target]  # Insert target before flags if needed, but black accepts path at end
+    # Actually, black command structure: black [options] [path]
+    # Reconstruct for clarity:
+    cmd = ["black", "--config=pyproject.toml", "--line-length=88", target]
+    
     try:
-        result = subprocess.run(cmd, cwd=PROJECT_ROOT)
+        result = subprocess.run(cmd, check=True)
         return result.returncode
-    except FileNotFoundError:
-        print("Error: 'ruff' not found. Please install it via pip.", file=sys.stderr)
-        return 1
-    except Exception as e:
-        print(f"Error running linter: {e}", file=sys.stderr)
-        return 1
+    except subprocess.CalledProcessError as e:
+        return e.returncode
+
+
+def run_linter(path: Optional[Path] = None) -> int:
+    """
+    Run the ruff linter on the specified path or the project root.
+    Returns 0 on success, non-zero on failure.
+    """
+    target = str(path) if path else "."
+    cmd = ["ruff", "check", target, "--config=pyproject.toml", "--output-format=full"]
+    
+    try:
+        result = subprocess.run(cmd, check=True)
+        return result.returncode
+    except subprocess.CalledProcessError as e:
+        return e.returncode
+
 
 def main() -> None:
-    """
-    Main entry point for running linting and formatting checks.
-    
-    This function runs both the linter and the formatter in check mode.
-    If either fails, it exits with a non-zero status code.
-    """
-    print("Running Linting and Formatting Checks...")
-    print("-" * 40)
-    
-    lint_exit = run_linter(check=True)
-    if lint_exit != 0:
-        print("Linting failed. Please fix the issues above.")
-    
-    print("-" * 40)
-    
-    format_exit = run_formatter(check=True)
-    if format_exit != 0:
-        print("Formatting check failed. Please run 'black .' to fix.")
-    
-    if lint_exit != 0 or format_exit != 0:
-        sys.exit(1)
+    """Entry point for CLI usage of linting tools."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Project linting and formatting tools.")
+    parser.add_argument(
+        "action",
+        choices=["lint", "format", "check-lint", "check-format"],
+        help="Action to perform: lint (fix), format (fix), check-lint, check-format",
+    )
+    parser.add_argument("--path", type=Path, default=None, help="Target path (default: project root)")
+
+    args = parser.parse_args()
+
+    if args.action == "lint":
+        code = run_linter(args.path)
+    elif args.action == "format":
+        code = run_formatter(args.path)
+    elif args.action == "check-lint":
+        code = run_linter(args.path)
+    elif args.action == "check-format":
+        code = run_formatter(args.path) # Note: run_formatter runs black in fix mode usually, but we can adapt or use check command
+        # Correcting for check-format:
+        cmd = get_format_check_command()
+        if args.path:
+            cmd.append(str(args.path))
+        try:
+            result = subprocess.run(cmd, check=True)
+            code = result.returncode
+        except subprocess.CalledProcessError as e:
+            code = e.returncode
     else:
-        print("All checks passed.")
-        sys.exit(0)
+        code = 1
+
+    sys.exit(code)
+
 
 if __name__ == "__main__":
     main()

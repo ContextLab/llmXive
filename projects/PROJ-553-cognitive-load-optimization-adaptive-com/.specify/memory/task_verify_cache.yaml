@@ -1,33 +1,10 @@
-T001a:
+T015:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directories being created is present\u2014no command\
-    \ output, directory listing, or file system snapshot is provided to confirm that\
-    \ `data/raw/`, `data/processed/`, `data/explanation_tiers/`, and `data/simulation_results/`\
-    \ exist. The implementer must supply proof (e.g., `ls -R data/` output) that the\
-    \ single `mkdir -p` command was executed and the directories are present."
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that the required directories (`code/`, `tests/`, `docs/`)
-    actually exist, nor any proof they were created with a single `mkdir -p` command.
-    The implementer must supply the filesystem listing or a script showing the command
-    execution.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided material only describes user stories for cognitive\u2011load modeling\
-    \ and contains no linting/formatting configuration files (e.g., `pyproject.toml`,\
-    \ `.ruff.toml`, `.flake8`, `black` settings) or evidence that ruff, flake8, and\
-    \ black have been set up. Consequently the task \u201CConfigure linting (ruff/flake8)\
-    \ and formatting (black) tools\u201D is not satisfied. The missing artifacts need\
-    \ to be added and verified."
-T006b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No CSV template or fetched expert\u2011labeled dataset was provided; the claim\
-    \ lacks any artifact that creates or loads the required Golden Set of 50 interactions,\
-    \ so the task\u2019s core requirement is unmet."
+  h: 0ac7a49caf6eb48b8903c121b740b81cc3a6a074e7dc8d574ff2ce46e2b77674
+  r: "The required model artifact `data/processed/load_model.pkl` does not exist,\
+    \ and the provided `code/train_load_model.py` is truncated before any training,\
+    \ validation, size\u2011check, or saving logic is shown. Consequently the pipeline\
+    \ is not fully implemented nor does it produce the required output."
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -50,25 +27,9 @@ T022:
     \ a jargon dictionary, regex insertions, and the required FK\u2011difference and\
     \ Jaccard\u2011similarity checks (raising ValueError on failure) actually exists.\
     \ The task\u2019s artifact is missing."
-T023:
+T022b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or output were provided showing Flesch\u2011Kincaid scores\
-    \ computed for the simple, moderate, and complex tiers, nor any verification that\
-    \ the scores differ by at least\u202F5 points and are monotonic. Additionally,\
-    \ there is no evidence of files saved under `data/explanation_tiers/`. The required\
-    \ artifact is missing."
-T024:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, or results implementing the required fidelity checks (Jaccard\u202F\
-    \u2265\u202F0.85 and semantic similarity\u202F\u2265\u202F0.90) were provided;\
-    \ the only material is the task description and specifications, without any artifact\
-    \ demonstrating that the checks have been built or evaluated. The required implementation\
-    \ and its metrics are missing."
-T025:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No CSV or JSON files were presented in `data/explanation_tiers/`, nor any code
-    showing that generated tiers and their metadata are being written to that directory.
-    The required output files are missing, so the task is not satisfied.
+  h: 5710f55cc12c8c93dc34bcaf7a8e6daa43c6ffb8df72a0011a428e1639cebb3a
+  r: "The required output file `data/explanation_tiers/moderate_tiers.csv` is missing,\
+    \ so no moderate\u2011tier content was generated for the instructional units.\
+    \ The task therefore is not satisfied."

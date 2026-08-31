@@ -6,7 +6,6 @@ build-backend = "setuptools.build_meta"
 name = "cognitive-load-optimization"
 version = "0.1.0"
 description = "Adaptive Complexity Scaling for Personalized Learning"
-readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "scikit-learn",
@@ -18,62 +17,79 @@ dependencies = [
     "statsmodels",
     "pytest",
     "requests",
-    "ruff",
-    "black",
 ]
 
-[tool.ruff]
-# Target Python version
-target-version = "py311"
-
-# Line length (standard for black compatibility)
-line-length = 88
-
-# Exclude directories
-exclude = [
-    ".git",
-    ".tox",
-    "__pycache__",
-    "build",
-    "dist",
-    "*.egg-info",
-    ".eggs",
-]
-
-[tool.ruff.lint]
-# Enable pycodestyle (E), Pyflakes (F), and isort (I) rules
-select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "SIM"]
-
-# Ignore specific rules if necessary
-ignore = [
-    "E501", # Line too long (handled by black)
-    "F403", # 'from module import *' used; unable to detect undefined names
-]
-
-[tool.ruff.lint.isort]
-known-first-party = ["code", "tests"]
-force-single-line = true
-lines-after-imports = 2
+[tool.setuptools.packages.find]
+where = ["code"]
 
 [tool.black]
-# Configuration for Black
 line-length = 88
-target-version = ["py311"]
+target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
+    | \.hg
+    | \.mypy_cache
     | \.tox
-    | __pycache__
+    | \.venv
+    | _build
+    | buck-out
     | build
     | dist
-    | \.eggs
 )/
 '''
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
+[tool.ruff]
+# Same as Black.
+line-length = 88
+indent-width = 4
+target-version = "py311"
+
+[tool.ruff.lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I", "W"]
+ignore = []
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few generated files or directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"] # Ignore assert statements in tests
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = false
+docstring-code-line-length = "dynamic"

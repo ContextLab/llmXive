@@ -4,296 +4,217 @@ import math
 import logging
 import sys
 from typing import List, Dict, Union, Optional, Any, Tuple
-import textstat
+import pandas as pd
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 
-def setup_logging() -> logging.Logger:
-    """Setup basic logging configuration."""
+def setup_logging():
+    """Setup logging configuration."""
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout)
+        ]
     )
     return logging.getLogger(__name__)
 
-def get_logger(name: str) -> logging.Logger:
-    """Get a logger with the specified name."""
+def get_logger(name: str = __name__):
+    """Get a logger instance."""
     return logging.getLogger(name)
 
-def load_config_env(config_path: Optional[str] = None) -> Dict[str, Any]:
-    """Load configuration from environment variables or a file."""
+def load_config_env(config_path: str = "config.env") -> Dict[str, str]:
+    """Load environment variables from a config file."""
     config = {}
-    if config_path and os.path.exists(config_path):
+    if os.path.exists(config_path):
         with open(config_path, 'r') as f:
             for line in f:
                 line = line.strip()
                 if line and not line.startswith('#') and '=' in line:
                     key, value = line.split('=', 1)
                     config[key.strip()] = value.strip()
-    # Override with environment variables
-    for key in list(config.keys()):
-        if key in os.environ:
-            config[key] = os.environ[key]
     return config
 
-def validate_environment() -> bool:
-    """Validate that required environment variables are set."""
-    required_vars = ['DATA_DIR', 'PROJECT_ROOT']
-    for var in required_vars:
-        if var not in os.environ:
-            logging.error(f"Missing required environment variable: {var}")
+def validate_environment(config: Dict[str, str]) -> bool:
+    """Validate required environment variables."""
+    required_keys = ['DATA_DIR', 'MODEL_DIR']
+    for key in required_keys:
+        if key not in config:
+            logging.error(f"Missing required config key: {key}")
             return False
     return True
 
-def calculate_vif(df: pd.DataFrame, features: List[str]) -> Dict[str, float]:
+def calculate_vif(df: pd.DataFrame, feature_cols: List[str], target_col: str) -> float:
     """
-    Calculate Variance Inflation Factor (VIF) for each feature.
-    
-    Args:
-        df: DataFrame containing the features
-        features: List of feature column names
-        
-    Returns:
-        Dictionary mapping feature names to their VIF values
+    Calculate Variance Inflation Factor (VIF) for a target column.
+    VIF = 1 / (1 - R^2) where R^2 is from regressing target_col on feature_cols.
     """
-    import pandas as pd
-    vif_data = {}
-    X = df[features].dropna()
-    if X.empty or len(X) < 2:
-        return {f: float('inf') for f in features}
+    if target_col not in df.columns:
+        raise ValueError(f"Target column {target_col} not in DataFrame")
     
-    for i, feature in enumerate(features):
-        if feature not in df.columns:
-            continue
-        y = df[feature].dropna()
-        X_other = df[[f for f in features if f != feature]].dropna()
-        if len(y) != len(X_other):
-            # Align indices
-            common_idx = y.index.intersection(X_other.index)
-            y = y.loc[common_idx]
-            X_other = X_other.loc[common_idx]
-        
-        if len(y) < 2:
-            vif_data[feature] = float('inf')
-            continue
-        
-        try:
-            from sklearn.linear_model import LinearRegression
-            model = LinearRegression()
-            model.fit(X_other, y)
-            r_squared = model.score(X_other, y)
-            if r_squared >= 1.0:
-                vif_data[feature] = float('inf')
-            else:
-                vif_data[feature] = 1.0 / (1.0 - r_squared)
-        except Exception as e:
-            logging.warning(f"Could not calculate VIF for {feature}: {e}")
-            vif_data[feature] = float('inf')
+    # Prepare data
+    X = df[feature_cols].values
+    y = df[target_col].values
     
-    return vif_data
+    # Handle constant features or zero variance
+    if X.shape[1] == 0:
+        return 1.0
+    
+    # Simple linear regression to get R^2
+    # Using numpy for speed and avoiding sklearn dependency if not needed, 
+    # but sklearn is in requirements. Let's use numpy for VIF calculation.
+    try:
+        # Add intercept
+        X_with_intercept = np.column_stack([np.ones(X.shape[0]), X])
+        coeffs, residuals, rank, s = np.linalg.lstsq(X_with_intercept, y, rcond=None)
+        
+        # Calculate predictions
+        y_pred = X_with_intercept @ coeffs
+        
+        # Calculate R^2
+        ss_res = np.sum((y - y_pred) ** 2)
+        ss_tot = np.sum((y - np.mean(y)) ** 2)
+        
+        if ss_tot == 0:
+            return 1.0
+        
+        r_squared = 1 - (ss_res / ss_tot)
+        
+        # VIF calculation
+        if r_squared >= 1.0:
+            return float('inf')
+        
+        vif = 1.0 / (1.0 - r_squared)
+        return float(vif)
+    except Exception as e:
+        logging.error(f"Error calculating VIF: {e}")
+        return float('inf')
 
-def check_vif_threshold(vif_values: Dict[str, float], threshold: float = 5.0) -> List[str]:
-    """
-    Check which features exceed the VIF threshold.
-    
-    Args:
-        vif_values: Dictionary of feature VIF values
-        threshold: VIF threshold (default 5.0)
-        
-    Returns:
-        List of feature names exceeding the threshold
-    """
-    return [f for f, v in vif_values.items() if v > threshold]
+def check_vif_threshold(vif_value: float, threshold: float = 5.0) -> bool:
+    """Check if VIF value exceeds threshold."""
+    return vif_value > threshold
 
 def calculate_flesch_kincaid(text: str) -> float:
     """
-    Calculate Flesch-Kincaid readability score.
-    
-    Args:
-        text: Input text string
-        
-    Returns:
-        Flesch-Kincaid Grade Level score
+    Calculate Flesch-Kincaid Readability Score.
+    FK = 206.835 - 1.015 * (total_words / total_sentences) - 84.6 * (total_syllables / total_words)
     """
     if not text or not isinstance(text, str):
         return 0.0
-    try:
-        # textstat.flesch_reading_ease returns 0-100, lower is harder
-        # textstat.flesch_kincaid_grade returns grade level (0-18+)
-        score = textstat.flesch_kincaid_grade(text)
-        return float(score)
-    except Exception as e:
-        logging.warning(f"Could not calculate Flesch-Kincaid for text: {e}")
+    
+    # Count sentences
+    sentences = re.split(r'[.!?]+', text)
+    sentences = [s.strip() for s in sentences if s.strip()]
+    num_sentences = max(len(sentences), 1)
+    
+    # Count words
+    words = re.findall(r'\b\w+\b', text.lower())
+    num_words = len(words)
+    if num_words == 0:
         return 0.0
+    
+    # Count syllables (approximate)
+    def count_syllables(word: str) -> int:
+        word = word.lower()
+        if len(word) <= 3:
+            return 1
+        count = 0
+        vowels = 'aeiouy'
+        prev_vowel = False
+        for char in word:
+            is_vowel = char in vowels
+            if is_vowel and not prev_vowel:
+                count += 1
+            prev_vowel = is_vowel
+        if word.endswith('e'):
+            count -= 1
+        return max(count, 1)
+    
+    total_syllables = sum(count_syllables(word) for word in words)
+    
+    # Calculate score
+    score = 206.835 - 1.015 * (num_words / num_sentences) - 84.6 * (total_syllables / num_words)
+    return max(0.0, score)
 
 def calculate_jaccard_similarity(text1: str, text2: str) -> float:
-    """
-    Calculate Jaccard similarity between two texts based on word sets.
-    
-    Args:
-        text1: First text string
-        text2: Second text string
-        
-    Returns:
-        Jaccard similarity coefficient (0.0 to 1.0)
-    """
+    """Calculate Jaccard similarity between two texts."""
     if not text1 or not text2:
         return 0.0
     
-    # Normalize: lowercase and split into words
-    words1 = set(re.findall(r'\b\w+\b', text1.lower()))
-    words2 = set(re.findall(r'\b\w+\b', text2.lower()))
+    set1 = set(text1.lower().split())
+    set2 = set(text2.lower().split())
     
-    if not words1 or not words2:
+    if not set1 or not set2:
         return 0.0
     
-    intersection = words1.intersection(words2)
-    union = words1.union(words2)
+    intersection = len(set1.intersection(set2))
+    union = len(set1.union(set2))
     
-    if not union:
+    if union == 0:
         return 0.0
     
-    return len(intersection) / len(union)
+    return intersection / union
 
 def calculate_semantic_similarity(text1: str, text2: str) -> float:
     """
-    Calculate semantic similarity between two texts using TF-IDF and cosine similarity.
-    
-    This is a lightweight CPU-safe approach that does not require heavy embeddings.
-    
-    Args:
-        text1: First text string
-        text2: Second text string
-        
-    Returns:
-        Cosine similarity score (0.0 to 1.0)
+    Calculate semantic similarity using TF-IDF and cosine similarity.
+    Lightweight CPU-safe implementation.
     """
     if not text1 or not text2:
         return 0.0
     
+    # Simple TF-IDF approximation
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    from sklearn.metrics.pairwise import cosine_similarity
+    
     try:
-        vectorizer = TfidfVectorizer(stop_words='english', max_features=1000)
+        vectorizer = TfidfVectorizer()
         tfidf_matrix = vectorizer.fit_transform([text1, text2])
-        similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])
-        return float(similarity[0][0])
+        similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
+        return float(similarity)
     except Exception as e:
-        logging.warning(f"Could not calculate semantic similarity: {e}")
+        logging.warning(f"Semantic similarity calculation failed: {e}. Returning 0.0.")
         return 0.0
 
-def validate_fidelity_scores(
-    source_text: str, 
-    generated_text: str, 
-    jaccard_threshold: float = 0.85, 
-    semantic_threshold: float = 0.90
-) -> Tuple[bool, float, float, str]:
-    """
-    Validate that generated text maintains fidelity to the source text.
+def validate_fidelity_scores(simple_score: float, moderate_score: float, complex_score: float, 
+                             jaccard: float, semantic: float) -> bool:
+    """Validate tier generation fidelity scores."""
+    # Check monotonic progression
+    if not (simple_score < moderate_score < complex_score):
+        logging.error("Readability scores not monotonic: simple < moderate < complex")
+        return False
     
-    Args:
-        source_text: The original source text
-        generated_text: The generated/simplified/complex text
-        jaccard_threshold: Minimum required Jaccard similarity (default 0.85)
-        semantic_threshold: Minimum required semantic similarity (default 0.90)
-        
-    Returns:
-        Tuple of (is_valid, jaccard_score, semantic_score, error_message)
-        - is_valid: True if both thresholds are met
-        - error_message: Description of failure if any, empty string if valid
-    """
-    jaccard_score = calculate_jaccard_similarity(source_text, generated_text)
-    semantic_score = calculate_semantic_similarity(source_text, generated_text)
+    # Check differences >= 5
+    if (moderate_score - simple_score) < 5.0:
+        logging.error("Difference between simple and moderate < 5")
+        return False
+    if (complex_score - moderate_score) < 5.0:
+        logging.error("Difference between moderate and complex < 5")
+        return False
     
-    errors = []
+    # Check Jaccard >= 0.85
+    if jaccard < 0.85:
+        logging.error(f"Jaccard similarity {jaccard:.2f} < 0.85")
+        return False
     
-    if jaccard_score < jaccard_threshold:
-        errors.append(f"Jaccard similarity {jaccard_score:.3f} < threshold {jaccard_threshold}")
+    # Check Semantic >= 0.90
+    if semantic < 0.90:
+        logging.error(f"Semantic similarity {semantic:.2f} < 0.90")
+        return False
     
-    if semantic_score < semantic_threshold:
-        errors.append(f"Semantic similarity {semantic_score:.3f} < threshold {semantic_threshold}")
-    
-    is_valid = len(errors) == 0
-    error_message = "; ".join(errors) if errors else ""
-    
-    return is_valid, jaccard_score, semantic_score, error_message
+    return True
 
-def validate_readiness_for_tier_generation(
-    source_text: str, 
-    simple_text: str, 
-    complex_text: str,
-    fk_threshold: float = 5.0,
-    jaccard_threshold: float = 0.85,
-    semantic_threshold: float = 0.90
-) -> Tuple[bool, Dict[str, Any], str]:
-    """
-    Validate all constraints for tier generation before saving.
+def validate_readiness_for_tier_generation() -> bool:
+    """Check if prerequisites for tier generation are met."""
+    # Check if instructional units exist
+    units_path = "data/processed/instructional_units.csv"
+    if not os.path.exists(units_path):
+        logging.error("Instructional units not found. Run T022 first.")
+        return False
     
-    Checks:
-    1. Monotonic FK progression: simple < moderate < complex with >= 5 point diff
-    2. Jaccard similarity >= 0.85 for both tiers
-    3. Semantic similarity >= 0.90 for both tiers
+    # Check if golden set exists (for load model dependency)
+    golden_path = "data/processed/golden_set.csv"
+    if not os.path.exists(golden_path):
+        logging.error("Golden set not found. Run T007b first.")
+        return False
     
-    Args:
-        source_text: Original instructional unit text
-        simple_text: Generated simple tier
-        complex_text: Generated complex tier
-        fk_threshold: Minimum FK difference between tiers (default 5.0)
-        jaccard_threshold: Minimum Jaccard similarity (default 0.85)
-        semantic_threshold: Minimum semantic similarity (default 0.90)
-        
-    Returns:
-        Tuple of (is_valid, metrics_dict, error_message)
-    """
-    # Calculate FK scores
-    fk_source = calculate_flesch_kincaid(source_text)
-    fk_simple = calculate_flesch_kincaid(simple_text)
-    fk_complex = calculate_flesch_kincaid(complex_text)
-    
-    # Calculate fidelity scores
-    jaccard_simple, sem_simple = 0.0, 0.0
-    is_valid_simple, jaccard_simple, sem_simple, err_simple = validate_fidelity_scores(
-        source_text, simple_text, jaccard_threshold, semantic_threshold
-    )
-    
-    jaccard_complex, sem_complex = 0.0, 0.0
-    is_valid_complex, jaccard_complex, sem_complex, err_complex = validate_fidelity_scores(
-        source_text, complex_text, jaccard_threshold, semantic_threshold
-    )
-    
-    errors = []
-    
-    # Check monotonic FK progression
-    if not (fk_simple < fk_source < fk_complex):
-        errors.append(f"FK progression failed: simple={fk_simple:.2f}, source={fk_source:.2f}, complex={fk_complex:.2f}")
-    
-    # Check FK differences
-    if (fk_source - fk_simple) < fk_threshold:
-        errors.append(f"FK difference (source-simple) {fk_source - fk_simple:.2f} < {fk_threshold}")
-    
-    if (fk_complex - fk_source) < fk_threshold:
-        errors.append(f"FK difference (complex-source) {fk_complex - fk_source:.2f} < {fk_threshold}")
-    
-    # Check fidelity
-    if not is_valid_simple:
-        errors.append(f"Simple tier fidelity failed: {err_simple}")
-    
-    if not is_valid_complex:
-        errors.append(f"Complex tier fidelity failed: {err_complex}")
-    
-    is_valid = len(errors) == 0
-    
-    metrics = {
-        "fk_source": fk_source,
-        "fk_simple": fk_simple,
-        "fk_complex": fk_complex,
-        "jaccard_simple": jaccard_simple,
-        "semantic_simple": sem_simple,
-        "jaccard_complex": jaccard_complex,
-        "semantic_complex": sem_complex,
-        "fk_diff_simple": fk_source - fk_simple,
-        "fk_diff_complex": fk_complex - fk_source
-    }
-    
-    error_message = "; ".join(errors) if errors else ""
-    
-    return is_valid, metrics, error_message
+    return True

@@ -6,7 +6,7 @@ failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-553-cognitive-load-optimization-adaptive-com
-last_run_id: 3738514c-3746-4886-9dd3-5d1692986b1f
+last_run_id: c507b039-cb2c-42de-bc8e-4c8a790cd66e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com
 title: 'Cognitive Load Optimization: Adaptive Complexity Scaling for Personalized
   Learning'
-updated_at: '2026-08-29T10:48:33.778527Z'
+updated_at: '2026-08-31T11:50:40.919535Z'
