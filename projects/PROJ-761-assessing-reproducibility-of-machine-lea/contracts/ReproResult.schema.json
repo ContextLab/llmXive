@@ -1,11 +1,12 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://llmxive.org/schemas/ReproResult.schema.json",
   "title": "ReproResult",
-  "description": "Schema for storing the results of a single paper reproducibility attempt.",
+  "description": "Schema for the results of a single reproducibility run for a paper.",
   "type": "object",
   "required": [
     "doi",
-    "reproduced_metrics",
+    "metrics",
     "deviations",
     "reproducibility_score",
     "status"
@@ -13,81 +14,85 @@
   "properties": {
     "doi": {
       "type": "string",
-      "description": "Digital Object Identifier of the paper."
+      "description": "DOI of the paper being reproduced."
     },
     "status": {
       "type": "string",
-      "enum": ["success", "model_substituted", "data_unavailable", "failed"],
-      "description": "Overall status of the reproduction attempt."
+      "enum": ["success", "partial", "failed", "substituted"],
+      "description": "Status of the reproduction attempt."
     },
-    "reproduced_metrics": {
+    "failure_reason": {
+      "type": "string",
+      "description": "Reason for failure if status is not success."
+    },
+    "metrics": {
       "type": "object",
-      "required": ["mae", "r2", "spearman_rho"],
+      "description": "Reproduced metrics.",
+      "required": ["mae", "r2"],
       "properties": {
         "mae": {
-          "type": "number",
-          "description": "Reproduced Mean Absolute Error."
+          "type": "number"
         },
         "r2": {
-          "type": "number",
-          "description": "Reproduced R-squared value."
+          "type": "number"
         },
         "spearman_rho": {
-          "type": "number",
-          "description": "Reproduced Spearman correlation coefficient."
+          "type": "number"
         }
       }
     },
     "deviations": {
       "type": "object",
-      "required": ["delta_mae", "delta_r2", "delta_spearman_rho"],
+      "description": "Absolute deviations from reported metrics.",
       "properties": {
-        "delta_mae": {
-          "type": "number",
-          "description": "Absolute difference between reproduced and reported MAE."
+        "mae": {
+          "type": "number"
         },
-        "delta_r2": {
-          "type": "number",
-          "description": "Absolute difference between reproduced and reported R2."
+        "r2": {
+          "type": "number"
         },
-        "delta_spearman_rho": {
-          "type": "number",
-          "description": "Absolute difference between reproduced and reported Spearman rho."
+        "spearman_rho": {
+          "type": "number"
         }
       }
     },
     "reproducibility_score": {
       "type": "number",
-      "description": "The Deviation Index S (0 to 1, where 1 is perfect reproduction)."
+      "description": "Deviation Index (S) score.",
+      "minimum": 0,
+      "maximum": 1
     },
-    "sensitivity_analysis": {
+    "seed_used": {
+      "type": "integer",
+      "description": "Seed used for reproduction."
+    },
+    "model_substituted": {
+      "type": "boolean",
+      "description": "Whether the model was substituted due to size."
+    },
+    "metric_std": {
       "type": "object",
-      "description": "Results from seed sensitivity analysis.",
+      "description": "Standard deviation of metrics across sensitivity seeds.",
       "properties": {
-        "metric_std": {
-          "type": "object",
-          "properties": {
-            "mae": { "type": "number" },
-            "r2": { "type": "number" },
-            "spearman_rho": { "type": "number" }
-          }
+        "mae": {
+          "type": "number"
         },
-        "max_metric_std": {
-          "type": "number",
-          "description": "Maximum standard deviation observed across metrics."
+        "r2": {
+          "type": "number"
+        },
+        "spearman_rho": {
+          "type": "number"
         }
       }
     },
-    "flags": {
-      "type": "array",
-      "description": "List of flags indicating issues (e.g., missing seed, model substitution).",
-      "items": {
-        "type": "string"
-      }
+    "max_metric_std": {
+      "type": "number",
+      "description": "Maximum standard deviation observed across all metrics."
     },
-    "environment_log": {
-      "type": "string",
-      "description": "Snapshot of the execution environment."
+    "parameter_count": {
+      "type": "integer",
+      "description": "Number of parameters in the reproduced model."
     }
-  }
+  },
+  "additionalProperties": false
 }

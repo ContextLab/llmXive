@@ -1,23 +1,43 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Skill Schema"
-type: "object"
-properties:
-  skill_id:
-    type: "string"
-    description: "Unique identifier for the skill"
-  function_code:
-    type: "string"
-    description: "Python code snippet for the skill"
-  embedding_vector:
-    type: "array"
-    items:
-      type: "number"
-    description: "Vector representation of the skill"
-  usage_count:
-    type: "integer"
-    description: "Number of times the skill has been used"
+description: "Schema for individual skill definitions in the Digital Colleague library."
+type: object
 required:
   - skill_id
   - function_code
   - embedding_vector
   - usage_count
+properties:
+  skill_id:
+    type: string
+    description: "Unique identifier for the skill."
+    pattern: "^skill_[0-9]+$"
+  function_code:
+    type: string
+    description: "The Python source code of the function."
+  embedding_vector:
+    type: array
+    items:
+      type: number
+    description: "Dense vector representation of the skill's semantic meaning."
+    minItems: 384
+    maxItems: 384
+  usage_count:
+    type: integer
+    description: "Number of times this skill has been successfully retrieved/executed."
+    minimum: 0
+  metadata:
+    type: object
+    description: "Optional metadata including overlap metrics."
+    properties:
+      mean_pairwise_similarity:
+        type: number
+        description: "Mean cosine similarity to other skills in the library."
+      max_pairwise_similarity:
+        type: number
+        description: "Maximum cosine similarity to any other skill."
+      overlap_group:
+        type: string
+        description: "Grouping label based on semantic density."
+    additionalProperties: true
+additionalProperties: false

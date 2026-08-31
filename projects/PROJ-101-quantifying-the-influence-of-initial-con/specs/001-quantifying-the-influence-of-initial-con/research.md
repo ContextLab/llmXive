@@ -1,107 +1,74 @@
 # Research: Quantifying the Influence of Initial Conditions on Chaotic Systems
 
-## Problem Statement
+## Summary
 
-Chaotic systems are characterized by sensitive dependence on initial conditions, quantified by Lyapunov exponents. In practice, these exponents are estimated from finite-time trajectories that are often contaminated by observational noise. This research quantifies the bias introduced by this noise and the finite-time window length $T$ on the estimation of the maximum Lyapunov exponent in high-dimensional coupled Lorenz systems.
-
-## Theoretical Background
-
-### Coupled Lorenz Oscillators
-The system consists of $N$ Lorenz oscillators coupled via a diffusive term. The equations for the $i$-th oscillator ($i=1..N$) are:
-
-$$
-\begin{aligned}
-\dot{x}_i &= \sigma(y_i - x_i) + \frac{D}{N} \sum_{j=1}^N (x_j - x_i) \\
-\dot{y}_i &= x_i(\rho - z_i) - y_i \\
-\dot{z}_i &= x_i y_i - \beta z_i
-\end{aligned}
-$$
-
-Standard parameters: $\sigma=10, \rho=28, \beta=8/3$. Coupling strength $D$ is a parameter to be explored (default $D=0.2$).
-
-### Finite-Time Lyapunov Exponents (FTLE)
-The FTLE $\lambda_T$ over a window $T$ is defined as:
-$$ \lambda_T = \frac{1}{T} \ln \left( \frac{\| \delta \mathbf{x}(T) \|}{\| \delta \mathbf{x}(0) \|} \right) $$
-where $\delta \mathbf{x}(t)$ is the evolution of a perturbation vector governed by the tangent linear equations. **Crucially, for this study, the tangent linear equations are integrated using the *noisy* observed trajectory states.** Specifically, **the Jacobian matrix $J(\mathbf{x})$ is evaluated at the noisy state $\mathbf{x}_{obs}(t)$ at each step** to simulate the realistic scenario of estimating chaos from noisy data.
-
-### Noise Model
-Observational noise is modeled as additive Gaussian white noise:
-$$ \mathbf{x}_{obs}(t) = \mathbf{x}_{true}(t) + \boldsymbol{\epsilon}(t), \quad \boldsymbol{\epsilon}(t) \sim \mathcal{N}(0, \sigma_{noise}^2 \mathbf{I}) $$
+This research investigates the bias introduced by observational noise in Finite-Time Lyapunov Exponent (FTLE) estimates for high-dimensional coupled Lorenz systems. The core hypothesis is that the deviation $\Delta \lambda = \lambda_{FTLE} - \lambda_{\infty}$ scales monotonically with noise amplitude $\sigma_{noise}$ and inversely with the time window $T$, but the *functional form* (power-law, logarithmic, etc.) is unknown and must be determined via model selection. The study utilizes synthetic data generated via numerical integration, as no open-source dataset exists for *coupled* Lorenz systems with *controllable* observational noise levels and *known* ground-truth asymptotic baselines.
 
 ## Dataset Strategy
 
-This project generates **synthetic data**. No external datasets are used.
-- **Source**: `code/data/generator.py` (Coupled Lorenz ODE solver).
-- **Verification**: The generator is validated against the numerically computed asymptotic Lyapunov exponent for the specific coupled configuration.
-- **Data Volume**:
-  - Trajectories: $N \le $ dimensions, $T_{total} \approx 10^5$ steps.
-  - Trials: $k=30$ independent trials per noise level.
-  - Noise levels: $\sigma_{noise}$ will be varied across a range of magnitudes from very low to high to assess sensitivity.
-  - Window sizes: $T \in \{\text{small}, 500, 1000, 5000\}$.
-  - Estimated total data size: < 500 MB (fits within CI limits).
+**Strategy**: Synthetic Data Generation.
+**Rationale**: The research question requires precise control over noise amplitude ($\sigma_{noise}$) and system dimension ($N$) to isolate the bias effect. Existing public datasets (e.g., UCI, Hugging Face) contain real-world time series or single-oscillator data, but none offer the specific "coupled Lorenz with additive Gaussian noise" ground truth required for this controlled experiment.
+**Implementation**:
+- **Generator**: `code/generator.py` implements the coupled Lorenz equations using `scipy.integrate.solve_ivp` (method: 'DOP853', `rtol=1e-9`, `atol=1e-12`).
+- **Noise Model**: Additive Gaussian white noise $\mathcal{N}(0, \sigma_{noise}^2)$ injected at each time step.
+- **Parameters**:
+  - Dimensions: $N \in \{1, 3, 5, 10\}$
+  - Noise Levels: $\sigma_{noise} \in \{0.0, 0.01, 0.05, 0.1, 0.5, 1.0\}$
+  - Trajectory Length: $T_{total} \ge 5000$ steps (to allow $T_{window} \in \{500, 1000, 5000\}$).
+- **Data Availability**: Data is generated on-the-fly during the pipeline execution. No external download is required. The generated data is stored in `data/raw/` and checksummed.
 
-## Methodology
+**Note on Verified Datasets**: The provided "Verified datasets" block contains legal text embedding datasets (nyaya-ae) which are irrelevant to this physics simulation. **No external dataset URLs are used.** The study relies entirely on the synthetic generator defined in `code/generator.py`.
 
-### Phase 0: Solver Sanity Check (Constitution Principle VI - N=1)
-1. Generate a long, noise-free trajectory for $N=1$ (single oscillator).
-2. Compute FTLE for increasing $T$.
-3. Verify convergence to the theoretical asymptotic value ($\lambda_{max} \approx 0.905$) within 5% error at $T=5000$.
-4. **Gate**: If convergence fails, abort and tune solver tolerances. *Note: This is a sanity check for the solver, not the baseline for the coupled system study.*
+## Methodology & Statistical Rigor
 
-### Phase 1: High-Dimensional Asymptotic Baseline (Scientific Soundness)
-1. For each configuration ($N \in \{3, 5, 10\}$, $D=0.2$):
-   - Generate a **very long** noise-free trajectory ($T_{long} \approx 2 \times 10^5$ steps).
-   - Compute the full spectrum of Lyapunov exponents using the tangent-linear method.
-   - **Extrapolate to $T \to \infty$** using **Richardson extrapolation** on the sequence of FTLE estimates from the long trajectory (using windows $T \in \{5000, 10000, 20000\}$) to establish the **true numerical asymptotic baseline** for that specific configuration.
-   - *Note: This baseline is NOT $N \times 0.905$; it is the numerically converged max exponent for the specific coupled system, determined solely by $N$ and $D$.*
-2. **Gate**: If the max exponent $\le 0$, abort (system is not chaotic).
+### 1. Trajectory Generation (FR-001)
+- **Method**: Numerical integration of coupled Lorenz ODEs.
+- **Validation**: For $\sigma=0$, the generated trajectory is compared against a reference solution to ensure numerical precision ($< 10^{-9}$).
+- **Constraint**: $N=5$ generation must complete within 30 seconds on a standard CPU (verified via `test_runtime_benchmark.py`).
 
-### Phase 2: Noisy Trajectory Generation & FTLE
-1. For each $N$ and $\sigma_{noise}$:
-   - Generate $k=30$ independent noisy trajectories.
-   - **Do NOT discard** trajectories that leave the attractor. Instead, record the time of escape (if any) as a distinct event.
-   - Compute FTLE for each window size $T$ using the **noisy states** for both the trajectory and the tangent linear propagation (simulating real-world estimation bias).
-   - If a trajectory leaves the attractor, record the FTLE up to the escape time (truncated window) and flag the event as `escape_event=True`.
+### 2. Asymptotic Baseline Computation (FR-003, FR-006)
+- **Method**: The asymptotic Lyapunov spectrum is computed for the *specific* coupled configuration using a long trajectory ($T=10^5$) and the Benettin algorithm (QR-based method) to ensure convergence.
+- **Baseline Validation**: The baseline itself is validated for finite-time bias using Richardson extrapolation (comparing $T=10^5$ and $T=2 \cdot 10^5$). The "ground truth" $\lambda_{\infty}$ is only accepted if the relative difference is $< 1\%$.
+- **Gating**: The system calculates the maximum exponent $\lambda_{max}$. If the system is non-chaotic ($\lambda_{max} \le 0$) or if $\lambda_{max}$ does not converge (relative change $< 10^{-6}$ over last [deferred] of trajectory), the pipeline halts with `NonChaoticSystemError`.
+- **Baseline**: The converged $\lambda_{max}$ is stored as the ground truth $\lambda_{\infty}$.
 
-### Phase 3: Statistical Analysis
-1. Calculate deviation $\Delta \lambda = \lambda_{FTLE} - \lambda_{asymptotic}$ (where $\lambda_{asymptotic}$ is the baseline from Phase 1).
-2. **Model Selection**: Fit multiple candidate models for $\Delta \lambda(T, \sigma_{noise})$:
-   - Additive: $\Delta \lambda = \alpha + \beta_1 \sigma_{noise} + \beta_2 T^{-1}$
-   - Multiplicative (Power-law): $\Delta \lambda = \alpha \cdot \sigma_{noise}^\gamma \cdot T^{-\beta}$
-   - Saturation (Michaelis-Menten style): $\Delta \lambda = \frac{A \cdot \sigma_{noise}}{K + \sigma_{noise}}$
-   - Select the best model using **AIC/BIC**.
-3. **Robust Statistics**:
-   - Perform a Shapiro-Wilk test on residuals.
-   - If normality is violated, use **bootstrapped confidence intervals** (sufficient resamples for stability) and non-parametric tests (Wilcoxon) instead of t-tests.
-   - If normality holds, report t-test p-values and effect sizes.
-4. **Escape Analysis**: Model the probability of escape as a function of $\sigma_{noise}$ (logistic regression or simple proportion) to characterize system stability limits.
-5. Generate visualizations: $\Delta \lambda$ vs. $\sigma_{noise}$ (with error bars), $\Delta \lambda$ vs. $T$, and the probability of escape vs. $\sigma_{noise}$.
+### 3. FTLE Calculation (FR-002)
+- **Method**: Sliding window algorithm. For each window of size $T$, the tangent linear map is computed and the Lyapunov exponent estimated.
+- **Shadowing Lemma Check**: Before computing FTLE on a noisy trajectory, the system verifies that the divergence rate does not exceed the theoretical maximum by a significant margin. If the trajectory no longer shadows a true orbit, it is flagged as "unphysical" and discarded.
+- **Noise Handling**: For $\sigma > 0$, the FTLE is computed on the noisy trajectory.
+- **Edge Case**: If $\sigma > 0.1$, a `HighNoiseWarning` is logged. If the trajectory state exceeds physical bounds (e.g., $|x| > 100$) or $\sigma > 1.0$ causes divergence, an `UnphysicalTrajectoryError` is raised, and the trial is discarded.
 
-## Statistical Rigor
+### 4. Numerical Error Floor
+- **Method**: To distinguish true noise-induced bias from numerical integration artifacts, a "clean-noise" baseline is computed using high-precision arithmetic (via `mpmath`) or Richardson extrapolation.
+- **Threshold**: The noise-induced bias is only reported if it exceeds the numerical error floor by a significant margin. If the bias is smaller than the error floor, the result is reported as "indistinguishable from numerical noise".
 
-- **Multiple Comparisons**: Since multiple noise levels and window sizes are tested, a Bonferroni correction or False Discovery Rate (FDR) control will be applied to p-values if the number of comparisons is substantial.
-- **Power Justification**: $k=30$ trials per condition is a standard heuristic. However, due to the heavy-tailed nature of chaotic systems, **bootstrapping** is mandated to ensure robust confidence intervals regardless of distribution shape.
-- **Causal Inference**: This is a controlled simulation study. The "cause" (noise level) is explicitly manipulated. Claims are strictly about the *simulation model*, not real-world physical systems.
-- **Collinearity**: $T$ and $\sigma_{noise}$ are orthogonal experimental factors. No collinearity issues expected.
-- **Selection Bias Mitigation**: Escape events are modeled as a distinct outcome (probability of escape) rather than discarded, preventing bias in the continuous FTLE estimates.
+### 5. Deviation Analysis & Regression (FR-004, FR-005)
+- **Metric**: $\Delta \lambda = \lambda_{FTLE} - \lambda_{\infty}$.
+- **Regression**: A model selection step is performed. Two models are fitted:
+  1. Power-law: $\Delta \lambda \approx \alpha \cdot \sigma^k + \beta \cdot T^{-m}$
+  2. Non-parametric: LOESS (Locally Estimated Scatterplot Smoothing)
+- **Selection**: The model with the lower AIC/BIC is selected as the primary result. If the LOESS fit is significantly better, the power-law coefficients are not reported as the definitive scaling law.
+- **Statistical Tests**:
+  - **t-test**: To test the significance of the bias term ($\alpha \neq 0$) in the selected model.
+  - **Multiple Comparisons**: If multiple noise levels are tested, a Bonferroni correction is applied to the p-values to control Family-Wise Error Rate (FWER).
+  - **Power Analysis**: Acknowledgement that with synthetic data, power is effectively infinite for detecting the bias, but the *magnitude* of the bias relative to the numerical error floor is the primary metric.
+- **Visualization**: Plots of $\Delta \lambda$ vs. $\sigma$ (with error bars) and $\Delta \lambda$ vs. $T$.
 
-## Compute Feasibility
+## Decision/Rationale: CPU vs. GPU
 
-- **CPU-First**: The entire pipeline (ODE integration, Jacobian propagation, regression) is computationally light enough for the GitHub Actions free-tier (2 CPU, 7 GB RAM).
-- **Memory**: Storing $N=10$ trajectories of $10^5$ steps requires $\approx 10 \times 10^5 \times 30 \times 8$ bytes $\approx 240$ MB. Well within limits.
-- **Runtime**:
-  - ODE Integration: $\approx 2$ seconds per trajectory.
-  - FTLE Calculation: $\approx 5$ seconds per trajectory.
-  - Total for multiple trials $\times$ 5 noise levels $\times$ 4 dimensions $\approx 6000$ trajectories.
-  - Estimated total time: approximately a moderate duration on a single core.
-  - **Optimization**: The plan will parallelize trials across the 2 available cores (using `multiprocessing`) to reduce runtime to $\approx 5$ hours, safely within the 6-hour CI limit. If needed, $k$ will be reduced to 15 or $N$ limited to 5 to guarantee completion.
+**Decision**: **CPU-First**.
+**Rationale**:
+- The core computations (ODE integration, QR decomposition for Lyapunov exponents) are highly optimized in `scipy` and `numpy` and run efficiently on CPU.
+- The system dimensions ($N \le $) and trajectory lengths ($T \le 10^5$) fit comfortably within the 7GB RAM and 14GB disk limits of the GitHub Actions free tier.
+- No deep learning models or large matrix inversions requiring CUDA are used.
+- **GPU Escape Hatch**: Not required. If future extensions involve $N > 100$ or $T > 10^7$, the pipeline would be offloaded to a Kaggle GPU, but for the current scope, CPU is sufficient and preferred for reproducibility on standard CI runners.
 
-## Risks & Mitigations
+## Risk Mitigation
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Trajectory divergence for high noise | Loss of data | Model "escape" as a distinct event (probability analysis) rather than discarding. |
-| Numerical instability in Jacobian | Biased FTLE | Use `DOP853` with strict tolerances; validate on clean baseline first. |
-| CI timeout (h) | Incomplete results | Parallelize trials; reduce $k$ or $N$ if necessary; report power limitation. |
-| Coupling strength non-chaotic | Invalid baseline | Scan coupling range; abort if max $\lambda \le 0$. |
-| Model Misspecification | Invalid coefficients | Use AIC/BIC to select the best functional form (linear, power-law, saturation). |
+- **Numerical Instability**: Mitigated by strict tolerances (`rtol=1e-9`) and the explicit baseline convergence check (Constitution Principle VI).
+- **Spec Ambiguity (Noise Threshold)**: Resolved by implementing a two-tier check: warning at 0.1, abort only on divergence (unphysical).
+- **Runtime Constraint**: A dedicated benchmark task ensures the $N=5$ generation meets the 30s limit.
+- **Non-Chaotic Regime**: Explicit check for $\lambda_{max} > 0$ (numerical) prevents invalid analysis.
+- **Model Misspecification**: Model selection (LOESS vs. Power-law) ensures the correct functional form is reported.
+- **Numerical Artifacts**: The "Numerical Error Floor" check ensures bias is not confounded with integration error.
+- **Shadowing Failure**: The "Shadowing Lemma Check" ensures the validity of FTLE estimates on noisy trajectories.

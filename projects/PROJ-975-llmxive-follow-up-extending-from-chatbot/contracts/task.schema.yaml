@@ -1,27 +1,31 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Task Schema"
+description: "Schema for a single task entry in tasks.json"
 type: "object"
-properties:
-  task_id:
-    type: "string"
-    description: "Unique identifier for the task"
-  description:
-    type: "string"
-    description: "Description of the task"
-  ground_truth_path:
-    type: "array"
-    items:
-      type: "string"
-    description: "List of skill IDs required to solve the task"
-  complexity:
-    type: "string"
-    enum: ["low", "medium", "high"]
-    description: "Complexity level of the task"
-  maximal_overlap_detected:
-    type: "boolean"
-    description: "Flag indicating if maximal overlap was detected during generation"
 required:
   - task_id
   - description
   - ground_truth_path
   - complexity
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier for the task"
+    pattern: "^T[0-9]+$"
+  description:
+    type: "string"
+    description: "Human-readable description of the task"
+  ground_truth_path:
+    type: "string"
+    description: "Path to the ground truth solution (list of skill IDs)"
+    items:
+      type: "string"
+  complexity:
+    type: "integer"
+    description: "Complexity score of the task"
+    minimum: 1
+  metadata:
+    type: "object"
+    description: "Optional metadata for the task"
+    additionalProperties: true
+additionalProperties: false

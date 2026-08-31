@@ -1,122 +1,121 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://llmxive.org/schemas/StatSummary.schema.json",
   "title": "StatSummary",
-  "description": "Schema for aggregated statistical meta-analysis results across multiple papers.",
+  "description": "Schema for the aggregated statistical summary of reproducibility results.",
   "type": "object",
   "required": [
-    "total_papers",
-    "successful_reproductions",
     "t_tests",
-    "mixed_effects_model",
-    "heterogeneity"
+    "bland_altman_files",
+    "generated_at"
   ],
   "properties": {
-    "total_papers": {
-      "type": "integer",
-      "description": "Total number of papers attempted."
-    },
-    "successful_reproductions": {
-      "type": "integer",
-      "description": "Number of papers successfully reproduced."
-    },
     "t_tests": {
       "type": "object",
-      "description": "Results of paired t-tests comparing reported vs. reproduced metrics.",
+      "description": "Results of paired t-tests.",
       "properties": {
         "mae": {
           "type": "object",
           "properties": {
-            "t_statistic": { "type": "number" },
-            "p_value": { "type": "number" },
-            "bonferroni_p_value": { "type": "number" }
+            "statistic": { "type": "number" },
+            "pvalue": { "type": "number" },
+            "pvalue_bonferroni": { "type": "number" }
           }
         },
         "r2": {
           "type": "object",
           "properties": {
-            "t_statistic": { "type": "number" },
-            "p_value": { "type": "number" },
-            "bonferroni_p_value": { "type": "number" }
+            "statistic": { "type": "number" },
+            "pvalue": { "type": "number" },
+            "pvalue_bonferroni": { "type": "number" }
           }
         },
         "spearman_rho": {
           "type": "object",
           "properties": {
-            "t_statistic": { "type": "number" },
-            "p_value": { "type": "number" },
-            "bonferroni_p_value": { "type": "number" }
+            "statistic": { "type": "number" },
+            "pvalue": { "type": "number" },
+            "pvalue_bonferroni": { "type": "number" }
           }
         }
       }
     },
-    "mixed_effects_model": {
+    "tost": {
       "type": "object",
-      "description": "Results from the Linear Mixed-Effects model analysis.",
+      "description": "Results of Two One-Sided Tests for equivalence.",
+      "properties": {
+        "mae": {
+          "type": "object",
+          "properties": {
+            "pvalue_lower": { "type": "number" },
+            "pvalue_upper": { "type": "number" },
+            "equivalent": { "type": "boolean" }
+          }
+        },
+        "r2": {
+          "type": "object",
+          "properties": {
+            "pvalue_lower": { "type": "number" },
+            "pvalue_upper": { "type": "number" },
+            "equivalent": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "mixed_effects": {
+      "type": "object",
+      "description": "Linear Mixed-Effects model results.",
       "properties": {
         "variance_components": {
           "type": "object",
-          "description": "Variance attributed to random effects (e.g., paper ID).",
-          "additionalProperties": { "type": "number" }
+          "description": "Variance components (e.g., paper intercept variance, residual variance)."
         },
         "fixed_effects": {
           "type": "object",
-          "description": "Coefficients for fixed effects (if any were modeled).",
-          "additionalProperties": { "type": "number" }
-        },
-        "convergence_status": {
-          "type": "string",
-          "description": "Convergence status of the optimization."
+          "description": "Fixed effects estimates (if any)."
         }
       }
     },
     "heterogeneity": {
       "type": "object",
-      "description": "Heterogeneity statistics (I-squared, etc.).",
+      "description": "Heterogeneity statistics (I-squared, pooled effect).",
       "properties": {
-        "i_squared": {
+        "i2": {
           "type": "number",
-          "description": "I-squared statistic representing percentage of variation due to heterogeneity."
+          "description": "I-squared statistic."
         },
-        "pooled_effect_size": {
-          "type": "number",
-          "description": "Pooled effect size across studies."
+        "i2_interpretation": {
+          "type": "string"
+        },
+        "pooled_effect": {
+          "type": "object",
+          "description": "Pooled effect size estimate."
         }
       }
     },
-    "bland_altman_plots": {
+    "bland_altman_files": {
       "type": "array",
-      "description": "List of generated Bland-Altman plot file paths.",
-      "items": { "type": "string" }
+      "description": "List of generated Bland-Altman plot filenames.",
+      "items": {
+        "type": "string"
+      }
     },
-    "equivalence_tests": {
-      "type": "object",
-      "description": "Results of TOST (Two One-Sided Tests) for equivalence.",
-      "properties": {
-        "mae": {
-          "type": "object",
-          "properties": {
-            "equivalent": { "type": "boolean" },
-            "p_value_lower": { "type": "number" },
-            "p_value_upper": { "type": "number" }
-          }
-        },
-        "r2": {
-          "type": "object",
-          "properties": {
-            "equivalent": { "type": "boolean" },
-            "p_value_lower": { "type": "number" },
-            "p_value_upper": { "type": "number" }
-          }
-        },
-        "spearman_rho": {
-          "type": "object",
-          "properties": {
-            "equivalent": { "type": "boolean" },
-            "p_value_lower": { "type": "number" },
-            "p_value_upper": { "type": "number" }
-          }
+    "failure_log_summary": {
+      "type": "array",
+      "description": "Summary of qualitative failure modes.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "doi": { "type": "string" },
+          "reason": { "type": "string" }
         }
       }
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of summary generation."
     }
-  }
+  },
+  "additionalProperties": false
 }

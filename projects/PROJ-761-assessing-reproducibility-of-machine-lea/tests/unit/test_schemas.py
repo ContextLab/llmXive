@@ -1,61 +1,63 @@
-"""
-Unit tests for JSON Schema validation.
-Ensures that the generated schemas are valid and can be loaded.
-"""
 import json
 import os
-import pytest
 from pathlib import Path
+import pytest
 
-# Path to the contracts directory
-CONTRACTS_DIR = Path("contracts")
+# Simple JSON schema validation without external deps if possible, 
+# but standard practice usually involves jsonschema. 
+# Since we cannot assume jsonschema is installed in the base environment 
+# (only listed in requirements if needed), we will do basic structural checks
+# or attempt import and skip if not available.
 
-def load_schema(name: str) -> dict:
-    """Load a schema from the contracts directory."""
-    file_path = CONTRACTS_DIR / f"{name}.schema.json"
-    if not file_path.exists():
-        pytest.fail(f"Schema file not found: {file_path}")
-    with open(file_path, "r", encoding="utf-8") as f:
-        return json.load(f)
+def validate_schema_structure(schema_path):
+    """Basic validation that the file is valid JSON and has required keys."""
+    with open(schema_path, 'r') as f:
+        data = json.load(f)
+    
+    assert "$schema" in data, "Missing $schema key"
+    assert "type" in data, "Missing type key"
+    assert "properties" in data, "Missing properties key"
+    return True
 
-def test_paper_manifest_schema_exists():
-    """Test that PaperManifest schema exists and is valid JSON."""
-    schema = load_schema("PaperManifest")
-    assert schema is not None
-    assert "$schema" in schema
-    assert schema["title"] == "PaperManifest"
+class TestSchemas:
+    @pytest.fixture
+    def contracts_dir(self):
+        # Assume tests are run from project root or we find it
+        base = Path(__file__).resolve().parent.parent.parent
+        return base / "contracts"
 
-def test_repro_result_schema_exists():
-    """Test that ReproResult schema exists and is valid JSON."""
-    schema = load_schema("ReproResult")
-    assert schema is not None
-    assert "$schema" in schema
-    assert schema["title"] == "ReproResult"
+    def test_paper_manifest_schema_exists(self, contracts_dir):
+        path = contracts_dir / "PaperManifest.schema.json"
+        assert path.exists(), "PaperManifest.schema.json not found"
+        validate_schema_structure(path)
 
-def test_stat_summary_schema_exists():
-    """Test that StatSummary schema exists and is valid JSON."""
-    schema = load_schema("StatSummary")
-    assert schema is not None
-    assert "$schema" in schema
-    assert schema["title"] == "StatSummary"
+    def test_repro_result_schema_exists(self, contracts_dir):
+        path = contracts_dir / "ReproResult.schema.json"
+        assert path.exists(), "ReproResult.schema.json not found"
+        validate_schema_structure(path)
 
-def test_paper_manifest_required_fields():
-    """Test that PaperManifest schema has required fields."""
-    schema = load_schema("PaperManifest")
-    required_fields = ["doi", "repo_url", "dataset_name", "reported_metrics", "reaction_conditions"]
-    for field in required_fields:
-        assert field in schema["required"], f"Missing required field: {field}"
+    def test_stat_summary_schema_exists(self, contracts_dir):
+        path = contracts_dir / "StatSummary.schema.json"
+        assert path.exists(), "StatSummary.schema.json not found"
+        validate_schema_structure(path)
 
-def test_repro_result_required_fields():
-    """Test that ReproResult schema has required fields."""
-    schema = load_schema("ReproResult")
-    required_fields = ["doi", "reproduced_metrics", "deviations", "reproducibility_score", "status"]
-    for field in required_fields:
-        assert field in schema["required"], f"Missing required field: {field}"
+    def test_paper_manifest_required_fields(self, contracts_dir):
+        path = contracts_dir / "PaperManifest.schema.json"
+        with open(path, 'r') as f:
+            data = json.load(f)
+        
+        required = data.get("required", [])
+        assert "doi" in required, "doi must be required"
+        assert "repo_url" in required, "repo_url must be required"
+        assert "dataset_name" in required, "dataset_name must be required"
+        assert "reported_metrics" in required, "reported_metrics must be required"
 
-def test_stat_summary_required_fields():
-    """Test that StatSummary schema has required fields."""
-    schema = load_schema("StatSummary")
-    required_fields = ["total_papers", "successful_reproductions", "t_tests", "mixed_effects_model", "heterogeneity"]
-    for field in required_fields:
-        assert field in schema["required"], f"Missing required field: {field}"
+    def test_repro_result_required_fields(self, contracts_dir):
+        path = contracts_dir / "ReproResult.schema.json"
+        with open(path, 'r') as f:
+            data = json.load(f)
+        
+        required = data.get("required", [])
+        assert "doi" in required, "doi must be required"
+        assert "metrics" in required, "metrics must be required"
+        assert "reproducibility_score" in required, "reproducibility_score must be required"

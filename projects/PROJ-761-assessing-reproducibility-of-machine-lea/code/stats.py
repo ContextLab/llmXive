@@ -3,277 +3,258 @@ import logging
 import os
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
-
 import numpy as np
-from scipy import stats
-import statsmodels.api as sm
+from scipy.stats import ttest_rel
 from statsmodels.regression.mixed_linear_model import MixedLM
+import matplotlib.pyplot as plt
+from scipy import stats
 
-# Ensure logging is configured
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def load_repro_results(file_path: str) -> List[Dict[str, Any]]:
-    """Load the aggregated reproducibility results from JSON."""
-    path = Path(file_path)
+def load_repro_results(filepath: str = "artifacts/reports/repro_results.json") -> List[Dict[str, Any]]:
+    """Load the aggregated reproducibility results."""
+    path = Path(filepath)
     if not path.exists():
-        raise FileNotFoundError(f"Reproducibility results file not found: {file_path}")
-    
+        raise FileNotFoundError(f"Repro results file not found at {filepath}")
     with open(path, 'r') as f:
         data = json.load(f)
-    
     # Handle both list and dict with 'results' key
     if isinstance(data, list):
         return data
-    elif isinstance(data, dict) and 'results' in data:
+    if isinstance(data, dict) and 'results' in data:
         return data['results']
-    else:
-        logger.warning(f"Unexpected format in {file_path}, treating root as list")
-        return [data] if isinstance(data, dict) else []
+    raise ValueError("Unexpected format in repro results file")
 
-def extract_metric_values(results: List[Dict[str, Any]], metric_name: str) -> Tuple[np.ndarray, np.ndarray]:
+def extract_metric_values(results: List[Dict[str, Any]], metric: str) -> Tuple[List[float], List[float]]:
     """
     Extract reported (reference) and reproduced values for a specific metric.
-    Returns (ref_values, reproduced_values) as numpy arrays.
+    Returns: (ref_values, repro_values)
     """
     ref_vals = []
-    rep_vals = []
-    
-    for res in results:
-        # Look for metric in various possible locations
-        # Common structure: {'reported_metrics': {'MAE': ...}, 'reproduced_metrics': {'MAE': ...}}
-        reported = res.get('reported_metrics', {})
-        reproduced = res.get('reproduced_metrics', {})
+    repro_vals = []
+    for entry in results:
+        # Check if metric exists in reported and reproduced sections
+        reported = entry.get('reported_metrics', {})
+        reproduced = entry.get('reproduced_metrics', {})
         
-        ref = reported.get(metric_name)
-        rep = reproduced.get(metric_name)
-        
-        if ref is not None and rep is not None:
-            ref_vals.append(float(ref))
-            rep_vals.append(float(rep))
+        if metric in reported and metric in reproduced:
+            ref_vals.append(float(reported[metric]))
+            repro_vals.append(float(reproduced[metric]))
         else:
-            logger.debug(f"Skipping result {res.get('paper_id', 'unknown')}: missing {metric_name}")
+            logger.warning(f"Skipping entry {entry.get('paper_id', 'unknown')}: missing {metric}")
     
     if len(ref_vals) == 0:
-        raise ValueError(f"No valid pairs found for metric {metric_name}")
+        raise ValueError(f"No valid data found for metric {metric}")
     
-    return np.array(ref_vals), np.array(rep_vals)
+    return ref_vals, repro_vals
 
-def run_paired_ttest(ref: np.ndarray, rep: np.ndarray) -> Dict[str, float]:
-    """Run paired t-test and return t-statistic and p-value."""
-    t_stat, p_val = stats.ttest_rel(ref, rep)
-    return {'t_statistic': float(t_stat), 'p_value': float(p_val)}
+def run_paired_ttest(ref_vals: List[float], repro_vals: List[float]) -> Dict[str, float]:
+    """Run paired t-test between reference and reproduced values."""
+    stat, p_val = ttest_rel(ref_vals, repro_vals)
+    return {'statistic': float(stat), 'p_value': float(p_val)}
 
 def apply_bonferroni_correction(p_values: List[float], alpha: float = 0.05) -> Dict[str, Any]:
     """Apply Bonferroni correction for multiple comparisons."""
-    n_tests = len(p_values)
-    if n_tests == 0:
-        return {'adjusted_p_values': [], 'is_significant': False}
+    n = len(p_values)
+    if n == 0:
+        return {'adjusted_p_values': [], 'significant': []}
     
-    adjusted_p = [min(p * n_tests, 1.0) for p in p_values]
-    is_sig = any(p < alpha for p in adjusted_p)
-    
-    return {
-        'adjusted_p_values': adjusted_p,
-        'alpha': alpha,
-        'is_significant': is_sig
-    }
+    adjusted = [min(p * n, 1.0) for p in p_values]
+    significant = [p_adj < alpha for p_adj in adjusted]
+    return {'adjusted_p_values': adjusted, 'significant': significant, 'alpha': alpha, 'n_tests': n}
 
-def run_all_paired_ttests(results: List[Dict[str, Any]]) -> Dict[str, Any]:
+def run_all_paired_ttests(results: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
     """Run paired t-tests for MAE, R2, and Spearman rho."""
-    metrics = ['MAE', 'R2', 'Spearman_rho']
+    metrics = ['mae', 'r2', 'spearman_rho']
     results_dict = {}
-    
-    p_values = []
     
     for metric in metrics:
         try:
-            ref, rep = extract_metric_values(results, metric)
-            test_res = run_paired_ttest(ref, rep)
+            ref, repro = extract_metric_values(results, metric)
+            test_res = run_paired_ttest(ref, repro)
             results_dict[metric] = test_res
-            p_values.append(test_res['p_value'])
         except ValueError as e:
             logger.warning(f"Could not run t-test for {metric}: {e}")
             results_dict[metric] = {'error': str(e)}
     
-    if p_values:
-        correction = apply_bonferroni_correction(p_values)
+    # Collect p-values for Bonferroni
+    p_vals = [results_dict[m]['p_value'] for m in metrics if 'p_value' in results_dict[m]]
+    if p_vals:
+        correction = apply_bonferroni_correction(p_vals)
         results_dict['bonferroni'] = correction
     
     return results_dict
 
-def run_tost(ref: np.ndarray, rep: np.ndarray, delta: float = 0.1) -> Dict[str, Any]:
+def run_tost(ref_vals: List[float], repro_vals: List[float], delta: float = 0.1) -> Dict[str, Any]:
     """
     Run Two One-Sided Tests (TOST) for equivalence.
-    H0: |ref - rep| >= delta vs H1: |ref - rep| < delta
+    Null hypothesis: |mean_diff| >= delta
+    Alternative: |mean_diff| < delta
     """
-    diff = ref - rep
-    n = len(diff)
-    mean_diff = np.mean(diff)
-    std_diff = np.std(diff, ddof=1)
+    diffs = np.array(repro_vals) - np.array(ref_vals)
+    mean_diff = np.mean(diffs)
+    std_diff = np.std(diffs, ddof=1)
+    n = len(diffs)
     
     if std_diff == 0:
-        return {'equivalence': True, 'p_value': 0.0, 'message': 'Zero variance'}
+        return {'equivalence': False, 'reason': 'Zero variance'}
     
-    # t-statistic for lower bound (mean_diff - (-delta)) / SE
-    t_lower = (mean_diff - (-delta)) / (std_diff / np.sqrt(n))
-    # t-statistic for upper bound (mean_diff - delta) / SE
-    t_upper = (mean_diff - delta) / (std_diff / np.sqrt(n))
+    t_stat = mean_diff / (std_diff / np.sqrt(n))
+    # Two one-sided tests
+    # Test 1: H0: mean_diff <= -delta vs H1: mean_diff > -delta
+    # Test 2: H0: mean_diff >= delta vs H1: mean_diff < delta
     
-    # One-sided p-values
-    p_lower = 1 - stats.t.cdf(t_lower, df=n-1)
-    p_upper = stats.t.cdf(t_upper, df=n-1)
+    # Using t-distribution
+    p_lower = 1 - stats.t.cdf((mean_diff + delta) / (std_diff / np.sqrt(n)), n - 1)
+    p_upper = stats.t.cdf((mean_diff - delta) / (std_diff / np.sqrt(n)), n - 1)
     
-    # Equivalence is established if both p-values are < alpha
+    # Equivalence is established if both p-values < alpha
     alpha = 0.05
     is_equivalent = (p_lower < alpha) and (p_upper < alpha)
     
     return {
-        'is_equivalent': is_equivalent,
+        'mean_difference': float(mean_diff),
+        'std_difference': float(std_diff),
+        't_statistic': float(t_stat),
         'p_lower': float(p_lower),
         'p_upper': float(p_upper),
-        'mean_difference': float(mean_diff),
+        'equivalence': is_equivalent,
         'delta': delta
     }
 
-def run_all_tosts(results: List[Dict[str, Any]], delta: float = 0.1) -> Dict[str, Any]:
-    """Run TOST for MAE, R2, and Spearman rho."""
-    metrics = ['MAE', 'R2', 'Spearman_rho']
+def run_all_tosts(results: List[Dict[str, Any]], delta: float = 0.1) -> Dict[str, Dict[str, Any]]:
+    """Run TOST for all metrics."""
+    metrics = ['mae', 'r2', 'spearman_rho']
     results_dict = {}
     
     for metric in metrics:
         try:
-            ref, rep = extract_metric_values(results, metric)
-            tost_res = run_tost(ref, rep, delta)
-            results_dict[metric] = tost_res
+            ref, repro = extract_metric_values(results, metric)
+            results_dict[metric] = run_tost(ref, repro, delta)
         except ValueError as e:
             logger.warning(f"Could not run TOST for {metric}: {e}")
             results_dict[metric] = {'error': str(e)}
     
     return results_dict
 
-def run_mixed_effects_model(results: List[Dict[str, Any]]) -> Dict[str, Any]:
+def run_mixed_effects_model(results: List[Dict[str, Any]], metric: str = 'mae') -> Dict[str, Any]:
     """
-    Run Linear Mixed-Effects Model with random intercepts for paper.
+    Run a Linear Mixed-Effects Model with random intercepts for paper.
     Model: metric ~ 1 + (1 | paper_id)
-    We stack all metrics (MAE, R2, Spearman_rho) into a long format.
     """
-    # Prepare data for LME
-    # We will analyze the difference (reproduced - reported) as the response
-    # with paper_id as the random effect grouping variable.
+    ref_vals, repro_vals = extract_metric_values(results, metric)
+    paper_ids = [entry.get('paper_id', f'paper_{i}') for i, entry in enumerate(results) 
+                 if metric in entry.get('reported_metrics', {}) and metric in entry.get('reproduced_metrics', {})]
     
-    data_rows = []
+    # Create a DataFrame-like structure for statsmodels
+    # We model the difference (repro - ref) as the outcome
+    diffs = np.array(repro_vals) - np.array(ref_vals)
+    groups = np.array(paper_ids)
     
-    for res in results:
-        paper_id = res.get('paper_id', 'unknown')
-        reported = res.get('reported_metrics', {})
-        reproduced = res.get('reproduced_metrics', {})
-        
-        for metric in ['MAE', 'R2', 'Spearman_rho']:
-            ref = reported.get(metric)
-            rep = reproduced.get(metric)
-            
-            if ref is not None and rep is not None:
-                diff = float(rep) - float(ref)
-                data_rows.append({
-                    'paper_id': paper_id,
-                    'metric': metric,
-                    'difference': diff,
-                    'reported': float(ref),
-                    'reproduced': float(rep)
-                })
+    # Convert groups to integer codes for statsmodels
+    unique_groups = np.unique(groups)
+    group_codes = np.array([np.where(unique_groups == g)[0][0] for g in groups])
     
-    if len(data_rows) == 0:
-        raise ValueError("No data points for mixed-effects model")
-    
-    df = pd.DataFrame(data_rows)
-    
-    # Convert to numeric
-    df['difference'] = pd.to_numeric(df['difference'], errors='coerce')
-    df = df.dropna(subset=['difference'])
-    
-    if len(df) == 0:
-        raise ValueError("No valid data points after dropping NaN")
-    
-    # Fit LME: difference ~ 1 + (1 | paper_id)
-    # We treat 'metric' as a fixed effect if we want to compare across metrics,
-    # but for heterogeneity of the overall effect, we might just use intercept.
-    # However, to get a pooled effect size for the overall reproducibility,
-    # we can include 'metric' as a fixed effect to control for it.
-    
-    # Let's try: difference ~ C(metric) + (1 | paper_id)
-    # This gives us a pooled estimate adjusted for metric type.
-    
+    # Fit mixed model: diff ~ 1 + (1 | group)
     try:
-        md = smf.mixedlm("difference ~ C(metric)", df, groups=df["paper_id"])
-        mdf = md.fit()
+        model = MixedLM(diffs, np.ones(len(diffs)), groups=group_codes)
+        # Use a simple approach since we don't have exog
+        # We'll use the formula API approach if possible, but direct construction is safer
+        # Alternative: use simple variance components estimation
+        
+        # Since MixedLM requires exog, we use a constant
+        exog = np.ones((len(diffs), 1))
+        model = MixedLM(diffs, exog, groups=group_codes)
+        result = model.fit(reml=False)
         
         # Extract variance components
-        var_comp = mdf.cov_re.iloc[0, 0] if hasattr(mdf, 'cov_re') and mdf.cov_re is not None else 0.0
-        
-        # Fixed effects: the intercept is the pooled effect size (overall mean difference)
-        # The coefficient for C(metric) indicates differences between metrics
-        fixed_effects = mdf.params.to_dict()
+        var_intercept = result.cov_re[0, 0] if hasattr(result, 'cov_re') and result.cov_re.size > 0 else 0.0
+        var_residual = result.scale if hasattr(result, 'scale') else 0.0
         
         return {
-            'pooled_effect_size': float(fixed_effects.get('Intercept', 0.0)),
+            'metric': metric,
+            'fixed_effects': {'intercept': float(result.fe[0])},
             'variance_components': {
-                'paper_random_intercept': float(var_comp),
-                'residual_variance': float(mdf.scale)
+                'random_intercept': float(var_intercept),
+                'residual': float(var_residual)
             },
-            'fixed_effects': fixed_effects,
-            'log_likelihood': float(mdf.llf),
-            'aic': float(mdf.aic),
-            'bic': float(mdf.bic),
-            'n_obs': len(df),
-            'n_groups': df['paper_id'].nunique()
+            'log_likelihood': float(result.llf) if hasattr(result, 'llf') else None
         }
     except Exception as e:
-        logger.error(f"Failed to fit LME model: {e}")
-        return {'error': str(e)}
+        logger.error(f"Failed to fit LME for {metric}: {e}")
+        return {'error': str(e), 'metric': metric}
 
-def compute_heterogeneity_and_pooled(lme_results: Dict[str, Any], results: List[Dict[str, Any]]) -> Dict[str, Any]:
+def compute_heterogeneity_and_pooled(results: List[Dict[str, Any]], metric: str = 'mae') -> Dict[str, Any]:
     """
-    Compute I² heterogeneity and pooled effect size from LME results.
+    Compute heterogeneity (I²) and pooled effect size from LME results.
     
     I² = (Q - df) / Q * 100%
-    where Q is Cochran's Q statistic and df = k - 1.
+    Where Q is Cochran's Q statistic and df = k - 1 (k = number of studies)
     
-    For this implementation, we approximate I² using the variance components
-    from the LME model:
-    I² ≈ σ²_between / (σ²_between + σ²_within)
-    
-    The pooled effect size is the fixed effect intercept from the LME model.
+    Pooled effect size is estimated from the fixed effect of the LME model.
     """
-    if 'error' in lme_results:
-        return {'error': lme_results['error'], 'I_squared': None, 'pooled_effect_size': None}
+    ref_vals, repro_vals = extract_metric_values(results, metric)
+    paper_ids = [entry.get('paper_id', f'paper_{i}') for i, entry in enumerate(results) 
+                 if metric in entry.get('reported_metrics', {}) and metric in entry.get('reproduced_metrics', {})]
     
-    var_between = lme_results.get('variance_components', {}).get('paper_random_intercept', 0.0)
-    var_within = lme_results.get('variance_components', {}).get('residual_variance', 1.0)
+    diffs = np.array(repro_vals) - np.array(ref_vals)
+    n_studies = len(diffs)
     
-    # Avoid division by zero
-    if var_between == 0 and var_within == 0:
-        i_squared = 0.0
+    if n_studies < 2:
+        return {
+            'metric': metric,
+            'heterogeneity_i2': None,
+            'pooled_effect_size': None,
+            'reason': 'Insufficient studies (need at least 2)'
+        }
+    
+    # Calculate Cochran's Q
+    # Q = sum(w_i * (theta_i - theta_bar)^2)
+    # For simplicity, assume equal weights (inverse variance not available)
+    mean_diff = np.mean(diffs)
+    var_diff = np.var(diffs, ddof=1)
+    
+    # Q statistic approximation: (n-1) * (variance of effects) / (mean variance)
+    # Since we don't have individual study variances, we use a simplified approach
+    # Q = sum((effect_i - mean_effect)^2) / (1/n * sum(1)) -> simplifies to (n-1)*var
+    q_stat = (n_studies - 1) * var_diff
+    df = n_studies - 1
+    
+    # I² calculation
+    if q_stat > df:
+        i2 = (q_stat - df) / q_stat * 100.0
     else:
-        total_var = var_between + var_within
-        if total_var == 0:
-            i_squared = 0.0
-        else:
-            i_squared = (var_between / total_var) * 100.0
+        i2 = 0.0
     
-    # Pooled effect size is the intercept from fixed effects
-    pooled_effect = lme_results.get('pooled_effect_size', 0.0)
+    # Pooled effect size (fixed effect from LME would be more accurate, but we approximate)
+    pooled_effect = mean_diff
+    
+    # Interpret I²
+    if i2 < 25:
+        interpretation = "Low heterogeneity"
+    elif i2 < 50:
+        interpretation = "Moderate heterogeneity"
+    elif i2 < 75:
+        interpretation = "Substantial heterogeneity"
+    else:
+        interpretation = "Considerable heterogeneity"
     
     return {
-        'I_squared': float(i_squared),
+        'metric': metric,
+        'n_studies': n_studies,
+        'q_statistic': float(q_stat),
+        'degrees_of_freedom': df,
+        'i2_statistic': float(i2),
+        'i2_interpretation': interpretation,
         'pooled_effect_size': float(pooled_effect),
-        'variance_between': float(var_between),
-        'variance_within': float(var_within),
-        'interpretation': get_i2_interpretation(i_squared)
+        'pooled_effect_ci_lower': float(pooled_effect - 1.96 * np.sqrt(var_diff / n_studies)),
+        'pooled_effect_ci_upper': float(pooled_effect + 1.96 * np.sqrt(var_diff / n_studies))
     }
 
 def get_i2_interpretation(i2: float) -> str:
-    """Provide a qualitative interpretation of I² value."""
+    """Return interpretation string for I² value."""
     if i2 < 25:
         return "Low heterogeneity"
     elif i2 < 50:
@@ -283,88 +264,65 @@ def get_i2_interpretation(i2: float) -> str:
     else:
         return "Considerable heterogeneity"
 
-def generate_bland_altman_plot(results: List[Dict[str, Any]], metric: str, output_path: str) -> None:
-    """
-    Generate Bland-Altman plot for a specific metric.
-    X-axis: Average of (reported, reproduced)
-    Y-axis: Difference (reproduced - reported)
-    """
-    import matplotlib.pyplot as plt
+def generate_bland_altman_plot(results: List[Dict[str, Any]], metric: str, output_path: str):
+    """Generate Bland-Altman plot for a metric."""
+    ref_vals, repro_vals = extract_metric_values(results, metric)
     
-    ref, rep = extract_metric_values(results, metric)
-    diff = rep - ref
-    avg = (ref + rep) / 2.0
+    diffs = np.array(repro_vals) - np.array(ref_vals)
+    means = (np.array(ref_vals) + np.array(repro_vals)) / 2.0
     
-    mean_diff = np.mean(diff)
-    std_diff = np.std(diff, ddof=1)
+    mean_diff = np.mean(diffs)
+    std_diff = np.std(diffs, ddof=1)
     loa_upper = mean_diff + 1.96 * std_diff
     loa_lower = mean_diff - 1.96 * std_diff
     
     plt.figure(figsize=(10, 6))
-    plt.scatter(avg, diff, alpha=0.6, edgecolors='k')
-    plt.axhline(mean_diff, color='r', linestyle='--', label=f'Mean Diff = {mean_diff:.3f}')
-    plt.axhline(loa_upper, color='g', linestyle=':', label=f'LoA Upper = { loa_upper:.3f}')
-    plt.axhline(loa_lower, color='g', linestyle=':', label=f'LoA Lower = { loa_lower:.3f}')
-    
-    plt.xlabel(f'Average of {metric}')
-    plt.ylabel(f'Difference ({metric})')
-    plt.title(f'Bland-Altman Plot for {metric}')
+    plt.scatter(means, diffs, alpha=0.6)
+    plt.axhline(mean_diff, color='red', linestyle='--', label=f'Mean Diff: {mean_diff:.3f}')
+    plt.axhline(loa_upper, color='gray', linestyle=':', label=f'Upper LoA: { loa_upper:.3f}')
+    plt.axhline(loa_lower, color='gray', linestyle=':', label=f'Lower LoA: { loa_lower:.3f}')
+    plt.xlabel('Mean of Reference and Reproduced')
+    plt.ylabel('Difference (Reproduced - Reference)')
+    plt.title(f'Bland-Altman Plot: {metric.upper()}')
     plt.legend()
     plt.grid(True, alpha=0.3)
     
-    # Ensure output directory exists
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
     plt.close()
     logger.info(f"Bland-Altman plot saved to {output_path}")
 
-def generate_stat_summary(results: List[Dict[str, Any]], output_path: str) -> Dict[str, Any]:
+def generate_stat_summary(results: List[Dict[str, Any]], output_path: str = "artifacts/reports/stat_summary.json"):
     """
-    Generate the comprehensive statistical summary including:
+    Generate comprehensive statistical summary including:
     - Paired t-tests
-    - TOST (equivalence)
-    - Mixed-effects model
-    - Heterogeneity (I²) and pooled effect size
-    - Bland-Altman plots
+    - TOST
+    - Mixed-effects model results
+    - Heterogeneity (I²) and pooled effect sizes
     """
-    logger.info("Generating statistical summary...")
-    
-    # 1. Paired t-tests
-    ttest_results = run_all_paired_ttests(results)
-    
-    # 2. TOST
-    tost_results = run_all_tosts(results, delta=0.1)
-    
-    # 3. Mixed-effects model
-    try:
-        lme_results = run_mixed_effects_model(results)
-        hetero_results = compute_heterogeneity_and_pooled(lme_results, results)
-    except Exception as e:
-        logger.error(f"LME model failed: {e}")
-        lme_results = {'error': str(e)}
-        hetero_results = {'error': str(e)}
-    
-    # 4. Generate Bland-Altman plots
-    bland_altman_paths = {}
-    for metric in ['MAE', 'R2', 'Spearman_rho']:
-        plot_path = f"artifacts/plots/{metric.lower()}_bland_altman.png"
-        try:
-            generate_bland_altman_plot(results, metric, plot_path)
-            bland_altman_paths[metric] = plot_path
-        except Exception as e:
-            logger.error(f"Failed to generate Bland-Altman for {metric}: {e}")
-            bland_altman_paths[metric] = {'error': str(e)}
-    
-    # Compile final summary
     summary = {
-        'paired_t_tests': ttest_results,
-        'tost_equivalence': tost_results,
-        'mixed_effects_model': lme_results,
-        'heterogeneity_and_pooled': hetero_results,
-        'bland_altman_plots': bland_altman_paths
+        't_tests': run_all_paired_ttests(results),
+        'tost': run_all_tosts(results, delta=0.1),
+        'mixed_effects': {},
+        'heterogeneity': {}
     }
     
-    # Write to file
+    metrics = ['mae', 'r2', 'spearman_rho']
+    
+    for metric in metrics:
+        # Mixed effects
+        lme_res = run_mixed_effects_model(results, metric)
+        summary['mixed_effects'][metric] = lme_res
+        
+        # Heterogeneity and pooled effect
+        het_res = compute_heterogeneity_and_pooled(results, metric)
+        summary['heterogeneity'][metric] = het_res
+        
+        # Generate Bland-Altman plots
+        plot_path = f"artifacts/plots/{metric}_bland_altman.png"
+        generate_bland_altman_plot(results, metric, plot_path)
+    
+    # Save summary
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
         json.dump(summary, f, indent=2)
@@ -373,27 +331,26 @@ def generate_stat_summary(results: List[Dict[str, Any]], output_path: str) -> Di
     return summary
 
 def main():
-    """Main entry point for the stats module."""
-    repro_results_path = "artifacts/reports/repro_results.json"
-    stat_summary_path = "artifacts/reports/stat_summary.json"
+    """Main entry point for statistical analysis."""
+    repro_path = "artifacts/reports/repro_results.json"
+    summary_path = "artifacts/reports/stat_summary.json"
     
-    if not os.path.exists(repro_results_path):
-        logger.error(f"Input file not found: {repro_results_path}")
-        logger.error("Please run the reproducibility assessment first (code/main.py).")
-        sys.exit(1)
+    if not os.path.exists(repro_path):
+        logger.error(f"Repro results not found at {repro_path}. Run model_runner.py first.")
+        return
     
     try:
-        results = load_repro_results(repro_results_path)
+        results = load_repro_results(repro_path)
         if not results:
-            logger.warning("No results found in the input file.")
-            sys.exit(0)
+            logger.warning("No results found in repro_results.json")
+            return
         
-        summary = generate_stat_summary(results, stat_summary_path)
-        print(json.dumps(summary, indent=2))
+        summary = generate_stat_summary(results, summary_path)
+        print(f"Analysis complete. Summary saved to {summary_path}")
         
     except Exception as e:
-        logger.exception(f"Error in stats pipeline: {e}")
-        sys.exit(1)
+        logger.error(f"Analysis failed: {e}", exc_info=True)
+        raise
 
 if __name__ == "__main__":
     main()

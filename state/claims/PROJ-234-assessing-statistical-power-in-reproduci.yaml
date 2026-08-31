@@ -133,25 +133,6 @@
   updated_at: '2026-07-01T21:21:36Z'
 - artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
   attempts: 1
-  canonical: Peak RSS must be less than 7 GB
-  claim_id: c_d07052d5
-  context: Assert peak RSS < 7 GB using memory_profiler; fail with clear message if
-    exceeded.
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Peak_RSS_must_be_less_than_7_GB
-  kind: magnitude
-  raw_text: Assert peak RSS < 7 GB using memory_profiler; fail with clear message
-    if exceeded.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-01T21:22:03Z'
-- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
-  attempts: 1
   canonical: Examples include test tasks
   claim_id: c_babc8e9d
   context: "Tests: The examples below include test tasks. Tests are OPTIONAL \u2013\
@@ -193,3 +174,334 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-25T09:51:09Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: Tests are optional and included only if explicitly requested in the feature
+    specification
+  claim_id: c_cac7b17f
+  context: "Tests: {{claim:c_babc8e9d}} (2302.05330, https://arxiv.org/abs/2302.05330)\
+    \ Tests are OPTIONAL \u2013 only include them if explicitly requested in the feature\
+    \ specification."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tests_are_optional_and_included_only_if_explicitly_requested
+  kind: entity_fact
+  raw_text: "Tests are OPTIONAL \u2013 only include them if explicitly requested in\
+    \ the feature specification."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T12:53:26Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: Tests are optional in feature specifications
+  claim_id: c_008e5e0b
+  context: "Tests: {{claim:c_babc8e9d}} (2302.05330, https://arxiv.org/abs/2302.05330)\
+    \ Tests are OPTIONAL \u2013 only include them if explicitly requested in the feature\
+    \ specification."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tests_are_optional_in_feature_specifications
+  kind: entity_fact
+  raw_text: "Tests are OPTIONAL \u2013 only include them if explicitly requested in\
+    \ the feature specification."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T13:08:15Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: pandas version 2.0.3 required
+  claim_id: c_01608c1a
+  context: 'Initialize Python 3 project with requirements.txt containing exactly:
+    pandas==2.0.3'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas==2.0.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T13:09:12Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: openml version 0.14.2 required
+  claim_id: c_4eb1838c
+  context: 'Initialize Python 3 project with requirements.txt containing exactly:
+    openml==0.14.2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: openml==0.14.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T13:10:21Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.1 required
+  claim_id: c_7b60c72b
+  context: 'Initialize Python 3 project with requirements.txt containing exactly:
+    statsmodels==0.14.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: statsmodels==0.14.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T13:12:09Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: requests version 2.31.0 required
+  claim_id: c_9053ff59
+  context: 'Initialize Python 3 project with requirements.txt containing exactly:
+    requests==2.31.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: requests==2.31.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T13:14:19Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.8.0 required
+  claim_id: c_bb3e3d90
+  context: 'Initialize Python 3 project with requirements.txt containing exactly:
+    matplotlib==3.8.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: matplotlib==3.8.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T13:16:08Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: pytest version 7.4.0 required
+  claim_id: c_3cd2bbbf
+  context: 'Initialize Python 3 project with requirements.txt containing exactly:
+    pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest==7.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T13:17:59Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: beautifulsoup4 version 4.12.2 required
+  claim_id: c_ee915e37
+  context: 'Initialize Python 3 project with requirements.txt containing exactly:
+    beautifulsoup4==4.12.2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: beautifulsoup4==4.12.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T13:19:03Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: Black and Flake8 max-line-length set to 88
+  claim_id: c_7af05c90
+  context: Configure linting by creating pyproject.toml with [tool.black] max-line-length=88
+    target-version=['py310'] and .flake8 with max-line-length=88.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: max-line-length=88
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T13:20:39Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: Black target version set to Python 3.10
+  claim_id: c_4508382a
+  context: Configure linting by creating pyproject.toml with [tool.black] max-line-length=88
+    target-version=['py310']
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: target-version=['py310']
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T13:21:27Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: fetch_top_classification_datasets function defaults limit to 50
+  claim_id: c_7401197f
+  context: 'Implement code/01_ingest_openml.py with function: def fetch_top_classification_datasets(limit:
+    int = 50) -> List[Dict]...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'fetch_top_classification_datasets(limit: int = 50)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T13:22:13Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: Full-text fetch timeout set to 10 seconds
+  claim_id: c_71c48c18
+  context: Fetch full-text from publication_link using requests.get (timeout 10 s).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: timeout 10 s
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T13:23:01Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: Observed power for N=100, d=0.2 is approximately 0.30
+  claim_id: c_be6a5a25
+  context: "Unit test tests/unit/test_sensitivity.py::test_compute_observed_power_and_mdes\
+    \ using synthetic input N=100, d=0.2 expects observed power \u22480.30 (\xB10.05)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "observed power \u22480.30 (\xB10.05)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T13:24:41Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: MDES for N=100, d=0.2 is approximately 0.25
+  claim_id: c_9b2a1766
+  context: "Unit test tests/unit/test_sensitivity.py::test_compute_observed_power_and_mdes\
+    \ using synthetic input N=100, d=0.2 expects ... and MDES \u22480.25 (\xB10.05)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "MDES \u22480.25 (\xB10.05)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T13:25:34Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: compute_mdes function defaults alpha to 0.05
+  claim_id: c_7ca28a70
+  context: 'Function compute_mdes(params: StatisticalParameters, alpha: float = 0.05,
+    power: float = 0.8) -> float'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'alpha: float = 0.05'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T13:27:54Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: compute_mdes function defaults power to 0.8
+  claim_id: c_1cfe648a
+  context: 'Function compute_mdes(params: StatisticalParameters, alpha: float = 0.05,
+    power: float = 0.8) -> float'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'power: float = 0.8'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T13:32:17Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 2
+  canonical: Peak RSS must be less than 7 GB
+  claim_id: c_d07052d5
+  context: Assert peak RSS < 7 GB using memory_profiler; fail with clear message if
+    exceeded.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RSS_must_be_less_than_7_GB
+  kind: magnitude
+  raw_text: Assert peak RSS < 7 GB using memory_profiler; fail with clear message
+    if exceeded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T13:33:48Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: Total runtime must be less than 6 hours
+  claim_id: c_e7163808
+  context: Assert total runtime < 6 h using the time measurement from T042; fail with
+    clear message if exceeded.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The film's storyline draws loose inspiration from multiple real-life
+        geopolitical events and conflicts in South Asia, including the 1999 IC-814
+        hijacking, the 2001 Indian Parliament attack, the 2008 Mumbai attacks, and
+        developments linked to Pakistan's Operation Lyari. Principal photography for
+        Dhurandhar took place from July 2024 to October 2025 across multiple locations
+        in India and abroad, including the states and union territories of Punjab,
+        Maharashtra, Chandigarh, Ladakh and Himachal Pradesh, as well as Thailand.
+        The film features music composed by Shashwat Sachdev, cinematography by Vikash
+        Nowlakha, and editing by Shivkumar V. Panicker. With a runtime of 214 minutes,
+        Dhurandhar ranks as one of the longest Indian films ever produced.
+      source_id: Dhurandhar
+      url: https://en.wikipedia.org/wiki/Dhurandhar
+      value: 214 minutes
+    filled: true
+  kind: magnitude
+  raw_text: total runtime < 6 h
+  resolved_value: 214 minutes
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T13:35:28Z'

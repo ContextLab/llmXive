@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Asymptotic Baseline Schema"
+description: "Schema for the computed asymptotic Lyapunov spectrum and convergence metrics."
+type: "object"
+properties:
+  system_dimension:
+    type: "integer"
+    description: "Number of coupled Lorenz oscillators (N)."
+  lambda_max:
+    type: "number"
+    description: "Maximum Lyapunov exponent (the primary baseline)."
+  lambda_spectrum:
+    type: "array"
+    description: "Full spectrum of 3*N Lyapunov exponents."
+    items:
+      type: "number"
+  convergence_error:
+    type: "number"
+ description: "Relative change in lambda_max over the last [deferred] of the trajectory."
+  richardson_error:
+    type: "number"
+    description: "Error estimate from Richardson extrapolation (comparing T and 2T)."
+  trajectory_length:
+    type: "integer"
+    description: "Total number of time steps used for baseline computation."
+  validated:
+    type: "boolean"
+ description: "True if convergence_error < 0.05 and richardson_error is small."
+  is_chaotic:
+    type: "boolean"
+    description: "True if lambda_max > 0."
+required:
+  - system_dimension
+  - lambda_max
+  - lambda_spectrum
+  - convergence_error
+  - richardson_error
+  - trajectory_length
+  - validated
+  - is_chaotic

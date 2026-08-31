@@ -9,7 +9,7 @@
   verification_status: unreachable
   verified_against_url: https://www.openml.org/api/v1
   verified_at: '2026-07-01T15:39:57.041393Z'
-- artifact_hash: abd7a1cfc26583f54efc61fb39cd2e909d242121ef651d9b78b6b162722ce6ec
+- artifact_hash: 3be5a5c8bbe6da3013d75d47a6299449b924168a625e1a1543683eb7c039ed22
   artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -20,4 +20,4 @@
   value: https://arxiv.org/abs/2302.05330
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2302.05330
-  verified_at: '2026-07-25T09:52:28.785797Z'
+  verified_at: '2026-08-31T13:35:28.724639Z'

@@ -22,6 +22,9 @@ properties:
   escape_event:
     type: boolean
     description: "True if the trajectory escaped the attractor during the window."
+  shadowing_valid:
+    type: boolean
+    description: "True if the trajectory passed the shadowing lemma check."
   full_spectrum:
     type: ["array", "null"]
     items:
@@ -31,4 +34,5 @@ required:
   - trajectory_id
   - window_size
   - escape_event
+  - shadowing_valid
 additionalProperties: false

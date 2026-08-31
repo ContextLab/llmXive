@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-16T16:41:06.392102Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-711-constraining-lorentz-invariance-violatio
-last_run_id: 2d9c30a2-875b-4271-8fab-94f214a83767
+last_run_id: b66aff98-5db6-4d37-b35e-ae9685561cf9
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-711-constraining-lorentz-invariance-violatio/specs/001-constraining-lorentz-invariance-violatio
 title: "Constraining Lorentz Invariance Violation with Fermi Gamma\u2011Ray Burst\
   \ Spectra"
-updated_at: '2026-08-31T01:21:35.485567Z'
+updated_at: '2026-08-31T13:39:10.666550Z'

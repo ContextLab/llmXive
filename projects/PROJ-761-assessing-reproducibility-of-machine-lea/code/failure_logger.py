@@ -1,11 +1,3 @@
-"""
-Failure Logger for Qualitative Failure Analysis (T030).
-
-This module implements logic to compile a qualitative failure log of excluded papers.
-It tracks issues such as model substitution, data gaps, and missing variables,
-ensuring they are explicitly flagged in the results log as per FR-003.
-"""
-
 import json
 import os
 import logging
@@ -13,173 +5,217 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 
-# Configure logging for the module
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-FAILURE_LOG_PATH = "artifacts/reports/failure_log.json"
-
+# Define the failure reason enum-like class
 class FailureReason:
-    """Enumeration of failure reasons as defined in FR-003 and Plan Phase 3."""
-    MODEL_SUBSTITUTION = "model_substitution"
-    DATA_GAPS = "data_gaps"
-    MISSING_VARIABLES = "missing_variables"
-    MISSING_SEED = "missing_seed"
-    MODEL_UNAVAILABLE = "model_unavailable"
-    MANIFEST_INVALID = "manifest_invalid"
-    DATA_FETCH_FAILED = "data_fetch_failed"
+    MODEL_SUBSTITUTION = "Model Substitution/Unavailable"
+    DATA_GAP = "Data Unavailable"
+    MISSING_SEED = "Missing Random Seed"
+    PARAMETER_LIMIT_EXCEEDED = "Parameter Limit Exceeded (>1M)"
+    MANIFEST_VALIDATION_ERROR = "Manifest Validation Error"
+    DATASET_FETCH_ERROR = "Dataset Fetch Error"
+    VARIABLE_MISMATCH = "Variable Mismatch"
+    UNKNOWN = "Unknown Failure"
 
-def load_existing_failure_log(log_path: str = FAILURE_LOG_PATH) -> List[Dict[str, Any]]:
-    """
-    Loads the existing failure log if it exists, otherwise returns an empty list.
-    """
-    path = Path(log_path)
-    if not path.exists():
-        return []
-    
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            if isinstance(data, list):
-                return data
-            logger.warning(f"Failure log at {log_path} is not a list. Resetting.")
+# File paths
+FAILURE_LOG_PATH = Path("artifacts/logs/failure_log.json")
+FAILURE_SUMMARY_PATH = Path("artifacts/logs/failure_summary.json")
+FAILURE_REPORT_PATH = Path("artifacts/reports/failure_report.md")
+
+def load_existing_failure_log() -> List[Dict[str, Any]]:
+    """Load existing failure log from disk if it exists."""
+    if FAILURE_LOG_PATH.exists():
+        try:
+            with open(FAILURE_LOG_PATH, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except (json.JSONDecodeError, IOError) as e:
+            logger.warning(f"Failed to load existing failure log: {e}. Starting fresh.")
             return []
-    except (json.JSONDecodeError, IOError) as e:
-        logger.error(f"Failed to load failure log from {log_path}: {e}")
-        return []
+    return []
 
 def record_failure(
     paper_id: str,
     reason: str,
-    details: str,
-    severity: str = "error",
-    metadata: Optional[Dict[str, Any]] = None,
-    log_path: str = FAILURE_LOG_PATH
-) -> None:
+    details: Optional[str] = None,
+    source_file: Optional[str] = None
+) -> Dict[str, Any]:
     """
-    Records a single failure entry to the failure log.
+    Record a failure event for a specific paper.
     
     Args:
-        paper_id: Unique identifier for the paper (e.g., DOI).
-        reason: One of the FailureReason constants.
-        details: Human-readable description of the failure.
-        severity: 'error', 'warning', or 'info'.
-        metadata: Optional additional context (e.g., missing variables list).
-        log_path: Path to the failure log file.
+        paper_id: Unique identifier for the paper (e.g., DOI or repo ID)
+        reason: The FailureReason constant describing the failure type
+        details: Additional context about the failure
+        source_file: The file or module where the failure originated
+        
+    Returns:
+        The recorded failure entry
     """
-    if not paper_id or not reason:
-        raise ValueError("paper_id and reason are required to record a failure.")
-
     entry = {
-        "timestamp": datetime.utcnow().isoformat() + "Z",
         "paper_id": paper_id,
         "reason": reason,
-        "details": details,
-        "severity": severity,
-        "metadata": metadata or {}
+        "details": details or "",
+        "source_file": source_file or "unknown",
+        "timestamp": datetime.now().isoformat()
     }
-
-    failures = load_existing_failure_log(log_path)
-    failures.append(entry)
-
-    # Ensure directory exists
-    Path(log_path).parent.mkdir(parents=True, exist_ok=True)
-
-    with open(log_path, 'w', encoding='utf-8') as f:
-        json.dump(failures, f, indent=2, default=str)
     
-    logger.info(f"Recorded failure for {paper_id}: {reason}")
+    # Load existing log, append, and save
+    log = load_existing_failure_log()
+    log.append(entry)
+    
+    # Ensure directory exists
+    FAILURE_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(FAILURE_LOG_PATH, 'w', encoding='utf-8') as f:
+        json.dump(log, f, indent=2)
+        
+    logger.info(f"Recorded failure for paper {paper_id}: {reason}")
+    return entry
 
-def compile_failure_summary(log_path: str = FAILURE_LOG_PATH) -> Dict[str, Any]:
+def compile_failure_summary() -> Dict[str, Any]:
     """
-    Compiles a summary of all failures from the log.
-    Returns a dictionary grouped by reason and paper.
+    Compile a summary of all recorded failures.
+    
+    Returns:
+        A dictionary containing counts by reason, list of affected papers,
+        and total failure count.
     """
-    failures = load_existing_failure_log(log_path)
+    log = load_existing_failure_log()
+    
+    if not log:
+        return {
+            "total_failures": 0,
+            "by_reason": {},
+            "affected_papers": [],
+            "generated_at": datetime.now().isoformat()
+        }
+    
+    # Count by reason
+    reason_counts = {}
+    affected_papers = set()
+    
+    for entry in log:
+        reason = entry.get("reason", FailureReason.UNKNOWN)
+        reason_counts[reason] = reason_counts.get(reason, 0) + 1
+        affected_papers.add(entry.get("paper_id"))
     
     summary = {
-        "total_failures": len(failures),
-        "by_reason": {},
-        "by_paper": {},
-        "critical_failures": []
+        "total_failures": len(log),
+        "by_reason": reason_counts,
+        "affected_papers": sorted(list(affected_papers)),
+        "generated_at": datetime.now().isoformat()
     }
-
-    for entry in failures:
-        reason = entry.get("reason", "unknown")
-        paper_id = entry.get("paper_id", "unknown")
+    
+    # Save summary
+    FAILURE_SUMMARY_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(FAILURE_SUMMARY_PATH, 'w', encoding='utf-8') as f:
+        json.dump(summary, f, indent=2)
         
-        # Aggregate by reason
-        if reason not in summary["by_reason"]:
-            summary["by_reason"][reason] = 0
-        summary["by_reason"][reason] += 1
-
-        # Aggregate by paper
-        if paper_id not in summary["by_paper"]:
-            summary["by_paper"][paper_id] = []
-        summary["by_paper"][paper_id].append(entry)
-
-        # Track critical failures (e.g., data gaps or model unavailability)
-        if reason in [FailureReason.DATA_GAPS, FailureReason.MODEL_UNAVAILABLE, FailureReason.MANIFEST_INVALID]:
-            summary["critical_failures"].append(entry)
-
+    logger.info(f"Compiled failure summary: {summary['total_failures']} failures")
     return summary
 
-def write_failure_report(report_path: str = "artifacts/reports/failure_summary.json") -> None:
+def write_failure_report() -> str:
     """
-    Writes the compiled failure summary to a JSON report file.
+    Generate a human-readable Markdown report of failures.
+    
+    Returns:
+        Path to the generated report file
     """
     summary = compile_failure_summary()
     
-    Path(report_path).parent.mkdir(parents=True, exist_ok=True)
+    if summary["total_failures"] == 0:
+        report_content = "# Failure Report\n\nNo failures recorded.\n"
+    else:
+        report_lines = [
+            "# Qualitative Failure Report",
+            "",
+            f"**Generated**: {summary['generated_at']}",
+            f"**Total Failures**: {summary['total_failures']}",
+            "",
+            "## Summary by Reason",
+            ""
+        ]
+        
+        # Add reason counts
+        for reason, count in sorted(summary["by_reason"].items()):
+            report_lines.append(f"- **{reason}**: {count}")
+        
+        report_lines.extend([
+            "",
+            "## Affected Papers",
+            ""
+        ])
+        
+        # Add affected papers
+        for paper in summary["affected_papers"]:
+            report_lines.append(f"- {paper}")
+        
+        # Add detailed log
+        report_lines.extend([
+            "",
+            "## Detailed Failure Log",
+            ""
+        ])
+        
+        log = load_existing_failure_log()
+        for entry in log:
+            report_lines.append(f"### {entry['paper_id']}")
+            report_lines.append(f"- **Reason**: {entry['reason']}")
+            report_lines.append(f"- **Details**: {entry['details']}")
+            report_lines.append(f"- **Source**: {entry['source_file']}")
+            report_lines.append(f"- **Time**: {entry['timestamp']}")
+            report_lines.append("")
+        
+        report_content = "\n".join(report_lines)
     
-    with open(report_path, 'w', encoding='utf-8') as f:
-        json.dump(summary, f, indent=2)
+    # Ensure directory exists
+    FAILURE_REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
     
-    logger.info(f"Failure summary written to {report_path}")
+    with open(FAILURE_REPORT_PATH, 'w', encoding='utf-8') as f:
+        f.write(report_content)
+        
+    logger.info(f"Written failure report to {FAILURE_REPORT_PATH}")
+    return str(FAILURE_REPORT_PATH)
 
 def main():
-    """
-    Main entry point for the failure logger script.
-    Demonstrates recording a few sample failures and generating the summary.
-    """
-    # Configure logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-
-    logger.info("Starting Failure Logger (T030)...")
-
-    # Example: Record a model substitution failure
+    """Main entry point for failure logging demonstration."""
+    # Example usage
+    logger.info("Starting failure logger demonstration...")
+    
+    # Record some sample failures
     record_failure(
-        paper_id="10.1021/acs.joc.12345",
+        paper_id="10.1021/jacs.123456",
         reason=FailureReason.MODEL_SUBSTITUTION,
-        details="Original model had 1.5M parameters, exceeding 1M limit. Replaced with baseline Random Forest.",
-        severity="warning",
-        metadata={"original_params": 1500000, "substituted_model": "RandomForest"}
+        details="Model had 2.5M parameters, exceeded 1M limit",
+        source_file="model_runner.py"
     )
-
-    # Example: Record a data gap failure
+    
     record_failure(
-        paper_id="10.1039/C8SC01234A",
-        reason=FailureReason.DATA_GAPS,
-        details="Supplementary file missing. Required SMILES and Yield columns not found.",
-        severity="error",
-        metadata={"missing_columns": ["SMILES", "Yield"], "expected_file": "supp_data.csv"}
+        paper_id="10.1038/nature.789012",
+        reason=FailureReason.DATA_GAP,
+        details="Missing 'yield' column in dataset",
+        source_file="ingest.py"
     )
-
-    # Example: Record a missing seed failure
+    
     record_failure(
-        paper_id="10.1002/anie.202012345",
+        paper_id="10.1016/j.chem.345678",
         reason=FailureReason.MISSING_SEED,
-        details="Random seed not reported in paper. Defaulted to 42.",
-        severity="warning",
-        metadata={"default_seed": 42}
+        details="No random seed specified in paper",
+        source_file="model_runner.py"
     )
-
-    # Write the summary report
-    write_failure_report()
-
-    logger.info("Failure Logger completed successfully.")
+    
+    # Compile and write report
+    summary = compile_failure_summary()
+    report_path = write_failure_report()
+    
+    print(f"Failure summary: {json.dumps(summary, indent=2)}")
+    print(f"Report written to: {report_path}")
 
 if __name__ == "__main__":
     main()

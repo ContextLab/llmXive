@@ -2,86 +2,71 @@
 
 ## Overview
 
-This document defines the schema for synthetic data generated and analyzed in this project. All data is stored in `data/` as NumPy `.npy` or `.npz` files (for arrays) or JSON/CSV (for metadata).
-
-## Entities
-
-### 1. Trajectory
-A time-ordered sequence of state vectors for a coupled Lorenz system.
-
-- **Attributes**:
-  - `id`: Unique identifier (UUID).
-  - `n_oscillators`: Number of coupled oscillators ($N$).
-  - `coupling_strength`: Diffusive coupling parameter $D$.
-  - `noise_level`: Injected Gaussian noise standard deviation $\sigma_{noise}$.
-  - `seed`: Random seed used for generation.
-  - `time_steps`: Total number of time steps.
-  - `dt`: Time step size.
-  - `data_path`: Relative path to the `.npz` file containing the array.
-  - `is_physical`: Boolean flag (True if trajectory remains bounded).
-  - `escape_time`: Integer (time step of escape, or `null` if bounded).
-
-- **File Format**:
-  - `.npz` file containing:
-    - `t`: 1D array of time points.
-    - `states`: 2D array of shape `(time_steps, 3 * N)`.
-    - `noise`: 2D array of shape `(time_steps, 3 * N)` (the injected noise).
-
-### 2. FTLE Result
-A single FTLE estimate for a specific window and trajectory.
-
-- **Attributes**:
-  - `trajectory_id`: Reference to the parent trajectory UUID.
-  - `window_size`: Time window $T$ (or actual time used if escaped).
-  - `max_ftle`: The maximum Lyapunov exponent estimate (optional, can be null if escaped before window completion).
-  - `full_spectrum`: List of all $3N$ exponents (optional, for debugging).
-  - `deviation`: $\Delta \lambda = \text{max\_ftle} - \lambda_{\text{asymptotic}}$ (optional if max_ftle is null).
-  - `is_converged`: Boolean (True if $\lambda$ within 5% of baseline for clean case).
-  - `escape_event`: Boolean (True if the trajectory escaped during the window).
-
-- **File Format**:
-  - `.json` or `.csv` table with one row per estimate.
-
-### 3. Regression Analysis
-The statistical summary of the deviation scaling.
-
-- **Attributes**:
-  - `model_formula`: String representation of the regression model.
-  - `model_type`: String (e.g., "power_law", "additive", "saturation").
-  - `selection_metric`: String (AIC or BIC value).
-  - `coefficients`: Dictionary of parameter estimates.
-  - `p_values`: Dictionary of p-values.
-  - `r_squared`: Coefficient of determination.
-  - `effect_size`: Cohen's d or similar.
-  - `plot_path`: Path to the generated figure (PNG/SVG).
-  - `normality_test`: Dictionary (statistic, p-value) from Shapiro-Wilk.
-  - `method_used`: String ("t-test" or "bootstrapped").
-
-- **File Format**:
-  - `.json` summary file.
-
-### 4. Escape Event Summary
-Summary of trajectory stability under noise.
-
-- **Attributes**:
-  - `noise_level`: The noise amplitude.
-  - `total_trials`: Total number of trials generated.
-  - `escape_count`: Number of trials that escaped.
-  - `escape_probability`: Fraction of trials that escaped.
-  - `mean_escape_time`: Average time step of escape (for escaped trials).
-
-- **File Format**:
-  - `.json` or `.csv` table.
+This document defines the data structures for the project, ensuring strict adherence to the "Single Source of Truth" and "Data Hygiene" principles. All data artifacts are stored in `data/` and validated against schemas in `contracts/`.
 
 ## Data Flow
 
-1. **Generation**: `generator.py` reads `config.py` -> writes `data/raw/trajectory_<id>.npz`.
-2. **Validation**: `baseline.py` reads `data/raw/*.npz` -> writes `data/processed/baseline_stats.json`.
-3. **Analysis**: `ftle.py` reads `data/raw/*.npz` -> writes `data/processed/ftle_results.csv`.
-4. **Regression**: `regression.py` reads `data/processed/ftle_results.csv` -> writes `data/processed/regression_summary.json` and figures.
-5. **Escape Analysis**: `regression.py` also generates `data/processed/escape_summary.json`.
+1.  **Input**: Configuration parameters (`N`, `sigma`, `T`, `rho`) from `code/config.py`.
+2.  **Generation**: `code/generator.py` produces raw trajectories (Parquet).
+3.  **Baseline**: `code/baseline.py` computes asymptotic exponents (JSON) with Richardson extrapolation.
+4.  **Analysis**: `code/ftle.py` and `code/analysis.py` produce deviation metrics and regression results (JSON) with model selection.
+5.  **Output**: `data/processed/` contains the final results used for visualization.
 
-## Checksums
+## Entity Definitions
 
-All raw files in `data/raw/` are checksummed (SHA-256) and recorded in `state/...yaml`.
-Derivations in `data/processed/` are derived from raw files; their checksums are recorded upon generation.
+### 1. Trajectory (Raw Data)
+- **Description**: Time-series of state vectors $(x, y, z)$ for $N$ coupled oscillators.
+- **Source**: `code/generator.py`
+- **Location**: `data/raw/trajectory_N{N}_sigma{sigma}.parquet`
+- **Fields**:
+  - `t`: float (time step)
+  - `state`: array of floats (state vector of size $3N$)
+  - `noise_level`: float (injected $\sigma$)
+  - `is_physical`: boolean (flag for attractor bounds)
+  - `shadowing_valid`: boolean (flag for shadowing lemma check)
+
+### 2. Baseline (Computed)
+- **Description**: Asymptotic Lyapunov spectrum for the clean system.
+- **Source**: `code/baseline.py`
+- **Location**: `data/processed/baseline_N{N}.json`
+- **Fields**:
+  - `lambda_max`: float (maximum exponent)
+  - `lambda_spectrum`: array of floats (all $3N$ exponents)
+  - `convergence_error`: float (relative change at end of trajectory)
+  - `richardson_error`: float (error estimate from Richardson extrapolation)
+  - `trajectory_length`: int
+  - `validated`: boolean (true if error $< 5\%$ and Richardson error is small)
+  - `is_chaotic`: boolean (true if lambda_max > 0)
+
+### 3. FTLE Results (Processed)
+- **Description**: Finite-time estimates and deviations.
+- **Source**: `code/ftle.py`
+- **Location**: `data/processed/ftle_results_N{N}_sigma{sigma}.json`
+- **Fields**:
+  - `window_size`: int ($T$)
+  - `ftle_estimate`: float
+  - `deviation`: float ($\Delta \lambda$)
+  - `noise_level`: float
+  - `trial_id`: int (for reproducibility)
+  - `shadowing_valid`: boolean (flag for shadowing lemma check)
+
+### 4. Regression Output (Final)
+- **Description**: Statistical summary of the bias scaling.
+- **Source**: `code/analysis.py`
+- **Location**: `data/processed/regression_summary_N{N}.json`
+- **Fields**:
+  - `selected_model`: string (e.g., "power_law", "loess")
+  - `model_coefficients`: dict ($\alpha, \beta, k, m$) or dict for LOESS
+  - `p_values`: dict (for each coefficient)
+  - `effect_size`: float
+  - `r_squared`: float
+  - `n_trials`: int
+  - `numerical_error_floor`: float
+  - `bias_significant`: boolean (true if bias > 3 * numerical_error_floor)
+
+## Data Hygiene Rules
+
+- **Immutability**: Files in `data/raw` are never modified. New runs overwrite with versioned filenames (e.g., `_v2`).
+- **Checksums**: SHA-256 hashes of all files in `data/` are recorded in `state/artifact_hashes`.
+- **Reproducibility**: All random seeds are pinned in `code/config.py`.
+- **Validation**: Every file written must pass the schema validation defined in `contracts/`.

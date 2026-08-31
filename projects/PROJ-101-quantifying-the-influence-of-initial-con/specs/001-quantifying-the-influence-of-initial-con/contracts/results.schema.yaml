@@ -1,0 +1,85 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "FTLE Results and Regression Schema"
+description: "Schema for FTLE deviations and regression analysis results."
+type: "object"
+properties:
+  ftle_trials:
+    type: "array"
+    description: "List of individual FTLE measurements."
+    items:
+      type: "object"
+      properties:
+        window_size:
+          type: "integer"
+          description: "Time window T for the FTLE calculation."
+        ftle_estimate:
+          type: "number"
+          description: "Calculated finite-time Lyapunov exponent."
+        deviation:
+          type: "number"
+          description: "Difference from asymptotic baseline (Delta lambda)."
+        noise_level:
+          type: "number"
+          description: "Injected noise amplitude."
+        trial_id:
+          type: "integer"
+          description: "Unique identifier for the trial."
+        shadowing_valid:
+          type: "boolean"
+          description: "True if the trajectory passed the shadowing lemma check."
+      required:
+        - window_size
+        - ftle_estimate
+        - deviation
+        - noise_level
+        - trial_id
+        - shadowing_valid
+  regression_model:
+    type: "object"
+    description: "Results of the regression analysis."
+    properties:
+      selected_model:
+        type: "string"
+        description: "The model selected (e.g., 'power_law', 'loess')."
+      coefficients:
+        type: "object"
+        description: "Model coefficients (alpha, beta, k, m) or LOESS parameters."
+        additionalProperties:
+          type: "number"
+      p_values:
+        type: "object"
+        description: "P-values for each coefficient."
+        additionalProperties:
+          type: "number"
+      effect_size:
+        type: "number"
+        description: "Cohen's d or similar effect size metric."
+      r_squared:
+        type: "number"
+        description: "R-squared of the regression fit."
+      n_trials:
+        type: "integer"
+        description: "Total number of trials used in the regression."
+      corrected_p_values:
+        type: "object"
+        description: "Bonferroni-corrected p-values for multiple comparisons."
+        additionalProperties:
+          type: "number"
+      numerical_error_floor:
+        type: "number"
+        description: "The estimated numerical error floor."
+      bias_significant:
+        type: "boolean"
+        description: "True if the bias is significantly larger than the numerical error floor."
+    required:
+      - selected_model
+      - coefficients
+      - p_values
+      - effect_size
+      - r_squared
+      - n_trials
+      - numerical_error_floor
+      - bias_significant
+required:
+  - ftle_trials
+  - regression_model

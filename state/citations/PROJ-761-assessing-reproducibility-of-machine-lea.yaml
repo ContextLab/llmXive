@@ -64,3 +64,47 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1021/acs.jcim.0c00000
   verified_at: '2026-06-30T15:25:29.051833Z'
+- artifact_hash: 7755f212916ebb4550e1f2c983a0c838e6504620d901c063bc4f98ea8a3c2575
+  artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/docs/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-08-31T12:41:31.710764Z'
+- artifact_hash: fd01d87afd11d11fba592df09845d819f05aef38e144488a65b6dd91f621ea4d
+  artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/docs/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-08-31T12:41:34.141284Z'
+- artifact_hash: fd01d87afd11d11fba592df09845d819f05aef38e144488a65b6dd91f621ea4d
+  artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/docs/quickstart.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/example/repo
+  verification_status: mismatch
+  verified_against_url: https://github.com/example/repo
+  verified_at: '2026-08-31T12:41:34.141284Z'
+- artifact_hash: fd01d87afd11d11fba592df09845d819f05aef38e144488a65b6dd91f621ea4d
+  artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/docs/quickstart.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.1021/acscatal.0c01234
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1021/acscatal.0c01234
+  verified_at: '2026-08-31T12:41:34.141284Z'

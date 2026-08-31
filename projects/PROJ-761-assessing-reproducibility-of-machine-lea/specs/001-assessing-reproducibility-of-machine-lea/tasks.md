@@ -129,13 +129,13 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T032 [P] [US3] Unit test for guideline template rendering in `tests/unit/test_guidelines.py`
-- [ ] T033 [P] [US3] Integration test for checklist generation with mock failure logs in `tests/integration/test_guidelines.py`
+- [X] T032 [P] [US3] Unit test for guideline template rendering in `tests/unit/test_guidelines.py`
+- [X] T033 [P] [US3] Integration test for checklist generation with mock failure logs in `tests/integration/test_guidelines.py`
 
 ### Implementation for User Story 3
 
 - [ ] T034 [P] [US3] Implement `code/guidelines.py` to parse `artifacts/reports/stat_summary.json` and the qualitative failure log
-- [ ] T035 [US3] Implement logic in `code/guidelines.py` to map failure modes (missing seeds, covariate gaps, version mismatches) to specific best-practice recommendations
+- [X] T035 [US3] Implement logic in `code/guidelines.py` to map failure modes (missing seeds, covariate gaps, version mismatches) to specific best-practice recommendations
 - [ ] T036 [US3] Implement `code/guidelines.py` to generate `artifacts/reports/reproducibility_checklist.md` with ≥5 numbered items, each citing a published guideline and referencing a failure mode (FR-011)
 - [ ] T037 [US3] Add logic to ensure checklist items are actionable (e.g., "Report random seed", "Version-pin libraries", "Specify reaction conditions") (US-3 Scenario 1)
 
@@ -147,7 +147,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T039 [P] Documentation updates in `docs/` (README, quickstart): Update README.md with installation instructions and quickstart.md with example usage
+- [~] T039 [P] Documentation updates in `docs/` (README, quickstart): Update README.md with installation instructions and quickstart.md with example usage
 - [ ] T042 [P] Additional unit tests (if requested) in `tests/unit/`
 - [ ] T043 Security hardening (dependency scanning)
 - [ ] T044 Run quickstart.md validation

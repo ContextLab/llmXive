@@ -1,39 +1,50 @@
 # Implementation Plan: Quantifying the Influence of Initial Conditions on Chaotic Systems
 
-**Branch**: `001-quantify-initial-conditions` | **Date**: 2026-08-05 | **Spec**: `specs/001-quantify-initial-conditions/spec.md`
+**Branch**: `001-quantify-initial-conditions` | **Date**: 2026-08-06 | **Spec**: `specs/001-quantify-initial-conditions/spec.md`
 **Input**: Feature specification from `/specs/001-quantify-initial-conditions/spec.md`
 
 ## Summary
 
-This feature implements a computational study to quantify how observational noise and finite-time window lengths bias the estimation of Lyapunov exponents in high-dimensional chaotic systems. The approach involves generating synthetic trajectories from coupled Lorenz oscillators using `scipy.integrate.solve_ivp`, computing Finite-Time Lyapunov Exponents (FTLE) via a tangent-linear propagation algorithm using the *noisy* states (with Jacobians evaluated at noisy points), and performing regression analysis to model the deviation $\Delta \lambda$ as a function of noise amplitude $\sigma_{noise}$ and window size $T$. The implementation strictly adheres to the project constitution's requirements for reproducibility, numerical stability validation against numerically computed asymptotic baselines (via Richardson extrapolation), and explicit noise scaling characterization with rigorous model selection.
+This project implements a computational study to quantify how observational noise biases Finite-Time Lyapunov Exponent (FTLE) estimates in high-dimensional coupled Lorenz systems. The technical approach involves: (1) generating synthetic trajectory data using `scipy.integrate.solve_ivp` with strict tolerances; (2) numerically computing the asymptotic Lyapunov spectrum for the specific coupled configuration to establish a ground-truth baseline (validated via Richardson extrapolation); (3) calculating FTLEs over sliding windows for noisy trajectories; and (4) performing regression analysis with a model-selection step (Power-law vs. LOESS) to determine the true functional form of the deviation $\Delta \lambda$. The implementation strictly adheres to the project constitution, enforcing a "fail-stop" mechanism if the baseline convergence, shadowing lemma, or non-chaotic checks fail, and resolving spec ambiguities regarding noise thresholds by implementing a two-tier check: a "high-noise" warning at $\sigma > 0.1$ and an "unphysical" abort if the trajectory leaves the attractor bounds, while explicitly validating the $N=5$ runtime constraint ($\le 30$s) via a dedicated benchmark task.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `scipy` (integration), `numpy` (numerical arrays), `matplotlib` (visualization), `pandas` (data handling), `pytest` (testing), `statsmodels` (regression).  
-**Storage**: Local file system (`data/` for generated trajectories and results; no external database).  
-**Testing**: `pytest` with unit tests for ODE solvers, FTLE convergence, and regression statistics; integration tests for the full pipeline.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM).  
-**Project Type**: Computational research library/cli.  
-**Performance Goals**: Full pipeline (generation + FTLE + regression) completes in ≤ 45 minutes on CPU. Trajectory generation for $N \le 10$ oscillators and $T_{total} \approx 10^5$ steps must complete in < 30s.  
-**Constraints**: No external GPU required (CPU-first methodology); memory footprint < 7 GB; strict numerical tolerances (`rtol=1e-9`, `atol=1e-12`) enforced to ensure baseline validity. These tolerances are critical for **Constitution Principle VI** as they prevent integration error from biasing the asymptotic baseline used in model selection.  
-**Scale/Scope**: $N \in \{1, 3, 5, 10\}$ coupled oscillators; $\sigma_{noise} \in [10^{-4}, 1.0]$; $T \in \{100, 500, 1000, 5000\}$.
+**Primary Dependencies**: `numpy`, `scipy` (specifically `scipy.integrate.solve_ivp` with 'DOP853'), `matplotlib`, `pandas`, `pytest`, `pyyaml`, `mpmath` (for high-precision error floor checks), `statsmodels` (for model selection)  
+**Storage**: Local file system (`data/raw`, `data/processed`), Parquet/JSON for artifacts  
+**Testing**: `pytest` (unit, integration, and performance benchmarks)  
+**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7GB RAM)  
+**Project Type**: Scientific Computing Library / CLI  
+**Performance Goals**: N=5 trajectory generation $\le 30$s; Full analysis pipeline $\le 6$h (CPU); Numerical convergence $< 5\%$ error at $T=5000$; Baseline convergence via Richardson extrapolation  
+**Constraints**: No GPU required (ODE integration and linear algebra for FTLE are CPU-tractable); Memory $\le 7$GB (streaming if trajectory length $> 10^6$); Strict reproducibility (pinned seeds)  
+**Scale/Scope**: Dimensions $N \in \{1, 3, 5, 10\}$; Noise levels $\sigma \in [0, 1.0]$; Trajectory lengths $T \in [500, 5000]$
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Implementation Strategy |
-|-----------|--------|-------------------------|
-| **I. Reproducibility** | **PASS** | All random seeds pinned in `code/` (e.g., `np.random.seed(42)`). `requirements.txt` pins exact versions. CI runs from scratch. |
-| **II. Verified Accuracy** | **PASS** | No external citations for data (synthetic). Mathematical methods (Rosenstein's algorithm, DOP853, Richardson extrapolation) are standard; references will be validated against primary literature if cited in `research.md`. |
-| **III. Data Hygiene** | **PASS** | Generated trajectories are treated as "raw data". Checksums (SHA-256) recorded in `state/`. Derivations (FTLE results) written to new files. |
-| **IV. Single Source of Truth** | **PASS** | All figures and stats in `paper/` will be generated programmatically from `data/` via scripts in `code/`. No hand-typed numbers. |
-| **V. Versioning Discipline** | **PASS** | Content hashes of `code/` and `data/` will be updated in `state/` upon any change. |
-| **VI. Numerical Stability** | **PASS** | Plan includes a mandatory Phase 0 step: Validate clean system FTLE convergence to the *numerically computed* asymptotic baseline for the specific (N, D) configuration using **Richardson extrapolation**. This baseline is NOT the theoretical single-oscillator value (0.905) for coupled systems. Strict tolerances (`rtol=1e-9`, `atol=1e-12`) are enforced to ensure this baseline is not biased by integration error. |
-| **VII. Explicit Noise Scaling** | **PASS** | Regression analysis explicitly models $\Delta \lambda(T, \sigma_{noise})$ using a **Model Selection Strategy** (AIC/BIC) to determine the functional form (additive, multiplicative, or saturation), rather than assuming a fixed power law. Escape events are modeled as a distinct outcome to prevent selection bias. |
+| Principle | Requirement | Plan Compliance Strategy |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | Random seeds pinned; CI re-runnable. | `code/config.py` defines `GLOBAL_SEED = 42`. `pytest` fixtures enforce seed reset. CI workflow explicitly sets `RANDOM_SEED` env var. |
+| **II. Verified Accuracy** | Citations verified against primary sources. | Standard mathematical definitions (Lorenz, FTLE) are cited in `research.md` and validated by the Reference-Validator Agent. No external citations in code logic. |
+| **III. Data Hygiene** | Checksums; no in-place modification. | `scripts/checksums.sh` generates SHA-256 for all `data/` files. `data/raw` is read-only; `data/processed` contains derived artifacts with `_v1` versioning. |
+| **IV. Single Source of Truth** | Figures trace to `data/` and `code/`. | Visualization scripts (`code/visualize.py`) read strictly from `data/processed/*.json`. No manual data entry in `paper/`. |
+| **V. Versioning** | Content hashes; `updated_at` timestamps. | `state/projects/PROJ-101-...yaml` updated on every artifact write. Hashes stored in `state/artifact_hashes`. |
+| **VI. Numerical Stability** | Baseline validation *before* noisy analysis. | **Gating Mechanism**: Task `T_gate_baseline_validation` explicitly implements the orchestrator logic. It runs `T_compute_baseline` and `T_check_nonchaotic`. If `lambda_max` does not converge (error $> 5\%$) or system is non-chaotic ($\lambda_{max} \le 0$), the process raises `NonChaoticSystemError` and halts. No noisy tasks execute. |
+| **VII. Explicit Noise Scaling** | Record $\sigma$ and $T$; regression modeling. | `data/processed/results.json` schema includes `noise_level`, `window_size`, `deviation`. Regression is mandatory; single averages are forbidden. Model selection (Power-law vs. LOESS) is enforced. |
+
+**Resolved Ambiguities (from Unresolved Concerns):**
+1.  **Noise Threshold ($\sigma > 0.1$ vs $1.0$):** The plan implements a dual-check. A `HighNoiseWarning` is triggered at $\sigma > 0.1$ (per FR-007 text). An `UnphysicalTrajectoryError` is raised *only* if the trajectory state exceeds physical bounds (e.g., $|x| > 100$) OR if $\sigma > 1.0$ *and* the trajectory diverges. This resolves the spec conflict by distinguishing "high noise" (warning) from "unphysical" (abort). Task `T_check_unphysical_bounds` implements this logic.
+2.  **Gating Mechanism:** Task `T_gate_baseline_validation` explicitly wires the validation logic from `T_compute_baseline` and `T_check_nonchaotic` into the main execution flow, ensuring a fail-stop before noisy analysis.
+3.  **Runtime Constraint:** Task `T_bench_runtime_n5` is added to specifically verify the $N=5, \le 30$s constraint.
+4.  **Non-Chaotic Abort:** Task `T_check_nonchaotic` defines the specific error class `NonChaoticSystemError` and the input source (config `rho`). The check is based on the *numerically computed* $\lambda_{max} > 0$, not a fixed $\rho$ threshold.
+5.  **Baseline Output:** Task `T_compute_baseline` specifies the output schema: `data/processed/baseline_{N}.json` with keys `lambda_max`, `convergence_error`, `trajectory_length`.
+6.  **Regression Model:** The plan includes a model selection step (LOESS vs Power-law) to determine the true functional form of the deviation, addressing the non-linearity concern.
+7.  **Numerical Error Floor:** The plan mandates a "clean-noise" baseline computation using Richardson extrapolation to establish the integration error floor. Bias is only reported if it exceeds this floor.
+8.  **Shadowing Lemma:** Task `T_shadowing_check` validates that the noisy trajectory still shadows a true orbit before FTLE is computed.
+9.  **Baseline Validation Target:** The baseline is validated against the *numerically computed asymptotic limit for the specific coupled configuration*, not a fixed theoretical value.
 
 ## Project Structure
 
@@ -45,9 +56,11 @@ specs/001-quantify-initial-conditions/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
-    ├── trajectory.schema.yaml
-    └── ftle_results.schema.yaml
+├── contracts/           # Phase 1 output
+│   ├── trajectory.schema.yaml
+│   ├── baseline.schema.yaml
+│   └── results.schema.yaml
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
@@ -56,51 +69,58 @@ specs/001-quantify-initial-conditions/
 projects/PROJ-101-quantifying-the-influence-of-initial-con/
 ├── code/
 │   ├── __init__.py
-│   ├── requirements.txt
-│   ├── config.py              # Hyperparameters, seeds, paths
-│   ├── data/
-│   │   ├── __init__.py
-│   │   ├── generator.py       # Coupled Lorenz + Noise injection
-│   │   └── loader.py          # Data loading utilities
-│   ├── analysis/
-│   │   ├── __init__.py
-│   │   ├── ftle.py            # FTLE calculation (Rosenstein/Tangent)
-│   │   ├── baseline.py        # Asymptotic convergence validation
-│   │   └── regression.py      # Statistical analysis & plotting
-│   └── main.py                # Pipeline orchestrator
+│   ├── config.py              # Seeds, parameters, thresholds
+│   ├── generator.py           # Lorenz ODE, noise injection
+│   ├── ftle.py                # Sliding window FTLE, tangent linear
+│   ├── baseline.py            # Asymptotic computation, Richardson extrapolation
+│   ├── analysis.py            # Regression, statistical tests, model selection
+│   ├── visualize.py           # Plotting
+│   ├── orchestrator.py        # Pipeline flow, gating logic
+│   └── errors.py              # Custom exceptions (UnphysicalTrajectoryError, etc.)
 ├── tests/
 │   ├── unit/
 │   │   ├── test_generator.py
-│   │   └── test_ftle.py
-│   └── integration/
-│       └── test_pipeline.py
-├── data/                      # Generated artifacts (gitignored, tracked in state)
-│   ├── raw/
-│   └── processed/
-└── state/
-    └── projects/PROJ-101-quantifying-the-influence-of-initial-con.yaml
+│   │   ├── test_ftle.py
+│   │   ├── test_baseline.py
+│   │   └── test_errors.py
+│   ├── integration/
+│   │   └── test_pipeline.py
+│   └── performance/
+│       └── test_runtime_benchmark.py  # Verifies 30s constraint
+├── data/
+│   ├── raw/                   # Generated trajectories (parquet)
+│   └── processed/             # Baselines, FTLE results, regression outputs (json)
+├── scripts/
+│   ├── checksums.sh
+│   └── run_analysis.sh
+└── requirements.txt
 ```
 
-**Structure Decision**: Single-project structure selected. The project is a self-contained computational study. No web/mobile components. `code/` is split into `data` (generation) and `analysis` (processing) to enforce the "Data Hygiene" principle (raw data generation separate from derived analysis).
+**Structure Decision**: Single project structure (Option 1) chosen to minimize overhead for a computational science pipeline. All logic resides in `code/` with clear separation of concerns (generator, solver, analyzer). The `orchestrator.py` handles the critical gating logic required by Constitution Principle VI.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **High-Dimensional Coupling** | Research question requires $N > 1$ to study dimensionality effects. | Single oscillator ($N=1$) is insufficient to answer the scaling hypothesis. |
-| **Tangent Linear Propagation** | Accurate FTLE requires Jacobian integration, not just trajectory divergence. | Simple distance-based methods (e.g., Benettin) are less robust for high dimensions and finite windows. |
-| **Strict Numerical Tolerances** | Chaos is sensitive to integration error; `rtol=1e-9` ensures bias is from noise, not solver. These tolerances are essential for the **Model Selection Strategy** to distinguish true signal from numerical noise. | Default tolerances (`rtol=1e-6`) introduce numerical drift indistinguishable from observational noise. |
-| **Model Selection Strategy** | The functional form of noise bias is unknown (linear, power-law, or saturation). | Assuming a fixed power-law form risks model misspecification and invalid coefficients. |
-| **Noisy Tangent Propagation** | Real-world estimation uses noisy data for both state and Jacobian. | Using clean Jacobians would measure a theoretical artifact, not the actual estimation bias. |
-| **Richardson Extrapolation** | The asymptotic baseline for coupled systems is not a known constant. | Using a finite-time estimate (e.g., T=5000) as the baseline would create circular validation. |
+| Custom Exception Hierarchy | Required to distinguish `UnphysicalTrajectoryError` from `NonChaoticSystemError` for precise gating. | Generic `RuntimeError` would not allow the orchestrator to implement specific recovery or abort logic per FR-007 and FR-006. |
+| Dual Noise Threshold Logic | Spec ambiguity (0.1 vs 1.0) requires explicit handling to avoid premature aborts or silent failures. | A single threshold would either block valid high-noise experiments or fail to catch unphysical divergence. |
+| Gating Orchestrator | Constitution Principle VI mandates baseline validation *before* noisy analysis. | A linear script without explicit gating risks executing noisy analysis on an unstable baseline, invalidating results. |
+| Model Selection (LOESS vs Power-law) | The true functional form of noise bias is unknown and likely non-linear. | A fixed linear model risks incorrect conclusions about scaling laws. |
+| Numerical Error Floor Check | To distinguish true noise bias from integration artifacts. | Without this, "infinite power" is a fallacy if the signal is buried in numerical noise. |
+| Shadowing Lemma Check | To ensure the noisy trajectory is still a valid estimate of the system's dynamics. | If the trajectory no longer shadows a true orbit, the FTLE is meaningless. |
 
-## Compute Feasibility
+## Task List (Draft for Phase 2)
 
-- **CPU-First**: The entire pipeline (ODE integration, Jacobian propagation, regression) is computationally light enough for the GitHub Actions free-tier (2 CPU, 7 GB RAM).
-- **Memory**: Storing $N=10$ trajectories of $10^5$ steps requires $\approx 10 \times 10^5 \times 30 \times 8$ bytes $\approx 240$ MB. Well within limits.
-- **Runtime**:
-  - ODE Integration: $\approx$ seconds per trajectory.
-  - FTLE Calculation: Approximately a few seconds per trajectory.
-  - Total for multiple trials $\times$ multiple noise levels $\times$ 4 dimensions $\approx 6000$ trajectories.
-  - Estimated total time: approximately one workday on a single core.
-  - **Optimization**: The plan will parallelize trials across the 2 available cores (using `multiprocessing`) to reduce runtime to $\approx 5$ hours, safely within the 6-hour CI limit. If needed, $k$ will be reduced to a small integer or $N$ limited to a small integer to guarantee completion.
+*Note: This list is a draft for the Implementer Agent. It explicitly maps requirements to tasks.*
+
+- **T001**: Create project structure per implementation plan (atomized into file creation tasks).
+- **T012**: Implement noise injection logic (additive Gaussian).
+- **T016**: Implement `T_check_unphysical_bounds` logic (detects |x| > 100 or divergence) and raises `UnphysicalTrajectoryError`.
+- **T018**: Orchestrate generation loop (N, sigma) and trigger `T_check_unphysical_bounds`.
+- **T024**: Implement `T_compute_baseline` (QR-based algorithm, Richardson extrapolation for error floor).
+- **T025**: Implement `T_check_nonchaotic` (checks numerical $\lambda_{max} > 0$).
+- **T_gate_baseline_validation**: Implement orchestrator gating logic: Run `T_compute_baseline` -> Run `T_check_nonchaotic` -> If pass, proceed; else abort.
+- **T026**: Implement `T_shadowing_check` (validates divergence rate).
+- **T036**: Implement regression analysis with model selection (Power-law vs. LOESS).
+- **T_bench_runtime_n5**: Implement performance benchmark to verify N=5 generation $\le 30$s.
+- **T037**: Documentation updates (atomized into specific doc generation tasks).

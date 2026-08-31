@@ -1,99 +1,105 @@
-# Quickstart Guide: llmXive
+# llmXive: From Chatbot to Digital Colleague
 
-This guide provides instructions for setting up and running the llmXive automated science pipeline.
+**Quick Start Guide**
+
+This project implements an automated science pipeline to evaluate the performance of a "Digital Colleague" agent across varying library sizes and semantic overlaps.
 
 ## Prerequisites
 
-- Python 3.8+
+- Python 3.9+
 - pip
-- Virtual environment (recommended)
+- (Optional) Virtual environment tool (venv, conda)
 
 ## Installation
 
-1. Clone the repository:
+1. **Clone the repository** (if not already done):
  ```bash
  git clone <repository-url>
- cd <repository-name>
+ cd llmxive-follow-up-extending-from-chatbot
  ```
 
-2. Create a virtual environment and activate it:
+2. **Create and activate a virtual environment** (recommended):
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
 
-3. Install dependencies:
+3. **Install dependencies**:
  ```bash
  pip install -r requirements.txt
  ```
+ *Note: `requirements.txt` contains pinned versions for reproducibility.*
 
 ## Project Structure
 
-- `code/`: Source code for the pipeline.
-- `data/`: Raw and processed data.
-- `tests/`: Unit and contract tests.
-- `contracts/`: JSON schemas for data validation.
-- `specs/`: Design documents.
+- `code/`: Source code for data generation, agent execution, and analysis.
+- `data/raw/`: Generated synthetic datasets (tasks, skills).
+- `data/results/`: Experiment logs, metrics, and analysis reports.
+- `contracts/`: JSON/YAML schemas for data validation.
+- `tests/`: Unit and integration tests.
 
-## Running the Pipeline
+## Quick Start Execution
 
-### 1. Setup Project Structure
+Follow these steps to generate data, run the experiment, and analyze results.
 
-Ensure the directory structure is created:
+### 1. Setup Project Directories
+Ensure the directory structure exists:
 ```bash
 python code/setup_directories.py
 ```
 
-### 2. Generate Data
-
-Generate the synthetic dataset (User Story 1):
+### 2. Generate Synthetic Data
+Create the skills library and task set:
 ```bash
 python code/generate_data.py
 ```
-This creates `data/raw/tasks.json` and `data/raw/skills.json`.
+*Outputs:* `data/raw/skills.json`, `data/raw/tasks.json`, `data/raw/checksums.json`.
 
-### 3. Run Experiments
-
-Execute the agent across varying library sizes (User Story 2):
+### 3. Run the Experiment
+Execute the agent across different library sizes:
 ```bash
 python code/run_experiment.py
 ```
-Results are saved to `data/results/experiment_log.csv` and `data/results/metrics.json`.
+*Outputs:* `data/results/experiment_log.csv`, `data/results/metrics.json`.
 
-### 4. Analyze Results
+### 4. Run Baseline (No Pruning)
+```bash
+python code/run_baseline.py
+```
+*Outputs:* `data/results/experiment_log_baseline.csv`.
 
-Perform statistical analysis (User Story 3):
+### 5. Analyze Results
+Perform statistical analysis and generate the final report:
 ```bash
 python code/analyze.py
 ```
-Outputs include `data/results/final_analysis.json` and `data/results/tipping_point.json`.
+*Outputs:* `data/results/final_analysis.json`, `data/results/tipping_point.json`, `data/results/sensitivity_report.json`.
 
-## Verification
+## Configuration
 
-To verify the logging configuration (T007):
-```bash
-python code/verify_logging.py
-```
+- **Seeds**: Controlled via `code/config.py` (default values or environment variables).
+- **Pruning Thresholds**: Configurable in `code/config.py` (default: prune every 10 tasks).
+- **Overlap Level**: Set in `code/config.py` to control semantic density of the skill library.
 
-## Testing
+## Validation
 
-Run unit tests:
-```bash
-pytest tests/unit/
-```
-
-Run contract tests:
-```bash
-pytest tests/contract/
-```
-
-## Reproducibility
-
-Seeds are pinned in `code/config.py`. To ensure reproducibility, do not modify the seed values unless necessary.
+- **Schema Validation**: Run contract tests to ensure data compliance:
+ ```bash
+ pytest tests/contract/
+ ```
+- **Unit Tests**:
+ ```bash
+ pytest tests/unit/
+ ```
 
 ## Troubleshooting
 
-- **Memory Errors**: If you encounter memory errors during data generation, reduce the number of skills or tasks in `code/config.py`.
-- **Schema Errors**: Ensure all generated JSON files match the schemas in `contracts/`.
+- **Memory Errors**: If you encounter "Memory Limit Exceeded", the script will fail gracefully. Reduce the number of skills or tasks in `config.py`.
+- **Missing Files**: Ensure `data/raw/` and `data/results/` directories exist before running scripts.
+- **Dependencies**: If installation fails, check that your Python version is 3.9 or higher.
 
-For more details, refer to `README.md`.
+## Next Steps
+
+- Review `README.md` for detailed architecture and API documentation.
+- Explore `specs/` for user stories and functional requirements.
+- Modify `code/config.py` to experiment with different parameters.

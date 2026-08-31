@@ -1,136 +1,117 @@
-"""
-Unit tests for model_runner.py
-"""
-import json
-import os
-import tempfile
-from pathlib import Path
-from unittest.mock import patch
-
-import numpy as np
-import pandas as pd
 import pytest
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.linear_model import Ridge
+import numpy as np
+from pathlib import Path
+import json
+import tempfile
+import pandas as pd
 
-# Import functions to test
 from model_runner import (
     count_model_parameters,
     load_processed_data,
+    encode_smiles,
     train_model,
     evaluate_model,
     run_sensitivity_analysis,
-    run_reproducibility_assessment,
-    main,
+    run_reproducibility_assessment
 )
+from metrics import calculate_mae, calculate_r2, calculate_spearman_rho
 
-
-@pytest.fixture
-def sample_csv(tmp_path):
-    """Create a sample CSV file for testing."""
-    data = {
-        "smiles": ["CCO", "CCCO", "CCCCO", "CC(C)CO", "CC(C)(C)CO"],
-        "yield": [0.8, 0.75, 0.7, 0.65, 0.6],
-        "temperature": [25, 30, 35, 40, 45],
-    }
-    df = pd.DataFrame(data)
-    csv_path = tmp_path / "sample_data.csv"
-    df.to_csv(csv_path, index=False)
-    return csv_path
-
-
-def test_count_model_parameters_rf():
-    """Test parameter counting for Random Forest."""
-    model = RandomForestRegressor(n_estimators=10, max_depth=3, random_state=42)
-    # We don't fit it, but we count attributes
+def test_count_model_parameters():
+    """Test parameter counting for a simple model."""
+    from sklearn.linear_model import Ridge
+    model = Ridge()
+    # Simulate fitting
+    X = np.random.rand(10, 5)
+    y = np.random.rand(10)
+    model.fit(X, y)
     params = count_model_parameters(model)
-    # Should be > 0 even before fitting (empty arrays)
-    assert params >= 0
+    assert params > 0, "Parameter count should be positive"
 
+def test_encode_smiles():
+    """Test SMILES encoding."""
+    smiles = ["CCO", "CC", "O"]
+    encoded = encode_smiles(smiles)
+    assert encoded.shape == (3, 13), f"Expected (3, 13), got {encoded.shape}"
+    assert isinstance(encoded, np.ndarray)
 
-def test_count_model_parameters_ridge():
-    """Test parameter counting for Ridge."""
-    model = Ridge(random_state=42)
-    params = count_model_parameters(model)
-    assert params >= 0
-
-
-def test_train_model_small():
-    """Test training a small model."""
-    X = np.random.rand(100, 5)
-    y = np.random.rand(100)
-    model, status = train_model(X, y, seed=42)
+def test_train_model_within_limit():
+    """Test training a model that stays within parameter limit."""
+    X = np.random.rand(50, 13)
+    y = np.random.rand(50)
+    model, is_substituted = train_model(X, y, seed=42, max_params=1000000)
     assert model is not None
-    assert status in ["Model Trained", "Model Substitution/Unavailable (Parameter Limit)"]
+    assert not is_substituted, "Model should not be substituted"
 
-
-def test_train_model_large_substitution():
-    """Test that large models are substituted."""
-    # Create a scenario where RF would be too large
-    X = np.random.rand(100, 1000)  # Many features
-    y = np.random.rand(100)
-    model, status = train_model(X, y, seed=42, max_params=100)
-    # Should substitute to Ridge
-    assert isinstance(model, Ridge)
-    assert "Substitution" in status
-
+def test_train_model_substitution():
+    """Test that a model exceeding limit is substituted."""
+    X = np.random.rand(50, 13)
+    y = np.random.rand(50)
+    # Force substitution with very low limit
+    model, is_substituted = train_model(X, y, seed=42, max_params=10)
+    assert is_substituted, "Model should be substituted due to low limit"
 
 def test_evaluate_model():
     """Test model evaluation."""
-    X = np.random.rand(100, 5)
+    from sklearn.ensemble import RandomForestRegressor
+    X = np.random.rand(100, 13)
     y = np.random.rand(100)
-    model = Ridge(random_state=42)
+    
+    model = RandomForestRegressor(random_state=42, n_estimators=5)
     model.fit(X, y)
-    metrics = evaluate_model(model, X, y, seed=42)
-    assert "mae" in metrics
-    assert "r2" in metrics
-    assert "spearman_rho" in metrics
-    assert all(isinstance(v, float) for v in metrics.values())
+    
+    results = evaluate_model(model, X, y, {'mae': 0.5, 'r2': 0.8, 'spearman': 0.7})
+    
+    assert 'mae' in results
+    assert 'r2' in results
+    assert 'spearman' in results
+    assert 'deviation_index' in results
+    assert 'predictions' in results
 
-
-def test_load_processed_data(sample_csv):
-    """Test loading processed data."""
-    df, features, target = load_processed_data(sample_csv)
-    assert len(df) == 5
-    assert "yield" in df.columns
-    assert "temperature" in features
-    assert target == "yield"
-
-
-def test_run_sensitivity_analysis(sample_csv):
+def test_run_sensitivity_analysis():
     """Test sensitivity analysis."""
-    df, features, target = load_processed_data(sample_csv)
-    sensitivity = run_sensitivity_analysis(df, features, target, seeds=[42, 123])
-    assert "mae_std" in sensitivity
-    assert "r2_std" in sensitivity
-    assert "spearman_std" in sensitivity
-    assert "max_metric_std" in sensitivity
-    assert all(isinstance(v, float) for v in sensitivity.values())
+    X = np.random.rand(100, 13)
+    y = np.random.rand(100)
+    
+    results = run_sensitivity_analysis(X, y, seeds=[42, 123])
+    
+    assert 'metric_std' in results
+    assert 'max_metric_std' in results
+    assert 'mae' in results['metric_std']
+    assert 'r2' in results['metric_std']
 
-
-def test_run_reproducibility_assessment(sample_csv, tmp_path):
+def test_run_reproducibility_assessment(tmp_path):
     """Test full reproducibility assessment."""
-    manifest_entry = {
-        "paper_id": "test_paper",
-        "doi": "10.1234/test",
-        "dataset_path": str(sample_csv),
-        "reported_metrics": {"mae": 0.1, "r2": 0.9, "spearman_rho": 0.8},
-        "seed": 42,
-    }
-    result = run_reproducibility_assessment(manifest_entry)
-    assert result["paper_id"] == "test_paper"
-    assert "metrics" in result
-    assert "deviation_index" in result
-    assert result["status"] in ["Model Trained", "Model Substitution/Unavailable (Parameter Limit)"]
+    # Create dummy data
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    
+    df = pd.DataFrame({
+        'smiles': ['CCO', 'CC', 'O', 'C', 'N'],
+        'yield': [0.8, 0.6, 0.9, 0.5, 0.7]
+    })
+    csv_path = data_dir / "test.csv"
+    df.to_csv(csv_path, index=False)
+    
+    result = run_reproducibility_assessment(
+        paper_id="test_paper",
+        data_path=csv_path,
+        reported_metrics={'mae': 0.5, 'r2': 0.8, 'spearman': 0.7},
+        reported_seed=42
+    )
+    
+    assert result['status'] == 'success'
+    assert result['paper_id'] == 'test_paper'
+    assert 'metrics' in result
+    assert 'sensitivity_analysis' in result
 
-
-def test_main_no_manifest(tmp_path):
-    """Test main when no manifest exists."""
-    with patch("model_runner.PROCESSED_DIR", tmp_path):
-        with patch("model_runner.REPORTS_DIR", tmp_path / "reports"):
-            (tmp_path / "reports").mkdir()
-            # No manifest.yaml
-            results = main()
-            assert results == []
-            output_file = tmp_path / "reports" / "repro_results.json"
-            assert output_file.exists()
+def test_run_reproducibility_assessment_missing_data(tmp_path):
+    """Test handling of missing data."""
+    result = run_reproducibility_assessment(
+        paper_id="missing_paper",
+        data_path=Path("nonexistent.csv"),
+        reported_metrics={'mae': 0.5},
+        reported_seed=42
+    )
+    
+    assert result['status'] == 'failed'
+    assert result['reason'] == 'Data Unavailable'

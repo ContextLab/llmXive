@@ -1,0 +1,100 @@
+# Feature Specification: Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra
+
+**Feature Branch**: `001-constrain-liv-fermi`  
+**Created**: 2026-06-16  
+**Status**: Draft  
+**Input**: User description: "Constraining Lorentz Invariance Violation with Fermi Gamma‑Ray Burst Spectra"
+
+## User Scenarios & Testing
+
+### User Story 1 - Retrieve and Pre-process Brightest Fermi-GBM Bursts (Priority: P1)
+
+The researcher MUST be able to download light-curve data for the top brightest GRBs from the Fermi Science Support Center, re-bin them into three specific energy bands (8–50 keV, 50–200 keV, 200–1000 keV), and subtract background counts to generate a clean dataset for lag analysis.
+
+**Why this priority**: This is the foundational data ingestion step; without clean, correctly binned time-series data, no spectral lag can be measured, and the entire study fails.
+
+**Independent Test**: The system can be tested by running the ingestion script on a small subset of known GRBs (e.g., GRB 090510) and verifying that the output CSV contains time bins with photon counts for exactly three energy bands and that background-subtracted counts are non-negative.
+
+**Acceptance Scenarios**:
+
+1. **Given** the Fermi GBM catalog is accessible, **When** the script queries for the top 30 brightest bursts by fluence, **Then** the script downloads light curves for exactly 30 events and saves them to a local `data/raw` directory.
+2. **Given** a raw light curve file exists, **When** the re-binning function is applied, **Then** the output contains three distinct columns for the specified energy bands with consistent time alignment.
+3. **Given** a background region is defined in the metadata, **When** background subtraction is performed, **Then** the resulting counts in the signal region are ≥ 0 (negative counts are clipped or flagged as `[NEEDS CLARIFICATION: handling of negative counts]`).
+
+---
+
+### User Story 2 - Compute Spectral Lags and Estimate LIV Bounds (Priority: P2)
+
+The researcher MUST be able to compute the cross-correlation function (CCF) between the low-energy band and high-energy bands to identify the spectral lag, estimate its uncertainty via bootstrap resampling, and perform a weighted linear regression to derive an upper bound on the linear LIV energy scale ($E_{\rm QG}$) for each burst.
+
+**Why this priority**: This implements the core physics methodology; it transforms raw data into the specific scientific metric ($E_{\rm QG}$) required to answer the research question.
+
+**Independent Test**: The system can be tested by feeding synthetic light curves with a known, injected time lag (e.g., 50 ms) into the pipeline; the output must recover a lag within the 95% confidence interval of the injected value.
+
+**Acceptance Scenarios**:
+
+1. **Given** background-subtracted light curves for a single GRB, **When** the CCF is computed between the 8–50 keV and 200–1000 keV bands, **Then** the lag is identified as the time offset at the CCF peak position.
+2. **Given** a measured lag and its bootstrap-derived uncertainty, **When** the linear regression against photon energy is performed using the cosmological distance $D$, **Then** the system outputs a 95% confidence upper limit for $E_{\rm QG}$ in units of GeV.
+3. **Given** multiple bursts have been processed, **When** the global limit is calculated, **Then** the system combines individual burst estimates using inverse-variance weighting to produce a single aggregate upper bound.
+
+---
+
+### User Story 3 - Validate Robustness via Null Distribution and Sensitivity Analysis (Priority: P3)
+
+The researcher MUST be able to generate 10,000 synthetic light curves with randomized photon energies to build a null distribution of $E_{\rm QG}$ estimates, and sweep the energy-band definitions (e.g., varying boundaries by ±10%) to verify that the final limit is stable and not an artifact of specific binning choices.
+
+**Why this priority**: This ensures the result is scientifically defensible, distinguishing true physical signals from statistical noise or systematic biases, which is a mandatory requirement for publication-quality physics results.
+
+**Independent Test**: The system can be tested by running the Monte Carlo simulation on a single burst; the resulting null distribution of $E_{\rm QG}$ must be centered near infinity (or a very high value) if no real lag exists, confirming the method does not spuriously detect LIV.
+
+**Acceptance Scenarios**:
+
+1. **Given** an observed light curve, **When** 10,000 synthetic datasets are generated with randomized photon energies, **Then** the pipeline computes a null distribution of $E_{\rm QG}$ estimates that shows no systematic bias toward low energy scales.
+2. **Given** the primary energy bands, **When** the boundaries are shifted by ±10% (e.g., 8–45 keV vs 8–55 keV), **Then** the derived $E_{\rm QG}$ limit varies by less than 20%, confirming robustness to binning choices.
+3. **Given** the final aggregated limit, **When** compared against the null distribution, **Then** the system flags the result as "consistent with null" if the observed limit falls within the 95% quantile of the simulated background.
+
+### Edge Cases
+
+- What happens when a GRB has insufficient photon counts in the highest energy band to compute a statistically significant CCF peak? (System must flag the burst as "excluded" and exclude it from the global weighted average).
+- How does the system handle GRBs without known redshift values? (The pipeline must exclude these from the $E_{\rm QG}$ calculation as distance $D$ is required, or use a default cosmological model with a `[NEEDS CLARIFICATION: redshift imputation method]` if the idea implies it).
+- How does the system handle negative counts after background subtraction? (Currently defined as clipping to zero, but this may introduce bias; requires a sensitivity check).
+
+## Requirements
+
+### Functional Requirements
+
+- **FR-001**: System MUST download light-curve files for the top 30 brightest GRBs from the Fermi Science Support Center and store them locally. (See US-1)
+- **FR-002**: System MUST re-bin light curves into three fixed energy bands (8–50 keV, 50–200 keV, 200–1000 keV) and perform background subtraction. (See US-1)
+- **FR-003**: System MUST compute the cross-correlation function (CCF) between the lowest and highest energy bands to identify the spectral lag peak. (See US-2)
+- **FR-004**: System MUST estimate the statistical uncertainty of the spectral lag using bootstrap resampling of photon arrival times (≥ 1,000 resamples). (See US-2)
+- **FR-005**: System MUST perform a weighted linear regression of lag vs. photon energy to derive a 95% confidence upper bound on $E_{\rm QG}$ for each burst. (See US-2)
+- **FR-006**: System MUST combine individual burst $E_{\rm QG}$ estimates using inverse-variance weighting to produce a global upper bound. (See US-2)
+- **FR-007**: System MUST generate 10,000 synthetic light curves with randomized photon energies to construct a null distribution of $E_{\rm QG}$ estimates. (See US-3)
+- **FR-008**: System MUST perform a sensitivity analysis by varying energy-band boundaries by ±10% and reporting the variation in the final $E_{\rm QG}$ limit. (See US-3)
+
+### Key Entities
+
+- **GRBEvent**: Represents a single Gamma-Ray Burst, including attributes: `grb_id`, `redshift`, `sky_position`, `fluenece_rank`.
+- **LightCurve**: Represents the time-series data for a specific energy band, including attributes: `time_bins`, `photon_counts`, `background_counts`.
+- **SpectralLag**: Represents the measured time delay between energy bands, including attributes: `lag_ms`, `uncertainty_ms`, `ccf_peak_position`.
+- **LIVConstraint**: Represents the derived physical limit, including attributes: `energy_scale_gev`, `confidence_level`, `burst_id`.
+
+## Success Criteria
+
+### Measurable Outcomes
+
+> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
+
+- **SC-001**: The 95% confidence upper limit on the linear LIV energy scale ($E_{\rm QG}$) is measured against the literature benchmark of $\sim10^{19}$ GeV to determine if the result is competitive. (See US-2)
+- **SC-002**: The consistency of the derived limit across the sample of ≈30 bright GRBs is measured against the variance of individual burst estimates to ensure no single outlier dominates the global bound. (See US-2)
+- **SC-003**: The absence of systematic bias is measured by comparing the observed $E_{\rm QG}$ distribution against the null distribution generated from 10,000 simulated datasets with randomized energies. (See US-3)
+- **SC-004**: The robustness of the result is measured by the percentage change in the final $E_{\rm QG}$ limit when energy-band boundaries are swept by ±10%. (See US-3)
+
+## Assumptions
+
+- The Fermi Science Support Center provides public access to the required light-curve files for the top 30 brightest GRBs without authentication barriers.
+- Redshift values are available for at least 80% of the top 30 brightest GRBs; bursts without redshift will be excluded from the $E_{\rm QG}$ calculation.
+- The linear dispersion relation $\Delta t = \frac{E}{E_{\rm QG}} \frac{D}{c}$ is the correct model for the LIV effect at the energy scales probed by Fermi-GBM.
+- The free-tier GitHub Actions runner (2 CPU cores, ~7 GB RAM) is sufficient to process 30 GRBs and run a statistically robust set of Monte Carlo simulations within the 6-hour job limit., provided the data is sampled or processed in batches.
+- The background subtraction method used in the standard GBM offline tools is applicable to the re-binned data without requiring custom algorithmic adjustments.
+- The spectral lag is dominated by intrinsic source effects or LIV, and instrumental time delays are negligible or corrected for in the raw data.

@@ -3,7 +3,7 @@
 **Input**: Design documents from `/specs/001-assessing-statistical-power/`
 **Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data-model.md`, `contracts/`
 
-**Tests**: {{claim:c_babc8e9d}} (2302.05330, https://arxiv.org/abs/2302.05330) Tests are OPTIONAL – only include them if explicitly requested in the feature specification.
+**Tests**: {{claim:c_babc8e9d}} (2302.05330, https://arxiv.org/abs/2302.05330) Tests are OPTIONAL – only include them if explicitly requested in the feature specification. [UNRESOLVED-CLAIM: c_008e5e0b — status=not_enough_info]
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -20,16 +20,16 @@
 - [X] T001 Create project directory tree (`mkdir -p projects/PROJ-234-assessing-statistical-power-in-reproduci/code/utils projects/PROJ-234-assessing-statistical-power-in-reproduci/data/raw projects/PROJ-234-assessing-statistical-power-in-reproduci/data/processed projects/PROJ-234-assessing-statistical-power-in-reproduci/tests/unit projects/PROJ-234-assessing-statistical-power-in-reproduci/tests/contract projects/PROJ-234-assessing-statistical-power-in-reproduci/docs projects/PROJ-234-assessing-statistical-power-in-reproduci/contracts`) **and verify** each directory exists (`test -d <dir> && echo OK`).
 - [X] T002 Initialize Python 3 project with `requirements.txt` containing exactly:
  ```
- pandas==2.0.3
- openml==0.14.2
- statsmodels==0.14.1
- requests==2.31.0
- matplotlib==3.8.0
- pytest==7.4.0
- beautifulsoup4==4.12.2
+ pandas==2.0.3 [UNRESOLVED-CLAIM: c_01608c1a — status=not_enough_info]
+ openml==0.14.2 [UNRESOLVED-CLAIM: c_4eb1838c — status=not_enough_info]
+ statsmodels==0.14.1 [UNRESOLVED-CLAIM: c_7b60c72b — status=not_enough_info]
+ requests==2.31.0 [UNRESOLVED-CLAIM: c_9053ff59 — status=not_enough_info]
+ matplotlib==3.8.0 [UNRESOLVED-CLAIM: c_bb3e3d90 — status=not_enough_info]
+ pytest==7.4.0 [UNRESOLVED-CLAIM: c_3cd2bbbf — status=not_enough_info]
+ beautifulsoup4==4.12.2 [UNRESOLVED-CLAIM: c_ee915e37 — status=not_enough_info]
  ```
  **and verify** installability with a dry‑run (`pip install -r requirements.txt --dry-run`).
-- [X] T003 [P] Configure linting by creating `pyproject.toml` with `[tool.black] max-line-length=88 target-version=['py310']` and `.flake8` with `max-line-length=88`. **Verify** by running `black --check.` and `flake8.`.
+- [X] T003 [P] Configure linting by creating `pyproject.toml` with `[tool.black] max-line-length=88 [UNRESOLVED-CLAIM: c_7af05c90 — status=not_enough_info] target-version=['py310'] [UNRESOLVED-CLAIM: c_4508382a — status=not_enough_info]` and `.flake8` with `max-line-length=88 [UNRESOLVED-CLAIM: c_7af05c90 — status=not_enough_info]`. **Verify** by running `black --check.` and `flake8.`.
 
 ---
 
@@ -68,7 +68,7 @@
 - [ ] T011 [P] [US1] Contract test `tests/contract/test_schemas.py::test_dataset_metadata_schema` validates `data/raw/openml_metadata_filtered.json` against `contracts/dataset_metadata.schema.yaml`.
 - [X] T012 [US1] Implement `code/01_ingest_openml.py` with function:
  ```python
- def fetch_top_classification_datasets(limit: int = 50) -> List[Dict]:
+ def fetch_top_classification_datasets(limit: int = 50) [UNRESOLVED-CLAIM: c_7401197f — status=not_enough_info] -> List[Dict]:
 ...
  ```
  Save raw API response to `data/raw/openml_metadata_raw.json`.
@@ -99,9 +99,9 @@
 - [ ] T021 [US2] Implement `code/02_parse_publications.py` that iterates over `data/raw/openml_metadata_filtered.json`, fetches full‑text (see T022), and writes extracted rows to `data/processed/extracted_params.json`. Use the JSON schema defined in contracts. <!-- ATOMIZE: requested -->
 - [ ] T022 [US2] Fetch full‑text from `publication_link` using `requests.get` (timeout 10 s). Before download, call `oa_checker.is_open_access(url)`; if False, mark status `"paywalled"` and skip extraction (log accordingly). **Verify** with a mock OA check in unit test.
 - [ ] T021.1 [US2] After fetching, validate that the publication actually reports a **univariate** effect size (i.e., metric_type is one of `"Cohen's d"` or `"F"`). If not, log `"insufficient data"` and treat as `"unparseable"` – this satisfies FR‑007.
-- [~] T023 [US2] If full‑text fetch fails or is paywalled, attempt abstract retrieval via DOI metadata API; parse using same regexes. Mark source as `"abstract"` if used.
-- [~] T024 [US2] Edge‑case handling: for entries where no metric can be extracted, record status `"unparseable"` in the JSON and log a warning; **do not crash**.
-- [~] T026 [US2] Save each extracted record with fields:
+- [ ] T023 [US2] If full‑text fetch fails or is paywalled, attempt abstract retrieval via DOI metadata API; parse using same regexes. Mark source as `"abstract"` if used.
+- [ ] T024 [US2] Edge‑case handling: for entries where no metric can be extracted, record status `"unparseable"` in the JSON and log a warning; **do not crash**.
+- [ ] T026 [US2] Save each extracted record with fields:
  `dataset_id, sample_size, effect_size, metric_type, degrees_of_freedom (optional), source_url, status`.
 - [ ] T027 [US2] Generate `data/processed/extraction_stats.json` with keys `success_rate`, `failure_reasons` (counts of `"paywalled"`, `"unparseable"`, `"insufficient data"`).
 - [ ] T028.1 [US2] Compute sensitivity delta:
@@ -120,11 +120,11 @@
 
 **Independent Test**: Run `code/03_compute_sensitivity.py` on synthetic parameters and verify both power and MDES values; run `code/04_generate_report.py` and check histogram, MDES distribution, and disclaimer presence.
 
-- [~] T029 [P] [US3] Unit test `tests/unit/test_sensitivity.py::test_compute_observed_power_and_mdes` using synthetic input `N=100, d=0.2` expects observed power ≈0.30 (±0.05) and MDES ≈0.25 (±0.05).
-- [~] T030 [P] [US3] Contract test `tests/contract/test_schemas.py::test_final_report_schema` validates `data/processed/audit_report.json` against `contracts/report.schema.yaml`.
+- [ ] T029 [P] [US3] Unit test `tests/unit/test_sensitivity.py::test_compute_observed_power_and_mdes` using synthetic input `N=100, d=0.2` expects observed power ≈0.30 (±0.05) [UNRESOLVED-CLAIM: c_be6a5a25 — status=not_enough_info] and MDES ≈0.25 (±0.05) [UNRESOLVED-CLAIM: c_9b2a1766 — status=not_enough_info].
+- [ ] T030 [P] [US3] Contract test `tests/contract/test_schemas.py::test_final_report_schema` validates `data/processed/audit_report.json` against `contracts/report.schema.yaml`.
 - [X] T031 [US3] Implement `code/03_compute_sensitivity.py`:
  - Function `compute_observed_power(params: StatisticalParameters) -> float` using `statsmodels.stats.power.TTestIndPower`.
- - Function `compute_mdes(params: StatisticalParameters, alpha: float = 0.05, power: float = 0.8) -> float` (inverse power calculation).
+ - Function `compute_mdes(params: StatisticalParameters, alpha: float = 0.05 [UNRESOLVED-CLAIM: c_7ca28a70 — status=not_enough_info], power: float = 0.8 [UNRESOLVED-CLAIM: c_1cfe648a — status=not_enough_info]) -> float` (inverse power calculation).
  - Process all entries from `extracted_params.json`, compute both metrics, clamp observed power to ≤ 1.0, and store results.
 - [~] T032 [US3] For entries with metric_type `"F"` and provided degrees of freedom, convert to Cohen’s d using standard formula before power/MDES calculations. Clamp any power > 1.0 to 1.0 and log a warning.
 - [ ] T033 [US3] Save results to `data/processed/power_audit_results.json` with schema:

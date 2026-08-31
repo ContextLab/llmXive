@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T23:00:51.714359Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-975-llmxive-follow-up-extending-from-chatbot
-last_run_id: 8cf905dd-e538-462e-bf85-1a2024eaeae7
+last_run_id: 018dd3e6-eb06-4b4f-b992-f2cf789c6cef
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/specs/001-llmxive-follow-up-extending-from-chatbot
 title: 'llmXive follow-up: extending "From Chatbot to Digital Colleague: The Paradigm
   Shift Toward Persisten"'
-updated_at: '2026-08-12T17:23:08.402915Z'
+updated_at: '2026-08-31T12:52:17.543817Z'

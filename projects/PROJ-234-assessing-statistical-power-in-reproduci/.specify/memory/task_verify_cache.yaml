@@ -1,10 +1,10 @@
 T011:
   c: false
-  h: 8c23b03896e2e591dc2131d59e8d2622cc4266eebe0c5292d611c21bf1444543
-  r: The contract test expects a schema at `contracts/dataset_metadata.schema.yaml`,
-    but that file is missing, causing the test to fail. Additionally, the JSON data
-    file is only a placeholder empty list, not real filtered metadata. Both required
-    artifacts are absent or insufficient, so the task is not genuinely satisfied.
+  h: a219ab33add7e7a7c50c272ab45b70b17b44ebc3bcbf4a0a9a3a21029484eb5d
+  r: The test script `tests/contract/test_schemas.py` is present, but the required
+    artifacts `data/raw/openml_metadata_filtered.json` and `contracts/dataset_metadata.schema.yaml`
+    do not exist, causing the test to be skipped or fail. Without these files the
+    contract validation cannot be performed.
 T015:
   c: false
   h: 4a47fe0244967c92bb0cc1489b8752ff218e8cba810215ff6ce3702061250a7e
@@ -41,3 +41,38 @@ T022:
     \ the full\u2011text with `requests.get`, invoking `oa_checker.is_open_access`,\
     \ handling the paywalled case, or a mock\u2011based test verifying this behavior.\
     \ The required artifacts are missing, so the task is not satisfied."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation was provided showing that a DOI metadata API\
+    \ fallback is attempted when full\u2011text fetch fails, that the abstract is\
+    \ parsed with the same regexes, or that the source field is set to `\"abstract\"\
+    `. The required implementation artifact is missing."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The submission contains only the task description and specification excerpts;
+    there is no code, JSON output, or log evidence showing that entries lacking extractable
+    metrics are marked `"unparseable"` and that a warning is logged without crashing.
+    The required artifact (implementation handling the edge case) is missing.
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., a JSON/CSV file, database dump, or code that writes extracted
+    records) was provided, and there is no evidence that the system actually saves
+    each extracted record with the required fields. The implementer only supplied
+    a feature specification without any concrete output.
+T029:
+  c: false
+  h: dc2f7f8d3d0d4a83e8e217169816c617b99c3ec570d5f4f20474ed1e20104bb4
+  r: The required unit test file `tests/unit/test_sensitivity.py` is missing from
+    the repository, so no test code or results exist to verify the expected observed
+    power and MDES values. Without the test artifact, the claim cannot be validated.
+T030:
+  c: false
+  h: 5b9ffc29b70bbd4c834cea2e8fc92ca773e2d7ce39d803e5ae3dc52b510e3539
+  r: "The provided `tests/contract/test_schemas.py` validates `data/raw/openml_metadata_filtered.json`\
+    \ against `contracts/dataset_metadata.schema.yaml`, not `data/processed/audit_report.json`\
+    \ against `contracts/report.schema.yaml`. Moreover, the required `data/processed/audit_report.json`\
+    \ and `contracts/report.schema.yaml` files are missing entirely. The task\u2019\
+    s contract test and target artifacts are therefore not present."

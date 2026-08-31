@@ -13,14 +13,12 @@ T003:
   r: "No `quickstart.md` file was presented; there is no evidence of a non\u2011empty\
     \ markdown document containing placeholder text and installation instructions,\
     \ which is the explicit deliverable of task T003. The required artifact is missing."
-T016:
+T026:
   c: false
-  h: 61c4802eb00d18738b51453650d2973dc34bc3fe32ec312e65013d642dac32d6
-  r: "The repository lacks `data/raw/tasks.json`, so the required `maximal_overlap_detected`\
-    \ flag cannot be verified. Moreover, the shown portion of `code/generate_data.py`\
-    \ does not contain any implementation for detecting mean pairwise similarity \u2265\
-    \u202F0.95, updating `tasks.json`, logging a warning, or exiting with code\u202F\
-    0. The task\u2019s core functionality is therefore missing."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, logs, or documentation showing that the agent now handles missing\u2011\
+    skill edge cases, logs the missing skill ID, and records the failure without crashing\
+    \ were provided. The required implementation artifact is missing."
 T032:
   c: false
   h: 90ee48ded2f6fa2f4deb7b5fdda65d18b26e901cb9777a5fc422a25bb4ea9566
@@ -29,6 +27,13 @@ T032:
     \ that writes the tipping point, p\u2011value, and VIF metrics to `data/results/final_analysis.json`).\
     \ Moreover, the required `data/results/final_analysis.json` file does not exist.\
     \ The task\u2019s deliverables are therefore missing."
+T033:
+  c: false
+  h: dbe819b07e2da0c2314d1d20d6349da581de549ec4a965515d8136d7e2c79d33
+  r: The `code/analyze.py` contains a `perform_piecewise_regression` function, but
+    it never writes the computed `x0` to `data/results/tipping_point.json` (the file
+    is missing). Consequently the required output artifact is absent, so the task
+    is not fulfilled.
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -36,12 +41,12 @@ T034:
     cannot confirm that installation and run instructions were added as required.
     The implementer must supply the updated README showing the requested sections.
 T036:
-  c: true
-  h: 76db9828ce17e3a691041fc44481fb801df82c9d86ac27020fa34901f6eb5fef
-  r: "The repository contains a non\u2011empty `code/run_baseline.py` that defines\
-    \ the required library sizes, disables pruning, and references the output path\
-    \ `data/results/experiment_log_baseline.csv`. The missing CSV is an expected runtime\
-    \ product, not a required deliverable."
+  c: false
+  h: f2acb305946b27ef906b24342644acd5c39d05ea4070bc18f540cf6f6bfcf97a
+  r: The repository contains `code/run_baseline.py`, but the required output file
+    `data/results/experiment_log_baseline.csv` is absent, so the baseline log has
+    not been generated as the task demands. The missing CSV file must be created with
+    valid experiment data for the task to be considered complete.
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

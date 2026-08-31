@@ -1,49 +1,11 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or other evidence were provided to show that the required
-    folders (`data/raw`, `data/processed`, `code`, `tests`, `artifacts/logs`, `artifacts/plots`,
-    `artifacts/reports`, `contracts`) were actually created; without such proof the
-    task cannot be confirmed as done.
-T003b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No configuration files (e.g., `pyproject.toml` with ruff/black settings) or\
-    \ command\u2011line output showing that ruff and black were run on the empty project\
-    \ are present. Consequently there is no evidence that linting/formatting tools\
-    \ were configured or that initial checks verified their validity. The required\
-    \ artifacts are missing."
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `contracts/` directory or JSON Schema files for `PaperManifest`, `ReproResult`,
-    or `StatSummary` were presented. Without these artifacts, the task of setting
-    up the directory and generating the required schemas is not satisfied.
-T013:
-  c: false
-  h: 8061a0c24f0492e2880e638c12f25a649f7e1722e530e65d9bd4fd8b59cd482d
-  r: "The provided `code/model_runner.py` is only partially shown and does not contain\
-    \ the training, evaluation, JSON\u2011output, or model\u2011substitution logic\
-    \ required by the task. Moreover, the expected output file `artifacts/reports/repro_results.json`\
-    \ is missing. The implementation therefore does not satisfy the stated requirements."
-T018:
-  c: false
-  h: bd6c869226d2d1775cf4cf16f0c99c817b585602980cc41bcd45550f0be46a4b
-  r: The repository contains a `code/main.py` file, but the shown portion stops before
-    any logic that aggregates `ReproResult` objects or writes `artifacts/reports/repro_results.json`.
-    Moreover, the required `reports/repro_results.json` file is absent from the project.
-    Consequently, the implementation does not fulfill the task of producing the aggregated
-    JSON report. The missing aggregation code and the nonexistent output file must
-    be added.
 T029:
   c: false
-  h: fde3c76096ff8c2568a0284984ec374eab2aaa3ffd1ab02472cd7ccc8c3c28a5
-  r: "The provided `code/stats.py` contains functions for loading results, extracting\
-    \ metrics, and running paired t\u2011tests, but it never computes heterogeneity\
-    \ (I\xB2) or a pooled effect size from mixed\u2011effects model results, nor does\
-    \ it write any JSON to `artifacts/reports/stat_summary.json`. Moreover, the required\
-    \ `stat_summary.json` file is absent from the repository. The task\u2019s core\
-    \ requirements are therefore unmet."
+  h: 6a9b43d689649368ff7720c6addaae481ed31386720629d634248b3657ac5bb4
+  r: "The repository lacks the required `artifacts/reports/stat_summary.json` file,\
+    \ and the provided `code/stats.py` does not contain logic for computing heterogeneity\
+    \ (I\xB2) or a pooled effect size from mixed\u2011effects model results nor does\
+    \ it write those results to the specified JSON file. The script is truncated and\
+    \ focuses on paired t\u2011tests instead of the requested meta\u2011analysis output."
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -51,3 +13,26 @@ T030:
     \ failure log for excluded papers or that flag these exclusions in the results\
     \ log. Without any artifact showing the required logic or logs, the task\u2019\
     s requirement is not satisfied."
+T034:
+  c: false
+  h: db2c9badb2669bbcdd9bc0e3d9eb6732359d038e160a2a2026f4935eecffbf9b
+  r: The required `artifacts/reports/stat_summary.json` file is absent, and the provided
+    `code/guidelines.py` contains only template definitions and no code that actually
+    reads or parses `stat_summary.json` (or a qualitative failure log). Consequently
+    the implementation does not fulfill the task of parsing those artifacts.
+T036:
+  c: false
+  h: c49bd04800651178518ce5147b3dec219c6178335371adff5d6937b92d9de0ca
+  r: "The repository contains `code/guidelines.py`, but it does not produce (or write)\
+    \ the required `artifacts/reports/reproducibility_checklist.md`, and that file\
+    \ is absent from the project. Consequently the checklist with \u22655 numbered\
+    \ items citing published guidelines and linking to failure modes is not present.\
+    \ The next implementer must add code that writes the markdown file (or provide\
+    \ the file) meeting the specified format."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or generated Markdown checklist was provided to demonstrate\
+    \ that logic ensuring checklist items are actionable has been added. The required\
+    \ artifact (e.g., updated guideline\u2011generation code or a sample actionable\
+    \ checklist) is missing, so the task is not verified as completed."

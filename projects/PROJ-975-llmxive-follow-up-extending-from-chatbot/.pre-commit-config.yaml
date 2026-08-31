@@ -1,11 +1,44 @@
+# Pre-commit configuration for llmXive project
+# Enforces linting (ruff) and formatting (black) standards
+# Install with: pre-commit install
+
 repos:
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.6
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
     hooks:
-      - id: ruff
-        args: [--fix]
+      - id: trailing-whitespace
+        files: \.(py|md|yaml|yml|json)$
+      - id: end-of-file-fixer
+        files: \.(py|md|yaml|yml|json)$
+      - id: check-yaml
+        args: [--unsafe]
+      - id: check-json
+      - id: check-ast
+      - id: check-merge-conflict
+      - id: debug-statements
+
   - repo: https://github.com/psf/black
-    rev: 23.12.1
+    rev: 24.2.0
     hooks:
       - id: black
-        language_version: python3
+        language_version: python3.11
+        args: [--line-length=100]
+        files: ^code/|tests/
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.0
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+        files: ^code/|tests/
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - types-PyYAML
+          - types-requests
+          - types-pandas
+        args: [--ignore-missing-imports]
+        files: ^code/|tests/
