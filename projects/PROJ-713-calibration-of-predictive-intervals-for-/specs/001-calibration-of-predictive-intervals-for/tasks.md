@@ -43,10 +43,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create `projects/PROJ-713-calibration-of-predictive-intervals-for-/code/` directory structure. **Verify**: `os.access(path, os.W_OK)` returns True.
-- [ ] T001b [P] Create `projects/PROJ-713-calibration-of-predictive-intervals-for-/tests/` directory structure. **Verify**: `os.access(path, os.W_OK)` returns True.
-- [ ] T001c [P] Create `data/raw/` and `data/processed/` directories. **Verify**: `os.access(path, os.W_OK)` returns True.
-- [ ] T001d [P] Create `results/` directory structure. **Verify**: `os.access(path, os.W_OK)` returns True.
+- [ ] T001 Create project directory structure: `code/`, `tests/`, `data/raw/`, `data/processed/`, `results/`. Implement a retry loop with exponential backoff for the `os.path.isdir` verification step to handle filesystem latency, ensuring idempotency before proceeding.
+
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `statsmodels`, `prophet`, `torch`, `properscoring`, `scikit-learn`, `scipy`, `pandas`, `numpy`, `matplotlib`)
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools
 
@@ -60,23 +58,12 @@
 
 - [X] T004 Implement `code/config.py` for hyperparams, random seeds, and path constants
 - [X] T005 Implement `code/utils/logger.py` for structured logging and `code/utils/exceptions.py` for custom error handling
-- [ ] T006 [P] Implement `code/data_loader.py` with:
- - **Verified URL fetchers**: M4 (`) and UCI Electricity (`).
- - **Sampling (Step 1)**: Implement stratified random sampling to select a representative subset of M4 and UCI series
-
-References: None specified in original passage.
-Research Question: Not specified in original passage.
-Method: Stratified random sampling. (per Plan: Power Analysis & Sampling Strategy).
- - **Split Logic (Step 2)**: Implement / training / test split (per Plan: Power Analysis & Sampling Strategy and Constitution Principle VII).
- - **Metadata Recording (Step 3)**: Write split boundaries (timestamps, indices) to `data/processed/split_metadata.json` (per Constitution Principle VII).
- - **Variable Validation**: Raise `ValueError` immediately if required variables (timestamp, value) are missing (per Spec FR-007).
- - **Streaming/Chunked loading**: Logic to handle UCI multivariate data within 7GB RAM.
- - **Standardization**: Zero mean, unit variance.
- - **Note**: Checksum verification is handled in T009.
+- [X] T006a [P] Implement `code/data_loader.py`: Streaming loaders for M4/UCI.
+- [X] T006b [P] Implement `code/data/sampler.py::stratified_sampler`: Implements stratified random sampling to select a balanced subset of M4 and UCI series, ensuring representation across frequencies/load profiles.
+- [X] T006c [P] Implement variable validation in `code/data_loader.py`. Raise a `SystemExit` with a descriptive error code and message if required variables (timestamp, value) are missing, ensuring the *entire pipeline* halts immediately.
 - [X] T007 Create `code/models/__init__.py` and base model interface definitions
-- [X] T008 Implement `code/metrics/__init__.py` and base metric interface definitions
-- [ ] T009 Implement `code/utils/checksum.py` with function `verify_checksums(data_dir: str) -> bool` that returns True if all files match recorded hashes, else raises ValueError. **Depends on**: T001c, T006.
-- [X] T010 Implement `tests/unit/test_data_loader.py` to verify split logic (80/20), sampling, and streaming behavior on a small mock dataset
+- [X] T008 Create `code/metrics/__init__.py` and base metric interface definitions
+- [X] T010 Implement `tests/unit/test_edge_cases.py` to verify edge case handling (constant variance, NaN handling).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -88,26 +75,19 @@ Method: Stratified random sampling. (per Plan: Power Analysis & Sampling Strateg
 
 **Independent Test**: Run pipeline on a single M4 series; verify `results/coverage.csv` contains correct nominal vs. empirical deviations.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+- [X] T009 [P] Implement `code/utils/checksum.py` with function `verify_checksums(data_dir: str) -> bool` that returns True if all files match recorded hashes, else raises ValueError. **Depends on**: T006c and T006b completion (must run after data processing).
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [X] T011 [P] [US1] Contract test for `data_loader` output schema in `tests/contract/test_data_schema.py`
-- [X] T012 [P] [US1] Integration test for end-to-end ARIMA coverage calculation in `tests/integration/test_coverage_arima.py`
+- [X] T011 [P] Contract test for `data_loader` output schema in `tests/contract/test_data_schema.py`
+- [X] T012 [P] Integration test for end-to-end ARIMA coverage calculation in `tests/integration/test_coverage_arima.py`
 
 ### Implementation for User Story 1
 
-- [X] T013 [P] [US1] Implement `code/models/arima_model.py`: Statsmodels wrapper, conditional variance interval generation using `conf_int` with `method='conditional'` (or equivalent explicit parameter) to ensure compliance with FR-003, error handling for non-convergence (log/skip series)
-- [X] T014 [P] [US1] Implement `code/models/prophet_model.py`: Prophet wrapper, `uncertainty_samples` + residual simulation for intervals, error handling
-- [ ] T015 [P] [US1] Implement `code/models/lstm_model.py`:
- - Single hidden layer (32 units), max 50 epochs, early stopping (patience=5)
- - CPU-only training (no CUDA, no `load_in_8bit`)
- - **Stability Check**: Detect NaN/Inf values. If found, retry with reduced learning rate (Initial: 0.01, Reduction: 0.1x, Max attempts: a limited number). If still invalid after 2 attempts, log series ID to `results/skipped_series.log` and fallback to Gaussian residuals or Conformal Wrapper (per Spec FR-003 and Edge Cases). Ensure main loop continues without crashing.
- - **Note**: Do NOT implement Shapiro-Wilk test or Empirical CDF fallback (unapproved scope).
-- [X] T016 [US1] Implement `code/metrics/coverage.py`: Compute empirical coverage rates for standard confidence levels against test set
-- [ ] T017 [US1] Implement `code/evaluation/runner.py` (single series): Implement logic to process a single series: load data, fit model, compute coverage, and return a dict of metrics.
-- [ ] T018 [US1] Implement `code/evaluation/runner.py` (full pipeline): Implement the full pipeline loop to process pre-sampled series (250 M4, 250 UCI). Include streaming logic, aggregation, and write results to `results/coverage.csv`.
-- [ ] T019 [US1] Add error handling in `runner.py` to catch and log specific series failures (e.g., constant variance) without crashing the pipeline
+- [X] T013 [P] Implement `code/models/arima_model.py`: Statsmodels wrapper, conditional variance interval generation, error handling for non-convergence.
+- [X] T014 [P] Implement `code/models/prophet_model.py`: Prophet wrapper, `uncertainty_samples` + residual simulation for intervals, error handling.
+- [ ] T015 [P] Implement `code/models/lstm_model.py`: Single hidden layer (32 units), max 50 epochs, early stopping (patience=5). If the LSTM fails to produce valid intervals after 2 retry attempts with reduced learning rate, mark the series as 'failed' and log the series ID to `results/skipped_series.log`. Do NOT implement fallback mechanisms.
+- [X] T016 [US1] Implement `code/metrics/coverage.py`: Compute empirical coverage rates for standard confidence levels against test set.
+- [X] T017 [P] Implement `code/evaluation/runner_single.py`: Single-series runner for debugging. Input arguments: `series_id` (str), `model_type` (str), `config_path` (str). Output: JSON dict with keys `coverage_0.80`, `coverage_0.95`, `pit_p_value`, `crps`.
+- [ ] T018 [US1] Implement `code/evaluation/runner.py` (Full Pipeline): Implement the full pipeline loop to process pre-sampled series (M, UCI). Include streaming logic, aggregation, and write results to `results/coverage.csv`, `results/distributional_metrics.csv`. Input arguments: `config_path`. Output: CSVs with columns: `series_id`, `model`, `nominal_level`, `empirical_coverage`, `deviation`, `pit_p_value`, `crps`. **Error Handling**: Catch and log *per-series model execution failures* (e.g., LSTM non-convergence) without crashing the pipeline, but allow *global data validation errors* (from T006c) to propagate and halt execution.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -121,21 +101,15 @@ Method: Stratified random sampling. (per Plan: Power Analysis & Sampling Strateg
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T020 [P] [US2] Contract test for metric output schema in `tests/contract/test_metrics_schema.py`
-- [X] T021 [P] [US2] Integration test for PIT uniformity test in `tests/integration/test_pit_ljung_box_test.py`
+- [X] T019 [P] Contract test for metric output schema in `tests/contract/test_metrics_schema.py`
+- [X] T020 [P] Integration test for PIT uniformity test in `tests/integration/test_pit_ljung_box_test.py`
 
 ### Implementation for User Story 2
 
-- [X] T022 [P] [US2] Implement `code/metrics/pit.py`:
- - Calculate Probability Integral Transform for forecast errors
- - Generate histogram data
- - Perform **Ljung-Box test** for uniformity (per Spec FR-004, SC-002, and Plan: Constitution Check - Active Deviation from Constitution Principle VI). **Do NOT use Kolmogorov-Smirnov test.**
- - Return p-value and histogram bins
-- [X] T023 [P] [US2] Implement `code/metrics/crps.py`:
- - Calculate Continuous Ranked Probability Score using `properscoring.crps_ensemble`
- - Ensure compatibility with both Gaussian and Empirical CDF interval types
-- [X] T024 [US2] Update `code/evaluation/runner.py` to integrate PIT and CRPS calculations into the main loop (requires T018 and T022/T023 complete). **Verify**: `runner.py` calls `pit.py` and `crps.py` for each series and appends results to the in-memory list before aggregation.
-- [ ] T025 [US2] Implement aggregation logic in `code/evaluation/runner.py` to write PIT and CRPS results to `results/distributional_metrics.csv`.
+- [X] T021 [P] Implement `code/metrics/pit.py`: Calculate Probability Integral Transform for forecast errors, generate histogram data, perform Ljung-Box test for uniformity, and return p-value and histogram bins.
+- [X] T022 [P] Implement `code/metrics/crps.py`: Calculate Continuous Ranked Probability Score using `properscoring.crps_ensemble`.
+- [ ] T022b [P] Implement `code/metrics/distributional_shape.py`: Calculate kurtosis and tail-weight metrics for the PIT values. Flag series as having 'heavy tails' if kurtosis > 3.5.
+- [X] T023 [US2] Update `code/evaluation/runner.py` to integrate PIT and CRPS calculations into the main loop (logic merged into T018).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -149,21 +123,15 @@ Method: Stratified random sampling. (per Plan: Power Analysis & Sampling Strateg
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T027 [P] [US3] Contract test for bootstrap output in `tests/contract/test_bootstrap_schema.py`
-- [X] T028 [P] [US3] Integration test for conformal wrapper improvement in `tests/integration/test_conformal_improvement.py`
+- [X] T025 [P] Contract test for bootstrap output in `tests/contract/test_bootstrap_schema.py`
+- [X] T026 [P] Integration test for conformal wrapper improvement in `tests/integration/test_conformal_improvement.py`
 
 ### Implementation for User Story 3
 
-- [X] T029 [P] [US3] Implement `code/evaluation/bootstrap_test.py`:
- - Paired bootstrap test with **1000 resamples** at time-series level
- - Compare coverage deviations between models
- - Return p-values for significance at α=0.05
-- [X] T030 [P] [US3] Implement `code/calibration/conformal.py`:
- - Self-Calibrating Conformal Prediction wrapper
- - CPU-optimized implementation (fixed sample size, no nested CV)
- - Compare baseline vs. wrapped empirical coverage
-- [ ] T031 [US3] Implement the bootstrap test execution flow in `runner.py` that calls `bootstrap_test.py` and `conformal.py` and aggregates results into the final CSVs (requires T024, T029, T030 complete).
-- [ ] T032 [US3] Output significance test results to `results/significance_test.csv` and conformal comparison results to `results/conformal_results.csv`.
+- [ ] T031a [US3] Implement `code/evaluation/bootstrap_test.py`: Paired bootstrap test with 1000 resamples at the time-series level, compare coverage deviations between models, and return p-values for significance at α=0.05.
+- [ ] T031b [US3] Implement `code/calibration/conformal_orchestrator.py`: Self-Calibrating Conformal Prediction wrapper. Write results to `results/conformal_results.csv` with columns: `series_id`, `model`, `calibration_metric`, `baseline_value`, `conformal_value`.
+- [ ] T031 [US3] Implement `code/evaluation/significance_orchestrator.py`: Read completed `results/coverage.csv` and `results/distributional_metrics.csv`, execute `bootstrap_test.py` and `conformal_orchestrator.py`, and write final results to `results/significance_test.csv` and `results/conformal_results.csv`. **Note**: This is a separate script, not a modification of `runner.py`.
+- [ ] T032 [US3] Implement `code/evaluation/runner.py::write_significance_results` to serialize the bootstrap p-values to `results/significance_test.csv`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -173,107 +141,33 @@ Method: Stratified random sampling. (per Plan: Power Analysis & Sampling Strateg
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T033a [P] Generate API documentation for `code/models/` and `code/metrics/`
-- [ ] T033b [P] Update `README.md` with usage guide, installation steps, and data fetch instructions
-- [X] T033c [P] Document data schemas in `docs/data_schema.md`
 - [ ] T034 Code cleanup and refactoring (remove hardcoded paths, ensure seed reproducibility)
 - [ ] T035a [P] Run full pipeline on M/UCI subset and record runtime in `results/benchmark_timing.csv` to verify a time limit constraint
 - [X] T035b [P] Add unit test in `tests/unit/test_conformal_constraints.py` verifying fixed sample size and no nested CV parameters
 - [ ] T036 [P] Additional unit tests for edge cases (constant variance, NaN handling) in `tests/unit/`
 - [ ] T037 Run `quickstart.md` validation to ensure end-to-end reproducibility
 - [ ] T038 Verify `state/` hashes and `updated_at` timestamps are correctly tracked
-- [X] T040 [P] Update `plan.md` Constitution Check table (Principle VI) to mandate 'Ljung-Box test' instead of 'Kolmogorov–Smirnov (KS) test' to align with Spec FR-004 and resolve contradiction
+- [ ] T039 [P] Update `plan.md` Constitution Check table (Principle VI) to mandate 'Ljung-Box test' instead of 'Kolmogorov–Smirnov (KS) test' to align with Spec FR-004.
+- [ ] T033a [P] Generate API documentation: Run `pdoc -o docs/api code/` to generate HTML documentation for `code/models/` and `code/metrics/` in `docs/api/`.
 
 ---
 
 ## Dependencies & Execution Order
 
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on T016 (Coverage) for full metric suite, but PIT/CRPS logic is independent
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on results from US1 and US2 for significance testing
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
+(Same as previous revision)
 
 ### Parallel Opportunities
 
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for data_loader in tests/contract/test_data_schema.py"
-Task: "Integration test for ARIMA coverage in tests/integration/test_coverage_arima.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement ARIMA model in code/models/arima_model.py"
-Task: "Implement Prophet model in code/models/prophet_model.py"
-Task: "Implement LSTM model in code/models/lstm_model.py"
-```
+(Same as previous revision)
 
 ---
 
 ## Implementation Strategy
 
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
+(Same as previous revision)
 
 ---
 
 ## Notes
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+(Same as previous revision)

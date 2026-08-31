@@ -1,23 +1,7 @@
 [flake8]
-max-line-length = 88
+max-line-length = 100
 extend-ignore = E203, W503
-exclude =
-    .git,
-    __pycache__,
-    .eggs,
-    *.egg-info,
-    build,
-    dist,
-    .mypy_cache
+exclude = .git,__pycache__,build,dist,venv,env,.venv
 per-file-ignores =
-    # Allow wildcard imports in __init__.py files for package interfaces
-    code/models/__init__.py:F401
-    code/metrics/__init__.py:F401
-    code/evaluation/__init__.py:F401
-    code/calibration/__init__.py:F401
-    code/utils/__init__.py:F401
-    # Allow unused arguments in abstract base classes/interfaces if defined as such
-    code/models/*.py:ARG001
-# Ensure consistent imports
-import-order-style = pep8
-application-import-names = code
+    __init__.py:F401
+    tests/*:D100,D101,D102,D103

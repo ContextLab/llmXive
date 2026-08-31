@@ -17,7 +17,7 @@ This feature implements a rigorous benchmarking pipeline to evaluate the calibra
 **Project Type**: Research pipeline / CLI tool.  
 **Performance Goals**: Complete full benchmark on a **stratified sample of 500 series** (250 M4, 250 UCI) within 6 hours; handle streaming for large UCI series.  
 **Constraints**: No local GPU; LSTM must run on CPU (default precision); strict memory limits (streaming required); no synthetic data fabrication.  
-**Scale/Scope**: M (100k+ series) and UCI Electricity (series) processed via **stratified sampling of 500 series** to ensure statistical power and runtime feasibility.
+**Scale/Scope**: M (large-scale series) and UCI Electricity (series) processed via **stratified sampling of 500 series** to ensure statistical power and runtime feasibility.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -66,7 +66,7 @@ projects/PROJ-713-calibration-of-predictive-intervals-for-/
 │   ├── config.yaml              # Dataset URLs, seeds, hyperparameters
 │   ├── data/
 │   │   ├── loader.py            # Streaming loaders for M4/UCI
-│   │   └── splitter.py          # 80/20 split logic
+│   │   └── splitter.py          # A train-test split with a majority proportion for training and a minority proportion for testing will be employed. logic
 │   ├── models/
 │   │   ├── __init__.py
 │   │   ├── arima_model.py       # statsmodels wrapper
@@ -112,7 +112,7 @@ projects/PROJ-713-calibration-of-predictive-intervals-for-/
 | **LSTM on CPU** | Spec requires LSTM for benchmarking; GPU not available. | Using a synthetic stand-in would violate "Verified Accuracy" and "Data Hygiene". The plan uses a lightweight architecture (a reduced number of units) and early stopping to ensure CPU feasibility within 6h **when applied to the sampled 500 series**. |
 | **Robust Error Handling** | Time series often have zero variance or missing values causing ARIMA/LSTM to fail. | A simple `try/except` that crashes the pipeline would lose data. The plan implements series-level isolation with logging and fallbacks to ensure the pipeline completes for valid series. |
 | **Ljung-Box vs KS** | Spec FR-004 and SC-002 require Ljung-Box for autocorrelation. | The Kolmogorov-Smirnov test assumes independence, which is invalid for time-series residuals. The plan strictly adheres to Ljung-Box as per the Spec, correcting the Constitution's KS requirement. |
-| **Sampling Strategy** | Full M4 (100k series) exceeds 6h runtime on 2 CPU. | Processing all series would timeout. A stratified random sample of a balanced set of series (250 M4, 250 UCI) ensures statistical power for bootstrap tests while fitting the time budget. **This reduction from 100k to 500 is the primary enabler of the 6h limit.** |
+| **Sampling Strategy** | Full M4 (100k series) exceeds 6h runtime on 2 CPU. | Processing all series would timeout. A stratified random sample of a balanced set of series (250 M4, 250 UCI) ensures statistical power for bootstrap tests while fitting the time budget. **This reduction from a large-scale dataset to a manageable subset is the primary enabler of the 6h limit..** |
 
 ## Power Analysis & Sampling Strategy
 
@@ -143,7 +143,7 @@ The plan resolves the "Verified Datasets" gap by defining a strict fallback chai
 
 1.  **Data Fetch & Verify**: Download M4/UCI, verify checksums.
 2.  **Sampling**: Select 500 series (250 M4, 250 UCI) based on stratified criteria.
-3.  **Splitting**: Apply 80/20 split to each selected series.
+3.  **Splitting**: Apply a standard train-test split to each selected series.
 4.  **Model Training**: Fit ARIMA, Prophet, LSTM on training sets.
 5.  **Prediction**: Generate confidence intervals for test sets.
 6.  **Metric Calculation**: Compute coverage, PIT, CRPS.

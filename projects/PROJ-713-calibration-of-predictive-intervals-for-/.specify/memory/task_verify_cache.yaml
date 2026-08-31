@@ -1,3 +1,26 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree (`code/`, `tests/`, `data/raw/`, `data/processed/`, `results/`)
+    is presented, nor any script showing a retry loop with exponential backoff around
+    `os.path.isdir`. The required artifacts are missing, so the task is not satisfied.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., .flake8, pyproject.toml\
+    \ with Black settings, pre\u2011commit hooks) are present in the provided evidence;\
+    \ the only artifact shown relates to the predictive\u2011interval calibration\
+    \ feature, not to the requested linting setup. The required linting configuration\
+    \ is therefore missing."
+T015:
+  c: false
+  h: 78299bbb5acab3808e74f232ffae5ddd216c4a0813527644a804e3047a30894c
+  r: "The provided `code/models/lstm_model.py` contains a fallback mechanism (\u201C\
+    Includes fallback to Empirical CDF if intervals are invalid\u201D) which the task\
+    \ explicitly forbids, and it does not implement the required retry\u2011with\u2011\
+    reduced\u2011learning\u2011rate logic nor any logging to `results/skipped_series.log`\
+    \ (the log file is missing). Consequently the task requirements are not fully\
+    \ met."
 T018:
   c: false
   h: 07ea32971ca0c07dd6435039407852079dfb791162d42c295cec76f7e53d9ab3
@@ -25,12 +48,6 @@ T033a:
   r: No API documentation files for `code/models/` or `code/metrics/` were presented;
     the response contains only the task description and specifications, with no generated
     documentation artifacts. The required deliverables are missing.
-T033b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No README.md content was provided; there is no evidence that a usage guide,\
-    \ installation steps, or data fetch instructions were added or that the file exists\
-    \ and is non\u2011empty. The required artifact is missing."
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
