@@ -1,87 +1,129 @@
-# Evaluating the Effectiveness of LLMs for Detecting Code Smells
+# Evaluating the Effectiveness of LLMs for Detecting Code Smells (PROJ-271)
 
-This project implements an automated pipeline to evaluate how well Large Language Models (LLMs) detect code smells compared to static analysis tools (Pylint, Radon).
+This project evaluates whether Large Language Models (LLMs) can effectively detect code smells compared to traditional static analysis tools (Pylint, Radon).
 
-## Project Structure
+## Features
 
-- `code/`: Python modules for data pipeline, semantic analysis, and statistical evaluation.
-- `data/raw/`: Raw data downloaded from HuggingFace (`codeparrot/github-code`).
-- `data/processed/`: Intermediate and final processed datasets.
-- `results/`: Statistical analysis outputs, reports, and metrics.
-- `tests/`: Unit and contract tests.
-
-## Prerequisites
-
-- Python 3.11+
-- pip
+- **Automated Data Pipeline**: Ingests code from `codeparrot/github-code` using HuggingFace datasets.
+- **Static Analysis**: Computes LOC, Cyclomatic Complexity, and Nesting Depth using `radon`; detects smells using `pylint`.
+- **Semantic Analysis**: Generates embeddings using `sentence-transformers` and detects smells using a quantized `CodeLlama-7B` LLM.
+- **Statistical Analysis**: Performs McNemar's test, Logistic Regression (with VIF), and sensitivity analysis to compare methods.
+- **Resource Monitoring**: Tracks RAM, CPU, and inference time per batch.
 
 ## Installation
 
-1. Clone the repository and navigate to the project root.
-2. Create a virtual environment:
+### Prerequisites
+
+- Python 3.11+
+- pip
+- 16GB+ RAM (for LLM inference)
+
+### Setup
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd PROJ-271-evaluating-the-effectiveness-of-llms-for
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate # Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+## Usage
+
+### Quick Start
+
+For a step-by-step guide, see [`quickstart.md`](quickstart.md).
+
+### Running the Pipeline
+
+1. **Initialize Directories**:
  ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
+ python code/setup_directories.py
  ```
-3. Install dependencies:
+
+2. **Run Data Pipeline (User Story 1)**:
  ```bash
- pip install -r requirements.txt
+ python code/data_pipeline.py
  ```
 
-## Usage Instructions
+3. **Run Semantic Analysis (User Story 2)**:
+ ```bash
+ python code/semantic_analysis.py
+ ```
 
-The pipeline consists of three main stages corresponding to the User Stories.
+4. **Run Statistical Analysis (User Story 3)**:
+ ```bash
+ python code/statistical_analysis.py
+ ```
 
-### Stage 1: Data Pipeline & Static Baseline (User Story 1)
+5. **Validate Results**:
+ ```bash
+ python code/run_quickstart_validation.py
+ ```
 
-Generates a sample of functions, computes structural metrics (LOC, Cyclomatic Complexity), and runs Pylint to establish a static baseline.
+### CLI Arguments
 
-```bash
-python code/data_pipeline.py
-```
-
-**Output**: `data/static_baseline.csv` containing code snippets, metrics, and normalized static smell labels.
-
-### Stage 2: Semantic Analysis & LLM Inference (User Story 2)
-
-Computes semantic embeddings and runs a quantized LLM (CodeLlama-7B-GGUF) to detect smells via natural language reasoning.
-
-```bash
-python code/semantic_analysis.py
-```
-
-**Output**: `data/processed/semantic_results.json` containing embeddings and LLM-generated smell labels.
-**Metrics**: `results/resource_metrics.json` containing RAM/CPU usage per batch.
-
-### Stage 3: Statistical Analysis (User Story 3)
-
-Performs comparative analysis (McNemar's test, Logistic Regression with VIF, Sensitivity Analysis) to evaluate LLM effectiveness.
+Most scripts accept standard arguments. For example:
 
 ```bash
-python code/statistical_analysis.py
+python code/data_pipeline.py --sample-size 1000 --seed 42
 ```
 
-**Outputs**:
-- `results/statistical_significance.json`: McNemar's test p-values.
-- `results/logistic_regression.json`: Regression coefficients and VIF scores.
-- `results/sensitivity_report.md`: Detailed sensitivity analysis report.
+Use `--help` for detailed usage:
+
+```bash
+python code/data_pipeline.py --help
+```
+
+## Dependencies
+
+Key dependencies (see `requirements.txt` for full list):
+
+- `datasets`: For loading code from HuggingFace.
+- `radon`: For structural metrics (LOC, Cyclomatic Complexity).
+- `pylint`: For static smell detection.
+- `sentence-transformers`: For semantic embeddings.
+- `llama-cpp-python`: For running the quantized LLM.
+- `scikit-learn`, `statsmodels`: For statistical analysis.
+- `psutil`: For resource monitoring.
+
+## Project Structure
+
+```
+PROJ-271/
+├── code/ # Source code
+│ ├── config.py # Configuration and paths
+│ ├── data_pipeline.py # Data ingestion and static analysis
+│ ├── semantic_analysis.py # Embeddings and LLM inference
+│ ├── statistical_analysis.py # Statistical tests and reporting
+│ ├── monitoring.py # Resource tracking
+│ └──...
+├── data/ # Data directories
+│ ├── raw/ # Raw dataset (streamed)
+│ └── processed/ # Processed results
+├── results/ # Output reports and metrics
+├── tests/ # Unit and integration tests
+├── contracts/ # Schema and prompt definitions
+├── requirements.txt # Dependencies
+├── README.md # This file
+└── quickstart.md # Step-by-step guide
+```
 
 ## Validation
 
-Run the verification script to ensure all outputs meet completeness requirements:
+To ensure end-to-end reproducibility, run:
 
 ```bash
-python code/verify_results.py
+python code/run_quickstart_validation.py
 ```
 
-## Linting and Formatting
-
-To ensure code quality, run the linting checks defined in `code/linting_config.py`:
-
-```bash
-python code/linting_config.py
-```
+This script checks for the existence and validity of all required output artifacts.
 
 ## License
 
-MIT License
+[Insert License Here]

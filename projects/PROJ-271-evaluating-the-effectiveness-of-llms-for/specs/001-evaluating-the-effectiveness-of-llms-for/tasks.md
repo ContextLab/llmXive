@@ -58,7 +58,7 @@
 - [X] T004 [P] Create `code/config.py` defining paths (`data/`, `results/`), random seeds, and batch size constants (LLM batch ≤ 10)
 - [X] T005 [P] Implement `code/__init__.py` and ensure directory structure matches `data/raw`, `data/processed`, `results`
 - [X] T006a [P] Setup logging configuration in `code/config.py` to define log format, file handlers, and levels for metrics (FR-008)
-- [X] T006b [P] Implement `code/monitoring.py` to capture RAM usage, CPU utilization, and inference time using `psutil` for use in inference loops, explicitly recording these metrics **per batch** of ≤ 50 functions (or ≤ 10 as per plan) to `results/resource_metrics.json` (FR-008)
+- [X] T006b [P] Implement `code/monitoring.py` to capture RAM usage, CPU utilization, and inference time using `psutil` for use in inference loops, explicitly recording these metrics **per batch of ≤ 10 functions** to `results/resource_metrics.json` (FR-008)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -68,18 +68,17 @@
 
 **Goal**: Ingest a sampled subset of `codeparrot/github-code`, compute structural metrics via `radon`, and generate a baseline "smell label" set using Pylint.
 
-**Independent Test**: Run the pipeline on a local subset (e.g., 10 functions) and verify `data/static_baseline.csv` exists with correct columns (`code`, `loc`, `cyclomatic_complexity`, `static_smell_labels`).
+**Independent Test**: Run the pipeline on a local subset (e.g., 10 functions) and verify `data/static_baseline.csv` exists with correct columns (`code`, `loc`, `cyclomatic_complexity`, `nesting_depth`, `static_smell_labels`).
 
 ### Implementation for User Story 1
 
-- [X] T007 [US1] Implement `code/data_pipeline.py` to sample functions from `codeparrot/github-code` using HuggingFace `datasets` with **streaming=True**, split='train', and a pinned random seed. Implement a **dynamic runtime check**: process a small batch of functions to estimate time; if projected total time > 6h, **reduce sample size by [deferred] or stop at a sufficient number of functions** and fail explicitly if still infeasible. Target initial sample size: a sufficiently large cohort of functions to ensure statistical power and representativeness. (FR-001)
+- [X] T007 [US1] Implement `code/data_pipeline.py` to sample functions from `codeparrot/github-code` using HuggingFace `datasets` with **streaming=True**, split='train', and a pinned random seed. Target initial sample size: **800 functions**. Implement a **dynamic runtime check**: process a small batch of functions to estimate time; calculate a max-sample limit such that (estimated_time_per_function * max_samples) ≤ 5.5 hours. **Add a statistical power validation**: if the reduced sample size is < 100 functions (threshold for McNemar's test validity), **explicitly fail** by raising an error with exit code 1, logging the failure reason and final count to `results/sample_report.json`, and preventing downstream execution. (FR-001)
 - [X] T008 [US1] Implement structural metric calculation in `code/data_pipeline.py` using `radon` for **LOC, Cyclomatic Complexity, and Nesting Depth** (FR-002)
-- [X] T009a [US1] Create `contracts/smell_mapping.json` defining the deterministic mapping from raw Pylint codes (e.g., 'C0103') to canonical smell names (e.g., 'NamingConvention') required for FR-003 normalization (FR-003)
-- [X] T009 [US1] Implement Pylint execution in `code/data_pipeline.py` to generate static smell labels AND normalize raw Pylint codes to canonical smell names using the mapping defined in `contracts/smell_mapping.json` (FR-003)
+- [X] T009 [US1] [Depends: T007] Implement the full Pylint normalization pipeline: (1) Create `contracts/smell_mapping.json` defining the deterministic mapping from raw Pylint codes (e.g., 'C0103') to canonical smell names (e.g., 'NamingConvention', 'LongMethod'); (2) Validate `contracts/smell_mapping.json` completeness by cross-referencing against known Pylint codes; (3) Implement Pylint execution in `code/data_pipeline.py` to generate static smell labels AND normalize raw Pylint codes to canonical smell names using the mapping. Ensure the pipeline fails or logs a warning if an unmapped code is encountered. (FR-003)
 - [X] T010 [US1] Implement error handling in `code/data_pipeline.py` to catch `radon` parsing errors, log the file, and exclude from final count (Edge Case)
-- [ ] T011a [US1] [Depends: T007, T008, T009] Write processed data to `data/static_baseline.csv` containing `code`, `loc`, `cyclomatic_complexity`, and normalized `static_smell_labels` columns (FR-001)
-- [ ] T011b [US1] [Depends: T011a] Verify schema compliance of `data/static_baseline.csv` (columns: code, loc, cyclomatic_complexity, static_smell_labels) and data types
-- [ ] T012 [US1] [Depends: T011a, T011b] Add validation to ensure `data/static_baseline.csv` contains ≥ 95% of sampled functions with all required columns (FR-001, SC-005)
+- [X] T011a [US1] [Depends: T007, T008, T009] Write processed data to `data/static_baseline.csv` containing `code`, `loc`, `cyclomatic_complexity`, **`nesting_depth`**, and normalized `static_smell_labels` columns (FR-001, FR-002)
+- [X] T011b [US1] [Depends: T011a] Verify schema compliance of `data/static_baseline.csv` (columns: code, loc, cyclomatic_complexity, nesting_depth, static_smell_labels) and data types
+- [X] T012 [US1] [Depends: T011a, T011b] Add validation to ensure `data/static_baseline.csv` contains ≥ 95% of sampled functions with all required columns (FR-001, SC-005)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -95,15 +94,16 @@
 
 ### Implementation for User Story 2
 
-- [ ] T013 [US2] [Depends: T011a] Implement `code/semantic_analysis.py` to load `sentence-transformers/all-MiniLM-L6-v2` and compute dense vectors for functions in `data/static_baseline.csv` (FR-005)
-- [X] T014 [US2] Implement `code/semantic_analysis.py` to load `CodeLlama-7B-Instruct-GGUF` (4-bit) using `llama-cpp-python` on CPU device (FR-004)
+- [X] T013 [US2] [Depends: T011a] Implement `code/semantic_analysis.py` to load `sentence-transformers/all-MiniLM-L-v2` and compute dense vectors for functions in `data/static_baseline.csv`. **Note**: Due to limited RAM constraints, this task must be serialized or resource-isolated relative to T014 to avoid contention. (FR-005)
+- [X] T014 [US2] [Depends: T011a] Implement `code/semantic_analysis.py` to load **`CodeLlama-7B-Instruct-GGUF`** specifically using the **4-bit quantized** variant (file suffix must be `q4_0.gguf` or `Q4_K_M.gguf`). Use `llama-cpp-python` on CPU device. **Add a runtime verification assertion** to confirm the loaded model is 4-bit quantized before proceeding. **Note**: This task must be serialized or resource-isolated relative to T013 to avoid RAM contention. (FR-004, Constitution Principle VI)
 - [X] T015a [US2] Create `contracts/llm_prompt.txt` containing the exact standardized "Code Smell Detection" prompt text to request a JSON list of smell categories (FR-004)
-- [X] T015 [US2] Implement the standardized "Code Smell Detection" prompt in `code/semantic_analysis.py` by loading the exact prompt text from `contracts/llm_prompt.txt` (FR-004)
-- [X] T016 [US2] Implement batched inference loop in `code/semantic_analysis.py` with batch size ≤ 10 (within ≤ 50 constraint) and explicit `gc.collect()` between batches to manage RAM, and record batch-level metrics (RAM, CPU, time) (FR-004, FR-008)
+- [X] T015 [US2] [Depends: T015a] Implement the standardized "Code Smell Detection" prompt in `code/semantic_analysis.py` by loading the exact prompt text from `contracts/llm_prompt.txt` (FR-004)
+- [X] T016 [US2] [Depends: T014, T015] Implement batched inference loop in `code/semantic_analysis.py` with batch size ≤ 10 (within ≤ 50 constraint) and explicit `gc.collect()` between batches to manage RAM, and record batch-level metrics (RAM, CPU, time) (FR-004, FR-008)
 - [X] T017 [US2] Implement JSON parsing and error handling in `code/semantic_analysis.py` to log "Unparseable" for malformed LLM outputs (Edge Case)
-- [X] T018 [US2] Implement context window check in `code/semantic_analysis.py` to truncate or skip functions exceeding model limits and log the count (Edge Case)
-- [X] T019 [US2] [Depends: T013, T014] Write embeddings and LLM labels to `data/processed/semantic_results.json` (FR-004, FR-005)
+- [X] T018 [US2] Implement context window check in `code/semantic_analysis.py` to **truncate functions from the start** (preserving the end of the code) if they exceed model limits, skip if truncation is insufficient, and log the count (Edge Case)
+- [X] T019 [US2] [Depends: T013, T014, T016] Write embeddings and LLM labels to `data/processed/semantic_results.json` (FR-004, FR-005)
 - [X] T020 [US2] [Depends: T006b] Add monitoring in `code/semantic_analysis.py` to record peak RAM, CPU utilization, and inference time per batch to `results/resource_metrics.json` using `code/monitoring.py` (FR-008)
+- [X] T020a [US2] [Depends: T020] Parse `results/resource_metrics.json`, compare peak RAM against the system-imposed memory limit (Constitution Principle VI), and generate `results/compliance_verification.json` with a pass/fail status and specific flags if breached (FR-008, SC-004)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -119,16 +119,17 @@
 
 ### Implementation for User Story 3
 
-- [ ] T021 [US3] [Depends: T019] Implement `code/statistical_analysis.py` to merge `data/static_baseline.csv` and `data/processed/semantic_results.json` into a unified dataset
-- [ ] T021a [US3] [Depends: T021] Validate merged dataset completeness (≥95% rows have all required fields: code, metrics, static labels, semantic vectors, LLM labels) of the sampled functions **and explicitly calculate and report the drop-off rate** from the original sampled functions to satisfy SC-005 (SC-005)
+- [X] T021 [US3] [Depends: T019] Implement `code/statistical_analysis.py` to merge `data/static_baseline.csv` and `data/processed/semantic_results.json` into a unified dataset
+- [X] T021a [US3] [Depends: T021, T011a, T007] Validate merged dataset completeness (≥95% rows have all required fields: code, metrics, static labels, semantic vectors, LLM labels) of the sampled functions **and explicitly calculate and report the drop-off rate from the original sampled functions** (using the count from T007) to `results/statistical_significance.json` to satisfy SC-005 (SC-005)
 - [X] T022 [US3] Implement McNemar's test per smell category (aggregating paired detection outcomes per function) in `code/statistical_analysis.py` (FR-006)
 - [X] T023 [US3] Implement Variance Inflation Factor (VIF) calculation in `code/statistical_analysis.py` for predictors (LOC, Cyclomatic, Semantic Mean) (FR-010)
-- [X] T024 [US3] Implement logistic regression fitting in `code/statistical_analysis.py` that excludes predictors with VIF ≥ 5, **flags high-VIF predictors in the output**, and implements exclusion as the only fallback path (FR-007, FR-010)
-- [X] T025 [US3] Implement sensitivity analysis in `code/statistical_analysis.py` sweeping LOC thresholds (low, medium, high) and **calculating and reporting false-positive and false-negative rates** for static-only detections (FR-009)
-- [ ] T026 [US3] Generate `results/statistical_significance.json` containing McNemar p-values (FR-006, SC-003)
-- [ ] T027 [US3] Generate `results/logistic_regression.json` containing coefficients, VIF scores, and **flagged high-VIF predictors** (FR-007, SC-001, SC-002)
-- [ ] T028 [US3] Generate `results/sensitivity_report.md` listing smells detected *only* by static, *only* by LLM, **and false-positive/false-negative rates** (FR-009)
-- [ ] T029 [US3] Verify `results/` artifacts contain valid data for ≥ 95% of the sample (SC-005)
+- [X] T024 [US3] Implement logistic regression fitting in `code/statistical_analysis.py` that excludes predictors with VIF ≥ 5. **Define specific logic**: If VIF ≥ 5, perform **residualization** (regress the high-VIF predictor against the others and use residuals) OR **exclude** the predictor if residualization is not feasible. **Flag high-VIF predictors and the chosen action** in the output (FR-007, FR-010)
+- [X] T025 [US3] Implement sensitivity analysis in `code/statistical_analysis.py` sweeping LOC thresholds across a range of values. and **calculating and reporting false-positive and false-negative rates** for static-only detections to `results/sensitivity_metrics.json` (FR-009)
+- [X] T025a [US3] [Depends: T025] Calculate and output the **correlation coefficients** between sensitivity sweep thresholds and detection rates, **AND the correlation between semantic embeddings and detection outcomes** (satisfying SC-002) to `results/sensitivity_metrics.json` (SC-001, SC-002)
+- [X] T026 [US3] Generate `results/statistical_significance.json` containing McNemar p-values (FR-006, SC-003)
+- [X] T027 [US3] Generate `results/logistic_regression.json` containing coefficients, VIF scores, and **flagged high-VIF predictors** (FR-007, SC-001, SC-002)
+- [X] T028 [US3] Generate `results/sensitivity_report.md` listing smells detected *only* by static, *only* by LLM, **and false-positive/false-negative rates** (FR-009)
+- [X] T029 [US3] Verify `results/` artifacts contain valid data for ≥ 95% of the sample (SC-005)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -138,17 +139,27 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T030a [P] Add usage instructions to `README.md`
-- [ ] T030b [P] Update dependencies list in `README.md`
-- [ ] T030c [P] Create `quickstart.md` with setup and run instructions
+- [ ] T030 [P] [Depends: T030b] Update project documentation: Consolidate CLI instructions (`README.md`), dependency list (`requirements.txt`), and setup steps into a single task. Write CLI argument description, usage examples, environment setup, and list all dependencies. Create `quickstart.md` with step-by-step setup and run instructions. (Consolidated from T030a, T030b, T030c)
+- [X] T030b [P] Update dependencies list in `README.md`: List all dependencies from `requirements.txt` with installation instructions
 - [ ] T031a [P] Remove unused imports from all `code/` modules
 - [ ] T031b [P] Apply black formatting to all `code/` modules
-- [ ] T031c [P] Extract helper functions from `code/statistical_analysis.py`
-- [ ] T032a [P] Profile and optimize batch loading in `code/semantic_analysis.py` to reduce RAM peak
+- [X] T031c [P] Extract helper functions for metric calculation and error handling from `code/statistical_analysis.py` and `code/data_pipeline.py` into `code/helpers.py` with a consistent naming convention
+- [X] T032a [P] Profile and optimize batch loading in `code/semantic_analysis.py` to reduce RAM peak
 - [ ] T032b [P] Verify total runtime ≤ 6h via dry-run on CI with mock data
-- [ ] T033a [P] Add `tests/unit/test_data_pipeline.py::test_radon_metrics`
-- [ ] T033b [P] Add `tests/unit/test_semantic_analysis.py::test_parsing`
-- [ ] T034 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [X] T033a [P] Add `tests/unit/test_data_pipeline.py::test_radon_metrics`
+- [X] T033b [P] Add `tests/unit/test_semantic_analysis.py::test_parsing`
+- [ ] T034 [P] [Depends: T030] Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [ ] T035 [P] [US1] Add `tests/contract/test_static_baseline_schema.py` to enforce CSV schema compliance (columns, types) for `data/static_baseline.csv` (SC-005)
+- [ ] T036 [P] [US2] Add `tests/contract/test_llm_output_schema.py` to enforce JSON schema compliance for LLM outputs in `data/processed/semantic_results.json` (FR-004)
+- [ ] T037 [P] [US3] Add `tests/unit/test_statistical_analysis.py::test_mcnemar_pvalue` to verify McNemar's test calculation logic against a known small dataset
+- [ ] T038 [P] [US3] Add `tests/unit/test_statistical_analysis.py::test_vif_calculation` to verify VIF calculation logic and threshold flagging (FR-010)
+- [ ] T039 [P] [US3] Add `tests/unit/test_statistical_analysis.py::test_sensitivity_sweep` to verify the sweep logic at representative intervals and FP/FN rate calculation (FR-009)
+- [ ] T040 [P] [US1] Add `tests/unit/test_data_pipeline.py::test_sample_size_limit` to verify the dynamic sample size reduction logic when time constraints are hit (FR-001)
+- [ ] T041 [P] [US2] Add `tests/unit/test_semantic_analysis.py::test_context_window_truncation` to verify functions exceeding context limits are truncated/skipped correctly and logged (Edge Case)
+- [ ] T042 [P] [US2] Add `tests/unit/test_semantic_analysis.py::test_unparseable_llm_output` to verify that malformed JSON outputs are logged as "Unparseable" and do not crash the pipeline (Edge Case)
+- [ ] T043 [P] [US3] Add `tests/unit/test_statistical_analysis.py::test_high_vif_exclusion` to verify that logistic regression correctly excludes or flags predictors with VIF ≥ 5 (FR-007, FR-010)
+- [ ] T044 [P] [US1] Add `tests/unit/test_data_pipeline.py::test_pylint_normalization` to verify Pylint codes map correctly to canonical smell names using `contracts/smell_mapping.json` (FR-003)
+- [ ] T045 [P] [US3] Add `tests/unit/test_statistical_analysis.py::test_drop_off_rate_calculation` to verify the explicit calculation and reporting of the drop-off rate from the original sample (SC-005)
 
 ---
 

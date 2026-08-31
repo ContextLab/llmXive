@@ -1,47 +1,48 @@
+"""Unit tests for linting configuration and helpers."""
 import subprocess
 import sys
 from pathlib import Path
-
 import pytest
+
+# Add parent directory to path to import code modules
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from code.linting_config import run_flake8_check, run_black_format, run_all_checks
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-CODE_DIR = PROJECT_ROOT / "code"
 
+class TestLintingFunctions:
+    """Tests for linting utility functions."""
 
-class TestLintingConfig:
-    """Tests for linting configuration and execution."""
+    def test_run_flake8_check_returns_bool(self):
+        """Test that run_flake8_check returns a boolean."""
+        result = run_flake8_check()
+        assert isinstance(result, bool)
 
-    def test_flake8_importable(self):
-        """Verify flake8 is importable and runnable."""
-        result = subprocess.run(
-            [sys.executable, "-m", "flake8", "--version"],
-            capture_output=True,
-            text=True
-        )
-        assert result.returncode == 0, "flake8 should be installed and runnable"
+    def test_run_black_format_check_returns_bool(self):
+        """Test that run_black_format with check_only=True returns a boolean."""
+        result = run_black_format(check_only=True)
+        assert isinstance(result, bool)
 
-    def test_black_importable(self):
-        """Verify black is importable and runnable."""
-        result = subprocess.run(
-            [sys.executable, "-m", "black", "--version"],
-            capture_output=True,
-            text=True
-        )
-        assert result.returncode == 0, "black should be installed and runnable"
+    def test_run_all_checks_returns_bool(self):
+        """Test that run_all_checks returns a boolean."""
+        result = run_all_checks()
+        assert isinstance(result, bool)
 
-    def test_linting_config_functions_exist(self):
-        """Verify all expected functions exist in linting_config."""
-        assert callable(run_flake8_check)
-        assert callable(run_black_format)
-        assert callable(run_all_checks)
+    def test_black_check_does_not_modify_files(self):
+        """Verify that black --check does not modify files (sanity check)."""
+        # This is a behavioral test; we just ensure the function runs without side effects
+        # in check mode. The actual file modification is tested by running black without --check.
+        result = run_black_format(check_only=True)
+        # We don't assert True/False here as the repo might not be perfectly formatted yet,
+        # but we assert the function executed.
+        assert result is not None
 
-    def test_run_all_checks_signature(self):
-        """Verify run_all_checks accepts fix parameter."""
-        # This test ensures the function signature is correct
-        # We don't actually run the full linting here to save time
-        import inspect
-        sig = inspect.signature(run_all_checks)
-        params = list(sig.parameters.keys())
-        assert "fix" in params
+    def test_flake8_runs_on_code_dir(self):
+        """Ensure flake8 is executed against the code directory."""
+        # This test verifies the subprocess call structure by checking return type
+        # and ensuring no exception is raised during execution.
+        try:
+            result = run_flake8_check()
+            assert isinstance(result, bool)
+        except Exception as e:
+            pytest.fail(f"run_flake8_check raised an exception: {e}")

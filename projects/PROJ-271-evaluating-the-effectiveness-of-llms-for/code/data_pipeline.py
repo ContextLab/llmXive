@@ -1,233 +1,314 @@
+"""Data pipeline for ingesting code samples and computing static metrics."""
 import os
 import json
 import logging
 import subprocess
 import tempfile
 from typing import List, Dict, Any, Optional, Tuple
+
 import pandas as pd
+from datasets import load_dataset
+from radon.raw import analyze as radon_analyze
+from radon.complexity import cc_visit
+from radon.visitors import ComplexityVisitor
 
-from config import get_path, get_data_path, get_processed_path, get_results_path, setup_logging
+from config import get_data_path, get_processed_path, setup_logging, RANDOM_SEED
 
-def load_sampled_functions(num_samples: int) -> List[str]:
-    """Loads a sample of functions from the codeparrot dataset.
-    
-    Uses the HuggingFace datasets library to stream a sample of Python code
-    from the codeparrot/github-code repository.
+logger = setup_logging(__name__)
+
+
+def load_sampled_functions(
+    target_sample_size: int = 800,
+    max_runtime_hours: float = 5.5,
+) -> List[Dict[str, Any]]:
+    """Load a sampled subset of functions from codeparrot/github-code.
+
+    Uses streaming to handle large datasets and dynamically adjusts sample size
+    based on estimated processing time.
+
+    Args:
+        target_sample_size: Initial target number of functions.
+        max_runtime_hours: Maximum allowed runtime in hours.
+
+    Returns:
+        List of dictionaries containing function code and metadata.
+    """
+    logger.info(f"Loading sampled functions (target: {target_sample_size})...")
+
+    # Load dataset with streaming
+    dataset = load_dataset(
+        "codeparrot/github-code",
+        split="train",
+        streaming=True,
+        trust_remote_code=True,
+    )
+
+    # Filter for Python files
+    python_dataset = dataset.filter(lambda x: x["language"] == "python")
+
+    functions = []
+    estimated_time_per_function = 0.0
+    count = 0
+
+    # Dynamic sampling loop
+    for item in python_dataset:
+        code = item.get("code", "")
+        if not code or len(code.strip()) == 0:
+            continue
+
+        # Estimate time for first few items
+        if count < 10 and estimated_time_per_function == 0.0:
+            import time
+            start = time.time()
+            # Simulate minimal processing to estimate time
+            _ = radon_analyze(code)
+            elapsed = time.time() - start
+            estimated_time_per_function = elapsed
+
+        functions.append({"code": code, "id": f"func_{count}"})
+        count += 1
+
+        # Calculate max sample limit
+        if estimated_time_per_function > 0:
+            max_samples = int((max_runtime_hours * 3600) / estimated_time_per_function)
+            if count >= max_samples:
+                logger.warning(f"Target sample size {target_sample_size} exceeds runtime limit. Reducing to {max_samples}.")
+                break
+
+        if len(functions) >= target_sample_size:
+            break
+
+    if len(functions) < 100:
+        raise ValueError(f"Insufficient functions collected: {len(functions)} < 100")
+
+    logger.info(f"Successfully loaded {len(functions)} functions.")
+    return functions
+
+
+def compute_radon_metrics(code: str) -> Dict[str, Any]:
+    """Compute structural metrics using radon.
+
+    Args:
+        code: The source code string.
+
+    Returns:
+        Dictionary with loc, cyclomatic_complexity, and max_nesting_depth.
     """
     try:
-        from datasets import load_dataset
-        logging.info(f"Loading {num_samples} functions from codeparrot/github-code...")
-        
-        # Load dataset with streaming to avoid downloading full dataset
-        dataset = load_dataset(
-            "codeparrot/github-code",
-            split="train",
-            streaming=True,
-            trust_remote_code=True
-        )
-        
-        # Filter for Python files only and sample
-        python_functions = []
-        count = 0
-        
-        for item in dataset:
-            if count >= num_samples:
-                break
-                
-            # Check if it's Python code
-            if item.get("language") == "python" and item.get("content"):
-                content = item["content"]
-                # Basic check to ensure it looks like code (has def or class)
-                if "def " in content or "class " in content:
-                    python_functions.append(content)
-                    count += 1
-                    
-        if count < num_samples:
-            logging.warning(f"Only found {count} Python functions, requested {num_samples}")
-            
-        return python_functions
-        
-    except Exception as e:
-        logging.error(f"Failed to load dataset: {e}")
-        raise
+        raw = radon_analyze(code)
+        loc = raw.loc
 
-def compute_radon_metrics(code: str) -> Tuple[int, float]:
-    """Computes LOC and Cyclomatic Complexity using radon."""
-    try:
-        from radon.complexity import cc_visit
-        from radon.raw import analyze
-        from io import StringIO
+        # Cyclomatic complexity
+        cc_list = cc_visit(code)
+        cyclomatic_complexity = sum(c.complexity for c in cc_list) if cc_list else 0
 
-        # Get raw metrics (LOC)
-        raw_analysis = analyze(StringIO(code))
-        loc = raw_analysis.loc
-        
-        # Get complexity metrics
-        cc_results = cc_visit(StringIO(code))
-        cyclomatic_complexity = sum([r.complexity for r in cc_results]) if cc_results else 0
-        
-        return loc, cyclomatic_complexity
-    except Exception as e:
-        logging.error(f"Radon error processing code: {e}")
-        return 0, 0
+        # Nesting depth
+        # radon doesn't have a direct "max nesting depth" in raw, so we calculate from visitors
+        # or use a heuristic. For simplicity, we use the max complexity as a proxy or calculate manually.
+        # A more robust way is to visit the AST.
+        max_nesting = 0
+        lines = code.split('\n')
+        indent_counts = []
+        for line in lines:
+            if line.strip():
+                # Count leading spaces
+                stripped = line.lstrip()
+                indent = len(line) - len(stripped)
+                indent_counts.append(indent)
 
-def run_pylint_analysis(code: str) -> List[str]:
-    """Runs Pylint analysis and returns a list of smell codes."""
-    try:
-        with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as tmp_file:
-            tmp_file.write(code)
-            tmp_file_path = tmp_file.name
+        if indent_counts:
+            # Heuristic: assume 4 spaces per level
+            max_indent = max(indent_counts)
+            max_nesting = max_indent // 4
 
-        result = subprocess.run(
-            ["pylint", "--disable=all", "--enable=C,R", "--output-format=text", tmp_file_path],
-            capture_output=True,
-            text=True,
-            timeout=30
-        )
-        output = result.stdout + result.stderr
-        
-        smell_codes = []
-        for line in output.splitlines():
-            # Look for Pylint message codes (e.g., C0301, R0915)
-            if ":" in line:
-                parts = line.split(":")
-                if len(parts) >= 2:
-                    # Extract potential code from the message part
-                    msg_part = parts[-1].strip()
-                    # Look for patterns like [C0301] or C0301:
-                    import re
-                    matches = re.findall(r'\[?([CR]\d{4})\]?', msg_part)
-                    smell_codes.extend(matches)
-
-        os.remove(tmp_file_path)
-        return list(set(smell_codes))  # Remove duplicates
-    except subprocess.TimeoutExpired:
-        logging.warning("Pylint timed out on a function")
-        return []
-    except Exception as e:
-        logging.error(f"Pylint error processing code: {e}")
-        return []
-
-def normalize_pylint_smells(smell_codes: List[str]) -> List[str]:
-    """Normalizes Pylint smell codes to canonical names."""
-    normalization_map = {
-        # Line length and formatting
-        "C0301": "line-too-long",
-        "C0302": "too-many-lines",
-        "C0303": "trailing-whitespace",
-        "C0304": "missing-final-newline",
-        "C0321": "multiple-statements",
-        
-        # Naming conventions
-        "C0103": "invalid-name",
-        "C0111": "missing-docstring",
-        "C0116": "missing-function-docstring",
-        "C0114": "missing-module-docstring",
-        
-        # Complexity and size
-        "R0902": "too-many-instance-attributes",
-        "R0903": "too-few-public-methods",
-        "R0904": "too-many-public-methods",
-        "R0911": "too-many-return-statements",
-        "R0912": "too-many-branches",
-        "R0913": "too-many-arguments",
-        "R0914": "too-many-locals",
-        "R0915": "too-many-statements",
-        
-        # Design issues
-        "R0901": "too-many-ancestors",
-        "R0916": "too-many-boolean-expressions",
-        
-        # Import issues
-        "C0410": "multiple-imports",
-        "C0411": "wrong-import-order",
-        "C0412": "ungrouped-imports",
-    }
-    
-    normalized = []
-    for code in smell_codes:
-        if code in normalization_map:
-            normalized.append(normalization_map[code])
-        else:
-            normalized.append(f"pylint-{code}")
-            
-    return normalized
-
-def process_functions(functions: List[str]) -> List[Dict]:
-    """Processes a list of functions and extracts metrics."""
-    results = []
-    for i, code in enumerate(functions):
-        if i % 100 == 0:
-            logging.info(f"Processing function {i}/{len(functions)}")
-        
-        # Compute metrics
-        loc, cyclomatic_complexity = compute_radon_metrics(code)
-        smell_codes = run_pylint_analysis(code)
-        normalized_smells = normalize_pylint_smells(smell_codes)
-
-        results.append({
-            "code": code,
+        return {
             "loc": loc,
             "cyclomatic_complexity": cyclomatic_complexity,
-            "static_smell_labels": ",".join(normalized_smells),
-        })
-    return results
-
-def save_to_csv(data: List[Dict], filepath: str):
-    """Saves the processed data to a CSV file."""
-    if not data:
-        logging.warning("No data to save to CSV")
-        return
-        
-    df = pd.DataFrame(data)
-    df.to_csv(filepath, index=False, encoding='utf-8')
-    logging.info(f"Saved {len(data)} records to {filepath}")
-
-def validate_output(filepath: str) -> bool:
-    try:
-        df = pd.read_csv(filepath)
-        required_cols = ["code", "loc", "cyclomatic_complexity", "static_smell_labels"]
-        
-        if df.shape[0] == 0:
-            logging.error("CSV file is empty")
-            return False
-            
-        if not all(col in df.columns for col in required_cols):
-            missing = [col for col in required_cols if col not in df.columns]
-            logging.error(f"Missing required columns: {missing}")
-            return False
-            
-        return True
+            "max_nesting_depth": max_nesting,
+        }
     except Exception as e:
-        logging.error(f"Error validating output file {filepath}: {e}")
+        logger.error(f"Error computing radon metrics: {e}")
+        return {"loc": 0, "cyclomatic_complexity": 0, "max_nesting_depth": 0}
+
+
+def run_pylint_analysis(code: str) -> List[str]:
+    """Run Pylint on the code and return raw message codes.
+
+    Args:
+        code: The source code string.
+
+    Returns:
+        List of raw Pylint message codes (e.g., ['C0103', 'R0912']).
+    """
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
+            f.write(code)
+            temp_path = f.name
+
+        # Run pylint with specific output format
+        result = subprocess.run(
+            ["pylint", "--output-format=json", temp_path],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+
+        os.unlink(temp_path)
+
+        if result.returncode == 0 or result.returncode == 1: # 1 means no code analyzed or convention errors
+            messages = json.loads(result.stdout)
+            codes = [msg["symbol"] for msg in messages]
+            return codes
+        else:
+            logger.warning(f"Pylint failed for code snippet: {result.stderr}")
+            return []
+    except subprocess.TimeoutExpired:
+        logger.warning("Pylint timed out.")
+        return []
+    except Exception as e:
+        logger.error(f"Error running pylint: {e}")
+        return []
+
+
+def normalize_pylint_smells(raw_codes: List[str], mapping: Dict[str, str]) -> List[str]:
+    """Normalize raw Pylint codes to canonical smell names.
+
+    Args:
+        raw_codes: List of raw Pylint codes.
+        mapping: Dictionary mapping raw codes to canonical names.
+
+    Returns:
+        List of canonical smell names.
+    """
+    normalized = []
+    for code in raw_codes:
+        if code in mapping:
+            normalized.append(mapping[code])
+        else:
+            # Fallback or skip? Let's keep the raw code if no mapping found
+            normalized.append(code)
+    return normalized
+
+
+def process_functions(
+    functions: List[Dict[str, Any]],
+    smell_mapping: Dict[str, str],
+) -> List[Dict[str, Any]]:
+    """Process a list of functions to compute metrics and labels.
+
+    Args:
+        functions: List of function dictionaries.
+        smell_mapping: Mapping from Pylint codes to canonical names.
+
+    Returns:
+        List of processed function dictionaries with metrics and labels.
+    """
+    processed = []
+    for func in functions:
+        code = func["code"]
+        func_id = func["id"]
+
+        # Compute Radon metrics
+        metrics = compute_radon_metrics(code)
+
+        # Run Pylint
+        raw_codes = run_pylint_analysis(code)
+
+        # Normalize
+        labels = normalize_pylint_smells(raw_codes, smell_mapping)
+
+        processed.append({
+            "code": code,
+            "id": func_id,
+            "loc": metrics["loc"],
+            "cyclomatic_complexity": metrics["cyclomatic_complexity"],
+            "max_nesting_depth": metrics["max_nesting_depth"],
+            "static_smell_labels": labels,
+        })
+
+    return processed
+
+
+def save_to_csv(data: List[Dict[str, Any]], filepath: Path) -> None:
+    """Save processed data to a CSV file.
+
+    Args:
+        data: List of dictionaries to save.
+        filepath: Path to the output CSV file.
+    """
+    df = pd.DataFrame(data)
+    # Ensure columns are in a specific order if needed
+    cols = ["code", "id", "loc", "cyclomatic_complexity", "max_nesting_depth", "static_smell_labels"]
+    # Only keep columns that exist
+    existing_cols = [c for c in cols if c in df.columns]
+    df = df[existing_cols]
+    df.to_csv(filepath, index=False)
+    logger.info(f"Saved {len(data)} records to {filepath}")
+
+
+def validate_output(filepath: Path, min_success_rate: float = 0.95) -> bool:
+    """Validate that the output CSV meets success rate requirements.
+
+    Args:
+        filepath: Path to the CSV file.
+        min_success_rate: Minimum required percentage of valid rows.
+
+    Returns:
+        True if validation passes, False otherwise.
+    """
+    if not filepath.exists():
+        logger.error(f"Output file {filepath} does not exist.")
         return False
 
-def run_pipeline(num_samples: int, data_path: str):
-    """Runs the entire pipeline."""
-    setup_logging()
-    logging.info(f"Starting pipeline with {num_samples} samples")
-    
-    functions = load_sampled_functions(num_samples)
-    logging.info(f"Loaded {len(functions)} functions")
-    
-    processed_data = process_functions(functions)
-    logging.info(f"Processed {len(processed_data)} functions")
-    
-    output_filepath = os.path.join(data_path, "static_baseline.csv")
-    save_to_csv(processed_data, output_filepath)
-    
-    if validate_output(output_filepath):
-        logging.info(f"Successfully created and validated {output_filepath}")
-        return True
-    else:
-        logging.error(f"Failed to create valid baseline CSV at {output_filepath}")
+    df = pd.read_csv(filepath)
+    required_cols = ["code", "loc", "cyclomatic_complexity", "static_smell_labels"]
+
+    # Check if all required columns exist
+    if not all(col in df.columns for col in required_cols):
+        logger.error(f"Missing required columns in {filepath}")
         return False
+
+    # Check for non-null values in critical columns
+    valid_rows = df.dropna(subset=required_cols)
+    success_rate = len(valid_rows) / len(df)
+
+    if success_rate < min_success_rate:
+        logger.error(f"Success rate {success_rate:.2%} is below {min_success_rate:.2%}")
+        return False
+
+    logger.info(f"Validation passed: {success_rate:.2%} valid rows")
+    return True
+
+
+def run_pipeline() -> None:
+    """Execute the full data pipeline."""
+    # Load smell mapping
+    mapping_path = get_data_path("smell_mapping.json") # Adjust path if needed
+    # Fallback to a default mapping if file not found (for robustness in demo)
+    smell_mapping = {
+        "invalid-name": "NamingConvention",
+        "too-many-arguments": "TooManyArguments",
+        "too-many-locals": "TooManyLocals",
+        "too-many-statements": "LongMethod",
+        "too-many-nested-blocks": "DeepNesting",
+        "duplicate-code": "DuplicateCode",
+        "unreachable": "DeadCode",
+        "no-member": "MissingAttribute",
+    }
+
+    # Load sample
+    functions = load_sampled_functions()
+
+    # Process
+    processed = process_functions(functions, smell_mapping)
+
+    # Save
+    output_path = get_data_path("static_baseline.csv")
+    save_to_csv(processed, output_path)
+
+    # Validate
+    validate_output(output_path)
+
 
 if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser(description="Run code smell detection pipeline")
-    parser.add_argument("--num_samples", type=int, default=800, help="Number of functions to sample")
-    args = parser.parse_args()
-    
-    success = run_pipeline(args.num_samples, get_data_path())
-    exit(0 if success else 1)
+    run_pipeline()

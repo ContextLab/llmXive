@@ -1,0 +1,9 @@
+Analyze the following Python code snippet for code smells.
+Return a JSON list of smell categories detected.
+Available categories: NamingConvention, LongMethod, ComplexCondition, DuplicateCode, DeepNesting, TooManyArguments, TooManyLocals, DeadCode.
+
+Code:
+{code}
+
+Output:
+["Smell1", "Smell2"]

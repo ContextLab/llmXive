@@ -1,0 +1,12 @@
+{
+  "invalid-name": "NamingConvention",
+  "too-many-arguments": "TooManyArguments",
+  "too-many-locals": "TooManyLocals",
+  "too-many-statements": "LongMethod",
+  "too-many-nested-blocks": "DeepNesting",
+  "duplicate-code": "DuplicateCode",
+  "unreachable": "DeadCode",
+  "no-member": "MissingAttribute",
+  "R0912": "ComplexCondition",
+  "C0103": "NamingConvention"
+}

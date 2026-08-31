@@ -28,10 +28,37 @@ T029:
   r: "No `results/` directory or files were presented, and thus there is no data to\
     \ inspect for validity or coverage of \u2265\u202F95% of the sample. The required\
     \ artifact is missing, so the task is not satisfied."
-T030a:
+T030c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that a `README.md` file exists or that it contains\
-    \ any usage instructions. Without the updated README content, we cannot confirm\
-    \ the task \u201CAdd usage instructions to `README.md`\u201D was fulfilled. The\
-    \ implementer must supply the modified `README.md` showing the new usage section."
+  r: "The implementer did not provide any `quickstart.md` file or its contents; no\
+    \ step\u2011by\u2011step setup, data download, pipeline execution, or result\u2011\
+    viewing instructions are present in the evidence. Consequently the required artifact\
+    \ is missing."
+T031a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., a diff, updated files, or a script output) was provided to
+    demonstrate that unused imports were removed from the `code/` modules, nor any
+    verification that all modules now lack such imports. Without concrete evidence
+    of the code changes, the task cannot be considered completed.
+T031b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the `code/` directory being reformatted with Black is provided\u2014\
+    no diff, formatted files, or script output is shown, and the claim lacks any artifact\
+    \ to verify that all modules have been processed. The required artifact (the Black\u2011\
+    formatted code files) is missing."
+T032b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CI dry\u2011run logs, timing reports, or any artifact demonstrating that\
+    \ the pipeline was executed on mock data and that the total runtime stayed under\
+    \ 6\u202Fhours are present. Without such evidence the requirement cannot be verified."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `quickstart.md` validation run (e.g., execution logs, generated\
+    \ output, or a reproducibility report) was provided, and no artifacts confirming\
+    \ end\u2011to\u2011end reproducibility of the pipeline are present. The required\
+    \ validation artifact is missing."
