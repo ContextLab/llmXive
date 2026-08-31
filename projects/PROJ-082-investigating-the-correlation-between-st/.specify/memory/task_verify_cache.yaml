@@ -53,21 +53,6 @@ T014b:
     is incomplete) and no `extracted_studies.csv` or resulting `valid_pair_count.json`
     are present, so the script cannot read data, count valid pairs, or write the required
     JSON output. The task therefore remains unfinished.
-T021b:
-  c: false
-  h: 13b06d06b2defbaf5acb74793c94c95b8cd1d9e92cc50eb59b9df76597dc9962
-  r: "The required `data/derived/results.json` file does not exist, so there is no\
-    \ place to append an `i_squared` field. Moreover, the provided `heterogeneity.py`\
-    \ is truncated and contains no implementation that computes I\xB2 or writes a\
-    \ two\u2011decimal\u2011place value to the JSON. Both the artifact and the required\
-    \ output are missing."
-T027a:
-  c: false
-  h: 096f50251215a606e6be3f00dafae726112569043175165517e5ca25e508f39a
-  r: "The required `data/derived/results.json` and the generated `data/derived/forest_plot.png`\
-    \ are absent, and the provided `code/visualization/plots_forest.py` is incomplete\
-    \ (truncated mid\u2011line). Consequently the forest\u2011plot generation cannot\
-    \ be verified or executed."
 T040:
   c: false
   h: 5321985311e7b4dcc173f179f6e7c9b2fd190fb069716594c6400fb0da79720b
