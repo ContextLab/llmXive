@@ -1,0 +1,18 @@
+status: none
+intent: Materials Project formation energy dataset download via pymatgen API python
+  package dataset
+required_fields:
+- material_id
+- pretty_formula
+- composition
+- formation_energy_per_atom
+- energy_above_hull
+- mean_atomic_number
+- mean_electronegativity
+- mean_ionic_radius
+- mean_melting_point
+- mean_density
+- mean_valence_electrons
+cache_key: c8b9b0fafbc76db84019a2357b71748ad5e2f88dd4cb68a10af0f503a8168f41
+searched_at: '2026-08-31T22:37:25.787705+00:00'
+retry_count: 1

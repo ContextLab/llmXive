@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PerformanceMetric Schema"
+type: "object"
+properties:
+  subset_id:
+    type: "string"
+    description: "Unique identifier for the sparsity subset"
+  model_type:
+    type: "string"
+    enum:
+      - "GPR"
+      - "RF"
+    description: "Type of model used"
+  metric_name:
+    type: "string"
+    enum:
+      - "RMSE"
+      - "MAE"
+      - "CalibrationSlope"
+      - "PredictiveVariance"
+    description: "Name of the performance metric"
+  value:
+    type: "number"
+    description: "The measured value of the metric"
+  fold_id:
+    type: "integer"
+    description: "Cross-validation fold identifier (0-indexed)"
+  sparsity_level:
+    type: "number"
+    description: "Percentage of the full dataset used for training"
+  seed:
+    type: "integer"
+    description: "Random seed used for this run"
+required:
+  - subset_id
+  - model_type
+  - metric_name
+  - value
+  - sparsity_level
+  - seed
+additionalProperties: false

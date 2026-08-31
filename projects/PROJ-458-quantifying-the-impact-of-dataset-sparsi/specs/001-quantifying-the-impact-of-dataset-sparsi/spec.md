@@ -25,7 +25,7 @@ As a researcher, I want to download and filter Materials Project data to ensure 
 
 ### User Story 2 - Sparsity Subsampling and Model Training (Priority: P1)
 
-As a researcher, I want to train Gaussian Process and Random Forest models across 7 defined sparsity levels on CPU, so that I can observe how performance degrades as data becomes sparse.
+As a researcher, I want to train Gaussian Process and Random Forest models across defined sparsity levels on CPU, so that I can observe how performance degrades as data becomes sparse.
 
 **Why this priority**: This is the core experimental loop that generates the primary data for the research question. It must run within compute constraints.
 
