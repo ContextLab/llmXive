@@ -7,6 +7,12 @@ repository root.
 import os
 from pathlib import Path
 
+# --- Configuration Constants ---
+# Fixed random seed for reproducibility across the entire pipeline.
+# This must be an integer constant.
+RANDOM_SEED: int = 42
+
+# --- Path Resolution ---
 # Determine the project root. 
 # We assume this file is in code/config.py, so root is 2 levels up.
 # If run as a module, we might need to adjust.
@@ -14,13 +20,18 @@ from pathlib import Path
 # Standard assumption: project_root = Path(__file__).parent.parent
 _PROJECT_ROOT = Path(__file__).parent.parent.resolve()
 
+# Base data path relative to project root
+BASE_DATA_PATH_STR: str = "data"
+
 def get_project_root() -> Path:
     """Return the absolute path to the project root."""
     return _PROJECT_ROOT
 
 def get_data_dir() -> Path:
     """Return the path to the data directory."""
-    return get_project_root() / "data"
+    # Asserts that BASE_DATA_PATH points to 'data' relative to root
+    assert BASE_DATA_PATH_STR == "data", f"BASE_DATA_PATH must point to 'data', got '{BASE_DATA_PATH_STR}'"
+    return get_project_root() / BASE_DATA_PATH_STR
 
 def get_raw_data_dir() -> Path:
     """Return the path to the raw data directory."""

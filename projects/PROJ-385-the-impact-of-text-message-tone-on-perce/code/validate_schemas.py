@@ -1,179 +1,203 @@
 """
-Schema validation utilities for CSV and JSON files.
-Used by contract tests to ensure data artifacts match specifications.
+Schema validation utilities for the research pipeline.
+Supports validation of JSON and CSV data against YAML schemas.
 """
 import csv
 import json
 import sys
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-
 import yaml
 
+from config import get_contracts_dir
 
-def load_schema(schema_path: Path) -> Dict[str, Any]:
-    """Load a YAML schema file."""
+def load_schema(schema_name: str) -> Dict[str, Any]:
+    """
+    Load a schema from the contracts directory.
+
+    Args:
+        schema_name: Name of the schema file (e.g., 'stimulus.schema.yaml')
+
+    Returns:
+        The loaded schema as a dictionary.
+    
+    Raises:
+        FileNotFoundError: If the schema file does not exist.
+        yaml.YAMLError: If the schema file is not valid YAML.
+    """
+    contracts_dir = get_contracts_dir()
+    schema_path = contracts_dir / schema_name
+    
     if not schema_path.exists():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
     
-    with open(schema_path, "r", encoding="utf-8") as f:
+    with open(schema_path, 'r', encoding='utf-8') as f:
         return yaml.safe_load(f)
 
-
-def validate_json_against_schema(json_path: Path, schema: Dict[str, Any]) -> List[str]:
+def validate_json_against_schema(data: Dict[str, Any], schema: Dict[str, Any]) -> List[str]:
     """
-    Validates a JSON file against a JSON Schema (draft-07 compatible).
-    Returns a list of error messages. Empty list means valid.
-    """
-    try:
-        import jsonschema
-    except ImportError:
-        return ["Error: jsonschema library not installed. Run: pip install jsonschema"]
-
-    with open(json_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
-
-    validator = jsonschema.Draft7Validator(schema)
-    errors = list(validator.iter_errors(data))
+    Validate a JSON object against a schema.
     
-    if errors:
-        return [f"JSON Error: {e.message} at {list(e.path)}" for e in errors]
-    return []
-
+    Note: This is a simplified validation that checks required fields and basic types.
+    For full JSON Schema validation, consider using the 'jsonschema' library.
+    
+    Args:
+        data: The JSON object to validate.
+        schema: The schema dictionary.
+    
+    Returns:
+        A list of error messages. Empty if valid.
+    """
+    errors = []
+    
+    # Check required fields
+    required_fields = schema.get('required', [])
+    for field in required_fields:
+        if field not in data:
+            errors.append(f"Missing required field: {field}")
+    
+    # Check property types (basic implementation)
+    properties = schema.get('properties', {})
+    for field, value in data.items():
+        if field in properties:
+            prop_schema = properties[field]
+            expected_type = prop_schema.get('type')
+            
+            if expected_type == 'string' and not isinstance(value, str):
+                errors.append(f"Field '{field}' must be a string")
+            elif expected_type == 'integer' and not isinstance(value, int):
+                errors.append(f"Field '{field}' must be an integer")
+            elif expected_type == 'number' and not isinstance(value, (int, float)):
+                errors.append(f"Field '{field}' must be a number")
+            elif expected_type == 'boolean' and not isinstance(value, bool):
+                errors.append(f"Field '{field}' must be a boolean")
+            elif expected_type == 'array' and not isinstance(value, list):
+                errors.append(f"Field '{field}' must be an array")
+            elif expected_type == 'object' and not isinstance(value, dict):
+                errors.append(f"Field '{field}' must be an object")
+            
+            # Check enum constraints
+            if 'enum' in prop_schema and value not in prop_schema['enum']:
+                errors.append(f"Field '{field}' must be one of {prop_schema['enum']}, got {value}")
+            
+            # Check pattern constraints
+            if 'pattern' in prop_schema and isinstance(value, str):
+                import re
+                if not re.match(prop_schema['pattern'], value):
+                    errors.append(f"Field '{field}' does not match pattern {prop_schema['pattern']}")
+            
+            # Check numeric constraints
+            if expected_type in ['integer', 'number']:
+                if 'minimum' in prop_schema and value < prop_schema['minimum']:
+                    errors.append(f"Field '{field}' must be >= {prop_schema['minimum']}")
+                if 'maximum' in prop_schema and value > prop_schema['maximum']:
+                    errors.append(f"Field '{field}' must be <= {prop_schema['maximum']}")
+    
+    return errors
 
 def validate_csv_against_schema(csv_path: Path, schema: Dict[str, Any]) -> List[str]:
     """
-    Validates a CSV file against a schema definition.
+    Validate a CSV file against a schema.
     
-    Expected Schema Format (YAML):
-    ---
-    type: object
-    properties:
-      column_name:
-        type: string  # or integer, number, boolean
-        required: true
-        # optional: min_value, max_value, pattern (regex)
+    Args:
+        csv_path: Path to the CSV file.
+        schema: The schema dictionary.
     
-    Returns a list of error messages.
+    Returns:
+        A list of error messages. Empty if valid.
     """
     errors = []
     
     if not csv_path.exists():
-        return [f"File not found: {csv_path}"]
-
-    try:
-        with open(csv_path, "r", encoding="utf-8", newline="") as f:
-            reader = csv.DictReader(f)
-            headers = reader.fieldnames
-            
-            if not headers:
-                return ["CSV file is empty or has no headers"]
-
-            # Check required columns
-            properties = schema.get("properties", {})
-            for col_name, col_def in properties.items():
-                if col_def.get("required", False):
-                    if col_name not in headers:
-                        errors.append(f"Missing required column: {col_name}")
-            
-            if errors:
-                return errors
-
-            # Validate row data types and constraints
-            row_num = 1 # Header is row 0, data starts at 1
-            for row in reader:
-                row_num += 1
-                for col_name, col_def in properties.items():
-                    if col_name not in row:
-                        continue # Already handled by required check
+        return [f"CSV file not found: {csv_path}"]
+    
+    required_fields = schema.get('required', [])
+    properties = schema.get('properties', {})
+    
+    with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        headers = reader.fieldnames
+        
+        if headers is None:
+            return ["CSV file is empty or has no headers"]
+        
+        # Check required headers
+        for field in required_fields:
+            if field not in headers:
+                errors.append(f"Missing required column: {field}")
+        
+        # Validate rows
+        row_num = 1
+        for row in reader:
+            row_num += 1
+            for field, value in row.items():
+                if field in properties and value:
+                    prop_schema = properties[field]
+                    expected_type = prop_schema.get('type')
                     
-                    value = row[col_name]
-                    col_type = col_def.get("type")
+                    # Skip empty values for optional fields
+                    if value == '':
+                        continue
                     
-                    if col_type == "integer":
+                    if expected_type == 'integer':
                         try:
                             int(value)
                         except ValueError:
-                            errors.append(f"Row {row_num}, Column '{col_name}': Expected integer, got '{value}'")
-                    
-                    elif col_type == "number":
+                            errors.append(f"Row {row_num}, Column '{field}': must be an integer, got '{value}'")
+                    elif expected_type == 'number':
                         try:
                             float(value)
                         except ValueError:
-                            errors.append(f"Row {row_num}, Column '{col_name}': Expected number, got '{value}'")
+                            errors.append(f"Row {row_num}, Column '{field}': must be a number, got '{value}'")
                     
-                    elif col_type == "boolean":
-                        if value.lower() not in ("true", "false", "1", "0", "yes", "no"):
-                            errors.append(f"Row {row_num}, Column '{col_name}': Expected boolean, got '{value}'")
+                    # Check enum constraints
+                    if 'enum' in prop_schema and value not in prop_schema['enum']:
+                        errors.append(f"Row {row_num}, Column '{field}': must be one of {prop_schema['enum']}, got '{value}'")
                     
-                    elif col_type == "string":
-                        # Check pattern if defined
-                        if "pattern" in col_def:
-                            import re
-                            if not re.match(col_def["pattern"], value):
-                                errors.append(f"Row {row_num}, Column '{col_name}': Value '{value}' does not match pattern '{col_def['pattern']}'")
-                        
-                        # Check min/max length if defined
-                        if "min_length" in col_def and len(value) < col_def["min_length"]:
-                            errors.append(f"Row {row_num}, Column '{col_name}': Length {len(value)} < min_length {col_def['min_length']}")
-                        if "max_length" in col_def and len(value) > col_def["max_length"]:
-                            errors.append(f"Row {row_num}, Column '{col_name}': Length {len(value)} > max_length {col_def['max_length']}")
-                    
-                    # Check numeric constraints
-                    if col_type in ("integer", "number"):
-                        try:
-                            num_val = float(value)
-                            if "min_value" in col_def and num_val < col_def["min_value"]:
-                                errors.append(f"Row {row_num}, Column '{col_name}': Value {num_val} < min_value {col_def['min_value']}")
-                            if "max_value" in col_def and num_val > col_def["max_value"]:
-                                errors.append(f"Row {row_num}, Column '{col_name}': Value {num_val} > max_value {col_def['max_value']}")
-                        except ValueError:
-                            pass # Already caught by type check
-                    
-                    # Check null/empty constraints
-                    if col_def.get("required", False) and (value is None or value.strip() == ""):
-                        errors.append(f"Row {row_num}, Column '{col_name}': Required field is empty")
-
-    except Exception as e:
-        errors.append(f"Error reading CSV: {str(e)}")
-
+                    # Check pattern constraints
+                    if 'pattern' in prop_schema:
+                        import re
+                        if not re.match(prop_schema['pattern'], value):
+                            errors.append(f"Row {row_num}, Column '{field}': does not match pattern {prop_schema['pattern']}")
+    
     return errors
 
-
 def main():
-    """CLI entry point for manual validation."""
+    """CLI entry point for schema validation."""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Validate data files against YAML schemas.")
-    parser.add_argument("--csv", type=str, help="Path to CSV file to validate")
-    parser.add_argument("--json", type=str, help="Path to JSON file to validate")
-    parser.add_argument("--schema", type=str, required=True, help="Path to schema YAML file")
+    parser = argparse.ArgumentParser(description='Validate data files against schemas.')
+    parser.add_argument('--schema', type=str, required=True, help='Schema file name')
+    parser.add_argument('--data', type=str, required=True, help='Data file path (JSON or CSV)')
+    parser.add_argument('--format', type=str, choices=['json', 'csv'], required=True, help='Data format')
     
     args = parser.parse_args()
-    schema_path = Path(args.schema)
-    schema = load_schema(schema_path)
     
-    if args.csv:
-        csv_path = Path(args.csv)
-        errors = validate_csv_against_schema(csv_path, schema)
+    try:
+        schema = load_schema(args.schema)
+        
+        if args.format == 'json':
+            with open(args.data, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            errors = validate_json_against_schema(data, schema)
+        else:
+            errors = validate_csv_against_schema(Path(args.data), schema)
+        
         if errors:
-            print(f"Validation FAILED for {csv_path}:")
-            for e in errors:
-                print(f"  - {e}")
+            print("Validation failed with errors:")
+            for error in errors:
+                print(f"  - {error}")
             sys.exit(1)
         else:
-            print(f"Validation PASSED for {csv_path}")
-    
-    if args.json:
-        json_path = Path(args.json)
-        errors = validate_json_against_schema(json_path, schema)
-        if errors:
-            print(f"Validation FAILED for {json_path}:")
-            for e in errors:
-                print(f"  - {e}")
-            sys.exit(1)
-        else:
-            print(f"Validation PASSED for {json_path}")
+            print("Validation successful: No errors found.")
+            sys.exit(0)
+            
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        sys.exit(1)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

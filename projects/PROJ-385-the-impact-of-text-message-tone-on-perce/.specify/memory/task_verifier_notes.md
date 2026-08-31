@@ -2,7 +2,6 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T090a** — declared artifact(s) missing/empty/invalid: code/00_generate_synthetic_power_data.py, data/processed/synthetic_power_datasets.zip
-- **T091** — The required output file `data/processed/power_analysis_results.json` does not exist, and the provided script is incomplete (truncated) with no evidence that it generates the JSON containing `estimated_power`, `target_N`, and `method`. The task’s deliverable is therefore missing.
-- **T016b** — The required output file `data/processed/cleaned_ratings.csv` does not exist, so the listwise deletion and cleaned dataset were not produced. The task’s core artifact is missing.
-- **T037a** — The required file `code/run_pipeline.py` does not exist in the repository, so there is no CLI entry point to test for `--mode real` or `--help` output. The task’s core deliverable is missing.
+- **T090** — The required output file `data/processed/cue_intensity_weights.json` does not exist, so the weighting schemes are not actually stored as specified. The script defines the correct weights, but without the JSON file the task’s deliverable is missing.
+- **T014** — The required output file `data/processed/counterbalanced_trials.csv` does not exist, and the provided `code/02_counterbalance.py` is truncated and contains errors (e.g., undefined variable `stim`, no CSV writing logic). Consequently the script cannot generate the required counterbalanced trials, and the contract test cannot be satisfied.
+- **T015** — The repository lacks the required `data/processed/presentation_orders.csv` file, and the provided `code/03_random_order.py` is incomplete (the `save_orders` function is cut off and no command‑line handling or entry‑point is shown). Consequently the script cannot generate the promised CSV, so the task’s requirement is not met.

@@ -4,10 +4,12 @@ T090: Define cue-intensity weighting schemes.
 This script defines three specific weighting schemes for cue intensity
 (emoji, punctuation, length) and saves them to a JSON file in the processed data directory.
 
-Schemes:
-1. Primary: emoji=0.4, punctuation=0.3, length=0.3
-2. Emoji-Dominant: emoji=0.6, punctuation=0.2, length=0.2
-3. Punctuation-Dominant: emoji=0.2, punctuation=0.6, length=0.2
+Schemes required by FR-005:
+1. Equal Weight: { "emoji": 0.333, "punctuation": 0.333, "length": 0.333 }
+2. Emoji-Dominant: { "emoji": 0.6, "punctuation": 0.2, "length": 0.2 }
+3. Punctuation-Dominant: { "emoji": 0.2, "punctuation": 0.6, "length": 0.2 }
+
+The 'Equal Weight' scheme serves as the baseline.
 """
 
 import json
@@ -31,14 +33,14 @@ def get_cue_intensity_schemes():
     Returns a dictionary containing the three predefined cue intensity weighting schemes.
     
     Returns:
-        dict: A dictionary with keys 'primary', 'emoji_dominant', and 'punctuation_dominant'
+        dict: A dictionary with keys 'equal_weight', 'emoji_dominant', and 'punctuation_dominant'
               mapping to their respective weight dictionaries.
     """
     schemes = {
-        "primary": {
-            "emoji": 0.4,
-            "punctuation": 0.3,
-            "length": 0.3
+        "equal_weight": {
+            "emoji": 0.333,
+            "punctuation": 0.333,
+            "length": 0.333
         },
         "emoji_dominant": {
             "emoji": 0.6,

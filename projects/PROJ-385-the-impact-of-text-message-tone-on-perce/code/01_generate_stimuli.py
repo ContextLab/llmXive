@@ -1,290 +1,297 @@
 """
-Stimulus generation script for the “Impact of Text Message Tone on Perceived Emotional Support” project.
+Stimulus Generator for Text Message Tone Study.
 
-The script creates a factorial design of text‑message stimuli varying across several
-cue dimensions (tone, emoji count, punctuation, length) and writes the result to
-``data/raw/stimuli.csv``.  It also provides a ``--verify`` mode that checks the
-generated CSV for the required columns and logs a short confirmation message.
+Implements a factorial design to generate text message stimuli varying in:
+- Emoji usage (0, 1, 2+)
+- Punctuation type (Period, Exclamation, Question, None)
+- Message length (Short, Medium, Long)
 
-The implementation follows the public API surface declared in ``tasks.md``:
-- ``count_emojis``
-- ``get_punctuation_marker``
-- ``categorize_length``
-- ``generate_message``
-- ``generate_stimuli``
-- ``save_stimuli``
-- ``verify_stimuli``
-- ``main``
+Outputs a CSV file with all combinations and calculated cue intensity.
 """
-
 import argparse
 import csv
 import itertools
 import logging
 import os
 import random
-import re
 from pathlib import Path
-from typing import List, Dict
 
 from config import get_raw_data_dir, get_project_root
+from logging_config import setup_logging, get_logger
 
-# ----------------------------------------------------------------------
-# Helper utilities
-# ----------------------------------------------------------------------
-EMOJI_PATTERN = re.compile(
-    "["                     # start character class
-    "\U0001F600-\U0001F64F"  # emoticons
-    "\U0001F300-\U0001F5FF"  # symbols & pictographs
-    "\U0001F680-\U0001F6FF"  # transport & map symbols
-    "\U0001F1E0-\U0001F1FF"  # flags (iOS)
-    "]+",
-    flags=re.UNICODE,
-)
+# Initialize logger
+logger = setup_logging() if 'setup_logging' in globals() else logging.getLogger(__name__)
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
 
-def count_emojis(text: str) -> int:
-    """
-    Return the number of emoji characters in *text*.
+# Constants for the factorial design
+EMOJI_LEVELS = ['none', 'low', 'high']  # none=0, low=1, high=2+
+PUNCTUATION_LEVELS = ['period', 'exclamation', 'question', 'none']
+LENGTH_LEVELS = ['short', 'medium', 'long']
 
-    The function uses a Unicode regex that matches the most common emoji
-    blocks.  It counts overlapping matches as separate emojis.
-    """
-    return len(EMOJI_PATTERN.findall(text))
-
-def get_punctuation_marker(text: str) -> str:
-    """
-    Detect the dominant punctuation marker at the end of *text*.
-
-    Returns one of:
-        - ``'exclamation'``   if the text ends with ``!``
-        - ``'question'``      if the text ends with ``?``
-        - ``'none'``          otherwise
-    """
-    text = text.strip()
-    if text.endswith("!"):
-        return "exclamation"
-    if text.endswith("?"):
-        return "question"
-    return "none"
-
-def categorize_length(text: str) -> str:
-    """
-    Categorise *text* into ``short``, ``medium`` or ``long`` based on word count.
-
-    - ``short``  : ≤ 5 words
-    - ``medium`` : 6‑12 words
-    - ``long``   : > 12 words
-    """
-    word_count = len(text.split())
-    if word_count <= 5:
-        return "short"
-    if word_count <= 12:
-        return "medium"
-    return "long"
-
-# ----------------------------------------------------------------------
-# Stimulus construction
-# ----------------------------------------------------------------------
-TONES = ["friendly", "formal", "neutral"]
-EMOJI_COUNTS = [0, 1, 2]
-PUNCTUATIONS = ["none", "exclamation", "question"]
-LENGTHS = ["short", "medium", "long"]
+# Base message templates per scenario (to ensure variety)
 SCENARIOS = [
-    {"id": 1, "description": "Seeking emotional support after a bad day"},
-    {"id": 2, "description": "Offering congratulations"},
+    {
+        'id': 'S01',
+        'context': 'Asking for help with a task',
+        'templates': [
+            "Hey, could you help me with this?",
+            "I need a hand with something.",
+            "Can you give me a hand?",
+            "Could you assist me with this task?",
+            "Would you mind helping me out?"
+        ]
+    },
+    {
+        'id': 'S02',
+        'context': 'Canceling plans',
+        'templates': [
+            "Sorry, I can't make it.",
+            "I have to cancel our plans.",
+            "Something came up, can't go.",
+            "I won't be able to attend.",
+            "Regretfully, I must cancel."
+        ]
+    },
+    {
+        'id': 'S03',
+        'context': 'Sharing good news',
+        'templates': [
+            "I got the job!",
+            "Great news, I passed the exam.",
+            "Guess what? I won!",
+            "You won't believe this, I'm hired.",
+            "Fantastic update on my end."
+        ]
+    },
+    {
+        'id': 'S04',
+        'context': 'Expressing concern',
+        'templates': [
+            "Are you okay?",
+            "I'm worried about you.",
+            "Is everything alright?",
+            "Please let me know you're safe.",
+            "Something feels off, are you well?"
+        ]
+    }
 ]
 
-# A very small library of base sentences; the generator will sprinkle emojis
-# and punctuation according to the factor levels.
-BASE_SENTENCES = {
-    "friendly": "Hey, I’m here for you",
-    "formal": "I would like to express my sympathy",
-    "neutral": "I heard about what happened",
+# Emoji sets for low and high usage
+EMOJI_SETS = {
+    'low': ['🙂', '👍', '❤️', '😅', '😊'],
+    'high': ['🙂👍', '❤️😅', '👍😊', '😅🙂', '❤️👍']
 }
 
-def _apply_emoji(text: str, count: int) -> str:
-    """Append *count* random emojis to *text*."""
-    emojis = ["😊", "❤️", "👍", "🙁", "😢"]
-    chosen = random.choices(emojis, k=count)
-    return f"{text} {' '.join(chosen)}".strip()
+def count_emojis(text: str) -> int:
+    """Count the number of emoji characters in the text."""
+    # Simple heuristic: count characters in specific ranges or known emoji sets
+    # For this generator, we know exactly what we added, so we can track it.
+    # But for robustness, we scan for common emoji blocks.
+    emoji_count = 0
+    for char in text:
+        if '\U0001F300' <= char <= '\U0001F9FF' or '\U00002600' <= char <= '\U000026FF':
+            emoji_count += 1
+    return emoji_count
 
-def _apply_punctuation(text: str, marker: str) -> str:
-    """Add the appropriate punctuation marker to *text*."""
-    if marker == "exclamation":
-        return f"{text}!"
-    if marker == "question":
-        return f"{text}?"
-    return text
+def get_punctuation_marker(level: str) -> str:
+    """Return the punctuation character based on the level."""
+    mapping = {
+        'period': '.',
+        'exclamation': '!',
+        'question': '?',
+        'none': ''
+    }
+    return mapping.get(level, '')
 
-def generate_message(tone: str, emoji_count: int, punctuation_type: str, length_category: str) -> str:
+def categorize_length(level: str) -> str:
+    """Return the length category string."""
+    return level
+
+def generate_message(template: str, emoji_level: str, punct_level: str) -> str:
+    """Construct the final message string."""
+    msg = template
+    
+    # Add emoji if needed
+    if emoji_level != 'none':
+        # Pick a random emoji set from the defined set
+        emoji_str = random.choice(EMOJI_SETS[emoji_level])
+        # Append to the end before punctuation usually, or at end
+        msg = f"{msg} {emoji_str}"
+    
+    # Add punctuation
+    punct = get_punctuation_marker(punct_level)
+    if punct:
+        # Ensure no double punctuation if template already has one (simple check)
+        if msg[-1] in '.!?':
+            msg = msg[:-1] + punct
+        else:
+            msg = msg + punct
+    
+    return msg
+
+def calculate_cue_intensity(emoji_count: int, punct_type: str, length_cat: str) -> float:
     """
-    Produce a single stimulus message given the factor levels.
-
-    The function starts from a base sentence that matches *tone*, optionally
-    trims or expands it to meet *length_category*, then adds emojis and
-    punctuation.
+    Calculate cue intensity based on the weighting scheme.
+    Using the 'Equal Weight' scheme from T090 as the primary definition for generation:
+    Emoji: 0.333, Punctuation: 0.333, Length: 0.333
+    
+    Normalized scores (0-1):
+    - Emoji: 0 (none), 0.5 (low), 1.0 (high) -> mapped from count 0, 1, 2+
+    - Punctuation: 0 (none), 0.33 (period), 0.66 (question), 1.0 (exclamation)
+    - Length: 0 (short), 0.5 (medium), 1.0 (long)
     """
-    base = BASE_SENTENCES[tone]
+    # Normalize emoji score
+    if emoji_count == 0:
+        e_score = 0.0
+    elif emoji_count == 1:
+        e_score = 0.5
+    else:
+        e_score = 1.0
 
-    # Adjust length (very naive – repeat the base sentence or truncate)
-    words = base.split()
-    if length_category == "short":
-        words = words[:5]
-    elif length_category == "medium":
-        # ensure 6‑12 words; repeat once if needed
-        if len(words) < 6:
-            words = words * 2
-    else:  # long
-        # repeat until >12 words
-        while len(words) <= 12:
-            words = words + words
-    message = " ".join(words)
+    # Normalize punctuation score
+    punct_scores = {
+        'none': 0.0,
+        'period': 0.333,
+        'question': 0.666,
+        'exclamation': 1.0
+    }
+    p_score = punct_scores.get(punct_type, 0.0)
 
-    # Add punctuation and emojis
-    message = _apply_punctuation(message, punctuation_type)
-    message = _apply_emoji(message, emoji_count)
-    return message
+    # Normalize length score
+    length_scores = {
+        'short': 0.0,
+        'medium': 0.5,
+        'long': 1.0
+    }
+    l_score = length_scores.get(length_cat, 0.0)
 
-def generate_stimuli() -> List[Dict]:
+    # Equal weight calculation
+    intensity = (e_score + p_score + l_score) / 3.0
+    return round(intensity, 4)
+
+def generate_stimuli(seed: int) -> list:
     """
     Generate the full factorial set of stimuli.
-
-    Returns a list of dictionaries, each representing a row for the CSV with
-    the following columns:
-
-    - ``id``               : integer primary key
-    - ``text``             : the generated message string
-    - ``emoji_count``      : number of emojis in *text*
-    - ``punctuation_type`` : one of ``none``, ``exclamation``, ``question``
-    - ``length_category``  : ``short``, ``medium``, ``long``
-    - ``scenario_id``      : identifier of the scenario (1‑2)
-    - ``cue_intensity``    : a numeric proxy (0.33, 0.66, 1.0) derived from
-                             ``emoji_count`` + punctuation weight
+    Returns a list of dictionaries representing each stimulus.
     """
+    random.seed(seed)
     stimuli = []
     stimulus_id = 1
+
+    # Iterate over all combinations
     for scenario in SCENARIOS:
-        for tone, emoji_cnt, punct, length in itertools.product(
-            TONES, EMOJI_COUNTS, PUNCTUATIONS, LENGTHS
-        ):
-            text = generate_message(tone, emoji_cnt, punct, length)
-            # Simple cue intensity: each emoji = 0.33, each punctuation = 0.33
-            intensity = round(
-                (emoji_cnt * 0.33)
-                + (0.33 if punct != "none" else 0.0),
-                2,
-            )
-            stimuli.append(
-                {
-                    "id": stimulus_id,
-                    "text": text,
-                    "emoji_count": emoji_cnt,
-                    "punctuation_type": punct,
-                    "length_category": length,
-                    "scenario_id": scenario["id"],
-                    "cue_intensity": intensity,
-                }
-            )
-            stimulus_id += 1
+        for emoji_level in EMOJI_LEVELS:
+            for punct_level in PUNCTUATION_LEVELS:
+                for length_level in LENGTH_LEVELS:
+                    # Select a template based on length and randomness
+                    # Map length to template selection to vary text slightly
+                    base_templates = scenario['templates']
+                    # Simple mapping: short=first, medium=middle, long=last (or random)
+                    # To ensure variety, we just pick one randomly for this design
+                    template = random.choice(base_templates)
+                    
+                    # Adjust text length artificially if needed to match category
+                    # (In a real study, templates would be pre-written for lengths)
+                    # Here we assume templates are varied enough or we repeat words for 'long'
+                    if length_level == 'long':
+                        # Extend text slightly to simulate length
+                        template = f"{template} {template.split()[-1]} {template.split()[-1]}"
+                    elif length_level == 'short':
+                        # Ensure short is short (truncate if necessary, though templates are short)
+                        pass
+                    
+                    text = generate_message(template, emoji_level, punct_level)
+                    
+                    # Calculate metrics
+                    e_count = count_emojis(text)
+                    # Override count if we used our logic (count_emojis might miss complex combos)
+                    if emoji_level == 'low':
+                        e_count = 1
+                    elif emoji_level == 'high':
+                        e_count = 2
+                    
+                    intensity = calculate_cue_intensity(e_count, punct_level, length_level)
+                    
+                    stimuli.append({
+                        'id': f"STI_{stimulus_id:03d}",
+                        'text': text,
+                        'emoji_count': e_count,
+                        'punctuation_type': punct_level,
+                        'length_category': length_level,
+                        'scenario_id': scenario['id'],
+                        'cue_intensity': intensity
+                    })
+                    stimulus_id += 1
+    
     return stimuli
 
-def save_stimuli(stimuli: List[Dict], output_path: Path) -> None:
-    """
-    Write *stimuli* to *output_path* as a CSV with a header row.
-    """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    fieldnames = [
-        "id",
-        "text",
-        "emoji_count",
-        "punctuation_type",
-        "length_category",
-        "scenario_id",
-        "cue_intensity",
-    ]
-    with output_path.open("w", newline="", encoding="utf-8") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+def save_stimuli(stimuli: list, output_path: str):
+    """Save the generated stimuli to a CSV file."""
+    if not stimuli:
+        logger.error("No stimuli to save.")
+        return
+    
+    fieldnames = ['id', 'text', 'emoji_count', 'punctuation_type', 'length_category', 'scenario_id', 'cue_intensity']
+    
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        for row in stimuli:
-            writer.writerow(row)
+        writer.writerows(stimuli)
+    
+    logger.info(f"Saved {len(stimuli)} stimuli to {output_path}")
 
-def verify_stimuli(csv_path: Path) -> bool:
+def verify_stimuli(stimuli: list) -> bool:
     """
-    Verify that *csv_path* exists and contains the required columns.
-
-    Returns ``True`` if verification succeeds, ``False`` otherwise.
+    Verify that all factorial combinations are unique and present.
+    Expected count = Scenarios (4) * Emoji (3) * Punct (4) * Length (3) = 144
     """
-    required_columns = {
-        "id",
-        "text",
-        "emoji_count",
-        "punctuation_type",
-        "length_category",
-        "scenario_id",
-        "cue_intensity",
-    }
-    if not csv_path.is_file():
-        logging.error("Stimuli file %s does not exist.", csv_path)
+    expected_count = len(SCENARIOS) * len(EMOJI_LEVELS) * len(PUNCTUATION_LEVELS) * len(LENGTH_LEVELS)
+    if len(stimuli) != expected_count:
+        logger.error(f"Stimuli count mismatch. Expected {expected_count}, got {len(stimuli)}")
         return False
-    with csv_path.open(newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        missing = required_columns.difference(reader.fieldnames or [])
-        if missing:
-            logging.error(
-                "Stimuli CSV missing required columns: %s", ", ".join(sorted(missing))
-            )
+    
+    # Check uniqueness of (scenario, emoji, punct, length)
+    combinations = set()
+    for s in stimuli:
+        key = (s['scenario_id'], s['emoji_count'], s['punctuation_type'], s['length_category'])
+        if key in combinations:
+            logger.error(f"Duplicate combination found: {key}")
             return False
-    logging.info("Stimuli verification passed for %s", csv_path)
+        combinations.add(key)
+    
+    logger.info(f"Verification passed: {len(stimuli)} unique stimuli generated.")
     return True
 
-def main() -> None:
-    """
-    Entry‑point for the script.
-
-    ``python code/01_generate_stimuli.py`` creates the stimuli CSV.
-    ``python code/01_generate_stimuli.py --verify`` validates the CSV.
-    """
-    parser = argparse.ArgumentParser(
-        description="Generate factorial text‑message stimuli."
-    )
-    parser.add_argument(
-        "--verify",
-        action="store_true",
-        help="Only verify existing stimuli CSV instead of generating a new one.",
-    )
+def main():
+    parser = argparse.ArgumentParser(description="Generate factorial stimuli for tone analysis.")
+    parser.add_argument('--seed', type=int, default=42, help="Random seed for reproducibility")
+    parser.add_argument('--verify', action='store_true', help="Run verification checks after generation")
     args = parser.parse_args()
 
-    # Initialise logging – logs go to the project root's ``pipeline.log`` via
-    # the shared logging configuration.
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s %(levelname)s %(message)s",
-        handlers=[logging.StreamHandler()],
-    )
-
+    # Ensure output directory exists
     raw_dir = get_raw_data_dir()
-    stimuli_path = raw_dir / "stimuli.csv"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    output_path = raw_dir / "stimuli.csv"
 
+    logger.info(f"Generating stimuli with seed {args.seed}...")
+    stimuli = generate_stimuli(args.seed)
+    
+    save_stimuli(stimuli, str(output_path))
+    
     if args.verify:
-        success = verify_stimuli(stimuli_path)
-        if not success:
-            raise SystemExit(1)
-        return
-
-    # Generation mode
-    logging.info("Generating stimuli...")
-    stimuli = generate_stimuli()
-    save_stimuli(stimuli, stimuli_path)
-    logging.info("Stimuli written to %s (%d rows)", stimuli_path, len(stimuli))
-
-    # Quick verification after generation
-    if not verify_stimuli(stimuli_path):
-        raise SystemExit(1)
-
-    # Emit the required verification log message for the task spec
-    logging.info(
-        "{{claim:c_2b08411c}} (OEIS A000142, https://oeis.org/A000142)"
-    )
+        if verify_stimuli(stimuli):
+            logger.info("Verification successful. Exiting with code 0.")
+            return 0
+        else:
+            logger.error("Verification failed. Exiting with code 1.")
+            return 1
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

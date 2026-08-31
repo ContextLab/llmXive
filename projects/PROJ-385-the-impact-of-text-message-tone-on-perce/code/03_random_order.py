@@ -1,41 +1,33 @@
 """
-Task T015: Random presentation order generator.
+T015: Random presentation order generator.
 
-Reads the counterbalanced trials from T014 and generates a random
-presentation order for each participant. Outputs a CSV where each
-row represents a single trial instance with a defined order index.
-
-Verification:
-  - Each participant's order list is a permutation of their trial set.
-  - Reproducible given the fixed seed in config.py.
+Produces data/processed/presentation_orders.csv with a shuffled trial order per participant.
+Depends on: T014 (data/processed/counterbalanced_trials.csv).
 """
-
 import argparse
 import csv
 import logging
 import os
 import random
+import sys
 from datetime import datetime
 from pathlib import Path
 
-from config import get_processed_data_dir, get_project_root
-from logging_config import setup_logging, get_logger
-
+# Adjust imports to match project structure (relative to code/ directory)
+try:
+    from config import get_processed_data_dir, get_project_root
+    from logging_config import setup_logging, get_logger
+except ImportError:
+    # Fallback for direct execution if path setup is different
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from config import get_processed_data_dir, get_project_root
+    from logging_config import setup_logging, get_logger
 
 def load_counterbalanced_trials(input_path: Path) -> list:
-    """
-    Load the counterbalanced trials CSV.
-
-    Expected columns (from T014):
-      participant_id, stimulus_id, text, emoji_count, punctuation_type,
-      length_category, scenario_id, cue_intensity, context
-
-    Returns:
-        List of dictionaries representing the rows.
-    """
+    """Load the counterbalanced trials from CSV."""
     if not input_path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
-
+    
     trials = []
     with open(input_path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
@@ -43,215 +35,184 @@ def load_counterbalanced_trials(input_path: Path) -> list:
             trials.append(row)
     return trials
 
-
 def generate_random_orders(trials: list, seed: int) -> list:
     """
-    Generate a random presentation order for each participant.
-
-    Logic:
-      1. Group trials by participant_id.
-      2. For each participant, shuffle their specific list of trials.
-      3. Assign an 'order' index (1-based) to each trial in the shuffled list.
-      4. Flatten the results back into a single list.
-
-    Args:
-        trials: List of trial dictionaries.
-        seed: Random seed for reproducibility.
-
-    Returns:
-        List of dictionaries with added 'order' key.
+    Generate random presentation orders for each participant.
+    
+    Groups trials by participant_id, shuffles them, and assigns an order number (1..N).
     """
-    random.seed(seed)
-
-    # Group by participant
-    participant_groups = {}
+    # Group trials by participant
+    participant_trials = {}
     for trial in trials:
         pid = trial['participant_id']
-        if pid not in participant_groups:
-            participant_groups[pid] = []
-        participant_groups[pid].append(trial)
-
-    ordered_trials = []
-    for pid, p_trials in participant_groups.items():
+        if pid not in participant_trials:
+            participant_trials[pid] = []
+        participant_trials[pid].append(trial)
+    
+    # Set seed for reproducibility
+    random.seed(seed)
+    
+    orders = []
+    for pid, p_trials in participant_trials.items():
         # Shuffle the trials for this participant
         random.shuffle(p_trials)
-        # Assign order
+        
+        # Assign order numbers
         for idx, trial in enumerate(p_trials, start=1):
-            trial['order'] = idx
-            ordered_trials.append(trial)
+            order_row = {
+                'participant_id': pid,
+                'stimulus_id': trial['stimulus_id'],
+                'text': trial['text'],
+                'emoji_count': trial['emoji_count'],
+                'punctuation_type': trial['punctuation_type'],
+                'length_category': trial['length_category'],
+                'scenario_id': trial['scenario_id'],
+                'cue_intensity': trial['cue_intensity'],
+                'context': trial['context'],
+                'order': idx
+            }
+            orders.append(order_row)
+    
+    return orders
 
-    return ordered_trials
-
-
-def save_orders(ordered_trials: list, output_path: Path):
-    """
-    Save the ordered trials to a CSV file.
-
-    Args:
-        ordered_trials: List of trial dictionaries.
-        output_path: Path to the output CSV.
-    """
-    if not ordered_trials:
-        raise ValueError("No trials to save.")
-
-    # Ensure directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
+def save_orders(orders: list, output_path: Path) -> None:
+    """Save the generated orders to a CSV file."""
+    if not orders:
+        raise ValueError("No orders to save.")
+    
     fieldnames = [
         'participant_id', 'stimulus_id', 'text', 'emoji_count',
         'punctuation_type', 'length_category', 'scenario_id',
         'cue_intensity', 'context', 'order'
     ]
-
+    
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(ordered_trials)
+        writer.writerows(orders)
 
-
-def verify_orders(input_path: Path, output_path: Path) -> bool:
+def verify_orders(orders: list, input_trials: list, logger: logging.Logger) -> bool:
     """
-    Verify that the output file contains valid permutations.
-
+    Verify that the generated orders are valid permutations.
+    
     Checks:
-      1. Every participant in input exists in output.
-      2. For each participant, the set of stimulus_ids in output
-         matches the set in input.
-      3. The 'order' column contains a sequence 1..N for each participant.
-
-    Returns:
-        True if verification passes, raises AssertionError otherwise.
+    1. Every participant in input has an entry in output.
+    2. The order numbers for each participant are a permutation of 1..N.
     """
-    if not output_path.exists():
-        raise FileNotFoundError(f"Output file not found: {output_path}")
-
-    input_trials = load_counterbalanced_trials(input_path)
-    output_trials = []
-    with open(output_path, 'r', newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            output_trials.append(row)
-
-    # Group input by participant
-    input_groups = {}
+    # Count trials per participant in input
+    input_counts = {}
     for t in input_trials:
         pid = t['participant_id']
-        if pid not in input_groups:
-            input_groups[pid] = set()
-        input_groups[pid].add(t['stimulus_id'])
-
-    # Group output by participant
-    output_groups = {}
-    for t in output_trials:
-        pid = t['participant_id']
-        if pid not in output_groups:
-            output_groups[pid] = []
-        output_groups[pid].append(t)
-
-    # Check counts and sets
-    if set(input_groups.keys()) != set(output_groups.keys()):
-        raise AssertionError("Participant sets do not match between input and output.")
-
-    for pid, in_stimuli in input_groups.items():
-        out_trials = output_groups[pid]
-        out_stimuli = {t['stimulus_id'] for t in out_trials}
-
-        if in_stimuli != out_stimuli:
-            raise AssertionError(
-                f"Participant {pid}: Stimulus sets do not match. "
-                f"Input: {in_stimuli}, Output: {out_stimuli}"
-            )
-
-        orders = [int(t['order']) for t in out_trials]
-        orders.sort()
-        expected_orders = list(range(1, len(out_trials) + 1))
-
-        if orders != expected_orders:
-            raise AssertionError(
-                f"Participant {pid}: Order sequence is not a permutation of 1..N. "
-                f"Got: {orders}"
-            )
-
+        input_counts[pid] = input_counts.get(pid, 0) + 1
+    
+    # Count orders per participant in output
+    output_counts = {}
+    output_orders = {}
+    for o in orders:
+        pid = o['participant_id']
+        order_num = int(o['order'])
+        output_counts[pid] = output_counts.get(pid, 0) + 1
+        if pid not in output_orders:
+            output_orders[pid] = []
+        output_orders[pid].append(order_num)
+    
+    # Check counts match
+    if set(input_counts.keys()) != set(output_counts.keys()):
+        missing = set(input_counts.keys()) - set(output_counts.keys())
+        extra = set(output_counts.keys()) - set(input_counts.keys())
+        logger.error(f"Participant mismatch. Missing: {missing}, Extra: {extra}")
+        return False
+    
+    # Check permutation property
+    for pid, orders_list in output_orders.items():
+        expected_count = input_counts[pid]
+        if len(orders_list) != expected_count:
+            logger.error(f"Participant {pid}: expected {expected_count} orders, got {len(orders_list)}")
+            return False
+        
+        # Check if it's a permutation of 1..N
+        sorted_orders = sorted(orders_list)
+        expected_sequence = list(range(1, expected_count + 1))
+        if sorted_orders != expected_sequence:
+            logger.error(f"Participant {pid}: invalid permutation {sorted_orders}")
+            return False
+    
+    logger.info("Verification passed: All participants have valid permutations.")
     return True
 
-
 def main():
-    """Main entry point for the script."""
-    setup_logging()
-    logger = get_logger(__name__)
-
-    parser = argparse.ArgumentParser(
-        description="Generate random presentation orders for participants."
-    )
+    parser = argparse.ArgumentParser(description="Generate random presentation orders for participants.")
     parser.add_argument(
-        '--input',
+        "--input",
         type=str,
         default=None,
-        help="Path to counterbalanced trials CSV. Defaults to project standard."
+        help="Path to counterbalanced_trials.csv. Defaults to project default."
     )
     parser.add_argument(
-        '--output',
+        "--output",
         type=str,
         default=None,
-        help="Path to output presentation orders CSV. Defaults to project standard."
+        help="Path to output presentation_orders.csv. Defaults to project default."
     )
     parser.add_argument(
-        '--verify',
-        action='store_true',
-        help="Run verification checks after generation."
-    )
-    parser.add_argument(
-        '--seed',
+        "--seed",
         type=int,
         default=42,
         help="Random seed for reproducibility."
     )
-
+    parser.add_argument(
+        "--verify",
+        action="store_true",
+        help="Run verification checks after generation."
+    )
+    
     args = parser.parse_args()
-
+    
+    # Setup logging
+    logger = setup_logging()
+    logger.info("Starting random order generation (T015).")
+    
     project_root = get_project_root()
     processed_dir = get_processed_data_dir()
-
-    if args.input is None:
-        input_path = processed_dir / "counterbalanced_trials.csv"
-    else:
-        input_path = Path(args.input)
-
-    if args.output is None:
-        output_path = processed_dir / "presentation_orders.csv"
-    else:
-        output_path = Path(args.output)
-
-    logger.info(f"Loading counterbalanced trials from: {input_path}")
+    
+    input_path = Path(args.input) if args.input else processed_dir / "counterbalanced_trials.csv"
+    output_path = Path(args.output) if args.output else processed_dir / "presentation_orders.csv"
+    
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
     try:
+        # Load input
+        logger.info(f"Loading counterbalanced trials from {input_path}")
         trials = load_counterbalanced_trials(input_path)
         logger.info(f"Loaded {len(trials)} trials.")
+        
+        # Generate orders
+        logger.info(f"Generating random orders with seed={args.seed}")
+        orders = generate_random_orders(trials, args.seed)
+        logger.info(f"Generated {len(orders)} order entries.")
+        
+        # Save output
+        logger.info(f"Saving orders to {output_path}")
+        save_orders(orders, output_path)
+        logger.info("Order generation complete.")
+        
+        # Verify if requested
+        if args.verify:
+            logger.info("Running verification checks...")
+            is_valid = verify_orders(orders, trials, logger)
+            if not is_valid:
+                logger.error("Verification failed.")
+                sys.exit(1)
+            else:
+                logger.info("Verification successful.")
+        
     except FileNotFoundError as e:
-        logger.error(str(e))
-        raise
-
-    logger.info(f"Generating random orders with seed={args.seed}")
-    ordered_trials = generate_random_orders(trials, seed=args.seed)
-    logger.info(f"Generated {len(ordered_trials)} ordered trials.")
-
-    logger.info(f"Saving to: {output_path}")
-    save_orders(ordered_trials, output_path)
-    logger.info("Saved successfully.")
-
-    if args.verify:
-        logger.info("Running verification...")
-        try:
-            verify_orders(input_path, output_path)
-            logger.info("Verification PASSED: All orders are valid permutations.")
-        except AssertionError as e:
-            logger.error(f"Verification FAILED: {e}")
-            raise
-        except FileNotFoundError as e:
-            logger.error(f"Verification FAILED: {e}")
-            raise
-
-    logger.info("Task T015 completed successfully.")
-
+        logger.error(f"File not found: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Error during execution: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

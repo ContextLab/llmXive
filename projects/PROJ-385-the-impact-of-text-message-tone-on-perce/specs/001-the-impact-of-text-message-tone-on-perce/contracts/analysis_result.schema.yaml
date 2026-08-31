@@ -1,16 +1,13 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: Analysis Result Schema
-description: Schema for the output of the LMM and sensitivity analysis.
+$schema: http://json-schema.org/draft-07/schema#
+title: AnalysisResult
+description: Schema for the final aggregated analysis results.
 type: object
 required:
-  - model_name
   - fixed_effects
-  - interaction_p_value
-  - sensitivity_results
+  - random_effects
+  - model_fit
+  - post_hoc_results
 properties:
-  model_name:
-    type: string
-    description: "Name of the model variant (e.g., 'Primary', 'Emoji_Dominant')."
   fixed_effects:
     type: array
     items:
@@ -22,24 +19,34 @@ properties:
           type: number
         p_value:
           type: number
-  interaction_p_value:
-    type: number
-    description: "P-value for the Relationship x CueIntensity interaction term."
-  sensitivity_results:
+  random_effects:
     type: object
-    description: "Results of sensitivity analysis across different cue intensity definitions."
     properties:
-      stability_direction:
-        type: string
-        description: "Whether the interaction effect direction remained consistent."
-      stability_significance:
-        type: string
-        description: "Whether the interaction effect remained significant across variants."
-      aic_comparison:
-        type: object
-        description: "AIC/BIC comparison between individual and aggregated models."
-        properties:
-          best_model:
-            type: string
-          delta_aic:
-            type: number
+      participant_variance:
+        type: number
+      stimulus_variance:
+        type: number
+      residual_variance:
+        type: number
+  model_fit:
+    type: object
+    properties:
+      aic:
+        type: number
+      bic:
+        type: number
+      log_likelihood:
+        type: number
+  post_hoc_results:
+    type: array
+    items:
+      type: object
+      properties:
+        comparison:
+          type: string
+        estimate:
+          type: number
+        p_value:
+          type: number
+        significant:
+          type: boolean

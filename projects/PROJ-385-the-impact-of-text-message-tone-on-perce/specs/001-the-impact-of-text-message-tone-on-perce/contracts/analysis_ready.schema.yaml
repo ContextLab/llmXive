@@ -1,28 +1,41 @@
-$schema: "https://json-schema.org/draft/2020-12/schema"
-title: "Analysis‑Ready Data Schema"
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: AnalysisReady
+description: Schema for the cleaned dataset ready for LMM fitting.
+type: object
 required:
-  - "stimulus_id"
-  - "participant_id"
-  - "relationship_type"
-  - "rating"
-  - "cue_intensity"
-  - "cue_intensity_weighting"
+  - participant_id
+  - stimulus_id
+  - relationship_type
+  - rating
+  - cue_intensity
+  - scenario_id
 properties:
-  stimulus_id:
-    type: "string"
   participant_id:
-    type: "string"
+    type: string
+    pattern: "^[a-f0-9]{64}$"
+    description: Anonymized participant identifier.
+  stimulus_id:
+    type: string
+    pattern: "^S\\d{4}$"
+    description: Stimulus identifier.
   relationship_type:
-    type: "string"
-    enum: ["friend", "acquaintance"]
+    type: string
+    enum:
+      - friend
+      - acquaintance
+    description: Relationship context.
   rating:
-    type: "integer"
+    type: number
     minimum: 1
     maximum: 7
+    description: Support rating.
   cue_intensity:
-    type: "number"
-  cue_intensity_weighting:
-    type: "string"
-    enum: ["primary", "equal", "emoji_dominant", "punctuation_dominant"]
-  # Additional stimulus feature columns may be present (emoji_count, etc.) – they are optional for the analysis‑ready view.
+    type: string
+    enum:
+      - low
+      - medium
+      - high
+    description: Cue intensity level.
+  scenario_id:
+    type: string
+    description: Base scenario identifier.

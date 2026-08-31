@@ -2838,3 +2838,392 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-29T18:53:16Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: statsmodels mixedlm uses wald-z statistics
+  claim_id: c_c47736e2
+  context: The PRIMARY LMM script code/04_fit_lmm.py fits the model using statsmodels.MixedLM
+    with Wald-Z statistics because Satterthwaite is not supported.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statsmodels_mixedlm_uses_wald-z_statistics
+  kind: entity_fact
+  raw_text: fits model using statsmodels.MixedLM with Wald-Z statistics (as Satterthwaite
+    is not supported)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T21:48:40Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: lmm summary csv contains z_value column
+  claim_id: c_57f3ec2a
+  context: The LMM script produces data/results/lmm_summary.csv and includes a z_value
+    column confirming the use of Wald-Z statistics.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Lmm_summary_csv_contains_z_value_column
+  kind: entity_fact
+  raw_text: Output data/results/lmm_summary.csv with columns fixed_effect,estimate,stderr,z_value,p_value
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T21:49:25Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: cohens f interaction column non-negative
+  claim_id: c_9739dd27
+  context: Extension of code/04_fit_lmm.py adds a cohens_f_interaction column to the
+    LMM summary and a unit test verifies the values are non-negative.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cohens_f_interaction_column_non-negative
+  kind: entity_fact
+  raw_text: Column cohens_f_interaction present and populated; test confirms non-negative
+    values
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T21:51:02Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: synthetic power datasets have n 60 and effect size 0.25
+  claim_id: c_3105dcfe
+  context: The synthetic datasets generated for power analysis simulation are packaged
+    in a zip file and must contain N=60 observations with an effect size of 0.25.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Zip contains synthetic datasets with N=60, effect_size=0.25, and the exact
+    random-effects structure (Participant, Stimulus) used in the LMM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T21:51:51Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: real ratings dataset has at least 60 unique participants
+  claim_id: c_ba78f42f
+  context: Validation of data/raw/real_ratings.csv requires at least 60 unique participants
+    among other quality checks.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P3832: 10768'
+      source_id: Q14290457
+      url: https://www.wikidata.org/wiki/Q14290457
+      value: '10768'
+    filled: true
+  kind: magnitude
+  raw_text: "Checks: N\u226560 unique participants, prolific_id matches pattern ^\\\
+    w+$, no simulated placeholder rows"
+  resolved_value: '10768'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T21:52:09Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: cue intensity column matches primary weighting scheme
+  claim_id: c_af0f80cc
+  context: A verification script ensures consistency between the cue_intensity values
+    in the stimuli file and the weighting scheme JSON.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cue_intensity_column_matches_primary_weighting_scheme
+  kind: entity_fact
+  raw_text: Verify that the cue_intensity column in data/raw/stimuli.csv matches the
+    primary weighting scheme defined in data/processed/cue_intensity_weights.json
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T21:53:16Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: posthoc tukey csv includes significant flag column
+  claim_id: c_663f0606
+  context: The Tukey-corrected post-hoc pairwise comparisons generate a CSV that always
+    contains a significant flag column.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Posthoc_tukey_csv_includes_significant_flag_column
+  kind: entity_fact
+  raw_text: Output data/results/posthoc_tukey.csv always generated; includes significant
+    flag column
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T21:54:03Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: benchmark total duration seconds does not exceed 21600
+  claim_id: c_aed160e2
+  context: The full pipeline benchmark reports total_duration_seconds and the run
+    fails if it exceeds 21600 seconds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Outputs total_duration_seconds; fails if >21600
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T21:54:03Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 0
+  canonical: dataset must contain at least 60 unique participants
+  claim_id: c_98a6f786
+  context: "Task T015b-Verify ensures the real ratings file has N\u226560 unique participants\
+    \ and valid Prolific IDs."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P3832: 10768'
+      source_id: Q14290457
+      url: https://www.wikidata.org/wiki/Q14290457
+      value: '10768'
+    filled: true
+  kind: magnitude
+  raw_text: "Checks: N\u226560 unique participants, `prolific_id` matches pattern\
+    \ `^\\w+$`, no simulated placeholder rows."
+  resolved_value: '10768'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T21:54:31Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: synthetic datasets with N=60 and effect size 0.25
+  claim_id: c_3efbfc20
+  context: In task T090b, the synthetic datasets generated for power analysis simulation
+    are required to have N=60 and an effect size of 0.25.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Zip contains synthetic datasets with N=60, effect_size=0.25, and the exact
+    random-effects structure (Participant, Stimulus) used in the LMM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T21:54:35Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: estimated power must be at least 0.80 and target sample size at least
+    60
+  claim_id: c_20c0c7d3
+  context: "Task T091-Check validates power analysis results, requiring estimated_power\
+    \ \u2265 0.80 and target_N \u2265 60."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Estimated_power_must_be_at_least_0.80_and_target_sample_size
+  kind: magnitude
+  raw_text: Run `code/00_validate_power.py`; it exits with error if `estimated_power`
+    < 0.80 **or** `target_N` < 60.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T21:54:59Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: target sample size must be at least 60
+  claim_id: c_68378860
+  context: "Task T091-Check validates power analysis results, requiring estimated_power\
+    \ \u2265 0.80 and target_N \u2265 60."
+  evidence:
+    entailment_evidence: Target sample size must be at least 60
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Target_sample_size_must_be_at_least_60
+  kind: magnitude
+  raw_text: Run `code/00_validate_power.py`; it exits with error if `estimated_power`
+    < 0.80 **or** `target_N` < 60.
+  resolved_value: target sample size must be at least 60
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T21:55:04Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: prolific_id must match the regex ^\w+$
+  claim_id: c_1c4d597a
+  context: Task T015b-Verify checks that the Prolific ID column conforms to the pattern
+    ^\w+$.
+  evidence:
+    entailment_evidence: Prolific id must match the regex ^\w+$
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Prolific_id_must_match_the_regex_%5E%5Cw%2B$
+  kind: entity_fact
+  raw_text: '`prolific_id` matches pattern `^\w+$`'
+  resolved_value: prolific_id must match the regex ^\w+$
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T21:55:09Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: relationship_type column must contain only 'friend' or 'acquaintance'
+  claim_id: c_e25677ec
+  context: Task T130 validates that the relationship_type column contains only the
+    permitted values.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Relationship_type_column_must_contain_only_%27friend%27_or_%27acqu
+  kind: entity_fact
+  raw_text: relationship_type column in `data/raw/real_ratings.csv` contains only
+    the allowed values "friend" or "acquaintance".
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T21:55:55Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: lmm_summary.csv must contain columns fixed_effect, estimate, stderr,
+    z_value, and p_value
+  claim_id: c_de8faf98
+  context: Task T021 specifies the required columns for the linear mixed model summary
+    output.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Lmm_summary.csv_must_contain_columns_fixed_effect,_estimate,
+  kind: entity_fact
+  raw_text: Output `data/results/lmm_summary.csv` with columns `fixed_effect,estimate,stderr,z_value,p_value`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T21:55:59Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: lmm_summary.csv must include a z_value column indicating Wald-Z statistics
+  claim_id: c_29a6f505
+  context: Task T021 verification ensures the summary file includes the z_value column.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P373: Wald ZH'
+      source_id: Q67272
+      url: https://www.wikidata.org/wiki/Q67272
+      value: ZH
+    filled: true
+  kind: entity_fact
+  raw_text: Summary file created; contains `z_value` column confirming Wald-Z usage.
+  resolved_value: ZH
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T21:56:35Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: posthoc_tukey.csv must include a significant flag column
+  claim_id: c_ab089b54
+  context: "Task T024 requires the post\u2011hoc Tukey results file to contain a column\
+    \ indicating significance."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Posthoc_tukey.csv_must_include_a_significant_flag_column
+  kind: entity_fact
+  raw_text: '`posthoc_tukey.csv` always generated; includes `significant` flag column.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T21:57:04Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: "lmm_summary.csv must include a non\u2011negative cohens_f_interaction\
+    \ column"
+  claim_id: c_1b45799c
+  context: "Task T133 adds an effect\u2011size column for the interaction term and\
+    \ tests confirm the values are non\u2011negative."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Lmm_summary.csv_must_include_a_non%E2%80%91negative_cohens_f_interac
+  kind: entity_fact
+  raw_text: Extend `code/04_fit_lmm.py` to compute and output an effect-size metric
+    (Cohen's f) for the interaction term, adding a column `cohens_f_interaction` to
+    `data/results/lmm_summary.csv`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T21:58:20Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: "cohens_f_interaction values must be non\u2011negative"
+  claim_id: c_fb55094a
+  context: The unit test for effect size verifies that the Cohen's f values are not
+    negative.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P3879: 282'
+      source_id: Q37315170
+      url: https://www.wikidata.org/wiki/Q37315170
+      value: '282'
+    filled: true
+  kind: entity_fact
+  raw_text: "Test `tests/unit/test_effect_size.py` confirms non\u2011negative values."
+  resolved_value: '282'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T21:58:59Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: sensitivity_metrics.csv must contain columns scheme, beta_interaction,
+    abs_beta, p_value, significant, direction, and stability_score
+  claim_id: c_4e80efa6
+  context: Task T029 defines the required columns for the sensitivity metrics output.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_metrics.csv_must_contain_columns_scheme,_beta_in
+  kind: entity_fact
+  raw_text: 'Columns: `scheme,beta_interaction,abs_beta,p_value,significant,direction,stability_score`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T22:00:04Z'

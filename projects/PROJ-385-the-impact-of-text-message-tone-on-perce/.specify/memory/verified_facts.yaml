@@ -1,7 +1,5 @@
-'|plausible value':
-  quote: is the only parameter), and if that distribution is continuous, then when
-    the null-hypothesis is true, the p-value is uniformly distributed between 0 and
-    1. Regardless of the truth of the
-  source_id: P-value
-  url: https://en.wikipedia.org/wiki/P-value
-  value: 0 and 1
+'|check id matche no participant pattern placeholder prolific row simulated unique':
+  quote: 'P3832: 10768'
+  source_id: Q14290457
+  url: https://www.wikidata.org/wiki/Q14290457
+  value: '10768'

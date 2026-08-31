@@ -4,12 +4,12 @@ This document defines the canonical schemas for all core data artifacts used thr
 
 ## Primary Schemas (used by the pipeline)
 
-- **Stimulus Schema** (`stimulus.schema.yaml`): defines the structure of `stimuli.csv`. This is the **single source of truth** for stimulus metadata.  
+- **Stimulus Schema** (`stimulus.schema.yaml`): defines the structure of `stimuli.csv`. This is the **single source of truth** for stimulus metadata.
 - **Rating Schema** (`rating.schema.yaml`): defines the structure of `real_ratings.csv`. This is the **single source of truth** for participant rating data.
 
 ## Deprecated / Alias Schemas (retained for backward compatibility)
 
-- `stimuli.schema.yaml` – **deprecated alias** of `stimulus.schema.yaml`. It is kept only to avoid breaking older commits; the pipeline does **not** validate against it.  
+- `stimuli.schema.yaml` – **deprecated alias** of `stimulus.schema.yaml`. It is kept only to avoid breaking older commits; the pipeline does **not** validate against it.
 - `ratings.schema.yaml` – **deprecated alias** of `rating.schema.yaml`. It is kept only for historical reasons; the pipeline validates against `rating.schema.yaml`.
 
 The pipeline (and all plan references) uses the primary schemas above; deprecated schemas are documented solely for traceability.
@@ -56,6 +56,20 @@ The pipeline (and all plan references) uses the primary schemas above; deprecate
 All CSV files written by the pipeline must conform to the corresponding schema. Validation is performed by `tests/contract/` during CI.
 
 ## Schema Consolidation Note
-- `stimulus.schema.yaml` and `rating.schema.yaml` are the **authoritative** schemas.  
-- `stimuli.schema.yaml` and `ratings.schema.yaml` are retained only as deprecated aliases; they should **not** be used by new code or validation steps.  
-- This consolidation eliminates ambiguity and satisfies the panel concerns about schema consistency.  
+- `stimulus.schema.yaml` and `rating.schema.yaml` are the **authoritative** schemas.
+- `stimuli.schema.yaml` and `ratings.schema.yaml` are retained only as deprecated aliases; they should **not** be used by new code or validation steps.
+- This consolidation eliminates ambiguity and satisfies the panel concerns about schema consistency.
+
+## Entity Definitions
+
+### Stimulus
+A Stimulus represents a single text message scenario used in the experiment. It is generated programmatically by combining a base scenario with variations in emoji usage, punctuation, and length. Each stimulus is uniquely identified and carries metadata about its cue intensity.
+
+### Participant
+A Participant represents a human subject in the study. In this data model, participants are identified by an anonymized ID derived from their Prolific ID. The model tracks their ratings across different stimuli and relationship contexts but does not store personally identifiable information (PII) in the analysis datasets.
+
+### Rating
+A Rating is a single data point representing a participant's evaluation of a stimulus. It links a Participant to a Stimulus within a specific relationship context and records the perceived emotional support score.
+
+### AnalysisResult
+An AnalysisResult encapsulates the output of the statistical modeling phase. It aggregates the fixed effects, random effects variance components, and model fit statistics derived from the Linear Mixed Model (LMM) analysis, serving as the primary output for the research findings.

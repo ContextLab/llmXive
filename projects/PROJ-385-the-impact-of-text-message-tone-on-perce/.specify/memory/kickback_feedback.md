@@ -4,12 +4,11 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T014` (rejected 1x): The required output file `data/processed/counterbalanced_trials.csv` is missing, so the counterbalancing task does not actually produce the CSV that should contain rows for every stimulus‑context pair per participant. Without this file, the task’s core requirement is unmet.
-- `T051` (rejected 1x): declared artifact(s) missing/empty/invalid: data/raw/real_ratings.csv, data/processed/anonymised_ratings.csv
-- `T086` (rejected 1x): The required file `data/processed/anonymised_ratings.csv` is missing, so there is no data to validate the `participant_id` column against the Participant schema. The task cannot be considered completed until this file exists and contains a non‑null `participant_id` column as specified.
-- `T054` (rejected 1x): declared artifact(s) missing/empty/invalid: data/raw/real_ratings.csv, data/checksums.json
-- `T052` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/anonymised_ratings.csv, data/checksums.json
-- `T037a` (rejected 1x): The required file `code/run_pipeline.py` does not exist in the repository, so there is no CLI entry point to test for `--mode real` or `--help` output. The task’s core deliverable is missing.
+- `T091` (rejected 1x): The required output file `data/processed/power_analysis_results.json` does not exist, and the provided script is incomplete (truncated) with no evidence that it generates the JSON containing `estimated_power`, `target_N`, and `method`. The task’s deliverable is therefore missing.
+- `T004` (rejected 1x): The required verification script `code/verify_data_model.py` is missing, and there is no evidence that the markdown file `specs/001-the-impact-of-text-message-tone-on-perce/data-model.md` exists or contains the required headings. Without these artifacts, the task’s requirement is not satisfied.
+- `T005` (rejected 1x): No directory listings, file tree, or .gitkeep files were provided, so we cannot confirm that `data/raw`, `data/processed`, and `data/consent` exist nor that each contains a `.gitkeep`. The implementer must show the actual filesystem state (e.g., output of `ls data/` and `ls data/*/`) to verify the required structure.
+- `T006` (rejected 1x): The required schema files (`stimulus.schema.yaml`, `rating.schema.yaml`, `analysis_ready.schema.yaml`, `lmm_summary.schema.yaml`, `analysis_result.schema.yaml`) are not present in the `specs/001-the-impact-of-text-message-tone-on-perce/contracts/` directory (the only schema listed, `schema.yaml`, is missing). Without these files the pytest contract tests cannot load and validate the schemas, so the task is not genuinely completed.
+- `T015` (rejected 1x): The repository lacks the required `data/processed/presentation_orders.csv` file, and the provided `code/03_random_order.py` is incomplete (the `save_orders` function is cut off and no command‑line handling or entry‑point is shown). Consequently the script cannot generate the promised CSV, so the task’s requirement is not met.
 
 ## Required change
 

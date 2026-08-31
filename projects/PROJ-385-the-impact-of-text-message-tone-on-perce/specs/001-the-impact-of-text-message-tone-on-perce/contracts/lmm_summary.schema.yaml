@@ -1,36 +1,28 @@
-$schema: "https://json-schema.org/draft/2020-12/schema"
-title: "LMM Summary Schema"
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: LMMSummary
+description: Schema for the Linear Mixed Model summary statistics.
+type: object
 required:
-  - "term"
-  - "estimate"
-  - "std_error"
-  - "p_value"
-  - "ci_lower"
-  - "ci_upper"
+  - fixed_effect
+  - estimate
+  - stderr
+  - z_value
+  - p_value
 properties:
-  term:
-    type: "string"
-    description: "Name of the fixed effect term (e.g., relationship[T.friend]:cue_intensity)."
+  fixed_effect:
+    type: string
+    description: Name of the fixed effect (e.g., "cue_intensity", "relationship_type").
   estimate:
-    type: "number"
-    description: "Coefficient estimate (β)."
-  std_error:
-    type: "number"
-    description: "Standard error of the estimate."
-  df:
-    type: "number"
-    description: "Approximate degrees of freedom using Wald Z (normal approximation)."
-  t_value:
-    type: "number"
-    description: "Wald Z‑based statistic."
+    type: number
+    description: Coefficient estimate.
+  stderr:
+    type: number
+    description: Standard error of the estimate.
+  z_value:
+    type: number
+    description: Wald Z-statistic.
   p_value:
-    type: "number"
-    description: "Two‑tailed p‑value."
-  ci_lower:
-    type: "number"
-    description: "Lower bound of the 95 % confidence interval."
-  ci_upper:
-    type: "number"
-    description: "Upper bound of the 95 % confidence interval."
-additionalProperties: false
+    type: number
+    minimum: 0
+    maximum: 1
+    description: P-value associated with the Z-statistic.

@@ -1,52 +1,55 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: Stimulus Schema
-description: >
-  Schema for validating the generated stimuli CSV file (data/raw/stimuli.csv).
-  Ensures all required columns exist with correct types and constraints.
+$schema: http://json-schema.org/draft-07/schema#
+title: Stimulus
+description: Schema for a single text message stimulus used in the experiment.
 type: object
+required:
+  - stimulus_id
+  - text_content
+  - base_scenario
+  - emoji_count
+  - punctuation_count
+  - length
+  - cue_intensity
+  - relationship_context
 properties:
-  id:
+  stimulus_id:
     type: string
-    description: Unique identifier for the stimulus
-    pattern: "^stim_[0-9]+$"
-  text:
+    pattern: "^S\\d{4}$"
+    description: Unique identifier for the stimulus (e.g., S0001).
+  text_content:
     type: string
-    description: The actual text message content
     minLength: 1
+    description: The actual text message content.
+  base_scenario:
+    type: string
+    enum:
+      - academic_stress
+      - social_conflict
+      - work_pressure
+      - family_concern
+    description: The underlying scenario category.
   emoji_count:
     type: integer
-    description: Number of emojis in the text
     minimum: 0
-  punctuation_type:
-    type: string
-    description: Type of ending punctuation used
-    enum:
-      - period
-      - exclamation
-      - question
-      - none
-  length_category:
-    type: string
-    description: Categorization of message length
-    enum:
-      - short
-      - medium
-      - long
-  scenario_id:
-    type: string
-    description: ID of the scenario this stimulus belongs to
-    pattern: "^scn_[0-9]+$"
+    description: Number of emojis in the message.
+  punctuation_count:
+    type: integer
+    minimum: 0
+    description: Number of punctuation marks (exclamation/question) in the message.
+  length:
+    type: integer
+    minimum: 1
+    description: Character length of the message.
   cue_intensity:
-    type: number
-    description: Calculated cue intensity score
-    minimum: 0.0
-    maximum: 1.0
-required:
-  - id
-  - text
-  - emoji_count
-  - punctuation_type
-  - length_category
-  - scenario_id
-  - cue_intensity
-additionalProperties: false
+    type: string
+    enum:
+      - low
+      - medium
+      - high
+    description: Calculated intensity based on cue weighting scheme.
+  relationship_context:
+    type: string
+    enum:
+      - friend
+      - acquaintance
+    description: The relationship context for this stimulus instance.

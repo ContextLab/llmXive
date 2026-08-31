@@ -1,17 +1,10 @@
-T004:
+T008:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The required file `specs/001-text-tone-emotional-support/data-model.md` is not
-    present in the provided evidence, and no content showing the definitions of Stimulus,
-    Participant, Rating, or AnalysisResult can be verified. Without this artifact,
-    the task requirement is unmet.
-T005:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings, file tree, or .gitkeep files were provided, so we cannot
-    confirm that `data/raw`, `data/processed`, and `data/consent` exist nor that each
-    contains a `.gitkeep`. The implementer must show the actual filesystem state (e.g.,
-    output of `ls data/` and `ls data/*/`) to verify the required structure.
+  h: bd56e10ae287eea10f0ff043f20cd70696a729ad2eb6db409ee39568eafd4103
+  r: The `code/logging_config.py` file exists, but importing it does not create `data/pipeline.log`
+    nor write any startup message, and the expected log file is absent. The implementation
+    must ensure the log file is generated on import (or via an explicit call) and
+    that a startup entry is written.
 T010a:
   c: false
   h: cc92d0c43e5381fd370fb82598865015f08eb09b3dcdf760944a6653e929e57b
@@ -21,19 +14,21 @@ T010a:
     must be added for the task to be considered complete.
 T013:
   c: false
-  h: afe011540da99fecb7c6cf14ad696f7f8a01284f9ca8d3fb8417e4d4565d3ed8
-  r: "The required output file `data/raw/stimuli.csv` does not exist, and the provided\
-    \ `code/01_generate_stimuli.py` is truncated (e.g., `categorize_length` is incomplete)\
-    \ with no evidence that it writes the specified columns or that the `--verify`\
-    \ mode produces the required log message. The task\u2019s core deliverables are\
-    \ therefore missing."
-T015:
+  h: 6ab4d39b5729023726c2f6512b39c27841196c75d709f467d80902775711997d
+  r: "The required output file `data/raw/stimuli.csv` does not exist, so the generator\u2019\
+    s primary artifact is missing. Consequently the verification step cannot succeed,\
+    \ and the task\u2019s deliverable is not satisfied. The next implementer must\
+    \ ensure the script creates the CSV with the specified columns and that `python\
+    \ code/01_generate_stimuli.py --verify` runs successfully, confirming uniqueness\
+    \ of all combinations."
+T014:
   c: false
-  h: 179854a90b6e0b47c5d87042ee2250ce06668f28a08859146201c03139f6db83
-  r: "The repository contains the `code/03_random_order.py` script, but the required\
-    \ output file `data/processed/presentation_orders.csv` is absent, so the task\u2019\
-    s deliverable (a shuffled order CSV) has not been produced. The missing CSV must\
-    \ be generated and saved for the task to be considered complete."
+  h: cbc0040203ebfa5b5fa3c47142d02c81994bb1f478da4458bcf2107943300509
+  r: The required output file `data/processed/counterbalanced_trials.csv` does not
+    exist, and the provided `code/02_counterbalance.py` is truncated and contains
+    errors (e.g., undefined variable `stim`, no CSV writing logic). Consequently the
+    script cannot generate the required counterbalanced trials, and the contract test
+    cannot be satisfied.
 T015c:
   c: false
   h: 5fa336182c23e4da154c211b33de8fa974ae9099947f73dc1bf4230e29fb71d7
@@ -104,19 +99,18 @@ T084:
     the claimed test cannot be verified.
 T090:
   c: false
-  h: 72f465326d28e19d749be5d9add87478b54795b1df4ce04c2c9bd6c41019cb67
-  r: "The required file `data/processed/cue_intensity_weights.json` is missing, so\
-    \ the exact weighting schemes are not stored as specified. The script `code/00_define_weights.py`\
-    \ correctly defines the schemes, but without the JSON file the task\u2019s verification\
-    \ condition is not met. Create the JSON file at the given path (or run the script)\
-    \ containing the three schemes with the exact numeric values."
-T091:
+  h: c9efcc786bb7c3c4d6e2a8a375b4adb38f321927d891247c20c511bd3a40042b
+  r: "The required output file `data/processed/cue_intensity_weights.json` does not\
+    \ exist, so the weighting schemes are not actually stored as specified. The script\
+    \ defines the correct weights, but without the JSON file the task\u2019s deliverable\
+    \ is missing."
+T090b:
   c: false
-  h: e17025a8dceb0d26ca85170b4f939358eff8cae16d5938d9edbc70f6e734a493
-  r: "The required output file `data/processed/power_analysis_results.json` does not\
-    \ exist, and the provided script is incomplete (truncated) with no evidence that\
-    \ it generates the JSON containing `estimated_power`, `target_N`, and `method`.\
-    \ The task\u2019s deliverable is therefore missing."
+  h: faccf438fef141ecc86a6810466818285da4a24ccbe9cecebb7bcf56cf64605f
+  r: "The required output file `data/processed/synthetic_power_datasets.zip` is missing,\
+    \ and the provided script `code/00_generate_synthetic_power_data.py` is incomplete\
+    \ (truncated and contains a syntax error). Without a generated zip containing\
+    \ the synthetic datasets, the task\u2019s deliverable is not satisfied."
 T101:
   c: false
   h: ee7693ad76c7e8723c400fb40712aac0db9b5240af39b47b85ead0b1985e098b

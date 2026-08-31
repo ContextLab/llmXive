@@ -2,12 +2,7 @@ pandas>=2.0.0
 numpy>=1.24.0
 scipy>=1.10.0
 statsmodels>=0.14.0
+pingouin>=0.5.3
 pyyaml>=6.0
 pytest>=7.0.0
-matplotlib>=3.8.0
-# Existing dependencies from the project (explicitly listed for clarity)
-# They were already pinned in the original requirements file; they are
-# reproduced here to keep the file complete.
-# (If the original file already contains these lines, they will simply be
-# duplicated – the package manager will handle the redundancy.)
-# Note: The version specifiers match those used elsewhere in the repo.
+jsonschema>=4.0.0
