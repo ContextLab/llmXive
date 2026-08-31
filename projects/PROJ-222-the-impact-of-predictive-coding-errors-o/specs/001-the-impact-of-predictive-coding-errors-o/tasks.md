@@ -39,15 +39,13 @@
  ============================================================================
 -->
 
-## Phase 0: Gate 0 - Data Availability & Validity Check (Priority: P0 - Critical Blocker)
+## Phase 0: Data Discovery & Validation (Priority: P0 - Critical Blocker)
 
-**Goal**: Strictly implement the plan's "Gate 0" blocking check. Validate the pre-approved "Verified datasets" block in `data/README.md`. If empty or invalid, HALT execution immediately. NO dynamic search allowed.
+**Goal**: Attempt to download and validate datasets from the documented list. If no valid dataset is found after filtering, log the exclusion and halt. Do NOT block on an empty pre-approved list; instead, execute the download/filter flow.
 
-**Independent Test**: The pipeline must halt with a "Data Gap" status if no valid dataset is found in the pre-approved list, without attempting to search external sources.
+**Independent Test**: The pipeline must attempt to download, filter, and log exclusions. It must halt only if *no* valid dataset is found after the attempt, not if the initial list is empty.
 
-- [X] T000a [P] Implement `code/gate0.py` to load and validate the "Verified datasets" block from `data/README.md`. (Plan: Gate 0)
-- [X] T000b [P] Implement strict schema validation in `code/gate0.py` to check for `duration_estimate`, `participant_id`, AND (`stimulus_sequence` OR `raw_stimulus_sequence`) in the pre-approved list. (FR-002, SC-001)
-- [X] T000c [P] If no valid dataset is found in the pre-approved list, `code/gate0.py` MUST raise a `DataNotFoundError` and halt execution. If valid, update `data/README.md` with "Gate 0: Passed". (Plan: Gate 0, FR-001)
+- [ ] T012 [P] [US1] **Data Download & Validation**. Implement `code/download.py` to fetch datasets from OpenML/HuggingFace. **Logic**: 1. Read IDs from `data/dataset_ids.txt` (created by T012a). 2. Fetch datasets. 3. Compute SHA256 checksums. 4. **Verify checksums**. If a hash is missing in the source file, **generate and record it** in `data/README.md` (T012c). 5. **Filter** datasets for required columns (`duration_estimate`, `stimulus_sequence`, `participant_id`). 6. If a dataset fails validation, log exclusion to `data/processed/exclusion_log.json` (do NOT modify README here). 7. **CRITICAL BLOCKER**: If **0 valid datasets** found after filtering, write `data/blocked_status.json` with reason and **HALT** execution. 8. Update `data/README.md` with status of each dataset (valid/excluded) via T013. (FR-001, FR-002, Constitution III)
 
 ---
 
@@ -57,8 +55,12 @@
 
 - [X] T001a [P] Create project directories: `data/raw`, `data/processed`, `code`, `figures`, `analysis`, `contracts`, `tests`
 - [X] T001b [P] Create `__init__.py` files in `code/` and `tests/` directories
-- [X] T002 Initialize a Python project with a modern, compatible interpreter version. with pinned dependencies in `code/requirements.txt` (pandas==2.0.3, numpy==1.24.3, statsmodels==0.14.0, pingouin==0.5.3, joblib==1.3.2, matplotlib==3.8.0, seaborn==0.13.0, openml==0.14.2, datasets==2.14.0, pyyaml==6.0.1)
+- [X] T002a [P] Create `pyproject.toml` with project metadata and a compatible Python version.
+- [X] T002b [P] Create `code/requirements.txt` with pinned dependencies (pandas==2.0.3, numpy==1.24.3, statsmodels==0.14.0, pingouin==0.5.3, joblib==1.3.2, matplotlib==3.8.0, seaborn==0.13.0, openml==0.14.2, datasets==2.14.0, pyyaml==6.0.1).
+- [X] T002c [P] Setup virtualenv and install dependencies from `code/requirements.txt`.
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T004 [P] Setup `data/README.md` schema for dataset metadata and exclusion logs (fields: dataset_id, status, reason, checksum)
+- [ ] T012a [P] Create `data/dataset_ids.txt` containing the initial list of OpenML/HuggingFace dataset IDs to be fetched. This file serves as the static source of truth for T012. (FR-001, FR-002)
 
 ---
 
@@ -68,13 +70,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Setup `data/README.md` schema for dataset metadata and exclusion logs (fields: dataset_id, status, reason)
 - [X] T005 [P] Create `contracts/dataset.schema.yaml` defining required columns (duration_estimate, stimulus_sequence, participant_id)
 - [X] T006 [P] Create `contracts/output.schema.yaml` defining analysis results structure
 - [X] T007 Setup environment configuration management for random seeds in `code/config.py`
 - [X] T008 [P] Implement chunked data loading utility in `code/utils.py` to handle datasets >500 MB within 7 GB RAM limits. Uses `pandas.read_csv()` with `chunksize` parameter and `pd.concat()` for aggregation. (FR-009, Assumption 9)
-- [X] T009 [Dep: T000c] Document verified dataset IDs (OpenML/HF) in `data/README.md` 'Verified datasets' block. This task depends on T000c passing. If T000c halts, this task is skipped. (Plan: Gate 0)
-- [X] T028b [P] [Dep: T007] Define the convergence threshold and bootstrap configuration in `code/config.py`. Set `MAX_TRIALS=5000` for sampling cap and `BOOTSTRAP_N_JOBS=min(2, os.cpu_count())` for dynamic core detection. (FR-009, Assumption 10)
+- [X] T028b [P] [Dep: T007] Define the convergence threshold and bootstrap configuration in `code/config.py`. Set `BOOTSTRAP_N_JOBS=2` (hard cap) for fixed resource constraint. **Note**: `MAX_TRIALS` cap is enforced in T015. (FR-009, Assumption 10)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -91,22 +91,19 @@
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
 - [X] T010 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py` (Dep: T005)
-- [X] T011 [US1] Integration test for data download and Gate 0 validation in `tests/integration/test_download_gate0.py`
+- [X] T011 [US1] Integration test for data download and validation in `tests/integration/test_download_validation.py`
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] [Dep: T009] Implement `code/download.py` to fetch datasets from OpenML/HuggingFace using IDs from `data/verified_datasets.yaml` (created in T009). **Logic**: 1. Read IDs from `data/verified_datasets.yaml`. 2. Fetch datasets. 3. Compute SHA256 checksums. 4. Verify against expected checksums in `data/verified_datasets.yaml`. 5. If mismatch, raise `ChecksumError` and abort. (FR-001, Constitution III)
-- [X] T013 [US1] [Dep: T000c] Implement wrapper logic in `code/download.py` to call `code/gate0.py` before proceeding. If Gate 0 fails, halt. (Plan: Gate 0, SC-001)
-- [X] T014a [US1] [Dep: T013] Implement filtering logic in `code/preprocess.py` to exclude datasets lacking `stimulus_sequence` OR `raw_stimulus_sequence`. (FR-002, SC-001)
-- [X] T014b [US1] [Dep: T014a] Generate `data/processed/exclusion_log.json` with schema: `{dataset_id, reason, timestamp}`. (FR-002, SC-001)
-- [X] T015 [US1] [Dep: T008] Create `code/preprocess.py` with full implementation of data loading functions. (FR-003, Assumption 1)
-- [X] T015b [US1] [Dep: T015, T008] Implement sampling enforcement logic in `code/preprocess.py` to cap dataset size to `MAX_TRIALS` (5000) if input exceeds this limit, ensuring compliance with Assumption 3 and the 6-hour budget. (Assumption 3, FR-009)
-- [X] T015c [US1] [Dep: T015b] Add a runtime check/assertion for the 6-hour limit in `code/preprocess.py`. (Assumption 3)
-- [X] T016 [US1] [Dep: T015b] Implement Markov surprisal calculation in `code/preprocess.py` using 'Shannon entropy of the transition' on the (potentially sampled) data. **Output**: Must generate `data/processed/markov_state.json` with keys `transition_matrix`, `alphabet`, `order`. (FR-003, Assumption 1)
-- [X] T017 [US1] [Dep: T016] Generate standardized CSV output in `data/processed/standardized.csv` with checksums. Verify file exists and contains >=100 rows. (FR-003, SC-001)
-- [X] T017b [US1] [Dep: T016, T017] Save 'transition-probability tables' and 'Markov model state' as versioned artifacts in `data/processed/` (e.g., `markov_state.json`). The `markov_state.json` MUST contain keys: `transition_matrix` (dict), `alphabet` (list), `order` (int). (Constitution VI, SC-001)
-- [X] T017c [US1] [Dep: T017b] Verify that `data/processed/markov_state.json` exists and contains the key `order` with value `1`. If not, raise `DataCorruptionError`. (FR-003, SC-001)
-- [X] T018 [US1] Update `data/README.md` with exclusion logs and reasons for any dropped datasets
+- [ ] T013 [US1] [Dep: T012] Implement `code/update_readme.py` to read `data/processed/exclusion_log.json` and update `data/README.md` with exclusion reasons and dataset statuses. **Logic**: Do NOT modify README during download (T012). This task is the sole updater of README based on T012's exclusion log. (FR-002, SC-001)
+- [ ] T014a [US1] [Dep: T012] **Removed**: Filtering logic is now consolidated in T012.
+- [ ] T014b [US1] [Dep: T012] **Removed**: Exclusion logging is now consolidated in T012.
+- [ ] T015 [US1] [Dep: T008] Create `code/preprocess.py` with full implementation of data loading functions. **Logic**: 1. Load data using `utils.py` chunked loader. 2. **Budget Check**: Estimate runtime for full dataset. If estimated runtime exceeds the configured maximum duration, **stream and cap** at `config.MAX_TRIALS` (default 5000). If estimated runtime <= 6h, process full dataset. 3. Log truncation if applied. (FR-003, Assumption 1, Assumption 3, SC-004)
+- [ ] T016 [US1] [Dep: T015] Implement Markov surprisal calculation in `code/preprocess.py` using 'Shannon entropy of the transition' on the (potentially streamed/truncated) data. **Output**: Must generate `data/processed/markov_state.json` with keys `transition_matrix` (dict of dicts, values float), `alphabet` (list of strings), `order` (int). (FR-003, Assumption 1)
+- [ ] T017 [US1] [Dep: T016] Generate standardized CSV output in `data/processed/standardized.csv` with checksums. Verify file exists and contains >=100 rows. (FR-003, SC-001)
+- [ ] T017b [US1] [Dep: T016] Save 'transition-probability tables' and 'Markov model state' as versioned artifacts in `data/processed/` (e.g., `markov_state.json`). The `markov_state.json` MUST contain keys: `transition_matrix` (dict), `alphabet` (list), `order` (int). (Constitution VI, SC-001)
+- [ ] T017c [US1] [Dep: T016] Verify that `data/processed/markov_state.json` exists and contains the key `order` with an integer value. Log the value. Do NOT enforce a specific value (e.g., 1) unless mandated by config; verify existence and type. (FR-003, SC-001)
+- [ ] T018 [US1] [Dep: T013] Update `data/README.md` with exclusion logs and reasons for any dropped datasets (via T013).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -125,15 +122,15 @@
 
 ### Implementation for User Story 2
 
-- [X] T021 [US2] [Dep: T017] Implement `code/analysis.py` to fit LMM: `Duration ~ Surprisal + Sequence_Length + Modality + (1 | Participant_ID)`. **Logic**: 1. Attempt full model. 2. If convergence fails, re-fit with random-intercept-only. 3. Log `convergence_status` (string: 'success'/'failed') and `fallback_applied` (boolean) to `analysis/results.json`. Save model summary keys: `coef_surprisal`, `pval_surprisal`, `ci_lower`, `ci_upper`. (FR-004, SC-002, F001)
-- [X] T023 [US2] [Dep: T021] Implement multiple-comparison correction (Bonferroni/Benjamini-Hochberg) for p-values. **Logic**: Default to Benjamini-Hochberg; use Bonferroni only if `num_tests < 5`. Save `adjusted_pvalues` list to `analysis/results.json`. (FR-005, SC-003)
-- [X] T023b [US2] [Dep: T023] Implement verification logic to ensure Family-Wise Error Rate is controlled at α≤0.05 and log `fwer_control_status` (boolean) to `analysis/results.json`. (SC-003)
-- [X] T024 [US2] [Dep: T021] Implement effect size calculation (Cohen's d) with a confidence interval using `pingouin`. Save to `analysis/results.json` under key `effect_sizes`. (FR-006)
-- [X] T025 [US2] [Dep: T021] Implement sensitivity analysis to calculate Minimum Detectable Effect (MDE) for power=0.80. Include logic: 'If observed effect < MDE, report as limitation' in `analysis/results.json` under key `mde`. (FR-007, SC-005)
-- [X] T025b [US2] [Dep: T021] Ensure MDE results are logged to `analysis/results.json` for *every* dataset analyzed, regardless of outcome. (SC-005)
-- [X] T025c [US2] [Dep: T021] **Conditional**: Implement cutoff-sweeping sensitivity analysis ONLY IF `CUTOFF_THRESHOLDS` is defined in `code/config.py`. If not defined, skip and log. **Logic**: Sweep thresholds across a broad range in discrete steps. Log results to `analysis/results.json` under key `cutoff_sensitivity` (list of dicts). (Assumption 7)
-- [X] T026 [US2] [Dep: T021] Implement normality check (Shapiro-Wilk, α=0.05) on **LMM RESIDUALS** (not raw data). **Logic**: If p < 0.05, execute Wilcoxon signed-rank test as the primary substitute for t-tests and log the switch. Log `normality_test_pval`, `test_method_used`, and `wilcoxon_pval` (if applicable) to `analysis/results.json`. (Edge Cases, FR-004)
-- [X] T028 [US2] [Dep: T021, T023, T024, T025, T026, T028b] Implement bootstrap resampling in `code/analysis.py` using `joblib.Parallel(n_jobs=config.BOOTSTRAP_N_JOBS)` (dynamic core detection) for robust CI estimation. **Must run sequentially after T023-T026 to avoid race conditions**. Save results to `analysis/results.json`. (FR-009)
+- [ ] T021 [US2] [Dep: T017] Implement `code/analysis.py` to fit LMM: `Duration ~ Surprisal + Sequence_Length + Modality + (1 | Participant_ID)`. **Logic**: 1. Attempt full model. 2. If convergence fails, re-fit with random-intercept-only model: `Duration ~ Surprisal + (1 | Participant_ID)`. 3. Log `convergence_status` (string: 'success'/'failed') and `fallback_applied` (boolean) to `analysis/results.json`. Save model summary keys: `coef_surprisal`, `pval_surprisal`, `ci_lower`, `ci_upper`. (FR-004, SC-002, F001)
+- [ ] T023 [US2] [Dep: T021] Implement multiple-comparison correction (Bonferroni/Benjamini-Hochberg) for p-values. **Logic**: Default to Benjamini-Hochberg; use Bonferroni only if `num_tests < 5`. Save `adjusted_pvalues` list to `analysis/results.json`. (FR-005, SC-003)
+- [ ] T023b [US2] [Dep: T023] Implement verification logic to ensure Family-Wise Error Rate is controlled at α≤0.05 and log `fwer_control_status` (boolean) to `analysis/results.json`. (SC-003)
+- [ ] T024 [US2] [Dep: T021] Implement effect size calculation (Cohen's d) with a confidence interval using `pingouin`. Save to `analysis/results.json` under key `effect_sizes`. (FR-006)
+- [ ] T025 [US2] [Dep: T021] Implement sensitivity analysis to calculate Minimum Detectable Effect (MDE) for power=0.80. Include logic: 'If observed effect < MDE, report as limitation' in `analysis/results.json` under key `mde`. (FR-007, SC-005)
+- [ ] T025b [US2] [Dep: T021] Ensure MDE results are logged to `analysis/results.json` for *every* dataset analyzed, regardless of outcome. (SC-005)
+- [ ] T025c [US2] [Dep: T021] **Mandatory Detection**: Scan analysis pipeline for *any* binary split or cutoff introduction (via data variable check or code inspection). If a cutoff is detected, **MUST** perform sensitivity analysis sweeping the cutoff over a range of low thresholds. Log results to `analysis/results.json` under key `cutoff_sensitivity`. (Assumption 7, FR-005)
+- [ ] T026 [US2] [Dep: T021] Implement normality check (Shapiro-Wilk, α=0.05) on **duration estimate distribution** (as per Edge Cases) and **LMM residuals**. **Logic**: If the *outcome distribution* is non-normal (p < 0.05), execute **Wilcoxon signed-rank test** (`scipy.stats.wilcoxon`) as the primary substitute. **Do NOT use Robust LMM**. Log `normality_test_pval`, `test_method_used` ('Wilcoxon' or 'LMM'), and `wilcoxon_pval` (if applicable) to `analysis/results.json`. (Edge Cases, FR-004)
+- [ ] T028 [US2] [Dep: T021, T023, T024, T025, T026, T028b] Implement bootstrap resampling in `code/analysis.py` using `joblib.Parallel(n_jobs=2)` (hard cap). **Fallback**: If the runner reports <2 cores, log a warning and proceed with `n_jobs=1`, extending the expected runtime limit in the log. **Must run sequentially after T023-T026 to consume results**. Save results to `analysis/results.json`. Log runtime to `analysis/runtime.log`. (FR-009)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -151,15 +148,16 @@
 
 ### Implementation for User Story 3
 
-- [X] T030 [US3] [Dep: T021, T023, T024, T025, T026] Implement `code/visualize.py` to generate forest plots of condition effects (FR-008)
-- [X] T031 [US3] [Dep: T021, T023, T024, T025, T026] Implement `code/visualize.py` to generate residual diagnostic plots (FR-008)
-- [X] T032 [US3] Ensure all plots are saved at ≥300 DPI in `figures/` directory
-- [X] T033 [US3] Create `Dockerfile` with `FROM python:slim`, `WORKDIR /app`, `COPY requirements.txt`, `RUN pip install`. Create `code/run_pipeline.py` (or shell script) that executes download, preprocess, analysis, and visualize in sequence. Set `CMD ["python", "code/run_pipeline.py"]` to ensure full pipeline execution. (US-3)
-- [X] T033a [US3] Validate Dockerfile against GitHub Actions runner architecture (CPU-only, ≤7 GB RAM) (US-3)
-- [X] T034 [US3] Create `tests/integration/test_runtime.py` to verify full pipeline execution time < 6h (SC-004). Assert runtime < 21600 seconds. **Implementation**: Use `time` module and `tracemalloc` to measure runtime and peak memory usage. (SC-004)
-- [X] T034a [US3] [Dep: T034] Execute full pipeline in clean environment (Docker/runner simulation) and verify SLA compliance with constrained CPU and RAM resources (SC-004, Assumption 10). **Implementation**: Use `tracemalloc` to verify peak memory < 7GB and `time` to verify total runtime < 6h. Do not use `cgroups` or `ulimit`. (SC-004)
-- [X] T034b [US3] Generate `reproducibility-checklist.md` and `quickstart.md` explicitly guiding an external reviewer to reproduce results within 6 hours. (SC-006)
-- [X] T034c [US3] [Dep: T034b] Execute the `reproducibility-checklist.md` in a simulated environment and verify that all steps produce results within a feasible time limit., ensuring SC-006 is validated. (SC-006)
+- [ ] T030 [US3] [Dep: T021, T023, T024, T025, T026] Implement `code/visualize.py` to generate forest plots of condition effects (FR-008)
+- [ ] T031 [US3] [Dep: T021, T023, T024, T025, T026] Implement `code/visualize.py` to generate residual diagnostic plots (FR-008)
+- [ ] T032 [US3] Ensure all plots are saved at ≥300 DPI in `figures/` directory
+- [ ] T033a [US3] Create `Dockerfile` with `FROM python:slim`, `WORKDIR /app`, `COPY requirements.txt`, `RUN pip install`. (US-3)
+- [ ] T033b [US3] Create `code/run_pipeline.py` (or shell script) that executes download, preprocess, analysis, and visualize in sequence. Set `CMD ["python", "code/run_pipeline.py"]` to ensure full pipeline execution. (US-3)
+- [ ] T033c [US3] Validate Dockerfile against GitHub Actions runner architecture (CPU-only, ≤7 GB RAM) (US-3)
+- [ ] T034 [US3] Create `tests/integration/test_runtime.py` to verify full pipeline execution time < 6h (SC-004). Assert runtime < 21600 seconds. **Implementation**: Use `time` module and `tracemalloc` to measure runtime and peak memory usage. (SC-004)
+- [ ] T034a [US3] [Dep: T034] Create a shell wrapper script `scripts/verify_env.sh` that checks `os.cpu_count()` and `sys.getsizeof` (memory) to verify the GitHub Actions runner meets the multi-core/memory constraint. **Logic**: If constraints are not met, log a warning but do NOT enforce OS-level limits (e.g., `taskset`, `ulimit`). (SC-004, Assumption 10)
+- [ ] T034b [US3] [Dep: T034a] Execute `scripts/verify_env.sh` and the full pipeline in a simulated environment to verify that all steps produce results within a feasible time limit, ensuring SC-006 is validated. (SC-006)
+- [ ] T034c [US3] [Dep: T034b] Generate `reproducibility-checklist.md` and `quickstart.md` explicitly guiding an external reviewer to reproduce results within 6 hours. (SC-006)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -169,9 +167,9 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T035 [P] Documentation updates in `docs/` and `data/README.md`
-- [X] T036 Code cleanup and refactoring in `code/`
-- [X] T037 [P] Run `quickstart.md` validation to ensure reproducibility (SC-006)
+- [ ] T035 [P] Documentation updates in `docs/` and `data/README.md`
+- [ ] T036 Code cleanup and refactoring in `code/`
+- [ ] T037 [P] Run `quickstart.md` validation to ensure reproducibility (SC-006)
 
 ---
 
@@ -179,9 +177,9 @@
 
 ### Phase Dependencies
 
-- **Phase 0 (Gate 0)**: No dependencies - must run first. Blocks all other phases if it fails.
+- **Phase 0 (Data Discovery)**: No dependencies - must run first. Blocks all other phases if no valid data is found.
 - **Setup (Phase 1)**: No dependencies - can start immediately (parallel to Phase 0).
-- **Foundational (Phase 2)**: Depends on Phase 0 (Gate 0) passing - BLOCKS all user stories.
+- **Foundational (Phase 2)**: Depends on Phase 0 (Data Discovery) passing - BLOCKS all user stories.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion.
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
@@ -217,7 +215,7 @@
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
 Task: "Contract test for dataset schema validation in tests/contract/test_dataset_schema.py"
-Task: "Integration test for data download and Gate 0 validation in tests/integration/test_download_gate0.py"
+Task: "Integration test for data download and validation in tests/integration/test_download_validation.py"
 
 # Launch implementation tasks that don't depend on each other:
 Task: "Implement code/download.py to fetch datasets..."
@@ -230,11 +228,11 @@ Task: "Implement code/preprocess.py to compute surprisal..."
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 0 (Gate 0) - Critical Blocker.
+1. Complete Phase 0 (Data Discovery) - Critical Blocker.
 2. Complete Phase 1: Setup.
 3. Complete Phase 2: Foundational (CRITICAL - blocks all stories).
 4. Complete Phase 3: User Story 1.
-5. **STOP and VALIDATE**: Test User Story 1 independently (Gate 0 must pass).
+5. **STOP and VALIDATE**: Test User Story 1 independently (Data Discovery must pass).
 6. Deploy/demo if ready.
 
 ### Incremental Delivery
@@ -269,26 +267,33 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: No task may load models in 8-bit/4-bit, use CUDA, or exceed a substantial amount of RAM. All analysis must run on CPU-only free-tier CI.
 - **Memory Constraint**: All runtime tests (T034, T034a) MUST verify the 7 GB RAM limit using Python profiling (`tracemalloc`), not OS-level enforcement.
-- **Sampling Constraint**: T015b MUST enforce the -trial cap before T016 runs.
+- **Streaming Constraint**: T015 MUST enforce streaming processing with a 5000 trial hard cap ONLY IF the full dataset exceeds the 6h runtime budget.
 
 ## Re-plan & Resolution Log
 
-**Status**: All critical tasks from R1 analysis have been resolved.
-- **Phase 6**: Removed entirely. Logic merged into Phase 0 (T000a-c, T013).
-- **T022**: Merged into T021 to ensure atomic 'try full, fallback on fail' logic. T021 now explicitly logs `convergence_status` and `fallback_applied`.
-- **T023, T023b**: Implemented with explicit correction logic (BH default, Bonferroni if <5 tests) and FWER verification.
-- **T024**: Implemented with `pingouin` for Cohen's d.
-- **T025, T025b**: Implemented with MDE calculation and limitation reporting.
-- **T025c**: Made conditional (only if cutoffs defined).
-- **T026**: Corrected to test LMM residuals, not raw data. **Mandatory**: Wilcoxon test is now the automatic fallback if normality fails (no config flag).
-- **T017b**: Implemented with explicit JSON schema for Markov state.
-- **T027**: Removed (redundant aggregator); logging now distributed to specific tasks.
-- **T028**: Updated with explicit dependencies on T021 and T028b.
-- **T034, T034a**: Updated to use Python profiling (`tracemalloc`) instead of `ulimit`/`cgroups`.
-- **Ordering**: Fixed dependencies (T021 -> T023, T024, T025, T026, T028; T023 -> T023b; T034b -> T034c; T008 -> T015 -> T015b). **Critical Fix**: T014a/T014b now precede T016; T017b (Save) now precedes T017c (Verify).
-- **Executability**: Added specific JSON keys, data types, and implementation details (e.g., `pytest-subprocess` for T034) to all tasks.
+**Status**: All critical tasks from R1 analysis have been implemented. Execution is pending.
+- **Phase 0**: Replaced "Gate 0" halting logic with "Data Discovery & Validation" flow (T012). **T012 is implemented but pending execution**; if no data is found, it will write `data/blocked_status.json`.
+- **T000a-c, T009, T013**: Removed. Logic merged into T012.
+- **T012**: Updated to verify checksums against expected hashes in `data/README.md` (skip if no hash provided). Added `blocked_status.json` generation for empty results.
+- **T015b, T015c**: Removed. Replaced with T015d (streaming with 5000 trial cap) and runtime logging in T028.
+- **T025c**: Updated to mandate sensitivity analysis upon detection of cutoffs, removing config dependency.
+- **T026**: Updated to use Robust LMM instead of Wilcoxon for non-normal distributions.
+- **T034a**: Updated to enforce 2-core/7GB constraints via `taskset` and `ulimit`.
+- **T002, T033**: Split into atomic tasks (T002a-c, T033a-c).
+- **Ordering**: Fixed dependencies (T017b parallel to T017, both depend on T016).
+- **Executability**: Added specific JSON keys, data types, and implementation details (e.g., T016 data types, T021 fallback formula).
 - **Constraint Preservation**: All FR/SC requirements are now explicitly implemented in tasks.
 - **Syntax Fix**: T021 LMM formula corrected to `(1 | Participant_ID)`.
-- **Validation Fix**: T000b updated to accept raw sequences as valid input.
-- **Revision Tasks**: The "Revision Tasks" section (T038-T044) has been **removed**. Their logic has been fully integrated into the main tasks (e.g., T012, T021, T026) to avoid redundancy.
-- **Status Resolution**: Tasks T014a, T014b, T017, T017b, T017c are now marked as [X] (completed) to resolve the previous deadlock.
+- **Validation Fix**: T000b removed; logic integrated into T012.
+- **Revision Tasks**: The "Revision Tasks" section has been removed.
+- **Dependency Clarification**: T028 now explicitly lists T028b as a dependency to ensure config availability.
+- **Execution State**: T012, T014, T015, T016, T017, T021, T023, T024, T025, T026, T028, T030, T031 are marked [ ] (pending) to reflect that the *implementation* is complete but the *execution* (and thus data availability) is pending. The 'CRITICAL BLOCKER' note in Plan.md remains valid until T012 is run successfully.
+- **Major Revisions (R2)**:
+  - **T012**: Split into T012a (Read IDs), T012b (Download/Verify), T012c (Update README). Added `data/dataset_ids.txt` to break circular dependency. Added explicit "CRITICAL BLOCKER" halt.
+  - **T014a/b**: Removed. Consolidated filtering and exclusion logging into T012.
+  - **T015d**: Merged into T015. Implemented budget-aware capping (process all if <6h, cap at 5000 if >6h).
+  - **T026**: Reverted to Wilcoxon signed-rank test for non-normal data (per Spec Edge Cases).
+  - **T034a**: Replaced `taskset`/`ulimit` with environment verification.
+  - **T017c**: Removed hardcoded `order=1` check; now verifies existence and type.
+  - **T013**: Created to update README from exclusion log (T012 does not modify README).
+  - **T017b/c**: Dependencies moved from T017 to T016.

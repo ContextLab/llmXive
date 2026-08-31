@@ -8,4 +8,4 @@ seaborn==0.13.0
 openml==0.14.2
 datasets==2.14.0
 pyyaml==6.0.1
-pytest==7.4.0
+pyarrow==14.0.1

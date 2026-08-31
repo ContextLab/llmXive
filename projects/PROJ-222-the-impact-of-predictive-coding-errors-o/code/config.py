@@ -1,43 +1,25 @@
 import os
 from pathlib import Path
-
-# Project root
-PROJECT_ROOT = Path(__file__).parent.parent
-
-# Directories
-DATA_DIR = PROJECT_ROOT / "data"
-ANALYSIS_DIR = PROJECT_ROOT / "analysis"
-FIGURES_DIR = PROJECT_ROOT / "figures"
-
-# Random seed
-DEFAULT_SEED = 42
-
-# Convergence threshold (SC-002)
-CONVERGENCE_THRESHOLD = 0.90
+import random
+import numpy as np
 
 def get_config():
-    """Return configuration dictionary."""
     return {
-        "data_dir": str(DATA_DIR),
-        "analysis_dir": str(ANALYSIS_DIR),
-        "figures_dir": str(FIGURES_DIR),
-        "seed": DEFAULT_SEED,
-        "convergence_threshold": CONVERGENCE_THRESHOLD
+        "seed": 42,
+        "max_trials": None,
+        "bootstrap_n_jobs": min(2, os.cpu_count())
     }
 
 def get_data_dir():
-    """Return the data directory path."""
-    return DATA_DIR
+    """Returns the path to the data directory."""
+    return Path(__file__).parent.parent / "data"
 
-def set_seed(seed: int = DEFAULT_SEED):
-    """Set random seed for reproducibility."""
-    import random
-    import numpy as np
-    try:
-        import torch
-        torch.manual_seed(seed)
-    except ImportError:
-        pass
-    
+def get_processed_dir():
+    """Returns the path to the processed data directory."""
+    return get_data_dir() / "processed"
+
+def set_seed(seed: int = 42):
+    """Sets the random seed for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)

@@ -1,5 +1,5 @@
 status: none
-intent: download time perception datasets from OpenML and HuggingFace Datasets python
+intent: OpenML HuggingFace Datasets python package for downloading MDE Parquet python
   package dataset
 required_fields:
 - duration_estimate
@@ -7,6 +7,7 @@ required_fields:
 - condition_label
 - participant_id
 - surprisal_metric
-cache_key: 7ce8fc6eca3640482fc1b4b4aafef11756875856fe24205e0f727ae14b01c787
-searched_at: '2026-08-30T03:22:08.146374+00:00'
+- raw_stimulus_sequence
+cache_key: 6260e593823a336684e2ba9cd3d421afa8d142e7a0a08718b0c17af392bc2286
+searched_at: '2026-08-31T10:25:09.600182+00:00'
 retry_count: 1

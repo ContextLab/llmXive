@@ -16,3 +16,7 @@ Fields: dataset_id, status, reason
 
 ## Exclusion Logs
 (Populated by preprocessing tasks)
+
+### Dataset Status
+- openml_42277: valid
+- openml_42278: valid

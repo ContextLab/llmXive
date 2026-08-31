@@ -1,115 +1,75 @@
 # Quickstart Guide
 
-This guide walks you through reproducing the entire analysis pipeline for the project
-"The Impact of Predictive Coding Errors on Subjective Time Perception".
+This guide explains how to run the full analysis pipeline for the project "The Impact of Predictive Coding Errors on Subjective Time Perception".
 
 ## Prerequisites
 
-- Python 3.10+
-- 7 GB RAM available
-- 6 hours maximum runtime
-- Internet connection for data download
+- Python 3.11+
+- Virtual environment (recommended)
 
 ## Setup
 
-1. Clone the repository and navigate to the project directory:
- ```bash
- cd PROJ-222-the-impact-of-predictive-coding-errors-o
- ```
-
-2. Create and activate a virtual environment:
+1. Clone the repository.
+2. Create a virtual environment:
  ```bash
  python -m venv.venv
  source.venv/bin/activate # On Windows:.venv\Scripts\activate
  ```
-
 3. Install dependencies:
  ```bash
  pip install -r code/requirements.txt
  ```
 
-## Execution
+## Running the Pipeline
 
-Run the following commands in sequence:
+The pipeline consists of the following steps:
 
-### Phase 0: Gate 0 - Data Validation
+1. **Download and validate datasets**:
+ ```bash
+ python code/download.py
+ ```
+ This script downloads datasets from OpenML/HuggingFace, verifies checksums, and filters for required columns.
 
-```bash
-python code/gate0.py
-```
+2. **Preprocess data and compute Markov surprisal**:
+ ```bash
+ python code/preprocess.py
+ ```
+ This script loads the downloaded datasets, filters for sequential stimuli, computes Markov surprisal, and saves the results.
 
-This validates the pre-approved datasets in `data/README.md`. If no valid dataset is found,
-the pipeline halts immediately.
+3. **Generate standardized output (T017)**:
+ ```bash
+ python code/generate_standardized_output.py
+ ```
+ This script creates the final `data/processed/standardized.csv` file with checksums.
 
-### Phase 1: Data Download
+4. **Run statistical analysis**:
+ ```bash
+ python code/analysis.py
+ ```
+ This script fits linear mixed-effects models, calculates effect sizes, and performs sensitivity analysis.
 
-```bash
-python code/download.py
-```
+5. **Generate visualizations**:
+ ```bash
+ python code/visualize.py
+ ```
+ This script generates forest plots and residual diagnostic plots.
 
-Downloads datasets from OpenML/HuggingFace based on IDs in `data/README.md`.
-Gate 0 validation is performed automatically before downloading.
+## Output Files
 
-### Phase 2: Preprocessing
-
-```bash
-python code/preprocess.py
-```
-
-Filters datasets for sequential stimuli, computes Markov surprisal, and saves
-`data/processed/preprocessed.csv`.
-
-### Phase 3: T017 - Standardized Output Generation
-
-```bash
-python code/run_t017.py
-```
-
-Generates `data/processed/standardized.csv` with SHA256 checksums and verifies
-that surprisal was derived using a first-order Markov model.
-
-**Expected output:**
-- `data/processed/standardized.csv` (>= 100 rows)
-- `data/processed/standardized.csv.sha256` (checksum file)
-- `data/processed/exclusion_log.json` (exclusion reasons)
-
-### Phase 4: Analysis
-
-```bash
-python code/analysis.py
-```
-
-Fits linear mixed-effects models, calculates effect sizes, and performs sensitivity analysis.
-Outputs are saved to `analysis/results.json`.
-
-### Phase 5: Visualization
-
-```bash
-python code/visualize.py
-```
-
-Generates forest plots and residual diagnostic plots in `figures/`.
-
-## Verification
-
-After completing all steps, verify the following files exist:
-
-- `data/processed/standardized.csv`
-- `data/processed/standardized.csv.sha256`
-- `data/processed/exclusion_log.json`
-- `analysis/results.json`
-- `figures/forest_plot.png`
-- `figures/residual_diagnostics.png`
+- `data/processed/standardized.csv`: The final standardized dataset.
+- `analysis/results.json`: The results of the statistical analysis.
+- `figures/`: Directory containing generated plots.
 
 ## Troubleshooting
 
-- **Gate 0 fails**: Check `data/README.md` for valid dataset IDs
-- **Download fails**: Verify internet connection and OpenML/HuggingFace access
-- **Memory issues**: The pipeline uses chunked loading for large datasets
-- **Convergence issues**: LMM fallback to random-intercept-only is automatic
+- If you encounter a `pyarrow` error, ensure you have the correct version of `pyarrow` installed (see `code/requirements.txt`).
+- If you encounter a `No datasets were successfully processed` error, check the `data/processed/exclusion_log.json` file for details.
 
-## Runtime & Memory
+## Reproducibility
 
-- Expected runtime: < 6 hours
-- Peak memory: < 7 GB RAM
-- The pipeline logs timing and memory usage to stdout
+To ensure reproducibility, set the random seed in `code/config.py` before running the pipeline.
+
+```python
+from config import set_seed
+set_seed(42)
+```

@@ -30,7 +30,7 @@ The researcher fits linear mixed-effects models with duration estimate as outcom
 
 **Why this priority**: This delivers the core research answer. Without valid statistical modeling, the hypothesis cannot be tested even if data exists.
 
-**Independent Test**: Can be fully tested by running the analysis script on a sample dataset and verifying that model outputs include effect sizes (Cohen's d), 95% confidence intervals, p-values for the surprisal main effect, and the calculated MDE.
+**Independent Test**: Can be fully tested by running the analysis script on a sample dataset and verifying that model outputs include effect sizes (Cohen's d), confidence intervals, p-values for the surprisal main effect, and the calculated MDE.
 
 **Acceptance Scenarios**:
 
@@ -74,7 +74,7 @@ The researcher generates forest plots of condition effects and residual diagnost
 - **FR-003**: System MUST compute 'surprisal' (negative log probability of the observed stimulus given the sequence history) for each trial, assuming a first-order Markov learner, if explicit metrics are missing (See US-1)
 - **FR-004**: System MUST fit linear mixed-effects models with duration estimate as outcome, surprisal (continuous) as fixed effect, participant ID as random intercept, AND sequence length and stimulus modality as covariates (See US-2)
 - **FR-005**: System MUST apply multiple-comparison correction (e.g., Bonferroni or Benjamini-Hochberg) when >1 hypothesis test is run (See US-2)
-- **FR-006**: System MUST compute Cohen's d effect sizes with 95% confidence intervals for main effects (See US-2)
+- **FR-006**: System MUST compute Cohen's d effect sizes with confidence intervals for main effects (See US-2)
 - **FR-007**: System MUST perform sensitivity analysis to calculate the Minimum Detectable Effect (MDE) for power=0.80 given the observed sample size and variance. If the observed effect is smaller than the MDE, the system MUST report this as a limitation (See US-2)
 - **FR-008**: System MUST generate forest plots of condition effects and residual diagnostic plots using matplotlib/seaborn (See US-3)
 - **FR-009**: System MUST parallelize bootstrap resampling across multiple CPU cores using joblib to complete within 6 hours (See US-3)

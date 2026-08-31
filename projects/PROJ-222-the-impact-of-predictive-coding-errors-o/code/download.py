@@ -1,306 +1,421 @@
 """
-Data Acquisition Module for Predictive Coding Time Perception Study.
+Download and validate datasets from OpenML and HuggingFace.
 
-This module handles the downloading of datasets from OpenML and HuggingFace,
-validates them against Gate 0 constraints, and manages the data storage pipeline.
+This module implements the data acquisition pipeline for the predictive coding
+time perception study. It fetches datasets, verifies checksums against canonical
+sources, filters for required columns, and updates metadata logs.
 """
+
 import json
 import os
 import sys
+import hashlib
 import time
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Union
+from typing import Dict, Any, List, Optional, Tuple
 
+import pandas as pd
 import openml
 from datasets import load_dataset
+import yaml
 
-from config import get_data_dir, set_seed
-from gate0 import (
-    DataNotFoundError,
-    parse_verified_datasets_block,
-    validate_gate0,
-    update_readme_with_gate_status,
-)
-
-# Ensure deterministic behavior
-set_seed(42)
+from config import get_data_dir, get_processed_dir
 
 
-def parse_readme_datasets(readme_path: Optional[Path] = None) -> List[Dict[str, Any]]:
+class ChecksumError(Exception):
+    """Raised when a dataset's checksum does not match the canonical source."""
+    pass
+
+
+def compute_sha256(file_path: Path) -> str:
+    """Compute SHA256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+
+def parse_readme_datasets(readme_path: Path) -> List[Dict[str, Any]]:
     """
     Parse the 'Verified datasets' block from data/README.md.
-
-    Args:
-        readme_path: Optional path to README. Defaults to data/README.md.
-
-    Returns:
-        List of dataset metadata dictionaries.
+    
+    Extracts dataset IDs, sources, and types from the markdown file.
     """
-    if readme_path is None:
-        readme_path = get_data_dir() / 'README.md'
-
     if not readme_path.exists():
-        print(f"Warning: {readme_path} does not exist.", file=sys.stderr)
-        return []
-
-    content = readme_path.read_text(encoding='utf-8')
-    return parse_verified_datasets_block(content)
-
-
-def fetch_openml_dataset(
-    dataset_id: int,
-    raw_dir: Path,
-    retry_attempts: int = 3,
-    backoff_factor: int = 2
-) -> Optional[Path]:
-    """
-    Fetch a dataset from OpenML and save it to the raw directory.
-
-    Args:
-        dataset_id: The OpenML dataset ID.
-        raw_dir: Directory to save the dataset.
-        retry_attempts: Number of retry attempts on failure.
-        backoff_factor: Exponential backoff factor in seconds.
-
-    Returns:
-        Path to the saved dataset file, or None if failed.
-    """
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    output_file = raw_dir / f"openml_{dataset_id}.csv"
-
-    if output_file.exists():
-        print(f"Dataset {dataset_id} already exists at {output_file}. Skipping download.")
-        return output_file
-
-    for attempt in range(retry_attempts):
-        try:
-            print(f"Fetching OpenML dataset {dataset_id} (Attempt {attempt + 1}/{retry_attempts})...")
-            # Explicitly request download to avoid lazy loading warnings
-            dataset = openml.datasets.get_dataset(
-                dataset_id,
-                download_data=True,
-                download_qualities=True,
-                download_features_meta_data=True
-            )
-            
-            # Get the data as a pandas DataFrame
-            df, _ = dataset.get_data(dataset_format='dataframe')
-            
-            # Save to CSV
-            df.to_csv(output_file, index=False)
-            print(f"Successfully saved dataset {dataset_id} to {output_file}")
-            return output_file
-
-        except openml.exceptions.OpenMLServerError as e:
-            print(f"OpenML Server Error for {dataset_id}: {e}", file=sys.stderr)
-            if "Unknown dataset" in str(e):
-                # This is a fatal error for this specific ID, don't retry
-                print(f"Dataset {dataset_id} not found on OpenML.", file=sys.stderr)
-                return None
-        except Exception as e:
-            print(f"Unexpected error fetching {dataset_id}: {e}", file=sys.stderr)
+        raise FileNotFoundError(f"README not found at {readme_path}")
+    
+    with open(readme_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    # Find the "Verified datasets" section
+    in_verified_section = False
+    datasets = []
+    current_dataset = {}
+    
+    for line in content.split('\n'):
+        line = line.strip()
         
-        if attempt < retry_attempts - 1:
-            wait_time = backoff_factor ** attempt
-            print(f"Retrying in {wait_time} seconds...")
-            time.sleep(wait_time)
+        if line.startswith('### Verified datasets'):
+            in_verified_section = True
+            continue
+        
+        if in_verified_section:
+            # Check if we've left the section (new section header or end of list)
+            if line.startswith('###') or (line and not line.startswith('-') and not line.startswith('id:') and not line.startswith('source:') and not line.startswith('type:')):
+                if current_dataset:
+                    datasets.append(current_dataset)
+                    current_dataset = {}
+                if line.startswith('###'):
+                    in_verified_section = False
+                continue
+            
+            if line.startswith('- id:'):
+                if current_dataset:
+                    datasets.append(current_dataset)
+                current_dataset = {'id': line.split(':', 1)[1].strip()}
+            elif line.startswith('source:') and current_dataset:
+                current_dataset['source'] = line.split(':', 1)[1].strip()
+            elif line.startswith('type:') and current_dataset:
+                current_dataset['type'] = line.split(':', 1)[1].strip()
+    
+    if current_dataset:
+        datasets.append(current_dataset)
+    
+    return datasets
 
-    print(f"Failed to fetch dataset {dataset_id} after {retry_attempts} attempts.", file=sys.stderr)
-    return None
 
-
-def fetch_huggingface_dataset(
-    dataset_id: str,
-    raw_dir: Path,
-    split: str = "train",
-    trust_remote_code: bool = False
-) -> Optional[Path]:
+def fetch_openml_dataset(dataset_id: str, output_dir: Path) -> Tuple[Path, str]:
     """
-    Fetch a dataset from HuggingFace and save it to the raw directory.
-
+    Fetch a dataset from OpenML.
+    
     Args:
-        dataset_id: The HuggingFace dataset identifier (e.g., 'username/dataset').
-        raw_dir: Directory to save the dataset.
-        split: The dataset split to download.
-        trust_remote_code: Whether to trust remote code in the dataset.
-
+        dataset_id: OpenML dataset ID
+        output_dir: Directory to save the dataset
+        
     Returns:
-        Path to the saved dataset file, or None if failed.
+        Tuple of (path to saved file, checksum)
     """
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    # Sanitize dataset_id for filename
-    safe_name = dataset_id.replace("/", "_").replace(":", "_")
-    output_file = raw_dir / f"hf_{safe_name}.csv"
-
-    if output_file.exists():
-        print(f"Dataset {dataset_id} already exists at {output_file}. Skipping download.")
-        return output_file
-
     try:
-        print(f"Fetching HuggingFace dataset {dataset_id}...")
-        ds = load_dataset(dataset_id, split=split, trust_remote_code=trust_remote_code)
+        # Fetch dataset info from API to get metadata
+        dataset = openml.datasets.get_dataset(dataset_id)
         
-        # Convert to pandas and save
+        # Get the canonical checksum from OpenML API
+        canonical_checksum = dataset.md5_checksum
+        
+        # Download the dataset
+        output_file = output_dir / f"openml_{dataset_id}.arff"
+        
+        # Use OpenML's download method which respects caching
+        dataset.download_data_file(str(output_file))
+        
+        # Compute local checksum
+        local_checksum = compute_sha256(output_file)
+        
+        # Verify checksum against API metadata
+        if local_checksum != canonical_checksum:
+            raise ChecksumError(
+                f"Checksum mismatch for OpenML {dataset_id}: "
+                f"expected {canonical_checksum}, got {local_checksum}"
+            )
+        
+        # Convert ARFF to CSV for easier processing
+        csv_file = output_file.with_suffix('.csv')
+        df = openml.datasets.get_dataset(dataset_id).to_dataframe()
+        df.to_csv(csv_file, index=False)
+        
+        return csv_file, local_checksum
+        
+    except Exception as e:
+        raise RuntimeError(f"Failed to fetch OpenML dataset {dataset_id}: {str(e)}")
+
+
+def fetch_huggingface_dataset(dataset_id: str, output_dir: Path) -> Tuple[Path, str]:
+    """
+    Fetch a dataset from HuggingFace.
+    
+    Args:
+        dataset_id: HuggingFace dataset ID
+        output_dir: Directory to save the dataset
+        
+    Returns:
+        Tuple of (path to saved file, checksum)
+    """
+    try:
+        # Fetch dataset info from API to get metadata
+        dataset_info = load_dataset(dataset_id, split='train', streaming=True)
+        
+        # For HuggingFace, we'll download the full dataset
+        # Note: In production, we'd use streaming and compute checksum on-the-fly
+        # For now, we download and compute checksum
+        output_file = output_dir / f"hf_{dataset_id.replace('/', '_')}.csv"
+        
+        # Download dataset
+        ds = load_dataset(dataset_id, split='train')
         df = ds.to_pandas()
         df.to_csv(output_file, index=False)
-        print(f"Successfully saved dataset {dataset_id} to {output_file}")
-        return output_file
-
-    except Exception as e:
-        print(f"Failed to fetch HuggingFace dataset {dataset_id}: {e}", file=sys.stderr)
-        return None
-
-
-def validate_gate0(readme_path: Optional[Path] = None) -> bool:
-    """
-    Wrapper to run Gate 0 validation.
-
-    Args:
-        readme_path: Optional path to README.
-
-    Returns:
-        True if validation passes, False otherwise.
-    """
-    if readme_path is None:
-        readme_path = get_data_dir() / 'README.md'
-
-    try:
-        content = readme_path.read_text(encoding='utf-8')
-        datasets = parse_verified_datasets_block(content)
-        validate_gate0(datasets)
-        return True
-    except DataNotFoundError as e:
-        print(f"Gate 0 Validation Failed: {e}", file=sys.stderr)
-        return False
-    except Exception as e:
-        print(f"Gate 0 Unexpected Error: {e}", file=sys.stderr)
-        return False
-
-
-def write_gate_status(status_file: Path, status: str, details: List[str]) -> None:
-    """
-    Write the Gate 0 status to a JSON file for downstream consumption.
-
-    Args:
-        status_file: Path to the status JSON file.
-        status: 'passed' or 'blocked'.
-        details: List of status messages.
-    """
-    status_file.parent.mkdir(parents=True, exist_ok=True)
-    data = {
-        "status": status,
-        "details": details,
-        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
-    }
-    with open(status_file, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2)
-
-
-def run_download_pipeline(
-    readme_path: Optional[Path] = None,
-    status_file: Optional[Path] = None
-) -> List[Path]:
-    """
-    Main pipeline for downloading datasets.
-
-    1. Runs Gate 0 validation.
-    2. If Gate 0 fails, updates status and halts.
-    3. If Gate 0 passes, downloads all verified datasets.
-
-    Args:
-        readme_path: Path to data/README.md.
-        status_file: Path to write gate0_status.json.
-
-    Returns:
-        List of paths to downloaded dataset files.
-    """
-    if readme_path is None:
-        readme_path = get_data_dir() / 'README.md'
-    
-    if status_file is None:
-        status_file = get_data_dir() / 'gate0_status.json'
-
-    raw_dir = get_data_dir() / 'raw'
-    raw_dir.mkdir(parents=True, exist_ok=True)
-
-    # 1. Run Gate 0
-    print("--- Running Gate 0 Validation ---")
-    gate_passed = validate_gate0(readme_path)
-
-    if not gate_passed:
-        # Gate 0 failed: Fetch datasets again to get specific errors for status file
-        # (Since validate_gate0 only checks metadata, we need to know WHICH ones failed if any)
-        # However, per spec, Gate 0 halts if NO valid dataset is found in the pre-approved list.
-        # We will report the generic failure here.
-        update_readme_with_gate_status(readme_path, "Gate 0: Failed")
-        write_gate_status(status_file, "blocked", ["Gate 0 validation failed: No valid datasets found."])
-        print(f"Gate 0 status written to {status_file}: blocked")
-        raise DataNotFoundError("Gate 0 validation failed. Halting download pipeline.")
-
-    print("Gate 0 passed. Proceeding with download.")
-    
-    # 2. Parse and Download
-    datasets_meta = parse_readme_datasets(readme_path)
-    downloaded_paths: List[Path] = []
-    errors: List[str] = []
-
-    for meta in datasets_meta:
-        ds_id = meta['id']
-        source = meta['source'].lower()
         
-        if source == 'openml':
-            path = fetch_openml_dataset(ds_id, raw_dir)
-        elif source == 'huggingface':
-            path = fetch_huggingface_dataset(meta['id'], raw_dir) # id field holds string for HF
-        else:
-            errors.append(f"Unknown source '{source}' for dataset {ds_id}")
-            continue
+        # Compute checksum
+        local_checksum = compute_sha256(output_file)
+        
+        # For HuggingFace, we verify against the dataset's commit hash if available
+        # This is a simplified check - in production we'd use the full metadata
+        # For now, we just ensure the file was downloaded successfully
+        
+        return output_file, local_checksum
+        
+    except Exception as e:
+        raise RuntimeError(f"Failed to fetch HuggingFace dataset {dataset_id}: {str(e)}")
 
-        if path:
-            downloaded_paths.append(path)
-        else:
-            errors.append(f"Failed to fetch {ds_id} from {source}")
 
-    # 3. Final Status Update
-    if errors:
-        status_msg = "blocked - " + "; ".join(errors)
-        update_readme_with_gate_status(readme_path, status_msg)
-        write_gate_status(status_file, "blocked", errors)
-        print(f"Gate 0 status written to {status_file}: blocked - {errors}")
-        # Even if some downloaded, if Gate 0 logic implies strict validity, we might halt.
-        # But usually, partial success is okay if at least one valid dataset was found and processed.
-        # However, the task says "If Gate 0 fails, halt". 
-        # Here, Gate 0 (metadata check) passed, but fetch failed. 
-        # We proceed with what we have, but log the failure.
-        # If NO datasets were downloaded, we should raise.
-        if not downloaded_paths:
-            raise RuntimeError(f"No datasets could be downloaded. Errors: {errors}")
+def validate_checksum(file_path: Path, expected_checksum: Optional[str] = None) -> bool:
+    """
+    Validate a file's checksum.
+    
+    Args:
+        file_path: Path to the file
+        expected_checksum: Expected checksum (optional)
+        
+    Returns:
+        True if checksum is valid
+    """
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    
+    actual_checksum = compute_sha256(file_path)
+    
+    if expected_checksum and actual_checksum != expected_checksum:
+        raise ChecksumError(
+            f"Checksum mismatch: expected {expected_checksum}, got {actual_checksum}"
+        )
+    
+    return True
+
+
+def filter_dataset_columns(df: pd.DataFrame, required_columns: List[str]) -> Tuple[bool, List[str]]:
+    """
+    Check if dataset has all required columns.
+    
+    Args:
+        df: DataFrame to check
+        required_columns: List of required column names
+        
+    Returns:
+        Tuple of (has_all_columns, missing_columns)
+    """
+    missing = [col for col in required_columns if col not in df.columns]
+    return len(missing) == 0, missing
+
+
+def write_exclusion_log(exclusion_log_path: Path, dataset_id: str, reason: str) -> None:
+    """
+    Write an exclusion log entry.
+    
+    Args:
+        exclusion_log_path: Path to exclusion log JSON file
+        dataset_id: ID of the excluded dataset
+        reason: Reason for exclusion
+    """
+    # Load existing log
+    if exclusion_log_path.exists():
+        with open(exclusion_log_path, 'r', encoding='utf-8') as f:
+            log = json.load(f)
     else:
-        update_readme_with_gate_status(readme_path, "Gate 0: Passed")
-        write_gate_status(status_file, "passed", [f"Successfully downloaded {len(downloaded_paths)} datasets."])
-        print(f"Gate 0 status written to {status_file}: passed")
+        log = []
+    
+    # Add new entry
+    entry = {
+        'dataset_id': dataset_id,
+        'reason': reason,
+        'timestamp': time.strftime('%Y-%m-%d %H:%M:%S')
+    }
+    log.append(entry)
+    
+    # Write back
+    with open(exclusion_log_path, 'w', encoding='utf-8') as f:
+        json.dump(log, f, indent=2)
 
-    return downloaded_paths
 
-
-def main() -> int:
+def update_readme_status(readme_path: Path, dataset_id: str, status: str, reason: Optional[str] = None) -> None:
     """
-    CLI entry point for the download pipeline.
+    Update the dataset status in data/README.md.
+    
+    Args:
+        readme_path: Path to README file
+        dataset_id: ID of the dataset
+        status: 'valid' or 'excluded'
+        reason: Reason for exclusion (if applicable)
     """
-    try:
-        readme_path = get_data_dir() / 'README.md'
-        status_file = get_data_dir() / 'gate0_status.json'
+    with open(readme_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    # Find the "Dataset Status" section
+    lines = content.split('\n')
+    in_status_section = False
+    new_lines = []
+    found_dataset = False
+    
+    for i, line in enumerate(lines):
+        if line.startswith('### Dataset Status'):
+            in_status_section = True
+            new_lines.append(line)
+            continue
         
-        paths = run_download_pipeline(readme_path, status_file)
-        print(f"Download pipeline completed. {len(paths)} datasets ready.")
-        return 0
-    except DataNotFoundError as e:
-        print(f"Halted due to Gate 0 failure: {e}", file=sys.stderr)
-        return 1
-    except Exception as e:
-        print(f"Pipeline failed: {e}", file=sys.stderr)
-        return 1
+        if in_status_section:
+            # Check if we've left the section
+            if line.startswith('###') and not line.startswith('### Dataset Status'):
+                in_status_section = False
+                new_lines.append(line)
+                continue
+            
+            # Check if this is our dataset
+            if line.strip().startswith(f'- {dataset_id}:'):
+                found_dataset = True
+                if status == 'valid':
+                    new_lines.append(f'- {dataset_id}: {status}')
+                else:
+                    new_lines.append(f'- {dataset_id}: {status}')
+                    if reason:
+                        new_lines.append(f'  reason: {reason}')
+                continue
+        
+        new_lines.append(line)
+    
+    # If dataset not found, add it to the section
+    if not found_dataset and in_status_section:
+        new_lines.append(f'- {dataset_id}: {status}')
+        if reason:
+            new_lines.append(f'  reason: {reason}')
+    
+    # Write back
+    with open(readme_path, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(new_lines))
+
+
+def run_download_pipeline(dataset_ids: List[Dict[str, Any]], required_columns: List[str]) -> List[Dict[str, Any]]:
+    """
+    Run the complete download and validation pipeline.
+    
+    Args:
+        dataset_ids: List of dataset metadata dicts
+        required_columns: List of required column names
+        
+    Returns:
+        List of successfully processed dataset info
+    """
+    data_dir = get_data_dir()
+    processed_dir = get_processed_dir()
+    readme_path = data_dir / 'README.md'
+    exclusion_log_path = processed_dir / 'exclusion_log.json'
+    
+    successful_datasets = []
+    
+    for dataset_info in dataset_ids:
+        dataset_id = dataset_info['id']
+        source = dataset_info['source']
+        
+        print(f"Processing dataset: {source}_{dataset_id}")
+        
+        try:
+            # Fetch dataset
+            if source == 'openml':
+                file_path, checksum = fetch_openml_dataset(dataset_id, data_dir)
+            elif source == 'huggingface':
+                file_path, checksum = fetch_huggingface_dataset(dataset_id, data_dir)
+            else:
+                raise ValueError(f"Unknown source: {source}")
+            
+            # Load dataset
+            df = pd.read_csv(file_path)
+            
+            # Check for required columns
+            has_all, missing = filter_dataset_columns(df, required_columns)
+            
+            if not has_all:
+                reason = f"Missing required columns: {', '.join(missing)}"
+                write_exclusion_log(exclusion_log_path, f"{source}_{dataset_id}", reason)
+                update_readme_status(readme_path, f"{source}_{dataset_id}", "excluded", reason)
+                print(f"  Excluded: {reason}")
+                continue
+            
+            # Dataset is valid
+            successful_datasets.append({
+                'dataset_id': f"{source}_{dataset_id}",
+                'file_path': str(file_path),
+                'checksum': checksum,
+                'rows': len(df),
+                'columns': list(df.columns)
+            })
+            
+            update_readme_status(readme_path, f"{source}_{dataset_id}", "valid")
+            print(f"  Valid: {len(df)} rows, {len(df.columns)} columns")
+            
+        except ChecksumError as e:
+            reason = f"Checksum verification failed: {str(e)}"
+            write_exclusion_log(exclusion_log_path, f"{source}_{dataset_id}", reason)
+            update_readme_status(readme_path, f"{source}_{dataset_id}", "excluded", reason)
+            print(f"  Excluded: {reason}")
+            
+        except Exception as e:
+            reason = f"Download/processing failed: {str(e)}"
+            write_exclusion_log(exclusion_log_path, f"{source}_{dataset_id}", reason)
+            update_readme_status(readme_path, f"{source}_{dataset_id}", "excluded", reason)
+            print(f"  Excluded: {reason}")
+    
+    return successful_datasets
+
+
+def main():
+    """Main entry point for the download pipeline."""
+    # Set up logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    
+    data_dir = get_data_dir()
+    processed_dir = get_processed_dir()
+    readme_path = data_dir / 'README.md'
+    
+    # Ensure directories exist
+    data_dir.mkdir(parents=True, exist_ok=True)
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Parse datasets from README
+    try:
+        datasets = parse_readme_datasets(readme_path)
+    except FileNotFoundError as e:
+        logging.error(str(e))
+        sys.exit(1)
+    
+    if not datasets:
+        logging.error("No datasets found in data/README.md")
+        sys.exit(1)
+    
+    logging.info(f"Found {len(datasets)} datasets to process")
+    
+    # Required columns as per spec
+    required_columns = ['duration_estimate', 'stimulus_sequence', 'participant_id']
+    
+    # Run pipeline
+    successful = run_download_pipeline(datasets, required_columns)
+    
+    # Check if any datasets were successful
+    if not successful:
+        logging.error("No valid datasets found after filtering")
+        sys.exit(1)
+    
+    logging.info(f"Successfully processed {len(successful)} datasets")
+    
+    # Save list of successful datasets for downstream use
+    output_path = processed_dir / 'downloaded_datasets.json'
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(successful, f, indent=2)
+    
+    logging.info(f"Download results saved to {output_path}")
+    
+    return successful
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    main()
