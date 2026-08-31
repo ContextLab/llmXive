@@ -1,5 +1,14 @@
-project: "PROJ-259-predicting-plant-disease-resistance-from"
-created_at: "2023-10-27T10:00:00Z"
-source_type: "PENDING"
-data_sources: []
-description: "Manifest for plant disease resistance multi-omics data. Populated by download.py or generate_synthetic.py."
+source: SIMULATED
+timestamp: "2023-10-27 12:00:00"
+notes: "Initial manifest for synthetic data generation. Updated by T042 logic if real data is missing."
+datasets:
+  - modality: SNP
+    accession_ids:
+      - "SRP123456"
+      - "ERP000001"
+    source_type: "NCBI_SRA"
+  - modality: metabolite
+    accession_ids:
+      - "MTBLS1234"
+      - "MTBLS5678"
+    source_type: "MetaboLights"

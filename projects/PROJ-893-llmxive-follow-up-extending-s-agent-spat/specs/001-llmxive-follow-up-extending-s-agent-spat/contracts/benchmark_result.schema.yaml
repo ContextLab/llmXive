@@ -1,67 +1,66 @@
-$schema: http://json-schema.org/draft-07/schema#
+$schema: "http://json-schema.org/draft-07/schema#"
 title: Benchmark Result Schema
-description: >-
-  Schema for the final benchmark results comparing the symbolic solver
-  against the VLM baseline and ground truth.
+description: Schema for the aggregated benchmark results comparing the symbolic solver against the VLM baseline.
 type: object
 required:
   - scene_id
   - ground_truth
   - solver_prediction
   - vlm_prediction
-  - solver_correct
-  - vlm_correct
-  - match_type
+  - metrics
 properties:
   scene_id:
     type: string
-    description: Unique identifier for the scene.
+    pattern: "^scene_\\d+$"
   ground_truth:
-    oneOf:
-      - type: integer
-      - type: string
-      - type: boolean
-    description: The correct answer.
+    type: object
+    description: The correct answer or configuration for the scene.
+    properties:
+      answer:
+        type: string
+        description: The expected answer string or structured data.
+      is_valid:
+        type: boolean
   solver_prediction:
-    oneOf:
-      - type: integer
-      - type: string
-      - type: boolean
-      - type: "null"
-    description: The answer predicted by the symbolic solver.
+    type: object
+    properties:
+      answer:
+        type: string
+      status:
+        type: string
+        enum: ["solved", "no_solution", "error"]
   vlm_prediction:
-    oneOf:
-      - type: integer
-      - type: string
-      - type: boolean
-      - type: "null"
-    description: The answer predicted by the VLM baseline.
-  solver_correct:
-    type: boolean
-    description: True if solver_prediction matches ground_truth.
-  vlm_correct:
-    type: boolean
-    description: True if vlm_prediction matches ground_truth.
-  match_type:
-    type: string
-    enum:
-      - both_correct
-      - both_wrong
-      - solver_only
-      - vlm_only
-      - both_missing
-    description: Classification of the prediction agreement.
-  failure_category:
-    type: string
-    enum:
-      - geometric_ambiguity
-      - semantic_gap
-      - none
-    description: Assigned during failure analysis (Phase 5).
-  solver_latency_ms:
-    type: number
-    description: Latency of the solver for this scene.
-  vlm_latency_ms:
-    type: number
-    description: Latency of the VLM baseline for this scene.
-additionalProperties: false
+    type: object
+    properties:
+      answer:
+        type: string
+      confidence:
+        type: number
+        minimum: 0
+        maximum: 1
+  metrics:
+    type: object
+    required:
+      - exact_match
+      - f1_score
+    properties:
+      exact_match:
+        type: boolean
+        description: Whether the solver prediction matches ground truth exactly.
+      f1_score:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: F1 score calculated for the prediction.
+      latency_diff_ms:
+        type: number
+        description: Difference in latency between solver and VLM (solver - vlm).
+      semantic_gap_indicator:
+        type: boolean
+        description: True if the failure is attributed to semantic ambiguity rather than geometric constraints.
+  analysis_tags:
+    type: array
+    items:
+      type: string
+      enum: ["geometric_ambiguity", "semantic_gap", "data_quality_issue", "solver_timeout"]
+    description: Tags classifying the nature of the result or failure.

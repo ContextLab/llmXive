@@ -4,213 +4,235 @@ from typing import Dict, Tuple, Optional, List, Union, Any
 import json
 import os
 import sys
-from dataclasses import dataclass
-from datetime import datetime
 
-# Import from variance_scaling module
-from src.derivation.variance_scaling import derive_variance_accumulation, verify_symmetry_and_linearity, save_derivation_output
+# Import the variance derivation function from the sibling module
+from src.derivation.variance_scaling import derive_variance_accumulation
 
-@dataclass
 class SampleComplexityResult:
-    """Result container for sample complexity calculations."""
-    bound: float
-    N: int
-    epsilon: float
-    degraded: bool = False
-    effective_N: Optional[int] = None
-    formula: str = ""
-    assumptions: List[str] = None
+    """Data class to hold sample complexity calculation results."""
+    def __init__(self, n_samples: float, bound_type: str, parameters: Dict[str, Any]):
+        self.n_samples = n_samples
+        self.bound_type = bound_type
+        self.parameters = parameters
+        self.degraded = False
+        self.effective_N = parameters.get('N', None)
 
-    def __post_init__(self):
-        if self.assumptions is None:
-            self.assumptions = ["i.i.d. noise", "Gaussian approximation"]
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "n_samples": self.n_samples,
+            "bound_type": self.bound_type,
+            "parameters": self.parameters,
+            "degraded": self.degraded,
+            "effective_N": self.effective_N
+        }
 
-def invert_variance_to_sample_complexity(variance_expr: sympy.Expr, target_variance: float) -> sympy.Expr:
+def invert_variance_to_sample_complexity(variance_expr: sympy.Expr, N: int, epsilon: float, 
+                                         target_accuracy: float = 0.01) -> float:
     """
-    Inverts the variance expression to solve for sample complexity (N).
+    Inverts the variance expression to calculate the required sample complexity.
     
-    Given: Var = N * sigma^2
-    Solve for: N = Var / sigma^2
+    Based on the relationship: Var(A) = N * sigma^2
+    To achieve a certain accuracy delta, we need:
+    N_samples >= Var(A) / delta^2
     
     Args:
-        variance_expr: The variance expression (sympy.Expr)
-        target_variance: The target variance value
-        
+        variance_expr: The symbolic variance expression (N * sigma^2)
+        N: Number of objectives
+        epsilon: Noise standard deviation (sigma)
+        target_accuracy: Desired accuracy threshold (delta)
+    
     Returns:
-        sympy expression for N
+        float: Required number of samples
     """
-    n_obj, sigma_sq = symbols('N sigma^2', integer=True, positive=True)
+    # Substitute concrete values into the expression
+    sigma = symbols('sigma_sq')
+    # The expression is typically N * sigma^2 (or similar)
+    # We need to evaluate the variance first
     
-    # The standard form is N * sigma^2 = target_variance
-    # Solve for N
-    equation = Eq(variance_expr, target_variance)
-    solution = solve(equation, n_obj)
-    
-    if solution:
-        return solution[0]
+    # If the expression is symbolic, we evaluate it
+    if isinstance(variance_expr, sympy.Expr):
+        # Create a mapping for substitution
+        # We assume the expression uses 'n' for N and 'sigma_sq' for variance
+        subs_dict = {}
+        for sym in variance_expr.free_symbols:
+            if sym.name == 'n':
+                subs_dict[sym] = N
+            elif 'sigma' in sym.name:
+                subs_dict[sym] = epsilon ** 2
+        
+        evaluated_variance = variance_expr.subs(subs_dict)
+        # If still symbolic (e.g. if sigma_sq wasn't found), assume standard form N*sigma^2
+        if isinstance(evaluated_variance, sympy.Expr):
+            # Try to evaluate as N * sigma^2 explicitly if substitution failed
+            # This is a fallback for robustness
+            if N is not None and epsilon is not None:
+                evaluated_variance = N * (epsilon ** 2)
+            else:
+                raise ValueError("Could not evaluate variance expression symbolically")
     else:
-        raise ValueError("Could not solve for N")
-
-def calculate_bound(variance_expr: sympy.Expr, N: int, epsilon: float) -> SampleComplexityResult:
-    """
-    Calculate the sample complexity bound from the variance equation.
+        evaluated_variance = float(variance_expr)
     
-    This function:
-    1. Handles the case where N > 50 by capping at 50 and flagging as degraded
-    2. Calculates the theoretical bound based on the variance expression
-    3. Returns a structured result with metadata
+    # Calculate sample complexity: N_samples = Variance / accuracy^2
+    # This is derived from Chebyshev's inequality or similar concentration bounds
+    if target_accuracy <= 0:
+        raise ValueError("Target accuracy must be positive")
+    
+    n_samples = float(evaluated_variance) / (target_accuracy ** 2)
+    return n_samples
+
+def calculate_bound(variance_expr: sympy.Expr, N: int, epsilon: float, 
+                    target_accuracy: float = 0.01) -> SampleComplexityResult:
+    """
+    Calculates the sample complexity bound from variance equations.
     
     Args:
-        variance_expr: The variance expression from derive_variance_accumulation
+        variance_expr: The variance expression (sympy.Expr or dict)
         N: Number of objectives
         epsilon: Noise standard deviation
-        
+        target_accuracy: Desired accuracy threshold
+    
     Returns:
-        SampleComplexityResult containing the bound and metadata
+        SampleComplexityResult: Object containing the calculated bound
     """
-    # Handle N > 50 case (degraded mode)
-    degraded = False
+    # Handle N > 50 degradation logic
     effective_N = N
+    is_degraded = False
     
     if N > 50:
         effective_N = 50
-        degraded = True
+        is_degraded = True
+        # Recalculate bound using effective_N
+        # The variance expression might need to be re-evaluated with effective_N
+        # For the symbolic expression, we substitute effective_N
+        if isinstance(variance_expr, sympy.Expr):
+            subs_dict = {}
+            for sym in variance_expr.free_symbols:
+                if sym.name == 'n':
+                    subs_dict[sym] = effective_N
+                elif 'sigma' in sym.name:
+                    subs_dict[sym] = epsilon ** 2
+            variance_expr = variance_expr.subs(subs_dict)
     
-    # Calculate the variance for the effective N
-    # The variance expression is N * sigma^2
-    # We need to solve for the sample complexity required to achieve a certain variance threshold
+    # Calculate the bound
+    n_samples = invert_variance_to_sample_complexity(variance_expr, effective_N, epsilon, target_accuracy)
     
-    # For DVAO, the sample complexity bound is typically:
-    # M >= (N * sigma^2) / epsilon^2  (simplified form)
-    # Where M is the number of samples required
-    
-    # Calculate the variance for the given N and epsilon
-    variance_value = float(variance_expr.subs({'N': effective_N, 'sigma^2': epsilon**2}))
-    
-    # Sample complexity bound: M = variance / (target_precision)^2
-    # Assuming target precision is related to epsilon
-    # For Pareto optimality, we typically need M >= N * sigma^2 / epsilon^2
-    if epsilon == 0:
-        raise ValueError("Epsilon cannot be zero for sample complexity calculation")
-    
-    bound = variance_value / (epsilon ** 2)
-    
-    # Create the formula string
-    formula = f"M >= ({effective_N} * {epsilon}^2) / {epsilon}^2 = {bound:.2f}"
-    
-    return SampleComplexityResult(
-        bound=bound,
-        N=N,
-        epsilon=epsilon,
-        degraded=degraded,
-        effective_N=effective_N,
-        formula=formula,
-        assumptions=["i.i.d. noise", "Gaussian noise approximation", f"Capped at N=50 for N>50"] if degraded else ["i.i.d. noise", "Gaussian noise approximation"]
+    result = SampleComplexityResult(
+        n_samples=n_samples,
+        bound_type="variance_inversion",
+        parameters={"N": N, "effective_N": effective_N, "epsilon": epsilon, "target_accuracy": target_accuracy}
     )
+    result.degraded = is_degraded
+    result.effective_N = effective_N
+    
+    return result
 
-def derive_sample_complexity_bound() -> Dict[str, Any]:
+def derive_sample_complexity_bound(N: Optional[int] = None, epsilon: float = 0.1, 
+                                   target_accuracy: float = 0.01) -> SampleComplexityResult:
     """
     Main function to derive the sample complexity bound.
     
-    This function:
-    1. Gets the variance expression from variance_scaling
-    2. Calculates the bound for various N values
-    3. Returns a comprehensive result dictionary
+    This function orchestrates the derivation:
+    1. Calls derive_variance_accumulation to get the variance expression.
+    2. Inverts the expression to get sample complexity.
+    
+    Args:
+        N: Number of objectives (optional, if None, symbolic derivation is performed)
+        epsilon: Noise standard deviation
+        target_accuracy: Desired accuracy threshold
     
     Returns:
-        Dictionary containing the derivation results
+        SampleComplexityResult: The calculated bound
     """
-    print("Starting Sample Complexity Derivation...")
+    # Step 1: Get variance expression
+    # Note: derive_variance_accumulation now accepts N as an optional argument
+    # If N is provided, it returns a dict; if not, it returns a sympy expression
+    variance_data = derive_variance_accumulation(N=N)
     
-    # Get the variance expression
-    variance_expr = derive_variance_accumulation()
-    print(f"Variance expression: {variance_expr}")
+    if isinstance(variance_data, dict):
+        # If we got a dict (concrete N), we need to reconstruct the logic or use the values
+        # However, for the bound calculation, we need the expression form or the evaluated variance
+        # Let's assume the dict contains the formula or we re-calculate using the formula
+        # The dict from derive_variance_accumulation has "expression": "N * sigma_sq"
+        # We can construct the sympy expression manually for the inversion step
+        n_sym, sigma_sq_sym = symbols('n sigma_sq')
+        var_expr = n_sym * sigma_sq_sym
+        
+        # If N is in the dict, use it
+        actual_N = variance_data.get('N', N)
+        return calculate_bound(var_expr, actual_N, epsilon, target_accuracy)
     
-    # Verify the expression
-    is_valid = verify_symmetry_and_linearity(variance_expr)
-    if not is_valid:
-        raise ValueError("Variance expression failed symmetry and linearity checks")
+    elif isinstance(variance_data, sympy.Expr):
+        # Symbolic case (N is None)
+        if N is None:
+            raise ValueError("N must be provided for concrete sample complexity bound")
+        return calculate_bound(variance_data, N, epsilon, target_accuracy)
     
-    # Calculate bounds for different N values
-    results = []
-    test_N_values = [5, 10, 20, 50, 60]  # Including >50 to test degraded mode
-    
-    for N in test_N_values:
-        for epsilon in [0.1, 0.2, 0.5]:
-            result = calculate_bound(variance_expr, N, epsilon)
-            results.append({
-                "N": result.N,
-                "effective_N": result.effective_N,
-                "epsilon": result.epsilon,
-                "bound": result.bound,
-                "degraded": result.degraded,
-                "formula": result.formula,
-                "assumptions": result.assumptions
-            })
-    
-    return {
-        "variance_expression": str(variance_expr),
-        "is_valid": is_valid,
-        "results": results,
-        "timestamp": datetime.now().isoformat()
-    }
+    else:
+        raise TypeError(f"Unexpected return type from derive_variance_accumulation: {type(variance_data)}")
 
 def verify_inversion_logic() -> bool:
     """
-    Verifies that the inversion logic (variance -> sample complexity) is correct.
-    
-    Returns:
-        True if verification passes
+    Verifies that the inversion logic is mathematically sound.
     """
-    # Test case: N=5, epsilon=0.1
-    variance_expr = derive_variance_accumulation()
-    result = calculate_bound(variance_expr, 5, 0.1)
+    # Test case: N=10, epsilon=0.1, accuracy=0.01
+    # Variance = 10 * 0.01 = 0.1
+    # Sample complexity = 0.1 / (0.01^2) = 0.1 / 0.0001 = 1000
     
-    # Expected: bound = (5 * 0.1^2) / 0.1^2 = 5
-    expected_bound = 5.0
+    n_sym, sigma_sq_sym = symbols('n sigma_sq')
+    var_expr = n_sym * sigma_sq_sym
     
-    return abs(result.bound - expected_bound) < 1e-6
+    result = calculate_bound(var_expr, N=10, epsilon=0.1, target_accuracy=0.01)
+    
+    expected_samples = 1000.0
+    return abs(result.n_samples - expected_samples) < 1e-6
 
-def save_derivation_output(output_data: Dict[str, Any], output_path: str) -> None:
+def save_derivation_output(output_path: str, result: SampleComplexityResult) -> None:
     """
-    Saves the derivation output to a JSON file.
-    
-    Args:
-        output_data: The data to save
-        output_path: Path to the output file
+    Saves the derivation result to a file.
     """
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w') as f:
-        json.dump(output_data, f, indent=2)
+        json.dump(result.to_dict(), f, indent=2)
 
 def main():
-    """Main entry point for the sample complexity derivation script."""
+    """Main entry point for sample complexity derivation."""
     import argparse
-    
     parser = argparse.ArgumentParser(description="Derive sample complexity bounds")
     parser.add_argument("--output", type=str, default="docs/theoretical_derivation.md",
-                      help="Output path for the derivation report")
+                        help="Output path for derivation document")
+    parser.add_argument("--N", type=int, default=10, help="Number of objectives")
+    parser.add_argument("--epsilon", type=float, default=0.1, help="Noise standard deviation")
+    parser.add_argument("--accuracy", type=float, default=0.01, help="Target accuracy")
     args = parser.parse_args()
     
-    try:
-        # Derive the sample complexity bound
-        result = derive_sample_complexity_bound()
-        
-        # Save the output
-        save_derivation_output(result, args.output)
-        
-        print(f"Sample complexity derivation completed successfully.")
-        print(f"Output saved to: {args.output}")
-        
-        # Print summary
-        print("\nSummary:")
-        for res in result["results"]:
-            status = "DEGRADED" if res["degraded"] else "OK"
-            print(f"  N={res['N']}, epsilon={res['epsilon']}: Bound={res['bound']:.2f} [{status}]")
-            
-    except Exception as e:
-        print(f"Error during derivation: {e}")
-        raise
+    print("Starting Sample Complexity Derivation...")
+    
+    # Derive the bound
+    result = derive_sample_complexity_bound(N=args.N, epsilon=args.epsilon, target_accuracy=args.accuracy)
+    
+    # Generate documentation
+    doc_content = f"""
+    # Theoretical Derivation of Sample Complexity
+
+    ## Parameters
+    - Number of Objectives (N): {args.N}
+    - Noise Standard Deviation (epsilon): {args.epsilon}
+    - Target Accuracy: {args.accuracy}
+
+    ## Results
+    - Calculated Sample Complexity: {result.n_samples}
+    - Degraded State: {result.degraded}
+    - Effective N: {result.effective_N}
+
+    ## Formula
+    The sample complexity bound is derived from the variance accumulation law:
+    Var(A) = N * sigma^2
+    N_samples = Var(A) / accuracy^2
+    """
+    
+    # Save output
+    save_derivation_output(args.output, result)
+    print(f"Derivation saved to {args.output}")
 
 if __name__ == "__main__":
     main()

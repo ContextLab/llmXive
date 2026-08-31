@@ -52,10 +52,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement `code/data/extract_geometry.py` to parse S-Agent-300K, **detect malformed/missing data**, **exclude** invalid scenes from processing, and output `data/derived/constraints.jsonl` (FR-001, FR-007)
+- [X] T010 [US1] Implement `code/data/extract_geometry.py` to parse S-Agent-300K, **detect malformed/missing data**, **exclude** invalid scenes from processing, and output `data/derived/constraints.jsonl` (FR-001, FR-007)
 - [X] T011 [US1] Implement `code/solver/csp_engine.py` using `python-constraint` or `ortools` to solve counting/positioning tasks (FR-002)
 - [ ] T012 [US1] Implement `code/solver/run_solver.py` to batch process n=1,000 scenes, **measure per-scene latency**, and output `data/derived/predictions.jsonl` AND `data/derived/latency_log.jsonl` (FR-002, FR-004)
-- [ ] T013 [US1] Implement logging in `run_solver.py` to record excluded scenes (from T010) to `data/results/exclusion_log.json` with counts and IDs (FR-007)
+- [X] T013 [US1] Implement logging in `run_solver.py` to record excluded scenes (from T010) to `data/results/exclusion_log.json` with counts and IDs (FR-007)
 
 **Checkpoint**: Symbolic solver produces valid predictions and latency logs for n=1,000 scenes on CPU within 6 hours.
 
@@ -69,13 +69,13 @@
 
 ### Tests for User Story 2
 
-- [ ] T014 [P] [US2] Unit test for metric calculation (F1, Exact Match) in `tests/unit/test_metrics.py`
-- [ ] T015 [P] [US2] Unit test for McNemar's test implementation in `tests/unit/test_metrics.py`
+- [X] T014 [P] [US2] Unit test for metric calculation (F1, Exact Match) in `tests/unit/test_metrics.py`
+- [X] T015 [P] [US2] Unit test for McNemar's test implementation in `tests/unit/test_metrics.py`
 
 ### Implementation for User Story 2
 
-- [ ] T016 [P] [US2] Implement `code/benchmark/metrics.py` to calculate Exact Match, F1-score, and median latency from `latency_log.jsonl` (FR-003, FR-004)
-- [ ] T017 [US2] Implement statistical significance test (McNemar's) in `code/benchmark/metrics.py` (FR-005)
+- [X] T016 [P] [US2] Implement `code/benchmark/metrics.py` to calculate Exact Match, F1-score, and median latency from `latency_log.jsonl` (FR-003, FR-004)
+- [X] T017 [US2] Implement statistical significance test (McNemar's) in `code/benchmark/metrics.py` (FR-005)
 - [ ] T018 [US2] Implement `code/main.py` orchestrator to run the full pipeline: **download → verify_checksum → validate_distribution (HARD BLOCK) → extract → solve → benchmark** (FR-003)
 - [ ] T019 [US2] Generate `data/results/benchmark_results.csv` linking scene IDs, predictions, ground truth, and metrics (SC-001, SC-002)
 

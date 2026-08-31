@@ -1,18 +1,4 @@
-# Standalone Ruff configuration file
-# Extends settings from pyproject.toml if needed, but this file
-# ensures linter configuration is explicitly available in the root.
-
-[lint]
-select = ["E", "W", "F", "I", "B", "C4", "UP"]
-ignore = ["E501", "B008"]
-line-length = 100
-target-version = "py311"
-
-[lint.isort]
-known-first-party = ["code", "utils", "data", "models", "viz"]
-
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+# Extends pyproject.toml settings for specific overrides if needed
+# Currently, all configuration is handled in pyproject.toml
+# This file exists to allow `ruff check` to run without explicit config path
+extend = "pyproject.toml"

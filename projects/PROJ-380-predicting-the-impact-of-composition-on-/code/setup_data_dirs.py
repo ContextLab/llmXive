@@ -1,36 +1,63 @@
 """
-Setup script to create the required data directory structure.
-Creates data/raw, data/processed, and data/artifacts directories.
+Script to setup the data directory structure for the BMG Shear Modulus project.
+Creates raw/, processed/, and artifacts/ subdirectories under data/.
 """
 import os
 from pathlib import Path
+
+# Import from the existing utils module as per API surface
 from utils.config import get_paths, ensure_directories
 
-def main():
-    """Create the data directory structure."""
-    # Get base paths from config
-    base_dir = get_paths()
+
+def setup_data_structure():
+    """
+    Creates the required directory structure for data storage.
+    Specifically creates:
+    - data/raw/
+    - data/processed/
+    - data/artifacts/
+    """
+    # Get the project root paths using the existing config utility
+    paths = get_paths()
+    data_root = paths.get('data_root')
     
-    # Define the data subdirectories to create
-    data_dirs = [
-        "data/raw",
-        "data/processed",
-        "data/artifacts"
+    if not data_root:
+        # Fallback if config doesn't have it, though it should based on T005
+        data_root = Path.cwd() / 'data'
+    
+    data_path = Path(data_root)
+    
+    # Define the required subdirectories
+    subdirs = [
+        'raw',
+        'processed',
+        'artifacts'
     ]
     
-    # Create directories
-    for dir_path in data_dirs:
-        full_path = base_dir / dir_path
-        ensure_directories([full_path])
-        print(f"Created directory: {full_path}")
+    # Ensure the directories exist
+    ensure_directories(data_path, subdirs)
     
-    # Create a .gitkeep file in each directory to ensure they are tracked by git
-    for dir_path in data_dirs:
-        full_path = base_dir / dir_path
-        gitkeep_path = full_path / ".gitkeep"
+    # Create a .gitkeep file in each to ensure they are tracked by git
+    for subdir in subdirs:
+        dir_path = data_path / subdir
+        gitkeep_path = dir_path / '.gitkeep'
         if not gitkeep_path.exists():
             gitkeep_path.touch()
-            print(f"Created .gitkeep in: {full_path}")
+            print(f"Created: {gitkeep_path}")
+    
+    print(f"Data directory structure created at: {data_path}")
+    return True
+
+
+def main():
+    """Entry point for the script."""
+    try:
+        setup_data_structure()
+        print("Data directory setup completed successfully.")
+    except Exception as e:
+        print(f"Error setting up data directories: {e}")
+        raise e
+
 
 if __name__ == "__main__":
     main()

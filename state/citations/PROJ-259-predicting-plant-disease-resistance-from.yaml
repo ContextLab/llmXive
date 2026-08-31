@@ -1,6 +1,19 @@
-- artifact_hash: a3cec8fc9f843d08e7bcdc4d2a3f44bf41223aaccdd00ff52373bd9bd82ed150
+- artifact_hash: ebd88bfd7678d1a634ee2fd846b5410a2525960b30a256a2c4d8e0737ba0afc0
   artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2604.10702] Backbone-Conditional Behavior of Modality Gating in
+    Multi-Modal Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate Mechanism
+    Analysis'
+  kind: url
+  value: https://arxiv.org/abs/2604.10702
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2604.10702
+  verified_at: '2026-08-31T18:49:45.493549Z'
+- artifact_hash: ebd88bfd7678d1a634ee2fd846b5410a2525960b30a256a2c4d8e0737ba0afc0
+  artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: Vif - Wikidata
@@ -8,4 +21,4 @@
   value: https://www.wikidata.org/wiki/Q113106917
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q113106917
-  verified_at: '2026-08-21T05:50:52.361092Z'
+  verified_at: '2026-08-31T18:49:45.493549Z'

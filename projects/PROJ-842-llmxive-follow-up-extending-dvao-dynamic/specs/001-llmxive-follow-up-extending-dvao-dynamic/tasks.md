@@ -36,10 +36,10 @@
 
 - [X] T014 [P] Create `src/config/defaults.yaml` with hyperparameters: `N` (a range of values including 5, 10, 20, 50), `k` (window size ratios), `seeds`, `noise_correlation` (ρ ∈ {0, 0.2, 0.5}), and `distributions` (Linear, Sparse, Non-Convex). **Exact Content**: The file must contain:
  ```yaml
-n_objectives: [, 10, 20, 50] [UNRESOLVED-CLAIM: c_dfe4f74d — status=not_enough_info]
-k_sweep: [0.01, 0.05, 0.1] [UNRESOLVED-CLAIM: c_b5e4943d — status=not_enough_info]
-seeds: [42, 123, 456, 789, 101112] [UNRESOLVED-CLAIM: c_7af15205 — status=not_enough_info]
-noise_correlation: [zero, 0.2, 0.5] [UNRESOLVED-CLAIM: c_121777ea — status=not_enough_info]
+n_objectives: [, 10, 20, 50]
+k_sweep: [0.01, 0.05, 0.1]
+seeds: [42, 123, 456, 789, 101112]
+noise_correlation: [zero, 0.2, 0.5]
 rollout_size: a sufficiently large batch to ensure statistical robustness in trajectory sampling.
 distributions: ["linear", "sparse", "non-convex"]
 construct_validity_threshold: a statistically significant minimum threshold
@@ -80,7 +80,7 @@ construct_validity_threshold: a statistically significant minimum threshold
 
 - [X] T021a [P] Implement one-sample t-test in `src/analysis/stats.py` comparing mean deviation from theoretical bound against zero.
 
-- [X] T021b [P] Implement stability check: ratio of heuristic/full-batch variance must remain within [0.9, 1.1] for ≥ 95% of steps [UNRESOLVED-CLAIM: c_933b1b65 — status=not_enough_info].
+- [X] T021b [P] Implement stability check: ratio of heuristic/full-batch variance must remain within [0.9, 1.1] for ≥ 95% of steps.
 
 - [X] T021c [P] Implement sensitivity analysis sweep logic in `src/analysis/stats.py` for window size k.
 
@@ -119,7 +119,7 @@ construct_validity_threshold: a statistically significant minimum threshold
 - [X] T031 [US2] Verify `src/environment/synthetic_mdp.py` generates correct tabular MDPs with N objectives (including N=5, 10, 20, 50) and noise correlation parameter ρ.
 - [X] T031a [US2] Verify N=5 generation explicitly: Run `generate_mdp(n_objectives=5, seed=42)` and assert the resulting MDP has exactly 5 reward functions and valid state/action spaces.
 - [X] T032 [US2] Verify `src/heuristic/moving_window.py` correctly calculates variance using only last k steps
-- [X] T034 [US2] Add logic to handle edge case where N > 50. **Formula**: `new_S = max(1, original_S // 2)` where `original_S = len(mdp.state_space)` before reduction. The theoretical bound used for comparison is `calculate_bound(N=50)` (from T070) and is flagged as `degraded: true`. **Note**: This ensures the bound remains valid for the model's domain while acknowledging the reduced state space.
+- [X] T034 [US2] Add logic to handle edge case where N > 50. **Formula**: `new_S = max(34, original_S // 2)` where `original_S = len(mdp.state_space)` before reduction. The theoretical bound used for comparison is `calculate_bound(N=50)` (from T070) and is flagged as `degraded: true`. **Note**: This ensures the bound remains valid for the model's domain while acknowledging the reduced state space.
 - [X] T034a [US2] Implement logging for state space reduction in `src/environment/runner.py`.
 - [X] T034b [US2] Update schemas to include `effective_n`, `reduced_state_space_size`, and `degraded_flag`.
 - [X] T034c [US2] Implement generation of reward functions with "Sparse" (sparsity ratio > 0.9) and "Non-Convex" distributions.
@@ -181,7 +181,7 @@ min_k = max(min_threshold, int(rollout_size * 0.01)) `. Raise `ValueError` if `k
 **Independent Test**: The system outputs a report showing the results of a Kolmogorov-Smirnov goodness-of-fit test for the slope of sample complexity vs N for each ρ value, with a pass criterion of p > 0.05 for ρ=0.
 
 ### Implementation for User Story 5
-- [X] T072 [US5] Implement minimum window size threshold `min_k=5` in `src/heuristic/moving_window.py`. **Note**: This task overrides T060's dynamic calculation by hardcoding `min_k=5` for the final implementation. T060's dynamic logic is deprecated.
+- [X] T072 [US5] Implement minimum window size threshold `min_k=5` in `src/heuristic/moving_window.py`. [UNRESOLVED-CLAIM: c_cfe3db37 — status=not_enough_info] **Note**: This task overrides T060's dynamic calculation by hardcoding `min_k=5` for the final implementation. T060's dynamic logic is deprecated.
 - [X] T073 [US5] Implement the updated coincidence check with tolerance in `src/analysis/stats.py`.
 - [ ] T074 [US5] Document 'Degraded' State Space Logic in `docs/theoretical_derivation.md`: Run `python src/derivation/sample_complexity.py --generate-docs` to generate the section explaining the handling of the theoretical bound when state space is reduced (N > 50), including the 'degraded' flag and its implications for validation.
 - [X] T075 [US5] Run Final Coincidence Check with Tolerance: Execute the full suite with the updated coincidence check (T073) and verify the final report, ensuring the coincidence check logic with tolerance works correctly for all N values.

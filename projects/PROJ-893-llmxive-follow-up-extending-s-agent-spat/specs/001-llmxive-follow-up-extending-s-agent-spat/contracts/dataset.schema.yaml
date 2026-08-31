@@ -1,102 +1,142 @@
-$schema: http://json-schema.org/draft-07/schema#
+$schema: "http://json-schema.org/draft-07/schema#"
 title: S-Agent-300K Dataset Schema
-description: >-
-  Schema for the raw and derived dataset records used in the symbolic spatial
-  reasoning pipeline. Defines the structure of scenes extracted from the
-  S-Agent-300K HuggingFace dataset.
+description: Schema for the raw and extracted scene data from the S-Agent-300K dataset used in spatial reasoning tasks.
 type: object
 required:
   - scene_id
-  - prompt
-  - ground_truth
-  - objects
-  - spatial_constraints
+  - metadata
+  - geometry
 properties:
   scene_id:
     type: string
-    description: Unique identifier for the scene (e.g., "scene_0001").
-    pattern: "^scene_\\d{4}$"
-  prompt:
-    type: string
-    description: The natural language question or task description.
-  ground_truth:
-    type: object
-    description: The verified correct answer for the scene.
-    required:
-      - answer
-      - answer_type
-    properties:
-      answer:
-        oneOf:
-          - type: integer
-          - type: string
-          - type: boolean
-        description: The exact ground truth value.
-      answer_type:
-        type: string
-        enum:
-          - counting
-          - positioning
-          - orientation
-        description: The category of the spatial reasoning task.
-  objects:
-    type: array
-    description: List of objects present in the scene with their attributes.
-    items:
-      type: object
-      required:
-        - id
-        - type
-        - position
-      properties:
-        id:
-          type: string
-          description: Unique object identifier within the scene.
-        type:
-          type: string
-          description: Semantic class of the object (e.g., "cube", "sphere").
-        position:
-          type: array
-          description: 3D coordinates [x, y, z].
-          items:
-            type: number
-          minItems: 3
-          maxItems: 3
-        dimensions:
-          type: array
-          description: Optional bounding box dimensions [dx, dy, dz].
-          items:
-            type: number
-          minItems: 3
-          maxItems: 3
-  spatial_constraints:
-    type: array
-    description: Explicit geometric constraints derived from the prompt.
-    items:
-      type: object
-      required:
-        - relation
-        - entities
-      properties:
-        relation:
-          type: string
-          description: The spatial relation (e.g., "left_of", "above", "inside").
-        entities:
-          type: array
-          description: IDs of the objects involved in the relation.
-          items:
-            type: string
-          minItems: 2
+    description: Unique identifier for the scene (e.g., "scene_00123").
+    pattern: "^scene_\\d+$"
   metadata:
     type: object
-    description: Optional metadata about the scene source.
+    required:
+      - source
+      - timestamp
+      - difficulty_level
     properties:
-      source_split:
+      source:
         type: string
-        enum:
-          - train
-          - validation
-          - test
-      difficulty:
+        enum: ["S-Agent-300K", "Generated-Subset"]
+      timestamp:
         type: string
-additionalProperties: false
+        format: date-time
+        description: ISO 8601 timestamp of data creation or extraction.
+      difficulty_level:
+        type: string
+        enum: ["easy", "medium", "hard"]
+        description: Difficulty rating of the spatial reasoning task.
+      object_count:
+        type: integer
+        minimum: 0
+        description: Number of objects in the scene.
+      grid_size:
+        type: object
+        required:
+          - x
+          - y
+          - z
+        properties:
+          x:
+            type: integer
+            minimum: 1
+          y:
+            type: integer
+            minimum: 1
+          z:
+            type: integer
+            minimum: 1
+        description: Dimensions of the 3D grid.
+  geometry:
+    type: array
+    description: List of objects in the scene with their spatial properties.
+    items:
+      type: object
+      required:
+        - object_id
+        - type
+        - position
+        - dimensions
+      properties:
+        object_id:
+          type: string
+          description: Unique identifier for the object within the scene.
+        type:
+          type: string
+          enum: ["box", "sphere", "cylinder", "wall", "floor", "ceiling"]
+          description: Type of the geometric object.
+        position:
+          type: object
+          required:
+            - x
+            - y
+            - z
+          properties:
+            x:
+              type: number
+              format: float
+            y:
+              type: number
+              format: float
+            z:
+              type: number
+              format: float
+          description: Center position (x, y, z) in grid coordinates.
+        dimensions:
+          type: object
+          required:
+            - width
+            - height
+            - depth
+          properties:
+            width:
+              type: number
+              format: float
+              minimum: 0
+            height:
+              type: number
+              format: float
+              minimum: 0
+            depth:
+              type: number
+              format: float
+              minimum: 0
+          description: Dimensions (width, height, depth) of the object.
+        rotation:
+          type: object
+          required:
+            - roll
+            - pitch
+            - yaw
+          properties:
+            roll:
+              type: number
+              format: float
+            pitch:
+              type: number
+              format: float
+            yaw:
+              type: number
+              format: float
+          description: Rotation angles in radians.
+  constraints:
+    type: array
+    description: Explicit spatial constraints defined for the scene (optional, may be empty).
+    items:
+      type: object
+      required:
+        - constraint_id
+        - type
+        - parameters
+      properties:
+        constraint_id:
+          type: string
+        type:
+          type: string
+          enum: ["adjacency", "containment", "alignment", "distance", "non_overlap"]
+        parameters:
+          type: object
+          description: Constraint-specific parameters (e.g., object IDs, distance thresholds).

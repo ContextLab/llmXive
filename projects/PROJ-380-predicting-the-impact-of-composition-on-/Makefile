@@ -1,42 +1,47 @@
-# Makefile for llmXive Project 380
-# Orchestration entry point for the research pipeline
-
-.PHONY: help lint format test clean install all
+.PHONY: lint format check test clean
 
 # Configuration
-PYTHON := python
-PIP := pip
-VENV := .venv
+PYTHON := python3
+RUFF := ruff
+BLACK := black
+PYTEST := pytest
 
-help:
-	@echo "Available targets:"
-	@echo "  install    - Install dependencies (including dev tools)"
-	@echo "  lint       - Run Ruff linter"
-	@echo "  format     - Run Black formatter"
-	@echo "  test       - Run pytest"
-	@echo "  clean      - Remove temporary files and caches"
-	@echo "  all        - Run lint, format, and test"
-
-install:
-	$(PYTHON) -m pip install --upgrade pip
-	$(PIP) install -e ".[dev]"
-
+# Lint: Check code style without modifying
 lint:
-	ruff check code/ tests/
+	@echo "Running linter (ruff)..."
+	$(RUFF) check code/ tests/
+	@echo "Lint check complete."
 
+# Format: Automatically fix formatting issues
 format:
-	black code/ tests/
-	ruff check --fix code/ tests/
+	@echo "Running formatter (black)..."
+	$(BLACK) code/ tests/
+	@echo "Running linter fix (ruff)..."
+	$(RUFF) check --fix code/ tests/ || true
+	@echo "Format complete."
 
+# Check: Run both lint and format checks (fail if dirty)
+check: lint
+	@echo "Checking code style compliance..."
+	$(BLACK) --check code/ tests/
+	@echo "All style checks passed."
+
+# Test: Run the test suite
 test:
-	pytest
+	@echo "Running tests..."
+	$(PYTEST)
+	@echo "Tests complete."
 
+# Clean: Remove generated artifacts
 clean:
-	find . -type d -name "__pycache__" -exec rm -rf {} +
-	find . -type f -name "*.pyc" -delete
-	find . -type d -name ".pytest_cache" -exec rm -rf {} +
-	find . -type d -name ".ruff_cache" -exec rm -rf {} +
-	rm -rf .venv
-	rm -rf build dist *.egg-info
+	@echo "Cleaning up..."
+	rm -rf __pycache__
+	rm -rf .pytest_cache
+	rm -rf .mypy_cache
+	rm -rf .ruff_cache
+	find . -type d -name "*.egg-info" -exec rm -rf {} +
+	@echo "Clean complete."
 
-all: lint format test
+# Default target
+all: check test
+	@echo "Pipeline validation complete."

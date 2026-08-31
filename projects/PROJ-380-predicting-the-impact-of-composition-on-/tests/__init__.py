@@ -1,3 +1,3 @@
 """
-Test package for the llmXive pipeline.
+Test suite for the BMG Shear Modulus prediction pipeline.
 """

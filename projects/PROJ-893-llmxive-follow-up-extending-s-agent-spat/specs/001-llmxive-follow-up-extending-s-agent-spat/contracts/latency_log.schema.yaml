@@ -1,40 +1,60 @@
-$schema: http://json-schema.org/draft-07/schema#
+$schema: "http://json-schema.org/draft-07/schema#"
 title: Latency Log Schema
-description: >-
-  Schema for the JSONL file recording per-scene latency metrics.
-  Each line in the file represents a single record conforming to this schema.
+description: Schema for the per-scene latency logs generated during solver execution.
 type: object
 required:
   - scene_id
-  - component
+  - start_time
+  - end_time
   - duration_ms
-  - timestamp
+  - status
 properties:
   scene_id:
     type: string
-    description: The ID of the scene being processed.
-  component:
+    pattern: "^scene_\\d+$"
+  start_time:
     type: string
-    enum:
-      - extraction
-      - solving
-      - total_pipeline
-    description: The stage of the pipeline being measured.
+    format: date-time
+    description: ISO 8601 timestamp when processing started.
+  end_time:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp when processing ended.
   duration_ms:
     type: number
     minimum: 0
-    description: Duration of the component execution in milliseconds.
-  timestamp:
+    description: Total processing time in milliseconds.
+  status:
     type: string
-    format: date-time
-    description: ISO 8601 timestamp of the measurement.
+    enum: ["success", "timeout", "error", "skipped"]
+  error_message:
+    type: string
+    nullable: true
+    description: Error message if status is not 'success'.
   cpu_usage_percent:
     type: number
     minimum: 0
     maximum: 100
-    description: Optional CPU usage during execution.
-  memory_mb:
+    nullable: true
+    description: Peak CPU usage during the operation (optional).
+  memory_usage_mb:
     type: number
     minimum: 0
-    description: Optional peak memory usage in MB.
-additionalProperties: false
+    nullable: true
+    description: Peak memory usage in MB (optional).
+  constraints_loaded:
+    type: boolean
+    description: Whether the constraints were successfully loaded for this scene.
+  solver_engine:
+    type: string
+    description: Name/version of the solver engine used (e.g., "python-constraint-1.4.4").
+  hardware_info:
+    type: object
+    nullable: true
+    properties:
+      cpu_model:
+        type: string
+      num_cores:
+        type: integer
+      platform:
+        type: string

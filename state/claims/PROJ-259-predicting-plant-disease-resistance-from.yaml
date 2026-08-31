@@ -2489,3 +2489,279 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-21T06:06:13Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 0
+  canonical: At least 10 SNPs and 10 metabolites remain significant across sensitivity
+    sweep
+  claim_id: c_6ae8e1e2
+  context: T028b [US2] Implement logic to count and verify that at least 10 SNPs and
+    10 metabolites remain significant across the entire sensitivity sweep
+  evidence:
+    entailment_evidence: At least 10 SNPs and 10 metabolites remain significant acros
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/At_least_10_SNPs_and_10_metabolites_remain_significant_acros
+  kind: magnitude
+  raw_text: Implement logic to count and verify that at least 10 SNPs and 10 metabolites
+    remain significant across the entire sensitivity sweep
+  resolved_value: at least 10 SNPs and 10 metabolites remain significant across sensitivity
+    sweep
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T18:39:12Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: 'Synthetic data generation parameters: 150 samples, 1000 SNPs, 500 metabolites,
+    effect size 0.1, correlation 0.5'
+  claim_id: c_d7f20081
+  context: 'T009 Implement code/data/generate_synthetic.py to create ~150 paired samples
+    with injected signal structure: 1000 SNPs, 500 metabolites, binary phenotype (balanced
+    split), effect size=0.1, noise distribution=normal(0,1), SNP-metabolite correlation=0.5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'generate ~150 paired samples with injected signal structure: 1000 SNPs,
+    500 metabolites, binary phenotype (balanced split), effect size=0.1, noise distribution=normal(0,1),
+    SNP-metabolite correlation=0.5.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T18:40:16Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Pipeline triggers simulation mode after 3 retries on HTTP 404/403 or
+    no results
+  claim_id: c_649499a7
+  context: T010 Implement code/data/download.py... if no results found OR HTTP 404/403
+    after 3 retries, log a critical warning 'REAL DATA NOT FOUND, TRIGGERING SIMULATION
+    MODE' and IMMEDIATELY invoke generate_synthetic.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if no results found OR HTTP 404/403 after 3 retries, log a critical warning
+    'REAL DATA NOT FOUND, TRIGGERING SIMULATION MODE' and IMMEDIATELY invoke generate_synthetic.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T18:41:32Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if sample count is less than 100
+  claim_id: c_c2133db2
+  context: T010... the pipeline must halt if samples < 100 regardless of source
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_sample_count_is_less_than_100
+  kind: magnitude
+  raw_text: The pipeline must halt if samples < 100 regardless of source
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T18:42:48Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime under 6 hours and RAM under 7 GB
+  claim_id: c_53dd25cf
+  context: T014 [P] [US1] Integration test for full pipeline run in tests/test_pipeline.py
+    (verify runtime < 6h, RAM < 7GB)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify runtime < 6h, RAM < 7GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T18:42:48Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Pipeline raises EX_DATA_INTEGRITY if aligned samples < 100
+  claim_id: c_85d8b85a
+  context: 'T019 [US1] Implement code/main.py CLI entry point... IF missing_modalities
+    > 0, raise EX_DATA_INTEGRITY (02) with message ''Insufficient data modalities:
+    Remaining samples < 100'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement logic to check data integrity: read aligned samples count;
+    IF missing_modalities > 0, raise EX_DATA_INTEGRITY (02) with message ''Insufficient
+    data modalities: Remaining samples < 100'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T18:42:48Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Pipeline raises EX_POWER_INSUFFICIENT if total samples < 100
+  claim_id: c_0ed35744
+  context: 'T019 [US1] Implement code/main.py CLI entry point... ELSE IF total_samples
+    < 100, raise EX_POWER_INSUFFICIENT (03) with message ''Power deficiency: n < 100
+    required for multivariate omics analysis with BH correction'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'ELSE IF total_samples < 100, raise EX_POWER_INSUFFICIENT (03) with message
+    ''Power deficiency: n < 100 required for multivariate omics analysis with BH correction'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T18:42:49Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Permutation p-value calculation formula (count >= observed + k) / (n
+    + k)
+  claim_id: c_1ba49d68
+  context: T018 [US1] Implement code/analysis/validation.py... calculate p-value as
+    (count >= observed + k) / (n + k)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_p-value_calculation_formula_(count_%3E=_observed_+
+  kind: entity_fact
+  raw_text: calculate p-value as (count >= observed + k) / (n + k)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T18:47:22Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Modeling uses 5-fold cross-validation
+  claim_id: c_c51aa0af
+  context: T017 [US1] Implement code/analysis/modeling.py for Elastic-Net (continuous)
+    or Gradient-Boosting (categorical) with 5 (2604.10702, https://arxiv.org/abs/2604.10702)-fold
+    CV (FR-004)
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Implement code/analysis/modeling.py for Elastic-Net (continuous) or Gradient-Boosting
+    (categorical) with 5 (2604.10702, https://arxiv.org/abs/2604.10702)-fold CV
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T18:47:36Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: External permutation testing uses 1000 iterations
+  claim_id: c_40c97e36
+  context: 'T033 [US3] Implement external permutation testing (n=1000, shuffling phenotype
+    labels, metric: accuracy/AUC) specifically on an external independent dataset'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement external permutation testing (n=1000, shuffling phenotype labels,
+    metric: accuracy/AUC) specifically on an external independent dataset'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T18:48:38Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: External permutation p-value calculation formula (count >= observed +)
+    / (n + 1)
+  claim_id: c_514f06d5
+  context: T033 [US3] Implement external permutation testing... calculate p-value
+    as (count >= observed +) / (n + 1)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: calculate p-value as (count >= observed +) / (n + 1)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T18:48:39Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: External hold-out performance target is 75%
+  claim_id: c_b6f7739b
+  context: "T035 [US3] Implement logic to compare external hold-out performance against\
+    \ the \u2265 75% target"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compare external hold-out performance against the \u2265 75% target"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T18:48:39Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Tasks must fit within 6 hours runtime and 7 GB RAM
+  claim_id: c_5c2dd64b
+  context: 'Notes... Resource Constraints: All tasks must be designed to fit within
+    6 hours runtime and 7 GB RAM on a GitHub Actions free-tier runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks must be designed to fit within 6 hours runtime and 7 GB RAM
+    on a GitHub Actions free-tier runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T18:49:44Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor threshold for flagging is 5
+  claim_id: c_90cceb1d
+  context: 'Notes... Statistical Rigor: All p-values must be BH-adjusted; permutation
+    testing must use n=1000; VIF > 5 must be flagged.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: VIF > 5 must be flagged
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T18:49:44Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if RAM exceeds 7.5 GB or runtime exceeds 5.5 hours
+  claim_id: c_a699b0d2
+  context: T046 [P] [US1] Add a resource usage assertion in code/utils/measure_resources.py
+    that halts the pipeline with EX_RESOURCE_LIMIT if RAM usage exceeds 7.5 GB (buffer)
+    or runtime exceeds 5.5 hours
+  evidence:
+    asserted: '7.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Add a resource usage assertion in code/utils/measure_resources.py that
+    halts the pipeline with EX_RESOURCE_LIMIT if RAM usage exceeds 7.5 GB (buffer)
+    or runtime exceeds 5.5 hours
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T18:49:45Z'

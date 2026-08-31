@@ -1,3 +1,3 @@
 """
-Unit tests for the research pipeline.
+Unit tests.
 """

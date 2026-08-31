@@ -1,43 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required project directories (`code/`, `data/`, `tests/`,
-    `docs/`) is provided; the claim lacks any artifact showing that the structure
-    was created. The implementer must add the missing folder hierarchy (and optionally
-    placeholder files) to satisfy the task.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting/formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    `.flake8`, or Black settings) or integration scripts are present; therefore the
-    required artifact for configuring ruff/flake8 and Black does not exist.
-T005:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `utils/config.py` file or its contents were presented, so there is no evidence
-    that random seeds and path constants have been defined as required. The implementer
-    must add the file with appropriate seed initializations and path constant definitions.
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `utils/provenance.py` file is present, nor any code showing checksum generation
-    or recording to the required `state/projects/PROJ-380-...yaml` file. The evidence
-    provided consists only of a project description, so the required implementation
-    is missing.
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that a `data/` directory (with subfolders `raw/`, `processed/`,
-    and `artifacts/`) actually exists in the repository; the claim is unsupported
-    by any listed files or screenshots. The required directory structure must be created
-    and shown (e.g., via a directory tree listing).
-T012a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `utils/provenance.py` file or any code implementing checksum recording logic\
-    \ is present in the provided artifacts; the only evidence relates to a shear\u2011\
-    modulus prediction pipeline, which does not address the required provenance checksum\
-    \ feature. The missing implementation must be added to `utils/provenance.py`."
 T012b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -79,3 +39,37 @@ T029:
     the task description and specifications, with no JSON content showing the required
     `metrics`, `hyperparameters`, or `statistical_test` fields. The required artifact
     is missing, so the task is not satisfied.
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, test, or documentation artifact showing the added error handling for
+    empty folds in the splitting logic is present; the only evidence is the task description,
+    which does not demonstrate that the required change was implemented. The implementer
+    must provide the modified splitting module (or a diff/patch) and a test confirming
+    that small alloy families no longer cause errors.
+T032:
+  c: false
+  h: b76c37a844cabac1f755173f3e8fe07cc8ee0dfd57ab2313f903305d59fcf8e9
+  r: "The required artifact `tests/unit/test_importance.py` does not exist on disk,\
+    \ so no unit test for permutation importance calculation is present. The task\u2019\
+    s deliverable is missing entirely."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided information contains no artifact (e.g., script, output file, or\
+    \ documentation) demonstrating that results are labeled as \u201Cpredictive contribution\u201D\
+    \ instead of \u201Cphysical significance.\u201D Without such evidence, we cannot\
+    \ confirm the requirement has been met. The missing deliverable is the actual\
+    \ output (or code that generates it) showing the correct labeling."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No visualization files were found in an `artifacts/` directory, and there is
+    no evidence of code that saves figures with deterministic filenames. The required
+    artifact (saved visualizations) is missing.
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `artifacts/importance_report.json` file was presented or described, and no\
+    \ content showing ranked descriptors and p\u2011values was provided. The required\
+    \ artifact is missing, so the task is not satisfied."

@@ -91,12 +91,12 @@
 - [X] T016b [US1] Implement aggregation logic in `code/analysis/feature_selection.py` to combine results from T016a and output `selection_frequency.csv` with columns: `feature_id`, `threshold`, `frequency` (FR-003)
 - [X] T017 [US1] Implement `code/analysis/modeling.py` for Elastic-Net (continuous) or Gradient-Boosting (categorical) with 5 (2604.10702, https://arxiv.org/abs/2604.10702)-fold CV (FR-004)
 - [X] T017b [US1] Implement logic in `code/analysis/modeling.py` to generate and train a null model baseline (**random labels**) and compare performance against the primary model; **ensure results are included in final metrics** (FR-004)
-- [X] T018 [US1] Implement `code/analysis/validation.py` for **permutation testing (n=1000) on the independent hold-out test set** (FR-005) and **null model baseline comparison**; **calculate p-value as (count >= observed + k) / (n + k)
+- [X] T018 [US1] Implement `code/analysis/validation.py` for **permutation testing (n=1000) on the independent hold-out test set** (FR-005) and **null model baseline comparison**; **calculate p-value as (count >= observed + k) / (n + k) [UNRESOLVED-CLAIM: c_1ba49d68 — status=not_enough_info]
 
 The specific value to remove/generalize: 'k'
 
 Rewritten passage:
-calculate p-value as (count >= observed + k) / (n + k)**; output to `artifacts/reports/holdout_metrics.json`; **set random seed to**; **DO NOT defer this step to US3** to ensure US1 is independently testable with full statistical validation
+calculate p-value as (count >= observed + k) / (n + k) [UNRESOLVED-CLAIM: c_1ba49d68 — status=not_enough_info]**; output to `artifacts/reports/holdout_metrics.json`; **set random seed to**; **DO NOT defer this step to US3** to ensure US1 is independently testable with full statistical validation
 - [X] T019 [US1] Implement `code/main.py` CLI entry point orchestrating: Fetch -> Preprocess -> Split -> Select -> Train -> Validate; **include logic to check data integrity**: read aligned samples count; **IF missing_modalities > 0, raise EX_DATA_INTEGRITY (02) with message "Insufficient data modalities: Remaining samples < 100"**; **ELSE IF total_samples < 100, raise EX_POWER_INSUFFICIENT (03) with message "Power deficiency: n < 100 required for multivariate omics analysis with BH correction"**; **NO bypass logic for SIMULATED data** (FR-007, FR-008)
 - [X] T023 [US1] Generate `artifacts/reports/selection_frequency.csv` listing feature IDs, thresholds, and selection frequency (FR-003)
 
@@ -142,7 +142,7 @@ calculate p-value as (count >= observed + k) / (n + k)**; output to `artifacts/r
 - [X] T031 [US3] **Verify** that `code/data/split.py` (implemented in T015) correctly reserves the hold-out set and is used by downstream tasks; **DO NOT re-implement split logic** (FR-009)
 - [X] T031b [US3] Implement a validation check in `code/data/split.py` usage to assert that the hold-out set is never used in feature selection or training steps (strict reservation)
 - [X] T032 [US3] Implement `code/analysis/validation.py` logic to evaluate the trained model on the independent hold-out set
-- [X] T033 [US3] Implement **external** permutation testing (**n=1000**, **shuffling phenotype labels**, metric: **accuracy/AUC**) specifically on an **external independent dataset** (if provided) to generate **model-level p-value**; **set a fixed random seed for reproducibility**; **calculate p-value as (count >= observed +) / (n + 1)**; output to `artifacts/reports/external_metrics.json` (FR-005, SC-003)
+- [X] T033 [US3] Implement **external** permutation testing (**n=1000**, **shuffling phenotype labels**, metric: **accuracy/AUC**) specifically on an **external independent dataset** (if provided) to generate **model-level p-value**; **set a fixed random seed for reproducibility**; **calculate p-value as (count >= observed +) / (n + 1) [UNRESOLVED-CLAIM: c_514f06d5 — status=not_enough_info]**; output to `artifacts/reports/external_metrics.json` (FR-005, SC-003)
 - [X] T034 [US3] Generate `artifacts/reports/external_metrics.json` with final accuracy/AUC/R² and permutation p-value for external validation
 - [X] T035 [US3] Implement logic to compare external hold-out performance against the ≥ 75% target and log a warning to `artifacts/reports/validation.log` if target is not met (as a hypothesis, not a hard halt)
 
@@ -268,8 +268,8 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Simulation Mode**: Synthetic data generation is used for pipeline validation in the absence of real matched data. **The pipeline MUST still enforce FR-007/FR-008 halts if the synthetic data fails to meet the n >= 100 requirement.** The generator must be configured to produce sufficient samples.
 - **Data Integrity**: If a verified real data source is injected in future runs, the `download.py` task must adopt that exact package/recipe as the single source of input.
-- **Statistical Rigor**: All p-values must be BH-adjusted; permutation testing must use n=1000; VIF > 5 must be flagged.
-- **Resource Constraints**: All tasks must be designed to fit within 6 hours runtime and 7 GB RAM on a GitHub Actions free-tier runner.
+- **Statistical Rigor**: All p-values must be BH-adjusted; permutation testing must use n=1000; VIF > 5 must be flagged [UNRESOLVED-CLAIM: c_90cceb1d — status=not_enough_info].
+- **Resource Constraints**: All tasks must be designed to fit within 6 hours runtime and 7 GB RAM on a GitHub Actions free-tier runner. [UNRESOLVED-CLAIM: c_5c2dd64b — status=not_enough_info]
 
 ---
 
@@ -278,8 +278,8 @@ With multiple developers:
 **Purpose**: Address specific reviewer concerns regarding data provenance, statistical rigor, and simulation transparency.
 
 - [ ] T042 [P] [US1] Refactor `code/data/download.py` to **implement a 'Fail Loud' logging policy**: if real data is missing, **log a critical warning "REAL DATA NOT FOUND, TRIGGERING SIMULATION MODE"** and **ensure the fallback to `generate_synthetic.py` is executed immediately** (as per T010 logic); **DO NOT raise an error immediately**; ensure the `data_manifest.yaml` explicitly records `source: SIMULATED` to maintain provenance integrity while preserving the execution path.
-- [ ] T044 [US2] Extend `code/analysis/biomarker_report.py` to include a **data provenance header** in `top_features.csv` explicitly stating whether the results are derived from "REAL_DATA" or "SIMULATED_DATA" and citing the specific accession IDs or generation parameters used.
-- [ ] T045 [US3] Implement a **strict hold-out verification** in `code/data/split.py` that raises an assertion error if the hold-out set indices appear in any training or feature selection artifacts, ensuring FR-009 is not violated by data leakage.
+- [X] T044 [US2] Extend `code/analysis/biomarker_report.py` to include a **data provenance header** in `top_features.csv` explicitly stating whether the results are derived from "REAL_DATA" or "SIMULATED_DATA" and citing the specific accession IDs or generation parameters used.
+- [X] T045 [US3] Implement a **strict hold-out verification** in `code/data/split.py` that raises an assertion error if the hold-out set indices appear in any training or feature selection artifacts, ensuring FR-009 is not violated by data leakage.
 - [ ] T046 [P] [US1] Add a **resource usage assertion** in `code/utils/measure_resources.py` that halts the pipeline with `EX_RESOURCE_LIMIT` if RAM usage exceeds 7.5 GB (buffer) or runtime exceeds 5.5 hours, providing early warning before the CI limit is hit.
 - [ ] T047 [US2] Implement a **robustness check** in `code/analysis/feature_selection.py` that logs the **exact number of features selected at each threshold** and halts if the selection frequency variance exceeds **[deferred]**, indicating unstable biomarker identification.
 - [ ] T048 [US3] **Modify the execution of T033** to add a **permutation test reproducibility check** that runs the permutation test twice with the same seed and verifies the p-value is identical within floating-point tolerance, ensuring the stochastic process is deterministic for debugging.

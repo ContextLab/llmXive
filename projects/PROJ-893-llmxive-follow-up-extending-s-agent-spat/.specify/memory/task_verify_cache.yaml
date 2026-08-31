@@ -21,9 +21,8 @@ T010:
     its expected result are missing or incomplete.
 T012:
   c: false
-  h: 8313672a231c0d1c9a918f498f3e0126df4487f024b694edb720a13abec950fd
-  r: "The repository contains a `run_solver.py` file, but the required output files\
-    \ `data/derived/predictions.jsonl` and `data/derived/latency_log.jsonl` are absent,\
-    \ and the script lacks a complete execution flow (e.g., no main entry point, placeholder\
-    \ logic). Consequently the task of batch\u2011processing 1,000 scenes and writing\
-    \ the two JSONL files is not fulfilled."
+  h: a827cff114f6cc6c5eb4f7c40a995d81c976a2a3803a6ac3120917d01a0075fc
+  r: "The `run_solver.py` script is incomplete (truncated) and never writes to the\
+    \ required `data/derived/predictions.jsonl` or `data/derived/latency_log.jsonl`\
+    \ files, which are absent from the repository. Consequently the task\u2019s output\
+    \ artifacts are missing."

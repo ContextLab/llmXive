@@ -1,146 +1,129 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: BMGEntry
 description: >
-  Schema for a single Bulk Metallic Glass (BMG) data entry.
+  Schema for a single Bulk Metallic Glass (BMG) entry.
   Defines the structure for source metadata, elemental composition,
   and the target shear modulus property.
 type: object
 required:
   - source
   - composition
-  - modulus_gpa
+  - modulus_shear_gpa
 properties:
   source:
     type: object
-    description: Metadata regarding the origin of the data point.
+    description: Metadata regarding the origin of this data point.
     required:
       - database
-      - id
-      - retrieval_date
+      - material_id
+      - citation
     properties:
       database:
         type: string
-        description: Name of the source database (e.g., "Materials Project", "Synthetic").
-        enum:
-          - Materials Project
-          - Synthetic
-          - Literature
-      id:
+        description: Name of the source database (e.g., 'Materials Project', 'NIST').
+        examples:
+          - "Materials Project"
+      material_id:
         type: string
-        description: Unique identifier for the entry within the source database.
+        description: Unique identifier within the source database.
+        examples:
+          - "mp-123456"
+      citation:
+        type: string
+        description: DOI or reference string for the source publication.
+        examples:
+          - "10.1038/s41524-020-00366-3"
       retrieval_date:
         type: string
         format: date
-        description: Date the data was retrieved (ISO 8601 format YYYY-MM-DD).
-      original_formula:
-        type: string
-        description: Original chemical formula string as found in the source (optional).
-    
+        description: Date the data was fetched (ISO 8601).
+        examples:
+          - "2023-10-27"
+
   composition:
     type: object
     description: Elemental composition of the alloy.
     required:
       - elements
-      - atomic_fractions
+      - weights_wt_percent
+      - weights_at_percent
     properties:
       elements:
         type: array
         items:
           type: string
-        description: List of chemical symbols (e.g., ["Zr", "Ti", "Cu", "Ni", "Be"]).
+        description: List of chemical symbols present in the alloy (sorted).
         minItems: 2
-      atomic_fractions:
+        examples:
+          - ["Zr", "Cu", "Al"]
+      weights_wt_percent:
         type: array
         items:
           type: number
-          minimum: 0.0
-          maximum: 1.0
-        description: >
-          List of atomic fractions corresponding to the elements list.
-          Must sum to 1.0 (within floating point tolerance).
+          minimum: 0
+          maximum: 100
+        description: Weight percentages of the elements (aligned with 'elements' list).
         minItems: 2
-      weight_fractions:
+        examples:
+          - [60.0, 30.0, 10.0]
+      weights_at_percent:
         type: array
         items:
           type: number
-          minimum: 0.0
-          maximum: 1.0
-        description: >
-          Optional: List of weight fractions corresponding to elements.
-          Used for standardization steps.
-    
-  modulus:
-    type: object
-    description: Shear modulus measurement.
-    required:
-      - value
-      - unit
-    properties:
-      value:
-        type: number
-        description: Shear modulus value.
-        minimum: 0.0
-      unit:
-        type: string
-        description: Unit of measurement.
-        enum:
-          - GPa
-          - MPa
-        default: GPa
-      method:
-        type: string
-        description: Measurement or calculation method (e.g., "DFT", "Experimental", "Rule of Mixtures").
-        enum:
-          - DFT
-          - Experimental
-          - Rule of Mixtures
-          - Estimated
-      uncertainty:
-        type: number
-        minimum: 0.0
-        description: Optional uncertainty value (standard deviation or error margin).
-  
-  derived_features:
+          minimum: 0
+          maximum: 100
+        description: Atomic percentages of the elements (aligned with 'elements' list).
+        minItems: 2
+        examples:
+          - [65.2, 28.5, 6.3]
+
+  modulus_shear_gpa:
+    type: number
+    description: Shear modulus in GPa.
+    minimum: 0
+    examples:
+      - 35.4
+      - 42.1
+
+  descriptors:
     type: object
     description: >
-      Optional: Pre-calculated compositional descriptors (δ, ΔHmix, VEC, Δχ).
-      If present, these are used to skip calculation in the feature engineering pipeline.
+      Calculated compositional descriptors used for modeling.
+      Optional at ingestion, required at training.
     properties:
-      delta_r:
+      delta:
         type: number
-        description: Atomic radius mismatch (δ).
+        description: Atomic size difference parameter (delta).
+        minimum: 0
       delta_h_mix:
         type: number
-        description: Enthalpy of mixing (ΔHmix) in kJ/mol.
+        description: Enthalpy of mixing (kJ/mol).
       vec:
         type: number
-        description: Valence Electron Concentration (VEC).
+        description: Valence Electron Concentration.
       delta_chi:
         type: number
-        description: Electronegativity difference (Δχ).
-      omega:
-        type: number
-        description: Omega parameter (optional).
-      atomic_percent:
-        type: number
-        description: Total atomic percent (should be ~100).
+        description: Electronegativity difference.
+      vif_scores:
+        type: object
+        description: Variance Inflation Factor scores for features, if applicable.
+        additionalProperties:
+          type: number
+        nullable: true
+
+  metadata:
+    type: object
+    description: Internal pipeline metadata.
+    properties:
+      processed_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of processing.
+      pipeline_version:
+        type: string
+        description: Version of the ingestion pipeline.
+      checksum:
+        type: string
+        description: SHA-256 checksum of the raw source entry.
+
 additionalProperties: false
-examples:
-  - source:
-      database: Materials Project
-      id: "mp-123456"
-      retrieval_date: "2023-10-27"
-      original_formula: "Zr41.2Ti13.8Cu12.5Ni10Be22.5"
-    composition:
-      elements: ["Zr", "Ti", "Cu", "Ni", "Be"]
-      atomic_fractions: [0.412, 0.138, 0.125, 0.10, 0.225]
-    modulus:
-      value: 35.5
-      unit: GPa
-      method: DFT
-    derived_features:
-      delta_r: 4.2
-      delta_h_mix: -12.5
-      vec: 4.15
-      delta_chi: 0.85
-      atomic_percent: 100.0

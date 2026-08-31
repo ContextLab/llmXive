@@ -1,11 +1,3 @@
-T018b:
-  c: false
-  h: 75da5d336cb232ece930f67b384ef06f0f1418cdcbc534ba30017bac1017ee31
-  r: The `variance_scaling.py` file does not contain any code that writes the derived
-    expression to a JSON file, and the file is truncated (e.g., the `verify_symmetry_and_linearity`
-    function is incomplete). Moreover, the required `src/derivation/sample_complexity.py`
-    file is completely missing, so there is no code that loads the exported JSON.
-    Both required artifacts are absent or incomplete.
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
