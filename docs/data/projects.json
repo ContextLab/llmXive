@@ -160890,6 +160890,54 @@
   ],
   "recent_activity": [
     {
+      "agent": "tasker",
+      "duration_s": 1756.450297,
+      "ended_at": "2026-08-31T20:05:55.545241Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-919-llmxive-follow-up-extending-arcane-do-ro",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-08-31T19:36:39.094944Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 655.413925,
+      "ended_at": "2026-08-31T19:36:39.043079Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-919-llmxive-follow-up-extending-arcane-do-ro",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-08-31T19:25:43.629154Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 4249.819185,
+      "ended_at": "2026-08-31T19:21:46.202582Z",
+      "failure_reason": "BackendUnavailable: every model in chain ['qwen.qwen3.5-122b', 'google.gemma-3-27b-it', 'openai.gpt-oss-120b', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: qwen.qwen3.",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-286-the-influence-of-perceived-agency-in-ai-",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-08-31T18:10:56.383397Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 2041.686184,
+      "ended_at": "2026-08-31T19:19:28.258307Z",
+      "failure_reason": "StagePanelKickback: tasks panel did not converge: 1 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'requirement'. Routing to 'clarified' with full prove",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-755-the-influence-of-chatbot-politeness-on-u",
+      "project_stage": "clarified",
+      "severity": "soft",
+      "started_at": "2026-08-31T18:45:26.572123Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 2.170812,
       "ended_at": "2026-08-31T20:19:07.832425Z",
