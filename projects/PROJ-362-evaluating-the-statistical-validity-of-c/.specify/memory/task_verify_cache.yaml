@@ -4,6 +4,14 @@ T001:
   r: No evidence was presented showing that the directory `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/`
     actually exists or contains any files; the claim is unsubstantiated. The required
     project root folder is missing from the provided artifacts.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `.pre-commit-config.yaml`, or similar) are present in the provided evidence, nor
+    any scripts or documentation showing that ruff and black have been set up for
+    the project. The claim therefore does not satisfy the requirement to configure
+    these tools.
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -11,6 +19,14 @@ T004:
     \ that it fetches TREC Robust and Web data with retry logic, includes NIST archive\
     \ fallbacks, or enforces CPU\u2011only execution as required. The necessary artifact\
     \ is missing."
+T006:
+  c: false
+  h: 3f8beecc9277fa1fbc48573771c9d69cfd36e6cd820c2ac9a49f78348c3b408b
+  r: "The provided `code/data_loader.py` is truncated and does not show full validation\
+    \ logic, nor does it reference the required `contracts/dataset.schema.yaml`. Additionally,\
+    \ the schema file itself is missing, and there is no evidence of logging warnings\
+    \ for zero\u2011relevance queries. These essential components are absent, so the\
+    \ task is not genuinely completed."
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -25,14 +41,6 @@ T011:
     \ repository, so no unit test for permutation logic is present. The task cannot\
     \ be considered completed until a non\u2011empty test file is added at the specified\
     \ location."
-T017:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No CSV files were presented or listed in the evidence, and there is no proof
-    that any files exist at `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/null_distributions/`
-    with the required `query_id, metric, score` headers. The implementer must provide
-    the actual CSV artifacts (or a directory listing with file contents) to satisfy
-    the task.
 T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -3,236 +3,276 @@ import random
 import time
 import os
 import json
+import hashlib
 from typing import List, Dict, Any, Tuple, Optional
-import psutil
-import sys
+from pathlib import Path
 
+import psutil
+
+# Local imports matching the provided API surface
 from config import (
-    RESULTS_DIR,
     PERMUTATION_N,
     SEED,
     BATCH_SIZE,
     MEMORY_THRESHOLD_GB,
     RUNTIME_THRESHOLD_HOURS,
+    DATA_RAW_PATH,
+    RESULTS_PATH,
     ensure_dirs,
 )
-from metrics import ndcg_at_k, average_precision
-from data_loader import load_trec_robust04, load_trec_web_data
+from metrics import ndcg_at_k, mean_average_precision
+from data_loader import load_trec_robust04, load_trec_web_data, process_and_validate_qrels
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-K_VALUE = 10
+# Ensure output directories exist
+ensure_dirs()
 
-def shuffle_relevance_labels(qrels: List[Dict[str, Any]], seed: int) -> List[Dict[str, Any]]:
+# Global state tracking for batch processing
+_batch_processing_state = {
+    "start_time": None,
+    "queries_processed": 0,
+    "queries_skipped": 0,
+    "queries_dropped": 0,
+    "current_batch_queries": [],
+    "should_stop": False,
+}
+
+
+def shuffle_relevance_labels(relevance_labels: List[int], seed: int) -> List[int]:
     """
-    Shuffles the relevance labels within a query's document list while keeping
-    the query_id and doc_id mapping intact for permutation testing.
+    Shuffle the relevance labels for a single query.
     """
+    shuffled = relevance_labels.copy()
     random.seed(seed)
-    # Extract relevance scores
-    scores = [q['relevance'] for q in qrels]
-    random.shuffle(scores)
-    
-    # Reconstruct qrels with shuffled scores
-    shuffled = []
-    for i, q in enumerate(qrels):
-        new_q = q.copy()
-        new_q['relevance'] = scores[i]
-        shuffled.append(new_q)
+    random.shuffle(shuffled)
     return shuffled
 
-def compute_permuted_scores(qrels: List[Dict[str, Any]], metric_func) -> float:
-    """
-    Computes the metric score for a permuted set of qrels.
-    Assumes qrels are sorted by relevance rank (or score) for the metric calculation.
-    For NDCG/MAP, we typically assume the input list is the ranked list of docs.
-    Here, we treat the list order as the ranking.
-    """
-    if not qrels:
-        return 0.0
-    scores = [q['relevance'] for q in qrels]
-    return metric_func(scores, k=K_VALUE)
 
-def check_resource_limits(start_time: float) -> Tuple[bool, str]:
+def compute_permuted_scores(shuffled_labels: List[int], metric_func) -> float:
     """
-    Checks if runtime or memory limits have been exceeded.
-    Returns (should_stop, reason).
+    Compute a metric score (NDCG@10 or MAP) for a single query with shuffled labels.
+    """
+    # For this specific implementation, we assume the metric function takes the relevance labels
+    # and computes the score. In a real scenario, we might need document scores or a specific rank order.
+    # Here we assume the labels are ordered by relevance rank or we are just scoring the distribution.
+    # Given the context of permutation tests, we usually permute the labels against a fixed ranking.
+    # However, without the specific ranking data structure in the prompt's API, we will compute
+    # the metric on the shuffled labels directly as a proxy for the null distribution score.
+    # NOTE: This assumes the input labels are already associated with a ranked list.
+    if not shuffled_labels:
+        return 0.0
+    return metric_func(shuffled_labels)
+
+
+def check_resource_limits() -> bool:
+    """
+    Check if runtime or memory limits have been exceeded.
+    Returns True if limits are exceeded (should stop), False otherwise.
     """
     current_time = time.time()
-    elapsed_hours = (current_time - start_time) / 3600.0
-    
-    # Memory check
+    elapsed_hours = (current_time - _batch_processing_state["start_time"]) / 3600.0
+
     process = psutil.Process(os.getpid())
-    mem_info = process.memory_info()
-    mem_gb = mem_info.rss / (1024 ** 3)
-    
+    memory_gb = process.memory_info().rss / (1024 ** 3)
+
     if elapsed_hours > RUNTIME_THRESHOLD_HOURS:
-        return True, f"Runtime limit exceeded: {elapsed_hours:.2f}h > {RUNTIME_THRESHOLD_HOURS}h"
-    
-    if mem_gb > MEMORY_THRESHOLD_GB:
-        return True, f"Memory limit exceeded: {mem_gb:.2f}GB > {MEMORY_THRESHOLD_GB}GB"
-        
-    return False, ""
+        logger.warning(
+            f"Runtime threshold exceeded: {elapsed_hours:.2f} hours > {RUNTIME_THRESHOLD_HOURS} hours"
+        )
+        return True
 
-def save_permutation_state(query_id: str, n_actual: int, output_path: str):
+    if memory_gb > MEMORY_THRESHOLD_GB:
+        logger.warning(
+            f"Memory threshold exceeded: {memory_gb:.2f} GB > {MEMORY_THRESHOLD_GB} GB"
+        )
+        return True
+
+    return False
+
+
+def save_permutation_state(query_id: str, n_actual: int, status: str) -> None:
     """
-    Logs the actual count of permutations executed to a JSON state file.
+    Save the permutation state for a specific query to the JSON state file.
     """
-    ensure_dirs(os.path.dirname(output_path))
-    state = {
-        "event": "permutation_complete",
+    state_file = Path(RESULTS_PATH) / "config" / "permutation_state.json"
+    state_file.parent.mkdir(parents=True, exist_ok=True)
+
+    # Load existing state if it exists
+    if state_file.exists():
+        with open(state_file, "r") as f:
+            try:
+                state_data = json.load(f)
+            except json.JSONDecodeError:
+                state_data = {}
+    else:
+        state_data = {}
+
+    # Update state for the specific query
+    state_data[query_id] = {
         "query_id": query_id,
-        "N_actual": n_actual
+        "N_actual": n_actual,
+        "status": status,
     }
-    with open(output_path, 'w') as f:
-        json.dump(state, f, indent=2)
-    logger.info(f"Saved permutation state for query {query_id}: N_actual={n_actual}")
 
-def run_permutation_test(
-    qrels: List[Dict[str, Any]], 
-    n_permutations: int, 
-    seed: int
-) -> Tuple[List[float], List[float], int]:
-    """
-    Runs the permutation test for a single query.
-    Returns: (ndcg_scores, map_scores, n_actual)
-    """
-    ndcg_scores = []
-    map_scores = []
-    
-    start_time = time.time()
-    
-    for i in range(n_permutations):
-        # Check limits periodically (every 100 iters)
-        if i > 0 and i % 100 == 0:
-            should_stop, reason = check_resource_limits(start_time)
-            if should_stop:
-                logger.warning(f"Stopping early for query due to: {reason}")
-                break
-        
-        # Shuffle and compute
-        shuffled_qrels = shuffle_relevance_labels(qrels, seed + i)
-        ndcg = compute_permuted_scores(shuffled_qrels, ndcg_at_k)
-        map_score = compute_permuted_scores(shuffled_qrels, average_precision)
-        
-        ndcg_scores.append(ndcg)
-        map_scores.append(map_score)
-        
-    return ndcg_scores, map_scores, len(ndcg_scores)
+    with open(state_file, "w") as f:
+        json.dump(state_data, f, indent=2)
 
-def save_null_distribution(
-    query_id: str, 
-    metric_name: str, 
-    scores: List[float], 
-    output_dir: str
-):
-    """
-    Saves the null distribution scores to a CSV file.
-    """
-    ensure_dirs(output_dir)
-    file_path = os.path.join(output_dir, f"{query_id}_{metric_name}.csv")
-    
-    with open(file_path, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(['query_id', 'metric', 'score'])
-        for score in scores:
-            writer.writerow([query_id, metric_name, score])
-    
-    logger.info(f"Saved null distribution for {query_id} ({metric_name}) to {file_path}")
-
-def run_batch_permutation_test(
-    queries: List[Dict[str, Any]], 
-    n_permutations: int, 
-    batch_size: int,
-    output_dir: str,
-    state_dir: str
-):
-    """
-    Processes queries in batches to handle memory limits.
-    """
-    ensure_dirs(output_dir)
-    ensure_dirs(state_dir)
-    
-    start_time = time.time()
-    total_queries = len(queries)
-    
-    logger.info(f"Starting batch permutation test for {total_queries} queries. Batch size: {batch_size}")
-    
-    for i in range(0, total_queries, batch_size):
-        # Check global limits before starting a batch
-        should_stop, reason = check_resource_limits(start_time)
-        if should_stop:
-            logger.error(f"Global resource limit hit. Stopping batch processing: {reason}")
-            # Per spec: STOP current batch, discard partial, RESTART with subsampled.
-            # Since we cannot restart here easily without a larger orchestration,
-            # we log the error and exit. The caller (main) should handle the retry logic
-            # with a smaller query set if this task is integrated into a larger loop.
-            # For this task, we simply raise to signal failure.
-            raise RuntimeError(f"Resource limit exceeded: {reason}")
-        
-        batch = queries[i : i + batch_size]
-        logger.info(f"Processing batch {i // batch_size + 1}: queries {i} to {min(i + batch_size, total_queries) - 1}")
-        
-        batch_results = []
-        
-        for q_data in batch:
-            query_id = q_data['query_id']
-            qrels = q_data['qrels'] # List of dicts for this query
-            
-            # Run permutation
-            ndcg_null, map_null, n_actual = run_permutation_test(qrels, n_permutations, SEED)
-            
-            # Save results
-            save_null_distribution(query_id, "ndcg_at_10", ndcg_null, output_dir)
-            save_null_distribution(query_id, "map", map_null, output_dir)
-            
-            # Save state
-            state_path = os.path.join(state_dir, f"{query_id}_state.json")
-            save_permutation_state(query_id, n_actual, state_path)
-            
-            batch_results.append({
-                "query_id": query_id,
-                "n_actual": n_actual
-            })
-            
-            # Log progress
-            logger.info(f"Completed query {query_id} with {n_actual} permutations.")
-        
-        # Optional: Save batch summary
-        logger.info(f"Batch {i // batch_size + 1} complete.")
-    
-    logger.info("All batches processed successfully.")
-
-def run_permutation_main():
-    """
-    Entry point for the permutation mode.
-    """
-    logger.info("Loading TREC Robust04 data...")
-    # Assuming data_loader functions return processed structures
-    # For this task, we assume the data is loaded or passed in.
-    # In a real run, we'd call load_trec_robust04() here.
-    # Since T004 is marked completed but we don't have the file, we simulate the call structure.
-    # The actual implementation assumes load_trec_robust04 returns a list of {query_id, qrels}.
-    try:
-        queries = load_trec_robust04()
-    except Exception as e:
-        logger.error(f"Failed to load data: {e}")
-        sys.exit(1)
-    
-    output_dir = os.path.join(RESULTS_DIR, "null_distributions")
-    state_dir = os.path.join(RESULTS_DIR, "config")
-    
-    run_batch_permutation_test(
-        queries,
-        n_permutations=PERMUTATION_N,
-        batch_size=BATCH_SIZE,
-        output_dir=output_dir,
-        state_dir=state_dir
+    logger.info(
+        f"Saved permutation state for query {query_id}: N_actual={n_actual}, status={status}"
     )
 
-# Helper to import csv in the function scope if not imported at top
-import csv
+
+def run_permutation_test(
+    query_id: str, relevance_labels: List[int], metric_func, n_permutations: int = PERMUTATION_N
+) -> Tuple[List[float], List[float]]:
+    """
+    Run the permutation test for a single query.
+    Returns a tuple of (null_scores, observed_scores) - actually just null_scores for now as observed is single.
+    Returns (null_ndcg_scores, null_map_scores)
+    """
+    null_ndcg_scores = []
+    null_map_scores = []
+
+    # Check if relevance labels are empty (validation from T006)
+    if not relevance_labels:
+        logger.warning(f"Query {query_id} has empty relevance labels. Skipping.")
+        save_permutation_state(query_id, 0, "skipped")
+        _batch_processing_state["queries_skipped"] += 1
+        return null_ndcg_scores, null_map_scores
+
+    # Run permutations
+    for i in range(n_permutations):
+        seed = SEED + i
+        shuffled_labels = shuffle_relevance_labels(relevance_labels, seed)
+        ndcg_score = compute_permuted_scores(shuffled_labels, lambda x: ndcg_at_k(x, k=10))
+        map_score = compute_permuted_scores(shuffled_labels, lambda x: mean_average_precision(x))
+
+        null_ndcg_scores.append(ndcg_score)
+        null_map_scores.append(map_score)
+
+        # Log progress periodically
+        if (i + 1) % 100 == 0:
+            logger.debug(f"Query {query_id}: Completed {i + 1}/{n_permutations} permutations")
+
+    save_permutation_state(query_id, n_permutations, "complete")
+    return null_ndcg_scores, null_map_scores
+
+
+def save_null_distribution(
+    query_id: str, null_ndcg_scores: List[float], null_map_scores: List[float]
+) -> None:
+    """
+    Save the null distribution scores for a query to a CSV file.
+    """
+    output_dir = Path(RESULTS_PATH) / "null_distributions"
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    file_path = output_dir / f"query_{query_id}_null_distributions.csv"
+
+    with open(file_path, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["query_id", "metric", "score"])
+
+        for score in null_ndcg_scores:
+            writer.writerow([query_id, "ndcg_at_10", score])
+
+        for score in null_map_scores:
+            writer.writerow([query_id, "map", score])
+
+    logger.info(f"Saved null distribution for query {query_id} to {file_path}")
+
+
+def run_batch_permutation_test(
+    queries_data: List[Dict[str, Any]],
+    n_permutations: int = PERMUTATION_N,
+    batch_size: int = BATCH_SIZE,
+) -> None:
+    """
+    Process queries in batches to handle memory limits.
+    """
+    _batch_processing_state["start_time"] = time.time()
+    _batch_processing_state["queries_processed"] = 0
+    _batch_processing_state["queries_skipped"] = 0
+    _batch_processing_state["queries_dropped"] = 0
+    _batch_processing_state["should_stop"] = False
+
+    total_queries = len(queries_data)
+    logger.info(f"Starting batch permutation test for {total_queries} queries.")
+
+    # Process queries in batches
+    for i in range(0, total_queries, batch_size):
+        if _batch_processing_state["should_stop"]:
+            logger.warning("Stopping batch processing due to resource limits.")
+            break
+
+        batch_queries = queries_data[i : i + batch_size]
+        logger.info(f"Processing batch {i // batch_size + 1}: {len(batch_queries)} queries")
+
+        for query_data in batch_queries:
+            query_id = query_data["query_id"]
+            relevance_labels = query_data["relevance_labels"]
+
+            # Check resource limits before processing each query
+            if check_resource_limits():
+                logger.warning(
+                    f"Resource limits exceeded. Dropping query {query_id} and stopping batch."
+                )
+                _batch_processing_state["queries_dropped"] += 1
+                _batch_processing_state["should_stop"] = True
+
+                # Log dropped query to subsampling log
+                subsampling_log = Path(RESULTS_PATH) / "subsampling_log.csv"
+                with open(subsampling_log, "a", newline="") as f:
+                    writer = csv.writer(f)
+                    if not os.path.exists(subsampling_log) or os.path.getsize(subsampling_log) == 0:
+                        writer.writerow(["query_id", "reason", "timestamp"])
+                    writer.writerow([query_id, "resource_limit_exceeded", time.strftime("%Y-%m-%d %H:%M:%S")])
+
+                continue
+
+            # Run permutation test
+            try:
+                null_ndcg_scores, null_map_scores = run_permutation_test(
+                    query_id, relevance_labels, None, n_permutations
+                )
+
+                # Save null distribution
+                save_null_distribution(query_id, null_ndcg_scores, null_map_scores)
+
+                _batch_processing_state["queries_processed"] += 1
+
+            except Exception as e:
+                logger.error(f"Error processing query {query_id}: {e}")
+                # Continue with next query but log the error
+                continue
+
+        logger.info(
+            f"Batch {i // batch_size + 1} completed. Processed: {_batch_processing_state['queries_processed']}, "
+            f"Skipped: {_batch_processing_state['queries_skipped']}, Dropped: {_batch_processing_state['queries_dropped']}"
+        )
+
+    logger.info("Batch permutation test completed.")
+
+
+def run_permutation_main() -> None:
+    """
+    Main entry point for the permutation test execution.
+    Loads data and runs the batch permutation test.
+    """
+    # Load data (assuming TREC Robust 2004 for this example)
+    # In a real scenario, we might load multiple datasets
+    try:
+        qrels_data = load_trec_robust04()
+        logger.info(f"Loaded {len(qrels_data)} queries from TREC Robust 2004")
+    except Exception as e:
+        logger.error(f"Failed to load TREC Robust 2004 data: {e}")
+        return
+
+    # Run batch permutation test
+    run_batch_permutation_test(qrels_data)
+
+
+if __name__ == "__main__":
+    run_permutation_main()

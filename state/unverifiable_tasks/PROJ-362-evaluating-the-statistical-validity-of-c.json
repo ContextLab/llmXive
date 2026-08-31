@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-362-evaluating-the-statistical-validity-of-c",
+  "tasks": [
+    {
+      "task_key": "T017",
+      "reject_count": 1,
+      "last_reason": "No CSV files were presented or listed in the evidence, and there is no proof that any files exist at `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/null_distributions/` with the required `query_id, metric, score` headers. The implementer must provide the actual CSV artifacts (or a directory listing with file contents) to satisfy the task.",
+      "first_seen": "2026-08-31T05:06:49.547898+00:00",
+      "last_seen": "2026-08-31T05:06:49.547898+00:00"
+    },
+    {
+      "task_key": "T016",
+      "reject_count": 1,
+      "last_reason": "No code, scripts, data files, or output (e.g., permutation test results, p\u2011value tables, CSV summaries, or PNG visualizations) were provided. Consequently, there is no evidence that the required p\u2011value calculation logic\u2014or any of the associated workflow steps\u2014has been implemented or produces the expected artifacts. The implementer must supply the actual implementation and its generated outputs.",
+      "first_seen": "2026-08-31T05:06:51.832899+00:00",
+      "last_seen": "2026-08-31T05:06:51.832899+00:00"
+    }
+  ],
+  "updated_at": "2026-08-31T05:06:51.832899+00:00"
+}

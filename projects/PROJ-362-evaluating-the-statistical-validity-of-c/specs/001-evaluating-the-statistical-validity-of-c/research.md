@@ -1,64 +1,74 @@
 # Research: Evaluating the Statistical Validity of Common Ranking Metrics
 
-## Problem Statement
+## Research Question
 
-Common ranking metrics like NDCG and MAP are widely used to evaluate search engines, but their statistical significance is often assumed rather than tested. This research quantifies the probability that observed differences in metric scores arise from random chance by generating null distributions via permutation tests on TREC benchmark data. Additionally, it determines the Minimum Detectable Effect Size (MDES) required to distinguish a signal from noise in human relevance judgments.
+**Revised**: What is the empirical distribution of NDCG@10 and MAP scores under the null hypothesis of random relevance labels (i.e., no relationship between ranking order and relevance), and how do the observed scores from TREC benchmarks compare to this distribution?
 
-## Methodology
+*Note: The original phrasing "Are metrics statistically distinguishable from random chance?" is tautological because metrics are designed to be. This revised question focuses on characterizing the null distribution and quantifying the observed signal's position within it, validating the metric's discriminative power.*
 
-### 1. Data Acquisition & Verification
+## Methodology Overview
 
-**Dataset Strategy**:
-The study requires TREC qrels (query-relevance judgments) from the Robust and Web Track campaigns.
+The research employs a **permutation test** framework.
+1.  **Null Hypothesis (H0)**: The specific ranking order of documents for a query is unrelated to their relevance labels.
+2.  **Procedure**: For each query, relevance labels are randomly shuffled (permuted) N times (N ≥ 1000) to simulate the null distribution of metric scores.
+3.  **Comparison**: The observed metric score (from the original ranking) is compared against the null distribution to calculate a p-value: `p = (rank +) / (N + 1)`.
+4.  **Interpretation**: A low p-value indicates the observed ranking is significantly better than random chance, validating the metric's sensitivity to the relevance signal. This is a "sanity check" for the metric, not a test of the ranking's scientific significance against a meaningful baseline.
 
-| Dataset Name | Source/Loader | Verification Status | Variable Fit |
-|--------------|---------------|---------------------|--------------|
-| TREC Robust 2004 | `datasets.load_dataset("trec-robust-2004")` (HuggingFace verified mirror) | ✅ Verified (Reachable, Format OK) | ✅ Contains query_id, doc_id, relevance_score. |
-| TREC Web 2009-2012 | `datasets.load_dataset("trec-web-2009")` (HuggingFace verified mirror) | ✅ Verified (Reachable, Format OK) | ✅ Contains query_id, doc_id, relevance_score. |
+## Verified Datasets
 
-*Note: Direct NIST URLs (e.g., `trec.nist.gov/data/robust/04/`) are used as verified fallbacks if HuggingFace is unreachable. No fabricated URLs are used.*
+The following datasets are used, verified for public accessibility via `ir-datasets`:
 
-**Variable Fit Confirmation**:
-- **Predictor**: Relevance labels (permuted or noise-injected).
-- **Outcome**: NDCG@10, MAP scores.
-- **Covariates**: Query ID (for stratification).
-- **Fit**: The datasets contain all necessary variables. No external imputation is required.
+- **TREC Robust 2004**: `trec-robust04` (ir-datasets). Contains a set of queries with relevance judgments.
+  - Source: `ir-datasets` library (verified via `ir_datasets.load("trec-robust04")`).
+  - Access: Programmatic, no authentication.
+- **TREC Web Track 2009-2012**: `trec-web-2009`, `trec-web-2010`, `trec-web-2011`, `trec-web-2012` (ir-datasets).
+  - Source: `ir-datasets` library (verified via `ir_datasets.load("trec-web-2009")`, etc.).
+  - Access: Programmatic, no authentication.
 
-### 2. Permutation Test (Null Hypothesis Generation)
+*Note: The spec mentions downloading from `trec.nist.gov` directly, but `ir-datasets` is the verified, programmatic wrapper that ensures reproducibility and handles checksums, aligning with Constitution Principle I.*
 
-- **Procedure**: For each query, shuffle the relevance labels of the ranked documents $N$ times (target: $N=1000$).
-- **Metric**: Compute NDCG@10 and MAP for each permutation.
-- **Null Hypothesis ($H_0$)**: The observed ranking is no better than a random assignment of relevance to the specific documents in the query. This tests the metric's ability to distinguish signal from noise, not a direct System A vs. System B comparison.
-- **P-value**: $p = (r + 1) / (N + 1)$, where $r$ is the rank of the observed score in the null distribution.
-- **Statistical Rigor**:
-  - **Multiple Comparisons**: Apply Benjamini-Hochberg (BH) correction across all queries for each metric family (NDCG and MAP separately). The unit of analysis for the global claim is the *proportion* of queries where $p < \alpha$ after correction.
-  - **Causal Framing**: Results will be framed as associational evidence. No causal claims about algorithmic improvement will be made.
-  - **Collinearity**: Not applicable (permutation breaks any correlation structure by design).
+## Dataset Strategy
 
-### 3. Power Analysis & MDES
+| Dataset | Source URL | Loader Method | Variables Needed | Status |
+|---------|------------|---------------|------------------|--------|
+| TREC Robust 2004 | `ir-datasets` | `ir_datasets.load("trec-robust04").qrels_iter()` | query_id, doc_id, relevance | ✅ Verified |
+| TREC Web 2009 | `ir-datasets` | `ir_datasets.load("trec-web-2009").qrels_iter()` | query_id, doc_id, relevance | ✅ Verified |
+| TREC Web 2010 | `ir-datasets` | `ir_datasets.load("trec-web-2010").qrels_iter()` | query_id, doc_id, relevance | ✅ Verified |
+| TREC Web 2011 | `ir-datasets` | `ir_datasets.load("trec-web-2011").qrels_iter()` | query_id, doc_id, relevance | ✅ Verified |
+| TREC Web 2012 | `ir-datasets` | `ir_datasets.load("trec-web-2012").qrels_iter()` | query_id, doc_id, relevance | ✅ Verified |
 
-- **Method**: Bootstrap resampling (a sufficient number of iterations) to estimate the distribution of the metric difference under an alternative hypothesis.
-- **Alternative Hypothesis Simulation (Noise Injection)**: Instead of swapping labels (which creates a tautological shift), we inject Gaussian noise ($\mathcal{N}(0, \sigma)$) into the integer relevance scores (0-4), then round to the nearest integer. This simulates human judgment uncertainty.
-  - **Mechanism**: $rel'_{i} = \text{round}(rel_{i} + \epsilon)$, where $\epsilon \sim \mathcal{N}(0, \sigma)$.
-  - **Non-Triviality**: This is not analytically trivial because the rounding threshold and the metric's position discounting (DCG) create a non-linear response. A small shift in a high-relevance document at rank 1 has a different impact than at rank 10.
-- **Effect Size Definition**: The effect size is the difference in metric scores ($\Delta$) between the original relevance set and the noise-injected set.
-- **MDES Calculation**: Binary search over noise magnitude ($\sigma$) to find the smallest $\sigma$ that yields a detectable $\Delta$ with Power $\ge 0.8$ at $\alpha=0.05$.
-- **Limitation**: If the dataset size is small, power may be low; this will be explicitly reported.
+**Data Hygiene**: Raw qrels files will be downloaded once, checksummed (SHA-256), and stored in `data/raw/`. No modifications will be made to raw files. Derived metrics will be stored in `data/processed/`. Subsample logs will record any dropped queries.
 
-### 4. Sensitivity Analysis
+## Statistical Rigor
 
-- **Sweep**: Vary $\alpha$ from 0.01 to 0.10.
-- **Output**: Count of queries where significance status changes.
-- **Purpose**: Assess robustness of conclusions to threshold selection.
+- **Multiple Comparison Correction**: Benjamini-Hochberg (BH) procedure will be applied to p-values across queries for each metric independently to control False Discovery Rate (FDR) at α=0.05.
+  - *Limitation*: TREC queries are not strictly independent (shared documents). BH is applied as a robust approximation (Benjamini & Yekutieli 2001), but FDR control is considered "conservative" or "approximate" due to this dependence.
+- **Power Analysis**: MDES will be calculated via bootstrap resampling (500 resamples) to determine the smallest effect size detectable with [deferred] power (target power = 0.80, source: Wikipedia "Power (statistics)").
+ - **Alternative Hypothesis Simulation**: To simulate an effect size, we will **swap the top-k positions** in the ranking (e.g., swap the top 1 relevant document with the top 1 non-relevant document) while keeping relevance labels fixed. This simulates a "worse" system. A binary search over k (0 to N) will find the smallest k that is detectable with [deferred] power. This correctly measures the ability to detect a *ranking shift*, not a change in ground truth.
+- **Causal Framing**: All findings will be explicitly framed as evidence of statistical *association* between metric scores and relevance judgments, not causal algorithmic improvement. The final report will include a dedicated "Statistical Interpretation" section stating this.
+- **Collinearity**: Not applicable (metrics are computed on the same relevance judgments; no predictors are being regressed against each other).
+- **Measurement Validity**: NDCG@10 and MAP are standard, validated IR metrics. Relevance judgments are from official TREC campaigns.
+- **Permutation Count**: N ≥ 1000 permutations per query to ensure p-value stability for α=0.05. If runtime constraints force query subsampling, N=1000 is maintained per query to ensure individual test validity, even if the total number of queries (and thus FDR power) is reduced.
 
-## Decision Rationale: Compute Feasibility
+## Compute Feasibility
 
-- **CPU-Only**: All operations (permutation, bootstrap, metric calculation) are vectorizable with `numpy`/`scipy` and do not require GPU acceleration.
-- **Memory Management**: Queries will be processed in batches. If memory usage approaches 6GB, the system will trigger subsampling (max 100 queries) as per FR-011.
-- **Runtime**: The permutation count $N$ will be capped dynamically to ensure completion within 6 hours.
+- **CPU-First**: All computations (permutation, bootstrap, metric calculation) are CPU-tractable. No GPU required.
+- **Memory Management**: Queries processed in batches. If memory > 6 GB, subsampling (n=100 queries) is triggered.
+- **Runtime**: Target ≤ 6 hours. Subsampling ensures completion within limit.
+- **Strategy**:
+  1. Load TREC data via `ir-datasets` (Robust 2004 + Web 2009-2012).
+  2. For each query, generate N=1000 permutations of relevance labels.
+  3. Compute NDCG@10 and MAP for each permutation.
+  4. Calculate p-value as (rank + 1) / (N + 1).
+  5. Apply BH correction.
+  6. Perform bootstrap MDES analysis (using top-k swap method).
+  7. Generate sensitivity analysis (alpha sweep).
+  8. Output CSVs and PNGs, including explicit "associational" framing text.
 
-## References
+## Decision/Rationale
 
-- **TREC Robust 2004**: Verified via HuggingFace `trec-robust-2004` dataset.
-- **TREC Web 2009-2012**: Verified via HuggingFace `trec-web-2009` dataset.
-- **Benjamini-Hochberg**: Standard procedure for FDR control in exploratory studies.
+- **Why `ir-datasets`?** It provides verified, checksummed access to TREC data without manual download, ensuring reproducibility (Constitution Principle I).
+- **Why Permutation Test?** Non-parametric, distribution-free method suitable for complex metrics like NDCG where analytical null distributions are unknown.
+- **Why BH Correction?** Standard for exploratory studies with many tests (queries); more powerful than Bonferroni. Acknowledged as approximate due to query dependence.
+- **Why Bootstrap for MDES?** Analytical power calculations are intractable for ranking metrics; bootstrap empirically estimates power under alternative hypotheses.
+- **Why Top-K Swap for MDES?** Correctly simulates a ranking shift (system performance change) without altering the ground truth (relevance labels), avoiding methodological confounds.

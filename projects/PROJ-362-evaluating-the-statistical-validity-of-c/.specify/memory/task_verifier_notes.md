@@ -2,5 +2,9 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T016** — declared artifact(s) missing/empty/invalid: results/config/permutation_state.json
+- **T003** — No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.pre-commit-config.yaml`, or similar) are present in the provided evidence, nor any scripts or documentation showing that ruff and black have been set up for the project. The claim therefore does not satisfy the requirement to configure these tools.
+- **T005** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T006** — The provided `code/data_loader.py` is truncated and does not show full validation logic, nor does it reference the required `contracts/dataset.schema.yaml`. Additionally, the schema file itself is missing, and there is no evidence of logging warnings for zero‑relevance queries. These essential components are absent, so the task is not genuinely completed.
 - **T017** — No CSV files were presented or listed in the evidence, and there is no proof that any files exist at `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/null_distributions/` with the required `query_id, metric, score` headers. The implementer must provide the actual CSV artifacts (or a directory listing with file contents) to satisfy the task.
+- **T016** — No code, scripts, data files, or output (e.g., permutation test results, p‑value tables, CSV summaries, or PNG visualizations) were provided. Consequently, there is no evidence that the required p‑value calculation logic—or any of the associated workflow steps—has been implemented or produces the expected artifacts. The implementer must supply the actual implementation and its generated outputs.
+- **T026** — declared artifact(s) missing/empty/invalid: results/p_values/corrected_p_values.csv

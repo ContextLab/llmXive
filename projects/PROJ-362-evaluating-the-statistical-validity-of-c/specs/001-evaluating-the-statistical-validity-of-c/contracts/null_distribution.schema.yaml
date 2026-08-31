@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Null Distribution Schema"
+description: "Schema for permuted metric scores"
+type: object
+properties:
+  query_id:
+    type: integer
+    description: "Query identifier"
+  metric_name:
+    type: string
+    description: "Metric name (e.g., NDCG@10, MAP)"
+  score:
+    type: number
+    description: "Computed metric score"
+  permutation_id:
+    type: integer
+    description: "Permutation index (0 for original, 1+ for permuted)"
+  source:
+    type: string
+    description: "Data source (original or permuted)"
+  permutation_count:
+    type: integer
+    description: "Total number of permutations executed for this query (N) for FR-004 verification"
+required:
+  - query_id
+  - metric_name
+  - score
+  - permutation_id
+  - source
+  - permutation_count
+additionalProperties: false
