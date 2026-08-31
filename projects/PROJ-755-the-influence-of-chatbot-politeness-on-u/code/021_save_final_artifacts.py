@@ -7,125 +7,119 @@ from typing import List, Dict, Any, Optional
 
 import pandas as pd
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('code/logs/021_save_final_artifacts.log')
-    ]
-)
-logger = logging.getLogger(__name__)
-
 def ensure_directories():
-    """Ensure required output directories exist."""
-    dirs = [
-        Path('data/processed'),
-        Path('data/raw')
+    """Ensure output directories exist."""
+    output_dirs = [
+        Path("data/processed"),
+        Path("data/raw")
     ]
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Ensured directory: {d}")
+    for dir_path in output_dirs:
+        dir_path.mkdir(parents=True, exist_ok=True)
+        logging.info(f"Ensured directory exists: {dir_path}")
 
-def load_scored_dialogues(input_path: str = 'data/processed/scored_dialogues_temp.parquet') -> pd.DataFrame:
+def load_scored_dialogues():
     """
-    Load the scored dialogues DataFrame.
-    Note: In a real pipeline, this would load from the output of T020.
-    For this task, we assume T020 has written to a temp file or the final file
-    if T020 was modified to write directly. Here we handle the final save step.
+    Load the scored dialogues from the previous step (T020).
+    Expected path: data/processed/scored_dialogues.parquet
     """
-    path = Path(input_path)
-    if not path.exists():
-        # Fallback: try to load the final expected file if T020 already saved it there
-        final_path = Path('data/processed/scored_dialogues.parquet')
-        if final_path.exists():
-            logger.warning(f"Input path {input_path} not found, loading from {final_path}")
-            return pd.read_parquet(final_path)
-        raise FileNotFoundError(f"Scored dialogues file not found at {input_path} or {final_path}")
+    input_path = Path("data/processed/scored_dialogues.parquet")
+    if not input_path.exists():
+        raise FileNotFoundError(
+            f"Input file not found: {input_path}. "
+            "Ensure T020 (Politeness Scoring) has completed successfully."
+        )
     
-    logger.info(f"Loading scored dialogues from {path}")
-    df = pd.read_parquet(path)
-    logger.info(f"Loaded {len(df)} rows with columns: {list(df.columns)}")
+    logging.info(f"Loading scored dialogues from {input_path}")
+    df = pd.read_parquet(input_path)
+    logging.info(f"Loaded {len(df)} rows from {input_path}")
     return df
 
-def load_exclusions_log(log_path: str = 'data/raw/exclusions.log') -> str:
+def load_exclusions_log():
     """
-    Load the exclusions log content.
+    Load the exclusions log generated during filtering (T019).
+    Expected path: data/raw/exclusions.log
+    Returns a list of log lines or empty list if file doesn't exist.
     """
-    path = Path(log_path)
-    if not path.exists():
-        logger.warning(f"Exclusions log not found at {log_path}. Creating an empty log.")
-        return "No exclusions logged."
+    log_path = Path("data/raw/exclusions.log")
+    if not log_path.exists():
+        logging.warning(f"Exclusions log not found at {log_path}. Creating empty log.")
+        return []
     
-    logger.info(f"Loading exclusions log from {path}")
-    with open(path, 'r', encoding='utf-8') as f:
-        return f.read()
+    with open(log_path, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+    
+    logging.info(f"Loaded {len(lines)} lines from exclusions log")
+    return lines
 
-def save_final_scored_data(df: pd.DataFrame, output_path: str = 'data/processed/scored_dialogues.parquet'):
+def save_final_scored_data(df: pd.DataFrame):
     """
-    Save the final processed scored dialogues to parquet.
+    Save the final processed scored dialogues to the canonical output path.
+    Path: data/processed/scored_dialogues.parquet
     """
-    path = Path(output_path)
-    logger.info(f"Saving scored dialogues to {path}")
-    df.to_parquet(path, index=False)
-    logger.info(f"Successfully saved {len(df)} rows to {path}")
+    output_path = Path("data/processed/scored_dialogues.parquet")
+    logging.info(f"Saving final scored dialogues to {output_path}")
+    df.to_parquet(output_path, index=False)
+    logging.info(f"Successfully saved {len(df)} rows to {output_path}")
+    return output_path
 
-def save_final_exclusions_log(content: str, output_path: str = 'data/raw/exclusions.log'):
+def save_final_exclusions_log(log_lines: List[str]):
     """
-    Save the final exclusions log.
+    Save the final exclusions log to the canonical output path.
+    Path: data/raw/exclusions.log
     """
-    path = Path(output_path)
-    logger.info(f"Saving exclusions log to {path}")
-    with open(path, 'w', encoding='utf-8') as f:
-        f.write(content)
-    logger.info(f"Successfully saved exclusions log to {path}")
+    output_path = Path("data/raw/exclusions.log")
+    logging.info(f"Saving final exclusions log to {output_path}")
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.writelines(log_lines)
+    logging.info(f"Successfully saved {len(log_lines)} lines to {output_path}")
+    return output_path
 
 def main():
     """
-    Main entry point for T021: Save processed data and raw logs.
+    Main entry point for T021: Save processed data to data/processed/scored_dialogues.parquet
+    and raw logs to data/raw/exclusions.log.
     """
-    logger.info("Starting T021: Save final artifacts")
-    
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler('logs/t021_save_artifacts.log', mode='a')
+        ]
+    )
+
+    logging.info("Starting T021: Save Final Artifacts")
+
     try:
-        # Ensure directories exist
+        # 1. Ensure directories exist
         ensure_directories()
 
-        # Load the scored dialogues (output from T020)
-        # We assume T020 produces 'data/processed/scored_dialogues.parquet' directly
-        # or a temp file. The task description says T020 produces 'scored_dialogues.parquet'.
-        # So we just need to ensure it's finalized if T020 wrote to a temp location.
-        # However, to be robust, we try to load the expected output from T020.
-        input_path = 'data/processed/scored_dialogues.parquet'
-        
-        if not Path(input_path).exists():
-            # If T020 hasn't run or wrote to a different temp file, this task cannot proceed.
-            # We raise an error to fail loudly as per constraints.
-            raise FileNotFoundError(
-                f"Required input file {input_path} not found. "
-                "Ensure T020 (Politeness Scoring) has completed successfully."
-            )
+        # 2. Load scored dialogues (output of T020)
+        # Note: T020 already saves to this path, but we reload to ensure
+        # we are saving the final artifact in this step as per task definition.
+        # If T020 failed to write, this will raise FileNotFoundError.
+        df_scored = load_scored_dialogues()
 
-        df = load_scored_dialogues(input_path)
+        # 3. Load exclusions log (output of T019)
+        log_lines = load_exclusions_log()
 
-        # Load exclusions log (produced by T019/T020)
-        log_content = load_exclusions_log('data/raw/exclusions.log')
+        # 4. Save final artifacts
+        # Re-save the dataframe to ensure it's the final version
+        save_final_scored_data(df_scored)
 
-        # Save final artifacts
-        # The task asks to save to 'data/processed/scored_dialogues.parquet'
-        # Since T020 likely already did this, we re-save to ensure it's the final committed artifact
-        # or if T020 wrote to a temp file, we move it here.
-        # For simplicity and idempotency, we just save the loaded DF to the target path.
-        save_final_scored_data(df, 'data/processed/scored_dialogues.parquet')
+        # Re-save the log to ensure it's the final version
+        save_final_exclusions_log(log_lines)
 
-        # Ensure exclusions log is in the correct place
-        save_final_exclusions_log(log_content, 'data/raw/exclusions.log')
+        logging.info("T021 completed successfully.")
+        return 0
 
-        logger.info("T021 completed successfully. Artifacts saved.")
-        
+    except FileNotFoundError as e:
+        logging.error(f"Missing required input file: {e}")
+        return 1
     except Exception as e:
-        logger.error(f"T021 failed: {str(e)}")
-        raise
+        logging.error(f"Unexpected error during T021: {e}", exc_info=True)
+        return 1
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    sys.exit(main())

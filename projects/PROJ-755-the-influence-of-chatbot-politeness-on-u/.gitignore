@@ -1,9 +1,18 @@
+# Data files (raw and processed)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+env/
+venv/
+ENV/
 build/
 develop-eggs/
 dist/
@@ -19,54 +28,35 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 
-# Virtual Environments
-venv/
-ENV/
-env/
-.venv/
-
-# IDE
+# IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
-
-# Data (Raw and Processed)
-data/raw/*
-data/processed/*
-!data/raw/.gitkeep
-!data/processed/.gitkeep
-
-# Model Caches
-data/models/
-.cache/
-transformers/
-huggingface/
-
-# Logs
-*.log
-logs/
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Environment
+# Model caches
+data/models/*
+!data/models/.gitkeep
+~/.cache/huggingface/
+.cache/huggingface/
+
+# Environment variables (local only)
 .env
-.env.local
+
+# Logs
+*.log
+logs/
 
 # Testing
 .pytest_cache/
 .coverage
 htmlcov/
-junit-*.xml
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# R
-.Rhistory
-.RData
+# Temporary files
+*.tmp
+.tmp/

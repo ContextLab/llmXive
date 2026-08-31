@@ -1,8 +1,18 @@
 """
-T018: Schema Definition, Transformation, and Merge for HCI_P2, Persona-Chat, and EmpatheticDialogues.
+T018: Schema Definition, Transformation, and Merge for all available datasets.
 
-This script loads the filtered datasets produced by T019, defines a unified target schema,
-transforms each dataset to match, and merges them into a single Parquet file.
+This script defines the target schema, loads filtered datasets from the three
+potential sources (HCI_P2, Persona-Chat, EmpatheticDialogues), transforms them
+to the unified schema, and merges them into a single Parquet file.
+
+Target Schema:
+  - user_id: str
+  - dialogue_id: str
+  - quality_rating: float (or int)
+  - age: float (or int, nullable)
+  - gender: str (or float, nullable)
+  - utterances: list of dict (or string representation)
+  - source_dataset: str
 """
 import os
 import sys
@@ -10,64 +20,69 @@ import json
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-
 import pandas as pd
-
-# Project root setup
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_RAW_FILTERED_DIR = PROJECT_ROOT / "data" / "raw" / "filtered"
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Target Schema Definition (matches contracts/dataset.schema.yaml requirements)
+# Project root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+RAW_FILTERED_DIR = PROJECT_ROOT / "data" / "raw" / "filtered"
+PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+OUTPUT_FILE = PROCESSED_DIR / "merged_dialogues.parquet"
+
+# Target schema definition
 TARGET_SCHEMA = {
-    "user_id": "string",
-    "dialogue_id": "string",
-    "quality_rating": "integer",
-    "age": "integer",  # Nullable
-    "gender": "string", # Nullable
-    "utterances": "string", # JSON string or concatenated text
-    "source_dataset": "string",
-    "conversation_length": "integer" # Number of utterances
+    "user_id": "str",
+    "dialogue_id": "str",
+    "quality_rating": "float",
+    "age": "float",  # Nullable
+    "gender": "str", # Nullable
+    "utterances": "object", # List of utterance dicts or string
+    "source_dataset": "str"
 }
 
 def ensure_directories():
     """Ensure output directories exist."""
-    DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Ensured directories exist: {DATA_PROCESSED_DIR}")
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Ensured directory: {PROCESSED_DIR}")
 
 def load_filtered_dataset(dataset_name: str) -> Optional[pd.DataFrame]:
     """
-    Load a filtered dataset from data/raw/filtered/.
-    Expected files: data/raw/filtered/{dataset_name}_filtered.parquet
+    Load a filtered dataset from data/raw/filtered/{dataset_name}.
+    Handles different source formats.
     """
-    file_path = DATA_RAW_FILTERED_DIR / f"{dataset_name}_filtered.parquet"
-    if not file_path.exists():
-        # Check for alternative extensions or naming if necessary, but strictly follow T019 output
-        logger.warning(f"Filtered file not found: {file_path}. Attempting fallback search...")
-        # Fallback: try to find any parquet in the directory if exact name fails
-        matches = list(DATA_RAW_FILTERED_DIR.glob(f"*{dataset_name}*.parquet"))
-        if matches:
-            file_path = matches[0]
-            logger.info(f"Found fallback file: {file_path}")
-        else:
-            logger.error(f"Could not locate filtered dataset for {dataset_name}.")
-            return None
-
-    try:
-        df = pd.read_parquet(file_path)
-        logger.info(f"Loaded {dataset_name}: {len(df)} rows, columns: {list(df.columns)}")
-        return df
-    except Exception as e:
-        logger.error(f"Failed to load {dataset_name} from {file_path}: {e}")
+    source_path = RAW_FILTERED_DIR / dataset_name
+    if not source_path.exists():
+        logger.warning(f"Dataset source not found: {source_path}. Skipping.")
         return None
+
+    # Determine file format
+    parquet_files = list(source_path.glob("*.parquet"))
+    csv_files = list(source_path.glob("*.csv"))
+    
+    if parquet_files:
+        # Assume the most recently modified or the only one
+        file_path = sorted(parquet_files, key=lambda p: p.stat().st_mtime)[-1]
+        logger.info(f"Loading Parquet from: {file_path}")
+        df = pd.read_parquet(file_path)
+    elif csv_files:
+        file_path = sorted(csv_files, key=lambda p: p.stat().st_mtime)[-1]
+        logger.info(f"Loading CSV from: {file_path}")
+        df = pd.read_csv(file_path)
+    else:
+        logger.error(f"No valid data files found in {source_path}")
+        return None
+
+    if df.empty:
+        logger.warning(f"Dataset {dataset_name} is empty after loading.")
+        return None
+
+    return df
 
 def load_target_schema() -> Dict[str, str]:
     """Return the target schema definition."""
@@ -75,180 +90,200 @@ def load_target_schema() -> Dict[str, str]:
 
 def transform_to_target_schema(df: pd.DataFrame, source_name: str) -> pd.DataFrame:
     """
-    Transform a raw dataframe to match the TARGET_SCHEMA.
-    Handles column mapping, type casting, and missing value handling.
+    Transform a raw/filtered dataframe to the target schema.
+    Handles column renaming, type casting, and filling missing columns.
     """
-    logger.info(f"Transforming {source_name} to target schema...")
-    df = df.copy()
-
-    # 1. Ensure source_dataset column exists
-    df["source_dataset"] = source_name
-
-    # 2. Map/Normalize columns based on source-specific logic
-    # Common expected columns from T019 filtering: user_id, dialogue_id, quality_rating, utterances, age, gender
-
-    # --- HCI_P2 Specifics (assumed columns from T015) ---
-    # If columns are missing, they will be filled with NaN later
+    logger.info(f"Transforming dataset: {source_name} (Shape: {df.shape})")
     
-    # 3. Standardize Column Names (Generic mapping for robustness)
-    # We assume the filtered datasets have at least: user_id, dialogue_id, quality_rating, utterances
-    # We map them to the target names if they differ slightly (case sensitivity, etc.)
-    column_map = {}
-    for col in df.columns:
-        lower_col = col.lower()
-        if lower_col in ["user_id", "userid", "user"]:
-            column_map[col] = "user_id"
-        elif lower_col in ["dialogue_id", "dialogueid", "dialogue"]:
-            column_map[col] = "dialogue_id"
-        elif lower_col in ["quality_rating", "rating", "quality"]:
-            column_map[col] = "quality_rating"
-        elif lower_col in ["utterances", "utterance", "text", "message"]:
-            column_map[col] = "utterances"
-        elif lower_col in ["age"]:
-            column_map[col] = "age"
-        elif lower_col in ["gender", "sex"]:
-            column_map[col] = "gender"
-    
-    df = df.rename(columns=column_map)
+    # Create a copy to avoid modifying original
+    new_df = df.copy()
 
-    # 4. Fill missing required columns with NaN or defaults
-    for col in TARGET_SCHEMA.keys():
-        if col not in df.columns:
-            df[col] = None
-            logger.warning(f"Column '{col}' missing in {source_name}, filling with None.")
+    # 1. Standardize Column Names (Mapping based on common HuggingFace dataset structures)
+    # HCI_P2, Persona-Chat, EmpatheticDialogues might have slight variations
+    column_mappings = {
+        # Common aliases for user_id
+        'user': 'user_id',
+        'user_id_str': 'user_id',
+        # Common aliases for dialogue_id
+        'dialogue': 'dialogue_id',
+        'dialogue_id_str': 'dialogue_id',
+        'conversation_id': 'dialogue_id',
+        # Common aliases for quality
+        'rating': 'quality_rating',
+        'score': 'quality_rating',
+        'label': 'quality_rating',
+        # Common aliases for demographics
+        'user_age': 'age',
+        'user_gender': 'gender',
+        'gender_label': 'gender',
+        # Common aliases for text
+        'dialogue_history': 'utterances',
+        'chat': 'utterances',
+        'conversation': 'utterances',
+        'text': 'utterances',
+    }
 
-    # 5. Type Casting and Cleaning
-    # Ensure IDs are strings
-    df["user_id"] = df["user_id"].astype(str)
-    df["dialogue_id"] = df["dialogue_id"].astype(str)
-    
-    # Ensure quality_rating is integer (handling potential NaNs by converting to float first then nullable int)
-    if "quality_rating" in df.columns:
-        df["quality_rating"] = pd.to_numeric(df["quality_rating"], errors='coerce')
-        # Convert to nullable Int64 to allow NaNs
-        df["quality_rating"] = df["quality_rating"].astype("Int64")
+    # Apply renaming
+    rename_map = {k: v for k, v in column_mappings.items() if k in new_df.columns}
+    if rename_map:
+        new_df = new_df.rename(columns=rename_map)
+        logger.info(f"Renamed columns: {rename_map}")
 
-    # Ensure age is integer (nullable)
-    if "age" in df.columns:
-        df["age"] = pd.to_numeric(df["age"], errors='coerce').astype("Int64")
+    # 2. Ensure Required Columns Exist
+    missing_cols = [col for col in TARGET_SCHEMA.keys() if col not in new_df.columns]
+    if missing_cols:
+        logger.info(f"Adding missing columns with defaults: {missing_cols}")
+        for col in missing_cols:
+            if col == 'source_dataset':
+                new_df[col] = source_name
+            elif col == 'utterances':
+                new_df[col] = new_df.apply(lambda row: row.to_dict() if not isinstance(row.get('utterances'), (list, dict)) else row.get('utterances'), axis=1)
+            else:
+                new_df[col] = None # Nullable fields default to None
 
-    # Ensure gender is string
-    if "gender" in df.columns:
-        df["gender"] = df["gender"].astype(str).replace("nan", None)
+    # 3. Normalize 'utterances' to a list of strings or dicts if it's a raw string
+    if 'utterances' in new_df.columns:
+        def normalize_utterances(val):
+            if isinstance(val, list):
+                return val
+            if isinstance(val, str):
+                # Try to parse JSON if it looks like a list/dict
+                if val.startswith('[') or val.startswith('{'):
+                    try:
+                        import json
+                        return json.loads(val)
+                    except json.JSONDecodeError:
+                        return [val] # Fallback to single string list
+                return [val]
+            return [str(val)] if val is not None else []
+        
+        new_df['utterances'] = new_df['utterances'].apply(normalize_utterances)
 
-    # Ensure utterances is string
-    if "utterances" in df.columns:
-        df["utterances"] = df["utterances"].astype(str)
+    # 4. Type Casting and Cleaning
+    # Cast to specific types, allowing NaN for nullable fields
+    type_casts = {
+        'user_id': str,
+        'dialogue_id': str,
+        'quality_rating': float,
+        'age': float,
+        'gender': str,
+        'source_dataset': str
+    }
 
-    # Calculate conversation_length if not present
-    if "conversation_length" not in df.columns:
-        # If utterances is a list or JSON string, parse it; else count rows if already aggregated
-        # Assumption: In filtered data, one row = one dialogue. Utterances might be a list or concatenated string.
-        # If it's a list (object), len() works. If it's a string, we might need to split.
-        # For safety, we assume T019 output has 'utterances' as a list or we treat the row as length 1 if ambiguous.
-        # However, standard HuggingFace datasets often have 'utterances' as a list of dicts or strings.
-        try:
-            # Attempt to count if it's a list-like object
-            df["conversation_length"] = df["utterances"].apply(lambda x: len(x) if isinstance(x, (list, tuple)) else 1)
-        except Exception:
-            df["conversation_length"] = 1
-            logger.warning("Could not determine conversation length from utterances; defaulting to 1.")
+    for col, dtype in type_casts.items():
+        if col in new_df.columns:
+            # Handle potential non-numeric strings in numeric columns
+            if dtype in [float, int]:
+                new_df[col] = pd.to_numeric(new_df[col], errors='coerce')
+            else:
+                new_df[col] = new_df[col].astype(dtype, errors='ignore')
 
-    # 6. Select and Order Columns to match TARGET_SCHEMA
-    final_columns = [col for col in TARGET_SCHEMA.keys()]
-    # Ensure all exist before selecting
-    final_columns = [c for c in final_columns if c in df.columns]
-    
-    df = df[final_columns]
-    
-    # 7. Validate Constraints
-    # Check for nulls in required fields (user_id, dialogue_id, quality_rating)
-    required_nulls = df[["user_id", "dialogue_id", "quality_rating"]].isnull().sum()
-    if required_nulls.sum() > 0:
-        logger.warning(f"Found nulls in required fields for {source_name}: {required_nulls.to_dict()}")
-        # Drop rows with nulls in critical ID/Rating fields to ensure merge integrity
-        df = df.dropna(subset=["user_id", "dialogue_id", "quality_rating"])
-        logger.info(f"Dropped {len(df) - df.index.size} rows with null critical fields in {source_name}.")
+    # 5. Filter out rows that are missing mandatory fields (user_id, dialogue_id, quality_rating)
+    mandatory_fields = ['user_id', 'dialogue_id', 'quality_rating']
+    initial_count = len(new_df)
+    new_df = new_df.dropna(subset=mandatory_fields)
+    dropped_count = initial_count - len(new_df)
+    if dropped_count > 0:
+        logger.warning(f"Dropped {dropped_count} rows due to missing mandatory fields in {source_name}.")
 
-    logger.info(f"Transformed {source_name}: {len(df)} rows, schema: {list(df.dtypes)}")
-    return df
+    # 6. Ensure source_dataset is set correctly
+    new_df['source_dataset'] = source_name
+
+    logger.info(f"Transformed dataset shape: {new_df.shape}")
+    return new_df
 
 def validate_transformed_data(df: pd.DataFrame) -> Tuple[bool, List[str]]:
     """
-    Validate the transformed dataframe against the target schema.
+    Validate the transformed dataframe against the target schema constraints.
     Returns (is_valid, list_of_errors).
     """
     errors = []
-    schema = TARGET_SCHEMA
-
-    # Check columns
-    missing_cols = set(schema.keys()) - set(df.columns)
-    if missing_cols:
-        errors.append(f"Missing columns: {missing_cols}")
-
-    # Check types (basic check)
-    if "quality_rating" in df.columns:
-        if not pd.api.types.is_integer_dtype(df["quality_rating"]) and not pd.api.types.is_float_dtype(df["quality_rating"]):
-            errors.append("quality_rating is not numeric")
-
-    if "conversation_length" in df.columns:
-         if not pd.api.types.is_integer_dtype(df["conversation_length"]):
-             errors.append("conversation_length is not numeric")
+    
+    # Check mandatory columns
+    for col in ['user_id', 'dialogue_id', 'quality_rating']:
+        if col not in df.columns:
+            errors.append(f"Missing mandatory column: {col}")
+    
+    # Check for duplicates (dialogue_id should be unique per source)
+    if 'dialogue_id' in df.columns:
+        if df['dialogue_id'].duplicated().any():
+            errors.append("Duplicate dialogue_id found in merged data.")
+    
+    # Check data types roughly
+    if 'quality_rating' in df.columns:
+        if not pd.api.types.is_numeric_dtype(df['quality_rating']):
+            errors.append("quality_rating is not numeric.")
 
     return len(errors) == 0, errors
 
-def save_transformed_data(df: pd.DataFrame, output_path: Path):
+def save_transformed_data(df: pd.DataFrame):
     """Save the merged dataframe to Parquet."""
-    try:
-        df.to_parquet(output_path, index=False)
-        logger.info(f"Saved merged data to {output_path} ({len(df)} rows)")
-    except Exception as e:
-        logger.error(f"Failed to save merged data: {e}")
-        raise
+    ensure_directories()
+    logger.info(f"Saving merged data to: {OUTPUT_FILE}")
+    df.to_parquet(OUTPUT_FILE, index=False)
+    logger.info(f"Successfully saved {len(df)} rows to {OUTPUT_FILE}")
 
 def main():
-    """Main entry point for T018."""
-    logger.info("Starting T018: Schema Definition, Transformation, and Merge")
-    ensure_directories()
-
-    datasets = [
-        ("hci_p2", "HCI_P2"),
-        ("persona_chat", "Persona-Chat"),
-        ("empathetic_dialogues", "EmpatheticDialogues")
+    logger.info("Starting T018: Transform and Merge")
+    
+    # Define potential sources based on task dependencies (T015, T015b, T015c)
+    # We look for directories in data/raw/filtered corresponding to these sources
+    potential_sources = [
+        "hci_p2",
+        "persona_chat",
+        "empathetic_dialogues"
     ]
 
-    transformed_dfs = []
-
-    for folder_name, display_name in datasets:
-        df = load_filtered_dataset(folder_name)
-        if df is not None and not df.empty:
-            transformed_df = transform_to_target_schema(df, display_name)
-            if transformed_df is not None:
-                transformed_dfs.append(transformed_df)
+    all_dfs = []
+    
+    for source in potential_sources:
+        logger.info(f"Processing source: {source}")
+        raw_df = load_filtered_dataset(source)
+        if raw_df is not None:
+            transformed_df = transform_to_target_schema(raw_df, source)
+            if not transformed_df.empty:
+                all_dfs.append(transformed_df)
+            else:
+                logger.warning(f"Transformed data for {source} is empty. Skipping.")
         else:
-            logger.warning(f"Skipping {display_name} due to missing or empty data.")
+            logger.info(f"No data found for source: {source}. Skipping.")
 
-    if not transformed_dfs:
-        logger.error("No data found to merge. Aborting.")
-        sys.exit(1)
+    if not all_dfs:
+        logger.error("No data found to merge. Exiting.")
+        # Create an empty file with schema to indicate failure or empty state?
+        # For now, just exit.
+        return
 
-    # Merge
-    logger.info("Merging datasets...")
-    merged_df = pd.concat(transformed_dfs, ignore_index=True)
+    # Merge all dataframes
+    logger.info(f"Merging {len(all_dfs)} datasets.")
+    merged_df = pd.concat(all_dfs, ignore_index=True)
     
     # Validate
-    is_valid, errors = validate_transformed_data(merged_df)
+    is_valid, validation_errors = validate_transformed_data(merged_df)
     if not is_valid:
-        logger.error(f"Validation failed: {errors}")
-        # Continue anyway but warn, or fail? Task says "Validate", usually implies logging.
-        # We proceed to save but log the error.
+        logger.error(f"Validation failed: {validation_errors}")
+        # Decide: Fail loudly or save anyway with warning?
+        # Per constraints: "Fail loudly, never silently". But saving is the goal.
+        # We log error but proceed if critical data exists, or raise.
+        # Let's raise to be safe as per "fail loudly".
+        raise ValueError(f"Data validation failed: {validation_errors}")
 
     # Save
-    output_path = DATA_PROCESSED_DIR / "merged_dialogues.parquet"
-    save_transformed_data(merged_df, output_path)
-
-    logger.info("T018 Completed successfully.")
-    return 0
+    save_transformed_data(merged_df)
+    
+    # Generate a simple manifest
+    manifest = {
+        "task_id": "T018",
+        "output_file": str(OUTPUT_FILE.relative_to(PROJECT_ROOT)),
+        "total_rows": len(merged_df),
+        "sources_included": [df['source_dataset'].iloc[0] for df in all_dfs],
+        "schema": TARGET_SCHEMA
+    }
+    
+    manifest_path = PROCESSED_DIR / "merged_manifest.json"
+    with open(manifest_path, 'w') as f:
+        json.dump(manifest, f, indent=2)
+    logger.info(f"Manifest saved to {manifest_path}")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

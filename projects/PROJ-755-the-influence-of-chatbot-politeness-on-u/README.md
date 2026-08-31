@@ -1,64 +1,26 @@
 # The Influence of Chatbot Politeness on User-Perceived Quality
 
-This project investigates the relationship between chatbot politeness and user-perceived quality using mixed-effects modeling and robustness analysis.
-
-## Project Structure
-
-- `code/`: Source code for data processing, modeling, and analysis
-- `data/`: Data storage (raw, processed, models)
-- `tests/`: Unit, integration, and contract tests
-- `docs/`: Documentation
-- `specs/`: Feature specifications and design documents
-- `contracts/`: Schema contracts for data validation
-- `state/`: Project state and artifact tracking
-
 ## Environment Configuration
+
+This project requires an environment variable `HF_TOKEN` to access Hugging Face datasets.
 
 ### Local Development
 
-1. Copy the environment template:
+1. Copy the template:
  ```bash
- cp code/.env.example code/.env
+ cp.env.example.env
  ```
-
-2. Edit `code/.env` and add your Hugging Face token:
+2. Edit `.env` and add your Hugging Face token:
  ```
- HF_TOKEN=your_hf_token_here
+ HF_TOKEN=your_actual_token_here
  ```
-
-3. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
+3. The `.env` file is listed in `.gitignore` and will not be committed.
 
 ### CI/CD (GitHub Actions)
 
-**Do NOT use.env files in CI/CD.** Secrets must be injected via GitHub Actions environment variables:
+Do **not** store secrets in the repository. Instead, inject the token via GitHub Actions environment variables:
+1. Go to **Settings** > **Secrets and variables** > **Actions**.
+2. Create a new secret named `HF_TOKEN`.
+3. Reference it in the workflow file using `${{ secrets.HF_TOKEN }}`.
 
-1. Go to your repository Settings > Secrets and variables > Actions
-2. Create a new secret named `HF_TOKEN` with your Hugging Face token value
-3. Reference in workflows:
- ```yaml
- env:
- HF_TOKEN: ${{ secrets.HF_TOKEN }}
- ```
-
-This approach ensures:
-- Reproducibility on fresh runners
-- No secret leakage in logs or version control
-- Compliance with Constitution Principle I (secrets management)
-
-## Running the Pipeline
-
-See `docs/quickstart.md` for step-by-step instructions.
-
-## Testing
-
-Run tests with:
-```bash
-pytest tests/
-```
-
-## License
-
-This project is for research purposes only.
+This ensures reproducibility on fresh runners while keeping secrets secure.

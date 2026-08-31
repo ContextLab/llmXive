@@ -1,80 +1,118 @@
 """
-Unit tests for T015: Persona-Chat download functionality.
+Unit tests for code/01_download_persona_chat.py
+
+These tests verify the logic of the download script without actually downloading
+the full dataset. They mock the HuggingFace datasets library.
 """
 import pytest
-from pathlib import Path
-import sys
 import json
-import tempfile
-import shutil
+from pathlib import Path
+from unittest.mock import patch, MagicMock, mock_open
+import sys
+import os
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Add the code directory to the path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from code.utils.data_integrity import compute_file_checksum, generate_manifest
-from code.utils.schema_validator import load_schema
-
+from code import code_01_download_persona_chat as download_script
 
 class TestPersonaChatDownload:
-    """Tests for the Persona-Chat download module."""
-
-    @pytest.fixture
-    def temp_dir(self):
-        """Create a temporary directory for testing."""
-        temp_path = tempfile.mkdtemp()
-        yield Path(temp_path)
-        shutil.rmtree(temp_path)
-
-    def test_compute_file_checksum(self, temp_dir):
-        """Test file checksum computation."""
-        test_file = temp_dir / "test.txt"
-        test_file.write_text("Hello, World!")
+    
+    @patch('code.code_01_download_persona_chat.load_skip_flag')
+    @patch('code.code_01_download_persona_chat.load_dataset_with_check')
+    @patch('code.code_01_download_persona_chat.save_raw_data')
+    @patch('code.code_01_download_persona_chat.save_validation_report')
+    def test_skip_if_hci_p2_valid(
+        self, mock_save_report, mock_save_raw, mock_load_check, mock_load_skip
+    ):
+        """Test that the script skips if HCI_P2 is valid."""
+        mock_load_skip.return_value = True
         
-        checksum = compute_file_checksum(test_file)
-        assert isinstance(checksum, str)
-        assert len(checksum) == 64  # SHA256 hex length
+        download_script.main()
+        
+        mock_load_skip.assert_called_once()
+        mock_load_check.assert_not_called()
+        mock_save_raw.assert_not_called()
+        mock_save_report.assert_called_once()
+        
+        # Verify the report content
+        call_args = mock_save_report.call_args[0][0]
+        assert call_args["status"] == "skipped"
+        assert "HCI_P2 was valid" in call_args["reason"]
 
-    def test_generate_manifest(self, temp_dir):
-        """Test manifest generation."""
-        # Create test files
-        (temp_dir / "file1.txt").write_text("Content 1")
-        (temp_dir / "file2.txt").write_text("Content 2")
+    @patch('code.code_01_download_persona_chat.load_skip_flag')
+    @patch('code.code_01_download_persona_chat.load_dataset_with_check')
+    @patch('code.code_01_download_persona_chat.save_validation_report')
+    def test_skip_if_missing_quality_rating(
+        self, mock_save_report, mock_load_check, mock_load_skip
+    ):
+        """Test that the script skips if quality_rating is missing."""
+        mock_load_skip.return_value = False
+        mock_load_check.return_value = (
+            None, 
+            {"status": "skipped", "reason": "missing_required_field", "missing_field": "quality_rating"}
+        )
         
-        manifest = generate_manifest(temp_dir)
+        download_script.main()
         
-        assert "files" in manifest
-        assert manifest["total_files"] == 2
-        assert manifest["total_size_bytes"] > 0
+        mock_load_check.assert_called_once()
+        mock_save_report.assert_called_once()
         
-        for file_info in manifest["files"]:
-            assert "path" in file_info
-            assert "checksum" in file_info
-            assert "size_bytes" in file_info
+        call_args = mock_save_report.call_args[0][0]
+        assert call_args["status"] == "skipped"
+        assert call_args["reason"] == "missing_required_field"
 
-    def test_schema_validation(self):
-        """Test that dataset schema can be loaded."""
-        schema_path = project_root / "contracts" / "dataset.schema.yaml"
-        if schema_path.exists():
-            schema = load_schema(schema_path)
-            assert schema is not None
-            assert "Dialogue" in schema or "Dataset" in schema
-        else:
-            pytest.skip("Schema file not found - skipping validation test")
-
-    def test_required_fields_constant(self):
-        """Test that required fields are defined."""
-        # Import the module to check constants
-        from code import download_persona_chat
+    @patch('code.code_01_download_persona_chat.load_skip_flag')
+    @patch('code.code_01_download_persona_chat.load_dataset_with_check')
+    @patch('code.code_01_download_persona_chat.save_raw_data')
+    @patch('code.code_01_download_persona_chat.generate_checksums_and_manifest')
+    @patch('code.code_01_download_persona_chat.save_validation_report')
+    def test_success_path(
+        self, mock_save_report, mock_gen_manifest, mock_save_raw, mock_load_check, mock_load_skip
+    ):
+        """Test the successful download and storage path."""
+        mock_load_skip.return_value = False
         
-        assert hasattr(download_persona_chat, "REQUIRED_FIELDS")
-        assert "quality_rating" in download_persona_chat.REQUIRED_FIELDS
-        assert "user_id" in download_persona_chat.REQUIRED_FIELDS
-        assert "dialogue_id" in download_persona_chat.REQUIRED_FIELDS
-
-    def test_dataset_id_constant(self):
-        """Test that dataset ID is correctly defined."""
-        from code import download_persona_chat
+        mock_dataset = MagicMock()
+        mock_report = {"status": "loaded", "num_rows": 100}
+        mock_load_check.return_value = (mock_dataset, mock_report)
         
-        assert hasattr(download_persona_chat, "DATASET_ID")
-        assert download_persona_chat.DATASET_ID == "cardinal/canonical-persona-chat"
+        mock_save_raw.return_value = "data/raw/persona_chat/persona_chat_raw.parquet"
+        mock_gen_manifest.return_value = ({"manifest": "data"}, {"checksum": "abc123"})
+        
+        download_script.main()
+        
+        mock_load_check.assert_called_once()
+        mock_save_raw.assert_called_once()
+        mock_gen_manifest.assert_called_once()
+        mock_save_report.assert_called_once()
+        
+        # Verify success status in report
+        call_args = mock_save_report.call_args[0][0]
+        assert call_args["status"] == "success"
+        
+class TestHelperFunctions:
+    
+    def test_load_skip_flag_file_not_exists(self):
+        """Test load_skip_flag when flag file does not exist."""
+        # Mock Path.exists to return False
+        with patch('code.code_01_download_persona_chat.FLAG_FILE') as mock_flag:
+            mock_flag.exists.return_value = False
+            result = download_script.load_skip_flag()
+            assert result is False
+    
+    def test_load_skip_flag_file_exists_true(self):
+        """Test load_skip_flag when flag file exists and is 'true'."""
+        with patch('code.code_01_download_persona_chat.FLAG_FILE') as mock_flag:
+            mock_flag.exists.return_value = True
+            mock_flag.read_text.return_value = "true"
+            result = download_script.load_skip_flag()
+            assert result is True
+
+    def test_load_skip_flag_file_exists_false(self):
+        """Test load_skip_flag when flag file exists and is 'false'."""
+        with patch('code.code_01_download_persona_chat.FLAG_FILE') as mock_flag:
+            mock_flag.exists.return_value = True
+            mock_flag.read_text.return_value = "false"
+            result = download_script.load_skip_flag()
+            assert result is False

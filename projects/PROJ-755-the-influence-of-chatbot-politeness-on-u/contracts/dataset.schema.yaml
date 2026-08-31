@@ -1,85 +1,132 @@
+# Dataset Schema for Chatbot Politeness Research
+# Defines the structure for Dialogue, Utterance, and User entities
+# Used by code/utils/schema_validator.py for validation
+
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Chatbot Politeness Dataset Schema"
-description: "Schema for validating dialogue datasets used in the politeness study."
-type: object
-properties:
+title: "HCI Politeness Dataset Schema"
+description: "Schema for the merged dialogue dataset used in politeness and quality analysis"
+
+definitions:
+  User:
+    type: object
+    description: "Demographic and identifier information for a user"
+    properties:
+      user_id:
+        type: string
+        description: "Unique identifier for the user"
+        minLength: 1
+      age:
+        type: integer
+        description: "Age of the user in years"
+        minimum: 18
+        maximum: 100
+        nullable: true
+      gender:
+        type: string
+        description: "Gender of the user"
+        enum: ["Male", "Female", "Non-binary", "Prefer not to say", "Other"]
+        nullable: true
+      source_dataset:
+        type: string
+        description: "Source dataset name (e.g., 'hci_p2', 'persona_chat')"
+        minLength: 1
+
+  Utterance:
+    type: object
+    description: "A single turn in a dialogue"
+    properties:
+      utterance_id:
+        type: string
+        description: "Unique identifier for the utterance"
+        minLength: 1
+      speaker:
+        type: string
+        description: "Speaker role (user or chatbot)"
+        enum: ["user", "chatbot"]
+      text:
+        type: string
+        description: "The text content of the utterance"
+        minLength: 1
+      politeness_score:
+        type: number
+        description: "Politeness score assigned to this utterance (NaN if failed)"
+        minimum: -100
+        maximum: 100
+        nullable: true
+
   Dialogue:
     type: object
-    description: "A single dialogue session between a user and a chatbot."
-    required:
-      - dialogue_id
-      - user_id
-      - utterances
+    description: "A complete conversation between a user and a chatbot"
     properties:
       dialogue_id:
         type: string
-        description: "Unique identifier for the dialogue."
+        description: "Unique identifier for the dialogue"
         minLength: 1
       user_id:
         type: string
-        description: "Unique identifier for the user."
+        description: "Reference to the user who had this conversation"
         minLength: 1
       quality_rating:
-        type: ["integer", "null"]
-        description: "User-perceived quality rating of the dialogue."
+        type: integer
+        description: "User-perceived quality rating (Likert scale 1-5)"
         minimum: 1
         maximum: 5
       utterances:
         type: array
-        description: "List of utterances in the dialogue."
+        description: "List of utterances in the dialogue"
         items:
-          $ref: "#/properties/Utterance"
-      age:
-        type: ["integer", "null"]
-        description: "Age of the user."
-        minimum: 0
-        maximum: 120
-      gender:
-        type: ["string", "null"]
-        description: "Gender of the user."
+          $ref: "#/definitions/Utterance"
+        minItems: 2
+      mean_politeness_score:
+        type: number
+        description: "Mean politeness score across all chatbot utterances"
+        minimum: -100
+        maximum: 100
+        nullable: true
+      standardized_politeness_score:
+        type: number
+        description: "Z-scored politeness score (global mean=0, std=1)"
+        nullable: true
+      conversation_length:
+        type: integer
+        description: "Total number of utterances in the dialogue"
+        minimum: 2
       source_dataset:
-        type: ["string", "null"]
-        description: "Source dataset name (e.g., HCI_P2, Persona-Chat)."
-  Utterance:
-    type: object
-    description: "A single turn in the dialogue."
-    required:
-      - utterance_id
-      - speaker
-      - text
-    properties:
-      utterance_id:
         type: string
-        description: "Unique identifier for the utterance."
-      speaker:
-        type: string
-        description: "Speaker role (user or chatbot)."
-        enum:
-          - user
-          - chatbot
-      text:
-        type: string
-        description: "Text content of the utterance."
+        description: "Source dataset name"
         minLength: 1
-      politeness_score:
-        type: ["number", "null"]
-        description: "Politeness score for the utterance."
-  User:
-    type: object
-    description: "User metadata."
-    required:
-      - user_id
-    properties:
-      user_id:
-        type: string
-        description: "Unique identifier for the user."
-      age:
-        type: ["integer", "null"]
-        description: "Age of the user."
-      gender:
-        type: ["string", "null"]
-        description: "Gender of the user."
+
+properties:
+  dialogue_id:
+    $ref: "#/definitions/Dialogue/properties/dialogue_id"
+  user_id:
+    $ref: "#/definitions/Dialogue/properties/user_id"
+  quality_rating:
+    $ref: "#/definitions/Dialogue/properties/quality_rating"
+  utterances:
+    $ref: "#/definitions/Dialogue/properties/utterances"
+  mean_politeness_score:
+    $ref: "#/definitions/Dialogue/properties/mean_politeness_score"
+  standardized_politeness_score:
+    $ref: "#/definitions/Dialogue/properties/standardized_politeness_score"
+  conversation_length:
+    $ref: "#/definitions/Dialogue/properties/conversation_length"
+  source_dataset:
+    $ref: "#/definitions/Dialogue/properties/source_dataset"
+  # Flattened user demographics for easier analysis
+  age:
+    $ref: "#/definitions/User/properties/age"
+  gender:
+    $ref: "#/definitions/User/properties/gender"
+
 required:
-  - Dialogue
-  - Utterance
-  - User
+  - dialogue_id
+  - user_id
+  - quality_rating
+  - utterances
+  - conversation_length
+  - source_dataset
+
+additionalProperties: false
+
+type: object

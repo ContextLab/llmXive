@@ -4,118 +4,137 @@ import sys
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-def load_pilot_results(path: str) -> Dict[str, Any]:
-    """Load the pilot MDE results JSON file."""
-    p = Path(path)
-    if not p.exists():
-        raise FileNotFoundError(f"Pilot results file not found: {path}")
-    with open(p, 'r', encoding='utf-8') as f:
-        return json.load(f)
+# Ensure the code directory is in the path for relative imports if running as script
+if __name__ == "__main__":
+    script_dir = Path(__file__).resolve().parent
+    if str(script_dir) not in sys.path:
+        sys.path.insert(0, str(script_dir))
 
-def format_mde_section(data: Dict[str, Any]) -> str:
-    """Format the MDE estimation results as a Markdown section."""
-    lines = [
-        "## MDE_Estimation",
-        "",
-        f"- **Minimum Detectable Effect (MDE)**: {data.get('minimum_detectable_effect', 'N/A')}",
-        f"- **Statistical Power**: {data.get('power', 'N/A')}",
-        f"- **Sample Size Used**: {data.get('sample_size', 'N/A')}",
-        "",
-        "### Details",
-        "",
-    ]
-    
-    # Add any additional context if present
-    if 'effect_size' in data:
-        lines.append(f"- **Estimated Effect Size**: {data['effect_size']}")
-    if 'alpha' in data:
-        lines.append(f"- **Significance Level (alpha)**: {data['alpha']}")
-    if 'two_tailed' in data:
-        lines.append(f"- **Test Type**: {'Two-tailed' if data['two_tailed'] else 'One-tailed'}")
-    
-    lines.append("---")
-    return "\n".join(lines)
-
-def update_research_md(mde_results_path: str, research_md_path: Optional[str] = None) -> str:
+def load_pilot_results(results_path: str) -> Dict[str, Any]:
     """
-    Update research.md with the MDE estimation results.
+    Load the pilot MDE results from the JSON file.
     
     Args:
-        mde_results_path: Path to the pilot_mde_results.json file.
-        research_md_path: Path to research.md. If None, defaults to 'docs/research.md'.
+        results_path: Path to the pilot_mde_results.json file.
         
     Returns:
-        Path to the updated research.md file.
+        Dictionary containing the MDE results.
+        
+    Raises:
+        FileNotFoundError: If the results file does not exist.
+        json.JSONDecodeError: If the file is not valid JSON.
     """
-    if research_md_path is None:
-        research_md_path = "docs/research.md"
+    path = Path(results_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Pilot results file not found: {results_path}")
     
-    # Load pilot results
-    results = load_pilot_results(mde_results_path)
+    with open(path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def format_mde_section(results: Dict[str, Any]) -> str:
+    """
+    Format the MDE results into a Markdown section.
     
-    # Format the section
+    Args:
+        results: Dictionary containing MDE results (minimum_detectable_effect, power, sample_size).
+        
+    Returns:
+        Formatted Markdown string.
+    """
+    mde = results.get('minimum_detectable_effect', 'N/A')
+    power = results.get('power', 'N/A')
+    sample_size = results.get('sample_size', 'N/A')
+    
+    section = f"""
+## MDE_Estimation
+
+Based on the pilot analysis, the Minimum Detectable Effect (MDE) has been calculated.
+
+- **Minimum Detectable Effect**: {mde}
+- **Target Power**: {power}
+- **Required Sample Size**: {sample_size}
+
+These estimates will guide the final sample size requirements for the main study.
+"""
+    return section
+
+def update_research_md(
+    results_path: str,
+    research_md_path: str,
+    section_header: str = "MDE_Estimation"
+) -> None:
+    """
+    Update the research.md file with the MDE estimation results.
+    
+    This function reads the MDE results from a JSON file, formats them into a 
+    Markdown section, and appends this section to the research.md file under 
+    the specified header.
+    
+    Args:
+        results_path: Path to the pilot_mde_results.json file.
+        research_md_path: Path to the research.md file to update.
+        section_header: The header name to look for or create in research.md.
+    """
+    # Load results
+    results = load_pilot_results(results_path)
+    
+    # Format section
     mde_section = format_mde_section(results)
     
-    # Read existing research.md if it exists
-    research_file = Path(research_md_path)
-    existing_content = ""
-    if research_file.exists():
-        with open(research_file, 'r', encoding='utf-8') as f:
-            existing_content = f.read()
+    # Ensure research.md exists
+    md_path = Path(research_md_path)
+    md_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Check if MDE_Estimation section already exists
-    if "## MDE_Estimation" in existing_content:
-        # Replace existing section
-        lines = existing_content.split('\n')
-        new_lines = []
-        skip = False
-        for i, line in enumerate(lines):
-            if line.strip() == "## MDE_Estimation":
-                # Start of section to replace
-                skip = True
-                new_lines.append(mde_section)
-                # Skip until next section or end
-                while i + 1 < len(lines):
-                    i += 1
-                    if lines[i].startswith('## '):
-                        new_lines.append(lines[i])
-                        skip = False
-                        break
-            elif skip:
-                continue
-            else:
-                new_lines.append(line)
+    content = ""
+    if md_path.exists():
+        with open(md_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    
+    # Check if section header exists
+    header_marker = f"## {section_header}"
+    
+    if header_marker in content:
+        # Find the start of the section
+        start_idx = content.find(header_marker)
+        # Find the start of the next section (if any)
+        next_header_idx = content.find("\n## ", start_idx + len(header_marker))
         
-        updated_content = "\n".join(new_lines)
+        if next_header_idx == -1:
+            # No next section, replace from header to end
+            new_content = content[:start_idx] + mde_section
+        else:
+            # Replace content between this header and the next
+            new_content = content[:start_idx] + mde_section + "\n" + content[next_header_idx:]
     else:
-        # Append new section
-        if existing_content and not existing_content.endswith('\n'):
-            existing_content += "\n"
-        updated_content = existing_content + mde_section
+        # Append new section at the end
+        if content and not content.endswith('\n'):
+            content += '\n'
+        new_content = content + mde_section.lstrip('\n')
     
-    # Ensure directory exists
-    research_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Write updated content
-    with open(research_file, 'w', encoding='utf-8') as f:
-        f.write(updated_content)
-    
-    return str(research_file)
+    # Write back
+    with open(md_path, 'w', encoding='utf-8') as f:
+        f.write(new_content)
 
-def main():
-    """Main entry point for updating research.md with MDE results."""
-    # Default paths relative to project root
+def main() -> None:
+    """
+    Main entry point for updating research.md with MDE results.
+    """
+    # Define paths relative to project root
     project_root = Path(__file__).resolve().parent.parent
-    mde_results_path = project_root / "data" / "processed" / "pilot_mde_results.json"
-    research_md_path = project_root / "docs" / "research.md"
+    results_file = project_root / "data" / "processed" / "pilot_mde_results.json"
+    research_file = project_root / "research.md"
     
-    if not mde_results_path.exists():
-        print(f"Error: Pilot results file not found at {mde_results_path}")
+    if not results_file.exists():
+        print(f"Error: Pilot results file not found at {results_file}")
+        print("Please ensure T011b3 has completed successfully.")
         sys.exit(1)
     
     try:
-        updated_path = update_research_md(str(mde_results_path), str(research_md_path))
-        print(f"Successfully updated research.md at: {updated_path}")
+        update_research_md(
+            results_path=str(results_file),
+            research_md_path=str(research_file)
+        )
+        print(f"Successfully updated {research_file} with MDE estimation results.")
     except Exception as e:
         print(f"Error updating research.md: {e}")
         sys.exit(1)

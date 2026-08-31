@@ -1,11 +1,7 @@
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
 [project]
-name = "llmxive-politeness-study"
+name = "llmXive-proj-755"
 version = "0.1.0"
-description = "Study on the influence of chatbot politeness on user-perceived quality"
+description = "Influence of Chatbot Politeness on User-Perceived Quality"
 requires-python = ">=3.9"
 dependencies = [
     "transformers",
@@ -20,28 +16,26 @@ dependencies = [
     "textstat",
     "evalue",
     "liwc",
-    "python-dotenv",
-    "pyarrow",
 ]
+
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [tool.black]
 line-length = 88
-target-version = ['py39', 'py310', 'py311']
-include = '\.pyi?$'
+target-version = ['py39']
+include = '\\.pyi?$'
 exclude = '''
 /(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
+    \\.git
+  | \\.hg
+  | \\.mypy_cache
+  | \\.tox
+  | \\.venv
   | _build
   | buck-out
   | build
   | dist
 )/
 '''
-
-[tool.ruff]
-line-length = 88
-target-version = "py39"

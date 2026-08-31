@@ -1,62 +1,61 @@
-T010:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No .env template file (or any other configuration artifact) was provided; the
-    claim contains only a textual description of the task, not the required file containing
-    an HF_TOKEN placeholder. The required environment configuration artifact is missing.
-T011:
-  c: false
-  h: c6bfc5a9f0a4590279c4b5ca72abfbe828e5f14770f5e46a5b588534e8d4af20
-  r: "The provided `schema_validator.py` is truncated (ends mid\u2011function) and\
-    \ thus does not contain a complete implementation, and the required `contracts/dataset.schema.yaml`\
-    \ file is missing entirely. Both the validator code and the schema it should validate\
-    \ against are absent/incomplete."
-T011c:
+  r: No evidence of the required directories (`data/raw`, `data/processed`, `code`,
+    `code/utils`, `tests`, `tests/contract`, `tests/unit`, `tests/integration`, `docs`,
+    `state`) is presented; without visible artifacts we cannot confirm the structure
+    exists. The implementer must provide a listing or screenshots showing the created
+    folder hierarchy.
+T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `research.md` file (or updated version) containing the required Minimum Detectable
-    Effect (MDE) estimation results is present in the provided evidence. The task
-    explicitly demands that this markdown document be updated, which cannot be verified
-    from the given artifacts.
-T012:
+  r: No `.gitkeep` files or a `.gitignore` file were presented; without these artifacts
+    we cannot verify that the required files exist or contain the specified exclusion
+    patterns. The implementer must add the `.gitkeep` placeholders in each data subdirectory
+    and provide a `.gitignore` that lists `data/raw/*`, `data/processed/*`, `__pycache__`,
+    and model cache paths.
+T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, data files, or result outputs were provided to demonstrate that the
-    datasets were downloaded, politeness scores computed, the CLMM fitted, or the
-    robustness/subgroup analyses performed. The claim lacks any tangible artifact
-    (scripts, CSVs, logs, or figures) required by the user stories.
-T015b:
+  r: No linting or formatting configuration files (e.g., .ruff.toml, .flake8, pyproject.toml
+    with black settings) or setup scripts are present in the provided evidence, so
+    the requirement to configure ruff/flake8 and black is not demonstrated. The task
+    lacks the necessary artifacts.
+T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No script, code, or downloaded dataset files are present to demonstrate that\
-    \ the Persona\u2011Chat dataset has been retrieved and stored as required. The\
-    \ evidence needed\u2014a download implementation and resulting local data\u2014\
-    are missing."
-T015c:
+  r: "No CI workflow file (e.g., `.github/workflows/ci.yml`) or equivalent script\
+    \ was provided; thus there is no evidence that a GitHub Actions pipeline installing\
+    \ R\u2011base, the R packages **lme4** and **ordinal**, and the required Python\
+    \ dependencies has been created. The task remains undone."
+T011a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No download script, code, or dataset files for EmpatheticDialogues are present;
-    the claim cannot be verified because the required artifact (a working implementation
-    that retrieves and stores the dataset) is missing.
-T018:
+  r: "No evidence of a downloaded raw subset of the HCI_P2 dataset is provided\u2014\
+    there are no files, scripts, or logs showing the sample was retrieved or stored.\
+    \ The required artifact (the pilot raw data) is missing."
+T011b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer only supplied the feature specification text; there are no schema\
-    \ definition files, transformation scripts, or merge code/artifacts present. Consequently,\
-    \ the required implementation for \u201CSchema Definition, Transformation, and\
-    \ Merge for HCI_P2\u201D is missing."
-T020:
+  r: "No `research.md` file was provided or described; there is no evidence that a\
+    \ markdown document containing the required project metadata and section headers\
+    \ exists. The implementer must create and supply a non\u2011empty `research.md`\
+    \ with the specified content."
+T015a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or data artifacts were provided to demonstrate loading the\
-    \ Persona\u2011Chat and EmpatheticDialogues datasets, running the `jfiedler/politeness\u2011\
-    bert` model, or handling missing/erroneous inputs. Consequently the required Politeness\
-    \ Scoring implementation cannot be verified."
-T021:
+  r: No code, data files, scripts, or result outputs (e.g., downloaded datasets, politeness
+    scores, CLMM model fits, CSV results, or robustness analyses) were supplied. Without
+    any tangible artifacts, the claim that HCI_P2 validity has been verified cannot
+    be confirmed. The implementer must provide the required scripts, processed data,
+    and analysis outputs to satisfy the user stories.
+T019:
   c: false
-  h: 77c2cc4ed7a8e385ed4f88bfea0d874b11c4a429544210fc75886fb18ad41894
-  r: The `data/raw/exclusions.log` file is present, but the required `data/processed/scored_dialogues.parquet`
-    file is missing, so the task of saving the processed data was not completed.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or documentation showing the implementation of filtering logic
+    is provided; there is no artifact demonstrating exclusion of dialogues lacking
+    `quality_rating` or chatbot utterances, nor any logs confirming such filtering.
+    The task therefore remains unverified.
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -71,11 +70,17 @@ T025:
     was provided; the claim lacks any artifact (e.g., Python module, R call, or result
     CSV) to verify that the model was actually fitted as specified. The required implementation
     and its results are missing.
-T027:
+T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, function, or documentation implementing the Benjamini\u2011\
-    Hochberg correction for the fixed\u2011effect p\u2011values is present; the only\
-    \ evidence is the task description itself. The required artifact (e.g., a Python/R\
-    \ module that takes the CLMM p\u2011values and returns BH\u2011adjusted values)\
-    \ is missing."
+  r: "No code, script, or log file showing a VIF calculation for `politeness` and\
+    \ `conversation_length`, nor evidence that a warning is logged and the variable\
+    \ is dropped when VIF\u202F\u2265\u202F5, was provided. The required implementation\
+    \ artifact is missing."
+T027a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a CLMM fitting script, model output, or recorded convergence\
+    \ status is present; the required artifact (e.g., a fitted model file or CSV with\
+    \ convergence information) is missing, so the task\u2019s core requirement is\
+    \ not demonstrated."

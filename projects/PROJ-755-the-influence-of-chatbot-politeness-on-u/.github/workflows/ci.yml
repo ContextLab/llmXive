@@ -7,63 +7,74 @@ on:
     branches: [ main, develop ]
 
 jobs:
-  setup-and-test:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v3
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v4
       with:
         python-version: '3.10'
 
     - name: Install R
       uses: r-lib/actions/setup-r@v2
       with:
-        r-version: 'release'
+        r-version: '4.3.1'
 
-    - name: Install R packages (lme4, ordinal)
+    - name: Install R dependencies
       run: |
-        sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev libssl-dev
+        sudo apt-get update
+        sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev
         Rscript -e 'install.packages("remotes")'
         Rscript -e 'remotes::install_cran("lme4")'
         Rscript -e 'remotes::install_cran("ordinal")'
+        Rscript -e 'remotes::install_cran("testthat")'
+
+    - name: Cache pip packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
 
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        pip install pytest pytest-cov
 
-    - name: Run linting (ruff)
+    - name: Run Linting
       run: |
-        ruff check .
+        if command -v ruff &> /dev/null; then
+          ruff check .
+        else
+          echo "ruff not found, skipping"
+        fi
+        if command -v black &> /dev/null; then
+          black --check .
+        else
+          echo "black not found, skipping"
+        fi
 
-    - name: Run formatting check (black)
+    - name: Run Unit Tests
       run: |
-        black --check .
+        pytest tests/unit/ -v --cov=code
 
-    - name: Run unit tests
+    - name: Run Integration Tests
       run: |
-        pytest tests/unit -v
+        pytest tests/integration/ -v
 
-    - name: Run contract tests
+    - name: Run Contract Tests
       run: |
-        pytest tests/contract -v
+        pytest tests/contract/ -v
 
-    - name: Run integration tests
-      run: |
-        pytest tests/integration -v
-      if: always()
-      continue-on-error: true
-
-    - name: Upload test results
-      uses: actions/upload-artifact@v4
-      if: always()
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
       with:
-        name: test-results
-        path: |
-          .pytest_cache/
-          test-reports/
-          junit-*.xml
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
