@@ -1,9 +1,9 @@
-T010b:
-  c: false
-  h: c1d3b9bffe199ba6016d5e30e8e7ae2353d3edf8921e6ce3ab5740a14ce90420
-  r: "The required validation implementation files (`src/features/alerts.py` or `src/utils/validator.py`)\
-    \ are absent, and the schema file `contracts/alerts.schema.yaml` (or `schema.yaml`)\
-    \ is also missing, so the task\u2019s core requirement cannot be satisfied."
+T009b:
+  c: true
+  h: b7f6c645abe87b4a902737328264af5b7bd1d98d917a25316de858d027805ef9
+  r: "The `code/contracts/alerts.schema.yaml` file is present, non\u2011empty, and\
+    \ defines a JSON Schema that accurately describes the structure and required fields\
+    \ of `config/structural_alerts.json`. No required artifact is missing."
 T015:
   c: false
   h: b26a0c49ee655b01c31615f9267335ab6303475c856b3aa7a5690b06709b7c5e

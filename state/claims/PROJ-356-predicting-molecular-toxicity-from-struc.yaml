@@ -2521,3 +2521,669 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-29T15:04:36Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Structural alert patterns require source and description fields
+  claim_id: c_828e5679
+  context: T010 Create config/structural_alerts.json with a curated set of at least
+    10 SMARTS patterns and weights.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Structural_alert_patterns_require_source_and_description_fie
+  kind: entity_fact
+  raw_text: Each pattern must include a source field (e.g., ToxCast, Brenk set) and
+    description to satisfy the curated requirement.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:33:24Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Pipeline outputs ROC-AUC and F1 scores for rule-based and descriptor
+    models
+  claim_id: c_b980a4f3
+  context: 'Independent Test: The pipeline can be fully tested by running the data
+    acquisition, feature extraction, and model training scripts on a a local CPU environment
+    and verifying that the script outputs a JSON report containing ROC-AUC and F1
+    scores for both models without requiring external API calls or GPU resources.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_outputs_ROC-AUC_and_F1_scores_for_rule-based_and_de
+  kind: entity_fact
+  raw_text: The pipeline outputs a JSON report containing ROC-AUC and F1 scores for
+    both models.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:33:44Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Dataset fetched from Hugging Face toxcast/ames
+  claim_id: c_e65a94c9
+  context: T019 Implement src/data/download.py to fetch ToxCast/PubChem data from
+    verified URL https://huggingface.co/datasets/toxcast/ames (dataset identifier
+    toxcast/ames) with SHA-256 checksumming.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_fetched_from_Hugging_Face_toxcast/ames
+  kind: entity_fact
+  raw_text: The dataset is fetched from the Hugging Face dataset identifier toxcast/ames.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:34:07Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Logistic Regression uses 5-fold stratified CV repeated 3 times
+  claim_id: c_5ad5635e
+  context: T024 Implement src/models/logistic.py for Logistic Regression with 5-fold
+    stratified cross-validation repeated exactly 3 times (total 15 folds).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline uses 5-fold stratified cross-validation repeated exactly
+    3 times.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:34:20Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Total cross-validation folds equals 15
+  claim_id: c_c6172825
+  context: T024 Implement src/models/logistic.py for Logistic Regression with 5-fold
+    stratified cross-validation repeated exactly 3 times (total 15 folds).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total number of cross-validation folds is 15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:37:03Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Cross-validation random state is 42
+  claim_id: c_632d3757
+  context: 'T024 Implement src/models/logistic.py for Logistic Regression with 5-fold
+    stratified cross-validation repeated exactly 3 times (total 15 folds). Constraint:
+    Hardcode n_splits=5, n_repeats=3, and random_state=42 to ensure deterministic
+    folds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random state for cross-validation is hardcoded to 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:37:50Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Descriptor correlation matrix computed on sample of 1000 rows
+  claim_id: c_f3f990f6
+  context: T022b Implement src/features/descriptors.py logic to Sample the full dataset
+    (e.g., first 1000 rows or random sample) and Compute the correlation matrix of
+    the 20 descriptors.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The correlation matrix is computed on a sample of the full dataset (e.g.,
+    first 1000 rows or random sample).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:38:37Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Select 20 descriptors with correlation <= 0.9
+  claim_id: c_e01002dc
+  context: T022c Implement src/features/descriptors.py logic to Select the first 20
+    descriptors from the list (ordered by the hardcoded list in T022a) that have a
+    pairwise correlation coefficient |r| <= 0.9 based on the matrix computed in T022b.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Descriptor selection selects the first 20 descriptors with a pairwise
+    correlation coefficient |r| <= 0.9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:39:05Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: DeLong test implemented per DeLong et al. 1988 and Zou et al. 2007
+  claim_id: c_404e627e
+  context: 'T031 Implement src/evaluation/statistical.py with a custom, reproducible
+    implementation of DeLong''s test. Algorithm: Implement the DeLong et al. (1988)
+    / Zou et al. (2007) method for comparing correlated AUCs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: DeLong's test is implemented based on the method by DeLong et al. (1988)
+    and Zou et al. (2007).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:39:45Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: DeLong test outputs p-value and 95% confidence interval
+  claim_id: c_a88d2445
+  context: 'T031 Implement src/evaluation/statistical.py with a custom, reproducible
+    implementation of DeLong''s test. Output: P-value and 95 CI.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: DeLong's test outputs a p-value and 95% confidence interval.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:39:45Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Dataset minimum sample size is 1000 compounds
+  claim_id: c_9e03f04d
+  context: T041 Update src/data/download.py to enforce a minimum sample size check
+    (N > 1000) and fail gracefully if the dataset is too small.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_minimum_sample_size_is_1000_compounds
+  kind: magnitude
+  raw_text: The dataset must contain more than 1000 compounds to pass the minimum
+    sample size check.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:40:24Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Validation requires 5-fold CV x 3 repeats on >1000 compounds
+  claim_id: c_2fa2396b
+  context: 'T044 Update research.md to explicitly state the reproducibility standard:
+    Validation requires 5-fold stratified CV repeated 3 times on N > 1000 compounds
+    from [Specific Assay].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation requires 5-fold stratified CV repeated 3 times on N > 1000
+    compounds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:41:23Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: No multiple-comparison correction applied to p-value
+  claim_id: c_08013eeb
+  context: 'T046 Implement src/evaluation/statistical.py check: Implement the DeLong''s
+    test in src/evaluation/statistical.py such that the p-value is returned directly
+    without any adjustment (e.g., Bonferroni, FDR). Add a comment in the code explicitly
+    stating No multiple-comparison correction applied per FR-009.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_multiple-comparison_correction_applied_to_p-value
+  kind: entity_fact
+  raw_text: No multiple-comparison correction is applied to the p-value.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:42:12Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Peak RSS memory usage limit is 7 GB
+  claim_id: c_25214e51
+  context: T047 Implement tests/integration/test_memory.py with a specific test command
+    to verify peak RSS < 7 GB during full pipeline execution.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RSS_memory_usage_limit_is_7_GB
+  kind: magnitude
+  raw_text: The peak RSS memory usage must be less than 7 GB during full pipeline
+    execution.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:42:42Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution time limit is 4 hours on CPU
+  claim_id: c_4b763e55
+  context: T051 Performance optimization to ensure full pipeline < 4 hours on CPU-only
+    runner (SC-004).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_execution_time_limit_is_4_hours_on_CPU
+  kind: magnitude
+  raw_text: The full pipeline must complete in less than 4 hours on a CPU-only runner.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:43:34Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Pipeline testable on local CPU with ROC-AUC and F1 scores output
+  claim_id: c_7c33bf49
+  context: 'Goal: Download a verified mutagenicity dataset, extract rule-based and
+    descriptor features, train both models, and compare ROC-AUC/F1. Independent Test:
+    The pipeline can be fully tested...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_testable_on_local_CPU_with_ROC-AUC_and_F1_scores_ou
+  kind: entity_fact
+  raw_text: The pipeline can be fully tested by running the data acquisition, feature
+    extraction, and model training scripts on a local CPU environment and verifying
+    that the script outputs a JSON report containing ROC-AUC and F1 scores for both
+    models without requiring external API calls or GPU resources.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:45:12Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Dataset identifier is toxcast/ames
+  claim_id: c_33a6d0c7
+  context: Implement src/data/download.py to fetch ToxCast/PubChem data from verified
+    URL https://huggingface.co/datasets/toxcast/ames (dataset identifier toxcast/ames)
+    with SHA-256 checksumming.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_identifier_is_toxcast/ames
+  kind: entity_fact
+  raw_text: The dataset identifier is toxcast/ames.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:45:40Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Structural alerts config includes at least 10 SMARTS patterns
+  claim_id: c_e0097696
+  context: Create projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/config/structural_alerts.json
+    with a curated set of at least 10 SMARTS patterns and weights.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Structural_alerts_config_includes_at_least_10_SMARTS_pattern
+  kind: magnitude
+  raw_text: The structural alerts configuration includes a curated set of at least
+    10 SMARTS patterns.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:46:39Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Structural alerts include Brenk Set patterns
+  claim_id: c_3697b14d
+  context: 'Requirement: Each pattern must include a source field (e.g., ToxCast,
+    Brenk set) and description to satisfy the curated requirement.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Structural_alerts_include_Brenk_Set_patterns
+  kind: entity_fact
+  raw_text: The structural alerts configuration includes patterns from the Brenk Set.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:47:21Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Structural alerts include ToxCast patterns
+  claim_id: c_4468428d
+  context: 'Requirement: Each pattern must include a source field (e.g., ToxCast,
+    Brenk set) and description to satisfy the curated requirement.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Structural_alerts_include_ToxCast_patterns
+  kind: entity_fact
+  raw_text: The structural alerts configuration includes patterns from ToxCast.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:47:54Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Logistic regression uses 5-fold stratified CV repeated 3 times
+  claim_id: c_ccc088fb
+  context: Implement src/models/logistic.py for Logistic Regression with 5-fold stratified
+    cross-validation repeated exactly 3 times (total 15 folds).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The logistic regression model uses 5-fold stratified cross-validation
+    repeated exactly 3 times.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:48:25Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Logistic regression uses 15 total folds
+  claim_id: c_e8d26be6
+  context: Implement src/models/logistic.py for Logistic Regression with 5-fold stratified
+    cross-validation repeated exactly 3 times (total 15 folds).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The logistic regression model uses 15 total folds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:49:22Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Logistic regression uses random_state=42
+  claim_id: c_b46ec6ff
+  context: 'Constraint: Hardcode n_splits=5, n_repeats=3, and random_state=42 to ensure
+    deterministic folds.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "All experiments use a stratified train\u2013test split with 80% training\
+        \ data and 20% test data, withrandom_state=42. In the"
+      source_id: '2605.07793'
+      url: https://arxiv.org/abs/2605.07793
+      value: '42'
+    filled: true
+  kind: numeric
+  raw_text: The logistic regression model uses random_state=42.
+  resolved_value: '42'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T16:50:11Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Descriptor calculation uses exactly 20 descriptors
+  claim_id: c_a9947048
+  context: Implement src/features/descriptors.py logic to Select the first 20 descriptors
+    from the list (ordered by the hardcoded list in T022a) that have a pairwise correlation
+    coefficient |r| <= 0.9 based on the matrix computed in T022b.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The descriptor calculation uses exactly 20 descriptors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:50:53Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Descriptor selection uses correlation threshold |r| <= 0.9
+  claim_id: c_2603b7b6
+  context: Implement src/features/descriptors.py logic to Select the first 20 descriptors
+    from the list (ordered by the hardcoded list in T022a) that have a pairwise correlation
+    coefficient |r| <= 0.9 based on the matrix computed in T022b.
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: <= 0.9
+    relation: r
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Descriptor_selection_uses_correlation_threshold_r_%3C=_0.9
+    source_value: https://en.wikipedia.org/wiki/Descriptor_selection_uses_correlation_threshold_r_<=_0.9
+    subject: Descriptor selection uses correlation threshold
+  kind: relational
+  raw_text: The descriptor selection uses a pairwise correlation coefficient threshold
+    of |r| <= 0.9.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:51:30Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: DeLong's test used on Out-of-Fold predictions
+  claim_id: c_991aebb6
+  context: 'Goal: Perform DeLong''s test on Out-of-Fold (OOF) predictions (one prediction
+    per instance from the fold where it was held out) to determine if the performance
+    difference is statistically significant.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DeLong's_test_used_on_Out-of-Fold_predictions
+  kind: entity_fact
+  raw_text: The statistical significance test uses DeLong's test on Out-of-Fold predictions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:52:27Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: DeLong's test based on DeLong et al. 1988 and Zou et al. 2007
+  claim_id: c_b8de1d36
+  context: 'Algorithm: Implement the DeLong et al. (1988) / Zou et al. (2007) method
+    for comparing correlated AUCs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: DeLong's test is based on the method by DeLong et al. (1988) and Zou et
+    al. (2007).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:53:17Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Error analysis identifies rule-based model false negatives
+  claim_id: c_677cafa8
+  context: 'Goal: Identify false negatives of the rule-based model and extract Murcko
+    scaffolds to find missing structural motifs.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Error_analysis_identifies_rule-based_model_false_negatives
+  kind: entity_fact
+  raw_text: The error analysis identifies false negatives of the rule-based model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:54:27Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Error analysis calculates ratio of FNs explained by top 10 scaffolds
+  claim_id: c_fff5f039
+  context: 'Calculation: Calculate the ratio of false negatives explained by the top
+    10 scaffolds: (Count of FNs with scaffold in Top 10) / (Total Count of FNs).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The error analysis calculates the ratio of false negatives explained by
+    the top 10 scaffolds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:55:17Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Research validation requires minimum sample size N > 1000
+  claim_id: c_3a63e920
+  context: 'Goal: Address the specific concerns raised by the Marie Curie review regarding
+    sample size, assay specificity, and reproducibility standards. Verify that the
+    metrics_baseline.json and research.md explicitly state the compound count (N >
+    1000)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The research validation requires a minimum sample size of N > 1000 compounds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:55:18Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Reproducibility standard requires 5-fold stratified CV repeated 3 times
+  claim_id: c_4e7da451
+  context: 'Update research.md to explicitly state the reproducibility standard: Validation
+    requires 5-fold stratified CV repeated 3 times on N > 1000 compounds from [Specific
+    Assay].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The reproducibility standard requires 5-fold stratified CV repeated 3
+    times.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:55:37Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Reproducibility standard requires N > 1000 compounds
+  claim_id: c_f455b9b1
+  context: 'Update research.md to explicitly state the reproducibility standard: Validation
+    requires 5-fold stratified CV repeated 3 times on N > 1000 compounds from [Specific
+    Assay].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The reproducibility standard requires N > 1000 compounds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:55:38Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Statistical methodology uses Out-of-Fold predictions without averaging
+  claim_id: c_abddc476
+  context: 'CRITICAL: Statistical methodology in Phase 4 MUST use Out-of-Fold (OOF)
+    predictions (one per instance) as mandated by Plan Phase 4 and Constitution Principle
+    VI. The previous Spec instruction to use averaged predictions was incorrect and
+    has been overridden.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_methodology_uses_Out-of-Fold_predictions_without
+  kind: entity_fact
+  raw_text: The statistical methodology uses Out-of-Fold predictions without averaging.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:56:38Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: No multiple-comparison correction applied to p-value
+  claim_id: c_86852b64
+  context: Implement the DeLong's test in src/evaluation/statistical.py such that
+    the p-value is returned directly without any adjustment (e.g., Bonferroni, FDR).
+    Add a comment in the code explicitly stating No multiple-comparison correction
+    applied per FR-009.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_multiple-comparison_correction_applied_to_p-value
+  kind: entity_fact
+  raw_text: No multiple-comparison correction is applied to the p-value.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:56:43Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Peak RSS memory limit is < 7 GB
+  claim_id: c_4907c3c9
+  context: Implement tests/integration/test_memory.py with a specific test command
+    to verify peak RSS < 7 GB during full pipeline execution.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The peak RSS memory limit during full pipeline execution is < 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:56:43Z'
+- artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution time is < 4 hours on CPU-only runner
+  claim_id: c_0273fa64
+  context: Performance optimization to ensure full pipeline < 4 hours on CPU-only
+    runner (SC-004)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline execution time is < 4 hours on a CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T16:56:44Z'

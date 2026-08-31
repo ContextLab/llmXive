@@ -4,8 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T009` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
-- `T010` (rejected 1x): declared artifact(s) missing/empty/invalid: config/structural_alerts.json
+- `T001` (rejected 1x): declared artifact(s) missing/empty/invalid: scripts/init_project.py
+- `T002` (rejected 1x): declared artifact(s) missing/empty/invalid: scripts/init_project.py
 
 ## Required change
 

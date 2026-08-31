@@ -1,14 +1,8 @@
 """
-Project Initialization Script for llmXive Automated Science Pipeline.
+Initialize the project directory structure for PROJ-356-predicting-molecular-toxicity-from-struc.
 
-This script programmatically creates the required directory structure
-for the molecular toxicity prediction project.
-
-Usage:
-    python code/scripts/init_project.py [--project-root <path>]
-
-If --project-root is not provided, it defaults to the parent directory
-of the script's location (i.e., the project root).
+This script programmatically creates the required directory hierarchy to ensure
+reproducibility and executability as per FR-001 and Constitution Principles I & V.
 """
 import os
 import sys
@@ -16,143 +10,157 @@ import argparse
 from pathlib import Path
 from typing import List, Tuple, Optional
 
-# Define the required directory structure relative to project root
-REQUIRED_DIRS = [
+# Define the project root relative to the script location or current working directory
+# The task specifies the project is at: projects/PROJ-356-predicting-molecular-toxicity-from-struc/
+# We will create the structure relative to the current working directory (CWD)
+# The root of the project tree is 'projects/PROJ-356-predicting-molecular-toxicity-from-struc'
+# But the task asks for paths like `code/`, `code/src/` etc. relative to the project root.
+
+# Based on the task description, the root of our work is:
+# projects/PROJ-356-predicting-molecular-toxicity-from-struc/
+# And the subdirectories are:
+PROJECT_ROOT_NAME = "PROJ-356-predicting-molecular-toxicity-from-struc"
+PARENT_DIR = "projects"
+
+# The specific directories to create under the project root (which is under 'projects/')
+# The task lists: code/, code/src/, code/tests/, code/data/, code/data/raw/, code/data/processed/, 
+# code/results/, code/models/, code/config/, code/docs/, code/contracts/, code/scripts/, code/state/
+# Note: The task description says "create the required directory structure: projects/.../code/..."
+# So we create the parent 'projects' dir if needed, then the project dir, then the 'code' tree.
+
+RELATIVE_DIRS = [
     "code",
     "code/src",
-    "code/src/features",
-    "code/src/models",
-    "code/src/pipeline",
-    "code/src/utils",
-    "code/src/data",
-    "code/src/evaluation",
     "code/tests",
-    "code/tests/unit",
-    "code/tests/integration",
-    "data",
-    "data/raw",
-    "data/processed",
-    "data/external",
-    "results",
-    "results/plots",
-    "results/reports",
-    "models",
-    "config",
-    "docs",
-    "contracts",
-    "scripts",
-    "specs",
+    "code/data",
+    "code/data/raw",
+    "code/data/processed",
+    "code/results",
+    "code/models",
+    "code/config",
+    "code/docs",
+    "code/contracts",
+    "code/scripts",
+    "code/state",
 ]
 
-def create_directory_structure(root: Path, dirs: List[str]) -> List[Tuple[Path, bool]]:
+def create_directory_structure(base_path: Path, project_name: str, relative_dirs: List[str]) -> List[Path]:
     """
-    Create directory structure and return a list of (path, created) tuples.
+    Create the directory structure under base_path/project_name.
     
     Args:
-        root: The project root path
-        dirs: List of relative directory paths to create
+        base_path: The parent directory (e.g., 'projects')
+        project_name: The name of the project directory
+        relative_dirs: List of relative directory paths to create inside the project directory.
         
     Returns:
-        List of (absolute_path, was_created) tuples
+        List of created Path objects.
     """
-    results = []
-    for dir_path in dirs:
-        full_path = root / dir_path
-        was_created = False
+    project_root = base_path / project_name
+    created_paths = []
+    
+    # Ensure the project root exists
+    project_root.mkdir(parents=True, exist_ok=True)
+    created_paths.append(project_root)
+    
+    for rel_dir in relative_dirs:
+        full_path = project_root / rel_dir
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            was_created = True
-        results.append((full_path, was_created))
-    return results
+            created_paths.append(full_path)
+        else:
+            # If it exists, we still track it as part of the structure, 
+            # but we only 'created' it if we made the call to mkdir.
+            # For the purpose of verification, we just ensure it exists.
+            pass
+            
+    return created_paths
 
-def verify_structure(root: Path, dirs: List[str]) -> Tuple[bool, List[Path]]:
+def verify_structure(base_path: Path, project_name: str, relative_dirs: List[str]) -> Tuple[bool, List[str]]:
     """
     Verify that all required directories exist.
     
     Args:
-        root: The project root path
-        dirs: List of relative directory paths to verify
+        base_path: The parent directory
+        project_name: The project directory name
+        relative_dirs: List of relative directory paths to check.
         
     Returns:
-        Tuple of (all_exist, list_of_missing_paths)
+        Tuple of (is_valid, list_of_missing_dirs)
     """
-    missing = []
-    for dir_path in dirs:
-        full_path = root / dir_path
+    project_root = base_path / project_name
+    missing_dirs = []
+    
+    if not project_root.exists():
+        return False, [str(project_root)]
+        
+    for rel_dir in relative_dirs:
+        full_path = project_root / rel_dir
         if not full_path.exists():
-            missing.append(full_path)
+            missing_dirs.append(str(full_path))
         elif not full_path.is_dir():
-            missing.append(full_path)
-    return len(missing) == 0, missing
+            missing_dirs.append(f"{full_path} (exists but is not a directory)")
+            
+    return len(missing_dirs) == 0, missing_dirs
 
-def main(project_root: Optional[Path] = None) -> int:
-    """
-    Main entry point for project initialization.
-    
-    Args:
-        project_root: Optional explicit project root path. If None,
-                    defaults to the parent of this script's directory.
-                    
-    Returns:
-        Exit code: 0 for success, 1 for failure
-    """
-    if project_root is None:
-        # Default to parent of script directory
-        script_dir = Path(__file__).resolve().parent
-        project_root = script_dir.parent
-        
-        # Verify we're in the expected location
-        if not (project_root / "tasks.md").exists():
-            # Try to find tasks.md by walking up
-            current = project_root
-            while current != current.parent:
-                if (current / "tasks.md").exists():
-                    project_root = current
-                    break
-                current = current.parent
-    
-    print(f"Project root: {project_root}")
-    
-    # Create directory structure
-    print("Creating directory structure...")
-    results = create_directory_structure(project_root, REQUIRED_DIRS)
-    
-    created_count = sum(1 for _, created in results if created)
-    total_count = len(results)
-    
-    print(f"Created {created_count} new directories.")
-    print(f"Total directories: {total_count}")
-    
-    # Verify structure
-    all_exist, missing = verify_structure(project_root, REQUIRED_DIRS)
-    
-    if not all_exist:
-        print("ERROR: The following directories are missing after creation:")
-        for path in missing:
-            print(f"  - {path}")
-        return 1
-    
-    print("\nDirectory structure verification: PASSED")
-    
-    # Print summary
-    print("\nCreated structure:")
-    for dir_path in REQUIRED_DIRS:
-        full_path = project_root / dir_path
-        print(f"  [OK] {full_path}")
-    
-    return 0
-
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(
-        description="Initialize project directory structure for llmXive pipeline"
+        description="Initialize the project directory structure for molecular toxicity prediction."
     )
     parser.add_argument(
-        "--project-root",
-        type=Path,
-        default=None,
-        help="Explicit project root path (default: parent of script directory)"
+        "--base-dir",
+        type=str,
+        default=".",
+        help="Base directory where the 'projects' folder will be created (default: current directory)"
+    )
+    parser.add_argument(
+        "--project-name",
+        type=str,
+        default=PROJECT_ROOT_NAME,
+        help=f"Name of the project directory (default: {PROJECT_ROOT_NAME})"
+    )
+    parser.add_argument(
+        "--parent-dir",
+        type=str,
+        default=PARENT_DIR,
+        help=f"Name of the parent directory containing the project (default: {PARENT_DIR})"
     )
     
     args = parser.parse_args()
-    exit_code = main(args.project_root)
-    sys.exit(exit_code)
+    
+    base_path = Path(args.base_dir).resolve()
+    parent_dir = Path(args.parent_dir)
+    project_name = args.project_name
+    
+    # Construct the full path to the projects directory
+    projects_dir = base_path / parent_dir
+    
+    print(f"Initializing project structure at: {projects_dir / project_name}")
+    
+    try:
+        # Create directories
+        created = create_directory_structure(projects_dir, project_name, RELATIVE_DIRS)
+        print(f"Successfully created/verified {len(created)} directories.")
+        
+        # Verify
+        is_valid, missing = verify_structure(projects_dir, project_name, RELATIVE_DIRS)
+        
+        if not is_valid:
+            print("ERROR: The following directories are missing after creation:")
+            for m in missing:
+                print(f"  - {m}")
+            sys.exit(1)
+        else:
+            print("Verification successful: All required directories exist.")
+            
+        # List the structure for confirmation
+        print("\nCreated structure:")
+        for p in sorted(created):
+            print(f"  {p.relative_to(base_path)}")
+            
+    except Exception as e:
+        print(f"ERROR: Failed to create directory structure: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

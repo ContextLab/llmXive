@@ -1,9 +1,6 @@
-'|significance statistical threshold':
-  quote: The 0.05 significance level is merely a convention. The 0.05 significance
-    level (alpha level) is often used as the boundary between a statistically significant
-    and a statistically non-significant p-value. However, this does not imply that
-    there is generally a scientific reason to consider results on opposite sides of
-    any threshold as qualitatively different.
-  source_id: Misuse of p-values
-  url: https://en.wikipedia.org/wiki/Misuse_of_p-values
-  value: '0.05'
+'|logistic model random regression state use':
+  quote: "All experiments use a stratified train\u2013test split with 80% training\
+    \ data and 20% test data, withrandom_state=42. In the"
+  source_id: '2605.07793'
+  url: https://arxiv.org/abs/2605.07793
+  value: '42'

@@ -1,20 +1,28 @@
-# Schema for structural_alerts.json
-# Defines the required and optional fields for each alert pattern
-
-required_fields:
-  - pattern_id
-  - smarts_string
-  - weight
-
-optional_fields:
-  - source
-  - description
-
-# Validation rules
-rules:
-  - name: pattern_id_unique
-    description: "Each pattern_id must be unique"
-  - name: weight_positive
-    description: "Weight must be a positive number"
-  - name: smarts_valid
-    description: "smarts_string must be a valid SMARTS pattern"
+$schema: http://json-schema.org/draft-07/schema#
+title: StructuralAlertsConfig
+type: object
+properties:
+  patterns:
+    type: array
+    minItems: 10
+    items:
+      type: object
+      required:
+        - pattern_id
+        - smarts_string
+        - weight
+        - source
+        - description
+      properties:
+        pattern_id:
+          type: string
+        smarts_string:
+          type: string
+        weight:
+          type: number
+        source:
+          type: string
+        description:
+          type: string
+required:
+  - patterns

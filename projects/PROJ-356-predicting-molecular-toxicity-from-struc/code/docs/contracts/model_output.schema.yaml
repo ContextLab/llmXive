@@ -1,0 +1,88 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ModelOutput
+description: Schema for the output of model training and evaluation stages.
+type: object
+required:
+  - model_type
+  - metrics
+  - predictions
+properties:
+  model_type:
+    type: string
+    enum:
+      - rule_based
+      - logistic_regression
+    description: "Type of model generating the output"
+  metrics:
+    type: object
+    required:
+      - roc_auc
+      - f1_score
+      - recall
+    properties:
+      roc_auc:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: "Area Under the Receiver Operating Characteristic Curve"
+      f1_score:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: "Harmonic mean of precision and recall"
+      recall:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: "True positive rate"
+      accuracy:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: "Overall accuracy"
+      precision:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: "Positive predictive value"
+  predictions:
+    type: array
+    description: "List of prediction records"
+    items:
+      type: object
+      required:
+        - instance_id
+        - true_label
+        - predicted_label
+        - probability
+      properties:
+        instance_id:
+          type: integer
+          description: "Unique identifier for the instance"
+        true_label:
+          type: boolean
+          description: "Ground truth label"
+        predicted_label:
+          type: boolean
+          description: "Predicted label (thresholded)"
+        probability:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: "Predicted probability of being mutagenic"
+  training_config:
+    type: object
+    description: "Configuration used for training"
+    properties:
+      random_state:
+        type: integer
+      n_splits:
+        type: integer
+      n_repeats:
+        type: integer
+      hyperparameters:
+        type: object
+  generated_at:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of output generation"
