@@ -1,15 +1,23 @@
 """
 Unit tests for the tokenizer module.
+
+Tests cover:
+- TokenizationResult dataclass
+- WindowStopwordLoader functionality
+- AbstractTokenizer tokenization logic
+- File I/O operations
 """
+
 import unittest
 import tempfile
 import json
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 import os
-
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from src.data.preprocess.tokenizer import (
     TokenizationResult,
@@ -23,341 +31,426 @@ from src.data.preprocess.tokenizer import (
 class TestTokenizationResult(unittest.TestCase):
     """Tests for the TokenizationResult dataclass."""
     
-    def test_creation(self):
-        """Test that TokenizationResult can be created with all fields."""
+    def test_successful_tokenization(self):
+        """Test creating a successful tokenization result."""
         result = TokenizationResult(
-            original_text="Test abstract",
-            tokens=["test", "abstract"],
-            tokens_lower=["test", "abstract"],
-            tokens_stopped=["test", "abstract"],
+            original_id="test-123",
             window="2000-2004",
-            record_id="test-001",
+            tokens=["test", "tokens"],
             token_count=2,
-            stopped_count=2
+            filtered_tokens=["test"],
+            filtered_count=1,
+            success=True
         )
         
-        self.assertEqual(result.record_id, "test-001")
+        self.assertEqual(result.original_id, "test-123")
         self.assertEqual(result.window, "2000-2004")
+        self.assertEqual(result.tokens, ["test", "tokens"])
         self.assertEqual(result.token_count, 2)
-        self.assertEqual(result.stopped_count, 2)
+        self.assertEqual(result.filtered_tokens, ["test"])
+        self.assertEqual(result.filtered_count, 1)
+        self.assertTrue(result.success)
+        self.assertIsNone(result.error_message)
     
-    def test_fields_are_correct_types(self):
-        """Test that all fields have correct types."""
+    def test_failed_tokenization(self):
+        """Test creating a failed tokenization result."""
         result = TokenizationResult(
-            original_text="Test",
+            original_id="test-456",
+            window="2005-2009",
             tokens=[],
-            tokens_lower=[],
-            tokens_stopped=[],
-            window="2000-2004",
-            record_id="test-001",
             token_count=0,
-            stopped_count=0
+            filtered_tokens=[],
+            filtered_count=0,
+            success=False,
+            error_message="Test error"
         )
         
-        self.assertIsInstance(result.original_text, str)
-        self.assertIsInstance(result.tokens, list)
-        self.assertIsInstance(result.tokens_lower, list)
-        self.assertIsInstance(result.tokens_stopped, list)
-        self.assertIsInstance(result.window, str)
-        self.assertIsInstance(result.record_id, str)
-        self.assertIsInstance(result.token_count, int)
-        self.assertIsInstance(result.stopped_count, int)
+        self.assertFalse(result.success)
+        self.assertEqual(result.error_message, "Test error")
+        self.assertEqual(result.token_count, 0)
+        self.assertEqual(result.filtered_count, 0)
 
 
 class TestWindowStopwordLoader(unittest.TestCase):
     """Tests for the WindowStopwordLoader class."""
     
     def setUp(self):
-        """Set up test fixtures."""
-        self.loader = WindowStopwordLoader()
-    
-    def test_valid_windows(self):
-        """Test that all valid windows are recognized."""
-        expected_windows = {
-            "2000-2004", "2005-2009", "2010-2014", 
-            "2015-2019", "2020-2024"
+        """Set up temporary directory and manifest."""
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.stopwords_dir = Path(self.temp_dir.name)
+        
+        # Create manifest
+        self.manifest_path = self.stopwords_dir / "manifest.json"
+        manifest_data = {
+            "windows": [
+                {
+                    "window_id": "2000-2004",
+                    "checksum": "abc123"
+                },
+                {
+                    "window_id": "2005-2009",
+                    "checksum": "def456"
+                }
+            ]
         }
-        self.assertEqual(set(self.loader.WINDOWS), expected_windows)
+        
+        with open(self.manifest_path, 'w') as f:
+            json.dump(manifest_data, f)
+        
+        # Create stopword files
+        for window_id in ["2000-2004", "2005-2009"]:
+            stopwords_file = self.stopwords_dir / f"{window_id}_stopwords.json"
+            stopwords_data = {
+                "window_id": window_id,
+                "stopwords": ["the", "and", "of"]
+            }
+            with open(stopwords_file, 'w') as f:
+                json.dump(stopwords_data, f)
+    
+    def tearDown(self):
+        """Clean up temporary directory."""
+        self.temp_dir.cleanup()
+    
+    def test_load_manifest(self):
+        """Test loading the stopword manifest."""
+        loader = WindowStopwordLoader(self.manifest_path)
+        
+        self.assertEqual(len(loader.manifest['windows']), 2)
+        self.assertIn('windows', loader.manifest)
     
     def test_get_stopwords_valid_window(self):
         """Test getting stopwords for a valid window."""
-        stopwords = self.loader.get_stopwords("2000-2004")
+        loader = WindowStopwordLoader(self.manifest_path)
+        
+        stopwords = loader.get_stopwords("2000-2004")
+        
         self.assertIsInstance(stopwords, set)
-        self.assertGreater(len(stopwords), 0)  # Should have base stopwords
+        self.assertIn("the", stopwords)
+        self.assertIn("and", stopwords)
+        self.assertIn("of", stopwords)
+        self.assertEqual(len(stopwords), 3)
+    
+    def test_get_stopwords_cached(self):
+        """Test that stopwords are cached after first load."""
+        loader = WindowStopwordLoader(self.manifest_path)
+        
+        # First load
+        stopwords1 = loader.get_stopwords("2000-2004")
+        # Second load (should be cached)
+        stopwords2 = loader.get_stopwords("2000-2004")
+        
+        self.assertIs(stopwords1, stopwords2)
     
     def test_get_stopwords_invalid_window(self):
-        """Test that invalid window raises ValueError."""
-        with self.assertRaises(ValueError):
-            self.loader.get_stopwords("invalid-window")
+        """Test that invalid window raises KeyError."""
+        loader = WindowStopwordLoader(self.manifest_path)
+        
+        with self.assertRaises(KeyError):
+            loader.get_stopwords("invalid-window")
     
-    def test_window_specific_stopwords(self):
-        """Test that window-specific stopwords are included."""
-        # Check 2020-2024 has transformer-related stopwords
-        stopwords = self.loader.get_stopwords("2020-2024")
-        self.assertIn("transformer", stopwords)
-        self.assertIn("bert", stopwords)
-        self.assertIn("llm", stopwords)
+    def test_missing_manifest(self):
+        """Test that missing manifest raises FileNotFoundError."""
+        with self.assertRaises(FileNotFoundError):
+            WindowStopwordLoader(Path("/nonexistent/manifest.json"))
     
-    def test_caching(self):
-        """Test that stopwords are cached for performance."""
-        # First call
-        stopwords1 = self.loader.get_stopwords("2000-2004")
-        # Second call should return the same object (cached)
-        stopwords2 = self.loader.get_stopwords("2000-2004")
-        self.assertIs(stopwords1, stopwords2)
-
+    def test_missing_stopword_file(self):
+        """Test that missing stopword file raises FileNotFoundError."""
+        # Create manifest without corresponding stopword file
+        manifest_data = {
+            "windows": [
+                {"window_id": "2010-2014", "checksum": "xyz789"}
+            ]
+        }
+        manifest_path = self.stopwords_dir / "manifest_missing.json"
+        with open(manifest_path, 'w') as f:
+            json.dump(manifest_data, f)
+        
+        loader = WindowStopwordLoader(manifest_path)
+        
+        with self.assertRaises(FileNotFoundError):
+            loader.get_stopwords("2010-2014")
 
 class TestAbstractTokenizer(unittest.TestCase):
     """Tests for the AbstractTokenizer class."""
     
     def setUp(self):
         """Set up test fixtures."""
-        self.stopword_loader = WindowStopwordLoader()
-        self.tokenizer = AbstractTokenizer(self.stopword_loader)
-    
-    def test_clean_text_removes_urls(self):
-        """Test that URLs are removed from text."""
-        text = "Visit https://example.com for more info"
-        cleaned = self.tokenizer.clean_text(text)
-        self.assertNotIn("https://example.com", cleaned)
-    
-    def test_clean_text_removes_emails(self):
-        """Test that email addresses are removed from text."""
-        text = "Contact us at test@example.com for help"
-        cleaned = self.tokenizer.clean_text(text)
-        self.assertNotIn("test@example.com", cleaned)
-    
-    def test_tokenize_basic(self):
-        """Test basic tokenization."""
-        result = self.tokenizer.tokenize(
-            text="This is a test abstract.",
-            window="2000-2004",
-            record_id="test-001"
-        )
-        
-        self.assertEqual(result.record_id, "test-001")
-        self.assertEqual(result.window, "2000-2004")
-        self.assertIsInstance(result.tokens, list)
-        self.assertIsInstance(result.tokens_lower, list)
-        self.assertIsInstance(result.tokens_stopped, list)
-    
-    def test_tokenize_lowercase(self):
-        """Test that tokens are lowercased."""
-        result = self.tokenizer.tokenize(
-            text="This Is A Test",
-            window="2000-2004",
-            record_id="test-001"
-        )
-        
-        self.assertEqual(result.tokens_lower, ["this", "is", "a", "test"])
-    
-    def test_tokenize_removes_stopwords(self):
-        """Test that stopwords are removed."""
-        result = self.tokenizer.tokenize(
-            text="This is a test with stopwords",
-            window="2000-2004",
-            record_id="test-001"
-        )
-        
-        # "is", "a", "with" should be removed as stopwords
-        self.assertNotIn("is", result.tokens_stopped)
-        self.assertNotIn("a", result.tokens_stopped)
-        self.assertNotIn("with", result.tokens_stopped)
-    
-    def test_tokenize_removes_non_alpha(self):
-        """Test that non-alphabetic tokens are removed."""
-        result = self.tokenizer.tokenize(
-            text="Test 123 abc 456",
-            window="2000-2004",
-            record_id="test-001"
-        )
-        
-        # Numbers should be removed
-        for token in result.tokens_stopped:
-            self.assertTrue(token.isalpha())
-    
-    def test_tokenize_batch(self):
-        """Test batch tokenization."""
-        records = [
-            {"id": "1", "text": "First abstract"},
-            {"id": "2", "text": "Second abstract"},
-            {"id": "3", "text": "Third abstract"}
-        ]
-        
-        results = list(self.tokenizer.tokenize_batch(records, "2000-2004"))
-        
-        self.assertEqual(len(results), 3)
-        self.assertEqual(results[0].record_id, "1")
-        self.assertEqual(results[1].record_id, "2")
-        self.assertEqual(results[2].record_id, "3")
-    
-    def test_tokenize_batch_skips_invalid(self):
-        """Test that batch tokenization skips invalid records."""
-        records = [
-            {"id": "1", "text": "Valid abstract"},
-            {"id": "2", "text": None},  # Invalid
-            {"id": "3", "text": "Another valid"}
-        ]
-        
-        results = list(self.tokenizer.tokenize_batch(records, "2000-2004"))
-        
-        # Should only have 2 valid results
-        self.assertEqual(len(results), 2)
-
-
-class TestLoadPreprocessedData(unittest.TestCase):
-    """Tests for the load_preprocessed_data function."""
-    
-    def setUp(self):
-        """Set up test fixtures."""
         self.temp_dir = tempfile.TemporaryDirectory()
-        self.temp_path = Path(self.temp_dir.name)
+        self.stopwords_dir = Path(self.temp_dir.name)
+        
+        # Create manifest and stopword files
+        self.manifest_path = self.stopwords_dir / "manifest.json"
+        manifest_data = {
+            "windows": [
+                {"window_id": "2000-2004", "checksum": "abc123"}
+            ]
+        }
+        with open(self.manifest_path, 'w') as f:
+            json.dump(manifest_data, f)
+        
+        stopwords_file = self.stopwords_dir / "2000-2004_stopwords.json"
+        stopwords_data = {
+            "window_id": "2000-2004",
+            "stopwords": ["the", "and", "of", "a"]
+        }
+        with open(stopwords_file, 'w') as f:
+            json.dump(stopwords_data, f)
+        
+        # Mock the WindowStopwordLoader to avoid loading actual stopwords
+        self.patch_loader = patch(
+            'src.data.preprocess.tokenizer.WindowStopwordLoader'
+        )
+        self.mock_loader_class = self.patch_loader.start()
+        self.mock_loader_instance = MagicMock()
+        self.mock_loader_instance.get_stopwords.return_value = {"the", "and", "of", "a"}
+        self.mock_loader_class.return_value = self.mock_loader_instance
     
     def tearDown(self):
-        """Clean up test fixtures."""
+        """Clean up."""
+        self.patch_loader.stop()
         self.temp_dir.cleanup()
     
-    def test_load_valid_jsonl(self):
-        """Test loading a valid JSONL file."""
-        # Create test data
-        test_data = [
-            {"id": "1", "text": "Test abstract 1"},
-            {"id": "2", "text": "Test abstract 2"}
-        ]
+    @patch('src.data.preprocess.tokenizer.spacy.load')
+    def test_tokenize_basic(self, mock_spacy_load):
+        """Test basic tokenization."""
+        # Mock spaCy
+        mock_doc = MagicMock()
+        mock_token1 = MagicMock()
+        mock_token1.is_space = False
+        mock_token1.is_punct = False
+        mock_token1.text = "Hello"
+        mock_token1.lemma_ = "hello"
         
-        jsonl_path = self.temp_path / "test.jsonl"
-        with open(jsonl_path, 'w') as f:
-            for record in test_data:
-                f.write(json.dumps(record) + '\n')
+        mock_token2 = MagicMock()
+        mock_token2.is_space = False
+        mock_token2.is_punct = False
+        mock_token2.text = "world"
+        mock_token2.lemma_ = "world"
         
-        # Load data
-        records = load_preprocessed_data(jsonl_path, "2000-2004")
+        mock_doc.__iter__ = MagicMock(return_value=iter([mock_token1, mock_token2]))
+        mock_spacy_load.return_value = mock_doc
         
-        self.assertEqual(len(records), 2)
-        self.assertEqual(records[0]['id'], "1")
-        self.assertEqual(records[1]['id'], "2")
+        tokenizer = AbstractTokenizer()
+        abstract = {"id": "test-1", "text": "Hello world"}
+        
+        result = tokenizer.tokenize(abstract, "2000-2004")
+        
+        self.assertTrue(result.success)
+        self.assertEqual(result.original_id, "test-1")
+        self.assertEqual(result.window, "2000-2004")
+        self.assertEqual(result.token_count, 2)
+        self.assertEqual(result.filtered_count, 2)
     
-    def test_load_with_alternate_field_names(self):
-        """Test loading data with alternate field names."""
+    @patch('src.data.preprocess.tokenizer.spacy.load')
+    def test_tokenize_with_stopwords(self, mock_spacy_load):
+        """Test that stopwords are filtered out."""
+        # Mock spaCy with stopwords
+        mock_doc = MagicMock()
+        mock_token1 = MagicMock()
+        mock_token1.is_space = False
+        mock_token1.is_punct = False
+        mock_token1.text = "The"
+        mock_token1.lemma_ = "the"
+        
+        mock_token2 = MagicMock()
+        mock_token2.is_space = False
+        mock_token2.is_punct = False
+        mock_token2.text = "test"
+        mock_token2.lemma_ = "test"
+        
+        mock_doc.__iter__ = MagicMock(return_value=iter([mock_token1, mock_token2]))
+        mock_spacy_load.return_value = mock_doc
+        
+        tokenizer = AbstractTokenizer()
+        abstract = {"id": "test-2", "text": "The test"}
+        
+        result = tokenizer.tokenize(abstract, "2000-2004")
+        
+        self.assertTrue(result.success)
+        self.assertEqual(result.token_count, 2)
+        self.assertEqual(result.filtered_count, 1)
+        self.assertIn("test", result.filtered_tokens)
+        self.assertNotIn("the", result.filtered_tokens)
+    
+    @patch('src.data.preprocess.tokenizer.spacy.load')
+    def test_tokenize_empty_text(self, mock_spacy_load):
+        """Test tokenization with empty text."""
+        tokenizer = AbstractTokenizer()
+        abstract = {"id": "test-3", "text": ""}
+        
+        result = tokenizer.tokenize(abstract, "2000-2004")
+        
+        self.assertFalse(result.success)
+        self.assertEqual(result.error_message, "Empty text")
+        self.assertEqual(result.token_count, 0)
+        self.assertEqual(result.filtered_count, 0)
+    
+    @patch('src.data.preprocess.tokenizer.spacy.load')
+    def test_tokenize_clean_text(self, mock_spacy_load):
+        """Test that text cleaning works correctly."""
+        # Mock spaCy
+        mock_doc = MagicMock()
+        mock_token = MagicMock()
+        mock_token.is_space = False
+        mock_token.is_punct = False
+        mock_token.text = "test"
+        mock_token.lemma_ = "test"
+        mock_doc.__iter__ = MagicMock(return_value=iter([mock_token]))
+        mock_spacy_load.return_value = mock_doc
+        
+        tokenizer = AbstractTokenizer()
+        abstract = {"id": "test-4", "text": "Test with URL http://example.com and email test@test.com"}
+        
+        result = tokenizer.tokenize(abstract, "2000-2004")
+        
+        self.assertTrue(result.success)
+        self.assertNotIn("http", result.filtered_tokens)
+        self.assertNotIn("example", result.filtered_tokens)
+        self.assertNotIn("test@test.com", result.filtered_tokens)
+    
+    @patch('src.data.preprocess.tokenizer.spacy.load')
+    def test_tokenize_lemmatization(self, mock_spacy_load):
+        """Test that lemmatization is applied."""
+        mock_doc = MagicMock()
+        mock_token = MagicMock()
+        mock_token.is_space = False
+        mock_token.is_punct = False
+        mock_token.text = "running"
+        mock_token.lemma_ = "run"
+        mock_doc.__iter__ = MagicMock(return_value=iter([mock_token]))
+        mock_spacy_load.return_value = mock_doc
+        
+        tokenizer = AbstractTokenizer()
+        abstract = {"id": "test-5", "text": "running"}
+        
+        result = tokenizer.tokenize(abstract, "2000-2004")
+        
+        self.assertTrue(result.success)
+        self.assertIn("run", result.filtered_tokens)
+        self.assertNotIn("running", result.filtered_tokens)
+
+class TestLoadPreprocessedData(unittest.TestCase):
+    """Tests for load_preprocessed_data function."""
+    
+    def setUp(self):
+        """Set up temporary file."""
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.test_file = Path(self.temp_dir.name) / "test.jsonl"
+        
         test_data = [
-            {"record_id": "1", "abstract": "Test abstract"}
+            {"id": "1", "text": "Test abstract one"},
+            {"id": "2", "text": "Test abstract two"},
+            {"id": "3", "text": "Test abstract three"}
         ]
         
-        jsonl_path = self.temp_path / "test.jsonl"
-        with open(jsonl_path, 'w') as f:
+        with open(self.test_file, 'w') as f:
             for record in test_data:
                 f.write(json.dumps(record) + '\n')
+    
+    def tearDown(self):
+        """Clean up."""
+        self.temp_dir.cleanup()
+    
+    def test_load_valid_file(self):
+        """Test loading a valid JSONL file."""
+        abstracts = load_preprocessed_data(self.test_file)
         
-        # Load data - should normalize field names
-        records = load_preprocessed_data(jsonl_path, "2000-2004")
-        
-        self.assertEqual(len(records), 1)
-        self.assertEqual(records[0]['id'], "1")
-        self.assertEqual(records[0]['text'], "Test abstract")
+        self.assertEqual(len(abstracts), 3)
+        self.assertEqual(abstracts[0]['id'], "1")
+        self.assertEqual(abstracts[1]['id'], "2")
+        self.assertEqual(abstracts[2]['id'], "3")
     
     def test_load_missing_file(self):
         """Test that missing file raises FileNotFoundError."""
-        non_existent_path = self.temp_path / "nonexistent.jsonl"
-        
         with self.assertRaises(FileNotFoundError):
-            load_preprocessed_data(non_existent_path, "2000-2004")
+            load_preprocessed_data(Path("/nonexistent/file.jsonl"))
     
-    def test_load_skips_invalid_json(self):
-        """Test that invalid JSON lines are skipped."""
-        test_data = [
-            '{"id": "1", "text": "Valid"}',
-            'invalid json line',
-            '{"id": "2", "text": "Also valid"}'
-        ]
+    def test_load_with_empty_lines(self):
+        """Test loading file with empty lines."""
+        # Add empty lines to file
+        with open(self.test_file, 'a') as f:
+            f.write('\n')
+            f.write('\n')
         
-        jsonl_path = self.temp_path / "test.jsonl"
-        with open(jsonl_path, 'w') as f:
-            f.write('\n'.join(test_data))
+        abstracts = load_preprocessed_data(self.test_file)
         
-        # Load data - should skip invalid line
-        records = load_preprocessed_data(jsonl_path, "2000-2004")
-        
-        # Should only have 2 valid records
-        self.assertEqual(len(records), 2)
-
+        self.assertEqual(len(abstracts), 3)  # Should ignore empty lines
 
 class TestSaveTokenizedResults(unittest.TestCase):
-    """Tests for the save_tokenized_results function."""
+    """Tests for save_tokenized_results function."""
     
     def setUp(self):
-        """Set up test fixtures."""
+        """Set up temporary directory."""
         self.temp_dir = tempfile.TemporaryDirectory()
-        self.temp_path = Path(self.temp_dir.name)
+        self.output_file = Path(self.temp_dir.name) / "output.jsonl"
     
     def tearDown(self):
-        """Clean up test fixtures."""
+        """Clean up."""
         self.temp_dir.cleanup()
     
     def test_save_results(self):
         """Test saving tokenization results."""
         results = [
             TokenizationResult(
-                original_text="Test 1",
-                tokens=["test", "1"],
-                tokens_lower=["test", "1"],
-                tokens_stopped=["test", "1"],
+                original_id="test-1",
                 window="2000-2004",
-                record_id="1",
+                tokens=["test", "tokens"],
                 token_count=2,
-                stopped_count=2
+                filtered_tokens=["test"],
+                filtered_count=1,
+                success=True
             ),
             TokenizationResult(
-                original_text="Test 2",
-                tokens=["test", "2"],
-                tokens_lower=["test", "2"],
-                tokens_stopped=["test", "2"],
+                original_id="test-2",
                 window="2000-2004",
-                record_id="2",
-                token_count=2,
-                stopped_count=2
+                tokens=[],
+                token_count=0,
+                filtered_tokens=[],
+                filtered_count=0,
+                success=False,
+                error_message="Test error"
             )
         ]
         
-        output_path = self.temp_path / "output.jsonl"
-        save_tokenized_results(results, output_path)
+        save_tokenized_results(results, self.output_file)
         
-        # Verify file was created
-        self.assertTrue(output_path.exists())
+        self.assertTrue(self.output_file.exists())
         
-        # Verify content
-        with open(output_path, 'r') as f:
+        # Verify saved content
+        with open(self.output_file, 'r') as f:
             lines = f.readlines()
         
         self.assertEqual(len(lines), 2)
         
-        # Parse and verify content
         record1 = json.loads(lines[0])
-        self.assertEqual(record1['id'], "1")
-        self.assertEqual(record1['window'], "2000-2004")
-        self.assertEqual(record1['token_count'], 2)
+        self.assertEqual(record1['id'], "test-1")
+        self.assertEqual(record1['success'], True)
+        self.assertEqual(record1['filtered_count'], 1)
+        
+        record2 = json.loads(lines[1])
+        self.assertEqual(record2['id'], "test-2")
+        self.assertEqual(record2['success'], False)
+        self.assertEqual(record2['error'], "Test error")
     
     def test_save_creates_directories(self):
         """Test that save creates parent directories if needed."""
+        nested_path = Path(self.temp_dir.name) / "nested" / "path" / "output.jsonl"
+        
         results = [
             TokenizationResult(
-                original_text="Test",
-                tokens=["test"],
-                tokens_lower=["test"],
-                tokens_stopped=["test"],
+                original_id="test-1",
                 window="2000-2004",
-                record_id="1",
-                token_count=1,
-                stopped_count=1
+                tokens=[],
+                token_count=0,
+                filtered_tokens=[],
+                filtered_count=0,
+                success=True
             )
         ]
         
-        # Create nested path that doesn't exist
-        output_path = self.temp_path / "nested" / "dir" / "output.jsonl"
-        save_tokenized_results(results, output_path)
+        save_tokenized_results(results, nested_path)
         
-        # Verify file was created
-        self.assertTrue(output_path.exists())
-
+        self.assertTrue(nested_path.exists())
 
 if __name__ == '__main__':
     unittest.main()

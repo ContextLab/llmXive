@@ -1,3 +1,16 @@
+T008a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `specs/001-topic-drift-analysis/spec.md` file or excerpt is provided;\
+    \ without the actual spec content we cannot confirm that FR\u2011008 was amended\
+    \ to replace Benjamini\u2011Hochberg with the MaxT procedure. The required artifact\
+    \ is missing."
+T017:
+  c: false
+  h: fab50720224afb1f03f2c7f8b62b093d3b29de763a76c9795de80355151bdc71
+  r: The required `results/manifest.json` file is missing entirely, so the requested
+    fields (`arxiv_fetch_status`, `pubmed_fetch_status`, and data checksums) cannot
+    be present. The task therefore has not been fulfilled.
 T019:
   c: false
   h: aba9020eca06075d9f1a67fbc13293ca51649c31b71b9c56d028d98e6f7e24e6

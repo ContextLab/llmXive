@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T01:43:46.819493Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-287-statistical-analysis-of-publicly-availab
-last_run_id: b8bcab73-d444-4cf7-b62b-ece08a7ba919
+last_run_id: 36f809bc-701d-41d1-b7b0-b8e0176083b5
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-287-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab
 title: Statistical Analysis of Publicly Available Academic Paper Abstracts for Topic
   Drift
-updated_at: '2026-08-29T07:16:35.286662Z'
+updated_at: '2026-08-31T09:44:58.467813Z'

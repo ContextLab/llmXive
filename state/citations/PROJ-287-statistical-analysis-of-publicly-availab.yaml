@@ -1,25 +1,3 @@
-- artifact_hash: fa97f3a608293bef1d378b420abb90867c29da83b6d22bd76271c97a5f5d8771
-  artifact_path: projects/PROJ-287-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/spec.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: oai2
-  kind: url
-  value: http://export.arxiv.org/oai2
-  verification_status: pending
-  verified_against_url: https://oaipmh.arxiv.org/oai
-  verified_at: '2026-07-05T02:00:15.116074Z'
-- artifact_hash: fa97f3a608293bef1d378b420abb90867c29da83b6d22bd76271c97a5f5d8771
-  artifact_path: projects/PROJ-287-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/spec.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://pubmed.ncbi.nlm.nih.gov/
-  verification_status: pending
-  verified_against_url: https://pubmed.ncbi.nlm.nih.gov/
-  verified_at: '2026-07-05T02:00:15.116074Z'
 - artifact_hash: f22c485347cc3cd9e0821678e7b3c9f952e412364b0e4ceb24dbb8344f811529
   artifact_path: projects/PROJ-287-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/plan.md
   cite_id: c-001
