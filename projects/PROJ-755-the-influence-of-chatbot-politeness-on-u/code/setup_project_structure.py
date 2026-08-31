@@ -3,21 +3,20 @@ import sys
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-def create_structure(root: Optional[Path] = None) -> List[str]:
+def create_structure(base_path: Optional[Path] = None) -> Dict[str, str]:
     """
-    Creates the required project directory structure for llmXive research pipeline.
+    Creates the project directory structure for the llmXive pipeline.
     
     Args:
-        root: Base directory for the project. Defaults to current working directory.
-    
+        base_path: Optional base path. Defaults to current working directory.
+        
     Returns:
-        List of created directory paths as strings.
+        Dictionary mapping directory names to their absolute paths.
     """
-    if root is None:
-        root = Path.cwd()
+    if base_path is None:
+        base_path = Path.cwd()
     
-    # Define the required directory structure relative to root
-    directories = [
+    required_dirs = [
         "data/raw",
         "data/processed",
         "code",
@@ -30,31 +29,36 @@ def create_structure(root: Optional[Path] = None) -> List[str]:
         "state"
     ]
     
-    created_dirs = []
+    created_paths = {}
     
-    for dir_path in directories:
-        full_path = root / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        created_dirs.append(str(full_path))
-        print(f"Created directory: {full_path}")
+    for dir_name in required_dirs:
+        full_path = base_path / dir_name
+        try:
+            full_path.mkdir(parents=True, exist_ok=True)
+            created_paths[dir_name] = str(full_path.resolve())
+            print(f"Created directory: {full_path}")
+        except OSError as e:
+            print(f"Error creating directory {full_path}: {e}", file=sys.stderr)
+            raise
     
-    return created_dirs
+    return created_paths
 
 def main() -> int:
     """
-    Main entry point for the script.
+    Main entry point for the setup script.
     
     Returns:
         Exit code (0 for success, 1 for failure).
     """
     try:
-        root = Path.cwd()
-        print(f"Creating project structure in: {root}")
-        created = create_structure(root)
-        print(f"\nSuccessfully created {len(created)} directories.")
+        print("Initializing project directory structure...")
+        created = create_structure()
+        print("\nDirectory structure created successfully:")
+        for name, path in created.items():
+            print(f"  {name}: {path}")
         return 0
     except Exception as e:
-        print(f"Error creating project structure: {e}", file=sys.stderr)
+        print(f"Failed to create directory structure: {e}", file=sys.stderr)
         return 1
 
 if __name__ == "__main__":

@@ -98,7 +98,7 @@ Researcher validates findings by re-running analysis with an alternative lexicon
 
 ## Assumptions
 
-- Persona-Chat and EmpatheticDialogues datasets contain quality ratings (1-5 Likert scale) which serve as a valid proxy for 'trust' in conversational AI contexts, as supported by HCI literature.
+- Persona-Chat and EmpatheticDialogues datasets contain quality ratings (Likert scale) which serve as a valid proxy for 'trust' in conversational AI contexts, as supported by HCI literature.
 - The `jfiedler/politeness-bert` model is available and runs on CPU-only environments without CUDA dependencies.
 - Conversation length can be computed as word count or utterance count per dialogue.
 - User demographic metadata (age, gender) is present in ≥ 80% of dialogues to enable subgroup analysis.

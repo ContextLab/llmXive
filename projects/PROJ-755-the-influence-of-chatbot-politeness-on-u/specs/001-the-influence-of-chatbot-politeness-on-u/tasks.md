@@ -39,69 +39,15 @@
  ============================================================================
 -->
 
-## Phase 0: Research & Pilot (NEW - Pre-Pipeline)
-
-**Purpose**: Execute Plan Phase 0 requirements (Pilot, MDE, Proxy Validation) AFTER the initial dataset validation.
-
-- [ ] T011a [P] [Research] **Download Raw Sample for Pilot**: Download a small, raw subset of HCI_P2 for pilot analysis.
- - *Logic*:
- 1. **Prerequisite**: T015a must have passed (HCI_P2 is valid).
- 2. **Source**: Load `data/raw/hci_p2/` (from T015).
- 3. **Sample**: Extract a small representative subset (e.g., a manageable number of dialogues) using a fixed seed (seed=42).
- 4. **Store**: Save raw sample to `data/raw/pilot_sample/`.
- 5. **Verify**: Run `ls -l data/raw/pilot_sample/` and confirm file count > 0 and total size > 0.
- - *Deliverable*: `data/raw/pilot_sample/`.
-- [ ] T011b [P] [Research] **Initialize research.md**: Create `research.md` with project metadata and section headers.
- - *Logic*:
- 1. **Create `research.md` if it does not exist**.
- 2. Add section headers: 'Pilot_Results', 'MDE_Estimation', 'Proxy_Validation'.
- 3. **Verify**: Run `grep -q "Pilot_Results" research.md` to ensure header exists.
- - *Deliverable*: `research.md`.
-- [ ] T011b1 [P] [Research] **Data Sampling**: Extract a representative sample from the raw pilot data for pilot analysis.
- - *Logic*:
- 1. **Dependency**: T011a.
- 2. Load raw data from `data/raw/pilot_sample/`.
- 3. Sample a representative subset of rows using a fixed seed (seed=42).
- 4. Save to `data/processed/pilot_sample.parquet`.
- 5. **Verify**: Run `parquet-tools head data/processed/pilot_sample.parquet` to ensure schema is present and rows > 0.
- 6. **Assert**: If file does not exist, is empty, or row_count == 0, **ABORT** with error "T011b1_FAILED: Pilot sample empty or missing".
- - *Deliverable*: `data/processed/pilot_sample.parquet`.
-- [ ] T011b2 [P] [Research] **Pilot Model Fitting & MDE Calculation**: Fit a simplified model on the sample to estimate effect size and calculate MDE.
- - *Logic*:
- 1. **Dependency**: T011b1.
- 2. Load `data/processed/pilot_sample.parquet`.
- 3. Fit a basic ordinal regression (e.g., `politeness` -> `quality_rating`).
- 4. **Calculate MDE**: Use the pilot effect size, sample size, and assumed adequate power to calculate the Minimum Detectable Effect (MDE).
- 5. **Save Model**: Save model object to `data/processed/pilot_model.pkl` (pickle protocol).
- 6. **Save MDE**: Save MDE results to `data/processed/pilot_mde_results.json` with schema:
-    ```json
-    {
-      "minimum_detectable_effect": 0.0,
-      "power": adequate statistical power,
-      "sample_size": 0,
-      "effect_size_pilot": 0.0,
-      "alpha": a conventional significance threshold
-    }
-    ```
- - *Deliverable*: `data/processed/pilot_model.pkl`, `data/processed/pilot_mde_results.json`.
-- [ ] T011c [P] [Research] Update `research.md` with MDE estimation results.
- - *Logic*:
- 1. **Dependency**: T011b2, T011b.
- 2. Read `data/processed/pilot_mde_results.json`.
- 3. Append section 'MDE_Estimation' to `research.md` with the JSON content formatted as a code block.
- - *Deliverable*: Updated `research.md`.
-
-**Checkpoint**: Research phase complete - Main pipeline can now begin
-
----
-
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create project directory structure: `data/raw`, `data/processed`, `code`, `code/utils`, `tests`, `tests/contract`, `tests/unit`, `tests/integration`, `docs`, `state`.
-- [ ] T001b [P] Initialize `.gitkeep` files in data directories and create `.gitignore` to exclude `data/raw/*`, `data/processed/*`, `__pycache__`, and model caches.
-- [X] T002 Initialize Python project with `requirements.txt` (transformers, datasets, statsmodels, pandas, scikit-learn, numpy, pyyaml, tqdm, rpy2, textstat, evalue)
+- [ ] T001a [P] Create data directories: `data/raw`, `data/processed`, `data/models`.
+- [ ] T001b [P] Create code directories: `code`, `code/utils`.
+- [ ] T001c [P] Create test directories: `tests`, `tests/contract`, `tests/unit`, `tests/integration`.
+- [ ] T001d [P] Create documentation directories: `docs`, `state`.
+- [ ] T002 Initialize Python project with `requirements.txt` (transformers, datasets, statsmodels, pandas, scikit-learn, numpy, pyyaml, tqdm, rpy2, textstat, evalue, dask, memory_profiler)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 - [ ] T004 Setup CI workflow (GitHub Actions) to install R-base, R packages (lme4, ordinal), and Python dependencies
 - [X] T006 [P] Implement `code/utils/pii_scanner.py` for PII scanning (regex for email, phone, SSN patterns)
@@ -124,6 +70,13 @@
 
 - [ ] T009 [P] Create `contracts/output.schema.yaml` defining CLMM results structure
 - [ ] T011 [P] [Foundational] Implement `code/utils/schema_validator.py` to validate dataset schemas against `contracts/dataset.schema.yaml`
+- [ ] T011b [P] [Foundational] **Proxy Validation**: Verify `quality_rating` as a proxy for trust.
+ - *Logic*:
+ 1. **Action**: Conduct a literature review to identify and cite a specific HCI source validating `quality_rating` in HCI_P2 as a proxy for trust.
+ 2. **Constraint**: If no source exists, document the limitation explicitly in `research.md`.
+ 3. **Deliverable**: Update `research.md` with the citation or limitation statement.
+ 4. **Note**: This task does NOT download data; it is a research task only.
+ - *Traceability*: Aligns with Plan Phase 0 Step 6.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -131,7 +84,8 @@
 
 ## Phase 3: User Story 1 - Data Acquisition and Politeness Scoring (Priority: P1) 🎯 MVP
 
-**Goal**: Download **HCI_P2** dataset (and attempt Persona-Chat/EmpatheticDialogues per FR-001). Filter for completeness, and compute mean politeness scores per conversation using `jfiedler/politeness-bert` on CPU. (Note: Persona-Chat and EmpatheticDialogues are NOT used as fallbacks per Plan Phase 0 Stop Condition).
+**Goal**: Download **HCI_P2**, **Persona-Chat**, and **EmpatheticDialogues** datasets. Filter for completeness, and compute mean politeness scores per conversation using `jfiedler/politeness-bert` on CPU. 
+**Strict Abort Logic**: The pipeline MUST proceed with any dataset that has the required `quality_rating` variable. The pipeline MUST ONLY abort if ALL three datasets fail to download OR ALL three datasets are downloaded but lack the `quality_rating` variable. If a dataset is downloaded but lacks the variable, it is excluded from the merged set, and the pipeline continues with the remaining valid datasets. If only one dataset is valid, proceed with that one.
 
 **Independent Test**: Run `code/01_download_and_score.py` on a sample of dialogues; verify `data/processed/scored_dialogues.parquet` exists with `politeness_score` and `quality_rating` columns, and that excluded dialogues are logged.
 
@@ -144,38 +98,50 @@
 
 ### Implementation for User Story 1
 
-- [X] T015 [US1] Implement `code/01_download_and_score.py` to fetch **HCI_P2** (and attempt FR-001 sources).
+- [ ] T015 [US1] Implement `code/01_download_and_score.py` to fetch **HCI_P2**.
  - *Logic*:
- 1. **Attempt FR-001 Sources**: Attempt to download `Persona-Chat` and `EmpatheticDialogues` from HuggingFace. Log success/failure.
- 2. **Primary Source**: Download `HuggingFaceH4/hci_p2` from HuggingFace (Verify exact ID in Phase 0).
- 3. **Verify**: Confirm presence of `quality_rating`, `user_id`, `dialogue_id` in HCI_P2.
- 4. **Store**: Save raw HCI_P2 data in `data/raw/hci_p2/` with checksums.
- 5. **Output**: Generate `data/raw/hci_p2/validation_status.json` with `status: "valid" | "invalid"`.
- 6. **Constraint**: If `quality_rating` is missing in HCI_P2, **ABORT** (Stop Condition). Do NOT proceed.
- - *Deliverable*: Raw data stored in `data/raw/hci_p2/` and validation status.
-- [ ] T015a [US1] **HCI_P2 Validation**: Verify HCI_P2 validity for downstream tasks.
+ 1. **Attempt FR-001 Source**: Download `HuggingFaceH4/hci_p2` from HuggingFace.
+ 2. **Verify & Filter**:
+    - Check for `quality_rating`, `user_id`, `dialogue_id`.
+    - **Exclusion Logic**: If `quality_rating` is missing, log exclusion of HCI_P2 and set status to "excluded".
+    - **Abort Condition**: If HCI_P2 is the ONLY source and it is excluded, the pipeline aborts with "NO_VALID_DATA_SOURCE".
+ 3. **Store**: Save raw data in `data/raw/hci_p2/` with checksums.
+ 4. **Output**: Update `data/raw/validation_status.json` with `status: "valid" | "excluded"`.
+ - *Deliverable*: Raw HCI_P2 data in `data/raw/hci_p2/` or exclusion log.
+- [ ] T015b [US1] Implement `code/01_download_and_score.py` to fetch **Persona-Chat**.
  - *Logic*:
- 1. **Dependency**: T015.
- 2. Read `data/raw/hci_p2/validation_status.json`.
- 3. If `status` is "valid", proceed.
- 4. If `status` is "invalid", **ABORT** the pipeline and log "HCI_P2_INVALID: Stop Condition Met".
- 5. **Verify**: Ensure `validation_status.json` exists and contains `status: "valid"`.
- - *Deliverable*: `data/raw/hci_p2/validation_status.json` (updated with final status).
+ 1. **Attempt FR-001 Source**: Download `Persona-Chat` from HuggingFace.
+ 2. **Verify & Filter**:
+    - Check for `quality_rating`, `user_id`, `dialogue_id`.
+    - **Exclusion Logic**: If `quality_rating` is missing, log exclusion of Persona-Chat and set status to "excluded". **Do NOT** attempt to derive synthetic ratings.
+    - **Abort Condition**: If Persona-Chat is the ONLY source and it is excluded, the pipeline aborts with "NO_VALID_DATA_SOURCE".
+ 3. **Store**: Save raw data in `data/raw/persona_chat/` with checksums.
+ 4. **Output**: Update `data/raw/validation_status.json` with `status: "valid" | "excluded"`.
+ - *Deliverable*: Raw Persona-Chat data in `data/raw/persona_chat/` or exclusion log.
+- [ ] T015c [US1] Implement `code/01_download_and_score.py` to fetch **EmpatheticDialogues**.
+ - *Logic*:
+ 1. **Attempt FR-001 Source**: Download `EmpatheticDialogues` from HuggingFace.
+ 2. **Verify & Filter**:
+    - Check for `quality_rating`, `user_id`, `dialogue_id`.
+    - **Exclusion Logic**: If `quality_rating` is missing, log exclusion of EmpatheticDialogues and set status to "excluded". **Do NOT** attempt to derive synthetic ratings.
+    - **Abort Condition**: If EmpatheticDialogues is the ONLY source and it is excluded, the pipeline aborts with "NO_VALID_DATA_SOURCE".
+ 3. **Store**: Save raw data in `data/raw/empathetic_dialogues/` with checksums.
+ 4. **Output**: Update `data/raw/validation_status.json` with `status: "valid" | "excluded"`.
+ - *Deliverable*: Raw EmpatheticDialogues data in `data/raw/empathetic_dialogues/` or exclusion log.
 - [ ] T019 [US1] Implement filtering logic to exclude dialogues missing `quality_rating` or chatbot utterances (log counts).
  - *Logic*:
- 1. **Dependency**: T015a (Validation).
- 2. **Check**: If `data/raw/hci_p2/validation_status.json` indicates "invalid", exit with error.
- 3. **Filter**: Filter **HCI_P2** for completeness.
- 4. **Log**: Log counts of excluded dialogues.
+ 1. **Dependency**: T015, T015b, T015c.
+ 2. **Check**: Verify `data/raw/validation_status.json` reflects the status of all three sources.
+ 3. **Filter**: Filter all available datasets for completeness.
+ 4. **Log**: Log counts of excluded dialogues per source.
  5. **Store**: Save filtered data to `data/raw/filtered/`.
  - *Deliverable*: Filtered raw dataset in `data/raw/filtered/`.
-- [ ] T018 [US1] Implement **Schema Definition, Transformation, and Merge** for HCI_P2.
+- [ ] T018 [US1] Implement **Schema Definition, Transformation, and Merge** for all datasets.
  - *Logic*:
- 1. **Dependency**: T019 (Validation & Filter).
- 2. **Check**: If `data/raw/hci_p2/validation_status.json` indicates "invalid", exit with error.
- 3. Define the target schema for HCI_P2 (user_id, dialogue_id, quality_rating, age, gender, utterances, source_dataset).
- 4. Transform the filtered dataset to match this schema.
- 5. Save as `data/processed/merged_dialogues.parquet`.
+ 1. **Dependency**: T019.
+ 2. **Define Schema**: Define target schema (user_id, dialogue_id, quality_rating, age, gender, utterances, source_dataset).
+ 3. **Transform**: Transform filtered datasets to match schema.
+ 4. **Merge**: Merge all valid sources into `data/processed/merged_dialogues.parquet`.
  - *Deliverable*: `data/processed/merged_dialogues.parquet`.
 - [ ] T020 [US1] Implement **Politeness Scoring** (Load, Inference, Error Handling, Save).
  - *Logic*:
@@ -185,10 +151,12 @@
  4. Iterate through utterances in batches with dynamic batch sizing.
  5. Compute politeness scores; assign NaN to failures and log counts.
  6. Compute `mean_politeness_score` per dialogue.
- 7. **Standardize Globally**: Calculate the global mean and standard deviation of all `mean_politeness_score` values across the entire merged dataset. Apply z-scoring using these global statistics to produce `mean_politeness_score` (overwriting the raw mean with the standardized value as per Spec FR-002).
+ 7. **Standardize Globally**:
+    - If dataset fits in memory (< 6GB): Calculate global mean/std using `pandas` and apply z-scoring.
+    - If dataset is large (> 6GB): Use `dask.dataframe` to stream data, compute global mean/std in two passes (first pass to compute stats, second to apply), and apply z-scoring.
  8. Save to `data/processed/scored_dialogues.parquet`.
  9. **Verify**: Ensure `data/processed/scored_dialogues.parquet` exists and contains `mean_politeness_score` column.
- - *Note*: Input is HCI_P2 processed dataset.
+ - *Note*: Input is merged dataset from T018.
  - *Deliverable*: `data/processed/scored_dialogues.parquet`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -220,7 +188,7 @@
  }
  ```
  - *Deliverable*: `data/processed/validation_report.json`.
- - *Note*: This task gates US3. It must run after data download (T015) and merging (T018).
+ - *Note*: This task gates US3. It must run after data download (T015, T015b, T015c) and merging (T018).
 
 **Checkpoint**: Data verified - US3 can proceed if gate passes
 
@@ -248,52 +216,43 @@
  3. **Extract Convergence Status**: Calculate convergence status for the fitted model.
  4. **Record Status**: Save `data/processed/project_status.json` with fields: `convergence_status` ("success" | "failed"), `model_type` ("clmm"), `error_message` (if failed), `timestamp`.
  5. **Save Results**: Save results (CLMM only) to `data/processed/clmm_primary_results.csv` with coefficients, SEs, p-values, CI, and convergence metrics.
+ 6. **Save Model Object**: Save the fitted model object to `data/processed/clmm_model.pkl` (pickle protocol 5) for later prediction.
  - *Note*: This task ONLY fits the primary model. No fallback logic here.
- - *Deliverable*: `data/processed/clmm_primary_results.csv` and `data/processed/project_status.json`.
+ - *Deliverable*: `data/processed/clmm_primary_results.csv`, `data/processed/project_status.json`, and `data/processed/clmm_model.pkl`.
+- [ ] T027b [US2] **Sensitivity Analysis**: Sweep significance thresholds.
+ - *Logic*:
+ 1. **Dependency**: T027a.
+ 2. **Action**: Re-calculate p-value significance for a range of conventional thresholds using the primary model results.
+ 3. **Output**: Save to `data/processed/sensitivity_analysis.json` with counts of significant effects at each threshold.
+ - *Note*: This replaces the removed bootstrap convergence analysis.
+ - *Deliverable*: `data/processed/sensitivity_analysis.json`.
 - [ ] T027d [US2] **Immediate Fallback**: If primary CLMM fails to converge (T027a), fit fixed-effects ordinal regression.
  - *Logic*:
  1. **Dependency**: T027a.
  2. **Check**: If `data/processed/project_status.json` indicates `convergence_status: "failed"`.
  3. **Fit Fallback**: Fit fixed-effects ordinal regression (remove random effects).
- 4. **Save Results**: Save fallback results to `data/processed/clmm_fallback_results.csv` with schema: `term`, `estimate`, `std_error`, `p_value`, `ci_lower`, `ci_upper`.
+ 4. **Merge Results**: Append fallback results to `data/processed/clmm_primary_results.csv` (or create it if it doesn't exist) with a `model_type` column set to "ordinal_fixed_effects".
  5. **Log**: Record in `project_status.json` that fallback was used.
  - *Note*: This task handles the immediate per-model failure case as per Spec Edge Cases.
- - *Deliverable*: Updated `data/processed/project_status.json` and fallback results if applicable.
-- [ ] T027b [US2] **Sensitivity Run Loop**: Perform multiple sensitivity analysis runs to generate convergence data.
- - *Logic*:
- 1. **Dependency**: T027a.
- 2. **Loop**: Iterate multiple times across distinct random seeds.
- 3. **Perturbation**: For each seed, create a bootstrap sample (stratified by `user_id`, [deferred] subsample ratio).
- 4. **Fit**: Fit CLMM on the bootstrap sample.
- 5. **Record**: For each run, record convergence status in `data/processed/sensitivity_runs.json`.
- 6. **Deliverable**: `data/processed/sensitivity_runs.json` (list of run results).
- - *Note*: This task measures stability, not the primary model choice.
-- [ ] T027c [US2] **Convergence Rate Calculation**: Calculate convergence rate from sensitivity runs.
- - *Logic*:
- 1. **Dependency**: T027b.
- 2. Read `data/processed/sensitivity_runs.json`.
- 3. **Calculate Rate**: Compute the percentage of runs that converged.
- 4. **Measure SC-003**: Evaluate if convergence rate meets ≥ 95%. If not, log that SC-003 is **NOT MET** for the primary model stability.
- 5. **Record Status**: Update `data/processed/project_status.json` with fields: `sc003_met` (boolean), `sc003_note` (if failed, explain).
- 6. **Note**: Do NOT trigger fallback here. Fallback is only for immediate model failure (T027d).
- - *Deliverable*: Updated `data/processed/project_status.json`.
+ - *Deliverable*: Updated `data/processed/project_status.json` and `data/processed/clmm_primary_results.csv`.
 - [ ] T028 [US2] Implement Benjamini-Hochberg correction for p-values across fixed effects.
  - *Logic*:
  1. **Dependency**: T027a, T027d.
  2. **Selection Logic**:
-    - **Default**: Use Benjamini-Hochberg (BH) correction.
-    - **Switch Condition**: If the number of hypothesis tests (N) <= 3, OR if the BH-adjusted p-values show extreme clustering (e.g., > 50% of adjusted p-values are > 0.95 while raw p-values are < 0.05, indicating rank instability), switch to **Bonferroni** correction.
-    - **Rationale**: This satisfies FR-004's "Bonferroni or Benjamini-Hochberg" requirement with a deterministic rule, avoiding subjective "deemed unsuitable" judgments.
+ - **Default**: Use Benjamini-Hochberg (BH) correction.
+ - **Switch Condition**: If the number of hypothesis tests (N) <= 3, switch to **Bonferroni** correction.
+ - **Rationale**: This satisfies FR-004's "Bonferroni or Benjamini-Hochberg" requirement with a deterministic rule, avoiding subjective "deemed unsuitable" judgments.
  3. **Apply Correction**: Apply the selected method to the p-values of all fixed effects.
- 4. **Save**: Update `data/processed/clmm_results.csv` with corrected p-values.
- - *Deliverable*: Updated `data/processed/clmm_results.csv`.
+ 4. **Save**: Update `data/processed/clmm_primary_results.csv` with corrected p-values.
+ - *Deliverable*: Updated `data/processed/clmm_primary_results.csv`.
 - [ ] T029 [US2] **Consolidate and Save Results**: Save final results to `data/processed/clmm_results.csv`.
  - *Logic*:
- 1. **Dependency**: T028, T027c, T027d.
- 2. Consolidate results from T027a/T027d (if fallback used).
+ 1. **Dependency**: T028, T027d.
+ 2. Consolidate results from T027a/T027d (if fallback used) into a single file.
  3. Apply corrections.
  4. Save to `data/processed/clmm_results.csv`.
  - *Note*: This task ensures the final file is written after all corrections.
+ - *Deliverable*: `data/processed/clmm_results.csv`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -301,7 +260,7 @@
 
 ## Phase 6: User Story 3 - Robustness and Subgroup Analysis (Priority: P3)
 
-**Goal**: Validate findings with the **textstat (politeness/afinn)** classifier (per Constitution/Plan) AND the **LIWC-2015** dictionary (per FR-005, with licensing gate), and conduct subgroup analyses by age/gender (n ≥ 30 guard).
+**Goal**: Validate findings with the **textstat (politeness/afinn)** classifier (per Constitution/Plan) AND the **LIWC-2015** dictionary (per FR-005, with mandatory acquisition attempt), and conduct subgroup analyses by age/gender (n ≥ 30 guard).
 
 **Independent Test**: Run `code/03_robustness_analysis.py`; verify `data/processed/robustness_results.csv` exists, correlation (r ≥ 0.80) is calculated, and subgroup exclusions are logged.
 
@@ -328,16 +287,17 @@
  3. Apply to utterances.
  4. **Deliverable**: Save scores to `data/processed/robustness_scores_textstat.parquet` with schema: `dialogue_id`, `utterance_id`, `text`, `politeness_score`.
  - *Deliverable*: textstat-based politeness scores.
-- [ ] T032c [US3] **Robustness Classifier (LIWC-2015)**: Attempt to re-score dialogues using **LIWC-2015**.
+- [ ] T032c [US3] **Robustness Classifier (LIWC-2015)**: Attempt to acquire and use **LIWC-2015**.
  - *Logic*:
- 1. **Dependency**: T020.
- 2. **Check**: Attempt to load the LIWC-2015 dictionary from `data/models/liwc_2015/`.
- 3. **Licensing Gate**:
-    - **If Missing**: Log a critical failure in `data/processed/liwc_skip_log.txt` stating "LIWC-2015 not found; FR-005 not satisfied for this run". Document the limitation in `research.md`. **SKIP** this specific analysis run.
-    - **If Available**: Load LIWC-2015. Apply to utterances. Compute scores.
- 4. **Comparison (If Available)**: Re-fit CLMM using LIWC scores. Extract coefficient estimates. Compare coefficients (diff/correlation) against primary model (T029). Save comparison results to `data/processed/liwc_comparison.json`.
- 5. **Deliverable**: Save scores to `data/processed/robustness_scores_liwc.parquet` (if successful) or `data/processed/liwc_skip_log.txt` (if skipped).
- - *Traceability*: Explicitly addresses **FR-005** (LIWC-2015 requirement) conditionally.
+ 1. **Dependency**: T020, T032.
+ 2. **Check**: Attempt to load LIWC-2015 from `data/models/liwc_2015/liwc_2015_dictionary.txt`.
+ 3. **Acquisition**: If missing, attempt to acquire via `huggingface_hub.hf_hub_download` (repo: "liwc/liwc-2015" or verified wrapper) or `pip install liwc`.
+ 4. **Mandatory Requirement**:
+ - **If Acquisition Fails**: Log WARNING "LIWC-2015 Acquisition Failed. FR-005 Partially Met (textstat used)." and **SKIP** the LIWC-specific analysis. Do NOT abort.
+ - **If Available**: Load LIWC-2015. Apply to utterances. Compute scores.
+ 5. **Comparison (If Available)**: Re-fit CLMM using LIWC scores. Extract coefficient estimates. Compare coefficients (diff/correlation) against primary model (T029). Save comparison results to `data/processed/liwc_comparison.json`.
+ 6. **Deliverable**: Save scores to `data/processed/robustness_scores_liwc.parquet` (if successful) or log skip.
+ - *Traceability*: Explicitly addresses **FR-005** (LIWC-2015 requirement) as a best-effort check.
 - [ ] T033 [US3] **Re-fit CLMM**: Re-fit CLMM on lexicon scores.
  - *Dependency*: Requires T032b (textstat) as primary input. T032c (LIWC) is optional.
  - *Logic*:
@@ -349,13 +309,15 @@
 - [ ] T033b [US3] **Generate Predicted Scores & Correlate**: Calculate **Spearman** rank correlation of per-dialogue predicted quality scores.
  - *Logic*:
  1. **Dependency**: T033 AND T029 (Primary Results).
- 2. Generate `predicted_quality` scores for each dialogue using the primary CLMM (expected value of ordinal outcome) and the robust CLMM.
- 3. Save per-dialogue predictions to `data/processed/robustness_predictions.csv` (columns: `dialogue_id`, `primary_predicted`, `robust_predicted`).
- 4. Calculate **Spearman rank correlation** `correlation_r` between `primary_predicted_quality` and `robust_predicted_quality`.
- 5. **Calculate P-value and N**: Compute the p-value and sample size (N) for the correlation.
- 6. **Rationale**: Spearman is used for ordinal data consistency (Likert 1-5) to match SC-004 intent.
- 7. **Verify**: Check if `correlation_r` >= 0.80. Log "SC-004 MET" or "SC-004 NOT MET".
- 8. Save `correlation_r`, `p_value`, and `n` to `data/processed/robustness_summary.json` (keys: `correlation_r`, `p_value`, `n`).
+ 2. Load `data/processed/clmm_model.pkl` (from T027a) for **primary** predictions.
+ 3. Load `data/processed/robustness_model.pkl` (from T033) for **robust** predictions.
+ 4. Generate `predicted_quality` scores for each dialogue using both models.
+ 5. Save per-dialogue predictions to `data/processed/robustness_predictions.csv` (columns: `dialogue_id`, `primary_predicted`, `robust_predicted`).
+ 6. Calculate **Spearman rank correlation** `correlation_r` between `primary_predicted_quality` and `robust_predicted_quality`.
+ 7. **Calculate P-value and N**: Compute the p-value and sample size (N) for the correlation.
+ 8. **Rationale**: Spearman is used for ordinal data consistency (Likert 1-5) to match SC-004 intent.
+ 9. **Verify**: Check if `correlation_r` >= 0.80. Log "SC-004 MET" or "SC-004 NOT MET".
+ 10. Save `correlation_r`, `p_value`, and `n` to `data/processed/robustness_summary.json` (keys: `correlation_r`, `p_value`, `n`).
  - *Note*: Explicitly generate per-dialogue predicted quality scores via CLMM prediction before correlation calculation.
  - *Dependency*: T033, T029.
 - [ ] T034 [US3] **Subgroup Analysis**: Split data by age/gender.
@@ -381,7 +343,13 @@
 - [ ] T038b [P] Update `docs/quickstart.md` with a step-by-step guide to running the full pipeline.
 - [ ] T038c [P] Update `docs/data-model.md` with entity definitions and data flow diagrams.
 - [ ] T039 Code cleanup and refactoring (remove debug prints, ensure type hints)
-- [ ] T040 Performance optimization: verify memory usage < 7GB during peak BERT inference
+- [ ] T040 [P] Performance optimization: verify memory usage < 7GB during peak BERT inference using `memory_profiler`.
+ - *Logic*:
+ 1. Decorate the BERT inference function in `code/01_download_and_score.py` with `@profile` from `memory_profiler`.
+ 2. Run the function on a full batch.
+ 3. Check peak memory usage from output.
+ 4. If > 7GB, log error "MEMORY_EXCEEDED" and suggest batch size reduction.
+ - *Deliverable*: `data/processed/memory_profile.log`.
 - [ ] T041 [P] Additional unit tests for edge cases (empty dialogues, NaN handling) in `tests/unit/`
 - [ ] T042 [P] Configure CI workflow for full pipeline execution on GitHub Actions.
  - *Logic*: Create `.github/workflows/ci.yml` to install R, Python deps, and run the full pipeline.
@@ -403,7 +371,6 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - **BLOCKS** all user stories.
-- **Research (Phase 0)**: Depends on Foundational (Phase 2) - Must complete before US1.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
@@ -454,10 +421,9 @@ Task: "Implement filtering logic to exclude dialogues missing quality_rating"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories, includes T012 verification)
-3. Complete Phase 0: Research & Pilot
-4. Complete Phase 3: User Story 1
-5. **STOP and VALIDATE**: Test User Story 1 independently
-6. Deploy/demo if ready
+3. Complete Phase 3: User Story 1
+4. **STOP and VALIDATE**: Test User Story 1 independently
+5. Deploy/demo if ready
 
 ### Incremental Delivery
 
@@ -490,7 +456,7 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Constraint**: All BERT inference must be CPU-only (no CUDA); use batch processing to stay under available RAM limits.
-- **Constraint**: Dataset source MUST be HCI_P2 (primary). **NO FALLBACK** to Persona-Chat/EmpatheticDialogues if HCI_P2 fails (Plan Phase 0 Stop Condition).
+- **Constraint**: Dataset source MUST include HCI_P2, Persona-Chat, and EmpatheticDialogues. Abort only if ALL three fail.
 - **Constraint**: Subgroup analysis (US3) is strictly gated by T012 (Sample Size Verification, n ≥ 30).
-- **Constraint**: Robustness classifier (T032) MUST use **textstat** (open-source) as primary; LIWC-2015 is handled in T032c with a licensing gate.
-- **Constraint**: Convergence rate (SC-003) must be measured via sensitivity analysis (T027b/T027c); no fallback halting allowed.
+- **Constraint**: Robustness classifier (T032) MUST use **textstat** (open-source) as primary; LIWC-2015 is handled in T032c with a best-effort acquisition gate.
+- **Constraint**: Convergence rate (SC-003) is measured by the primary run's convergence status.

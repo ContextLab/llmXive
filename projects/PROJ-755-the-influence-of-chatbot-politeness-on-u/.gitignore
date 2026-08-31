@@ -1,62 +1,40 @@
-# Data files (raw and processed)
+# Data directories (raw and processed)
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
 
-# Python
+# Python cache
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-.Python
-env/
-venv/
-ENV/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
+.python-version
 
-# IDEs
+# Model caches (Hugging Face and others)
+.cache/
+data/models/*
+!data/models/.gitkeep
+
+# IDE and editor files
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Model caches
-data/models/*
-!data/models/.gitkeep
-~/.cache/huggingface/
-.cache/huggingface/
-
-# Environment variables (local only)
+# Environment files
 .env
+.env.local
+.env.*.local
 
 # Logs
 *.log
 logs/
 
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
+# OS files
+.DS_Store
+Thumbs.db
 
 # Temporary files
-*.tmp
-.tmp/
+tmp/
+temp/

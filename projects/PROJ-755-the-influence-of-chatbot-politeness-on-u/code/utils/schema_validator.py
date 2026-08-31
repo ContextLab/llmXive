@@ -1,305 +1,317 @@
+"""
+Schema validation utilities for the HCI Politeness project.
+
+This module provides functions to load, validate, and verify dataset schemas
+against defined contract schemas in YAML format.
+"""
 import json
 import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 import yaml
+import pandas as pd
+import logging
 
+logger = logging.getLogger(__name__)
 
 class SchemaValidationError(Exception):
-    """Custom exception for schema validation errors."""
+    """Raised when schema validation fails."""
     pass
 
 
 def load_schema(schema_path: Union[str, Path]) -> Dict[str, Any]:
     """
-    Load a JSON/YAML schema from a file path.
-
+    Load a schema definition from a YAML file.
+    
     Args:
-        schema_path: Path to the schema file.
-
+        schema_path: Path to the schema YAML file.
+        
     Returns:
         Dictionary containing the schema definition.
-
+        
     Raises:
-        FileNotFoundError: If the schema file does not exist.
-        ValueError: If the file content is not valid JSON/YAML.
+        FileNotFoundError: If the schema file doesn't exist.
+        yaml.YAMLError: If the YAML is malformed.
     """
     path = Path(schema_path)
     if not path.exists():
         raise FileNotFoundError(f"Schema file not found: {path}")
-
+        
     with open(path, 'r', encoding='utf-8') as f:
-        try:
-            return yaml.safe_load(f)
-        except yaml.YAMLError as e:
-            raise ValueError(f"Invalid YAML in schema file: {e}")
-        except json.JSONDecodeError as e:
-            raise ValueError(f"Invalid JSON in schema file: {e}")
+        schema = yaml.safe_load(f)
+        
+    if not isinstance(schema, dict):
+        raise SchemaValidationError("Schema must be a YAML dictionary")
+        
+    return schema
 
 
-def validate_type(value: Any, expected_type: Union[str, List[str]]) -> bool:
+def validate_type(value: Any, expected_type: str) -> bool:
     """
-    Validate that a value matches the expected JSON Schema type.
-
-    Supports: string, integer, number, boolean, array, object, null.
-    Handles 'type' as a list (e.g., ["string", "null"]).
-
+    Validate that a value matches the expected type.
+    
     Args:
         value: The value to check.
-        expected_type: The expected type string or list of strings.
-
+        expected_type: The expected type as a string (e.g., 'string', 'integer', 'number', 'boolean', 'array', 'object').
+        
     Returns:
-        True if the type matches, False otherwise.
+        True if the value matches the type, False otherwise.
     """
-    if isinstance(expected_type, str):
-        types_to_check = [expected_type]
-    else:
-        types_to_check = expected_type
-
-    if "null" in types_to_check and value is None:
+    type_mapping = {
+        'string': str,
+        'integer': int,
+        'number': (int, float),
+        'boolean': bool,
+        'array': (list, tuple),
+        'object': dict
+    }
+    
+    if expected_type not in type_mapping:
+        logger.warning(f"Unknown type: {expected_type}")
         return True
-
-    if "string" in types_to_check and isinstance(value, str):
-        return True
-    if "integer" in types_to_check and isinstance(value, int) and not isinstance(value, bool):
-        return True
-    if "number" in types_to_check and isinstance(value, (int, float)) and not isinstance(value, bool):
-        return True
-    if "boolean" in types_to_check and isinstance(value, bool):
-        return True
-    if "array" in types_to_check and isinstance(value, list):
-        return True
-    if "object" in types_to_check and isinstance(value, dict):
-        return True
-
-    return False
+        
+    expected = type_mapping[expected_type]
+    
+    # Special handling for boolean (since bool is subclass of int in Python)
+    if expected_type == 'boolean':
+        return isinstance(value, bool)
+    if expected_type == 'integer':
+        return isinstance(value, int) and not isinstance(value, bool)
+        
+    return isinstance(value, expected)
 
 
 def validate_value_constraints(value: Any, constraints: Dict[str, Any]) -> Tuple[bool, str]:
     """
-    Validate numeric or string constraints (minimum, maximum, pattern, etc.).
-
+    Validate that a value meets specified constraints.
+    
     Args:
         value: The value to check.
-        constraints: Dictionary of constraints (e.g., {'minimum': 1, 'maximum': 5}).
-
+        constraints: Dictionary of constraints (e.g., {'min': 0, 'max': 100, 'pattern': '^[A-Z]+$'}).
+        
     Returns:
         Tuple of (is_valid, error_message).
     """
-    if value is None:
-        return True, ""
-
-    if "minimum" in constraints:
-        if value < constraints["minimum"]:
-            return False, f"Value {value} is less than minimum {constraints['minimum']}"
-
-    if "maximum" in constraints:
-        if value > constraints["maximum"]:
-            return False, f"Value {value} is greater than maximum {constraints['maximum']}"
-
-    if "pattern" in constraints and isinstance(value, str):
-        if not re.match(constraints["pattern"], value):
+    if 'min' in constraints and value < constraints['min']:
+        return False, f"Value {value} is less than minimum {constraints['min']}"
+        
+    if 'max' in constraints and value > constraints['max']:
+        return False, f"Value {value} is greater than maximum {constraints['max']}"
+        
+    if 'pattern' in constraints and isinstance(value, str):
+        if not re.match(constraints['pattern'], value):
             return False, f"Value '{value}' does not match pattern '{constraints['pattern']}'"
-
-    if "minLength" in constraints and isinstance(value, str):
-        if len(value) < constraints["minLength"]:
-            return False, f"String length {len(value)} is less than minLength {constraints['minLength']}"
-
-    if "maxLength" in constraints and isinstance(value, str):
-        if len(value) > constraints["maxLength"]:
-            return False, f"String length {len(value)} is greater than maxLength {constraints['maxLength']}"
-
-    if "enum" in constraints and value not in constraints["enum"]:
-        return False, f"Value '{value}' is not in allowed enum values: {constraints['enum']}"
-
+            
+    if 'enum' in constraints and value not in constraints['enum']:
+        return False, f"Value '{value}' not in allowed values {constraints['enum']}"
+        
+    if 'min_length' in constraints and isinstance(value, str):
+        if len(value) < constraints['min_length']:
+            return False, f"String length {len(value)} is less than minimum {constraints['min_length']}"
+            
+    if 'max_length' in constraints and isinstance(value, str):
+        if len(value) > constraints['max_length']:
+            return False, f"String length {len(value)} is greater than maximum {constraints['max_length']}"
+            
     return True, ""
 
 
-def validate_property(value: Any, property_schema: Dict[str, Any]) -> Tuple[bool, str]:
+def validate_property(value: Any, property_def: Dict[str, Any]) -> Tuple[bool, str]:
     """
-    Validate a single property against its schema definition.
-
+    Validate a single property against its definition.
+    
     Args:
         value: The value to validate.
-        property_schema: The schema definition for this property.
-
+        property_def: The property definition from the schema.
+        
     Returns:
         Tuple of (is_valid, error_message).
     """
     # Check type
-    if "type" in property_schema:
-        if not validate_type(value, property_schema["type"]):
-            return False, f"Type mismatch: expected {property_schema['type']}, got {type(value).__name__}"
-
+    if 'type' in property_def:
+        if not validate_type(value, property_def['type']):
+            return False, f"Type mismatch: expected {property_def['type']}, got {type(value).__name__}"
+            
     # Check constraints
-    if value is not None:
-        is_valid, error = validate_value_constraints(value, property_schema)
+    if 'constraints' in property_def:
+        is_valid, error = validate_value_constraints(value, property_def['constraints'])
         if not is_valid:
             return False, error
-
-    # If it's an object, recursively validate properties
-    if "type" in property_schema and property_schema["type"] == "object" and isinstance(value, dict):
-        return validate_object(value, property_schema)
-
-    # If it's an array, validate items
-    if "type" in property_schema and property_schema["type"] == "array" and isinstance(value, list):
-        items_schema = property_schema.get("items", {})
-        if items_schema:
-            for idx, item in enumerate(value):
-                item_valid, item_error = validate_property(item, items_schema)
-                if not item_valid:
-                    return False, f"Item at index {idx} failed: {item_error}"
-
+            
     return True, ""
 
 
-def validate_object(obj: Dict[str, Any], schema: Dict[str, Any]) -> Tuple[bool, str]:
+def validate_object(obj: Dict[str, Any], schema: Dict[str, Any]) -> List[str]:
     """
-    Validate an object (dict) against a schema definition.
-
+    Validate an object against a schema definition.
+    
     Args:
-        obj: The dictionary to validate.
+        obj: The object to validate.
         schema: The schema definition for the object.
-
+        
     Returns:
-        Tuple of (is_valid, error_message).
-    """
-    properties = schema.get("properties", {})
-    required = schema.get("required", [])
-    additional_properties = schema.get("additionalProperties", True)
-
-    # Check required properties
-    for req_prop in required:
-        if req_prop not in obj:
-            return False, f"Missing required property: {req_prop}"
-
-    # Validate each property
-    for key, value in obj.items():
-        if key in properties:
-            is_valid, error = validate_property(value, properties[key])
-            if not is_valid:
-                return False, f"Property '{key}' failed: {error}"
-        elif additional_properties is False:
-            return False, f"Unexpected property: {key}"
-
-    return True, ""
-
-
-def validate_dataset_schema(schema_path: Union[str, Path]) -> bool:
-    """
-    Validate the schema file itself for basic structural integrity.
-
-    Args:
-        schema_path: Path to the schema file.
-
-    Returns:
-        True if the schema is structurally valid.
-
-    Raises:
-        SchemaValidationError: If the schema is invalid.
-    """
-    schema = load_schema(schema_path)
-
-    if not isinstance(schema, dict):
-        raise SchemaValidationError("Schema must be a JSON object")
-
-    if "type" in schema and schema["type"] != "object":
-        raise SchemaValidationError("Dataset schema root must be of type 'object'")
-
-    if "properties" not in schema:
-        raise SchemaValidationError("Dataset schema must define 'properties'")
-
-    return True
-
-
-def validate_dataset(data: Union[List[Dict], Dict], schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
-    """
-    Validate a dataset (list of records or single record) against a schema.
-
-    Args:
-        data: The data to validate.
-        schema: The loaded schema dictionary.
-
-    Returns:
-        Tuple of (is_valid, list_of_errors).
+        List of validation errors (empty if valid).
     """
     errors = []
+    
+    properties = schema.get('properties', {})
+    required = schema.get('required', [])
+    
+    # Check required fields
+    for field in required:
+        if field not in obj:
+            errors.append(f"Missing required field: {field}")
+            
+    # Validate each property
+    for prop_name, prop_value in obj.items():
+        if prop_name in properties:
+            is_valid, error = validate_property(prop_value, properties[prop_name])
+            if not is_valid:
+                errors.append(f"Invalid value for '{prop_name}': {error}")
+        elif prop_name not in schema.get('additionalProperties', True):
+            errors.append(f"Unexpected field: {prop_name}")
+            
+    return errors
 
-    # If data is a single record, wrap it in a list for uniform processing
-    if isinstance(data, dict):
-        data = [data]
 
-    if not isinstance(data, list):
-        return False, ["Data must be a list of records or a single record"]
-
-    if not data:
-        return True, []
-
-    # Validate each record
-    for idx, record in enumerate(data):
-        if not isinstance(record, dict):
-            errors.append(f"Record {idx} is not an object")
-            continue
-
-        is_valid, error = validate_object(record, schema)
-        if not is_valid:
-            errors.append(f"Record {idx}: {error}")
-
+def validate_dataset_schema(schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
+    """
+    Validate the schema definition itself for completeness.
+    
+    Args:
+        schema: The schema definition to validate.
+        
+    Returns:
+        Tuple of (is_valid, list of errors).
+    """
+    errors = []
+    
+    # Check for required schema keys
+    if 'entity' not in schema:
+        errors.append("Schema missing 'entity' key")
+        
+    if 'properties' not in schema:
+        errors.append("Schema missing 'properties' key")
+        
+    # Validate each property definition
+    for prop_name, prop_def in schema.get('properties', {}).items():
+        if 'type' not in prop_def:
+            errors.append(f"Property '{prop_name}' missing 'type' definition")
+            
     return len(errors) == 0, errors
 
 
-def get_missing_fields(data: List[Dict], schema: Dict[str, Any]) -> List[str]:
+def validate_dataset(df: pd.DataFrame, schema_path: Union[str, Path]) -> Tuple[bool, List[str]]:
     """
-    Identify which required fields are missing across the dataset.
-
+    Validate a pandas DataFrame against a schema definition.
+    
     Args:
-        data: List of data records.
-        schema: The schema definition.
+        df: The DataFrame to validate.
+        schema_path: Path to the schema YAML file.
+        
+    Returns:
+        Tuple of (is_valid, list of errors).
+    """
+    schema = load_schema(schema_path)
+    
+    # Validate schema itself first
+    is_valid, schema_errors = validate_dataset_schema(schema)
+    if not is_valid:
+        return False, [f"Schema error: {e}" for e in schema_errors]
+        
+    errors = []
+    properties = schema.get('properties', {})
+    required = schema.get('required', [])
+    
+    # Check for required columns
+    for field in required:
+        if field not in df.columns:
+            errors.append(f"Missing required column: {field}")
+            
+    # Validate each column
+    for col_name in df.columns:
+        if col_name in properties:
+            prop_def = properties[col_name]
+            
+            # Check type mapping
+            type_mapping = {
+                'string': 'object',
+                'integer': 'int64',
+                'number': 'float64',
+                'boolean': 'bool',
+                'array': 'object',
+                'object': 'object'
+            }
+            
+            expected_type = type_mapping.get(prop_def.get('type', 'string'))
+            actual_type = str(df[col_name].dtype)
+            
+            # For now, do a basic type check
+            if prop_def.get('type') == 'integer' and not pd.api.types.is_integer_dtype(df[col_name]):
+                errors.append(f"Column '{col_name}' should be integer, got {actual_type}")
+            elif prop_def.get('type') == 'number' and not pd.api.types.is_numeric_dtype(df[col_name]):
+                errors.append(f"Column '{col_name}' should be numeric, got {actual_type}")
+            elif prop_def.get('type') == 'boolean' and not pd.api.types.is_bool_dtype(df[col_name]):
+                errors.append(f"Column '{col_name}' should be boolean, got {actual_type}")
+                
+            # Check for null values in required fields
+            if col_name in required and df[col_name].isna().any():
+                errors.append(f"Column '{col_name}' contains null values but is required")
+                
+            # Check constraints
+            if 'constraints' in prop_def:
+                constraints = prop_def['constraints']
+                
+                if 'min' in constraints and pd.api.types.is_numeric_dtype(df[col_name]):
+                    min_val = df[col_name].min()
+                    if min_val < constraints['min']:
+                        errors.append(f"Column '{col_name}' has values below minimum {constraints['min']} (min found: {min_val})")
+                        
+                if 'max' in constraints and pd.api.types.is_numeric_dtype(df[col_name]):
+                    max_val = df[col_name].max()
+                    if max_val > constraints['max']:
+                        errors.append(f"Column '{col_name}' has values above maximum {constraints['max']} (max found: {max_val})")
+                        
+                if 'enum' in constraints:
+                    unique_values = df[col_name].unique()
+                    invalid_values = [v for v in unique_values if pd.notna(v) and v not in constraints['enum']]
+                    if invalid_values:
+                        errors.append(f"Column '{col_name}' contains invalid values: {invalid_values[:5]}...")
+                        
+    return len(errors) == 0, errors
 
+
+def get_missing_fields(df: pd.DataFrame, schema_path: Union[str, Path]) -> List[str]:
+    """
+    Get a list of fields that are missing from the DataFrame but required by the schema.
+    
+    Args:
+        df: The DataFrame to check.
+        schema_path: Path to the schema YAML file.
+        
     Returns:
         List of missing required field names.
     """
-    required_fields = set(schema.get("required", []))
-    found_fields = set()
-
-    for record in data:
-        if isinstance(record, dict):
-            found_fields.update(record.keys())
-
-    return list(required_fields - found_fields)
-
-
-def validate_dataset_schema_wrapper(
-    data_path: Union[str, Path],
-    schema_path: Union[str, Path],
-    is_list: bool = True
-) -> Tuple[bool, List[str]]:
-    """
-    Convenience wrapper to load data and schema from files and validate.
-
-    Args:
-        data_path: Path to the data file (JSON or JSONL).
-        schema_path: Path to the schema file (YAML or JSON).
-        is_list: True if the data file contains a list of objects, False if it contains a single object.
-
-    Returns:
-        Tuple of (is_valid, list_of_errors).
-    """
-    # Load schema
     schema = load_schema(schema_path)
+    required = schema.get('required', [])
+    
+    missing = []
+    for field in required:
+        if field not in df.columns:
+            missing.append(field)
+            
+    return missing
 
-    # Load data
-    data_path = Path(data_path)
-    with open(data_path, 'r', encoding='utf-8') as f:
-        if data_path.suffix == '.jsonl':
-            # JSONL: read line by line
-            data = []
-            for line in f:
-                if line.strip():
-                    data.append(json.loads(line))
-            if not is_list and len(data) == 1:
-                data = data[0]
-        else:
-            data = json.load(f)
 
-    return validate_dataset(data, schema)
+def validate_dataset_schema_wrapper(schema_path: Union[str, Path]) -> Tuple[bool, List[str]]:
+    """
+    Wrapper function to validate a schema file against itself.
+    
+    Args:
+        schema_path: Path to the schema YAML file.
+        
+    Returns:
+        Tuple of (is_valid, list of errors).
+    """
+    schema = load_schema(schema_path)
+    return validate_dataset_schema(schema)
