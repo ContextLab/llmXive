@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Stress Curves Schema"
+type: object
+required:
+  - clip_id
+  - speaker_id
+  - room_id
+  - model_name
+  - snr_db
+  - rt60_s
+  - step_index
+  - asr_hypothesis
+  - wer
+  - sss
+properties:
+  clip_id:
+    type: string
+    description: "Unique identifier of the original audio clip."
+  speaker_id:
+    type: string
+    description: "Speaker identifier (used for stratification)."
+  room_id:
+    type: string
+    description: "Room identifier (proxy for acoustic environment)."
+  model_name:
+    type: string
+    description: "ASR model used for inference (e.g., 'whisper-tiny')."
+  snr_db:
+    type: number
+    description: "Signal‑to‑Noise Ratio in decibels."
+  rt60_s:
+    type: number
+    description: "Reverberation time (RT60) in seconds."
+  step_index:
+    type: integer
+    description: "Index of the distortion step (0‑53)."
+  asr_hypothesis:
+    type: string
+    description: "Transcription output from the ASR model."
+  wer:
+    type: number
+    description: "Word Error Rate (0 – 1)."
+  sss:
+    type: number
+    description: "Semantic Similarity Score (0 – 1)."

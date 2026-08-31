@@ -1,11 +1,13 @@
 status: none
-intent: CHiME-5 dataset download LDC source python package dataset
+intent: huggingface datasets chime5 download python package dataset
 required_fields:
 - audio_filepath
+- transcript
 - speaker_id
 - room_id
-- utterance_id
-- transcript
-cache_key: aece7ddd0e11e70abc1aebe0195c74151f8ca48a1f3d4e01687a529be06489c9
-searched_at: '2026-08-29T10:15:50.374881+00:00'
+- session_id
+- microphone_channel
+- sample_rate
+cache_key: f5a97755f87c7bc57c61194d1bfa4a41e6baf5797b8af69702e48c7a1fa3abd8
+searched_at: '2026-08-31T13:31:51.218730+00:00'
 retry_count: 1

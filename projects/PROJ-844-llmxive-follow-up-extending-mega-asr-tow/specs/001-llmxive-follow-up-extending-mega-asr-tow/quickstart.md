@@ -1,141 +1,84 @@
-# Quickstart: llmXive Follow-up: Extending "Mega-ASR" for Semantic Collapse Thresholds
+# Quickstart: Running the Semantic Collapse Threshold Pipeline
 
-## Prerequisites
+> **Prerequisite**: GitHub Actions runner with Python 3.11. All commands assume execution from the repository root.
 
-- Python 3.11+  
-- ≤ 7 GB RAM, 14 GB disk (GitHub Actions free tier)  
-- Internet access (for Hugging Face datasets)  
-- Optional: Kaggle account (for GPU escape hatch – not required)
-
-## Installation
-
+## 1. Install Dependencies
 ```bash
-# Clone repository
-git clone <repo-url>
-cd <project-dir>
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# or venv\Scripts\activate  # Windows
-
-# Install dependencies
-pip install -r code/requirements.txt
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
-## Configuration
-
-1. Set random seeds in `code/utils/config.py`:
-   ```python
-   import random, numpy as np, torch
-   SEED = 42
-   random.seed(SEED)
-   np.random.seed(SEED)
-   torch.manual_seed(SEED)
-   ```
-2. Verify dataset availability:
-   ```bash
-   python code/data/download.py --check
-   ```
-
-## Running the Pipeline (CPU‑first)
-
-### Step 1: Download & Stratify Data
+## 2. Verify Dataset Checksums
 ```bash
-python code/data/preprocess.py \
-  --dataset ami,librispeech \
-  --split test,test.clean \
-  --output data/raw/stratified.parquet
+python -m llmxive.utils.checksum verify
 ```
-- Uses AMI test and LibriSpeech test.clean.
-- Generates synthetic RIRs for every clip to create `simulated_rt60` and `simulated_room_volume` strata.
+(Will download the three open ASR datasets and record SHA hashes under `data/checksums.yaml`.)
 
-### Step 2: Generate Distortion Stress Curves
+## 3. Execute the Full Pipeline (CI‑mode)
 ```bash
-python code/distortion/generator.py \
-  --input data/raw/stratified.parquet \
-  --output data/derived/stress_curves.parquet \
-  --snr-range -10 30 \
-  --rt60-range 0.1 1.0 \
-  --models whisper-tiny
+python -m llmxive.pipeline \
+    --sample-size 5000 \   # reduced sample for CI feasibility (≈ several hundred k jobs)
+    --snr-levels -6,-3,0,3,6,9,12,15,18 \
+    --rt60-levels 0.2,0.4,0.6,0.8,1.0,1.2 \
+    --asr-models whisper-tiny distil-whisper \
+    --seed 42 \
+    --mode ci
 ```
-- Generates 54 distortion scenarios per clip (9 SNR × 6 RT60).  
-- Batch size = 100 to stay within RAM limits.
+The command performs all phases (0–10) defined in `plan.md`. Intermediate artifacts are written to `data/derived/`.
 
-### Step 3: Compute Collapse Intensities
+## 4. Execute the Full‑Scale Pipeline (External Compute)
 ```bash
-python code/metrics/collapse.py \
-  --input data/derived/stress_curves.parquet \
-  --output data/derived/collapse_points.parquet
+python -m llmxive.pipeline \
+    --sample-size 50000 \   # full study size (≥ 50 000 clips)
+    --snr-levels -6,-3,0,3,6,9,12,15,18 \
+    --rt60-levels 0.2,0.4,0.6,0.8,1.0,1.2 \
+    --asr-models whisper-tiny distil-whisper \
+    --seed 42 \
+    --mode full
 ```
-- Applies smoothing, derivative analysis, **morphology check**, and deterministic interpolation (FR‑021).  
-- Handles empty hypotheses, noise floor, and non-monotonic curves.
+- **CI‑mode** runs on the free GitHub Actions runner (2 CPU cores, ≤ 7 GB RAM).  
+- **Full‑scale** mode is intended for a Kubernetes/Slurm cluster or a Kaggle GPU off‑load; it will exceed the free‑tier limits and therefore must be launched on external resources.
 
-### Step 4: Train Regression Model
+## 5. Independent US‑3 Verification (Mock Data Test)
 ```bash
-python code/analysis/regression.py \
-  --input data/derived/collapse_points.parquet \
-  --output data/derived/critical_vectors.parquet
+python -m llmxive.pipeline \
+    --mock-regression-test true \
+    --seed 42
 ```
-- Hierarchical regression with interaction terms, SHAP analysis, and FDR correction.
+This generates a synthetic regression dataset with known interaction effects, trains the same hierarchical model, and checks that the recovered coefficients match the ground‑truth within tolerance. It provides an independent verification of US‑3 without requiring the full stress‑curve generation.
 
-### Step 5: Sensitivity Analysis
+## 6. Inspect Results
 ```bash
-python code/analysis/validation.py \
-  --input data/derived/collapse_points.parquet \
-  --output data/derived/sensitivity_results.parquet
+# Stress curves (first 5 rows)
+head -n 5 data/derived/stress_curves.parquet | pandasql -c "SELECT * FROM stdin LIMIT 5"
+
+# Collapse points summary
+python -c "import pandas as pd; df=pd.read_parquet('data/derived/collapse_points.parquet'); print(df.describe())"
+
+# Regression performance
+cat results/regression_summary.json | jq .
 ```
 
-### Step 6: Domain Validation Pilot (FR-011)
+## 7. Run Unit Tests
 ```bash
-python code/validation/pilot.py \
-  --dataset ami \
-  --rt60-threshold 0.5 \
-  --sample-size 100 \
-  --output data/derived/validation_pilot.parquet
+pytest -vv
 ```
-- Annotates N=100 high-reverb clips and validates SSS.
+The test suite includes:
+- `tests/unit/__init__.py` – ensures the package is importable.
+- `tests/unit/test_download.py` – verifies dataset download, checksum validation, and schema compliance (`contracts/dataset.schema.yaml`).
+- `tests/unit/test_distort.py` – checks distortion generation, missing‑scenario logging, and `DistortionVector` integrity.
+- `tests/unit/test_regression.py` – validates regression input schema (`contracts/regression_input.schema.yaml`) and critical vector output schema (`contracts/critical_vector.schema.yaml`).
 
-### Step 7: Realism Validation (FR-018)
+All tests are deterministic (seed = 42) and will fail if any required artifact is missing.
+
+## 8. Reproduce the Paper Figures
 ```bash
-python code/validation/realism.py \
-  --dataset dns-challenge \
-  --sample-size 50 \
-  --output data/derived/realism_validation.parquet
+jupyter nbconvert --to pdf --execute notebooks/report.ipynb
 ```
-- Validates synthetic distortions against N=50 DNS Challenge clips.
+The notebook reads directly from the Parquet artifacts, guaranteeing the *single source of truth* principle.
 
-## Verification
+---
 
-### Unit Tests
-```bash
-pytest tests/unit/ -v
-```
-- Ensure `tests/unit/__init__.py` exists and contains basic sanity checks.
 
-### Contract Tests
-```bash
-pytest tests/contract/ -v
-```
-- Validates outputs against `contracts/*.schema.yaml`.
 
-### Integration Tests
-```bash
-pytest tests/integration/ -v
-```
-- Runs the full pipeline on a tiny subset (e.g., 10 clips) to confirm end‑to‑end functionality.
-
-## Output Artifacts
-
-- `data/derived/stress_curves.parquet`: Stress‑curve records (SSS, WER, etc.).  
-- `data/derived/collapse_points.parquet`: Collapse intensity records (per FR‑021).  
-- `data/derived/critical_vectors.parquet`: Regression coefficients and interaction vector.  
-- `data/derived/sensitivity_results.parquet`: Sensitivity analysis outcomes.
-- `data/derived/validation_pilot.parquet`: Domain validation results.
-- `data/derived/realism_validation.parquet`: Realism validation results.
-
-## Troubleshooting
-
-- **Out of Memory**: Reduce `--batch-size` in `generator.py`.  
-- **Dataset Not Found**: Verify URLs in `code/data/download.py`.  
-- **CUDA Error**: No GPU required; if accidentally invoked, the runner will offload to Kaggle GPU (scaled‑down) automatically.

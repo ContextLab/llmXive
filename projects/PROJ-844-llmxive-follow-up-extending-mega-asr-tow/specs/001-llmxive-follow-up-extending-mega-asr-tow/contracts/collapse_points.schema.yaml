@@ -1,0 +1,22 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Collapse Points Schema"
+type: object
+required:
+  - clip_id
+  - model_name
+  - collapse_intensity
+  - collapse_method
+properties:
+  clip_id:
+    type: string
+    description: "Unique identifier of the original audio clip."
+  model_name:
+    type: string
+    description: "ASR model name (e.g., 'whisper-tiny')."
+  collapse_intensity:
+    type: ["number", "null"]
+    description: "Scalar intensity value (e.g., combined SNR/RT60) where collapse occurs; null if no collapse detected."
+  collapse_method:
+    type: string
+    enum: ["inflection_point","threshold_crossing","none"]
+    description: "Algorithmic source of the reported intensity per FR‑021."

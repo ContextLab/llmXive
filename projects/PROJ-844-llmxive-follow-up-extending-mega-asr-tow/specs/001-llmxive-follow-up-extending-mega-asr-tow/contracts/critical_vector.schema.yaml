@@ -37,7 +37,7 @@ properties:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: "FDR-corrected p-value for interaction term"
+    description: "FDR‑corrected p‑value for interaction term"
   shap_interaction_strength:
     type: number
     description: "SHAP value magnitude for interaction"
