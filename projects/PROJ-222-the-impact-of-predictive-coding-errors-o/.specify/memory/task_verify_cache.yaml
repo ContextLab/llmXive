@@ -1,3 +1,11 @@
+T016:
+  c: false
+  h: bbdba8026c0eae10eff26b5030329613d48be477db828464ef860e2a77dbc801
+  r: "The repository contains a `code/preprocess.py` file, but it only includes placeholder\
+    \ stubs and no actual implementation of the Markov surprisal calculation or code\
+    \ that writes `data/processed/markov_state.json`. Moreover, the required output\
+    \ file `data/processed/markov_state.json` is absent. The task\u2019s core output\
+    \ is therefore missing."
 T017b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

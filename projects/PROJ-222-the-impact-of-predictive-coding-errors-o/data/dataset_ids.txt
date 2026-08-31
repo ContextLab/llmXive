@@ -1,0 +1,6 @@
+# Dataset IDs for time perception experiments
+# Format: source:id
+# OpenML datasets
+openml:42277
+# HuggingFace datasets (example - replace with real dataset if available)
+# huggingface:username/dataset-name

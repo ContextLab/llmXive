@@ -1,0 +1,829 @@
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Pinned dependency versions for the project
+  claim_id: c_8b3d93ab
+  context: Create code/requirements.txt with pinned dependencies (pandas==2.0.3, numpy==1.24.3,
+    statsmodels==0.14.0, pingouin==0.5.3, joblib==1.3.2, matplotlib==3.8.0, seaborn==0.13.0,
+    openml==0.14.2, datasets==2.14.0, pyyaml==6.0.1).
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: pandas==2.0.3, numpy==1.24.3, statsmodels==0.14.0, pingouin==0.5.3, joblib==1.3.2,
+    matplotlib==3.8.0, seaborn==0.13.0, openml==0.14.2, datasets==2.14.0, pyyaml==6.0.1
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T23:13:05Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Chunked data loading utility handles datasets larger than 500 MB within
+    7 GB RAM limits
+  claim_id: c_bf9ce55d
+  context: Implement chunked data loading utility in code/utils.py to handle datasets
+    >500 MB within 7 GB RAM limits.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: datasets >500 MB within 7 GB RAM limits
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:13:05Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Bootstrap configuration sets BOOTSTRAP_N_JOBS to 2 as a hard cap
+  claim_id: c_499cd06f
+  context: Set BOOTSTRAP_N_JOBS=2 (hard cap) for fixed resource constraint.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: BOOTSTRAP_N_JOBS=2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:14:12Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Maximum trials cap is set to 5000 by default
+  claim_id: c_68473903
+  context: Stream and cap at config.MAX_TRIALS (default 5000).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: default 5000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:14:45Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Full dataset processing occurs if estimated runtime is less than or equal
+    to 6 hours
+  claim_id: c_533f5af7
+  context: If estimated runtime <= 6h, process full dataset.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_dataset_processing_occurs_if_estimated_runtime_is_less
+  kind: magnitude
+  raw_text: estimated runtime <= 6h
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:15:15Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Output CSV files must contain at least 100 valid rows
+  claim_id: c_10c90637
+  context: "Verify that output CSV files contain the required columns with \u2265\
+    100 valid rows."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_CSV_files_must_contain_at_least_100_valid_rows
+  kind: magnitude
+  raw_text: '>=100 valid rows'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:15:54Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Minimum Detectable Effect is calculated for a power of 0.80
+  claim_id: c_659159c4
+  context: Implement sensitivity analysis to calculate Minimum Detectable Effect (MDE)
+    for power=0.80.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: power=0.80
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T23:16:12Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Runtime assertion is set to less than 21600 seconds
+  claim_id: c_b82bc331
+  context: Assert runtime < 21600 seconds.
+  evidence:
+    entailment_evidence: Runtime assertion is set to less than 21600 seconds
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Runtime_assertion_is_set_to_less_than_21600_seconds
+  kind: magnitude
+  raw_text: < 21600 seconds
+  resolved_value: Runtime assertion is set to less than 21600 seconds
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T23:16:16Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction is used if the number of tests is less than 5
+  claim_id: c_9234aaec
+  context: Use Bonferroni only if num_tests < 5.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_is_used_if_the_number_of_tests_is_less
+  kind: magnitude
+  raw_text: num_tests < 5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:17:09Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Handle datasets >500 MB within 7 GB RAM limits using chunked loading
+  claim_id: c_8a48ca87
+  context: T008 [P] Implement chunked data loading utility in code/utils.py to handle
+    datasets >500 MB within 7 GB RAM limits. Uses pandas.read_csv() with chunksize
+    parameter and pd.concat() for aggregation. (FR-009, Assumption 9)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Uses pandas.read_csv() with chunksize parameter and pd.concat() for aggregation
+    to handle datasets >500 MB within 7 GB RAM limits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:21:02Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Set BOOTSTRAP_N_JOBS to 2 for fixed resource constraint
+  claim_id: c_4834b4a8
+  context: 'T028b [P] [Dep: T007] Define the convergence threshold and bootstrap configuration
+    in code/config.py. Set BOOTSTRAP_N_JOBS=2 (hard cap) for fixed resource constraint.
+    Note: MAX_TRIALS cap is enforced in T015. (FR-009, Assumption 10)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set BOOTSTRAP_N_JOBS=2 (hard cap) for fixed resource constraint.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:22:18Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Verify standardized CSV contains at least 100 rows
+  claim_id: c_9337549f
+  context: 'T017 [US1] [Dep: T016] Generate standardized CSV output in data/processed/standardized.csv
+    with checksums. Verify file exists and contains >=100 rows. (FR-003, SC-001)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_standardized_CSV_contains_at_least_100_rows
+  kind: magnitude
+  raw_text: Verify file exists and contains >=100 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:22:48Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Use Bonferroni correction only if number of tests is less than 5
+  claim_id: c_e25d55c5
+  context: 'T023 [US2] [Dep: T021] Implement multiple-comparison correction (Bonferroni/Benjamini-Hochberg)
+    for p-values. Logic: Default to Benjamini-Hochberg; use Bonferroni only if num_tests
+    < 5. Save adjusted_pvalues list to analysis/results.json. (FR-005, SC-003)'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Use_Bonferroni_correction_only_if_number_of_tests_is_less_th
+  kind: magnitude
+  raw_text: Default to Benjamini-Hochberg; use Bonferroni only if num_tests < 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:23:12Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Control Family-Wise Error Rate at alpha less than or equal to 0.05
+  claim_id: c_9953cadc
+  context: "T023b [US2] [Dep: T023] Implement verification logic to ensure Family-Wise\
+    \ Error Rate is controlled at \u03B1\u22640.05 and log fwer_control_status (boolean)\
+    \ to analysis/results.json. (SC-003)"
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: FWER under 0.01, 0.05 or 0.1. As a general procedure to control k-FWER
+        (the probability of making
+      source_id: '2310.09493'
+      url: https://arxiv.org/abs/2310.09493
+      value: '0.05'
+    filled: true
+  kind: magnitude
+  raw_text: "Family-Wise Error Rate is controlled at \u03B1\u22640.05."
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T23:24:04Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Perform Shapiro-Wilk normality test at alpha 0.05 on duration estimates
+    and residuals
+  claim_id: c_0f87d2d2
+  context: "T026 [US2] [Dep: T021] Implement normality check (Shapiro-Wilk, \u03B1\
+    =0.05) on duration estimate distribution (as per Edge Cases) and LMM residuals.\
+    \ Logic: If the outcome distribution is non-normal (p < 0.05), execute Wilcoxon\
+    \ signed-rank test (scipy.stats.wilcoxon) as the primary substitute. Do NOT use\
+    \ Robust LMM. Log normality_test_pval, test_method_used ('Wilcoxon' or 'LMM'),\
+    \ and wilcoxon_pval (if applicable) to analysis/results.json. (Edge Cases, FR-004)"
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Implement normality check (Shapiro-Wilk, \u03B1=0.05) on duration estimate\
+    \ distribution and LMM residuals."
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T23:24:04Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Run bootstrap resampling with 2 parallel jobs
+  claim_id: c_d8ccfac4
+  context: 'T028 [US2] [Dep: T021, T023, T024, T025, T026, T028b] Implement bootstrap
+    resampling in code/analysis.py using joblib.Parallel(n_jobs=2) (hard cap). Fallback:
+    If the runner reports <2 cores, log a warning and proceed with n_jobs=1, extending
+    the expected runtime limit in the log. Must run sequentially after T023-T026 to
+    consume results. Save results to analysis/results.json. Log runtime to analysis/runtime.log.
+    (FR-009)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement bootstrap resampling in code/analysis.py using joblib.Parallel(n_jobs=2)
+    (hard cap).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:24:21Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Save all plots at 300 DPI or higher
+  claim_id: c_ebefae9c
+  context: "T032 [US3] Ensure all plots are saved at \u2265300 DPI in figures/ directory"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure all plots are saved at \u2265300 DPI in figures/ directory."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:24:21Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Verify full pipeline execution time is less than 6 hours
+  claim_id: c_22c946a2
+  context: 'T034 [US3] Create tests/integration/test_runtime.py to verify full pipeline
+    execution time < 6h (SC-004). Assert runtime {{claim:c_b82bc331}}. Implementation:
+    Use time module and tracemalloc to measure runtime and peak memory usage. (SC-004)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_full_pipeline_execution_time_is_less_than_6_hours
+  kind: magnitude
+  raw_text: Create tests/integration/test_runtime.py to verify full pipeline execution
+    time < 6h.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:25:57Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Verify GitHub Actions runner meets CPU-only and 7 GB RAM constraints
+  claim_id: c_e2ad4589
+  context: "T033c [US3] Validate Dockerfile against GitHub Actions runner architecture\
+    \ (CPU-only, \u22647 GB RAM) (US-3)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify the GitHub Actions runner meets the multi-core/memory constraint\
+    \ (CPU-only, \u22647 GB RAM)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:25:57Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Cap processing at 5000 trials if runtime exceeds budget
+  claim_id: c_a2ba9f34
+  context: 'T015 [US1] [Dep: T008] Create code/preprocess.py with full implementation
+    of data loading functions. Logic: 1. Load data using utils.py chunked loader.
+    2. Budget Check: Estimate runtime for full dataset. If estimated runtime exceeds
+    the configured maximum duration, stream and cap at config.MAX_TRIALS (default
+    5000). If estimated runtime <= 6h, process full dataset. 3. Log truncation if
+    applied. (FR-003, Assumption 1, Assumption 3, SC-004)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement streaming and cap at config.MAX_TRIALS (default 5000) if estimated
+    runtime exceeds the configured maximum duration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:26:20Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 0
+  canonical: Normality check uses Shapiro-Wilk test with alpha 0.05
+  claim_id: c_d03246c9
+  context: "Implement normality check (Shapiro-Wilk, \u03B1=0.05) on duration estimate\
+    \ distribution and LMM residuals."
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Implement normality check (Shapiro-Wilk, \u03B1=0.05) on duration estimate\
+    \ distribution and LMM residuals."
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T23:36:38Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Uses pandas read_csv chunksize and pd.concat for chunked data loading
+  claim_id: c_23564cc4
+  context: Implement chunked data loading utility in code/utils.py to handle datasets
+    >500 MB within 7 GB RAM limits.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Uses_pandas_read_csv_chunksize_and_pd.concat_for_chunked_dat
+  kind: entity_fact
+  raw_text: Uses pandas.read_csv() with chunksize parameter and pd.concat() for aggregation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:42:31Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Bootstrap configuration sets BOOTSTRAP_N_JOBS to 2
+  claim_id: c_b38f9f37
+  context: Define the convergence threshold and bootstrap configuration in code/config.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set BOOTSTRAP_N_JOBS=2 (hard cap) for fixed resource constraint.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:42:31Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Standardized CSV output contains at least 100 rows
+  claim_id: c_244dd0ce
+  context: Generate standardized CSV output in data/processed/standardized.csv with
+    checksums.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Standardized_CSV_output_contains_at_least_100_rows
+  kind: magnitude
+  raw_text: Verify file exists and contains >=100 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:42:35Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Data processing capped at 5000 trials by default
+  claim_id: c_edfac490
+  context: If estimated runtime exceeds the configured maximum duration, stream and
+    cap at config.MAX_TRIALS.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stream and cap at config.MAX_TRIALS (default 5000).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:43:10Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction used only if number of tests is less than 5
+  claim_id: c_72a2105c
+  context: Implement multiple-comparison correction (Bonferroni/Benjamini-Hochberg)
+    for p-values.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_used_only_if_number_of_tests_is_less_t
+  kind: magnitude
+  raw_text: Default to Benjamini-Hochberg; use Bonferroni only if num_tests < 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:43:13Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Family-Wise Error Rate controlled at alpha less than or equal to 0.05
+  claim_id: c_96aefeb3
+  context: Implement verification logic to ensure Family-Wise Error Rate is controlled.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: FWER under 0.01, 0.05 or 0.1. As a general procedure to control k-FWER
+        (the probability of making
+      source_id: '2310.09493'
+      url: https://arxiv.org/abs/2310.09493
+      value: '0.05'
+    filled: true
+  kind: magnitude
+  raw_text: "Ensure Family-Wise Error Rate is controlled at \u03B1\u22640.05 (2310.09493,\
+    \ https://arxiv.org/abs/2310.09493)."
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T23:43:58Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling uses joblib parallel with 2 jobs
+  claim_id: c_334be222
+  context: Implement bootstrap resampling in code/analysis.py using joblib.Parallel(n_jobs=2)
+    (hard cap).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement bootstrap resampling in code/analysis.py using joblib.Parallel(n_jobs=2)
+    (hard cap).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:43:58Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Plots saved at 300 DPI or higher
+  claim_id: c_db763868
+  context: "Ensure all plots are saved at \u2265300 DPI in figures/ directory."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure all plots are saved at \u2265300 DPI in figures/ directory."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:43:58Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution time verified to be less than 6 hours
+  claim_id: c_72314735
+  context: Create tests/integration/test_runtime.py to verify full pipeline execution
+    time < 6h.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_execution_time_verified_to_be_less_than_6_hour
+  kind: magnitude
+  raw_text: Create tests/integration/test_runtime.py to verify full pipeline execution
+    time < 6h.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:44:04Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 0
+  canonical: Control Family-Wise Error Rate at alpha less than or equal to 0.05
+  claim_id: c_3522342f
+  context: "Implement verification logic to ensure Family-Wise Error Rate is controlled\
+    \ at \u03B1\u22640.05 (2310.09493, https://arxiv.org/abs/2310.09493) and log fwer_control_status\
+    \ (boolean) to analysis/results.json."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: FWER under 0.01, 0.05 or 0.1. As a general procedure to control k-FWER
+        (the probability of making
+      source_id: '2310.09493'
+      url: https://arxiv.org/abs/2310.09493
+      value: '0.05'
+    filled: true
+  kind: magnitude
+  raw_text: "Family-Wise Error Rate is controlled at \u03B1\u22640.05"
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T23:45:21Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Process full dataset if estimated runtime is less than or equal to 6
+    hours
+  claim_id: c_26aad33f
+  context: 'Budget Check: Estimate runtime for full dataset. If estimated runtime
+    exceeds the configured maximum duration, stream and cap at config.MAX_TRIALS (default
+    5000). If estimated runtime <= 6h, process full dataset.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Process_full_dataset_if_estimated_runtime_is_less_than_or_eq
+  kind: magnitude
+  raw_text: If estimated runtime <= 6h, process full dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:45:48Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Stream and cap data at 5000 trials if runtime exceeds budget
+  claim_id: c_5105962a
+  context: If estimated runtime exceeds the configured maximum duration, stream and
+    cap at config.MAX_TRIALS (default 5000). If estimated runtime <= 6h, process full
+    dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: stream and cap at config.MAX_TRIALS (default 5000)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:45:48Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Handle datasets larger than 500 MB within 7 GB RAM limits
+  claim_id: c_f6decd61
+  context: Implement chunked data loading utility in code/utils.py to handle datasets
+    >500 MB within 7 GB RAM limits. Uses pandas.read_csv() with chunksize parameter
+    and pd.concat() for aggregation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: handle datasets >500 MB within 7 GB RAM limits
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:45:48Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Operate within 7 GB RAM limits
+  claim_id: c_0808fa30
+  context: Implement chunked data loading utility in code/utils.py to handle datasets
+    >500 MB within 7 GB RAM limits.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: within 7 GB RAM limits
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:47:32Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Set bootstrap parallel jobs to 2
+  claim_id: c_650b8b38
+  context: 'Set BOOTSTRAP_N_JOBS=2 (hard cap) for fixed resource constraint. Note:
+    MAX_TRIALS cap is enforced in T015.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: BOOTSTRAP_N_JOBS=2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:47:32Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Use Bonferroni correction if number of tests is less than 5
+  claim_id: c_65e57be4
+  context: Default to Benjamini-Hochberg; use Bonferroni only if num_tests < 5 .
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Use_Bonferroni_correction_if_number_of_tests_is_less_than_5
+  kind: magnitude
+  raw_text: num_tests < 5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:47:35Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Perform Shapiro-Wilk normality test at alpha 0.05
+  claim_id: c_54f07619
+  context: "Implement normality check (Shapiro-Wilk, \u03B1=0.05) on duration estimate\
+    \ distribution (as per Edge Cases) and LMM residuals."
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Shapiro-Wilk, \u03B1=0.05"
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T23:47:35Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Use joblib parallel processing with 2 jobs
+  claim_id: c_562314a9
+  context: Implement bootstrap resampling in code/analysis.py using joblib.Parallel(n_jobs=2)
+    (hard cap).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: using joblib.Parallel(n_jobs=2)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:48:02Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Verify output CSV files contain at least 100 valid rows
+  claim_id: c_f95265c6
+  context: "Independent Test: Can be fully tested by executing the data download and\
+    \ preprocessing scripts and verifying that output CSV files contain the required\
+    \ columns (duration estimate, stimulus timing, condition label, participant ID,\
+    \ surprisal metric) with \u2265100 valid rows."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_output_CSV_files_contain_at_least_100_valid_rows
+  kind: magnitude
+  raw_text: "output CSV files contain... with \u2265100 valid rows"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:48:57Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Verify standardized CSV output contains at least 100 rows
+  claim_id: c_8b2fa1c4
+  context: Generate standardized CSV output in data/processed/standardized.csv with
+    checksums. Verify file exists and contains >=100 rows.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_standardized_CSV_output_contains_at_least_100_rows
+  kind: magnitude
+  raw_text: Verify file exists and contains >=100 rows
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:49:01Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Save all plots at 300 DPI or higher
+  claim_id: c_a1bd9b2b
+  context: "Ensure all plots are saved at \u2265300 DPI in figures/ directory"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "all plots are saved at \u2265300 DPI"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:49:01Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Verify full pipeline execution time is less than 6 hours
+  claim_id: c_1a3e4edb
+  context: Create tests/integration/test_runtime.py to verify full pipeline execution
+    time < 6h (SC-004). Assert runtime {{claim:c_b82bc331}}.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_full_pipeline_execution_time_is_less_than_6_hours
+  kind: magnitude
+  raw_text: full pipeline execution time < 6h
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:49:22Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Guide external reviewer to reproduce results within 6 hours
+  claim_id: c_a2ee8443
+  context: Generate reproducibility-checklist.md and quickstart.md explicitly guiding
+    an external reviewer to reproduce results within 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure reproducibility within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T23:50:12Z'

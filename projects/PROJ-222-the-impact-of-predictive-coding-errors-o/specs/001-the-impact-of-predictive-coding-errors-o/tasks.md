@@ -56,11 +56,11 @@
 - [X] T001a [P] Create project directories: `data/raw`, `data/processed`, `code`, `figures`, `analysis`, `contracts`, `tests`
 - [X] T001b [P] Create `__init__.py` files in `code/` and `tests/` directories
 - [X] T002a [P] Create `pyproject.toml` with project metadata and a compatible Python version.
-- [X] T002b [P] Create `code/requirements.txt` with pinned dependencies (pandas==2.0.3, numpy==1.24.3, statsmodels==0.14.0, pingouin==0.5.3, joblib==1.3.2, matplotlib==3.8.0, seaborn==0.13.0, openml==0.14.2, datasets==2.14.0, pyyaml==6.0.1).
+- [X] T002b [P] Create `code/requirements.txt` with pinned dependencies ({{claim:c_8b3d93ab}}).
 - [X] T002c [P] Setup virtualenv and install dependencies from `code/requirements.txt`.
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 - [X] T004 [P] Setup `data/README.md` schema for dataset metadata and exclusion logs (fields: dataset_id, status, reason, checksum)
-- [ ] T012a [P] Create `data/dataset_ids.txt` containing the initial list of OpenML/HuggingFace dataset IDs to be fetched. This file serves as the static source of truth for T012. (FR-001, FR-002)
+- [X] T012a [P] Create `data/dataset_ids.txt` containing the initial list of OpenML/HuggingFace dataset IDs to be fetched. This file serves as the static source of truth for T012. (FR-001, FR-002)
 
 ---
 
@@ -74,7 +74,7 @@
 - [X] T006 [P] Create `contracts/output.schema.yaml` defining analysis results structure
 - [X] T007 Setup environment configuration management for random seeds in `code/config.py`
 - [X] T008 [P] Implement chunked data loading utility in `code/utils.py` to handle datasets >500 MB within 7 GB RAM limits. Uses `pandas.read_csv()` with `chunksize` parameter and `pd.concat()` for aggregation. (FR-009, Assumption 9)
-- [X] T028b [P] [Dep: T007] Define the convergence threshold and bootstrap configuration in `code/config.py`. Set `BOOTSTRAP_N_JOBS=2` (hard cap) for fixed resource constraint. **Note**: `MAX_TRIALS` cap is enforced in T015. (FR-009, Assumption 10)
+- [X] T028b [P] [Dep: T007] Define the convergence threshold and bootstrap configuration in `code/config.py`. Set `BOOTSTRAP_N_JOBS=2 ` (hard cap) for fixed resource constraint. **Note**: `MAX_TRIALS` cap is enforced in T015. (FR-009, Assumption 10)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -97,9 +97,9 @@
 
 - [ ] T013 [US1] [Dep: T012] Implement `code/update_readme.py` to read `data/processed/exclusion_log.json` and update `data/README.md` with exclusion reasons and dataset statuses. **Logic**: Do NOT modify README during download (T012). This task is the sole updater of README based on T012's exclusion log. (FR-002, SC-001)
 - [ ] T014a [US1] [Dep: T012] **Removed**: Filtering logic is now consolidated in T012.
-- [ ] T014b [US1] [Dep: T012] **Removed**: Exclusion logging is now consolidated in T012.
-- [ ] T015 [US1] [Dep: T008] Create `code/preprocess.py` with full implementation of data loading functions. **Logic**: 1. Load data using `utils.py` chunked loader. 2. **Budget Check**: Estimate runtime for full dataset. If estimated runtime exceeds the configured maximum duration, **stream and cap** at `config.MAX_TRIALS` (default 5000). If estimated runtime <= 6h, process full dataset. 3. Log truncation if applied. (FR-003, Assumption 1, Assumption 3, SC-004)
-- [ ] T016 [US1] [Dep: T015] Implement Markov surprisal calculation in `code/preprocess.py` using 'Shannon entropy of the transition' on the (potentially streamed/truncated) data. **Output**: Must generate `data/processed/markov_state.json` with keys `transition_matrix` (dict of dicts, values float), `alphabet` (list of strings), `order` (int). (FR-003, Assumption 1)
+- [ ] T014b [US1] [Dep: T012] **Removed**: Exclusion logging is now consolidated in T012. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T015 [US1] [Dep: T008] Create `code/preprocess.py` with full implementation of data loading functions. **Logic**: 1. Load data using `utils.py` chunked loader. 2. **Budget Check**: Estimate runtime for full dataset. If estimated runtime exceeds the configured maximum duration, **stream and cap** at `config.MAX_TRIALS` (default 5000). If estimated runtime <= 6h, process full dataset. 3. Log truncation if applied. (FR-003, Assumption 1, Assumption 3, SC-004)
+- [ ] T016 [US1] [Dep: T015] Implement Markov surprisal calculation in `code/preprocess.py` using 'Shannon entropy of the transition' on the (potentially streamed/truncated) data. **Output**: Must generate `data/processed/markov_state.json` with keys `transition_matrix` (dict of dicts, values float), `alphabet` (list of strings), `order` (int). (FR-003, Assumption 1) <!-- FAILED: unspecified -->
 - [ ] T017 [US1] [Dep: T016] Generate standardized CSV output in `data/processed/standardized.csv` with checksums. Verify file exists and contains >=100 rows. (FR-003, SC-001)
 - [ ] T017b [US1] [Dep: T016] Save 'transition-probability tables' and 'Markov model state' as versioned artifacts in `data/processed/` (e.g., `markov_state.json`). The `markov_state.json` MUST contain keys: `transition_matrix` (dict), `alphabet` (list), `order` (int). (Constitution VI, SC-001)
 - [ ] T017c [US1] [Dep: T016] Verify that `data/processed/markov_state.json` exists and contains the key `order` with an integer value. Log the value. Do NOT enforce a specific value (e.g., 1) unless mandated by config; verify existence and type. (FR-003, SC-001)
@@ -123,13 +123,13 @@
 ### Implementation for User Story 2
 
 - [ ] T021 [US2] [Dep: T017] Implement `code/analysis.py` to fit LMM: `Duration ~ Surprisal + Sequence_Length + Modality + (1 | Participant_ID)`. **Logic**: 1. Attempt full model. 2. If convergence fails, re-fit with random-intercept-only model: `Duration ~ Surprisal + (1 | Participant_ID)`. 3. Log `convergence_status` (string: 'success'/'failed') and `fallback_applied` (boolean) to `analysis/results.json`. Save model summary keys: `coef_surprisal`, `pval_surprisal`, `ci_lower`, `ci_upper`. (FR-004, SC-002, F001)
-- [ ] T023 [US2] [Dep: T021] Implement multiple-comparison correction (Bonferroni/Benjamini-Hochberg) for p-values. **Logic**: Default to Benjamini-Hochberg; use Bonferroni only if `num_tests < 5`. Save `adjusted_pvalues` list to `analysis/results.json`. (FR-005, SC-003)
-- [ ] T023b [US2] [Dep: T023] Implement verification logic to ensure Family-Wise Error Rate is controlled at α≤0.05 and log `fwer_control_status` (boolean) to `analysis/results.json`. (SC-003)
+- [ ] T023 [US2] [Dep: T021] Implement multiple-comparison correction (Bonferroni/Benjamini-Hochberg) for p-values. **Logic**: Default to Benjamini-Hochberg; use Bonferroni only if `num_tests < 5 `. Save `adjusted_pvalues` list to `analysis/results.json`. (FR-005, SC-003)
+- [ ] T023b [US2] [Dep: T023] Implement verification logic to ensure {{claim:c_3522342f}} (2310.09493, https://arxiv.org/abs/2310.09493) and log `fwer_control_status` (boolean) to `analysis/results.json`. (SC-003)
 - [ ] T024 [US2] [Dep: T021] Implement effect size calculation (Cohen's d) with a confidence interval using `pingouin`. Save to `analysis/results.json` under key `effect_sizes`. (FR-006)
-- [ ] T025 [US2] [Dep: T021] Implement sensitivity analysis to calculate Minimum Detectable Effect (MDE) for power=0.80. Include logic: 'If observed effect < MDE, report as limitation' in `analysis/results.json` under key `mde`. (FR-007, SC-005)
+- [ ] T025 [US2] [Dep: T021] Implement sensitivity analysis to calculate Minimum Detectable Effect (MDE) for {{claim:c_659159c4}} (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics)). Include logic: 'If observed effect < MDE, report as limitation' in `analysis/results.json` under key `mde`. (FR-007, SC-005)
 - [ ] T025b [US2] [Dep: T021] Ensure MDE results are logged to `analysis/results.json` for *every* dataset analyzed, regardless of outcome. (SC-005)
 - [ ] T025c [US2] [Dep: T021] **Mandatory Detection**: Scan analysis pipeline for *any* binary split or cutoff introduction (via data variable check or code inspection). If a cutoff is detected, **MUST** perform sensitivity analysis sweeping the cutoff over a range of low thresholds. Log results to `analysis/results.json` under key `cutoff_sensitivity`. (Assumption 7, FR-005)
-- [ ] T026 [US2] [Dep: T021] Implement normality check (Shapiro-Wilk, α=0.05) on **duration estimate distribution** (as per Edge Cases) and **LMM residuals**. **Logic**: If the *outcome distribution* is non-normal (p < 0.05), execute **Wilcoxon signed-rank test** (`scipy.stats.wilcoxon`) as the primary substitute. **Do NOT use Robust LMM**. Log `normality_test_pval`, `test_method_used` ('Wilcoxon' or 'LMM'), and `wilcoxon_pval` (if applicable) to `analysis/results.json`. (Edge Cases, FR-004)
+- [ ] T026 [US2] [Dep: T021] Implement normality check ({{claim:c_54f07619}}) on **duration estimate distribution** (as per Edge Cases) and **LMM residuals**. **Logic**: If the *outcome distribution* is non-normal (p < 0.05), execute **Wilcoxon signed-rank test** (`scipy.stats.wilcoxon`) as the primary substitute. **Do NOT use Robust LMM**. Log `normality_test_pval`, `test_method_used` ('Wilcoxon' or 'LMM'), and `wilcoxon_pval` (if applicable) to `analysis/results.json`. (Edge Cases, FR-004)
 - [ ] T028 [US2] [Dep: T021, T023, T024, T025, T026, T028b] Implement bootstrap resampling in `code/analysis.py` using `joblib.Parallel(n_jobs=2)` (hard cap). **Fallback**: If the runner reports <2 cores, log a warning and proceed with `n_jobs=1`, extending the expected runtime limit in the log. **Must run sequentially after T023-T026 to consume results**. Save results to `analysis/results.json`. Log runtime to `analysis/runtime.log`. (FR-009)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -154,7 +154,7 @@
 - [ ] T033a [US3] Create `Dockerfile` with `FROM python:slim`, `WORKDIR /app`, `COPY requirements.txt`, `RUN pip install`. (US-3)
 - [ ] T033b [US3] Create `code/run_pipeline.py` (or shell script) that executes download, preprocess, analysis, and visualize in sequence. Set `CMD ["python", "code/run_pipeline.py"]` to ensure full pipeline execution. (US-3)
 - [ ] T033c [US3] Validate Dockerfile against GitHub Actions runner architecture (CPU-only, ≤7 GB RAM) (US-3)
-- [ ] T034 [US3] Create `tests/integration/test_runtime.py` to verify full pipeline execution time < 6h (SC-004). Assert runtime < 21600 seconds. **Implementation**: Use `time` module and `tracemalloc` to measure runtime and peak memory usage. (SC-004)
+- [ ] T034 [US3] Create `tests/integration/test_runtime.py` to verify full pipeline execution time < 6h (SC-004). Assert runtime {{claim:c_b82bc331}}. **Implementation**: Use `time` module and `tracemalloc` to measure runtime and peak memory usage. (SC-004)
 - [ ] T034a [US3] [Dep: T034] Create a shell wrapper script `scripts/verify_env.sh` that checks `os.cpu_count()` and `sys.getsizeof` (memory) to verify the GitHub Actions runner meets the multi-core/memory constraint. **Logic**: If constraints are not met, log a warning but do NOT enforce OS-level limits (e.g., `taskset`, `ulimit`). (SC-004, Assumption 10)
 - [ ] T034b [US3] [Dep: T034a] Execute `scripts/verify_env.sh` and the full pipeline in a simulated environment to verify that all steps produce results within a feasible time limit, ensuring SC-006 is validated. (SC-006)
 - [ ] T034c [US3] [Dep: T034b] Generate `reproducibility-checklist.md` and `quickstart.md` explicitly guiding an external reviewer to reproduce results within 6 hours. (SC-006)
@@ -289,11 +289,11 @@ With multiple developers:
 - **Dependency Clarification**: T028 now explicitly lists T028b as a dependency to ensure config availability.
 - **Execution State**: T012, T014, T015, T016, T017, T021, T023, T024, T025, T026, T028, T030, T031 are marked [ ] (pending) to reflect that the *implementation* is complete but the *execution* (and thus data availability) is pending. The 'CRITICAL BLOCKER' note in Plan.md remains valid until T012 is run successfully.
 - **Major Revisions (R2)**:
-  - **T012**: Split into T012a (Read IDs), T012b (Download/Verify), T012c (Update README). Added `data/dataset_ids.txt` to break circular dependency. Added explicit "CRITICAL BLOCKER" halt.
-  - **T014a/b**: Removed. Consolidated filtering and exclusion logging into T012.
-  - **T015d**: Merged into T015. Implemented budget-aware capping (process all if <6h, cap at 5000 if >6h).
-  - **T026**: Reverted to Wilcoxon signed-rank test for non-normal data (per Spec Edge Cases).
-  - **T034a**: Replaced `taskset`/`ulimit` with environment verification.
-  - **T017c**: Removed hardcoded `order=1` check; now verifies existence and type.
-  - **T013**: Created to update README from exclusion log (T012 does not modify README).
-  - **T017b/c**: Dependencies moved from T017 to T016.
+ - **T012**: Split into T012a (Read IDs), T012b (Download/Verify), T012c (Update README). Added `data/dataset_ids.txt` to break circular dependency. Added explicit "CRITICAL BLOCKER" halt.
+ - **T014a/b**: Removed. Consolidated filtering and exclusion logging into T012.
+ - **T015d**: Merged into T015. Implemented budget-aware capping (process all if <6h, cap at 5000 if >6h).
+ - **T026**: Reverted to Wilcoxon signed-rank test for non-normal data (per Spec Edge Cases).
+ - **T034a**: Replaced `taskset`/`ulimit` with environment verification.
+ - **T017c**: Removed hardcoded `order=1` check; now verifies existence and type.
+ - **T013**: Created to update README from exclusion log (T012 does not modify README).
+ - **T017b/c**: Dependencies moved from T017 to T016.
