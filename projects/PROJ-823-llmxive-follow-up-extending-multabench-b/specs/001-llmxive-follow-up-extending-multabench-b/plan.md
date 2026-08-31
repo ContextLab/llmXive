@@ -39,14 +39,14 @@ This project extends the MulTaBench benchmark by implementing a "CPU-Conditioned
 ```text
 specs/001-llmxive-mulTabench-extension/
 ├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
+├── research.md          # Phase output
+├── data-model.md        # Phase output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
 │   ├── frozen_embedding.schema.yaml
 │   ├── tabular_metadata.schema.yaml
 │   └── evaluation_metrics.schema.yaml
-└── tasks.md             # Phase 2 output (not created here)
+└── tasks.md             # Phase output (not created here)
 ```
 
 ### Source Code (repository root)
@@ -108,4 +108,4 @@ requirements.txt         # Generated from pyproject.toml for CI
 2.  **Phase 1: Frozen Embedding Generation**: Generate embeddings for images/text (CLIP/SBERT) with `random_seed=42` and 4 additional seeds for sensitivity. Output `FrozenEmbedding` parquet files with `run_id`.
 3.  **Phase 2: Tabular-Conditioned Projection**: Train the projection layer. Verify frozen backbone integrity via `tests/test_projection.py`.
 4.  **Phase 3: Statistical Analysis**: Compute metadata stats, recovery ratios (averaged over multiple seeds), and perform correlation analysis with Bayesian estimation.
-5.  **Phase 4: Update State**: Execute `update_state.py` to hash artifacts and update `state/projects/...yaml`.
+5.  **Phase: Update State**: Execute `update_state.py` to hash artifacts and update `state/projects/...yaml`.

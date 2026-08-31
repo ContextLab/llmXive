@@ -1,19 +1,19 @@
 {
   "project_id": "PROJ-823-llmxive-follow-up-extending-multabench-b",
   "ok": false,
-  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/pipelines/run_optimized_pipeline.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026xecution time based on a mock dataset size.         # In a rea\u2026\u201d; 4 command(s) failed: python code/pipelines/run_baseline.py --seed 42 --additional-seeds 123,456,789,101 --batch-size 8 (rc=1); python code/pipelines/run_conditioned.py --seed --epochs 15 (rc=1); python code/pipelines/run_analysis.py (rc=1); 4 declared deliverable(s) absent: data/artifacts/data_integrity_report.json; data/artifacts/gpu_tuned_baselines.csv; data/artifacts/runtime_report.json",
+  "reason": "4 command(s) failed: python code/pipelines/run_baseline.py --seed 42 --additional-seeds 123,456,789,101 --batch-size 8 (rc=1); python code/pipelines/run_conditioned.py --seed --epochs 15 (rc=1); python code/pipelines/run_analysis.py (rc=1); 7 declared deliverable(s) absent: data/artifacts/data_availability_gap_report.json; data/artifacts/data_integrity_report.json; data/artifacts/gpu_tuned_baselines.csv",
   "artifacts": [],
   "failures": [
-    "python code/pipelines/run_baseline.py --seed 42 --additional-seeds 123,456,789,101 --batch-size 8 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/pipelines/run_baseline.py\", line 16, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
-    "python code/pipelines/run_conditioned.py --seed --epochs 15 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/pipelines/run_conditioned.py\", line 8, in <module>\n    from models.trainer import create_trainer, Trainer\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/models/__init__.py\", line 4, in <module>\n    from models.base import BaseModel, FrozenEmbeddingModel, ProjectionModel\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-8",
-    "python code/pipelines/run_analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/pipelines/run_analysis.py\", line 27, in <module>\n    from analysis.correlation_analysis import main as correlation_analysis_main\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/analysis/correlation_analysis.py\", line 7, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
-    "python code/pipelines/update_state.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/pipelines/update_state.py\", line 12, in <module>\n    import yaml\nModuleNotFoundError: No module named 'yaml'"
+    "python code/pipelines/run_baseline.py --seed 42 --additional-seeds 123,456,789,101 --batch-size 8 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/pipelines/run_baseline.py\", line 27, in <module>\n    from config import CONFIG, get_data_path, get_processed_path\nImportError: cannot import name 'CONFIG' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/config.py)",
+    "python code/pipelines/run_conditioned.py --seed --epochs 15 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/pipelines/run_conditioned.py\", line 8, in <module>\n    from models.trainer import create_trainer, Trainer\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/models/__init__.py\", line 12, in <module>\n    from models.projection import MLPProjection, AttentionProjection, create_projection_model\n  File \"/home/runner/work/llmXive/llmXi",
+    "python code/pipelines/run_analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/pipelines/run_analysis.py\", line 23, in <module>\n    from utils.logging import setup_logging, get_logger, log_info, log_error, log_critical\nImportError: cannot import name 'setup_logging' from 'utils.logging' (/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/utils/logging.py)",
+    "python code/pipelines/update_state.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/pipelines/update_state.py\", line 22, in <module>\n    from utils.logging import setup_logging, get_logger, log_info, log_error, log_debug\nImportError: cannot import name 'setup_logging' from 'utils.logging' (/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/utils/logging.py)"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
-  "failure_class": "fabrication",
+  "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-08-01T23:55:45Z"
+  "updated_at": "2026-08-31T07:36:52Z"
 }

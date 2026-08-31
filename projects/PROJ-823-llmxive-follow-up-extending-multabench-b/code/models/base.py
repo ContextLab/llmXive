@@ -1,193 +1,110 @@
 """
-Base model structures for the llmXive pipeline.
+Base model classes for the llmXive pipeline.
 
-Defines abstract base classes and concrete implementations for:
-- BaseModel: Abstract base for all model types.
-- FrozenEmbeddingModel: Wrapper for frozen backbone models (CLIP, SBERT).
-- ProjectionModel: Abstract base for projection modules (MLP, Attention).
+Defines abstract interfaces for:
+- BaseModel: Generic base for all models
+- FrozenEmbeddingModel: Interface for frozen embedding generators
+- ProjectionModel: Interface for tabular-conditioned projection modules
 """
 import abc
 from typing import Any, Dict, List, Optional, Tuple, Union
 from pathlib import Path
-
 import torch
 import torch.nn as nn
 import numpy as np
 
-from utils.logging import get_logger, log_info, log_warning, log_error
-
-logger = get_logger(__name__)
-
-
-class BaseModel(nn.Module, abc.ABC):
-    """
-    Abstract base class for all models in the pipeline.
-    Ensures consistent interface for training, inference, and serialization.
-    """
+class BaseModel(nn.Module, metaclass=abc.ABCMeta):
+    """Abstract base class for all models in the pipeline."""
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         super().__init__()
         self.config = config or {}
-        self.logger = get_logger(self.__class__.__name__)
+        self.logger = None
 
     @abc.abstractmethod
     def forward(self, *args, **kwargs) -> torch.Tensor:
-        """
-        Forward pass logic.
-        Must be implemented by subclasses.
-        """
+        """Forward pass implementation."""
         pass
 
     @abc.abstractmethod
     def save(self, path: Union[str, Path]) -> None:
-        """
-        Save model state and configuration to disk.
-        """
+        """Save model weights and config."""
         pass
 
-    @classmethod
     @abc.abstractmethod
-    def load(cls, path: Union[str, Path], config: Optional[Dict[str, Any]] = None) -> "BaseModel":
-        """
-        Load model from disk.
-        """
+    def load(self, path: Union[str, Path]) -> None:
+        """Load model weights and config."""
         pass
-
-    def get_params_count(self) -> int:
-        """Return total number of parameters."""
-        return sum(p.numel() for p in self.parameters())
-
-    def get_trainable_params_count(self) -> int:
-        """Return number of trainable parameters."""
-        return sum(p.numel() for p in self.parameters() if p.requires_grad)
-
 
 class FrozenEmbeddingModel(BaseModel):
     """
-    Wrapper for frozen backbone models (e.g., CLIP ViT-B/32, Sentence-BERT).
-    Ensures weights remain frozen during inference and downstream training.
+    Abstract interface for models that generate frozen embeddings.
+
+    These models are used in US1 to generate embeddings without gradient tracking.
     """
 
-    def __init__(self, model: nn.Module, config: Optional[Dict[str, Any]] = None):
-        super().__init__(config)
-        self.backbone = model
-        self._freeze_backbone()
+    @abc.abstractmethod
+    def encode_image(self, images: torch.Tensor) -> torch.Tensor:
+        """Encode images into fixed-size embeddings."""
+        pass
 
-    def _freeze_backbone(self) -> None:
-        """Freeze all parameters in the backbone."""
-        for param in self.backbone.parameters():
-            param.requires_grad = False
-        self.backbone.eval()
-        log_info(self.logger, "Backbone model frozen and set to eval mode.")
+    @abc.abstractmethod
+    def encode_text(self, texts: Union[List[str], torch.Tensor]) -> torch.Tensor:
+        """Encode text into fixed-size embeddings."""
+        pass
 
-    def forward(self, inputs: Union[torch.Tensor, Dict[str, torch.Tensor]]) -> torch.Tensor:
+    def encode(self, images: Optional[torch.Tensor] = None,
+               texts: Optional[Union[List[str], torch.Tensor]] = None) -> torch.Tensor:
         """
-        Forward pass through the frozen backbone.
+        Generate embeddings for images, text, or both.
+
         Args:
-            inputs: Tensor or dict of tensors depending on model type.
+            images: Batch of images (B, C, H, W)
+            texts: List of text strings or encoded tokens
+
         Returns:
-            Embedding tensor.
+            Combined embeddings tensor
         """
-        with torch.no_grad():
-            if isinstance(inputs, dict):
-                embeddings = self.backbone(**inputs)
-            else:
-                embeddings = self.backbone(inputs)
-        return embeddings
-
-    def save(self, path: Union[str, Path]) -> None:
-        """Save only the configuration; backbone weights are assumed pre-trained."""
-        path = Path(path)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        save_data = {
-            "config": self.config,
-            "type": "FrozenEmbeddingModel",
-        }
-        import json
-        with open(path / "model_config.json", "w") as f:
-            json.dump(save_data, f, indent=2)
-        log_info(self.logger, f"Saved FrozenEmbeddingModel config to {path}")
-
-    @classmethod
-    def load(cls, path: Union[str, Path], config: Optional[Dict[str, Any]] = None, backbone: Optional[nn.Module] = None) -> "FrozenEmbeddingModel":
-        """
-        Load configuration and wrap a provided backbone instance.
-        Since weights are frozen, we do not load state_dict here,
-        but expect the backbone to be initialized externally or via a factory.
-        """
-        path = Path(path)
-        with open(path / "model_config.json", "r") as f:
-            loaded_config = json.load(f)
-        
-        if backbone is None:
-            raise ValueError("FrozenEmbeddingModel.load requires a 'backbone' argument to wrap.")
-        
-        return cls(model=backbone, config=loaded_config)
-
-    def get_embedding_dim(self) -> int:
-        """Infer embedding dimension from the last layer of the backbone if possible."""
-        # Heuristic: check the shape of a dummy forward pass or config
-        if "embedding_dim" in self.config:
-            return self.config["embedding_dim"]
-        raise NotImplementedError("Embedding dimension inference not implemented for this backbone.")
-
+        if images is not None and texts is not None:
+            img_emb = self.encode_image(images)
+            txt_emb = self.encode_text(texts)
+            # Default to concatenation, can be overridden
+            return torch.cat([img_emb, txt_emb], dim=-1)
+        elif images is not None:
+            return self.encode_image(images)
+        elif texts is not None:
+            return self.encode_text(texts)
+        else:
+            raise ValueError("Must provide either images or texts")
 
 class ProjectionModel(BaseModel):
     """
-    Abstract base class for projection modules.
-    These models take frozen embeddings and modulate them using tabular features.
-    """
+    Abstract interface for tabular-conditioned projection modules.
 
-    def __init__(self, input_dim: int, output_dim: int, config: Optional[Dict[str, Any]] = None):
-        super().__init__(config)
-        self.input_dim = input_dim
-        self.output_dim = output_dim
+    These models modulate frozen embeddings using tabular features as queries.
+    Used in US2.
+    """
 
     @abc.abstractmethod
     def project(self, embeddings: torch.Tensor, tabular_features: torch.Tensor) -> torch.Tensor:
         """
         Project embeddings conditioned on tabular features.
+
         Args:
-            embeddings: Frozen embeddings [B, D_emb]
-            tabular_features: Tabular data [B, D_tab]
+            embeddings: Frozen embeddings (B, D_emb)
+            tabular_features: Tabular features (B, D_tab)
+
         Returns:
-            Projected embeddings [B, D_out]
+            Projected embeddings (B, D_out)
         """
         pass
 
-    def forward(self, embeddings: torch.Tensor, tabular_features: torch.Tensor) -> torch.Tensor:
-        """Alias for project to satisfy nn.Module interface."""
-        return self.project(embeddings, tabular_features)
+    @abc.abstractmethod
+    def get_conditioning_dim(self) -> int:
+        """Return the expected dimension of tabular conditioning features."""
+        pass
 
-    def save(self, path: Union[str, Path]) -> None:
-        """Save model state and config."""
-        path = Path(path)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        torch.save(
-            {
-                "state_dict": self.state_dict(),
-                "config": self.config,
-                "input_dim": self.input_dim,
-                "output_dim": self.output_dim,
-            },
-            path / "projection_model.pt"
-        )
-        log_info(self.logger, f"Saved ProjectionModel to {path}")
-
-    @classmethod
-    def load(cls, path: Union[str, Path], config: Optional[Dict[str, Any]] = None) -> "ProjectionModel":
-        """Load model from checkpoint."""
-        path = Path(path)
-        checkpoint = torch.load(path / "projection_model.pt", map_location="cpu")
-        
-        # Subclasses must handle reconstruction based on checkpoint config
-        # This base implementation assumes a standard constructor signature
-        instance = cls(
-            input_dim=checkpoint.get("input_dim", 0),
-            output_dim=checkpoint.get("output_dim", 0),
-            config=checkpoint.get("config", {})
-        )
-        instance.load_state_dict(checkpoint["state_dict"])
-        instance.eval()
-        log_info(self.logger, f"Loaded ProjectionModel from {path}")
-        return instance
+    @abc.abstractmethod
+    def get_output_dim(self) -> int:
+        """Return the dimension of the projected output."""
+        pass

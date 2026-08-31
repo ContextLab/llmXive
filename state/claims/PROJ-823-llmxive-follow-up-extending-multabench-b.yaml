@@ -275,24 +275,6 @@
   updated_at: '2026-08-09T08:07:01Z'
 - artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
   attempts: 1
-  canonical: Baseline generation script must complete within 60 minutes on sample
-    datasets
-  claim_id: c_edacdfc2
-  context: 'Independent Test: Verify script completes within 60 mins on a sample of
-    datasets, outputs valid parquet files, and no CUDA errors occur.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'Independent Test: Verify script completes within 60 mins on a sample
-    of datasets, outputs valid parquet files, and no CUDA errors occur.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T08:07:18Z'
-- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
-  attempts: 1
   canonical: Embeddings output parquet contains run_id, dataset_id, vector, and model_type
     columns
   claim_id: c_82c4cc0d
@@ -1706,3 +1688,186 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-29T09:40:50Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: MulTaBench supplementary material available at arXiv 10.48550/arXiv.2605.10616
+  claim_id: c_f646125b
+  context: 'Steps to acquire the multabench_baselines.csv file: 1. Download the MulTaBench
+    supplementary material from the arXiv page (10.48550/arXiv.2605.10616). 2. Unzip
+    the archive.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: Download the MulTaBench supplementary material from the arXiv page (10.48550/arXiv.2605.10616).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T07:38:14Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 2
+  canonical: Baseline generation script must complete within 60 minutes on sample
+    datasets
+  claim_id: c_edacdfc2
+  context: 'Independent Test: Verify script completes within 60 mins on a sample of
+    datasets, outputs valid parquet files, and no CUDA errors occur.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Independent Test: Verify script completes within 60 mins on a sample
+    of datasets, outputs valid parquet files, and no CUDA errors occur.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T07:39:25Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Projection module training must converge within 10 epochs with memory
+    usage under 7GB on CPU
+  claim_id: c_b1573ee4
+  context: 'Independent Test: Verify training loss converges on a single dataset within
+    10 epochs on CPU and memory usage < 7GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify training loss converges on a single dataset within 10 epochs on
+    CPU and memory usage < 7GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T07:40:04Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Pipeline execution must complete within 6 hours and memory limits
+  claim_id: c_1663f37d
+  context: 'Goal: Verify total execution time is strictly within acceptable limits
+    and peak memory usage never exceeds acceptable thresholds. ... If the full pipeline
+    is estimated to exceed 6 hours...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify total execution time is strictly within acceptable limits and peak
+    memory usage never exceeds acceptable thresholds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T07:40:05Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: MulTaBench supplementary material source arXiv 10.48550/arXiv.2605.10616
+  claim_id: c_d70b20d1
+  context: 'Steps to acquire data/raw/multabench_baselines.csv: 1. Download the MulTaBench
+    supplementary material from the arXiv page (10.48550/arXiv.2605.10616). 2. Unzip
+    the archive.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: Download the MulTaBench supplementary material from the arXiv page (10.48550/arXiv.2605.10616).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T07:43:12Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Script completion time limit 60 minutes on sample datasets
+  claim_id: c_60456327
+  context: 'Independent Test: Verify script completes within 60 mins on a sample of
+    datasets, outputs valid parquet files, and no CUDA errors occur.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify script completes within 60 mins on a sample of datasets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T07:44:34Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Training loss convergence within 10 epochs on CPU with memory usage under
+    7GB
+  claim_id: c_e86ac7e2
+  context: 'Independent Test: Verify training loss converges on a single dataset within
+    10 epochs on CPU and memory usage < 7GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify training loss converges on a single dataset within 10 epochs on
+    CPU and memory usage < 7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T07:44:35Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time and peak memory usage within acceptable thresholds
+  claim_id: c_97e2ddc8
+  context: 'Goal: Verify total execution time is strictly within acceptable limits
+    and peak memory usage never exceeds acceptable thresholds.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_time_and_peak_memory_usage_within_accepta
+  kind: entity_fact
+  raw_text: Verify total execution time is strictly within acceptable limits and peak
+    memory usage never exceeds acceptable thresholds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T07:45:24Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Pearson correlation normality assumption warning if sample size less
+    than 30
+  claim_id: c_f5e9f198
+  context: 'Logic: If N < 30, explicitly state that the Pearson correlation assumes
+    normality which may be violated, and recommend reporting Spearman''s rank correlation
+    as a robustness check.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pearson_correlation_normality_assumption_warning_if_sample_s
+  kind: magnitude
+  raw_text: If N < 30, explicitly state that the Pearson correlation assumes normality
+    which may be violated.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T07:46:39Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Power analysis visualization generated only if power less than 0.8 for
+    moderate effect size
+  claim_id: c_640d1421
+  context: 'Constraint: Generate ONLY if power < 0.8 for a moderate effect size. If
+    power >= 0.8, skip generation and log a note.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_visualization_generated_only_if_power_less_th
+  kind: magnitude
+  raw_text: Generate ONLY if power < 0.8 for a moderate effect size.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T07:47:46Z'

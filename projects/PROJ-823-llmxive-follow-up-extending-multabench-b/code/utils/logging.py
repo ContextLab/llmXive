@@ -11,16 +11,24 @@ LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 logger_instance = None
 
-def get_logger(name: str = "llmxive") -> logging.Logger:
-    """Get or create the global logger instance."""
+def setup_logging(name: str = "llmxive", level: int = logging.INFO) -> logging.Logger:
+    """
+    Initialize and return the global logger instance with console and file handlers.
+    This function must be called at the start of any pipeline script to ensure
+    logging is configured correctly.
+    """
     global logger_instance
     if logger_instance is None:
         logger_instance = logging.getLogger(name)
-        logger_instance.setLevel(logging.DEBUG)
+        logger_instance.setLevel(level)
         
+        # Prevent duplicate handlers if called multiple times
+        if logger_instance.handlers:
+            return logger_instance
+
         # Console handler
         console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(logging.INFO)
+        console_handler.setLevel(level)
         console_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         console_handler.setFormatter(console_format)
         
@@ -31,10 +39,17 @@ def get_logger(name: str = "llmxive") -> logging.Logger:
         file_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         file_handler.setFormatter(file_format)
         
-        if not logger_instance.handlers:
-            logger_instance.addHandler(console_handler)
-            logger_instance.addHandler(file_handler)
+        logger_instance.addHandler(console_handler)
+        logger_instance.addHandler(file_handler)
     
+    return logger_instance
+
+def get_logger(name: str = "llmxive") -> logging.Logger:
+    """Get or create the global logger instance."""
+    global logger_instance
+    if logger_instance is None:
+        # Fallback if setup_logging wasn't called explicitly
+        return setup_logging(name)
     return logger_instance
 
 def log_info(msg: str):
@@ -52,3 +67,11 @@ def log_error(msg: str):
 def log_debug(msg: str):
     logger = get_logger()
     logger.debug(msg)
+
+def log_critical(msg: str):
+    logger = get_logger()
+    logger.critical(msg)
+
+def log_fatal(msg: str):
+    logger = get_logger()
+    logger.fatal(msg)

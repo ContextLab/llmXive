@@ -5,14 +5,6 @@ T008c:
     \ `data/raw/multabench_baselines.csv`\u201D section that lists the required manual\
     \ steps (download, unzip, locate, and place the file), satisfying the task\u2019\
     s specification."
-T019d:
-  c: false
-  h: 05dd0a68fe55b7a9066716ed36aa82942e88979492f410b3c6a25881a4e387bb
-  r: The required script `code/pipelines/train_frozen_baseline_classifier.py` does
-    not exist, and the input data file `data/processed/normalized_tabular_features.parquet`
-    is also missing, so no classifier can be trained nor metrics generated. The only
-    present artifact is `code/utils/feature_engineering.py`, which alone does not
-    satisfy the task.
 T024:
   c: false
   h: febe7b0e616b2f5b939f63cbe2d760be6467b7c46a13a10b71385b5b9cdddecb
@@ -21,12 +13,13 @@ T024:
     \ no `data/processed/metadata_stats_summary.csv` file exists. The primary output\
     \ artifact\u2014a summary CSV with the specified columns\u2014is missing, so the\
     \ task is not genuinely completed."
-T024e:
+T024c:
   c: false
-  h: 7cea4c7551dce136c3ab6b414f4979cfebfe6ec58166e3dd883e5e530f21fd89
-  r: "The required output file `data/processed/metadata_stats_summary.csv` is missing,\
-    \ so no evidence exists that the metadata was loaded, sorted, subset\u2011selected,\
-    \ or flagged. Consequently the task\u2019s core artifact was not produced."
+  h: f09be2646bbc813f84b0f97e459111cb7b426b0cf94d7befa744590795edf562
+  r: The required output file `data/processed/metadata_stats_summary.csv` does not
+    exist, and the provided `metadata_stats.py` script is incomplete (truncated) with
+    no visible implementation of `aggregate_stats`. Consequently, the aggregation
+    functionality and the expected CSV output are missing.
 T024f:
   c: false
   h: b2445781905f21ed9017bd45645c993218353432564519e585341128707d3843
