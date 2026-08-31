@@ -219,6 +219,17 @@
 
 ---
 
+## Phase 10: Review-Driven Revision & Gap Resolution (New)
+
+**Purpose**: Address specific reviewer concerns regarding data source verification, statistical power reporting, and edge-case handling that were flagged in the initial analysis but not fully resolved in the previous phases.
+
+- [ ] T058 [US3] **Explicit Power Analysis Visualization**: Implement `code/analysis/plot_power_analysis.py` to generate a visual report (PNG) showing the calculated statistical power (from T057) against a range of effect sizes (0.1 to 1.0). **Requirement**: This visualization must be appended to `results_summary.md` (T053b) to provide an immediate, human-readable confirmation of the study's sensitivity. **Dependency**: Must run after T057. **Constraint**: If the calculated power is < 0.8 for a moderate effect size (0.5), the script must generate a warning banner in the plot and the report.
+- [ ] T059 [US1/US2/US3] **Robust Data Source Verification Script**: Implement `code/pipelines/verify_real_data_sources.py` to perform a final, automated check that ALL data inputs (raw images, tabular CSVs, baseline CSVs) are real, non-synthetic, and checksum-verified before any analysis runs. **Logic**: This script must scan `data/processed/` and `data/artifacts/` for any files containing synthetic markers (e.g., "synthetic", "mock", "random") or zero-variance features that were not explicitly flagged in T045. **Output**: A strict boolean pass/fail status. If any synthetic data is detected, the script MUST exit with code 1 and log a critical error, preventing the pipeline from proceeding. **Dependency**: Must run as a pre-requisite to T048 (Final Validation). **Note**: This enforces the "No Fabrication" rule at the execution gate.
+- [ ] T060 [US3] **Refine Correlation Report for Small Samples**: Update `code/analysis/correlation.py` to include a specific "Small Sample Warning" section in `data/artifacts/correlation_report_{run_id}.json` if the final dataset count (N) is < 30. **Logic**: If N < 30, explicitly state that the Pearson correlation assumes normality which may be violated, and recommend reporting Spearman's rank correlation as a robustness check. **Output**: Append a `robustness_check_recommendation` field to the report JSON. **Dependency**: Must run after T033 and T057. **Constraint**: This addresses the reviewer concern about the reliability of correlation coefficients on small, filtered datasets.
+- [ ] T061 [US1/US2] **Zero-Variance Feature Handling Audit**: Implement `code/pipelines/audit_zero_variance_handling.py` to verify that T045 and T045b correctly handled all zero-variance features identified in the metadata. **Logic**: Re-scan `data/processed/metadata_stats_summary.csv` and `data/artifacts/data_integrity_report.json` to ensure that every feature flagged as zero-variance in the report was either skipped in normalization (T024f) or imputed as a constant (T045b) and that no NaN values resulted from this process. **Output**: A detailed audit log `data/artifacts/zero_variance_audit.log`. **Dependency**: Must run after T024f and T045b. **Note**: This ensures the "zero-variance" edge case does not silently corrupt the training data.
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -231,6 +242,7 @@
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 - **Verification (Phase 7)**: Depends on completion of all User Story implementations
 - **Execution Hardening (Phase 9)**: Must be completed before any final CI run (T048)
+- **Review-Driven Revision (Phase 10)**: Must be completed before final sign-off to ensure all reviewer concerns regarding data integrity and statistical rigor are addressed.
 
 ### User Story Dependencies
 
@@ -327,3 +339,4 @@ With multiple developers:
 - **CRITICAL**: T024f must handle zero-variance features gracefully to prevent NaNs in normalization.
 - **CRITICAL**: T053c must compile the final gap report from all exclusion sources.
 - **CRITICAL**: T048b must limit the dataset count for runtime validation if necessary to meet FR-004.
+- **CRITICAL**: T058, T059, T060, and T061 are mandatory revision tasks to address specific reviewer concerns regarding statistical power visualization, data source verification, small sample robustness, and zero-variance handling. These must be completed before the project is considered fully analyzed and ready for human review.

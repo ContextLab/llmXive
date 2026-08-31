@@ -1,0 +1,4 @@
+failure_class: PermanentBackendError
+filed_at: '2026-08-31T06:29:28.279718+00:00'
+issue_number: 1326
+project_id: PROJ-823-llmxive-follow-up-extending-multabench-b
