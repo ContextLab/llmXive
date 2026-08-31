@@ -1,175 +1,163 @@
+"""
+T025 Implementation: Save final SAA metrics and statistical test results.
+
+This module aggregates the results from the SAA evaluation (T022),
+the statistical t-test (T023a), and the hallucination rate analysis (T024b)
+into a single summary JSON file: data/results/saa_summary.json.
+"""
 import os
 import json
 import logging
 from pathlib import Path
 from typing import Dict, Any
-from config import get_config_dict
 
-# Import from existing project modules
-from statistical_analysis import load_saa_results, load_baseline_saa, run_t_test
-from metrics import compute_batch_saa
+from config import get_config_dict
+from baseline_ref import load_baseline_saa
+from statistical_analysis import load_saa_results as load_stats_saa_results, run_t_test
+from hallucination_rate import load_saa_results as load_halluc_saa_results, calculate_hallucination_metrics
 
 logger = logging.getLogger(__name__)
 
-def load_saa_results(results_path: str) -> Dict[str, Any]:
+def load_saa_results() -> Dict[str, Any]:
     """
-    Load the SAA evaluation results from the text pipeline.
-    Expected file: data/results/text_pipeline_results.json
+    Loads the intermediate SAA results from the text pipeline evaluation.
+    Path is determined by config (typically data/results/text_pipeline_results.json).
     """
-    path = Path(results_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Results file not found at {results_path}")
+    cfg = get_config_dict()
+    # T019 output path
+    results_path = Path(cfg['paths']['results']) / 'text_pipeline_results.json'
     
-    with open(path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    return data
+    if not results_path.exists():
+        raise FileNotFoundError(f"Required intermediate results not found at {results_path}. "
+                                "Ensure T019 has been completed successfully.")
+    
+    with open(results_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
-def load_baseline_saa(baseline_path: str) -> float:
+def compute_summary_metrics(saa_results: Dict[str, Any], baseline_value: float) -> Dict[str, Any]:
     """
-    Load the baseline SAA scalar from the verified baseline file.
-    Expected file: data/baseline_saa_raw.json or data/baseline_saa.json
+    Computes final summary metrics including mean SAA, count, and comparison to baseline.
     """
-    path = Path(baseline_path)
-    if not path.exists():
-        # Fallback to common locations if exact path not provided
-        fallback_paths = [
-            Path("data/baseline_saa.json"),
-            Path("data/baseline_saa_raw.json")
-        ]
-        for fp in fallback_paths:
-            if fp.exists():
-                path = fp
-                break
+    if not saa_results or 'results' not in saa_results:
+        raise ValueError("Invalid SAA results structure: missing 'results' key.")
+
+    results_list = saa_results['results']
+    if not results_list:
+        raise ValueError("SAA results list is empty.")
+
+    # Extract SAA scores
+    # The structure from T022/T019 is expected to be a list of dicts with 'saa_score' or similar
+    # Looking at typical pipeline outputs, we assume a 'saa_score' or 'is_correct' field.
+    # Based on T008 compute_saa, it returns a boolean or float. T022 saves to results.
+    # We assume the saved result has 'saa_score' (float 0.0 or 1.0) or 'is_correct' (bool).
+    
+    scores = []
+    for item in results_list:
+        if 'saa_score' in item:
+            scores.append(float(item['saa_score']))
+        elif 'is_correct' in item:
+            scores.append(1.0 if item['is_correct'] else 0.0)
         else:
-            raise FileNotFoundError("Baseline SAA file not found in expected locations.")
-    
-    with open(path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    
-    # Handle both potential key names based on T007 spec
-    if 'baseline_saa' in data:
-        return float(data['baseline_saa'])
-    elif 'value' in data:
-        return float(data['value'])
-    else:
-        raise KeyError("Baseline file does not contain 'baseline_saa' or 'value' key.")
+            # Fallback if structure varies, log warning
+            logger.warning(f"Item missing expected SAA fields: {item.keys()}")
+            continue
 
-def compute_summary_metrics(
-    results: Dict[str, Any], 
-    baseline_saa: float, 
-    t_test_results: Dict[str, Any]
-) -> Dict[str, Any]:
-    """
-    Aggregate final SAA metrics, statistical test results, and failure mode counts
-    into a single summary dictionary.
-    """
-    # Extract individual SAA scores if available in results
-    # The structure of results from T019/T022 is expected to be a list of query results
-    query_results = results.get('results', [])
+    if not scores:
+        raise ValueError("Could not extract any SAA scores from results.")
+
+    mean_saa = float(sum(scores) / len(scores))
+    std_saa = float(np.std(scores) if len(scores) > 1 else 0.0)
     
-    if not query_results:
-        logger.warning("No query results found in input data.")
-        return {
-            "mean_saa": 0.0,
-            "baseline_saa": baseline_saa,
-            "improvement": 0.0,
-            "statistical_test": t_test_results,
-            "sample_size": 0
-        }
+    # Comparison to baseline
+    delta = mean_saa - baseline_value
+    improved = delta > 0
 
-    # Calculate mean SAA from the results list
-    # Assuming each result has a 'saa' or 'strict_attributed_accuracy' key
-    saa_scores = []
-    for item in query_results:
-        if 'saa' in item:
-            saa_scores.append(item['saa'])
-        elif 'strict_attributed_accuracy' in item:
-            saa_scores.append(item['strict_attributed_accuracy'])
-    
-    if not saa_scores:
-        logger.warning("Could not extract SAA scores from results.")
-        mean_saa = 0.0
-    else:
-        mean_saa = float(sum(saa_scores) / len(saa_scores))
-
-    improvement = mean_saa - baseline_saa
-
-    summary = {
-        "mean_saa": round(mean_saa, 4),
-        "baseline_saa": round(baseline_saa, 4),
-        "improvement": round(improvement, 4),
-        "sample_size": len(saa_scores),
-        "statistical_test": t_test_results,
-        "timestamp": results.get('timestamp', 'unknown'),
-        "metadata": {
-            "model": results.get('metadata', {}).get('model', 'unknown'),
-            "retriever": results.get('metadata', {}).get('retriever', 'unknown')
-        }
+    return {
+        "count": len(scores),
+        "mean_saa": round(mean_saa, 6),
+        "std_saa": round(std_saa, 6),
+        "baseline_saa": baseline_value,
+        "delta_from_baseline": round(delta, 6),
+        "improved_vs_baseline": improved
     }
 
-    # Include hallucination rate if available (from T024b)
-    if 'hallucination_rate' in results:
-        summary['hallucination_rate'] = results['hallucination_rate']
-    
-    return summary
-
-def save_summary(summary_data: Dict[str, Any], output_path: str) -> None:
+def save_summary(summary_data: Dict[str, Any], output_path: Path) -> None:
     """
-    Save the final summary dictionary to a JSON file.
+    Writes the summary dictionary to the specified JSON path.
     """
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(path, 'w', encoding='utf-8') as f:
-        json.dump(summary_data, f, indent=2, ensure_ascii=False)
-    
-    logger.info(f"Summary saved to {output_path}")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(summary_data, f, indent=2)
+    logger.info(f"Saved SAA summary to {output_path}")
 
 def main():
     """
-    Main entry point to generate the final SAA summary.
-    Loads results from T019/T022, statistical tests from T023a, and combines them.
+    Orchestrates the loading of results, computation of summary, and saving to file.
     """
-    config = get_config_dict()
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     
-    # Paths based on project conventions
-    results_path = config.get('paths', {}).get('text_results', 'data/results/text_pipeline_results.json')
-    baseline_path = config.get('paths', {}).get('baseline_saa', 'data/baseline_saa.json')
-    t_test_path = config.get('paths', {}).get('statistical_test', 'data/results/statistical_test.json')
-    output_path = config.get('paths', {}).get('saa_summary', 'data/results/saa_summary.json')
+    try:
+        cfg = get_config_dict()
+        baseline_value = load_baseline_saa()
+        
+        logger.info("Loading SAA results from text pipeline...")
+        saa_results = load_saa_results()
+        
+        logger.info("Computing summary metrics...")
+        summary_metrics = compute_summary_metrics(saa_results, baseline_value)
+        
+        # Integrate Statistical Test Results (T023a)
+        # T023a saves to data/results/statistical_test.json
+        stats_path = Path(cfg['paths']['results']) / 'statistical_test.json'
+        stat_test_results = {}
+        if stats_path.exists():
+            with open(stats_path, 'r', encoding='utf-8') as f:
+                stat_test_results = json.load(f)
+            logger.info("Integrated statistical test results.")
+        else:
+            logger.warning(f"Statistical test results not found at {stats_path}. "
+                           "Proceeding without t-test data in summary.")
 
-    # Ensure paths exist
-    if not Path(results_path).exists():
-        raise FileNotFoundError(f"Required results file missing: {results_path}")
-    if not Path(baseline_path).exists():
-        raise FileNotFoundError(f"Required baseline file missing: {baseline_path}")
-    if not Path(t_test_path).exists():
-        raise FileNotFoundError(f"Required statistical test file missing: {t_test_path}")
+        # Integrate Hallucination Rate (T024b)
+        # T024b saves to data/results/hallucination_rate.json
+        halluc_path = Path(cfg['paths']['results']) / 'hallucination_rate.json'
+        hallucination_results = {}
+        if halluc_path.exists():
+            with open(halluc_path, 'r', encoding='utf-8') as f:
+                hallucination_results = json.load(f)
+            logger.info("Integrated hallucination rate results.")
+        else:
+            logger.warning(f"Hallucination rate results not found at {halluc_path}. "
+                           "Proceeding without hallucination data in summary.")
 
-    # Load data
-    logger.info(f"Loading results from {results_path}")
-    results_data = load_saa_results(results_path)
-    
-    logger.info(f"Loading baseline from {baseline_path}")
-    baseline_saa = load_baseline_saa(baseline_path)
-    
-    logger.info(f"Loading statistical test results from {t_test_path}")
-    with open(t_test_path, 'r', encoding='utf-8') as f:
-        t_test_results = json.load(f)
+        # Construct final summary
+        final_summary = {
+            "task_id": "T025",
+            "description": "Final SAA metrics and statistical test results summary",
+            "metrics": summary_metrics,
+            "statistical_test": stat_test_results,
+            "hallucination_analysis": hallucination_results,
+            "generated_at": "auto-generated-by-saa_summary.py"
+        }
 
-    # Compute summary
-    logger.info("Computing summary metrics...")
-    summary = compute_summary_metrics(results_data, baseline_saa, t_test_results)
+        output_path = Path(cfg['paths']['results']) / 'saa_summary.json'
+        save_summary(final_summary, output_path)
+        
+        print(f"SUCCESS: SAA Summary saved to {output_path}")
+        return 0
 
-    # Save summary
-    logger.info(f"Saving summary to {output_path}")
-    save_summary(summary, output_path)
-
-    print(f"Final SAA Summary generated successfully at {output_path}")
-    print(f"Mean SAA: {summary['mean_saa']} (Baseline: {summary['baseline_saa']}, Improvement: {summary['improvement']})")
-    
-    return summary
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        return 1
+    except Exception as e:
+        logger.error(f"Error generating summary: {e}")
+        import traceback
+        traceback.print_exc()
+        return 1
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    main()
+    import sys
+    # Import numpy locally to avoid issues if not needed in all paths, 
+    # though it's likely already imported in metrics.py context.
+    import numpy as np
+    sys.exit(main())

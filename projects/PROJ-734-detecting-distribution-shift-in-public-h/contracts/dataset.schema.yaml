@@ -1,47 +1,95 @@
-# Schema for raw and processed dataset files
-# Used by code/contracts.py to validate data integrity
+$schema: http://json-schema.org/draft-07/schema#
+title: CDC FluView and Ground Truth Dataset Schema
+description: |
+  Schema for raw and processed datasets used in distribution shift detection.
+  Enforces data integrity for CDC FluView ILI data and Ground Truth Event data.
 type: object
-required:
-  - columns
-  - rows
-  - sample_values
 properties:
-  columns:
-    type: array
-    items:
-      type: object
-      required:
-        - name
-        - dtype
-      properties:
-        name:
-          type: string
-          description: Column name
-        dtype:
-          type: string
-          description: Expected data type (e.g., 'float64', 'object', 'int64')
-        nullable:
-          type: boolean
-          default: true
-          description: Whether the column allows null values
-  rows:
-    type: integer
-    minimum: 1
-    description: Total number of rows in the dataset
-  sample_values:
-    type: object
-    description: Sample values for each column (first row or representative values)
-  metadata:
+  fluview_ili:
+    description: Raw CDC FluView ILI data
     type: object
     properties:
-      source_url:
+      file_path:
         type: string
-        description: Original URL or source of the data
-      retrieval_date:
+        pattern: ^data/raw/fluview_ili\.csv$
+      columns:
+        type: array
+        items:
+          type: string
+        contains:
+          const: "week"
+          description: ISO week string (e.g., 2020-01)
+        contains:
+          const: "ili"
+          description: ILI percentage (float)
+        contains:
+          const: "num_ili"
+          description: Number of ILI visits (int)
+        contains:
+          const: "num_patients"
+          description: Total patients seen (int)
+      required_columns:
+        type: array
+        items:
+          type: string
+        minItems: 4
+        contains:
+          const: "week"
+        contains:
+          const: "ili"
+      data_integrity:
+        type: object
+        properties:
+          has_missing_weeks:
+            type: boolean
+            description: Flag indicating presence of missing weeks (NaNs)
+          has_constant_segments:
+            type: boolean
+            description: Flag indicating zero-variance segments
+          has_outliers:
+            type: boolean
+            description: Flag indicating statistical outliers
+  ground_truth_events:
+    description: Ground truth public health events
+    type: object
+    properties:
+      file_path:
         type: string
-        format: date-time
-        description: When the data was retrieved
-      sha256:
-        type: string
-        pattern: '^[a-fA-F0-9]{64}$'
-        description: SHA256 hash of the file for integrity verification
+        pattern: ^data/raw/ground_truth_events\.csv$
+      columns:
+        type: array
+        items:
+          type: string
+        contains:
+          const: "start_week"
+          description: Start week of the event
+        contains:
+          const: "end_week"
+          description: End week of the event
+        contains:
+          const: "event_name"
+          description: Name of the event
+      required_columns:
+        type: array
+        items:
+          type: string
+        minItems: 3
+        contains:
+          const: "start_week"
+        contains:
+          const: "end_week"
+        contains:
+          const: "event_name"
+      source_independence:
+        type: object
+        properties:
+          verified_source:
+            type: boolean
+            description: Confirmed to be from a verified CDC source, not derived from ILI data
+          no_ili_columns:
+            type: boolean
+            description: Confirmed no ILI-related columns present
+required:
+  - fluview_ili
+  - ground_truth_events
+additionalProperties: false

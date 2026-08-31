@@ -1,5 +1,5 @@
-'|alpha level nominal':
-  quote: '0.05'
-  source_id: Binomial proportion confidence interval
-  url: https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
-  value: '0.05'
+'|bonferroni comparison correction multiple':
+  quote: 'P800: Q385989'
+  source_id: Q858572
+  url: https://www.wikidata.org/wiki/Q858572
+  value: Q385989

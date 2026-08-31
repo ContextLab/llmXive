@@ -1,47 +1,20 @@
 # PROJ-196: The Role of Temporal Discounting in Procrastination on Cognitive Tasks
 
 ## Overview
-This project investigates the relationship between temporal discounting (delay discounting)
-and procrastination behaviors in the context of cognitive tasks, specifically examining
-whether working memory capacity moderates this relationship.
+This project implements an automated science pipeline to investigate the relationship
+between temporal discounting, procrastination, and working memory performance.
 
 ## Project Structure
-```
-.
-├── code/ # Source code for data processing and analysis
-│ ├── config.py # Configuration and seed management
-│ ├── ingestion.py # Data generation and harmonization
-│ ├── modeling.py # Statistical modeling and regression
-│ ├── robustness.py # Robustness and sensitivity analysis
-│ └── utils/ # Utility functions (checksums, etc.)
-├── data/
-│ ├── raw/ # Raw data files (generated or downloaded)
-│ ├── processed/ # Cleaned and harmonized datasets
-│ └── figures/ # Generated plots and visualizations
-├── tests/ # Pytest test suite
-├── state/
-│ └── projects/ # Project state and artifact tracking
-├── specs/ # Feature specifications and design docs
-├── requirements.txt # Python dependencies
-└── README.md # This file
-```
+- `code/`: Source code for data ingestion, modeling, and analysis
+- `data/`: Raw and processed data artifacts
+- `tests/`: Unit and integration tests
+- `state/`: Project state and artifact tracking
+- `specs/`: Design documents and requirements
 
-## Prerequisites
-- Python 3.11+
-- pip
-
-## Installation
-```bash
-pip install -r requirements.txt
-```
+## Setup
+1. Ensure Python 3.11+ is installed.
+2. Install dependencies: `pip install -r requirements.txt`
+3. Run setup script: `python code/setup_directories.py`
 
 ## Execution
-Run the full pipeline:
-```bash
-python code/ingestion.py
-python code/modeling.py
-python code/robustness.py
-```
-
-## License
-[License Information]
+Run the full pipeline: `python code/ingestion_runner.py`

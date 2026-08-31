@@ -1,38 +1,42 @@
-%YAML 1.1
----
-schema_type: object
-description: Configuration schema for the distribution shift detection pipeline.
+type: object
+properties:
+  seed:
+    type: integer
+    minimum: 0
+    description: Random seed for reproducibility
+  permutations:
+    type: integer
+    minimum: 1
+    description: Number of permutations for MMD p-value estimation
+  window_size:
+    type: integer
+    minimum: 1
+    description: Size of the sliding window for distribution shift detection
+  stride:
+    type: integer
+    minimum: 1
+    description: Stride for the sliding window
+  alpha:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Significance level for statistical tests
+  bandwidth_method:
+    type: string
+    enum: [median, cv, fixed]
+    description: Method for estimating Gaussian kernel bandwidth
+  min_samples:
+    type: integer
+    minimum: 1
+    description: Minimum number of samples required per window
+  tolerance_weeks:
+    type: integer
+    minimum: 0
+    description: Tolerance in weeks for detection delay calculation
 required:
   - seed
   - permutations
   - window_size
   - stride
   - alpha
-properties:
-  seed:
-    type: integer
-    minimum: 0
-    default: 42
-    description: Random seed for reproducibility.
-  permutations:
-    type: integer
-    minimum: 1
-    default: 1000
-    description: Number of permutations for MMD p-value estimation.
-  window_size:
-    type: integer
-    minimum: 1
-    default: 12
-    description: Size of the sliding window in weeks.
-  stride:
-    type: integer
-    minimum: 1
-    default: 1
-    description: Stride for sliding the window.
-  alpha:
-    type: number
-    exclusiveMinimum: 0
-    exclusiveMaximum: 1
-    default: 0.01
-    description: Significance level for statistical tests.
 additionalProperties: false

@@ -14,8 +14,7 @@ dependencies = [
     "statsmodels>=0.14.0",
     "scikit-learn>=1.3.0",
     "pyyaml>=6.0",
-    "seaborn>=0.13.0",
-    "matplotlib>=3.7.0",
+    "pyarrow>=12.0.0",
 ]
 
 [project.optional-dependencies]
@@ -51,36 +50,44 @@ extend-exclude = '''
 '''
 
 [tool.ruff]
-target-version = "py311"
+# Same as Black.
 line-length = 88
+target-version = "py311"
+
+# Assume Python 3.11
+[tool.ruff.lint]
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
     "F",  # pyflakes
     "I",  # isort
+    "C",  # flake8-comprehensions
     "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
 ]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults (common in data science)
-    "C901", # too complex (handled by radon separately)
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
 ]
 
-[tool.ruff.per-file-ignores]
-"tests/*" = ["S101"] # allow assert in tests
+# Allow autofix for all enabled rules (when `--fix` is provided)
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # Allow unused imports in __init__.py
 
-[tool.ruff.isort]
-known-first-party = ["code"]
-force-sort-within-sections = true
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "-v --tb=short"
-
-[tool.coverage.run]
-source = ["code"]
-branch = true
+addopts = "-v --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "unit: unit tests",
+    "integration: integration tests",
+]

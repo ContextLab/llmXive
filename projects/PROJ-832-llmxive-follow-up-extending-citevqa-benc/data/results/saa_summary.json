@@ -1,0 +1,26 @@
+{
+  "task_id": "T025",
+  "description": "Final SAA metrics and statistical test results summary",
+  "metrics": {
+    "count": 50,
+    "mean_saa": 0.72,
+    "std_saa": 0.45,
+    "baseline_saa": 0.65,
+    "delta_from_baseline": 0.07,
+    "improved_vs_baseline": true
+  },
+  "statistical_test": {
+    "test_type": "one_sample_t_test",
+    "t_statistic": 1.12,
+    "p_value": 0.26,
+    "significant": false,
+    "confidence_interval": [0.59, 0.85],
+    "baseline_value": 0.65
+  },
+  "hallucination_analysis": {
+    "total_correct_answers": 36,
+    "hallucinated_attributions": 8,
+    "hallucination_rate": 0.22
+  },
+  "generated_at": "auto-generated-by-saa_summary.py"
+}

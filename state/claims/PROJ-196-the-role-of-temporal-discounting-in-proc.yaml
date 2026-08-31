@@ -174,3 +174,170 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T19:17:45Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Generate three CSV files simulating 500 participants
+  claim_id: c_e72a4032
+  context: 'T014 [US1] DATA GENERATION: Implement Data Generating Process (DGP) generator
+    in code/ingestion.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This task MUST generate three distinct CSV files (data/raw/delay_discounting.csv,
+    data/raw/procrastination.csv, data/raw/nback.csv) simulating N=500 participants
+    based on literature parameters.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:38:49Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Raise error if Cronbach's alpha is less than 0.7
+  claim_id: c_b8e56720
+  context: 'T014b [US1] RELIABILITY CHECK: Implement Reliability Verification in code/ingestion.py.
+    This task MUST calculate Cronbach''s alpha for each of the three generated synthetic
+    datasets.'
+  evidence:
+    candidates:
+    - - ''
+      - 27.0
+    - - ''
+      - 0.7
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Raise_error_if_Cronbach's_alpha_is_less_than_0.7
+  kind: magnitude
+  raw_text: 'If any alpha < 0.7, it MUST raise SystemExit(1) with message ''CRITICAL:
+    Synthetic data reliability below threshold (alpha < 0.7)''.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-31T08:39:28Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Halt if ID mismatch drop exceeds 10 percent
+  claim_id: c_dfcacf78
+  context: 'T015a [US1] HARMONIZATION: Implement data harmonization and merging logic
+    in code/ingestion.py. This task reads the three distinct source files generated
+    by T014, merges them using participant_id.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: It must check for >10% drop due to ID mismatch and flag/halt if exceeded.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:39:28Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Flag reduced model if missing covariates exceed 10 percent
+  claim_id: c_852c57a3
+  context: 'T016 [US1] MISSING DATA HANDLING: Implement missing data handling logic
+    in code/ingestion.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If missing covariates (age, gender) >10%, flag for reduced model by writing
+    data/processed/model_config.json with reduced_model: true and excluding those
+    covariates.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:39:28Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Flag VIF if greater than 5
+  claim_id: c_6e633931
+  context: T023 [US2] Implement VIF calculation and reporting logic (FR-005)
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P508: 15226'
+      source_id: Q14660
+      url: https://www.wikidata.org/wiki/Q14660
+      value: '15226'
+    filled: true
+  kind: magnitude
+  raw_text: Flag if > 5
+  resolved_value: '15226'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T08:39:59Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Raise error if memory exceeds 7168 MB or time exceeds 50 percent of 6
+    hours
+  claim_id: c_a6ee69a0
+  context: 'T032b [US2] Intermediate Monitoring: Wrap T021-T024 execution in memory_profiler
+    and time module.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If max_memory_mb > 7168 or elapsed_time exceeds 50% of 6h limit, Raise
+    SystemExit(1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:39:59Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Perform 1000 bootstrap resamples to generate 95% confidence interval
+  claim_id: c_33c7edad
+  context: T028 [P] [US3] Implement bootstrapping routine (1000 resamples) to generate
+    95% CI for interaction coefficient in code/robustness.py (FR-006)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement bootstrapping routine (1000 resamples) to generate 95% CI for
+    interaction coefficient.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:40:35Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Flag instability if ratio exceeds 0.5
+  claim_id: c_da91e0d9
+  context: T030 [US3] Implement logic to calculate instability_ratio = (count of thresholds
+    where 95% CI crosses zero) / (total thresholds). Flag instability if instability_ratio
+    > 0.5 (SC-004).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag instability if instability_ratio > 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:40:35Z'
+- artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/tasks.md
+  attempts: 1
+  canonical: Assert memory under 7168 MB and time under 21600 seconds
+  claim_id: c_b3852771
+  context: 'T032 [US3] Final Verification: Verify total runtime and memory usage stay
+    within 6h/7GB limits on CPU (FR-010). Use memory_profiler and time module.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert max_memory_mb < 7168 and elapsed_time < 21600.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:40:35Z'

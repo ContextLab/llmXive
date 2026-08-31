@@ -7,11 +7,11 @@ T001:
     not satisfied.
 T005:
   c: false
-  h: 9c36a04d9d39ff7ce11bca8ddcf659aa84845ec70ce698e484d3cb4422c4e155
-  r: "The implementer\u2019s `code/main.py` does contain a Pydantic\u2011based `Config`\
-    \ model and attempts to validate against a schema, but the required file `contracts/config.schema.yaml`\
-    \ is missing from the repository, so the schema\u2011validation step cannot actually\
-    \ be performed. The task is therefore not fully satisfied."
+  h: 3c05e94ffe1c52379773caef0b9df18d52e96dc791b5cee061bc76e41ae23ba7
+  r: "The `code/main.py` file defines a Pydantic `Config` model and attempts to validate\
+    \ against a schema, but the required `contracts/config.schema.yaml` file does\
+    \ not exist on disk, so the schema\u2011based validation cannot be performed.\
+    \ The missing schema file must be added for the task to be considered complete."
 T009:
   c: true
   h: cda04b41f3e2578980ac11835aa7d2025e650f1366c81d9ce8a6742c0d057657
@@ -49,3 +49,39 @@ T016:
     \ (URL whitelist validation and ensuring the file has no ILI columns) that the\
     \ task explicitly demands. These missing pieces must be added for the task to\
     \ be considered complete."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `baselines.csv` file is present in the provided evidence, nor any excerpt\
+    \ or description showing its contents. Without the required CSV listing the Pettitt\
+    \ and BOCPD detected change weeks and associated statistics, the task\u2019s deliverable\
+    \ is missing."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `sensitivity.csv` file (or any evidence of its generation) is present; without\
+    \ the artifact we cannot confirm that metrics for all bandwidth/window\u2011length\
+    \ configurations were aggregated as required. The implementer must provide the\
+    \ actual CSV containing precision, recall, and detection\u2011delay values for\
+    \ each configuration."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `report.pdf` containing the required sensitivity\u2011analysis summary and\
+    \ variation plots was provided; the evidence contains no artifact at all, so the\
+    \ task\u2019s deliverable cannot be verified. The next implementer must supply\
+    \ an updated PDF that includes the sensitivity analysis results and the associated\
+    \ plots."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The repository does not contain the required `quickstart.md` with added run\
+    \ instructions nor an updated `README.md` providing a project overview; no such\
+    \ files or modifications are present in the provided evidence. The task\u2019\
+    s deliverables are therefore missing."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required unit test files (`tests/unit/test_constant_series.py`
+    and `tests/unit/test_outlier_handling.py`) was provided; the claim lacks any displayed
+    code, file listings, or test content, so the task is not demonstrably completed.

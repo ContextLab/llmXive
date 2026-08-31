@@ -1,98 +1,149 @@
-# Schema for pipeline output files (flags, baselines, metrics, reports)
-# Used by code/contracts.py to validate output integrity
+$schema: http://json-schema.org/draft-07/schema#
+title: Pipeline Output Schema
+description: |
+  Schema for all output artifacts produced by the distribution shift detection pipeline.
+  Ensures consistency of flags, baseline results, sensitivity analysis, and reports.
 type: object
-required:
-  - type
-  - columns
-  - rows
 properties:
-  type:
-    type: string
-    enum:
-      - flags
-      - baselines
-      - metrics
-      - sensitivity
-      - report_metadata
-    description: Type of output artifact
-  columns:
-    type: array
-    items:
-      type: object
-      required:
-        - name
-        - dtype
-      properties:
-        name:
-          type: string
-        dtype:
-          type: string
-        nullable:
-          type: boolean
-          default: false
-  rows:
-    type: integer
-    minimum: 0
-    description: Number of rows in the output
-  validation_rules:
+  flags:
+    description: MMD detected shift flags
     type: object
-    description: Specific validation rules for this output type
     properties:
-      flags:
-        type: object
-        properties:
-          required_columns:
-            type: array
-            items:
-              type: string
-            enum:
-              - week
-              - mmd_statistic
-              - p_value
-              - is_shift
-          date_format:
-            type: string
-            const: "%Y-%m-%d"
-      baselines:
-        type: object
-        properties:
-          required_columns:
-            type: array
-            items:
-              type: string
-            enum:
-              - week
-              - method
-              - statistic
-              - p_value
-      metrics:
-        type: object
-        properties:
-          required_columns:
-            type: array
-            items:
-              type: string
-            enum:
-              - metric_name
-              - value
-              - configuration
-      sensitivity:
-        type: object
-        properties:
-          required_columns:
-            type: array
-            items:
-              type: string
-            enum:
-              - bandwidth
-              - window_size
-              - precision
-              - recall
-              - delay
-  generated_at:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of generation
-  config_snapshot:
+      file_path:
+        type: string
+        pattern: ^data/processed/flags\.csv$
+      columns:
+        type: array
+        items:
+          type: string
+        contains:
+          const: "week"
+        contains:
+          const: "mmd_statistic"
+        contains:
+          const: "p_value"
+        contains:
+          const: "flagged"
+      required_columns:
+        type: array
+        items:
+          type: string
+        minItems: 4
+        contains:
+          const: "week"
+        contains:
+          const: "flagged"
+      schema_version:
+        type: string
+        const: "1.0"
+  baselines:
+    description: Baseline change-point detection results
     type: object
-    description: Snapshot of config parameters used for this run
+    properties:
+      file_path:
+        type: string
+        pattern: ^data/processed/baselines\.csv$
+      columns:
+        type: array
+        items:
+          type: string
+        contains:
+          const: "week"
+        contains:
+          const: "method"
+        contains:
+          const: "statistic"
+        contains:
+          const: "detected"
+      required_columns:
+        type: array
+        items:
+          type: string
+        minItems: 4
+        contains:
+          const: "week"
+        contains:
+          const: "method"
+      methods:
+        type: array
+        items:
+          type: string
+        contains:
+          const: "pettitt"
+        contains:
+          const: "bocpd"
+  sensitivity:
+    description: Sensitivity analysis results
+    type: object
+    properties:
+      file_path:
+        type: string
+        pattern: ^data/processed/sensitivity\.csv$
+      columns:
+        type: array
+        items:
+          type: string
+        contains:
+          const: "bandwidth"
+        contains:
+          const: "window_size"
+        contains:
+          const: "precision"
+        contains:
+          const: "recall"
+        contains:
+          const: "delay"
+      required_columns:
+        type: array
+        items:
+          type: string
+        minItems: 5
+        contains:
+          const: "bandwidth"
+        contains:
+          const: "precision"
+  tolerance_sensitivity:
+    description: Week-alignment tolerance sweep results
+    type: object
+    properties:
+      file_path:
+        type: string
+        pattern: ^data/processed/tolerance_sensitivity\.csv$
+      columns:
+        type: array
+        items:
+          type: string
+        contains:
+          const: "tolerance_weeks"
+        contains:
+          const: "precision"
+        contains:
+          const: "recall"
+      required_columns:
+        type: array
+        items:
+          type: string
+        minItems: 3
+        contains:
+          const: "tolerance_weeks"
+  report:
+    description: Final PDF report
+    type: object
+    properties:
+      file_path:
+        type: string
+        pattern: ^data/processed/report\.pdf$
+      contains:
+        type: array
+        items:
+          type: string
+        contains:
+          const: "metrics_summary"
+        contains:
+          const: "timeline_plot"
+        contains:
+          const: "sensitivity_summary"
+required:
+  - flags
+  - report
+additionalProperties: false

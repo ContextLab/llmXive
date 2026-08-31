@@ -41,3 +41,45 @@ T009:
     \ discusses a downstream text\u2011only pipeline but offers no concrete artifacts\
     \ that satisfy the \u201Csetup environment configuration management for CPU\u2011\
     only execution constraints\u201D requirement."
+T011:
+  c: false
+  h: 824b236207150c9de6813e634f821ab64c000082cce307a9f7980957c210fd4a
+  r: "The required file `tests/integration/test_text_pipeline.py` does not exist,\
+    \ so no integration test artifact is present to verify the text\u2011only pipeline.\
+    \ The task cannot be considered fulfilled until this test file is created with\
+    \ appropriate test code."
+T014:
+  c: false
+  h: 9f0bef39517bf89fb6bd1af172717a16cd99cae1882c94f7ed26a90bb5109c99
+  r: "The provided `code/reasoning.py` stops mid\u2011function (truncated after `pars`)\
+    \ and never contains logic to run the model on the held\u2011out test set, produce\
+    \ answers with chunk IDs, or invoke `memory_profiler`. Moreover, the required\
+    \ `data/logs/memory_profile.log` file does not exist. Both the core functionality\
+    \ and the memory\u2011usage log are missing."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or log files showing per\u2011query runtime and memory\
+    \ usage were provided. The artifacts only contain high\u2011level feature specifications\
+    \ and user stories; there is no evidence that logging was added or that any logs\
+    \ are being generated, so the requirement is not satisfied."
+T018a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No runtime logs, timing tables, or benchmark reports for the held\u2011out test\
+    \ set are provided; the claim lacks any concrete artifact (e.g., CSV of per\u2011\
+    query runtimes, plotted latency distribution, or code that records timings). Without\
+    \ such evidence the pilot evaluation requirement is not satisfied."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No bootstrap confidence\u2011interval analysis code, notebook, or result files\
+    \ are present; the claim lacks any artifact demonstrating a computed CI comparing\
+    \ mean SAA to the baseline. The required statistical analysis is therefore missing."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, model, or evaluation results were provided to demonstrate a visual\u2011\
+    only pipeline that predicts bounding boxes or chunk IDs, nor any computed Visual\
+    \ Localization Accuracy (VLA) or Strict Attributed Accuracy (SAA) metrics. The\
+    \ required implementation and its quantitative outputs are missing."

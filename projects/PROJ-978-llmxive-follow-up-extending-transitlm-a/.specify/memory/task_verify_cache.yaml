@@ -1,36 +1,17 @@
-T001:
+T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directory tree (`code/`, `data/raw/`, `data/processed/`,
-    `data/analysis/`, `models/`, `analysis/`, `tests/`, `docs/`) is provided; the
-    artifacts are missing, so the task is not satisfied.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml` or `.ruff.toml`\
-    \ for ruff, and black settings or a pre\u2011commit hook) are present in the provided\
-    \ artifacts, and the evidence only describes a research feature spec unrelated\
-    \ to configuring ruff/black. The required linting/formatting setup is missing."
-T004:
-  c: false
-  h: 62216d1d1045e452afc017253fdf91fab99d18745efee4e6772b56c8101c0a21
-  r: The provided `data/download.py` is truncated, never invokes the SHA256 check,
-    and writes to `transitlm_sft_raw.jsonl` instead of the required `transitlm_ground_truth.json`.
-    Moreover, the expected output file `data/raw/transitlm_ground_truth.json` is missing.
-T006b:
-  c: false
-  h: a932facab857626cc3255d9ab8edafd351746217f04064d881406b941995c6fa
-  r: "The required `data/preprocess.py` file does not exist, and the claimed output\
-    \ `data/processed/vocab_restricted_routes.jsonl` contains only placeholder text\
-    \ rather than the actual vocabulary\u2011restricted routes. Both the implementation\
-    \ and the real output file are missing."
+  r: "No `config.py` file or its contents are present in the provided evidence; therefore\
+    \ the required environment configuration, random seed handling, and city\u2011\
+    mapping constants have not been implemented. The task remains undone."
 T010:
-  c: true
-  h: 21f09e3da1a022150ea77e9a8d7e8568f98605c97b92ee7c99ca50f73526e948
-  r: "The `tests/contract/test_preprocess_schema.py` file exists (8\u202FKB) and contains\
-    \ a full unittest suite that loads the processed dataset, loads the schema, and\
-    \ validates the output of `data/preprocess.py` against that schema, satisfying\
-    \ the task\u2019s requirement."
+  c: false
+  h: 946e2a9dfc0e0995e5419fbfff04ccaed83d2aa6a06bf1a3141187d251d75021
+  r: The provided `tests/contract/test_preprocess_schema.py` is truncated and does
+    not contain any actual test logic invoking `data/preprocess.py`. Moreover, the
+    required `data/preprocess.py` file is missing entirely, so the contract test cannot
+    verify the output schema as specified. The missing module and incomplete test
+    file must be added/fixed.
 T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

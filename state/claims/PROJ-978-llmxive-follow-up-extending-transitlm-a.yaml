@@ -341,3 +341,136 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-08T16:01:00Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: 'routes stratified by length categories: short <15, medium 15-30, long
+    >30'
+  claim_id: c_1000081b
+  context: T006c [P] [US1] Implement data/preprocess.py function stratify_routes to
+    stratify routes into short (<15), medium (15-30), and long (>30) categories.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: stratify routes into short (<15), medium (15-30), and long (>30) categories
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:20:30Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: graph edge overlap validated at >= 95% using Jaccard Index
+  claim_id: c_b0d2ec15
+  context: "T007 [US1] [FR-008] Implement data/graph_utils.py to build the local adjacency\
+    \ graph from T004 output and validate it against data/raw/transitlm_ground_truth.json\
+    \ for edge overlap \u226595% using the Jaccard Index algorithm."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "validate it against data/raw/transitlm_ground_truth.json for edge overlap\
+    \ \u226595% using the Jaccard Index algorithm"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:20:30Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: task fails if Jaccard Index < 0.95
+  claim_id: c_2e94de16
+  context: 'CRITICAL: If Jaccard Index < 0.95, this task MUST fail, abort Phase 3,
+    and log the error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If Jaccard Index < 0.95, this task MUST fail, abort Phase 3, and log the
+    error
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:20:30Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: DistilBERT-base encoder trained on stratified routes
+  claim_id: c_ecea8960
+  context: T012b [US1] [FR-002] Implement models/lightweight.py function train_encoder
+    to train a DistilBERT-base encoder (CPU-only) on the stratified routes to predict
+    the next station using the adjacency index as input.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DistilBERT-base_encoder_trained_on_stratified_routes
+  kind: entity_fact
+  raw_text: train a DistilBERT-base encoder (CPU-only) on the stratified routes
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:21:07Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied for multiple comparisons
+  claim_id: c_9cc61f75
+  context: T023a [US2] [FR-007] Implement analysis/statistics.py to consume data/analysis/raw_inflection_data.json
+    from T014 and apply Bonferroni correction for multiple comparisons (Wikidata Q385989,
+    https://www.wikidata.org/wiki/Q385989).
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikipedia
+        source_id: Mascot (software)
+        url: https://en.wikipedia.org/wiki/Mascot_(software)
+        value: "5*10\u22128"
+      quote: 'P800: Q385989'
+      source_id: Q858572
+      url: https://www.wikidata.org/wiki/Q858572
+      value: Q385989
+    filled: true
+  kind: entity_fact
+  raw_text: Bonferroni correction for multiple comparisons (Wikidata Q385989, https://www.wikidata.org/wiki/Q385989)
+  resolved_value: Q385989
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T08:21:35Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: final inflection point defined as validity gap >= 15% and adjusted p-value
+    < 0.05
+  claim_id: c_5a1d243f
+  context: "Requirement: Must identify the final inflection point where validity gap\
+    \ \u226515% AND adjusted p-value < 0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "identify the final inflection point where validity gap \u226515% AND\
+    \ adjusted p-value < 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:21:35Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: top-N neighbor retrieval latency reduced to <= 60 seconds per batch
+  claim_id: c_fc2c0bfc
+  context: "T035 [P] Performance optimization: Profile and optimize the top-N neighbor\
+    \ retrieval in data/graph_utils.py to reduce latency to \u226460 seconds per batch."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "reduce latency to \u226460 seconds per batch"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:21:35Z'

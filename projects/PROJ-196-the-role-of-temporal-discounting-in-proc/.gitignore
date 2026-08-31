@@ -1,9 +1,12 @@
 # Python
 __pycache__/
 *.py[cod]
-$py.class
+*$py.class
 *.so
 .Python
+env/
+venv/
+ENV/
 build/
 develop-eggs/
 dist/
@@ -20,37 +23,18 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual environments
-venv/
-ENV/
-env/
-.venv/
+# Data (generated artifacts)
+data/raw/*.csv
+data/processed/*.parquet
+data/processed/*.json
+figures/*.png
+figures/*.pdf
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Data (large files)
-data/raw/*.csv
-data/raw/*.parquet
-data/processed/*.csv
-data/processed/*.parquet
-data/processed/*.json
-
-# Figures (large images)
-data/figures/*.png
-data/figures/*.jpg
-data/figures/*.svg
-
-# State files (can be large)
-state/projects/*.yaml
 
 # OS
 .DS_Store

@@ -1,33 +1,54 @@
 """
-Setup script for creating the required data directory structure.
-This script ensures that `data/raw/` and `data/processed/` directories exist
-relative to the project root.
+Directory setup utilities for the llmXive automated science pipeline.
+This module ensures the required data directory structure exists.
 """
 import os
 from pathlib import Path
 import sys
 
-# Add the code directory to the path to import config if needed,
-# though we can also derive root directly.
-code_dir = Path(__file__).parent
-project_root = code_dir.parent
+from config import get_project_root
+
 
 def setup_data_directories():
-    """Create the data/raw and data/processed directory structure."""
+    """
+    Creates the required data directory structure:
+    - data/raw/
+    - data/processed/
+
+    Returns:
+        dict: A dictionary containing the Path objects for the created directories.
+    """
+    project_root = get_project_root()
     data_dir = project_root / "data"
     raw_dir = data_dir / "raw"
     processed_dir = data_dir / "processed"
 
-    directories = [data_dir, raw_dir, processed_dir]
+    # Create directories if they don't exist
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    processed_dir.mkdir(parents=True, exist_ok=True)
 
-    for directory in directories:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {directory}")
-        else:
-            print(f"Directory already exists: {directory}")
+    return {
+        "data": data_dir,
+        "raw": raw_dir,
+        "processed": processed_dir
+    }
 
-    print(f"Data directory structure setup complete at: {data_dir}")
+
+def main():
+    """
+    Main entry point for running the directory setup script directly.
+    Creates the necessary directories and prints confirmation.
+    """
+    try:
+        dirs = setup_data_directories()
+        print(f"Successfully created directory structure at: {dirs['data']}")
+        print(f"  - Raw data: {dirs['raw']}")
+        print(f"  - Processed data: {dirs['processed']}")
+        return 0
+    except Exception as e:
+        print(f"Error setting up directories: {e}", file=sys.stderr)
+        return 1
+
 
 if __name__ == "__main__":
-    setup_data_directories()
+    sys.exit(main())

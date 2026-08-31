@@ -1,0 +1,4 @@
+# Standalone black configuration for IDE compatibility
+# Black primarily uses pyproject.toml, this file exists for tooling that explicitly looks for .black.toml
+[tool.black]
+line-length = 100

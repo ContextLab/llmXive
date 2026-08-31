@@ -59,7 +59,7 @@
 - [ ] T006a [P] [US1] Implement `data/preprocess.py` function `filter_cities` to filter the dataset for four Chinese cities. **Deliverable**: `data/processed/city_filtered_routes.jsonl`.
 - [ ] T006b [P] [US1] Implement `data/preprocess.py` function `apply_vocabulary_restriction` to apply top-N station vocabulary restriction (with `<UNKNOWN>` token handling) on the filtered routes. **Deliverable**: `data/processed/vocab_restricted_routes.jsonl`.
 - [ ] T006c [P] [US1] Implement `data/preprocess.py` function `stratify_routes` to stratify routes into short (<15), medium (15-30), and long (>30) categories. **Deliverable**: `data/processed/stratified_routes.parquet`. **Verification**: Assert `row_count > 0` and categories are balanced.
-- [ ] T016 [US1] [FR-006] Implement logic in `data/preprocess.py` to handle `<UNKNOWN>` tokens: exclude them from station validity metrics unless ground truth matches. **Dependency**: Must run immediately after T006 data generation. <!-- ATOMIZE: requested -->
+- [ ] T016 [US1] [FR-006] Implement logic in `data/preprocess.py` to handle `<UNKNOWN>` tokens: exclude them from station validity metrics unless ground truth matches. **Dependency**: Must run immediately after T006 data generation. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T007 [US1] [FR-008] Implement `data/graph_utils.py` to build the local adjacency graph from T004 output and validate it against `data/raw/transitlm_ground_truth.json` for edge overlap ≥95% using the **Jaccard Index** algorithm. **Deliverable**: `data/processed/graph_validation_report.json` containing `{"jaccard_index": float, "status": "PASS|FAIL"}`. **Dependency**: T004. **CRITICAL**: If Jaccard Index < 0.95, this task MUST fail, abort Phase 3, and log the error. **Note**: This task is parallel-safe with T006a-c but BLOCKS T015b.
 - [ ] T009 [P] Implement `config.py` for environment configuration, random seeds, and city mapping constants.
 
@@ -78,7 +78,7 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T010 [P] [US1] Contract test for `data/preprocess.py` output schema in `tests/contract/test_preprocess_schema.py`
-- [ ] T011 [P] [US1] Integration test for stratified route validity scoring in `tests/integration/test_stratified_validity.py`
+- [X] T011 [P] [US1] Integration test for stratified route validity scoring in `tests/integration/test_stratified_validity.py`
 
 ### Implementation for User Story 1
 
@@ -111,7 +111,7 @@
 - [ ] T020 [P] [US2] [FR-004] Implement `analysis/survival.py` to execute Kaplan-Meier survival analysis on route validity decay across route lengths. **Deliverable**: `data/analysis/survival_data.json` (raw curve data). **Dependency**: T014.
 - [ ] T021 [US2] [FR-004] Implement `analysis/survival.py` to perform log-rank test comparing lightweight model and baseline survival curves. **Dependency**: T020.
 - [ ] T022 [US2] [FR-004] Implement `analysis/survival.py` to handle censored data (routes truncated or reaching max hops) correctly (US-2,Scenario 1). **Dependency**: T021.
-- [ ] T023a [US2] [FR-007] Implement `analysis/statistics.py` to consume `data/analysis/raw_inflection_data.json` from T014 and apply **Bonferroni correction** for multiple comparisons (Wikidata Q385989, https://www.wikidata.org/wiki/Q385989). **Requirement**: Must identify the final inflection point where validity gap ≥15% AND adjusted p-value < 0.05. **Deliverable**: `data/analysis/final_inflection_report.json`. **Dependency**: T014.
+- [ ] T023a [US2] [FR-007] Implement `analysis/statistics.py` to consume `data/analysis/raw_inflection_data.json` from T014 and apply **Bonferroni correction** for multiple comparisons. **Requirement**: Must identify the final inflection point where validity gap ≥15% AND adjusted p-value < 0.05. **Deliverable**: `data/analysis/final_inflection_report.json`. **Dependency**: T014.
 -[ ] T023b [US2] [FR-007] Implement `analysis/statistics.py` to report the adjusted p-values and compare them to the {{claim:c_f4def496}} (Wikipedia: Binomial proportion confidence interval, https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval). **Dependency**: T023a.
 - [ ] T024 [US2] Add diagnostic checks for proportional hazards assumptions in `analysis/survival.py` and implement non-parametric fallback if violated (Edge Case).
 - [ ] T025a [US2] [FR-004] Generate `data/analysis/survival_curves.pdf` from `data/analysis/survival_data.json`. **Verification**: PDF file exists, contains two curves (lightweight vs. baseline), and includes a legend and log-rank p-value annotation. **Dependency**: T020.

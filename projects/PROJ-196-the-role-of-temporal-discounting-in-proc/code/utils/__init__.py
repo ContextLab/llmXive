@@ -1,24 +1,11 @@
-"""
-Utilities package for the project.
-"""
 from .checksum import (
     ensure_state_file,
     calculate_file_hash,
-    update_artifact_hash,
-    verify_artifacts,
-    update_all_artifacts_in_directory,
     get_state,
+    update_artifact_hash,
+    update_all_artifacts_in_directory,
+    update_artifacts_for_pipeline,
+    verify_artifacts,
     clear_artifact_hashes,
-    update_artifacts_for_pipeline
+    main
 )
-
-__all__ = [
-    "ensure_state_file",
-    "calculate_file_hash",
-    "update_artifact_hash",
-    "verify_artifacts",
-    "update_all_artifacts_in_directory",
-    "get_state",
-    "clear_artifact_hashes",
-    "update_artifacts_for_pipeline"
-]

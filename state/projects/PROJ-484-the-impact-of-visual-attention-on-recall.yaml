@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-09T09:38:59.562576Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-484-the-impact-of-visual-attention-on-recall
-last_run_id: 2644d02a-cfe4-4b4e-a328-afc8d8ba1a85
+last_run_id: 32e44124-b666-4acd-baa5-fbc1cff6dbe4
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall
 title: The Impact of Visual Attention on Recall of Emotional Stimuli in Rapid Visual
   Sequences
-updated_at: '2026-08-29T13:42:11.660361Z'
+updated_at: '2026-08-31T08:13:09.998470Z'

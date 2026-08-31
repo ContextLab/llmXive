@@ -1,0 +1,10 @@
+'|black dataset flake8 include isort learn matplotlib numpy panda pytest pyyaml request scikit seaborn statsmodel':
+  quote: 'P3168: include'
+  source_id: Q6014791
+  url: https://www.wikidata.org/wiki/Q6014791
+  value: P3168
+'|default if literature metadata missing use':
+  quote: "\u201CNot Applicable\u201D irrelevant or not applicable to this resource"
+  source_id: '1110.0514'
+  url: https://arxiv.org/abs/1110.0514
+  value: Not Applicable

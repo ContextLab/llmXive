@@ -2,152 +2,252 @@ import json
 import os
 import pytest
 from pathlib import Path
-from unittest.mock import patch, mock_open
+from typing import Set, Tuple
 
-# Import the functions to test
+# Import the module under test
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+
 from data.graph_utils import (
+    load_ground_truth,
+    load_processed_routes,
     build_route_graph,
     compute_jaccard_index,
     validate_graph_against_ground_truth,
-    load_ground_truth,
-    load_processed_routes
+    main
 )
 
-def test_build_route_graph_basic():
-    """Test building a graph from a simple list of routes."""
-    routes = [
-        {"stops": ["A", "B", "C"]},
-        {"stops": ["C", "D"]}
-    ]
-    edges = build_route_graph(routes)
-    expected = {("A", "B"), ("B", "C"), ("C", "D")}
-    assert edges == expected
 
-def test_build_route_graph_empty():
-    """Test building a graph from empty or invalid routes."""
-    routes = [
-        {"stops": []},
-        {"stops": ["A"]},
-        {},
-        None
-    ]
-    edges = build_route_graph(routes)
-    assert edges == set()
+class TestBuildRouteGraph:
+    """Tests for build_route_graph function."""
 
-def test_build_route_graph_alternative_keys():
-    """Test that the function handles alternative keys for stops."""
-    routes = [
-        {"stations": ["X", "Y"]},
-        {"stop_sequence": ["Y", "Z"]}
-    ]
-    edges = build_route_graph(routes)
-    expected = {("X", "Y"), ("Y", "Z")}
-    assert edges == expected
+    def test_empty_routes(self):
+        """Test with empty route list."""
+        routes = []
+        edges = build_route_graph(routes)
+        assert edges == set()
 
-def test_jaccard_index_identical_sets():
-    """Test Jaccard index for identical sets."""
-    s1 = {"A", "B", "C"}
-    s2 = {"A", "B", "C"}
-    assert compute_jaccard_index(s1, s2) == 1.0
+    def test_single_station_route(self):
+        """Test with a route containing only one station."""
+        routes = [{"stations": ["StationA"]}]
+        edges = build_route_graph(routes)
+        assert edges == set()
 
-def test_jaccard_index_disjoint_sets():
-    """Test Jaccard index for disjoint sets."""
-    s1 = {"A", "B"}
-    s2 = {"C", "D"}
-    assert compute_jaccard_index(s1, s2) == 0.0
+    def test_two_station_route(self):
+        """Test with a route containing two stations."""
+        routes = [{"stations": ["StationA", "StationB"]}]
+        edges = build_route_graph(routes)
+        expected = {("StationA", "StationB")}
+        assert edges == expected
 
-def test_jaccard_index_partial_overlap():
-    """Test Jaccard index for partially overlapping sets."""
-    s1 = {"A", "B", "C"}
-    s2 = {"B", "C", "D"}
-    # Intersection: {B, C} (2)
-    # Union: {A, B, C, D} (4)
-    assert compute_jaccard_index(s1, s2) == 0.5
+    def test_multi_station_route(self):
+        """Test with a route containing multiple stations."""
+        routes = [{"stations": ["A", "B", "C", "D"]}]
+        edges = build_route_graph(routes)
+        expected = {("A", "B"), ("B", "C"), ("C", "D")}
+        assert edges == expected
 
-def test_jaccard_index_empty_sets():
-    """Test Jaccard index for empty sets."""
-    assert compute_jaccard_index(set(), set()) == 1.0
-    assert compute_jaccard_index({"A"}, set()) == 0.0
-    assert compute_jaccard_index(set(), {"A"}) == 0.0
+    def test_multiple_routes(self):
+        """Test with multiple routes."""
+        routes = [
+            {"stations": ["A", "B", "C"]},
+            {"stations": ["C", "D", "E"]},
+            {"stations": ["A", "E"]}
+        ]
+        edges = build_route_graph(routes)
+        expected = {("A", "B"), ("B", "C"), ("C", "D"), ("D", "E"), ("A", "E")}
+        assert edges == expected
 
-@pytest.mark.parametrize("threshold,expected_status", [
-    (0.95, "PASS"),
-    (0.99, "FAIL")
-])
-def test_validate_graph_against_ground_truth_success_and_fail(tmp_path, threshold, expected_status):
-    """
-    Test validate_graph_against_ground_truth with mock data.
-    This test verifies the logic of the validation and the raising of RuntimeError on failure.
-    """
-    # Prepare mock data
-    routes_data = [
-        {"stops": ["A", "B", "C"]},
-        {"stops": ["C", "D"]}
-    ]
-    # Ground truth has slightly different edges to test threshold
-    gt_data = [
-        {"stops": ["A", "B", "C"]},
-        {"stops": ["C", "D"]},
-        {"stops": ["E", "F"]} # Extra edge in GT
-    ]
+    def test_duplicate_edges(self):
+        """Test that duplicate edges are deduplicated."""
+        routes = [
+            {"stations": ["A", "B", "C"]},
+            {"stations": ["A", "B", "C"]}
+        ]
+        edges = build_route_graph(routes)
+        expected = {("A", "B"), ("B", "C")}
+        assert edges == expected
 
-    routes_file = tmp_path / "routes.jsonl"
-    gt_file = tmp_path / "gt.json"
-    report_file = tmp_path / "report.json"
 
-    with open(routes_file, 'w') as f:
-        for r in routes_data:
-            f.write(json.dumps(r) + "\n")
+class TestComputeJaccardIndex:
+    """Tests for compute_jaccard_index function."""
 
-    with open(gt_file, 'w') as f:
-        json.dump(gt_data, f)
+    def test_identical_sets(self):
+        """Test with identical sets."""
+        set_a = {"A", "B", "C"}
+        set_b = {"A", "B", "C"}
+        index = compute_jaccard_index(set_a, set_b)
+        assert index == 1.0
 
-    # Calculate expected Jaccard manually
-    # Route edges: (A,B), (B,C), (C,D) -> 3 edges
-    # GT edges: (A,B), (B,C), (C,D), (E,F) -> 4 edges
-    # Intersection: 3
-    # Union: 4
-    # Jaccard: 0.75
+    def test_disjoint_sets(self):
+        """Test with disjoint sets."""
+        set_a = {"A", "B"}
+        set_b = {"C", "D"}
+        index = compute_jaccard_index(set_a, set_b)
+        assert index == 0.0
 
-    if expected_status == "FAIL":
+    def test_partial_overlap(self):
+        """Test with partially overlapping sets."""
+        set_a = {"A", "B", "C"}
+        set_b = {"B", "C", "D"}
+        # Intersection: {B, C} -> 2
+        # Union: {A, B, C, D} -> 4
+        # Jaccard: 2/4 = 0.5
+        index = compute_jaccard_index(set_a, set_b)
+        assert index == 0.5
+
+    def test_empty_sets(self):
+        """Test with both sets empty."""
+        set_a = set()
+        set_b = set()
+        index = compute_jaccard_index(set_a, set_b)
+        assert index == 1.0
+
+    def test_one_empty_set(self):
+        """Test with one empty set."""
+        set_a = {"A", "B"}
+        set_b = set()
+        index = compute_jaccard_index(set_a, set_b)
+        assert index == 0.0
+
+
+class TestValidateGraphAgainstGroundTruth:
+    """Tests for validate_graph_against_ground_truth function."""
+
+    def test_passing_validation(self, tmp_path):
+        """Test validation that passes the threshold."""
+        # Create ground truth file
+        gt_data = {
+            "data": [
+                {"stations": ["A", "B", "C"]},
+                {"stations": ["C", "D"]}
+            ]
+        }
+        gt_path = tmp_path / "ground_truth.json"
+        with open(gt_path, 'w') as f:
+            json.dump(gt_data, f)
+
+        # Create processed routes file (identical)
+        processed_path = tmp_path / "processed.jsonl"
+        with open(processed_path, 'w') as f:
+            f.write(json.dumps({"stations": ["A", "B", "C"]}) + "\n")
+            f.write(json.dumps({"stations": ["C", "D"]}) + "\n")
+
+        # Output path
+        output_path = tmp_path / "report.json"
+
+        # Run validation
+        report = validate_graph_against_ground_truth(
+            str(gt_path),
+            str(processed_path),
+            str(output_path),
+            threshold=0.95
+        )
+
+        assert report["status"] == "PASS"
+        assert report["jaccard_index"] == 1.0
+        assert output_path.exists()
+
+    def test_failing_validation(self, tmp_path):
+        """Test validation that fails the threshold."""
+        # Create ground truth file
+        gt_data = {
+            "data": [
+                {"stations": ["A", "B", "C", "D"]}
+            ]
+        }
+        gt_path = tmp_path / "ground_truth.json"
+        with open(gt_path, 'w') as f:
+            json.dump(gt_data, f)
+
+        # Create processed routes file (different edges)
+        processed_path = tmp_path / "processed.jsonl"
+        with open(processed_path, 'w') as f:
+            f.write(json.dumps({"stations": ["X", "Y", "Z"]}) + "\n")
+
+        # Output path
+        output_path = tmp_path / "report.json"
+
+        # Run validation - should raise RuntimeError
         with pytest.raises(RuntimeError, match="Graph validation FAILED"):
             validate_graph_against_ground_truth(
-                routes_path=str(routes_file),
-                ground_truth_path=str(gt_file),
-                output_path=str(report_file),
-                threshold=threshold
+                str(gt_path),
+                str(processed_path),
+                str(output_path),
+                threshold=0.95
             )
-    else:
-        # For PASS, we need Jaccard >= threshold.
-        # With current data J=0.75. If threshold is 0.95, it should fail.
-        # Let's adjust the test data for the PASS case.
-        if threshold == 0.95:
-            # Make GT identical to routes
-            gt_data_pass = [
-                {"stops": ["A", "B", "C"]},
-                {"stops": ["C", "D"]}
-            ]
-            with open(gt_file, 'w') as f:
-                json.dump(gt_data_pass, f)
-            
-            validate_graph_against_ground_truth(
-                routes_path=str(routes_file),
-                ground_truth_path=str(gt_file),
-                output_path=str(report_file),
-                threshold=threshold
-            )
-            
-            assert report_file.exists()
-            with open(report_file) as f:
-                report = json.load(f)
-            assert report["status"] == "PASS"
-            assert report["jaccard_index"] == 1.0
-def test_load_ground_truth_file_not_found():
-    """Test that load_ground_truth raises FileNotFoundError."""
-    with pytest.raises(FileNotFoundError):
-        load_ground_truth("non_existent_file.json")
 
-def test_load_processed_routes_file_not_found():
-    """Test that load_processed_routes raises FileNotFoundError."""
-    with pytest.raises(FileNotFoundError):
-        load_processed_routes("non_existent_file.jsonl")
+    def test_missing_ground_truth_file(self, tmp_path):
+        """Test with missing ground truth file."""
+        processed_path = tmp_path / "processed.jsonl"
+        output_path = tmp_path / "report.json"
+
+        with pytest.raises(FileNotFoundError):
+            validate_graph_against_ground_truth(
+                str(tmp_path / "nonexistent.json"),
+                str(processed_path),
+                str(output_path)
+            )
+
+    def test_missing_processed_routes_file(self, tmp_path):
+        """Test with missing processed routes file."""
+        gt_path = tmp_path / "ground_truth.json"
+        with open(gt_path, 'w') as f:
+            json.dump({"data": []}, f)
+
+        output_path = tmp_path / "report.json"
+
+        with pytest.raises(FileNotFoundError):
+            validate_graph_against_ground_truth(
+                str(gt_path),
+                str(tmp_path / "nonexistent.jsonl"),
+                str(output_path)
+            )
+
+
+class TestLoadGroundTruth:
+    """Tests for load_ground_truth function."""
+
+    def test_load_valid_json(self, tmp_path):
+        """Test loading a valid JSON file."""
+        data = {"key": "value", "number": 42}
+        path = tmp_path / "test.json"
+        with open(path, 'w') as f:
+            json.dump(data, f)
+
+        result = load_ground_truth(str(path))
+        assert result == data
+
+    def test_file_not_found(self, tmp_path):
+        """Test loading a non-existent file."""
+        with pytest.raises(FileNotFoundError):
+            load_ground_truth(str(tmp_path / "nonexistent.json"))
+
+
+class TestLoadProcessedRoutes:
+    """Tests for load_processed_routes function."""
+
+    def test_load_valid_jsonl(self, tmp_path):
+        """Test loading a valid JSONL file."""
+        path = tmp_path / "test.jsonl"
+        with open(path, 'w') as f:
+            f.write('{"stations": ["A", "B"]}\n')
+            f.write('{"stations": ["C", "D"]}\n')
+
+        result = load_processed_routes(str(path))
+        assert len(result) == 2
+        assert result[0]["stations"] == ["A", "B"]
+        assert result[1]["stations"] == ["C", "D"]
+
+    def test_file_not_found(self, tmp_path):
+        """Test loading a non-existent file."""
+        with pytest.raises(FileNotFoundError):
+            load_processed_routes(str(tmp_path / "nonexistent.jsonl"))
+
+    def test_empty_file(self, tmp_path):
+        """Test loading an empty file."""
+        path = tmp_path / "empty.jsonl"
+        path.touch()
+
+        result = load_processed_routes(str(path))
+        assert result == []

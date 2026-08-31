@@ -83,11 +83,11 @@
 ### Implementation for User Story 1
 
 - [ ] T012a [US1] Implement `code/download_data.py` to fetch CDC FluView ILI CSV from the canonical CDC source (e.g., ` API or verified direct CSV) and save to `data/raw/fluview_ili.csv`. **MUST** verify file checksum against a known hash if available, or log the exact URL and retrieval date. Do NOT use third-party mirrors (NAB) as the primary source. (FR-001, Constitution Principle VI)
-- [ ] T012b [US1] Implement `code/download_data.py` (or separate function) to fetch CDC Virological/Hospitalization ground truth from a verified CDC URL (e.g., specific API endpoint or direct CSV). **MUST NOT** allow a fallback to a local file provided by the user. If the fetch fails, raise `E-NO-DATA` exception. Save to `data/raw/ground_truth_events.csv` with columns `start_week, end_week, event_name`. (FR-006, Constitution Principle IV)
+- [ ] T012b [US1] Implement `code/download_data.py` (or separate function) to fetch CDC Virological/Hospitalization ground truth from a verified CDC URL (e.g., specific API endpoint or direct CSV). **MUST NOT** allow a fallback to a local file provided by the user. If the fetch fails, raise `E-NO-DATA` exception. Save to `data/raw/ground_truth_events.csv` with columns `start_week, end_week, event_name`. (FR-006, Constitution Principle IV) <!-- FAILED: unspecified -->
 - [X] T013 [US1] Implement `code/preprocess.py` to handle missing weeks (remove), log-transform, and standardize (FR-002)
 - [X] T014 [US1] Implement `code/mmd_detector.py` with Gaussian-kernel MMD, multi-week windows, and dynamic permutation count. **Internal Logic**: Include a runtime monitor that checks elapsed time. If time > 30 mins, reduce `permutations` in config (e.g., halve it), log "Permutations reduced to X", and re-calculate the MMD statistic. **Do NOT** change the Bonferroni threshold `p < 0.01/N`; the threshold remains strict. (FR-003, FR-004, FR-008)
 - [X] T015 [US1] Implement Bonferroni correction in `code/mmd_detector.py`: calculate `N` (number of window pairs) dynamically, apply `p < 0.01/N`, and output `flags.csv`. Ensure `N` is recalculated for each sensitivity run (different window sizes). (FR-004)
-- [ ] T016 [US1] Implement `code/evaluate.py` to load `data/raw/ground_truth_events.csv`, verify source independence (URL whitelist check, ensure no ILI columns), and parse ±2-week tolerance (FR-006)
+- [ ] T016 [US1] Implement `code/evaluate.py` to load `data/raw/ground_truth_events.csv`, verify source independence (URL whitelist check, ensure no ILI columns), and parse ±2-week tolerance (FR-006) <!-- FAILED: unspecified -->
 - [X] T017 [US1] Implement metrics calculation (precision, recall, detection delay within ±2 weeks) in `code/evaluate.py`
 - [X] T018 [US1] Implement `code/report_generator.py` to produce `report.pdf` with metrics (FR-006)
 
@@ -108,10 +108,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T022 [P] [US2] Implement Pettitt **rolling-window** test in `code/pettitt.py`: window=12, stride=1, compute Pettitt statistic for every window (FR-005)
+- [X] T022 [P] [US2] Implement Pettitt **rolling-window** test in `code/pettitt.py`: window=12, stride=1, compute Pettitt statistic for every window (FR-005)
 - [X] T023 [P] [US2] Implement BOCPD (Gaussian observation model) in `code/bocpd.py` (FR-005)
 - [X] T024 [US2] Integrate baselines execution into `code/main.py` after preprocessing
-- [~] T025 [US2] Output `baselines.csv` containing detected change weeks and statistics (FR-005)
+- [ ] T025 [US2] Output `baselines.csv` containing detected change weeks and statistics (FR-005)
 - [X] T026a [US2] Implement logic in `code/evaluate.py` to compute detection delays from `baselines.csv` alone (independent of MMD)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -153,11 +153,11 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T034 [P] Update `quickstart.md` (add run instructions) and `README.md` (add project overview)
-- [ ] T036a [P] Refactor `code/mmd_detector.py` to implement vectorized MMD kernel function using NumPy broadcasting.
-- [ ] T036b [P] Benchmark `code/mmd_detector.py` before and after vectorization; verify runtime reduction of at least 50% on a standard dataset.
+- [X] T036a [P] Refactor `code/mmd_detector.py` to implement vectorized MMD kernel function using NumPy broadcasting.
+- [X] T036b [P] Benchmark `code/mmd_detector.py` before and after vectorization; verify runtime reduction of at least 50% on a standard dataset.
 - [ ] T037 [P] Add unit tests `test_constant_series` and `test_outlier_handling` in `tests/unit/` using synthetic data from T008.
-- [ ] T038 Run `pytest` in `code/` and verify exit code 0
-- [ ] T039 Verify all `data/` artifacts have `sha256sum` and update `state/` JSON with hashes (Constitution Principle V)
+- [~] T038 Run `pytest` in `code/` and verify exit code 0
+- [~] T039 Verify all `data/` artifacts have `sha256sum` and update `state/` JSON with hashes (Constitution Principle V)
 
 ---
 

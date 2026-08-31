@@ -15,3 +15,256 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-29T13:43:52Z'
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  attempts: 1
+  canonical: required python packages
+  claim_id: c_07d4954d
+  context: 'Generate `requirements.txt` (`projects/PROJ-484-the-impact-of-visual-attention-on-recall/code/requirements.txt`).
+    Include: pandas, numpy, statsmodels, scikit-learn, matplotlib, seaborn, datasets,
+    requests, pytest, pyyaml, black, flake8, isort. Pin versions where possible.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P3168: include'
+      source_id: Q6014791
+      url: https://www.wikidata.org/wiki/Q6014791
+      value: P3168
+    filled: true
+  kind: entity_fact
+  raw_text: 'Include: pandas, numpy, statsmodels, scikit-learn, matplotlib, seaborn,
+    datasets, requests, pytest, pyyaml, black, flake8, isort.'
+  resolved_value: P3168
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T07:22:31Z'
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  attempts: 1
+  canonical: virtual environment creation command
+  claim_id: c_41caf67b
+  context: 'Initialize Python virtual environment (`projects/PROJ-484-the-impact-of-visual-attention-on-recall/code/venv`).
+    Execute: `python3.11 -m venv code/venv`. **Deliverable**: `code/venv/pyvenv.cfg`.
+    Verify activation by checking that `code/venv/bin/python` reports version 3.11.x.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Execute: `python3.11 -m venv code/venv`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T07:34:18Z'
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  attempts: 1
+  canonical: python version check after venv creation
+  claim_id: c_fc5cbaad
+  context: 'Initialize Python virtual environment (`projects/PROJ-484-the-impact-of-visual-attention-on-recall/code/venv`).
+    Execute: `python3.11 -m venv code/venv`. **Deliverable**: `code/venv/pyvenv.cfg`.
+    Verify activation by checking that `code/venv/bin/python` reports version 3.11.x.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify activation by checking that `code/venv/bin/python` reports version
+    3.11.x.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T07:37:17Z'
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  attempts: 1
+  canonical: logging configuration details
+  claim_id: c_fb5d94dd
+  context: Implement logging infrastructure (`code/__init__.py`, `code/logging_config.py`).
+    Create a logging configuration that sets up a rotating file handler to `artifacts/logs/app.log`
+    with DEBUG level and JSON formatting.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Logging_configuration_details
+  kind: entity_fact
+  raw_text: Create a logging configuration that sets up a rotating file handler to
+    `artifacts/logs/app.log` with DEBUG level and JSON formatting.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T07:40:34Z'
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  attempts: 1
+  canonical: dataset schema definition
+  claim_id: c_8dbfee78
+  context: Create dataset schema validation contract (`specs/001-visual-attention-recall/contracts/dataset.schema.yaml`).
+    Define YAML schema for the analysis-ready CSV based on Key Entities (Participant,
+    Stimulus, Trial) in spec.md.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_schema_definition
+  kind: entity_fact
+  raw_text: Define YAML schema for the analysis-ready CSV based on Key Entities (Participant,
+    Stimulus, Trial) in spec.md.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T07:44:29Z'
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  attempts: 1
+  canonical: model output schema fields
+  claim_id: c_eb62b26a
+  context: 'Create model output schema validation contract (`specs/001-visual-attention-recall/contracts/model_output.schema.yaml`).
+    Define YAML schema for model results JSON and power analysis output. **Fields**:
+    `model_convergence`, `chi_squared_stat`, `p_value`, `power_estimate`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_output_schema_fields
+  kind: entity_fact
+  raw_text: 'Define YAML schema for model results JSON and power analysis output.
+    **Fields**: `model_convergence`, `chi_squared_stat`, `p_value`, `power_estimate`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T07:48:32Z'
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  attempts: 1
+  canonical: environment configuration variables
+  claim_id: c_ebc56547
+  context: 'Setup environment configuration management (`.env.example`, `code/config.py`).
+    Define variables: DATA_PATH, RANDOM_SEED, and structure `code/config.py` to load
+    them.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Environment_configuration_variables
+  kind: entity_fact
+  raw_text: 'Define variables: DATA_PATH, RANDOM_SEED'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T07:52:05Z'
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  attempts: 1
+  canonical: dataset identifier
+  claim_id: c_164481f6
+  context: 'Implement OpenNeuro Dataset Verification and Variable Validation in `projects/PROJ-484-the-impact-of-visual-attention-on-recall/code/verify_data.py`.
+    Target dataset: **ds001435**.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_identifier
+  kind: entity_fact
+  raw_text: 'Target dataset: **ds001435**.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T07:55:27Z'
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  attempts: 1
+  canonical: data verification error message
+  claim_id: c_077633f3
+  context: 'Implement OpenNeuro Dataset Verification and Variable Validation in `projects/PROJ-484-the-impact-of-visual-attention-on-recall/code/verify_data.py`.
+    Target dataset: **ds001435**. Parse the BIDS manifest (JSON/YAML sidecars) to
+    verify the presence of ALL four required variables: Eye-tracking (x,y,timestamp),
+    Valence, Recall, STAI. **CRITICAL**: If any variable is missing, log specific
+    missing fields and exit with `ERROR: Variable X missing`. DO NOT proceed to download.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q29485
+        url: https://www.wikidata.org/wiki/Q29485
+        value: ERROR
+      quote: X
+      source_id: Q179550
+      url: https://www.wikidata.org/wiki/Q179550
+      value: X
+    filled: true
+  kind: entity_fact
+  raw_text: 'If any variable is missing, log specific missing fields and exit with
+    `ERROR: Variable X missing`.'
+  resolved_value: X
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T07:57:06Z'
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  attempts: 1
+  canonical: IVT threshold calculation formula
+  claim_id: c_fd064309
+  context: 'Implement Geometry Calibration and I-VT Threshold Calculation in `projects/PROJ-484-the-impact-of-visual-attention-on-recall/code/verify_data.py`.
+    Extract screen width, viewing distance, and sampling rate from `participants.tsv`
+    or `dataset_description.json`. **Fallback**: If metadata is missing, use literature
+    defaults (e.g., 60Hz, 60cm) and log a warning. Calculate the pixel-threshold for
+    the I-VT algorithm: `threshold_pixels_per_frame = (deg/s) * (pixels_per_degree)
+    / (sampling_rate_hz)`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/IVT_threshold_calculation_formula
+  kind: entity_fact
+  raw_text: 'Calculate the pixel-threshold for the I-VT algorithm: `threshold_pixels_per_frame
+    = (deg/s) * (pixels_per_degree) / (sampling_rate_hz)`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:06:28Z'
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  attempts: 1
+  canonical: geometry calibration default values
+  claim_id: c_e066bdce
+  context: 'Implement Geometry Calibration and I-VT Threshold Calculation in `projects/PROJ-484-the-impact-of-visual-attention-on-recall/code/verify_data.py`.
+    Extract screen width, viewing distance, and sampling rate from `participants.tsv`
+    or `dataset_description.json`. **Fallback**: If metadata is missing, use literature
+    defaults (e.g., 60Hz, 60cm) and log a warning.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "\u201CNot Applicable\u201D irrelevant or not applicable to this resource"
+      source_id: '1110.0514'
+      url: https://arxiv.org/abs/1110.0514
+      value: Not Applicable
+    filled: true
+  kind: entity_fact
+  raw_text: If metadata is missing, use literature defaults (e.g., 60Hz, 60cm)
+  resolved_value: Not Applicable
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T08:10:18Z'
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  attempts: 1
+  canonical: stimulus duration inference formula
+  claim_id: c_b3030667
+  context: Implement Temporal-Load Check in `projects/PROJ-484-the-impact-of-visual-attention-on-recall/code/verify_data.py`.
+    Verify `stimulus_duration_ms` in `events.tsv` or `task-*.json`. If missing, attempt
+    to infer from `frame_count * (1000/fps)`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If missing, attempt to infer from `frame_count * (1000/fps)`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:13:08Z'

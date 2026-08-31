@@ -1,1 +1,34 @@
-[]
+- artifact_hash: 2c99ebbe9ff28553ec6f486921c2f2ce03410e99fd447b25addb017c663700e7
+  artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Include - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q6014791
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q6014791
+  verified_at: '2026-08-31T08:13:08.605583Z'
+- artifact_hash: 2c99ebbe9ff28553ec6f486921c2f2ce03410e99fd447b25addb017c663700e7
+  artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: software bug - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q179550
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q179550
+  verified_at: '2026-08-31T08:13:08.605583Z'
+- artifact_hash: 2c99ebbe9ff28553ec6f486921c2f2ce03410e99fd447b25addb017c663700e7
+  artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[1110.0514] IVOA Recommendation: Resource Metadata for the Virtual
+    Observatory Version 1.12'
+  kind: url
+  value: https://arxiv.org/abs/1110.0514
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/1110.0514
+  verified_at: '2026-08-31T08:13:08.605583Z'

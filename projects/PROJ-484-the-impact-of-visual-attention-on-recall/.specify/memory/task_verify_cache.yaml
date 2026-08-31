@@ -1,10 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or file list showing `projects/PROJ-484-the-impact-of-visual-attention-on-recall/`
-    with the required subfolders (`data/raw`, `data/processed`, `artifacts/figures`,
-    `artifacts/logs`, `code`, `tests`) was provided. The evidence needed to confirm
-    the directories exist is missing.
 T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

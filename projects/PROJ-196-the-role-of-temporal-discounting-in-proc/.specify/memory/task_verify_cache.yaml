@@ -1,55 +1,11 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No project files or directory structure were supplied; there is no evidence\
-    \ of a created repository, folder hierarchy, or placeholder files (e.g., `src/`,\
-    \ `data/`, `scripts/`, `README.md`) that would satisfy \u201CCreate project structure\
-    \ per implementation plan.\u201D The claim cannot be verified without tangible\
-    \ artifacts."
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No project files (e.g., `pyproject.toml`, `requirements.txt`, `setup.cfg`, or\
-    \ a virtual environment) were provided, nor any evidence that a Python\u202F3.11\
-    \ project was created with the listed dependencies installed. The implementer\
-    \ must supply the initialized project directory and dependency specifications."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting/formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    `black` settings, or a `pre-commit` hook) are present in the provided evidence,
-    so the requirement to configure ruff and black is not satisfied. The implementer
-    must add the appropriate configuration artifacts and verify they are functional.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that the `data/raw/` and `data/processed/` directories
-    actually exist in the repository; the response contains no file listings, screenshots,
-    or code creating these folders. The required directory structure is therefore
-    missing or unverified.
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No pytest configuration files (e.g.,\u202F`pytest.ini`, `conftest.py`) or a\
-    \ test directory (e.g.,\u202F`tests/`) are present, and the provided artifacts\
-    \ relate only to data ingestion and analysis, not to setting up the pytest framework\
-    \ or directory layout. The required testing infrastructure is missing."
-T009:
-  c: false
-  h: ceb23dc9b31bbe6cbb6d4ddde6e9d38c276183bc8008dc00668f3b3be32cfdb3
-  r: "The `code/utils/checksum.py` file exists but only defines helper functions;\
-    \ there is no code that scans raw/processed artifacts and calls `update_artifact_hash`\
-    \ for each, nor is the required state file `state/projects/PROJ-196-the-role-of-temporal-discounting-in-proc.yaml`\
-    \ present on disk. Consequently the artifact\u2011hash map is not actually written/updated\
-    \ as the task demands."
 T014:
   c: false
-  h: c33af27e08e57a14a5acef35a4a6805689c8ae6c676e633b5c2feb1073547b2b
-  r: "The required raw CSV files (`data/raw/delay_discounting.csv`, `data/raw/procrastination.csv`,\
-    \ `data/raw/nback.csv`) are absent, and the provided `code/ingestion.py` does\
-    \ not contain any logic that writes these files (the visible code only defines\
-    \ helper functions and a partially\u2011implemented generator). Consequently the\
-    \ DGP generator does not actually produce the three distinct datasets as required."
+  h: 4c886da191fdf8078602f7e7f704ed4ea0ab11d82ef9fcbacb3b73e135891ede
+  r: "The `code/ingestion.py` file is truncated and does not contain a complete implementation\
+    \ (e.g., `generate_procrastination_data` ends with `return pd.Dat` and no functions\
+    \ write CSV files). Moreover, the required CSV files (`data/raw/delay_discounting.csv`,\
+    \ `data/raw/procrastination.csv`, `data/raw/nback.csv`) are absent from the repository.\
+    \ The task\u2019s core deliverables are therefore missing."
 T015b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,3 +1,16 @@
+"""
+Sensitivity Analysis Module (T029, T030, T032 integration).
+
+This module handles the grid search for kernel bandwidths and window lengths,
+as well as the week-alignment tolerance sweep.
+
+It produces:
+- data/processed/grid_results.csv (for T029)
+- data/processed/tolerance_results.csv (for T030)
+
+T032 will aggregate these into sensitivity.csv.
+"""
+
 import os
 import sys
 import logging
@@ -5,175 +18,197 @@ import pandas as pd
 import numpy as np
 from typing import List, Dict, Tuple, Optional
 
+# Import from existing modules
 from main import load_config
-from preprocess import load_ili_data, remove_missing_weeks, log_transform, standardize
+from preprocess import preprocess_pipeline, load_ili_data, remove_missing_weeks, log_transform, standardize
 from mmd_detector import detect_shifts
-from evaluate import load_flags, load_ground_truth, compute_metrics, calculate_detection_delay
+from evaluate import compute_metrics, load_ground_truth
 
 logger = logging.getLogger(__name__)
 
-def run_tolerance_sweep(
-    tolerance_values: List[int],
-    ili_series: pd.Series,
-    ground_truth_events: pd.DataFrame,
-    flags: pd.DataFrame,
-    config: Dict
-) -> List[Dict]:
+# Grid parameters for T029
+BANDWIDTHS = ['median', 'cv']  # median and coefficient of variation
+WINDOW_SIZES = [8, 12, 16]
+
+# Tolerance parameters for T030
+TOLERANCES = [1, 2, 3]  # weeks
+
+GRID_RESULTS_PATH = "data/processed/grid_results.csv"
+TOLERANCE_RESULTS_PATH = "data/processed/tolerance_results.csv"
+
+def run_grid_search(config: Dict) -> pd.DataFrame:
     """
-    Run the detection pipeline evaluation across different week-alignment tolerances.
-    
-    For each tolerance value (e.g., ±1, ±2, ±3 weeks), compute precision, recall,
-    and detection delay metrics against the ground truth events.
+    Run MMD detection with different bandwidths and window sizes.
     
     Args:
-        tolerance_values: List of integer tolerances (e.g., [1, 2, 3])
-        ili_series: Preprocessed ILI time series
-        ground_truth_events: DataFrame with 'start_week', 'end_week', 'event_name'
-        flags: DataFrame with detected shift weeks (from MMD or baselines)
-        config: Configuration dictionary (used for logging/consistency)
+        config: Configuration dictionary.
     
     Returns:
-        List of dictionaries containing tolerance, precision, recall, delay, and N
+        pd.DataFrame: Results of the grid search.
     """
+    logger.info("Starting grid search for bandwidth and window size.")
+    
     results = []
-    logger.info(f"Starting tolerance sweep for values: {tolerance_values}")
     
-    # Ensure flags has a 'week' column for comparison
-    if 'week' not in flags.columns:
-        if 'date' in flags.columns:
-            # Convert date to week number if needed
-            flags['week'] = pd.to_datetime(flags['date']).dt.isocalendar().week
-        else:
-            raise ValueError("Flags data must contain a 'week' or 'date' column")
+    # Load and preprocess data once
+    try:
+        ili_data = load_ili_data()
+        ili_data = remove_missing_weeks(ili_data)
+        ili_data = log_transform(ili_data)
+        ili_data = standardize(ili_data)
+    except Exception as e:
+        logger.error(f"Failed to preprocess data for grid search: {e}")
+        raise
     
-    detected_weeks = sorted(flags['week'].unique().tolist())
+    # Load ground truth for metrics calculation
+    try:
+        ground_truth = load_ground_truth()
+    except Exception as e:
+        logger.error(f"Failed to load ground truth for grid search: {e}")
+        raise
     
-    for tol in tolerance_values:
-        logger.info(f"Evaluating tolerance: ±{tol} weeks")
-        
-        # Compute detection delays and metrics for this tolerance
-        delays = []
-        matched_events = 0
-        total_events = len(ground_truth_events)
-        total_flags = len(detected_weeks)
-        
-        for _, event in ground_truth_events.iterrows():
-            start_week = int(event['start_week'])
-            end_week = int(event['end_week'])
-            event_center = (start_week + end_week) / 2
+    for bw in BANDWIDTHS:
+        for ws in WINDOW_SIZES:
+            logger.info(f"Running grid config: bandwidth={bw}, window_size={ws}")
             
-            # Find the closest detected flag within tolerance
-            min_dist = float('inf')
-            closest_flag = None
-            
-            for flag_week in detected_weeks:
-                dist = abs(flag_week - event_center)
-                if dist < min_dist:
-                    min_dist = dist
-                    closest_flag = flag_week
-            
-            if min_dist <= tol and closest_flag is not None:
-                matched_events += 1
-                # Delay is defined as (detection_week - event_start_week)
-                # Using the closest flag week for delay calculation
-                delay = closest_flag - start_week
-                delays.append(delay)
-        
-        # Calculate metrics
-        precision = matched_events / total_flags if total_flags > 0 else 0.0
-        recall = matched_events / total_events if total_events > 0 else 0.0
-        avg_delay = np.mean(delays) if delays else 0.0
-        N = len(delays)  # Number of matched events with valid delays
-        
-        result = {
-            'tolerance': tol,
-            'precision': precision,
-            'recall': recall,
-            'avg_delay': avg_delay,
-            'N': N,
-            'total_events': total_events,
-            'total_flags': total_flags,
-            'matched_events': matched_events
-        }
-        results.append(result)
-        logger.info(f"  Tolerance {tol}: Precision={precision:.3f}, Recall={recall:.3f}, Avg Delay={avg_delay:.2f}, N={N}")
+            try:
+                # Adjust config for this run
+                run_config = config.copy()
+                run_config['window_size'] = ws
+                # Bandwidth is handled inside detect_shifts, but we can pass it as a hint
+                # or modify the config if needed. Assuming detect_shifts calculates it internally.
+                # We might need to force a specific bandwidth calculation method.
+                # For now, we assume 'bw' parameter is passed to detect_shifts.
+                
+                # Run detection
+                flags = detect_shifts(ili_data, config=run_config, bandwidth_method=bw)
+                
+                # Evaluate
+                metrics = compute_metrics(flags, ground_truth, tolerance=2)  # Default tolerance for grid
+                
+                result = {
+                    'bandwidth': bw,
+                    'window_size': ws,
+                    'precision': metrics['precision'],
+                    'recall': metrics['recall'],
+                    'f1_score': metrics['f1_score'],
+                    'detection_delay': metrics['detection_delay']
+                }
+                results.append(result)
+                
+            except Exception as e:
+                logger.error(f"Error in grid config (bw={bw}, ws={ws}): {e}")
+                # Continue to next config
+                continue
     
-    return results
+    df = pd.DataFrame(results)
+    logger.info(f"Grid search completed. Found {len(df)} successful configurations.")
+    return df
+
+def run_tolerance_sweep(config: Dict) -> pd.DataFrame:
+    """
+    Run MMD detection with different week-alignment tolerances.
+    
+    Args:
+        config: Configuration dictionary.
+    
+    Returns:
+        pd.DataFrame: Results of the tolerance sweep.
+    """
+    logger.info("Starting tolerance sweep.")
+    
+    results = []
+    
+    # Use default grid parameters for tolerance sweep
+    # Or use the best parameters from the grid search if available.
+    # For simplicity, we use the default config's window_size and median bandwidth.
+    default_window_size = config.get('window_size', 12)
+    bandwidth_method = 'median'
+    
+    # Load and preprocess data once
+    try:
+        ili_data = load_ili_data()
+        ili_data = remove_missing_weeks(ili_data)
+        ili_data = log_transform(ili_data)
+        ili_data = standardize(ili_data)
+    except Exception as e:
+        logger.error(f"Failed to preprocess data for tolerance sweep: {e}")
+        raise
+    
+    # Load ground truth
+    try:
+        ground_truth = load_ground_truth()
+    except Exception as e:
+        logger.error(f"Failed to load ground truth for tolerance sweep: {e}")
+        raise
+    
+    # Run detection once with default params (since tolerance is only for evaluation)
+    try:
+        run_config = config.copy()
+        run_config['window_size'] = default_window_size
+        flags = detect_shifts(ili_data, config=run_config, bandwidth_method=bandwidth_method)
+    except Exception as e:
+        logger.error(f"Failed to run detection for tolerance sweep: {e}")
+        raise
+    
+    for tol in TOLERANCES:
+        logger.info(f"Running tolerance: {tol} weeks")
+        
+        try:
+            metrics = compute_metrics(flags, ground_truth, tolerance=tol)
+            
+            result = {
+                'tolerance': tol,
+                'precision': metrics['precision'],
+                'recall': metrics['recall'],
+                'f1_score': metrics['f1_score'],
+                'detection_delay': metrics['detection_delay']
+            }
+            results.append(result)
+            
+        except Exception as e:
+            logger.error(f"Error in tolerance {tol}: {e}")
+            continue
+    
+    df = pd.DataFrame(results)
+    logger.info(f"Tolerance sweep completed. Found {len(df)} successful configurations.")
+    return df
+
+def save_grid_results(df: pd.DataFrame, path: str):
+    """Save grid results to CSV."""
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    df.to_csv(path, index=False)
+    logger.info(f"Grid results saved to {path}")
+
+def save_tolerance_results(df: pd.DataFrame, path: str):
+    """Save tolerance results to CSV."""
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    df.to_csv(path, index=False)
+    logger.info(f"Tolerance results saved to {path}")
 
 def main():
-    """
-    Main entry point for the tolerance sensitivity analysis.
-    
-    Loads preprocessed data, existing flags (from MMD or baselines), and ground truth.
-    Runs the tolerance sweep and saves results to data/processed/tolerance_sensitivity.csv.
-    """
-    # Setup logging
+    """Main entry point for sensitivity analysis."""
     from logging_setup import setup_logging
     setup_logging()
     
-    config = load_config()
-    logger.info("Starting Tolerance Sensitivity Analysis (Task T030)")
+    logger.info("Starting sensitivity analysis (T029, T030).")
     
-    # Load preprocessed ILI data
     try:
-        ili_data_path = "data/processed/ili_processed.csv"
-        if not os.path.exists(ili_data_path):
-            # Fallback to raw if processed doesn't exist (should be pre-run)
-            ili_data_path = "data/raw/fluview_ili.csv"
-        ili_series = load_ili_data(ili_data_path)
-        ili_series = remove_missing_weeks(ili_series)
-        ili_series = log_transform(ili_series)
-        ili_series = standardize(ili_series)
-        logger.info(f"Loaded and preprocessed ILI data: {len(ili_series)} weeks")
+        config = load_config()
+        
+        # Run grid search
+        grid_df = run_grid_search(config)
+        save_grid_results(grid_df, GRID_RESULTS_PATH)
+        
+        # Run tolerance sweep
+        tolerance_df = run_tolerance_sweep(config)
+        save_tolerance_results(tolerance_df, TOLERANCE_RESULTS_PATH)
+        
+        logger.info("Sensitivity analysis completed.")
+        
     except Exception as e:
-        logger.error(f"Failed to load/preprocess ILI data: {e}")
+        logger.error(f"Sensitivity analysis failed: {e}")
         raise
-    
-    # Load ground truth events
-    try:
-        gt_path = "data/raw/ground_truth_events.csv"
-        if not os.path.exists(gt_path):
-            raise FileNotFoundError(f"Ground truth file not found: {gt_path}")
-        ground_truth_events = load_ground_truth(gt_path)
-        logger.info(f"Loaded {len(ground_truth_events)} ground truth events")
-    except Exception as e:
-        logger.error(f"Failed to load ground truth: {e}")
-        raise
-    
-    # Load detected flags (from MMD or baselines)
-    # Prefer MMD flags if available, otherwise baselines
-    flags_path = "data/processed/flags.csv"
-    if not os.path.exists(flags_path):
-        flags_path = "data/processed/baselines.csv"
-    
-    if not os.path.exists(flags_path):
-        logger.error("No flags or baselines file found. Run the main pipeline first.")
-        raise FileNotFoundError("No detected shifts found. Run main.py first.")
-    
-    flags = load_flags(flags_path)
-    logger.info(f"Loaded {len(flags)} detected shift flags from {flags_path}")
-    
-    # Define tolerance values for the sweep
-    tolerance_values = [1, 2, 3]  # ±1, ±2, ±3 weeks
-    
-    # Run the sweep
-    results = run_tolerance_sweep(
-        tolerance_values=tolerance_values,
-        ili_series=ili_series,
-        ground_truth_events=ground_truth_events,
-        flags=flags,
-        config=config
-    )
-    
-    # Save results
-    output_path = "data/processed/tolerance_sensitivity.csv"
-    output_df = pd.DataFrame(results)
-    output_df.to_csv(output_path, index=False)
-    logger.info(f"Saved tolerance sensitivity results to {output_path}")
-    logger.info(f"Output columns: {list(output_df.columns)}")
-    logger.info(f"Sample output:\n{output_df}")
-    
-    return output_df
 
 if __name__ == "__main__":
     main()
