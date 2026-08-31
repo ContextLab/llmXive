@@ -82,7 +82,7 @@
     (See US-2)
 - **FR-022**: System MUST implement a fallback mechanism: if the embedding model fails to correlate with human judgment for high-reverb audio (defined as RT60 > 0.5s) with AUC-ROC < 0.85, the system MUST switch to a phoneme-level edit distance metric (using Montreal Forced Aligner with standard English dictionaries) as the primary semantic integrity measure for that subset. The phoneme-level edit distance MUST be calculated against the original clean transcript from the CHiME dataset. The high-reverb subset MUST be ≥ 500 clips, stratified by speaker ID. (See US-1)
 - **FR-023**: System MUST define the specific values for all parameters (sample size, correlation thresholds) in the implementation plan before execution. (See US-1)
-- **FR-024**: System MUST generate the distortion scenarios using a Cartesian product of 9 SNR levels and 6 RT60 levels to produce a diverse set of distinct scenarios. (See US-1)
+- **FR-024**: System MUST generate the distortion scenarios using a Cartesian product of multiple SNR levels and 6 RT60 levels to produce a diverse set of distinct scenarios. (See US-1)
 - **FR-025**: System MUST utilize a hierarchical regression model or functional data analysis approach to account for model-specific idiosyncrasies when predicting the "critical interaction vector" across different ASR architectures, ensuring the statistical method matches the research goal. (See US-3)
 - **FR-026**: System MUST log the actual computation steps, data sources, and intermediate values for every metric (SSS, WER, R²) to ensure auditability and prevent the use of simulated or fabricated scores. (See US-1)
 

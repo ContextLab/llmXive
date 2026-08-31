@@ -11,13 +11,13 @@
     "python code/main.py --config code/config.yaml -> rc=-11\n    WARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 00:00:1784797119.766212    2545 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.\nTo enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 00:00:1784797122.559787    2545 cudart_stub.cc:31] Could not find",
     "python code/analysis.py --validate-sss -> rc=1\n    2026-07-23 08:59:00,295 - INFO - Running sensitivity analysis...\n2026-07-23 08:59:00,295 - INFO - Starting sensitivity analysis for thresholds: [0.4, 0.45, 0.5, 0.55, 0.6]\n2026-07-23 08:59:00,295 - ERROR - Data files missing: Required data files missing. Need /home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/data/derived/collapse_points.parquet and /home/runner/work/llmXive/llmXive/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/data/derived/stress_curves.parquet. Run main.py and US2 tasks "
   ],
-  "fix_rounds": 2,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 1,
   "replan_rounds": 0,
   "failure_class": "compute_env",
   "evidence": [
     "python code/main.py --config code/config.yaml"
   ],
-  "updated_at": "2026-07-23T08:59:06Z"
+  "updated_at": "2026-08-31T12:37:10Z"
 }

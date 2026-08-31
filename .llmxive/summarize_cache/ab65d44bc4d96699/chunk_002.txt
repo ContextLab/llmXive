@@ -1,0 +1,24 @@
+> Planning docs state *what* will be measured and the *source/reference* it is
+> measured against; defer specific empirical values (counts, dataset sizes,
+> measured quantities, percentages) to the implementation/research phase.
+
+- **SC-001**: The predictive accuracy (R² score) of the regression model is measured against the held-out test set (stratified 80/20 by speaker ID and distortion type) of collapse intensities to determine if a universal interaction signature exists. Success is defined as R² ≥ 0.6. (See US-3)
+- **SC-002**: The stability of the "critical interaction vector" is measured against the results of the sensitivity analysis (inflection point and curve derivative sweep) to ensure the findings are not artifacts of the curve shape. (See US-3)
+- **SC-003**: The statistical significance of the non-linear interaction terms is measured against the corrected p-values (post-Benjamini-Hochberg adjustment, threshold < 0.05) to validate the synergistic failure hypothesis. (See US-3)
+- **SC-004**: The computational feasibility is measured against the successful completion of the distributed stress-test pipeline on the specified cluster environment within 48 hours. (See US-1, US-3)
+- **SC-005**: The stability of the "critical interaction vector" is measured against the curve morphology (sigmoid vs. linear) and normalized derivative metrics to ensure the findings are robust across different degradation shapes. (See US-3)
+- **SC-006**: The external validity of the SSS metric is measured against the human-annotated subset (FR-011) with an AUC-ROC ≥ 0.85. (See US-1)
+
+## Assumptions
+
+- The "CHiME-5" dataset contains sufficient clean audio segments to support the generation of a ≥ 50,000 number of clips with valid ground truth transcripts for the stress testing.
+- The `all-MiniLM-L6-v2` model is a valid, CPU-tractable proxy for "semantic integrity" and its embeddings correlate sufficiently with human judgment of ASR failure for the purpose of defining the 0.5 threshold (validated via FR-011 and FR-022).
+- The compound distortion scenarios (combinations of reverberation and noise) are physically realizable. and cover the relevant non-linear interaction space for the research question.
+- The selected small ASR models (e.g., Whisper-tiny, Distil-Whisper) can perform inference on CPU within the memory limits of the distributed environment without requiring quantization or GPU acceleration.
+- The relationship between acoustic distortion parameters and semantic collapse is complex and non-linear, requiring hierarchical modeling or functional data analysis to isolate universal acoustic interactions from model-specific noise and variance in the target variable.
+- The "semantic collapse" phenomenon is consistent across different small ASR architectures, justifying the cross-model generalization check.
+- The validation of SSS against human judgment (FR-011) is a pre-study gate; if it fails (AUC-ROC < 0.85), the main study (US-1) is not executed.
+- The 54 distortion scenarios are generated using the Cartesian product defined in FR-024 (9 SNR levels × 6 RT60 levels).
+- The "CHiME-5" dataset contains the necessary metadata fields (speaker_id, room_id, clean_transcript) to support the stratified sampling strategy described in FR-001.
+- The "DNS Challenge" dataset contains real-world noisy audio clips that can be matched to synthetic parameters within the specified tolerance (±1dB/±0.1s) for the realism validation in FR-018.
+- The crowdsourcing protocol for human annotations (FR-011) will yield a sufficient number of high-quality binary intelligibility scores to validate the SSS metric.
