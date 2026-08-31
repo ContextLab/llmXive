@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Constitution Title Audit Schema"
+description: "Schema for data/results/constitution_title_audit.json"
+type: "object"
+properties:
+  status:
+    type: "string"
+    enum:
+      - "PASS"
+      - "FAIL"
+    description: "Audit status"
+  found_title:
+    type: "string"
+    description: "Title found in the constitution file"
+  expected_title:
+    type: "string"
+    description: "Expected title: 'Structure-Only Surrogate Model...'"
+  message:
+    type: "string"
+    description: "Error message if status is FAIL"
+required:
+  - status
+  - found_title
+  - expected_title
+  - message
+additionalProperties: false

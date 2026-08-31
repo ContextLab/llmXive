@@ -1,84 +1,118 @@
-# Data Model: Predicting the Elastic Moduli of 2D Materials
+# Data Model: Structure-Only Surrogate Model for 2D Material Elastic Moduli
 
-## Overview
+## 1. Overview
 
-This document defines the data schemas and transformations required for the project. All data flows from raw public repositories to processed graph representations, then to model inputs/outputs.
+This document defines the data schemas, transformations, and storage formats for the surrogate model pipeline. All data artifacts are versioned and checksummed.
 
-## Entity Definitions
+## 2. Raw Data Schema
 
-### 1. MaterialGraph (Core Entity)
-A graph representation of a 2D crystal structure.
-*   **Nodes**: Atoms in the unit cell.
-*   **Edges**: Bonds between atoms (based on distance cutoff).
-*   **Global Features**: Composition statistics, symmetry class.
+The raw data is ingested from HuggingFace Parquet files (`matbench/elasticity`).
 
-### 2. ElasticTensor
-The target variable derived from DFT.
-*   **Components**: 6 independent components (Voigt notation: $C_{11}, C_{12}, C_{13}, C_{22}, C_{23}, C_{33}$).
-*   **Derived Properties**: Young's Modulus ($E$), Shear Modulus ($G$), Poisson's Ratio ($\nu$).
+**Source**: `data/raw/matbench_elasticity.parquet`
+**Format**: Apache Parquet
 
-### 3. DescriptorSet
-Computed features for the GNN input.
-*   **Node Features**: Element atomic number, electronegativity, coordination number, atomic radius.
-*   **Edge Features**: Bond distance, bond angle (if applicable), bond type (covalent/ionic metric).
-*   **Global Features**: Density, volume per atom, stoichiometry ratios.
+| Field | Type | Description | Source Column |
+| :--- | :--- | :--- | :--- |
+| `material_id` | string | Unique identifier. | `material_id` |
+| `formula` | string | Chemical formula. | `formula` |
+| `structure` | object | Atomic structure (dict: species, coords). | `structure` |
+| `elastic_tensor` | list[float] | 6 independent components (Voigt). | `elastic_tensor` |
+| `space_group` | integer | Space group number. | `space_group` |
+| `family` | string | Composite key (Space Group + Motif). | Derived |
 
-## Data Flow & Transformations
+**Note**: `family` is derived from `space_group` and `formula` (e.g., "TMD" if SG=187 and "S" in formula).
 
-1.  **Raw Ingestion**:
-    *   Input: Unified dataset (CIFs + Elastic Tensors) from Materials Project API.
-    *   Action: Download and checksum verification.
-2.  **Bias Detection**:
-    *   Input: Raw data.
-    *   Action: Compare distributions of structural descriptors between available and hypothetical excluded entries (if applicable).
-    *   Output: `bias_report.json`.
-3.  **Parsing & Filtering**:
-    *   Input: Raw data.
-    *   Action: Parse CIF to `pymatgen.Structure`. Filter for 2D (layered) designation and complete elastic tensor.
-    *   Output: `filtered_materials.csv` (ID, Formula, SpaceGroup, ElasticTensor).
-4.  **Graph Construction**:
-    *   Input: `filtered_materials.csv`.
-    *   Action: Convert `Structure` to `torch_geometric.data.Data`. Compute node/edge features.
-    *   Output: `graphs/` directory containing `.pt` (PyTorch) files or JSON.
-5.  **Splitting**:
-    *   Input: Graphs.
-    *   Action: Stratified split by Material Family (e.g., TMDs, MXenes) and 5-fold CV. **Exclude families with < 20 entries from inter-family test.**
-    *   Output: `splits/train_idx.json`, `splits/val_idx.json`, `splits/test_idx.json`.
-6.  **Model Output**:
-    *   Input: Trained Model + Test Graphs.
-    *   Action: Predict $E, G, \nu$.
-    *   Output: `predictions.csv` (ID, True_E, Pred_E, True_G, Pred_G, True_nu, Pred_nu).
+## 3. Processed Data Schema
 
-## Schemas
+### 3.1 Graph Dataset (`data/processed/graphs_v1.parquet`)
 
-### Input Schema: `filtered_materials.csv`
-| Column | Type | Description |
+| Field | Type | Description |
 | :--- | :--- | :--- |
-| `material_id` | string | Unique identifier (e.g., `mp-12345`) |
-| `formula` | string | Chemical formula (e.g., `MoS2`) |
-| `space_group` | int | Space group number |
-| `elastic_tensor` | string | JSON string of 6-component tensor |
-| `family` | string | Material family (e.g., `TMD`, `MXene`) |
-| `is_2d` | boolean | Flag for 2D designation |
-| `sample_count` | int | Count of entries in family (for filtering) |
+| `material_id` | string | Unique ID. |
+| `num_nodes` | int | Number of atoms. |
+| `num_edges` | int | Number of bonds. |
+| `node_features` | list[list[float]] | Atomic features. |
+| `edge_index` | list[list[int]] | Connectivity matrix (PBC-aware). |
+| `edge_features` | list[list[float]] | Bond features (distance, etc.). |
+| `target_young` | float | Young's modulus (GPa). |
+| `target_shear` | float | Shear modulus (GPa). |
+| `target_poisson` | float | Poisson's ratio. |
 
-### Graph Schema: `graph_data.pt` (PyTorch Geometric)
-*   **`x` (Node Features)**: Tensor of shape `[N_nodes, 10]` (Element, Coord, Radius, etc.)
-*   **`edge_index`**: Tensor of shape `[2, N_edges]`
-*   **`edge_attr`**: Tensor of shape `[N_edges, 5]` (Distance, Angle, Type, etc.)
-*   **`y` (Target)**: Tensor of shape `[3]` (Young's, Shear, Poisson's)
-*   **`material_id`**: string
+### 3.2 Split Indices (`data/processed/split_indices.json`)
 
-### Output Schema: `predictions.csv`
-| Column | Type | Description |
+```json
+{
+  "train_families": ["TMD", "Graphene"],
+  "test_families": ["MXene"],
+  "train_ids": ["id1", "id2"],
+  "test_ids": ["id3"],
+  "split_seed": 42,
+  "timestamp": "2026-07-08T12:00:00Z"
+}
+```
+
+### 3.3 Model Weights (`data/processed/model_v1.pt`)
+
+PyTorch state dictionary. Contains:
+- Model parameters.
+- Training hyperparameters.
+- Random seed.
+- Disclaimer text.
+
+## 4. Output Data Schema
+
+### 4.1 Training Logs (`data/results/training_logs.json`)
+
+| Field | Type | Description |
 | :--- | :--- | :--- |
-| `material_id` | string | Material ID |
-| `family` | string | Material Family |
-| `true_young` | float | True Young's Modulus (GPa) |
-| `pred_young` | float | Predicted Young's Modulus (GPa) |
-| `true_shear` | float | True Shear Modulus (GPa) |
-| `pred_shear` | float | Predicted Shear Modulus (GPa) |
-| `true_poisson` | float | True Poisson's Ratio |
-| `pred_poisson` | float | Predicted Poisson's Ratio |
-| `error_young` | float | Absolute Error (Young's) |
-| `mape_young` | float | MAPE (Young's) |
+| `run_id` | string | UUID. |
+| `epochs` | int | Number of epochs. |
+| `train_loss_history` | list[float] | Loss per epoch. |
+| `val_loss_history` | list[float] | Validation loss per epoch. |
+| `peak_memory_gb` | float | Peak RAM usage. |
+| `memory_limit_exceeded` | boolean | True if > 7.0 GB. |
+| `disclaimer_included` | boolean | True if Feynman quote is present. |
+
+### 4.2 Generalization Metrics (`data/results/generalization_metrics.json`)
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `mape_young` | float | MAPE for Young's modulus. |
+| `mape_shear` | float | MAPE for Shear modulus. |
+| `mape_poisson` | float | MAPE for Poisson's ratio. |
+| `overall_mape` | float | Weighted average MAPE. |
+| `mape_ci_lower` | float | 95% CI Lower Bound for MAPE. |
+| `mape_ci_upper` | float | 95% CI Upper Bound for MAPE. |
+| `rmse_young` | float | RMSE for Young's modulus. |
+| `threshold` | float | Success threshold (0.15). |
+| `status` | string | "PASS" or "FAIL". |
+| `test_families` | list[string] | Families in the test set. |
+| `message` | string | Error message if FAIL. |
+
+### 4.3 Constitution Title Audit (`data/results/constitution_title_audit.json`)
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `status` | string | "PASS" or "FAIL". |
+| `found_title` | string | Title found in constitution file. |
+| `expected_title` | string | "Structure-Only Surrogate Model for 2D Material Elastic Moduli". |
+| `message` | string | Error message if FAIL. |
+
+### 4.4 Inference Benchmark (`data/results/inference_benchmark.json`)
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `avg_inference_time_ms` | float | Average time per material. |
+| `max_inference_time_ms` | float | Max time per material. |
+| `status` | string | "PASS" or "FAIL". |
+| `message` | string | Error message if FAIL. |
+
+## 5. Data Flow
+
+1.  **Ingest**: `loader.py` downloads raw Parquet.
+2.  **Transform**: `graph_builder.py` converts raw to `graphs_v1.parquet` (PBC-aware).
+3.  **Split**: `splitter.py` generates `split_indices.json` (Composite Key).
+4.  **Train**: `train.py` trains model, logs memory, saves `model_v1.pt` and `training_logs.json`.
+5.  **Eval**: `eval_runner.py` computes metrics (RMSE, MAPE, CI), saves `generalization_metrics.json`.
+6.  **Benchmark**: `inference_benchmark.py` measures time, saves `inference_benchmark.json`.
+7.  **Audit**: `verify_constitution_title.py` validates constitution, saves `constitution_title_audit.json`.

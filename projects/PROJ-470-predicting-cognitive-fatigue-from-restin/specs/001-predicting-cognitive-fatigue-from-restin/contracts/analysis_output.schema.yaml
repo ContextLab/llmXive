@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for data/analysis/correlation_results.csv"
+type: object
+properties:
+  channel:
+    type: string
+    description: "Electrode name"
+  metric_type:
+    type: string
+    enum:
+      - "LZC"
+      - "PE"
+    description: "Complexity metric used"
+  correlation_coefficient:
+    type: number
+    description: "Pearson or Spearman r value"
+  p_value:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Raw p-value"
+  p_value_bh:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Benjamini-Hochberg corrected p-value"
+  significant:
+    type: boolean
+    description: "True if p_value_bh < 0.05"
+  vif:
+    type: number
+    minimum: 1.0
+    description: "Variance Inflation Factor"
+  confounds_controlled:
+    type: array
+    items:
+      type: string
+    description: "List of confounders included in the model"
+required:
+  - channel
+  - metric_type
+  - correlation_coefficient
+  - p_value
+  - p_value_bh
+  - significant
+  - vif
+  - confounds_controlled
+additionalProperties: false

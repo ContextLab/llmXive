@@ -2,16 +2,17 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Git
-- Access to GitHub Actions (for CI execution) or a local Linux environment.
+-   Python 3.11+
+-   Git
+-   Access to Hugging Face (for dataset download)
+-   14 GB free disk space
 
 ## Installation
 
 1.  **Clone the repository**:
     ```bash
-    git clone https://github.com/your-org/your-repo.git
-    cd your-repo
+    git clone <repo-url>
+    cd projects/PROJ-470-predicting-cognitive-fatigue-from-restin
     ```
 
 2.  **Create a virtual environment**:
@@ -25,72 +26,65 @@
     pip install -r code/requirements.txt
     ```
 
-    *Note: `requirements.txt` pins all versions to ensure reproducibility.*
+## Configuration
+
+Edit `code/config.yaml` to set parameters (optional, defaults provided):
+```yaml
+eeg:
+  filter_low: 1.0
+  filter_high: 40.0
+  notch_freq: 50.0
+  artifact_threshold_uv: 100.0
+  min_segment_sec: 120
+analysis:
+  correlation_method: "spearman"
+  fdr_method: "bh"
+  vif_threshold: 5.0
+```
 
 ## Running the Pipeline
 
-The pipeline is executed via a single entry point script.
-
-### 1. Download Data
+### 1. Download and Validate Data
+This step downloads data from the verified Hugging Face sources and checks for paired EEG/Fatigue data.
 ```bash
-python code/download.py
+python code/download.py --validate
 ```
-This script will:
-- Fetch data from the verified URLs.
-- Validate the presence of required variables (EEG + Fatigue).
-- **Crucially**: Check if the dataset supports a longitudinal (pre/post) design. If not, it will log a warning and prepare for cross-sectional analysis.
-- Save raw data to `data/raw/` and generate checksums.
+*Output*: `data/manifests/data_manifest.json` and error logs if data is missing.
 
-### 2. Preprocess Data
+### 2. Preprocess EEG
+Applies filters and artifact rejection.
 ```bash
 python code/preprocess.py
 ```
-This script will:
-- Apply bandpass filter (1-40 Hz).
-- Remove line noise (50 Hz).
-- Reject artifacts (> ±100 µV).
-- Save preprocessed segments to `data/processed/segments/`.
+*Output*: `data/processed/cleaned_eeg/` containing `.fif` files.
 
-### 3. Extract Features
+### 3. Extract Complexity Features
+Calculates LZC and Permutation Entropy.
 ```bash
 python code/features.py
 ```
-This script will:
-- Calculate Lempel-Ziv Complexity and Permutation Entropy.
-- Save features to `data/processed/features/complexity_metrics.csv`.
+*Output*: `data/analysis/complexity_metrics.csv`.
 
-### 4. Run Analysis
+### 4. Run Correlation Analysis
+Performs statistical tests, VIF checks, and BH correction.
 ```bash
 python code/analysis.py
 ```
-This script will:
-- Detect data structure (longitudinal vs. cross-sectional).
-- Perform ANCOVA (if longitudinal) or Correlation (if cross-sectional).
-- Apply Benjamini-Hochberg correction.
-- Run sensitivity analysis.
-- Save results to `data/processed/results/correlation_results.csv`.
+*Output*: `data/analysis/correlation_results.csv` and `data/analysis/report_summary.txt`.
 
-### 5. Generate Report
+### 5. Generate Final Report
 ```bash
 python code/report.py
 ```
-This script will:
-- Generate a PDF report with figures and tables.
-- Save to `docs/report.pdf`.
+*Output*: `data/analysis/final_report.pdf`.
 
-## Verification
+## Testing
 
-To verify the pipeline on a sample dataset:
-
-1.  Run `python tests/integration/test_pipeline.py`.
-2.  Check that the output includes:
-    - Attenuation of 50 Hz line noise (>20 dB).
-    - Valid complexity values for synthetic signals.
-    - Correct p-value correction.
-    - Confirmation of the analysis model used (ANCOVA vs. Correlation).
-
-## Troubleshooting
-
-- **Memory Error**: If you encounter "MemoryError", ensure you are not loading the entire dataset at once. The pipeline is designed to process data in chunks.
-- **Dataset Missing Variables**: If the script halts with "Dataset lacks required variables", check the `research.md` for the list of verified datasets and their schemas.
-- **Import Errors**: Ensure you are using Python 3.11 and the correct virtual environment.
+Run the test suite to verify the pipeline:
+```bash
+pytest tests/ -v
+```
+*Key Tests*:
+-   `test_preprocess_notch_filter`: Verifies 50 Hz attenuation.
+-   `test_complexity_synthetic`: Verifies LZC/PE on synthetic signals.
+-   `test_correlation_mock`: Verifies p-values on mock data.

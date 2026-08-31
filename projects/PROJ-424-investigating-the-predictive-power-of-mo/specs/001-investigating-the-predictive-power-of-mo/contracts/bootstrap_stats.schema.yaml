@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Bootstrap Statistics Schema"
+description: "Schema for bootstrap resampling results"
+type: "object"
+properties:
+  solvent:
+    type: "string"
+    enum:
+      - "water"
+      - "ethanol"
+      - "acetone"
+    description: "Solvent type"
+  timescale_ns:
+    type: "number"
+    minimum: 0
+    description: "Simulation duration in nanoseconds"
+  mean_mae:
+    type: "number"
+    description: "Mean MAE across bootstrap iterations"
+  ci_lower_95:
+    type: "number"
+    description: "Lower bound of 95% confidence interval"
+  ci_upper_95:
+    type: "number"
+    description: "Upper bound of 95% confidence interval"
+  n_iterations:
+    type: "integer"
+    minimum: 1
+    description: "Number of bootstrap iterations performed"
+  p_value:
+    type:
+      - "number"
+      - "null"
+    description: "P-value from difference-of-means test (if applicable)"
+required:
+  - solvent
+  - timescale_ns
+  - mean_mae
+  - ci_lower_95
+  - ci_upper_95
+  - n_iterations
+additionalProperties: false

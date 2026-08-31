@@ -1,0 +1,74 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Diffusion Results Schema"
+description: "Schema for calculated diffusion coefficients and errors (including scaling)"
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the simulation run"
+  solvent:
+    type: "string"
+    enum:
+      - "water"
+      - "ethanol"
+      - "acetone"
+    description: "Solvent type"
+  timescale_ns:
+    type: "number"
+    minimum: 0
+    description: "Simulation duration in nanoseconds"
+  force_field:
+    type: "string"
+    description: "Force field used (e.g., martini3)"
+  temperature_k:
+    type: "number"
+    minimum: 0
+    description: "Simulation temperature in Kelvin"
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "failed"
+      - "invalid"
+    description: "Run status"
+  r_squared:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Linearity of MSD fit (R²). Threshold: 0.95"
+  diffusion_coefficient:
+    type: "number"
+    description: "Calculated diffusion coefficient (m²/s) before scaling"
+  scaling_factor:
+    type: "number"
+    description: "Solvent-specific scaling factor applied"
+  diffusion_coefficient_scaled:
+    type: "number"
+    description: "Calculated diffusion coefficient (m²/s) after scaling"
+  error_flag:
+    type:
+      - "string"
+      - "null"
+    description: "Reason for invalidation (if any)"
+  d_exp:
+    type: "number"
+    description: "Experimental diffusion coefficient (m²/s)"
+  mae:
+    type: "number"
+    description: "Mean Absolute Error (m²/s) between scaled prediction and experiment"
+  valid:
+    type: "boolean"
+    description: "Whether run passed R² check (≥ 0.95)"
+required:
+  - run_id
+  - solvent
+  - timescale_ns
+  - status
+  - r_squared
+  - diffusion_coefficient
+  - scaling_factor
+  - diffusion_coefficient_scaled
+  - d_exp
+  - mae
+  - valid
+additionalProperties: false

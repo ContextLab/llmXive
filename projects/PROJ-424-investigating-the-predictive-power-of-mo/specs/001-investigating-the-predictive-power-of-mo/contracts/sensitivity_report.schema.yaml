@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sensitivity Report Schema"
+description: "Schema for sensitivity analysis results"
+type: "object"
+properties:
+  solvent:
+    type: "string"
+    enum:
+      - "water"
+      - "ethanol"
+      - "acetone"
+    description: "Solvent type"
+  timescale_ns:
+    type: "number"
+    minimum: 0
+    description: "Simulation duration in nanoseconds"
+  start_time_pct:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Regression start time as fraction of trajectory"
+  diffusion_coefficient:
+    type: "number"
+    description: "Diffusion coefficient at this start time"
+  variance:
+    type: "number"
+    description: "Variance across start times"
+  robust:
+    type: "boolean"
+    description: "True if variance < 5%"
+required:
+  - solvent
+  - timescale_ns
+  - start_time_pct
+  - diffusion_coefficient
+  - variance
+  - robust
+additionalProperties: false

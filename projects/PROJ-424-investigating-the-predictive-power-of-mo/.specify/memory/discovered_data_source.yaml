@@ -1,0 +1,12 @@
+status: none
+intent: OpenKIM and NIST ThermoML diffusion coefficient dataset python package dataset
+required_fields:
+- compound
+- temperature_K
+- diffusion_coefficient_cm2_per_s
+- pressure_atm
+- reference
+- measurement_method
+cache_key: c0e58d85f820813f318e13891740e667385515ad6c73c076f59aeb0e66cf8946
+searched_at: '2026-08-31T09:57:29.401817+00:00'
+retry_count: 1

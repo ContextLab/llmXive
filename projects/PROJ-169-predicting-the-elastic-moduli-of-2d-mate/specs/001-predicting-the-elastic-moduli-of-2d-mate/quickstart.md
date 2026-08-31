@@ -1,74 +1,89 @@
-# Quickstart: Predicting the Elastic Moduli of 2D Materials
+# Quickstart: Structure-Only Surrogate Model for 2D Material Elastic Moduli
 
-## Prerequisites
+## 1. Prerequisites
 
 - Python 3.11+
-- 7GB+ RAM available (for local testing; CI enforces this limit)
-- Internet connection (to download datasets from Materials Project API)
+- 7GB+ RAM
+- 14GB+ Disk Space
+- Git
 
-## Installation
+## 2. Installation
 
-1.  **Clone the repository** and navigate to the project directory:
-    ```bash
-    cd projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate
-    ```
-
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    # Install CPU-only PyTorch
-    pip install torch --index-url https://download.pytorch.org/whl/cpu
-
-    # Install other dependencies
-    pip install -r code/requirements.txt
-    ```
-
-## Running the Pipeline
-
-The pipeline is executed in three main stages: Ingestion, Training, and Analysis.
-
-### Step 1: Data Ingestion & Graph Construction
-Download and process the data. This step filters for 2D materials with complete elastic tensors and performs a bias check.
 ```bash
-python code/ingest/download.py --output data/raw
-python code/ingest/bias_check.py --input data/raw --output data/bias_report.json
-python code/ingest/parse_cif.py --input data/raw --output data/processed
-python code/ingest/filter.py --input data/processed --output data/filtered
-```
-*Expected Output*: `data/filtered/materials.csv`, `data/processed/graphs/`, and `data/bias_report.json`.
+# Clone the repository
+git clone <repo-url>
+cd projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate
 
-### Step 2: Model Training
-Train the lightweight GNN with 5-fold cross-validation and Early Stopping.
-```bash
-python code/model/train.py --data-dir data/filtered --epochs 100 --patience 3 --split-strategy family
-```
-*Note*: The `--epochs` flag is set to a high value (100) but training will stop early based on validation loss.
-*Expected Output*: `code/model/checkpoints/`, `code/model/metrics_report.json`.
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate
 
-### Step 3: Evaluation & Analysis
-Compute SHAP interaction values and ablation study results.
-```bash
-python code/analysis/importance.py --model-path code/model/checkpoints/best.pt --data-dir data/filtered
-python code/analysis/ablation.py --model-path code/model/checkpoints/best.pt --data-dir data/filtered
-```
-*Expected Output*: `code/analysis/shap_results.csv`, `code/analysis/ablation_report.json`.
-
-## Verification
-
-To verify the installation and data pipeline without full training:
-```bash
-pytest tests/unit/test_parse_cif.py -v
-pytest tests/integration/test_pipeline.py --max-samples 10
+# Install dependencies
+pip install -r requirements.txt
 ```
 
-## Troubleshooting
+## 3. Running the Pipeline
 
-- **DataUnavailableError**: If the dataset contains fewer than 5 unique material families with complete tensors, the pipeline will halt. This is expected behavior per the Data Availability Gate.
-- **Memory Error**: If you encounter `RuntimeError: CUDA out of memory` (unexpected on CPU) or `MemoryError`, ensure you are using the CPU-only PyTorch build and that the dataset has been filtered to < 1000 samples.
-- **Missing Elastic Tensors**: The unified source ensures this does not happen. If it does, check the `ingest/filter.py` logs.
-- **Data Download Fails**: Ensure your network allows access to `materialsproject.org` or the configured API endpoint.
+The pipeline is executed via a single entry point script.
+
+```bash
+# Run the full pipeline (Data -> Split -> Train -> Eval -> Audit)
+python code/main_pipeline.py
+```
+
+### Step-by-Step Execution
+
+1.  **Constitution Audit (Hard Gate)**:
+    - Verifies `constitution.md` title.
+    - Exits with code 1 if title is "First-Principles".
+    - Output: `data/results/constitution_title_audit.json`.
+
+2.  **Data Ingestion**:
+    - Downloads verified HuggingFace datasets (`matbench/elasticity`).
+    - Validates schema (elastic_tensor, structure).
+    - Checksums raw files.
+    - Output: `data/raw/*.parquet`.
+
+3.  **Graph Construction**:
+    - Converts structures to graphs (PBC-aware).
+    - Output: `data/processed/graphs_v1.parquet`.
+
+4.  **Inter-Family Split**:
+    - Stratifies by composite key (Space Group + Motif).
+    - Output: `data/processed/split_indices.json`.
+
+5.  **Training**:
+    - Trains GNN on CPU (Weighted Loss).
+    - Logs memory usage.
+    - Output: `data/processed/model_v1.pt`, `data/results/training_logs.json`.
+
+6.  **Evaluation**:
+    - Computes RMSE and MAPE on unseen families.
+    - Computes 95% CI for MAPE.
+    - Output: `data/results/generalization_metrics.json`.
+
+7.  **Inference Benchmark**:
+    - Measures time per material.
+    - Output: `data/results/inference_benchmark.json`.
+
+8.  **Feature Importance**:
+    - Runs SHAP with interaction values.
+    - Output: `data/results/feature_importance_report.md`.
+
+## 4. Verification
+
+To verify the results:
+
+```bash
+# Check if the model passed the MAPE/RMSE threshold
+python code/utils/verify_success_criteria.py --input data/results/generalization_metrics.json
+
+# Verify constitution audit
+python code/utils/verify_constitution_title.py
+```
+
+## 5. Troubleshooting
+
+- **Memory Error**: Reduce `batch_size` in `code/model/train.py` or enable streaming in `code/data/loader.py`.
+- **Constitution Error**: Ensure `constitution.md` title is updated to "Structure-Only Surrogate Model".
+- **Data Missing**: Check network connectivity to HuggingFace. Verify checksums in `state/...yaml`.

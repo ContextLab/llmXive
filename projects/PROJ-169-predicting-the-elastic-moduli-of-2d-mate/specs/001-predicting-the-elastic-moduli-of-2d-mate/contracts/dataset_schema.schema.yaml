@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Graph Dataset Schema"
+description: "Schema for data/processed/graphs_v1.parquet"
+type: "object"
+properties:
+  material_id:
+    type: "string"
+    description: "Unique identifier for the material"
+  num_nodes:
+    type: "integer"
+    description: "Number of atoms in the structure"
+  num_edges:
+    type: "integer"
+    description: "Number of bonds in the graph"
+  node_features:
+    type: "array"
+    description: "List of atomic feature vectors"
+    items:
+      type: "array"
+      items:
+        type: "number"
+  edge_index:
+    type: "array"
+    description: "Connectivity matrix [2, num_edges]"
+    items:
+      type: "array"
+      items:
+        type: "integer"
+  edge_features:
+    type: "array"
+    description: "List of bond feature vectors"
+    items:
+      type: "array"
+      items:
+        type: "number"
+  target_young:
+    type: "number"
+    description: "Young's modulus in GPa"
+  target_shear:
+    type: "number"
+    description: "Shear modulus in GPa"
+  target_poisson:
+    type: "number"
+    description: "Poisson's ratio (dimensionless)"
+required:
+  - material_id
+  - num_nodes
+  - num_edges
+  - node_features
+  - edge_index
+  - edge_features
+  - target_young
+  - target_shear
+  - target_poisson
+additionalProperties: false
