@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-08-31T00:43:45.434442+00:00'
+issue_number: 1324
+project_id: PROJ-837-llmxive-follow-up-extending-moebius-0-2b
