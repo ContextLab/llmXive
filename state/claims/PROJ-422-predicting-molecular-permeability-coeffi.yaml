@@ -15,3 +15,375 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-29T11:53:21Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/results.md
+  attempts: 1
+  canonical: 27.6% reduction in RMSE for GNN compared to RF baseline
+  claim_id: c_df04168d
+  context: 'Observation: The GNN achieved a 27.6% reduction in RMSE compared to the
+    RF baseline.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GNN achieved a 27.6% reduction in RMSE compared to the RF baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T14:43:56Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/results.md
+  attempts: 1
+  canonical: GNN RMSE 0.42 MAE 0.31 R2 0.78
+  claim_id: c_38fe0207
+  context: The following metrics were calculated on the held-out test set... GNN (MPNN)
+    | 0.42 | 0.31 | 0.78
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The GNN (MPNN) achieved an RMSE of 0.42, MAE of 0.31, and R\xB2 of 0.78\
+    \ on the held-out test set."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T14:44:33Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/results.md
+  attempts: 1
+  canonical: RF baseline RMSE 0.58 MAE 0.45 R2 0.61
+  claim_id: c_34d0bd21
+  context: The following metrics were calculated on the held-out test set... RF (Baseline)
+    | 0.58 | 0.45 | 0.61
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The RF (Baseline) achieved an RMSE of 0.58, MAE of 0.45, and R\xB2 of\
+    \ 0.61 on the held-out test set."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T14:45:13Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/results.md
+  attempts: 1
+  canonical: RF ablation RMSE 0.65 MAE 0.52 R2 0.54
+  claim_id: c_5b453a47
+  context: The following metrics were calculated on the held-out test set... RF (Ablation)
+    | 0.65 | 0.52 | 0.54
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The RF (Ablation) model achieved an RMSE of 0.65, MAE of 0.52, and R\xB2\
+    \ of 0.54."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T14:46:05Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/results.md
+  attempts: 1
+  canonical: t-statistic -12.45 for GNN vs RF prediction errors
+  claim_id: c_7da54379
+  context: 'A paired t-test was performed on the prediction errors of the GNN and
+    RF models... t-statistic: -12.45'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The t-statistic for the comparison of prediction errors between GNN and
+    RF was -12.45.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T14:47:28Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/results.md
+  attempts: 1
+  canonical: p-value < 0.0001 for GNN vs RF prediction errors
+  claim_id: c_7f200a23
+  context: 'A paired t-test was performed on the prediction errors of the GNN and
+    RF models... p-value: < 0.0001'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/p-value_%3C_0.0001_for_GNN_vs_RF_prediction_errors
+  kind: magnitude
+  raw_text: The p-value for the comparison of prediction errors between GNN and RF
+    was less than 0.0001.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T14:48:23Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/results.md
+  attempts: 1
+  canonical: Cohen's d 0.84 for GNN vs RF prediction errors
+  claim_id: c_1b9927cc
+  context: 'Effect Size (Cohen''s d): 0.84... Interpretation: A Cohen''s d of 0.84
+    indicates a large effect size'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The effect size (Cohen's d) for the difference in prediction errors between
+    GNN and RF was 0.84.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T14:50:38Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/results.md
+  attempts: 1
+  canonical: 95% CI [-0.18, -0.12] for mean error difference GNN vs RF
+  claim_id: c_6bec88eb
+  context: '95% Confidence Interval: [-0.18, -0.12]... Interpretation: We are 95%
+    confident that the true difference in mean error lies between -0.18 and -0.12.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The 95% confidence interval for the difference in mean prediction error
+    between GNN and RF was [-0.18, -0.12].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T14:50:38Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/results.md
+  attempts: 1
+  canonical: Observed power 0.998
+  claim_id: c_274831f2
+  context: 'Power Analysis... Observed Power: 0.998'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The observed power of the study was 0.998.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T14:51:27Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/results.md
+  attempts: 1
+  canonical: Test set size 2950 molecules
+  claim_id: c_3dc2b67f
+  context: 'Power Analysis... Sample Size (n): 2,950 (test set size)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test set size was 2,950 molecules.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T14:52:03Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/results.md
+  attempts: 1
+  canonical: Initial dataset 12450 molecules
+  claim_id: c_fe23cbc5
+  context: 'Data Preprocessing & Retention... Total Initial Molecules: 12,450'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The initial dataset contained 12,450 molecules.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T14:52:44Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/results.md
+  attempts: 1
+  canonical: 620 invalid SMILES removed 4.98%
+  claim_id: c_da259192
+  context: 'Invalid SMILES Removed: 620 (4.98%)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 620 invalid SMILES were removed from the dataset, representing 4.98% of
+    the total.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T14:53:28Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/results.md
+  attempts: 1
+  canonical: 11830 valid molecules retained 95.02%
+  claim_id: c_35f47acf
+  context: 'Valid Molecules Retained: 11,830 (95.02%)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 11,830 valid molecules were retained, representing 95.02% of the initial
+    dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T14:53:50Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/results.md
+  attempts: 1
+  canonical: Max correlation input descriptors target 0.42
+  claim_id: c_7166f578
+  context: 'Bias Check: Max correlation between input descriptors and target = 0.42
+    (< 0.85 threshold).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum correlation between input descriptors and target was 0.42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T14:54:38Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/results.md
+  attempts: 1
+  canonical: Distribution difference across splits < 4.5%
+  claim_id: c_efec8964
+  context: 'Distribution Difference: < 4.5% across splits.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Distribution_difference_across_splits_%3C_4.5%25
+  kind: magnitude
+  raw_text: The distribution difference across splits was less than 4.5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T14:55:31Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/results.md
+  attempts: 1
+  canonical: GNN training time 2.1 hours
+  claim_id: c_6c75641f
+  context: Model Performance Metrics... GNN (MPNN) ... Training Time (h) ... 2.1
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GNN training time was 2.1 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T14:56:24Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/results.md
+  attempts: 1
+  canonical: RF baseline training time 0.4 hours
+  claim_id: c_250c9c61
+  context: Model Performance Metrics... RF (Baseline) ... Training Time (h) ... 0.4
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The RF baseline training time was 0.4 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T14:56:57Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/results.md
+  attempts: 1
+  canonical: RF ablation training time 0.3 hours
+  claim_id: c_73eb2047
+  context: Model Performance Metrics... RF (Ablation) ... Training Time (h) ... 0.3
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The RF ablation training time was 0.3 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T14:57:33Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/results.md
+  attempts: 1
+  canonical: GNN peak memory 4.2 GB
+  claim_id: c_669e1f5a
+  context: Model Performance Metrics... GNN (MPNN) ... Peak Memory (GB) ... 4.2
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GNN peak memory usage was 4.2 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T14:58:21Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/results.md
+  attempts: 1
+  canonical: RF baseline peak memory 2.8 GB
+  claim_id: c_37789d8e
+  context: Model Performance Metrics... RF (Baseline) ... Peak Memory (GB) ... 2.8
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The RF baseline peak memory usage was 2.8 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T14:58:49Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/results.md
+  attempts: 1
+  canonical: RF ablation peak memory 2.5 GB
+  claim_id: c_6379ca09
+  context: Model Performance Metrics... RF (Ablation) ... Peak Memory (GB) ... 2.5
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The RF ablation peak memory usage was 2.5 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T14:59:26Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/results.md
+  attempts: 1
+  canonical: Total training time 2.5 hours
+  claim_id: c_5408ccd3
+  context: 'Computational Feasibility... Total Training Time: 2.1 hours (GNN) + 0.4
+    hours (RF) = 2.5 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total training time for the study was 2.5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T15:00:05Z'
+- artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/results/results.md
+  attempts: 1
+  canonical: Dataset source Hugging Face ChemBL v30 MoleculeNet Tox21
+  claim_id: c_66a688af
+  context: 'Dataset Source... Source: Hugging Face Datasets (ChemBL v30 / MoleculeNet
+    Tox21 subset)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_source_Hugging_Face_ChemBL_v30_MoleculeNet_Tox21
+  kind: entity_fact
+  raw_text: The dataset source was Hugging Face Datasets (ChemBL v30 / MoleculeNet
+    Tox21 subset).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T15:00:42Z'

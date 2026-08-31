@@ -46,7 +46,12 @@
 - [ ] T001 [P] Create `setup_dirs.sh` script to programmatically generate the project directory structure: `projects/PROJ-422-predicting-molecular-permeability-coeffi/code/data`, `projects/PROJ-422-predicting-molecular-permeability-coeffi/code/models`, `projects/PROJ-422-predicting-molecular-permeability-coeffi/code/analysis`, `projects/PROJ-422-predicting-molecular-permeability-coeffi/data/raw`, `projects/PROJ-422-predicting-molecular-permeability-coeffi/data/processed`, `projects/PROJ-422-predicting-molecular-permeability-coeffi/data/interim`, `projects/PROJ-422-predicting-molecular-permeability-coeffi/results`, `projects/PROJ-422-predicting-molecular-permeability-coeffi/tests/unit`, `projects/PROJ-422-predicting-molecular-permeability-coeffi/tests/integration`. The script must be executable and verifiable via `bash setup_dirs.sh && ls`.
 - [X] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt`. **Method**: Use `pip freeze` to pin versions. **Verification**: Run `pip check` and ensure no conflicts.
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools. **Artifacts**: Create `pyproject.toml` with specific rules (E, F, W) and `.black` config. **Verification**: Run `ruff check. && black --check.`.
-- [X] T003a [P] Create `generate_config.py` script to programmatically generate `config.yaml` with configurable parameters: `bias_threshold` (default a high threshold), `retention_threshold` (default a high confidence level), `stratification_diff_threshold` (default a standard significance threshold), `proxy_target_columns` (default ['logP', 'calculated_logP']), `staged_mode` (default false). The script must be executable and verifiable via `python generate_config.py && cat config.yaml`.
+- [X] T003a [P] Create `generate_config.py` script to programmatically generate `config.yaml` with configurable parameters explicitly linked to Functional Requirements:
+ 1. `validation.require_experimental_target: false` (boolean, default **false**) - Allows Proxy Mode for feasibility study (aligns with Plan Phase 0).
+ 2. `validation.bias_threshold:` (float, default 0.85) - Controls FR-013 bias check.
+ 3. `validation.retention_threshold:` (float, default 0.95) - Controls FR-011 retention check.
+ 4. `validation.The stratification difference threshold will be determined based on established criteria for statistical significance and effect size relevance, without pre-specifying a fixed numerical value.` (float, default 0.05) - Controls FR-003 stratification check.
+ 5. **Verification**: Run `python generate_config.py && cat config.yaml` to confirm keys and default values.
 
 ---
 
@@ -72,44 +77,45 @@
 
 ## Phase 3: User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1) 🎯 MVP
 
-**Goal**: Ingest public datasets, parse SMILES to graphs/descriptors, handle invalid data, and create stratified splits (or fallback).
+**Goal**: Ingest public datasets, parse SMILES to graphs/descriptors, handle invalid data, and create stratified splits. **Strict Constraint**: The system must attempt to use experimental permeability coefficients. If unavailable, it must switch to calculated logP as a proxy target for this feasibility study, logging the switch.
 
-**Independent Test**: The pipeline runs end-to-end on a sample, producing `data/processed/train.csv`, `data/processed/test.csv`, and a log confirming the split strategy (stratified or random with warning) and data retention.
+**Independent Test**: The pipeline runs end-to-end on a sample, producing `data/processed/train.csv`, `data/processed/test.csv`, and a log confirming the split strategy (stratified or random) and data retention.
 
 ### Implementation for User Story 1
 
 - [X] T013 [US1] Implement `code/data/download.py`:
- 1. Fetch the specific verified dataset from the hardcoded source: `huggingface.co/datasets/chembl/chembl_v30`.
- 2. Log the dataset source and target validation.
- 3. **Constraint**: If the specific dataset ID is not found, raise `RuntimeError`. Do NOT fall back to an equivalent source without explicit configuration override.
-- [X] T013b [US1] Implement `code/data/download.py` target validation:
+ 1. **Flexible Source Fetch**: Iterate through a list of verified dataset IDs (e.g., `huggingface.co/datasets/chembl/chembl_v30`, `huggingface.co/datasets/moleculenet/tox21`, etc.) to find one containing SMILES and a target column.
+ 2. **Target Column Inspection**: For each fetched dataset, check for the presence of experimental permeability columns (e.g., `logP_exp`, `permeability_coefficient`) OR calculated logP columns.
+ 3. **Constraint**: Do NOT raise `RuntimeError` immediately if the first dataset fails. Only raise if *all* verified sources are exhausted or none contain valid SMILES/target pairs.
+ 4. **Verification**: Log the successful dataset source and the detected target column name.
+- [X] T013b [US1] Implement `code/data/download.py` target validation and Proxy Mode logic: <!-- FAILED: unspecified -->
  1. **Prerequisite**: Depends on T013 completion.
- 2. Check if the target column contains experimental permeability coefficients.
- 3. **Proxy Mode Logic**: If the experimental column is missing, search for a column named 'logP' or 'calculated_logP'. If found, **switch to Proxy Mode**, set the target variable to this column, and log a clear "Proxy Mode Activated - Feasibility Study" warning. **Constraint**: This switch is a 'staged deviation'; it must check `config.yaml` for a 'staged_mode' flag. If the flag is false, raise `RuntimeError`. If true, proceed and log the deviation.
- 4. Log the final target variable name and mode (Experimental vs Proxy).
+ 2. Check if the target column contains **experimental** permeability coefficients.
+ 3. **Proxy Mode Logic**: If an experimental target is missing but a calculated `logP` column exists, log a warning: "Experimental target missing. Switching to Proxy Mode: using calculated logP." Set the target variable to `logP`.
+ 4. If neither experimental nor calculated logP is found, raise `RuntimeError("No valid target variable found.")`.
+ 5. **Output Requirement**: Explicitly set a flag `is_proxy_target: true` in the final `results/metrics.json` and `config.yaml` if Proxy Mode is activated, ensuring the research question shift is visible in artifacts.
 - [X] T014a [US1] Implement `code/data/preprocess.py` (Part 1):
- 1. Parse SMILES using RDKit, compute standard descriptors (MW, logP, TPSA, etc.).
- 2. Handle missing values via median imputation or row exclusion with logging.
+ 1. **Prerequisite**: Depends on T013b (Target Validation).
+ 2. Parse SMILES using RDKit, compute standard descriptors (MW, logP, TPSA, etc.).
+ 3. Handle missing values via median imputation or row exclusion with logging.
 - [X] T014b [US1] Implement `code/data/preprocess.py` (Part 2):
- 1. Construct molecular graphs.
- 2. **Output Requirement**: Generate a distinct feature set of "flattened graph statistics" (e.g., mean node degree, connectivity, substructure counts) as a separate column group or file (`data/processed/graph_features.csv`) for use in the Ablation Study.
+ 1. **Prerequisite**: Depends on T013b (Target Validation).
+ 2. Construct molecular graphs.
+ 3. **Output Requirement**: Generate a distinct feature set of "flattened graph topology features" (e.g., mean node degree, connectivity, substructure counts, aromatic ring count) as a separate column group or file (`data/processed/graph_features.csv`) for use in the Ablation Study. **Explicitly exclude** standard descriptors (MW, logP, TPSA) from this set.
 - [X] T015 [US1] Implement invalid SMILES handling in `code/data/preprocess.py`:
  1. Log errors and exclude invalid rows.
- 2. **Constraint**: Enforce FR-011 strictly: If valid molecule retention < 95%, trigger `SystemExit(1)` with a detailed error log. **Exception**: Only proceed if `config.yaml` explicitly sets `staged_mode: true`. This relaxation must be explicit and controlled, not silent.
+ 2. **Constraint**: Enforce FR-011 strictly: If valid molecule retention < 95%, trigger `SystemExit(1)` with a detailed error log. The pipeline MUST halt; no configuration override is permitted for this safety check.
 - [X] T016 [US1] Implement FR-013 (Bias Check) in `code/data/preprocess.py`:
  1. Calculate correlation between input descriptors and the target variable.
- 2. Load the threshold parameter from `config.yaml` (default 0.85).
+ 2. Load the threshold parameter from `config.yaml` key `validation.bias_threshold` (default 0.85).
  3. **Conditional Logic**: If correlation exceeds the threshold, flag results as `bias_warning: "potentially confounded"` and log a warning. The pipeline must continue but the final report must highlight this flag.
-- [X] T017 [US1] Implement `code/data/split.py`:
- 1. **Prerequisite**: Depends on [T013b] (Target Validation/Proxy Mode), [T014a/T014b] (Preprocessing).
- 2. Check if the 'polymer_type' column exists in the dataset.
- 3. **Stratified Logic**: If 'polymer_type' exists, perform a stratified split ensuring distribution difference < 5% for each class.
- 4. **Fallback Logic**: If 'polymer_type' is missing (common in Proxy Mode datasets), perform a random split and log a warning: "Stratification by polymer type skipped; fallback to **staged/feasibility mode** random split due to missing metadata."
+- [X] T017 [US1] Implement `code/data/split.py` and Stratification Report:
+ 1. **Prerequisite**: Depends on T013b (Target Validation), T014a/T014b (Preprocessing).
+ 2. **Column Discovery**: Check for stratification columns in this order: `polymer_type`, `membrane_type`, `material`. If found, use the first available one.
+ 3. **Stratification Logic**: If a stratification column is found, perform a stratified split ensuring distribution difference < 5% for each class.
+ 4. **Fallback**: If NO stratification column is found, perform a random split and log a warning: "Stratification column missing. Fallback to random split. Data leakage risk acknowledged for feasibility study."
  5. Save splits to `data/processed/train.csv` and `data/processed/test.csv`.
-- [ ] T017b [US1] Generate Stratification Report:
- 1. **Prerequisite**: Depends on [T017] (Split).
- 2. Generate `results/stratification_report.md` explicitly confirming the split strategy used (stratified or random with warning) and the retention rate.
- 3. This artifact satisfies the US1 Independent Test requirement for a "logged report confirming the stratification".
+ 6. **Report Generation**: Immediately after splitting, generate `results/stratification_report.md` explicitly confirming the split strategy used (stratified with column X, or random) and the retention rate. This artifact satisfies the US1 Independent Test requirement.
 - [X] T018 [US1] Write unit tests in `tests/unit/test_preprocess.py` for SMILES parsing, descriptor calculation, invalid handling, and graph feature flattening.
 - [X] T019 [US1] Write integration test in `tests/integration/test_pipeline.py` to verify end-to-end data flow, target validation, and file outputs.
 
@@ -119,7 +125,7 @@
 
 ## Phase 4: User Story 2 - Comparative Model Training and Evaluation (Priority: P2)
 
-**Goal**: Train CPU-optimized GNN (MPNN) and Random Forest baselines, evaluate metrics, and perform statistical significance testing.
+**Goal**: Train CPU-optimized GNN (MPNN) and Random Forest baselines, evaluate metrics, and perform statistical significance testing. **Strict Constraint**: Models must be trained on the selected target (experimental or proxy logP).
 
 **Independent Test**: Training completes within 6h/7GB RAM, outputs metrics to `results/metrics.json`, and reports a p-value for the performance gap.
 
@@ -132,25 +138,31 @@
  2. **Constraint**: Enforce CPU-only execution (no CUDA device assignment) to adhere to the free-tier runner constraints.
  3. Implement early stopping logic based on validation loss with patience parameter.
  4. Save model checkpoints to `data/interim/gnn_checkpoint.pt` and `data/interim/rf_checkpoint.pkl` upon completion or early stopping.
- 5. **Logging**: Log training duration and peak memory usage (using `psutil`) to `results/training_log.json` to verify SC-004 constraints.
-- [ ] T023 [US2] Implement FR-012 (Ablation Study): Train a Random Forest baseline using **ONLY** the "flattened graph statistics" feature set (produced in T014b at `data/processed/graph_features.csv`).
- 1. **Prerequisite**: Depends on [T014b] (Graph Features Generation) and [T022] (Training Infrastructure - **after T022 completes and outputs model artifacts**).
- 2. **Constraint**: Strictly exclude all standard molecular descriptors (MW, logP, TPSA) in the input matrix to isolate the incremental value of topology.
- 3. **Scientific Framing**: **Constraint: Exploratory Only**. Acknowledge that in Proxy Mode (logP target), this compares 'topology-only' vs 'descriptors-only' against a descriptor target. Frame the result as a **feasibility check** of the GNN architecture's ability to learn from topology, rather than a claim of superiority for permeability prediction. Explicitly note the circular validation limitation in the output.
- 4. **Output Artifact**: Save results to `results/metrics_ablation_exploratory.json` and generate `results/exploratory_ablation_report.md`. **Do NOT** include these metrics in the primary `results/metrics.json` used for SC-001 validation.
+ 5. **Logging**: Log training duration and peak memory usage (using `psutil`) to `results/training_log.json`. **Schema**: `{"peak_memory_gb": <float, 2 decimals>}`.
+- [ ] T023 [US2] Implement FR-012 (Ablation Study - Training):
+ 1. **Prerequisite**: Depends on T014b (Graph Features Generation), **T017 (Data Splits)**, and T022 (Training).
+ 2. Train a Random Forest baseline using **ONLY** the "flattened graph topology features" feature set (produced in T014b at `data/processed/graph_features.csv`).
+ 3. **Strict Constraint**: Explicitly exclude all standard molecular descriptors (MW, logP, TPSA) in the input matrix to isolate the incremental value of topology.
+ 4. **Scientific Framing**: This is a mandatory requirement (FR-012), not exploratory. The results must be included in the primary metrics.
+ 5. Save model to `data/interim/rf_ablation_checkpoint.pkl`.
+- [ ] T023b [US2] Implement FR-012 (Ablation Study - Reporting):
+ 1. **Prerequisite**: Depends on T023 (Ablation Training) and T024 (Evaluation).
+ 2. Calculate metrics (RMSE, MAE, R²) for the ablation model on `data/processed/test.csv`.
+ 3. **Output Artifact**: Save results to `results/metrics.json` (merged with primary metrics) and generate `results/ablation_report.md`.
 - [X] T024 [US2] Implement `code/analysis/evaluate.py`:
  1. Calculate RMSE, MAE, R² for all models (GNN, RF-Baseline, RF-Ablation) on `data/processed/test.csv`.
- 2. Generate a structured JSON artifact `results/metrics.json` containing all metrics per model (excluding ablation results).
- 3. **Crucial**: Generate `results/predictions_errors.json` containing the raw prediction errors for each model to enable T025.
+ 2. Generate a structured JSON artifact `results/metrics.json` containing all metrics per model.
+ 3. **Crucial**: Generate `results/predictions_errors.json` containing the raw prediction errors for each model to enable T025 and T025b.
  4. Ensure the output schema includes fields for `model_name`, `rmse`, `mae`, `r2`, `training_time`, and `peak_memory_gb`.
 - [ ] T025 [US2] Implement FR-007: Paired t-test on prediction errors between GNN and RF-Baseline.
- 1. **Prerequisite**: Depends on [T024] (Evaluation).
- 2. **Requirement**: Explicitly calculate and log Cohen's d (effect size) and % Confidence Intervals for the mean difference to `results/metrics.json`.
- 3. **Success Criteria Alignment**: This task implements the measurable outcomes defined in SC-002 (Statistical Significance), SC-002b (Effect Size), and SC-002c (Confidence Intervals).
- 4. **Constraint**: Use `scipy.stats` for t-test and manual calculation for Cohen's d to ensure reproducibility without heavy dependencies.
+ 1. **Prerequisite**: Depends on T024 (Evaluation).
+ 2. **Precondition**: Verify the target variable type (experimental vs proxy) and log it in the statistical report.
+ 3. **Requirement**: Explicitly calculate and log Cohen's d (effect size) and % Confidence Intervals for the mean difference to `results/metrics.json`.
+ 4. **Success Criteria Alignment**: This task implements the measurable outcomes defined in SC-002 (Statistical Significance), SC-002b (Effect Size), and SC-002c (Confidence Intervals).
+ 5. **Constraint**: Use `scipy.stats` for t-test and manual calculation for Cohen's d to ensure reproducibility without heavy dependencies.
 - [ ] T025b [US2] Implement post-hoc power analysis:
- 1. **Prerequisite**: Depends on [T025] (T-test results).
- 2. **Implementation**: Calculate statistical power using the observed effect size (Cohen's d) and sample size.
+ 1. **Prerequisite**: Depends on T025 (T-test results) and T024 (specifically `results/predictions_errors.json` for sample size verification).
+ 2. **Implementation**: Calculate statistical power using the observed effect size (Cohen's d) and sample size. This is required to interpret SC-002b/c (Effect Size/CI) in the context of sample adequacy.
  3. **Output Artifact**: Generate `results/power_analysis.json` containing power value, effect size, sample size, and alpha level.
  4. Ensure this artifact is explicitly linked to SC-002b/c coverage.
 - [X] T027 [P] [US2] Write unit tests for `code/models/gnn.py` and `code/models/rf.py` (forward pass, shape checks).
@@ -162,7 +174,7 @@
 
 ## Phase 5: User Story 3 - Feature Attribution and Interpretability Analysis (Priority: P3)
 
-**Goal**: Apply GNNExplainer to GNN and SHAP to RF to identify and rank predictive features/substructures.
+**Goal**: Apply GNNExplainer to GNN and SHAP to RF to identify and rank predictive features/substructures. **Strict Constraint**: Analysis must proceed with the selected target (experimental or proxy logP).
 
 **Independent Test**: Analysis generates ranked feature lists and visualizations highlighting topological features unique to GNN.
 
@@ -176,11 +188,15 @@
  1. Apply GNNExplainer to the GNN model.
  2. Identify top influential node-level substructures (e.g., aromatic rings, functional groups) across the test set.
  3. Save the identified substructures and their importance scores to `results/feature_importance_gnn.json`.
-- [ ] T031 [US3] Implement FR-009: Generate comparative report mapping GNN substructures to RF descriptors.
+- [ ] T031 [US3] Implement FR-009: Mapping Logic for Comparative Report.
  1. **Prerequisites**: Requires model outputs from US2 (T022-T024) to map features to performance context, and feature importance from T029/T030.
- 2. **Mapping Logic**: Compare the rank of SHAP features vs. the rank of GNNExplainer substructures. Identify substructures with high GNNExplainer scores that correspond to low-ranked SHAP descriptors.
- 3. **Output Format**: Generate a Markdown report `results/comparative_report.md`.
- 4. **Scientific Framing**: In Proxy Mode, acknowledge that high correlation between logP (target) and standard descriptors may dominate SHAP rankings. The report should highlight substructures identified by GNNExplainer that are *not* captured by standard descriptors, framing this as "Topological features learned by GNN beyond standard descriptors" rather than "Incremental value for permeability".
+ 2. **Precondition**: Verify the target variable type and note it in the report context.
+ 3. **Mapping Logic**: Compare the rank of SHAP features vs. the rank of GNNExplainer substructures. Identify substructures with high GNNExplainer scores that correspond to low-ranked SHAP descriptors.
+ 4. **Output**: Prepare data structures for the report.
+- [ ] T031b [US3] Generate Comparative Report (FR-009).
+ 1. **Prerequisite**: Depends on T031 (Mapping Logic).
+ 2. **Output Format**: Generate a Markdown report `results/comparative_report.md`.
+ 3. **Scientific Framing**: Highlight substructures identified by GNNExplainer that are *not* captured by standard descriptors, framing this as "Topological features learned by GNN beyond standard descriptors" for the selected target (permeability or logP).
 - [ ] T032 [US3] Generate visualizations (heatmaps/bar charts) for feature importance in `results/figures/`.
  1. Create a bar chart comparing top SHAP features vs. top GNNExplainer substructures.
  2. Save figures as PNG files with high resolution.
@@ -194,10 +210,15 @@
 
 **Goal**: Ensure results align with Success Criteria and report findings.
 
-- [ ] T034 [US1, US2, US3] Documentation updates: Update `README.md` with usage for US1 pipeline, US2 metrics interpretation, and US3 feature maps. Update `results.md` with specific findings for SC-001 through SC-004. **Requirement**: Explicitly address requirements of US1, US2, and US3 and all Success Criteria in the documentation.
-- [ ] T035 [US1, US2, US3] Code cleanup and refactoring for PEP8 compliance. **Requirement**: Ensure all code changes address requirements of US1, US2, and US3.
+- [ ] T034a [US1] Documentation: Update `README.md` with "Data Pipeline Usage" section, explicitly detailing how to run the ingestion and preprocessing steps (US1).
+- [ ] T034b [US2] Documentation: Update `README.md` with "Model Training & Evaluation" section, explicitly detailing how to run training and interpret metrics (US2).
+- [~] T034c [US3] Documentation: Update `README.md` with "Interpretability Analysis" section, explicitly detailing how to generate and read feature importance reports (US3).
+- [~] T034d [US1, US2, US3] Documentation: Update `results.md` with "Experimental Setup" section, detailing the dataset source, target variable (experimental vs proxy), and split strategy.
+- [~] T034e [US1, US2, US3] Documentation: Update `results.md` with "Results & Discussion" section, explicitly addressing SC-001 through SC-005 with measured values and power analysis context.
+- [ ] T035a [P] Run `ruff check --fix code/` to resolve all PEP8/linting violations in the code directory.
+- [ ] T035b [P] Run `black code/` to format all Python files according to project standards.
 - [ ] T036 [P] Run full pipeline end-to-end on CI to verify reproducibility and artifact generation.
-- [ ] T037 Verify `results/metrics.json` contains all required fields (RMSE, MAE, R², p-value, Cohen's d, CI, power, bias_warning).
+- [ ] T037 Verify `results/metrics.json` contains all required fields (RMSE, MAE, R², p-value, Cohen's d, CI, power, bias_warning, is_proxy_target).
 - [ ] T038 [US2, US3] Verify Success Criteria Alignment: Ensure the final report and `results/metrics.json` explicitly state the measured outcomes against the defined Success Criteria for US2 (SC-001, SC-002, SC-002b, SC-002c, SC-004) and US3 (SC-003).
 
 ---
@@ -233,16 +254,18 @@
 
 ### Explicit Task Dependencies
 
-- **T013b**: Depends on **T013** (Data Fetch) to ensure target configuration is set before preprocessing.
-- **T014a/T014b**: Depends on **T013** (Data Fetch).
-- **T017**: Depends on **T013b** (Target Validation), **T014a/T014b** (Preprocessing) to ensure split logic adapts to Proxy Mode or missing metadata and data is ready.
-- **T017b**: Depends on **T017** (Split) to generate the report.
+- **T013**: Performs flexible fetch and column inspection.
+- **T013b**: Depends on **T013** to determine target availability and switch to Proxy Mode if needed.
+- **T014a/T014b**: Depends on **T013b** (Target Validation).
+- **T017**: Depends on **T013b** (Target Validation), **T014a/T014b** (Preprocessing) to ensure split logic adapts to data availability.
 - **T022**: Depends on **T017** (Data Split) to ensure training/test sets are available.
-- **T023 (Ablation Study)**: Depends on **T014b** (Graph Features Generation) and **T022** (Training - **after T022 completes and outputs model artifacts**).
+- **T023 (Ablation Training)**: Depends on **T014b** (Graph Features Generation), **T017** (Data Splits), and **T022** (Training).
+- **T023b (Ablation Reporting)**: Depends on **T023** and **T024**.
 - **T024**: Depends on **T022** (Training) to ensure models are trained before evaluation.
 - **T025**: Depends on **T024** (Evaluation) to ensure prediction errors are available for statistical testing.
-- **T025b**: Depends on **T025** (T-test) to calculate power based on effect size.
-- **T031 (Comparative Report)**: Depends on **T029**, **T030**, and **T024** (Model Evaluation).
+- **T025b**: Depends on **T025** (T-test) and **T024** (prediction errors for sample size).
+- **T031 (Mapping Logic)**: Depends on **T029**, **T030**, and **T024** (Model Evaluation).
+- **T031b (Report Generation)**: Depends on **T031**.
 
 ### Within Each User Story
 
@@ -256,7 +279,7 @@
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- Once Foundational phase completes, all user stories can start in parallel (if staffed)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members

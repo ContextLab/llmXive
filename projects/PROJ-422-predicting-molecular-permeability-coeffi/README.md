@@ -1,168 +1,158 @@
-# Predicting Molecular Permeability Coefficients Using Graph Neural Networks and Publicly Available Datasets
+# PROJ-422: Predicting Molecular Permeability Coefficients Using Graph Neural Networks
 
-**Project ID**: PROJ-422
-**Status**: MVP Complete (US1, US2, US3)
+A research pipeline for predicting molecular permeability coefficients using Graph Neural Networks (GNNs) and Random Forest baselines, with a focus on interpretability and topological feature analysis.
 
-## Overview
+## Table of Contents
 
-This project implements a machine learning pipeline to predict molecular permeability coefficients (or proxy targets like logP) using Graph Neural Networks (GNNs) and traditional Random Forest baselines. The pipeline ingests public chemical datasets, preprocesses molecular structures (SMILES), trains models, and performs statistical significance testing and interpretability analysis.
+1. [Project Overview](#project-overview)
+2. [Setup](#setup)
+3. [Data Pipeline (US1)](#data-pipeline-us1)
+4. [Model Training & Evaluation (US2)](#model-training--evaluation-us2)
+5. [Interpretability Analysis (US3)](#interpretability-analysis-us3)
+6. [Results & Reporting](#results--reporting)
+7. [Testing](#testing)
 
-## Quick Start
+---
+
+## Project Overview
+
+This project implements a comparative study of Graph Neural Networks (specifically MPNN) versus Random Forest models for predicting molecular permeability. It includes:
+- Automated ingestion of public chemical datasets (ChemBL, MoleculeNet).
+- Robust preprocessing with SMILES parsing and descriptor calculation.
+- CPU-optimized training with early stopping.
+- Statistical significance testing (paired t-test, Cohen's d, power analysis).
+- **Interpretability analysis** using SHAP (for RF) and GNNExplainer (for GNN) to compare standard descriptors against learned topological substructures.
+
+## Setup
 
 ### Prerequisites
-
 - Python 3.11+
-- `pip` (package manager)
-- `git`
+- pip
 
 ### Installation
-
-1. Clone the repository and navigate to the project root:
- ```bash
- git clone <repo-url>
- cd projects/PROJ-422-predicting-molecular-permeability-coeffi
- ```
-
-2. Create a virtual environment and install dependencies:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- pip install -r requirements.txt
- ```
-
-3. Generate the project directory structure:
- ```bash
- bash code/setup_dirs.sh
- ```
-
-4. Generate the configuration file:
- ```bash
- python code/generate_config.py
- ```
-
-### Running the Pipeline
-
-The pipeline is executed in stages corresponding to the User Stories.
-
-#### Stage 1: Data Ingestion & Preprocessing (US1)
-
-Fetches the dataset, validates targets (or activates Proxy Mode), parses SMILES, and splits data.
-
 ```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Create directory structure
+bash setup_dirs.sh
+
+# Generate configuration
+python code/generate_config.py
+```
+
+## Data Pipeline (US1)
+
+The data pipeline ingests public datasets, validates targets (experimental or proxy), computes descriptors, and creates stratified splits.
+
+### Usage
+```bash
+# Run the full data pipeline
 python code/data/download.py
 python code/data/preprocess.py
 python code/data/split.py
 ```
 
-**Outputs**:
-- `data/processed/train.csv`
-- `data/processed/test.csv`
-- `data/processed/graph_features.csv` (for ablation)
-- `results/stratification_report.md`
+### Outputs
+- `data/processed/train.csv`: Training set with computed descriptors.
+- `data/processed/test.csv`: Test set with computed descriptors.
+- `data/processed/graph_features.csv`: Flattened graph topology features for ablation studies.
+- `results/stratification_report.md`: Report on split strategy and data retention.
 
-#### Stage 2: Model Training & Evaluation (US2)
+## Model Training & Evaluation (US2)
 
-Trains MPNN (GNN) and Random Forest models, evaluates metrics, and runs statistical tests.
+Trains CPU-optimized GNN and Random Forest models, evaluates performance, and performs statistical significance testing.
 
+### Usage
 ```bash
+# Train models
 python code/analysis/train.py
+
+# Run ablation study (optional but required for FR-012)
 python code/analysis/ablation.py
+
+# Evaluate models and run statistical tests
 python code/analysis/evaluate.py
 ```
 
-**Outputs**:
-- `data/interim/gnn_checkpoint.pt`
-- `data/interim/rf_checkpoint.pkl`
-- `results/metrics.json` (RMSE, MAE, R², p-value, Cohen's d, CI)
-- `results/power_analysis.json`
+### Outputs
+- `data/interim/gnn_checkpoint.pt`: Trained GNN model.
+- `data/interim/rf_checkpoint.pkl`: Trained Random Forest model.
+- `results/metrics.json`: Comprehensive metrics (RMSE, MAE, R², p-value, Cohen's d).
+- `results/power_analysis.json`: Post-hoc power analysis results.
 
-#### Stage 3: Interpretability (US3)
+## Interpretability Analysis (US3)
 
-Generates feature importance rankings using SHAP and GNNExplainer.
+This section details how to generate and read feature importance reports, comparing standard molecular descriptors (via SHAP) against topological substructures (via GNNExplainer).
 
+### Generating Feature Importance Reports
+
+1. **Ensure Models are Trained**: Run the training pipeline (US2) before attempting interpretation.
+2. **Run the Interpretability Scripts**:
+
+ ```bash
+ # Generate SHAP importance for Random Forest
+ python code/analysis/explain.py --model rf
+
+ # Generate GNNExplainer importance for GNN
+ python code/analysis/explain.py --model gnn
+ ```
+
+3. **Generate Comparative Mapping**:
+ ```bash
+ python code/analysis/comparative_mapping.py
+ ```
+
+4. **Generate Visualizations**:
+ ```bash
+ python code/analysis/visualize_features.py
+ ```
+
+### Reading the Reports
+
+The pipeline generates several key artifacts in the `results/` directory:
+
+#### 1. `results/feature_importance_rf.json`
+Contains the ranked list of standard molecular descriptors (e.g., MW, logP, TPSA) based on absolute mean SHAP values.
+- **Key Fields**: `feature_name`, `shap_value`, `rank`.
+- **Interpretation**: High values indicate descriptors that strongly influence the Random Forest's predictions.
+
+#### 2. `results/feature_importance_gnn.json`
+Contains the ranked list of topological substructures (e.g., aromatic rings, specific functional groups) identified by GNNExplainer.
+- **Key Fields**: `substructure_id`, `importance_score`, `description`.
+- **Interpretation**: These represent patterns learned by the GNN that may not be captured by standard descriptors.
+
+#### 3. `results/comparative_report.md`
+A markdown report generated by `comparative_mapping.py` that explicitly maps GNN-identified substructures to RF descriptor ranks.
+- **Key Sections**:
+ - **Topological Features Beyond Descriptors**: Highlights substructures with high GNNExplainer scores but low SHAP ranks, indicating unique predictive power of the GNN.
+ - **Conflicting Importance**: Identifies cases where a feature is important for one model but not the other.
+- **Usage**: This report is the primary output for **Success Criterion SC-003** (Interpretability).
+
+#### 4. `results/figures/`
+Contains visualizations:
+- `feature_comparison_bar_chart.png`: Side-by-side comparison of top SHAP features vs. top GNN substructures.
+- `feature_importance_heatmap.png`: Heatmap showing correlation between feature importance rankings.
+
+### Scientific Context
+
+The interpretability analysis aims to answer: **"Do GNNs learn topological features that standard descriptors miss?"**
+- If the `comparative_report.md` shows high-importance GNN substructures with low SHAP ranks, it supports the hypothesis that GNNs capture non-trivial topological information.
+- If rankings are highly correlated, it suggests standard descriptors may be sufficient for the target task.
+
+## Results & Reporting
+
+Final results are aggregated in `results.md` and `results/metrics.json`.
+- **Success Criteria**: The pipeline explicitly measures SC-001 through SC-005.
+- **Proxy Mode**: If experimental permeability data is unavailable, the system switches to calculated logP (Proxy Mode). This is logged in `results/metrics.json` under `is_proxy_target`.
+
+## Testing
+
+Run unit and integration tests:
 ```bash
-python code/analysis/explain.py
-python code/analysis/visualize_features.py
-```
+# Unit tests
+pytest tests/unit/
 
-**Outputs**:
-- `results/feature_importance_rf.json`
-- `results/feature_importance_gnn.json`
-- `results/comparative_report.md`
-- `results/figures/` (visualizations)
-
-## Success Criteria Alignment
-
-The project explicitly addresses the following Success Criteria (SC):
-
-- **SC-001 (Performance Gap)**: Measured via RMSE reduction of GNN vs. RF baseline. Results in `results/metrics.json`.
-- **SC-002 (Statistical Significance)**: Validated via paired t-test (p-value) on prediction errors.
-- **SC-002b (Effect Size)**: Cohen's d calculated for the performance gap.
-- **SC-002c (Confidence Intervals)**: 95% CI calculated for the mean difference.
-- **SC-003 (Interpretability)**: GNN substructures ranked via GNNExplainer vs. SHAP descriptors.
-- **SC-004 (Feasibility)**: Training time and memory usage logged in `results/training_log.json` (CPU-only, <6h, <7GB).
-- **SC-005 (Data Integrity)**: Valid molecule retention rate (>95%) enforced in preprocessing.
-
-## Project Structure
-
-```
-projects/PROJ-422-predicting-molecular-permeability-coeffi/
-├── code/
-│ ├── data/
-│ │ ├── download.py # Dataset fetching (ChEMBL v30)
-│ │ ├── preprocess.py # SMILES parsing, descriptor calculation
-│ │ └── split.py # Stratified/Random splitting
-│ ├── models/
-│ │ ├── gnn.py # MPNN architecture
-│ │ └── rf.py # Random Forest implementation
-│ ├── analysis/
-│ │ ├── train.py # Training loop (GNN & RF)
-│ │ ├── evaluate.py # Metrics & Statistical tests
-│ │ ├── ablation.py # Ablation study (graph features only)
-│ │ ├── explain.py # SHAP & GNNExplainer
-│ │ └── visualize_features.py # Feature importance plots
-│ ├── utils/
-│ │ └── logging.py # Structured JSON logging
-│ └── setup_directories.py # Directory setup utility
-├── data/
-│ ├── raw/ # Raw downloaded datasets
-│ ├── processed/ # Cleaned train/test splits
-│ └── interim/ # Model checkpoints
-├── results/
-│ ├── metrics.json # Primary evaluation metrics
-│ ├── stratification_report.md
-│ ├── comparative_report.md
-│ └── figures/ # Visualization outputs
-├── tests/
-│ ├── unit/ # Unit tests
-│ └── integration/ # End-to-end tests
-├── config.yaml # Runtime configuration
-├── requirements.txt # Dependencies
-└── README.md # This file
-```
-
-## Configuration
-
-The `config.yaml` file controls pipeline behavior:
-- `bias_threshold`: Correlation threshold for bias warnings (default: 0.85).
-- `retention_threshold`: Minimum valid molecule retention (default: 0.95).
-- `stratification_diff_threshold`: Max allowed distribution difference for stratification.
-- `proxy_target_columns`: Columns to check for Proxy Mode (e.g., 'logP').
-- `staged_mode`: If `true`, allows deviations (e.g., lower retention, Proxy Mode).
-
-## Known Limitations
-
-- **Proxy Mode**: If experimental permeability data is missing, the pipeline may switch to predicting logP (Proxy Mode). Results in this mode are framed as feasibility checks for the GNN architecture rather than definitive permeability predictions.
-- **Circular Validation**: The ablation study (T023) compares topology-only features against a descriptor-based target (logP), which is a feasibility check with acknowledged circularity.
-
-## Contributing
-
-Ensure all tests pass before committing:
-```bash
-pytest tests/
-```
-Format code:
-```bash
-black code/
-ruff check code/
+# Integration tests
+pytest tests/integration/
 ```

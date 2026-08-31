@@ -1,155 +1,193 @@
 """
-Unit tests for the power analysis module (T025b).
+Unit tests for the post-hoc power analysis module.
+
+These tests verify the correctness of power calculation logic
+without requiring real model outputs.
 """
+import pytest
 import json
 import tempfile
-import pytest
 from pathlib import Path
 import numpy as np
-from scipy.stats import t, nct
+from scipy import stats
 
-# Import the module functions
-# Assuming the module is named power_analysis.py in code/analysis/
+# Import the module under test
 import sys
-import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
+from unittest.mock import patch, MagicMock
+
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from analysis.power_analysis import (
+    load_metrics,
     calculate_noncentrality_parameter,
     calculate_power,
     run_power_analysis,
-    DEFAULT_ALPHA
+    save_power_analysis
 )
 
-class TestNoncentralityParameter:
-    def test_calculate_ncp_positive_effect(self):
+class TestCalculateNoncentralityParameter:
+    """Tests for non-centrality parameter calculation."""
+    
+    def test_basic_calculation(self):
+        """Test basic ncp calculation: ncp = d * sqrt(n)"""
         d = 0.5
         n = 100
         expected = 0.5 * np.sqrt(100)
-        assert calculate_noncentrality_parameter(d, n) == pytest.approx(expected)
-
-    def test_calculate_ncp_negative_effect(self):
-        d = -0.8
+        
+        result = calculate_noncentrality_parameter(d, n)
+        assert np.isclose(result, expected)
+        
+    def test_large_effect_size(self):
+        """Test with large effect size."""
+        d = 0.8
         n = 50
-        expected = -0.8 * np.sqrt(50)
-        assert calculate_noncentrality_parameter(d, n) == pytest.approx(expected)
+        expected = 0.8 * np.sqrt(50)
+        
+        result = calculate_noncentrality_parameter(d, n)
+        assert np.isclose(result, expected)
+        
+    def test_small_sample(self):
+        """Test with small sample size."""
+        d = 0.3
+        n = 10
+        expected = 0.3 * np.sqrt(10)
+        
+        result = calculate_noncentrality_parameter(d, n)
+        assert np.isclose(result, expected)
 
-    def test_calculate_ncp_zero_effect(self):
-        d = 0.0
+class TestCalculatePower:
+    """Tests for power calculation."""
+    
+    def test_high_power_large_sample(self):
+        """Test that large sample with moderate effect yields high power."""
+        ncp = 2.0  # Large ncp
         n = 100
-        assert calculate_noncentrality_parameter(d, n) == 0.0
-
-class TestPowerCalculation:
-    def test_high_power_large_effect(self):
-        # Large effect size should yield high power
-        d = 1.0
-        n = 50
-        ncp = calculate_noncentrality_parameter(d, n)
-        power = calculate_power(ncp, n, alpha=0.05)
+        alpha = 0.05
+        
+        power = calculate_power(ncp, n, alpha, 'two-sided')
         assert power > 0.80
-
-    def test_low_power_small_effect(self):
-        # Small effect size with small sample should yield low power
-        d = 0.2
+        
+    def test_low_power_small_sample(self):
+        """Test that small sample with small effect yields low power."""
+        ncp = 0.5  # Small ncp
         n = 20
-        ncp = calculate_noncentrality_parameter(d, n)
-        power = calculate_power(ncp, n, alpha=0.05)
-        # Power is likely low, but we just check it's a valid probability
-        assert 0.0 <= power <= 1.0
-
-    def test_power_consistency_with_scipy(self):
-        # Verify our implementation matches standard t-test power logic
-        # Using a known case: d=0.5, n=30, alpha=0.05
-        d = 0.5
-        n = 30
-        ncp = calculate_noncentrality_parameter(d, n)
-        power = calculate_power(ncp, n, alpha=0.05)
+        alpha = 0.05
         
-        # Manual check using scipy nct
-        df = n - 1
-        t_crit = t.ppf(1 - 0.05 / 2, df)
-        expected_power = (1 - nct.cdf(t_crit, df, ncp)) + nct.cdf(-t_crit, df, ncp)
+        power = calculate_power(ncp, n, alpha, 'two-sided')
+        assert power < 0.60
         
-        assert power == pytest.approx(expected_power)
+    def test_alternative_greater(self):
+        """Test one-sided greater test."""
+        ncp = 1.5
+        n = 50
+        alpha = 0.05
+        
+        power = calculate_power(ncp, n, alpha, 'greater')
+        assert 0 < power < 1
+        
+    def test_alternative_less(self):
+        """Test one-sided less test."""
+        ncp = -1.5
+        n = 50
+        alpha = 0.05
+        
+        power = calculate_power(ncp, n, alpha, 'less')
+        assert 0 < power < 1
+        
+    def test_invalid_alternative(self):
+        """Test that invalid alternative raises error."""
+        with pytest.raises(ValueError):
+            calculate_power(1.0, 50, 0.05, 'invalid')
 
 class TestRunPowerAnalysis:
-    @pytest.fixture
-    def mock_metrics_file(self, tmp_path):
-        # Create a temporary metrics file with valid data
-        metrics = {
-            "gnn_vs_rf": {
-                "rmse_gnn": 0.5,
-                "rmse_rf": 0.6,
-                "cohens_d": 0.5,
-                "n_samples": 100,
-                "mean_difference": 0.1,
-                "p_value": 0.01,
-                "ci_lower": 0.05,
-                "ci_upper": 0.15
+    """Tests for the main power analysis function."""
+    
+    def test_full_analysis(self):
+        """Test complete power analysis flow."""
+        cohen_d = 0.5
+        n = 100
+        
+        results = run_power_analysis(cohen_d, n)
+        
+        assert "power" in results
+        assert "effect_size_cohen_d" in results
+        assert "sample_size" in results
+        assert "alpha_level" in results
+        assert "interpretation" in results
+        assert "sample_adequacy" in results
+        
+        # Check values
+        assert results["effect_size_cohen_d"] == 0.5
+        assert results["sample_size"] == 100
+        assert results["alpha_level"] == 0.05
+        assert 0 <= results["power"] <= 1
+        
+    def test_interpretation_high_power(self):
+        """Test interpretation for high power."""
+        # High power scenario
+        results = run_power_analysis(cohen_d=0.8, n=200)
+        assert "Adequate" in results["interpretation"]
+        
+    def test_interpretation_low_power(self):
+        """Test interpretation for low power."""
+        # Low power scenario
+        results = run_power_analysis(cohen_d=0.2, n=20)
+        assert "Low" in results["interpretation"]
+
+class TestLoadMetrics:
+    """Tests for loading metrics file."""
+    
+    def test_load_valid_json(self, tmp_path):
+        """Test loading a valid JSON file."""
+        metrics_data = {
+            "paired_ttest": {
+                "cohen_d": 0.5,
+                "sample_size": 100
             }
         }
-        file_path = tmp_path / "metrics.json"
-        with open(file_path, 'w') as f:
-            json.dump(metrics, f)
-        return file_path
-
-    def test_run_analysis_success(self, mock_metrics_file, tmp_path):
-        # Temporarily override the global paths for the test
-        import analysis.power_analysis as pa_module
-        original_metrics = pa_module.METRICS_FILE
-        original_output = pa_module.POWER_OUTPUT_FILE
         
-        pa_module.METRICS_FILE = mock_metrics_file
-        pa_module.POWER_OUTPUT_FILE = tmp_path / "power_analysis.json"
-        
-        try:
-            result = run_power_analysis(alpha=0.05)
+        metrics_file = tmp_path / "metrics.json"
+        with open(metrics_file, 'w') as f:
+            json.dump(metrics_data, f)
             
-            assert "statistical_power" in result
-            assert "cohens_d" in result
-            assert "n_samples" in result
-            assert result["n_samples"] == 100
-            assert 0.0 <= result["statistical_power"] <= 1.0
-            assert "power_interpretation" in result
-        finally:
-            # Restore original paths
-            pa_module.METRICS_FILE = original_metrics
-            pa_module.POWER_OUTPUT_FILE = original_output
+        result = load_metrics(metrics_file)
+        assert result == metrics_data
+        
+    def test_file_not_found(self, tmp_path):
+        """Test error when file does not exist."""
+        with pytest.raises(FileNotFoundError):
+            load_metrics(tmp_path / "nonexistent.json")
 
-    def test_missing_cohens_d(self, mock_metrics_file, tmp_path):
-        import analysis.power_analysis as pa_module
-        original_metrics = pa_module.METRICS_FILE
+class TestSavePowerAnalysis:
+    """Tests for saving power analysis results."""
+    
+    def test_save_valid_results(self, tmp_path):
+        """Test saving valid results."""
+        results = {
+            "power": 0.85,
+            "effect_size_cohen_d": 0.5,
+            "sample_size": 100
+        }
         
-        # Modify the mock file to remove cohens_d
-        with open(mock_metrics_file, 'r') as f:
-            data = json.load(f)
-        del data["gnn_vs_rf"]["cohens_d"]
-        with open(mock_metrics_file, 'w') as f:
-            json.dump(data, f)
+        output_file = tmp_path / "power_analysis.json"
+        save_power_analysis(results, output_file)
         
-        pa_module.METRICS_FILE = mock_metrics_file
+        assert output_file.exists()
         
-        try:
-            with pytest.raises(KeyError, match="cohens_d"):
-                run_power_analysis()
-        finally:
-            pa_module.METRICS_FILE = original_metrics
+        with open(output_file, 'r') as f:
+            saved_data = json.load(f)
+            
+        assert saved_data == results
+        
+    def test_create_parent_directories(self, tmp_path):
+        """Test that parent directories are created if needed."""
+        results = {"power": 0.8}
+        
+        nested_file = tmp_path / "subdir" / "results" / "power_analysis.json"
+        save_power_analysis(results, nested_file)
+        
+        assert nested_file.exists()
 
-    def test_missing_comparison_key(self, mock_metrics_file, tmp_path):
-        import analysis.power_analysis as pa_module
-        original_metrics = pa_module.METRICS_FILE
-        
-        # Modify the mock file to remove the key
-        with open(mock_metrics_file, 'r') as f:
-            data = json.load(f)
-        del data["gnn_vs_rf"]
-        with open(mock_metrics_file, 'w') as f:
-            json.dump(data, f)
-        
-        pa_module.METRICS_FILE = mock_metrics_file
-        
-        try:
-            with pytest.raises(KeyError, match="comparison key"):
-                run_power_analysis()
-        finally:
-            pa_module.METRICS_FILE = original_metrics
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

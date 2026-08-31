@@ -1,79 +1,110 @@
-"""
-Unit tests for statistical_tests.py
-"""
 import pytest
 import numpy as np
-from pathlib import Path
-import sys
 import json
+from pathlib import Path
 import tempfile
+import os
 
-# Add parent directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 from analysis.statistical_tests import (
     calculate_cohens_d,
     calculate_confidence_interval,
     run_paired_ttest,
-    load_predictions
+    update_metrics_file
 )
 
-def test_cohens_d_identical_groups():
-    """Test Cohen's d when groups are identical (should be 0)"""
-    group1 = np.array([1.0, 2.0, 3.0])
-    group2 = np.array([1.0, 2.0, 3.0])
-    d = calculate_cohens_d(group1, group2)
-    assert np.isclose(d, 0.0, atol=1e-5)
-
-def test_cohens_d_large_difference():
-    """Test Cohen's d with known large difference"""
-    group1 = np.array([10.0, 11.0, 12.0])
-    group2 = np.array([1.0, 2.0, 3.0])
-    d = calculate_cohens_d(group1, group2)
-    # Mean diff = 9, Pooled std approx 5.2
-    # d approx 1.7
-    assert d > 1.0
-
-def test_confidence_interval_width():
-    """Test that CI width is proportional to std error"""
-    data = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-    low, high = calculate_confidence_interval(data, confidence=0.95)
-    assert low < np.mean(data) < high
-
-def test_paired_ttest_significance():
-    """Test paired t-test with significantly different groups"""
-    # Create groups with clear difference
-    group1 = np.array([10.0, 11.0, 12.0, 13.0, 14.0])
-    group2 = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+class TestCohensD:
+    def test_cohens_d_basic(self):
+        """Test basic Cohen's d calculation"""
+        group1 = np.array([10, 12, 14, 16, 18])
+        group2 = np.array([8, 10, 12, 14, 16])
+        
+        d = calculate_cohens_d(group1, group2)
+        
+        # Expected: mean_diff = 2, pooled_std approx 2.828
+        # d = 2 / 2.828 = 0.707
+        assert 0.6 < d < 0.8, f"Expected d around 0.707, got {d}"
     
-    result = run_paired_ttest(group1, group2)
-    assert result['p_value'] < 0.05
-    assert result['mean_difference'] > 0
+    def test_cohens_d_zero_std(self):
+        """Test Cohen's d when standard deviation is zero"""
+        group1 = np.array([10, 10, 10])
+        group2 = np.array([10, 10, 10])
+        
+        d = calculate_cohens_d(group1, group2)
+        assert d == 0.0, "Cohen's d should be 0 when there is no difference"
 
-def test_paired_ttest_no_significance():
-    """Test paired t-test with random noise (no significant difference)"""
-    np.random.seed(42)
-    group1 = np.random.normal(0, 1, 100)
-    group2 = np.random.normal(0, 1, 100)
-    
-    result = run_paired_ttest(group1, group2)
-    # With random noise, p-value is likely > 0.05 (but not guaranteed)
-    # We just check the function runs and returns valid stats
-    assert 't_statistic' in result
-    assert 'p_value' in result
-    assert isinstance(result['p_value'], float)
+class TestConfidenceInterval:
+    def test_ci_calculation(self):
+        """Test confidence interval calculation"""
+        diff_mean = 2.0
+        diff_std = 1.0
+        n = 30
+        
+        ci_lower, ci_upper = calculate_confidence_interval(diff_mean, diff_std, n)
+        
+        # Check that the interval is centered around the mean
+        assert abs((ci_lower + ci_upper) / 2 - diff_mean) < 0.01
+        assert ci_lower < diff_mean < ci_upper
 
-def test_load_predictions(tmp_path):
-    """Test loading predictions from JSON file"""
-    test_data = {
-        "gnn_errors": [1.0, 2.0, 3.0],
-        "rf_errors": [1.5, 2.5, 3.5]
-    }
-    file_path = tmp_path / "test_preds.json"
-    with open(file_path, 'w') as f:
-        json.dump(test_data, f)
+class TestPairedTtest:
+    def test_ttest_identical_groups(self):
+        """Test t-test with identical groups (p-value should be 1.0)"""
+        errors_a = np.array([1, 2, 3, 4, 5])
+        errors_b = np.array([1, 2, 3, 4, 5])
+        
+        result = run_paired_ttest(errors_a, errors_b)
+        
+        assert result["p_value"] == 1.0, "p-value should be 1.0 for identical groups"
+        assert result["mean_difference"] == 0.0
     
-    loaded = load_predictions(file_path)
-    assert "gnn_errors" in loaded
-    assert "rf_errors" in loaded
-    assert isinstance(loaded["gnn_errors"], np.ndarray)
-    assert len(loaded["gnn_errors"]) == 3
+    def test_ttest_different_groups(self):
+        """Test t-test with different groups"""
+        errors_a = np.array([1, 2, 3, 4, 5])
+        errors_b = np.array([5, 6, 7, 8, 9])
+        
+        result = run_paired_ttest(errors_a, errors_b)
+        
+        assert result["p_value"] < 0.05, "p-value should be significant for different groups"
+        assert result["mean_difference"] == -4.0
+
+class TestUpdateMetricsFile:
+    def test_update_existing_file(self):
+        """Test updating an existing metrics file"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            metrics_path = Path(tmpdir) / "metrics.json"
+            
+            # Create initial metrics
+            initial_metrics = {
+                "model_metrics": {
+                    "gnn": {"rmse": 0.5}
+                }
+            }
+            
+            with open(metrics_path, 'w') as f:
+                json.dump(initial_metrics, f)
+            
+            # Update with t-test results
+            ttest_results = {
+                "t_statistic": 2.5,
+                "p_value": 0.01,
+                "mean_difference": 0.1,
+                "std_difference": 0.05,
+                "n_samples": 100,
+                "degrees_of_freedom": 99
+            }
+            cohens_d = 0.5
+            ci = (-0.05, 0.25)
+            target_type = "experimental"
+            
+            update_metrics_file(metrics_path, ttest_results, cohens_d, ci, target_type)
+            
+            # Verify update
+            with open(metrics_path, 'r') as f:
+                updated_metrics = json.load(f)
+            
+            assert "statistical_tests" in updated_metrics
+            assert updated_metrics["statistical_tests"]["cohens_d"] == cohens_d
+            assert updated_metrics["statistical_tests"]["target_variable_type"] == target_type
+            assert "gnn" in updated_metrics["model_metrics"] # Ensure original data preserved
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

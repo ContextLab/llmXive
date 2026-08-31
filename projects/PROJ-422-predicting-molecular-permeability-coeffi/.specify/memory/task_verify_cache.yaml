@@ -1,16 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `setup_dirs.sh` script was provided, nor any evidence (file listing, script\
-    \ contents, or execution output) showing that it creates the required directory\
-    \ tree and is executable. The task\u2019s core deliverable is therefore missing."
-T017b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No stratification report, processed dataset CSV, or any logged output was provided;
-    the implementer did not supply any artifact demonstrating that a dataset was ingested,
-    descriptors computed, and a stratified train/test split generated as required.
-    The task therefore remains unfinished.
 T022:
   c: false
   h: 386b5e24eb564273d052da0de7446f5b0b49c6e952f81f7676611b540c5d37cf
@@ -19,6 +6,14 @@ T022:
     model checkpoints. Moreover, the required input data file `data/processed/train.csv`
     is absent, so the script cannot be executed as specified. Both the implementation
     and the necessary data artifact are missing.
+T023b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifacts (scripts, processed CSVs, model training logs, performance tables,
+    statistical test results, or attribution visualizations) were provided; without
+    any tangible output we cannot confirm that the ablation study reporting was implemented.
+    The required code, data splits, evaluation metrics, and interpretability analyses
+    are missing.
 T024:
   c: false
   h: 7b4644b63b6fd68c4ade6fc53725cd5e5230585200f89093070629697017b82d
@@ -27,14 +22,13 @@ T024:
     \ RMSE/MAE/R\xB2 for the three required models. Moreover, the required `data/processed/test.csv`\
     \ file is absent. Both the artifact and its functionality are missing, so the\
     \ task is not satisfied."
-T025b:
+T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, or report implementing a post\u2011hoc power analysis was provided,\
-    \ and the supplied project excerpt only describes data ingestion, model training,\
-    \ and interpretability\u2014not a power\u2011analysis component. Consequently\
-    \ the required artifact is missing and the task\u2019s core requirement is not\
-    \ met."
+  r: "No code, data files, or result outputs (e.g., paired\u2011t\u2011test p\u2011\
+    value, performance metrics, or scripts) are present to demonstrate that a paired\
+    \ t\u2011test on prediction errors between the GNN and RF baseline was actually\
+    \ performed. The required artifact is missing, so the task is not satisfied."
 T031:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -43,6 +37,13 @@ T031:
     \ descriptor importance. Without such a document or output, the requirement of\
     \ FR\u2011009 is not satisfied. The implementer must produce the comparative report\
     \ containing the mapping and any supporting visualizations or tables."
+T031b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No comparative report artifact (e.g., a PDF/HTML/markdown document containing
+    the GNN vs. Random Forest performance metrics, statistical significance test,
+    and interpretation results) was provided. The evidence consists only of the specification
+    text; the required output document is missing.
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -50,10 +51,15 @@ T032:
     \ the required heatmap or bar\u2011chart visualizations of feature importance.\
     \ The implementer must add the actual figure files (non\u2011empty images) in\
     \ the specified directory."
-T034:
+T034a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No README.md or results.md files were provided, and there is no evidence that\
-    \ they have been updated to cover US1 pipeline usage, US2 metrics interpretation,\
-    \ US3 feature maps, or the specific findings for SC\u2011001 through SC\u2011\
-    004. The required documentation artifacts are missing."
+  r: "No README.md content was provided; there is no evidence that a \u201CData Pipeline\
+    \ Usage\u201D section detailing how to run the ingestion and preprocessing steps\
+    \ was added. The required documentation artifact is missing."
+T034b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a modified\u202FREADME.md containing a \u201CModel Training &\
+    \ Evaluation\u201D section was provided; the artifact is missing, so the requirement\
+    \ to detail how to run training and interpret metrics is not satisfied."

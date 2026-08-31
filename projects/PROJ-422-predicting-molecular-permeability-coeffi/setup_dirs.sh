@@ -1,44 +1,58 @@
 #!/bin/bash
-# T001: Create project directory structure for PROJ-422
-# This script programmatically generates the required directory tree.
-# Verification: bash setup_dirs.sh && ls -R projects/PROJ-422-predicting-molecular-permeability-coeffi
+# setup_dirs.sh
+# Script to programmatically generate the project directory structure
+# for PROJ-422-predicting-molecular-permeability-coeffi
+#
+# Usage: bash setup_dirs.sh && ls
+#
+# This script creates the following directories relative to the project root:
+# - code/data, code/models, code/analysis
+# - data/raw, data/processed, data/interim
+# - results
+# - tests/unit, tests/integration
 
-set -e
+set -e  # Exit immediately if a command exits with a non-zero status
 
-PROJECT_ROOT="projects/PROJ-422-predicting-molecular-permeability-coeffi"
+# Define the project base directory name
+PROJECT_DIR="projects/PROJ-422-predicting-molecular-permeability-coeffi"
 
-echo "Creating directory structure for ${PROJECT_ROOT}..."
+echo "Creating project directory structure for $PROJECT_DIR..."
 
-# Define the required directories
-DIRS=(
-  "${PROJECT_ROOT}/code/data"
-  "${PROJECT_ROOT}/code/models"
-  "${PROJECT_ROOT}/code/analysis"
-  "${PROJECT_ROOT}/data/raw"
-  "${PROJECT_ROOT}/data/processed"
-  "${PROJECT_ROOT}/data/interim"
-  "${PROJECT_ROOT}/results"
-  "${PROJECT_ROOT}/tests/unit"
-  "${PROJECT_ROOT}/tests/integration"
-)
+# Create the main project directory
+mkdir -p "$PROJECT_DIR"
 
-# Create directories
-for dir in "${DIRS[@]}"; do
-  mkdir -p "$dir"
-  echo "Created: $dir"
-done
+# Create code directories
+mkdir -p "$PROJECT_DIR/code/data"
+mkdir -p "$PROJECT_DIR/code/models"
+mkdir -p "$PROJECT_DIR/code/analysis"
 
-# Verify creation by listing the tree
+# Create data directories
+mkdir -p "$PROJECT_DIR/data/raw"
+mkdir -p "$PROJECT_DIR/data/processed"
+mkdir -p "$PROJECT_DIR/data/interim"
+
+# Create results directory
+mkdir -p "$PROJECT_DIR/results"
+
+# Create tests directories
+mkdir -p "$PROJECT_DIR/tests/unit"
+mkdir -p "$PROJECT_DIR/tests/integration"
+
+echo "Directory structure created successfully."
 echo ""
-echo "Verifying structure..."
-if [ -d "${PROJECT_ROOT}" ]; then
-  echo "SUCCESS: Project root exists."
-  echo "Directory listing:"
-  find "${PROJECT_ROOT}" -type d | sort
-else
-  echo "ERROR: Project root was not created."
-  exit 1
-fi
+echo "Verification (listing created structure):"
+find "$PROJECT_DIR" -type d | sort
 
-echo ""
-echo "T001 Setup Complete."
+# Optional: Create placeholder .gitkeep files to ensure directories are tracked by git
+# Uncomment the following lines if git tracking of empty directories is required:
+# touch "$PROJECT_DIR/code/data/.gitkeep"
+# touch "$PROJECT_DIR/code/models/.gitkeep"
+# touch "$PROJECT_DIR/code/analysis/.gitkeep"
+# touch "$PROJECT_DIR/data/raw/.gitkeep"
+# touch "$PROJECT_DIR/data/processed/.gitkeep"
+# touch "$PROJECT_DIR/data/interim/.gitkeep"
+# touch "$PROJECT_DIR/results/.gitkeep"
+# touch "$PROJECT_DIR/tests/unit/.gitkeep"
+# touch "$PROJECT_DIR/tests/integration/.gitkeep"
+
+exit 0

@@ -1,0 +1,27 @@
+{
+  "project_id": "PROJ-422-predicting-molecular-permeability-coeffi",
+  "tasks": [
+    {
+      "task_key": "T001",
+      "reject_count": 1,
+      "last_reason": "No `setup_dirs.sh` script was provided, nor any evidence (file listing, script contents, or execution output) showing that it creates the required directory tree and is executable. The task\u2019s core deliverable is therefore missing.",
+      "first_seen": "2026-08-31T15:00:44.303195+00:00",
+      "last_seen": "2026-08-31T15:00:44.303195+00:00"
+    },
+    {
+      "task_key": "T023",
+      "reject_count": 1,
+      "last_reason": "No code, data files, training logs, performance metrics, statistical test results, or interpretability analyses were provided. The required artifacts (ingestion/preprocessing pipeline, model training/evaluation outputs, and ablation study results) are missing, so the task is not satisfied.",
+      "first_seen": "2026-08-31T15:00:46.837736+00:00",
+      "last_seen": "2026-08-31T15:00:46.837736+00:00"
+    },
+    {
+      "task_key": "T025b",
+      "reject_count": 1,
+      "last_reason": "No code, data, or report implementing a post\u2011hoc power analysis was provided, and the supplied project excerpt only describes data ingestion, model training, and interpretability\u2014not a power\u2011analysis component. Consequently the required artifact is missing and the task\u2019s core requirement is not met.",
+      "first_seen": "2026-08-31T15:00:51.032538+00:00",
+      "last_seen": "2026-08-31T15:00:51.032538+00:00"
+    }
+  ],
+  "updated_at": "2026-08-31T15:00:51.032538+00:00"
+}
