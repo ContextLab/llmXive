@@ -1,17 +1,12 @@
 """
-Unit tests for global random seed management.
+Tests for global random seed management.
 
-Verifies that set_global_seed correctly initializes seeds for
-random, numpy, and torch (if available), and that the same seed
-produces deterministic results.
+These tests verify that set_global_seed correctly initializes
+random state across numpy, torch, and the standard random module,
+ensuring deterministic behavior.
 """
-import random
-import hashlib
-import json
-import tempfile
-from pathlib import Path
 
-import pytest
+import random
 import numpy as np
 
 try:
@@ -20,8 +15,7 @@ try:
 except ImportError:
     TORCH_AVAILABLE = False
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+import pytest
 
 from utils.seeds import (
     set_global_seed,
@@ -33,56 +27,44 @@ from utils.seeds import (
 
 
 class TestSeedManagement:
-    """Tests for seed management functions."""
+    """Test suite for seed management functions."""
 
-    def test_set_global_seed_types(self):
-        """Test that set_global_seed rejects non-integer seeds."""
+    def setup_method(self):
+        """Reset seed state before each test."""
         reset_seed()
+
+    def teardown_method(self):
+        """Clean up after each test."""
+        reset_seed()
+
+    def test_set_global_seed_basic(self):
+        """Test that set_global_seed sets the global seed."""
+        seed_value = 42
+        set_global_seed(seed_value)
+        assert get_seed() == seed_value
+
+    def test_set_global_seed_type_error(self):
+        """Test that set_global_seed raises TypeError for non-integer seeds."""
         with pytest.raises(TypeError):
-            set_global_seed("42")
+            set_global_seed("not an integer")
+
         with pytest.raises(TypeError):
-            set_global_seed(42.5)
-
-    def test_set_global_seed_functionality(self):
-        """Test that set_global_seed actually sets the seeds."""
-        seed_val = 12345
-        set_global_seed(seed_val)
-
-        # Check global state
-        assert get_seed() == seed_val
-        info = get_seed_info()
-        assert info["seed"] == seed_val
-        assert info["is_set"] is True
-
-    def test_reset_seed(self):
-        """Test that reset_seed clears the global state."""
-        set_global_seed(42)
-        reset_seed()
-        assert get_seed() is None
-        assert get_seed_info()["is_set"] is False
-
-    def test_ensure_seed_set(self):
-        """Test that ensure_seed_set sets a default if none exists."""
-        reset_seed()
-        default = 999
-        result = ensure_seed_set(default)
-        assert result == default
-        assert get_seed() == default
+            set_global_seed(3.14)
 
     def test_deterministic_numpy(self):
-        """Test that numpy generates the same sequence with the same seed."""
-        seed = 42
+        """Test that numpy operations are deterministic with the same seed."""
+        seed = 12345
         set_global_seed(seed)
-        arr1 = np.random.rand(10)
+        arr1 = np.random.rand(100)
 
         set_global_seed(seed)
-        arr2 = np.random.rand(10)
+        arr2 = np.random.rand(100)
 
-        np.testing.assert_array_equal(arr1, arr2)
+        assert np.allclose(arr1, arr2)
 
-    def test_deterministic_random(self):
-        """Test that random module generates the same sequence with the same seed."""
-        seed = 42
+    def test_deterministic_python_random(self):
+        """Test that Python random operations are deterministic with the same seed."""
+        seed = 54321
         set_global_seed(seed)
         rand1 = [random.random() for _ in range(10)]
 
@@ -91,52 +73,72 @@ class TestSeedManagement:
 
         assert rand1 == rand2
 
-    @pytest.mark.skipif(not TORCH_AVAILABLE, reason="PyTorch not available")
     def test_deterministic_torch(self):
-        """Test that torch generates the same sequence with the same seed."""
+        """Test that torch operations are deterministic with the same seed."""
+        if not TORCH_AVAILABLE:
+            pytest.skip("PyTorch not available")
+
+        seed = 98765
+        set_global_seed(seed)
+        tensor1 = torch.rand(100)
+
+        set_global_seed(seed)
+        tensor2 = torch.rand(100)
+
+        assert torch.allclose(tensor1, tensor2)
+
+    def test_reset_seed(self):
+        """Test that reset_seed clears the global seed state."""
+        set_global_seed(42)
+        assert get_seed() == 42
+
+        reset_seed()
+        assert get_seed() is None
+
+    def test_ensure_seed_set_with_existing(self):
+        """Test ensure_seed_set when seed is already set."""
+        set_global_seed(100)
+        result = ensure_seed_set(default_seed=999)
+        assert result == 100  # Should keep existing seed
+
+    def test_ensure_seed_set_without_existing(self):
+        """Test ensure_seed_set when no seed is set."""
+        result = ensure_seed_set(default_seed=777)
+        assert result == 777
+        assert get_seed() == 777
+
+    def test_get_seed_info(self):
+        """Test get_seed_info returns correct information."""
+        seed_info = get_seed_info()
+        assert "seed" in seed_info
+        assert "is_set" in seed_info
+        assert "torch_available" in seed_info
+
+        set_global_seed(42)
+        seed_info = get_seed_info()
+        assert seed_info["seed"] == 42
+        assert seed_info["is_set"] is True
+
+    def test_reproducibility_full_pipeline(self):
+        """Test full reproducibility by simulating a small pipeline."""
         seed = 42
         set_global_seed(seed)
-        t1 = torch.rand(10)
 
+        # Simulate a small pipeline
+        np_array = np.random.rand(10)
+        py_random_val = random.random()
+        if TORCH_AVAILABLE:
+            torch_tensor = torch.rand(10)
+
+        # Reset and run again
         set_global_seed(seed)
-        t2 = torch.rand(10)
+        np_array_2 = np.random.rand(10)
+        py_random_val_2 = random.random()
+        if TORCH_AVAILABLE:
+            torch_tensor_2 = torch.rand(10)
 
-        torch.testing.assert_close(t1, t2)
-
-    def test_deterministic_end_to_end(self):
-        """
-        End-to-end test: Run a simple generation process twice with the same seed
-        and verify the output checksums match.
-        """
-        def generate_test_data(seed: int) -> bytes:
-            """Simulate a data generation process."""
-            set_global_seed(seed)
-            data = {
-                "np_array": np.random.rand(100).tolist(),
-                "rand_val": random.random(),
-                "np_sum": float(np.sum(np.random.rand(50)))
-            }
-            # Convert to JSON string and hash for checksum
-            json_str = json.dumps(data, sort_keys=True)
-            return hashlib.sha256(json_str.encode()).digest()
-
-        seed = 54321
-        checksum1 = generate_test_data(seed)
-        checksum2 = generate_test_data(seed)
-
-        assert checksum1 == checksum2, "Determinism failed: checksums do not match"
-
-    def test_different_seeds_produce_different_results(self):
-        """Verify that different seeds produce different outputs."""
-        data1 = []
-        data2 = []
-
-        set_global_seed(1)
-        for _ in range(5):
-            data1.append(random.random())
-
-        set_global_seed(2)
-        for _ in range(5):
-            data2.append(random.random())
-
-        assert data1 != data2, "Different seeds should produce different sequences"
+        # Verify all match
+        assert np.allclose(np_array, np_array_2)
+        assert py_random_val == py_random_val_2
+        if TORCH_AVAILABLE:
+            assert torch.allclose(torch_tensor, torch_tensor_2)

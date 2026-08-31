@@ -131,7 +131,7 @@ tests/
 
 ### Phase 2: Model Training (US-2, FR-002, FR-009)
 - **T004**: Implement `static_prior_mlp.py`.
-  - 2-layer MLP (Input: mean, variance -> Hidden: a moderate number of units -> Output: scaling factor).
+  - A shallow multi-layer perceptron (Input: mean, variance -> Hidden: a moderate number of units -> Output: scaling factor).
   - Justification: Mean and variance are sufficient statistics for the variance-matching objective in KVarN.
 - **T005**: Train model on `data/processed/training_set.csv`.
   - A standard train-test split, a sufficient number of training epochs, Adam optimizer.

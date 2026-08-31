@@ -1,3 +1,15 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `code/` directory being created is provided; the only artifacts\
+    \ shown relate to higher\u2011level feature specifications, not the required filesystem\
+    \ change. The deliverable (a non\u2011empty `code/` folder) is missing."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `data/` directory with the required `raw`, `processed`, and\
+    \ `results` subfolders is provided; the artifact is missing, so the task\u2019\
+    s deliverable has not been demonstrated."
 T001c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -30,13 +42,6 @@ T009:
     \ would include, for example, a config file (e.g., YAML/JSON), command\u2011line\
     \ flag handling, or documentation showing how to enable CPU\u2011only mode across\
     \ the project."
-T019a:
-  c: false
-  h: ed9f5626850a88ef262744de33a9a92b15f21934aee77e9ecaa5e2938efc1a4e
-  r: The provided `utils.py` ends abruptly and contains no function that uses `pyarrow`
-    to serialize data to a Parquet file, nor is there any `data/raw/synthetic_attention_matrices.parquet`
-    file present. Both the required serialization implementation and the output file
-    are missing.
 T019b:
   c: false
   h: 1e20f0ddbb756f46a0e1bff3e15b8038b4b0d53b101087e38413662d5b5fdf63

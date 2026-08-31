@@ -4263,3 +4263,622 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-29T07:00:32Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Sample size n=30 based on statistical power analysis for paired t-tests
+    with target power >= 0.8
+  claim_id: c_77b36f6d
+  context: 'T030b [US3] ... Requirement: Source for n=30: Standard statistical power
+    analysis for paired t-tests (target power >= 0.8).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Source for n=30: Standard statistical power analysis for paired t-tests
+    (target power >= 0.8).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:40:15Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Define epsilon sweep values [1e-8, 1e-6, 1e-4]
+  claim_id: c_e97021ad
+  context: 'T005b [P] [US3] [FR-007] Define initial epsilon sweep values in code/config.py.
+    Action: Define constant EPSILON_SWEEP_VALUES containing a range of small magnitudes
+    spanning multiple orders of magnitude (e.g., [1e-8, 1e-6, 1e-4]).'
+  evidence:
+    asserted: 1e-08
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: Define constant EPSILON_SWEEP_VALUES containing a range of small magnitudes
+    spanning multiple orders of magnitude (e.g., [1e-8, 1e-6, 1e-4]).
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: 168727f253342cd6d7a7e4859b009712121ffc92cc0da1a4a534c44dcabfd9f1
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T08:40:16Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Use 3-sigma threshold for OOD detection
+  claim_id: c_9a1c3089
+  context: 'T035a [US3] [Edge Cases] ... Requirement: Must compute a statistical distance
+    metric using a 3-sigma threshold based on training set std between input matrix
+    moments and training distribution moments.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a statistical distance metric using a 3-sigma threshold based
+    on training set std.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:42:39Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: MLP architecture with 2 hidden ReLU layers and 1 output
+  claim_id: c_8fc0804a
+  context: 'T022 [P] [US2] [FR-009] Define a multi-layer perceptron (MLP) model architecture...
+    Requirement: Architecture: Input (mean, variance) -> Hidden layer with a moderate
+    number of neurons and ReLU activation -> Hidden layer with a moderate number of
+    neurons and ReLU activation -> Output(1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Architecture: Input (mean, variance) -> Hidden layer with a moderate
+    number of neurons and ReLU activation -> Hidden layer with a moderate number of
+    neurons and ReLU activation -> Output(1).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:43:47Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: generate 10000 synthetic matrices
+  claim_id: c_19bfa5dc
+  context: 'T017c [US1] Implement and execute the Unified Data Generation and Labeling
+    script... Requirement: Must generate exactly 10,000 synthetic matrices (per FR-001,
+    config.NUM_MATRICES).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset must generate exactly 10,000 synthetic matrices.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:45:04Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: execute 30 independent simulation runs
+  claim_id: c_11dd5acf
+  context: 'T030b [US3] Execute batch_runner.py to generate a sufficient number of
+    independent simulation runs. Action: Execute with n=30 (per FR-006)... Requirement:
+    The sample size ''n'' is exactly 30 (per FR-006).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch runner must execute exactly 30 independent simulation runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:45:56Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: quantization step size Delta = (QUANTIZATION_MAX - QUANTIZATION_MIN)
+    / 255
+  claim_id: c_5c2d8e2b
+  context: 'T032_base [P] [US3] [FR-008] Implement Uniform INT8 Quantization Logic...
+    Requirement: Must include the derivation of the noise model variance based on
+    a uniform distribution over the quantization step, where the step size is defined
+    as Delta = (QUANTIZATION_MAX - QUANTIZATION_MIN) / 255.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Quantization_step_size_Delta_%3D_(QUANTIZATION_MAX_-_QUANTIZAT
+  kind: entity_fact
+  raw_text: The quantization step size is defined as Delta = (QUANTIZATION_MAX - QUANTIZATION_MIN)
+    / 255.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:46:00Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: OOD detection uses 3-sigma threshold
+  claim_id: c_bc050973
+  context: 'T035a [US3] [Edge Cases] Implement Out-of-Distribution (OOD) Detection
+    mechanism... Requirement: Must compute a statistical distance metric using a 3-sigma
+    threshold based on training set std between input matrix moments and training
+    distribution moments.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The OOD detection mechanism uses a 3-sigma threshold based on training
+    set std.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:46:24Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: paired t-test with n=30
+  claim_id: c_bc409468
+  context: 'T031 [US3] [FR-006] Implement and run statistical significance test (paired
+    t-test, n=30 runs)... Requirement: The sample size ''n'' is exactly 30 (per FR-006).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Paired_t-test_with_n%3D30
+  kind: entity_fact
+  raw_text: The statistical significance test is a paired t-test with a sample size
+    of n=30.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:47:14Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: MLP model uses 2-feature input (mean, variance)
+  claim_id: c_096fa955
+  context: 'T022 [P] [US2] [FR-009] Define a multi-layer perceptron (MLP) model architecture...
+    Constraint: Must use a fixed 2-feature input (mean, variance) as per Spec FR-002.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training model uses a fixed 2-feature input consisting of mean and
+    variance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:47:59Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 0
+  canonical: Epsilon sweep values range 1e-8 to 1e-4
+  claim_id: c_a3183481
+  context: T005b [US3] [FR-007] Define initial epsilon sweep values in code/config.py.
+  evidence:
+    asserted: 1e-08
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: Define constant EPSILON_SWEEP_VALUES containing a range of small magnitudes
+    spanning multiple orders of magnitude (e.g., [1e-8, 1e-6, 1e-4]).
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: 168727f253342cd6d7a7e4859b009712121ffc92cc0da1a4a534c44dcabfd9f1
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T08:49:29Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Sample size 30 based on power analysis target 0.8
+  claim_id: c_dd7aa818
+  context: T030b and T031 notes regarding the source for n=30.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Source for n=30: Standard statistical power analysis for paired t-tests
+    (target power >= 0.8).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:49:33Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Quantization step size formula
+  claim_id: c_585dbc26
+  context: T032_base [US3] [FR-008] Include the derivation of the noise model variance
+    based on a uniform distribution over the quantization step.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Quantization_step_size_formula
+  kind: entity_fact
+  raw_text: Step size is defined as Delta = (QUANTIZATION_MAX - QUANTIZATION_MIN)
+    / 255.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:50:34Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: OOD detection uses 3-sigma threshold
+  claim_id: c_4daa7cde
+  context: T035a [US3] [Edge Cases] Implement Out-of-Distribution (OOD) Detection
+    mechanism.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute a statistical distance metric using a 3-sigma threshold based
+    on training set std.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:51:11Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: MLP architecture 2 input features 1 output
+  claim_id: c_e475c2f1
+  context: T022 [P] [US2] [FR-009] Define a multi-layer perceptron (MLP) model architecture
+    with statistical moment features.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'MLP architecture: Input (mean, variance) -> Hidden layer with a moderate
+    number of neurons and ReLU activation -> Hidden layer with a moderate number of
+    neurons and ReLU activation -> Output(1).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:51:45Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Training log includes header and final epoch row
+  claim_id: c_b97566ac
+  context: T043 [P] [US2] Add explicit logging of training hyperparameters to data/metrics/training_log.csv.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_log_includes_header_and_final_epoch_row
+  kind: entity_fact
+  raw_text: Must include a header row and a row for the final epoch in training_log.csv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:52:38Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Statistical test sample size is 30
+  claim_id: c_9d66a38a
+  context: 'T031 Requirement: The sample size ''n'' is exactly 30 (per FR-006).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size for the statistical significance test is exactly 30 runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:54:10Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Quantization step size formula for 255 steps
+  claim_id: c_9cf4507e
+  context: 'T032_base Requirement: Must include the derivation of the noise model
+    variance based on a uniform distribution over the quantization step, where the
+    step size is defined as Delta = (QUANTIZATION_MAX - QUANTIZATION_MIN) / 255.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Quantization_step_size_formula_for_255_steps
+  kind: entity_fact
+  raw_text: The quantization step size is defined as Delta = (QUANTIZATION_MAX - QUANTIZATION_MIN)
+    / 255.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:54:15Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Epsilon sweep values range from 1e-8 to 1e-4
+  claim_id: c_22086efb
+  context: 'T005b Action: Define constant EPSILON_SWEEP_VALUES containing a range
+    of small magnitudes spanning multiple orders of magnitude (e.g., [1e-8, 1e-6,
+    1e-4]).'
+  evidence:
+    asserted: 1e-08
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: The epsilon sweep values include a range spanning multiple orders of magnitude
+    (e.g., [1e-8, 1e-6, 1e-4]).
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: 168727f253342cd6d7a7e4859b009712121ffc92cc0da1a4a534c44dcabfd9f1
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T08:54:15Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Target statistical power is 0.8
+  claim_id: c_e74cd404
+  context: 'T030b Requirement: Source for n=30: Standard statistical power analysis
+    for paired t-tests (target power >= 0.8).'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.8'
+    filled: true
+  kind: numeric
+  raw_text: The target statistical power for the paired t-tests is >= 0.8.
+  resolved_value: '0.8'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T08:54:32Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: OOD detection uses 3-sigma threshold
+  claim_id: c_b545f548
+  context: 'T035a Requirement: Must compute a statistical distance metric using a
+    3-sigma threshold based on training set std between input matrix moments and training
+    distribution moments.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The OOD detection mechanism uses a 3-sigma threshold based on training
+    set std.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:54:33Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Quantization scheme is Uniform INT8
+  claim_id: c_78ffccdd
+  context: 'T032_base Requirement: Must implement the quantization scheme defined
+    in config.py (QUANTIZATION_MAX/MIN) for Uniform INT8 Quantization.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Quantization_scheme_is_Uniform_INT8
+  kind: entity_fact
+  raw_text: The quantization scheme uses Uniform INT8 Quantization.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:55:03Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: MLP model uses Xavier initialization
+  claim_id: c_dc8ea4ba
+  context: 'T022 Requirement: Use Xavier initialization.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MLP_model_uses_Xavier_initialization
+  kind: entity_fact
+  raw_text: The MLP model uses Xavier initialization.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:55:52Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: MLP model uses Adam optimizer
+  claim_id: c_27dd9640
+  context: 'T022 Requirement: Use MSE loss and Adam optimizer.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MLP_model_uses_Adam_optimizer
+  kind: entity_fact
+  raw_text: The MLP model uses an Adam optimizer.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:56:51Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Baseline predictor formula is 1 over variance
+  claim_id: c_7b37a787
+  context: 'T024 Deliverable: Implement closed-form baseline predictor (s = 1/variance)
+    in code/model_training/baselines.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline predictor uses the formula s = 1/variance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:57:27Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: PyTorch version is 2.1.0+cpu
+  claim_id: c_c6d39f66
+  context: 'T001e Action: Create requirements.txt with numpy, scipy, torch==2.1.0+cpu
+    --index-url https://download.pytorch.org/whl/cpu, scikit-learn, pandas, pyarrow,
+    pytest, matplotlib.'
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The PyTorch version is pinned to 2.1.0+cpu.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T08:57:28Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 0
+  canonical: Define epsilon sweep values range [1e-8, 1e-6, 1e-4]
+  claim_id: c_8d7d6872
+  context: 'T005b [P] [US3] [FR-007] Define initial epsilon sweep values in code/config.py.
+    Action: Define constant EPSILON_SWEEP_VALUES containing a range of small magnitudes
+    spanning multiple orders of magnitude (e.g., [1e-8, 1e-6, 1e-4]).'
+  evidence:
+    asserted: 1e-08
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: Define constant EPSILON_SWEEP_VALUES containing a range of small magnitudes
+    spanning multiple orders of magnitude (e.g., [1e-8, 1e-6, 1e-4]).
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: 168727f253342cd6d7a7e4859b009712121ffc92cc0da1a4a534c44dcabfd9f1
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T08:58:21Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Sample size of 30 based on statistical power analysis for paired t-tests
+    with target power >= 0.8
+  claim_id: c_9215039d
+  context: 'T030b [US3] ... Requirement: Source for n=30: Standard statistical power
+    analysis for paired t-tests (target power >= 0.8).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Source for n=30: Standard statistical power analysis for paired t-tests
+    (target power >= 0.8).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:58:24Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Compute OOD detection using 3-sigma threshold based on training set std
+  claim_id: c_fc73332d
+  context: 'T035a [US3] [Edge Cases] ... Requirement: Must compute a statistical distance
+    metric using a 3-sigma threshold based on training set std between input matrix
+    moments and training distribution moments.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must compute a statistical distance metric using a 3-sigma threshold based
+    on training set std between input matrix moments and training distribution moments.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T08:59:01Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Config default NUM_RUNS is 30
+  claim_id: c_40c3018c
+  context: T009 [P] [US1] Setup environment configuration management in code/config.py
+    with a Config dataclass containing ... NUM_RUNS=30.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: NUM_RUNS=30 in Config dataclass.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T09:00:11Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 2
+  canonical: Quantization step size formula Delta = (MAX - MIN) / 255
+  claim_id: c_465f2e1a
+  context: 'T032_base [P] [US3] [FR-008] ... Requirement: Must include the derivation
+    of the noise model variance based on a uniform distribution over the quantization
+    step, where the step size is defined as Delta = (QUANTIZATION_MAX - QUANTIZATION_MIN)
+    / 255.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Quantization_step_size_formula_Delta_=_(MAX_-_MIN)_/_255
+  kind: entity_fact
+  raw_text: Quantization step size is defined as Delta = (QUANTIZATION_MAX - QUANTIZATION_MIN)
+    / 255.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T09:00:15Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: 'MLP architecture: 2 inputs to 1 output via 2 hidden ReLU layers'
+  claim_id: c_b9f19258
+  context: 'T022 [P] [US2] [FR-009] Define a multi-layer perceptron (MLP) model architecture
+    with statistical moment features (mean, variance) in code/model_training/mlp_model.py.
+    Requirement: Architecture: Input (mean, variance) -> Hidden layer with a moderate
+    number of neurons and ReLU activation -> Hidden layer with a moderate number of
+    neurons and ReLU activation -> Output(1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Architecture: Input (mean, variance) -> Hidden layer with a moderate
+    number of neurons and ReLU activation -> Hidden layer with a moderate number of
+    neurons and ReLU activation -> Output(1).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T09:00:16Z'

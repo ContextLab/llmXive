@@ -41,6 +41,12 @@ class Config:
         "min": 0.0,
         "max": 0.1
     })
+    
+    # Quantization constants for Uniform INT8 Quantization (T009b)
+    # FR-008: Required for T032_base quantization logic.
+    # Uniform INT8 range is typically [-128, 127] for symmetric quantization.
+    QUANTIZATION_MIN: int = -128
+    QUANTIZATION_MAX: int = 127
 
 _config: Optional[Config] = None
 
