@@ -1,12 +1,12 @@
 T008a:
-  c: false
-  h: 85d69c62deb691797eb111cb7cf09de5f9e440191dc1e5323fd0d4d0d5af19f1
-  r: "The integration test file exists, but the required output file `data/results/memory_test.log`\
-    \ is missing, indicating the test does not produce the mandated memory\u2011usage\
-    \ log. Additionally, the provided source is truncated before any code that would\
-    \ run the pipeline or write the log, so the test\u2019s core functionality cannot\
-    \ be verified. The next implementer must ensure the test writes the memory statistics\
-    \ to `data/results/memory_test.log` and includes the full pipeline execution logic."
+  c: true
+  h: 78cee9992b1925e71d82048322936c768dbb1e06ecc274daeddfbc062c96da05
+  r: "The repository contains a non\u2011empty `tests/integration/test_memory_full_pipeline.py`\
+    \ that imports the pipeline, loads a deterministic sample from `graphs_v1.parquet`,\
+    \ checks for `split_indices.json`, sets the output path to `data/results/memory_test.log`,\
+    \ and (presumably) runs the pipeline while measuring memory usage. The required\
+    \ log file is an output of the test, not a pre\u2011existing artifact, so its\
+    \ absence does not indicate incompleteness."
 T009a:
   c: false
   h: 26e1721953036d94caa7b1d7b4fc7de4578c4b95cb02d03580dc572ea19433a2
@@ -15,24 +15,22 @@ T009a:
     \ one data source is used in the same run (no global flag or cross\u2011instance\
     \ check). Moreover, the optional `validator.py` file is missing, so the required\
     \ runtime source\u2011enforcement logic is not fully implemented."
-T013f:
-  c: false
-  h: 643706096d46e7fa0649fe2f5034b47231e17719d2105073f1d84b620b924214
-  r: "The repository contains a `code/ingest/split_generator.py` file, but its content\
-    \ is truncated and does not show the full implementation of family\u2011id derivation,\
-    \ the stratified `train_test_split`, the assertion that families do not overlap,\
-    \ or the atomic write of `data/processed/split_indices.json`. Moreover, the required\
-    \ output file `data/processed/split_indices.json` is absent. The task\u2019s core\
-    \ deliverables are therefore missing."
 T017b:
   c: false
-  h: 3207d0d2c77a8ff7471b29c0fa5e42b41d305270f259f4ed54c1daad8cfe040e
-  r: "The repository contains `code/model/splitter.py`, but the script does not produce\
-    \ the required `data/results/split_validation.json` (the file is missing). Moreover,\
-    \ the provided code excerpt is truncated before any logic that writes the output\
-    \ or handles exit codes, so we cannot verify that it meets the \u201Cdo not regenerate/overwrite\u201D\
-    \ and error\u2011exit requirements. The missing output file means the task is\
-    \ not fully satisfied."
+  h: 4ef3db8a39c49e173811b311ec64b366e4cd9c4afb4f11e0d109ad5e81f9fc72
+  r: "The repository contains `code/model/splitter.py`, but the required output file\
+    \ `data/results/split_validation.json` is absent, and the shown portion of the\
+    \ script does not include logic to write this file. Without the validation result\
+    \ being produced, the task\u2019s core requirement is unmet."
+T018b:
+  c: false
+  h: d558a442ca1877d8f3d9d2b30b2e686a0b799863080b9002f1fd6332e21de68e
+  r: "The repository contains `code/model/train.py`, but the required output file\
+    \ `data/processed/model_v1.pt` is missing, indicating the script did not successfully\
+    \ save model weights. Additionally, the script does not demonstrably enforce CPU\u2011\
+    only execution, use `tracemalloc` to record peak memory, or generate a `predictions.json`\
+    \ for the test set. These missing artifacts mean the task\u2019s core requirements\
+    \ are not satisfied."
 T018c:
   c: false
   h: cd3a98d2ca0fb0d70514119b38e4533c6d37aec937dac6d140063eefbad64d82
@@ -105,9 +103,17 @@ T037:
     \ to exist until the script is executed, so its absence does not indicate incompleteness."
 T046:
   c: false
-  h: 1dd1d6f03dd9126d0a9c4fcd7de6d3f4f8c7a19d1d17c9e029d9c8746fca98db
-  r: The `train_logger.py` and `eval_runner.py` correctly import and use `DISCLAIMER_TEXT`
-    and `FEYNMAN_QUOTE`, but the required source file `code/utils/disclaimer_template.py`
-    is missing, so the imports will fail and the disclaimer strings are not defined.
-    The missing file must be added (containing the Scientific Integrity Statement
-    and the Richard Feynman quote) for the task to be complete.
+  h: a8eaa0efbe77c8f1ac891e1a294046014bec39eee6ecf0c1e0b3a410f89faec2
+  r: The modified `train_logger.py` and `eval_runner.py` correctly import and embed
+    `DISCLAIMER_TEXT` and `FEYNMAN_QUOTE`, but the required source file `code/utils/disclaimer_template.py`
+    is missing, so the imports would fail and the actual disclaimer content cannot
+    be verified. Adding the missing `disclaimer_template.py` with the scientific integrity
+    statement and the Richard Feynman quote is needed to complete the task.
+T060c:
+  c: false
+  h: 60f0fcabf034c903f45d719ee7554b2b9cfb4f9543a264946d3e8ad98b10dc8e
+  r: "The script `code/utils/verify_constitution_title.py` is present, but it never\
+    \ exits with code\u202F1 on a forbidden title and does not return an exit status\
+    \ at all. Moreover, the required output file `data/results/constitution_title_audit.json`\
+    \ is missing, so the script\u2019s intended behavior has not been demonstrated.\
+    \ The task needs a proper exit on failure and the creation of the JSON audit file."

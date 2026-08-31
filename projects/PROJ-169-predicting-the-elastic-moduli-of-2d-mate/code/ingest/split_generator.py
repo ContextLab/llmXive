@@ -1,6 +1,9 @@
-"""
-T013f: Generate Real Family-Based Split
-Creates a stratified train/test split based on chemical prototype/family.
+"""Generate a real family-based stratified split for 2D materials.
+
+This module implements Task T013f: Generate Real Family-Based Split.
+It consumes `data/processed/graphs_v1.parquet`, derives chemical prototypes
+(family_id) using pymatgen StructureMatcher, and produces a stratified
+train/test split ensuring no family appears in both sets (SC-002 compliance).
 """
 from __future__ import annotations
 
@@ -8,6 +11,7 @@ import argparse
 import json
 import logging
 import os
+import pickle
 import sys
 import tempfile
 from pathlib import Path
@@ -15,368 +19,314 @@ from typing import Any, Dict, List, Set, Tuple
 
 import numpy as np
 import pandas as pd
-from pymatgen.core.structure import Structure, StructureMatcher
+from pymatgen.core.structure import Structure
+from pymatgen.core.lattice import Lattice
+from pymatgen.analysis.structure_matcher import StructureMatcher
 from sklearn.model_selection import train_test_split
-
-# Import from local utils
-from utils.config import enforce_reproducibility
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
-def load_graphs_from_parquet(parquet_path: str) -> pd.DataFrame:
-    """
-    Load graphs from a parquet file.
-    Expects columns: 'structure', 'family_id' (if pre-existing), or raw data.
-    For T013f, we assume the input has structure data (CIF or dict) or we load structures.
-    Since T013d4 outputs `graphs_v1.parquet` with `node_features`, `edge_features`, `target_moduli`, `family_id`,
-    and potentially `structure` (as a dict or string), we need to reconstruct Structure objects.
-    
-    If 'structure' column is missing or not reconstructable, we might need to derive it from node/edge features,
-    but typically the parquet from T013d4 should contain the structure info or we rely on the `family_id` 
-    if it was already computed. However, T013f requires *deriving* family_id using StructureMatcher.
-    So we must have the actual Structure objects.
-    
-    Assumption: The parquet file from T013d4 contains a 'structure' column with pymatgen Structure dicts 
-    or a serialized representation. If not, this task cannot proceed without the raw structures.
-    Given the task description, we assume the parquet contains the necessary structural data.
-    """
-    if not os.path.exists(parquet_path):
-        raise FileNotFoundError(f"Parquet file not found: {parquet_path}")
-    
-    df = pd.read_parquet(parquet_path)
-    logger.info(f"Loaded {len(df)} graphs from {parquet_path}")
+# Constants
+INPUT_PARQUET = "data/processed/graphs_v1.parquet"
+OUTPUT_SPLIT = "data/processed/split_indices.json"
+RANDOM_STATE = 42
+# StructureMatcher tolerances as per spec
+LATTICE_TOL = 0.01
+POSITION_TOL = 0.1
+ANGLE_TOL = 5.0
+
+def load_graphs_from_parquet(path: str) -> pd.DataFrame:
+    """Load the graphs DataFrame from the specified parquet file."""
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Input file not found: {path}")
+    logger.info(f"Loading graphs from {path}")
+    df = pd.read_parquet(path)
+    required_cols = ["structure_pickle", "cif_raw", "family_id"]
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in {path}: {missing}")
+    logger.info(f"Loaded {len(df)} graphs")
     return df
 
-def derive_family_id(structure: Structure, tolerance: float = 0.01) -> str:
+def derive_family_id(structure: Structure, matcher: StructureMatcher) -> str:
     """
-    Derive a family ID for a single structure based on its prototype.
-    Since we don't have a global reference set here, we return a hash of the structure's
-    formula and lattice parameters as a proxy, OR we assume the 'family_id' column 
-    in the input parquet is already correct and we just need to validate it.
-    
-    However, the task explicitly says: "Derive `family_id` by loading structures and using 
-    `pymatgen.core.structure.StructureMatcher`". This implies we need to group structures 
-    by similarity.
-    
-    Strategy:
+    Derive a canonical family ID for a structure.
+    In a real pipeline, we would cluster all structures.
+    Here, we use the structure's formula and a hash of its reduced cell
+    as a proxy for the 'family' if we cannot run full clustering in memory.
+    However, the spec requires using StructureMatcher to group them.
+    To do this correctly without loading all into memory at once (which might OOM),
+    we implement a greedy clustering approach or use a hash of the reduced cell
+    as a unique identifier for the prototype.
+
+    Since StructureMatcher compares two structures, to assign a family_id to a
+    single structure in a batch, we typically:
     1. Load all structures.
-    2. Iterate through them, assigning a family ID based on the first unmatched structure.
-    3. Use StructureMatcher to check if a new structure belongs to an existing family.
-    """
-    # This function is a placeholder for the logic inside assign_families.
-    # We cannot derive a unique family ID for a single structure without context.
-    # The actual grouping happens in assign_families.
-    return ""
+    2. Run a clustering algorithm (e.g., hierarchical or greedy) using StructureMatcher.
+    3. Assign IDs.
 
-def assign_families(structures: List[Structure], 
-                    lattice_tol: float = 0.01, 
-                    position_tol: float = 0.1, 
-                    angle_tol: float = 5.0) -> Dict[int, str]:
+    Given the constraints of a single script and potential memory limits,
+    we will attempt to load all, compute a 'reduced cell signature' which is
+    invariant to symmetry, and use that as the family_id.
+    A more robust way with StructureMatcher requires pairwise comparison.
+    Let's implement a greedy clustering:
+    - Pick first structure as prototype 0.
+    - For each subsequent structure, check if it matches any existing prototype.
+    - If yes, assign that family ID. If no, create new prototype.
+
+    To avoid O(N^2) comparisons if N is huge, we rely on the fact that
+    StructureMatcher is expensive. We will limit this to a reasonable sample
+    if the dataset is massive, but the task says "Consume graphs_v1.parquet".
+    If the file is too large, we might need to stream.
+    For now, we assume the file fits in memory for the clustering step
+    (or we sample if it doesn't, but we must output a split for the data we have).
+
+    Actually, a better approach for the 'family_id' column in the parquet
+    (which this script expects to exist or create) is to compute it here.
+    The task says "Derive family_id by using ... StructureMatcher".
+    We will compute a 'reduced cell' fingerprint.
     """
-    Group structures into families using StructureMatcher.
-    Returns a mapping: {index_in_list: family_id_string}
+    # Get the reduced cell to find a canonical representation
+    # pymatgen's get_reduced_structure() is good but might not be unique enough.
+    # StructureMatcher uses a reduced cell internally.
+    # We will use the string representation of the reduced cell parameters
+    # and composition as a key.
+    try:
+        reduced = structure.get_reduced_structure()
+        # Create a hashable key
+        key = (
+            tuple(sorted(reduced.composition.elements)),
+            reduced.lattice.abc,
+            reduced.lattice.angles,
+        )
+        # Round to avoid float noise
+        key = (
+            key[0],
+            tuple(round(x, 4) for x in key[1]),
+            tuple(round(x, 4) for x in key[2]),
+        )
+        return str(key)
+    except Exception:
+        # Fallback to formula
+        return structure.composition.reduced_formula
+
+def assign_families(df: pd.DataFrame) -> pd.DataFrame:
     """
-    logger.info(f"Starting family assignment for {len(structures)} structures...")
+    Assign family_id to each row in the DataFrame.
+    We reconstruct structures from pickle or CIF and compute a canonical family ID.
+    """
+    logger.info("Assigning family IDs based on structural prototypes...")
     matcher = StructureMatcher(
-        ltol=lattice_tol,
-        stol=position_tol,
-        angle_tol=angle_tol,
-        primitive_cell=True,
-        scale=True
+        ltol=LATTICE_TOL,
+        stol=POSITION_TOL,
+        angle_tol=ANGLE_TOL,
     )
-    
-    families: Dict[str, List[int]] = {}
-    family_counter = 0
-    representative_structures: List[Structure] = []
-    
-    # We need to map index -> family_id
-    index_to_family: Dict[int, str] = {}
-    
-    for i, struct in enumerate(structures):
-        assigned = False
-        for rep_idx, rep_struct in enumerate(representative_structures):
-            if matcher.fit(struct, rep_struct):
-                family_id = f"family_{list(families.keys())[rep_idx]}" # Get the key corresponding to rep_idx
-                # Actually, let's track families by their representative index
-                # Better: families is a dict {family_id: [indices]}
-                pass
-        
-        # Re-implementing the loop logic clearly:
-        # families: List[List[int]] where each inner list is indices of a family
-        # representatives: List[Structure]
-        
-        pass
 
-    # Correct logic:
-    families_indices: List[List[int]] = []
-    representatives: List[Structure] = []
-    
-    for i, struct in enumerate(structures):
-        found_match = False
-        for rep_idx, rep_struct in enumerate(representatives):
-            if matcher.fit(struct, rep_struct):
-                families_indices[rep_idx].append(i)
-                found_match = True
+    # We need to group structures that are equivalent.
+    # A simple hash of reduced structure might not be 100% accurate for all
+    # cases StructureMatcher handles, but it's efficient.
+    # To strictly follow "StructureMatcher ... to group them", we should do clustering.
+    # However, O(N^2) is risky.
+    # Let's try a hybrid: use reduced structure hash as a fast pre-group,
+    # then verify with StructureMatcher within groups if needed.
+    # Or, simpler: just use the reduced structure signature as the family_id.
+    # The spec says "Derive family_id by using ... StructureMatcher ... to group them".
+    # This implies the grouping logic.
+    # We will implement a greedy clustering if N is small (< 2000),
+    # otherwise we fall back to the reduced structure hash which is the standard
+    # proxy for 'prototype' in high-throughput (and what StructureMatcher uses internally).
+
+    family_ids = []
+    prototypes = []  # List of (Structure, family_id)
+
+    # If the dataset is too large, we might need to sample or stream.
+    # Assuming it fits for now.
+    count = 0
+    for idx, row in df.iterrows():
+        count += 1
+        if count % 100 == 0:
+            logger.info(f"Processing {count}/{len(df)}")
+
+        # Reconstruct structure
+        structure = None
+        try:
+            if "structure_pickle" in row and pd.notna(row["structure_pickle"]):
+                # Handle bytes or string
+                raw = row["structure_pickle"]
+                if isinstance(raw, str):
+                    # If it was base64 encoded or similar, decode?
+                    # Assuming raw bytes or pickled object
+                    # If it's a string representation of bytes, we might need to handle it.
+                    # Let's assume it's the raw bytes from pickle.dumps
+                    structure = pickle.loads(raw)
+                else:
+                    structure = pickle.loads(raw)
+            elif "cif_raw" in row and pd.notna(row["cif_raw"]):
+                from pymatgen.io.cif import CifParser
+                parser = CifParser.from_string(row["cif_raw"])
+                structure = parser.get_structures()[0]
+            else:
+                logger.warning(f"Row {idx} has no structure data, skipping")
+                family_ids.append("unknown")
+                continue
+        except Exception as e:
+            logger.warning(f"Failed to parse structure at {idx}: {e}")
+            family_ids.append("unknown")
+            continue
+
+        if structure is None:
+            family_ids.append("unknown")
+            continue
+
+        # Try to match against existing prototypes
+        found = False
+        for proto_struct, fid in prototypes:
+            if matcher.fit(structure, proto_struct):
+                family_ids.append(fid)
+                found = True
                 break
-        
-        if not found_match:
-            families_indices.append([i])
-            representatives.append(struct)
-    
-    # Create the mapping
-    index_to_family_map: Dict[int, str] = {}
-    for f_idx, indices in enumerate(families_indices):
-        family_name = f"family_{f_idx:04d}"
-        for idx in indices:
-            index_to_family_map[idx] = family_name
-    
-    logger.info(f"Assigned {len(families_indices)} unique families.")
-    return index_to_family_map
 
-def generate_family_split(df: pd.DataFrame, 
-                          random_state: int = 42, 
-                          test_size: float = 0.2) -> Tuple[List[int], List[int]]:
+        if not found:
+            # New family
+            new_fid = f"family_{len(prototypes)}"
+            prototypes.append((structure, new_fid))
+            family_ids.append(new_fid)
+
+    df["family_id"] = family_ids
+    logger.info(f"Assigned {len(prototypes)} unique families")
+    return df
+
+def generate_family_split(df: pd.DataFrame, test_size: float = 0.2) -> Tuple[List[int], List[int]]:
     """
     Generate a stratified split based on family_id.
-    Returns (train_indices, test_indices).
+    Ensures that no family appears in both train and test.
     """
-    # Ensure we have family_id column
-    if 'family_id' not in df.columns:
-        # If not present, we must derive it.
-        # This is expensive. We assume T013d4 might have it, or we compute it here.
-        # Given the task, we compute it if missing.
-        logger.warning("family_id column missing. Deriving from structures...")
-        structures = []
-        for _, row in df.iterrows():
-            # Try to reconstruct Structure from row data
-            # This depends on how T013d4 serializes structures.
-            # If it's a dict with 'species', 'lattice', 'coords', we can use Structure.from_dict.
-            if 'structure' in row:
-                s_data = row['structure']
-                if isinstance(s_data, dict):
-                    try:
-                        s = Structure.from_dict(s_data)
-                        structures.append(s)
-                    except Exception as e:
-                        logger.error(f"Failed to parse structure: {e}")
-                        structures.append(None)
-                else:
-                    structures.append(None)
-            else:
-                structures.append(None)
-        
-        # Filter out None
-        valid_indices = [i for i, s in enumerate(structures) if s is not None]
-        valid_structs = [structures[i] for i in valid_indices]
-        
-        if not valid_structs:
-            raise RuntimeError("No valid structures found to assign families.")
-        
-        family_map = assign_families(valid_structs)
-        
-        # Map back to full df indices
-        # valid_indices correspond to df indices? Assuming yes.
-        df['family_id'] = None
-        for idx, f_id in family_map.items():
-            df.iloc[valid_indices[idx], df.columns.get_loc('family_id')] = f_id
-        
-        # Drop rows without family_id (invalid structures)
-        df = df.dropna(subset=['family_id']).reset_index(drop=True)
-        # Re-indexing might break external references, but for split generation it's okay.
-        # However, we need to return indices relative to the *original* or *current* df?
-        # The task says "Consume graphs_v1.parquet". The output split_indices.json should
-        # contain indices into the *current* loaded dataframe (which is the processed one).
-        # If we dropped rows, the indices are 0..N-1 of the filtered df.
-        # But wait, T013d4 output might be the ground truth. If we drop rows, we are changing the dataset.
-        # Better: Keep all rows, but if we can't assign a family, maybe exclude them from split?
-        # For now, assume all have valid structures.
-    
-    # Stratified split
-    # We need to split indices, not the dataframe itself, to preserve order if needed?
-    # train_test_split returns arrays of indices if we pass indices.
-    
-    indices = df.index.tolist()
-    families = df['family_id'].tolist()
-    
-    try:
-        train_idx, test_idx = train_test_split(
-            indices,
-            test_size=test_size,
-            random_state=random_state,
-            stratify=families
-        )
-    except Exception as e:
-        # If stratification fails (e.g., small families), we might need to adjust.
-        # But the requirement is strict: "Ensure no training family appears in the test set."
-        # train_test_split with stratify ensures this.
-        logger.error(f"Stratified split failed: {e}")
-        raise
-    
-    return train_idx, test_idx
+    logger.info("Generating family-based stratified split...")
+    family_ids = df["family_id"].tolist()
+    indices = list(range(len(df)))
 
-def verify_family_separation(train_indices: List[int], 
-                             test_indices: List[int], 
-                             df: pd.DataFrame) -> None:
-    """
-    Verify that no family appears in both train and test sets.
-    Exits with code 1 if violation found.
-    """
-    train_families = set(df.loc[train_indices, 'family_id'].unique())
-    test_families = set(df.loc[test_indices, 'family_id'].unique())
-    
-    intersection = train_families.intersection(test_families)
-    
+    # We need to split indices such that the set of families in train
+    # and test are disjoint.
+    # sklearn's train_test_split with stratify=family_ids ensures
+    # the *proportion* of families is preserved, but it DOES NOT
+    # guarantee that a specific family is entirely in train or test.
+    # To guarantee disjoint families, we must split on the *unique families*.
+
+    unique_families = list(set(family_ids))
+    # Remove 'unknown' if present to avoid splitting unknowns unpredictably
+    if "unknown" in unique_families:
+        unique_families.remove("unknown")
+        # We can put 'unknown' in train or test, let's put in train
+        unknown_indices = [i for i, f in enumerate(family_ids) if f == "unknown"]
+    else:
+        unknown_indices = []
+
+    # Split the unique families
+    train_families, test_families = train_test_split(
+        unique_families,
+        test_size=test_size,
+        random_state=RANDOM_STATE,
+        shuffle=True
+    )
+
+    train_indices = []
+    test_indices = []
+
+    for i, fid in enumerate(family_ids):
+        if fid in train_families:
+            train_indices.append(indices[i])
+        elif fid in test_families:
+            test_indices.append(indices[i])
+        else:
+            # 'unknown' or other
+            train_indices.append(indices[i]) # Default to train
+
+    logger.info(f"Train size: {len(train_indices)}, Test size: {len(test_indices)}")
+
+    # Verify disjoint
+    train_fam_set = set(family_ids[i] for i in train_indices)
+    test_fam_set = set(family_ids[i] for i in test_indices)
+    intersection = train_fam_set.intersection(test_fam_set)
     if intersection:
-        logger.error(f"SC-002 VIOLATION: Families found in both train and test: {intersection}")
-        logger.error("Exiting with code 1.")
-        sys.exit(1)
-    
-    logger.info("Family separation verified. No overlap found.")
+        logger.error(f"Family overlap detected: {intersection}")
+        raise ValueError(f"SC-002 Violation: Families in both sets: {intersection}")
 
-def save_split(train_indices: List[int], 
-               test_indices: List[int], 
-               output_path: str) -> None:
-    """
-    Atomically write the split to JSON.
-    Uses tempfile.mkstemp in the same directory, then os.rename.
-    """
-    output_dir = os.path.dirname(output_path)
-    if not output_dir:
-        output_dir = "."
-    
+    return train_indices, test_indices
+
+def verify_family_separation(train_indices: List[int], test_indices: List[int], df: pd.DataFrame) -> bool:
+    """Verify that no family ID appears in both train and test."""
+    train_fams = set(df.iloc[train_indices]["family_id"].tolist())
+    test_fams = set(df.iloc[test_indices]["family_id"].tolist())
+    overlap = train_fams.intersection(test_fams)
+    if overlap:
+        logger.error(f"Verification failed: Overlapping families: {overlap}")
+        return False
+    logger.info("Verification passed: No overlapping families.")
+    return True
+
+def save_split(train_indices: List[int], test_indices: List[int], output_path: str) -> None:
+    """Atomically write the split to JSON."""
+    split_data = {
+        "train_indices": train_indices,
+        "test_indices": test_indices,
+        "random_state": RANDOM_STATE,
+        "test_size": 0.2,
+        "num_families_train": len(set(df.iloc[train_indices]["family_id"].tolist())),
+        "num_families_test": len(set(df.iloc[test_indices]["family_id"].tolist())),
+    }
+
+    output_dir = os.path.dirname(output_path) or "."
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Atomic write: mkstemp in same dir, then rename
+    fd, temp_path = tempfile.mkstemp(suffix=".json", dir=output_dir)
     try:
-        fd, temp_path = tempfile.mkstemp(suffix=".json", dir=output_dir)
-        logger.info(f"Writing split to temporary file: {temp_path}")
-        
-        split_data = {
-            "train_indices": train_indices,
-            "test_indices": test_indices,
-            "metadata": {
-                "train_size": len(train_indices),
-                "test_size": len(test_indices),
-                "random_state": 42
-            }
-        }
-        
-        with os.fdopen(fd, 'w') as f:
+        with os.fdopen(fd, "w") as f:
             json.dump(split_data, f, indent=2)
-        
         os.rename(temp_path, output_path)
-        logger.info(f"Split successfully written to {output_path}")
-        
-    except Exception as e:
-        logger.error(f"Failed to write split atomically: {e}")
-        # Clean up temp file if it exists
-        if 'temp_path' in locals() and os.path.exists(temp_path):
+        logger.info(f"Split saved to {output_path}")
+    except Exception:
+        if os.path.exists(temp_path):
             os.remove(temp_path)
-        sys.exit(1)
+        raise
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate family-based stratified split.")
-    parser.add_argument("--input", type=str, required=True, help="Path to input parquet file (graphs_v1.parquet).")
-    parser.add_argument("--output", type=str, required=True, help="Path to output split JSON file.")
-    parser.add_argument("--test-size", type=float, default=0.2, help="Fraction of data for test set.")
-    parser.add_argument("--random-state", type=int, default=42, help="Random seed.")
-    
-    args = parser.parse_args()
-    
-    # Enforce reproducibility
-    enforce_reproducibility()
-    
-    logger.info(f"Loading data from {args.input}...")
-    df = load_graphs_from_parquet(args.input)
-    
-    if df.empty:
-        logger.error("Input dataframe is empty.")
-        sys.exit(1)
-    
-    logger.info("Assigning families...")
-    # If family_id is missing, we derive it.
-    if 'family_id' not in df.columns:
-        # Derive structures from the dataframe
-        # This assumes the dataframe has a 'structure' column or equivalent.
-        # If not, we might need to reconstruct from node/edge features, which is complex.
-        # For now, assume 'structure' column exists as a dict.
-        structures = []
-        valid_indices = []
-        for i, row in df.iterrows():
-            if 'structure' in row and isinstance(row['structure'], dict):
-                try:
-                    s = Structure.from_dict(row['structure'])
-                    structures.append(s)
-                    valid_indices.append(i)
-                except Exception as e:
-                    logger.warning(f"Skipping invalid structure at index {i}: {e}")
-            else:
-                logger.warning(f"Skipping row {i}: missing or invalid structure data.")
-        
-        if not structures:
-            logger.error("No valid structures found to assign families.")
-            sys.exit(1)
-        
-        family_map = assign_families(structures)
-        
-        # Assign to dataframe
-        # We need to map the index in 'structures' back to the dataframe index
-        df['family_id'] = None
-        for local_idx, global_idx in enumerate(valid_indices):
-            df.iloc[global_idx, df.columns.get_loc('family_id')] = family_map[local_idx]
-        
-        # Drop rows without family_id
-        df = df.dropna(subset=['family_id']).reset_index(drop=True)
-        logger.info(f"Filtered to {len(df)} valid structures with assigned families.")
-    else:
-        # If family_id exists, we assume it's correct, but we could validate it?
-        # The task says "Derive family_id", so we might ignore existing and re-derive?
-        # "Derive family_id by loading structures..." implies we must compute it.
-        # So we should re-derive even if it exists, to ensure consistency with StructureMatcher.
-        # But that's expensive. Let's assume if it exists, it was derived correctly.
-        # However, to be safe and follow instructions strictly:
-        logger.info("Re-deriving family_id to ensure consistency with StructureMatcher...")
-        # (Same logic as above, but we skip the 'if not in columns' check and always run)
-        # For brevity in this implementation, if it exists, we trust it? 
-        # No, the task says "Derive". So we must run the assignment.
-        # Let's do it unconditionally if we can extract structures.
-        structures = []
-        valid_indices = []
-        for i, row in df.iterrows():
-            if 'structure' in row and isinstance(row['structure'], dict):
-                try:
-                    s = Structure.from_dict(row['structure'])
-                    structures.append(s)
-                    valid_indices.append(i)
-                except Exception as e:
-                    logger.warning(f"Skipping invalid structure at index {i}: {e}")
-        
-        if not structures:
-            logger.error("No valid structures found to assign families.")
-            sys.exit(1)
-        
-        family_map = assign_families(structures)
-        df['family_id'] = None
-        for local_idx, global_idx in enumerate(valid_indices):
-            df.iloc[global_idx, df.columns.get_loc('family_id')] = family_map[local_idx]
-        df = df.dropna(subset=['family_id']).reset_index(drop=True)
-    
-    logger.info("Generating split...")
-    train_indices, test_indices = generate_family_split(
-        df, 
-        random_state=args.random_state, 
-        test_size=args.test_size
+    parser = argparse.ArgumentParser(description="Generate family-based split")
+    parser.add_argument(
+        "--input",
+        type=str,
+        default=INPUT_PARQUET,
+        help="Path to input parquet file",
     )
-    
-    logger.info("Verifying family separation...")
-    verify_family_separation(train_indices, test_indices, df)
-    
-    logger.info(f"Saving split to {args.output}...")
-    save_split(train_indices, test_indices, args.output)
-    
-    logger.info("Split generation complete.")
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=OUTPUT_SPLIT,
+        help="Path to output split JSON",
+    )
+    parser.add_argument(
+        "--test-size",
+        type=float,
+        default=0.2,
+        help="Fraction of families for test set",
+    )
+    args = parser.parse_args()
+
+    try:
+        df = load_graphs_from_parquet(args.input)
+        df = assign_families(df)
+        train_idx, test_idx = generate_family_split(df, test_size=args.test_size)
+        verify_family_separation(train_idx, test_idx, df)
+        save_split(train_idx, test_idx, args.output)
+        logger.info("Task T013f completed successfully.")
+    except Exception as e:
+        logger.error(f"Task T013f failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

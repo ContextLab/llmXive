@@ -9,7 +9,8 @@ The gate detected that your reported numbers are NOT real measurements: they are
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
 - code/analysis/report_generator.py: self-declared fabricated metric — “…ile(args.perm_pvalues)      # Mock scores for T046 demonstration (real…”
-- code/model/train_logger.py: self-declared fabricated metric — “…ge(min(epochs, 3)):         # Mock metrics         mock_loss = 0.5 * (0…”
+- code/ingest/parse_cif.py: self-declared fabricated metric — “…# For now, we'll use placeholder values that should be overwritten b…”
+- code/model/memory_enforcer.py: synthetic/fake INPUT data not authorized by the spec — “…dummy training loop with synthetic data.     """     # Setup log…”
 
 ## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
 
@@ -18,9 +19,6 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 - run-book command: `python code/ingest/filter.py --input data/processed --output data/filtered`
   - script usage: `filter.py [-h] --input INPUT --output OUTPUT --stats STATS`
   - argparse error: `filter.py: error: the following arguments are required: --stats`
-- run-book command: `python code/model/train.py --data-dir data/filtered --epochs 100 --patience 3 --split-strategy family`
-  - script usage: `train.py [-h] [--config CONFIG] [--epochs EPOCHS] [--patience PATIENCE]`
-  - argparse error: `train.py: error: unrecognized arguments: --data-dir data/filtered --split-strategy family`
 - run-book command: `python code/analysis/importance.py --model-path code/model/checkpoints/best.pt --data-dir data/filtered`
   - script usage: `importance.py [-h] --model-path MODEL_PATH --data-path DATA_PATH`
   - argparse error: `importance.py: error: the following arguments are required: --data-path, --split-path`
@@ -30,7 +28,7 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/report_generator.py: self-declared fabricated metric — “…ile(args.perm_pvalues)      # Mock scores for T046 demonstration (real…”; code/model/train_logger.py: self-declared fabricated metric — “…ge(min(epochs, 3)):         # Mock metrics         mock_loss = 0.5 * (0…”; 7 command(s) failed: python code/ingest/download.py --output data/raw (rc=1); python code/ingest/bias_check.py --input data/raw --output data/bias_report.json (rc=1); python code/ingest/parse_cif.py --input data/raw --output data/processed (rc=1); 8 declared deliverable(s) absent: data/processed/graphs_v1.parquet; data/processed/split_indices.json; data/results/generalization_metrics.json
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/report_generator.py: self-declared fabricated metric — “…ile(args.perm_pvalues)      # Mock scores for T046 demonstration (real…”; code/ingest/parse_cif.py: self-declared fabricated metric — “…# For now, we'll use placeholder values that should be overwritten b…”; code/model/memory_enforcer.py: synthetic/fake INPUT data not authorized by the spec — “…dummy training loop with synthetic data.     """     # Setup log…”; 7 command(s) failed: python code/ingest/download.py --output data/raw (rc=1); python code/ingest/bias_check.py --input data/raw --output data/bias_report.json (rc=1); python code/ingest/parse_cif.py --input data/raw --output data/processed (rc=1); 9 declared deliverable(s) absent: data/processed/graphs_v1.parquet; data/processed/split_indices.json; data/results/generalization_metrics.json
 
 ## Failing / missing run-book commands
 
@@ -51,35 +49,32 @@ Traceback (most recent call last):
 ValueError: Materials Project API key not found. Set MP_API_KEY environment variable.
 - python code/ingest/bias_check.py --input data/raw --output data/bias_report.json -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/code/ingest/bias_check.py", line 124, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/code/ingest/bias_check.py", line 169, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/code/ingest/bias_check.py", line 119, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/code/ingest/bias_check.py", line 154, in main
     exclusion_reasons = load_exclusion_log(input_path)
                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/code/ingest/bias_check.py", line 42, in load_exclusion_log
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/code/ingest/bias_check.py", line 53, in load_exclusion_log
     with open(input_path, "r") as f:
          ^^^^^^^^^^^^^^^^^^^^^
 IsADirectoryError: [Errno 21] Is a directory: 'data/raw'
 - python code/ingest/parse_cif.py --input data/raw --output data/processed -> rc=1
-    INFO:__main__:Found 0 CIF files in data/raw
-INFO:__main__:Parsed 0 graphs, excluded 0.
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/code/ingest/parse_cif.py", line 333, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/code/ingest/parse_cif.py", line 326, in main
-    with open(output_path, "w") as f:
-         ^^^^^^^^^^^^^^^^^^^^^^
-IsADirectoryError: [Errno 21] Is a directory: 'data/processed'
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/code/ingest/parse_cif.py", line 311, in <module>
+    @log_operation("parse_cif_main")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'LogEntry' object is not callable
 - python code/ingest/filter.py --input data/processed --output data/filtered -> rc=2
     usage: filter.py [-h] --input INPUT --output OUTPUT --stats STATS
+                 [--log-level {DEBUG,INFO,WARNING,ERROR}]
 filter.py: error: the following arguments are required: --stats
-- python code/model/train.py --data-dir data/filtered --epochs 100 --patience 3 --split-strategy family -> rc=2
-    usage: train.py [-h] [--config CONFIG] [--epochs EPOCHS] [--patience PATIENCE]
-                [--batch_size BATCH_SIZE] [--lr LR] [--data_path DATA_PATH]
-                [--split_path SPLIT_PATH] [--output_log OUTPUT_LOG]
-                [--output_model OUTPUT_MODEL]
-                [--output_predictions OUTPUT_PREDICTIONS] [--device DEVICE]
-train.py: error: unrecognized arguments: --data-dir data/filtered --split-strategy family
+- python code/model/train.py --data-dir data/filtered --epochs 100 --patience 3 --split-strategy family -> rc=1
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/code/model/train.py", line 32, in <module>
+    from model.train_logger import TrainingLogger, run_training_with_logging
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/code/model/train_logger.py", line 16, in <module>
+    from utils.disclaimer_template import DISCLAIMER_TEXT, FEYNMAN_QUOTE
+ModuleNotFoundError: No module named 'utils.disclaimer_template'
 - python code/analysis/importance.py --model-path code/model/checkpoints/best.pt --data-dir data/filtered -> rc=2
     usage: importance.py [-h] --model-path MODEL_PATH --data-path DATA_PATH
                      --split-path SPLIT_PATH [--output-path OUTPUT_PATH]
@@ -99,6 +94,7 @@ ablation.py: error: unrecognized arguments: --model-path code/model/checkpoints/
 - data/results/intra_family_baseline.json
 - data/results/methodology_consistency.json
 - data/results/permutation_pvalues.json
+- data/results/split_validation.json
 - data/results/title_audit.json
 - data/results/training_logs.json
 
@@ -241,6 +237,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
   Make ONE of these WRITE `data/processed/split_indices.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/results/generalization_metrics.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/aggregate.py` — NOT invoked by the run-book
+    - `code/utils/config.py` — NOT invoked by the run-book
     - `code/model/disclaimer_injector.py` — NOT invoked by the run-book
     - `code/model/generalization_test.py` — NOT invoked by the run-book
     - `code/model/inference_benchmark.py` — NOT invoked by the run-book
@@ -248,6 +245,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
   Make ONE of these WRITE `data/results/generalization_metrics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/results/intra_family_baseline.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/ablation.py` — IS a run-book command
+    - `code/utils/config.py` — NOT invoked by the run-book
     - `code/model/baseline_metrics.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/results/intra_family_baseline.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/results/methodology_consistency.json` is declared but was NOT written. Scripts referencing it:
@@ -257,11 +255,16 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/importance.py` — IS a run-book command
     - `code/analysis/aggregate.py` — NOT invoked by the run-book
     - `code/analysis/report_generator.py` — NOT invoked by the run-book
+    - `code/utils/config.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/results/permutation_pvalues.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/results/split_validation.json` is declared but was NOT written. Scripts referencing it:
+    - `code/model/splitter.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/results/split_validation.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/results/title_audit.json` is declared but was NOT written. Scripts referencing it:
     - `code/utils/final_title_audit.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/results/title_audit.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/results/training_logs.json` is declared but was NOT written. Scripts referencing it:
+    - `code/utils/config.py` — NOT invoked by the run-book
     - `code/model/disclaimer_injector.py` — NOT invoked by the run-book
     - `code/model/train_logger.py` — NOT invoked by the run-book
     - `code/model/cv_runner.py` — NOT invoked by the run-book

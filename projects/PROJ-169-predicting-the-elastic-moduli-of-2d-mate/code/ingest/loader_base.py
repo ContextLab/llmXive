@@ -52,7 +52,7 @@ class DataLoader(ABC):
             NotImplementedError: If the method is not implemented by a subclass.
             RuntimeError: If the real data source is unreachable.
         """
-        pass
+        raise NotImplementedError("Subclasses must implement fetch_data()")
 
     @abstractmethod
     def validate_source(self) -> bool:
@@ -65,7 +65,7 @@ class DataLoader(ABC):
         Raises:
             NotImplementedError: If the method is not implemented by a subclass.
         """
-        pass
+        raise NotImplementedError("Subclasses must implement validate_source()")
 
     @abstractmethod
     def get_metadata(self) -> Dict[str, Any]:
@@ -79,4 +79,4 @@ class DataLoader(ABC):
         Raises:
             NotImplementedError: If the method is not implemented by a subclass.
         """
-        pass
+        raise NotImplementedError("Subclasses must implement get_metadata()")

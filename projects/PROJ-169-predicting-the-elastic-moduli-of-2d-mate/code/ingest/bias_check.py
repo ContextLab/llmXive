@@ -45,7 +45,12 @@ def load_exclusion_log(input_path: Path) -> List[ExclusionReason]:
     Raises:
         FileNotFoundError: If the input file does not exist.
         json.JSONDecodeError: If the file is not valid JSON.
+        IsADirectoryError: If the input path is a directory.
     """
+    if input_path.is_dir():
+        raise IsADirectoryError(f"Input path is a directory: {input_path}. "
+                                "Expected a file path to an exclusion log (e.g., exclusion_log.json).")
+        
     if not input_path.exists():
         raise FileNotFoundError(f"Exclusion log not found at {input_path}. "
                               "Ensure the pipeline has run and generated exclusion logs.")
@@ -163,6 +168,9 @@ def main():
         raise SystemExit(1)
     except ValueError as e:
         logger.error(f"Data validation error: {e}")
+        raise SystemExit(1)
+    except IsADirectoryError as e:
+        logger.error(f"Invalid input path: {e}")
         raise SystemExit(1)
 
 if __name__ == "__main__":

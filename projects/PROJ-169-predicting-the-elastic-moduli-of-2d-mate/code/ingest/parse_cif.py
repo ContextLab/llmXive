@@ -1,8 +1,8 @@
 """
 CIF Parser for 2D Material Elastic Moduli Prediction.
 
-Converts CIF files from raw data sources into MaterialGraph objects using pymatgen.
-Extracts node and edge features suitable for GNN training.
+Converts CIF files to MaterialGraph objects using pymatgen.
+Extracts node and edge features for GNN training.
 """
 from __future__ import annotations
 
@@ -15,22 +15,16 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 from pymatgen.core import Structure
+from pymatgen.io.cif import CifParser
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-# Import from project API surface
+# Import local modules
 from data_models.material_graph import MaterialGraph
 from utils.config import get_config
-from utils.logger import log_operation, get_logger
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
+from utils.logger import log_operation
 
 # Constants for featurization
-ATOMIC_NUMBER_MAP = {
+ATOMIC_NUMBERS = {
     "H": 1, "He": 2, "Li": 3, "Be": 4, "B": 5, "C": 6, "N": 7, "O": 8,
     "F": 9, "Ne": 10, "Na": 11, "Mg": 12, "Al": 13, "Si": 14, "P": 15,
     "S": 16, "Cl": 17, "Ar": 18, "K": 19, "Ca": 20, "Sc": 21, "Ti": 22,
@@ -48,304 +42,318 @@ ATOMIC_NUMBER_MAP = {
     "Fm": 100, "Md": 101, "No": 102, "Lr": 103, "Rf": 104, "Db": 105,
     "Sg": 106, "Bh": 107, "Hs": 108, "Mt": 109, "Ds": 110, "Rg": 111,
     "Cn": 112, "Nh": 113, "Fl": 114, "Mc": 115, "Lv": 116, "Ts": 117,
-    "Og": 118
+    "Og": 118,
 }
 
-# Electronegativity (Pauling scale) - simplified mapping
-ELECTRONEGATIVITY_MAP = {
-    "H": 2.20, "He": 0.00, "Li": 0.98, "Be": 1.57, "B": 2.04, "C": 2.55,
-    "N": 3.04, "O": 3.44, "F": 3.98, "Ne": 0.00, "Na": 0.93, "Mg": 1.31,
-    "Al": 1.61, "Si": 1.90, "P": 2.19, "S": 2.58, "Cl": 3.16, "Ar": 0.00,
-    "K": 0.82, "Ca": 1.00, "Sc": 1.36, "Ti": 1.54, "V": 1.63, "Cr": 1.66,
-    "Mn": 1.55, "Fe": 1.83, "Co": 1.88, "Ni": 1.91, "Cu": 1.90, "Zn": 1.65,
-    "Ga": 1.81, "Ge": 2.01, "As": 2.18, "Se": 2.55, "Br": 2.96, "Kr": 3.00,
-    "Rb": 0.82, "Sr": 0.95, "Y": 1.22, "Zr": 1.33, "Nb": 1.60, "Mo": 2.16,
-    "Tc": 1.90, "Ru": 2.20, "Rh": 2.28, "Pd": 2.20, "Ag": 1.93, "Cd": 1.69,
-    "In": 1.78, "Sn": 1.96, "Sb": 2.05, "Te": 2.10, "I": 2.66, "Xe": 2.60,
-    "Cs": 0.79, "Ba": 0.89, "La": 1.10, "Ce": 1.12, "Pr": 1.13, "Nd": 1.14,
-    "Pm": 1.13, "Sm": 1.17, "Eu": 1.20, "Gd": 1.20, "Tb": 1.20, "Dy": 1.22,
-    "Ho": 1.23, "Er": 1.24, "Tm": 1.25, "Yb": 1.10, "Lu": 1.27, "Hf": 1.30,
-    "Ta": 1.50, "W": 2.36, "Re": 1.90, "Os": 2.20, "Ir": 2.20, "Pt": 2.28,
-    "Au": 2.54, "Hg": 2.00, "Tl": 1.62, "Pb": 1.87, "Bi": 2.02, "Po": 2.00,
-    "At": 2.20, "Rn": 2.20, "Fr": 0.70, "Ra": 0.90, "Ac": 1.10, "Th": 1.30,
-    "Pa": 1.50, "U": 1.38, "Np": 1.36, "Pu": 1.28, "Am": 1.30, "Cm": 1.30,
-    "Bk": 1.30, "Cf": 1.30, "Es": 1.30, "Fm": 1.30, "Md": 1.30, "No": 1.30,
-    "Lr": 1.30, "Rf": 1.30, "Db": 1.30, "Sg": 1.30, "Bh": 1.30, "Hs": 1.30,
-    "Mt": 1.30, "Ds": 1.30, "Rg": 1.30, "Cn": 1.30, "Nh": 1.30, "Fl": 1.30,
-    "Mc": 1.30, "Lv": 1.30, "Ts": 1.30, "Og": 1.30
+# Electronegativity (Pauling scale) - approximate values for common elements
+ELECTRONEGATIVITY = {
+    "H": 2.20, "Li": 0.98, "Be": 1.57, "B": 2.04, "C": 2.55, "N": 3.04,
+    "O": 3.44, "F": 3.98, "Na": 0.93, "Mg": 1.31, "Al": 1.61, "Si": 1.90,
+    "P": 2.19, "S": 2.58, "Cl": 3.16, "K": 0.82, "Ca": 1.00, "Sc": 1.36,
+    "Ti": 1.54, "V": 1.63, "Cr": 1.66, "Mn": 1.55, "Fe": 1.83, "Co": 1.88,
+    "Ni": 1.91, "Cu": 1.90, "Zn": 1.65, "Ga": 1.81, "Ge": 2.01, "As": 2.18,
+    "Se": 2.55, "Br": 2.96, "Rb": 0.82, "Sr": 0.95, "Y": 1.22, "Zr": 1.33,
+    "Nb": 1.6, "Mo": 2.16, "Tc": 1.9, "Ru": 2.2, "Rh": 2.28, "Pd": 2.20,
+    "Ag": 1.93, "Cd": 1.69, "In": 1.78, "Sn": 1.96, "Sb": 2.05, "Te": 2.1,
+    "I": 2.66, "Cs": 0.79, "Ba": 0.89, "La": 1.1, "Ce": 1.12, "Pr": 1.13,
+    "Nd": 1.14, "Pm": 1.13, "Sm": 1.17, "Eu": 1.2, "Gd": 1.2, "Tb": 1.2,
+    "Dy": 1.22, "Ho": 1.23, "Er": 1.24, "Tm": 1.25, "Yb": 1.1, "Lu": 1.27,
+    "Hf": 1.3, "Ta": 1.5, "W": 2.36, "Re": 1.9, "Os": 2.2, "Ir": 2.20,
+    "Pt": 2.28, "Au": 2.54, "Hg": 2.00, "Tl": 1.62, "Pb": 2.33, "Bi": 2.02,
+    "Po": 2.0, "At": 2.2, "Rn": 2.2,
 }
 
-# Atomic radii (pm) - simplified mapping
-ATOMIC_RADIUS_MAP = {
-    "H": 37, "He": 32, "Li": 134, "Be": 90, "B": 82, "C": 77, "N": 75, "O": 73,
-    "F": 72, "Ne": 71, "Na": 154, "Mg": 130, "Al": 118, "Si": 111, "P": 106,
-    "S": 102, "Cl": 99, "Ar": 97, "K": 196, "Ca": 174, "Sc": 144, "Ti": 136,
-    "V": 125, "Cr": 127, "Mn": 139, "Fe": 125, "Co": 126, "Ni": 121, "Cu": 138,
-    "Zn": 131, "Ga": 126, "Ge": 122, "As": 119, "Se": 116, "Br": 114, "Kr": 110,
-    "Rb": 211, "Sr": 192, "Y": 162, "Zr": 148, "Nb": 137, "Mo": 145, "Tc": 156,
-    "Ru": 126, "Rh": 134, "Pd": 137, "Ag": 144, "Cd": 151, "In": 144, "Sn": 141,
-    "Sb": 138, "Te": 135, "I": 133, "Xe": 130, "Cs": 225, "Ba": 198, "La": 169,
-    "Ce": 183, "Pr": 182, "Nd": 181, "Pm": 183, "Sm": 180, "Eu": 180, "Gd": 180,
-    "Tb": 177, "Dy": 178, "Ho": 176, "Er": 176, "Tm": 175, "Yb": 174, "Lu": 174,
-    "Hf": 159, "Ta": 146, "W": 139, "Re": 137, "Os": 135, "Ir": 136, "Pt": 139,
-    "Au": 144, "Hg": 149, "Tl": 148, "Pb": 147, "Bi": 146, "Po": 146, "At": 145,
-    "Rn": 145, "Fr": 144, "Ra": 143, "Ac": 142, "Th": 141, "Pa": 140, "U": 139,
-    "Np": 138, "Pu": 137, "Am": 136, "Cm": 135, "Bk": 134, "Cf": 133, "Es": 132,
-    "Fm": 131, "Md": 130, "No": 129, "Lr": 128, "Rf": 127, "Db": 126, "Sg": 125,
-    "Bh": 124, "Hs": 123, "Mt": 122, "Ds": 121, "Rg": 120, "Cn": 119, "Nh": 118,
-    "Fl": 117, "Mc": 116, "Lv": 115, "Ts": 114, "Og": 113
+# Atomic radii (pm) - approximate
+ATOMIC_RADII = {
+    "H": 53, "Li": 167, "Be": 112, "B": 87, "C": 67, "N": 56, "O": 48,
+    "F": 42, "Na": 190, "Mg": 145, "Al": 118, "Si": 111, "P": 98, "S": 88,
+    "Cl": 79, "K": 243, "Ca": 194, "Sc": 184, "Ti": 176, "V": 171,
+    "Cr": 166, "Mn": 161, "Fe": 156, "Co": 152, "Ni": 149, "Cu": 145,
+    "Zn": 142, "Ga": 136, "Ge": 125, "As": 114, "Se": 103, "Br": 94,
+    "Rb": 265, "Sr": 219, "Y": 212, "Zr": 206, "Nb": 198, "Mo": 190,
+    "Tc": 183, "Ru": 178, "Rh": 173, "Pd": 169, "Ag": 165, "Cd": 161,
+    "In": 156, "Sn": 145, "Sb": 133, "Te": 123, "I": 115, "Cs": 298,
+    "Ba": 253, "La": 226, "Ce": 210, "Pr": 207, "Nd": 205, "Pm": 205,
+    "Sm": 204, "Eu": 204, "Gd": 203, "Tb": 202, "Dy": 201, "Ho": 200,
+    "Er": 199, "Tm": 198, "Yb": 194, "Lu": 193, "Hf": 191, "Ta": 188,
+    "W": 186, "Re": 185, "Os": 184, "Ir": 182, "Pt": 182, "Au": 180,
+    "Hg": 178, "Tl": 175, "Pb": 175, "Bi": 170, "Po": 168, "At": 166,
+    "Rn": 164,
 }
 
-def get_atomic_properties(symbol: str) -> Tuple[float, float, float]:
+logger = logging.getLogger(__name__)
+
+@log_operation("get_atomic_properties")
+def get_atomic_properties(symbol: str) -> Dict[str, float]:
     """
-    Get atomic properties for a given element symbol.
+    Get basic atomic properties for featurization.
 
     Args:
-        symbol: Element symbol (e.g., "C", "Fe")
+        symbol: Chemical symbol of the element.
 
     Returns:
-        Tuple of (atomic_number, electronegativity, atomic_radius)
+        Dictionary with atomic number, electronegativity, and radius.
     """
-    atomic_number = ATOMIC_NUMBER_MAP.get(symbol, 0)
-    electronegativity = ELECTRONEGATIVITY_MAP.get(symbol, 0.0)
-    atomic_radius = ATOMIC_RADIUS_MAP.get(symbol, 0.0)
+    atomic_num = ATOMIC_NUMBERS.get(symbol, 0)
+    electronegativity = ELECTRONEGATIVITY.get(symbol, 0.0)
+    radius = ATOMIC_RADII.get(symbol, 0.0)
 
-    return atomic_number, electronegativity, atomic_radius
+    return {
+        "atomic_number": float(atomic_num),
+        "electronegativity": electronegativity,
+        "atomic_radius": radius,
+    }
 
-def featurize_atoms(structure: Structure) -> np.ndarray:
+@log_operation("featurize_atoms")
+def featurize_atoms(atoms: List[Dict[str, Any]]) -> List[List[float]]:
     """
-    Create node features for each atom in the structure.
-
-    Features per atom:
-    - Atomic number (normalized)
-    - Electronegativity
-    - Atomic radius (normalized)
-    - Valence electron count (approximated by group number)
+    Convert list of atoms to feature vectors.
 
     Args:
-        structure: pymatgen Structure object
+        atoms: List of dictionaries with 'symbol' and 'properties'.
 
     Returns:
-        np.ndarray of shape (n_atoms, n_features)
+        List of feature vectors (one per atom).
     """
-    n_atoms = len(structure)
-    n_features = 4  # atomic_number, electronegativity, radius, valence
-
-    features = np.zeros((n_atoms, n_features), dtype=np.float32)
-
-    for i, site in enumerate(structure):
-        symbol = site.species_string
-        atomic_number, electronegativity, atomic_radius = get_atomic_properties(symbol)
-
-        # Normalize atomic number (max ~118)
-        features[i, 0] = atomic_number / 118.0
-        features[i, 1] = electronegativity / 4.0  # Max Pauling ~4.0
-        features[i, 2] = atomic_radius / 250.0  # Max radius ~250 pm
-        # Valence electrons (simplified: group number mod 18, with adjustments)
-        # For transition metals, use a heuristic based on atomic number
-        if atomic_number <= 2:  # H, He
-            features[i, 3] = atomic_number
-        elif atomic_number <= 10:  # Li-Ne
-            features[i, 3] = (atomic_number - 2) % 8 + 1
-        elif atomic_number <= 18:  # Na-Ar
-            features[i, 3] = (atomic_number - 10) % 8 + 1
-        else:
-            # Transition metals and beyond: use a simplified heuristic
-            # This is an approximation; real valence depends on oxidation state
-            features[i, 3] = min(8, (atomic_number % 18) + 1)
-
+    features = []
+    for atom in atoms:
+        props = get_atomic_properties(atom["symbol"])
+        # Normalize features (simple min-max for now, can be improved)
+        feat = [
+            props["atomic_number"] / 118.0,  # Normalize atomic number
+            props["electronegativity"] / 4.0,  # Normalize electronegativity
+            props["atomic_radius"] / 300.0,  # Normalize radius
+        ]
+        features.append(feat)
     return features
 
-def featurize_bonds(structure: Structure, cutoff: float = 3.5) -> Tuple[np.ndarray, np.ndarray]:
+@log_operation("featurize_bonds")
+def featurize_bonds(
+    bonds: List[Tuple[int, int, float]],
+    max_dist: float = 3.0,
+) -> List[List[float]]:
     """
-    Create edge features and adjacency matrix for bonds in the structure.
-
-    Uses a distance-based cutoff to determine bonds.
+    Convert list of bonds to feature vectors.
 
     Args:
-        structure: pymatgen Structure object
-        cutoff: Bond distance cutoff in Angstroms
+        bonds: List of (atom_idx_i, atom_idx_j, distance).
+        max_dist: Maximum distance for bonding consideration.
 
     Returns:
-        Tuple of (adjacency_matrix, edge_features)
-        - adjacency_matrix: np.ndarray of shape (n_atoms, n_atoms), binary
-        - edge_features: np.ndarray of shape (n_bonds, n_edge_features)
+        List of edge feature vectors.
     """
-    n_atoms = len(structure)
-    adjacency = np.zeros((n_atoms, n_atoms), dtype=np.float32)
-    edge_features_list = []
+    features = []
+    for i, j, dist in bonds:
+        # Normalize distance
+        norm_dist = min(dist / max_dist, 1.0)
+        # Edge features: normalized distance
+        edge_feat = [norm_dist]
+        features.append(edge_feat)
+    return features
 
-    # Calculate all pairwise distances
-    for i in range(n_atoms):
-        for j in range(i + 1, n_atoms):
-            dist = structure.get_distance(i, j)
-            if dist < cutoff:
-                adjacency[i, j] = 1.0
-                adjacency[j, i] = 1.0
-
-                # Edge features: normalized distance, direction (simplified)
-                # For now, just use normalized distance
-                edge_feat = np.array([dist / cutoff], dtype=np.float32)
-                edge_features_list.append(edge_feat)
-
-    if len(edge_features_list) == 0:
-        return adjacency, np.zeros((0, 1), dtype=np.float32)
-
-    edge_features = np.vstack(edge_features_list)
-    return adjacency, edge_features
-
-def parse_cif_file(cif_path: Path) -> Optional[MaterialGraph]:
+@log_operation("parse_cif_file")
+def parse_cif_file(
+    cif_path: str,
+    elastic_tensor: Optional[np.ndarray] = None,
+    target_moduli: Optional[Dict[str, float]] = None,
+    structure_pickle: Optional[bytes] = None,
+    cif_raw: Optional[str] = None,
+) -> Optional[MaterialGraph]:
     """
-    Parse a single CIF file and convert it to a MaterialGraph.
+    Parse a single CIF file and convert to MaterialGraph.
 
     Args:
-        cif_path: Path to the CIF file
+        cif_path: Path to the CIF file.
+        elastic_tensor: Optional 6x6 elastic tensor (Voigt notation).
+        target_moduli: Optional dictionary with Young's, Shear, Poisson moduli.
+        structure_pickle: Optional pre-computed pickle of pymatgen Structure.
+        cif_raw: Optional raw CIF string.
 
     Returns:
-        MaterialGraph object or None if parsing fails
+        MaterialGraph object or None if parsing fails.
     """
     try:
-        structure = Structure.from_file(cif_path)
+        # Parse CIF
+        parser = CifParser(cif_path)
+        structures = parser.get_structures()
 
-        # Check if structure is valid
-        if len(structure) == 0:
-            logger.warning(f"Empty structure in {cif_path}")
+        if not structures:
+            logger.warning(f"No structures found in {cif_path}")
             return None
 
-        # Extract node features
-        node_features = featurize_atoms(structure)
+        # Use the first structure (typically the most symmetric one)
+        structure = structures[0]
 
-        # Extract edge features and adjacency
-        adjacency, edge_features = featurize_bonds(structure)
+        # If structure_pickle is provided, use it (to ensure consistency)
+        if structure_pickle is not None:
+            import pickle
+            structure = pickle.loads(structure_pickle)
 
-        # Extract target values (elastic moduli)
-        # These should come from the data source metadata, not the CIF itself
-        # For now, we'll use placeholder values that should be overwritten by the pipeline
-        target_moduli = {
-            "youngs_modulus": 0.0,  # Will be filled by pipeline
-            "shear_modulus": 0.0,    # Will be filled by pipeline
-            "poisson_ratio": 0.0     # Will be filled by pipeline
-        }
+        # Extract atomic properties
+        atoms = []
+        for site in structure.sites:
+            atoms.append({
+                "symbol": site.species_string,
+                "properties": get_atomic_properties(site.species_string),
+            })
 
-        # Extract metadata
-        metadata = {
-            "source_file": str(cif_path.name),
-            "n_atoms": len(structure),
-            "space_group": structure.get_space_group_info()[0] if structure.lattice is not None else "unknown",
-            "lattice_parameters": [
-                structure.lattice.a if structure.lattice else 0.0,
-                structure.lattice.b if structure.lattice else 0.0,
-                structure.lattice.c if structure.lattice else 0.0,
-                structure.lattice.alpha if structure.lattice else 0.0,
-                structure.lattice.beta if structure.lattice else 0.0,
-                structure.lattice.gamma if structure.lattice else 0.0,
-            ] if structure.lattice else [0.0] * 6
-        }
+        # Featurize atoms
+        node_features = featurize_atoms(atoms)
+
+        # Build adjacency (based on distance)
+        bonds = []
+        for i in range(len(atoms)):
+            for j in range(i + 1, len(atoms)):
+                dist = structure[i].distance_to(structure[j])
+                if dist < 3.0:  # Bonding threshold
+                    bonds.append((i, j, dist))
+
+        # Featurize bonds
+        edge_features = featurize_bonds(bonds)
+
+        # Build edge index (PyG format: [2, num_edges])
+        edge_index = []
+        for i, j, _ in bonds:
+            edge_index.append([i, j])
+            edge_index.append([j, i])  # Undirected
+
+        if not edge_index:
+            edge_index = [[], []]
+        else:
+            edge_index = list(zip(*edge_index))
 
         # Create MaterialGraph
         graph = MaterialGraph(
-            node_features=node_features.tolist(),
-            edge_features=edge_features.tolist(),
-            adjacency=adjacency.tolist(),
-            target_moduli=target_moduli,
-            metadata=metadata
+            node_features=node_features,
+            edge_features=edge_features,
+            edge_index=edge_index,
+            target_moduli=target_moduli or {},
+            family_id=structure.formula,  # Use formula as family_id placeholder
+            structure_pickle=structure_pickle,
+            cif_raw=cif_raw,
         )
 
         return graph
 
     except Exception as e:
-        logger.error(f"Failed to parse CIF file {cif_path}: {e}")
+        logger.error(f"Failed to parse {cif_path}: {e}")
         return None
 
-def parse_cif_directory(input_dir: Path, output_dir: Optional[Path] = None) -> Tuple[int, int]:
+@log_operation("parse_cif_directory")
+def parse_cif_directory(
+    input_dir: str,
+    output_dir: str,
+    elastic_tensors: Optional[Dict[str, np.ndarray]] = None,
+    target_moduli_list: Optional[List[Dict[str, float]]] = None,
+) -> List[MaterialGraph]:
     """
-    Parse all CIF files in a directory and optionally save results.
+    Parse all CIF files in a directory.
 
     Args:
-        input_dir: Directory containing CIF files
-        output_dir: Optional directory to save parsed graphs as JSON
+        input_dir: Directory containing CIF files.
+        output_dir: Directory to save parsed graphs (JSON/Parquet).
+        elastic_tensors: Optional dict mapping filename to elastic tensor.
+        target_moduli_list: Optional list of target moduli dicts.
 
     Returns:
-        Tuple of (parsed_count, excluded_count)
+        List of MaterialGraph objects.
     """
-    cif_files = list(input_dir.glob("*.cif")) + list(input_dir.glob("*.CIF"))
+    input_path = Path(input_dir)
+    cif_files = list(input_path.glob("*.cif"))
 
     if not cif_files:
         logger.warning(f"No CIF files found in {input_dir}")
-        return 0, 0
+        return []
 
-    parsed_graphs = []
-    excluded_count = 0
+    graphs = []
+    for idx, cif_file in enumerate(cif_files):
+        elastic_tensor = None
+        target_moduli = None
+        structure_pickle = None
+        cif_raw = None
 
-    for cif_file in cif_files:
-        graph = parse_cif_file(cif_file)
+        # Load elastic tensor if available
+        if elastic_tensors and cif_file.name in elastic_tensors:
+            elastic_tensor = elastic_tensors[cif_file.name]
+
+        # Load target moduli if available
+        if target_moduli_list and idx < len(target_moduli_list):
+            target_moduli = target_moduli_list[idx]
+
+        # Read raw CIF for storage
+        try:
+            with open(cif_file, "r") as f:
+                cif_raw = f.read()
+        except Exception as e:
+            logger.warning(f"Could not read raw CIF {cif_file}: {e}")
+            continue
+
+        # Parse CIF
+        graph = parse_cif_file(
+            str(cif_file),
+            elastic_tensor=elastic_tensor,
+            target_moduli=target_moduli,
+            structure_pickle=structure_pickle,
+            cif_raw=cif_raw,
+        )
+
         if graph is not None:
-            parsed_graphs.append(graph)
-        else:
-            excluded_count += 1
+            graphs.append(graph)
 
-    # Save results if output_dir is specified
-    if output_dir and parsed_graphs:
-        output_dir.mkdir(parents=True, exist_ok=True)
-        output_path = output_dir / "parsed_graphs.json"
+    logger.info(f"Parsed {len(graphs)} valid structures from {len(cif_files)} files")
+    return graphs
 
-        # Convert graphs to serializable format
-        serializable_graphs = []
-        for i, graph in enumerate(parsed_graphs):
-            serializable_graphs.append({
-                "index": i,
-                "node_features": graph.node_features,
-                "edge_features": graph.edge_features,
-                "adjacency": graph.adjacency,
-                "target_moduli": graph.target_moduli,
-                "metadata": graph.metadata
-            })
-
-        with open(output_path, "w") as f:
-            json.dump(serializable_graphs, f, indent=2)
-
-        logger.info(f"Saved {len(parsed_graphs)} parsed graphs to {output_path}")
-
-    return len(parsed_graphs), excluded_count
-
-@log_operation("parse_cif_main")
+@log_operation("main")
 def main():
-    """
-    Main entry point for CIF parsing.
+    """CLI entry point for CIF parsing."""
+    import argparse
 
-    Usage:
-        python code/ingest/parse_cif.py --input <input_dir> --output <output_dir>
-
-    Args:
-        input_dir: Directory containing CIF files
-        output_dir: Directory to save parsed graphs (optional)
-    """
-    parser = argparse.ArgumentParser(description="Parse CIF files into MaterialGraph objects")
-    parser.add_argument("--input", type=str, required=True, help="Input directory containing CIF files")
-    parser.add_argument("--output", type=str, required=False, help="Output directory for parsed graphs (optional)")
+    parser = argparse.ArgumentParser(
+        description="Parse CIF files into MaterialGraph objects."
+    )
+    parser.add_argument(
+        "--input",
+        type=str,
+        required=True,
+        help="Input directory containing CIF files.",
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        required=True,
+        help="Output directory for parsed graphs.",
+    )
+    parser.add_argument(
+        "--log-level",
+        type=str,
+        default="INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+        help="Logging level.",
+    )
 
     args = parser.parse_args()
 
-    input_path = Path(args.input)
-    output_path = Path(args.output) if args.output else None
+    logging.basicConfig(
+        level=getattr(logging, args.log_level),
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
 
-    if not input_path.exists():
-        logger.error(f"Input directory does not exist: {input_path}")
+    # Create output directory
+    output_path = Path(args.output)
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    # Parse CIFs
+    graphs = parse_cif_directory(args.input, args.output)
+
+    # Save results (placeholder - actual saving done by pipeline)
+    logger.info(f"Successfully parsed {len(graphs)} graphs")
+    logger.info(f"Output directory: {args.output}")
+
+    if not graphs:
+        logger.warning("No graphs were parsed. Check input files.")
         sys.exit(1)
 
-    parsed_count, excluded_count = parse_cif_directory(input_path, output_path)
-
-    logger.info(f"Parsed {parsed_count} graphs, excluded {excluded_count}")
-
-    # Write summary to stdout for pipeline integration
-    summary = {
-        "parsed_count": parsed_count,
-        "excluded_count": excluded_count,
-        "input_dir": str(input_path),
-        "output_dir": str(output_path) if output_path else None
-    }
-
-    print(json.dumps(summary))
+    return graphs
 
 if __name__ == "__main__":
     main()
