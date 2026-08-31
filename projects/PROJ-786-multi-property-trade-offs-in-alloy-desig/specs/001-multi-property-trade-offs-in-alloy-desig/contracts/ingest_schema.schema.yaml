@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "OQMD Ingestion Schema"
+description: "Schema for the raw OQMD targets CSV before filtering"
+type: object
+properties:
+  composition:
+    type: string
+    description: "Chemical formula (e.g., Fe0.8Ni0.2)"
+  bulk_modulus:
+    type: number
+    description: "Bulk modulus in GPa"
+    minimum: 0
+  shear_modulus:
+    type: number
+    description: "Shear modulus in GPa"
+    minimum: 0
+  elements:
+    type: array
+    items:
+      type: string
+    description: "List of elements in the composition"
+required:
+  - composition
+  - bulk_modulus
+  - shear_modulus
+  - elements
+additionalProperties: false

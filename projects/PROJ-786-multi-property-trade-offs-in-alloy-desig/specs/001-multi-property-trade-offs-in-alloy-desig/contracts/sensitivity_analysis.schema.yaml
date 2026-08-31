@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sensitivity Analysis Result"
+description: "Schema for data/processed/sensitivity_analysis.csv"
+type: "object"
+properties:
+  threshold:
+    type: "number"
+    description: "Correlation threshold used for filtering"
+    minimum: 0.0
+    maximum: 1.0
+  cluster_id:
+    type: "integer"
+    description: "K-Means cluster identifier"
+  local_correlation:
+    type: "number"
+    description: "Correlation coefficient within the cluster"
+    minimum: -1.0
+    maximum: 1.0
+  global_correlation:
+    type: "number"
+    description: "Global correlation coefficient"
+    minimum: -1.0
+    maximum: 1.0
+  delta:
+    type: "number"
+    description: "Difference between global and local correlation (global - local)"
+  is_decoupled:
+    type: "boolean"
+    description: "True if delta > 0.2 and statistically significant (p < 0.05) AND local corr < 0.5"
+  p_value:
+    type: "number"
+    description: "P-value from Permutation Test"
+  robustness_score:
+    type: "number"
+    description: "Stability metric (0.0 to 1.0)"
+required:
+  - threshold
+  - cluster_id
+  - local_correlation
+  - global_correlation
+  - delta
+  - is_decoupled
+  - p_value
+  - robustness_score

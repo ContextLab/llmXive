@@ -1,5 +1,12 @@
 status: none
-reason: no data intent found in planning artifacts
-cache_key: f1427091b73c02581a170f72904497ca1abbe691616d969f33eff9bd21087fe1
-searched_at: '2026-08-23T00:28:20.139499+00:00'
-retry_count: 3
+intent: Open Quantum Materials Database OQMD HuggingFace kjappelbaum/chemnlp-oqmd
+  python package dataset
+required_fields:
+- material_id
+- formula
+- composition
+- bulk_modulus
+- shear_modulus
+cache_key: 8c5ddbd77bf63e68407ebc1c2d7fed3f2a33fd48961277d087cc527b01197546
+searched_at: '2026-08-31T15:47:41.128181+00:00'
+retry_count: 1

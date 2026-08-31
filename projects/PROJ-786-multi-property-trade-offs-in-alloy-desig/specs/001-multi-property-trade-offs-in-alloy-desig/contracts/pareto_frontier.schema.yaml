@@ -22,9 +22,10 @@ properties:
         uncertainty_variance:
           type: "number"
           minimum: 0
+          description: "Variance of predictions across LOSO-CV folds. Used to flag regions where trade-off identification is unreliable."
         is_extrapolated:
           type: "boolean"
-          description: "True if point is on the boundary of the convex hull."
+          description: "True if point is on the boundary of the convex hull (proximity flag), distinct from uncertainty_variance."
       required:
         - composition
         - predicted_bulk_modulus

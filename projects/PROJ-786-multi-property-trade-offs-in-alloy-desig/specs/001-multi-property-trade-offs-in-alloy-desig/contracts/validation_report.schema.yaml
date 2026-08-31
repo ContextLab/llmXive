@@ -1,0 +1,28 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Validation Report Schema"
+description: "Schema for model_validation_report.json"
+type: object
+properties:
+  composition_id:
+    type: string
+  predicted_bulk:
+    type: number
+  predicted_shear:
+    type: number
+  uncertainty_variance:
+    type: number
+    description: "Variance from LOSO-CV predictions"
+  hull_distance:
+    type: number
+    description: "Distance to convex hull boundary"
+  is_boundary:
+    type: boolean
+    description: "True if distance < 5% of hull radius"
+required:
+  - composition_id
+  - predicted_bulk
+  - predicted_shear
+  - uncertainty_variance
+  - hull_distance
+  - is_boundary
+additionalProperties: false

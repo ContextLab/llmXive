@@ -5,6 +5,7 @@
 - **v1.0 (Initial Draft)**: Focused on Yield Strength and Elongation as primary targets.
 - **v1.1 (Pivot to DFT Proxies)**: Updated to target **Bulk and Shear Moduli** as surrogates for mechanical properties to leverage high-throughput DFT databases (OQMD).
 - **v1.2 (Refined Constraints & Clustering)**: Explicitly defined **Bulk and Shear Moduli** as the sole optimization targets. Updated Success Criteria to include K-Means clustering for decoupling analysis and Rule of Mixtures bounds.
+- **v1.3 (Convergence Revision)**: Resolved contradictions between SC-003 and Constitution Principle VII; added statistical validation (permutation test) to SC-002; mandated isometric log-ratio (ilr) transform in FR-005; defined sensitivity analysis artifacts in FR-006; clarified stop conditions and uncertainty metrics in User Stories.
 
 ## 1. Executive Summary
 
@@ -22,10 +23,13 @@ The system must encode alloy compositions into feature vectors using elemental f
 The system must train separate Gradient Boosting Regressors to predict **Bulk Modulus** and **Shear Modulus** from the encoded composition features. Models must be validated using Leave-One-System-Out Cross-Validation (LOSO-CV).
 
 ### FR-004: Pareto Optimization
-The system must generate a Pareto frontier of optimal **Bulk and Shear Moduli** combinations using a genetic algorithm (NSGA-II) over a synthetic compositional space constrained within the convex hull of the training data.
+The system must generate a Pareto frontier of optimal **Bulk and Shear Moduli** combinations using a genetic algorithm (NSGA-II) over a synthetic compositional space constrained strictly within the convex hull of the training data. The system MUST calculate prediction uncertainty via cross-validation variance and flag any points approaching the hull boundary (distance < 5% of hull radius) in the output.
 
 ### FR-005: Decoupling Analysis
-The system must perform K-Means clustering on the compositional space to identify regions where **Bulk and Shear Moduli** exhibit low correlation (decoupled regions), indicating potential for independent optimization.
+The system must perform K-Means clustering on the compositional space to identify regions where **Bulk and Shear Moduli** exhibit low correlation (decoupled regions). To ensure geometric validity, the system MUST apply an isometric log-ratio (ilr) transform to the compositional data (elemental fractions) before clustering.
+
+### FR-006: Sensitivity Analysis
+The system must perform a sensitivity analysis on the correlation threshold used to define "decoupled" regions. The system MUST sweep the threshold across a range of [0.1, 0.9] in steps of 0.1, calculate the stability of cluster assignments, and output a CSV file `data/processed/sensitivity_analysis.csv` containing a `robustness_score` for each threshold.
 
 ## 3. Success Criteria
 
@@ -33,10 +37,10 @@ The system must perform K-Means clustering on the compositional space to identif
 The surrogate models for **Bulk and Shear Moduli** must achieve an R² score > 0.6 on the LOSO-CV test sets.
 
 ### SC-002: Decoupling Identification
-The system must identify at least one compositional cluster where the correlation coefficient between **Bulk and Shear Moduli** is significantly lower (delta > 0.2) than the global correlation.
+The system must identify at least one compositional cluster where the correlation coefficient between **Bulk and Shear Moduli** is significantly lower than the global correlation. "Significantly lower" is defined as a delta > 0.2 verified by a permutation test (1000 iterations, p < 0.05).
 
 ### SC-003: Pareto Frontier Quality
-The generated Pareto frontier must contain non-dominated points that extend beyond the empirical convex hull of the training data, respecting **DFT-derived physical bounds (Rule of Mixtures for Bulk/Shear)**.
+The generated Pareto frontier must contain non-dominated points that maximize coverage within and extend to the boundary of the empirical convex hull of the training data, respecting **DFT-derived physical bounds (Rule of Mixtures for Bulk/Shear)**.
 
 ## 4. User Stories
 
@@ -49,7 +53,7 @@ The generated Pareto frontier must contain non-dominated points that extend beyo
 1. The system loads data from `OQMD/elastic_properties` and filters for valid **Bulk and Shear Moduli**.
 2. The output CSV (`data/processed/encoded_alloys.csv`) contains no nulls in key columns.
 3. Feature vectors include at least two periodic descriptors per element.
-4. If valid entries < 500, the system logs a warning and exits gracefully.
+4. If valid entries < 500, the system MUST exit with error code 1 and log a critical error stating "Insufficient data for research validity; minimum 500 entries required."
 
 ### US-2: Surrogate Model Training and Pareto Generation
 **As a** researcher,
@@ -58,9 +62,9 @@ The generated Pareto frontier must contain non-dominated points that extend beyo
 
 **Acceptance Criteria:**
 1. Models achieve R² > 0.6 on LOSO-CV.
-2. A Pareto frontier is generated using NSGA-II with a 6-hour timeout.
-3. Synthetic points are clamped to physical limits (moduli > 0).
-4. Uncertainty metrics are calculated and flagged for extrapolated regions.
+2. A Pareto frontier is generated using NSGA-II with a fixed time budget.
+3. Synthetic points are clamped to physical limits (moduli > 0) and strictly within the convex hull.
+4. Uncertainty metrics are calculated and flagged for extrapolated regions; the system MUST output `data/processed/model_validation_report.json` containing a field `uncertainty_variance` for each point.
 
 ### US-3: Trade-Off Decoupling and Visualization
 **As a** design engineer,
@@ -68,8 +72,8 @@ The generated Pareto frontier must contain non-dominated points that extend beyo
 **So that** I can target specific compositional clusters for independent property tuning.
 
 **Acceptance Criteria:**
-1. K-Means clustering identifies a "Decoupled Region" with minimum correlation.
-2. A sensitivity analysis is performed on the correlation threshold (0.5 to 0.95).
+1. K-Means clustering (on ilr-transformed data) identifies a "Decoupled Region" with minimum correlation.
+2. A sensitivity analysis is performed on the correlation threshold across the range [0.1, 0.9] with step 0.1, and the system MUST output `data/processed/sensitivity_analysis.csv` with a `robustness_score` column.
 3. A 2D plot is generated showing the Pareto frontier, empirical data, and the decoupled region.
 
 ## 5. Data Model
@@ -86,7 +90,9 @@ The generated Pareto frontier must contain non-dominated points that extend beyo
 - **Data Source**: OQMD via HuggingFace (`OQMD/elastic_properties`).
 - **Target Properties**: **Bulk and Shear Moduli** only.
 - **Runtime**: NSGA-II optimization must complete within 6 hours.
+- **Statistical Rigor**: All claims of "significance" must be backed by defined statistical tests (e.g., permutation, bootstrap).
 
 ## 7. Appendix
 - References to DFT proxy literature for Bulk/Shear Moduli as mechanical surrogates.
 - Rule of Mixtures calculation methodology for theoretical bounds.
+- Isometric Log-Ratio (ilr) transform methodology for compositional data.

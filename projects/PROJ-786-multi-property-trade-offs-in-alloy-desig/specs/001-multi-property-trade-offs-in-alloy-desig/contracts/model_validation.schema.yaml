@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Validation Report"
+description: "Schema for data/processed/model_validation_report.json"
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    const: "GradientBoosting"
+  validation_method:
+    type: "string"
+    const: "LOSO-CV"
+  metrics:
+    type: "object"
+    properties:
+      bulk_modulus:
+        type: "object"
+        properties:
+          r2_mean:
+            type: "number"
+          r2_std:
+            type: "number"
+          mae_mean:
+            type: "number"
+        required:
+          - r2_mean
+          - r2_std
+          - mae_mean
+      shear_modulus:
+        type: "object"
+        properties:
+          r2_mean:
+            type: "number"
+          r2_std:
+            type: "number"
+          mae_mean:
+            type: "number"
+        required:
+          - r2_mean
+          - r2_std
+          - mae_mean
+    required:
+      - bulk_modulus
+      - shear_modulus
+  sample_size:
+    type: "integer"
+    minimum: 1
+  systems_tested:
+    type: "array"
+    items:
+      type: "string"
+required:
+  - model_type
+  - validation_method
+  - metrics
+  - sample_size
+  - systems_tested

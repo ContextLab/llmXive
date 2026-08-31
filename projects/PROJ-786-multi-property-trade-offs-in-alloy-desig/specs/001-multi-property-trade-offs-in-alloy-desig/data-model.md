@@ -1,46 +1,95 @@
 # Data Model: Multi-Property Trade-Offs in Alloy Design
 
-## 1. Entity Definitions
+## 1. Entity Relationship Diagram (Conceptual)
 
-### AlloyEntry
-Represents a single processed alloy data point.
-*   `id`: Unique identifier (string).
-*   `composition`: Dictionary `{element: fraction}`.
-*   `bulk_modulus`: Float (GPa) - **Primary Target** (DFT-derived).
-*   `shear_modulus`: Float (GPa) - **Primary Target** (DFT-derived).
-*   `yield_strength`: Float (MPa) - **Optional** (Experimental, likely null).
-*   `elongation`: Float (%) - **Optional** (Experimental, likely null).
-*   `feature_vector`: List of floats (encoded features).
-*   `system`: String (e.g., "Fe-Cr").
-*   `source`: String (Dataset URL).
+```mermaid
+erDiagram
+    ALLOY_ENTRY {
+        string composition_id PK
+        string composition_formula
+        float bulk_modulus
+        float shear_modulus
+        string source_system
+        list elements
+    }
+    ENCODED_FEATURES {
+        string composition_id PK, FK
+        float avg_atomic_radius
+        float std_atomic_radius
+        float avg_electronegativity
+        float std_electronegativity
+        float num_elements
+        vector ilr_features
+    }
+    MODEL_OUTPUT {
+        string composition_id PK, FK
+        float predicted_bulk
+        float predicted_shear
+        float uncertainty_bulk
+        float uncertainty_shear
+        bool is_hull_boundary
+    }
+    CLUSTER_ASSIGNMENT {
+        string composition_id PK, FK
+        int cluster_id
+        float cluster_correlation
+        bool is_decoupled
+    }
+```
 
-### ParetoFrontier
-A set of non-dominated points.
-*   `points`: List of `SyntheticAlloy`.
-*   `dominance_ratio`: Float (Percentage of empirical points dominated).
+## 2. Data Dictionary
 
-### DecoupledRegion
-A cluster with low correlation (high deviation from global trend).
-*   `cluster_id`: Integer.
-*   `global_correlation`: Float (Global Pearson r).
-*   `local_correlation`: Float (Cluster Pearson r).
-*   `deviation_score`: Float ($|r_{global} - r_{local}|$).
-*   `point_count`: Integer.
-*   `uncertainty_variance`: Float.
-*   `is_significant`: Boolean (based on permutation test p-value).
+### 2.1 Raw Input: `data/raw/oqmd_targets.csv`
+| Column | Type | Description |
+|--------|------|-------------|
+| `composition` | string | Chemical formula (e.g., "Fe0.5Ni0.5") |
+| `bulk_modulus` | float | Bulk modulus in GPa |
+| `shear_modulus` | float | Shear modulus in GPa |
+| `elements` | string | Comma-separated list of elements |
 
-## 2. Data Flow
+### 2.2 Processed: `data/processed/encoded_alloys.csv`
+| Column | Type | Description |
+|--------|------|-------------|
+| `composition_id` | string | Unique hash of composition |
+| `composition` | string | Original formula |
+| `bulk_modulus` | float | Target 1 |
+| `shear_modulus` | float | Target 2 |
+| `avg_atomic_radius` | float | Weighted mean of atomic radii |
+| `std_atomic_radius` | float | Weighted std of atomic radii |
+| `avg_electronegativity` | float | Weighted mean of electronegativities |
+| `std_electronegativity` | float | Weighted std of electronegativities |
+| `num_elements` | int | Count of unique elements |
+| `ilr_1` ... `ilr_N` | float | Isometric log-ratio transformed features |
 
-1.  **Raw Input**: OQMD CSV/Parquet -> `data/raw/`.
-2.  **Ingestion**: Filter missing values (bulk/shear) -> `data/processed/filtered.csv`.
-3.  **Encoding**: Add periodic descriptors -> `data/processed/encoded.csv`.
-4.  **Model**: Train GBM -> `data/processed/models/`.
-5.  **Optimization**: Generate Pareto -> `data/processed/results/pareto_frontier.csv`.
-6.  **Analysis**: Cluster & Deviation -> `data/processed/results/decoupled_regions.json`.
+### 2.3 Model Output: `data/processed/model_validation_report.json`
+| Key | Type | Description |
+|-----|------|-------------|
+| `composition_id` | string | ID of the point |
+| `predicted_bulk` | float | Model prediction |
+| `predicted_shear` | float | Model prediction |
+| `uncertainty_variance` | float | Variance from LOSO-CV predictions |
+| `hull_distance` | float | Distance to convex hull boundary |
+| `is_boundary` | boolean | True if distance < 5% of hull radius |
 
-## 3. Schema Constraints
+### 2.4 LOSO Test Points: `data/processed/loso_test_points.csv`
+| Column | Type | Description |
+|--------|------|-------------|
+| `composition_id` | string | ID of the point |
+| `system` | string | Chemical system name |
+| `actual_bulk` | float | True value |
+| `predicted_bulk` | float | Model prediction |
+| `residual` | float | Difference |
 
-*   **Compositional Sum**: Sum of elemental fractions must be 1.0 (±0.001).
-*   **Physical Bounds**: Bulk/Shear Moduli must be > 0.
-*   **Feature Vector**: Fixed length based on the periodic table subset used.
-*   **Proxy Mode**: If `yield_strength` and `elongation` are null, `bulk_modulus` and `shear_modulus` MUST be present.
+### 2.5 Sensitivity Output: `data/processed/sensitivity_analysis.csv`
+| Column | Type | Description |
+|--------|------|-------------|
+| `threshold` | float | Correlation threshold (0.1 to 0.9) |
+| `robustness_score` | float | Stability metric (0.0 to 1.0) |
+
+## 3. Data Flow
+
+1. **Ingestion**: `oqmd_targets.csv` -> Filtered -> `encoded_alloys.csv`
+2. **Training**: `encoded_alloys.csv` -> Split (LOSO) -> Model Weights + `loso_test_points.csv`
+3. **Optimization**: Model Weights + `encoded_alloys.csv` (Hull) -> `pareto_frontier.csv`
+4. **Analysis**: `encoded_alloys.csv` (ilr) -> LCE -> `sensitivity_analysis.csv`
+5. **Versioning**: All `data/processed` files -> Hash -> `state/` YAML

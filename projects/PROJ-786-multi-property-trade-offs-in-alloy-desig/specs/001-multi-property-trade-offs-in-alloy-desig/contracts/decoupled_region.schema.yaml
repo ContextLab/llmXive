@@ -8,7 +8,7 @@ properties:
     description: "Unique ID for the cluster."
   correlation_coefficient:
     type: "number"
-    description: "Pearson correlation between Bulk and Shear moduli in this cluster."
+    description: "Pearson correlation between Bulk and Shear moduli in this cluster. Value must be between -1 and 1. A value < 0.5 indicates weak linear dependence (decoupled)."
     minimum: -1
     maximum: 1
   point_count:
@@ -21,7 +21,7 @@ properties:
     minimum: 0
   is_significant:
     type: "boolean"
-    description: "True if the deviation from global trend is statistically significant (p < 0.05 via permutation test)."
+    description: "True if the deviation from global trend is statistically significant (p < 0.05 via permutation test) AND local correlation < 0.5."
   representative_composition:
     type: "object"
     description: "Centroid composition of the cluster."
