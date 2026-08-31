@@ -4,7 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T004` (rejected 1x): No evidence of the required `data/raw`, `data/processed`, `artifacts` directories or a `.gitignore` file was provided; the claim lacks any tangible artifact to verify the setup. The implementer must add the directory structure and a `.gitignore` that excludes large files.
+- `T012` (rejected 1x): No `src/ingestion/downloader.py` file or its contents were provided; without the script we cannot verify that it uses `datasets.load_dataset(..., streaming=True)` to fetch verified HuggingFace/UCI URLs. The required artifact is missing.
+- `T014` (rejected 1x): No `src/ingestion/profiler.py` file or its contents were provided; thus we cannot verify that the script computes the condition number, Breusch‑Pagan statistic, and Cook’s distance, nor that it handles datasets larger than 7 GB by subsampling. The required artifact is missing.
 
 ## Required change
 

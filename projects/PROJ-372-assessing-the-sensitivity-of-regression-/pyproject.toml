@@ -3,11 +3,10 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmXive-sensitivity-analysis"
+name = "llmxive-sensitivity-regression"
 version = "0.1.0"
 description = "Assessing the sensitivity of regression coefficients to dataset subset selection"
-readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 dependencies = [
     "pandas>=2.0",
     "numpy>=1.24",
@@ -17,86 +16,21 @@ dependencies = [
     "pyyaml>=6.0",
     "datasets>=2.14",
     "pytest>=7.4",
-    "linearmodels>=4.3",
+    "matplotlib>=3.7",
     "ruff>=0.1.0",
     "black>=23.0",
 ]
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["src*", "tests*"]
+[tool.black]
+line-length = 88
+target-version = ["py311"]
 
 [tool.ruff]
-# Target Python version
-target-version = "py39"
-
-# Line length
-line-length = 88
-
-# Exclude directories
-exclude = [
-    ".git",
-    ".tox",
-    "__pycache__",
-    "build",
-    "dist",
-    "*.egg-info",
-    ".eggs",
-    "data",
-    "artifacts",
-    "docs",
-]
-
-[tool.ruff.lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
-select = ["E", "F", "I", "UP", "W"]
+# Linting rules configured in .ruff.toml, but enabling basic selection here if needed
+select = ["E", "F", "W", "I", "N", "UP", "ANN", "B", "C4", "SIM", "TCH", "PL"]
 ignore = []
-
-# Allow autofix for all enabled rules (when `--fix` is provided)
-fixable = ["ALL"]
-unfixable = []
-
-# Allow unused variables when underscore-prefixed
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-
-[tool.ruff.lint.per-file-ignores]
-# Ignore `E402` (import order) in `__init__.py` files
-"src/**/__init__.py" = ["E402"]
-"tests/**" = ["E501"]
-
-[tool.ruff.lint.isort]
-known-first-party = ["src", "tests"]
-force-sort-within-sections = false
-combine-as-imports = true
-
-[tool.black]
-# Line length
+target-version = "py311"
 line-length = 88
-# Target versions
-target-version = ["py39"]
-# Exclude patterns
-exclude = '''
-/(
-    \.git
-  | \.tox
-  | __pycache__
-  | build
-  | dist
-  | \.egg-info
-  | \.eggs
-  | data
-  | artifacts
-  | docs
-)/
-'''
-# Force exclude
-force-exclude = true
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-pythonpath = ["."]
-addopts = "-v --tb=short"
-
-[tool.coverage.run]
-source = ["src"]
-branch = true
+[tool.setuptools]
+packages = ["src", "src.ingestion", "src.resampling", "src.analysis", "src.utils"]

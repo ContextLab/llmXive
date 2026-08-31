@@ -1,70 +1,83 @@
 T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `src/ingestion` directory or an `__init__.py` file was provided;\
-    \ the claim cannot be verified without those artifacts present and non\u2011empty.\
-    \ The required directory and module file must be added to satisfy task T001a."
+  r: No evidence of a `src/ingestion` directory or an `__init__.py` file is provided;
+    the claim lacks any tangible artifact to verify that the required files exist.
 T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No evidence of a `src/resampling` directory or an `__init__.py` file was provided;
-    without these artifacts the claim that the task is completed cannot be verified.
-    The required directory and module file must be added to the repository.
+    the claim cannot be verified against actual artifacts. The required directory
+    and module file are missing.
 T001c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No evidence of a `src/analysis` directory or an `__init__.py` file was provided;
-    the claim cannot be verified without those artifacts. The required directory and
-    initialization file are missing.
+    without these artifacts present on disk, the requirement cannot be confirmed as
+    satisfied. The implementer must add the directory and the initialization file.
 T001d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided showing that a `src/utils` directory exists in the\
-    \ project, nor that it contains a non\u2011empty `__init__.py` file. The implementer\
-    \ must add the directory and the initialization file (with at least a placeholder\
-    \ comment or import) and ensure they are present in the repository."
+  r: No evidence of a `src/utils` directory or an `__init__.py` file was provided;
+    without these artifacts the task requirement is not satisfied.
 T001e:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No evidence of the required `tests/unit` and `tests/integration` directories
-    or their `__init__.py` files was presented; without these artifacts the task is
-    not satisfied.
-T003:
+    or their `__init__.py` files is provided; without visible artifacts we cannot
+    confirm they exist or contain any content. The implementer must add these directories
+    and the `__init__.py` files to satisfy the task.
+T004a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer provided no linting or formatting configuration files (e.g.,
-    `pyproject.toml` with `[tool.ruff]` and `[tool.black]` sections, or separate `ruff.toml`/`black.toml`),
-    nor any scripts or documentation showing that ruff and black have been set up
-    for the project. Consequently, the required artifact for task T003 is missing.
-T012:
+  r: "No directory structure was presented or listed in the provided evidence; the\
+    \ claim that the required folders (`data/raw`, `data/processed`, `artifacts/profiles`,\
+    \ `artifacts/stability`, `artifacts/meta_analysis`, `artifacts/checkpoints`) exist\
+    \ cannot be verified. The implementer must supply proof (e.g., a directory tree\
+    \ listing or screenshots) that these directories have been created and are non\u2011\
+    empty."
+T004c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `src/ingestion/downloader.py` file or its contents were provided; without
-    the script we cannot verify that it uses `datasets.load_dataset(..., streaming=True)`
-    to fetch verified HuggingFace/UCI URLs. The required artifact is missing.
-T014:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `src/ingestion/profiler.py` file or its contents were provided; thus we cannot\
-    \ verify that the script computes the condition number, Breusch\u2011Pagan statistic,\
-    \ and Cook\u2019s distance, nor that it handles datasets larger than 7\u202FGB\
-    \ by subsampling. The required artifact is missing."
-T017:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `research.md` file was presented in `specs/001-sensitivity-regression-coefficients/`,\
-    \ and the specification still contains `[deferred]` placeholders for the sample\u2011\
-    size tiers. Without the document and the concrete tier values `[10, 25, 50, 75,\
-    \ 90]`, the task\u2019s requirement is not satisfied."
+  r: No evidence of any `.gitkeep` files being added to empty directories is provided;
+    the claim lacks the required artifact confirming that all newly created empty
+    folders now contain a `.gitkeep` placeholder. The implementer must add and show
+    these files in the repository.
 T021:
   c: false
   h: 31ae8887cd82ce57ece70dc1a2e4bfa56d5a1ef73a2efb6bcae62f6f5e846d3d
   r: The required artifact `tests/unit/test_resampling.py` does not exist in the repository,
     so the unit test for singularity detection cannot be verified. The missing file
     must be added with the specified test case.
-T026:
+T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `src/resampling/aggregator.py` file or any code implementing the calculation
-    of empirical standard deviation of regression coefficients per tier was presented.
-    Consequently, the required artifact is missing, so the task is not satisfied.
+  r: "No artifact (e.g., a log file, JSON report, or printed output) was provided\
+    \ that shows the computed Standard Error of the SD and confirms it is below the\
+    \ 5\u202F% threshold. Without such evidence, the requirement to verify and log\
+    \ the result cannot be confirmed."
+T047:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `artifacts/stability/subsets_*.json` files are provided or described, and
+    there is no evidence that 200 random subsets per tier were generated and saved.
+    The required JSON artifacts are missing, so the task is not satisfied.
+T048:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `artifacts/stability/coefficient_sd.json` file was presented, and no content
+    showing computed empirical standard deviations per predictor per tier is available.
+    The required output is missing, so the task is not satisfied.
+T049:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or result artifacts were provided that demonstrate a comparison\
+    \ of coefficient standard deviations between configurable numbers of subsets (N\
+    \ vs\u202FM). The claim lacks any tangible output (e.g., a `StabilityResult` JSON,\
+    \ plots, or logs) showing the analysis, so the requirement is not satisfied."
+T050:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `artifacts/convergence.log` file is present, and there is no evidence of the
+    standard error of the SD being calculated or written. The implementer did not
+    provide the required output artifact, so the task is not satisfied.

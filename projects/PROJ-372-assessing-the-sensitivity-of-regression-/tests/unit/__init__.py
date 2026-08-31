@@ -1,4 +1,2 @@
-"""
-Unit tests package.
-Contains tests for individual components and logic units.
-"""
+# Unit tests package
+# Tests individual components in isolation

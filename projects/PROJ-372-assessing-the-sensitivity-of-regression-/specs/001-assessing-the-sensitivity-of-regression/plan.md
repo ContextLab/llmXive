@@ -9,11 +9,11 @@ This feature implements a computational study to assess how OLS assumption viola
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python 3.x  
 **Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `pyyaml`, `datasets` (HuggingFace), `pytest`, `linearmodels` (for HLM)  
 **Storage**: Local filesystem (`data/` for raw/processed CSV/Parquet, `artifacts/` for JSON/CSV results)  
 **Testing**: `pytest` with unit tests for statistical calculations and integration tests for the full pipeline on a small synthetic dataset.  
-**Target Platform**: GitHub Actions free-tier runner (Linux, 2 CPU, 7GB RAM).  
+**Target Platform**: GitHub Actions free-tier runner (Linux, multi-core CPU, 7GB RAM).  
 **Project Type**: Research CLI / Simulation Engine  
 **Performance Goals**: Complete datasets + A large number of subsets each within 6 hours; individual OLS fit < 0.1s; memory usage < 6GB peak.  
 **Constraints**: No external API calls requiring auth; no local GPU assumption; strict adherence to verified dataset URLs.  

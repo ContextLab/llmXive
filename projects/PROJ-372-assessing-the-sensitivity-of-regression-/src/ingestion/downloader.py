@@ -1,180 +1,180 @@
 """
-Dataset Downloader Module.
-
-Fetches datasets from verified sources (HuggingFace, UCI) using streaming
-to handle large datasets efficiently. Implements strict failure-on-error
-behavior with no synthetic fallbacks.
+Data loader module for fetching datasets from verified sources.
+Implements strict error handling with custom exception classes.
 """
 import os
+from pathlib import Path
+from typing import Optional, Dict, Any
 import hashlib
 import logging
-from typing import Optional, Dict, Any, Generator
-from pathlib import Path
 
-import pandas as pd
 from datasets import load_dataset
-from datasets.exceptions import DatasetNotFoundError, HfHubHTTPError
 
-from ..utils.config import DATASET_REGISTRY
-from ..utils.logger import get_logger
-from ..utils.validation import validate_checksum
-
-logger = get_logger(__name__)
+# Configure logger
+logger = logging.getLogger(__name__)
 
 
-def fetch_dataset(
+class IngestionError(Exception):
+    """Base exception for all ingestion-related errors."""
+    pass
+
+
+class DownloadError(IngestionError):
+    """Raised when dataset download fails."""
+    def __init__(self, message: str, source: Optional[str] = None):
+        super().__init__(message)
+        self.source = source
+        self.message = message
+
+class ValidationError(IngestionError):
+    """Raised when downloaded data fails validation checks."""
+    def __init__(self, message: str, field: Optional[str] = None):
+        super().__init__(message)
+        self.field = field
+        self.message = message
+
+
+def _compute_file_hash(filepath: Path) -> str:
+    """Compute MD5 hash of a file."""
+    hash_md5 = hashlib.md5()
+    with open(filepath, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
+
+
+def download_dataset(
     dataset_name: str,
-    config_name: Optional[str] = None,
-    split: str = "train",
+    output_dir: str,
+    source_url: Optional[str] = None,
+    expected_hash: Optional[str] = None,
     streaming: bool = True,
-    cache_dir: Optional[str] = None,
-) -> Generator[Dict[str, Any], None, None]:
+) -> Path:
     """
-    Fetch a dataset from a verified source using streaming.
+    Download a dataset from a verified source (HuggingFace/UCI).
 
     Args:
-        dataset_name: The name of the dataset as registered in DATASET_REGISTRY
-                      or a valid HuggingFace dataset ID.
-        config_name: Optional configuration name for HuggingFace datasets.
-        split: The dataset split to load (default: 'train').
-        streaming: If True, streams data in chunks. If False, loads fully into memory.
-        cache_dir: Optional directory to cache the dataset.
+        dataset_name: Name of the dataset (used for local filename).
+        output_dir: Directory to save the dataset.
+        source_url: URL or dataset identifier for load_dataset.
+        expected_hash: Optional MD5 hash for validation.
+        streaming: If True, use streaming mode for large datasets.
 
     Returns:
-        A generator yielding rows as dictionaries (if streaming) or an iterator.
+        Path to the downloaded dataset directory or file.
 
     Raises:
-        ValueError: If the dataset is not found in the registry or is invalid.
-        Exception: Propagates any download/fetch errors (NO synthetic fallback).
+        DownloadError: If download fails or source is unreachable.
+        ValidationError: If downloaded data fails hash validation.
     """
-    logger.info(f"Fetching dataset: {dataset_name} (streaming={streaming})")
-
-    # Check if dataset is in our verified registry
-    if dataset_name in DATASET_REGISTRY:
-        ds_config = DATASET_REGISTRY[dataset_name]
-        hf_id = ds_config.get("hf_id")
-        hf_config = ds_config.get("config")
-        expected_checksum = ds_config.get("checksum")
-
-        if not hf_id:
-            raise ValueError(f"Dataset {dataset_name} has no HuggingFace ID in registry.")
-
-        # Use config from registry if not provided
-        if config_name is None:
-            config_name = hf_config
-
-        logger.info(f"Using registry config: {dataset_name} -> {hf_id} ({config_name})")
-    else:
-        # Allow direct HF IDs if not in registry, but warn
-        logger.warning(f"Dataset {dataset_name} not in registry. Attempting direct load.")
-        expected_checksum = None
-
-    try:
-        # Load dataset
-        ds = load_dataset(
-            hf_id if dataset_name not in DATASET_REGISTRY else DATASET_REGISTRY[dataset_name]["hf_id"],
-            config=config_name if dataset_name in DATASET_REGISTRY else config_name,
-            split=split,
-            streaming=streaming,
-            cache_dir=cache_dir,
+    if not source_url:
+        raise DownloadError(
+            f"Source URL or dataset identifier required for '{dataset_name}'",
+            source=dataset_name
         )
 
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    try:
+        logger.info(f"Downloading dataset '{dataset_name}' from '{source_url}'...")
+
         if streaming:
-            # Return generator directly
-            return ds
-
-        else:
-            # Convert to pandas for memory-safe processing if not streaming
-            # Note: This assumes the dataset fits in memory if streaming=False
+            # For streaming, we process chunks and save to a temp location
+            # For simplicity in this implementation, we load the dataset
+            # and save to parquet if it's a HuggingFace dataset
+            ds = load_dataset(source_url, split="train", streaming=True)
+            
+            # Create a local parquet file for the dataset
+            local_file = output_path / f"{dataset_name}.parquet"
+            
+            # Convert streaming dataset to parquet
+            # Note: This requires materializing the dataset in memory/chunks
+            # For very large datasets, this would need chunked writing
             df = ds.to_pandas()
-            logger.info(f"Loaded dataset into memory: {len(df)} rows")
-            return df
+            df.to_parquet(local_file)
+            
+            logger.info(f"Dataset saved to {local_file}")
+            
+            # Validate hash if provided
+            if expected_hash:
+                actual_hash = _compute_file_hash(local_file)
+                if actual_hash != expected_hash:
+                    raise ValidationError(
+                        f"Hash mismatch for '{dataset_name}'. "
+                        f"Expected: {expected_hash}, Got: {actual_hash}",
+                        field="md5_hash"
+                    )
+            
+            return local_file
+        else:
+            # Non-streaming download
+            ds = load_dataset(source_url, split="train")
+            local_file = output_path / f"{dataset_name}.parquet"
+            df = ds.to_pandas()
+            df.to_parquet(local_file)
+            
+            logger.info(f"Dataset saved to {local_file}")
+            
+            # Validate hash if provided
+            if expected_hash:
+                actual_hash = _compute_file_hash(local_file)
+                if actual_hash != expected_hash:
+                    raise ValidationError(
+                        f"Hash mismatch for '{dataset_name}'. "
+                        f"Expected: {expected_hash}, Got: {actual_hash}",
+                        field="md5_hash"
+                    )
+            
+            return local_file
 
-    except (DatasetNotFoundError, HfHubHTTPError) as e:
-        logger.error(f"Failed to fetch dataset {dataset_name}: {e}")
-        # Fail loudly - no synthetic fallback
-        raise RuntimeError(f"Data fetch failed for {dataset_name}: {e}") from e
     except Exception as e:
-        logger.error(f"Unexpected error fetching {dataset_name}: {e}")
-        raise
+        logger.error(f"Failed to download dataset '{dataset_name}': {str(e)}")
+        raise DownloadError(
+            f"Failed to download dataset '{dataset_name}': {str(e)}",
+            source=source_url
+        ) from e
 
 
 def ingest_and_profile(
     dataset_name: str,
-    output_path: str,
-    config_name: Optional[str] = None,
-    split: str = "train",
+    config: Dict[str, Any],
 ) -> Dict[str, Any]:
     """
-    Ingest a dataset, perform initial profiling, and save results.
-
-    This function orchestrates the download and basic validation, then
-    delegates detailed statistical profiling to the profiler module.
+    High-level function to download and profile a dataset.
 
     Args:
         dataset_name: Name of the dataset to ingest.
-        output_path: Path to save the profile JSON.
-        config_name: Optional config for HuggingFace datasets.
-        split: Dataset split to use.
+        config: Configuration dictionary containing source_url, output_dir, etc.
 
     Returns:
-        Dictionary containing the dataset profile.
+        Dictionary containing dataset profile information.
+
+    Raises:
+        IngestionError: If any step in the ingestion process fails.
     """
-    logger.info(f"Starting ingestion and profiling for: {dataset_name}")
+    from .profiler import DatasetProfiler
 
-    # Fetch data (streaming by default for large datasets)
-    data_source = fetch_dataset(
-        dataset_name,
-        config_name=config_name,
-        split=split,
-        streaming=True,
-    )
+    try:
+        source_url = config.get("source_url")
+        output_dir = config.get("output_dir", "data/raw")
+        expected_hash = config.get("expected_hash")
 
-    # Convert streaming data to a manageable format for profiling
-    # For very large datasets, we might need to sample or stream into profiler
-    # For now, we collect a representative sample or full data if small
-    df = None
-    if hasattr(data_source, "to_pandas"):
-        df = data_source.to_pandas()
-    else:
-        # Streaming iterator - convert to DF (be careful with memory)
-        # In a real scenario, we might want to stream this into the profiler
-        # or take a fixed sample for initial profiling
-        try:
-            df = pd.DataFrame(list(data_source))
-        except MemoryError:
-            logger.warning("Dataset too large for memory. Taking 100k row sample.")
-            data_source = fetch_dataset(
-                dataset_name,
-                config_name=config_name,
-                split=split,
-                streaming=True,
-            )
-            df = pd.DataFrame(list(data_source).copy()[:100000])
+        dataset_path = download_dataset(
+            dataset_name=dataset_name,
+            output_dir=output_dir,
+            source_url=source_url,
+            expected_hash=expected_hash,
+        )
 
-    if df is None or df.empty:
-        raise ValueError("No data loaded for profiling.")
+        profiler = DatasetProfiler()
+        profile = profiler.profile_dataset(dataset_path)
 
-    # Basic validation
-    if df.empty:
-        raise ValueError("Dataset is empty after loading.")
+        return profile
 
-    # Ensure numeric columns exist for regression analysis
-    numeric_cols = df.select_dtypes(include=["number"]).columns.tolist()
-    if len(numeric_cols) < 2:
-        logger.warning(f"Dataset {dataset_name} has insufficient numeric columns for regression.")
-
-    # Compute profile (delegated to profiler module)
-    from .profiler import compute_profile
-    profile = compute_profile(df, dataset_name)
-
-    # Save profile to output path
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    import json
-    with open(output_path, "w") as f:
-        json.dump(profile, f, indent=2, default=str)
-
-    logger.info(f"Profile saved to {output_path}")
-    return profile
+    except (DownloadError, ValidationError) as e:
+        logger.error(f"Ingestion failed for '{dataset_name}': {str(e)}")
+        raise e
+    except Exception as e:
+        logger.error(f"Unexpected error during ingestion of '{dataset_name}': {str(e)}")
+        raise IngestionError(f"Unexpected error during ingestion: {str(e)}") from e

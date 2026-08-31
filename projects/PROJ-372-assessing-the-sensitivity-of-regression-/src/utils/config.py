@@ -1,68 +1,66 @@
 """
-Configuration module for the sensitivity analysis pipeline.
-
-This module defines constants, sample size tiers, and verified dataset
-sources. It serves as the single source of truth for dataset IDs and
-their corresponding access methods.
+Configuration management for the sensitivity analysis pipeline.
+Loads research parameters (like sample size tiers) from the specification.
 """
+import os
+from typing import List, Dict, Any
+from pathlib import Path
 
-from typing import Dict, Any
-
-# Sample size tiers as percentages of the full dataset.
-# Defined in T017 as the representative tiered values.
-SAMPLE_SIZE_TIERS: list[int] = [10, 25, 50, 75, 90]
-
-# Random seed for reproducibility across all experiments.
-RANDOM_SEED: int = 42
-
-# Maximum number of rows to load into memory for profiling if the dataset is large.
-# Datasets exceeding this will be subsampled to ensure memory compliance.
-MAX_ROWS_FOR_PROFILING: int = 100_000
-
-# Threshold for condition number to flag multicollinearity.
-CONDITION_NUMBER_THRESHOLD: float = 30.0
-
-# Convergence criteria for resampling experiments (Standard Error of SD).
-CONVERGENCE_THRESHOLD: float = 0.05
-
-# Maximum number of subsets to generate per tier during convergence checks.
-MAX_SUBSETS_PER_TIER: int = 500
-
-# Initial number of subsets to generate per tier before convergence check.
-INITIAL_SUBSETS_PER_TIER: int = 200
-
-# Verified Dataset Registry
-# Keys are dataset IDs, values are dictionaries containing source type and
-# the specific identifier or URL needed to load the data.
-# This dictionary is the single source of truth for T012 (downloader).
-VERIFIED_DATASETS: Dict[str, Dict[str, Any]] = {
-    "UCI:Auto": {
-        "source": "UCI",
-        "name": "Auto",
-        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/auto-mpg/auto-mpg.data",
-        "description": "Auto MPG dataset for regression analysis.",
-        "target_column": "mpg",
-        "delimiter": " "
+# Default configuration values if not overridden by environment or file
+_DEFAULT_CONFIG = {
+    "sample_size_tiers": [10, 25, 50, 75, 90],
+    "num_subsets_per_tier": 200,
+    "convergence_threshold_pct": 5.0,
+    "violation_thresholds": {
+        "low_pval": 0.10,
+        "medium_pval": 0.05,
     },
-    "HuggingFace:california_housing": {
-        "source": "HuggingFace",
-        "name": "california_housing",
-        "dataset_id": "skops/california_housing",
-        "description": "California Housing dataset for regression.",
-        "target_column": "MedHouseVal"
-    },
-    "UCI:Concrete": {
-        "source": "UCI",
-        "name": "Concrete Compressive Strength",
-        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/concrete/compressive/concrete_slump_and_compressive_strength.csv",
-        "description": "Concrete compressive strength dataset.",
-        "target_column": "Concrete compressive strength (MPa)"
-    },
-    "HuggingFace:concrete_strength": {
-        "source": "HuggingFace",
-        "name": "concrete_strength",
-        "dataset_id": "burtenshaw/concrete_strength",
-        "description": "Alternative source for concrete strength data.",
-        "target_column": "compressive_strength"
-    }
+    "random_seed": 42,
+    "max_rows_to_profile": 100_000,
+    "memory_limit_bytes": 7 * 1024 * 1024 * 1024,  # 7GB
 }
+
+def get_sample_size_tiers() -> List[int]:
+    """
+    Returns the list of sample size tier percentages to use for resampling.
+    These values are sourced from the specification (spec.md) to ensure
+    consistency with the research design.
+    
+    Returns:
+        List[int]: A list of integers representing percentage values (e.g., [10, 25, ...]).
+    """
+    # In a real deployment, this could read from a YAML/JSON config file
+    # or environment variables. For now, it returns the spec-defined defaults.
+    return _DEFAULT_CONFIG["sample_size_tiers"]
+
+def get_num_subsets_per_tier() -> int:
+    """Returns the number of subsets to generate per tier."""
+    return _DEFAULT_CONFIG["num_subsets_per_tier"]
+
+def get_convergence_threshold() -> float:
+    """Returns the threshold for convergence (Standard Error of SD)."""
+    return _DEFAULT_CONFIG["convergence_threshold_pct"]
+
+def get_random_seed() -> int:
+    """Returns the global random seed."""
+    return _DEFAULT_CONFIG["random_seed"]
+
+def get_violation_thresholds() -> Dict[str, float]:
+    """Returns thresholds for classifying violation severity."""
+    return _DEFAULT_CONFIG["violation_thresholds"]
+
+def get_project_root() -> Path:
+    """Returns the root path of the project."""
+    return Path(__file__).resolve().parent.parent.parent
+
+def get_data_dir() -> Path:
+    """Returns the path to the data directory."""
+    return get_project_root() / "data"
+
+def get_artifacts_dir() -> Path:
+    """Returns the path to the artifacts directory."""
+    return get_project_root() / "artifacts"
+
+def get_specs_dir() -> Path:
+    """Returns the path to the specs directory."""
+    return get_project_root() / "specs" / "001-sensitivity-regression-coefficients"

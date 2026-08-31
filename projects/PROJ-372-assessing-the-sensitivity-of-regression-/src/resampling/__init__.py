@@ -1,23 +1,34 @@
 """
-Resampling module for assessing regression coefficient sensitivity.
+Resampling module for subset generation and stability estimation.
 
-This module provides utilities for generating random dataset subsets,
-fitting OLS models on those subsets, and aggregating stability metrics.
+This module provides functionality to generate random observation subsets
+across multiple sample size tiers, fit OLS models, and compute empirical
+standard deviations of regression coefficients.
 
-Exposed API:
-- run_resampling_experiment: Main pipeline entry point
-- generate_subsets: Subset generation logic
-- fit_ols_subset: Robust OLS fitting with singularity handling
-- compute_stability_metrics: Aggregation of coefficient variances
+Key components:
+- Subset generation with configurable tiers
+- Robust OLS fitting with singularity handling
+- Coefficient stability analysis
 """
 
-from src.resampling.engine import generate_subsets, fit_ols_subset, run_resampling_experiment
-from src.resampling.aggregator import compute_stability_metrics, check_convergence
+from .engine import (
+    generate_subsets,
+    fit_ols_models,
+    compute_coefficient_stability,
+    run_resampling_experiment,
+)
+from .config import (
+    get_sample_size_tiers,
+    validate_subset_size,
+    load_resampling_config,
+)
 
 __all__ = [
-    "run_resampling_experiment",
     "generate_subsets",
-    "fit_ols_subset",
-    "compute_stability_metrics",
-    "check_convergence",
+    "fit_ols_models",
+    "compute_coefficient_stability",
+    "run_resampling_experiment",
+    "get_sample_size_tiers",
+    "validate_subset_size",
+    "load_resampling_config",
 ]

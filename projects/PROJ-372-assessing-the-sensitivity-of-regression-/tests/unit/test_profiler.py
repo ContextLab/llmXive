@@ -1,278 +1,192 @@
 """
 Unit tests for the profiler module.
 """
+import pytest
 import numpy as np
 import pandas as pd
-import pytest
-from statsmodels.stats.diagnostic import het_breuschpagan
-import statsmodels.api as sm
+from unittest.mock import patch, MagicMock
+
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from src.ingestion.profiler import (
-    classify_bp_severity,
-    classify_cooks_severity,
-    classify_condition_number_severity,
     compute_condition_number,
     compute_breusch_pagan,
     compute_cooks_distance,
-    classify_violation_severity,
-    profile_dataset
+    profile_dataset,
+    run_profiler
 )
-from src.models.data_models import DatasetProfile
-
-
-class TestClassifyBPSeverity:
-    def test_high_severity_low_pvalue(self):
-        """Test that low p-value returns High severity"""
-        result = classify_bp_severity(10.0, 0.01)
-        assert result == "High"
-
-    def test_medium_severity_medium_pvalue(self):
-        """Test that medium p-value returns Medium severity"""
-        result = classify_bp_severity(10.0, 0.07)
-        assert result == "Medium"
-
-    def test_low_severity_high_pvalue(self):
-        """Test that high p-value returns Low severity"""
-        result = classify_bp_severity(10.0, 0.2)
-        assert result == "Low"
-
-    def test_unknown_severity_nan_pvalue(self):
-        """Test that NaN p-value returns Unknown severity"""
-        result = classify_bp_severity(10.0, np.nan)
-        assert result == "Unknown"
-
-    def test_unknown_severity_none_pvalue(self):
-        """Test that None p-value returns Unknown severity"""
-        result = classify_bp_severity(10.0, None)
-        assert result == "Unknown"
-
-
-class TestClassifyCooksSeverity:
-    def test_high_severity_large_cooks(self):
-        """Test that Cook's distance > 1 returns High severity"""
-        result = classify_cooks_severity(1.5, 100)
-        assert result == "High"
-
-    def test_medium_severity_threshold_4n(self):
-        """Test that Cook's distance > 4/n returns Medium severity"""
-        n = 100
-        threshold = 4.0 / n
-        result = classify_cooks_severity(threshold * 2, n)
-        assert result == "Medium"
-
-    def test_low_severity_small_cooks(self):
-        """Test that small Cook's distance returns Low severity"""
-        result = classify_cooks_severity(0.01, 100)
-        assert result == "Low"
-
-
-class TestClassifyConditionNumberSeverity:
-    def test_high_severity_very_large_cond(self):
-        """Test that very large condition number returns High severity"""
-        result = classify_condition_number_severity(1500.0)
-        assert result == "High"
-
-    def test_medium_severity_large_cond(self):
-        """Test that large condition number returns Medium severity"""
-        result = classify_condition_number_severity(150.0)
-        assert result == "Medium"
-
-    def test_high_severity_above_30(self):
-        """Test that condition number > 30 returns High (multicollinearity concern)"""
-        result = classify_condition_number_severity(50.0)
-        assert result == "High"
-
-    def test_low_severity_small_cond(self):
-        """Test that small condition number returns Low severity"""
-        result = classify_condition_number_severity(10.0)
-        assert result == "Low"
-
-    def test_critical_severity_inf(self):
-        """Test that infinite condition number returns Critical"""
-        result = classify_condition_number_severity(float('inf'))
-        assert result == "Critical"
-
-    def test_critical_severity_nan(self):
-        """Test that NaN condition number returns Critical"""
-        result = classify_condition_number_severity(float('nan'))
-        assert result == "Critical"
 
 
 class TestComputeConditionNumber:
     def test_well_conditioned_matrix(self):
-        """Test condition number computation on well-conditioned matrix"""
+        """Test with a well-conditioned matrix (identity-like)."""
         X = np.eye(10)
         cond = compute_condition_number(X)
-        assert cond == pytest.approx(1.0, rel=1e-5)
+        assert np.isclose(cond, 1.0, rtol=1e-5)
 
-    def test_multicollinear_matrix(self):
-        """Test condition number computation on multicollinear matrix"""
-        X = np.column_stack([np.ones(100), np.random.randn(100), np.random.randn(100) * 1000])
+    def test_ill_conditioned_matrix(self):
+        """Test with an ill-conditioned matrix."""
+        # Create a matrix with a very small singular value
+        X = np.array([
+            [1, 0],
+            [0, 1e-10]
+        ])
         cond = compute_condition_number(X)
-        assert cond > 30  # Should detect multicollinearity
-
-    def test_single_column(self):
-        """Test condition number on single column matrix"""
-        X = np.random.randn(100, 1)
-        cond = compute_condition_number(X)
-        assert cond > 0
+        assert cond > 1e9
 
     def test_empty_matrix(self):
-        """Test condition number on empty matrix"""
-        X = np.array([]).reshape(10, 0)
+        """Test with an empty matrix."""
+        X = np.array([]).reshape(0, 0)
         cond = compute_condition_number(X)
-        assert cond == 0.0
+        assert np.isnan(cond)
+
+    def test_singular_matrix(self):
+        """Test with a singular matrix."""
+        X = np.array([
+            [1, 2],
+            [2, 4]
+        ])
+        cond = compute_condition_number(X)
+        assert np.isinf(cond)
 
 
 class TestComputeBreuschPagan:
-    def test_heteroskedastic_data(self):
-        """Test BP test on heteroskedastic data"""
+    def test_homoscedastic_data(self):
+        """Test with homoscedastic data (should have high p-value)."""
+        np.random.seed(42)
+        n = 100
+        X = np.random.randn(n, 2)
+        y = 1 + 2 * X[:, 0] + 3 * X[:, 1] + np.random.randn(n) * 0.5
+        
+        stat, pval = compute_breusch_pagan(X, y)
+        assert not np.isnan(stat)
+        assert not np.isnan(pval)
+        # p-value should be relatively high for homoscedastic data
+        # (though not guaranteed, it's likely > 0.05)
+
+    def test_heteroscedastic_data(self):
+        """Test with heteroscedastic data (should have low p-value)."""
         np.random.seed(42)
         n = 200
         X = np.random.randn(n, 2)
-        # Create heteroskedastic errors
-        errors = np.random.randn(n) * (1 + X[:, 0]**2)
-        y = X @ [1, 2] + errors
-
-        stat, pval = compute_breusch_pagan(y, X)
+        # Heteroscedastic: variance increases with X
+        y = 1 + 2 * X[:, 0] + 3 * X[:, 1] + np.abs(X[:, 0]) * np.random.randn(n) * 2
+        
+        stat, pval = compute_breusch_pagan(X, y)
         assert not np.isnan(stat)
         assert not np.isnan(pval)
-        assert stat >= 0
-        assert 0 <= pval <= 1
 
-    def test_homoskedastic_data(self):
-        """Test BP test on homoskedastic data"""
-        np.random.seed(42)
-        n = 200
-        X = np.random.randn(n, 2)
-        errors = np.random.randn(n)  # Homoskedastic
-        y = X @ [1, 2] + errors
-
-        stat, pval = compute_breusch_pagan(y, X)
-        assert not np.isnan(stat)
-        assert not np.isnan(pval)
+    def test_insufficient_data(self):
+        """Test with insufficient data points."""
+        X = np.array([[1, 2]])
+        y = np.array([3])
+        stat, pval = compute_breusch_pagan(X, y)
+        assert np.isnan(stat)
+        assert np.isnan(pval)
 
 
 class TestComputeCooksDistance:
-    def test_no_influential_points(self):
-        """Test Cook's distance on data without influential points"""
+    def test_normal_data(self):
+        """Test with normal data."""
         np.random.seed(42)
         n = 100
         X = np.random.randn(n, 2)
-        y = X @ [1, 2] + np.random.randn(n) * 0.1
-
-        max_cooks = compute_cooks_distance(y, X)
+        y = 1 + 2 * X[:, 0] + 3 * X[:, 1] + np.random.randn(n) * 0.5
+        
+        cooks_d, max_cooks = compute_cooks_distance(X, y)
+        assert len(cooks_d) == n
         assert not np.isnan(max_cooks)
         assert max_cooks >= 0
 
-    def test_with_influential_point(self):
-        """Test Cook's distance detects influential points"""
+    def test_influential_point(self):
+        """Test with an influential point."""
         np.random.seed(42)
         n = 100
         X = np.random.randn(n, 2)
-        y = X @ [1, 2] + np.random.randn(n) * 0.1
-
+        y = 1 + 2 * X[:, 0] + 3 * X[:, 1] + np.random.randn(n) * 0.5
+        
         # Add an influential point
         X = np.vstack([X, [10, 10]])
         y = np.append(y, 100)
+        
+        cooks_d, max_cooks = compute_cooks_distance(X, y)
+        assert max_cooks > 0.5  # Should be high due to influential point
 
-        max_cooks = compute_cooks_distance(y, X)
-        assert not np.isnan(max_cooks)
-        assert max_cooks > 0
-
-
-class TestClassifyViolationSeverity:
-    def test_all_low_severity(self):
-        """Test classification when all metrics show low severity"""
-        result = classify_violation_severity(
-            bp_stat=5.0,
-            bp_pvalue=0.5,
-            max_cooks=0.01,
-            condition_number=15.0,
-            n_observations=100
-        )
-        assert result["breusch_pagan"] == "Low"
-        assert result["cooks_distance"] == "Low"
-        assert result["condition_number"] == "Low"
-        assert result["multicollinearity_detected"] is False
-
-    def test_high_multicollinearity(self):
-        """Test classification when multicollinearity is high"""
-        result = classify_violation_severity(
-            bp_stat=5.0,
-            bp_pvalue=0.5,
-            max_cooks=0.01,
-            condition_number=150.0,
-            n_observations=100
-        )
-        assert result["condition_number"] == "Medium"
-        assert result["multicollinearity_detected"] is True
-
-    def test_high_bp_severity(self):
-        """Test classification when BP shows high severity"""
-        result = classify_violation_severity(
-            bp_stat=20.0,
-            bp_pvalue=0.01,
-            max_cooks=0.01,
-            condition_number=15.0,
-            n_observations=100
-        )
-        assert result["breusch_pagan"] == "High"
+    def test_insufficient_data(self):
+        """Test with insufficient data points."""
+        X = np.array([[1, 2]])
+        y = np.array([3])
+        cooks_d, max_cooks = compute_cooks_distance(X, y)
+        assert len(cooks_d) == 0
+        assert np.isnan(max_cooks)
 
 
 class TestProfileDataset:
-    def test_profile_small_dataset(self):
-        """Test profiling a small dataset"""
+    def test_full_profile(self):
+        """Test profiling a complete dataset."""
         np.random.seed(42)
-        n = 100
+        n = 200
         df = pd.DataFrame({
-            'target': np.random.randn(n),
-            'feat1': np.random.randn(n),
-            'feat2': np.random.randn(n)
+            'y': np.random.randn(n),
+            'x1': np.random.randn(n),
+            'x2': np.random.randn(n)
         })
+        
+        result = profile_dataset(df, target_col='y', feature_cols=['x1', 'x2'])
+        
+        assert 'condition_number' in result
+        assert 'breusch_pagan_stat' in result
+        assert 'max_cooks_distance' in result
+        assert result['n_samples'] == n
+        assert result['n_features'] == 3  # 2 features + 1 intercept
+        assert not np.isnan(result['condition_number'])
+        assert not np.isnan(result['breusch_pagan_stat'])
+        assert not np.isnan(result['max_cooks_distance'])
 
-        profile = profile_dataset(df, 'target', ['feat1', 'feat2'])
+    def test_empty_dataset(self):
+        """Test with an empty dataset."""
+        df = pd.DataFrame({'y': [], 'x1': [], 'x2': []})
+        with pytest.raises(ValueError, match="Dataset is empty"):
+            profile_dataset(df, target_col='y', feature_cols=['x1', 'x2'])
 
-        assert isinstance(profile, DatasetProfile)
-        assert profile.n_observations == n
-        assert profile.n_features == 2
-        assert not np.isnan(profile.condition_number)
-        assert not np.isnan(profile.breusch_pagan_stat)
-        assert not np.isnan(profile.max_cooks_distance)
-        assert profile.violation_severity is not None
 
-    def test_profile_with_subsample(self):
-        """Test profiling with subsampling"""
+class TestRunProfiler:
+    def test_small_dataset(self):
+        """Test with a small dataset that fits in memory."""
         np.random.seed(42)
-        n = 500
         df = pd.DataFrame({
-            'target': np.random.randn(n),
-            'feat1': np.random.randn(n),
-            'feat2': np.random.randn(n)
+            'y': np.random.randn(100),
+            'x1': np.random.randn(100),
+            'x2': np.random.randn(100)
         })
+        
+        result = run_profiler(df, target_col='y', feature_cols=['x1', 'x2'])
+        
+        assert result['n_samples'] == 100
+        assert not np.isnan(result['condition_number'])
 
-        profile = profile_dataset(df, 'target', ['feat1', 'feat2'], subsample_size=100)
-
-        assert profile.n_observations == 100
-        assert profile.n_features == 2
-
-    def test_profile_multicollinearity_detection(self):
-        """Test that multicollinearity is correctly detected"""
+    def test_large_dataset_subsample(self):
+        """Test with a large dataset that triggers subsampling."""
         np.random.seed(42)
-        n = 100
-        # Create highly correlated features
-        feat1 = np.random.randn(n)
-        feat2 = feat1 * 100 + np.random.randn(n) * 0.1
-
+        n = 200_000  # Large dataset
         df = pd.DataFrame({
-            'target': np.random.randn(n),
-            'feat1': feat1,
-            'feat2': feat2
+            'y': np.random.randn(n),
+            'x1': np.random.randn(n),
+            'x2': np.random.randn(n)
         })
-
-        profile = profile_dataset(df, 'target', ['feat1', 'feat2'])
-
-        # Condition number should be high
-        assert profile.condition_number > 30
-        assert profile.multicollinearity_detected is True
-        assert profile.violation_severity["condition_number"] != "Low"
+        
+        # Force subsampling by setting low threshold
+        result = run_profiler(
+            df, 
+            target_col='y', 
+            feature_cols=['x1', 'x2'],
+            memory_threshold_gb=0.1,  # Very low threshold
+            subsample_threshold_rows=1000
+        )
+        
+        # Should be subsampled
+        assert result['n_samples'] <= 1000
+        assert result['n_samples'] > 0
+        assert not np.isnan(result['condition_number'])

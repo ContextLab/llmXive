@@ -56,17 +56,20 @@
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can begin.
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [X] T002 [P] Create `requirements.txt` at repository root containing: `pandas>=2.0`, `numpy>=1.24`, `scipy>=1.10`, `statsmodels>=0.14`, `scikit-learn>=1.2`, `pyyaml>=6.0`, `datasets>=2.14`, `pytest>=7.4`, `linearmodels>=4.3`, `ruff>=0.1.0`, `black>=23.0`
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [ ] T004 [P] Setup data directory structure (`data/raw`, `data/processed`, `artifacts`) and `.gitignore` for large files
+- [X] T002 [P] Create `requirements.txt` at repository root containing: `pandas>=2.0`, `numpy>=1.24`, `scipy>=1.10`, `statsmodels>=0.14`, `scikit-learn>=1.2`, `pyyaml>=6.0`, `datasets>=2.14`, `pytest>=7.4`, `matplotlib>=3.7`, `ruff>=0.1.0`, `black>=23.0`
+- [X] T003a [P] Create `.ruff.toml` with rules for `E`, `F`, `W`, `I`, `N`, `UP`, `ANN`, `B`, `C4`, `SIM`, `TCH`, `PL`
+- [X] T003b [P] Create `pyproject.toml` black configuration with line-length=88, target-version=py311
+- [ ] T003c [P] Add pre-commit hook configuration for ruff and black in `.pre-commit-config.yaml`
+- [ ] T004a [P] Create directory structure: `data/raw`, `data/processed`, `artifacts/profiles`, `artifacts/stability`, `artifacts/meta_analysis`, `artifacts/checkpoints`
+- [X] T004b [P] Create `.gitignore` with specific patterns: `data/raw/*`, `!data/raw/.gitkeep`, `data/processed/*`, `!data/processed/.gitkeep`, `artifacts/*`, `!artifacts/.gitkeep`, `*.parquet`, `*.pkl`, `__pycache__`, `.env`
+- [ ] T004c [P] Add `.gitkeep` files to all newly created empty directories to ensure they are tracked
 - [X] T005 [P] Implement utility module for checksumming (MD5) and validation in `src/utils/validation.py`
 - [X] T006 [P] Setup environment configuration management (loading dataset lists, random seeds) in `src/utils/config.py`
 - [X] T007 [P] Create base data models (Pydantic/TypedDict) for `DatasetProfile`, `StabilityResult`, `InteractionModel` in `src/models/data_models.py`
-- [X] T017 **Define Sample Size Tiers and Configuration**: Generate `research.md` in `specs/001-sensitivity-regression-coefficients/` explicitly documenting the rationale for the fixed sample size tier percentages `[10, 25, 50, 75, 90]`. **AND** Implement `src/utils/config.py` to define `SAMPLE_SIZE_TIERS` as a list of representative tiered values. and `VERIFIED_DATASETS = {'UCI:Auto': '...', 'HuggingFace:california_housing': '...'}`. This task is the single source of truth for tier values and dataset IDs. **Deliverable**: `research.md` with rationale and `src/utils/config.py` with constants.
-- [X] T011a [P] **Populate Verified Dataset URLs**: Ensure `src/utils/config.py` contains the full list of verified dataset IDs and URLs (e.g., 'UCI:Auto', 'HuggingFace:california_housing', 'UCI:Concrete', 'HuggingFace:concrete_strength'). **Deliverable**: `src/utils/config.py` updated with `VERIFIED_DATASETS` dictionary.
-- [ ] T008 [P] Configure error handling and logging infrastructure (structured logs to `artifacts/run.log`) in `src/utils/logger.py`
-- [X] T009 [P] Implement checkpoint mechanism (save/load JSON state) in `src/utils/checkpoint.py` defining the **schema** for checkpoint state that T024 and T037 will consume to prevent schema drift.
-- [ ] T017a [P] **DEPRECATED**: Merged into T017. Remove this task.
+- [X] T007a [P] **Define Sample Size Tiers**: **RESEARCH ACTION REQUIRED**: Before implementation, update `specs/001-sensitivity-regression-coefficients/spec.md` (User Story 2) to replace `[deferred]` with the 5 specific sample size tier percentages (e.g., [deferred], [deferred], etc.). **IMPLEMENTATION**: Once Spec is updated, implement reading these tiers from `src/utils/config.py` (loaded from spec-derived config). **STRICT RULE**: Do NOT hardcode specific percentage values in this task or the subsequent implementation code. The values must be sourced from the Spec or a configuration file that reflects the Spec. The task description itself must not list example values like `[10, 25, 50, 75, 90]`.
+- [X] T008 [P] Configure error handling and logging infrastructure (structured logs to `artifacts/run.log`) in `src/utils/logger.py`
+- [X] T009 [P] Implement checkpoint mechanism (save/load JSON state) in `src/utils/checkpoint.py` defining the **schema** for checkpoint state that T024 and T047 will consume to prevent schema drift.
+- [X] T013 [US1] Implement strict data loader in `src/ingestion/downloader.py` that raises on failure. **Clarification**: "NO synthetic fallback" means no generation of fake data. **Rule**: If dataset > 100k rows AND estimated to exceed a substantial amount of RAM, subsample to a representative subset of rows; do not generate synthetic data. Raise error only if download fails or data is invalid. **GPU Escape Hatch**: If subsampling fails or data is still too large, trigger re-run on Kaggle GPU kernel (as per plan.md).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -87,10 +90,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] **Depends: T011a** Implement `downloader.py` in `src/ingestion/` to fetch datasets from verified HuggingFace/UCI URLs using `datasets.load_dataset(..., streaming=True)`. **Deliverable**: Save raw CSV to `data/raw/{dataset_id}.csv` and verify file exists and checksum matches. Use `VERIFIED_DATASETS` from `src/utils/config.py`.
-- [X] T013 [US1] Implement strict data loader in `src/ingestion/downloader.py` that raises on failure. **Clarification**: "NO synthetic fallback" means no generation of fake data. **Rule**: If dataset > 100k rows, subsample to 100k rows; do not generate synthetic data. Raise error only if download fails or data is invalid.
-- [ ] T014 [US1] Implement `profiler.py` in `src/ingestion/` to compute Condition Number, Breusch-Pagan statistic, and Cook's Distance on the full dataset (or streamed sample if >7GB). **Deliverable**: Write `artifacts/profiles/{dataset_id}.json` containing `breusch_pagan_stat`, `max_cooks_distance`, `condition_number`, and `violation_severity`.
-- [X] T015 [US1] Implement logic in `src/ingestion/profiler.py` to classify violation severity (Low/Medium/High) based on computed statistics and handle multicollinearity (condition number > 30).
+- [ ] T012 [P] [US1] Implement `downloader.py` in `src/ingestion/` to fetch datasets from verified HuggingFace/UCI URLs using `datasets.load_dataset(..., streaming=True)`
+- [ ] T014 [US1] Implement `profiler.py` in `src/ingestion/` to compute Condition Number, Breusch-Pagan statistic, and Cook's Distance on the full dataset (or streamed sample if >7GB)
+- [X] T015 [US1] Implement logic in `src/ingestion/profiler.py` to classify violation severity (Low/Medium/High) based on computed statistics and handle multicollinearity (condition number > 30)
 - [X] T016 [US1] Implement subsampling logic in `src/ingestion/profiler.py` for datasets > 100k rows to ensure CPU feasibility. **Reference**: Compare subsampled BP stat against the BP stat computed on the largest available sample (full dataset or streamed sample if >7GB) to verify stability (<5% deviation).
 - [ ] T019 [US1] **Depends: T014** **Enforce Memory Constraint**: Implement logic in `src/ingestion/profiler.py` to immediately subsample datasets > 100k rows to exactly 100k rows using random sampling (seed=42) if the estimated RAM usage exceeds a substantial threshold. **Deliverable**: Log the reduction ratio and ensure profiling proceeds on the subsampled data. **Note**: This replaces the streaming fallback; subsampling is the primary constraint enforcement mechanism for >100k rows.
 - [X] T020 [P] [US1] Create `src/ingestion/__init__.py` to expose `ingest_and_profile` pipeline that outputs `DatasetProfile` JSON to `artifacts/profiles/`.
@@ -108,19 +110,20 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T021 [P] [US2] Unit test for singularity detection (skip fit if condition number infinite) in `tests/unit/test_resampling.py` using input data with a fixed two-dimensional shape and condition number > 1e15, expecting a specific `LinAlgError`.
-- [ ] T022 [US2] Integration test for resampling loop completion and artifact generation in `tests/integration/test_resampling.py`. **Deliverable**: Verify that the pipeline generates `artifacts/stability/{dataset_id}_sd.csv` and that OLS fits complete without crashing.
+- [X] T022 [P] [US2] Integration test for resampling loop completion and artifact generation in `tests/integration/test_resampling.py`
 
 ### Implementation for User Story 2
 
-- [X] T023 [P] [US2] **Depends: T017** Implement `engine.py` in `src/resampling/` to generate random subsets per dataset across 5 tiers (percentages defined in `src/utils/config.py` by T017). **Deliverable**: Generate subsets for each tier.
-- [X] T024 [US2] **Depends: T017** Implement robust OLS fitting loop in `src/resampling/engine.py` using `statsmodels` that catches singular matrix errors, skips invalid subsets, and logs warnings.
-- [X] T025 [US2] **Depends: T017** Implement constraint check in `src/resampling/engine.py` to ensure subset size ≥ 10 × number of predictors before fitting.
-- [ ] T026 [US2] **Depends: T023** Implement `aggregator.py` in `src/resampling/` to calculate empirical standard deviation of coefficients across the **initial** 200 valid subsets per tier. **Deliverable**: Generate `artifacts/stability/{dataset_id}_sd_initial.csv` with columns `dataset_id`, `sample_size_percent`, `coefficient_std_dev`, `n_valid_fits`. **Logic**: Generate a representative number of subsets per tier as the baseline.
-- [X] T035 [US2] **Depends: T026** **Convergence Logic**: Implement function in `src/resampling/aggregator.py` to verify convergence (SE of SD < 5%). **Logic**: Start with the initial 200 subsets per tier from T026. If SE of SD >= 5%, generate **additional** subsets in increments per tier (up to a maximum of 500 subsets per tier) and re-calculate. **Deliverable**: Output `artifacts/convergence_result.json` with final subset count per tier and SE value.
-- [ ] T035a [US2] **Depends: T035** **Convergence Artifact**: Generate `artifacts/convergence_result.json` containing the final subset count where SE < 5% was achieved (or the max reached).
-- [ ] T036 [US2] **Depends: T035a** **Convergence Verification**: Implement a check in `src/resampling/aggregator.py` that raises an error or logs a warning if the Standard Error of the SD >= 5% after reaching the maximum subset limit (500 per tier).
-- [ ] T027 [US2] **Depends: T023** Integrate checkpointing in `src/resampling/engine.py` to save intermediate results at regular intervals to prevent data loss on timeout.
-- [ ] T028 [US2] **Depends: T023** Create `src/resampling/__init__.py` to expose `run_resampling_experiment` pipeline that outputs `StabilityResult` CSV/JSON to `artifacts/stability/`.
+- [X] T023 [P] [US2] **Depends: T007a (Spec Updated)** Implement `engine.py` in `src/resampling/` to generate random subsets per dataset across multiple tiers. **Constraint**: Tiers must be read from the configuration defined in T007a (which reflects the Spec). Do NOT hardcode tier percentages.
+- [X] T024 [US2] **Depends: T007a (Spec Updated)** Implement robust OLS fitting loop in `src/resampling/engine.py` using `statsmodels` that catches singular matrix errors, skips invalid subsets, and logs warnings.
+- [X] T025 [US2] **Depends: T007a (Spec Updated)** Implement constraint check in `src/resampling/engine.py` to ensure subset size ≥ 10 × number of predictors before fitting.
+- [X] T027 [US2] **Depends: T023** Integrate checkpointing in `src/resampling/engine.py` to save intermediate results at regular intervals to prevent data loss on timeout.
+- [ ] T047 [US2] **Depends: T023** Generate N subsets per tier (N=200) and save subset indices to `artifacts/stability/subsets_*.json`.
+- [ ] T048 [US2] **Depends: T047** Compute empirical standard deviation of coefficients for each predictor across the valid subsets per tier and save to `artifacts/stability/coefficient_sd.json`.
+- [ ] T049 [US2] **Depends: T048** Compare coefficient SD from N subsets vs M subsets (where N, M are configurable) to assess stability.
+- [ ] T050 [US2] **Depends: T049** Calculate Standard Error of the SD for the comparison and output to `artifacts/convergence.log`.
+- [ ] T036 [US2] **Depends: T050** Verify that the Standard Error of the SD is < 5% (SC-005) and log the result.
+- [X] T028 [US2] **Depends: T036** Create `src/resampling/__init__.py` to expose `run_resampling_experiment` pipeline that outputs `StabilityResult` CSV/JSON to `artifacts/stability/`. **Note**: Pipeline only exposed after convergence validation.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -134,17 +137,19 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T029 [P] [US3] Unit test for interaction term calculation and p-value extraction in `tests/unit/test_hlm_analysis.py` implementing function `test_interaction_term_pvalue_extraction` with expected p-value range within valid statistical bounds.
-- [ ] T030 [P] [US3] Integration test for full meta-analysis pipeline in `tests/integration/test_full_pipeline.py`
+- [X] T029 [P] [US3] Unit test for interaction term calculation and p-value extraction in `tests/unit/test_regression_analysis.py` implementing function `test_interaction_term_pvalue_extraction` with expected p-value range within valid statistical bounds.
+- [X] T030 [P] [US3] Integration test for full meta-analysis pipeline in `tests/integration/test_full_pipeline.py`
 
 ### Implementation for User Story 3
 
-- [ ] T031 [P] [US3] **Depends: T028** Implement `hlm_analysis.py` in `src/analysis/` to perform **Multiple Regression** (per Spec FR-005) with `empirical_variance` as outcome and `condition_number`, `violation_severity`, and interaction as predictors. **Deliverable**: Generate `artifacts/meta_analysis_results.json` containing `interaction_coefficient`, `interaction_p_value`, `r_squared`.
-- [ ] T043a [US3] **Depends: T028, T015** **Sensitivity Sweep Logic**: Implement sensitivity sweep in `src/analysis/hlm_analysis.py` to sweep Breusch-Pagan p-value cutoffs across standard significance levels (e.g., 0.01, 0.05, 0.10). Re-classify violation severity for each dataset based on the swept cutoffs and calculate the variance in classification rates. **Deliverable**: Generate `artifacts/sensitivity_sweep_raw.json` with classification rates per cutoff.
-- [ ] T043b [US3] **Depends: T043a** **Sensitivity Sweep Reporting**: Implement report generator to summarize the sensitivity sweep results from T043a. **Deliverable**: Generate `artifacts/sensitivity_sweep.json` containing the variance in classification rates and final findings (FR-006).
-- [ ] T032 [US3] **Depends: T028** Implement visualization module in `src/analysis/` to generate plots showing stability curves (variance vs. collinearity) for Low/Medium/High violation levels. **Deliverable**: Generate `artifacts/plots/stability_curve.png` using `matplotlib`.
-- [ ] T033 [US3] **Depends: T028** Implement report generator in `src/analysis/` to explicitly state associational nature of findings and report interaction term significance. **Deliverable**: Generate `artifacts/report.md` containing the associational disclaimer and interaction significance results.
-- [ ] T034 [US3] Create `src/analysis/__init__.py` to expose `run_meta_analysis` pipeline that outputs `InteractionModel` JSON to `artifacts/meta_analysis_results.json`.
+- [X] T044 [US3] **Depends: T028, T020** **Theoretical Baseline**: Implement function in `src/analysis/regression_analysis.py` to calculate theoretical variance predicted by condition number alone (homoscedastic OLS formula) for each dataset.
+- [X] T045 [US3] **Depends: T044, T028** **Baseline Comparison**: Implement function in `src/analysis/regression_analysis.py` to compare empirical variance (from T028) against theoretical variance (from T044) and log the ratio.
+- [~] T031 [P] [US3] **Depends: T045, T028, T020** **Depends: T020** Implement `regression_analysis.py` in `src/analysis/` to perform **Multiple Regression** (per Spec FR-005) with `empirical_variance` as outcome and `condition_number`, `violation_severity`, and interaction as predictors.
+- [X] T061 [US3] **Depends: T031** **Sensitivity Sweep Logic**: Implement logic in `src/analysis/regression_analysis.py` to sweep Breusch-Pagan p-value cutoffs (e.g., conventional significance thresholds) and re-classify datasets.
+- [~] T062 [US3] **Depends: T061** **Variance Calculation**: Compute the variance in classification rates from the sweep and output to `artifacts/meta_analysis/sensitivity_sweep.json` (FR-006).
+- [~] T032 [US3] **Depends: T028** Implement visualization module in `src/analysis/` to generate plot `artifacts/meta_analysis/stability_curves.png` using `matplotlib`, plotting `coefficient_std_dev` vs `condition_number` for each `violation_severity` group.
+- [~] T033 [US3] **Depends: T028** Implement report generator in `src/analysis/` to generate `artifacts/meta_analysis/final_report.md` containing a summary of the interaction term p-value and an explicit statement of associational nature.
+- [X] T034 [US3] **Depends: T031** Create `src/analysis/__init__.py` to expose `run_meta_analysis` pipeline that outputs `InteractionModel` JSON to `artifacts/meta_analysis/interaction_model.json` with schema validation.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -154,12 +159,16 @@
 
 **Purpose**: Final verification of success criteria and cross-cutting improvements
 
-- [ ] T037 [P] Documentation updates in `docs/` and `README.md`
-- [ ] T038 Code cleanup and refactoring of error handling paths
-- [ ] T039 Performance optimization for resampling loop (vectorization where possible)
-- [ ] T040 [P] Additional unit tests for edge cases (empty subsets, missing values) in `tests/unit/`
-- [ ] T041 [P] Run `quickstart.md` validation to ensure full pipeline executes within 6 hours on small dataset subset. **Deliverable**: Log wall-clock time and confirm ≤6h.
-- [ ] T042 [P] Verify all artifacts include content hashes in `state.yaml`. **Deliverable**: Update `state/projects/PROJ-372-assessing-the-sensitivity-of-regression-.yaml` with artifact_hashes map.
+- [~] T063 [P] Update `README.md` with CLI usage examples including `python -m src.cli --config test_config.yaml`.
+- [X] T064 [P] Update `docs/quickstart.md` with detailed pipeline execution steps.
+- [~] T065 [P] Verify `README.md` contains correct artifact paths for all outputs by comparing against generated artifacts.
+- [X] T066 [P] Refactor error handling in `src/ingestion/downloader.py` to use custom exception classes.
+- [ ] T067 [P] Optimize resampling loop in `src/resampling/engine.py` to reduce execution time by [deferred] via vectorization.
+- [ ] T068 [P] Add `test_empty_subset_handling` in `tests/unit/test_resampling.py`.
+- [ ] T069 [P] Add `test_missing_value_imputation` in `tests/unit/test_profiler.py`.
+- [ ] T041 [P] Execute `python -m src.cli --config test_config.yaml` and verify completion time < 6 hours on a -core CPU runner.
+- [ ] T042 [P] Run `scripts/verify_hashes.py` to ensure all files in `artifacts/` have corresponding entries in `state.yaml` with matching MD5 hashes.
+- [ ] T060 [P] **Plan Amendment Flag**: Document the deviation from Plan.md (HLM) to Spec.md (Multiple Regression) in `docs/plan_amendments.md` and flag for review.
 
 ---
 
@@ -177,8 +186,8 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **Depends on T017 (Sample Size Tiers)** and US1 output (profiles) to proceed with resampling
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - **Depends on US2 output (stability results)** to proceed with meta-analysis
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **Depends on T007a (Spec Updated)** and US1 output (profiles) to proceed with resampling
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - **Depends on US2 output (stability results)** and US1 output (profiles) to proceed with meta-analysis
 
 ### Within Each User Story
 
@@ -219,7 +228,7 @@ Task: "Implement profiler.py in src/ingestion/"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (including T017)
+3. Complete Phase 3: User Story 1 (including T007a Spec Update)
 4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
 
@@ -237,9 +246,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
- - Developer A: User Story 1 (including T017)
- - Developer B: User Story 2 (waiting for T017)
- - Developer C: User Story 3 (waiting on US2)
+ - Developer A: User Story 1 (including T007a Spec Update)
+ - Developer B: User Story 2 (waiting for T007a Spec Update)
+ - Developer C: User Story 3 (waiting for US2)
 3. Stories complete and integrate independently
 
 ---
@@ -253,8 +262,9 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Data Rule**: All data loaders MUST fail loudly on fetch error; no synthetic fallbacks allowed. Subsampling for memory compliance is allowed (if >100k rows).
+- **Critical Data Rule**: All data loaders MUST fail loudly on fetch error; no synthetic fallbacks allowed. Subsampling for memory compliance is allowed (if >100k rows AND >7GB RAM).
 - **Critical Compute Rule**: CPU-only execution is enforced. Streaming is mandatory for datasets > 7GB RAM; subsampling only if streaming fails, with explicit logging of sample size and limitations.
-- **Critical Convergence Rule**: T035 and T036 must explicitly generate/access 200-subset results to verify SC-005, with expansion logic per tier.
-- **Statistical Model Note**: Tasks implement Multiple Regression (Spec FR-005) despite Plan.md mentioning HLM. Plan.md requires update to align with Spec (out of scope for tasks).
-- **Configuration Rule**: T017 is the single source of truth for sample size tiers and dataset IDs.
+- **Critical Convergence Rule**: T047-T050 must explicitly generate/access subsets and compare SD to verify SC-005.
+- **Statistical Model Note**: Tasks implement Multiple Regression (Spec FR-005) as per plan update. Plan.md HLM reference is superseded by Spec.
+- **Plan Amendment**: T060 tracks the deviation from Plan.md (HLM) to Spec.md (Multiple Regression).
+- **Design Parameter Rule**: Sample size tiers and other research parameters MUST be defined in `spec.md` before implementation. Tasks must not hardcode these values.

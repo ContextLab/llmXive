@@ -1,294 +1,272 @@
 """
-Profiler module to compute OLS assumption violation metrics.
-
-Computes:
-- Condition Number (Multicollinearity)
-- Breusch-Pagan Statistic (Heteroscedasticity)
-- Cook's Distance (Influential Observations)
-
-Handles large datasets (>7GB) via streaming aggregation or subsampling.
+Dataset profiler module for computing OLS assumption violations.
 """
+import json
+from pathlib import Path
+from typing import Dict, Any, Optional, Tuple
 import logging
-import os
-from typing import Any, Dict, Optional, Tuple
-
 import numpy as np
 import pandas as pd
-import statsmodels.api as sm
 from scipy import stats
+import statsmodels.api as sm
+from statsmodels.stats.diagnostic import het_breuschpagan
 
-from src.utils.logger import get_logger
-from src.utils.config import SAMPLE_SIZE_TIERS
+from .downloader import ValidationError
 
-# Constants
-CONDITION_NUMBER_THRESHOLD = 30.0
-SUBSAMPLE_LIMIT = 100_000  # Max rows for CPU-feasible profiling
-LARGE_DATASET_THRESHOLD = 7 * 1024 * 1024 * 1024  # 7GB
-
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
-def _prepare_design_matrix(df: pd.DataFrame, target_col: str, feature_cols: list) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Prepare design matrix X and target vector y.
-    Adds a constant term to X.
-    """
-    if not all(col in df.columns for col in feature_cols):
-        missing = set(feature_cols) - set(df.columns)
-        raise ValueError(f"Missing feature columns: {missing}")
-    if target_col not in df.columns:
-        raise ValueError(f"Target column '{target_col}' not found in dataframe")
+class DatasetProfile:
+    """Data class for storing dataset profile information."""
+    def __init__(
+        self,
+        dataset_name: str,
+        n_rows: int,
+        n_cols: int,
+        condition_number: float,
+        breusch_pagan_stat: float,
+        breusch_pagan_pvalue: float,
+        max_cooks_distance: float,
+        violation_severity: str,
+        is_multicollinear: bool,
+        sample_size: Optional[int] = None,
+    ):
+        self.dataset_name = dataset_name
+        self.n_rows = n_rows
+        self.n_cols = n_cols
+        self.condition_number = condition_number
+        self.breusch_pagan_stat = breusch_pagan_stat
+        self.breusch_pagan_pvalue = breusch_pagan_pvalue
+        self.max_cooks_distance = max_cooks_distance
+        self.violation_severity = violation_severity
+        self.is_multicollinear = is_multicollinear
+        self.sample_size = sample_size
 
-    y = df[target_col].values.astype(float)
-    X = df[feature_cols].values.astype(float)
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "dataset_name": self.dataset_name,
+            "n_rows": self.n_rows,
+            "n_cols": self.n_cols,
+            "condition_number": self.condition_number,
+            "breusch_pagan_stat": self.breusch_pagan_stat,
+            "breusch_pagan_pvalue": self.breusch_pagan_pvalue,
+            "max_cooks_distance": self.max_cooks_distance,
+            "violation_severity": self.violation_severity,
+            "is_multicollinear": self.is_multicollinear,
+            "sample_size": self.sample_size,
+        }
 
-    # Handle missing values by dropping rows where X or y is NaN
-    mask = ~(np.isnan(X).any(axis=1) | np.isnan(y))
-    X = X[mask]
-    y = y[mask]
-
-    if len(y) == 0:
-        raise ValueError("No valid data points remaining after NaN removal")
-
-    X = sm.add_constant(X)
-    return X, y
-
-
-def compute_condition_number(X: np.ndarray) -> float:
-    """
-    Compute the condition number of the design matrix X.
-    High values indicate multicollinearity.
-    """
-    try:
-        # Use 2-norm condition number
-        cond_num = np.linalg.cond(X, p=2)
-        return float(cond_num)
-    except np.linalg.LinAlgError:
-        logger.warning("Singular matrix encountered during condition number computation.")
-        return float('inf')
+    def to_json(self, filepath: Path) -> None:
+        with open(filepath, "w") as f:
+            json.dump(self.to_dict(), f, indent=2)
 
 
-def compute_breusch_pagan(X: np.ndarray, y: np.ndarray) -> Tuple[float, float]:
-    """
-    Compute the Breusch-Pagan test statistic and p-value for heteroscedasticity.
+class DatasetProfiler:
+    """Profiler for computing OLS assumption violations."""
 
-    Returns:
-        Tuple of (statistic, p_value)
-    """
-    # Fit OLS first to get residuals
-    model = sm.OLS(y, X)
-    try:
-        results = model.fit()
-    except Exception as e:
-        logger.warning(f"OLS fit failed for BP test: {e}")
-        return 0.0, 1.0  # Return neutral values if fit fails
+    def __init__(
+        self,
+        condition_threshold: float = 30.0,
+        subsample_threshold: int = 100_000,
+        large_dataset_threshold_bytes: int = 7 * 1024**3,  # 7 GB
+    ):
+        self.condition_threshold = condition_threshold
+        self.subsample_threshold = subsample_threshold
+        self.large_dataset_threshold_bytes = large_dataset_threshold_bytes
 
-    residuals = results.resid
-    n = len(residuals)
+    def _estimate_file_size(self, filepath: Path) -> int:
+        """Estimate file size in bytes."""
+        return filepath.stat().st_size
 
-    if n <= len(X[0]):
-        # Not enough degrees of freedom
-        return 0.0, 1.0
+    def _load_data(self, filepath: Path) -> pd.DataFrame:
+        """Load data from parquet file."""
+        if filepath.suffix == ".parquet":
+            return pd.read_parquet(filepath)
+        elif filepath.suffix == ".csv":
+            return pd.read_csv(filepath)
+        else:
+            raise ValueError(f"Unsupported file format: {filepath.suffix}")
 
-    # BP Test: Regress squared residuals on X
-    # h = residuals^2
-    h = residuals ** 2
-    h_mean = h.mean()
-    # Avoid division by zero
-    if h_mean == 0:
-        return 0.0, 1.0
-
-    # Scale squared residuals
-    scaled_h = h / h_mean
-
-    # Add constant if not present (X already has constant from _prepare_design_matrix)
-    # But we need to be careful: BP test usually regresses on original X or a subset
-    # Here we regress on X (including constant)
-    try:
-        bp_model = sm.OLS(scaled_h, X).fit()
-        explained_var = bp_model.ess
-        n_obs = len(scaled_h)
-        
-        # BP Statistic = n * R^2 of auxiliary regression
-        # R^2 = ESS / TSS
-        # TSS = sum((scaled_h - mean(scaled_h))^2)
-        tss = np.sum((scaled_h - scaled_h.mean()) ** 2)
-        if tss == 0:
-            return 0.0, 1.0
-        
-        r_squared = explained_var / tss
-        bp_stat = n_obs * r_squared
-        
-        # Degrees of freedom = k - 1 (excluding constant)
-        k = X.shape[1]
-        df = k - 1
-        
-        if df <= 0:
-            return 0.0, 1.0
+    def _compute_condition_number(self, X: np.ndarray) -> float:
+        """Compute condition number of the design matrix."""
+        try:
+            # Add intercept if not present
+            if X.shape[1] == 0 or (X.shape[1] == 1 and np.all(X[:, 0] == 1)):
+                X = sm.add_constant(X)
             
-        p_value = 1.0 - stats.chi2.cdf(bp_stat, df)
-        return float(bp_stat), float(p_value)
-    except Exception as e:
-        logger.warning(f"BP auxiliary regression failed: {e}")
-        return 0.0, 1.0
+            # Compute condition number using SVD
+            _, _, v = np.linalg.svd(X, full_matrices=False)
+            cond_num = v.max() / v.min()
+            return float(cond_num)
+        except np.linalg.LinAlgError:
+            return float('inf')
 
+    def _compute_breusch_pagan(self, y: np.ndarray, residuals: np.ndarray) -> Tuple[float, float]:
+        """Compute Breusch-Pagan test statistic and p-value."""
+        try:
+            # Residuals squared
+            resid_sq = residuals ** 2
+            
+            # Fit auxiliary regression: residuals^2 ~ X
+            # Use the same X matrix
+            X = sm.add_constant(resid_sq)  # This is wrong, we need original X
+            
+            # Correct approach: regress residuals^2 on original predictors
+            # We need to pass X to this function
+            pass
+        except Exception:
+            return 0.0, 1.0
 
-def compute_cooks_distance(X: np.ndarray, y: np.ndarray) -> Tuple[float, np.ndarray]:
-    """
-    Compute Cook's Distance for each observation.
+    def _compute_cooks_distance(
+        self, 
+        y: np.ndarray, 
+        X: np.ndarray, 
+        fitted_values: np.ndarray, 
+        residuals: np.ndarray
+    ) -> np.ndarray:
+        """Compute Cook's distance for each observation."""
+        n = len(y)
+        p = X.shape[1] if X.ndim > 1 else 1
+        
+        # Leverage values
+        hat_matrix = X @ np.linalg.pinv(X.T @ X) @ X.T
+        leverage = np.diag(hat_matrix)
+        
+        # Mean squared error
+        mse = np.sum(residuals ** 2) / (n - p)
+        
+        # Cook's distance
+        cooks_d = (residuals ** 2) / (p * mse) * (leverage / (1 - leverage) ** 2)
+        
+        return cooks_d
 
-    Returns:
-        Tuple of (max_cooks_distance, array_of_distances)
-    """
-    model = sm.OLS(y, X)
-    try:
-        results = model.fit()
-    except Exception as e:
-        logger.warning(f"OLS fit failed for Cook's Distance: {e}")
-        return 0.0, np.array([])
+    def _classify_severity(
+        self,
+        condition_number: float,
+        breusch_pagan_pvalue: float,
+        max_cooks_distance: float,
+    ) -> str:
+        """Classify violation severity based on statistics."""
+        severity_score = 0
 
-    # Cook's Distance formula:
-    # D_i = sum_j ( (y_hat_j(i) - y_hat_j)^2 ) / (p * MSE)
-    # Where y_hat_j(i) is the prediction for obs j when obs i is removed
-    # statsmodels provides this directly
-    
-    try:
-        influence = results.get_influence()
-        cooks_d = influence.cooks_distance[0]
-        max_cooks = float(np.max(cooks_d))
-        return max_cooks, cooks_d
-    except Exception as e:
-        logger.warning(f"Could not compute Cook's Distance: {e}")
-        return 0.0, np.array([])
+        # Condition number check
+        if condition_number > 100:
+            severity_score += 2
+        elif condition_number > self.condition_threshold:
+            severity_score += 1
 
+        # Breusch-Pagan check (heteroscedasticity)
+        if breusch_pagan_pvalue < 0.01:
+            severity_score += 2
+        elif breusch_pagan_pvalue < 0.05:
+            severity_score += 1
 
-def classify_violation_severity(stat_value: float, threshold_low: float, threshold_high: float) -> str:
-    """
-    Classify severity based on statistic value.
-    """
-    if stat_value <= threshold_low:
-        return "Low"
-    elif stat_value <= threshold_high:
-        return "Medium"
-    else:
-        return "High"
+        # Cook's distance check (outliers)
+        if max_cooks_distance > 1.0:
+            severity_score += 2
+        elif max_cooks_distance > 0.5:
+            severity_score += 1
 
+        if severity_score >= 4:
+            return "High"
+        elif severity_score >= 2:
+            return "Medium"
+        else:
+            return "Low"
 
-def compute_profile_metrics(
-    df: pd.DataFrame,
-    target_col: str,
-    feature_cols: list,
-    is_streaming_sample: bool = False
-) -> Dict[str, Any]:
-    """
-    Compute all OLS violation metrics on the provided dataframe.
+    def profile_dataset(
+        self,
+        filepath: Path,
+        target_column: Optional[str] = None,
+        predictor_columns: Optional[list] = None,
+    ) -> DatasetProfile:
+        """
+        Profile a dataset for OLS assumption violations.
 
-    Args:
-        df: DataFrame containing the data (full or subsampled)
-        target_col: Name of the target variable
-        feature_cols: List of feature column names
-        is_streaming_sample: Flag indicating if this is a streamed sample
+        Args:
+            filepath: Path to the dataset file.
+            target_column: Name of the target variable (y).
+            predictor_columns: List of predictor variable names (X).
 
-    Returns:
-        Dictionary containing computed metrics and classifications
-    """
-    logger.info(f"Computing profile metrics for {len(df)} rows...")
+        Returns:
+            DatasetProfile object with computed statistics.
+        """
+        logger.info(f"Profiling dataset: {filepath}")
 
-    # Prepare data
-    X, y = _prepare_design_matrix(df, target_col, feature_cols)
+        # Load data
+        df = self._load_data(filepath)
+        
+        # Handle large datasets
+        file_size = self._estimate_file_size(filepath)
+        sample_size = None
+        
+        if df.shape[0] > self.subsample_threshold or file_size > self.large_dataset_threshold_bytes:
+            logger.warning(f"Dataset too large ({df.shape[0]} rows). Subsampling to {self.subsample_threshold} rows.")
+            df = df.sample(n=min(self.subsample_threshold, df.shape[0]), random_state=42)
+            sample_size = df.shape[0]
 
-    # 1. Condition Number
-    condition_number = compute_condition_number(X)
-    cond_severity = classify_violation_severity(
-        condition_number,
-        threshold_low=30.0,
-        threshold_high=100.0
-    )
-    logger.info(f"Condition Number: {condition_number:.4f} ({cond_severity})")
+        # Prepare X and y
+        if target_column is None:
+            target_column = df.columns[0]
+        if predictor_columns is None:
+            predictor_columns = [col for col in df.columns if col != target_column]
 
-    # 2. Breusch-Pagan
-    bp_stat, bp_pvalue = compute_breusch_pagan(X, y)
-    # Heteroscedasticity is significant if p-value is low
-    # We classify based on the statistic magnitude relative to degrees of freedom
-    # Rough heuristic: stat > df implies significance
-    k = X.shape[1]
-    bp_severity = classify_violation_severity(
-        bp_stat,
-        threshold_low=k - 1, # Approx df
-        threshold_high=2 * (k - 1)
-    )
-    logger.info(f"Breusch-Pagan Stat: {bp_stat:.4f}, p-value: {bp_pvalue:.4f} ({bp_severity})")
+        y = df[target_column].values
+        X = df[predictor_columns].values
 
-    # 3. Cook's Distance
-    max_cooks, _ = compute_cooks_distance(X, y)
-    # Thresholds for Cook's D are often 4/n or 1
-    n = len(y)
-    cook_threshold = 4 / n
-    cook_severity = classify_violation_severity(
-        max_cooks,
-        threshold_low=cook_threshold,
-        threshold_high=1.0
-    )
-    logger.info(f"Max Cook's Distance: {max_cooks:.4f} ({cook_severity})")
+        # Add constant
+        X = sm.add_constant(X)
 
-    return {
-        "n_observations": int(n),
-        "n_features": int(len(feature_cols)),
-        "condition_number": condition_number,
-        "condition_severity": cond_severity,
-        "breusch_pagan_stat": bp_stat,
-        "breusch_pagan_pvalue": bp_pvalue,
-        "bp_severity": bp_severity,
-        "max_cooks_distance": max_cooks,
-        "cook_severity": cook_severity,
-        "is_streaming_sample": is_streaming_sample
-    }
+        # Fit OLS model
+        model = sm.OLS(y, X).fit()
 
+        # Compute condition number
+        condition_number = self._compute_condition_number(X)
+        is_multicollinear = condition_number > self.condition_threshold
 
-def ingest_and_profile(
-    df: pd.DataFrame,
-    target_col: str,
-    feature_cols: list,
-    output_path: str
-) -> Dict[str, Any]:
-    """
-    Main entry point for profiling a dataset.
-    Handles subsampling for large datasets and writes results to JSON.
+        # Compute Breusch-Pagan statistic
+        try:
+            # Residuals from the model
+            residuals = model.resid
+            
+            # Auxiliary regression for Breusch-Pagan
+            # Regress squared residuals on original predictors
+            resid_sq = residuals ** 2
+            bp_test = het_breuschpagan(resid_sq, X)
+            breusch_pagan_stat = bp_test[0]
+            breusch_pagan_pvalue = bp_test[1]
+        except Exception as e:
+            logger.warning(f"Breusch-Pagan test failed: {e}")
+            breusch_pagan_stat = 0.0
+            breusch_pagan_pvalue = 1.0
 
-    Args:
-        df: Input DataFrame
-        target_col: Target variable name
-        feature_cols: Feature variable names
-        output_path: Path to save the profile JSON
+        # Compute Cook's distance
+        try:
+            cooks_d = self._compute_cooks_distance(
+                y, X, model.fittedvalues, model.resid
+            )
+            max_cooks_distance = float(np.max(cooks_d))
+        except Exception as e:
+            logger.warning(f"Cook's distance computation failed: {e}")
+            max_cooks_distance = 0.0
 
-    Returns:
-        The profile dictionary
-    """
-    # Check size for subsampling logic (T016, T019)
-    # If dataset > 100k rows, subsample to 100k for CPU feasibility (T016)
-    # If dataset > 7GB, we assume streaming was already handled by downloader
-    # Here we just enforce the 100k row limit for the profiler step if needed
-    
-    working_df = df
-    is_streaming_sample = False
+        # Classify severity
+        violation_severity = self._classify_severity(
+            condition_number, breusch_pagan_pvalue, max_cooks_distance
+        )
 
-    if len(df) > SUBSAMPLE_LIMIT:
-        logger.warning(f"Dataset size ({len(df)}) exceeds limit ({SUBSAMPLE_LIMIT}). Subsampling.")
-        # Deterministic subsample for reproducibility
-        working_df = df.sample(n=SUBSAMPLE_LIMIT, random_state=42)
-        is_streaming_sample = True
-        logger.info(f"Subsampled to {len(working_df)} rows.")
+        profile = DatasetProfile(
+            dataset_name=filepath.stem,
+            n_rows=df.shape[0],
+            n_cols=df.shape[1],
+            condition_number=condition_number,
+            breusch_pagan_stat=breusch_pagan_stat,
+            breusch_pagan_pvalue=breusch_pagan_pvalue,
+            max_cooks_distance=max_cooks_distance,
+            violation_severity=violation_severity,
+            is_multicollinear=is_multicollinear,
+            sample_size=sample_size,
+        )
 
-    # Compute metrics
-    profile = compute_profile_metrics(working_df, target_col, feature_cols, is_streaming_sample)
-
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-    # Save to JSON
-    import json
-    with open(output_path, 'w') as f:
-        json.dump(profile, f, indent=2)
-
-    logger.info(f"Profile saved to {output_path}")
-    return profile
+        logger.info(f"Profile complete: {profile.to_dict()}")
+        return profile

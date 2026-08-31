@@ -1,17 +1,14 @@
 """
-Ingestion module for the llmXive automated science pipeline.
-
-This module handles the fetching, validation, and initial profiling of raw datasets.
-It provides the `ingest_and_profile` pipeline which orchestrates downloading data
-from verified sources and computing OLS assumption violation metrics.
+Ingestion module for data loading and profiling.
 """
-from .downloader import download_dataset, verify_checksum
-from .profiler import DatasetProfile, compute_profile, ingest_and_profile
+from .downloader import download_dataset, IngestionError, DownloadError, ValidationError
+from .profiler import DatasetProfiler, DatasetProfile
 
 __all__ = [
     "download_dataset",
-    "verify_checksum",
+    "IngestionError",
+    "DownloadError",
+    "ValidationError",
+    "DatasetProfiler",
     "DatasetProfile",
-    "compute_profile",
-    "ingest_and_profile",
 ]

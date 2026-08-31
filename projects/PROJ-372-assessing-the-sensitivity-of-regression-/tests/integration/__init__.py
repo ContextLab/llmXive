@@ -1,4 +1,2 @@
-"""
-Integration tests package.
-Contains tests for interactions between components and end-to-end flows.
-"""
+# Integration tests package
+# Tests interactions between multiple components
