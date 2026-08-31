@@ -1,37 +1,48 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Experimental Dataset Schema"
 description: "Schema for the raw and processed data of the Perceived Agency experiment."
-type: "object"
+type: object
 properties:
   participant_id:
-    type: "string"
+    type: string
     description: "Unique anonymous identifier for the participant."
   condition:
-    type: "string"
+    type: string
     description: "Experimental condition."
     enum:
       - "High"
       - "Low"
       - "Control"
   adherence_rate:
-    type: "number"
+    type: number
     description: "Percentage of AI recommendations followed."
     minimum: 0.0
     maximum: 100.0
   trust_score:
-    type: "number"
+    type: number
     description: "Aggregated trust score from Lee & See (2004) scale (1-7)."
     minimum: 1.0
     maximum: 7.0
+  attention_score:
+    type: number
+    description: "Continuous attention metric (0-100)."
+    minimum: 0.0
+    maximum: 100.0
   attention_check:
-    type: "boolean"
-    description: "Whether the participant passed the attention check."
+    type: boolean
+    description: "Whether the participant passed the attention check (derived)."
+  cognitive_load_score:
+    type: number
+    description: "Cognitive load manipulation check (1-7)."
+  perceived_agency_score:
+    type: number
+    description: "Perceived agency manipulation check (1-7)."
   completion_time:
-    type: "integer"
+    type: integer
     description: "Time in seconds to complete the task."
     minimum: 0
   timestamp:
-    type: "string"
+    type: string
     format: "date-time"
     description: "ISO 8601 timestamp of task completion."
 required:
@@ -39,7 +50,10 @@ required:
   - condition
   - adherence_rate
   - trust_score
+  - attention_score
   - attention_check
+  - cognitive_load_score
+  - perceived_agency_score
   - completion_time
   - timestamp
 additionalProperties: false

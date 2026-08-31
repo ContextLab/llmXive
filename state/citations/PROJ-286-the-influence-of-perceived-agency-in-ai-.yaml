@@ -56,3 +56,25 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1037/h0076860
   verified_at: '2026-08-29T17:50:44.012908Z'
+- artifact_hash: 28efbb04c5196da9cceaf4909f6fc6604cd8b90149674568f2cff02b094d3026
+  artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'Trust in Automation: Designing for Appropriate Reliance'
+  kind: doi
+  value: 10.1518/hfes.46.1.50_30392
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1518/hfes.46.1.50_30392
+  verified_at: '2026-08-31T18:14:06.695019Z'
+- artifact_hash: 7477989870bfd23f6d0d7e5c80fbfe5a05ffb95e69224ed9ab1e75f4f355c9b4
+  artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'Trust in Automation: Designing for Appropriate Reliance'
+  kind: doi
+  value: 10.1518/hfes.46.1.50_30392
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1518/hfes.46.1.50_30392
+  verified_at: '2026-08-31T18:14:48.351180Z'

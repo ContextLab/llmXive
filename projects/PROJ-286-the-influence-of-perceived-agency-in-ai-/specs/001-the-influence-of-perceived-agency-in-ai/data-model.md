@@ -2,59 +2,66 @@
 
 ## Overview
 
-This document defines the data structures for the experimental study, including the raw data schema, processed data schema, and analysis output schema. All data will be stored in CSV format for raw/processed data and JSON for configuration/results.
+This document defines the data structures used throughout the project. It ensures that the experimental simulation, data storage, and analysis pipeline adhere to a single, consistent schema. The model supports the "Single Source of Truth" principle by separating structural definitions (schema) from content (survey items).
 
-## Raw Data Schema
+## Entities
 
-The raw data schema defines the structure of the CSV export from the data collection interface. This schema MUST conform to `contracts/participant.schema.yaml`.
+### 1. Participant
+Represents a single user session in the experiment.
 
-| Column | Type | Description | Constraints |
-|--------|------|-------------|-------------|
-| `participant_id` | String | Unique anonymous identifier | Not null, unique |
-| `condition` | String | Experimental condition (High, Low, Control) | Enum: ["High", "Low", "Control"] |
-| `adherence_rate` | Float | Percentage of AI recommendations followed | 0.0 to 100.0 |
-| `trust_score` | Float | Sum/Average of Lee & See (2004) scale items | 1.0 to 7.0 (per item) or aggregated |
-| `attention_check` | Boolean | Pass/Fail status | True/False |
-| `completion_time` | Integer | Time in seconds | > 0 |
-| `timestamp` | String | ISO 8601 timestamp of completion | Not null |
-| `perceived_agency_score` | Float | Manipulation check (1-7 Likert) | 1.0 to 7.0 |
-| `trust_item_1` ... `trust_item_12` | Integer | Individual scale items | 1 to 7 |
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `participant_id` | UUID | Unique identifier for the session. | Required, Unique |
+| `condition` | String | Experimental condition assigned. | Enum: `["High", "Low", "Control"]` |
+| `adherence_rate` | Float | Percentage of AI recommendations followed. | Range: [0.0, 100.0] |
+| `trust_item_1` ... `trust_item_12` | Integer | Individual responses to Lee and See items. | Range: [1, 7] |
+| `trust_score` | Float | **Derived** mean of 12 items. | Calculated, included in raw CSV for schema compliance |
+| `attention_score` | Float | Continuous attention metric (0-100). Derived from 5 attention questions. | Range: [0.0, 100.0] (steps of 20) |
+| `attention_check` | Boolean | Derived: True if `attention_score` >= 80. | Calculated |
+| `cognitive_load_score` | Float | Manipulation check for cognitive load. | Range: [1, 7] |
+| `perceived_agency_score` | Float | Manipulation check for perceived agency. | Range: [1, 7] |
+| `completion_time_sec` | Float | Time taken to complete the task. | > 0 |
+| `timestamp` | ISO8601 | Time of session completion. | Required |
 
-**Note on Adherence**: `adherence_rate` is treated as a secondary outcome. The primary power analysis is driven by `trust_score`.
+### 2. Survey Metadata
+Stores the text of the survey items (separate from the data to avoid schema bloat).
 
-## Processed Data Schema
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `item_id` | String | Identifier (e.g., `trust_item_1`). |
+| `question_text` | String | The full text of the question. |
+| `scale_min` | Integer | Minimum value (e.g., 1). |
+| `scale_max` | Integer | Maximum value (e.g., 7). |
+| `source` | String | Citation for the item (e.g., "Lee & See, 2004"). |
 
-The processed data schema defines the structure of the cleaned dataset used for analysis.
+### 3. Analysis Result
+Represents the output of the statistical pipeline.
 
-| Column | Type | Description | Derived From |
-|--------|------|-------------|--------------|
-| `participant_id` | String | Unique anonymous identifier | Raw |
-| `condition` | Categorical | Experimental condition | Raw |
-| `adherence_rate` | Float | Percentage of AI recommendations followed | Raw |
-| `trust_score` | Float | Aggregated trust score (mean of items) | Raw (if raw items provided) or Raw (if aggregated) |
-| `perceived_agency_score` | Float | Manipulation check score | Raw |
-| `included` | Boolean | Whether the participant passed all filters | Computed (Attention Check + Completion Time) |
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `analysis_id` | UUID | Unique identifier for the run. |
+| `contrast_name` | String | Name of the contrast (e.g., "High vs Low"). |
+| `t_statistic` | Float | t-statistic value. |
+| `p_value` | Float | Raw p-value. |
+| `p_value_adj` | Float | Adjusted p-value (Holm-Bonferroni). |
+| `cohen_d` | Float | Effect size. |
+| `significant` | Boolean | Is the result significant at α=0.05? |
 
-## Analysis Output Schema
+## Data Flow
 
-The analysis output schema defines the structure of the statistical results.
+1.  **Generation**: `simulation/task_generator.py` creates raw data conforming to the `Participant` schema (individual items, plus pre-calculated `trust_score` and `attention_score`).
+2.  **Storage**: Raw data is saved to `data/raw/` as CSV.
+3.  **Processing**: `analysis/contrasts.py` reads raw data, calculates `attention_check` (derived), and computes statistics.
+4.  **Output**: Results are saved to `data/processed/` as CSV/JSON and validated against the `Analysis Result` schema.
 
-| Key | Type | Description |
-|-----|------|-------------|
-| `planned_contrasts` | Object | Results of planned directional contrasts (High vs. Low) |
-| `pairwise_comparisons` | Object | Results of post-hoc pairwise comparisons |
-| `effect_sizes` | Object | Cohen's d for significant pairwise comparisons |
-| `power_analysis` | Object | Pre-study power calculation results |
-| `sensitivity_analysis` | Object | Results of threshold sensitivity sweep |
+## Data Hygiene
 
-## Configuration Schema
+-   **Checksums**: Every file in `data/raw/` and `data/processed/` is checksummed (SHA-256) upon creation.
+-   **PII**: No Personally Identifiable Information (names, emails) is collected. `participant_id` is a random UUID.
+-   **Immutability**: Raw data files are never modified. Derivations create new files in `data/processed/`.
 
-The configuration schema defines the parameters for the analysis pipeline.
+## Attention Check Definition
 
-| Key | Type | Description |
-|-----|------|-------------|
-| `alpha` | Float | Significance level (default: 0.05) |
-| `target_power` | Float | Target power (default: 0.80) |
-| `effect_size` | Float | Expected effect size (default: 0.5 for contrast) |
-| `exclusion_threshold` | Float | Minimum attention check pass rate (default: 0.8) |
-| `random_seed` | Integer | Random seed for reproducibility |
+The attention check consists of a **series of 5 distinct questions** (e.g., "Select the option that is NOT a fruit", "What is 2+2?", etc.).
+-   **Attention Score**: Percentage of correct answers out of 5 (0, 20, 40, 60, 80, 100).
+-   **Threshold Justification**: The range is based on standard practice in online panel studies to balance data quality and sample size. A threshold of 70% corresponds to 3.5/5 correct (rounded to 4/5 = 80%), making the sweep mathematically valid.

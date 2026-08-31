@@ -1,12 +1,12 @@
 status: none
-intent: Human AI trust experiment dataset with condition adherence and trust score
-  OpenML python package dataset
+intent: human AI collaboration trust dataset adherence rate Lee See scale python package
+  dataset
 required_fields:
 - participant_id
-- condition_id
+- condition
 - adherence_rate
 - trust_score
-- session_timestamp
-cache_key: f253eeeb05a5e4d0ea8461d476301faf5cb496796baaae8f90abc1aad57503fa
-searched_at: '2026-08-25T05:20:56.718301+00:00'
+- pass_fail
+cache_key: 120558ca58a5505868ae2aa720f6813b79719e9551518fc28b2af41d7831bbfd
+searched_at: '2026-08-31T17:49:15.475382+00:00'
 retry_count: 1

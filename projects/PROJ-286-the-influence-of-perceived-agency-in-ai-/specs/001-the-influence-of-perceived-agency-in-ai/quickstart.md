@@ -2,77 +2,75 @@
 
 ## Prerequisites
 
-- Python 3.11 or higher
-- Git
-- A text editor or IDE (e.g., VS Code)
+-   Python 3.11 or higher
+-   `pip` (Python package installer)
+-   `git`
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repository-url>
-   cd projects/PROJ-286-the-influence-of-perceived-agency-in-ai-
-   ```
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/
+    ```
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-## Running the Analysis Pipeline
+## Running the Pipeline
 
-1. **Prepare the data**:
-   - Place the raw CSV export from the data collection interface in `data/raw/`.
-   - Ensure the file is named `raw_data.csv` (or update `code/analysis/config.yaml` accordingly).
-   - **Important**: The CSV must conform to `contracts/participant.schema.yaml` (e.g., 7-point Likert scale, correct column names).
+### Step 1: Validate Citations (Phase 0)
+Ensure the Lee & See citation is verified against the Crossref API and source document..
+```bash
+python code/main.py --phase validate_citations
+```
+*Expected Output*: A log confirming the DOI matches the primary source and `data/processed/citation_log.json` is created.
 
-2. **Run the power analysis**:
-   ```bash
-   python code/analysis/power_analysis.py
-   ```
-   This will generate `research/power_calculation.json`.
+### Step 2: Generate Power Analysis Report (Phase 0)
+Calculate the required sample size.
+```bash
+python code/main.py --phase power_analysis
+```
+*Expected Output*: `docs/power_analysis_report.md` with N ≥ 159.
 
-3. **Run the main analysis**:
-   ```bash
-   python code/analysis/main.py
-   ```
-   This will:
-   - Load and clean the data.
-   - Perform planned contrasts (High vs. Low).
-   - Perform post-hoc tests with Tukey correction.
-   - Calculate effect sizes.
-   - Generate visualizations and save results to `data/outputs/`.
+### Step 3: Simulate Experiment (Phase 1)
+Generate a simulated dataset of participants.
+```bash
+python code/main.py --phase simulate --n <sample_size>
+```
+*Expected Output*: `data/raw/simulation_run_YYYYMMDD.csv`.
 
-4. **Run the sensitivity analysis**:
-   ```bash
-   python code/analysis/sensitivity.py
-   ```
-   This will test the robustness of the results to different exclusion thresholds.
+### Step 4: Run Analysis (Phase 2)
+Execute the statistical pipeline (including manipulation checks and hierarchical testing).
+```bash
+python code/main.py --phase analyze --input data/raw/simulation_run_YYYYMMDD.csv
+```
+*Expected Output*: `data/processed/analysis_results.csv` and `docs/results_report.md`.
 
-## Running Tests
+### Step 5: Run Sensitivity Analysis (Phase 2)
+Sweep exclusion thresholds to verify robustness.
+```bash
+python code/main.py --phase sensitivity --input data/raw/simulation_run_YYYYMMDD.csv
+```
+*Expected Output*: `docs/sensitivity_report.md`.
 
+## Testing
+
+Run the unit tests to verify statistical logic:
 ```bash
 pytest tests/
 ```
 
-## Generating the Report
-
-The analysis pipeline will automatically generate a summary report in `data/outputs/analysis_report.md`. This report includes:
-- Descriptive statistics.
-- Results of planned contrasts.
-- Results of post-hoc tests.
-- Effect sizes.
-- Sensitivity analysis results.
-
 ## Troubleshooting
 
-- **Missing dependencies**: Ensure you activated the virtual environment and ran `pip install -r code/requirements.txt`.
-- **Data format errors**: Check that the raw CSV matches the schema defined in `data-model.md` and `contracts/participant.schema.yaml`.
-- **Permission errors**: Ensure you have write access to the `data/` and `research/` directories.
-- **Scale Item Mismatch**: If the data uses a 5-point scale but the schema expects 7, verify that `docs/trust_scale_items.md` was generated correctly and the survey interface was updated.
+-   **Import Errors**: Ensure you are in the virtual environment.
+-   **Missing Data**: Run the `simulate` phase before `analyze`.
+-   **Citation Failure**: If the citation validator fails, check internet connectivity or the DOI registry status.
