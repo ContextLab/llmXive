@@ -1,16 +1,13 @@
 status: none
-intent: download Moral Machine dataset and ERA5 reanalysis temperature via cdsapi
-  python package dataset
+intent: download Moral Machine dataset and ERA5 reanalysis temperature python package
+  dataset
 required_fields:
-- response_time_ms
+- scenario_id
+- decision
 - latitude
 - longitude
 - timestamp
-- participant_id
-- dilemma_id
-- choice
-- country
-- temperature_2m_celsius
-cache_key: d5eb3fb1c48e5f878ebf384cacafb320408241fd450736219ef86256cf148b58
-searched_at: '2026-08-19T21:36:17.556185+00:00'
+- temperature
+cache_key: b1a9ecfcfa81120ce4a96455053627e772e6f64f4cf447702c76b1416946d490
+searched_at: '2026-08-31T14:34:49.286844+00:00'
 retry_count: 1

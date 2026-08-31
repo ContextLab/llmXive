@@ -6,7 +6,7 @@
 ## Summary
 
 This feature implements a statistical analysis pipeline to investigate the correlation between ambient temperature and moral decision-making speed using the Moral Machine dataset merged with ERA Reanalysis data. The technical approach involves:
-1.  **Data Ingestion**: Downloading the Moral Machine dataset and fetching hourly ERA temperature data for the specific 2014-2018 period via the Copernicus Climate Data Store (CDS) API.
+1.  **Data Ingestion**: Downloading the Moral Machine dataset and fetching hourly ERA temperature data for the specific -2018 period via the Copernicus Climate Data Store (CDS) API.
 2.  **Preprocessing**: Filtering impossible response times, handling missing data, and calculating derived covariates (dilemma complexity, time-of-day, urban/rural proxy).
 3.  **Statistical Modeling**: Fitting Linear Mixed-Effects Models (LMM) with log-transformed response times, controlling for participant ID and cultural region, and testing for non-linearity.
 4.  **Robustness**: Performing sensitivity analyses on temperature thresholds, outlier definitions, and urban/rural stratification.
@@ -33,11 +33,11 @@ This feature implements a statistical analysis pipeline to investigate the corre
 | Principle | Status | Evidence/Action |
 | :--- | :--- | :--- |
 | **I. Reproducibility** | ✅ Pass | `requirements.txt` pins all versions; random seeds set in `code/`; data fetched from canonical CDS API (ERA5) and Moral Machine. |
-| **II. Verified Accuracy** | ✅ Pass | Dataset URLs and API endpoints verified; ERA source covers the 2014-2018 Moral Machine period, resolving temporal mismatch. |
+| **II. Verified Accuracy** | ✅ Pass | Dataset URLs and API endpoints verified; ERA source covers the Moral Machine period beginning in the mid-2010s., resolving temporal mismatch. |
 | **III. Data Hygiene** | ✅ Pass | Checksums recorded in `state/`; raw data immutable; derived files in `data/processed/`; PII scan in CI. |
 | **IV. Single Source of Truth** | ✅ Pass | All stats trace to `results/stats/` JSON/CSV; figures trace to `results/figures/`. |
 | **V. Versioning** | ✅ Pass | Artifacts hashed; `state` updated on change. |
-| **VI. Dataset Alignment** | ✅ Pass | Matching logic logs `grid_id`, timestamp, and exclusion reasons (`data_quality_log`). Uses ERA5 grid points (not 'station ID'). |
+| **VI. Dataset Alignment** | ✅ Pass | Matching logic logs `grid_id`, timestamp, and exclusion reasons (`data_quality_log`). Uses ERA grid points (not 'station ID'). |
 | **VII. Statistical Modeling** | ✅ Pass | Fixed/Random effects explicitly listed; diagnostics saved to `results/`. |
 
 ## Project Structure

@@ -1,116 +1,148 @@
 """
-Unit tests for code/validate_era5.py
+Tests for T001b: validate_era5.py
 """
-import pytest
 import os
 import sys
+import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-import xarray as xr
 import numpy as np
-import pandas as pd
+import xarray as xr
+import h5py
+import pytest
 
-# Add code directory to path for imports
-code_path = Path(__file__).parent.parent / "code"
-sys.path.insert(0, str(code_path))
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
 
 from validate_era5 import (
-    validate_hdf5_sample,
-    SAMPLE_START_DATE,
-    SAMPLE_END_DATE,
-    SAMPLE_LAT,
-    SAMPLE_LON
+    validate_hdf5_sample, 
+    convert_netcdf_to_hdf5, 
+    TEMPERATURE_MIN, 
+    TEMPERATURE_MAX
 )
+from setup_logging import setup_logging
 
-@pytest.fixture
-def mock_h5_file(tmp_path):
-    """Create a mock HDF5 file with valid ERA5-like data."""
-    file_path = tmp_path / "mock_era5.h5"
+def create_mock_netcdf_file(tmp_path):
+    """Create a mock netCDF file with expected structure for testing."""
+    file_path = tmp_path / "mock_era5.nc"
     
-    # Create a dataset matching expected structure
-    # 7 days * 24 hours = 168 time steps
-    time_steps = 168
-    lat = [51.5074]
-    lon = [-0.1278]
+    # Create time coordinates (7 days * 24 hours)
+    times = np.arange(0, 7 * 24, 1) # hours
+    # Convert to datetime objects for xarray
+    import pandas as pd
+    start_date = pd.Timestamp('2016-01-01')
+    time_coords = pd.date_range(start=start_date, periods=len(times), freq='h')
     
-    times = pd.date_range(start="2016-01-01", periods=time_steps, freq="H")
+    # Create data (in Kelvin, around 293K = 20C)
+    lat = [51.4, 51.5, 51.6]
+    lon = [-0.2, -0.1, 0.0]
+    data = np.full((len(time_coords), len(lat), len(lon)), 293.15, dtype=np.float32)
     
-    # Generate realistic temperature data (around 5°C with some variation)
-    temp_k = 273.15 + 5 + np.random.normal(0, 2, time_steps)
+    # Add some variation to test min/max
+    data[0, 0, 0] = 223.15 # -50 C
+    data[-1, -1, -1] = 333.15 # 60 C (edge case, should pass if inclusive)
     
     ds = xr.Dataset(
-        {
-            't2m': (['time', 'latitude', 'longitude'], 
-                    temp_k.reshape(time_steps, 1, 1)),
+        data_vars={
+            't2m': (['time', 'latitude', 'longitude'], data),
         },
         coords={
-            'time': times,
+            'time': time_coords,
             'latitude': lat,
             'longitude': lon,
         }
     )
     
-    ds.to_netcdf(file_path, engine='h5netcdf')
-    return str(file_path)
+    ds.to_netcdf(file_path)
+    return file_path
 
-def test_validate_hdf5_sample_correct_resolution(mock_h5_file):
-    """Test that validation passes with correct hourly resolution."""
-    is_valid, details = validate_hdf5_sample(mock_h5_file)
+def test_validate_hdf5_sample_passes(tmp_path):
+    """Test that a valid file passes validation."""
+    nc_file = create_mock_netcdf_file(tmp_path)
+    h5_file = tmp_path / "test_valid.h5"
     
-    assert is_valid is True
-    assert any("Time resolution OK" in d for d in details)
-    assert any("Temperature values valid" in d for d in details)
+    # Mock logger
+    logger = setup_logging(None) # Dummy logger for test
+    
+    # Convert to HDF5
+    # We need to mock the logger for convert function or pass a dummy
+    class DummyLogger:
+        def info(self, msg): pass
+        def warning(self, msg): pass
+        def error(self, msg): pass
+    
+    dummy_logger = DummyLogger()
+    
+    # Convert
+    ds = xr.open_dataset(nc_file)
+    convert_netcdf_to_hdf5(ds, h5_file, dummy_logger)
+    ds.close()
+    
+    # Validate
+    result = validate_hdf5_sample(h5_file, dummy_logger)
+    assert result is True, "Valid file should pass validation"
 
-def test_validate_hdf5_sample_wrong_resolution(tmp_path):
-    """Test that validation fails with incorrect time resolution."""
-    file_path = tmp_path / "mock_wrong_time.h5"
+def test_validate_hdf5_sample_fails_range(tmp_path):
+    """Test that a file with out-of-range values fails."""
+    file_path = tmp_path / "mock_bad_range.nc"
     
-    # Create dataset with wrong number of time steps (e.g., daily instead of hourly)
-    times = pd.date_range(start="2016-01-01", periods=7, freq="D")
-    temp_k = 278.15 * np.ones((7, 1, 1))
+    import pandas as pd
+    time_coords = pd.date_range(start='2016-01-01', periods=24, freq='h')
+    lat = [51.5]
+    lon = [-0.1]
+    
+    # Create data with a value > 60C (333.15K)
+    data = np.full((24, len(lat), len(lon)), 340.0, dtype=np.float32) # 66.85 C
     
     ds = xr.Dataset(
-        {
-            't2m': (['time', 'latitude', 'longitude'], temp_k),
-        },
-        coords={
-            'time': times,
-            'latitude': [51.5074],
-            'longitude': [-0.1278],
-        }
+        data_vars={'t2m': (['time', 'latitude', 'longitude'], data)},
+        coords={'time': time_coords, 'latitude': lat, 'longitude': lon}
     )
+    ds.to_netcdf(file_path)
     
-    ds.to_netcdf(file_path, engine='h5netcdf')
+    h5_file = tmp_path / "test_bad_range.h5"
+    ds.to_netcdf(h5_file, engine='netcdf4')
+    ds.close()
     
-    is_valid, details = validate_hdf5_sample(str(file_path))
+    class DummyLogger:
+        def info(self, msg): pass
+        def warning(self, msg): pass
+        def error(self, msg): pass
     
-    assert is_valid is False
-    assert any("Time resolution mismatch" in d for d in details)
+    dummy_logger = DummyLogger()
+    
+    result = validate_hdf5_sample(h5_file, dummy_logger)
+    assert result is False, "File with out-of-range temperature should fail"
 
-def test_validate_hdf5_sample_out_of_range_temp(tmp_path):
-    """Test that validation fails with impossible temperature values."""
-    file_path = tmp_path / "mock_hot_temp.h5"
+def test_validate_hdf5_sample_fails_resolution(tmp_path):
+    """Test that a file with wrong resolution fails."""
+    file_path = tmp_path / "mock_bad_res.nc"
     
-    time_steps = 168
-    times = pd.date_range(start="2016-01-01", periods=time_steps, freq="H")
-    
-    # Impossible temperature: 100°C (373.15 K)
-    temp_k = 373.15 * np.ones((time_steps, 1, 1))
+    import pandas as pd
+    # Only 2 time points (12 hours apart? No, just 2 points)
+    # To fail resolution, we need non-hourly steps.
+    # Let's create 2 points 2 hours apart.
+    time_coords = pd.date_range(start='2016-01-01', periods=2, freq='2h')
+    lat = [51.5]
+    lon = [-0.1]
+    data = np.full((2, len(lat), len(lon)), 293.15, dtype=np.float32)
     
     ds = xr.Dataset(
-        {
-            't2m': (['time', 'latitude', 'longitude'], temp_k),
-        },
-        coords={
-            'time': times,
-            'latitude': [51.5074],
-            'longitude': [-0.1278],
-        }
+        data_vars={'t2m': (['time', 'latitude', 'longitude'], data)},
+        coords={'time': time_coords, 'latitude': lat, 'longitude': lon}
     )
+    ds.to_netcdf(file_path)
     
-    ds.to_netcdf(file_path, engine='h5netcdf')
+    h5_file = tmp_path / "test_bad_res.h5"
+    ds.to_netcdf(h5_file, engine='netcdf4')
+    ds.close()
     
-    is_valid, details = validate_hdf5_sample(str(file_path))
+    class DummyLogger:
+        def info(self, msg): pass
+        def warning(self, msg): pass
+        def error(self, msg): pass
     
-    assert is_valid is False
-    assert any("Temperature values out of expected range" in d for d in details)
+    dummy_logger = DummyLogger()
+    
+    result = validate_hdf5_sample(h5_file, dummy_logger)
+    assert result is False, "File with non-hourly resolution should fail"
