@@ -1,5 +1,6 @@
-# llmXive Automated Science Pipeline - 316L Porosity Prediction
-# This package contains the core modules for data acquisition, preprocessing,
-# model training, and explainability analysis.
+"""
+llmXive Project: Predicting the Impact of Additive Manufacturing Parameters
+on the Porosity of 316L Stainless Steel.
 
-__version__ = "0.1.0"
+This package contains the core data processing, training, and analysis scripts.
+"""

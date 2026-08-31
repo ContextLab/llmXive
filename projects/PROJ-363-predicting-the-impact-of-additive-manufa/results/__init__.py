@@ -1,4 +1,3 @@
 """
-Results storage package.
-Reports, plots, and metrics are stored in subdirectories.
+Results directory for reports, plots, and metrics.
 """

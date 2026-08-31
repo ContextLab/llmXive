@@ -1,2 +1,1 @@
-# This directory stores generated reports
-# Ensure .gitkeep is present to track the directory in git
+# This directory stores JSON reports and metrics.

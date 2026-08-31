@@ -1,10 +1,24 @@
-T009:
+T001a:
   c: false
-  h: 3b81eae09e45fe9226f98ed59b3bd9b62657988d823523a6f9087a0597471324
-  r: The test script `tests/contract/test_dataset_schema.py` is present, but the required
-    dataset `data/processed/cleaned_316L.csv` does not exist, and the schema file
-    `contracts/dataset.schema.yaml` is also missing, so the contract validation cannot
-    be performed.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `code/`, `tests/`, `data/`, `results/`, or `models/`\
+    \ directories is provided; without confirming their existence and non\u2011emptiness,\
+    \ the task requirement is not satisfied. The implementer must add these top\u2011\
+    level directories to the repository."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the `projects/PROJ-363-predicting-the-impact-of-additive-manufa/`
+    directory (or any subfolders) is provided; the claim cannot be verified without
+    an actual filesystem artifact.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `.flake8`, or a `black` config) or setup scripts are present in the provided evidence,
+    so the requirement to configure ruff/flake8 and black is not satisfied. The implementer
+    must add the appropriate configuration files and ensure they are committed to
+    the repository.
 T013:
   c: false
   h: 3707f95c95501483f45429889e8324c825ef983b3ddc83d9159e97300ed2a66d
@@ -41,16 +55,3 @@ T029:
     \ calculation is present; the evidence provided contains only the high\u2011level\
     \ specification and no concrete test implementation or results. The required artifact\
     \ (a runnable unit test) is missing."
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No README or usage instruction files were presented in the `docs/` directory;\
-    \ the only evidence shown relates to feature specifications and user stories,\
-    \ not the required documentation updates. The task\u2019s deliverable (updated\
-    \ documentation) is missing."
-T039:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `quickstart.md` validation run (e.g., logs, output screenshots,
-    or a generated report) is present; the required artifact confirming full pipeline
-    reproducibility is missing.

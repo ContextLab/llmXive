@@ -1,2 +1,1 @@
-# This directory stores raw and processed data files.
-# Do not commit large data files; use .gitignore.
+# Data directory for PROJ-363

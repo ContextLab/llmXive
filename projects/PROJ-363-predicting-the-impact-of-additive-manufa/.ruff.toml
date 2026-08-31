@@ -1,9 +1,20 @@
+# Ruff configuration
+line-length = 100
+target-version = "py39"
+
 [lint]
-select = ["E", "F", "W", "I"]
-ignore = []
-fixable = ["ALL"]
-unfixable = []
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+]
+ignore = [
+    "E501",
+]
 
 [format]
-line-length = 88
-indent-width = 4
+quote-style = "double"
+indent-style = "space"

@@ -9,3 +9,16 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/example/316L-LPBF-Porosity/resolve/main/data.csv
   verified_at: '2026-07-09T02:25:40.548643Z'
+- artifact_hash: 32e9860d9bc9728a6e4b075e914651b3a74e41cea773317f758aaaf5c360f0d3
+  artifact_path: projects/PROJ-363-predicting-the-impact-of-additive-manufa/docs/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2102.02470] Machine Learning-Based Generalized Model for Finite
+    Element Analysis of Roll Deflection During the Austenitic Stainless Steel 316L
+    Strip Rolling'
+  kind: url
+  value: https://arxiv.org/abs/2102.02470
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2102.02470
+  verified_at: '2026-08-31T15:40:57.301666Z'

@@ -1,9 +1,44 @@
+# Flake8 configuration file
+# This file configures the flake8 linter for the project
+# Note: Ruff is the primary linter, but flake8 is kept for compatibility
+
 [flake8]
+# Maximum line length (matching black)
 max-line-length = 88
-extend-ignore = E203, E501
-exclude =
+
+# Ignore specific errors
+ignore = 
+    E501,  # Line too long (handled by black)
+    D100,  # Missing docstring in public module
+    D104,  # Missing docstring in public package
+    D101,  # Missing docstring in public class
+    D102,  # Missing docstring in public method
+    D103,  # Missing docstring in public function
+
+# Exclude directories
+exclude = 
     .git,
-    __pycache__,
+    .hg,
+    .mypy_cache,
+    .tox,
     .venv,
+    _build,
+    buck-out,
     build,
-    dist
+    dist,
+    node_modules,
+    __pycache__
+
+# Per-file ignores
+extend-ignore = 
+    E203,  # Whitespace before ':' (conflicts with black)
+    W503,  # Line break before binary operator (conflicts with black)
+
+# Maximum complexity
+max-complexity = 15
+
+# Enable docstring checking (optional)
+# select = E, W, F, D
+
+# Docstring conventions
+# docstring-convention = numpy
