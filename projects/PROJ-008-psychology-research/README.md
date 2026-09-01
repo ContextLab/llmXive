@@ -1,39 +1,54 @@
 # PROJ-008: Mindfulness Components and Delivery Formats in ASD Social Skills
 
-## Project Overview
-This project implements a systematic review and meta-analysis of mindfulness-based interventions
-for improving social skills in children with Autism Spectrum Disorder (ASD).
+## Overview
+This project implements a systematic review and meta-analysis of mindfulness-based interventions for improving social skills in children aged 6-12 with Autism Spectrum Disorder (ASD).
 
-## Directory Structure
+## Project Structure
 ```
 projects/PROJ-008-psychology-research/
 ├── code/ # Source code
 │ ├── analysis/ # Statistical analysis modules
 │ ├── data/ # Data collection and cleaning
-│ ├── utils/ # Utilities (logging, config)
+│ ├── utils/ # Utility functions
 │ └── viz/ # Visualization modules
-├── tests/ # Test suites
-│ ├── contract/ # Schema contract tests
-│ ├── integration/ # Integration tests
-│ └── unit/ # Unit tests
-├── data/
-│ ├── raw/ # Raw downloaded data
-│ ├── processed/ # Cleaned/processed data
-│ └── external/ # External reference data
-├── figures/ # Generated plots and charts
-├── contracts/ # Schema validation contracts
+├── data/ # Data artifacts
+│ ├── raw/ # Raw data from APIs and PDFs
+│ ├── processed/ # Cleaned and analyzed data
+│ └── interim/ # Intermediate data files
 ├── docs/ # Documentation
+├── tests/ # Test suites
+├── contracts/ # Schema definitions
 ├── scripts/ # Utility scripts
-└── specs/ # Feature specifications
+└──.github/workflows/ # CI/CD pipelines
 ```
 
-## Quick Start
-1. Install dependencies: `pip install -r requirements.txt`
-2. Run data collection: `python scripts/run_pipeline.py`
-3. Run analysis: `python scripts/run_analysis.py`
-4. Generate reports: `python scripts/generate_report.py`
+## Installation
+```bash
+pip install -e.
+```
 
-## Key Constraints
-- **CPU Only**: No GPU dependencies
-- **Data Integrity**: Real data from ClinicalTrials.gov and OSF only
-- **Reproducibility**: All random seeds pinned in `code/utils/config.py`
+## Development Tools
+- **Black**: Code formatter (configured in `pyproject.toml`)
+- **Ruff**: Linter (configured in `.ruff.toml`)
+
+### Formatting
+```bash
+black.
+```
+
+### Linting
+```bash
+ruff check.
+```
+
+### Running Tests
+```bash
+pytest
+```
+
+## Data Sources
+- ClinicalTrials.gov
+- Open Science Framework (OSF)
+
+## Ethics
+This study uses secondary analysis of de-identified public registry data and is exempt from IRB review (see `docs/ethics_determination.md`).

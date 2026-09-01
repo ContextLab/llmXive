@@ -1,59 +1,57 @@
-# Ethics Determination: Secondary Analysis of Public Registry Data
+# Ethics Determination: Exempt Status
 
 **Project**: PROJ-008-psychology-research
-**Study Title**: Mindfulness Components and Delivery Formats in ASD Social Skills
+**Title**: Mindfulness Components and Delivery Formats in ASD Social Skills: A Systematic Review and Meta-Analysis
 **Date**: 2026-04-29
-**Determination**: **EXEMPT** from IRB Review
+**Prepared By**: Automated Research Pipeline (llmXive)
 
-## 1. Nature of the Research
+## 1. Determination
 
-This project constitutes a **systematic review and meta-analysis** of previously published randomized controlled trials (RCTs) and clinical trial registry entries. The research does not involve:
-- Direct interaction with human subjects.
-- Collection of new, identifiable private information.
-- Intervention or manipulation of participants by the researchers.
+This research project is classified as **Exempt** from Institutional Review Board (IRB) review under the U.S. Department of Health and Human Services (HHS) regulations (45 CFR 46.104(d)).
 
-The data sources are strictly limited to:
-1. **ClinicalTrials.gov**: A public registry of federally and privately supported clinical trials conducted in the United States and around the world.
-2. **Open Science Framework (OSF)**: A free, open-source platform for researchers to share, collaborate, and preserve research materials and data.
+**Reasoning**: The study involves the secondary analysis of **de-identified, publicly available data** from clinical trial registries (ClinicalTrials.gov and OSF). No interaction with human subjects occurs, and no private or identifiable information is accessed, collected, or analyzed.
 
-## 2. Regulatory Basis for Exemption
+## 2. Regulatory Basis
 
-Under the **Common Rule (45 CFR 46)**, research involving the use of existing data, documents, records, pathological specimens, or diagnostic specimens, if these sources are publicly available or if the information is recorded by the investigator in such a manner that subjects cannot be identified, directly or through identifiers linked to the subjects, is generally exempt.
+The exemption is granted under **45 CFR 46.104(d)(4)**:
+> "Research involving the collection or study of existing data, documents, records, pathological specimens, or diagnostic specimens, if these sources are publicly available or if the information is recorded by the investigator in such a manner that subjects cannot be identified, directly or through identifiers linked to the subjects."
 
-Specifically, this project falls under **45 CFR 46.104(d)(4)**:
-> "Research involving the use of existing data, documents, records, pathological specimens, or diagnostic specimens, if these sources are publicly available or if the information is recorded by the investigator in such a manner that subjects cannot be identified, directly or through identifiers linked to the subjects."
+### Specific Justification
 
-### 2.1 Public Availability
-ClinicalTrials.gov and OSF are designated public registries. The data extracted (study protocols, inclusion/exclusion criteria, outcome measures, and summary results) are intentionally made public by the original investigators and sponsors. No private, protected health information (PHI) is accessed or processed.
+1. **Publicly Available Sources**:
+ * **ClinicalTrials.gov**: A federal registry mandated by the Food and Drug Administration Amendments Act (FDAAA) of 2007. All data submitted is public domain.
+ * **Open Science Framework (OSF)**: A public repository where researchers voluntarily share study protocols, data, and materials under open licenses.
 
-### 2.2 De-identification
-The unit of analysis for this meta-analysis is the **study** (aggregate data), not the individual participant. While individual participant data (IPD) meta-analysis is a distinct methodology requiring different ethical considerations, this project utilizes aggregate summary statistics (e.g., mean, standard deviation, sample size) reported in the registry entries or associated publications. These aggregate values cannot be used to identify individual subjects.
+2. **De-identification**:
+ * The data extracted (study titles, registry IDs, age ranges, intervention components, outcomes, effect sizes) contains no direct identifiers (e.g., names, addresses, SSNs) or indirect identifiers that could reasonably be used to re-identify specific participants.
+ * The unit of analysis is the **study**, not the individual participant.
 
-## 3. Risk Assessment
+3. **No Interaction/Intervention**:
+ * The research team does not recruit, interact with, or intervene upon human subjects.
+ * The research does not involve the collection of new data from living individuals.
 
-The risk of harm to participants is **minimal to non-existent**.
-- **Privacy Risk**: None. No identifiable information is collected, stored, or analyzed.
-- **Psychological Risk**: None. Participants are not contacted.
-- **Reputational Risk**: None. The analysis reports on aggregate trends and does not target specific individuals.
+## 3. Scope of Exemption
 
-## 4. Data Integrity and Source Limitations
+This determination applies strictly to the activities described in this project:
+* Searching and retrieving metadata from ClinicalTrials.gov and OSF.
+* Extracting summary statistics and methodological details from public registry entries.
+* Performing statistical meta-analysis on aggregated effect sizes.
 
-Per **Constitution Principle VI (Clinical Trial Registry Integrity)** of this project:
-- Data sources are strictly limited to **ClinicalTrials.gov** and **OSF**.
-- No other sources (e.g., commercial databases, private registries) will be used.
-- This restriction ensures that all data used is publicly accessible and subject to the transparency standards of these registries.
+**Exclusions**:
+* If the project were to expand to include contact with study authors for unpublished individual participant data (IPD) that contains identifiers, a new ethics determination would be required.
+* If the project were to attempt to reconstruct or identify participants from seemingly anonymous data (re-identification risk), this exemption would no longer apply.
 
-This limitation further supports the exemption determination, as it guarantees the public nature of the data source.
+## 4. Data Integrity and Privacy
+
+Although exempt, the project adheres to high standards of data integrity and privacy protection:
+* **Constitution Principle VI (Clinical Trial Registry Integrity)**: Data sources are strictly limited to the approved public registries to ensure auditability and prevent the introduction of private datasets.
+* **No Re-identification**: The pipeline explicitly avoids any steps that could link registry data back to specific individuals.
+* **Secure Storage**: All downloaded data is stored in the project's `data/raw/` directory with appropriate access controls, though the data itself is public.
 
 ## 5. Conclusion
 
-Based on the nature of the data (publicly available aggregate statistics from clinical trial registries) and the absence of human subject interaction or identifiable private information, this research is **exempt** from Institutional Review Board (IRB) review.
+No IRB approval or submission is required for this research. The project proceeds under the **Exempt** classification.
 
-No IRB protocol submission is required. This document serves as the formal determination record for the project's ethical compliance.
-
-## 6. References
-
-1. **45 CFR 46.104(d)(4)**: Exemptions for research involving the use of existing data.
-2. **ClinicalTrials.gov**: "About ClinicalTrials.gov". U.S. National Library of Medicine.
-3. **Open Science Framework**: "OSF Privacy Policy". Center for Open Science.
-4. **Common Rule**: Federal Policy for the Protection of Human Subjects.
+**Sign-off**:
+* *Automated Determination Generated by llmXive Pipeline*
+* *Reference: 45 CFR 46.104(d)(4)*

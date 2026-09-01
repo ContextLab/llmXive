@@ -1,255 +1,269 @@
 """
 API Collector for ClinicalTrials.gov and OSF.
 
-Implements FR-001 (Data Collection) and FR-002 (Rate Limiting/Backoff)
-strictly for ClinicalTriols.gov and OSF as mandated by Constitution Principle VI.
+Implements FR-001, FR-002 with rate-limiting and exponential backoff.
+Enforces Constitution Principle VI by limiting sources to ClinicalTrials.gov and OSF.
+Logs retrieval metadata to data/raw/retrieval_log.json for audit compliance.
 """
 import json
 import logging
 import time
+from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 from urllib.parse import urlencode, urljoin
 import requests
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
 
-from utils.logging import get_logger, log_event
-from utils.config import get_output_path
+from code.utils.logging import get_logger
 
+# Configure logger
 logger = get_logger(__name__)
 
 # Constants
+CLINICALTRIALS_BASE = "https://clinicaltrials.gov/api/v2"
+OSF_BASE = "https://api.osf.io/v2"
+RATE_LIMIT_DELAY = 1.0  # seconds between requests
 MAX_RETRIES = 5
-BACKOFF_FACTOR = 1.0
-CT_API_BASE = "https://clinicaltrials.gov/api/v2/studies"
-OSF_API_BASE = "https://api.osf.io/v2/registrations/"
-CT_PAGE_SIZE = 100  # Max allowed by API
-OSF_PAGE_SIZE = 20  # Max allowed by API
+INITIAL_BACKOFF = 1.0
+MAX_BACKOFF = 60.0
 
-# Keywords for inclusion in meta-analysis (ASD + Mindfulness/Social Skills)
-# We fetch broadly and filter later in the cleaner to avoid missing edge cases
-SEARCH_QUERY_CT = "(Mindfulness OR 'Social Skills' OR 'Social Interaction') AND (Autism OR ASD)"
-SEARCH_QUERY_OSF = "mindfulness autism social skills"
+# Audit log path relative to project root
+AUDIT_LOG_PATH = "data/raw/retrieval_log.json"
 
 class APICollector:
     """
-    Collects study metadata from ClinicalTrials.gov and OSF.
-    Handles rate limiting, exponential backoff, and error recovery.
+    Collector for retrieving study data from ClinicalTrials.gov and OSF.
+
+    Implements rate-limiting, exponential backoff, and audit logging.
     """
 
     def __init__(self):
-        self.session = self._create_session()
-        self.collected_studies: List[Dict[str, Any]] = []
-        self.excluded_studies: List[Dict[str, Any]] = []
-
-    def _create_session(self) -> requests.Session:
-        """
-        Creates a requests session with retry logic for robustness.
-        """
-        session = requests.Session()
-        retry_strategy = Retry(
-            total=MAX_RETRIES,
-            backoff_factor=BACKOFF_FACTOR,
-            status_forcelist=[429, 500, 502, 503, 504],
-            allowed_methods=["GET", "HEAD"],
-        )
-        adapter = HTTPAdapter(max_retries=retry_strategy)
-        session.mount("http://", adapter)
-        session.mount("https://", adapter)
-        return session
-
-    def _rate_limit_wait(self, retry_after: Optional[int] = None):
-        """
-        Implements exponential backoff and respects Retry-After headers.
-        """
-        if retry_after:
-            wait_time = int(retry_after)
-            logger.warning(f"Rate limited. Waiting {wait_time} seconds as per Retry-After header.")
-        else:
-            # Exponential backoff: 1s, 2s, 4s...
-            wait_time = min(30, BACKOFF_FACTOR * (2 ** len(self.collected_studies) % 5))
-            logger.warning(f"Rate limited or transient error. Waiting {wait_time:.1f} seconds (backoff).")
-        
-        time.sleep(wait_time)
-
-    def _fetch_clinicaltrials(self) -> List[Dict[str, Any]]:
-        """
-        Fetches studies from ClinicalTrials.gov API v2.
-        """
-        studies = []
-        page_token = None
-        has_more = True
-
-        logger.info("Starting ClinicalTrials.gov collection...")
-
-        while has_more:
-            params = {
-                "query": SEARCH_QUERY_CT,
-                "pageSize": CT_PAGE_SIZE,
-                "format": "json",
-                "fields": "nctId,basicInfo,protocolSection,conditions,armsInterventions,studyStatus"
-            }
-            
-            if page_token:
-                params["pageToken"] = page_token
-
-            try:
-                url = f"{CT_API_BASE}?{urlencode(params)}"
-                logger.debug(f"Fetching CT page: {url}")
-                resp = self.session.get(url, timeout=30)
-                
-                if resp.status_code == 429:
-                    retry_after = resp.headers.get("Retry-After")
-                    self._rate_limit_wait(retry_after)
-                    continue
-                
-                resp.raise_for_status()
-                data = resp.json()
-                
-                if "studies" not in data:
-                    logger.warning("No 'studies' key in response.")
-                    break
-
-                current_batch = data["studies"]
-                studies.extend(current_batch)
-                logger.info(f"Retrieved {len(current_batch)} studies from CT (Total: {len(studies)}).")
-
-                page_token = data.get("nextPageToken")
-                has_more = bool(page_token)
-                
-                # Safety break for demo purposes if we have enough, 
-                # but for real research we might want to fetch all or a specific limit.
-                # Let's cap at 500 to avoid infinite loops if API behaves oddly, 
-                # though real usage might need more.
-                if len(studies) >= 500:
-                    logger.info("Reached safety cap of 500 studies for CT.")
-                    break
-
-            except requests.exceptions.RequestException as e:
-                logger.error(f"Error fetching ClinicalTrials.gov: {e}")
-                self._rate_limit_wait()
-            except json.JSONDecodeError as e:
-                logger.error(f"JSON decode error from CT: {e}")
-                break
-
-        return studies
-
-    def _fetch_osf(self) -> List[Dict[str, Any]]:
-        """
-        Fetches registrations from OSF API.
-        Note: OSF search is less structured than CT, so we fetch recent 
-        registrations and filter by title/description keywords.
-        """
-        registrations = []
-        next_url = OSF_API_BASE
-        
-        # OSF doesn't support complex boolean search in the same way, 
-        # so we fetch a batch and filter client-side.
-        # We limit to 5 pages to avoid excessive API calls.
-        max_pages = 5
-        pages_fetched = 0
-
-        logger.info("Starting OSF collection...")
-
-        while next_url and pages_fetched < max_pages:
-            try:
-                logger.debug(f"Fetching OSF page: {next_url}")
-                resp = self.session.get(next_url, params={"filter[tags]": "mindfulness,autism"}, timeout=30)
-                
-                if resp.status_code == 429:
-                    retry_after = resp.headers.get("Retry-After")
-                    self._rate_limit_wait(retry_after)
-                    continue
-                
-                resp.raise_for_status()
-                data = resp.json()
-                
-                if "data" not in data:
-                    break
-
-                current_batch = data["data"]
-                # Filter client-side for relevance
-                relevant = [
-                    item for item in current_batch 
-                    if any(kw in (item.get("attributes", {}).get("title", "") + 
-                                  item.get("attributes", {}).get("description", "")).lower() 
-                           for kw in ["mindfulness", "autism", "asd", "social skill"])
-                ]
-                registrations.extend(relevant)
-                logger.info(f"Retrieved {len(relevant)} relevant registrations from OSF (Total: {len(registrations)}).")
-
-                next_url = data.get("links", {}).get("next")
-                pages_fetched += 1
-
-            except requests.exceptions.RequestException as e:
-                logger.error(f"Error fetching OSF: {e}")
-                self._rate_limit_wait()
-                break
-            except json.JSONDecodeError as e:
-                logger.error(f"JSON decode error from OSF: {e}")
-                break
-
-        return registrations
-
-    def collect(self) -> Dict[str, List[Dict[str, Any]]]:
-        """
-        Orchestrates the collection from both sources.
-        Returns a dictionary with 'clinicaltrials' and 'osf' keys.
-        """
-        logger.info("Starting full data collection pipeline.")
-        
-        ct_data = self._fetch_clinicaltrials()
-        osf_data = self._fetch_osf()
-        
-        log_event("data_collection_complete", {
-            "clinicaltrials_count": len(ct_data),
-            "osf_count": len(osf_data),
-            "total": len(ct_data) + len(osf_data)
+        self.session = requests.Session()
+        self.session.headers.update({
+            "User-Agent": "llmXive-Research-Collector/1.0"
         })
+        self.last_request_time = 0
+        self.audit_log: List[Dict[str, Any]] = []
 
-        return {
-            "clinicaltrials": ct_data,
-            "osf": osf_data
+    def _log_audit_event(self, query: str, source: str, success: bool,
+                          record_count: int, error: Optional[str] = None):
+        """
+        Log retrieval event to memory and persist to JSON file.
+
+        Satisfies Constitution Principle VI audit requirements.
+        """
+        event = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "source": source,
+            "query": query,
+            "success": success,
+            "record_count": record_count,
+            "error": error
+        }
+        self.audit_log.append(event)
+
+        # Persist immediately to ensure durability
+        try:
+            # Ensure directory exists
+            log_path = AUDIT_LOG_PATH
+            import os
+            os.makedirs(os.path.dirname(log_path), exist_ok=True)
+
+            # Append to file (or create if new)
+            with open(log_path, "r") as f:
+                existing_log = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            existing_log = []
+
+        existing_log.append(event)
+
+        with open(log_path, "w") as f:
+            json.dump(existing_log, f, indent=2)
+
+        logger.info(f"Audit logged: {source} query '{query[:50]}...' -> {'SUCCESS' if success else 'FAILED'}")
+
+    def _wait_for_rate_limit(self):
+        """Enforce rate limiting between requests."""
+        elapsed = time.time() - self.last_request_time
+        if elapsed < RATE_LIMIT_DELAY:
+            sleep_time = RATE_LIMIT_DELAY - elapsed
+            time.sleep(sleep_time)
+        self.last_request_time = time.time()
+
+    def _fetch_with_backoff(self, url: str, params: Dict[str, Any],
+                             source: str, query: str) -> Optional[List[Dict[str, Any]]]:
+        """
+        Fetch data with exponential backoff and retry logic.
+
+        Returns list of records or None on failure.
+        """
+        attempt = 0
+        backoff = INITIAL_BACKOFF
+
+        while attempt < MAX_RETRIES:
+            self._wait_for_rate_limit()
+            try:
+                response = self.session.get(url, params=params, timeout=30)
+                response.raise_for_status()
+                data = response.json()
+                logger.info(f"Successfully fetched from {source}: {len(data.get('data', data.get('results', [])))} records")
+                return data.get('data', data.get('results', []))
+            except requests.exceptions.HTTPError as e:
+                if e.response.status_code == 429:  # Too Many Requests
+                    logger.warning(f"Rate limit hit on {source}. Backing off for {backoff}s")
+                    time.sleep(backoff)
+                    backoff = min(backoff * 2, MAX_BACKOFF)
+                    attempt += 1
+                    continue
+                else:
+                    logger.error(f"HTTP Error {e.response.status_code} on {source}: {str(e)}")
+                    self._log_audit_event(query, source, False, 0, str(e))
+                    return None
+            except requests.exceptions.RequestException as e:
+                logger.error(f"Request failed on {source}: {str(e)}")
+                time.sleep(backoff)
+                backoff = min(backoff * 2, MAX_BACKOFF)
+                attempt += 1
+                continue
+
+        logger.error(f"Max retries exceeded for {source} query: {query}")
+        self._log_audit_event(query, source, False, 0, "Max retries exceeded")
+        return None
+
+    def fetch_clinicaltrials_studies(self, search_query: str,
+                                     age_range: str = "6-12",
+                                     max_results: int = 100) -> List[Dict[str, Any]]:
+        """
+        Fetch studies from ClinicalTrials.gov matching criteria.
+
+        Args:
+            search_query: Search string for the API (e.g., "mindfulness ASD social skills")
+            age_range: Age range filter (default "6-12" per inclusion criteria)
+            max_results: Maximum number of results to fetch
+
+        Returns:
+            List of study records
+        """
+        source = "ClinicalTrials.gov"
+        logger.info(f"Fetching from {source} with query: {search_query}")
+
+        # Construct ClinicalTrials.gov v2 API query
+        # Note: API v2 uses a different structure than v1
+        endpoint = urljoin(CLINICALTRIALS_BASE, "/studies")
+        params = {
+            "query": search_query,
+            "limit": max_results,
+            "fields": "nctId,briefTitle,briefSummary,conditions,interventions,eligibilityCriteria,studyType,phase,startDate,completionDate,hasResults,overallStatus,studyIds,protocolSection"
         }
 
-    def save_raw_data(self, output_dir: Optional[str] = None):
+        # Add age filter if supported by API (ClinicalTrials.gov v2 may require specific filters)
+        # The API structure for age filters might vary; using general query for now
+        # Specific age filtering might need to be done post-fetch or via advanced query syntax
+
+        results = self._fetch_with_backoff(endpoint, params, source, search_query)
+
+        if results:
+            self._log_audit_event(search_query, source, True, len(results))
+            return results
+        return []
+
+    def fetch_osf_studies(self, search_query: str,
+                          max_results: int = 100) -> List[Dict[str, Any]]:
         """
-        Saves the collected raw data to JSON files in data/raw/.
+        Fetch studies from OSF (Open Science Framework) matching criteria.
+
+        Args:
+            search_query: Search string for the API
+            max_results: Maximum number of results to fetch
+
+        Returns:
+            List of study records
         """
-        if output_dir is None:
-            output_dir = get_output_path("data/raw")
-        
-        import os
-        os.makedirs(output_dir, exist_ok=True)
+        source = "OSF"
+        logger.info(f"Fetching from {source} with query: {search_query}")
 
-        raw_data = self.collect()
-        
-        # Save ClinicalTrials.gov data
-        ct_path = os.path.join(output_dir, "clinicaltrials_raw.json")
-        with open(ct_path, "w", encoding="utf-8") as f:
-            json.dump(raw_data["clinicaltrials"], f, indent=2)
-        logger.info(f"Saved ClinicalTrials.gov data to {ct_path}")
+        # OSF API v2 endpoint for registrations
+        endpoint = urljoin(OSF_BASE, "/registrations/")
+        params = {
+            "filter[title]": search_query,
+            "page[size]": max_results,
+            "fields[registration]": "title,description,registration_type,contributors,date_registered,date_modified,license,category,access",
+            "sort": "-date_registered"
+        }
 
-        # Save OSF data
-        osf_path = os.path.join(output_dir, "osf_raw.json")
-        with open(osf_path, "w", encoding="utf-8") as f:
-            json.dump(raw_data["osf"], f, indent=2)
-        logger.info(f"Saved OSF data to {osf_path}")
+        # OSF API requires pagination; fetch first page
+        results = self._fetch_with_backoff(endpoint, params, source, search_query)
 
-        return ct_path, osf_path
+        if results:
+            self._log_audit_event(search_query, source, True, len(results))
+            return results
+        return []
+
+    def collect_all_studies(self, search_queries: List[str]) -> Dict[str, List[Dict[str, Any]]]:
+        """
+        Collect studies from all allowed sources using provided search queries.
+
+        Args:
+            search_queries: List of search queries to execute
+
+        Returns:
+            Dictionary mapping source name to list of study records
+        """
+        all_studies = {
+            "ClinicalTrials.gov": [],
+            "OSF": []
+        }
+
+        for query in search_queries:
+            # Fetch from ClinicalTrials.gov
+            ct_results = self.fetch_clinicaltrials_studies(query)
+            all_studies["ClinicalTrials.gov"].extend(ct_results)
+
+            # Fetch from OSF
+            osf_results = self.fetch_osf_studies(query)
+            all_studies["OSF"].extend(osf_results)
+
+        total_count = sum(len(v) for v in all_studies.values())
+        logger.info(f"Collection complete. Total studies: {total_count}")
+
+        return all_studies
 
 def main():
     """
-    Entry point for the collector script.
+    Main entry point for the API collector.
+
+    Executes a predefined search strategy for mindfulness and social skills
+    in children with ASD, collects data from ClinicalTrials.gov and OSF,
+    and logs all retrieval events.
     """
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+
     collector = APICollector()
+
+    # Define search strategy per research plan
+    # Queries target mindfulness interventions for social skills in ASD children
+    search_queries = [
+        "mindfulness social skills autism spectrum disorder children",
+        "mindfulness intervention ASD social skills 6-12 years",
+        "mindfulness based social skills training autism"
+    ]
+
+    logger.info("Starting data collection for mindfulness and social skills in ASD")
+
     try:
-        ct_path, osf_path = collector.save_raw_data()
-        print(f"Collection complete. Files saved:")
-        print(f"  - {ct_path}")
-        print(f"  - {osf_path}")
+        results = collector.collect_all_studies(search_queries)
+
+        # Log summary
+        for source, studies in results.items():
+            logger.info(f"{source}: {len(studies)} studies retrieved")
+
+        logger.info("Data collection completed successfully")
+        return results
+
     except Exception as e:
-        logger.critical(f"Collection failed: {e}")
+        logger.error(f"Data collection failed: {str(e)}")
         raise
 
 if __name__ == "__main__":

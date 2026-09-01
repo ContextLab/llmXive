@@ -1,95 +1,42 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Effect Size
-description: >
-  Schema for a calculated effect size (Hedges' g) for a single study comparison.
-  Includes standard error, confidence intervals, and subgroup classification.
+title: EffectSize
+description: >-
+  Schema for calculated effect sizes (Hedges' g) derived from study data.
+  Used for meta-analysis and subgroup comparisons.
+  Derived from T007c requirements.
 type: object
 required:
   - study_id
-  - source
-  - effect_size
+  - hedges_g
   - se
   - ci_lower
   - ci_upper
-  - intervention_component
-  - delivery_format
-  - social_skill_domain
-  - follow_up_category
-  - n_intervention
+  - n_treatment
   - n_control
 properties:
   study_id:
     type: string
-    description: Reference to the parent study ID
-    pattern: "^[A-Z0-9_.-]+$"
-  
-  source:
-    type: string
-    description: Data source registry
-    enum:
-      - ClinicalTrials.gov
-      - OSF
-  
-  effect_size:
+    description: Unique identifier referencing the source study record.
+  hedges_g:
     type: number
-    description: Calculated Hedges' g effect size
-  
+    format: float
+    description: Hedges' g effect size with small-sample correction.
   se:
     type: number
-    description: Standard error of the effect size
-  
+    format: float
+    description: Standard error of the effect size.
   ci_lower:
     type: number
-    description: Lower bound of 95% confidence interval
-  
+    format: float
+    description: Lower bound of the confidence interval.
   ci_upper:
     type: number
-    description: Upper bound of 95% confidence interval
-  
-  intervention_component:
-    type: string
-    description: Mindfulness component for subgroup analysis
-  
-  delivery_format:
-    type: string
-    description: Delivery format for subgroup analysis
-  
-  social_skill_domain:
-    type: string
-    description: Social skill domain for subgroup analysis
-  
-  follow_up_category:
-    type: string
-    description: Follow-up duration category (e.g., '3-month', 'other', 'none')
-  
-  n_intervention:
+    format: float
+    description: Upper bound of the confidence interval.
+  n_treatment:
     type: integer
-    description: Sample size of intervention group
-  
+    description: Number of participants in the treatment group.
   n_control:
     type: integer
-    description: Sample size of control group
-  
-  weight:
-    type: number
-    description: Weight used in meta-analysis (1/variance)
-    nullable: true
-  
-  meta_analysis_model:
-    type: string
-    description: Model used (e.g., 'random-effects', 'fixed-effects')
-    nullable: true
-  
-  heterogeneity_i2:
-    type: number
-    description: I² heterogeneity statistic if part of meta-analysis
-    nullable: true
-  
-  calculation_timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of calculation
-  
-  hash:
-    type: string
-    description: SHA-256 hash of the record for integrity verification
+    description: Number of participants in the control group.
+additionalProperties: false

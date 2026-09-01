@@ -1,184 +1,79 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Cleaned Study
-description: >
-  Schema for a single study record after cleaning and validation.
-  Derived from ClinicalTrials.gov and OSF data, filtered for ASD population
-  (ages 6-12), mindfulness interventions, and social skill outcomes.
+description: |
+  Schema for cleaned study records extracted from ClinicalTrials.gov and OSF.
+  Validated against inclusion criteria: ASD diagnosis, age 6-12, social skill outcomes.
+  This schema supports FR-007 (Data Integrity) and Constitution Principle VI.
 type: object
 required:
-  - study_id
-  - source
+  - id
   - title
-  - n_total
-  - n_intervention
-  - n_control
-  - age_mean
-  - age_sd
-  - age_range_min
-  - age_range_max
-  - asd_diagnosis_criteria
-  - intervention_component
+  - registry
+  - age_range
+  - diagnosis
+  - outcomes
+  - intervention_components
   - delivery_format
-  - social_skill_domain
-  - outcome_measure
-  - pre_mean_intervention
-  - pre_sd_intervention
-  - pre_n_intervention
-  - post_mean_intervention
-  - post_sd_intervention
-  - post_n_intervention
-  - pre_mean_control
-  - pre_sd_control
-  - pre_n_control
-  - post_mean_control
-  - post_sd_control
-  - post_n_control
-  - follow_up_weeks
-  - inclusion_status
-  - excluded_reason
+  - follow_up
+  - assessor_blinding
 properties:
-  study_id:
+  id:
     type: string
     description: Unique identifier for the study (e.g., NCT number or OSF ID)
-    pattern: "^[A-Z0-9_.-]+$"
-  
-  source:
+  title:
     type: string
-    description: Data source registry
+    description: Official title of the study
+  registry:
+    type: string
     enum:
       - ClinicalTrials.gov
       - OSF
-  
-  title:
+    description: Source registry where the study was registered
+  age_range:
     type: string
-    description: Full study title
-  
-  n_total:
-    type: integer
-    minimum: 1
-    description: Total number of participants in the study
-  
-  n_intervention:
-    type: integer
-    minimum: 1
-    description: Number of participants in the intervention group
-  
-  n_control:
-    type: integer
-    minimum: 1
-    description: Number of participants in the control group
-  
-  age_mean:
-    type: number
-    description: Mean age of participants (years)
-  
-  age_sd:
-    type: number
-    description: Standard deviation of age (years)
-  
-  age_range_min:
-    type: integer
-    description: Minimum age in the study (years)
-  
-  age_range_max:
-    type: integer
-    description: Maximum age in the study (years)
-  
-  asd_diagnosis_criteria:
+    description: Age range of participants (e.g., "6-12", "8-10")
+  diagnosis:
     type: string
-    description: Diagnostic criteria used (e.g., DSM-IV, DSM-5, ADOS, ADI-R)
-  
-  intervention_component:
-    type: string
-    description: Primary mindfulness component (e.g., Mindfulness, Yoga, Relaxation)
-  
+    description: Primary diagnosis (must be ASD or Autism Spectrum Disorder)
+  outcomes:
+    type: array
+    items:
+      type: string
+    description: List of measured social skill outcomes
+  intervention_components:
+    type: array
+    items:
+      type: string
+    description: List of mindfulness components present in the intervention
   delivery_format:
     type: string
-    description: Format of delivery (e.g., Individual, Group, Family)
-  
-  social_skill_domain:
+    enum:
+      - individual
+      - group
+      - hybrid
+      - online
+      - not-reported
+    description: Format of intervention delivery
+  follow_up:
     type: string
-    description: Targeted social skill domain (e.g., Communication, Social Interaction)
-  
-  outcome_measure:
+    description: Follow-up duration (e.g., "3-month", "6-month", "none")
+  abstract_text:
     type: string
-    description: Name of the outcome measure used
-  
-  pre_mean_intervention:
-    type: number
-    description: Pre-intervention mean score for intervention group
-  
-  pre_sd_intervention:
-    type: number
-    description: Pre-intervention standard deviation for intervention group
-  
-  pre_n_intervention:
-    type: integer
-    description: Pre-intervention sample size for intervention group
-  
-  post_mean_intervention:
-    type: number
-    description: Post-intervention mean score for intervention group
-  
-  post_sd_intervention:
-    type: number
-    description: Post-intervention standard deviation for intervention group
-  
-  post_n_intervention:
-    type: integer
-    description: Post-intervention sample size for intervention group
-  
-  pre_mean_control:
-    type: number
-    description: Pre-intervention mean score for control group
-  
-  pre_sd_control:
-    type: number
-    description: Pre-intervention standard deviation for control group
-  
-  pre_n_control:
-    type: integer
-    description: Pre-intervention sample size for control group
-  
-  post_mean_control:
-    type: number
-    description: Post-intervention mean score for control group
-  
-  post_sd_control:
-    type: number
-    description: Post-intervention standard deviation for control group
-  
-  post_n_control:
-    type: integer
-    description: Post-intervention sample size for control group
-  
-  follow_up_weeks:
-    type: integer
     nullable: true
-    description: Follow-up duration in weeks (null if no follow-up)
-  
-  inclusion_status:
+    description: Extracted abstract text (optional, from PDF if metadata insufficient)
+  assessor_blinding:
     type: string
     enum:
-      - included
-      - excluded
-    description: Final inclusion status after filtering
-  
-  excluded_reason:
-    type: string
-    nullable: true
-    description: Reason for exclusion if status is 'excluded'
-  
-  notes:
-    type: string
-    nullable: true
-    description: Additional notes or comments about the study record
-  
-  extraction_timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of when the record was extracted
-  
-  hash:
-    type: string
-    description: SHA-256 hash of the record for integrity verification
+      - single-blind
+      - double-blind
+      - unblinded
+      - not-reported
+    description: |
+      Blinding status of the study assessors.
+      Required for T022 and T023 (Blinded Assessment Extraction and Validation).
+      Values:
+        - single-blind: Assessors unaware of group assignment
+        - double-blind: Both participants and assessors unaware
+        - unblinded: No blinding performed
+        - not-reported: Blinding status not mentioned in registry data
+additionalProperties: false

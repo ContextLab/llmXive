@@ -1,17 +1,43 @@
-T011:
+T001a:
   c: false
-  h: b1734358b5f25bdcb5c534ecde69a601199338cc160ef30c667fc28d170be83d
-  r: The required file `tests/contract/test_cleaned_study_schema.py` does not exist
-    in the repository, so the contract test for the data extraction schema is missing.
-    The task cannot be considered completed until this test file is created and contains
-    the appropriate test logic.
-T033:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided showing that the required directories (`projects/PROJ-008-psychology-research/`,\
+    \ `code/`, `data/`, `docs/`, `tests/`, `contracts/`, `scripts/`, `.github/workflows/`)\
+    \ actually exist; without such artifacts the task\u2019s requirement is not satisfied."
+T001b:
   c: false
-  h: 9f91ac779878347665c7c772e3d3f42fc77d0531bef25eaa7c0aec375ecc6c41
-  r: "The required artifact `tests/integration/test_bias.py` is missing from the repository,\
-    \ so no integration test for Egger's test exists to satisfy the task. The implementer\
-    \ must add a non\u2011empty test file at that path that actually runs the publication\
-    \ bias assessment."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided no evidence (e.g., directory listings, screenshots,\
+    \ or commands) showing that the three required sub\u2011directories under `projects/PROJ-008-psychology-research/data/`\
+    \ actually exist. Without such proof, we cannot confirm the task\u2019s requirement\
+    \ has been fulfilled."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listings, screenshots, or other evidence were provided to show\
+    \ that the seven required sub\u2011directories actually exist in the repository.\
+    \ Without concrete proof of their creation, the task\u2019s requirement is not\
+    \ satisfied."
+T002b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact showing that dependencies from T002a were installed (e.g., no `requirements.txt`,
+    `pyproject.toml`, installation logs, or a populated virtual environment) is present.
+    Without such evidence, we cannot confirm that `pip install -e .` was executed
+    successfully in the project root.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or equivalent) are presented, nor any evidence that Ruff
+    and Black have been set up in the repository. The required artifacts are missing.
+T016:
+  c: false
+  h: 4e6a005825af9d306054e099b60a1ab429d8da7eda674563d9ff6b917995912b
+  r: "The `code/data/collector.py` file exists and appears to implement rate\u2011\
+    limiting, exponential backoff, and audit logging, but the required artifact `data/raw/retrieval_log.json`\
+    \ is missing, so the logging requirement is not satisfied. Create the `retrieval_log.json`\
+    \ (and ensure it is populated during collector runs) to meet the task."
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

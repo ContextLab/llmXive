@@ -20,6 +20,9 @@ class ProjectConfig:
     """
     Centralized configuration management for the psychology research project.
     Handles paths, environment variables, and reproducibility seeds.
+    
+    Constitution Principle IV (Reproducibility): All random seeds are pinned
+    via set_seed() to ensure deterministic execution across runs.
     """
     project_root: Path = field(default_factory=lambda: Path(__file__).resolve().parents[2])
     data_dir: Path = field(default_factory=lambda: Path("data"))
@@ -32,7 +35,7 @@ class ProjectConfig:
     deterministic_mode: bool = True
 
     def __post_init__(self):
-        """Ensure paths are absolute relative to project root."""
+        """Ensure paths are absolute relative to project root and create directories."""
         self.project_root = self.project_root.resolve()
         self.data_dir = self.project_root / self.data_dir
         self.code_dir = self.project_root / self.code_dir
@@ -40,7 +43,7 @@ class ProjectConfig:
         self.logs_dir = self.project_root / self.logs_dir
         
         # Create directories if they don't exist
-        for d in [self.data_dir, self.output_dir, self.logs_dir]:
+        for d in [self.data_dir, self.output_dir, self.logs_dir, self.project_root]:
             d.mkdir(parents=True, exist_ok=True)
 
     def get_data_path(self, subpath: str) -> Path:
@@ -75,11 +78,21 @@ def set_seed(seed: Optional[int] = None) -> None:
     """
     Pin random seeds for reproducibility across numpy, python random, and optionally torch.
     
+    This function is critical for Constitution Principle IV (Reproducibility).
+    It ensures that any stochastic processes (random sampling, initialization)
+    yield identical results across runs when the same seed is provided.
+    
     Args:
         seed: The seed value. Defaults to the value in ProjectConfig if None.
+    
+    Raises:
+        ValueError: If seed is negative.
     """
     if seed is None:
         seed = get_config().random_seed
+    
+    if seed < 0:
+        raise ValueError("Seed must be a non-negative integer")
     
     # Python standard library random
     random.seed(seed)
@@ -104,6 +117,12 @@ def set_seed(seed: Optional[int] = None) -> None:
 def get_data_path(subpath: str) -> Path:
     """
     Helper to get a path relative to the data directory.
+    
+    Args:
+        subpath: Relative path within the data directory.
+    
+    Returns:
+        Absolute Path object.
     """
     return get_config().get_data_path(subpath)
 
@@ -111,6 +130,12 @@ def get_data_path(subpath: str) -> Path:
 def get_output_path(subpath: str) -> Path:
     """
     Helper to get a path relative to the output directory.
+    
+    Args:
+        subpath: Relative path within the output directory.
+    
+    Returns:
+        Absolute Path object.
     """
     return get_config().get_output_path(subpath)
 
@@ -118,5 +143,11 @@ def get_output_path(subpath: str) -> Path:
 def get_code_path(subpath: str) -> Path:
     """
     Helper to get a path relative to the code directory.
+    
+    Args:
+        subpath: Relative path within the code directory.
+    
+    Returns:
+        Absolute Path object.
     """
     return get_config().get_code_path(subpath)

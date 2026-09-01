@@ -1,5 +1,32 @@
-# Extends pyproject.toml for specific overrides if needed, 
-# but primarily we rely on pyproject.toml for unified config.
-# This file exists to satisfy strict tool detection if 'ruff check' 
-# is run without the --config flag pointing to pyproject.toml.
-extend = "pyproject.toml"
+# Ruff configuration for PROJ-008-psychology-research
+# Enforces PEP 8 compliance and scientific code standards
+
+[lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`) rules
+select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "PIE", "RET", "SIM"]
+
+# Ignore specific rules that may be too strict for research code
+# E501: Line too long (handled by black)
+# E741: Ambiguous variable name (common in math/stats: x, y, i, j)
+ignore = ["E501", "E741"]
+
+[lint.per-file-ignores]
+# Allow unused imports in __init__.py for public API exposure
+"__init__.py" = ["F401"]
+# Allow wildcard imports in specific utility modules if needed
+"utils/*.py" = ["F403"]
+
+[lint.isort]
+# Force single-line imports
+force-single-line = true
+# Sort by section (stdlib, third-party, local)
+force-sort-within-sections = true
+known-first-party = ["code"]
+
+[format]
+# Ensure consistent line length for Black compatibility
+line-length = 88
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

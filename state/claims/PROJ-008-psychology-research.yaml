@@ -1,0 +1,63 @@
+- artifact_path: projects/PROJ-008-psychology-research/docs/ethics_determination.md
+  attempts: 1
+  canonical: Project exempt from IRB review under 45 CFR 46.104(d)
+  claim_id: c_e2078b9a
+  context: 'This research project is classified as Exempt from Institutional Review
+    Board (IRB) review under the U.S. Department of Health and Human Services (HHS)
+    regulations (45 CFR 46.104(d)). Reasoning: The study involves the secondary analysis
+    of de-identified, publicly available data from clinical trial registries.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This research project is classified as Exempt from Institutional Review
+    Board (IRB) review under the U.S. Department of Health and Human Services (HHS)
+    regulations (45 CFR 46.104(d)).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T06:42:40Z'
+- artifact_path: projects/PROJ-008-psychology-research/docs/ethics_determination.md
+  attempts: 1
+  canonical: Exemption granted under 45 CFR 46.104(d)(4)
+  claim_id: c_b2af3732
+  context: 'The exemption is granted under 45 CFR 46.104(d)(4): Research involving
+    the collection or study of existing data, documents, records, pathological specimens,
+    or diagnostic specimens, if these sources are publicly available or if the information
+    is recorded by the investigator in such a manner that subjects cannot be identified.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The exemption is granted under 45 CFR 46.104(d)(4).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T06:44:25Z'
+- artifact_path: projects/PROJ-008-psychology-research/docs/ethics_determination.md
+  attempts: 1
+  canonical: ClinicalTrials.gov mandated by FDAAA of 2007
+  claim_id: c_bdb49e11
+  context: 'Publicly Available Sources: ClinicalTrials.gov: A federal registry mandated
+    by the Food and Drug Administration Amendments Act (FDAAA) of 2007. All data submitted
+    is public domain.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P793: Food and Drug Administration Amendments Act of 2007'
+      source_id: Q5133746
+      url: https://www.wikidata.org/wiki/Q5133746
+      value: Food and Drug Administration Amendments Act of 2007
+    filled: true
+  kind: entity_fact
+  raw_text: ClinicalTrials.gov is a federal registry mandated by the Food and Drug
+    Administration Amendments Act (FDAAA) of 2007.
+  resolved_value: Food and Drug Administration Amendments Act of 2007
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T06:45:54Z'

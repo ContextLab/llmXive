@@ -34,29 +34,48 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
+.tox/
 .coverage
 .coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
 .hypothesis/
 .pytest_cache/
 
-# Transient files
-.DS_Store
-.Thumbs.db
+# Translations
+*.mo
+*.pot
 
-# Data files (not tracked)
-data/raw/
-data/processed/
-figures/
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
-# IDE
+# IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
-# Environment
-.env
-.venv
-venv/
-ENV/
+# OS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Project specific
+data/raw/*.pdf
+data/interim/
+data/processed/*.csv
+data/processed/*.png
+data/raw/retrieval_log.json
+data/raw/excluded_studies.log
+docs/results.md
+docs/protocol.md
+*.log
