@@ -27,7 +27,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`, `specs/`)
-- [ ] T002 Initialize Python 3.11 project with `pyproject.toml` and core dependencies (`rdkit`, `torch`, `torch-geometric`, `scikit-learn`, `shap`, `pandas`, `datasets`, `chembl_webresource_client`, `mordred`, `pytest`)
+- [X] T002 Initialize Python 3.11 project with `pyproject.toml` and core dependencies (`rdkit`, `torch`, `torch-geometric`, `scikit-learn`, `shap`, `pandas`, `datasets`, `chembl_webresource_client`, `mordred`, `pytest`)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -38,14 +38,18 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `src/utils/versioning.py` with `update_state()` logic for Constitution Principle V (hash calculation, atomic writes to `state/projects/PROJ-220-...yaml`)
-- [ ] T005 [P] Implement `src/utils/logging.py` with audit logging infrastructure for data exclusions (FR-007)
-- [ ] T006 [P] Implement `src/utils/chemistry.py` with SMILES validation, Gasteiger partial charge calculation, and pKa estimation logic
-- [ ] T007 Implement `src/data/descriptors.py` to compute independent descriptor vectors (Hammett σ, Taft Es, Charton ν, Verloop B1/B5, MR) for validation (SC-003)
-- [ ] T008 [P] Implement `src/utils/validate_citations.py` as a standalone script to enforce the Citation Validation Gate (URL reachability, checksum verification, title overlap) per plan.md
+- [X] T004 Implement `src/utils/versioning.py` with `update_state()` logic for Constitution Principle V (hash calculation, atomic writes to `state/projects/PROJ-220-...yaml`)
+- [X] T005 [P] Implement `src/utils/logging.py` with audit logging infrastructure for data exclusions (FR-007)
+- [X] T006 [P] Implement `src/utils/chemistry.py` with SMILES validation, Gasteiger partial charge calculation, and pKa estimation logic
+- [ ] T007a [P] Implement `src/data/descriptors.py` function `compute_hammett()` using `mordred` or lookup tables to calculate Hammett σ_p, σ_m, σ+, σ- for aromatic substituents (SC-003, FR-005)
+- [ ] T007b [P] Implement `src/data/descriptors.py` function `compute_taft_charton()` to calculate Taft Es, Es_s, and Charton ν parameters (SC-003, FR-005)
+- [ ] T007c [P] Implement `src/data/descriptors.py` function `compute_verloop()` to calculate Verloop B1, B5 parameters (SC-003, FR-005)
+- [ ] T007d [P] Implement `src/data/descriptors.py` function `compute_mr()` to calculate Molar Refractivity (MR) using `rdkit`/`mordred` (SC-003, FR-005)
+- [X] T008 [P] Implement `src/utils/validate_citations.py` as a standalone script to enforce the Citation Validation Gate (URL reachability, checksum verification, title overlap) per plan.md
 - [ ] T009 [P] Integrate `validate_citations.py` as a pre-check in `src/data/ingestion.py` to ensure the gate triggers before any data fetch (Plan: Citation Validation Gate)
 - [ ] T010 Implement `src/data/split.py` with scaffold-based split strategy ensuring balanced partitions
-- [ ] T011 Configure environment configuration management and memory limit enforcement (FR-008)
+- [ ] T011a [P] Implement `src/utils/memory_monitor.py` with `check_limits()` and `graceful_exit()` functions to enforce memory/time limits (FR-008)
+- [ ] T011b [P] Implement `src/utils/sampling.py` with `sample_dataset()` function to reduce dataset size if memory limits are exceeded, logging the sampling strategy (FR-008)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -66,11 +70,13 @@
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement `src/data/ingestion.py` logic to fetch from ChEMBL and PubChem APIs, filter for primary/secondary amines and SN2 reactions, and handle invalid SMILES (US-1, FR-001)
+- [ ] T014 [US1] Implement `src/data/ingestion.py` logic to fetch from ChEMBL API, filter for primary/secondary amines and SN2 reactions, and handle invalid SMILES (US-1, FR-001). **Critical**: Must raise on fetch failure; NO synthetic fallback.
+- [ ] T014b [US1] Implement `src/data/ingestion.py` logic to fetch from PubChem API, filter for primary/secondary amines and SN2 reactions, and handle invalid SMILES (US-1, FR-001). **Critical**: Must raise on fetch failure; NO synthetic fallback.
 - [ ] T015 [US1] Implement kinetic data normalization logic (Arrhenius/Eyring) with fallback to reaction-class-specific average Ea; flag/exclude records missing necessary data (FR-001, FR-007)
 - [ ] T016 [US1] Implement `src/data/preprocessing.py` to construct heterogeneous molecular graphs using RDKit (node features: atom type, hybridization, Gasteiger charge, pKa; edge features: bond order) (FR-002, US-1). **Note**: This task depends on the pKa logic implemented in T006.
-- [ ] T017 [US1] Implement `src/data/streaming_loader.py` with `load_batch()` generator yielding `ReactionRecord` objects to handle large datasets exceeding available RAM, accumulating statistics online without full memory load (Plan: Complexity Tracking)
-- [ ] T018 [US1] Add logging for all data exclusions (missing kinetic data, invalid SMILES, missing temperature) to `data/raw/audit_log.json` (FR-007)
+- [ ] T017 [US1] Implement `src/data/streaming_loader.py` with `load_batch()` generator yielding `ReactionRecord` objects to handle large datasets exceeding available RAM, accumulating statistics online without full memory load (Plan: Complexity Tracking). **Critical**: Must stream real data; no toy dataset substitution. **Depends on T014, T014b, T015**.
+- [ ] T018a [US1] Implement logging in `src/data/ingestion.py` (T014, T014b) and `src/data/ingestion.py` (T015) to explicitly record all normalization exclusions (missing Ea, missing temperature) to `data/raw/audit_log.json` (FR-007). **Depends on T015**.
+- [ ] T018b [US1] Implement logging in `src/data/preprocessing.py` (T016) to explicitly record all graph construction exclusions (invalid SMILES, missing pKa) to `data/raw/audit_log.json` (FR-007). **Depends on T016**.
 - [ ] T019 [US1] Verify output dataset contains valid records with no missing required fields (SMILES, normalized kinetics, calculated pKa) (US-1 Acceptance Scenario 1)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -92,7 +98,7 @@
 
 - [ ] T022 [US2] Implement `src/models/baseline.py` with Random Forest/Linear Regression using traditional descriptors (pKa, MW, Taft Es) (FR-004, US-2)
 - [ ] T023 [US2] Implement `src/models/gnn.py` with a heterophily-aware GAT or GraphSAGE architecture (edge-type awareness) as primary/fallback method (FR-003, US-2, Plan: Heterophily-aware GNN)
-- [ ] T024 [US2] Implement training loop in `src/train.py` with 70/15/15 scaffold split, memory limit enforcement, and graceful exit/sampling if limits exceeded. **Note**: This task consumes the graph dataset output from T016 (FR-003, FR-008, US-2)
+- [ ] T024 [US2] Implement training loop in `src/train.py` with a scaffold split, memory limit enforcement (T011a), and sampling (T011b) if limits exceeded. **Note**: This task consumes the graph dataset output from T016 (FR-003, FR-008, US-2)
 - [ ] T025 [US2] Implement evaluation logic to compute R² and MAE for both models on the held-out test set (US-2 Acceptance Scenario 3)
 - [ ] T026 [US2] Implement permutation test or bootstrap-based confidence interval on absolute errors to determine statistical significance (FR-006, SC-002)
 - [ ] T027 [US2] Verify training completes within 6 hours on 2-core CPU and memory usage < 7GB, and generate `data/derived/training_metrics.json` containing `duration_seconds` and `peak_memory_mb` fields (SC-004, SC-005)
@@ -115,7 +121,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Implement `src/models/interpret.py` to perform SHAP analysis on the trained GNN, generating ranked atomic feature importance. **Note**: This task depends on the independent descriptor vector computed in T007 (FR-005, US-3)
+- [ ] T031 [US3] Implement `src/models/interpret.py` to perform SHAP analysis on the trained GNN (T023), generating ranked atomic feature importance. **Note**: This task depends on the independent descriptor vector computed in T007a, T007b, T007c, T007d (FR-005, US-3)
 - [ ] T032 [US3] Implement visualization logic to highlight top-contributing atoms/substructures in molecular graphs (US-3 Acceptance Scenario 2)
 - [ ] T033 [US3] Compute Pearson correlation between aggregated SHAP importance and the independent descriptor vector (Hammett/Taft/Verloop/MR) (FR-005, SC-003)
 - [ ] T034 [US3] Perform statistical significance testing (p < 0.05) and comparison against random baseline (shuffled labels) (SC-003, US-3 Acceptance Scenario 3)
@@ -144,8 +150,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -181,8 +187,8 @@ Task: "Contract test for data ingestion schema in tests/contract/test_ingestion_
 Task: "Integration test for end-to-end ingestion and graph construction on a small subset in tests/integration/test_ingestion_flow.py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement src/data/ingestion.py logic to fetch from ChEMBL and PubChem APIs"
-Task: "Implement src/data/preprocessing.py to construct heterogeneous molecular graphs"
+Task: "Implement src/data/ingestion.py logic to fetch from ChEMBL APIs"
+Task: "Implement src/data/ingestion.py logic to fetch from PubChem APIs"
 ```
 
 ---
@@ -211,9 +217,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data Ingestion)
-   - Developer B: User Story 2 (Model Training)
-   - Developer C: User Story 3 (Interpretability)
+ - Developer A: User Story 1 (Data Ingestion)
+ - Developer B: User Story 2 (Model Training)
+ - Developer C: User Story 3 (Interpretability)
 3. Stories complete and integrate independently
 
 ---
@@ -227,6 +233,9 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical**: Data ingestion tasks (T014-T015) must implement strict failure on invalid data (no synthetic fallbacks) as per Constitution Principle II.
+- **Critical**: Data ingestion tasks (T014, T014b) must implement strict failure on invalid data (no synthetic fallbacks) as per Constitution Principle II.
 - **Critical**: Streaming logic (T017) must be implemented to prevent OOM on GitHub Actions runner.
 - **Critical**: Heterophily-aware GNN (T023) is required; standard GCN is insufficient for reaction graphs.
+- **Critical**: All data loading must use real, verified sources; synthetic data generation is strictly prohibited.
+- **Critical**: Sampling strategy (T011b) must be implemented to satisfy FR-008 "or sampling" clause.
+- **Critical**: Descriptor calculations (T007a-d) must be completed to enable US-3 validation.

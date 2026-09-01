@@ -1,0 +1,13 @@
+rdkit
+numpy
+pandas
+scikit-learn
+torch
+torch-geometric
+datasets
+chembl-webresource-client
+mordred
+pytest
+shap
+black
+ruff
