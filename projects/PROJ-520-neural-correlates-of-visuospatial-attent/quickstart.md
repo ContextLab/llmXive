@@ -1,72 +1,54 @@
 # Quickstart Guide
 
-This guide provides the steps to run the full pipeline for the Neural Correlates of Visuospatial Attention project.
-
 ## Prerequisites
 
 - Python 3.8+
 - pip
-- Required dependencies (see `requirements.txt`)
+- Access to OpenNeuro dataset (ds0001171)
 
 ## Installation
 
-1. Install dependencies:
+1. Clone the repository.
+2. Install dependencies:
  ```bash
- pip install -r requirements.txt
- ```
-
-2. Set environment variables (optional):
- ```bash
- export PYTHONPATH="${PYTHONPATH}:$(pwd)/code"
+ pip install -r code/requirements.txt
  ```
 
 ## Execution
 
-Run the pipeline steps in order. Each step corresponds to a task in `tasks.md`.
+Run the full pipeline end-to-end:
+```bash
+python code/main.py --task all
+```
 
-### Step 1: Download Data
+Or run individual stages:
 ```bash
 python code/main.py --task download
-```
-This downloads the OpenNeuro dataset and validates BIDS structure.
-
-### Step 2: Preprocess Data
-```bash
 python code/main.py --task preprocess
-```
-This filters, removes artifacts, and epochs the data.
-
-### Step 3: Extract Features
-```bash
 python code/main.py --task features
-```
-This computes time-frequency features and extracts mean power for target electrodes.
-**Note**: This step now also ensures `data/processed/features_matrix.csv` is written by calling the necessary logic.
-
-### Step 4: Analyze Correlations (New)
-```bash
-python code/analyze_correlations.py
-```
-This computes correlation matrices, VIF, and saves `data/processed/feature_metadata.json`.
-This step is required for T024 and T029.
-
-### Step 5: Classification (Optional for T024)
-```bash
 python code/main.py --task classify
 ```
 
+## Data Integrity
+
+**Fail Loudly Policy**: This pipeline is configured to fail immediately if:
+- The real OpenNeuro dataset cannot be downloaded.
+- Required event markers are missing and no valid fallback is found.
+- Sample size requirements (<100 epochs/condition) are not met.
+- Resource limits (CPU/RAM) are exceeded.
+
+**No Synthetic Data**: Do not attempt to run this pipeline with synthetic or mock data. All analysis requires real EEG data from OpenNeuro.
+
 ## Output Artifacts
 
-After successful execution, the following files should exist:
-- `data/processed/epochs_cleaned.fif`
-- `data/processed/tf_power.npy`
-- `data/processed/features_matrix.csv`
-- `data/processed/feature_metadata.json`
-- `results.json`
+After successful execution, the following files will be generated in `data/processed/`:
+- `epochs_cleaned.fif`: Preprocessed epochs.
+- `features_matrix.csv`: Extracted feature matrix.
+- `feature_metadata.json`: Correlation and metadata report.
+- `results.json`: Classification and statistical results.
 
 ## Troubleshooting
 
-- If you encounter `ImportError`, ensure `PYTHONPATH` is set correctly.
-- If data download fails, check your internet connection and OpenNeuro availability.
-- If `features_matrix.csv` is missing, ensure `code/analyze_correlations.py` or `code/save_features.py` is run.
-- If `feature_metadata.json` is missing, run `python code/analyze_correlations.py`.
+- **Import Errors**: Ensure `code/` is in your Python path or run from the project root.
+- **Memory Errors**: The pipeline enforces limits. If you hit limits, reduce `max_memory_gb` in config or use a machine with more RAM.
+- **Download Failures**: Check your internet connection and ensure OpenNeuro is accessible.

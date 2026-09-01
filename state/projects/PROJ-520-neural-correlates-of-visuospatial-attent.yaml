@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-10T08:45:35.335731Z'
-current_stage: tasked
+current_stage: planned
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-520-neural-correlates-of-visuospatial-attent
-last_run_id: 9cfb2dc1-dac4-4655-9722-96b1161f5728
+last_run_id: 76156ff0-fe23-4d56-a185-fb05ca69afcd
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent
 title: Neural Correlates of Visuospatial Attention Shifts During Simulated Navigation
-updated_at: '2026-08-30T11:24:03.555518Z'
+updated_at: '2026-09-01T01:09:16.425907Z'

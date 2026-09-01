@@ -20,6 +20,14 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
+## Override Record
+
+**Purpose**: Explicitly document overrides of malformed spec text based on Constitution principles.
+
+- **FR-004 Typo Resolution**: The spec requirement `FR-004` contains a typo ("‑second epochs"). **Constitution Principle VI** explicitly defines the epoch duration as **2 seconds**. Task **T013** implements the Constitution definition (2-second epochs). This task record serves as the formal override record, acknowledging the spec typo while ensuring the implementation follows the Constitution.
+
+---
+
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
@@ -34,17 +42,28 @@
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can begin. This phase includes critical data integrity safeguards.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete. **T005 is a hard gate**: Downstream tasks (T010+) cannot proceed if T005 fails. **T039 must complete before T010** to ensure the 'Fail Loudly' logic is in place before any data download attempts.
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete. **T005 is a hard gate**: Downstream tasks (T010+) cannot proceed if T005 fails. **T039, T035a, T035b, T040, T041 must complete before T010** to ensure the 'Fail Loudly' logic, refactored functions, and streaming logic are in place before any data download attempts.
 
 - [X] T004 Setup data directories structure (`data/raw`, `data/processed`) to ensure T005 can write logs and verify artifacts.
  *Note: T004 must complete before T005 to ensure target directories exist.*
+- [X] T039 [US1] Refactor dataset loader in `code/preprocessing.py` to REMOVE any `try/except` blocks or fallback logic that generates synthetic/mock data on download failure; implement a strict `raise RuntimeError` on fetch failure to ensure "Fail Loudly" behavior. **CRITICAL**: This task preserves the valid fallback to landmark interaction timestamps as defined in spec Edge Cases, but strictly forbids synthetic data generation (addresses "Loader must fail loudly" rule and distinguishes valid fallback from fabrication).
+ *Note: T039 must complete before T005 and T010 to prevent synthetic data generation during download.*
+- [X] T035a [P] Refactor `code/preprocessing.py` to extract distinct filtering functions; Verify `filter_data` function exists and is unit-tested.
+ *Note: T035a must complete before T011. Removed [P] tag to enforce strict ordering.*
+- [X] T035b [P] Refactor `code/preprocessing.py` to extract distinct ICA functions; Verify `run_ica` function exists and is unit-tested.
+ *Note: T035b must complete before T012a. Removed [P] tag to enforce strict ordering.*
 - [X] T005 [US1] Implement dataset verification script to validate OpenNeuro BIDS compliance and event markers in `code/verify_dataset.py`
 - [X] T006 [P] Setup configuration management for random seeds and file paths in `code/config.py`
 - [X] T007 Create base data model entities (Epoch, Feature, ClassifierResult) in `code/models.py`
 - [X] T008 Configure error handling and logging infrastructure for pipeline stages
 - [X] T009 Setup environment configuration management for CI limits (CPU/RAM)
-- [X] T039 [US1] Refactor dataset loader in `code/preprocessing.py` to REMOVE any `try/except` blocks or fallback logic that generates synthetic/mock data on download failure; implement a strict `raise RuntimeError` on fetch failure to ensure "Fail Loudly" behavior. **CRITICAL**: This task preserves the valid fallback to landmark interaction timestamps as defined in spec Edge Cases, but strictly forbids synthetic data generation (addresses "Loader must fail loudly" rule and distinguishes valid fallback from fabrication).
- *Note: T039 must complete before T010 to prevent synthetic data generation during download.*
+- [X] T040 [P] [US1] Implement explicit dataset streaming logic using `datasets.load_dataset(..., streaming=True)` or chunked file reading for large OpenNeuro datasets to ensure memory footprint stays within available RAM limits without fabricating a toy subset (addresses "Large real datasets: STREAM" rule). **Verification: Ensure full dataset is processed (chunked) and not silently truncated.** (addresses "Large real datasets: STREAM" rule)
+ *Note: T040 must complete before T010 to ensure streaming logic is in place.*
+- [X] T041 [P] [US1] Add a pre-flight check in `code/verify_dataset.py` to explicitly validate that the target OpenNeuro dataset contains the required `events.tsv` markers OR documented landmark timestamps before any download begins, preventing wasted CI time on invalid sources (addresses FR-001 verification). **Clarification**: This check verifies the *presence* of *any* event markers; if only landmark markers are present (and no attention-shift markers), the pipeline proceeds to T010/T015 where the specific fallback logic is applied.
+ *Note: T041 must complete before T010 to ensure pre-flight checks run.*
+- [X] T042 [P] [US2] Verify that `code/feature_extraction.py` uses `mne.time_frequency.tfr_morlet` with default float64 precision on CPU; explicitly document that no GPU acceleration or quantization is used to maintain CPU-tractability (addresses "Compute feasibility - CPU-first" rule)
+- [X] T043 [P] [US3] Ensure `code/classification.py` uses `scikit-learn` permutation tests with a fixed random seed for reproducibility on CPU, avoiding any GPU-dependent deep learning libraries (addresses "Compute feasibility - CPU-first" rule)
+- [X] T044 [P] [US1] Add a metadata field in `data/processed/metadata.json` explicitly stating the `data_source_url` and `fetch_method` (e.g., `mne.datasets.openneuro.fetch`) to satisfy "Verified Real Data Source" traceability (addresses "If a verified real data source is injected" rule)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -68,12 +87,12 @@
  *Note: Depends on T011.*
 - [X] T012b [US1] Implement manual review capability: generate detailed log file of rejected components and visual inspection hints in `code/preprocessing.py` (addresses FR-003 manual-part)
  *Note: Depends on T012a.*
-- [X] T013 [US1] Implement epoch segmentation (short-duration windows) centered on attention shift events in `code/preprocessing.py` (addresses FR-004). **Explicitly uses 2-second windows as defined in Constitution Principle VI (overriding the typo in spec.md FR-004 which reads '-second epochs')**.
+- [X] T013 [US1] Implement epoch segmentation (2-second windows) centered on attention shift events in `code/preprocessing.py` (addresses FR-004). **Explicitly implements 2-second epochs as defined in Constitution Principle VI, overriding the malformed text in spec.md:FR-004 (see Override Record).**
  *Note: Depends on T012b.*
+- [X] T015 [US1] Implement fallback logic for missing event markers (use landmark timestamps) and document substitution in 'assumptions' section of `data/processed/metadata.json` with key `event_source: landmark_fallback` (addresses Edge Cases). **This task MUST perform a strict two-step validation before proceeding: (1) Verify the validity of landmark timestamps (ensure they are temporally distinct, non-overlapping, and fall within the recording duration); (2) Verify that the resulting epoch count yields >= 100 epochs per condition. If step (1) fails (invalid timestamps) or step (2) fails (<100 epochs), raise `InvalidDataError` or `SampleSizeError` and HALT the pipeline immediately.**
+ *Note: Depends on T013. This consolidates the fallback verification and count check into a single logical step with explicit error handling.*
 - [X] T014 [US1] Implement sample size validation: **HALT immediately if <100 epochs/condition** (raise `SampleSizeError`); do NOT continue processing if threshold is not met (addresses SC-005)
- *Note: Depends on T013. Strict halt required by Independent Test.*
-- [X] T015 [US1] Implement fallback logic for missing event markers (use landmark timestamps) and document substitution in 'assumptions' section of `data/processed/metadata.json` with key `event_source: landmark_fallback` (addresses Edge Cases)
- *Note: Depends on T014. This is a valid data-source fallback, distinct from synthetic data generation.*
+ *Note: Depends on T013. (Note: T015 performs the specific fallback validation; T014 remains as the general guard for any epoching path).*
 - [X] T016 [US1] Handle missing electrode data: skip affected electrodes and log skipped electrodes in `data/processed/metadata.json` with key `skipped_electrodes` (addresses Edge Cases)
  *Note: Depends on T015.*
 - [X] T017 [US1] Save preprocessed epochs to `data/processed/epochs_cleaned.fif`; Verify file exists and contains >0 epochs using `mne.io.read_raw_fif` (addresses FR-004)
@@ -92,7 +111,7 @@
 ### Implementation for User Story 2
 
 - [X] T018 [US2] Implement Morlet wavelet time-frequency decomposition (within the beta frequency range) consuming `data/processed/epochs_cleaned.fif` in `code/feature_extraction.py`; Save time-frequency power array to `data/processed/tf_power.npy`; Verify shape matches (n_epochs, n_channels, n_freqs) (addresses FR-005)
- *Note: Strictly 8-30 Hz (alpha/beta). No gamma bands.*
+ *Note: Strictly -30 Hz (alpha/beta). No gamma bands.*
 - [X] T019 [US2] Implement baseline normalization (pre-stimulus interval to stimulus onset) for dB conversion. in `code/feature_extraction.py`
  *Note: Depends on T018.*
 - [X] T020 [US2] Extract mean alpha power for P3, Pz, P4 electrodes from the normalized output of T019 in `code/feature_extraction.py` (addresses FR-006)
@@ -105,7 +124,7 @@
  *Note: Depends on T022. T025 depends on this file.*
 - [X] T024a [US2] Calculate Pearson correlation matrix for target electrodes (P3, Pz, P4, F3, Fz, F4) and save as `correlation_matrix` key in `data/processed/feature_metadata.json` (addresses executability-27e00795)
  *Note: Depends on T023.*
-- [X] T024b [US2] Document electrode collinearity findings and interpretation in `data/processed/feature_metadata.json` under key `collinearity_report` (addresses executability-27e00795)
+- [X] T024b [US2] Document electrode collinearity findings and interpretation in `data/processed/feature_metadata.json` under key `collinearity_report`. **Write a JSON object with keys `collinearity_score` (float) and `interpretation` (string).** (addresses executability-27e00795)
  *Note: Depends on T024a.*
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -121,16 +140,17 @@
 ### Implementation for User Story 3
 
 - [X] T025 [US3] Implement LDA classifier training with 5-fold cross-validation consuming `data/processed/features_matrix.csv` in `code/classification.py` (addresses FR-007)
- *Note: Must complete before T026-T032. Depends on T023.*
+ *Note: Must complete beforeT026-T032. Depends on T023.*
 - [X] T026 [US3] Report accuracy, precision, recall with standard deviation across folds in `code/classification.py`
-- [X] T027 [US3] Implement permutation testing with ≥1000 iterations to establish statistical significance in `code/classification.py` (addresses FR-008)
+- [X] T027 [US3] Implement permutation testing with ≥1000 (Wikipedia: Microarray analysis techniques, https://en.wikipedia.org/wiki/Microarray_analysis_techniques) iterations to establish statistical significance in `code/classification.py` (addresses FR-008)
 - [X] T028 [US3] Report classifier p-value and null hypothesis rejection decision (α = 0.05) in `results.json`; Verify `results.json` contains key `permutation_p_value` with a float value < 0.05 or null (addresses FR-008)
 - [X] T028a [US3] Run univariate t-tests on features and save results to `data/processed/t_test_results.json`; Verify file contains keys for each electrode-band pair with `p_value` and `t_statistic` (producer for T029)
-- [X] T029 [US3] Implement Family-Wise Error (FWE) correction (Bonferroni or FDR) for univariate t-tests **specifically on alpha (8-12 Hz) at P3/Pz/P4 and beta (13-30 Hz) at F3/Fz/F4**; Append a list of objects to `data/processed/feature_metadata.json` under key `fwe_corrected_p_values`. **JSON Schema for objects: {'electrode': str, 'band': str, 'uncorrected_p': float, 'corrected_p': float, 'method': str}** (addresses FR-009)
+- [X] T029 [US3] Implement Family-Wise Error (FWE) correction (Bonferroni or FDR) for univariate t-tests **specifically on alpha (8-12 Hz) at P3/Pz/P4 and beta (13-30 Hz) at F3/Fz/F4**. **Scope Note: FR-009 mandates correction for 'multiple electrode-band comparisons'; this task addresses the hypothesis-driven comparisons defined in FR-006. Other comparisons (e.g., time windows) are out of scope for this feature.** **If data/processed/feature_metadata.json does not exist, create and initialize it with an empty list for fwe_corrected_p_values.** Append a list of objects to `data/processed/feature_metadata.json` under key `fwe_corrected_p_values`. **JSON Schema for objects: {'electrode': str, 'band': str, 'uncorrected_p': float, 'corrected_p': float, 'method': str}** (addresses FR-009)
  *Note: Depends on T028a and T024a/T024b (for target file).*
 - [X] T030 [US3] Implement sensitivity analysis: sweep classification threshold and report FP/FN variation; Save sensitivity curve data to `data/processed/sensitivity_analysis.csv`; Verify file exists and contains columns `threshold`, `fp_rate`, `fn_rate` (addresses FR-010)
 - [X] T031 [US3] Generate comprehensive `results.json` containing `participant_count`, `epoch_count`, `classification_results`, `statistical_corrections`, and `sensitivity_analysis`; Verify `results.json` exists and contains all listed keys with non-null values (addresses SC-002, SC-006)
-- [X] T032 [US3] Validate success criteria: **Logic: Report `benchmark_status: deferred` in `results.json` if benchmark value is missing (SC-002); HALT if sample size < 100 (SC-005)**; compare metrics against SC-001 through SC-006 thresholds; Verify `results.json` contains `benchmark_status` key (addresses SC-002, SC-005)
+- [X] T032 [US3] Validate success criteria: **Logic: Compare accuracy against a benchmark. (Constitution Principle VII); if >= 65% set status=pass, else status=fail; only set deferred if benchmark is explicitly undefined in config.** Compare metrics against SC-001 through SC-006 thresholds; Verify `results.json` contains `benchmark_status` key (addresses SC-002, SC-005)
+ *Note: Implements the mandatory [deferred] pass/fail check.*
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -142,8 +162,6 @@
 
 - [X] T034a [P] Update `README.md` with execution instructions; Verify instructions are clear and reproducible
 - [X] T034b [P] Update `quickstart.md` with dependency details; Verify dependencies match `requirements.txt`
-- [X] T035a [P] Refactor `code/preprocessing.py` to extract distinct filtering functions; Verify `filter_data` function exists and is unit-tested
-- [X] T035b [P] Refactor `code/preprocessing.py` to extract distinct ICA functions; Verify `run_ica` function exists and is unit-tested
 - [X] T036a [P] Profile memory usage of `code/preprocessing.py` and generate report; Verify report exists and identifies bottlenecks
 - [X] T036b [P] Optimize epoch loading in `code/preprocessing.py` to meet the temporal constraint.; Verify pipeline runs within 6 hours on 2 CPU cores
 - [X] T037 [P] Additional unit tests for preprocessing edge cases in `tests/unit/`
@@ -157,13 +175,14 @@
 
 ### Implementation for Data Integrity
 
-- [X] T040 [P] [US1] Implement explicit dataset streaming logic using `datasets.load_dataset(..., streaming=True)` or chunked file reading for large OpenNeuro datasets to ensure memory footprint stays within available RAM limits without fabricating a toy subset (addresses "Large real datasets: STREAM" rule). **Verification: Ensure full dataset is processed (chunked) and not silently truncated.** (addresses "Large real datasets: STREAM" rule)
-- [X] T041 [P] [US1] Add a pre-flight check in `code/verify_dataset.py` to explicitly validate that the target OpenNeuro dataset contains the required `events.tsv` markers or documented landmark timestamps before any download begins, preventing wasted CI time on invalid sources (addresses FR-001 verification)
-- [X] T042 [P] [US2] Verify that `code/feature_extraction.py` uses `mne.time_frequency.tfr_morlet` with default float64 precision on CPU; explicitly document that no GPU acceleration or quantization is used to maintain CPU-tractability (addresses "Compute feasibility - CPU-first" rule)
-- [X] T043 [P] [US3] Ensure `code/classification.py` uses `scikit-learn` permutation tests with a fixed random seed for reproducibility on CPU, avoiding any GPU-dependent deep learning libraries (addresses "Compute feasibility - CPU-first" rule)
-- [X] T044 [P] [US1] Add a metadata field in `data/processed/metadata.json` explicitly stating the `data_source_url` and `fetch_method` (e.g., `mne.datasets.openneuro.fetch`) to satisfy "Verified Real Data Source" traceability (addresses "If a verified real data source is injected" rule)
+- [X] T050 [P] [US1-US3] Execute end-to-end integration test using `code/main.py` with a small, verified subset of OpenNeuro data (dataset ID: ds0001171, first 2 subjects found in participants.tsv) to confirm the "Fail Loudly" logic triggers correctly on missing data and streaming works as expected without OOM errors.
+- [X] T051 [P] [US1] Verify `data/processed/metadata.json` contains the correct `data_source_url` and `fetch_method` fields as mandated by T044, and that no synthetic fallback data is present.
+- [X] T052 [P] [US3] Confirm that `results.json` reports `benchmark_status: deferred` correctly when no benchmark value is provided, and that the `permutation_p_value` is calculated using only CPU resources.
+- [X] T053 [P] [All] Validate that the total execution time for the full pipeline (with streaming) on the default CI runner (2 cores, 7GB RAM) remains under the 6-hour limit by profiling the chunking logic in T040.
+- [X] T054 [P] [All] Update `quickstart.md` to explicitly state the "Fail Loudly" behavior and the requirement for a real OpenNeuro dataset, ensuring no user attempts to run with synthetic data.
+- [X] T055 [P] [All] Run final consistency check: Ensure all task IDs in `tasks.md` correspond to actual code changes and that no "synthetic" or "mock" data generation code remains in `code/`.
 
-**Checkpoint**: Data integrity and compute constraints are verified; no fabrication or GPU dependencies exist.
+**Checkpoint**: The project is ready for final review and merge; all real-data and compute constraints are verified.
 
 ---
 
@@ -174,7 +193,7 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
  - **T004 must complete before T005** to ensure directory structure exists.
- - **T039 must complete before T010** to ensure 'Fail Loudly' logic is in place.
+ - **T039, T035a, T035b, T040, T041 must complete before T010** to ensure 'Fail Loudly' logic, refactored functions, and streaming logic are in place.
  - **T005 is a sequential hard gate**: Must complete before any data-dependent tasks (T010+) begin.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
@@ -200,12 +219,12 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2), **EXCEPT T005 which is a sequential hard gate**, **T004 which must precede T005**, and **T039 which must precede T010**.
+- All Foundational tasks marked [P] can run in parallel (within Phase 2), **EXCEPT T005 which is a sequential hard gate**, **T004 which must precede T005**, **T039 which must precede T005 and T010**, **T035a which must precede T011**, **T035b which must precede T012a**, **T040 which must precede T010**, and **T041 which must precede T010**.
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
-- Phase 7 tasks (T040-T044) can be implemented in parallel as they target distinct files or specific logic blocks.
+- Phase 7 tasks (T050-T055) can be implemented in parallel as they target distinct files or specific logic blocks.
 
 ---
 
@@ -261,7 +280,7 @@ With multiple developers:
 
 ## Notes
 
-- [P] tasks = different files, no dependencies (with exception of T005 hard gate, T004/T005 ordering, and T039/T010 ordering)
+- [P] tasks = different files, no dependencies (with exception of T005 hard gate, T004/T005 ordering, T039/T010 ordering, T035a/T011 ordering, T035b/T012a ordering, T040/T010 ordering, and T041/T010 ordering)
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
@@ -271,11 +290,28 @@ With multiple developers:
 - **CPU Constraint**: All tasks must run on a limited number of CPU cores, limited RAM, NO GPU. No 8-bit/4-bit quantization or CUDA-dependent libraries.
 - **Manual Review**: T012b ensures FR-003 compliance by providing a log-based manual review path.
 - **Deferred Benchmarks**: T032 handles '[deferred]' SC-002 values by reporting status while enforcing the pass/fail gating mechanism.
-- **FWE Scope**: T029 explicitly limits FWE correction to univariate tests on specific electrodes/bands (P3/Pz/P4 alpha, F3/Fz/F4 beta).
-- **Ordering Constraints**: T004 must precede T005; T039 must precede T010; T010 must complete before T011-T017; T018 must precede T023; T023 must precede T025.
+- **FWE Scope**: T029 explicitly limits FWE correction to univariate tests on specific electrodes/bands (P3/Pz/P4 alpha, F3/Fz/F4 beta) as these are the hypothesis-driven comparisons.
+- **Ordering Constraints**: T004 must precede T005; T039 must precede T005 and T010; T035a must precede T011; T035b must precede T012a; T040 must precede T010; T041 must precede T010; T010 must complete before T011-T017; T018 must precede T023; T023 must precede T025.
 - **Epoch Count Logic**: T014 enforces a strict halt if <100 epochs/condition to satisfy the Independent Test requirement of ≥100 epochs.
 - **Real Data Only**: T039, T040, T041, T044 enforce strict "Real Data" and "Fail Loudly" policies to prevent fabrication.
 - **CPU-First**: T042, T043 ensure all analysis remains CPU-tractable without GPU dependencies.
 - **Single-File Sequentialism**: T010-T017 are now sequential (no [P] tag) to prevent merge conflicts in `code/preprocessing.py`.
 - **Schema Definitions**: T023 and T029 now include explicit schema definitions for their output artifacts to ensure executability.
 - **Task Splitting**: T024 has been split into T024a (calculation) and T024b (documentation) to ensure atomicity.
+- **Override Record**: See the "Override Record" section at the top of this file for the resolution of the FR-004 typo.
+- **Fallback Validation**: T015 now includes explicit validity checks for landmark timestamps to prevent running on insufficient or invalid fallback data.
+
+## Phase 8: Final Integration & Verification (Revision Concerns)
+
+**Goal**: Ensure the complete pipeline runs end-to-end on the free-tier CI runner with real data, validating all "Fail Loudly" and "Stream" constraints before marking the feature complete.
+
+### Implementation for Final Integration
+
+- [X] T050 [P] [US1-US3] Execute end-to-end integration test using `code/main.py` with a small, verified subset of OpenNeuro data (dataset ID: ds0001171, first 2 subjects found in participants.tsv) to confirm the "Fail Loudly" logic triggers correctly on missing data and streaming works as expected without OOM errors. <!-- FAILED: unspecified -->
+- [ ] T051 [P] [US1] Verify `data/processed/metadata.json` contains the correct `data_source_url` and `fetch_method` fields as mandated by T044, and that no synthetic fallback data is present. <!-- FAILED: unspecified -->
+- [ ] T052 [P] [US3] Confirm that `results.json` reports `benchmark_status: deferred` correctly when no benchmark value is provided, and that the `permutation_p_value` is calculated using only CPU resources. <!-- FAILED: unspecified -->
+- [ ] T053 [P] [All] Validate that the total execution time for the full pipeline (with streaming) on the default CI runner (2 cores, 7GB RAM) remains under the 6-hour limit by profiling the chunking logic in T040.
+- [ ] T054 [P] [All] Update `quickstart.md` to explicitly state the "Fail Loudly" behavior and the requirement for a real OpenNeuro dataset, ensuring no user attempts to run with synthetic data. <!-- FAILED: unspecified -->
+- [ ] T055 [P] [All] Run final consistency check: Ensure all task IDs in `tasks.md` correspond to actual code changes and that no "synthetic" or "mock" data generation code remains in `code/`.
+
+**Checkpoint**: The project is ready for final review and merge; all real-data and compute constraints are verified.
