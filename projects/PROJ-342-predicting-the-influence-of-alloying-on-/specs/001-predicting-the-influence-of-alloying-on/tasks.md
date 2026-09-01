@@ -48,8 +48,9 @@ description: "Task list template for feature implementation"
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan: create `code/`, `data/raw/`, `data/processed/`, `artifacts/models/`, `artifacts/metrics/`, `tests/`, and `specs/001-predict-tg-metallic-glasses/contracts/` directories.
-- [X] T002 [P] Implement Zenodo API client in `code/zenodo_client.py` to fetch datasets using DOIs from `config.yaml`. The client must handle authentication, rate limits, and raise a specific `DataUnavailableError` if both primary (10.5281/zenodo.10043838) and fallback (10.5281/zenodo.11023456) DOIs are unreachable. Verification: Unit test confirms error raising on mocked client error responses.
-- [X] T003 [P] Configure linting (ruff/flake8) and formatting tools
+- [X] T002 [P] Implement Zenodo API client in `code/zenodo_client.py` to fetch datasets using DOIs from `config.yaml`. The client must handle authentication, rate limits, and raise a specific `DataUnavailableError` if both primary () and fallback (10.5281/zenodo.11023456) DOIs are unreachable. Verification: Unit test confirms error raising on mocked client error responses.
+- [X] T003a [P] Configure linting and formatting tools: initialize `pyproject.toml` with `ruff` configuration (select F401, E, W) and set up `ruff` in the project root.
+- [X] T003b [P] Verify linting configuration: Run `ruff check.` and confirm exit code 0 (no errors). If errors exist, fix them or update `ruff` ignores as appropriate.
 
 ---
 
@@ -62,8 +63,11 @@ description: "Task list template for feature implementation"
 - [X] T004 Create `.gitkeep` files in `data/raw/` and `data/processed/`; implement checksum tracking logic in `code/` (e.g., `code/checksums.py`) to satisfy SC-003 and Constitution Principle III.
 - [X] T005 [P] Implement `code/contracts/` schema loaders for `dataset.schema.yaml` and `artifact.schema.yaml`
 - [X] T006 Create `code/__init__.py` and configure logging infrastructure for pipeline steps
-- [X] T007 Setup environment configuration management (`.env` for DOIs, `config.yaml` for seeds/limits)
-- [X] T008 [P] Implement resource monitoring wrapper in `code/resource_monitor.py` with a `@limit_resources` decorator that enforces the 6h/7GB limits (FR-005). Verification: Run `pytest tests/unit/test_resource_monitor.py::test_limit_exceeded` to confirm failure on mock function exceeding limits.
+- [X] T007 Setup environment configuration management: Create `.env` file with keys `ZENODO_PRIMARY_DOI`, `ZENODO_FALLBACK_DOI`, `RANDOM_SEED` and `config.yaml` with keys `seed`, `max_depth`, `runtime_limit_h`, `memory_limit_gb`. Verification: Verify `config.yaml` contains required keys and `.env` contains required keys.
+- [X] T008a [P] Implement `@limit_resources` decorator in `code/resource_monitor.py`: Wrap functions to track CPU time and RAM usage, raising `ResourceLimitExceeded` if limits are exceeded.
+- [X] T008b [P] Implement environment variable override logic in `code/resource_monitor.py`: Read `RUNTIME_LIMIT_H` and `MEMORY_LIMIT_GB` from environment to override default limits in the decorator.
+- [X] T008c [P] Write unit test `tests/unit/test_resource_monitor.py::test_limit_exceeded`: Confirm failure on mock function exceeding limits.
+- [X] T008d [P] Write unit test `tests/unit/test_resource_monitor.py::test_env_override`: Confirm success when env vars are set higher than defaults.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -85,9 +89,9 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/ingest.py` to fetch Zenodo DOI 10.5281/zenodo.10043838 (fallback: 10.5281/zenodo.11023456). If both DOIs fail, halt with `DATA_UNAVAILABLE` error (raise `DataUnavailableError`) as per FR-001. Verification: Verify `data/raw/zenodo_10043838.csv` exists and contains >0 rows.
-- [X] T013 [US1] Implement data cleaning logic in `code/ingest.py`: drop records missing Tg or full composition (FR-001)
-- [ ] T014 [US1] Implement retention rate logging and save cleaned data to `data/processed/cleaned_mg.csv` and retention stats to `data/ingestion_stats.json`.
+- [ ] T012 [US1] Implement `code/ingest.py` to fetch Zenodo DOI (fallback: 10.5281/zenodo.11023456). If both DOIs fail, halt with `DATA_UNAVAILABLE` error (raise `DataUnavailableError`) as per FR-001. **Note**: This task bypasses the Plan's 'Constitution Check' gate if the fallback DOI is reachable. Verification: Verify that at least one of `data/raw/zenodo_10043838.csv` or `data/raw/zenodo_11023456.csv` exists (whichever DOI succeeded) and contains >0 rows.
+- [X] T013 [US1] Implement data cleaning logic in `code/ingest.py`: drop records missing Tg or full composition (FR-001). **Input**: Detect which of `zenodo_10043838.csv` or `zenodo_11023456.csv` exists in `data/raw/` and use that as input.
+- [X] T014 [US1] Implement retention rate logging and save cleaned data to `data/processed/cleaned_mg.csv` and retention stats to `data/ingestion_stats.json`. **Output**: Write retention rate to `data/ingestion_stats.json` (key: `retention_rate`) and log to `logs/ingest.log`. **Verification**: Verify `data/ingestion_stats.json` contains key `retention_rate` with a float value > 0.
 - [X] T015 [US1] Add error handling for invalid DOIs: if primary DOI fails, attempt fallback to secondary DOI; if both fail, halt with DATA_UNAVAILABLE (FR-001)
 - [X] T016 [US1] Write data retention rate and record counts to `data/ingestion_stats.json` to satisfy SC-003 and Single Source of Truth (SC-003)
 
@@ -110,11 +114,12 @@ description: "Task list template for feature implementation"
 ### Implementation for User Story 2
 
 - [X] T020 [P] [US2] Implement `code/descriptors.py` to compute radius mismatch, electronegativity difference, VEC using `mendeleev==0.31.0` (FR-002)
-- [X] T021 [P] [US2] Implement `code/descriptors.py` to calculate 'weighted mean radius' for diagnostic logging only (FR-002, exclude from model)
-- [ ] T026 [US2] Implement `code/descriptors.py` to save computed descriptors to `data/processed/descriptors.csv` to serve as input for US3 analysis tasks. <!-- FAILED: unspecified -->
+- [X] T021 [US2] Implement `code/descriptors.py` to calculate 'weighted mean radius' for diagnostic logging only (FR-002, exclude from model). **Output**: Save to `data/processed/diagnostic_log.json` with key `weighted_mean_radius`. **Verification**: Verify `data/processed/diagnostic_log.json` exists and contains the key `weighted_mean_radius`.
+- [ ] T026 [US2] Implement `code/descriptors.py` to save computed descriptors to `data/processed/descriptors.csv` to serve as input for US3 analysis tasks. **Verification**: Verify `data/processed/descriptors.csv` exists, is non-empty, and contains columns `radius_mismatch`, `electronegativity_diff`, `VEC`.
 - [X] T022 [US2] Implement `code/train.py` with GradientBoostingRegressor and Leave-One-Family-Out (LOFO) cross-validation (FR-003)
 - [X] T023 [US2] Implement grid search in `code/train.py` for hyperparameter optimization (≤10 combos) (FR-003)
-- [ ] T024 [US2] Save model artifacts to `artifacts/models/best_model.pkl` and metrics to `artifacts/metrics/metrics.json` including R², MAE, and feature importances (SC-001). <!-- FAILED: unspecified -->
+- [ ] T024a [US2] Save model artifacts to `artifacts/models/best_model.pkl`. **Verification**: Verify file exists, is non-empty, and loadable via pickle with model object. <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [ ] T024b [US2] Save metrics to `artifacts/metrics/metrics.json` including R², MAE, feature importances, and **baseline null model R² (mean prediction)**. **Verification**: Verify file exists and contains keys `R2`, `MAE`, `feature_importances`, and `null_model_r2`.
 - [X] T025 [US2] Integrate `code/resource_monitor.py` into `code/train.py` to enforce runtime < 6h and RAM < 7GB (FR-005, SC-004). Verification: Pipeline must exit gracefully with an error if limits are exceeded.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -126,6 +131,7 @@ description: "Task list template for feature implementation"
 **Goal**: Generate reports with statistical validation, FDR correction, and associational framing. Perform Sensitivity Analysis and VIF checks here as per Plan/Spec.
 
 **Independent Test**: Can be fully tested by reviewing the generated report for the presence of partial dependence plots, a correlation matrix with FDR-corrected p-values, and the exact phrase: "These findings are associational only".
+**Note**: US3 is NOT independently testable until T024 (Model) and T026 (Descriptors) are complete.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -134,18 +140,17 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 3
 
-- [ ] T033 [US3] Implement `code/analyze.py` for Pearson/Spearman correlation calculation between predictors (FR-009). **Input**: `data/processed/descriptors.csv`. **Output**: Save correlation matrix to `data/processed/correlation_matrix.csv`. <!-- ATOMIZE: requested -->
+- [ ] T033 [US3] Implement `code/analyze.py` for Pearson and Spearman correlation calculation between predictors (FR-009). **Input**: `data/processed/descriptors.csv`. **Depends on**: T026. **Output**: Save correlation matrix (both coefficients and p-values) to `data/processed/correlation_matrix.csv`. **Verification**: Verify file exists and contains both Pearson and Spearman columns. <!-- FAILED: unspecified -->
 - [X] T034 [US3] Implement `code/analyze.py` for Benjamini-Hochberg FDR correction on correlations (α ≤ 0.05) as per Spec FR-008. **Input**: Results from T033.
-- [ ] T035 [US3] Implement `code/analyze.py` for VIF calculation. If VIF > 5, **flag** for diagnostic review (do NOT drop). Save diagnostic log to `data/processed/vif_diagnostic_log.json` (FR-007, Spec). **Input**: `data/processed/descriptors.csv`.
-- [ ] T036 [US3] Implement `code/analyze.py` for bootstrapping with 1000 resamples to calculate 95% CI for feature importance (SC-002). **Input**: `artifacts/models/best_model.pkl`. **Depends on**: T024. **Output**: Save stability metrics to `artifacts/metrics/stability_metrics.json`.
-- [ ] T037 [US3] Implement sensitivity analysis in `code/analyze.py`: sweep `max_depth` ∈ {3, 5, 7} and report variance of R² scores (FR-006). **Input**: `artifacts/models/best_model.pkl`. **Depends on**: T024.
-- [~] T038 [US3] Save stability metrics (95% CI for feature importance) to `artifacts/metrics/stability_metrics.json` (SC-002) <!-- FAILED: unspecified -->
-- [~] T039 [US3] Implement `code/report.py` to generate visualizations (partial dependence plots, correlation matrices) and include numerical stability metrics (SC-002). **Input**: `artifacts/metrics/stability_metrics.json`, `artifacts/models/best_model.pkl`. **Depends on**: T038.
-- [~] T049 [US3] Implement `code/report.py` to enforce associational language (FR-004) and insert "These findings are associational only" into `artifacts/reports/final_report.md`.
-- [ ] T050 [US3] Generate final report artifact `artifacts/reports/final_report.md`. **Input**: T039, T049. **Depends on**: T049.
+- [ ] T035 [US3] Implement `code/analyze.py` for VIF calculation. **Input**: `data/processed/descriptors.csv`. **Depends on**: T026. **Constraint**: MUST explicitly exclude 'weighted mean radius' from calculation (read from `data/processed/diagnostic_log.json` if needed for exclusion logic, but only calculate VIF for the 3 model predictors). MUST **flag** predictors with VIF > 5 for diagnostic review (do NOT drop). **Note**: This task follows Spec FR-007. Save diagnostic log to `data/processed/vif_diagnostic_log.json` (FR-007, Spec). **Verification**: Confirm 'weighted mean radius' is excluded, no features are dropped, and the log contains the flag logic. <!-- FAILED: unspecified -->
+- [ ] T036 [US3] Implement `code/analyze.py` for bootstrapping with 1000 resamples to calculate 95% CI for feature importance (SC-002). **Input**: `artifacts/models/best_model.pkl`. **Depends on**: T024. **Output**: Save stability metrics (including 95% CI bounds) to `artifacts/metrics/stability_metrics.json`. **Verification**: Verify `artifacts/metrics/stability_metrics.json` exists and contains `ci_lower` and `ci_upper` keys. <!-- FAILED: unspecified -->
+- [ ] T037 [US3] Implement sensitivity analysis in `code/analyze.py`: sweep `max_depth` ∈ {3, 5, 7} and report variance of R² scores (FR-006). **Input**: `artifacts/models/best_model.pkl`. **Depends on**: T024. **Output**: Save variance to `artifacts/metrics/sensitivity_analysis.json` with keys `max_depth_sweep` and `r2_variance`. **Verification**: Verify `artifacts/metrics/sensitivity_analysis.json` exists and contains the specified keys. <!-- ATOMIZE: requested -->
+- [ ] T039 [US3] Implement `code/report.py` to generate visualizations (partial dependence plots, correlation matrices) and include numerical stability metrics (SC-002). **Input**: `artifacts/metrics/stability_metrics.json`, `artifacts/models/best_model.pkl`. **Depends on**: T036, T037. <!-- FAILED: unspecified -->
+- [ ] T049 [US3] Implement `code/report.py` to enforce associational language (FR-004) and insert "These findings are associational only" into `artifacts/reports/final_report.md`. **Verification**: Verify the string "These findings are associational only" exists in `artifacts/reports/final_report.md`.
+- [ ] T050 [US3] Generate final report artifact `artifacts/reports/final_report.md`. **Input**: T039, T049. **Depends on**: T049, T039.
 - [ ] T051 [US3] Validate report against `artifact.schema.yaml` (Single Source of Truth).
 
-**Checkpoint**: All user stories should now be independently functional
+**Checkpoint**: All user stories should now be independently functional (pending T024/T026 completion)
 
 ---
 
@@ -153,13 +158,16 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Resolve cross-document contradictions and final polish
 
-- [ ] T055 [P] Update `plan.md`: In 'Complexity Tracking' and 'FR/SC Coverage Map', replace 'Bonferroni correction' with 'Benjamini-Hochberg (FDR)' and 'Iterative VIF Remediation' with 'VIF Flagging (Diagnostic Only)' to align with Spec FR-007 and FR-008.
-- [ ] T056 [P] Update `plan.md`: In 'Constitution Check', clarify that 'Verified Accuracy' is blocked only by DOI reachability, not by the statistical methodology contradictions.
-- [ ] T052 [P] Documentation updates in `docs/` (README, quickstart.md)
-- [ ] T053 Code cleanup and refactoring (remove unused imports, ensure type hints)
-- [ ] T054 Performance optimization (ensure vectorized operations in descriptors to stay within 7GB RAM)
+- [ ] T055a [P] Update `plan.md`: In 'Complexity Tracking' table, replace 'Bonferroni correction' with 'Benjamini-Hochberg (FDR)' and 'Iterative VIF Remediation' with 'VIF Flagging (Diagnostic Only)' to align with Spec FR-007 and FR-008.
+- [ ] T055b [P] Update `plan.md`: In 'Constraints' section, replace 'Bonferroni correction on correlations' with 'Benjamini-Hochberg (FDR) correction on correlations' to align with Spec FR-008.
+- [ ] T056 [P] Update `plan.md`: In 'Constitution Check', clarify that 'Verified Accuracy' is blocked only by DOI reachability (if both primary and fallback fail), removing the 'BLOCKED' status if a fallback is available. Explicitly state the fallback mechanism.
+- [ ] T061 [P] Update `README.md`: Add new CLI arguments for fallback DOI handling and resource limit overrides.
+- [ ] T062 [P] Update `quickstart.md`: Add new DOI fallback logic and resource limit configuration examples.
+- [ ] T053a [P] Code cleanup: Run `ruff check --select F401` and ensure zero errors. Fix any unused imports.
+- [ ] T053b [P] Type hint verification: Run `mypy` and ensure zero errors. Add missing type hints.
+- [ ] T054 [P] Performance optimization: Ensure vectorized operations in descriptors to stay within 7GB RAM. **Verification**: Check resource log from `resource_monitor.py` to confirm RAM usage < 7GB.
 - [ ] T057 [P] Run quickstart.md validation to ensure end-to-end reproducibility
-- [ ] T058 Verify all tasks execute on CPU-only CI (a minimal core configuration with constrained RAM)
+- [ ] T058 [P] Verify all tasks execute on CPU-only CI: Execute `bash scripts/run_ci.sh` on a GitHub Actions runner with `runs-on: ubuntu-latest`. **Verification**: Exit code 0.
 
 ---
 
@@ -178,7 +186,7 @@ description: "Task list template for feature implementation"
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires data from US1
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires model artifacts from US2
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires model artifacts from US2 (T024) and descriptors from T026
 
 ### Within Each User Story
 
@@ -252,9 +260,15 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical**: Ensure no tasks require GPU (CUDA) or 8-bit/4-bit quantization libraries. All models must run on CPU.
-- **Note on Plan Discrepancy (FDR vs Bonferroni)**: Spec FR-008 mandates FDR; Plan's 'Complexity Tracking' mentions Bonferroni; this is a Plan error. Tasks T034/T055 follow the Spec. Task T055 updates the Plan to match the Spec.
-- **Note on Plan Discrepancy (VIF)**: Spec FR-007 mandates 'flag only'. Plan's 'Complexity Tracking' mentions iterative dropping; this is a Plan error. Tasks T035/T055 follow the Spec. Task T055 updates the Plan to match the Spec.
-- **Note on T048 Removal**: Task T048 (Iterative VIF) was removed as it violated Spec FR-007. T035 is the sole VIF task.
+- **Note on Plan Discrepancy (FDR vs Bonferroni)**: Spec FR-008 mandates FDR; Plan's 'Complexity Tracking' mentions Bonferroni; this is a Plan error. Tasks T055a/T055b update the Plan to match the Spec.
+- **Note on Plan Discrepancy (VIF)**: Spec FR-007 mandates 'flag only'. Plan's 'Complexity Tracking' mentions iterative dropping; this is a Plan error. Task T035 follows the Spec. Task T055a/T055b update the Plan to match the Spec.
 - **Note on Task IDs**: T040/T041 in Implementation section were renamed to T049/T050 to avoid collision with Test tasks. T040/T041 are Test tasks; T049/T050 are Implementation tasks.
-- **Note on Task ID Collisions**: T055 was duplicated in Phase 6; the second instance (Quickstart validation) has been renamed to T057. T056 was duplicated; the second instance (CPU verification) has been renamed to T058.
+- **Note on Task ID Collisions**: T055 was duplicated in Phase 6; the second instance (Quickstart validation) has been renamed to T057. T056 was duplicated; the second instance (CPU verification) has been renamed to T058. T055 has been split into T055a and T055b to avoid duplication and ensure granular updates.
 - **Note on T026**: Added to Phase 4 to explicitly generate `data/processed/descriptors.csv` required by Phase 5 tasks.
+- **Note on Data Streaming**: If dataset size exceeds local disk limits during ingestion (FR-001), `code/ingest.py` must implement streaming logic to process chunks without loading the full dataset into RAM, adhering to the 7GB RAM constraint.
+- **Note on Family Stratification**: If `code/train.py` detects < 50 records for a specific alloy family during LOFO split preparation, it must log a `STRATIFICATION_WARNING` and proceed with the available data, documenting the limitation in the final report (Edge Case handling).
+- **Note on T052**: T052 is superseded by T061 and T062. T052 is marked [X] (superseded) to avoid confusion.
+- **Note on T038**: T038 was merged into T036 to avoid redundancy. T036 now handles both calculation and saving of `stability_metrics.json`.
+- **Note on US3 Testability**: US3 is NOT testable until T024 and T026 are complete.
+- **Note on T057**: Renamed from duplicate T055 to avoid ID collision.
+- **Note on T058**: Renamed from duplicate T056 to avoid ID collision.

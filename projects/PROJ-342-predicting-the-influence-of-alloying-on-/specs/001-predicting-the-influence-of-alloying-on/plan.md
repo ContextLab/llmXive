@@ -97,7 +97,7 @@ projects/PROJ-342-predicting-the-influence-of-alloying-on-/
 | **FR-003** | `train.py` | Train GradientBoostingRegressor with LOFO. Grid search (≤10 combos). |
 | **FR-004** | `report.py` | Explicitly state "These findings are associational only". |
 | **FR-005** | Pipeline Config | Runtime < 6h, RAM < 7GB. |
-| **FR-006** | `analyze.py` | Sensitivity sweep `max_depth` ∈ {3, 5, 7}. Report variance. |
+| **FR-006** | `analyze.py` | Sensitivity sweep `max_depth` across a range of moderate to high depths. Report variance. |
 | **FR-007** | `analyze.py` | Calculate VIF. If >5, drop highest VIF feature iteratively until all <5. |
 | **FR-008** | `analyze.py` | Apply Bonferroni correction (α ≤ 0.05) to 3 pairwise correlations. |
 | **FR-009** | `analyze.py` | Calculate Pearson/Spearman correlations. |

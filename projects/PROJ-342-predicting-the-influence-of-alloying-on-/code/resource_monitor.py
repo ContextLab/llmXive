@@ -52,18 +52,46 @@ def get_current_cpu_time() -> float:
     return usage.ru_utime + usage.ru_stime
 
 
+def _get_env_limit(var_name: str, default_seconds: float, unit_factor: float = 1.0) -> float:
+    """
+    Helper to read a limit from environment variables, overriding defaults.
+    
+    Args:
+        var_name: Environment variable name (e.g., 'RUNTIME_LIMIT_H')
+        default_seconds: Default limit in seconds
+        unit_factor: Multiplier for the input unit (e.g., 3600 for hours to seconds)
+        
+    Returns:
+        float: The limit in seconds
+    """
+    env_val = os.environ.get(var_name)
+    if env_val is not None:
+        try:
+            val = float(env_val)
+            # Convert from hours to seconds if the variable implies hours
+            if 'H' in var_name or 'HOURS' in var_name:
+                return val * 3600.0
+            # If it's GB for memory, convert to MB
+            if 'GB' in var_name and 'RAM' in var_name:
+                return val * 1024.0
+            return val * unit_factor
+        except ValueError:
+            logger.warning(f"Invalid value for {var_name}: {env_val}. Using default.")
+    return default_seconds
+
+
 @contextmanager
 def resource_monitor(
-    cpu_limit: float = 6 * 3600,  # 6 hours in seconds
-    ram_limit: float = 7 * 1024,  # 7 GB in MB
+    cpu_limit: Optional[float] = None,
+    ram_limit: Optional[float] = None,
     check_interval: float = 60.0  # Check every 60 seconds
 ):
     """
     Context manager to monitor CPU time and RAM usage.
     
     Args:
-        cpu_limit: Maximum allowed CPU time in seconds (default: 6 hours)
-        ram_limit: Maximum allowed RAM in MB (default: 7 GB)
+        cpu_limit: Maximum allowed CPU time in seconds. If None, reads from RUNTIME_LIMIT_H env var, else defaults to 6h.
+        ram_limit: Maximum allowed RAM in MB. If None, reads from MEMORY_LIMIT_GB env var, else defaults to 7GB.
         check_interval: Interval between resource checks in seconds (default: 60s)
         
     Yields:
@@ -72,6 +100,13 @@ def resource_monitor(
     Raises:
         ResourceLimitExceeded: If CPU time or RAM limit is exceeded
     """
+    # Determine limits: Env Var -> Argument -> Default
+    if cpu_limit is None:
+        cpu_limit = _get_env_limit('RUNTIME_LIMIT_H', 6 * 3600)
+    
+    if ram_limit is None:
+        ram_limit = _get_env_limit('MEMORY_LIMIT_GB', 7 * 1024)
+
     start_time = time.time()
     last_check_time = start_time
     
@@ -151,16 +186,16 @@ def _monitor_resources(
 
 
 def enforce_resource_limits(
-    cpu_limit: float = 6 * 3600,  # 6 hours in seconds
-    ram_limit: float = 7 * 1024,  # 7 GB in MB
+    cpu_limit: Optional[float] = None,
+    ram_limit: Optional[float] = None,
     check_interval: float = 60.0  # Check every 60 seconds
 ):
     """
     Decorator to enforce resource limits on a function.
     
     Args:
-        cpu_limit: Maximum allowed CPU time in seconds (default: 6 hours)
-        ram_limit: Maximum allowed RAM in MB (default: 7 GB)
+        cpu_limit: Maximum allowed CPU time in seconds. If None, reads from RUNTIME_LIMIT_H env var, else defaults to 6h.
+        ram_limit: Maximum allowed RAM in MB. If None, reads from MEMORY_LIMIT_GB env var, else defaults to 7GB.
         check_interval: Interval between resource checks in seconds (default: 60s)
         
     Returns:

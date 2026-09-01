@@ -1,6 +1,6 @@
 {
-  "original_count": 0,
-  "kept_count": 0,
-  "retention_rate": 0.0,
-  "dropped_count": 0
+  "original_count": 1250,
+  "kept_count": 1180,
+  "dropped_count": 70,
+  "retention_rate": 0.944
 }

@@ -1,9 +1,3 @@
-"""
-Training pipeline for Metallic Glass Tg prediction.
-
-Implements Leave-One-Family-Out (LOFO) cross-validation, grid search,
-and artifact saving. Enforces resource limits (6h CPU, 7GB RAM) as per FR-005.
-"""
 import os
 import sys
 import logging
@@ -11,280 +5,240 @@ import json
 import pickle
 import time
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple, List, Union
+from typing import Dict, Any, Optional, Tuple, List
 
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.model_selection import cross_val_score, GridSearchCV
-from sklearn.metrics import mean_absolute_error, r2_score
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import LeaveOneGroupOut, cross_val_score
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
+from sklearn.dummy import DummyRegressor
 
-# Import resource monitoring utilities
-from resource_monitor import enforce_resource_limits, ResourceLimitExceeded, logger as resource_logger
-
-# Import descriptor utilities (assuming T026 completed)
-from descriptors import process_dataframe
+# Local imports matching the provided API surface
+from config.config import get_config
+from resource_monitor import enforce_resource_limits, ResourceLimitExceeded
+from descriptors import process_dataframe, compute_descriptors
+from zenodo_client import DataUnavailableError
 
 # Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-if not logger.handlers:
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    ))
-    logger.addHandler(handler)
 
-# Constants
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
-ARTIFACTS_MODELS = PROJECT_ROOT / "artifacts" / "models"
-ARTIFACTS_METRICS = PROJECT_ROOT / "artifacts" / "metrics"
+# Ensure paths exist
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+ARTIFACTS_MODELS_DIR = PROJECT_ROOT / "artifacts" / "models"
+ARTIFACTS_METRICS_DIR = PROJECT_ROOT / "artifacts" / "metrics"
 
-# Ensure output directories exist
-ARTIFACTS_MODELS.mkdir(parents=True, exist_ok=True)
-ARTIFACTS_METRICS.mkdir(parents=True, exist_ok=True)
+DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+ARTIFACTS_MODELS_DIR.mkdir(parents=True, exist_ok=True)
+ARTIFACTS_METRICS_DIR.mkdir(parents=True, exist_ok=True)
 
-
-def load_prepared_data(filepath: Optional[Path] = None) -> pd.DataFrame:
+def load_prepared_data() -> pd.DataFrame:
     """
-    Load the cleaned and descriptor-computed data.
-    
-    Args:
-        filepath: Path to the CSV file. Defaults to data/processed/descriptors.csv
-        
-    Returns:
-        DataFrame with features and target
+    Loads the cleaned data and computes descriptors.
+    This function assumes T014 (cleaned_mg.csv) and T020/T026 (descriptors logic) are done.
+    Since T026 is marked as needing redo, we ensure descriptors are computed here 
+    if the CSV doesn't exist yet, to ensure the pipeline runs end-to-end.
     """
-    if filepath is None:
-        filepath = DATA_PROCESSED / "descriptors.csv"
-    
-    if not filepath.exists():
-        raise FileNotFoundError(f"Data file not found: {filepath}")
-    
-    logger.info(f"Loading data from {filepath}")
-    df = pd.read_csv(filepath)
-    
+    cleaned_path = DATA_PROCESSED_DIR / "cleaned_mg.csv"
+    descriptors_path = DATA_PROCESSED_DIR / "descriptors.csv"
+
+    if not cleaned_path.exists():
+        raise FileNotFoundError(f"Cleaned data not found at {cleaned_path}. Run T014 first.")
+
+    df = pd.read_csv(cleaned_path)
+    logger.info(f"Loaded {len(df)} records from {cleaned_path}")
+
+    # Compute descriptors if not already present (handling T026 dependency dynamically)
+    if not descriptors_path.exists():
+        logger.info(f"Descriptors not found at {descriptors_path}. Computing now...")
+        # Re-use the logic from descriptors.py
+        df = process_dataframe(df)
+        df.to_csv(descriptors_path, index=False)
+        logger.info(f"Saved descriptors to {descriptors_path}")
+    else:
+        # Load pre-computed descriptors and merge if necessary, or just load the final set
+        # Assuming descriptors.csv contains the final features + target
+        df = pd.read_csv(descriptors_path)
+
     # Ensure target column exists
     if 'Tg' not in df.columns:
-        raise ValueError("Data must contain 'Tg' column")
-        
+        raise ValueError("Target column 'Tg' not found in prepared data.")
+
     return df
 
-
-def get_family_groups(df: pd.DataFrame) -> Dict[str, List[int]]:
+def get_family_groups(df: pd.DataFrame) -> List[Any]:
     """
-    Group data points by their alloy family (e.g., Zr-based, Pd-based).
-    
-    Args:
-        df: DataFrame with composition or family column
-        
-    Returns:
-        Dictionary mapping family name to list of indices
+    Extracts family groups for LOFO cross-validation.
+    Assumes a 'family' column exists in the processed dataframe.
     """
-    # Heuristic: Group by the primary element or a specific 'family' column if present
-    # Assuming the 'composition' or a derived 'primary_element' column exists
-    # If 'family' column exists, use that. Otherwise, infer from composition.
-    
-    if 'family' in df.columns:
-        groups = df.groupby('family').indices
-    elif 'primary_element' in df.columns:
-        groups = df.groupby('primary_element').indices
-    else:
-        # Fallback: Group by the first element in composition string if formatted "A-B-C"
-        # This is a rough heuristic if no explicit family column exists
-        logger.warning("No explicit family column found. Inferring from composition.")
-        families = []
-        for comp in df['composition']:
-            # Simple split on hyphen or comma, take first element
-            primary = comp.split('-')[0].split(',')[0].strip()
-            families.append(primary)
-        df_temp = df.copy()
-        df_temp['inferred_family'] = families
-        groups = df_temp.groupby('inferred_family').indices
-        
-    return groups
-
+    if 'family' not in df.columns:
+        logger.warning("No 'family' column found. Using sample ID as group for LOFO.")
+        return df.index.tolist()
+    return df['family'].tolist()
 
 def lofo_cv_score(
-    model: Any,
-    X: pd.DataFrame,
-    y: pd.Series,
-    groups: Dict[str, List[int]],
-    scoring: str = 'r2'
-) -> List[float]:
+    X: pd.DataFrame, 
+    y: pd.Series, 
+    groups: List[Any], 
+    params: Dict[str, Any]
+) -> float:
     """
-    Perform Leave-One-Family-Out Cross-Validation.
-    
-    Args:
-        model: Scikit-learn compatible regressor
-        X: Feature DataFrame
-        y: Target Series
-        groups: Dictionary of family -> indices
-        scoring: Scoring metric
-        
-    Returns:
-        List of scores for each fold
+    Performs Leave-One-Family-Out cross-validation.
     """
-    scores = []
-    X_np = X.values
-    y_np = y.values
+    logo = LeaveOneGroupOut()
+    model = GradientBoostingRegressor(**params)
     
-    # Create a list of (test_indices, train_indices)
-    # We need to iterate over families, leaving one out
-    all_indices = set(range(len(df)))
-    
-    for family, test_indices in groups.items():
-        test_indices = list(test_indices)
-        train_indices = list(all_indices - set(test_indices))
-        
-        if len(train_indices) == 0:
-            logger.warning(f"Family {family} is the only data point. Skipping.")
-            continue
-            
-        X_train, X_test = X_np[train_indices], X_np[test_indices]
-        y_train, y_test = y_np[train_indices], y_np[test_indices]
-        
-        model.fit(X_train, y_train)
-        score = model.score(X_test, y_test)
-        scores.append(score)
-        logger.info(f"LOFO Fold (Family: {family}): R² = {score:.4f}")
-        
-    return scores
-
-
-@enforce_resource_limits(cpu_limit=6 * 3600, ram_limit=7 * 1024)
-def train_and_evaluate(df: pd.DataFrame) -> Tuple[Any, Dict[str, float]]:
-    """
-    Train a Gradient Boosting model with LOFO CV.
-    
-    Args:
-        df: DataFrame with features and 'Tg'
-        
-    Returns:
-        Tuple of (trained model, metrics dict)
-    """
-    logger.info("Starting training and evaluation with resource limits...")
-    
-    # Prepare features and target
-    # Exclude non-feature columns
-    feature_cols = [c for c in df.columns if c not in ['Tg', 'composition', 'family', 'primary_element']]
-    if not feature_cols:
-        raise ValueError("No feature columns found in dataframe")
-        
-    X = df[feature_cols]
-    y = df['Tg']
-    
-    # Get family groups for LOFO
-    groups = get_family_groups(df)
-    
-    # Define base model
-    base_model = GradientBoostingRegressor(random_state=42)
-    
-    # Perform LOFO CV to get baseline score
-    logger.info("Performing LOFO Cross-Validation...")
-    try:
-        lofo_scores = lofo_cv_score(base_model, X, y, groups)
-        mean_lofo_r2 = np.mean(lofo_scores)
-        std_lofo_r2 = np.std(lofo_scores)
-        logger.info(f"LOFO Mean R²: {mean_lofo_r2:.4f} (+/- {std_lofo_r2:.4f})")
-    except Exception as e:
-        logger.error(f"LOFO CV failed: {e}")
-        # Fallback to standard CV if LOFO fails (e.g., not enough families)
-        logger.warning("Falling back to standard 5-fold CV")
-        scores = cross_val_score(base_model, X, y, cv=5, scoring='r2')
-        mean_lofo_r2 = np.mean(scores)
-        std_lofo_r2 = np.std(scores)
-        
-    # Grid Search for Hyperparameters
-    param_grid = {
-        'n_estimators': [50, 100],
-        'max_depth': [3, 5],
-        'learning_rate': [0.05, 0.1]
-    }
-    
-    logger.info("Starting Grid Search...")
-    grid_search = GridSearchCV(
-        GradientBoostingRegressor(random_state=42),
-        param_grid,
-        cv=3,
-        scoring='r2',
-        n_jobs=-1,
-        refit=True
+    scores = cross_val_score(
+        model, X, y, cv=logo, groups=groups, 
+        scoring='r2', n_jobs=1 # CPU only constraint
     )
+    return np.mean(scores)
+
+def train_and_evaluate(df: pd.DataFrame) -> Tuple[GradientBoostingRegressor, Dict[str, Any], pd.DataFrame]:
+    """
+    Trains the model with grid search and evaluates it.
+    Returns the best model, metrics dict, and feature importance dataframe.
+    """
+    # Define features and target
+    # We expect descriptors to be numeric columns. 
+    # Based on T020/T026, we expect: radius_mismatch, electronegativity_diff, VEC
+    feature_cols = ['radius_mismatch', 'electronegativity_diff', 'VEC']
     
-    grid_search.fit(X, y)
+    # Filter to ensure columns exist
+    available_cols = [c for c in feature_cols if c in df.columns]
+    if len(available_cols) < len(feature_cols):
+        logger.warning(f"Missing expected feature columns. Available: {df.columns.tolist()}")
+        # Fallback: use all numeric columns except target
+        numeric_cols = df.select_dtypes(include=[np.number]).columns
+        available_cols = [c for c in numeric_cols if c != 'Tg']
     
-    best_model = grid_search.best_estimator_
-    best_params = grid_search.best_params_
+    X = df[available_cols]
+    y = df['Tg']
+    groups = get_family_groups(df)
+
+    # Grid search parameters (<=10 combos as per FR-003)
+    param_grid = [
+        {'n_estimators': [50], 'max_depth': [3], 'learning_rate': [0.1]},
+        {'n_estimators': [100], 'max_depth': [3], 'learning_rate': [0.1]},
+        {'n_estimators': [100], 'max_depth': [5], 'learning_rate': [0.1]},
+        {'n_estimators': [100], 'max_depth': [3], 'learning_rate': [0.05]},
+    ]
+
+    best_score = -np.inf
+    best_params = None
+    best_model = None
+
+    logger.info("Starting Grid Search with LOFO CV...")
+    for params in param_grid:
+        try:
+            score = lofo_cv_score(X, y, groups, params)
+            logger.info(f"Params {params}: LOFO R2 = {score:.4f}")
+            if score > best_score:
+                best_score = score
+                best_params = params
+        except Exception as e:
+            logger.error(f"Error evaluating params {params}: {e}")
+            continue
+
+    if best_model is None and best_params is None:
+        # Fallback if CV fails completely, train on full data
+        logger.warning("LOFO CV failed. Training on full data without CV.")
+        best_params = {'n_estimators': 100, 'max_depth': 3, 'learning_rate': 0.1}
     
-    # Evaluate best model on full data (or holdout if specified, but we use full for now)
-    # Note: In a real pipeline, we might split train/test before this.
-    # For this task, we assume the model is trained on available data.
+    # Train final model with best params
+    best_model = GradientBoostingRegressor(**best_params)
+    best_model.fit(X, y)
+
+    # Evaluate on full data (for reporting metrics, though LOFO is the true CV)
     y_pred = best_model.predict(X)
-    final_r2 = r2_score(y, y_pred)
-    final_mae = mean_absolute_error(y, y_pred)
-    
+    r2 = r2_score(y, y_pred)
+    mae = mean_absolute_error(y, y_pred)
+    rmse = np.sqrt(mean_squared_error(y, y_pred))
+
+    # Calculate Null Model R2 (Baseline: mean prediction)
+    dummy_model = DummyRegressor(strategy='mean')
+    dummy_model.fit(X, y)
+    y_dummy_pred = dummy_model.predict(X)
+    null_model_r2 = r2_score(y, y_dummy_pred)
+
+    # Feature Importances
+    feature_importances = dict(zip(available_cols, best_model.feature_importances_.tolist()))
+
     metrics = {
-        'best_params': best_params,
-        'lofo_mean_r2': float(mean_lofo_r2),
-        'lofo_std_r2': float(std_lofo_r2),
-        'grid_search_cv_r2': float(grid_search.best_score_),
-        'final_r2': float(final_r2),
-        'final_mae': float(final_mae),
-        'feature_importances': dict(zip(feature_cols, best_model.feature_importances_.tolist()))
+        "R2": float(r2),
+        "MAE": float(mae),
+        "RMSE": float(rmse),
+        "LOFO_R2": float(best_score),
+        "null_model_r2": float(null_model_r2),
+        "feature_importances": feature_importances,
+        "best_params": best_params
     }
-    
-    logger.info(f"Training complete. Final R²: {final_r2:.4f}, MAE: {final_mae:.4f}")
-    return best_model, metrics
 
+    return best_model, metrics, pd.DataFrame({
+        'feature': available_cols,
+        'importance': best_model.feature_importances_
+    })
 
-def save_artifacts(model: Any, metrics: Dict[str, Any]) -> None:
+def save_artifacts(model: GradientBoostingRegressor, metrics: Dict[str, Any], feature_df: pd.DataFrame):
     """
-    Save model and metrics to disk.
-    
-    Args:
-        model: Trained model
-        metrics: Metrics dictionary
+    Saves the model, metrics, and feature importance to artifacts.
+    Specifically implements T024b: Save metrics including null_model_r2.
     """
-    model_path = ARTIFACTS_MODELS / "best_model.pkl"
-    metrics_path = ARTIFACTS_METRICS / "metrics.json"
-    
+    model_path = ARTIFACTS_MODELS_DIR / "best_model.pkl"
+    metrics_path = ARTIFACTS_METRICS_DIR / "metrics.json"
+    importance_path = ARTIFACTS_METRICS_DIR / "feature_importances.csv"
+
+    # Save Model (T024a)
     with open(model_path, 'wb') as f:
         pickle.dump(model, f)
     logger.info(f"Model saved to {model_path}")
-    
+
+    # Save Metrics (T024b)
     with open(metrics_path, 'w') as f:
         json.dump(metrics, f, indent=2)
     logger.info(f"Metrics saved to {metrics_path}")
 
+    # Save Feature Importances
+    feature_df.to_csv(importance_path, index=False)
+    logger.info(f"Feature importances saved to {importance_path}")
 
+@enforce_resource_limits
 def main():
     """
     Main entry point for the training pipeline.
     """
+    logger.info("Starting Training Pipeline (T024b)...")
+    
     try:
-        # Load data
+        # Load Data
         df = load_prepared_data()
         
-        # Train and evaluate (with resource monitoring)
-        model, metrics = train_and_evaluate(df)
+        # Train and Evaluate
+        model, metrics, feature_df = train_and_evaluate(df)
         
-        # Save artifacts
-        save_artifacts(model, metrics)
+        # Save Artifacts
+        save_artifacts(model, metrics, feature_df)
         
-        logger.info("Pipeline completed successfully.")
+        logger.info("Training Pipeline completed successfully.")
+        logger.info(f"Final Metrics: R2={metrics['R2']:.4f}, MAE={metrics['MAE']:.4f}, Null R2={metrics['null_model_r2']:.4f}")
         
+    except DataUnavailableError as e:
+        logger.error(f"Data unavailable: {e}")
+        sys.exit(1)
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        sys.exit(1)
     except ResourceLimitExceeded as e:
-        logger.error(f"Pipeline halted due to resource limits: {e}")
-        # Exit gracefully with error code
+        logger.error(f"Resource limit exceeded: {e}")
         sys.exit(1)
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        raise
-
+        logger.error(f"Unexpected error during training: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
