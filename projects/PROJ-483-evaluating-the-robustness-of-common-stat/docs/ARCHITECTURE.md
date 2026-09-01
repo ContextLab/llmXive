@@ -1,66 +1,53 @@
-# Architecture Documentation
+# Architecture Overview
 
-## System Overview
-The `PROJ-483` pipeline is designed to rigorously evaluate the impact of non-independence on statistical test validity. It follows a modular, data-centric architecture.
+## Component Diagram
 
-## Core Components
+```
++----------------+ +----------------+ +------------------+
+| config.py |------>| data_loader.py |------>| dependency_injector.py |
++----------------+ +----------------+ +------------------+
+ | | |
+ v v v
++----------------+ +----------------+ +------------------+
+| main.py |<------| simulation_runner.py |<--| metrics.py |
++----------------+ +----------------+ +------------------+
+ | | |
+ v v v
++----------------+ +----------------+ +------------------+
+| visualizer.py |<------| results/ |<------| data/ |
++----------------+ +----------------+ +------------------+
+```
 
-### 1. Configuration (`code/config.py`)
-- **Role**: Centralized loading and validation of simulation parameters.
-- **Mechanism**: Uses `yaml` to load `code/config.yaml` and validates against `contracts/simulation_config.schema.yaml`.
-- **Key Output**: A validated dictionary of parameters used across all modules.
+## Module Responsibilities
 
-### 2. Data Layer (`code/data_loader.py`)
-- **Role**: Manages the lifecycle of input datasets.
-- **Workflow**:
- 1. Reads `data/manifests/datasets.yaml` for verified URLs.
- 2. Fetches data via `requests`.
- 3. Validates structure (N >= 50, variable types).
- 4. Saves raw CSVs to `data/raw/` and computes checksums.
-- **Error Handling**: Raises `CriticalValidationError` if validation fails, preventing downstream execution with invalid data.
-
-### 3. Dependency Injection (`code/dependency_injector.py`)
-- **Role**: Introduces controlled non-independence into data.
-- **Methods**:
- - **AR(1)**: Temporal autocorrelation with tunable strength $r$.
- - **Block Bootstrap**: Hierarchical dependency with tunable block size.
- - **Spatial Kernel**: Spatial dependency using feature-space clustering for datasets without coordinates.
-- **Validation**: Each injection method includes a validation routine to ensure the resulting dependency matches the target parameter within tolerance.
-
-### 4. Simulation Engine (`code/simulation_runner.py`)
-- **Role**: Executes the Monte Carlo loop.
-- **Algorithm**:
- 1. **Generate**: Create synthetic data under the true null hypothesis (e.g., Normal(0,1)).
- 2. **Inject**: Apply a dependency structure (AR(1), Block, Spatial).
- 3. **Test**: Perform the statistical test (t-test, ANOVA, Chi-squared).
- 4. **Record**: Store the p-value.
-- **Edge Cases**: Implements logic to handle datasets where null construction is impossible or assumptions are violated, logging to `results/edge_case_report.json`.
-
-### 5. Metrics & Analysis (`code/metrics.py`)
-- **Role**: Aggregates raw p-values into meaningful statistics.
-- **Functions**:
- - `calculate_type1_error`: Computes false positive rate with Clopper-Pearson CI.
- - `calculate_power`: Computes power under alternative hypotheses.
- - `train_logistic_model`: Fits a model to predict error rate from dependency strength.
- - `verify_trend_monotonicity`: Checks for monotonic increase in error rates.
-
-### 6. Visualization (`code/visualizer.py`)
-- **Role**: Generates publication-quality plots.
-- **Outputs**: Error rate curves, power comparisons, and confidence interval bands.
+- **config.py**: Loads and validates `config.yaml`. Ensures all parameters are within expected ranges.
+- **data_loader.py**: Fetches datasets from verified URLs. Validates data integrity and structure.
+- **dependency_injector.py**: Implements AR(1), Block Bootstrap, and Spatial Kernel Smoothing. Validates injection quality.
+- **simulation_runner.py**: Orchestrates the Monte Carlo loop. Generates null data, injects dependency, runs tests.
+- **metrics.py**: Calculates Type I error rates, power, and confidence intervals. Trains logistic models.
+- **visualizer.py**: Generates plots for error rate curves and power comparisons.
+- **main.py**: Entry point. Coordinates the pipeline execution.
 
 ## Data Flow
-1. **Input**: `code/config.yaml` + `data/manifests/datasets.yaml`.
-2. **Fetch**: `data_loader.py` -> `data/raw/`.
-3. **Simulate**: `simulation_runner.py` -> `results/simulation_raw.csv`.
-4. **Aggregate**: `metrics.py` -> `results/aggregated.csv`.
-5. **Visualize**: `visualizer.py` -> `figures/`.
 
-## Testing Strategy
-- **Unit Tests**: Validate individual functions (e.g., AR(1) injection accuracy).
-- **Integration Tests**: Ensure the pipeline produces expected output schemas.
-- **Contract Tests**: Verify CSV and JSON schema compliance.
+1. **Configuration**: `config.yaml` is loaded by `config.py`.
+2. **Data Fetching**: `data_loader.py` downloads datasets to `data/raw/`.
+3. **Simulation**: `simulation_runner.py` generates synthetic data, injects dependency, and runs tests.
+4. **Aggregation**: `metrics.py` aggregates results into `results/aggregated.csv`.
+5. **Visualization**: `visualizer.py` reads aggregated results and generates plots.
+
+## Error Handling
+
+- **Data Integrity**: Checksums are verified. Mismatches raise `DataIntegrityError`.
+- **Validation**: Datasets with $N < 50$ are skipped and logged.
+- **Edge Cases**: Unconvergent models or invalid proxy qualities are logged and handled gracefully.
+
+## Performance Considerations
+
+- Vectorized operations (NumPy) are used for speed.
+- Parallel processing is supported for independent simulation runs.
+- Memory usage is monitored to prevent out-of-memory errors on large datasets.
 
 ## Extensibility
-- New dependency models can be added to `dependency_injector.py`.
-- New statistical tests can be integrated into `simulation_runner.py`.
-- New metrics can be defined in `metrics.py`.
+
+New dependency structures or statistical tests can be added by implementing the corresponding functions in `dependency_injector.py` or `simulation_runner.py` and registering them in `config.yaml`.

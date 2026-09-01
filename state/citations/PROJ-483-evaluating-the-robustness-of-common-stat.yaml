@@ -31,3 +31,59 @@
   verification_status: verified
   verified_against_url: https://github.com/your-org/your-repo
   verified_at: '2026-07-03T16:20:48.048531Z'
+- artifact_hash: b92501a6980fe75d49a710d65b810cf8a9c12bf60fba014885ae971750e563e5
+  artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/docs/DESIGN.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: adult.data
+  kind: url
+  value: https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data`
+  verification_status: pending
+  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data
+  verified_at: '2026-09-01T08:39:40.451473Z'
+- artifact_hash: b92501a6980fe75d49a710d65b810cf8a9c12bf60fba014885ae971750e563e5
+  artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/docs/DESIGN.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: wine.data
+  kind: url
+  value: https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data`
+  verification_status: pending
+  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data
+  verified_at: '2026-09-01T08:39:40.451473Z'
+- artifact_hash: 0c45057e9250adf56a83577d323c0ec6625a853d590532713f65c8e0c0417df4
+  artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/PROJ-483-evaluating-the-robustness-of-common-stat.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/PROJ-483-evaluating-the-robustness-of-common-stat
+  verified_at: '2026-09-01T08:39:45.483096Z'
+- artifact_hash: d69f9e79f4b0db4823d4da4211845d25d05a4a900359e379b884da4431b68531
+  artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/docs/QUICKSTART.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/PROJ-483-evaluating-the-robustness-of-common-stat.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/PROJ-483-evaluating-the-robustness-of-common-stat
+  verified_at: '2026-09-01T08:39:49.980651Z'
+- artifact_hash: 3ce97d03c6446f225daf5e79805182ba8850c266902c0f785998fd440add0848
+  artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'Apollo-NADP+: a spectrally tunable family of genetically encoded
+    sensors for NADP+'
+  kind: doi
+  value: 10.1038/nmeth.3764
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1038/nmeth.3764
+  verified_at: '2026-09-01T08:49:39.374257Z'

@@ -7,13 +7,6 @@ T012:
     \ the raw p\u2011values to `results/simulation_raw.csv`. Moreover, the expected\
     \ output file `results/simulation_raw.csv` is absent. The task\u2019s core deliverable\
     \ \u2013 a producer of simulation data \u2013 is therefore not fulfilled."
-T013:
-  c: false
-  h: fb5c1ceb187c1b8a29f7cdebacd42f80f449c1b77b4fe428a151d22d5d1f055f
-  r: "The `code/main.py` file begins a sweep over r values, but the script is truncated\
-    \ before it writes any output, and the required `results/aggregated.csv` file\
-    \ does not exist. Without the CSV aggregation step completing, the task\u2019\
-    s core requirement is unmet."
 T014:
   c: false
   h: 0449617f5c0e38f170fe9565d67f731238035899044cf0c4e1fb1023c0878798
@@ -21,13 +14,6 @@ T014:
     test (e.g., Spearman rank correlation) nor logic to add a `trend_status` column,
     and the required output file `results/aggregated.csv` is absent. Both the core
     functionality and the expected output artifact are missing.
-T019:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The submission contains only the original task description and no concrete artifacts\
-    \ such as simulation code, result tables, confidence intervals, or visualizations\
-    \ required by the user stories. Consequently, the required Monte\u202FCarlo outputs,\
-    \ comparative plots, and power\u2011analysis results are missing."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -35,12 +21,25 @@ T023:
     detection logic or reports the specific correlation\u202F$r$ at which the simulated\
     \ Type\u202FI error rate first exceeds\u202F\u03B1\u202F=\u202F0.10. The required\
     \ artifact is missing, so the task is not satisfied."
-T030:
+T032b:
+  c: false
+  h: dbca141dc4fe6585e60814506db0db5134bf0bf6dc95a43e094be7a792057657
+  r: "The required file `results/perf_log.json` does not exist, so no execution time\
+    \ or memory usage data was logged as specified. The task\u2019s deliverable is\
+    \ missing."
+T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of updated `docs/` files or modifications to `README.md` is provided;
-    the artifact list is empty, so we cannot confirm that the required documentation
-    changes exist.
+  r: "No evidence of new test files was provided; there are no shown files under `tests/unit/`\
+    \ containing edge\u2011case unit tests for null\u2011hypothesis construction or\
+    \ small\u2011N scenarios. The required additional unit tests are therefore missing."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., a validation report, log output, or updated quickstart.md)
+    was provided showing that the quickstart.md was executed and its reproducibility
+    verified. Without any evidence of the validation run, the task requirement is
+    unmet.
 T035:
   c: false
   h: 22447444bc8259e07890ec0b91b5fcfef2425a77f5c46fea8d9dd37fa7ffccba

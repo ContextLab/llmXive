@@ -1,13 +1,12 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 4 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'requirement'. Routing to 'clarified' with full provenance so the next worker can address the root cause.
 
-- `T041` (rejected 1x): The `code/dependency_injector.py` file is truncated and does not contain any logic that validates the “feature‑space clustering proxy” nor writes a JSON report. Moreover, the required output file `data/manifests/spatial_proxy_validation.json` is absent. The task’s core requirements are therefore unmet.
-- `T009` (rejected 1x): No `tests/unit/` directory or mock data fixture files were presented; the claim provides no code, file listings, or content that demonstrates the required unit‑test setup for dependency‑injection validation. Consequently the task’s deliverable is missing.
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- FR-002 requires the system to construct a null hypothesis using 'original data' (public datasets) via permutation. T012 describes generating 'synthetic data' under the null. There is no task covering the implementation of the permutation-based null construction on the *original* public datasets as explicitly required by FR-002, which contradicts the 'Generate-then-Inject' approach adopted in the plan but not reflected in the spec's FR-002 text.
+- T056 references 'T005' in its dependency, but T005 is a task ID. The text says 'Refactor code/data_loader.py (T005)'. While T005 is the task ID, the phrasing is slightly ambiguous. More critically, T056 references 'T005' as the task to refactor, but T005 is 'Implement code/data_loader.py'. This is a valid reference, but the task description in T056 says 'Refactor... (T005)' which is redundant. The real issue is that T056 is a 'Review' task, but it references a task (T005) that is already marked as completed in Phase 2. This is a stale reference if T005 is considered 'done' and T056 is a new revision. However, the main issue is the lack of a task for the 'synthetic data generation' fallback mentioned in the Analyze report as a potential deadlock, which T056 explicitly forbids. This is a spec/plan conflict, not a missing task, but T056 itself is a valid task for the review concern.
+- T057 proposes 'streaming/chunked processing' for datasets > 7GB. This contradicts FR-008 (7GB RAM limit) and the Assumptions (datasets fit in memory). While T057 is a task, it is based on a flawed premise (datasets > 7GB) that violates the spec's constraints. The task itself exists, but it is a 'stale' or 'invalid' task based on the spec. However, the prompt asks for 'missing' tasks. T057 is present but potentially invalid. I will flag it as a 'writing' issue because the task description contradicts the spec constraints, making it a 'writing' error in the task definition rather than a missing task.
+- Task T032b is marked as `[ ]` (pending) in the list but the description implies it is a verification step for FR-008. The task description is clear, but the status marker is inconsistent with the 'Phase N' grouping which implies completion or active work. This is a minor formatting/consistency issue.
