@@ -16,7 +16,7 @@
 **Independent Test**: Can be fully tested by running the graph construction pipeline on a sample subset of the dataset (up to 360 documents) and verifying that numerical feature vectors are generated for every document within a fixed time budget, independent of any retrieval simulation.
 
 **Acceptance Scenarios**:
-1. **Given** a corpus of academic abstracts and a sliding window size of 10, **When** the system constructs lexical co-occurrence graphs, **Then** it must generate a graph object for each document where nodes are TF-IDF filtered terms and edges represent co-occurrence.
+1. **Given** a corpus of academic abstracts and a sliding window size, **When** the system constructs lexical co-occurrence graphs, **Then** it must generate a graph object for each document where nodes are TF-IDF filtered terms and edges represent co-occurrence.
 2. **Given** a constructed graph for a document, **When** the system calculates topological metrics, **Then** it must output a vector containing cluster modularity, average path length, and degree/betweenness centrality distributions for that document.
 3. **Given** the CPU constraints (2 cores, no GPU) and a sample size of up to 360 documents, **When** the pipeline processes a document, **Then** the execution time must not exceed a predefined acceptable threshold per document to ensure the full sample is processed within the acceptable CI limit.
 
@@ -63,7 +63,7 @@
 - **FR-001**: System MUST construct lexical co-occurrence graphs for each document using a sliding window of an appropriate number of terms, filtering nodes by TF-IDF scores, to ensure consistent graph topology generation (See US-1).
 - **FR-002**: System MUST calculate cluster modularity, average path length, and node centrality distributions (degree, betweenness) for every constructed graph using CPU-optimized libraries (See US-1).
 - **FR-003**: System MUST run BERTopic in CPU-only mode to generate neural topic embeddings and cluster assignments for the same corpus, ensuring no CUDA dependencies are invoked (See US-2).
-- **FR-004**: System MUST simulate retrieval ranking for complex queries from the HotpotQA dataset based on both topological signatures (via graph similarity to query graphs) and neural embeddings, calculating Recall@5 and Recall@10 against human-annotated ground-truth answers (See US-2).
+- **FR-004**: System MUST simulate retrieval ranking for complex queries from the HotpotQA dataset based on both topological signatures (via graph similarity to query graphs) and neural embeddings, calculating Recall@k and Recall@10 against human-annotated ground-truth answers (See US-2).
 - **FR-005**: System MUST perform a Spearman rank correlation between topological features (aggregated per query) and retrieval precision scores per query (See US-3).
 - **FR-006**: System MUST execute a paired t-test to compare the precision metrics and latency between the graph-based and neural-based approaches (See US-3).
 - **FR-007**: System MUST enforce a memory limit and a time limit for the entire pipeline execution on the CI runner, ensuring the sample size N satisfies N * 60s <= 6h (See US-1).
@@ -89,7 +89,7 @@
 
 - The HotpotQA dataset is available via HuggingFace and contains the necessary human-annotated ground-truth question-answer pairs for the retrieval simulation.
 - BERTopic can successfully run in CPU-only mode on the specified CI runner without requiring 8-bit quantization or GPU acceleration.
-- The lexical co-occurrence graph construction using a sliding window of 10 is a valid proxy for semantic coherence in the context of complex answer retrieval.
+- The lexical co-occurrence graph construction using a sliding window is a valid proxy for semantic coherence. in the context of complex answer retrieval.
 - The sample size (N ≤ 360) is sufficient to achieve statistical power for the correlation analysis; if not, the analysis will report the limitation rather than forcing a false positive.
-- The "2-core CPU" environment of the GitHub Actions free tier is sufficient to process the dataset within the 6-hour window, provided the dataset is sampled if memory limits are approached.
+- The multi-core CPU environment of the GitHub Actions free tier is sufficient to process the dataset within the 6-hour window, provided the dataset is sampled if memory limits are approached.
 - The correlation between topological features and retrieval precision is assumed to be monotonic, justifying the use of Spearman rank correlation.

@@ -23,7 +23,7 @@ The research question remains: What is the impact of CI/CD resource constraints 
 **Constraints**: No GPU/CUDA; no 8-bit quantization; deterministic random seeds; strict data leakage prevention (disjoint train/test); fixed reference vocabulary for TF-IDF.  
 **Scale/Scope**: Sample size N ≤ 360 documents; HotpotQA subset for queries (filtered for domain match).  
 
-> **Dataset Note**: The HotpotQA dataset is sourced via `datasets.load_dataset("hotpot_qa", "fullwiki")`. The academic corpus for graph construction is sourced from `datasets.load_dataset("wikipedia", "20231001.en")` to ensure domain alignment with HotpotQA. The `source` field in the `Document` entity will be populated with the exact string `wikipedia_en
+> **Dataset Note**: The HotpotQA dataset is sourced via `datasets.load_dataset("hotpot_qa", "fullwiki")`. The academic corpus for graph construction is sourced from `datasets.load_dataset("wikipedia", ".en")` to ensure domain alignment with HotpotQA. The `source` field in the `Document` entity will be populated with the exact string `wikipedia_en
 
 The specific value to remove/generalize: 'en'
 

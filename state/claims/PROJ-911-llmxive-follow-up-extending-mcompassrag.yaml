@@ -2224,3 +2224,61 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-30T06:48:16Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: sample size N strictly less than or equal to 360
+  claim_id: c_e6fcbf84
+  context: "T008 [P] Implement sampling logic in code/data_loader.py to ensure the\
+    \ sample size N is strictly \u2264 360 before execution, enforcing the -hour time\
+    \ budget constraint (FR\u2011007)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_size_N_strictly_less_than_or_equal_to_360
+  kind: magnitude
+  raw_text: "The loader should truncate or randomly sample the dataset to N \u2264\
+    \ 360; it must not raise an exception if the raw dataset exceeds this limit."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T10:54:50Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: pipeline completes within 60 seconds per document
+  claim_id: c_c2794fda
+  context: 'Independent Test: Run the graph construction pipeline on a sample subset
+    (up to 360 docs) and verify numerical feature vectors are generated for every
+    document within 60s/doc.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify pipeline completes within 60s/doc and handles low-diversity documents
+    by assigning default zeros or logging warnings without crashing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T10:55:56Z'
+- artifact_path: projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/specs/001-llmxive-follow-up-extending-mcompassrag/tasks.md
+  attempts: 1
+  canonical: peak RAM usage less than 7 GB
+  claim_id: c_b3a57f82
+  context: 'T030b [US3] Monitor and log peak RAM usage during pipeline execution to
+    verify against the CI memory constraint. (SC-004). **Implementation**: Use psutil
+    or similar to track peak RSS. **Output**: Log to data/results/resource_usage.log.
+    **Verification**: Verify log contains peak RAM value and confirms it is < 7GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_less_than_7_GB
+  kind: magnitude
+  raw_text: Verify log contains peak RAM value and confirms it is < 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T10:56:43Z'

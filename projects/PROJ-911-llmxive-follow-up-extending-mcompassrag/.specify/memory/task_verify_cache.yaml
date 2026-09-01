@@ -5,13 +5,6 @@ T027:
     \ is missing from the repository, so no test code exists to verify end\u2011to\u2011\
     end statistical validation. Without this artifact, the task\u2019s deliverable\
     \ is not present."
-T029:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, or `metrics.json` file was provided showing a paired t\u2011\
-    test on precision metrics, the computation of the Graph\u202FRecall@10\u202F/\u202F\
-    Neural\u202FRecall@10 ratio, or the logging of whether this ratio meets the \u2265\
-    \u202F0.70 threshold. The required artifacts are missing, so the task is not satisfied."
 T031:
   c: false
   h: 03cbb4cdd71a5d98d34a4f5c920e3b4b5cbafdcb1e034715224a259973fff4b5
@@ -27,3 +20,29 @@ T032:
     \ was provided. Without such evidence the requirement to log these metrics cannot\
     \ be verified. The implementer must supply the actual logged results (or the code\
     \ that generates them) to satisfy the task."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `docs/quickstart.md` file or any architecture diagram files are present in
+    the provided evidence, so the required documentation updates have not been delivered.
+    The task remains unfinished until those artifacts are added to the repository.
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No cleaned or refactored scripts from the `code/` directory are present; the\
+    \ only evidence provided is the feature specification, not any actual code changes,\
+    \ diff, or documentation of the cleanup. The required artifact\u2014a set of updated,\
+    \ lint\u2011free, and refactored code files\u2014is missing."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, benchmark results, or any other artifact were supplied; the claim that\
+    \ the graph\u2011construction loop has been vectorized and meets the CPU\u2011\
+    time thresholds cannot be verified. The required implementation and performance\
+    \ evidence are missing."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `quickstart.md` validation run (e.g., execution logs, output
+    screenshots, or a reproduced pipeline report) is provided; the claim lacks any
+    artifact confirming that the full pipeline was successfully validated.
