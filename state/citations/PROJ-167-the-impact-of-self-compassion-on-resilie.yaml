@@ -31,7 +31,7 @@
   verification_status: pending
   verified_against_url: https://osf.io/3k9r2/
   verified_at: '2026-07-09T02:36:43.154209Z'
-- artifact_hash: d5e7ab0cb467e43114f499981aefefcd58b78d7c5eab6b6f4e8013773e2d0fde
+- artifact_hash: bd71be036eca7dd2d63fb86c2b6425c4a78bfa0e1c00da6a7664dfcc64944b63
   artifact_path: projects/PROJ-167-the-impact-of-self-compassion-on-resilie/specs/001-the-impact-of-self-compassion-on-resilie/spec.md
   cite_id: c-001
   cited_authors: []
@@ -41,8 +41,8 @@
   value: https://osf.io/3k9r2/
   verification_status: pending
   verified_against_url: https://osf.io/3k9r2/
-  verified_at: '2026-08-15T04:25:23.166928Z'
-- artifact_hash: d5e7ab0cb467e43114f499981aefefcd58b78d7c5eab6b6f4e8013773e2d0fde
+  verified_at: '2026-09-01T05:32:18.220276Z'
+- artifact_hash: bd71be036eca7dd2d63fb86c2b6425c4a78bfa0e1c00da6a7664dfcc64944b63
   artifact_path: projects/PROJ-167-the-impact-of-self-compassion-on-resilie/specs/001-the-impact-of-self-compassion-on-resilie/spec.md
   cite_id: c-002
   cited_authors: []
@@ -52,4 +52,4 @@
   value: https://osf.io/3k9r2/`
   verification_status: pending
   verified_against_url: https://osf.io/3k9r2/
-  verified_at: '2026-08-15T04:25:23.166928Z'
+  verified_at: '2026-09-01T05:32:18.220276Z'

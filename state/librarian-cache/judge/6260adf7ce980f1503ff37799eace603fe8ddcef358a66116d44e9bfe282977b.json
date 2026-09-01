@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.07821",
+  "judged_at": "2026-09-01T05:25:38Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of self-compassion on resilience to negative feedback psychology",
+  "rationale": "The paper addresses \"self-recovery\" and \"failure avoidance\" in the context of robotic reinforcement learning algorithms, which is a distinct technical construct sharing only the keyword \"failure\" with the user's question about human psychological resilience and self-compassion. This falls under the rejection rule for distinct constructs sharing only homonym keywords, as the domain (robotics vs. psychology) and the mechanism (algorithmic safety critics vs. emotional regulation) are entirely unrel",
+  "relevant": false
+}

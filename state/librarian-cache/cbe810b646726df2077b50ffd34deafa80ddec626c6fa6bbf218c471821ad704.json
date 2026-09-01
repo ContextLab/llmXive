@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-15T04:22:51Z",
+  "fetched_at": "2026-09-01T05:25:38Z",
   "field": "psychology",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,8 +9,8 @@
       "idea_body_excerpt": "The Impact of Self-Compassion on Resilience to Negative Feedback",
       "target_n": 5
     },
-    "duration_seconds": 55.197,
-    "ended_at": "2026-08-15T04:22:51Z",
+    "duration_seconds": 55.83,
+    "ended_at": "2026-09-01T05:25:38Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
@@ -19,96 +19,95 @@
         ],
         [
           2,
-          "self-kindness response to criticism"
+          "self-kindness versus self-criticism in response to failure"
         ],
         [
           3,
-          "resilience following negative social evaluation"
+          "resilience to social evaluation threat"
         ],
         [
           4,
-          "self-compassion buffering effect against failure"
+          "self-compassion buffering against negative feedback"
         ],
         [
           5,
-          "mindful self-compassion and feedback processing"
+          "mindfulness and resilience to criticism"
         ],
         [
           6,
-          "self-criticism versus self-compassion in feedback situations"
+          "self-compassion intervention for stress response"
         ],
         [
           7,
-          "psychological resilience to performance feedback"
-        ],
-        [
-          8,
-          "self-compassion interventions for feedback anxiety"
-        ],
-        [
-          9,
-          "common humanity and resilience to negative feedback"
-        ],
-        [
-          10,
-          "self-compassion and stress recovery after criticism"
-        ],
-        [
-          11,
-          "response to negative feedback in self-compassionate individuals"
-        ],
-        [
-          12,
-          "self-compassion as a moderator of feedback threat"
-        ],
-        [
-          13,
-          "resilience mechanisms in the face of social rejection"
-        ],
-        [
-          14,
-          "self-compassion and ego-depletion after failure"
-        ],
-        [
-          15,
           "adaptive coping strategies for negative feedback"
         ],
         [
+          8,
+          "self-esteem versus self-compassion in failure scenarios"
+        ],
+        [
+          9,
+          "emotional regulation following performance failure"
+        ],
+        [
+          10,
+          "common humanity and resilience to rejection"
+        ],
+        [
+          11,
+          "self-compassion and growth mindset"
+        ],
+        [
+          12,
+          "psychological flexibility after negative evaluation"
+        ],
+        [
+          13,
+          "self-compassion training and feedback processing"
+        ],
+        [
+          14,
+          "resilience mechanisms in self-critical individuals"
+        ],
+        [
+          15,
+          "self-compassion as a moderator of feedback reactivity"
+        ],
+        [
           16,
-          "self-compassion and threat reactivity"
+          "reducing defensiveness through self-compassion"
         ],
         [
           17,
-          "emotional regulation following negative feedback"
+          "self-compassion and recovery from social rejection"
         ],
         [
           18,
-          "self-compassion and growth mindset in response to criticism"
+          "neuroticism, self-compassion, and feedback sensitivity"
         ],
         [
           19,
-          "resilience to evaluative feedback and self-compassion"
+          "self-compassion and threat appraisal of criticism"
         ],
         [
           20,
-          "self-compassion training and feedback tolerance"
+          "positive self-regard and resilience to failure"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
         "The Impact of Self-Compassion on Resilience to Negative Feedback psychology": 0,
-        "resilience following negative social evaluation": 2,
         "self-compassion and emotional resilience": 1,
-        "self-kindness response to criticism": 0
+        "self-kindness versus self-criticism in response to failure": 3
       },
-      "total_queries_issued": 3
+      "total_queries_issued": 2
     },
     "extracted_queries": [
       "self-kindness common humanity mindfulness",
-      "self-compassion scale SC-S negative feedback stress reactivity",
-      "self-criticism shame resilience coping mechanisms",
-      "feedback acceptance emotional regulation recovery time",
-      "self-compassion intervention cognitive reappraisal threat response"
+      "failure stress reactivity self-esteem threat",
+      "ego threat feedback avoidance coping",
+      "BRS stress resilience self-compassion scale",
+      "self-criticism rumination emotional regulation recovery"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -126,17 +125,17 @@
       ]
     },
     "per_query_hit_count": {
+      "BRS stress resilience self-compassion scale": 2,
       "The Impact of Self-Compassion on Resilience to Negative Feedback psychology": 3,
-      "feedback acceptance emotional regulation recovery time": 3,
-      "self-compassion intervention cognitive reappraisal threat response": 3,
-      "self-compassion scale SC-S negative feedback stress reactivity": 3,
-      "self-criticism shame resilience coping mechanisms": 2,
+      "ego threat feedback avoidance coping": 2,
+      "failure stress reactivity self-esteem threat": 3,
+      "self-criticism rumination emotional regulation recovery": 3,
       "self-kindness common humanity mindfulness": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 3,
+      "rejected_count": 5,
       "rejections": [
         {
           "primary_pointer": "2112.03789",
@@ -144,19 +143,29 @@
           "title": "Self-exciting price impact via negative resilience in stochastic order books"
         },
         {
-          "primary_pointer": "2305.08335",
-          "rationale": "The paper is entirely off-domain, focusing on engineering and computer science (cyber-physical systems and system resilience) rather than the psychological constructs of self-compassion and human resilience to negative feedback. The shared term \"resilience\" is a homonym in this context, referring to system fault tolerance rather than psychological coping mechanisms, which triggers the rejection rule for distinct constructs sharing only homonym keywords.",
-          "title": "Enhancing Cyber-Resilience in Self-Healing Cyber-Physical Systems with Implicit Guarantees"
+          "primary_pointer": "2306.05596",
+          "rationale": "The paper focuses on \"low self-esteem\" and its detection in social media text, which is a distinct psychological construct from \"self-compassion\" and does not measure the specific mechanism of resilience to negative feedback. While both concepts relate to self-evaluation, the paper fails to satisfy the inclusion criteria for measuring the same mechanism, variables, or population relevant to the user's specific question about self-compassion's impact on resilience.",
+          "title": "LOST: A Mental Health Dataset of Low Self-esteem in Reddit Posts"
         },
         {
-          "primary_pointer": "1303.2369",
-          "rationale": "The paper focuses on marketing dynamics, incentivized viral campaigns, and user activity prediction within social networks, which is an entirely different domain from the psychological mechanisms of self-compassion and resilience to negative feedback. It shares no measurable connection to the user's specific variables, population, or causal mechanisms, failing all inclusion criteria (a-f) and triggering the \"off-domain entirely\" rejection rule.",
-          "title": "Negative Effects of Incentivised Viral Campaigns for Activity in Social Networks"
+          "primary_pointer": "2510.20303",
+          "rationale": "The paper focuses on citation failures in Large Language Models (LLMs) and Retrieval-Augmented Generation (RAG) systems, which is a computer science and natural language processing topic. It has no measurable connection to the user's question regarding the psychological constructs of self-compassion, resilience, and negative feedback, representing an off-domain rejection.",
+          "title": "Citation Failure: Definition, Analysis and Efficient Mitigation"
+        },
+        {
+          "primary_pointer": "2409.14674",
+          "rationale": "The paper focuses on robotic imitation learning and failure recovery in artificial agents, which is an entirely different domain from the user's question regarding human psychological constructs (self-compassion and resilience). The shared terms \"failure\" and \"recovery\" are homonyms in this context, representing a distinct construct in robotics rather than the psychological mechanism of interest.",
+          "title": "RACER: Rich Language-Guided Failure Recovery Policies for Imitation Learning"
+        },
+        {
+          "primary_pointer": "2601.07821",
+          "rationale": "The paper addresses \"self-recovery\" and \"failure avoidance\" in the context of robotic reinforcement learning algorithms, which is a distinct technical construct sharing only the keyword \"failure\" with the user's question about human psychological resilience and self-compassion. This falls under the rejection rule for distinct constructs sharing only homonym keywords, as the domain (robotics vs. psychology) and the mechanism (algorithmic safety critics vs. emotional regulation) are entirely unrel",
+          "title": "Failure-Aware RL: Reliable Offline-to-Online Reinforcement Learning with Self-Recovery for Real-World Manipulation"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-08-15T04:21:56Z",
+    "started_at": "2026-09-01T05:24:42Z",
     "term_input": {
       "normalized": "the impact of self-compassion on resilience to negative feedback psychology",
       "raw": "The Impact of Self-Compassion on Resilience to Negative Feedback psychology"
@@ -179,7 +188,7 @@
           "primary_pointer": "2503.17371"
         },
         "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='A Review of Urban Resilience Frameworks: Transferring Knowledge to Enhance Pandemic Resilience')",
-        "failed_at": "2026-08-15T04:22:27Z",
+        "failed_at": "2026-09-01T05:25:11Z",
         "reason": "query_irrelevant"
       },
       {
@@ -195,7 +204,7 @@
           "primary_pointer": "1711.01767"
         },
         "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Kurt Lewin, psychological constructs and sources of brain cognitive activity')",
-        "failed_at": "2026-08-15T04:22:27Z",
+        "failed_at": "2026-09-01T05:25:11Z",
         "reason": "query_irrelevant"
       },
       {
@@ -211,7 +220,7 @@
           "primary_pointer": "2511.05025"
         },
         "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='8bit-GPT: Exploring Human-AI Interaction on Obsolete Macintosh Operating Systems')",
-        "failed_at": "2026-08-15T04:22:27Z",
+        "failed_at": "2026-09-01T05:25:11Z",
         "reason": "query_irrelevant"
       },
       {
@@ -231,7 +240,7 @@
           "primary_pointer": "2201.05912"
         },
         "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Common Phone: A Multilingual Dataset for Robust Acoustic Modelling')",
-        "failed_at": "2026-08-15T04:22:27Z",
+        "failed_at": "2026-09-01T05:25:11Z",
         "reason": "query_irrelevant"
       },
       {
@@ -250,75 +259,125 @@
           "primary_pointer": "2505.23441"
         },
         "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Mean Field Control with Poissonian Common Noise: A Pathwise Compactification Approach')",
-        "failed_at": "2026-08-15T04:22:27Z",
+        "failed_at": "2026-09-01T05:25:11Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Understanding how electronic structure determines the reactivity of solid surface, is a central topic of modern surface science. This is mostly commonly done through some intermediate quantity termed descriptor. However, such descriptors are very scarce for solid surface compared to for molecule, likely due to their significantly more complex electronic structure (cf. molecules). Here we elaborate on the theory of a concept dubbed \"Fermi softness\", which distinguishes itself by enabling prediction of surface reactivity with spatial as well as atomic resolution. Other pertinent concepts and descriptors are also mentioned so as to make the treatment comprehensive.",
+          "claimed_abstract": "Ability to effectively investigate indicators of compromise and associated network resources involved in cyber attacks is paramount not only to identify affected network resources but also to detect related malicious resources. Today, most of the cyber threat intelligence platforms are reactive in that they can identify attack resources only after the attack is carried out. Further, these systems have limited functionality to investigate associated network resources. In this work, we propose an extensible predictive cyber threat intelligence platform called cGraph that addresses the above limitations. cGraph is built as a graph-first system where investigators can explore network resources utilizing a graph based API. Further, cGraph provides real-time predictive capabilities based on state-of-the-art inference algorithms to predict malicious domains from network graphs with a few known malicious and benign seeds. To the best of our knowledge, cGraph is the only threat intelligence platform to do so. cGraph is extensible in that additional network resources can be added to the system transparently.",
           "claimed_authors": [
-            "Bing Huang",
-            "Lin Zhuang"
+            "Wathsara Daluwatta",
+            "Ravindu De Silva",
+            "Sanduni Kariyawasam",
+            "Mohamed Nabeel",
+            "Charith Elvitigala",
+            "Kasun De Zoysa",
+            "Chamath Keppitiyagama"
           ],
-          "claimed_title": "Fermi softness: a local perspective on surface reactivity",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2012.11259"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Fermi softness: a local perspective on surface reactivity')",
-        "failed_at": "2026-08-15T04:22:27Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The concepts of scale invariance, self-similarity and scaling have been fruitfully applied to the study of price fluctuations in financial markets. After a brief review of the properties of stable Levy distributions and their applications to market data we indicate the shortcomings of such models and describe the truncated Levy flight as an alternative model for price movements. Furthermore, studying the dependence structure of the price increments shows that while their autocorrelation function decreases rapidly to zero, the correlation of their squares and absolute values shows a slow power law decay, indicating persistence in the scale of fluctuations, a property which can be related to the anomalous scaling of the kurtosis. In the last section we review, in the light of these empirical facts, recent attempts to draw analogies between scaling in financial markets and in turbulent flows.",
-          "claimed_authors": [
-            "Rama Cont",
-            "Marc Potters",
-            "Jean-Philippe Bouchaud"
-          ],
-          "claimed_title": "Scaling in stock market data: stable laws and beyond",
-          "claimed_venue": "arXiv",
-          "claimed_year": 1997,
-          "primary_pointer": "cond-mat/9705087"
-        },
-        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Scaling in stock market data: stable laws and beyond')",
-        "failed_at": "2026-08-15T04:22:27Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Developing models and metrics that can address resilience against disruptions is vital to ensure power grid reliability and that adequate recovery and adaptation mechanisms are in place. In this paper, we propose a novel disruption mapping approach and apply it to the publicly available U.S. Department of Energy DOE-417 Electric Emergency and Disturbance Report to holistically analyze the origin of anomalous events and their propagation through the cyber, physical and human domains. We show that capturing the disruption process onset has implications for quantifying, mitigating, and reporting power grid resilience.",
-          "claimed_authors": [
-            "Maureen S. Golan",
-            "Javad Mohammadi"
-          ],
-          "claimed_title": "Mapping Disruption Sources in the Power Grid and Implications for Resilience",
+          "claimed_title": "CGraph: Graph Based Extensible Predictive Domain Threat Intelligence Platform",
           "claimed_venue": "arXiv",
           "claimed_year": 2022,
-          "primary_pointer": "2207.08146"
+          "primary_pointer": "2202.07883"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Mapping Disruption Sources in the Power Grid and Implications for Resilience')",
-        "failed_at": "2026-08-15T04:22:28Z",
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='CGraph: Graph Based Extensible Predictive Domain Threat Intelligence Platform')",
+        "failed_at": "2026-09-01T05:25:11Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The space-time foliation Sigma compatible with the gravitational field g on a 4-manifold M determines a fibration pi of M, pi : M -> N is a surjective submersion over the 1-dimensional leaves space N. M is then written as a disjoint union of the leaves of Sigma, which are 3-dimensional spacelike surfaces on M.\n  The decomposition, TM=Sigma + T^0 M, also implies that we can define a lift of the curves on N to curves (non-spacelike) on M.\n  The stable causality condition M coincides with Sigma being a causal space-time distribution, generated by an exact timelike 1-form omega^0 = dt where t is some real function on M. In this case M is written as a disjoint union of a family of spacelike 3-surfaces of constant t, which cover D^+(S) of a initial 3-surface S of M.",
+          "claimed_abstract": "We address the estimation of endogenous treatment models with social interactions in both the treatment and outcome equations. We model the interactions between individuals in an internally consistent manner via a game theoretic approach based on discrete Bayesian games. This introduces a substantial computational burden in estimation which we address through a sequential version of the nested fixed point algorithm. We also provide some relevant treatment effects, and procedures for their estimation, which capture the impact on both the individual and the total sample. Our empirical application examines the impact of an individual's exercise frequency on her level of self-esteem. We find that an individual's exercise frequency is influenced by her expectation of her friends'. We also find that an individual's level of self-esteem is affected by her level of exercise and, at relatively lower levels of self-esteem, by the expectation of her friends' self-esteem.",
           "claimed_authors": [
-            "Mihaela Time"
+            "Zhongjian Lin",
+            "Francis Vella"
           ],
-          "claimed_title": "Space-time distributions",
+          "claimed_title": "Endogenous Treatment Models with Social Interactions: An Application to the Impact of Exercise on Self-Esteem",
           "claimed_venue": "arXiv",
-          "claimed_year": 1998,
-          "primary_pointer": "gr-qc/9810059"
+          "claimed_year": 2024,
+          "primary_pointer": "2408.13971"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Space-time distributions')",
-        "failed_at": "2026-08-15T04:22:28Z",
+        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Endogenous Treatment Models with Social Interactions: An Application to the Impact of Exercise on Self-Esteem')",
+        "failed_at": "2026-09-01T05:25:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a novel edge-level ego-network encoding for learning on graphs that can boost Message Passing Graph Neural Networks (MP-GNNs) by providing additional node and edge features or extending message-passing formats. The proposed encoding is sufficient to distinguish Strongly Regular Graphs, a family of challenging 3-WL equivalent graphs. We show theoretically that such encoding is more expressive than node-based sub-graph MP-GNNs. In an empirical evaluation on four benchmarks with 10 graph datasets, our results match or improve previous baselines on expressivity, graph classification, graph regression, and proximity tasks -- while reducing memory usage by 18.1x in certain real-world settings.",
+          "claimed_authors": [
+            "Nurudin Alvarez-Gonzalez",
+            "Andreas Kaltenbrunner",
+            "Vicenç Gómez"
+          ],
+          "claimed_title": "Improving Subgraph-GNNs via Edge-Level Ego-Network Encodings",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.05905"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Improving Subgraph-GNNs via Edge-Level Ego-Network Encodings')",
+        "failed_at": "2026-09-01T05:25:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Nano-drones, with their small, lightweight design, are ideal for confined-space rescue missions and inherently safe for human interaction. However, their limited payload restricts the critical sensing needed for ego-velocity estimation and obstacle detection to single-bean laser-based time-of-flight (ToF) and low-resolution optical sensors. Although those sensors have demonstrated good performance, they fail in some complex real-world scenarios, especially when facing transparent or reflective surfaces (ToFs) or when lacking visual features (optical-flow sensors). Taking inspiration from bats, this paper proposes a novel two-way ranging-based method for ego-velocity estimation and obstacle avoidance based on down-and-forward facing ultra-low-power ultrasonic sensors, which improve the performance when the drone faces reflective materials or navigates in complete darkness. Our results demonstrate that our new sensing system achieves a mean square error of 0.019 m/s on ego-velocity estimation and allows exploration for a flight time of 8 minutes while covering 136 m on average in a challenging environment with transparent and reflective obstacles. We also compare ultrasonic and laser-based ToF sensing techniques for obstacle avoidance, as well as optical flow and ultrasonic-based techniques for ego-velocity estimation, denoting how these systems and methods can be complemented to enhance the robustness of nano-drone operations.",
+          "claimed_authors": [
+            "Hanna Müller",
+            "Victor Kartsch",
+            "Michele Magno",
+            "Luca Benini"
+          ],
+          "claimed_title": "BatDeck -- Ultra Low-power Ultrasonic Ego-velocity Estimation and Obstacle Avoidance on Nano-drones",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.10048"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='BatDeck -- Ultra Low-power Ultrasonic Ego-velocity Estimation and Obstacle Avoidance on Nano-drones')",
+        "failed_at": "2026-09-01T05:25:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We are concerned with an appropriate mathematical measure of resilience in the face of targeted node attacks for arbitrary degree networks, and subsequently comparing the resilience of different scale-free network models with the proposed measure. We strongly motivate our resilience measure termed \\emph{vertex attack tolerance} (VAT), which is denoted mathematically as $τ(G) = \\min_{S \\subset V} \\frac{|S|}{|V-S-C_{max}(V-S)|+1}$, where $C_{max}(V-S)$ is the largest connected component in $V-S$. We attempt a thorough comparison of VAT with several existing resilience notions: conductance, vertex expansion, integrity, toughness, tenacity and scattering number. Our comparisons indicate that for artbitrary degree distributions VAT is the only measure that fully captures both the major \\emph{bottlenecks} of a network and the resulting \\emph{component size distribution} upon targeted node attacks (both captured in a manner proportional to the size of the attack set). For the case of $d$-regular graphs, we prove that $τ(G) \\le dΦ(G)$, where $Φ(G)$ is the conductance of the graph $G$. Conductance and expansion are well-studied measures of robustness and bottlenecks in the case of regular graphs but fail to capture resilience in the case of highly heterogeneous degree graphs. Regarding comparison of different scale-free graph models, our experimental results indicate that PLOD graphs with degree distributions identical to BA graphs of the same size exhibit consistently better vertex attack tolerance than the BA type graphs, although both graph types appear asymptotically resilient for BA generative parameter $m = 2$. BA graphs with $m = 1$ also appear to lack resilience, not only exhibiting very low VAT values, but also great transparency in the identification of the vulnerable node sets, namely the hubs, consistent with well known previous work.",
+          "claimed_authors": [
+            "John Matta",
+            "Jeffrey Borwey",
+            "Gunes Ercal"
+          ],
+          "claimed_title": "Comparative Resilience Notions and Vertex Attack Tolerance of Scale-Free Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1404.0103"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Comparative Resilience Notions and Vertex Attack Tolerance of Scale-Free Networks')",
+        "failed_at": "2026-09-01T05:25:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Patients do not access physicians at random but rather via naturally emerging networks of patient flows between them. As retirements, mass quarantines and absence due to sickness during pandemics, or other shocks thin out these networks, the system might be pushed closer to a tipping point where it loses its ability to deliver care to the population. Here we propose a data-driven framework to quantify the regional resilience to such shocks of primary and secondary care in Austria via an agent-based model. For each region and medical specialty we construct detailed patient-sharing networks from administrative data and stress-test these networks by removing increasing numbers of physicians from the system. This allows us to measure regional resilience indicators describing how many physicians can be removed from a certain area before individual patients won't be treated anymore. We find that such tipping points do indeed exist and that regions and medical specialties differ substantially in their resilience. These systemic differences can be related to indicators for individual physicians by quantifying how much their hypothetical removal would stress the system (risk score) or how much of the stress from the removal of other physicians they would be able to absorb (benefit score). Our stress-testing framework could enable health authorities to rapidly identify bottlenecks in access to care as well as to inspect these naturally emerging physician networks and how potential absences would impact them.",
+          "claimed_authors": [
+            "Michaela Kaleta",
+            "Jana Lasser",
+            "Elma Dervic",
+            "Liuhuaying Yang",
+            "Johannes Sorger",
+            "Ruggiero Lo Sardo",
+            "Stefan Thurner",
+            "Alexandra Kautzky-Willer",
+            "Peter Klimek"
+          ],
+          "claimed_title": "Stress-testing the Resilience of the Austrian Healthcare System Using Agent-Based Simulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.07746"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Stress-testing the Resilience of the Austrian Healthcare System Using Agent-Based Simulation')",
+        "failed_at": "2026-09-01T05:25:11Z",
         "reason": "query_irrelevant"
       },
       {
@@ -334,7 +393,7 @@
           "primary_pointer": "2605.16167"
         },
         "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='From Backup Restoration to Minimum Viable Factory Recovery: A Systematization of Ransomware Recovery in Manufacturing Systems')",
-        "failed_at": "2026-08-15T04:22:28Z",
+        "failed_at": "2026-09-01T05:25:11Z",
         "reason": "query_irrelevant"
       },
       {
@@ -353,65 +412,26 @@
           "primary_pointer": "2111.05071"
         },
         "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Conformity Assessments and Post-market Monitoring: A Guide to the Role of Auditing in the Proposed European AI Regulation')",
-        "failed_at": "2026-08-15T04:22:28Z",
+        "failed_at": "2026-09-01T05:25:11Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The primary tasks of a cognitive system is to survive and to maximize a life-long utility function, like the number of offsprings. A direct computational maximization of life-long utility is however not possible in complex environments, especially in the context, of real-world time constraints. The central role of emotions is to serve as an intermediate layer in the space of policies available to agents and animals, leading to a large dimensional reduction of complexity.\n  We review our current understanding of the functional role of emotions, stressing the role of the neuromodulators mediating emotions for the diffusive homeostatic control system of the brain. We discuss a recent proposal, that emotional diffusive control is characterized, in contrast to neutral diffusive control, by interaction effects, viz by interferences between emotional arousal and reward signaling. Several proposals for the realization of synthetic emotions are discussed in this context, together with key open issues regarding the interplay between emotional motivational drives and diffusive control.",
+          "claimed_abstract": "Emotion regulation is the process of consciously altering one's affective state, that is the underlying emotional state such as happiness, confidence, guilt, anger etc. The ability to effectively regulate emotions is necessary for functioning efficiently in everyday life. Today, the pervasiveness of digital technology is being purposefully employed to modify our affective states, a process known as digital emotion regulation. Understanding digital emotion regulation can help support the rise of ethical technology design, development, and deployment. This article presents an overview of digital emotion regulation in social media applications, as well as a synthesis of recent research on emotion regulation interventions for social media. We share our findings from analysing state-of-the-art literature on how different social media applications are utilised at different stages in the process of emotion regulation.",
           "claimed_authors": [
-            "Claudius Gros"
+            "Akriti Verma",
+            "Shama Islam",
+            "Valeh Moghaddam",
+            "Adnan Anwar"
           ],
-          "claimed_title": "Cognition and Emotion: Perspectives of a Closing Gap",
+          "claimed_title": "Digital Emotion Regulation on Social Media",
           "claimed_venue": "arXiv",
-          "claimed_year": 2010,
-          "primary_pointer": "1002.3035"
+          "claimed_year": 2023,
+          "primary_pointer": "2307.13187"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Cognition and Emotion: Perspectives of a Closing Gap')",
-        "failed_at": "2026-08-15T04:22:28Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The human brain is autonomously active. To understand the functional role of this self-sustained neural activity, and its interplay with the sensory data input stream, is an important question in cognitive system research and we review here the present state of theoretical modelling.\n  This review will start with a brief overview of the experimental efforts, together with a discussion of transient vs. self-sustained neural activity in the framework of reservoir computing. The main emphasis will be then on two paradigmal neural network architectures showing continuously ongoing transient-state dynamics: saddle point networks and networks of attractor relics.\n  Self-active neural networks are confronted with two seemingly contrasting demands: a stable internal dynamical state and sensitivity to incoming stimuli. We show, that this dilemma can be solved by networks of attractor relics based on competitive neural dynamics, where the attractor relics compete on one side with each other for transient dominance, and on the other side with the dynamical influence of the input signals. Unsupervised and local Hebbian-style online learning then allows the system to build up correlations between the internal dynamical transient states and the sensory input stream. An emergent cognitive capability results from this set-up. The system performs online, and on its own, a non-linear independent component analysis of the sensory data stream, all the time being continuously and autonomously active. This process maps the independent components of the sensory input onto the attractor relics, which acquire in this way a semantic meaning.",
-          "claimed_authors": [
-            "Claudius Gros"
-          ],
-          "claimed_title": "Cognitive computation with autonomously active neural networks: an emerging field",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2009,
-          "primary_pointer": "0901.3028"
-        },
-        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Cognitive computation with autonomously active neural networks: an emerging field')",
-        "failed_at": "2026-08-15T04:22:28Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Humans use signs, e.g., sentences in a spoken language, for communication and thought. Hence, symbol systems like language are crucial for our communication with other agents and adaptation to our real-world environment. The symbol systems we use in our human society adaptively and dynamically change over time. In the context of artificial intelligence (AI) and cognitive systems, the symbol grounding problem has been regarded as one of the central problems related to {\\it symbols}. However, the symbol grounding problem was originally posed to connect symbolic AI and sensorimotor information and did not consider many interdisciplinary phenomena in human communication and dynamic symbol systems in our society, which semiotics considered. In this paper, we focus on the symbol emergence problem, addressing not only cognitive dynamics but also the dynamics of symbol systems in society, rather than the symbol grounding problem. We first introduce the notion of a symbol in semiotics from the humanities, to leave the very narrow idea of symbols in symbolic AI. Furthermore, over the years, it became more and more clear that symbol emergence has to be regarded as a multifaceted problem. Therefore, secondly, we review the history of the symbol emergence problem in different fields, including both biological and artificial systems, showing their mutual relations. We summarize the discussion and provide an integrative viewpoint and comprehensive overview of symbol emergence in cognitive systems. Additionally, we describe the challenges facing the creation of cognitive systems that can be part of symbol emergence systems.",
-          "claimed_authors": [
-            "Tadahiro Taniguchi",
-            "Emre Ugur",
-            "Matej Hoffmann",
-            "Lorenzo Jamone",
-            "Takayuki Nagai",
-            "Benjamin Rosman",
-            "Toshihiko Matsuka",
-            "Naoto Iwahashi",
-            "Erhan Oztop",
-            "Justus Piater",
-            "Florentin Wörgötter"
-          ],
-          "claimed_title": "Symbol Emergence in Cognitive Developmental Systems: a Survey",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1801.08829"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Symbol Emergence in Cognitive Developmental Systems: a Survey')",
-        "failed_at": "2026-08-15T04:22:28Z",
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Digital Emotion Regulation on Social Media')",
+        "failed_at": "2026-09-01T05:25:11Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -435,13 +455,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2502.15383",
           "http_status": 200,
-          "pdf_sample_score": 0.1787,
-          "query_relevance_score": 0.3333,
+          "pdf_sample_score": 0.1799,
+          "query_relevance_score": 0.75,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-15T04:22:27Z"
+          "verified_at": "2026-09-01T05:25:18Z"
         }
       }
     ]
