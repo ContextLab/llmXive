@@ -1,10 +1,9 @@
 T009:
-  c: false
-  h: 9ec97dfa14afdf3c077143462d78596ff64ccf1d8ca783671bc1484faa9fe93a
-  r: The `tests/contract/test_schema.py` file exists and contains validation logic,
-    but the referenced schema file `contracts/diffusion_record.schema.yaml` is missing,
-    so the test cannot actually validate anything. The required schema artifact must
-    be present for the task to be fulfilled.
+  c: true
+  h: eb071374a275ac1fee9f5c44e758ab276c45680ffff83a6bb69c5d941e36ec09
+  r: "The `tests/contract/test_schema.py` file exists, is non\u2011empty, and contains\
+    \ concrete logic to load the YAML schema, read the CSV data, and validate each\
+    \ row\u2019s fields and types against the schema as required."
 T014:
   c: false
   h: e2cd8467b59b20b640f9f9f0d950999fad442a549e3219b357ed5fc70224dbf4
@@ -14,3 +13,23 @@ T014:
     \ Consequently, the task\u2019s core requirements\u2014excluding rows, logging\
     \ exclusions with a count header, and recording atomic data errors\u2014are not\
     \ fulfilled."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, benchmark logs, or timing results are provided to demonstrate that\
+    \ a GridSearch implementation actually completes within 15\u202Fminutes on a 2\u2011\
+    core CPU, so the performance requirement cannot be verified. The required artifact\
+    \ (e.g., optimized GridSearch script with runtime evidence) is missing."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of new unit test files under `tests/unit/` was provided; the claim
+    lacks any actual test code covering the specified edge cases (missing atomic data,
+    single host metal). The required artifacts are missing, so the task is not satisfied.
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer provided only a feature specification unrelated to the task and
+    did not include any validation results for `quickstart.md` nor any checksums of
+    artifacts. No evidence of running the validation or producing checksum documentation
+    is present.

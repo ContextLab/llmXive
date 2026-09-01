@@ -1,1 +1,3 @@
-# Validation module initialization
+"""
+Statistical validation and sensitivity analysis utilities.
+"""

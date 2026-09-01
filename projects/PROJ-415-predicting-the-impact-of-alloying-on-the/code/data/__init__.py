@@ -1,1 +1,3 @@
-# Data module initialization
+"""
+Data acquisition, ingestion, curation, and checksum utilities.
+"""

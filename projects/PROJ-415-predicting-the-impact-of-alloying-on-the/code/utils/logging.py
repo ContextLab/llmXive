@@ -13,9 +13,7 @@ class CustomFormatter(logging.Formatter):
         return formatter.format(record)
 
 def get_logger(name: str) -> logging.Logger:
-    """
-    Get a logger instance configured to write to console and file.
-    """
+    """Get a logger instance with custom formatting and file handler."""
     logger = logging.getLogger(name)
     if logger.handlers:
         return logger
@@ -29,34 +27,28 @@ def get_logger(name: str) -> logging.Logger:
     logger.addHandler(ch)
 
     # File handler
-    log_file = LOG_DIR / "pipeline.log"
-    if not LOG_DIR.exists():
-        LOG_DIR.mkdir(parents=True, exist_ok=True)
-    
-    fh = logging.FileHandler(log_file)
-    fh.setLevel(logging.INFO)
-    fh.setFormatter(CustomFormatter())
-    logger.addHandler(fh)
+    log_file = LOG_DIR / f"{name}.log"
+    if LOG_DIR.exists():
+        fh = logging.FileHandler(log_file)
+        fh.setLevel(logging.INFO)
+        fh.setFormatter(CustomFormatter())
+        logger.addHandler(fh)
 
     return logger
 
-def log_error_traceback(logger: logging.Logger, error: Exception) -> None:
-    """Log the full traceback of an exception."""
-    logger.error(f"Exception occurred: {str(error)}")
+def log_error_traceback(logger: logging.Logger, e: Exception):
+    """Log the exception and its traceback."""
+    logger.error(f"Exception: {e}")
     logger.error(traceback.format_exc())
 
-def log_warning(logger: logging.Logger, message: str) -> None:
-    """Log a warning message."""
-    logger.warning(message)
+def log_warning(logger: logging.Logger, msg: str):
+    logger.warning(msg)
 
-def log_info(logger: logging.Logger, message: str) -> None:
-    """Log an info message."""
-    logger.info(message)
+def log_info(logger: logging.Logger, msg: str):
+    logger.info(msg)
 
-def log_debug(logger: logging.Logger, message: str) -> None:
-    """Log a debug message."""
-    logger.debug(message)
+def log_debug(logger: logging.Logger, msg: str):
+    logger.debug(msg)
 
-def log_data_insufficiency_warning(logger: logging.Logger, count: int) -> None:
-    """Log a specific warning for data insufficiency."""
-    logger.warning(f"Data Insufficiency: N < 50 (Current count: {count})")
+def log_data_insufficiency_warning(logger: logging.Logger, msg: str):
+    logger.warning(f"DATA INSUFFICIENCY: {msg}")

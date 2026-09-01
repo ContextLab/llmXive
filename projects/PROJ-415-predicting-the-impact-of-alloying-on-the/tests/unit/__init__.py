@@ -1,1 +1,1 @@
-# Unit tests initialization
+# tests.unit package

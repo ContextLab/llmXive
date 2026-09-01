@@ -1,1 +1,1 @@
-# Integration tests initialization
+# tests.integration package

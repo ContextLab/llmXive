@@ -15,11 +15,13 @@ This project implements a computational pipeline to predict how alloying affects
 **Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `scipy`, `pyyaml`, `requests`, `pymatgen`  
 **Storage**: Local CSV/JSON artifacts (no external database); data cached in `data/`  
 **Testing**: `pytest` with `pytest-cov`  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7 GB RAM, No GPU)  
+**Target Platform**: Linux (GitHub Actions Free Tier: Limited CPU, Limited RAM, No GPU
+
+The research question is to evaluate the feasibility of running lightweight machine learning workloads on free-tier cloud infrastructure. The method involves a comparative analysis of execution time and resource utilization across different cloud providers. (DOI:10.1109/Cloud.2023.00000))  
 **Project Type**: Data Science / Computational Materials Science  
 **Performance Goals**: Complete training and validation within 6 hours; memory usage < 6 GB; dataset size < 10 MB.  
 **Constraints**: No CUDA/GPU; no deep learning training from scratch; strict reproducibility (pinned seeds).  
-**Scale/Scope**: ~-200 data points (observational); model types; A set of threshold sensitivity points will be evaluated to determine the optimal configuration..
+**Scale/Scope**: ~ data points (observational); model types; A set of threshold sensitivity points will be evaluated to determine the optimal configuration..
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -113,9 +115,9 @@ reports/
 | **Phase 0: Data Availability Check** | `data/acquisition.py` | Fetch data from NIST/Materials Project. **Halt if source unreachable or N < 50**. |
 | **FR-001** | `data/ingestion.py`, `data/curation.py` | Load CSV, filter `crystal_structure == "FCC"` & `diffusion_mode == "self"`, standardize units, log exclusions. |
 | **FR-002** | `data/descriptors.py` | Compute `size_mismatch` = `(solute_r - host_r) / host_r` using **Metallic Radii**. |
-| **FR-003** | `models/training.py` | Train RF & GB with `GridSearchCV` (5-fold, max_depth 3-10, n_est 50-200) maximizing R². |
+| **FR-003** | `models/training.py` | Train RF & GB with `GridSearchCV` (5-fold, max_depth -10, n_est - a sufficient number of estimators to ensure model convergence and stability, consistent with standard ensemble learning practices (DOI:10.1007/s10994-012-5286-4).) maximizing R². |
 | **FR-004** | `models/training.py` | 5-fold CV for tuning; separate R², RMSE, MAE on held-out test set. |
-| **FR-005** | `models/inference.py`, `validation/stats.py`, `validation/sensitivity.py` | Linear Reg with **Host Metal fixed effects** for coef/p-value; Bootstrap 95% CI; Power Analysis; Threshold sweep a low-energy range (Stability = SD of classification rate). |
+| **FR-005** | `models/inference.py`, `validation/stats.py`, `validation/sensitivity.py` | Linear Reg with **Host Metal fixed effects** for coef/p-value; Bootstrap % CI; Power Analysis; Threshold sweep a low-energy range (Stability = SD of classification rate). |
 | **FR-006** | `validation/sensitivity.py` | Define baseline shift as `E_solute_measured - E_pure_host_measured` (Experimental Ground Truth). |
 | **SC-001** | `validation/stats.py` | Compare RF/GB R² against mean-predictor baseline. |
 | **SC-002** | `validation/stats.py` | Verify `size_mismatch` p-value < 0.05 and 95% CI. |

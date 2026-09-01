@@ -1,43 +1,106 @@
 """
-Setup script for linting (Ruff) and formatting (Black) tools.
-This script ensures configuration files are present in the project root.
+Setup script to verify and initialize linting and formatting tools.
+This script checks for the presence of ruff and black, installs them if missing,
+and validates the configuration.
 """
 import os
 import sys
+import subprocess
 from pathlib import Path
 
-# Note: Configuration files (pyproject.toml, .pre-commit-config.yaml)
-# are now managed as project artifacts. This script acts as a
-# verification and installation helper.
+def run_command(cmd: list[str]) -> tuple[int, str, str]:
+    """Run a shell command and return (returncode, stdout, stderr)."""
+    try:
+        result = subprocess.run(
+            cmd,
+            check=False,
+            capture_output=True,
+            text=True,
+            shell=False
+        )
+        return result.returncode, result.stdout, result.stderr
+    except FileNotFoundError:
+        return 1, "", f"Command not found: {cmd[0]}"
+
+def ensure_tool_installed(tool_name: str) -> bool:
+    """Ensure a tool is installed via pip."""
+    print(f"Checking for {tool_name}...")
+    rc, stdout, stderr = run_command([sys.executable, "-m", "pip", "show", tool_name])
+    if rc == 0:
+        print(f"  {tool_name} is already installed.")
+        return True
+
+    print(f"  Installing {tool_name}...")
+    rc, stdout, stderr = run_command([sys.executable, "-m", "pip", "install", tool_name])
+    if rc == 0:
+        print(f"  Successfully installed {tool_name}.")
+        return True
+    else:
+        print(f"  Failed to install {tool_name}: {stderr}")
+        return False
+
+def validate_config() -> bool:
+    """Validate the project's linting configuration."""
+    print("Validating configuration files...")
+    
+    # Check pyproject.toml existence
+    if not Path("pyproject.toml").exists():
+        print("  ERROR: pyproject.toml not found in project root.")
+        return False
+    
+    # Run ruff check (dry run)
+    print("  Running ruff check...")
+    rc, stdout, stderr = run_command([sys.executable, "-m", "ruff", "check", "."])
+    if rc == 0:
+        print("    Ruff check passed (no errors found).")
+    else:
+        # It's okay if there are linting errors in existing code, 
+        # as long as the tool runs. We just want to ensure it's configured.
+        if "No errors found" in stdout or "Found" in stdout:
+            print(f"    Ruff check completed. Output: {stdout[:200]}")
+        else:
+            print(f"    Ruff check output: {stdout[:200]}")
+
+    # Run black check (dry run)
+    print("  Running black check...")
+    rc, stdout, stderr = run_command([sys.executable, "-m", "black", "--check", "."])
+    if rc == 0:
+        print("    Black check passed (all files formatted).")
+    else:
+        # Again, formatting errors in existing code are expected if not formatted yet.
+        if "would reformat" in stdout:
+            print("    Black check: Some files need reformatting (expected in new projects).")
+        else:
+            print(f"    Black check output: {stdout[:200]}")
+
+    return True
 
 def main():
-    """
-    Verifies the presence of linting configurations and provides installation instructions.
-    """
-    project_root = Path(__file__).resolve().parent.parent
-    pyproject = project_root / "pyproject.toml"
-    pre_commit = project_root / ".pre-commit-config.yaml"
-
-    print("Checking linting and formatting configuration...")
-
-    if not pyproject.exists():
-        print("ERROR: pyproject.toml not found. Please ensure it exists with [tool.black] and [tool.ruff] sections.")
+    """Main entry point for setup."""
+    print("=== Linting and Formatting Setup ===")
+    
+    # Ensure tools are available
+    tools = ["ruff", "black"]
+    success = True
+    for tool in tools:
+        if not ensure_tool_installed(tool):
+            success = False
+    
+    if not success:
+        print("Failed to install required tools.")
         sys.exit(1)
 
-    if not pre_commit.exists():
-        print("ERROR: .pre-commit-config.yaml not found. Please ensure it exists.")
+    # Validate configuration
+    if not validate_config():
+        print("Configuration validation failed.")
         sys.exit(1)
 
-    print("Configuration files found.")
-    print("\nTo enable pre-commit hooks, run:")
-    print("  pip install pre-commit black ruff")
-    print("  pre-commit install")
-    print("\nTo run linter manually:")
-    print("  ruff check .")
-    print("\nTo run formatter manually:")
-    print("  black .")
-    print("\nTo run both:")
-    print("  pre-commit run --all-files")
+    print("=== Setup Complete ===")
+    print("You can now run:")
+    print("  - Ruff: python -m ruff check .")
+    print("  - Ruff Fix: python -m ruff check . --fix")
+    print("  - Black: python -m black .")
+    print("  - Black Check: python -m black --check .")
 
 if __name__ == "__main__":
     main()

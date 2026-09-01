@@ -4,10 +4,11 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No evidence of the required directories (`code/`, `tests/`, `data/`, `models/`, `reports/`) is provided; the artifact list is empty, so the project structure has not been demonstrated.
-- `T003` (rejected 1x): No linting or formatting configuration files (e.g., `pyproject.toml` with Black/Ruff settings, `.flake8` config, or a `requirements-dev.txt` including these tools) or setup scripts are present in the provided evidence. Consequently, the task of configuring ruff/flake8 and Black has not been demonstrated.
-- `T007` (rejected 1x): No `data/` directory with the required subfolders (`raw/`, `curated/`, `artifacts/`) is present, nor any script or code implementing checksum generation/verification for files in those folders. The implementer provided only narrative text without the actual filesystem changes or checksum logic, so the task is not satisfied.
-- `T008` (rejected 1x): The required output file `data/raw/fetched_diffusion.csv` is missing, and the provided `acquisition.py` contains placeholder logic and comments about “simulating” diffusion values rather than actually fetching and writing real data as specified. The script does not demonstrably save a CSV or log the exact warning message when N < 50.
+- `T001` (rejected 1x): The implementer did not provide any evidence that the required directories (`code/`, `tests/`, `data/`, `models/`, `reports/`) actually exist or contain any files; no directory listing or file contents were shown. Without concrete artifacts, the task requirement is not satisfied.
+- `T003` (rejected 1x): The implementer provided no linting or formatting configuration files (e.g., `pyproject.toml` with Black settings, `.ruff.toml` or `.flake8` files, or any documentation showing the tools are set up and integrated). Consequently, there is no evidence that ruff/flake8 linting or Black formatting has been configured for the project. The required artifacts are missing.
+- `T007` (rejected 1x): No evidence of the required `data/` subdirectories (`raw/`, `curated/`, `artifacts/`, `logs/`) or the `errors/` directory is provided, nor any code or scripts implementing checksum logic for files in `data/`. The implementer’s claim cannot be verified without these artifacts.
+- `T024` (rejected 1x): declared artifact(s) missing/empty/invalid: models/final_rf.pkl, models/final_gb.pkl, models/linear_coef.json
+- `T025` (rejected 1x): The `code/models/inference.py` file stops after creating the output directory and does not contain the logic to load the RF and GB models, compute the metrics, and write them to `models/metrics.json`. Consequently, the required `models/metrics.json` file is absent. The missing code and output file must be added for the task to be considered complete.
 
 ## Required change
 

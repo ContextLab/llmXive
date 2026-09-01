@@ -1,143 +1,119 @@
-import pytest
-import pandas as pd
+"""
+Unit tests for the data curation module (T014).
+"""
 import os
-import tempfile
+import sys
+import pandas as pd
+import pytest
 from pathlib import Path
+import tempfile
 import shutil
 
-# Mock the config and constants for testing
-# In a real run, these would be imported from the project
-# For unit tests, we mock the behavior or use fixtures
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from code.data.curation import exclude_missing_concentration, validate_atomic_radii, log_exclusions
+from code.data.curation import (
+    exclude_missing_concentration,
+    validate_atomic_radii,
+    log_exclusions
+)
+from code.utils.constants import get_metallic_radius
 
-class TestExcludeMissingConcentration:
+class TestCuration:
+    @pytest.fixture(autouse=True)
+    def setup(self, tmp_path):
+        """Setup temporary directories for testing."""
+        # Mock the global paths temporarily if needed, 
+        # but for unit tests we pass data directly or use mocks.
+        self.tmp_path = tmp_path
+        yield
+
     def test_exclude_missing_concentration(self):
-        # Create a mock dataframe
+        """Test that rows with missing concentration are excluded."""
         data = {
-            'row_id': [1, 2, 3, 4],
-            'solute_concentration': [0.5, None, 0.2, ''],
-            'host_element': ['Cu', 'Cu', 'Cu', 'Cu'],
-            'solute_element': ['Zn', 'Zn', 'Zn', 'Zn']
+            'solute_symbol': ['Cu', 'Zn', 'Ni'],
+            'host_symbol': ['Al', 'Al', 'Al'],
+            'concentration': [5.0, None, 10.0],
+            'activation_energy': [1.0, 1.1, 1.2]
         }
         df = pd.DataFrame(data)
-        
-        cleaned_df, exclusions = exclude_missing_concentration(df)
-        
-        assert len(cleaned_df) == 2
-        assert len(exclusions) == 2
-        assert all(ex['reason_code'] == 'MISSING_CONCENTRATION' for ex in exclusions)
-        assert set(cleaned_df['row_id']) == {1, 3}
 
-    def test_no_missing_concentration(self):
+        df_clean, log = exclude_missing_concentration(df)
+
+        assert len(df_clean) == 2
+        assert 'Ni' in df_clean['solute_symbol'].values
+        assert 'Cu' in df_clean['solute_symbol'].values
+        assert 'Zn' not in df_clean['solute_symbol'].values
+        assert len(log) == 1
+        assert log[0]['reason_code'] == 'MISSING_CONCENTRATION'
+
+    def test_validate_atomic_radii(self):
+        """Test that rows with missing atomic radii are excluded."""
+        # We use real symbols for valid radii and a fake one for invalid
         data = {
-            'row_id': [1, 2],
-            'solute_concentration': [0.5, 0.2],
-            'host_element': ['Cu', 'Cu'],
-            'solute_element': ['Zn', 'Zn']
+            'solute_symbol': ['Cu', 'FakeElement123', 'Ni'],
+            'host_symbol': ['Al', 'Al', 'Al'],
+            'concentration': [5.0, 10.0, 15.0],
+            'activation_energy': [1.0, 1.1, 1.2]
         }
         df = pd.DataFrame(data)
-        
-        cleaned_df, exclusions = exclude_missing_concentration(df)
-        
-        assert len(cleaned_df) == 2
-        assert len(exclusions) == 0
 
-class TestValidateAtomicRadii:
-    def test_validate_atomic_radii_missing_host(self, monkeypatch):
-        # Mock get_metallic_radius to return None for 'Unknown'
-        def mock_get_radius(elem):
-            if elem == 'Unknown':
-                return None
-            return 1.0 # Simulate valid radius for others
+        df_clean, log = validate_atomic_radii(df)
 
-        from code.utils import constants
-        monkeypatch.setattr(constants, 'get_metallic_radius', mock_get_radius)
+        assert len(df_clean) == 2
+        assert 'Cu' in df_clean['solute_symbol'].values
+        assert 'Ni' in df_clean['solute_symbol'].values
+        assert 'FakeElement123' not in df_clean['solute_symbol'].values
+        assert len(log) == 1
+        assert log[0]['missing_attribute'] == 'solute_radius'
 
-        data = {
-            'row_id': [1, 2],
-            'host_element': ['Unknown', 'Cu'],
-            'solute_element': ['Zn', 'Zn']
-        }
-        df = pd.DataFrame(data)
-        
-        cleaned_df, exclusions, missing_data = validate_atomic_radii(df)
-        
-        assert len(cleaned_df) == 1
-        assert len(exclusions) == 1
-        assert exclusions[0]['reason_code'] == 'MISSING_ATOMIC_RADIUS_HOST'
-        assert missing_data[0]['role'] == 'host'
+    def test_log_exclusions_creation(self):
+        """Test that log files are created correctly."""
+        conc_log = [{'row_id': 1, 'reason_code': 'MISSING_CONCENTRATION', 'solute_symbol': 'X'}]
+        radii_log = [{'row_id': 2, 'missing_attribute': 'solute_radius', 'solute_symbol': 'Y'}]
 
-    def test_validate_atomic_radii_missing_solute(self, monkeypatch):
-        def mock_get_radius(elem):
-            if elem == 'BadSolute':
-                return None
-            return 1.0
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_dir = Path(tmpdir) / "logs"
+            error_dir = Path(tmpdir) / "errors"
+            log_dir.mkdir()
+            error_dir.mkdir()
 
-        from code.utils import constants
-        monkeypatch.setattr(constants, 'get_metallic_radius', mock_get_radius)
+            # Temporarily override global constants for this test
+            import code.data.curation as cur_module
+            original_log_dir = cur_module.LOG_DIR
+            original_error_dir = cur_module.ERRORS_DIR
+            
+            cur_module.LOG_DIR = log_dir
+            cur_module.ERRORS_DIR = error_dir
 
-        data = {
-            'row_id': [1],
-            'host_element': ['Cu'],
-            'solute_element': ['BadSolute']
-        }
-        df = pd.DataFrame(data)
-        
-        cleaned_df, exclusions, missing_data = validate_atomic_radii(df)
-        
-        assert len(cleaned_df) == 0
-        assert len(exclusions) == 1
-        assert exclusions[0]['reason_code'] == 'MISSING_ATOMIC_RADIUS_SOLUTE'
-        assert missing_data[0]['role'] == 'solute'
+            try:
+                count = log_exclusions(conc_log, radii_log)
+                
+                assert count == 2
+                assert (log_dir / "exclusions.log").exists()
+                assert (error_dir / "missing_atomic_data.csv").exists()
 
-class TestLogExclusions:
-    def test_log_exclusions_creates_files(self, tmp_path):
-        # Setup temporary directories
-        log_dir = tmp_path / "logs"
-        errors_dir = tmp_path / "errors"
-        log_dir.mkdir()
-        errors_dir.mkdir()
-        
-        # Monkeypatch global paths for the test
-        import code.data.curation as curation_module
-        original_log_dir = curation_module.LOG_DIR
-        original_project_root = curation_module.PROJECT_ROOT
-        
-        curation_module.LOG_DIR = log_dir
-        curation_module.PROJECT_ROOT = tmp_path
+                # Verify exclusion count header
+                with open(log_dir / "exclusions.log", 'r') as f:
+                    first_line = f.readline().strip()
+                    assert "# EXCLUSION_COUNT: 2" in first_line
 
-        exclusions = [
-            {'row_id': 1, 'reason_code': 'MISSING_CONCENTRATION'},
-            {'row_id': 2, 'reason_code': 'MISSING_ATOMIC_RADIUS_HOST', 'element': 'X'}
-        ]
-        missing_atomic = [
-            {'row_id': 2, 'element': 'X', 'role': 'host'}
-        ]
+                # Verify missing data CSV content
+                with open(error_dir / "missing_atomic_data.csv", 'r') as f:
+                    content = f.read()
+                    assert "solute_symbol,missing_attribute" in content
+                    assert "Y,solute_radius" in content
+            finally:
+                cur_module.LOG_DIR = original_log_dir
+                cur_module.ERRORS_DIR = original_error_dir
 
-        log_exclusions(exclusions, missing_atomic)
+    def test_get_metallic_radius_valid(self):
+        """Verify that valid elements return radii."""
+        radius = get_metallic_radius("Cu")
+        assert radius is not None
+        assert radius > 0
 
-        # Check exclusions.log
-        exclusions_log = log_dir / "exclusions.log"
-        assert exclusions_log.exists()
-        
-        content = exclusions_log.read_text()
-        lines = content.splitlines()
-        
-        # Check first line is count
-        assert lines[0] == "# EXCLUSION_COUNT: 2"
-        
-        # Check CSV structure
-        assert "row_id" in lines[1]
-        assert "reason_code" in lines[1]
-        
-        # Check errors file
-        errors_file = errors_dir / "missing_atomic_data.csv"
-        assert errors_file.exists()
-        err_content = errors_file.read_text()
-        assert "row_id" in err_content
-        assert "X" in err_content
-
-        # Restore
-        curation_module.LOG_DIR = original_log_dir
-        curation_module.PROJECT_ROOT = original_project_root
+    def test_get_metallic_radius_invalid(self):
+        """Verify that invalid elements return None."""
+        radius = get_metallic_radius("InvalidElementXYZ")
+        assert radius is None

@@ -58,9 +58,15 @@
 - [X] T004 Implement `code/config.py` with global constants, random seeds, and path definitions
 - [X] T005 Implement `code/utils/constants.py` with versioned periodic table data (Metallic Radii, Electronegativity)
 - [X] T006 Implement `code/utils/logging.py` for standardized logging and error tracking
-- [ ] T007 Setup `data/` directory structure (`raw/`, `curated/`, `artifacts/`) and checksum logic
-- [ ] T008 [P] Implement `code/data/acquisition.py` to fetch real data from NIST/Materials Project sources using Materials Project API v2 (endpoint: `, params: `elements`, `crystal_system=fcc`, auth via `MP_API_KEY` env var); MUST save output to `data/raw/fetched_diffusion.csv` and MUST log a warning "Data Insufficiency: N < 50" and proceed if N < 50 (resolving conflict with spec Edge Cases) instead of halting; this task replaces the hard halt to satisfy spec Edge Cases and FR-001/FR-002 flow
-- [ ] T009 [P] Implement `tests/contract/test_schema.py` to validate data structure against `contracts/diffusion_record.schema.yaml` for the `DiffusionRecord` entity
+- [ ] T007 Setup `data/` directory structure (`raw/`, `curated/`, `artifacts/`, `logs/`) and `errors/` directory for error logs; implement checksum logic for `data/`
+- [X] T008 Implement `code/data/acquisition.py` to fetch REAL diffusion data from NIST/Materials Project sources.
+ **CRITICAL INSTRUCTIONS**:
+ 1. Use `pymatgen.ext.matproj` or direct HTTP requests to verified NIST CSV URLs (e.g., `https://materialsproject.org/...` or specific NIST URLs).
+ 2. DO NOT use mock data, synthetic data, or placeholder logic.
+ 3. If the fetched dataset contains fewer than 50 valid entries, the script MUST raise a `SystemExit` with the message "Data Insufficiency: N < 50" and halt execution immediately.
+ 4. Save output to `data/raw/fetched_diffusion.csv`.
+ 5. This task is NOT parallel-safe; ensure it runs sequentially before dependent tasks.
+- [X] T009 [P] Implement `tests/contract/test_schema.py` to validate data structure against `contracts/diffusion_record.schema.yaml` for the `DiffusionRecord` entity
 - [X] T010 Implement `tests/unit/test_constants.py` to verify periodic table data integrity
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -81,10 +87,14 @@
 ### Implementation for User Story 1
 
 - [X] T013 [P] [US1] Implement `code/data/ingestion.py` to load CSVs, filter `crystal_structure == "FCC"` and `diffusion_mode == "self"`, and convert units to eV/atom
-- [ ] T014 [US1] Implement `code/data/curation.py` to exclude rows with missing solute concentration or missing atomic radii; log exclusions to `data/logs/exclusions.log` (CSV format with `row_id`, `reason_code`) AND explicitly record the **count of excluded rows as the first line** of the log file (e.g., `# EXCLUSION_COUNT: 5`) to satisfy US-1 acceptance scenario 2; log concentration exclusions with reason code 'MISSING_CONCENTRATION' and atomic data errors to `errors/missing_atomic_data.csv`
+- [X] T014 [US1] Implement `code/data/curation.py` to exclude rows with missing solute concentration or missing atomic radii.
+ **Outputs**:
+ 1. Log exclusions to `data/logs/exclusions.log` (CSV format with `row_id`, `reason_code`). Explicitly record the **count of excluded rows as the first line** (e.g., `# EXCLUSION_COUNT: 5`).
+ 2. Append records for missing atomic radii to `errors/missing_atomic_data.csv` (CSV with `solute_symbol`, `missing_attribute`).
+ 3. Output the final curated dataset to `data/curated/filtered.csv`.
+ **CRITICAL**: This task MUST create `errors/missing_atomic_data.csv` if any atomic data is missing. Log concentration exclusions with reason code 'MISSING_CONCENTRATION'.
 - [X] T015 [US1] Implement edge case handling in `code/data/ingestion.py` for single-host-metal datasets: fallback to random split and log the specific warning: 'Stratification by host metal was not possible due to single-class data.'
-- [ ] T016 [US1] Implement error logging for missing atomic radii in `code/data/curation.py` (output to `errors/missing_atomic_data.csv`)
-- [ ] T017 [US1] Add validation script `tests/unit/test_ingestion.py` to verify filtering logic on mixed-structure mock data
+- [X] T017 [US1] Add validation script `tests/unit/test_ingestion.py` to verify filtering logic on mixed-structure mock data
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -98,18 +108,20 @@
 
 ### Tests for User Story 2
 
-- [ ] T018 [P] [US2] Unit test for `size_mismatch` calculation in `tests/unit/test_descriptors.py`
-- [ ] T019 [P] [US2] Unit test for model training (CPU-only check) in `tests/unit/test_models.py`
+- [X] T018 [P] [US2] Unit test for `size_mismatch` calculation in `tests/unit/test_descriptors.py`
+- [X] T019 [P] [US2] Unit test for model training (CPU-only check) in `tests/unit/test_models.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `code/data/descriptors.py` to compute `size_mismatch = (solute_r - host_r) / host_r` using Metallic Radii from `constants.py`
-- [ ] T021 [US2] Implement `code/models/training.py` to train Random Forest with `GridSearchCV` (5-fold cross-validation, `cv=5` explicitly overriding default, max_depth a moderate to deep range, n_estimators a range sufficient to ensure model stability and performance.) maximizing R²; explicitly consume `data/curated/filtered.csv` as the output of T013/T014 (satisfying FR-003)
-- [ ] T022 [US2] Implement `code/models/training.py` to train Gradient Boosting with same GridSearch parameters (`cv=5` explicitly set, max_depth will be optimized to a suitable value, n_estimators 50-200); explicitly consume `data/curated/filtered.csv` as the output of T013/T014 (satisfying FR-003)
-- [ ] T023 [US2] Implement `code/models/training.py` to train Linear Regression and extract `size_mismatch` coefficient with p-value
+- [X] T020 [P] [US2] Implement `code/data/descriptors.py` to compute `size_mismatch = (solute_r - host_r) / host_r` using Metallic Radii from `constants.py`
+- [X] T021 [US2] Implement `code/models/training.py` to train Random Forest with `GridSearchCV` (5-fold cross-validation, `cv=5` explicitly overriding default, `max_depth` range [3, 10], `n_estimators` range [50, 200]) maximizing R².
+ **Dependency**: This task MUST wait for T014 to complete and consume `data/curated/filtered.csv` as the output of T013/T014 (satisfying FR-003).
+- [X] T022 [US2] Implement `code/models/training.py` to train Gradient Boosting with same GridSearch parameters (`cv=5` explicitly set, `max_depth` range [3, 10], `n_estimators` range [50, 200]).
+ **Dependency**: This task MUST wait for T014 to complete and consume `data/curated/filtered.csv` as the output of T013/T014 (satisfying FR-003).
+- [X] T023 [US2] Implement `code/models/training.py` to train Linear Regression and extract `size_mismatch` coefficient with p-value
 - [ ] T024 [US2] Implement logic to save models to `models/final_rf.pkl`, `models/final_gb.pkl`, and coefficients to `models/linear_coef.json`
-- [ ] T025 [US2] Implement `code/models/inference.py` to compute R², RMSE, MAE on held-out test set for RF and GB
-- [ ] T026 [US2] Handle edge case in `code/models/training.py` where R² < 0.1 (flag as "Low Predictive Power" in report, do not crash)
+- [ ] T025 [US2] Implement `code/models/inference.py` to compute R², RMSE, MAE on held-out test set for RF and GB; save metrics to `models/metrics.json` for downstream consumption.
+- [X] T026 [US2] Handle edge case in `code/models/training.py` where R² < 0.1 (flag as "Low Predictive Power" in report, do not crash)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -123,18 +135,24 @@
 
 ### Tests for User Story 3
 
-- [ ] T027 [P] [US3] Unit test for bootstrap confidence interval calculation in `tests/unit/test_stats.py`
-- [ ] T028 [P] [US3] Unit test for sensitivity sweep logic in `tests/unit/test_sensitivity.py`
+- [X] T027 [P] [US3] Unit test for bootstrap confidence interval calculation in `tests/unit/test_stats.py`
+- [X] T028 [P] [US3] Unit test for sensitivity sweep logic in `tests/unit/test_sensitivity.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Implement `code/validation/stats.py` to compute 95% bootstrap confidence interval for `size_mismatch` coefficient
-- [ ] T030 [US3] Implement `code/validation/stats.py` to verify p-value < 0.05 for the `size_mismatch` coefficient
-- [ ] T031 [US3] Implement `code/validation/sensitivity.py` to define baseline shift: `predicted_E_solute - measured_E_pure_host` (using model prediction for solute and **measured** value for pure host metal at 0 at.% from `data/curated/filtered.csv` to satisfy FR-006 Experimental Ground Truth; if 0 at.% row is missing, interpolate from nearest concentrations or fallback to model prediction with a warning); this explicitly resolves the Single Source of Truth conflict (F001) and FR-006 requirement
-- [ ] T032 [US3] Implement `code/validation/sensitivity.py` to sweep classification threshold across a narrow range centered around the optimal value (fine-grained steps)
-- [ ] T033 [US3] Implement logic in `code/validation/sensitivity.py` to calculate classification stability as **`SD(classification_rate) / RMSE`** (explicit formula to satisfy SC-003); explicitly consume `reports/validation_report.json` to extract the `rmse` field produced by T025 (satisfying ordering constraint)
-- [ ] T034 [US3] Generate `reports/validation_report.json` containing R², RMSE, p-values, CI, and stability metrics
-- [ ] T035 [US3] Implement `code/main.py` orchestration to run full pipeline: Ingestion → Features → Training → Validation
+- [X] T029 [P] [US3] Implement `code/validation/stats.py` to compute 95% bootstrap confidence interval for `size_mismatch` coefficient
+- [X] T030 [US3] Implement `code/validation/stats.py` to verify p-value < 0.05 for the `size_mismatch` coefficient
+- [X] T031 [US3] Implement `code/validation/sensitivity.py` to define baseline shift: `predicted_E_solute - measured_E_pure_host`.
+ **Logic**:
+ 1. Use the MODEL's predicted activation energy for the solute.
+ 2. Use the MEASURED activation energy of the pure host metal at 0 at.% from `data/curated/filtered.csv`.
+ 3. If the 0 at.% row is missing in the curated file, read from `data/raw/fetched_diffusion.csv` and perform **linear interpolation** from neighboring measured concentration points.
+ 4. If interpolation is impossible, raise an error. This ensures strict adherence to FR-006 Experimental Ground Truth.
+- [X] T032 [US3] Implement `code/validation/sensitivity.py` to sweep classification threshold across a narrow range centered around the optimal value (fine-grained steps: 0.45, 0.46,..., 0.55 eV)
+- [X] T033 [US3] Implement logic in `code/validation/sensitivity.py` to calculate classification stability.
+ **Metric**: Calculate the **variation in classification rate** across the sweep (0.45 to 0.55 eV). Verify that this variation (defined as the range or standard deviation relative to the mean) stays **within ±5%** of the mean classification rate, as specified in SC-003. Explicitly consume `models/metrics.json` (produced by T025) to extract the `rmse` field for reporting purposes, but use the raw variation metric for the stability verification.
+- [ ] T034 [US3] Generate `reports/validation_report.json` containing R², RMSE, p-values, CI, and stability metrics (including the calculated variation and verification status).
+- [X] T035 [US3] Implement `code/main.py` orchestration to run full pipeline: Ingestion → Features → Training → Validation
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -144,8 +162,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T036 [P] Documentation updates in `quickstart.md` and `research.md`; **Implement Power Analysis** using post-hoc F-test for regression coefficient (alpha=0.05, target_power=0.80) as required by FR-005 and US-3; explicitly satisfy FR-005 requirement
-- [ ] T037 Code cleanup and refactoring of `code/models/training.py` for readability
+- [X] T037 Code cleanup and refactoring of `code/models/training.py` for readability
 - [ ] T038 Performance optimization: Ensure GridSearch runs within 15 mins on 2-core CPU
 - [ ] T039 [P] Additional unit tests for edge cases (missing atomic data, single host metal) in `tests/unit/`
 - [ ] T040 Run `quickstart.md` validation and verify all artifacts are checksummed
@@ -166,7 +183,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data from US1
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data from US1 (specifically T014)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on models from US2
 
 ### Within Each User Story
@@ -244,3 +261,4 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical**: All data tasks MUST use real, reachable URLs (NIST/Materials Project). No synthetic data generation for hypothesis validation.
 - **Critical**: All models MUST run on CPU-only hardware (no CUDA, no 8-bit/4-bit quantization).
+- **Critical**: T008 must fail loudly if real data is not found; do not fallback to synthetic data.

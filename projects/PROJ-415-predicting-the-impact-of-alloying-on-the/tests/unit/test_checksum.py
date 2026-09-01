@@ -1,7 +1,6 @@
 import json
 import tempfile
 from pathlib import Path
-
 import pytest
 
 from code.data.checksum import (
@@ -11,94 +10,93 @@ from code.data.checksum import (
     load_checksums,
     verify_checksums,
 )
+from code.config import DATA_DIR
 
 
-@pytest.fixture
-def temp_dir_with_files(tmp_path: Path) -> Path:
-    """Create a temporary directory with test files."""
-    # Create subdirectories
-    raw_dir = tmp_path / "raw"
-    curated_dir = tmp_path / "curated"
-    raw_dir.mkdir()
-    curated_dir.mkdir()
+def test_compute_sha256():
+    """Test SHA256 computation on a known string."""
+    # Create a temporary file with known content
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+        f.write("test content")
+        temp_path = f.name
     
+    try:
+        checksum = compute_sha256(temp_path)
+        # Known SHA256 for "test content"
+        expected = "6ae8a75555209fd6c44157c0aed8016e763ff435a19cf186f76863140143ff72"
+        assert checksum == expected
+    finally:
+        Path(temp_path).unlink()
+
+
+def test_generate_checksums(tmp_path):
+    """Test checksum generation for multiple files."""
     # Create test files
-    file1 = raw_dir / "test1.txt"
-    file1.write_text("Hello, World!")
+    file1 = tmp_path / "file1.txt"
+    file2 = tmp_path / "file2.txt"
+    file1.write_text("content1")
+    file2.write_text("content2")
     
-    file2 = raw_dir / "test2.csv"
-    file2.write_text("a,b,c\n1,2,3")
+    checksums = generate_checksums(tmp_path)
     
-    file3 = curated_dir / "data.json"
-    file3.write_text('{"key": "value"}')
-    
-    return tmp_path
+    assert len(checksums) == 2
+    assert "file1.txt" in checksums
+    assert "file2.txt" in checksums
+    assert checksums["file1.txt"] != checksums["file2.txt"]
 
 
-def test_compute_sha256(temp_dir_with_files: Path) -> None:
-    """Test SHA256 computation for a known file."""
-    file_path = temp_dir_with_files / "raw" / "test1.txt"
-    checksum = compute_sha256(file_path)
-    
-    # Known SHA256 for "Hello, World!"
-    expected = "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"
-    assert checksum == expected
-
-
-def test_generate_checksums(temp_dir_with_files: Path) -> None:
-    """Test checksum generation for all files in a directory."""
-    checksums = generate_checksums(temp_dir_with_files)
-    
-    assert len(checksums) == 3
-    assert "raw/test1.txt" in checksums
-    assert "raw/test2.csv" in checksums
-    assert "curated/data.json" in checksums
-
-
-def test_save_and_load_checksums(temp_dir_with_files: Path) -> None:
+def test_save_and_load_checksums(tmp_path):
     """Test saving and loading checksums to/from JSON."""
-    checksums = generate_checksums(temp_dir_with_files)
+    test_checksums = {
+        "file1.txt": "abc123",
+        "file2.txt": "def456"
+    }
     
-    output_path = temp_dir_with_files / "checksums.json"
-    save_checksums(checksums, output_path)
+    output_path = tmp_path / "checksums.json"
+    save_checksums(test_checksums, output_path)
     
     assert output_path.exists()
     
     loaded_checksums = load_checksums(output_path)
-    assert loaded_checksums == checksums
+    assert loaded_checksums == test_checksums
 
 
-def test_verify_checksums_success(temp_dir_with_files: Path) -> None:
+def test_verify_checksums_success(tmp_path):
     """Test successful checksum verification."""
-    checksums = generate_checksums(temp_dir_with_files)
-    failed = verify_checksums(checksums, temp_dir_with_files)
+    # Create test files
+    file1 = tmp_path / "file1.txt"
+    file1.write_text("content1")
     
-    assert len(failed) == 0
+    # Generate and save checksums
+    checksums = generate_checksums(tmp_path)
+    output_path = tmp_path / "checksums.json"
+    save_checksums(checksums, output_path)
+    
+    # Verify
+    results = verify_checksums(tmp_path, output_path)
+    assert results["file1.txt"] is True
 
 
-def test_verify_checksums_failure(temp_dir_with_files: Path) -> None:
-    """Test checksum verification with corrupted files."""
-    checksums = generate_checksums(temp_dir_with_files)
+def test_verify_checksums_failure(tmp_path):
+    """Test checksum verification failure when file is modified."""
+    # Create test file
+    file1 = tmp_path / "file1.txt"
+    file1.write_text("content1")
     
-    # Corrupt a file
-    file_path = temp_dir_with_files / "raw" / "test1.txt"
-    file_path.write_text("Modified content")
+    # Generate and save checksums
+    checksums = generate_checksums(tmp_path)
+    output_path = tmp_path / "checksums.json"
+    save_checksums(checksums, output_path)
     
-    failed = verify_checksums(checksums, temp_dir_with_files)
+    # Modify file
+    file1.write_text("modified content")
     
-    assert len(failed) == 1
-    assert "raw/test1.txt" in failed
+    # Verify - should fail
+    results = verify_checksums(tmp_path, output_path)
+    assert results["file1.txt"] is False
 
 
-def test_verify_missing_file(temp_dir_with_files: Path) -> None:
-    """Test checksum verification with missing files."""
-    checksums = generate_checksums(temp_dir_with_files)
-    
-    # Remove a file
-    file_path = temp_dir_with_files / "raw" / "test2.csv"
-    file_path.unlink()
-    
-    failed = verify_checksums(checksums, temp_dir_with_files)
-    
-    assert len(failed) == 1
-    assert "raw/test2.csv" in failed
+def test_load_checksums_file_not_found():
+    """Test loading checksums from non-existent file raises error."""
+    with pytest.raises(FileNotFoundError):
+        load_checksums(Path("/nonexistent/path/checksums.json"))

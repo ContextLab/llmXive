@@ -7,144 +7,153 @@ from typing import Dict, List, Optional
 from config import DATA_DIR
 
 
-def compute_sha256(file_path: Path) -> str:
+def compute_sha256(file_path: str) -> str:
     """Compute SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
+        # Read in chunks to handle large files
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
 
-def generate_checksums(directory: Path, recursive: bool = True) -> Dict[str, str]:
+def generate_checksums(data_dir: Optional[Path] = None) -> Dict[str, str]:
     """
-    Generate checksums for all files in a directory.
+    Generate checksums for all files in the data directory.
     
     Args:
-        directory: Path to the directory to scan
-        recursive: If True, scan subdirectories as well
+        data_dir: Path to data directory. Defaults to DATA_DIR from config.
         
     Returns:
-        Dictionary mapping relative file paths to their SHA256 checksums
+        Dictionary mapping relative file paths to their SHA256 checksums.
     """
+    if data_dir is None:
+        data_dir = DATA_DIR
+        
     checksums = {}
     
-    if recursive:
-        files = list(directory.rglob("*"))
-    else:
-        files = list(directory.iterdir())
-    
-    for file_path in files:
-        if file_path.is_file():
-            rel_path = file_path.relative_to(directory)
-            checksums[str(rel_path)] = compute_sha256(file_path)
-    
+    for root, _, files in os.walk(data_dir):
+        for file in files:
+            file_path = Path(root) / file
+            relative_path = file_path.relative_to(data_dir)
+            checksums[str(relative_path)] = compute_sha256(str(file_path))
+            
     return checksums
 
 
-def save_checksums(checksums: Dict[str, str], output_path: Path) -> None:
-    """Save checksums to a JSON file."""
+def save_checksums(checksums: Dict[str, str], output_path: Optional[Path] = None) -> None:
+    """
+    Save checksums to a JSON file.
+    
+    Args:
+        checksums: Dictionary of checksums to save.
+        output_path: Path to output file. Defaults to data/artifacts/checksums.json.
+    """
+    if output_path is None:
+        output_path = DATA_DIR / "artifacts" / "checksums.json"
+        
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
     with open(output_path, "w") as f:
         json.dump(checksums, f, indent=2)
 
 
-def load_checksums(input_path: Path) -> Dict[str, str]:
-    """Load checksums from a JSON file."""
+def load_checksums(input_path: Optional[Path] = None) -> Dict[str, str]:
+    """
+    Load checksums from a JSON file.
+    
+    Args:
+        input_path: Path to input file. Defaults to data/artifacts/checksums.json.
+        
+    Returns:
+        Dictionary of loaded checksums.
+        
+    Raises:
+        FileNotFoundError: If the checksum file does not exist.
+        json.JSONDecodeError: If the file is not valid JSON.
+    """
+    if input_path is None:
+        input_path = DATA_DIR / "artifacts" / "checksums.json"
+        
+    if not input_path.exists():
+        raise FileNotFoundError(f"Checksum file not found: {input_path}")
+        
     with open(input_path, "r") as f:
         return json.load(f)
 
 
-def verify_checksums(checksums: Dict[str, str], directory: Path) -> List[str]:
+def verify_checksums(data_dir: Optional[Path] = None, 
+                    checksums_path: Optional[Path] = None) -> Dict[str, bool]:
     """
-    Verify files against stored checksums.
+    Verify all files against stored checksums.
     
     Args:
-        checksums: Dictionary of expected checksums
-        directory: Base directory where files are located
+        data_dir: Path to data directory. Defaults to DATA_DIR from config.
+        checksums_path: Path to checksums file. Defaults to data/artifacts/checksums.json.
         
     Returns:
-        List of relative paths for files that failed verification
+        Dictionary mapping file paths to verification status (True = valid).
     """
-    failed = []
+    if data_dir is None:
+        data_dir = DATA_DIR
+    if checksums_path is None:
+        checksums_path = DATA_DIR / "artifacts" / "checksums.json"
+        
+    stored_checksums = load_checksums(checksums_path)
+    verification_results = {}
     
-    for rel_path, expected_checksum in checksums.items():
-        file_path = directory / rel_path
+    for relative_path, expected_checksum in stored_checksums.items():
+        file_path = data_dir / relative_path
         
         if not file_path.exists():
-            failed.append(rel_path)
+            verification_results[relative_path] = False
             continue
+            
+        actual_checksum = compute_sha256(str(file_path))
+        verification_results[relative_path] = (actual_checksum == expected_checksum)
         
-        actual_checksum = compute_sha256(file_path)
-        
-        if actual_checksum != expected_checksum:
-            failed.append(rel_path)
-    
-    return failed
+    return verification_results
 
 
 def main() -> None:
-    """Main entry point for checksum operations."""
-    import sys
-    import argparse
+    """
+    Main function to generate and save checksums for the data directory.
+    This is the entry point for the checksum generation script.
+    """
+    print(f"Generating checksums for data directory: {DATA_DIR}")
     
-    parser = argparse.ArgumentParser(description="Manage checksums for data files")
-    parser.add_argument(
-        "command",
-        choices=["generate", "verify"],
-        help="Command to execute: generate or verify"
-    )
-    parser.add_argument(
-        "--directory",
-        type=str,
-        default=str(DATA_DIR),
-        help="Directory to process (default: data/)"
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        default=str(DATA_DIR / "checksums.json"),
-        help="Output path for checksums file (for generate command)"
-    )
-    parser.add_argument(
-        "--input",
-        type=str,
-        default=str(DATA_DIR / "checksums.json"),
-        help="Input path for checksums file (for verify command)"
-    )
+    # Ensure artifacts directory exists
+    artifacts_dir = DATA_DIR / "artifacts"
+    artifacts_dir.mkdir(parents=True, exist_ok=True)
     
-    args = parser.parse_args()
+    # Generate checksums
+    checksums = generate_checksums(DATA_DIR)
     
-    directory = Path(args.directory)
-    
-    if not directory.exists():
-        print(f"Error: Directory {directory} does not exist")
-        sys.exit(1)
-    
-    if args.command == "generate":
-        print(f"Generating checksums for {directory}...")
-        checksums = generate_checksums(directory)
-        output_path = Path(args.output)
-        save_checksums(checksums, output_path)
-        print(f"Saved {len(checksums)} checksums to {output_path}")
+    if not checksums:
+        print("No files found in data directory to checksum.")
+        return
         
-    elif args.command == "verify":
-        input_path = Path(args.input)
+    print(f"Generated checksums for {len(checksums)} files:")
+    for path, checksum in checksums.items():
+        print(f"  {path}: {checksum[:16]}...")
         
-        if not input_path.exists():
-            print(f"Error: Checksum file {input_path} does not exist")
-            sys.exit(1)
-        
-        print(f"Verifying checksums from {input_path}...")
-        checksums = load_checksums(input_path)
-        failed = verify_checksums(checksums, directory)
-        
-        if failed:
-            print(f"Verification FAILED for {len(failed)} file(s):")
-            for path in failed:
-                print(f"  - {path}")
-            sys.exit(1)
-        else:
-            print(f"Verification PASSED for all {len(checksums)} file(s)")
+    # Save checksums
+    output_path = DATA_DIR / "artifacts" / "checksums.json"
+    save_checksums(checksums, output_path)
+    print(f"\nChecksums saved to: {output_path}")
+    
+    # Verify checksums immediately after saving
+    print("\nVerifying checksums...")
+    verification_results = verify_checksums(DATA_DIR, output_path)
+    
+    all_valid = all(verification_results.values())
+    if all_valid:
+        print("All files verified successfully!")
+    else:
+        failed_files = [path for path, valid in verification_results.items() if not valid]
+        print(f"Verification failed for {len(failed_files)} files:")
+        for path in failed_files:
+            print(f"  - {path}")
 
 
 if __name__ == "__main__":

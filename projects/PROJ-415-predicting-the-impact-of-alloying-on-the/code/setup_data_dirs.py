@@ -3,53 +3,103 @@ import sys
 from pathlib import Path
 from typing import List
 
-from config import DATA_DIR, PROJECT_ROOT, LOG_DIR, ERRORS_DIR
+from config import DATA_DIR, PROJECT_ROOT, LOG_DIR, ERRORS_DIR, MODELS_DIR, REPORTS_DIR
+from utils.logging import get_logger
 
 
 def create_directories() -> None:
-    """Create the required data directory structure."""
-    # Main data directories
-    data_dirs = [
-        DATA_DIR,
+    """
+    Create the required directory structure for the project.
+    
+    Creates:
+    - data/raw/
+    - data/curated/
+    - data/artifacts/
+    - data/logs/
+    - errors/
+    - models/
+    - reports/
+    """
+    logger = get_logger(__name__)
+    
+    # Define all directories to create
+    directories: List[Path] = [
         DATA_DIR / "raw",
         DATA_DIR / "curated",
         DATA_DIR / "artifacts",
-    ]
-    
-    # Additional required directories
-    other_dirs = [
-        LOG_DIR,
+        DATA_DIR / "logs",
         ERRORS_DIR,
+        MODELS_DIR,
+        REPORTS_DIR,
+        LOG_DIR,
     ]
     
-    all_dirs: List[Path] = data_dirs + other_dirs
+    created_count = 0
+    for directory in directories:
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {directory}")
+            created_count += 1
+        else:
+            logger.debug(f"Directory already exists: {directory}")
     
-    for dir_path in all_dirs:
-        dir_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {dir_path}")
+    logger.info(f"Directory setup complete. Created {created_count} new directories.")
 
 
 def create_init_files() -> None:
-    """Create __init__.py files in data directories to make them Python packages."""
-    init_dirs = [
-        DATA_DIR,
-        DATA_DIR / "raw",
-        DATA_DIR / "curated",
-        DATA_DIR / "artifacts",
+    """
+    Create __init__.py files in all Python package directories.
+    This ensures they are recognized as Python packages.
+    """
+    logger = get_logger(__name__)
+    
+    # Define directories that should be Python packages
+    package_dirs: List[Path] = [
+        PROJECT_ROOT / "code",
+        PROJECT_ROOT / "code" / "data",
+        PROJECT_ROOT / "code" / "utils",
+        PROJECT_ROOT / "code" / "models",
+        PROJECT_ROOT / "code" / "validation",
+        PROJECT_ROOT / "tests",
+        PROJECT_ROOT / "tests" / "contract",
+        PROJECT_ROOT / "tests" / "unit",
+        PROJECT_ROOT / "tests" / "integration",
     ]
     
-    for dir_path in init_dirs:
-        init_file = dir_path / "__init__.py"
-        init_file.touch(exist_ok=True)
-        print(f"Created __init__.py in {dir_path}")
+    for package_dir in package_dirs:
+        init_file = package_dir / "__init__.py"
+        if not init_file.exists():
+            init_file.touch()
+            logger.info(f"Created __init__.py in: {package_dir}")
 
 
 def main() -> None:
-    """Main entry point for data directory setup."""
-    print("Setting up data directory structure...")
+    """
+    Main function to set up the project directory structure.
+    This is the entry point for the setup script.
+    """
+    logger = get_logger(__name__)
+    logger.info("Starting project directory setup...")
+    
+    # Create directory structure
     create_directories()
+    
+    # Create __init__.py files
     create_init_files()
-    print("Data directory setup complete.")
+    
+    logger.info("Project directory setup completed successfully.")
+    
+    # Print summary of created directories
+    print("\nProject structure summary:")
+    print(f"  DATA_DIR: {DATA_DIR}")
+    print(f"    - raw/")
+    print(f"    - curated/")
+    print(f"    - artifacts/")
+    print(f"    - logs/")
+    print(f"  ERRORS_DIR: {ERRORS_DIR}")
+    print(f"  MODELS_DIR: {MODELS_DIR}")
+    print(f"  REPORTS_DIR: {REPORTS_DIR}")
+    print(f"  LOG_DIR: {LOG_DIR}")
 
 
 if __name__ == "__main__":

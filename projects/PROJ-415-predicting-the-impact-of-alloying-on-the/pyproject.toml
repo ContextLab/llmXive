@@ -6,7 +6,6 @@ build-backend = "setuptools.build_meta"
 name = "llmxive-alloy-diffusion"
 version = "0.1.0"
 description = "Predicting the Impact of Alloying on the Diffusion Activation Energy in FCC Metals"
-readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "pandas",
@@ -16,85 +15,66 @@ dependencies = [
     "requests",
     "pymatgen",
     "pytest",
-]
-
-[project.optional-dependencies]
-dev = [
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-    "pre-commit>=3.0.0",
+    "ruff",
+    "black"
 ]
 
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
 [tool.ruff]
 # Same as Black.
-line-length = 100
+line-length = 88
 target-version = "py311"
-
-# Assume this is a Python 3.11+ project.
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-]
-ignore = [
-    "E501", # line too long (black handles this)
-    "B008", # do not perform function calls in argument defaults (common in ML)
-    "C901", # too complex (allowing for initial implementation)
-]
-
-# Allow autofix for all enabled rules (when `--fix` is provided).
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude a few specific directories.
 exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
     ".git",
     ".hg",
     ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".ruff_cache",
-    ".svn",
     ".tox",
     ".venv",
-    "__pypackages__",
     "_build",
     "buck-out",
     "build",
     "dist",
-    "node_modules",
-    "venv",
+    "data",
+    "models",
+    "reports"
 ]
 
-# Per-rule configuration.
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in data loading)
+]
+
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 
-[tool.ruff.isort]
-known-first-party = ["config", "data", "utils", "models", "validation"]
-known-third-party = ["pandas", "numpy", "sklearn", "scipy", "requests", "pymatgen", "pytest"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

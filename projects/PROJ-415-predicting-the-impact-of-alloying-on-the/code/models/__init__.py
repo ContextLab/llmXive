@@ -1,1 +1,3 @@
-# Models module initialization
+"""
+Model training, inference, and evaluation utilities.
+"""

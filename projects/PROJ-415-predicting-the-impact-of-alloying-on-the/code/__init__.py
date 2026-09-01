@@ -1,1 +1,1 @@
-# Code package initialization
+# code package

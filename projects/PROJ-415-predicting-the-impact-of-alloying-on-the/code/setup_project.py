@@ -3,73 +3,70 @@ import sys
 from pathlib import Path
 from typing import List
 from config import DATA_DIR, PROJECT_ROOT, LOG_DIR, ERRORS_DIR, MODELS_DIR, REPORTS_DIR
+from utils.logging import get_logger
 
-def create_directories() -> List[Path]:
+logger = get_logger(__name__)
+
+def create_directories() -> None:
     """
-    Create the required project directory structure.
-    Returns a list of created directory paths.
+    Create the core project directory structure:
+    code/, tests/, data/, models/, reports/
+    plus subdirectories for data (raw, curated, artifacts, logs) and errors.
     """
-    dirs_to_create: List[Path] = [
+    # Core directories
+    dirs: List[Path] = [
         PROJECT_ROOT / "code",
         PROJECT_ROOT / "tests",
-        PROJECT_ROOT / "data",
-        PROJECT_ROOT / "data" / "raw",
-        PROJECT_ROOT / "data" / "curated",
-        PROJECT_ROOT / "data" / "artifacts",
-        PROJECT_ROOT / "data" / "logs",
-        PROJECT_ROOT / "models",
-        PROJECT_ROOT / "reports",
-        PROJECT_ROOT / "errors",
-        PROJECT_ROOT / "contracts",
-        PROJECT_ROOT / "figures",
+        DATA_DIR,
+        MODELS_DIR,
+        REPORTS_DIR,
+        ERRORS_DIR,
+        LOG_DIR,
+        # Data subdirectories
+        DATA_DIR / "raw",
+        DATA_DIR / "curated",
+        DATA_DIR / "artifacts",
+        DATA_DIR / "logs",
     ]
 
-    created: List[Path] = []
-    for dir_path in dirs_to_create:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            created.append(dir_path)
-        elif dir_path.is_dir():
-            created.append(dir_path)
+    for d in dirs:
+        if not d.exists():
+            d.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {d}")
         else:
-            raise FileExistsError(f"Path exists but is not a directory: {dir_path}")
-
-    return created
+            logger.debug(f"Directory already exists: {d}")
 
 def create_init_files() -> None:
     """
-    Create empty __init__.py files in code/ and tests/ to make them packages.
+    Create __init__.py files in the new directories to make them packages.
     """
-    init_paths = [
+    init_paths: List[Path] = [
         PROJECT_ROOT / "code" / "__init__.py",
-        PROJECT_ROOT / "code" / "data" / "__init__.py",
-        PROJECT_ROOT / "code" / "utils" / "__init__.py",
-        PROJECT_ROOT / "code" / "models" / "__init__.py",
-        PROJECT_ROOT / "code" / "validation" / "__init__.py",
         PROJECT_ROOT / "tests" / "__init__.py",
-        PROJECT_ROOT / "tests" / "unit" / "__init__.py",
-        PROJECT_ROOT / "tests" / "contract" / "__init__.py",
-        PROJECT_ROOT / "tests" / "integration" / "__init__.py",
+        DATA_DIR / "__init__.py",
+        MODELS_DIR / "__init__.py",
+        REPORTS_DIR / "__init__.py",
+        ERRORS_DIR / "__init__.py",
+        LOG_DIR / "__init__.py",
+        DATA_DIR / "raw" / "__init__.py",
+        DATA_DIR / "curated" / "__init__.py",
+        DATA_DIR / "artifacts" / "__init__.py",
+        DATA_DIR / "logs" / "__init__.py",
     ]
 
-    for init_path in init_paths:
-        init_path.parent.mkdir(parents=True, exist_ok=True)
-        if not init_path.exists():
-            init_path.touch()
+    for p in init_paths:
+        if not p.exists():
+            p.touch()
+            logger.debug(f"Created __init__.py: {p}")
 
 def main() -> None:
     """
-    Main entry point to set up the project structure.
+    Entry point to set up the project structure.
     """
-    print("Initializing project structure...")
-    created_dirs = create_directories()
-    print(f"Created/Verified directories: {len(created_dirs)}")
-    for d in created_dirs:
-        print(f"  - {d}")
-
+    logger.info("Starting project structure setup...")
+    create_directories()
     create_init_files()
-    print("Created __init__.py files.")
-    print("Project structure setup complete.")
+    logger.info("Project structure setup complete.")
 
 if __name__ == "__main__":
     main()

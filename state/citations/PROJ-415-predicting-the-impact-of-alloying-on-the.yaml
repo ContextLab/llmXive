@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 37655c2642bf3eda0f87687f3b488d342383c0e8f1f534b94f7404393b8eb312
+  artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://materialsproject.org/...`
+  verification_status: pending
+  verified_against_url: https://next-gen.materialsproject.org/
+  verified_at: '2026-09-01T02:10:31.589410Z'

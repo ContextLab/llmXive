@@ -5,9 +5,8 @@ Validates the fetched data against the YAML schema definition.
 import pytest
 import yaml
 import csv
-import json
 from pathlib import Path
-from typing import Dict, Any, List, Set
+from typing import Dict, Any, Set
 
 # Paths
 TEST_DATA_PATH = Path("data/raw/fetched_diffusion.csv")
@@ -23,7 +22,7 @@ def load_schema() -> Dict[str, Any]:
 def validate_row(row: Dict[str, str], schema: Dict[str, Any], row_idx: int) -> None:
     """Validate a single row against the schema."""
     properties = schema.get("properties", {})
-    required = schema.get("required", [])
+    required = set(schema.get("required", []))
     
     # Check required fields
     missing_fields = required - set(row.keys())
