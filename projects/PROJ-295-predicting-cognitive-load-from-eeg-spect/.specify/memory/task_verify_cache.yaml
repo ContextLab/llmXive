@@ -1,0 +1,7 @@
+T036:
+  c: false
+  h: c250853258aa1e08189c04deaf7fbe5686df6d82a1e9e11a6102617eb3b22482
+  r: The `verify_data_integrity.py` script is present but its code is truncated (e.g.,
+    the `verify_checksum` function ends abruptly) and thus not functional, and the
+    required `manifest.yaml` file is missing, so the script cannot actually verify
+    file existence or checksums as specified.

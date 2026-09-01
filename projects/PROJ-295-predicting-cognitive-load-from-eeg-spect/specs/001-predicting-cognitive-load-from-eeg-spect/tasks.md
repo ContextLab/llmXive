@@ -39,23 +39,13 @@
  ============================================================================
 -->
 
-## Phase 0: Data Verification & Power Analysis
-
-**Purpose**: Verify dataset integrity and statistical power before implementation begins.
-
-- [ ] T000 [P] [US1] Implement `code/data/verify_dataset.py` to fetch `ds000246` (or `ds003465`) and verify the presence of `gaze.tsv`. **HALT** with `FileNotFoundError` and a clear message if gaze data is missing, flagging the spec for update. **Output**: `results/verification_report.json` containing `status`, `message`, and `n_channels` (derived from dataset metadata). (Plan Phase 0, Step 1).
-- [ ] T001 [US1] Implement `code/data/power_analysis.py` to calculate minimum N required for R²=0.2 with `n_channels * 2` predictors **derived from `results/verification_report.json` (T000 output)**. **HALT** if actual_n < calculated_min_n, flagging study as underpowered. **Output**: `results/power_analysis_report.json`. **Must run after T000**. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.** (Plan Phase 0, Step 2).
-- [ ] T002 [US1] Implement `code/data/memory_check.py` to verify chunked loading logic with a subset, ensuring peak memory usage stays within acceptable operational limits. **Output**: `results/memory_check_report.json`. **Must run after T008** (Foundational Phase). (Plan Phase 0, Step 3).
-
----
-
-## Phase 1: Setup (Shared Infrastructure)
+## Phase 0: Project Initialization
 
 **Purpose**: Project initialization and basic structure
 
 - [X] T003 [P] Create project structure per implementation plan: `mkdir -p code/data code/features code/models tests/unit tests/integration data/raw data/processed results`.
 
-- [X] T004 [P] Update `state/` YAML with checksums and `updated_at` timestamp for the new project structure. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
+- [X] T004 [P] Update `state/` YAML with checksums and `updated_at` timestamp for the new project structure. **Delegated to T043.**
 
 - [X] T005 [P] Initialize Python 3.11 project with pinned dependencies (`mne`, `scikit-learn`, `pandas`, `numpy`, `pyarrow`, `requests`) in `requirements.txt`
 
@@ -63,27 +53,37 @@
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. Includes Data Verification & Power Analysis (formerly Phase 0) to ensure data availability.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T007 [P] Implement `code/config.py` to load `pipeline_config.yaml` and environment variables.
 
-- [X] T008 [P] Implement `code/data/loader.py` with chunked loading logic (by `epoch_id`) to ensure memory safety (≤ 6.5 GB).
+- [X] T008 [P] Implement `code/data/loader.py` with chunked loading logic (by `epoch_id`) to ensure memory safety (≤ 6.5 GB). **Logic must be triggered when estimated memory usage > 6.5 GB. Do NOT use streaming API.**
 
-- [X] T009 [US1] Implement `code/data/generate_manifest.py` to produce `data/manifest.yaml` containing fields: `url`, `version`, `checksum_sha256` (computed via SHA-256 of the downloaded tarball). **Must run after T010**. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
+- [X] T009 [US1] Implement `code/data/generate_manifest.py` to produce `data/manifest.yaml` containing fields: `url`, `version`, `checksum_sha256` (computed via SHA-256 of the downloaded tarball). **Must run after T010**.
 
-- [X] T010 [P] Implement `code/data/download.py` with a strict verification gate: fetch the primary dataset, check for `gaze.tsv`; if missing, raise a `FileNotFoundError` with a clear message and flag spec for the fallback dataset. **Do NOT implement automatic fallback**. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
+- [X] T010 [P] Implement `code/data/download.py` with a strict verification gate: fetch the primary dataset, check for `gaze.tsv`; if missing, raise a `FileNotFoundError` with a clear message and flag spec for the fallback dataset. **Do NOT implement automatic fallback**.
 
-- [X] T011 [P] Create `pipeline_config.yaml` with default signal processing parameters (–45 Hz bandpass, Hz downsampling, ICA settings).
+- [X] T011 [P] Create `pipeline_config.yaml` with default signal processing parameters (–45 Hz bandpass, Hz downsampling, ICA settings, `line_noise_freq` as 50 or 60).
+
+- [X] T036 [P] [Polish] Implement `code/utils/verify_data_integrity.py` to run pre-flight checks on `data/raw` ensuring all required files (EEG, gaze.tsv) exist and match checksums in `manifest.yaml` (T009) before any heavy processing begins. **Must run after T009**.
+
+- [X] T000 [P] [US1] Implement `code/data/verify_dataset.py` to fetch `ds` (or `ds003465`) and verify the presence of `gaze.tsv`. **HALT** with `FileNotFoundError` and a clear message if gaze data is missing, flagging the spec for update. **Output**: `results/verification_report.json` containing `status`, `message`, and `n_channels` (derived from dataset metadata). **Must run first in data flow**.
+
+- [X] T001 [US1] Implement `code/data/power_analysis.py` to calculate minimum N required for R²=0.2 with `n_channels * 2` predictors **derived from `results/verification_report.json` (T000 output)**. **Use alpha=0.05, power=0.8**. **HALT with `sys.exit(1)` and print error to stderr** if actual_n < calculated_min_n, flagging study as underpowered and preventing any further pipeline execution. **Output**: `results/power_analysis_report.json` (only if N is sufficient). **Must run after T036**.
+
+- [X] T002 [US1] Implement `code/data/memory_check.py` to verify chunked loading logic with a **representative sample of the actual dataset (a subset of subjects from ds000246)**, ensuring peak memory usage stays within acceptable operational limits (≤ 6.5 GB). **Output**: `results/memory_check_report.json`. **Must run after T008 and T036**.
+
+- [X] T042 [P] [US1] Implement `code/utils/runtime_profiler.py` to profile pipeline execution time and enforce the 6-hour runtime limit (SC-002). **Must log estimated runtime and HALT execution if actual execution time exceeds 6 hours**. **Output**: `results/runtime_profile.json` (mandatory for final report).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
-## Phase 3: User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1) 🎯 MVP
+## Phase 2: User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1) 🎯 MVP
 
 **Goal**: Download, clean, and prepare the OpenNeuro EEG dataset, ensuring artifact-free data aligned with behavioral logs within memory constraints.
 
@@ -99,15 +99,15 @@
 
 ### Implementation for User Story 1
 
-- [X] T015 [US1] Implement `code/data/preprocess_filter.py` to apply a Butterworth bandpass filter (high-pass at a low frequency, 45 Hz low-pass) and a notch filter at line frequency. **Read filter parameters from `pipeline_config.yaml`**. **Must run after T010**. (Plan Phase 1, Step 2).
+- [X] T015 [US1] Implement `code/data/preprocess_filter.py` to apply a Butterworth bandpass filter (high-pass at a low frequency, A low-pass filter with a frequency in the high-range audible spectrum.) and a notch filter at `line_noise_freq`. **Read filter parameters from `pipeline_config.yaml`**. **Validate that `line_noise_freq` is defined in `pipeline_config.yaml`; raise ValueError if missing**. **Check for `metadata_grid_frequency` in dataset metadata; if present, override `line_noise_freq` with this value to match local grid frequency**. **Must run after T010**. (Plan Phase 1, Step 2).
 - [X] T016 [US1] Implement `code/data/preprocess_ica.py` to apply ICA for eye-blink artifact removal and retain only clean components. **Must run after T015**. (Plan Phase 1, Step 3).
-- [X] T017 [US1] Implement `code/data/preprocess_epoch.py` to segment data into epochs aligned with behavioral events, exclude subjects with > 50% rejected epochs, calculate epoch retention rate, and **HALT execution if < 70%**. **Must run after T016**. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.** (Plan Phase 1, Step 5).
+- [X] T017 [US1] Implement `code/data/preprocess_epoch.py` to segment data into epochs aligned with behavioral events, exclude subjects with > 50% rejected epochs, calculate epoch retention rate, and **HALT execution if < 70%**. **Must run after T016**. (Plan Phase 1, Step 5).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
 
-## Phase 4: User Story 2 - Feature Extraction and Label Generation (Priority: P2)
+## Phase 3: User Story 2 - Feature Extraction and Label Generation (Priority: P2)
 
 **Goal**: Compute spectral power features (theta/alpha) and generate continuous cognitive load labels from gaze variance.
 
@@ -123,15 +123,15 @@
 
 ### Implementation for User Story 2
 
-- [X] T021 [US2] Implement `code/features/extract.py` to compute PSD using Welch's method (FR-003) with built-in **chunked loading logic** to ensure memory safety during PSD computation on the full dataset (SC-002). The module must extract mean power for theta and alpha bands per channel, handle division-by-zero using `EPSILON = 1e-9` (Edge Case) when calculating ratios, and flag epochs with > 5% missing sensor data for exclusion. **Must run after T017**. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
+- [X] T021 [US2] Implement `code/features/extract.py` to compute PSD using Welch's method (FR-003) with built-in **chunked loading logic** to ensure memory safety during PSD computation on the full dataset (SC-002). The module must extract mean power for theta and alpha bands per channel, handle division-by-zero using **`EPSILON = 1e-9` defined as a global constant in `code/features/extract.py`** (Edge Case) when calculating ratios, and flag epochs with > 5% missing sensor data for exclusion. **Must run after T017**.
 
-- [X] T022 [US2] Implement `code/features/labels.py` to derive continuous cognitive load score from gaze variance per epoch (FR-004), normalize labels via min-max scaling per subject (FR-004), identify and exclude epochs with > 5% missing sensor data (FR-003), and explicitly measure and report the stability and non-zero nature of extracted power values across subjects (SC-005). **Must run after T017 and T021**. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
+- [X] T022 [US2] Implement `code/features/labels.py` to derive continuous cognitive load score from gaze variance per epoch (FR-004), normalize labels via min-max scaling per subject (FR-004), and identify and exclude epochs with > 5% missing sensor data (FR-003). **Must run after T017 and T021**.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 5: User Story 3 - Model Training and Statistical Validation (Priority: P3)
+## Phase 4: User Story 3 - Model Training and Statistical Validation (Priority: P3)
 
 **Goal**: Train a Ridge Regression model, validate performance against baseline, and apply statistical corrections.
 
@@ -147,15 +147,19 @@
 
 ### Implementation for User Story 3
 
-- [X] T026 [US3] Implement `code/models/split.py` to perform a subject-wise split of subjects into train/test sets ensuring no subject overlap, dynamically calculate the split size, and save a **split manifest file**. **Must run after T022**. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
+- [X] T026 [US3] Implement `code/models/split.py` to perform a subject-wise split of subjects into train/test sets ensuring no subject overlap, dynamically calculate the split size, and save a **split manifest file**. **Must run after T022**.
 
-- [X] T027 [US3] Implement `code/models/evaluate.py` to perform **Channel Importance Analysis**: (1) Compute Pearson correlation per channel/band, (2) Apply Bonferroni correction (FR-007), (3) Generate a unified `results/channel_importance.json` report. **Must run after T026**. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
+- [X] T028 [US3] Implement `code/models/train.py` to train Ridge Regression model with subject-wise k-fold CV, tune alpha, and evaluate on held-out test set (FR-005, FR-006). **Must load the subject-wise split manifest generated by T026 and use it for the training split**. **Must run after T026**.
 
-- [X] T028 [US3] Implement `code/models/train.py` to train Ridge Regression model with subject-wise k-fold CV, tune alpha, and evaluate on held-out test set (FR-005, FR-006). **Must run after T026**. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
+- [X] T027 [US3] Implement `code/models/evaluate.py` to perform **Channel Importance Analysis**: (1) Compute Pearson correlation per channel/band using the feature matrix and labels from T021/T022, (2) Apply Bonferroni correction to the **combined set of all channel-band tests (channels × bands)** AND **raw p-values from T029 (sensitivity) and T038 (permutation test)** to control family-wise error rate (FR-007), (3) Generate a unified `results/channel_importance.json` report with schema: `[{ "channel": str, "band": str, "correlation": float, "p_value": float, "p_value_corrected": float }]`. **Must load the subject-wise split manifest generated by T026**. **Must run after T026, T029, T038**.
 
-- [X] T029 [US3] Implement `code/models/sensitivity.py` to perform sensitivity analysis (FR-008): **Iterate through a defined list of gaze variance window sizes**, **re-calculate labels** for each window, **re-execute the full training pipeline (T028 logic)** for each iteration, and store comparative R² results in `results/sensitivity_report.csv`. **Must run after T028**. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
+- [X] T029 [US3] Implement `code/models/sensitivity.py` to perform sensitivity analysis (FR-008): **Validate that `window_sizes` key exists in `pipeline_config.yaml` as a list of integers**; **Iterate through the list of gaze variance window sizes**, **re-calculate labels by importing and reusing the label generation function from `code/features/labels.py` (T022)** for each iteration, **re-train and re-evaluate the model** for each window size by calling the training logic from `code/models/train.py` (T028), and store comparative R² results and **raw p-values for each window size** in `results/sensitivity_report.csv` and `results/sensitivity_p_values.json`. **Must run after T022, T028**.
 
-- [X] T030 [US3] Implement `code/main.py` to orchestrate the full pipeline: Data -> Features -> Model -> Report. **Must specify CLI arguments (`--data-dir`, `--output-dir`), expected output paths, and verify `main.py` runs end-to-end producing `results/model_metrics.json`.** **Must run after T029**. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
+- [X] T038 [US3] Implement `code/models/permutation_test.py` to perform a rigorous permutation test (shuffling labels) to derive a p-value for the global R², ensuring the model outperforms a random baseline. **Must run after T028**. **Must output `results/permutation_test.json` with null distribution stats and **raw p-value****.
+
+- [X] T041 [US3] Implement `code/models/baseline.py` to implement the mean-baseline predictor comparison logic (FR-006). **Must run after T028**. **Must load the training set labels from the split manifest generated by T026** to calculate the mean on the correct data split. **Output**: `results/baseline_comparison.json` with R² and RMSE for mean-baseline vs Ridge model.
+
+- [X] T030 [US3] Implement `code/main.py` to orchestrate the full pipeline: Data -> Features -> Model -> Report. **Must specify CLI arguments (`--data-dir`, `--output-dir`), expected output paths, and verify `main.py` runs end-to-end producing `results/model_metrics.json` (exit code 0 and existence of required output files)**. **Must merge outputs from T028, T038, T041, and T042 into a single `results/model_metrics.json` file**. **Must run after T029, T038, T041**.
 
 **Checkpoint**: At this point, User Story 3 should be fully functional and testable independently
 
@@ -165,12 +169,15 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T031 [P] [Polish] Update `README.md` with installation steps and `quickstart.md` with the exact command `python code/main.py --data-dir data/processed --output-dir results`.
-- [ ] T032 Code cleanup and refactoring of `code/` directory
-- [ ] T033 Performance optimization for chunked loading and ICA processing
-- [ ] T034 [P] Run quickstart.md validation to ensure end-to-end reproducibility
-- [ ] T035 [P] [Polish] Implement `code/features/stimulus_control.py` to regress out stimulus complexity metrics (if available in metadata) or explicitly flag this as a limitation in the final report (Plan Phase 3).
-- [ ] T036 [P] [Polish] Add a dedicated script `code/utils/verify_data_integrity.py` to run pre-flight checks on `data/raw` ensuring all required files (EEG, gaze.tsv) exist and match checksums in `manifest.yaml` before any heavy processing begins (Plan Phase 0).
+- [X] T031 [P] [Polish] Update `README.md` with installation steps and `quickstart.md` with the exact command `python code/main.py --data-dir data/processed --output-dir results`.
+- [X] T032 [P] [Polish] Refactor `code/data/loader.py` to reduce cyclomatic complexity < 10 **if cyclomatic complexity > 10** and improve readability.
+- [X] T033 [P] [Polish] Optimize `code/data/preprocess_ica.py` to reduce peak memory usage by at least 10% **if peak memory > 6.0 GB** while maintaining accuracy.
+- [X] T034 [P] [Polish] Run quickstart.md validation to ensure end-to-end reproducibility.
+- [X] T035 [P] [Polish] Implement `code/features/stimulus_control.py` to regress out stimulus complexity metrics (if available in metadata) or explicitly flag this as a limitation in the final report (Plan Phase 3).
+
+- [X] T040 [P] [US2] Implement `code/features/validity.py` to explicitly check SC-005 (Measurement validity) by verifying that extracted theta/alpha power values are non-zero and stable across subjects, **calculating the coefficient of variation**, and to flag any subjects with anomalous power distributions for exclusion. **Must run after T021**. **Must write the quantitative stability metrics (CV) and status to `results/stability_report.json`**.
+
+- [X] T043 [P] [Polish] Implement `code/utils/update_state.py` to act as the single source of truth for state updates. **Must be invoked by the orchestrator (T030) or post-task hooks** to update `state/` YAML with checksums and `updated_at` timestamp upon any artifact change, as required by Constitution Principle V. **Delegates all state updates from other tasks**.
 
 ---
 
@@ -178,19 +185,18 @@
 
 ### Phase Dependencies
 
-- **Phase 0**: No dependencies - can start immediately
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
+- **Phase 0 (Init)**: No dependencies - can start immediately
+- **Phase 1 (Foundational)**: No dependencies - can start immediately. Includes all data verification tasks (T000, T001, T002, T036, T042) to ensure data availability before processing.
+- **User Stories (Phase 2+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on clean data from US1
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on features from US2 and data from US1
+- **User Story 1 (P1)**: Can start after Foundational (Phase 1) - No dependencies on other stories
+- **User Story 2 (P2)**: Can start after Foundational (Phase 1) - Depends on clean data from US1
+- **User Story 3 (P3)**: Can start after Foundational (Phase 1) - Depends on features from US2 and data from US1
 
 ### Within Each User Story
 
@@ -202,7 +208,7 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- All Foundational tasks marked [P] can run in parallel (within Phase 1)
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
@@ -229,16 +235,15 @@ Task: "Implement code/data/preprocess_epoch.py to segment data and check retenti
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 0: Data Verification
-2. Complete Phase 1: Setup
-3. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-4. Complete Phase 3: User Story 1
-5. **STOP and VALIDATE**: Test User Story 1 independently (verify ICA removal and memory limits)
-6. Deploy/demo if ready
+1. Complete Phase 0: Project Initialization
+2. Complete Phase 1: Foundational (CRITICAL - blocks all stories, includes Data Verification)
+3. Complete Phase 2: User Story 1
+4. **STOP and VALIDATE**: Test User Story 1 independently (verify ICA removal and memory limits)
+5. Deploy/demo if ready
 
 ### Incremental Delivery
 
-1. Complete Setup + Foundational → Foundation ready
+1. Complete Initialization + Foundational → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
@@ -248,7 +253,7 @@ Task: "Implement code/data/preprocess_epoch.py to segment data and check retenti
 
 With multiple developers:
 
-1. Team completes Setup + Foundational together
+1. Team completes Initialization + Foundational together
 2. Once Foundational is done:
  - Developer A: User Story 1 (Data Pipeline)
  - Developer B: User Story 2 (Features/Labels)
@@ -267,7 +272,12 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical**: Ensure `code/data/download.py` halts if `gaze.tsv` is missing (Spec Contradiction Check) or falls back to `ds003465`
-- **Critical**: Ensure all data loading uses chunking to stay within available memory constraints.
+- **Critical**: Ensure all data loading uses chunking to stay within available memory constraints (triggered at > 6.5 GB).
 - **Critical**: Ensure no GPU usage or deep learning models are introduced
-- **Constitution Principle V**: State updates are now integrated into T001, T004, T009, T010, T015, T016, T017, T021, T022, T026, T027, T028, T029, T030. No separate end-task for state updates.
-- **Revision Note**: T015, T016, T017 split from original T015 for granularity. T026, T027 merged for Channel Importance. T029 updated for explicit sensitivity loop. T000/T001 fixed for data flow.
+- **Constitution Principle V**: State updates are now handled exclusively by T043. All other tasks delegate state updates to T043.
+- **Revision Note**: T015, T016, T017 split from original T015 for granularity. T026, T027 merged for Channel Importance. T029 updated for explicit sensitivity loop. T000/T001 fixed for data flow. T036 moved to Phase 1 to break circular dependency. T002 moved to Phase 1 to ensure data availability. T000/T001 moved to Phase 1. T027/T028 order corrected. T032/T033 made specific. T042 added for runtime profiling. T041 added for mean-baseline. T043 added for state updates.
+- **Revision Concern T037**: Removed to avoid streaming API drift; T008 updated to enforce chunked loading.
+- **Revision Concern T038**: Added to address the requirement for a permutation baseline test (FR-006) which was previously only implied.
+- **Revision Concern T039**: Removed as scope creep; replaced with T040 for validity checks and T043 for state updates.
+- **Revision Concern T040**: Added to explicitly implement SC-005 validity checks as a separate, testable module.
+- **Dependency Fix**: T000 -> T010 -> T009 -> T036 -> T001. T009 no longer depends on T036. T027 no longer depends on T028. T029 explicitly calls T028 and T022. T030 merges all final metrics.
