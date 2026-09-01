@@ -9,7 +9,7 @@ This feature extends the "ResearchStudio-Idea" system to test the universality o
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
+**Language/Version**: Python 3
 **Primary Dependencies**: `sentence-transformers`, `transformers`, `scikit-learn`, `pandas`, `numpy`, `requests`, `pyyaml`, `statsmodels`, `prolific-api` (for recruitment logic)
 **Storage**: Local file system (`data/` for raw/processed JSON/CSV), GitHub Actions ephemeral storage
 **Testing**: `pytest` (unit tests for data parsing, statistical logic; integration tests for pipeline flow)

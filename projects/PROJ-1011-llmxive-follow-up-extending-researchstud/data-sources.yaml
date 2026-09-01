@@ -1,15 +1,39 @@
 # Data Sources Configuration for llmXive
-# Used by code/01_data_acquisition.py
+# This file defines the endpoints and parameters for data acquisition.
 
-# arXiv Configuration
-arxiv_category: "cs.LG" # Default to Machine Learning
-max_arxiv_results: 100
+sources:
+  arxiv_ml:
+    name: "arXiv Machine Learning"
+    type: "arxiv"
+    category: "cs.LG"
+    endpoint: "http://export.arxiv.org/api/query"
+    max_results: 1000
+    ratelimit: 3 # seconds between requests
+  
+  arxiv_qbio:
+    name: "arXiv Quantitative Biology"
+    type: "arxiv"
+    category: "q-bio.QM"
+    endpoint: "http://export.arxiv.org/api/query"
+    max_results: 500
+    ratelimit: 3
 
-# DOI Lists for Non-ML Domains
-# These files must contain one DOI per line
-nature_doi_list: "data/nature_dois.txt"
-health_affairs_doi_list: "data/health_affairs_dois.txt"
-
-# Fetch Parameters
-fetch_timeout_seconds: 30
-rate_limit_delay_seconds: 0.1
+  nature_climate:
+    name: "Nature Climate Change"
+    type: "doi"
+    dois:
+      - "10.1038/s41558-020-00900-0"
+      - "10.1038/s41558-021-01000-0"
+      - "10.1038/s41558-022-01200-0"
+    endpoint: "https://api.crossref.org/works"
+    ratelimit: 1
+  
+  health_affairs:
+    name: "Health Affairs"
+    type: "doi"
+    dois:
+      - "10.1377/hlthaff.2020.00001"
+      - "10.1377/hlthaff.2021.00001"
+      - "10.1377/hlthaff.2022.00001"
+    endpoint: "https://api.crossref.org/works"
+    ratelimit: 1
