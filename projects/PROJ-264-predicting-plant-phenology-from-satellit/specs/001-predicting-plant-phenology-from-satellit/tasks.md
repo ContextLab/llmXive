@@ -47,7 +47,7 @@
 - [X] T001b [P] Create `tests/` directory structure
 - [X] T001c [P] Create `data/raw/` and `data/processed/` directories
 - [X] T001d [P] Create `artifacts/` and `artifacts/models/` directories
-- [ ] T002 {{claim:c_1ed3d08c}} <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T002 {{claim:c_1ed3d08c}} <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -91,7 +91,7 @@
 - [X] T014 [US1] Implement interpolation logic in `src/data/preprocessing.py`: Linear interpolate if ≤1 consecutive 10-day gaps; exclude rows if >1 gap; flag and exclude sites with zero cloud-free observations in critical windows (FR-008, Edge Case)
 - [ ] T015 [US1] Implement logic to flag sites with <80% cloud-free coverage or zero observations in critical windows as "insufficient data" and exclude from training (Edge Case)
 - [ ] T016 [US1] Implement logic to handle missing phenology labels by masking rows during training rather than imputation (Edge Case)
-- [ ] T017 [US1] Implement `data/provenance.yaml` population with GEE endpoints, date ranges, processing_params, software_version, and checksums for all downloaded data, updating immediately after each T011-T013 step (Constitution Principle VI)
+- [X] T017 [US1] Implement `data/provenance.yaml` population with GEE endpoints, date ranges, processing_params, software_version, and checksums for all downloaded data, updating immediately after each T011-T013 step (Constitution Principle VI)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -105,8 +105,8 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for model artifact schema in `tests/contract/test_output_schema.py`
-- [ ] T019 [P] [US2] Integration test for Spatial Block Cross-Validation logic in `tests/integration/test_pipeline.py`
+- [X] T018 [P] [US2] Contract test for model artifact schema in `tests/contract/test_output_schema.py`
+- [X] T019 [P] [US2] Integration test for Spatial Block Cross-Validation logic in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 2
 

@@ -1,76 +1,86 @@
+"""
+Unit tests for the setup_structure module.
+Verifies that the code directory hierarchy is created correctly and is writable.
+"""
 import os
+import tempfile
 import pytest
 from pathlib import Path
-import tempfile
-import shutil
-
-# Import the function from the module
-# Note: In a real test environment, we'd ensure code/ is in sys.path
-# For this implementation, we assume the test runner handles path setup
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from setup_structure import setup_code_directories
+# Add the project root to the path to allow imports
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-class TestSetupCodeDirectories:
-    """Tests for the setup_code_directories function."""
+from code.setup_structure import setup_code_directories, REQUIRED_SUBDIRS
 
-    def test_creates_all_required_directories(self, tmp_path):
-        """Verify that all required subdirectories are created."""
-        result = setup_code_directories(tmp_path)
-        
-        assert result is True
-        
-        code_root = tmp_path / "code"
-        assert code_root.exists()
-        
-        required_dirs = ["dataset", "symbolic", "bes", "analysis", "utils"]
-        for subdir in required_dirs:
-            dir_path = code_root / subdir
-            assert dir_path.exists(), f"Directory {dir_path} was not created"
-            assert dir_path.is_dir(), f"{dir_path} is not a directory"
+def test_setup_creates_directories():
+    """Test that setup_code_directories creates all required subdirectories."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        base_path = Path(tmp_dir)
+        created_dirs = setup_code_directories(base_path)
 
-    def test_verifies_writability(self, tmp_path):
-        """Verify that the function checks for writability."""
-        # Create a read-only directory to simulate a failure
-        # (This is harder to test reliably across OS, so we focus on the happy path
-        # and the exception handling in the function itself)
-        result = setup_code_directories(tmp_path)
-        assert result is True
+        # Check that the code directory was created
+        code_dir = base_path / "code"
+        assert code_dir.exists(), "Base 'code' directory was not created"
+        assert code_dir.is_dir(), "'code' is not a directory"
+
+        # Check that all required subdirectories were created
+        for subdir_name in REQUIRED_SUBDIRS:
+            subdir_path = code_dir / subdir_name
+            assert subdir_path.exists(), f"Subdirectory '{subdir_name}' was not created"
+            assert subdir_path.is_dir(), f"'{subdir_name}' is not a directory"
+
+        # Check that the returned list matches the created directories
+        assert len(created_dirs) == len(REQUIRED_SUBDIRS)
+        for subdir_name in REQUIRED_SUBDIRS:
+            assert base_path / "code" / subdir_name in created_dirs
+
+def test_setup_verifies_writability():
+    """Test that setup_code_directories verifies writability of all directories."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        base_path = Path(tmp_dir)
         
-        # Attempt to write a file in each created directory
-        code_root = tmp_path / "code"
-        for subdir in ["dataset", "symbolic", "bes", "analysis", "utils"]:
-            dir_path = code_root / subdir
-            test_file = dir_path / "test_write.tmp"
+        # This should not raise an exception if directories are writable
+        try:
+            setup_code_directories(base_path)
+        except RuntimeError as e:
+            pytest.fail(f"setup_code_directories raised RuntimeError unexpectedly: {e}")
+
+        # Verify we can actually write files to the created directories
+        code_dir = base_path / "code"
+        for subdir_name in REQUIRED_SUBDIRS:
+            subdir_path = code_dir / subdir_name
+            test_file = subdir_path / "test_write_verification.txt"
             try:
-                test_file.write_text("test")
-                assert test_file.exists()
+                test_file.write_text("verification content")
+                assert test_file.read_text() == "verification content"
                 test_file.unlink()
-            except OSError:
-                pytest.fail(f"Could not write to {dir_path}")
+            except OSError as e:
+                pytest.fail(f"Could not write to {subdir_path}: {e}")
 
-    def test_handles_existing_directories(self, tmp_path):
-        """Verify that the function doesn't fail if directories already exist."""
-        # Create the directories first
-        code_root = tmp_path / "code"
-        code_root.mkdir()
-        (code_root / "dataset").mkdir()
-        (code_root / "symbolic").mkdir()
-        (code_root / "bes").mkdir()
-        (code_root / "analysis").mkdir()
-        (code_root / "utils").mkdir()
+def test_setup_handles_existing_directories():
+    """Test that setup_code_directories handles existing directories gracefully."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        base_path = Path(tmp_dir)
+        code_dir = base_path / "code"
         
-        result = setup_code_directories(tmp_path)
-        assert result is True
+        # Pre-create the code directory
+        code_dir.mkdir()
+        
+        # Pre-create one subdirectory
+        pre_created = code_dir / REQUIRED_SUBDIRS[0]
+        pre_created.mkdir()
+        
+        # This should not fail even though some directories already exist
+        created_dirs = setup_code_directories(base_path)
+        
+        # All directories should still be present
+        for subdir_name in REQUIRED_SUBDIRS:
+            subdir_path = code_dir / subdir_name
+            assert subdir_path.exists()
 
-    def test_raises_on_unwritable_root(self, tmp_path, monkeypatch):
-        """Verify that RuntimeError is raised if the root is not writable."""
-        # This is difficult to test portably, so we rely on the logic in the function
-        # We can at least verify the function signature and basic logic
-        pass
-        
-    def test_returns_true_on_success(self, tmp_path):
-        """Verify that the function returns True on success."""
-        result = setup_code_directories(tmp_path)
-        assert result is True
+def test_required_subdirs_defined():
+    """Test that REQUIRED_SUBDIRS contains the expected directories."""
+    expected_dirs = {"dataset", "symbolic", "bes", "analysis", "utils"}
+    assert set(REQUIRED_SUBDIRS) == expected_dirs, f"REQUIRED_SUBDIRS mismatch: {REQUIRED_SUBDIRS}"

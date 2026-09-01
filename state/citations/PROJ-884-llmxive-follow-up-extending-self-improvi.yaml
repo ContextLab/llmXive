@@ -1,4 +1,4 @@
-- artifact_hash: 5603cccb0205049e3a0ea016e13e5ff5bfc8be77f713c031192966a313418337
+- artifact_hash: 761dcafc135cf1707053660f1ece98453096b3b7fe6ced86aeda7130ef9aeb63
   artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval
-  verified_at: '2026-08-25T20:02:07.346702Z'
+  verified_at: '2026-09-01T17:02:41.240606Z'

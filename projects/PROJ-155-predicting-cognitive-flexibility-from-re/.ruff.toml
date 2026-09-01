@@ -1,16 +1,27 @@
+# Ruff configuration for llmXive project
+# Targeting Python 3.11 as per project requirements
+
 target-version = "py311"
-select = ["E", "F", "W", "I"]
-ignore = []
+
+select = [
+    "E",  # pycodestyle errors
+    "F",  # Pyflakes
+    "W",  # pycodestyle warnings
+    "I",  # isort
+]
+
+# Optional: Ignore specific rules if needed (none currently)
+# ignore = []
+
+# Line length (default is 88, matching Black)
 line-length = 88
-indent-width = 4
 
-[per-file-ignores]
-# Allow longer lines in config files or specific test files if needed
-"tests/*" = ["E501"]
-"code/config.py" = ["E501"]
-
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+# Exclude generated files and build artifacts
+exclude = [
+    ".git",
+    ".tox",
+    "__pycache__",
+    "build",
+    "dist",
+    "*.egg-info",
+]

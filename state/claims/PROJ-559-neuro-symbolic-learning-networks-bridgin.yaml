@@ -2984,3 +2984,202 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-22T12:57:50Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: python 3.11 project initialization
+  claim_id: c_a9d75356
+  context: 'Initialize Python 3.11 project with `requirements.txt` and `python -m
+    venv venv`. **Deliverable**: `code/requirements.txt` containing `torch==2.1.0+cpu`,
+    `transformers==4.36.0`, `scikit-learn==1.3.2`, `pandas==2.1.4`, `statsmodels==0.14.1`,
+    `pyyaml==6.0.1`, `datasets==2.15.0`, `pytest==7.4.3`, `ruff==0.1.6`, `black==23.12.1`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with `requirements.txt` and `python -m
+    venv venv`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T15:45:57Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: python package versions
+  claim_id: c_c2f3a758
+  context: 'Initialize Python 3.11 project with `requirements.txt` and `python -m
+    venv venv`. **Deliverable**: `code/requirements.txt` containing `torch==2.1.0+cpu`,
+    `transformers==4.36.0`, `scikit-learn==1.3.2`, `pandas==2.1.4`, `statsmodels==0.14.1`,
+    `pyyaml==6.0.1`, `datasets==2.15.0`, `pytest==7.4.3`, `ruff==0.1.6`, `black==23.12.1`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '`code/requirements.txt` containing `torch==2.1.0+cpu`, `transformers==4.36.0`,
+    `scikit-learn==1.3.2`, `pandas==2.1.4`, `statsmodels==0.14.1`, `pyyaml==6.0.1`,
+    `datasets==2.15.0`, `pytest==7.4.3`, `ruff==0.1.6`, `black==23.12.1`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T15:54:05Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: download timeout handling
+  claim_id: c_dde45b7a
+  context: "Implement `code/download/fetch_assistments.py` to fetch the ASSISTments\
+    \ dataset from `huggingface.co/datasets/assistments/2009-2010` using `datasets.load_dataset`\
+    \ with `streaming=True`. **Requirement**: Must exit with code 1 and log 'ERROR:\
+    \ Failed to download [dataset name] within 300 seconds \u2013 aborting pipeline.'\
+    \ if timeout occurs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Must exit with code 1 and log 'ERROR: Failed to download [dataset name]\
+    \ within 300 seconds \u2013 aborting pipeline.' if timeout occurs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:25:10Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Khan Academy dataset fetch
+  claim_id: c_46692f27
+  context: "Implement `code/download/fetch_khan_academy.py` to fetch the Khan Academy\
+    \ dataset from `huggingface.co/datasets/khan_academy/math` using `datasets.load_dataset`\
+    \ with `streaming=True`. **Requirement**: Must exit with code 1 and log 'ERROR:\
+    \ Failed to download [dataset name] within 300 seconds \u2013 aborting pipeline.'\
+    \ if timeout occurs."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Khan_Academy_dataset_fetch
+  kind: entity_fact
+  raw_text: Implement `code/download/fetch_khan_academy.py` to fetch the Khan Academy
+    dataset from `huggingface.co/datasets/khan_academy/math` using `datasets.load_dataset`
+    with `streaming=True`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:27:53Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: pilot data schema fields
+  claim_id: c_fbac3ab0
+  context: 'Create `contracts/pilot_data.schema.yaml` for human pilot data validation.
+    **Deliverable**: `contracts/pilot_data.schema.yaml` with fields `problem_id`,
+    `condition`, `correct`, `rt_seconds`, `comprehension_rating`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pilot_data_schema_fields
+  kind: entity_fact
+  raw_text: '`contracts/pilot_data.schema.yaml` with fields `problem_id`, `condition`,
+    `correct`, `rt_seconds`, `comprehension_rating`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:30:24Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: real data schema fields
+  claim_id: c_75b9b8f2
+  context: 'Create `contracts/real_data.schema.yaml` for real student data validation.
+    **Deliverable**: `contracts/real_data.schema.yaml` with fields `problem_id`, `condition`,
+    `correct`, `rt_seconds`, `comprehension_rating`, `data_source`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Real_data_schema_fields
+  kind: entity_fact
+  raw_text: '`contracts/real_data.schema.yaml` with fields `problem_id`, `condition`,
+    `correct`, `rt_seconds`, `comprehension_rating`, `data_source`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:32:39Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: synthetic pilot dataset size
+  claim_id: c_41df7fd8
+  context: "Implement `code/pilot/synthetic_pilot_generator.py` to generate a deterministic\
+    \ synthetic pilot dataset (\u226550 records) for BKT calibration."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate a deterministic synthetic pilot dataset (\u226550 records) for\
+    \ BKT calibration."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:32:40Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 2
+  canonical: calibration RMSE thresholds
+  claim_id: c_1b660203
+  context: 'Implement `code/simulate/calculate_calibration_metrics.py` to calculate
+    RMSE difference and absolute RMSE against human pilot data. **Requirement**: Must
+    exit with code 1 if RMSE difference > 0.02 or absolute RMSE > 0.15.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must exit with code 1 if RMSE difference > 0.02 or absolute RMSE > 0.15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:34:26Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: synthetic real student dataset size
+  claim_id: c_3e92ba90
+  context: "Implement `code/real/synthetic_real_generator.py` to generate a deterministic\
+    \ synthetic real-student dataset (\u2265200 records) for the final analysis."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate a deterministic synthetic real-student dataset (\u2265200 records)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:34:27Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: real student data validation threshold
+  claim_id: c_f2ce5d78
+  context: 'Implement `code/download/check_real_data.py` to verify the existence and
+    validity of the real student dataset at `data/real/raw_real_data.csv` before processing.
+    **Requirement**: Must exit with code 1 and log ''ERROR: Real student data file
+    missing or invalid (<200 records)'' if data is not found or < 200 records.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: data distribution but with no overlap. The test set is composed of 400
+        samples for object detection, 200 for flood
+      source_id: '2510.21391'
+      url: https://arxiv.org/abs/2510.21391
+      value: '200'
+    filled: true
+  kind: numeric
+  raw_text: 'Must exit with code 1 and log ''ERROR: Real student data file missing
+    or invalid (<200 records)'' if data is not found or < 200 records.'
+  resolved_value: '200'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T16:37:06Z'

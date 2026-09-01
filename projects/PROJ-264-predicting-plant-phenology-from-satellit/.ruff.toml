@@ -1,26 +1,5 @@
-# Ruff configuration file
-# This file is referenced by pyproject.toml but can also be used standalone
-line-length = 88
-target-version = "py39"
-
-[lint]
-select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "B",
-    "C4",
-]
-ignore = [
-    "E501",
-    "B008",
-]
-
-[lint.per-file-ignores]
-"code/tests/*" = ["S101"] # Allow assert in tests
-
-[format]
-quote-style = "double"
-indent-style = "space"
-line-ending = "auto"
+# Extend the main pyproject.toml configuration if needed, 
+# or use this for specific overrides. 
+# Currently, we rely on pyproject.toml for the main config.
+# This file exists to satisfy tool detection if strictly looking for .ruff.toml
+extend = "pyproject.toml"

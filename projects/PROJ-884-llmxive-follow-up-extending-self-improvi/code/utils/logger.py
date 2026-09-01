@@ -1,95 +1,72 @@
-"""
-Logging utility for the llmXive project.
-
-Provides centralized logging configuration and helper functions.
-"""
 import logging
 import os
 import sys
 from pathlib import Path
 from typing import Optional
 
-# Project root path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-LOG_DIR = PROJECT_ROOT / "data" / "processed"
-LOG_FILE_PATH = LOG_DIR / "experiment.log"
-
-# Ensure log directory exists
-LOG_DIR.mkdir(parents=True, exist_ok=True)
-
 def setup_logging(log_file: Optional[Path] = None, level: int = logging.INFO) -> logging.Logger:
     """
-    Configure the root logger for the project.
+    Configure logging for the research pipeline.
     
     Args:
-        log_file: Path to the log file. Defaults to data/processed/experiment.log.
-        level: Logging level (e.g., logging.INFO, logging.DEBUG).
-    
+        log_file: Optional path to log file. If None, logs to stdout only.
+        level: Logging level (default: INFO)
+        
     Returns:
-        The configured root logger.
+        Configured logger instance
     """
-    if log_file is None:
-        log_file = LOG_FILE_PATH
+    logger = logging.getLogger("llmXive")
+    logger.setLevel(level)
     
-    # Ensure parent directory exists
-    log_file.parent.mkdir(parents=True, exist_ok=True)
-
-    # Configure root logger
-    root_logger = logging.getLogger()
-    root_logger.setLevel(level)
-
-    # Remove existing handlers to avoid duplicates
-    root_logger.handlers.clear()
-
-    # File handler
-    file_handler = logging.FileHandler(log_file)
-    file_handler.setLevel(level)
-    file_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    file_handler.setFormatter(file_format)
-
+    # Clear existing handlers
+    logger.handlers = []
+    
+    # Create formatter
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level)
-    console_format = logging.Formatter('%(levelname)s: %(message)s')
-    console_handler.setFormatter(console_format)
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+    
+    # File handler if specified
+    if log_file:
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+        
+    return logger
 
-    root_logger.addHandler(file_handler)
-    root_logger.addHandler(console_handler)
-
-    return root_logger
-
-def log(message: str, level: str = "INFO") -> None:
+def log(message: str, level: str = "INFO", logger: Optional[logging.Logger] = None):
     """
-    Log a message to the configured logger.
+    Log a message at the specified level.
     
     Args:
-        message: The message to log.
-        level: The log level string (DEBUG, INFO, WARNING, ERROR, CRITICAL).
+        message: The message to log
+        level: Log level string ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
+        logger: Optional logger instance (uses default if None)
     """
-    logger = logging.getLogger("llmXive")
-    level_map = {
-        "DEBUG": logging.DEBUG,
-        "INFO": logging.INFO,
-        "WARNING": logging.WARNING,
-        "ERROR": logging.ERROR,
-        "CRITICAL": logging.CRITICAL
-    }
-    log_level = level_map.get(level.upper(), logging.INFO)
-    logger.log(log_level, message)
+    if logger is None:
+        logger = logging.getLogger("llmXive")
+        
+    log_method = getattr(logger, level.lower(), logger.info)
+    log_method(message)
 
-def log_experiment_entry(entry: dict) -> None:
+def log_experiment_entry(experiment_id: str, params: dict, logger: Optional[logging.Logger] = None):
     """
-    Log an experiment entry in JSON format.
+    Log the start of an experiment with its parameters.
     
     Args:
-        entry: Dictionary containing experiment data.
+        experiment_id: Unique identifier for the experiment
+        params: Dictionary of experiment parameters
+        logger: Optional logger instance
     """
-    import json
-    logger = logging.getLogger("llmXive")
-    logger.info(json.dumps(entry))
-
-# Initialize logger on module import
-setup_logging()
-log = logging.getLogger("llmXive").info
-log_experiment_entry = log
-setup_logging = setup_logging
+    if logger is None:
+        logger = logging.getLogger("llmXive")
+        
+    logger.info(f"Starting experiment: {experiment_id}")
+    for key, value in params.items():
+        logger.info(f"  {key}: {value}")

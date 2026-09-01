@@ -1,19 +1,17 @@
-# Existing dependencies
+# Core dependencies
 pandas>=2.0.0
 numpy>=1.24.0
 pyyaml>=6.0
-requests>=2.31.0
-earthengine-api>=0.1.374
-google-auth>=2.22.0
-xgboost>=1.7.0
-lightgbm>=4.0.0
+pytest>=7.0.0
+pytest-jsonschema>=0.2.0
+jsonschema>=4.0.0
+black>=23.0.0
+ruff>=0.1.0
+# Data science
 scikit-learn>=1.3.0
-matplotlib>=3.7.0
-seaborn>=0.12.0
-pytest>=7.4.0
-pytest-cov>=4.1.0
-
-# New dependency for T006: Contract testing
-jsonschema>=4.19.0
-referencing>=0.30.0
-attrs>=23.1.0
+# Earth Engine (if needed for ingestion)
+# earthengine-api>=1.0.0
+# HTTP clients
+requests>=2.31.0
+# Logging
+loguru>=0.7.0

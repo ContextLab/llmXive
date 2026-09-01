@@ -494,3 +494,39 @@
   source_type: external
   status: verified
   updated_at: '2026-08-04T22:15:39Z'
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: Download Sentinel data for 10-15 sites from 2018 to 2023 via Google Earth
+    Engine API
+  claim_id: c_7c262760
+  context: Implement `src/data/ingestion.py` to download Sentinel data via Google
+    Earth Engine API for the selected 10-15 sites (2018-2023), extracting NDVI/EVI
+    at regular intervals, relying on authentication established in T009a (FR-001)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `src/data/ingestion.py` to download Sentinel data via Google
+    Earth Engine API for the selected 10-15 sites (2018-2023)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:44:39Z'
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: Train model on data from 2018 to 2021 and test on data from 2022 to 2023
+  claim_id: c_ad4c9587
+  context: 'Implement `src/models/train.py` using {{claim:c_2ff485b7}} (golden_ratio,
+    https://en.wikipedia.org/wiki/Golden_ratio) and Temporal Holdout (train on 2018-2021,
+    test 2022-2023) as defined in Plan (Plan: Validation Strategy)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: train on 2018-2021, test 2022-2023
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:45:02Z'

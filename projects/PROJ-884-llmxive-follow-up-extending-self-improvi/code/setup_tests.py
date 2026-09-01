@@ -1,76 +1,87 @@
+"""
+Setup script for creating the tests directory hierarchy.
+Creates tests/unit and tests/integration directories and verifies they are writable.
+"""
 import os
 import sys
 import argparse
 from pathlib import Path
 from typing import List
 
-def setup_tests_directories() -> List[str]:
+def setup_tests_directories(base_path: Path) -> List[Path]:
     """
-    Creates the tests directory hierarchy: tests/{unit,integration}.
-    Verifies that directories exist and are writable by creating a .gitkeep file.
+    Create the tests directory hierarchy: tests/unit and tests/integration.
     
+    Args:
+        base_path: The root directory where tests/ should be created.
+        
     Returns:
-        List[str]: List of created directory paths.
+        List of created directory paths.
+        
+    Raises:
+        OSError: If directories cannot be created or are not writable.
     """
-    base_dir = Path(__file__).resolve().parent.parent
-    tests_root = base_dir / "tests"
-    unit_dir = tests_root / "unit"
-    integration_dir = tests_root / "integration"
+    tests_dir = base_path / "tests"
+    unit_dir = tests_dir / "unit"
+    integration_dir = tests_dir / "integration"
     
-    directories = [tests_root, unit_dir, integration_dir]
-    created_paths = []
+    directories = [tests_dir, unit_dir, integration_dir]
     
-    for dir_path in directories:
+    for directory in directories:
+        # Create directory if it doesn't exist, including parents
+        directory.mkdir(parents=True, exist_ok=True)
+        
+        # Verify the directory exists
+        if not directory.exists():
+            raise OSError(f"Failed to create directory: {directory}")
+        
+        # Verify the directory is writable by creating a test file
+        test_file = directory / ".write_test"
         try:
-            # Create directory if it doesn't exist
-            dir_path.mkdir(parents=True, exist_ok=True)
-            
-            # Verify writability by creating a .gitkeep file
-            keep_file = dir_path / ".gitkeep"
-            keep_file.write_text("# Keep directory in git\n")
-            
-            # Verify the file exists and is readable/writable
-            if not keep_file.exists():
-                raise IOError(f"Failed to create .gitkeep in {dir_path}")
-            
-            # Clean up the test file
-            keep_file.unlink()
-            
-            created_paths.append(str(dir_path))
-            print(f"Verified: {dir_path} exists and is writable.")
-            
-        except PermissionError:
-            print(f"Error: Permission denied when creating {dir_path}")
-            raise
-        except OSError as e:
-            print(f"Error: OS error when creating {dir_path}: {e}")
-            raise
+            test_file.touch()
+            test_file.unlink()
+        except (OSError, PermissionError) as e:
+            raise OSError(f"Directory {directory} is not writable: {e}")
+        
+        print(f"Verified: {directory} exists and is writable")
     
-    return created_paths
+    return directories
 
 def main():
-    """Entry point for the setup script."""
+    """Main entry point for the setup script."""
     parser = argparse.ArgumentParser(
-        description="Setup tests directory hierarchy for llmXive project."
+        description="Setup tests directory hierarchy"
+    )
+    parser.add_argument(
+        "--base-path",
+        type=Path,
+        default=Path.cwd(),
+        help="Base path where tests directory will be created (default: current directory)"
     )
     parser.add_argument(
         "--verbose",
         action="store_true",
-        help="Enable verbose output.",
+        help="Enable verbose output"
     )
+    
     args = parser.parse_args()
     
-    if args.verbose:
-        print("Starting tests directory setup...")
-    
     try:
-        paths = setup_tests_directories()
+        created_dirs = setup_tests_directories(args.base_path)
+        
         if args.verbose:
-            print(f"Successfully created and verified directories: {paths}")
-        print("Tests directory hierarchy setup complete.")
+            print(f"\nSuccessfully created {len(created_dirs)} directories:")
+            for d in created_dirs:
+                print(f"  - {d}")
+        
+        print("\nTests directory hierarchy setup complete.")
         return 0
+        
+    except OSError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
     except Exception as e:
-        print(f"Setup failed: {e}")
+        print(f"Unexpected error: {e}", file=sys.stderr)
         return 1
 
 if __name__ == "__main__":

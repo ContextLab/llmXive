@@ -12,12 +12,6 @@ T000d:
     \ document defining the Statistical Plan, Data Entities, and the explicit `complexity_metric`\
     \ mapping for SC\u2011005 is missing. The implementer must supply a non\u2011\
     empty `data-model.md` that meets the specified constraints."
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `code/` directory with the required subfolders (`dataset`, `symbolic`,
-    `bes`, `analysis`, `utils`) is provided, nor any verification that they exist
-    and are writable. The implementer must create the hierarchy and demonstrate writability.
 T001c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

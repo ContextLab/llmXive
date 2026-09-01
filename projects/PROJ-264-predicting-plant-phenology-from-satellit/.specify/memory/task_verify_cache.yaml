@@ -1,32 +1,3 @@
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, data files, model artifacts, or performance reports were provided; the
-    claim references an unspecified placeholder and there is no concrete evidence
-    that the ingestion pipeline, model training, or sensitivity analysis were implemented
-    or executed. The required deliverables are missing.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim provides no visible configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
-    \ or a `black` config) or any script/command showing that ruff linting and black\
-    \ formatting have been set up for the project. Without these artifacts, the requirement\
-    \ to configure linting and formatting tools is not satisfied. The next implementer\
-    \ should add the appropriate configuration files and ensure they are non\u2011\
-    empty and correctly reference ruff and black."
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `tests/contract/` directory, pytest\u2011jsonschema configuration, or validation\
-    \ scripts are present, and there is no generated artifact linking `config.py`\
-    \ to `contracts/config_schema.json` or updating `data-model.md`. Consequently\
-    \ the required testing framework and documentation output are missing."
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory hierarchy under `data/raw/` or `data/processed/` and no checksum
-    scripts are provided in the evidence; the implementer did not supply any files
-    or code to demonstrate the required structure or functionality.
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

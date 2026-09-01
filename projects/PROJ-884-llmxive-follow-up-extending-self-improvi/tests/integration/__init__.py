@@ -1,3 +1,3 @@
 """
-Integration tests for llmXive.
+Integration tests package.
 """

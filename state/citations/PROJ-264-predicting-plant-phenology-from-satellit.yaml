@@ -42,7 +42,7 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/metinovadilet/satelite_landsat_NDWI_NDVI/7e446c96e37c3f379ed7bd16c4208e0de6cb34c8/mean_values_summary.csv?%2Fdatasets%2Fmetinovadilet%2Fsatelite_landsat_NDWI_NDVI%2Fresolve%2Fmain%2Fmean_values_summary.csv=&etag=%2251e21ed023413adc829c9871800554e030830c99%22
   verified_at: '2026-07-03T18:06:43.796902Z'
-- artifact_hash: 50577be160dbc923a78adbe5a1ff4ebb3f8f1fa9a3f8240602d017a3f5fbde4d
+- artifact_hash: 86f46e9737f9a38e1478e2a266e26cabeac0694e27554dbeb616e978807939e6
   artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,4 +52,4 @@
   value: https://en.wikipedia.org/wiki/Golden_ratio
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Golden_ratio
-  verified_at: '2026-08-04T22:18:59.937669Z'
+  verified_at: '2026-09-01T16:47:51.965996Z'

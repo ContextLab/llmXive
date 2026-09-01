@@ -1,38 +1,62 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Plant Phenology Pipeline Configuration",
-  "description": "JSON Schema for the project configuration adhering to T004 requirements.",
+  "description": "Schema for configuration adhering to T004 requirements.",
   "type": "object",
   "properties": {
-    "paths": {
-      "type": "object",
-      "properties": {
-        "data_raw": { "type": "string" },
-        "data_processed": { "type": "string" },
-        "artifacts": { "type": "string" },
-        "artifacts_models": { "type": "string" },
-        "logs": { "type": "string" },
-        "contracts": { "type": "string" }
-      },
-      "required": ["data_raw", "data_processed", "artifacts", "artifacts_models"]
+    "project_root": {
+      "type": "string",
+      "description": "Absolute path to the project root directory."
     },
-    "seeds": {
-      "type": "object",
-      "properties": {
-        "global": { "type": "integer" },
-        "train_test_split": { "type": "integer" },
-        "cross_validation": { "type": "integer" }
-      },
-      "required": ["global"]
+    "data_dir": {
+      "type": "string",
+      "description": "Absolute path to the data directory."
+    },
+    "raw_data_dir": {
+      "type": "string",
+      "description": "Absolute path to the raw data subdirectory."
+    },
+    "processed_data_dir": {
+      "type": "string",
+      "description": "Absolute path to the processed data subdirectory."
+    },
+    "artifacts_dir": {
+      "type": "string",
+      "description": "Absolute path to the artifacts directory."
+    },
+    "models_dir": {
+      "type": "string",
+      "description": "Absolute path to the models subdirectory."
+    },
+    "seed": {
+      "type": "integer",
+      "description": "Random seed for reproducibility.",
+      "minimum": 0
     },
     "api_keys": {
-      "type": "array",
-      "description": "List of API key identifiers loaded from environment.",
-      "items": { "type": "string" }
+      "type": "object",
+      "description": "Dictionary of API keys. Keys are service names, values are secret strings.",
+      "additionalProperties": {
+        "type": "string"
+      }
     },
-    "debug": {
-      "type": "boolean"
+    "gee_credentials_path": {
+      "type": ["string", "null"],
+      "description": "Path to the Google Earth Engine service account JSON file."
+    },
+    "nature_notebook_api_key": {
+      "type": ["string", "null"],
+      "description": "API key for Nature's Notebook (NN) service."
     }
   },
-  "required": ["paths", "seeds"]
+  "required": [
+    "project_root",
+    "data_dir",
+    "raw_data_dir",
+    "processed_data_dir",
+    "artifacts_dir",
+    "models_dir",
+    "seed"
+  ],
+  "additionalProperties": false
 }

@@ -1,3 +1,3 @@
 """
-Unit tests for llmXive.
+Unit tests package.
 """

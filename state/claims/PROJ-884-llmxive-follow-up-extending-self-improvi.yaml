@@ -1679,3 +1679,398 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-25T20:02:07Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.3.2
+  claim_id: c_af721615
+  context: 'Install dependencies in requirements.txt containing: scikit-learn==1.3.2,
+    numpy==1.26.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.3.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:49:11Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.0
+  claim_id: c_29fef46b
+  context: 'Install dependencies in requirements.txt containing: scikit-learn==1.3.2,
+    numpy==1.26.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy==1.26.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:49:26Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: transformers version 4.35.0
+  claim_id: c_2da68d12
+  context: 'Install dependencies in requirements.txt containing: scikit-learn==1.3.2,
+    numpy==1.26.0, transformers==4.35.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: transformers==4.35.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:50:20Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: datasets version 2.14.0
+  claim_id: c_778f072d
+  context: 'Install dependencies in requirements.txt containing: ... datasets==2.14.0,
+    pyyaml==6.0.1...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: datasets==2.14.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:50:39Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_2f65874a
+  context: 'Install dependencies in requirements.txt containing: ... pyyaml==6.0.1,
+    pytest==7.4.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyyaml==6.0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:50:55Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: pytest version 7.4.0
+  claim_id: c_8f7998c0
+  context: 'Install dependencies in requirements.txt containing: ... pyyaml==6.0.1,
+    pytest==7.4.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest==7.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:51:28Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: optimum version range 1.13.0 to 1.16.0 with onnxruntime
+  claim_id: c_80b221bd
+  context: 'Install dependencies in requirements.txt containing: ... optimum>=1.13.0,<1.16.0[onnxruntime].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: optimum>=1.13.0,<1.16.0[onnxruntime]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:52:02Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: default TDP watts set to 65
+  claim_id: c_8bee4d45
+  context: Initialize code/config.py with DEFAULT_TDP_WATTS = 65 as a safe fallback.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: DEFAULT_TDP_WATTS = 65
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:52:33Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: two-proportion z-test alpha set to 0.05
+  claim_id: c_34167662
+  context: 'Must define the two-proportion z-test parameters (alpha=0.05 (Wikipedia:
+    Binomial proportion confidence interval, https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval))...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: alpha=0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:52:58Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: verifier returns validity and codes within 100ms
+  claim_id: c_8a1c906b
+  context: Implement code/dataset/verifier.py to execute deterministic validation
+    logic for each puzzle instance, returning boolean validity and specific constraint
+    violation codes (e.g., DUPLICATE_ROW, INVALID_PATH) within 100ms.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verifier_returns_validity_and_codes_within_100ms
+  kind: entity_fact
+  raw_text: verify that the verifier returns boolean validity and specific constraint
+    violation codes within 100ms
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:53:23Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: Examples include test tasks
+  claim_id: c_018388b7
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Examples_include_test_tasks
+  kind: entity_fact
+  raw_text: The examples below include test tasks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:57:20Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: speckit-tasks command replaces sample tasks with actual tasks based on
+    spec.md, plan.md, data-model.md, and contracts
+  claim_id: c_3021a55b
+  context: 'IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes
+    only. The /speckit-tasks command MUST replace these with actual tasks based on...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Speckit-tasks_command_replaces_sample_tasks_with_actual_task
+  kind: entity_fact
+  raw_text: 'The /speckit-tasks command MUST replace these with actual tasks based
+    on: User stories from spec.md (with their priorities P1, P2, P3...), Feature requirements
+    from plan.md, Entities from data-model.md, Endpoints from contracts/'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:57:50Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.3.2
+  claim_id: c_edbe5b0d
+  context: 'Install dependencies in requirements.txt containing: scikit-learn==1.3.2,
+    numpy==1.26.0, transformers==4.35.0, datasets==2.14.0, pyyaml==6.0.1, pytest==7.4.0,
+    optimum>=1.13.0,<1.16.0[onnxruntime].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use scikit-learn version 1.3.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:58:08Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.0
+  claim_id: c_cf1317a6
+  context: 'Install dependencies in requirements.txt containing: scikit-learn==1.3.2,
+    numpy==1.26.0, transformers==4.35.0, datasets==2.14.0, pyyaml==6.0.1, pytest==7.4.0,
+    optimum>=1.13.0,<1.16.0[onnxruntime].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use numpy version 1.26.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:58:48Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: transformers version 4.35.0
+  claim_id: c_4173c7e7
+  context: 'Install dependencies in requirements.txt containing: scikit-learn==1.3.2,
+    numpy==1.26.0, transformers==4.35.0, datasets==2.14.0, pyyaml==6.0.1, pytest==7.4.0,
+    optimum>=1.13.0,<1.16.0[onnxruntime].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use transformers version 4.35.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:59:10Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: datasets version 2.14.0
+  claim_id: c_160d1530
+  context: 'Install dependencies in requirements.txt containing: scikit-learn==1.3.2,
+    numpy==1.26.0, transformers==4.35.0, datasets==2.14.0, pyyaml==6.0.1, pytest==7.4.0,
+    optimum>=1.13.0,<1.16.0[onnxruntime].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use datasets version 2.14.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:59:28Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_c116e7ea
+  context: 'Install dependencies in requirements.txt containing: scikit-learn==1.3.2,
+    numpy==1.26.0, transformers==4.35.0, datasets==2.14.0, pyyaml==6.0.1, pytest==7.4.0,
+    optimum>=1.13.0,<1.16.0[onnxruntime].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use pyyaml version 6.0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:59:44Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: pytest version 7.4.0
+  claim_id: c_bacdd813
+  context: 'Install dependencies in requirements.txt containing: scikit-learn==1.3.2,
+    numpy==1.26.0, transformers==4.35.0, datasets==2.14.0, pyyaml==6.0.1, pytest==7.4.0,
+    optimum>=1.13.0,<1.16.0[onnxruntime].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use pytest version 7.4.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T16:59:57Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: optimum version 1.13.0 to 1.16.0 with onnxruntime
+  claim_id: c_11980984
+  context: 'Install dependencies in requirements.txt containing: scikit-learn==1.3.2,
+    numpy==1.26.0, transformers==4.35.0, datasets==2.14.0, pyyaml==6.0.1, pytest==7.4.0,
+    optimum>=1.13.0,<1.16.0[onnxruntime].'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Optimum_version_1.13.0_to_1.16.0_with_onnxruntime
+  kind: magnitude
+  raw_text: The system must use optimum version 1.13.0 or higher but less than 1.16.0
+    with onnxruntime support.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T17:00:15Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: verifier returns validity within 100ms
+  claim_id: c_91abf1bf
+  context: Implement code/dataset/verifier.py to execute deterministic validation
+    logic for each puzzle instance, returning boolean validity and specific constraint
+    violation codes (e.g., DUPLICATE_ROW, INVALID_PATH) within 100ms.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verifier_returns_validity_within_100ms
+  kind: entity_fact
+  raw_text: The verifier must return validity results within 100ms.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T17:00:43Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: complexity metric spans N=10 to N=500
+  claim_id: c_c97f4b94
+  context: The generator must output a complexity_metric for each puzzle and verify
+    that the distribution of these metrics is continuous across the N=10..500 range.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The complexity metric spans the N=10 to N=500 range.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T17:01:31Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: complexity metric is tuple of constraint_count and variable_domain_size
+  claim_id: c_62546b2a
+  context: Must explicitly define the dataset source as data/raw/curated_logic_v1.json,
+    scaling method (N=10..500), and statistical framework. Must define complexity_metric
+    as a tuple of (constraint_count, variable_domain_size).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Complexity_metric_is_tuple_of_constraint_count_and_variable
+  kind: entity_fact
+  raw_text: The complexity metric is defined as a tuple of constraint_count and variable_domain_size.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T17:02:08Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: alpha 0.05
+  claim_id: c_addd2746
+  context: 'Define Statistical Analysis Plan parameters in research.md. Constraint:
+    Must define the two-proportion z-test parameters (alpha=0.05 (Wikipedia: Binomial
+    proportion confidence interval, https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval))
+    and power analysis requirements.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical analysis plan uses an alpha of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T17:02:40Z'

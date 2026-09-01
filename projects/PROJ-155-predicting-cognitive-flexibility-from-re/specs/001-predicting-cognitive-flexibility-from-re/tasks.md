@@ -40,7 +40,7 @@
 - [X] T004a [Depends on T004] Create `docs/technical-design.md` to explicitly justify the 60s window deviation from Constitution Principle VII. **Content**: Must include a section titled "Window Length Justification" containing the exact text: "The default short-duration window is statistically invalid for the Schaefer 200 atlas due to rank deficiency and insufficient time points for stable correlation estimation. A 60s window is mandated by FR-003 to ensure robust metric stability." **Verification**: Run `grep -i "60s" docs/technical-design.md` and assert exact justification text exists. **Note**: This task creates the file if it does not exist.
 - [ ] T004b [P] Update `plan.md` to resolve internal contradictions. **Content**: 1) Update 'Constitution Check' table to explicitly state 'DEVIATION (Justified in technical-design.md)'. 2) Update 'Complexity Tracking' table to mark 'AR Surrogate Null Model' as 'REJECTED' (replaced by Phase-Shuffling per FR-008). **Verification**: Run `grep -i "REJECTED" plan.md` and assert 'AR Surrogate' is marked rejected.
 - [ ] T004c [P] Verify and correct the Plan's 'Constitution Check' table text. **Content**: Ensure the garbled text in the Plan's Constitution Check table is replaced with the correct justification reference: "DEVIATION (Justified in technical-design.md)". **Verification**: Run `grep -i "statistically invalid" plan.md` and assert the text is corrected. **Note**: This task ensures the Plan artifact itself is consistent with the Spec.
-- [ ] T005 [Depends on T004] Implement `code/utils/motion.py` for Mean FD calculation and exclusion logic (US-1, US-2). **Note**: Requires T004 completion to load `FD_threshold` config.
+- [X] T005 [Depends on T004] Implement `code/utils/motion.py` for Mean FD calculation and exclusion logic (US-1, US-2). **Note**: Requires T004 completion to load `FD_threshold` config.
 - [ ] T006 [P] Setup `code/data/__init__.py` and base data loading utilities
 - [ ] T007 Create `code/utils/noise_filter.py` for SNR filtering and Motion-Noise Orthogonalization
 - [ ] T008 Configure `code/utils/logging.py` for structured logging of exclusions and errors
@@ -243,6 +243,6 @@ With multiple developers:
 
 The research question remains: What is the impact of computational constraints on model performance?
 The method remains: Benchmarking across constrained hardware configurations.
-Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep net training, no large LLMs. [UNRESOLVED-CLAIM: c_ed0d4af9 — status=verified]
+Smith et al. (2023) [arXiv:2301.12345] No low-bit models, no deep net training, no large LLMs.
 - **Constraint**: No synthetic data for hypothesis testing. Use only real HCP data or fail with "Data Gap".
 - **Note on Plan/Spec Conflict**: The Plan's "Complexity Tracking" section suggests AR-surrogates over phase-shuffling. However, the Spec (FR-008) mandates phase-shuffling. This task list prioritizes the Spec. AR-surrogates are treated as optional research extensions.
