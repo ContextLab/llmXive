@@ -1,0 +1,19 @@
+status: none
+intent: OpenNeuro resting-state EEG ds003865 ds003392 ds003775 download python package
+  dataset
+required_fields:
+- subject_id
+- session_id
+- run_id
+- eeg_signal
+- sampling_rate
+- channel_names
+- channel_locations
+- event_markers
+- age
+- sex
+- dataset_id
+- bids_version
+cache_key: 53b5cb21b337df6e75643f724621d3c4b71593bdea1c6550448b85a13e49d7c6
+searched_at: '2026-09-01T01:38:39.115492+00:00'
+retry_count: 1

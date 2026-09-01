@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Metadata Schema"
+description: "Schema for raw dataset metadata extracted from BIDS files"
+type: "object"
+properties:
+  dataset_id:
+    type: "string"
+    description: "OpenNeuro dataset identifier (e.g., ds003865)"
+  subject_id:
+    type: "string"
+    description: "Subject identifier (e.g., sub-001)"
+  session_id:
+    type: "string"
+    description: "Session identifier (e.g., ses-01) or 'n/a'"
+  task:
+    type: "string"
+    description: "Task name (e.g., 'rest')"
+  run:
+    type: "integer"
+    description: "Run number"
+  sampling_frequency:
+    type: "number"
+    description: "Sampling frequency in Hz"
+  channel_count:
+    type: "integer"
+    description: "Number of EEG channels"
+  file_path:
+    type: "string"
+    description: "Relative path to the raw file"
+required:
+  - dataset_id
+  - subject_id
+  - sampling_frequency
+  - file_path
