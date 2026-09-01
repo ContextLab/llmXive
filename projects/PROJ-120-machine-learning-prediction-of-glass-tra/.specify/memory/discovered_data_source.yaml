@@ -1,0 +1,17 @@
+status: none
+intent: NIST Glass Database NIST Materials Data Repository download chemical formulas
+  Tg csv python package dataset
+required_fields:
+- chemical_formula
+- glass_transition_temperature_Tg
+- atomic_fraction_Si
+- atomic_fraction_B
+- atomic_fraction_P
+- atomic_fraction_Na
+- atomic_fraction_K
+- atomic_fraction_Ca
+- average_electronegativity
+- total_valence_electron_count
+cache_key: b8b80045cd135eaf43fead3e4d2f2a73bd1955427749cf9f734d87f37b6434a3
+searched_at: '2026-09-01T08:22:03.440279+00:00'
+retry_count: 1

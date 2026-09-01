@@ -1,0 +1,22 @@
+- artifact_path: projects/PROJ-120-machine-learning-prediction-of-glass-tra/specs/001-machine-learning-prediction-of-glass-tra/tasks.md
+  attempts: 1
+  canonical: raw oxide glass data source is NIST Materials Data Repository via Zenodo
+    DOI 10.17188/1271234
+  claim_id: c_a2a47ee3
+  context: 'Goal: Ingest raw oxide glass data from the NIST Materials Data Repository
+    (via Zenodo DOI: 10.17188/1271234), parse formulas, and generate a feature matrix.'
+  evidence:
+    reason: 'source unreachable: ConnectTimeout: HTTPSConnectionPool(host=''www.osti.gov'',
+      port=443): Max retries exceeded with url: /servlets/purl/1271234/ (Caused by
+      ConnectTimeoutError(<HTTPSConnection(host=''www.osti.gov'', port=443) at 0x7f1524decd10>,
+      ''Connection to www.osti.gov timed out. (connect timeout=30.0)''))'
+    url: https://doi.org/10.17188/1271234
+  kind: citation
+  raw_text: 'Ingest raw oxide glass data from the NIST Materials Data Repository (via
+    Zenodo DOI: 10.17188/1271234)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: ebb9ed28861eac54ebd6e0ba0406de43660461f2ecbe9eb884a016d1a420d42a
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T08:49:10Z'

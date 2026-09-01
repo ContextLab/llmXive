@@ -25,16 +25,16 @@ The system must successfully ingest raw oxide glass composition data from the NI
 
 ### User Story 2 - Model Training and Baseline Comparison (Priority: P2)
 
-The system must train interpretable tree-based models (Random Forest and Gradient Boosting) on the featurized data and compare their performance against a simple mean-baseline model to determine if composition alone adds predictive value.
+The system must train interpretable tree-based models (Random Forest and Gradient Boosting) on the featurized data and compare their performance against a physics-based linear mixing rule baseline model to determine if composition alone adds predictive value beyond simple additive rules.
 
-**Why this priority**: This validates the core research hypothesis: that composition has non-trivial information content regarding $T_g$. It establishes the "predictive ceiling" for composition-only models.
+**Why this priority**: This validates the core research hypothesis: that composition has non-trivial information content regarding $T_g$ beyond linear mixing. It establishes the "predictive ceiling" for composition-only models against a scientifically meaningful baseline.
 
-**Independent Test**: The training script executes within the CPU constraints, produces a model artifact, and outputs a report showing R², MAE, and RMSE for both the ML model and the mean-baseline, along with a statistical significance test (paired t-test).
+**Independent Test**: The training script executes within the CPU constraints, produces a model artifact, and outputs a report showing R², MAE, and RMSE for both the ML model and the linear-mixing baseline, along with a statistical significance test (paired t-test on MAE values from the 5 cross-validation folds).
 
 **Acceptance Scenarios**:
 
-1. **Given** the featurized training dataset, **When** the model training module runs with a fixed random seed, **Then** the system outputs a `model_performance.json` file containing R², MAE, and RMSE for the best-performing model and the baseline.
-2. **Given** the cross-validation folds, **When** the statistical comparison is performed, **Then** the system calculates a p-value comparing the MAE of the ML model against the baseline, and reports whether the improvement is statistically significant (p < 0.05).
+1. **Given** the featurized training dataset, **When** the model training module runs with a fixed random seed, **Then** the system outputs a `model_performance.json` file containing R², MAE, and RMSE for the best-performing model and the linear-mixing baseline.
+2. **Given** the 5 cross-validation folds, **When** the statistical comparison is performed, **Then** the system calculates a p-value comparing the MAE of the ML model against the linear-mixing baseline MAE values from the 5 folds, and reports whether the improvement is statistically significant (p < 0.05).
 3. **Given** a dataset size that exceeds 7 GB RAM (if applicable), **When** the data loading step occurs, **Then** the system either samples the data to fit memory or raises a clear error indicating the dataset is too large for the current configuration.
 
 ---
@@ -51,7 +51,7 @@ The system must extract feature importances from the best model to identify key 
 
 1. **Given** the trained best-performing model, **When** the interpretability module runs, **Then** it outputs a sorted list of features (e.g., "Network Modifier Fraction") with their relative importance scores, identifying the top 5 drivers.
 2. **Given** a set of hyperparameters (e.g., `n_estimators` ∈ {100, 300}, `max_depth` ∈ {10, 20}), **When** the sensitivity analysis is executed, **Then** the system reports the variation in MAE across these configurations, confirming that performance does not fluctuate wildly with minor parameter changes.
-3. **Given** the top 3 most important features, **When** a permutation importance test is run, **Then** the system confirms that shuffling these features results in a significant drop in model performance (R² < 0.5 of original), validating their predictive utility.
+3. **Given** the top 3 most important features, **When** a compositional-aware permutation importance test is run, **Then** the system confirms that shuffling these features results in a significant drop in model performance (R² < 0.5 of original), validating their predictive utility while respecting the sum-to-one constraint.
 
 ### Edge Cases
 
@@ -66,10 +66,10 @@ The system must extract feature importances from the best model to identify key 
 - **FR-001**: System MUST ingest raw oxide glass composition data from the NIST Materials Data Repository (CSV format) and parse chemical formulas into elemental atomic fractions using `pymatgen` (See US-1).
 - **FR-002**: System MUST generate a feature matrix including network-former ratios (Si, B, P), modifier content (Na, K, Ca), average electronegativity, average atomic mass, and total valence electron count (See US-1).
 - **FR-003**: System MUST split the dataset into an [deferred] training set and a [deferred] test set using a fixed random seed for reproducibility (See US-2).
-- **FR-004**: System MUST train a `RandomForestRegressor` and a `GradientBoostingRegressor` using `scikit-learn` with a grid search over `n_estimators` ∈ {100, 300} and `max_depth` ∈ {10, 20} (See US-2).
-- **FR-005**: System MUST compute R², MAE, and RMSE on the held-out test set and perform a paired t-test comparing the ML model's MAE against a mean-baseline model's MAE (See US-2).
-- **FR-006**: System MUST extract and rank feature importances from the best-performing model and validate them using permutation importance (See US-3).
-- **FR-007**: System MUST perform a sensitivity analysis sweeping the `n_estimators` and `max_depth` parameters over the defined grid and report the resulting variance in MAE (See US-3).
+- **FR-004**: System MUST train a `RandomForestRegressor` and a `GradientBoostingRegressor` using `scikit-learn` with a grid search over `n_estimators` ∈ {100, 300} and `max_depth` ∈ {10, 20}, selecting the model with the highest R² on the validation fold (See US-2).
+- **FR-005**: System MUST compute R², MAE, and RMSE on the held-out test set. Additionally, the system MUST perform a paired t-test comparing the ML model's MAE against the linear-mixing baseline model's MAE using the MAE values obtained from the 5 cross-validation folds (See US-2).
+- **FR-006**: System MUST extract and rank feature importances from the best-performing model and validate them using compositional-aware permutation importance that respects the sum-to-one constraint (See US-3).
+- **FR-007**: System MUST perform a post-training robustness analysis sweeping the `n_estimators` and `max_depth` parameters over the defined grid and report the resulting variance in MAE to ensure stability (See US-3).
 - **FR-008**: System MUST ensure all computations run within the GitHub Actions free-tier constraints (≤ 7 GB RAM, ≤ 6 hours, no GPU) by sampling data if necessary (See US-2).
 
 ### Key Entities
@@ -82,10 +82,10 @@ The system must extract feature importances from the best model to identify key 
 
 ### Measurable Outcomes
 
-- **SC-001**: The predictive power of composition-only models is measured against the baseline mean-prediction model, specifically quantifying the improvement in R² and reduction in MAE (See FR-005).
-- **SC-002**: The statistical significance of the ML model's improvement over the baseline is measured against a p-value threshold of 0.05 using a paired t-test (See FR-005).
-- **SC-003**: The robustness of the model performance is measured against the variance in MAE across the defined hyperparameter grid (n_estimators: 100/300, max_depth: 10/20) (See FR-007).
-- **SC-004**: The interpretability of the model is measured against the consistency of feature importance rankings between the standard importance metric and permutation importance (See FR-006).
+- **SC-001**: The predictive power of composition-only models is measured against the linear-mixing baseline model, specifically quantifying the improvement in R² and reduction in MAE (See FR-005).
+- **SC-002**: The statistical significance of the ML model's improvement over the linear-mixing baseline is measured against a p-value threshold of 0.05 using a paired t-test on MAE values from 5 cross-validation folds (See FR-005).
+- **SC-003**: The robustness of the model performance is measured against the variance in MAE across the defined hyperparameter grid (n_estimators: 100/300, max_depth: 10/20), requiring the standard deviation of MAE to be ≤ 5% of the mean MAE (See FR-007).
+- **SC-004**: The interpretability of the model is measured against the consistency of feature importance rankings between the standard importance metric and compositional-aware permutation importance, requiring a Spearman rank correlation ≥ 0.8 (See FR-006).
 - **SC-005**: The computational feasibility is measured against the constraint that the entire pipeline must complete within 6 hours on a 2-core CPU runner without exceeding 7 GB RAM (See FR-008).
 
 ## Assumptions
@@ -93,6 +93,7 @@ The system must extract feature importances from the best model to identify key 
 - The NIST Materials Data Repository glass dataset is accessible via `wget` from its DOI URL and contains valid chemical formulas and $T_g$ values in a CSV format compatible with `pymatgen` parsing.
 - The `matminer` library's `ElementProperty` featurizer provides the necessary descriptors (electronegativity, atomic mass, etc.) for all elements present in the oxide glass dataset without requiring custom periodic table extensions.
 - The relationship between compositional descriptors and $T_g$ is non-linear and sufficiently captured by tree-based models (Random Forest/Gradient Boosting) without requiring deep learning architectures or GPU acceleration.
-- The dataset size is sufficient to support a 5-fold cross-validation split; if the dataset is smaller, the system will automatically reduce the number of folds to 3 or 2 as a fallback strategy.
+- The system attempts a 5-fold cross-validation split; if the dataset is too small to support 5 folds, the system automatically reduces the number of folds to 3 or 2 as a fallback strategy.
 - The "network formers" and "modifiers" are strictly defined as Si, B, P and Na, K, Ca respectively for the purpose of feature engineering, consistent with standard oxide glass literature.
 - The GitHub Actions free-tier runner provides a stable Linux environment with the necessary Python packages (`pymatgen`, `matminer`, `scikit-learn`, `pandas`, `numpy`) pre-installed or installable via `requirements.txt`.
+- A linear mixing rule baseline (weighted average of constituent oxide Tg values) is scientifically valid and available for comparison against the ML model.

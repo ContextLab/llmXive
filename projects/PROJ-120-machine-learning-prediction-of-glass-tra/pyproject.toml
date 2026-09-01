@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "glass-tg-prediction"
+version = "0.1.0"
+description = "Machine Learning Prediction of Glass Transition Temperature from Composition"
+requires-python = ">=3.10"
+dependencies = [
+    "pymatgen>=2024.1.0",
+    "matminer>=0.9.0",
+    "scikit-learn>=1.4.0",
+    "shap>=0.44.0",
+    "pandas>=2.0.0",
+    "numpy>=1.26.0",
+    "requests>=2.31.0",
+    "pytest>=8.0.0",
+    "ruff>=0.1.0",
+    "black>=24.0.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | __pycache__
+  | data
+  | artifacts
+  | state
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "data",
+    "artifacts",
+    "state",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "N"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["code"]
+force-sort-within-sections = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
