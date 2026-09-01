@@ -858,3 +858,376 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-29T02:59:12Z'
+- artifact_path: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio/tasks.md
+  attempts: 1
+  canonical: 'verified datasets: breast_cancer, ionosphere, heart_disease mapped to
+    UCI URLs and SHA256 checksums'
+  claim_id: c_3ffd54cb
+  context: 'T003 [P] Create `code/verified_datasets.json`: Define a JSON object mapping
+    dataset names (breast_cancer, ionosphere, heart_disease) to their canonical UCI
+    URLs and expected cryptographic checksums.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verified_datasets:_breast_cancer,_ionosphere,_heart_disease
+  kind: entity_fact
+  raw_text: Define a JSON object mapping dataset names (breast_cancer, ionosphere,
+    heart_disease) to their canonical UCI URLs and expected cryptographic checksums.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T17:45:26Z'
+- artifact_path: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio/tasks.md
+  attempts: 1
+  canonical: 'stratified subsampling sample sizes: 15, 25, 40'
+  claim_id: c_2c70c225
+  context: 'T005 [P] Implement `code/subsample.py`: Create stratified subsampling
+    function for N=15, 25, 40.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create stratified subsampling function for N=15, 25, 40.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T17:46:51Z'
+- artifact_path: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio/tasks.md
+  attempts: 1
+  canonical: skip configuration if class count < 5 without reducing N
+  claim_id: c_38bb6eb3
+  context: 'T005 [P] ... Edge Cases: If class count < 5 for a configuration, **Do
+    NOT reduce N**. Skip the configuration, log a warning...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If class count < 5 for a configuration, Do NOT reduce N.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T17:46:51Z'
+- artifact_path: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio/tasks.md
+  attempts: 1
+  canonical: 'computational runtime limit: 6 hours'
+  claim_id: c_ed4b06eb
+  context: T034 [P] ... verify the runtime is within the **6-hour limit** (SC-004).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the runtime is within the 6-hour limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T17:47:08Z'
+- artifact_path: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio/tasks.md
+  attempts: 1
+  canonical: 'memory usage limit: 7 GB'
+  claim_id: c_4e1914eb
+  context: T035 [P] ... verify memory usage (process memory RSS) remains under **7
+    GB** (SC-005).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify memory usage (process memory RSS) remains under 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T17:47:32Z'
+- artifact_path: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio/tasks.md
+  attempts: 1
+  canonical: 'mean shift effect size: Cohen''s d = 0.5'
+  claim_id: c_5d53d6b4
+  context: T014 [P] ... (2) mean shift (Cohen's d = 0.5) applied to the **first numeric
+    feature**...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply mean shift (Cohen's d = 0.5) applied to the first numeric feature.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T17:49:36Z'
+- artifact_path: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio/tasks.md
+  attempts: 1
+  canonical: 'unsafe threshold flag: Type I error > 0.10'
+  claim_id: c_857b7c2c
+  context: T028 [US3] ... Flag configurations where Type I error > 0.10 **AND** compare
+    against baseline error rate...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag configurations where Type I error > 0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T17:49:36Z'
+- artifact_path: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio/tasks.md
+  attempts: 1
+  canonical: skip iteration if resulting sample size < 5
+  claim_id: c_c8454e28
+  context: T018 [P] ... if the resulting sample size is < 5, **skip the iteration**.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the resulting sample size is < 5, skip the iteration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T17:49:36Z'
+- artifact_path: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio/tasks.md
+  attempts: 1
+  canonical: skip SMOTE configuration if N < 5 or extreme imbalance
+  claim_id: c_93e2a7fc
+  context: T019 [P] ... If N < 5 or extreme imbalance prevents SMOTE, **skip the configuration**...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If N < 5 or extreme imbalance prevents SMOTE, skip the configuration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T17:49:36Z'
+- artifact_path: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio/tasks.md
+  attempts: 1
+  canonical: skip Random Oversampling iteration if resulting sample size < 5
+  claim_id: c_c5ab4d78
+  context: T020 [P] ... if the resulting sample size is < 5, **skip the iteration**.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the resulting sample size is < 5, skip the iteration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T17:49:36Z'
+- artifact_path: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio/tasks.md
+  attempts: 1
+  canonical: 'deterministic seed verification: bitwise identical p-value distributions'
+  claim_id: c_dc1faf67
+  context: T039 [US1] ... asserts that the resulting p-value distributions are bitwise
+    identical (within floating point tolerance)...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Deterministic_seed_verification:_bitwise_identical_p-value_d
+  kind: entity_fact
+  raw_text: Verify the resulting p-value distributions are bitwise identical.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T17:50:02Z'
+- artifact_path: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio/tasks.md
+  attempts: 1
+  canonical: verified_datasets.json maps breast_cancer, ionosphere, heart_disease
+    to UCI URLs and checksums
+  claim_id: c_3aa9b390
+  context: 'Phase 1: Setup tasks. T003 defines the single source of truth for dataset
+    verification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verified_datasets.json_maps_breast_cancer,_ionosphere,_heart
+  kind: entity_fact
+  raw_text: 'Create `code/verified_datasets.json`: Define a JSON object mapping dataset
+    names (breast_cancer, ionosphere, heart_disease) to their canonical UCI URLs and
+    expected cryptographic checksums.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T17:52:35Z'
+- artifact_path: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio/tasks.md
+  attempts: 1
+  canonical: stratified subsampling function created for N=15, 25, 40
+  claim_id: c_2276fc3a
+  context: 'Phase 2: Foundational tasks. T005 specifies the target sample sizes for
+    the study.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `code/subsample.py`: Create stratified subsampling function
+    for N=15, 25, 40.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T17:52:47Z'
+- artifact_path: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio/tasks.md
+  attempts: 1
+  canonical: Type II error ground truth uses mean shift with Cohen's d=0.5
+  claim_id: c_abe0ce81
+  context: 'Phase 2: Foundational tasks. T014 defines the ground truth experimental
+    conditions for simulation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Mean shift (Cohen's d = 0.5) applied to the first numeric feature for
+    Type II error.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T17:54:49Z'
+- artifact_path: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio/tasks.md
+  attempts: 1
+  canonical: unsafe threshold flag triggered when Type I error exceeds 0.10
+  claim_id: c_2d505ae4
+  context: 'Phase 5: User Story 3. T028 implements threshold identification logic
+    for comparative analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag configurations where Type I error > 0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T17:54:49Z'
+- artifact_path: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio/tasks.md
+  attempts: 1
+  canonical: SHA256 checksum of result files appended to state manifest
+  claim_id: c_d73ba6c2
+  context: 'Phase 5: User Story 3. T030 describes the post-processing step for disclaimer
+    injection and integrity tracking.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: SHA-256
+      source_id: Q110651361
+      url: https://www.wikidata.org/wiki/Q110651361
+      value: SHA-256
+    filled: true
+  kind: entity_fact
+  raw_text: Compute SHA256 checksum of the modified file and append the hash to the
+    state manifest.
+  resolved_value: SHA-256
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T17:54:58Z'
+- artifact_path: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio/tasks.md
+  attempts: 1
+  canonical: 'Requirements file pinned versions: pandas, numpy, scikit-learn, imbalanced-learn,
+    scipy, requests, pytest'
+  claim_id: c_abc72742
+  context: 'Phase 1: Setup (Shared Infrastructure) - T001c'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Create `projects/PROJ-269-assessing-the-impact-of-data-augmentatio/requirements.txt`
+    with pinned versions: pandas, numpy, scikit-learn, imbalanced-learn, scipy, requests,
+    pytest.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T17:57:27Z'
+- artifact_path: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio/tasks.md
+  attempts: 1
+  canonical: 'Verified datasets mapping: breast_cancer, ionosphere, heart_disease
+    to UCI URLs and checksums'
+  claim_id: c_3b7d46e0
+  context: 'Phase 1: Setup (Shared Infrastructure) - T003'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verified_datasets_mapping:_breast_cancer,_ionosphere,_heart
+  kind: entity_fact
+  raw_text: 'Create `code/verified_datasets.json`: Define a JSON object mapping dataset
+    names (breast_cancer, ionosphere, heart_disease) to their canonical UCI URLs and
+    expected cryptographic checksums.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T17:57:29Z'
+- artifact_path: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio/tasks.md
+  attempts: 1
+  canonical: 'Stratified subsampling sample sizes: 15, 25, 40'
+  claim_id: c_5be30d3f
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T005'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `code/subsample.py`: Create stratified subsampling function
+    for N=15, 25, 40.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T17:57:29Z'
+- artifact_path: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio/tasks.md
+  attempts: 1
+  canonical: 'Mean shift effect size: Cohen''s d = 0.5'
+  claim_id: c_f6a834f0
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T014'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: 'Implement Ground Truth Experimental Conditions in `code/simulation.py`:
+    Create helper functions for (1) label permutation (shuffle all labels using pinned
+    seed) for Type I error and (2) mean shift (Cohen''s d = 0.5) applied to the first
+    numeric feature (lowest column index among float/int columns, excluding target
+    column) found in the dataset for Type II error.'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T17:57:30Z'
+- artifact_path: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio/tasks.md
+  attempts: 1
+  canonical: 'Verified datasets for baseline: breast_cancer, ionosphere, heart_disease'
+  claim_id: c_3e3355a0
+  context: 'Phase 3: User Story 1 - Baseline Error Rate Estimation - T015'
+  evidence:
+    entailment_evidence: 'Verified datasets for baseline: breast cancer, ionosphere,
+      h'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Verified_datasets_for_baseline:_breast_cancer,_ionosphere,_h
+  kind: entity_fact
+  raw_text: Write code to save baseline results to `results/[dataset]_[size]_baseline_null.json`
+    and `results/[dataset]_[size]_baseline_alt.json`. Iterate over the verified datasets
+    available (breast_cancer, ionosphere, heart_disease) and varying sizes.
+  resolved_value: 'Verified datasets for baseline: breast_cancer, ionosphere, heart_disease'
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T17:57:31Z'

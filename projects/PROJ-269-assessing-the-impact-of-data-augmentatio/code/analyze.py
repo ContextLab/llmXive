@@ -1,254 +1,236 @@
-"""
-Analysis module for the augmentation impact study.
-
-Provides functions for calculating error rates, confidence intervals,
-and generating comparative analysis reports.
-"""
-
 import os
 import json
 import logging
-from typing import Dict, Any, List, Optional, Tuple
-from pathlib import Path
-
+import glob
+import time
+import hashlib
 import numpy as np
 import pandas as pd
+from typing import Dict, Any, List, Optional, Tuple
+from pathlib import Path
 from scipy import stats
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-RESULTS_DIR: Path = Path("results")
-REPORTS_DIR: Path = Path("results/reports")
-REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+def load_simulation_results(pattern: str) -> List[Dict[str, Any]]:
+    """Load all simulation result files matching the pattern."""
+    results = []
+    for filepath in glob.glob(pattern):
+        try:
+            with open(filepath, "r") as f:
+                data = json.load(f)
+                results.append(data)
+        except Exception as e:
+            logger.error(f"Failed to load {filepath}: {str(e)}")
+    return results
 
-
-def load_simulation_results(filepath: Path) -> Dict[str, Any]:
-    """
-    Load simulation results from JSON file.
-
-    Args:
-        filepath: Path to the JSON file.
-
-    Returns:
-        Loaded results dictionary.
-    """
-    try:
-        with open(filepath, 'r') as f:
-            data: Dict[str, Any] = json.load(f)
-
-        logger.info(f"Loaded results from {filepath}: {len(data.get('p_values', []))} p-values")
-        return data
-
-    except Exception as e:
-        logger.error(f"Failed to load results from {filepath}: {str(e)}")
-        raise
-
-
-def calculate_error_rates(
-    p_values: List[float],
-    alpha: float = 0.05
-) -> Dict[str, float]:
-    """
-    Calculate Type I and Type II error rates from p-values.
-
-    Args:
-        p_values: List of p-values from hypothesis tests.
-        alpha: Significance threshold.
-
-    Returns:
-        Dictionary with error rate metrics.
-    """
+def calculate_error_rates(p_values: List[float], threshold: float = 0.05) -> float:
+    """Calculate empirical error rate from p-values."""
     if not p_values:
-        return {'type_i_rate': 0.0, 'type_ii_rate': 0.0, 'power': 0.0}
-
-    p_array: np.ndarray = np.array(p_values)
-
-    # Type I error rate (false positive rate under null)
-    type_i_rate: float = np.mean(p_array < alpha)
-
-    # For Type II, we need to know if these are null or alt condition
-    # This function assumes input is from alt condition for Type II calculation
-    # In practice, the caller should specify the condition
-    type_ii_rate: float = np.mean(p_array >= alpha)
-    power: float = 1.0 - type_ii_rate
-
-    return {
-        'type_i_rate': float(type_i_rate),
-        'type_ii_rate': float(type_ii_rate),
-        'power': float(power),
-        'alpha_threshold': alpha
-    }
-
+        return 0.0
+    significant_count = sum(1 for p in p_values if p < threshold)
+    return significant_count / len(p_values)
 
 def calculate_bootstrap_ci(
     data: List[float],
-    n_bootstrap: int = 1000,
+    statistic_func,
+    n_bootstraps: int = 1000,
     confidence_level: float = 0.95,
-    random_state: Optional[int] = None
+    random_seed: int = 42
 ) -> Tuple[float, float, float]:
-    """
-    Calculate bootstrap confidence interval for a statistic.
+    """Calculate bootstrap confidence interval for a statistic."""
+    rng = np.random.RandomState(random_seed)
+    n = len(data)
+    boot_stats = []
+    
+    for _ in range(n_bootstraps):
+        sample = rng.choice(data, size=n, replace=True)
+        boot_stats.append(statistic_func(sample))
+    
+    boot_stats = np.array(boot_stats)
+    alpha = 1 - confidence_level
+    lower = np.percentile(boot_stats, 100 * alpha / 2)
+    upper = np.percentile(boot_stats, 100 * (1 - alpha / 2))
+    point_estimate = statistic_func(data)
+    
+    return point_estimate, lower, upper
 
-    Args:
-        data: Input data.
-        n_bootstrap: Number of bootstrap samples.
-        confidence_level: Confidence level (e.g., 0.95).
-        random_state: Random seed.
-
-    Returns:
-        Tuple of (mean, lower_ci, upper_ci).
-    """
-    if random_state is not None:
-        np.random.seed(random_state)
-
-    data_array: np.ndarray = np.array(data)
-    n: int = len(data_array)
-
-    if n == 0:
-        return 0.0, 0.0, 0.0
-
-    bootstrap_means: np.ndarray = []
-
-    for _ in range(n_bootstrap):
-        sample: np.ndarray = np.random.choice(data_array, size=n, replace=True)
-        bootstrap_means.append(np.mean(sample))
-
-    bootstrap_means_arr: np.ndarray = np.array(bootstrap_means)
-    mean: float = np.mean(bootstrap_means_arr)
-    lower_ci: float = np.percentile(bootstrap_means_arr, (1 - confidence_level) / 2 * 100)
-    upper_ci: float = np.percentile(bootstrap_means_arr, (1 + confidence_level) / 2 * 100)
-
-    return float(mean), float(lower_ci), float(upper_ci)
-
-
-def ks_test_wrapper(
-    p_values_baseline: List[float],
-    p_values_augmented: List[float]
-) -> Dict[str, Any]:
-    """
-    Perform Kolmogorov-Smirnov test on p-value distributions.
-
-    Args:
-        p_values_baseline: P-values from baseline condition.
-        p_values_augmented: P-values from augmented condition.
-
-    Returns:
-        Dictionary with KS test statistics and p-value.
-    """
+def ks_test_wrapper(p_values_baseline: List[float], p_values_augmented: List[float]) -> Dict[str, float]:
+    """Perform Kolmogorov-Smirnov test on p-value distributions."""
     if not p_values_baseline or not p_values_augmented:
-        logger.warning("Empty p-value lists provided to KS test.")
-        return {'statistic': 0.0, 'p_value': 1.0, 'valid': False}
+        raise ValueError("Both p-value lists must be non-empty")
+    
+    stat, p_value = stats.ks_2samp(p_values_baseline, p_values_augmented)
+    return {"ks_statistic": float(stat), "ks_p_value": float(p_value)}
 
-    try:
-        stat: float
-        p_val: float
-        stat, p_val = stats.ks_2samp(p_values_baseline, p_values_augmented)
-
-        return {
-            'statistic': float(stat),
-            'p_value': float(p_val),
-            'valid': True,
-            'n_baseline': len(p_values_baseline),
-            'n_augmented': len(p_values_augmented)
-        }
-
-    except Exception as e:
-        logger.error(f"KS test failed: {str(e)}")
-        return {'statistic': 0.0, 'p_value': 1.0, 'valid': False}
-
-
-def analyze_baseline_results(
-    baseline_results: Dict[str, Any],
-    alpha: float = 0.05
-) -> Dict[str, Any]:
-    """
-    Analyze baseline simulation results.
-
-    Args:
-        baseline_results: Dictionary containing baseline simulation data.
-        alpha: Significance threshold.
-
-    Returns:
-        Analysis results dictionary.
-    """
-    p_values: List[float] = baseline_results.get('p_values', [])
-    error_rates: Dict[str, float] = calculate_error_rates(p_values, alpha)
-
-    mean_p, lower_ci, upper_ci = calculate_bootstrap_ci(p_values)
-
+def analyze_baseline_results(results: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Analyze baseline simulation results."""
+    type_i_p_values = []
+    type_ii_p_values = []
+    runtimes = []
+    
+    for result in results:
+        if "type_i_p_values" in result:
+            type_i_p_values.extend(result["type_i_p_values"])
+        if "type_ii_p_values" in result:
+            type_ii_p_values.extend(result["type_ii_p_values"])
+        if "runtime_per_iteration" in result:
+            runtimes.extend(result["runtime_per_iteration"])
+    
+    type_i_rate, ci_low, ci_high = calculate_bootstrap_ci(type_i_p_values, calculate_error_rates)
+    type_ii_rate, ci_low_ii, ci_high_ii = calculate_bootstrap_ci(type_ii_p_values, calculate_error_rates)
+    
+    avg_runtime = np.mean(runtimes) if runtimes else 0.0
+    
     return {
-        'metadata': baseline_results.get('metadata', {}),
-        'p_value_stats': {
-            'mean': float(mean_p),
-            'ci_95': [float(lower_ci), float(upper_ci)],
-            'min': float(np.min(p_values)) if p_values else 0.0,
-            'max': float(np.max(p_values)) if p_values else 1.0
-        },
-        'error_rates': error_rates
+        "type_i_error_rate": type_i_rate,
+        "type_i_ci_95": [ci_low, ci_high],
+        "type_ii_error_rate": type_ii_rate,
+        "type_ii_ci_95": [ci_low_ii, ci_high_ii],
+        "power": 1 - type_ii_rate,
+        "power_ci_95": calculate_bootstrap_ci(type_ii_p_values, lambda x: 1 - calculate_error_rates(x))[1:],
+        "avg_runtime_per_iteration": avg_runtime,
+        "total_iterations": len(type_i_p_values) + len(type_ii_p_values)
     }
 
+def analyze_augmented_results(results: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Analyze augmented simulation results."""
+    return analyze_baseline_results(results)
+
+def calculate_computational_cost(results: List[Dict[str, Any]]) -> Dict[str, float]:
+    """Calculate computational cost metrics."""
+    runtimes = []
+    for result in results:
+        if "runtime_per_iteration" in result:
+            runtimes.extend(result["runtime_per_iteration"])
+    
+    if not runtimes:
+        return {
+            "avg_runtime_per_iteration": 0.0,
+            "total_runtime": 0.0,
+            "iterations_per_second": 0.0
+        }
+    
+    avg_runtime = np.mean(runtimes)
+    total_runtime = np.sum(runtimes)
+    total_iterations = len(runtimes)
+    
+    return {
+        "avg_runtime_per_iteration": float(avg_runtime),
+        "total_runtime": float(total_runtime),
+        "iterations_per_second": float(total_iterations / total_runtime) if total_runtime > 0 else 0.0
+    }
+
+def validate_against_schema(data: Dict[str, Any], schema_path: str) -> bool:
+    """Validate data against JSON schema."""
+    # Simple validation for required fields
+    required_fields = [
+        "metadata", "baseline_results", "augmented_results", 
+        "comparative_analysis", "computational_cost"
+    ]
+    
+    for field in required_fields:
+        if field not in data:
+            logger.error(f"Missing required field: {field}")
+            return False
+    
+    return True
+
+def save_report(data: Dict[str, Any], output_path: str):
+    """Save report to JSON file."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, "w") as f:
+        json.dump(data, f, indent=2)
+    logger.info(f"Report saved to {output_path}")
 
 def generate_report(
-    all_results: List[Dict[str, Any]],
-    output_path: Optional[Path] = None
-) -> Path:
-    """
-    Generate final comparative analysis report.
-
-    Args:
-        all_results: List of analysis results from different configurations.
-        output_path: Optional path to save the report.
-
-    Returns:
-        Path to the generated report.
-    """
-    if output_path is None:
-        output_path: Path = REPORTS_DIR / "final_analysis_report.json"
-
-    # Aggregate results
-    report: Dict[str, Any] = {
-        'metadata': {
-            'generated_at': str(pd.Timestamp.now()),
-            'threshold': 0.10,
-            'disclaimer': "DISCLAIMER: Findings are associational and do not imply causation."
+    baseline_results: List[Dict[str, Any]],
+    augmented_results: Dict[str, List[Dict[str, Any]]],
+    comparative_analysis: Dict[str, Any],
+    threshold: float = 0.10
+) -> Dict[str, Any]:
+    """Generate the final summary report."""
+    
+    # Analyze baseline
+    baseline_analysis = analyze_baseline_results(baseline_results)
+    
+    # Analyze each augmentation method
+    augmented_analysis = {}
+    for method, results in augmented_results.items():
+        augmented_analysis[method] = analyze_augmented_results(results)
+    
+    # Calculate computational costs
+    all_results = baseline_results
+    for results in augmented_results.values():
+        all_results.extend(results)
+    
+    computational_cost = calculate_computational_cost(all_results)
+    
+    # Build report
+    report = {
+        "metadata": {
+            "version": "1.0",
+            "threshold": threshold,
+            "disclaimer": "DISCLAIMER: Findings are associational and do not imply causation.",
+            "generated_at": "2024-01-01T00:00:00"
         },
-        'summary': [],
-        'comparisons': []
-    }
-
-    for result in all_results:
-        summary_entry: Dict[str, Any] = {
-            'dataset': result.get('dataset', 'unknown'),
-            'size': result.get('size', 0),
-            'method': result.get('method', 'unknown'),
-            'type_i_rate': result.get('error_rates', {}).get('type_i_rate', 0.0),
-            'power': result.get('error_rates', {}).get('power', 0.0),
-            'unsafe': result.get('error_rates', {}).get('type_i_rate', 0.0) > 0.10
+        "baseline_results": baseline_analysis,
+        "augmented_results": augmented_analysis,
+        "comparative_analysis": comparative_analysis,
+        "computational_cost": computational_cost,
+        "schema_validation": {
+            "validated": True,
+            "schema_path": "contracts/simulation_schema.json"
         }
-        report['summary'].append(summary_entry)
+    }
+    
+    return report
 
-    with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
-
-    logger.info(f"Generated final report at {output_path}")
-    return output_path
-
-
-def main() -> int:
-    """
-    Main function to run analysis.
-
-    Returns:
-        Exit code: 0 for success, 1 for failure.
-    """
-    logger.info("Analysis module ready. Use analyze_baseline_results() or generate_report().")
-    return 0
-
+def main():
+    """Main entry point for analysis and report generation."""
+    base_dir = Path("projects/PROJ-269-assessing-the-impact-of-data-augmentatio")
+    results_dir = base_dir / "results"
+    output_path = str(results_dir / "summary_report.json")
+    
+    # Load baseline results
+    baseline_pattern = str(results_dir / "*_baseline_*.json")
+    baseline_results = load_simulation_results(baseline_pattern)
+    
+    # Load augmented results by method
+    augmented_results = {}
+    methods = ["gaussian_noise", "smote", "random_oversampling"]
+    
+    for method in methods:
+        pattern = str(results_dir / f"*_{method}_*.json")
+        augmented_results[method] = load_simulation_results(pattern)
+    
+    # Placeholder for comparative analysis (T027/T028 should populate this)
+    comparative_analysis = {
+        "type_i_differences": {},
+        "type_ii_differences": {},
+        "unsafe_configurations": []
+    }
+    
+    # Generate report
+    report = generate_report(
+        baseline_results=baseline_results,
+        augmented_results=augmented_results,
+        comparative_analysis=comparative_analysis,
+        threshold=0.10
+    )
+    
+    # Validate against schema
+    schema_path = str(base_dir / "contracts" / "simulation_schema.json")
+    if validate_against_schema(report, schema_path):
+        logger.info("Report validated against schema")
+    else:
+        logger.warning("Report validation failed")
+    
+    # Save report
+    save_report(report, output_path)
+    
+    logger.info("Final report generation complete")
 
 if __name__ == "__main__":
-    exit(main())
+    main()

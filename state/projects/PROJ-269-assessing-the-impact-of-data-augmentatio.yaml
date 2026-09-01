@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-269-assessing-the-impact-of-data-augmentatio
-last_run_id: 06b402cc-adc6-476d-939f-671773cd601a
+last_run_id: 996727f9-b746-46de-9b40-d6ddd70cc810
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio
 title: Assessing the Impact of Data Augmentation on Statistical Power in Small Samples
-updated_at: '2026-09-01T17:27:29.165218Z'
+updated_at: '2026-09-01T18:07:38.749515Z'

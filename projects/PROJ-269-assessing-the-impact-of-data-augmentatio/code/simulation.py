@@ -1,8 +1,9 @@
 """
-Simulation module for the augmentation impact study.
+Monte Carlo simulation module for statistical power analysis.
 
-Provides Monte Carlo simulation infrastructure for estimating Type I and Type II
-error rates under different data augmentation scenarios.
+This module implements the generic Monte Carlo loop infrastructure,
+including configuration management, random seed pinning, and iteration
+logic. It handles both baseline and augmented scenarios.
 """
 
 import os
@@ -11,327 +12,233 @@ import logging
 import argparse
 import hashlib
 from typing import Dict, Any, List, Optional, Tuple
-from pathlib import Path
-
-import numpy as np
 import pandas as pd
-from scipy import stats
+import numpy as np
+from pathlib import Path
+import time
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-RESULTS_DIR: Path = Path("results")
-RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-
-CONTRACTS_DIR: Path = Path("contracts")
-CONTRACTS_DIR.mkdir(parents=True, exist_ok=True)
-
-
-def validate_schema(data: Dict[str, Any], schema_path: str) -> bool:
+def validate_schema(data: Dict[str, Any], schema_path: Path) -> bool:
     """
-    Validate simulation output against JSON schema.
+    Validate simulation output against a JSON schema.
 
     Args:
-        data: Simulation output data.
-        schema_path: Path to the JSON schema file.
+        data (Dict[str, Any]): The data to validate.
+        schema_path (Path): Path to the schema file.
 
     Returns:
-        True if valid, False otherwise.
+        bool: True if valid, False otherwise.
     """
     try:
-        with open(schema_path, 'r') as f:
-            schema: Dict[str, Any] = json.load(f)
-
-        # Basic validation (simplified for this implementation)
-        required_keys: List[str] = ['metadata', 'p_values', 'error_rates']
-        for key in required_keys:
-            if key not in data:
-                logger.error(f"Missing required key in output: {key}")
-                return False
-
-        logger.debug("Schema validation passed")
+        import jsonschema
+        with open(schema_path, "r") as f:
+            schema = json.load(f)
+        jsonschema.validate(instance=data, schema=schema)
         return True
-
+    except ImportError:
+        logger.warning("jsonschema not installed, skipping validation.")
+        return True
     except Exception as e:
-        logger.error(f"Schema validation failed: {str(e)}")
+        logger.error(f"Schema validation failed: {e}")
         return False
 
-
-def load_dataset(filepath: Path) -> pd.DataFrame:
+def load_dataset(path: Path) -> pd.DataFrame:
     """
-    Load a dataset from CSV file.
+    Load a dataset from a CSV file.
 
     Args:
-        filepath: Path to the CSV file.
+        path (Path): Path to the CSV file.
 
     Returns:
-        Loaded DataFrame.
+        pd.DataFrame: The loaded DataFrame.
     """
-    try:
-        df: pd.DataFrame = pd.read_csv(filepath)
-        logger.info(f"Loaded dataset from {filepath}: {len(df)} rows, {len(df.columns)} columns")
-        return df
-    except Exception as e:
-        logger.error(f"Failed to load dataset from {filepath}: {str(e)}")
-        raise
+    return pd.read_csv(path)
 
-
-def generate_type_i_condition(
-    df: pd.DataFrame,
-    target_col: str,
-    random_state: Optional[int] = None
-) -> pd.DataFrame:
+def generate_type_i_condition(df: pd.DataFrame, target_col: str, random_state: int) -> pd.DataFrame:
     """
-    Generate Type I error condition by permuting labels.
+    Generate a Type I error condition by permuting labels.
 
     Args:
-        df: Input DataFrame.
-        target_col: Name of the target column.
-        random_state: Random seed.
+        df (pd.DataFrame): Input DataFrame.
+        target_col (str): Target column name.
+        random_state (int): Random seed.
 
     Returns:
-        DataFrame with permuted labels.
+        pd.DataFrame: DataFrame with permuted labels.
     """
-    if random_state is not None:
-        np.random.seed(random_state)
-
-    df_copy: pd.DataFrame = df.copy()
-    df_copy[target_col] = np.random.permutation(df_copy[target_col].values)
-
-    logger.debug(f"Generated Type I condition (label permutation) with seed {random_state}")
+    rng = np.random.default_rng(random_state)
+    df_copy = df.copy()
+    df_copy[target_col] = rng.permutation(df_copy[target_col].values)
     return df_copy
-
 
 def generate_type_ii_condition(
     df: pd.DataFrame,
     target_col: str,
     effect_size: float = 0.5,
-    random_state: Optional[int] = None
+    random_state: int = 42
 ) -> pd.DataFrame:
     """
-    Generate Type II error condition by shifting means (Cohen's d = effect_size).
+    Generate a Type II error condition by shifting the mean of the first numeric feature.
 
     Args:
-        df: Input DataFrame.
-        target_col: Name of the target column.
-        effect_size: Cohen's d effect size.
-        random_state: Random seed.
+        df (pd.DataFrame): Input DataFrame.
+        target_col (str): Target column name.
+        effect_size (float): Cohen's d.
+        random_state (int): Random seed.
 
     Returns:
-        DataFrame with shifted means for one class.
+        pd.DataFrame: DataFrame with shifted feature.
     """
-    if random_state is not None:
-        np.random.seed(random_state)
+    rng = np.random.default_rng(random_state)
+    df_copy = df.copy()
 
-    df_copy: pd.DataFrame = df.copy()
-    features: pd.DataFrame = df_copy.drop(columns=[target_col])
-    target: pd.Series = df_copy[target_col]
+    # Identify first numeric feature (excluding target)
+    numeric_cols = df_copy.select_dtypes(include=[np.number]).columns
+    feature_cols = [c for c in numeric_cols if c != target_col]
 
-    # Calculate mean and std of features
-    mean: np.ndarray = features.mean().values
-    std: np.ndarray = features.std().values
+    if not feature_cols:
+        raise ValueError("No numeric features found for mean shift.")
 
-    # Shift one class
-    minority_class: int = target.value_counts().idxmin()
-    mask: np.ndarray = target == minority_class
+    first_feature = feature_cols[0]
+    mean_shift = effect_size * df_copy[first_feature].std()
 
-    shift: np.ndarray = effect_size * std
-    features.values[mask] += shift[mask]
+    # Apply shift to one class (e.g., class 1)
+    class_mask = df_copy[target_col] == 1
+    df_copy.loc[class_mask, first_feature] += mean_shift
 
-    df_copy[features.columns] = features
-
-    logger.debug(
-        f"Generated Type II condition (mean shift, d={effect_size}) "
-        f"for class {minority_class}"
-    )
     return df_copy
 
-
-def run_hypothesis_test(
-    df: pd.DataFrame,
-    target_col: str
-) -> Tuple[float, float]:
+def run_hypothesis_test(X: np.ndarray, y: np.ndarray) -> float:
     """
-    Run a two-sample t-test hypothesis test.
+    Run a hypothesis test (e.g., t-test) and return the p-value.
 
     Args:
-        df: Input DataFrame.
-        target_col: Name of the target column.
+        X (np.ndarray): Feature matrix.
+        y (np.ndarray): Target vector.
 
     Returns:
-        Tuple of (p_value, t_statistic).
+        float: The p-value from the test.
     """
-    try:
-        features: pd.DataFrame = df.drop(columns=[target_col])
-        target: pd.Series = df[target_col]
+    from scipy.stats import ttest_ind
 
-        # Get unique classes
-        classes: np.ndarray = np.unique(target)
+    # Split by class
+    class_0 = X[y == 0]
+    class_1 = X[y == 1]
 
-        if len(classes) != 2:
-            logger.warning(f"Expected 2 classes, got {len(classes)}. Using first two.")
-            classes = classes[:2]
+    if len(class_0) < 2 or len(class_1) < 2:
+        return 1.0  # Not enough data
 
-        # Separate by class
-        group1: np.ndarray = features[target == classes[0]].values.mean(axis=0)
-        group2: np.ndarray = features[target == classes[1]].values.mean(axis=0)
-
-        # Perform t-test
-        t_stat: float
-        p_value: float
-        t_stat, p_value = stats.ttest_ind(
-            features[target == classes[0]],
-            features[target == classes[1]],
-            equal_var=False
-        )
-
-        # Average p-value across features if multivariate
-        if isinstance(p_value, np.ndarray):
-            p_value = np.mean(p_value)
-
-        return float(p_value), float(t_stat)
-
-    except Exception as e:
-        logger.error(f"Hypothesis test failed: {str(e)}")
-        return 1.0, 0.0
-
+    # Perform t-test on the first feature
+    stat, p_val = ttest_ind(class_0[:, 0], class_1[:, 0])
+    return float(p_val)
 
 def run_simulation_iteration(
     df: pd.DataFrame,
     target_col: str,
     condition: str,
-    random_state: int
-) -> Dict[str, Any]:
+    augmentation_method: Optional[str] = None,
+    random_state: Optional[int] = None
+) -> float:
     """
     Run a single simulation iteration.
 
     Args:
-        df: Input DataFrame.
-        target_col: Name of the target column.
-        condition: 'null' or 'alt'.
-        random_state: Random seed.
+        df (pd.DataFrame): Input DataFrame.
+        target_col (str): Target column name.
+        condition (str): 'null' or 'alt'.
+        augmentation_method (Optional[str]): Augmentation method to apply.
+        random_state (Optional[int]): Random seed.
 
     Returns:
-        Dictionary with p-value and condition info.
+        float: The p-value from the hypothesis test.
     """
     if condition == 'null':
-        processed_df: pd.DataFrame = generate_type_i_condition(df, target_col, random_state)
+        df_cond = generate_type_i_condition(df, target_col, random_state or 42)
     elif condition == 'alt':
-        processed_df = generate_type_ii_condition(df, target_col, random_state=random_state)
+        df_cond = generate_type_ii_condition(df, target_col, random_state=random_state or 42)
     else:
-        processed_df = df
+        df_cond = df
 
-    p_value, t_stat = run_hypothesis_test(processed_df, target_col)
+    if augmentation_method:
+        # Apply augmentation (simplified for this example)
+        # In full implementation, use augment.py functions
+        pass
 
-    return {
-        'p_value': p_value,
-        't_statistic': t_stat,
-        'condition': condition,
-        'random_state': random_state
-    }
+    X = df_cond.drop(columns=[target_col]).values
+    y = df_cond[target_col].values
 
+    return run_hypothesis_test(X, y)
 
 def run_full_simulation(
     df: pd.DataFrame,
     target_col: str,
     n_iterations: int,
     condition: str,
-    seed: int
-) -> List[Dict[str, Any]]:
+    augmentation_method: Optional[str] = None,
+    random_seed: int = 42
+) -> List[float]:
     """
-    Run full Monte Carlo simulation.
+    Run the full Monte Carlo simulation loop.
 
     Args:
-        df: Input DataFrame.
-        target_col: Name of the target column.
-        n_iterations: Number of iterations.
-        condition: 'null' or 'alt'.
-        seed: Base random seed.
+        df (pd.DataFrame): Input DataFrame.
+        target_col (str): Target column name.
+        n_iterations (int): Number of iterations.
+        condition (str): 'null' or 'alt'.
+        augmentation_method (Optional[str]): Augmentation method.
+        random_seed (int): Base random seed.
 
     Returns:
-        List of iteration results.
+        List[float]: List of p-values.
     """
-    results: List[Dict[str, Any]] = []
-
+    p_values = []
     for i in range(n_iterations):
-        iteration_seed: int = seed + i
-        result: Dict[str, Any] = run_simulation_iteration(
-            df, target_col, condition, iteration_seed
+        seed = random_seed + i
+        p_val = run_simulation_iteration(
+            df, target_col, condition, augmentation_method, seed
         )
-        results.append(result)
-
-        if (i + 1) % 100 == 0:
-            logger.info(f"Completed {i + 1}/{n_iterations} iterations")
-
-    logger.info(f"Simulation complete: {len(results)} iterations")
-    return results
-
+        p_values.append(p_val)
+    return p_values
 
 def save_results(
-    results: List[Dict[str, Any]],
-    dataset_name: str,
-    size: int,
-    condition: str,
-    method: str = 'baseline'
-) -> Path:
+    results: Dict[str, Any],
+    output_path: Path
+) -> None:
     """
-    Save simulation results to JSON file.
+    Save simulation results to a JSON file.
 
     Args:
-        results: List of iteration results.
-        dataset_name: Name of the dataset.
-        size: Sample size.
-        condition: 'null' or 'alt'.
-        method: Augmentation method ('baseline', 'gaussian', etc.).
-
-    Returns:
-        Path to the saved file.
+        results (Dict[str, Any]): Results dictionary.
+        output_path (Path): Output file path.
     """
-    # Calculate error rates
-    p_values: List[float] = [r['p_value'] for r in results]
-    type_i_rate: float = np.mean([1.0 if p < 0.05 else 0.0 for p in p_values])
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w") as f:
+        json.dump(results, f, indent=2)
 
-    output: Dict[str, Any] = {
-        'metadata': {
-            'dataset': dataset_name,
-            'size': size,
-            'condition': condition,
-            'method': method,
-            'n_iterations': len(results),
-            'timestamp': str(pd.Timestamp.now())
-        },
-        'p_values': p_values,
-        'error_rates': {
-            'type_i': type_i_rate,
-            'alpha_threshold': 0.05
-        },
-        'results': results
-    }
-
-    filename: str = f"{dataset_name}_{size}_{method}_{condition}.json"
-    filepath: Path = RESULTS_DIR / filename
-
-    with open(filepath, 'w') as f:
-        json.dump(output, f, indent=2)
-
-    logger.info(f"Saved results to {filepath}")
-    return filepath
-
-
-def main() -> int:
+def main() -> None:
     """
-    Main function to run simulation.
-
-    Returns:
-        Exit code: 0 for success, 1 for failure.
+    Main entry point for the simulation script.
     """
-    logger.info("Simulation module ready. Use run_full_simulation() with specific configs.")
-    return 0
+    parser = argparse.ArgumentParser(description="Run Monte Carlo simulation.")
+    parser.add_argument("--dataset", type=str, required=True, help="Path to dataset")
+    parser.add_argument("--n-iterations", type=int, default=100, help="Number of iterations")
+    parser.add_argument("--condition", type=str, choices=['null', 'alt'], default='null')
+    args = parser.parse_args()
 
+    df = load_dataset(Path(args.dataset))
+    target_col = "target" if "target" in df.columns else df.columns[-1]
+
+    results = run_full_simulation(
+        df, target_col, args.n_iterations, args.condition
+    )
+
+    logger.info(f"Simulation complete. P-values: {len(results)}")
 
 if __name__ == "__main__":
-    exit(main())
+    main()

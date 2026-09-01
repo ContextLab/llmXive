@@ -12,6 +12,23 @@ T001b:
     `results/`, `contracts/`) actually exist in the repository; the claim is unsubstantiated.
     The implementer must supply a directory listing or screenshots showing these folders
     at the repository root.
+T004:
+  c: false
+  h: fc3ede15115afef8766f7947b6da236d787bc5d16154c8e4186d62f1ee764170
+  r: "The provided `code/download_data.py` is truncated and does not show the logic\
+    \ that (1) iterates over all entries in `verified_datasets.json`, (2) verifies\
+    \ each file\u2019s SHA\u2011256 checksum and raises `DataFetchError` on mismatch,\
+    \ (3) checks the fetched\u2011count specification and writes a JSON\u2011formatted\
+    \ warning to `data/derived/fetch_count.log`. Because these required behaviours\
+    \ are absent (or not visible) and the expected log file is missing, the task is\
+    \ not fully satisfied."
+T004b:
+  c: false
+  h: c283ef929987805313813252857eef964c402011854344ff2f332fb154cd78f6
+  r: The `code/config.yaml` does not contain any logic to read `data/derived/fetch_count.log`
+    or to set `simulation.datasets` based on the count, and the required `data/derived/fetch_count.log`
+    file is missing entirely. Both the adaptation logic and the dependent log file
+    are absent, so the task is not fulfilled.
 T008a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -55,14 +72,6 @@ T036:
   r: No `quickstart.md` file or updated content was provided; the claim that it now
     contains instructions for running the full study cannot be verified. The required
     documentation artifact is missing.
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `data-model.md` file or its contents were presented; thus the required Mermaid\
-    \ ERD documentation of the three entities is missing. The implementer must supply\
-    \ a non\u2011empty `data-model.md` containing a Mermaid ERD that defines `Dataset\
-    \ Configuration`, `Simulation Run`, and `Error Rate Profile` with the specified\
-    \ attributes."
 T040:
   c: false
   h: 45449b390d6c3ff30adbaf63a4fcc1e38703a52ef338ce2c33289e009398a612
