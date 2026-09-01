@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T15:42:00.428798Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-043-leveraging-large-language-models-for-aut
-last_run_id: 1a10c16e-46e0-4659-b192-cca371168240
+last_run_id: 5cf9924e-64ca-4087-9ac6-912b356fe050
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut
 title: Leveraging Large Language Models for Automated Code Refactoring
-updated_at: '2026-08-08T03:28:49.059045Z'
+updated_at: '2026-09-01T21:45:03.973389Z'

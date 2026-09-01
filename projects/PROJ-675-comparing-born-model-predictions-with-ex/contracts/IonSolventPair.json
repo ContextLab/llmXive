@@ -1,8 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "IonSolventPair.json",
   "title": "IonSolventPair",
-  "description": "Schema for experimental ion-solvent solvation energy data points.",
+  "description": "Schema for experimental ion-solvent pair data with uncertainty and metadata.",
   "type": "object",
   "properties": {
     "ion_identifier": {
@@ -11,7 +10,7 @@
     },
     "solvent_identifier": {
       "type": "string",
-      "description": "Unique identifier for the solvent (e.g., 'water', 'ethanol')."
+      "description": "Unique identifier for the solvent (e.g., 'water', 'methanol')."
     },
     "experimental_deltaG": {
       "type": "number",
@@ -19,14 +18,14 @@
     },
     "uncertainty": {
       "type": "number",
-      "description": "Uncertainty associated with the experimental measurement."
+      "description": "Uncertainty associated with the experimental value."
     },
     "temperature": {
       "type": "number",
-      "description": "Temperature in Kelvin."
+      "description": "Measurement temperature in Kelvin."
     },
     "charge": {
-      "type": "integer",
+      "type": "number",
       "description": "Integer charge of the ion."
     },
     "radius": {
@@ -40,13 +39,13 @@
     },
     "instrument_metadata": {
       "type": "object",
-      "description": "Metadata regarding the instrument or source of the data.",
+      "description": "Metadata regarding the instrument or source used for measurement.",
       "properties": {
         "source": { "type": "string" },
-        "citation": { "type": "string" },
-        "instrument_type": { "type": "string" }
+        "instrument": { "type": "string" },
+        "precision": { "type": "string" }
       },
-      "additionalProperties": true
+      "required": ["source"]
     }
   },
   "required": [
@@ -57,7 +56,8 @@
     "temperature",
     "charge",
     "radius",
-    "radius_type"
+    "radius_type",
+    "instrument_metadata"
   ],
   "additionalProperties": false
 }

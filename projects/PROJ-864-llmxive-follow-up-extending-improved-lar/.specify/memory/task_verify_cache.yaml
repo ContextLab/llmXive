@@ -20,13 +20,6 @@ T002:
   r: "No `main.py` file was presented at the required location (`projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/`),\
     \ nor any content showing it has been initialized. The implementer must add a\
     \ non\u2011empty `main.py` at that path to satisfy the task."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence (e.g., directory listings, creation logs, or verification commands)
-    was provided showing that `code/`, `data/`, `tests/`, and `state/` exist under
-    `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/`. Without such artifacts,
-    the task requirement cannot be confirmed.
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

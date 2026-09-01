@@ -1,0 +1,22 @@
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No JSON Schema files (IonSolventPair.json, BornPrediction.json, ResidualAnalysis.json)\
+    \ are present in a contracts/ directory, nor is there any code using the jsonschema\
+    \ library to validate data or to compare the schemas against the required Pydantic\
+    \ models. Without these artifacts, the task\u2019s core requirement is not satisfied."
+T012b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, dataset, or analysis artifacts are present; the claim references a generic
+    task identifier with no concrete implementation, retry logic, timestamp logging,
+    or verification of fetch completion, and nothing matches the required Born model
+    dataset, calculator, or regression analysis. The required deliverables are missing.
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains only the textual specification and no concrete artifacts\
+    \ such as the compiled experimental solvation\u2011energy CSV (\u226530 ion\u2011\
+    solvent entries with uncertainties), the Python implementation of the Born equation,\
+    \ or the regression analysis results and diagnostic plots required by the three\
+    \ user stories. Without these files the task requirements are not met."

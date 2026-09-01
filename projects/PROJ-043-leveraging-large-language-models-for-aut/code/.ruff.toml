@@ -1,22 +1,45 @@
-# Ruff Configuration for LLM Refactoring Research
-# This file acts as a local override or extension if needed,
-# though primary config is in pyproject.toml.
+# Ruff configuration file (redundant with pyproject.toml but explicitly requested by task T003)
+# This file ensures ruff picks up settings if run with `--config .ruff.toml`
 
-extend = "pyproject.toml"
+line-length = 88
+target-version = "py311"
+src = ["code"]
 
 [lint]
-# Ensure specific rules are active
+# Enable pycodestyle (`E`), Pyflakes (`F`), Warnings (`W`), and isort (`I`).
 select = ["E", "F", "W", "I"]
-
-# Ignore specific false positives if necessary (none currently)
 ignore = []
+
+fixable = ["ALL"]
+unfixable = []
+
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "data",
+    "paper",
+]
+
+[lint.per-file-ignores]
+"code/__init__.py" = ["F401"]
+"tests/__init__.py" = ["F401"]
 
 [lint.isort]
 known-first-party = ["config", "models", "utils", "data", "llm"]
-
-[format]
-# Consistent with Black
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"

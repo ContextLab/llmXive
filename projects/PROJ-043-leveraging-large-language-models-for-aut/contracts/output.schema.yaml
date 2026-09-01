@@ -1,150 +1,115 @@
-# Output Schema for LLM Refactoring Pipeline Results
-# This schema defines the structure for final results validation
-
+$schema: http://json-schema.org/draft-07/schema#
+title: LLM Refactoring Output
+description: Output schema for the LLM Refactoring Pipeline results
 type: object
-title: OutputSchema
-description: Final results from the refactoring and statistical analysis pipeline
-
 properties:
   metadata:
     type: object
-    description: Metadata about the run
     properties:
-      run_id:
+      version:
         type: string
-        description: Unique identifier for this run
-      timestamp:
+      generated_at:
         type: string
         format: date-time
-        description: ISO 8601 timestamp of the run
-      total_functions:
-        type: integer
-        description: Total number of functions processed
-      valid_functions:
-        type: integer
-        description: Number of functions that passed validation
-      model_version:
+      source_dataset:
         type: string
-        description: Version of the LLM model used
-      config_snapshot:
-        type: object
-        description: Snapshot of configuration used
+      model_used:
+        type: string
     required:
-      - run_id
-      - timestamp
-      - total_functions
-      - valid_functions
-      
-  model_results:
+      - version
+      - generated_at
+  config_snapshot:
     type: object
-    description: Results from statistical modeling
     properties:
-      ols:
-        type: object
-        description: OLS regression results
-        properties:
-          coefficients:
-            type: object
-            description: Dictionary of predictor: coefficient
-          p_values:
-            type: object
-            description: Dictionary of predictor: p-value
-          adjusted_r_squared:
-            type: number
-            format: float
-            description: Adjusted R-squared value
-          f_statistic:
-            type: number
-            description: F-statistic value
-          f_p_value:
-            type: number
-            description: P-value for F-test
-      ridge:
-        type: object
-        description: Ridge regression results
-        properties:
-          coefficients:
-            type: object
-          alpha:
-            type: number
-      glm:
-        type: object
-        description: GLM results
-        properties:
-          coefficients:
-            type: object
-          family:
-            type: string
+      hf_api_key_masked:
+        type: string
+      random_seed:
+        type: integer
+      max_attempts:
+        type: integer
+      min_valid_functions:
+        type: integer
+      batch_size:
+        type: integer
+      timestamp:
+        type: string
     required:
-      - ols
-      
-  statistical_tests:
+      - hf_api_key_masked
+      - random_seed
+      - max_attempts
+      - min_valid_functions
+      - batch_size
+  data:
+    type: array
+    items:
+      type: object
+      properties:
+        code:
+          type: string
+        metrics:
+          type: object
+        hash:
+          type: string
+        refactored_code:
+          type: string
+        baseline_code:
+          type: string
+        deltas:
+          type: object
+        status:
+          type: string
+      required:
+        - code
+        - metrics
+        - hash
+        - status
+  statistics:
     type: object
-    description: Results from statistical hypothesis tests
     properties:
       paired_t_test:
         type: object
-        description: Paired t-test results (if baseline delta >= 0.01)
-        properties:
-          t_statistic:
-            type: number
-          p_value:
-            type: number
-          confidence_interval:
-            type: array
-            items:
-              type: number
-          significant:
-            type: boolean
       one_sample_t_test:
         type: object
-        description: One-sample t-test results (if baseline delta < 0.01)
-        properties:
-          t_statistic:
-            type: number
-          p_value:
-            type: number
-          mean_difference:
-            type: number
-          significant:
-            type: boolean
-    required: []
-    
-  cross_validation:
+      baseline_delta_check:
+        type: boolean
+  models:
     type: object
-    description: K-fold cross-validation results
     properties:
-      k_folds:
-        type: integer
-      mean_coefficients:
+      ols:
         type: object
-        description: Mean coefficients across all folds
-      std_coefficients:
+      ridge:
         type: object
-        description: Standard deviation of coefficients across folds
-      mean_r_squared:
-        type: number
-    required:
-      - k_folds
-      - mean_coefficients
-      
+      glm:
+        type: object
+      cross_validation:
+        type: object
   summary:
     type: object
-    description: High-level summary of findings
     properties:
-      primary_conclusion:
+      total_functions:
+        type: integer
+      valid_functions:
+        type: integer
+      refactored_count:
+        type: integer
+      failed_count:
+        type: integer
+      primary_test:
         type: string
-        description: Main conclusion based on statistical tests
-      significant_predictors:
-        type: array
-        items:
-          type: string
-        description: List of predictors with p < 0.05
-      refactoring_effectiveness:
-        type: string
-        enum: [SIGNIFICANT, NOT_SIGNIFICANT, INCONCLUSIVE]
-        
+      significant:
+        type: boolean
+      p_value:
+        type: number
+    required:
+      - total_functions
+      - valid_functions
+      - primary_test
+      - significant
+      - p_value
 required:
   - metadata
-  - model_results
+  - config_snapshot
+  - data
+  - statistics
+  - models
   - summary

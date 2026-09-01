@@ -1,8 +1,8 @@
 """
-Schema Validation Module for llmXive Project PROJ-675.
+Schema validation utility for Born Model project.
 
-This module validates that the JSON Schema files in contracts/ are valid
-and that they correctly represent the Pydantic models defined in data_models.py.
+Validates JSON Schema syntax and verifies that the schemas match the Pydantic models
+defined in code/data_models.py.
 """
 import json
 import sys
@@ -10,102 +10,137 @@ from pathlib import Path
 
 import jsonschema
 from pydantic import TypeAdapter
-
-# Import Pydantic models from the project API
 from data_models import IonSolventPair, BornPrediction, ResidualAnalysis
 
-CONTRACTS_DIR = Path(__file__).parent.parent / "contracts"
-SCHEMAS = {
+SCHEMAS_DIR = Path(__file__).parent.parent / "contracts"
+SCHEMA_FILES = {
     "IonSolventPair": "IonSolventPair.json",
     "BornPrediction": "BornPrediction.json",
     "ResidualAnalysis": "ResidualAnalysis.json",
 }
 
-def validate_schema_syntax(schema_path: Path) -> bool:
-    """Validate that a JSON file is syntactically valid JSON."""
+def validate_schema_syntax(schema_path: Path) -> dict:
+    """Load and parse a JSON Schema file, ensuring it is valid JSON."""
     try:
         with open(schema_path, "r", encoding="utf-8") as f:
-            json.load(f)
-        return True
+            schema = json.load(f)
+        return schema
     except json.JSONDecodeError as e:
-        print(f"ERROR: Invalid JSON in {schema_path}: {e}")
-        return False
+        raise ValueError(f"Invalid JSON in {schema_path}: {e}")
 
-def validate_model_against_schema(model_class, schema_path: Path) -> bool:
+def validate_model_against_schema(model_class: type, schema: dict, instance: dict) -> bool:
     """
-    Validate that the Pydantic model structure is compatible with the JSON Schema.
-    We do this by creating a TypeAdapter for the model and checking if a sample
-    instance (derived from model fields) passes jsonschema validation.
+    Validate a dictionary instance against a JSON Schema.
+    
+    Args:
+        model_class: The Pydantic model class (used for type hinting context).
+        schema: The loaded JSON Schema.
+        instance: A dictionary representing an instance of the model.
+        
+    Returns:
+        True if valid, raises jsonschema.ValidationError otherwise.
     """
-    model_name = model_class.__name__
-    with open(schema_path, "r", encoding="utf-8") as f:
-        schema = json.load(f)
-
-    # Create a sample instance using default values or dummy data where required
-    # This is a structural check, not a runtime data check.
-    # We construct a minimal valid dict based on required fields in schema.
-    required_fields = schema.get("required", [])
-    sample_data = {}
-
-    for field_name in required_fields:
-        # Check if the field exists in the Pydantic model
-        if field_name not in model_class.model_fields:
-            print(f"ERROR: Field '{field_name}' required by schema {schema_path} "
-                  f"is missing in Pydantic model {model_name}.")
-            return False
-
-        field_info = model_class.model_fields[field_name]
-        # Determine a dummy value based on type
-        if field_info.annotation == int:
-            sample_data[field_name] = 0
-        elif field_info.annotation == float:
-            sample_data[field_name] = 0.0
-        elif field_info.annotation == str:
-            sample_data[field_name] = "dummy"
-        elif field_info.annotation == bool:
-            sample_data[field_name] = False
-        elif hasattr(field_info.annotation, "__origin__") and field_info.annotation.__origin__ is list:
-            sample_data[field_name] = []
-        elif hasattr(field_info.annotation, "__origin__") and field_info.annotation.__origin__ is dict:
-            sample_data[field_name] = {}
-        else:
-            # Fallback for complex types or Optional
-            sample_data[field_name] = None
-
-    # Validate the sample data against the schema
     try:
-        jsonschema.validate(instance=sample_data, schema=schema)
-        print(f"OK: {model_name} schema matches {schema_path.name}.")
+        jsonschema.validate(instance, schema)
         return True
-    except jsonschema.exceptions.ValidationError as e:
-        print(f"ERROR: {model_name} schema mismatch with {schema_path.name}: {e.message}")
-        return False
+    except jsonschema.ValidationError as e:
+        raise e
 
 def main():
-    all_passed = True
+    """
+    Main entry point for schema validation.
+    
+    1. Loads all schemas from contracts/.
+    2. Validates JSON syntax.
+    3. Validates a sample instance (derived from Pydantic model defaults/types) against the schema.
+    """
+    print("Starting schema validation...")
+    all_valid = True
 
-    print("Validating Schema Files and Pydantic Model Alignment...")
-    print("-" * 60)
-
-    for model_name, schema_filename in SCHEMAS.items():
-        schema_path = CONTRACTS_DIR / schema_filename
-        model_class = globals()[model_name]
-
-        # Step 1: Check JSON syntax
-        if not validate_schema_syntax(schema_path):
-            all_passed = False
+    for model_name, schema_filename in SCHEMA_FILES.items():
+        schema_path = SCHEMAS_DIR / schema_filename
+        
+        if not schema_path.exists():
+            print(f"ERROR: Schema file not found: {schema_path}")
+            all_valid = False
             continue
 
-        # Step 2: Validate model alignment
-        if not validate_model_against_schema(model_class, schema_path):
-            all_passed = False
+        print(f"Checking {schema_filename}...")
+        
+        # 1. Validate Syntax
+        try:
+            schema = validate_schema_syntax(schema_path)
+            print(f"  - JSON Syntax: OK")
+        except ValueError as e:
+            print(f"  - JSON Syntax: FAILED - {e}")
+            all_valid = False
+            continue
 
-    print("-" * 60)
-    if all_passed:
-        print("SUCCESS: All schemas are valid and align with Pydantic models.")
+        # 2. Validate against Pydantic Model
+        # We construct a minimal valid instance based on the model's fields to ensure schema compatibility
+        # This checks that the schema allows the fields the model expects.
+        model_class = {
+            "IonSolventPair": IonSolventPair,
+            "BornPrediction": BornPrediction,
+            "ResidualAnalysis": ResidualAnalysis
+        }[model_name]
+
+        # Create a dummy instance to get a dictionary representation for validation
+        # We use TypeAdapter to handle the pydantic model to dict conversion robustly
+        # Note: We are validating the *structure* compatibility, not running a full business logic test.
+        # We create a minimal valid dict that satisfies the schema requirements.
+        
+        # For robustness, we'll generate a minimal valid instance based on schema 'required' fields
+        # and basic types, then ensure the schema accepts it.
+        # However, the task asks to verify schema matches model. 
+        # A strong check: Ensure the schema's required fields match the model's required fields.
+        
+        model_fields = model_class.model_fields
+        schema_required = set(schema.get("required", []))
+        model_required = {k for k, v in model_fields.items() if v.is_required()}
+        
+        if schema_required != model_required:
+            missing_in_schema = model_required - schema_required
+            extra_in_schema = schema_required - model_required
+            msg = f"  - Field Mismatch: Required fields differ.\n      Missing in schema: {missing_in_schema}\n      Extra in schema: {extra_in_schema}"
+            print(msg)
+            all_valid = False
+            continue
+        
+        print(f"  - Required Fields Match: OK")
+
+        # 3. Validate a synthetic instance
+        # We construct a valid instance manually to ensure the schema accepts valid data types
+        # matching the model's types.
+        dummy_instance = {}
+        for field_name, field_info in model_fields.items():
+            if field_name == "instrument_metadata":
+                dummy_instance[field_name] = {"source": "test"}
+            elif field_name == "confidence_interval":
+                dummy_instance[field_name] = [0.0, 1.0]
+            elif field_name in ["temperature", "charge", "radius", "predicted_deltaG", "experimental_deltaG", "uncertainty", "p_value", "residual", "dielectric_constant", "ionic_radius"]:
+                dummy_instance[field_name] = 1.0 if "float" in str(field_info.annotation) or "number" in str(schema["properties"].get(field_name, {}).get("type", "")) else 1
+            elif field_name in ["ion_identifier", "solvent_identifier", "radius_type", "ion_size_class", "solvent_class", "calculation_timestamp"]:
+                dummy_instance[field_name] = "test"
+            elif field_name == "statistical_significance":
+                dummy_instance[field_name] = True
+            else:
+                dummy_instance[field_name] = "test"
+
+        try:
+            validate_model_against_schema(model_class, schema, dummy_instance)
+            print(f"  - Instance Validation: OK")
+        except jsonschema.ValidationError as e:
+            print(f"  - Instance Validation: FAILED - {e.message}")
+            all_valid = False
+
+        print("-" * 20)
+
+    if all_valid:
+        print("All schemas validated successfully.")
         sys.exit(0)
     else:
-        print("FAILURE: Schema validation failed.")
+        print("Schema validation failed.")
         sys.exit(1)
 
 if __name__ == "__main__":

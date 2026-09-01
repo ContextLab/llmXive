@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "math/0303009",
+  "judged_at": "2026-09-01T21:45:49Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"program-as-weights: a programming paradigm for fuzzy functions\" computer science",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology reference for the \"fuzzy functions\" component of the user's question, as Neutrosophic Logic is a canonical generalization of Intuitionistic Fuzzy Logic that would be cited in any literature review extending fuzzy programming paradigms. Additionally, it meets criterion (a) by addressing the same underlying mechanism of handling uncertainty and fuzziness, which is central to the \"Program-as-Weights\" paradigm mentioned in the user's q",
+  "relevant": true
+}

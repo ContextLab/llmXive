@@ -1,32 +1,23 @@
-T001a:
+T014:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `code/` directory at the repository root is provided; the artifact\
-    \ list is empty, so the required directory has not been demonstrated as existing.\
-    \ The implementer must add the `code/` folder (non\u2011empty) to satisfy the\
-    \ task."
-T001b:
+  h: 0e9359b09abe1a657af7a279beebd91c7cf5f993257a273ad306c31e8c859ea7
+  r: The provided `code/data/processor.py` is truncated (ends with an incomplete `except
+    Exception as` block) and does not show the final steps that write the JSON file.
+    Moreover, the required output `data/processed/raw_metrics.json` is absent from
+    the repository. The implementation therefore does not demonstrably fulfill the
+    saving requirement.
+T018:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that a `data/` directory exists at the repository root;
-    the claim lacks any artifact (e.g., directory listing, screenshot, or file) confirming
-    its creation. The required directory is missing from the supplied information.
-T001c:
+  h: cfd198c02874cc5872fbe2ff842ff50d5a36032515da0f19a3e3815aec26db71
+  r: The required artifact `tests/integration/test_refactoring_pipeline.py` does not
+    exist in the repository, so the integration test for the refactoring batch processing
+    is missing. The task cannot be considered complete until this file is created
+    with appropriate test code.
+T022:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact showing a `tests/` directory at the repository root was provided;\
-    \ without evidence of the directory\u2019s existence, the requirement cannot be\
-    \ confirmed as satisfied. The implementer must add proof (e.g., a directory listing\
-    \ or a file inside `tests/`)."
-T001d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `paper/` directory at the repository root is provided; the artifact
-    list is empty, so the required directory has not been demonstrated as existing.
-    The implementer must add the `paper/` folder to satisfy the task.
-T009:
-  c: false
-  h: c566cd22779f04d9986f347ef2c16670134590af9c4dad645eaf30b596b1c2d8
-  r: The required artifact `tests/unit/test_static_analysis.py` does not exist in
-    the repository, so no unit test for metric calculation is present. The task cannot
-    be considered completed until this file is added with appropriate tests.
+  h: 4b744c01e5b797724358eaf6418d3506db39382729d3d40de583293b30a49faa
+  r: "The repository contains a `code/llm/pipeline.py` file, but it is truncated and\
+    \ does not show the final steps that write the results to `data/processed/refactoring_results.json`.\
+    \ Moreover, the required output file `data/processed/refactoring_results.json`\
+    \ is absent from the project. Without this saved JSON of deltas, the task\u2019\
+    s core requirement is not fulfilled."

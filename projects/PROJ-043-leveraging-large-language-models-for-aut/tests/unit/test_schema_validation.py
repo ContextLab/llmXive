@@ -1,145 +1,178 @@
-"""
-Unit tests for schema validation module.
-"""
 import pytest
-from unittest.mock import patch
+from pydantic import ValidationError
+import os
+import yaml
+from datetime import datetime
+
+# Import the models from the implementation
 from code.utils.schema_validation import (
-    validate_config,
-    validate_output,
     ConfigSchema,
     OutputSchema,
-    MetricRecord,
-    DeltaRecord,
-    OutputRecord,
-    OutputMetadata
+    Metadata,
+    ConfigSnapshot,
+    FunctionSample,
+    StatisticalTests,
+    ModelResults,
+    Summary,
+    validate_config,
+    validate_output
 )
-from pydantic import ValidationError
-import json
 
-class TestConfigValidation:
-    """Tests for configuration schema validation."""
-
+class TestConfigSchema:
     def test_valid_config(self):
-        """Test that a valid configuration passes validation."""
-        valid_data = {
-            "HF_API_KEY": "test-key-123",
-            "RANDOM_SEED": 42,
-            "MAX_ATTEMPTS": 10,
-            "MIN_VALID_FUNCTIONS": 50,
-            "BATCH_SIZE": 5
+        config_data = {
+            "hf_api_key": "hf_1234567890abcdef",
+            "random_seed": 42,
+            "max_attempts": 400,
+            "min_valid_functions": 100,
+            "batch_size": 10
         }
-        result = validate_config(valid_data)
-        assert result.HF_API_KEY == "test-key-123"
-        assert result.RANDOM_SEED == 42
+        config = ConfigSchema(**config_data)
+        assert config.hf_api_key == "hf_1234567890abcdef"
+        assert config.random_seed == 42
+        assert config.batch_size == 10
+
+    def test_invalid_api_key_prefix(self):
+        config_data = {
+            "hf_api_key": "invalid_key",
+            "random_seed": 42,
+            "max_attempts": 400,
+            "min_valid_functions": 100,
+            "batch_size": 10
+        }
+        with pytest.raises(ValidationError):
+            ConfigSchema(**config_data)
+
+    def test_invalid_batch_size(self):
+        config_data = {
+            "hf_api_key": "hf_1234567890abcdef",
+            "random_seed": 42,
+            "max_attempts": 400,
+            "min_valid_functions": 100,
+            "batch_size": 15  # Max is 10
+        }
+        with pytest.raises(ValidationError):
+            ConfigSchema(**config_data)
 
     def test_missing_required_field(self):
-        """Test that missing required fields raise ValidationError."""
-        invalid_data = {
-            "RANDOM_SEED": 42,
-            "MAX_ATTEMPTS": 10,
-            "MIN_VALID_FUNCTIONS": 50,
-            "BATCH_SIZE": 5
+        config_data = {
+            "random_seed": 42,
+            "max_attempts": 400,
+            "min_valid_functions": 100,
+            "batch_size": 10
         }
         with pytest.raises(ValidationError):
-            validate_config(invalid_data)
+            ConfigSchema(**config_data)
 
-    def test_invalid_seed_type(self):
-        """Test that non-integer seed raises ValidationError."""
-        invalid_data = {
-            "HF_API_KEY": "key",
-            "RANDOM_SEED": "not-an-int",
-            "MAX_ATTEMPTS": 10,
-            "MIN_VALID_FUNCTIONS": 50,
-            "BATCH_SIZE": 5
-        }
-        with pytest.raises(ValidationError):
-            validate_config(invalid_data)
-
-    def test_negative_seed(self):
-        """Test that negative seed raises ValidationError."""
-        invalid_data = {
-            "HF_API_KEY": "key",
-            "RANDOM_SEED": -1,
-            "MAX_ATTEMPTS": 10,
-            "MIN_VALID_FUNCTIONS": 50,
-            "BATCH_SIZE": 5
-        }
-        with pytest.raises(ValidationError):
-            validate_config(invalid_data)
-
-class TestOutputValidation:
-    """Tests for output schema validation."""
-
-    def get_minimal_valid_record(self):
-        """Helper to create a minimal valid record dict."""
-        return {
-            "function_hash": "abc123",
-            "original_code": "def foo(): pass",
-            "metrics": {
-                "loc": 1,
-                "max_nesting": 0,
-                "param_count": 0,
-                "has_docstring": False,
-                "cyclomatic_complexity": 1.0,
-                "pylint_score": 10.0
-            },
-            "status": "success"
-        }
-
-    def get_minimal_valid_output(self):
-        """Helper to create a minimal valid output dict."""
-        return {
+class TestOutputSchema:
+    def test_valid_output(self):
+        output_data = {
             "metadata": {
                 "version": "1.0.0",
-                "timestamp": "2023-01-01T00:00:00Z",
-                "source_dataset": "bigcode/the-stack-dedup"
+                "generated_at": datetime.now().isoformat()
             },
-            "records": [self.get_minimal_valid_record()]
+            "config_snapshot": {
+                "hf_api_key_masked": "hf_***",
+                "random_seed": 42,
+                "max_attempts": 400,
+                "min_valid_functions": 100,
+                "batch_size": 10,
+                "timestamp": datetime.now().isoformat()
+            },
+            "data": [
+                {
+                    "code": "def hello(): pass",
+                    "metrics": {"loc": 1},
+                    "hash": "abc123",
+                    "status": "success"
+                }
+            ],
+            "statistics": {},
+            "models": {},
+            "summary": {
+                "total_functions": 1,
+                "valid_functions": 1,
+                "primary_test": "paired",
+                "significant": True,
+                "p_value": 0.01
+            }
         }
+        output = OutputSchema(**output_data)
+        assert len(output.data) == 1
+        assert output.summary.total_functions == 1
 
-    def test_valid_output(self):
-        """Test that a valid output structure passes validation."""
-        data = self.get_minimal_valid_output()
-        result = validate_output(data)
-        assert result.metadata.version == "1.0.0"
-        assert len(result.records) == 1
-        assert result.records[0].function_hash == "abc123"
-
-    def test_empty_records_list(self):
-        """Test that empty records list raises ValidationError."""
-        data = self.get_minimal_valid_output()
-        data["records"] = []
-        with pytest.raises(ValidationError):
-            validate_output(data)
-
-    def test_invalid_status_value(self):
-        """Test that invalid status value raises ValidationError."""
-        record = self.get_minimal_valid_record()
-        record["status"] = "invalid_status"
-        data = self.get_minimal_valid_output()
-        data["records"] = [record]
-        with pytest.raises(ValidationError):
-            validate_output(data)
-
-    def test_missing_metrics_field(self):
-        """Test that missing metrics field raises ValidationError."""
-        record = self.get_minimal_valid_record()
-        del record["metrics"]
-        data = self.get_minimal_valid_output()
-        data["records"] = [record]
-        with pytest.raises(ValidationError):
-            validate_output(data)
-
-    def test_delta_validation(self):
-        """Test that delta fields are validated correctly when present."""
-        record = self.get_minimal_valid_record()
-        record["deltas"] = {
-            "complexity_delta": -1.0,
-            "pylint_delta": 2.0,
-            "maintainability_delta": 0.5
+    def test_empty_data_list(self):
+        output_data = {
+            "metadata": {
+                "version": "1.0.0",
+                "generated_at": datetime.now().isoformat()
+            },
+            "config_snapshot": {
+                "hf_api_key_masked": "hf_***",
+                "random_seed": 42,
+                "max_attempts": 400,
+                "min_valid_functions": 100,
+                "batch_size": 10,
+                "timestamp": datetime.now().isoformat()
+            },
+            "data": [],
+            "statistics": {},
+            "models": {},
+            "summary": {
+                "total_functions": 0,
+                "valid_functions": 0,
+                "primary_test": "paired",
+                "significant": False,
+                "p_value": 1.0
+            }
         }
-        data = self.get_minimal_valid_output()
-        data["records"] = [record]
+        with pytest.raises(ValidationError):
+            OutputSchema(**output_data)
+
+class TestValidationFunctions:
+    def test_validate_config_success(self):
+        data = {
+            "hf_api_key": "hf_test",
+            "random_seed": 1,
+            "max_attempts": 10,
+            "min_valid_functions": 1,
+            "batch_size": 1
+        }
+        result = validate_config(data)
+        assert isinstance(result, ConfigSchema)
+
+    def test_validate_config_failure(self):
+        data = {
+            "hf_api_key": "bad",
+            "random_seed": 1,
+            "max_attempts": 10,
+            "min_valid_functions": 1,
+            "batch_size": 1
+        }
+        with pytest.raises(ValidationError):
+            validate_config(data)
+
+    def test_validate_output_success(self):
+        data = {
+            "metadata": {"version": "1.0", "generated_at": "2023-01-01T00:00:00"},
+            "config_snapshot": {
+                "hf_api_key_masked": "hf_***",
+                "random_seed": 1,
+                "max_attempts": 10,
+                "min_valid_functions": 1,
+                "batch_size": 1,
+                "timestamp": "2023-01-01T00:00:00"
+            },
+            "data": [{"code": "x=1", "metrics": {}, "hash": "h", "status": "ok"}],
+            "statistics": {},
+            "models": {},
+            "summary": {
+                "total_functions": 1,
+                "valid_functions": 1,
+                "primary_test": "paired",
+                "significant": True,
+                "p_value": 0.05
+            }
+        }
         result = validate_output(data)
-        assert result.records[0].deltas.complexity_delta == -1.0
-        assert result.records[0].deltas.pylint_delta == 2.0
+        assert isinstance(result, OutputSchema)

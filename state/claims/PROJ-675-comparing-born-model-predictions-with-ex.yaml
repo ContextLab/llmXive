@@ -383,3 +383,361 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-01T10:29:06Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: Dataset contains at least 30 ion-solvent pairs with complete fields and
+    uncertainty estimates
+  claim_id: c_ef6aa774
+  context: "Independent Test: Can be fully tested by verifying the dataset contains\
+    \ \u226530 ion-solvent pairs with complete fields (experimental \u0394G, \u03B5\
+    , r, charge) and that each value includes an uncertainty estimate or documented\
+    \ source precision."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_contains_at_least_30_ion-solvent_pairs_with_complete
+  kind: magnitude
+  raw_text: "The dataset contains \u226530 ion-solvent pairs with complete fields\
+    \ (experimental \u0394G, \u03B5, r, charge) and that each value includes an uncertainty\
+    \ estimate or documented source precision."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T21:27:15Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: Shannon radii extracted with crystal radius values to at least 0.01 Angstrom
+    precision
+  claim_id: c_fa4cd455
+  context: "T013 [US1] Implement Shannon radii extractor in code/data_compiler.py\
+    \ (source: {{claim:c_baa24643}} (Wikidata Q2277031, https://www.wikidata.org/wiki/Q2277031))\
+    \ with crystal radius values to \u22650.01 \xC5 precision"
+  evidence:
+    asserted: '24643.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: "Shannon radii extractor in code/data_compiler.py (source: {{claim:c_baa24643}}\
+    \ (Wikidata Q2277031, https://www.wikidata.org/wiki/Q2277031)) with crystal radius\
+    \ values to \u22650.01 \xC5 precision"
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T21:27:15Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: Born calculator validated against at least 5 reference ion-water pairs
+    with 1 percent relative error tolerance
+  claim_id: c_6614c110
+  context: "T026 [US2] Validate calculator against \u22655 reference ion-water pairs\
+    \ from independent data with \u22641% relative error tolerance in code/validate_born.py;\
+    \ assert tolerance and log failures; verify \u22641% tolerance met"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Born_calculator_validated_against_at_least_5_reference_ion-w
+  kind: magnitude
+  raw_text: "Validate calculator against \u22655 reference ion-water pairs from independent\
+    \ data with \u22641% relative error tolerance in code/validate_born.py"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T21:27:47Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: Total computation time under 10 minutes on 2 CPU cores without GPU dependencies
+  claim_id: c_217c31a1
+  context: 'T028b [US2] Performance benchmark: create code/benchmark.py that measures
+    total computation time and asserts <10 minutes on 2 CPU cores without GPU dependencies;
+    verify benchmark passes'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Performance benchmark: create code/benchmark.py that measures total computation
+    time and asserts <10 minutes on 2 CPU cores without GPU dependencies'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T21:27:48Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: RMSE under 5 kcal/mol and correlation greater than 0.8 metrics per solvent
+    class
+  claim_id: c_c00cb993
+  context: T034b [US3] [SC-003] Calculate and validate RMSE < 5 kcal/mol and correlation
+    > 0.8 metrics per solvent class (water, alcohols, aprotic) with pass/fail reporting
+    in code/regression_analysis.py; verify metrics computed per class
+  evidence:
+    asserted: '5.0'
+    authority: scipy.constants.N_A (CODATA 2018, exact by SI definition)
+    constant: avogadro
+    corrected: true
+    mode: approximate
+    true_value: 6.02214076e+23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?na
+  kind: magnitude
+  raw_text: Calculate and validate RMSE < 5 kcal/mol and correlation > 0.8 metrics
+    per solvent class (water, alcohols, aprotic) with pass/fail reporting in code/regression_analysis.py
+  resolved_value: '602214075999999987023872'
+  resolver: approximate
+  source_hash: 7c4209bfe372393762d83fef294a921d3bf9192226dc5466073653020ea9171b
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T21:27:48Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: Outliers with RMSE greater than 20 kcal/mol flagged for manual review
+  claim_id: c_7ba5c085
+  context: T037 [US3] Flag outliers (RMSE > 20 kcal/mol) for manual review in data/residual_analysis.csv
+    with review_required flag; verify outliers flagged
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Outliers_with_RMSE_greater_than_20_kcal/mol_flagged_for_manu
+  kind: magnitude
+  raw_text: Flag outliers (RMSE > 20 kcal/mol) for manual review in data/residual_analysis.csv
+    with review_required flag
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T21:28:19Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: Docstring coverage greater than 80 percent across code directory
+  claim_id: c_3cbe370a
+  context: T039c [P] Achieve docstring coverage > 80% across code/; verify via pydocstyle
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Docstring_coverage_greater_than_80_percent_across_code_direc
+  kind: magnitude
+  raw_text: Achieve docstring coverage > 80% across code/
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T21:28:45Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: Unit test coverage greater than 80 percent across code directory
+  claim_id: c_fd247f97
+  context: T041a [P] Achieve unit test coverage > 80% across code/; verify via pytest
+    --cov
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unit_test_coverage_greater_than_80_percent_across_code_direc
+  kind: magnitude
+  raw_text: Achieve unit test coverage > 80% across code/
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T21:29:11Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: Wikidata Q11927173 is a data source for solvation energy
+  claim_id: c_c74e2896
+  context: Implement {{claim:c_77fff846}} (Wikidata Q11927173, https://www.wikidata.org/wiki/Q11927173)
+    data fetcher in code/data_compiler.py (URL:) with retry logic and timestamp logging;
+    verify fetch completes
+  evidence:
+    entailment_evidence: Wikidata Q11927173 is a data source for solvation energy
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q11927173_is_a_data_source_for_solvation_energy
+  kind: entity_fact
+  raw_text: Implement {{claim:c_77fff846}} (Wikidata Q11927173, https://www.wikidata.org/wiki/Q11927173)
+    data fetcher in code/data_compiler.py
+  resolved_value: Wikidata Q11927173 is a data source for solvation energy
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T21:29:53Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: Dataset contains 30 or more ion-solvent pairs with complete fields and
+    uncertainty estimates
+  claim_id: c_0f41c21a
+  context: "Independent Test: Can be fully tested by verifying the dataset contains\
+    \ \u226530 ion-solvent pairs with complete fields (experimental \u0394G, \u03B5\
+    , r, charge) and that each value includes an uncertainty estimate or documented\
+    \ source precision."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Can be fully tested by verifying the dataset contains \u226530 ion-solvent\
+    \ pairs with complete fields (experimental \u0394G, \u03B5, r, charge) and that\
+    \ each value includes an uncertainty estimate or documented source precision."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T21:32:06Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: Born calculator validated against 5 or more reference ion-water pairs
+    with 1% or less relative error
+  claim_id: c_5b31a295
+  context: "T026 [US2] Validate calculator against \u22655 reference ion-water pairs\
+    \ from independent data with \u22641% relative error tolerance in code/validate_born.py;\
+    \ assert tolerance and log failures; verify \u22641% tolerance met"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate calculator against \u22655 reference ion-water pairs from independent\
+    \ data with \u22641% relative error tolerance in code/validate_born.py"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T21:32:06Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: Computation time is less than 10 minutes on 2 CPU cores
+  claim_id: c_a91a4217
+  context: 'T028b [US2] Performance benchmark: create code/benchmark.py that measures
+    total computation time and asserts <10 minutes on 2 CPU cores without GPU dependencies;
+    verify benchmark passes'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Computation_time_is_less_than_10_minutes_on_2_CPU_cores
+  kind: magnitude
+  raw_text: Assert <10 minutes on 2 CPU cores without GPU dependencies
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T21:32:37Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: Outliers defined as RMSE greater than 20 kcal/mol
+  claim_id: c_3b28059b
+  context: T037 [US3] Flag outliers (RMSE > 20 kcal/mol) for manual review in data/residual_analysis.csv
+    with review_required flag; verify outliers flagged
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Outliers_defined_as_RMSE_greater_than_20_kcal/mol
+  kind: magnitude
+  raw_text: Flag outliers (RMSE > 20 kcal/mol) for manual review
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T21:33:15Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: Docstring coverage greater than 80 percent
+  claim_id: c_92dd3db5
+  context: T039c [P] Achieve docstring coverage > 80% across code/; verify via pydocstyle
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Docstring_coverage_greater_than_80_percent
+  kind: magnitude
+  raw_text: Achieve docstring coverage > 80% across code/
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T21:33:17Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: Unit test coverage greater than 80 percent
+  claim_id: c_3741d1b2
+  context: T041a [P] Achieve unit test coverage > 80% across code/; verify via pytest
+    --cov
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unit_test_coverage_greater_than_80_percent
+  kind: magnitude
+  raw_text: Achieve unit test coverage > 80% across code/
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T21:33:20Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: Diagnostic plot file size greater than 1 KB
+  claim_id: c_120de64f
+  context: T035b [US3] [P] Validate all three diagnostic plots exist and are non-empty;
+    assert file existence and size > 1KB; verify plots non-empty
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Diagnostic_plot_file_size_greater_than_1_KB
+  kind: magnitude
+  raw_text: Validate all three diagnostic plots exist and are non-empty; assert file
+    existence and size > 1KB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T21:33:54Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: Three diagnostic plots exist and are non-empty
+  claim_id: c_1ac21e47
+  context: 'T035a [US3] Generate all three diagnostic plots with specific output filenames:
+    (a) data/plots/predicted_vs_experimental.png, (b) data/plots/residual_vs_radius.png,
+    (c) data/plots/residual_vs_dielectric.png in code/diagnostics.py; verify all three
+    plots exist'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Three_diagnostic_plots_exist_and_are_non-empty
+  kind: entity_fact
+  raw_text: Validate all three diagnostic plots exist and are non-empty
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T21:34:18Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: Correlation coefficient per solvent class greater than 0.8
+  claim_id: c_326a181d
+  context: T036a [US3] [SC-003] Calculate correlation coefficient per solvent class
+    and validate > 0.8 cutoff; report pass/fail to data/metrics_summary.csv; verify
+    correlation validated per class
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Correlation_coefficient_per_solvent_class_greater_than_0.8
+  kind: magnitude
+  raw_text: Validate correlation coefficient per solvent class and validate > 0.8
+    cutoff
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T21:34:47Z'

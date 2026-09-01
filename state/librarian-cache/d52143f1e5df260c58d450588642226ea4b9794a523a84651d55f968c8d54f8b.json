@@ -1,0 +1,523 @@
+{
+  "fetched_at": "2026-09-01T21:45:52Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Program-as-Weights: A Programming Paradigm for Fuzzy Functions\"",
+      "target_n": 5
+    },
+    "duration_seconds": 47.142,
+    "ended_at": "2026-09-01T21:45:52Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "neural program synthesis with fuzzy logic"
+        ],
+        [
+          2,
+          "differentiable fuzzy programming"
+        ],
+        [
+          3,
+          "embedding fuzzy rules in neural network weights"
+        ],
+        [
+          4,
+          "soft logic neural architectures"
+        ],
+        [
+          5,
+          "neural fuzzy systems with learned parameters"
+        ],
+        [
+          6,
+          "programmatic neural networks for approximate reasoning"
+        ],
+        [
+          7,
+          "weight-encoding of fuzzy inference systems"
+        ],
+        [
+          8,
+          "hybrid neuro-symbolic fuzzy reasoning"
+        ],
+        [
+          9,
+          "learnable fuzzy membership functions via gradient descent"
+        ],
+        [
+          10,
+          "neural networks implementing fuzzy control rules"
+        ],
+        [
+          11,
+          "soft computing with deep learning parameterization"
+        ],
+        [
+          12,
+          "differentiable logic programming for fuzzy sets"
+        ],
+        [
+          13,
+          "neural fuzzy controllers with end-to-end training"
+        ],
+        [
+          14,
+          "embedding logical rules as neural weights"
+        ],
+        [
+          15,
+          "gradient-based optimization of fuzzy rule bases"
+        ],
+        [
+          16,
+          "neural approximators for fuzzy functions"
+        ],
+        [
+          17,
+          "neuro-fuzzy systems with structural learning"
+        ],
+        [
+          18,
+          "implicit neural representations of fuzzy logic"
+        ],
+        [
+          19,
+          "differentiable programming for uncertain reasoning"
+        ],
+        [
+          20,
+          "learning fuzzy systems through neural weight initialization"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"Program-as-Weights: A Programming Paradigm for Fuzzy Functions\" computer science": 0,
+        "neural program synthesis with fuzzy logic": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "program synthesis fuzzy logic neural weights",
+      "differentiable programming neural symbolic hybrid",
+      "meta-learning weight generation program induction",
+      "fuzzy function approximation learned parameters",
+      "weight encoding programmatic reasoning neural networks"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1608.04688"
+      ]
+    },
+    "per_query_hit_count": {
+      "differentiable programming neural symbolic hybrid": 3,
+      "fuzzy function approximation learned parameters": 2,
+      "llmXive follow-up: extending \"Program-as-Weights: A Programming Paradigm for Fuzzy Functions\" computer science": 3,
+      "meta-learning weight generation program induction": 3,
+      "program synthesis fuzzy logic neural weights": 3,
+      "weight encoding programmatic reasoning neural networks": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "1002.1176",
+          "rationale": "The paper applies fuzzy logic and genetic algorithms to antenna array synthesis in electrical engineering, which is an off-domain application distinct from the user's focus on \"Program-as-Weights\" as a programming paradigm for fuzzy functions in computer science. While both use \"fuzzy\" and \"genetic algorithms,\" the paper does not address the specific mechanism of encoding programs as weights, nor does it study the same empirical population or foundational methodology relevant to the user's speci",
+          "title": "Phase-Only Planar Antenna Array Synthesis with Fuzzy Genetic Algorithms"
+        },
+        {
+          "primary_pointer": "1910.06657",
+          "rationale": "The paper focuses on proof-theoretic formalisms (cut-elimination, linear nested sequents) for intuitionistic fuzzy logic, which is a distinct mathematical construct from the \"Program-as-Weights\" paradigm for implementing fuzzy functions in LLMs. While both involve \"fuzzy logic,\" the paper does not measure the same mechanism, domain, or variables as the user's question regarding LLM weight manipulation and programming paradigms, falling under the rejection rule for distinct constructs sharing onl",
+          "title": "Syntactic Cut-Elimination for Intuitionistic Fuzzy Logic via Linear Nested Sequents"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-09-01T21:45:05Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"program-as-weights: a programming paradigm for fuzzy functions\" computer science",
+      "raw": "llmXive follow-up: extending \"Program-as-Weights: A Programming Paradigm for Fuzzy Functions\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Program-as-Weights: A Programming Paradigm for Fuz', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-09-01T21:45:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Program-as-Weights: A Programming Paradigm for Fuz', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-09-01T21:45:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Program-as-Weights: A Programming Paradigm for Fuz', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-09-01T21:45:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Description logics (DLs) are a suitable formalism for representing knowledge about domains in which objects are described not only by attributes but also by binary relations between objects. Fuzzy extensions of DLs can be used for such domains when data and knowledge about them are vague and imprecise. One of the possible ways to specify classes of objects in such domains is to use concepts in fuzzy DLs. As DLs are variants of modal logics, indiscernibility in DLs is characterized by bisimilarity. The bisimilarity relation of an interpretation is the largest auto-bisimulation of that interpretation. In DLs and their fuzzy extensions, such equivalence relations can be used for concept learning. In this paper, we define and study fuzzy bisimulation and bisimilarity for fuzzy DLs under the Gödel semantics, as well as crisp bisimulation and strong bisimilarity for such logics extended with involutive negation. The considered logics are fuzzy extensions of the DL $\\mathcal{ALC}_{reg}$ (a variant of PDL) with additional features among inverse roles, nominals, (qualified or unqualified) number restrictions, the universal role, local reflexivity of a role and involutive negation. We formulate and prove results on invariance of concepts under fuzzy (resp. crisp) bisimulation, conditional invariance of fuzzy TBoxex/ABoxes under bisimilarity (resp. strong bisimilarity), and the Hennessy-Milner property of fuzzy (resp. crisp) bisimulation for fuzzy DLs without (resp. with) involutive negation under the Gödel semantics. Apart from these fundamental results, we also provide results on using fuzzy bisimulation to separate the expressive powers of fuzzy DLs, as well as results on using strong bisimilarity to minimize fuzzy interpretations.",
+          "claimed_authors": [
+            "Linh Anh Nguyen",
+            "Quang-Thuy Ha",
+            "Ngoc Thanh Nguyen",
+            "Thi Hong Khanh Nguyen",
+            "Thanh-Luong Tran"
+          ],
+          "claimed_title": "Bisimulation and bisimilarity for fuzzy description logics under the Gödel semantics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.02857"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Program-as-Weights: A Programming Paradigm for Fuz', candidate_title='Bisimulation and bisimilarity for fuzzy description logics under the Gödel semantics')",
+        "failed_at": "2026-09-01T21:45:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper describes a new method for the synthesis of planar antenna arrays using fuzzy genetic algorithms (FGAs) by optimizing phase excitation coefficients to best meet a desired radiation pattern. We present the application of a rigorous optimization technique based on fuzzy genetic algorithms (FGAs), the optimizing algorithm is obtained by adjusting control parameters of a standard version of genetic algorithm (SGAs) using a fuzzy controller (FLC) depending on the best individual fitness and the population diversity measurements (PDM). The presented optimization algorithms were previously checked on specific mathematical test function and show their superior capabilities with respect to the standard version (SGAs). A planar array with rectangular cells using a probe feed is considered. Included example using FGA demonstrates the good agreement between the desired and calculated radiation patterns than those obtained by a SGA.",
+          "claimed_authors": [
+            "Boufeldja Kadri",
+            "Miloud Boussahla",
+            "Fethi Tarik Bendimerad"
+          ],
+          "claimed_title": "Phase-Only Planar Antenna Array Synthesis with Fuzzy Genetic Algorithms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.1176"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Program-as-Weights: A Programming Paradigm for Fuz', candidate_title='Phase-Only Planar Antenna Array Synthesis with Fuzzy Genetic Algorithms')",
+        "failed_at": "2026-09-01T21:45:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The goal of this paper is to deliver the overview of the current state of the art, to provide experience report on developing quantum software tools, and to outline the perspective for developing quantum programming tools supporting symbolic programming for the needs of quantum computing technologies. The main focus of this paper is on quantum computing technologies, as they can in the most direct way benefit from developing tools enabling the symbolic manipulation of quantum circuits and providing software tools for creating, optimizing, and testing quantum programs. We deliver a short survey of the most popular approaches in the field of quantum software development and we aim at pointing their strengths and weaknesses. This helps to formulate a list of desirable characteristics which should be included in quantum computing frameworks. Next, we describe a software architecture and its preliminary implementation supporting the development of quantum programs using symbolic approach, encouraging the functional programming paradigm, and, at the same, time enabling the integration with high-performance and cloud computing. The described software consists of several packages developed to address different needs, but nevertheless sharing common design concepts. We also outline how the presented approach could be used in tasks in quantum software engineering, namely quantum software testing and quantum circuit construction.",
+          "claimed_authors": [
+            "Jarosław Adam Miszczak"
+          ],
+          "claimed_title": "Symbolic quantum programming for supporting applications of quantum computing technologies",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.09401"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Program-as-Weights: A Programming Paradigm for Fuz', candidate_title='Symbolic quantum programming for supporting applications of quantum computing technologies')",
+        "failed_at": "2026-09-01T21:45:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Rewriting logic is both a flexible semantic framework within which widely different concurrent systems can be naturally specified and a logical framework in which widely different logics can be specified. Maude programs are exactly rewrite theories. Maude has also a formal environment of verification tools. Symbolic computation is a powerful technique for reasoning about the correctness of concurrent systems and for increasing the power of formal tools. We present several new symbolic features of Maude that enhance formal reasoning about Maude programs and the effectiveness of formal tools. They include: (i) very general unification modulo user-definable equational theories, and (ii) symbolic reachability analysis of concurrent systems using narrowing. The paper does not focus just on symbolic features: it also describes several other new Maude features, including: (iii) Maude's strategy language for controlling rewriting, and (iv) external objects that allow flexible interaction of Maude object-based concurrent systems with the external world. In particular, meta-interpreters are external objects encapsulating Maude interpreters that can interact with many other objects. To make the paper self-contained and give a reasonably complete language overview, we also review the basic Maude features for equational rewriting and rewriting with rules, Maude programming of concurrent object systems, and reflection. Furthermore, we include many examples illustrating all the Maude notions and features described in the paper.",
+          "claimed_authors": [
+            "Francisco Durán",
+            "Steven Eker",
+            "Santiago Escobar",
+            "Narciso Martí-Oliet",
+            "José Meseguer",
+            "Rubén Rubio",
+            "Carolyn Talcott"
+          ],
+          "claimed_title": "Programming and Symbolic Computation in Maude",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.08416"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Program-as-Weights: A Programming Paradigm for Fuz', candidate_title='Programming and Symbolic Computation in Maude')",
+        "failed_at": "2026-09-01T21:45:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Symbolic regression is the process of identifying mathematical expressions that fit observed output from a black-box process. It is a discrete optimization problem generally believed to be NP-hard. Prior approaches to solving the problem include neural-guided search (e.g. using reinforcement learning) and genetic programming. In this work, we introduce a hybrid neural-guided/genetic programming approach to symbolic regression and other combinatorial optimization problems. We propose a neural-guided component used to seed the starting population of a random restart genetic programming component, gradually learning better starting populations. On a number of common benchmark tasks to recover underlying expressions from a dataset, our method recovers 65% more expressions than a recently published top-performing model using the same experimental setup. We demonstrate that running many genetic programming generations without interdependence on the neural-guided component performs better for symbolic regression than alternative formulations where the two are more strongly coupled. Finally, we introduce a new set of 22 symbolic regression benchmark problems with increased difficulty over existing benchmarks. Source code is provided at www.github.com/brendenpetersen/deep-symbolic-optimization.",
+          "claimed_authors": [
+            "T. Nathan Mundhenk",
+            "Mikel Landajuela",
+            "Ruben Glatt",
+            "Claudio P. Santiago",
+            "Daniel M. Faissol",
+            "Brenden K. Petersen"
+          ],
+          "claimed_title": "Symbolic Regression via Neural-Guided Genetic Programming Population Seeding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.00053"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Program-as-Weights: A Programming Paradigm for Fuz', candidate_title='Symbolic Regression via Neural-Guided Genetic Programming Population Seeding')",
+        "failed_at": "2026-09-01T21:45:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern machine learning requires system designers to specify aspects of the learning pipeline, such as losses, architectures, and optimizers. Meta-learning, or learning-to-learn, instead aims to learn those aspects, and promises to unlock greater capabilities with less manual effort. One particularly ambitious goal of meta-learning is to train general-purpose in-context learning algorithms from scratch, using only black-box models with minimal inductive bias. Such a model takes in training data, and produces test-set predictions across a wide range of problems, without any explicit definition of an inference model, training loss, or optimization algorithm. In this paper we show that Transformers and other black-box models can be meta-trained to act as general-purpose in-context learners. We characterize transitions between algorithms that generalize, algorithms that memorize, and algorithms that fail to meta-train at all, induced by changes in model size, number of tasks, and meta-optimization. We further show that the capabilities of meta-trained algorithms are bottlenecked by the accessible state size (memory) determining the next prediction, unlike standard models which are thought to be bottlenecked by parameter count. Finally, we propose practical interventions such as biasing the training distribution that improve the meta-training and meta-generalization of general-purpose in-context learning algorithms.",
+          "claimed_authors": [
+            "Louis Kirsch",
+            "James Harrison",
+            "Jascha Sohl-Dickstein",
+            "Luke Metz"
+          ],
+          "claimed_title": "General-Purpose In-Context Learning by Meta-Learning Transformers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.04458"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Program-as-Weights: A Programming Paradigm for Fuz', candidate_title='General-Purpose In-Context Learning by Meta-Learning Transformers')",
+        "failed_at": "2026-09-01T21:45:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While deep reinforcement learning (RL) has fueled multiple high-profile successes in machine learning, it is held back from more widespread adoption by its often poor data efficiency and the limited generality of the policies it produces. A promising approach for alleviating these limitations is to cast the development of better RL algorithms as a machine learning problem itself in a process called meta-RL. Meta-RL is most commonly studied in a problem setting where, given a distribution of tasks, the goal is to learn a policy that is capable of adapting to any new task from the task distribution with as little data as possible. In this survey, we describe the meta-RL problem setting in detail as well as its major variations. We discuss how, at a high level, meta-RL research can be clustered based on the presence of a task distribution and the learning budget available for each individual task. Using these clusters, we then survey meta-RL algorithms and applications. We conclude by presenting the open problems on the path to making meta-RL part of the standard toolbox for a deep RL practitioner.",
+          "claimed_authors": [
+            "Jacob Beck",
+            "Risto Vuorio",
+            "Evan Zheran Liu",
+            "Zheng Xiong",
+            "Luisa Zintgraf",
+            "Chelsea Finn",
+            "Shimon Whiteson"
+          ],
+          "claimed_title": "A Tutorial on Meta-Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.08028"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Program-as-Weights: A Programming Paradigm for Fuz', candidate_title='A Tutorial on Meta-Reinforcement Learning')",
+        "failed_at": "2026-09-01T21:45:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modular meta-learning is a new framework that generalizes to unseen datasets by combining a small set of neural modules in different ways. In this work we propose abstract graph networks: using graphs as abstractions of a system's subparts without a fixed assignment of nodes to system subparts, for which we would need supervision. We combine this idea with modular meta-learning to get a flexible framework with combinatorial generalization to new tasks built in. We then use it to model the pushing of arbitrarily shaped objects from little or no training data.",
+          "claimed_authors": [
+            "Ferran Alet",
+            "Maria Bauza",
+            "Alberto Rodriguez",
+            "Tomas Lozano-Perez",
+            "Leslie P. Kaelbling"
+          ],
+          "claimed_title": "Modular meta-learning in abstract graph networks for combinatorial generalization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1812.07768"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Program-as-Weights: A Programming Paradigm for Fuz', candidate_title='Modular meta-learning in abstract graph networks for combinatorial generalization')",
+        "failed_at": "2026-09-01T21:45:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Let $Covering$ be the category of the category of fuzzy coverings, and $Partition$, the category of fuzzy partitions. We geometrically construct an isomorphism of categories between $Partition$ and a full subcategory of $Covering$, which can be used to derive bijections between fuzzy partitions and fuzzy coverings with finitely many sets. Also, we establish an isomorphism between $Covering[n]$, the category of coverings with $n$ fuzzy sets, and a subcategory of $Partition$, whose objects are partitions with $n$ sets which satisfy certain conditions, which can be also used to deduce another bijection between fuzzy partitions and fuzzy coverings with finitely many sets.",
+          "claimed_authors": [
+            "Mircea Cimpoeas",
+            "Adrian Gabriel Neacsu"
+          ],
+          "claimed_title": "Geometrical isomorphisms between categories of fuzzy coverings and fuzzy partitions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.07948"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Program-as-Weights: A Programming Paradigm for Fuz', candidate_title='Geometrical isomorphisms between categories of fuzzy coverings and fuzzy partitions')",
+        "failed_at": "2026-09-01T21:45:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we introduce some families of fuzzy L-systems and investigate their properties. We further discuss the relationship between fuzzy L languages and the fuzzy languages generated by fuzzy grammar proposed in Ref.[3,5]. A measure of fuzziness for a string, called the fuzzy entropy of a string with respect to a given fuzzy L system, will be defined. The relationship between fuzzy L languages and the ordinary L languages is also discussed.",
+          "claimed_authors": [
+            "Zu-Guo Yu"
+          ],
+          "claimed_title": "Fuzzy L languages",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1998,
+          "primary_pointer": "math/9812014"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Program-as-Weights: A Programming Paradigm for Fuz', candidate_title='Fuzzy L languages')",
+        "failed_at": "2026-09-01T21:45:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+          "claimed_authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "claimed_title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.14753"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Program-as-Weights: A Programming Paradigm for Fuz', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
+        "failed_at": "2026-09-01T21:45:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a weight similarity measure method that can quantify the weight similarity of non-convex neural networks. To understand the weight similarity of different trained models, we propose to extract the feature representation from the weights of neural networks. We first normalize the weights of neural networks by introducing a chain normalization rule, which is used for weight representation learning and weight similarity measure. We extend the traditional hypothesis-testing method to a hypothesis-training-testing statistical inference method to validate the hypothesis on the weight similarity of neural networks. With the chain normalization rule and the new statistical inference, we study the weight similarity measure on Multi-Layer Perceptron (MLP), Convolutional Neural Network (CNN), and Recurrent Neural Network (RNN), and find that the weights of an identical neural network optimized with the Stochastic Gradient Descent (SGD) algorithm converge to a similar local solution in a metric space. The weight similarity measure provides more insight into the local solutions of neural networks. Experiments on several datasets consistently validate the hypothesis of weight similarity measure.",
+          "claimed_authors": [
+            "Guangcong Wang",
+            "Guangrun Wang",
+            "Wenqi Liang",
+            "Jianhuang Lai"
+          ],
+          "claimed_title": "Understanding Weight Similarity of Neural Networks via Chain Normalization Rule and Hypothesis-Training-Testing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.04369"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Program-as-Weights: A Programming Paradigm for Fuz', candidate_title='Understanding Weight Similarity of Neural Networks via Chain Normalization Rule and Hypothesis-Training-Testing')",
+        "failed_at": "2026-09-01T21:45:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Providing a model that achieves a strong predictive performance and is simultaneously interpretable by humans is one of the most difficult challenges in machine learning research due to the conflicting nature of these two objectives. To address this challenge, we propose a modification of the radial basis function neural network model by equipping its Gaussian kernel with a learnable precision matrix. We show that precious information is contained in the spectrum of the precision matrix that can be extracted once the training of the model is completed. In particular, the eigenvectors explain the directions of maximum sensitivity of the model revealing the active subspace and suggesting potential applications for supervised dimensionality reduction. At the same time, the eigenvectors highlight the relationship in terms of absolute variation between the input and the latent variables, thereby allowing us to extract a ranking of the input variables based on their importance to the prediction task enhancing the model interpretability. We conducted numerical experiments for regression, classification, and feature selection tasks, comparing our model against popular machine learning models, the state-of-the-art deep learning-based embedding feature selection techniques, and a transformer model for tabular data. Our results demonstrate that the proposed model does not only yield an attractive prediction performance compared to the competitors but also provides meaningful and interpretable results that potentially could assist the decision-making process in real-world applications. A PyTorch implementation of the model is available on GitHub at the following link. https://github.com/dannyzx/Gaussian-RBFNN",
+          "claimed_authors": [
+            "Danny D'Agostino",
+            "Ilija Ilievski",
+            "Christine Annette Shoemaker"
+          ],
+          "claimed_title": "Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.05639"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Program-as-Weights: A Programming Paradigm for Fuz', candidate_title='Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks')",
+        "failed_at": "2026-09-01T21:45:34Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ginés Moreno",
+            "Jaime Penabad",
+            "Germán Vidal"
+          ],
+          "title": "Tuning Fuzzy Logic Programs with Symbolic Execution",
+          "venue": "arXiv",
+          "year": 2016
+        },
+        "primary_pointer": "1608.04688",
+        "summary": "Fuzzy logic programming is a growing declarative paradigm aiming to integrate fuzzy logic into logic programming. One of the most difficult tasks when specifying a fuzzy logic program is determining the right weights for each rule, as well as the most appropriate fuzzy connectives and operators. In this paper, we introduce a symbolic extension of fuzzy logic programs in which some of these parameters can be left unknown, so that the user can easily see the impact of their possible values. Furthermore, given a number of test cases, the most appropriate values for these parameters can be automatically computed.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1608.04688",
+          "http_status": 200,
+          "pdf_sample_score": 0.1409,
+          "query_relevance_score": 0.4545,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-01T21:45:34Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Florentin Smarandache"
+          ],
+          "title": "Neutrosophic Logic - Generalization of the Intuitionistic Fuzzy Logic",
+          "venue": "arXiv",
+          "year": 2003
+        },
+        "primary_pointer": "math/0303009",
+        "summary": "One generalizes the intuitionistic fuzzy logic (IFL) and other logics to neutrosophic logic (NL). The distinctions between IFL and NL {and the corresponding intuitionistic fuzzy set (IFS) and neutrosophic set (NS) respectively} are presented.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/math/0303009",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-01T21:45:40Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"program-as-weights: a programming paradigm for fuzzy functions\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

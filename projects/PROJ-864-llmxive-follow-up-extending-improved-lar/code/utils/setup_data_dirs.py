@@ -6,57 +6,52 @@ from utils.logging import get_logger, info, error
 
 def setup_data_directories() -> bool:
     """
-    Create the required project directories: code/, data/, tests/, and state/.
-    
-    This function ensures that the directory structure required by the project
-    exists under the project root. It creates the directories if they don't exist
-    and verifies their existence afterwards.
+    Create required project directories: code/, data/, tests/, state/.
+    Verifies existence after creation.
     
     Returns:
-        bool: True if all directories were successfully created or already exist,
-              False if any directory creation failed.
+        bool: True if all directories created/verified successfully, False otherwise.
     """
-    logger = get_logger(__name__)
+    # Determine project root (assuming script runs from code/ or project root)
+    # We need to navigate to the project root relative to this file
+    current_file = Path(__file__).resolve()
+    project_root = current_file.parent.parent.parent
     
-    # Define the directories to create relative to the project root
-    # The project root is assumed to be the parent of the 'code' directory
-    project_root = Path(__file__).resolve().parent.parent.parent
-    
-    directories_to_create: List[Path] = [
-        project_root / "code",
-        project_root / "data",
-        project_root / "tests",
-        project_root / "state"
+    # Define required directories relative to project root
+    required_dirs = [
+        "code",
+        "data",
+        "tests",
+        "state"
     ]
     
-    success = True
+    logger = get_logger("setup_data_dirs")
+    info(logger, "Starting directory initialization...")
     
-    for directory in directories_to_create:
+    created_count = 0
+    failed_dirs = []
+    
+    for dir_name in required_dirs:
+        dir_path = project_root / dir_name
         try:
-            if not directory.exists():
-                directory.mkdir(parents=True, exist_ok=True)
-                info(f"Created directory: {directory}")
+            if not dir_path.exists():
+              dir_path.mkdir(parents=True, exist_ok=True)
+              info(logger, f"Created directory: {dir_path}")
+              created_count += 1
             else:
-                info(f"Directory already exists: {directory}")
+              info(logger, f"Directory already exists: {dir_path}")
             
-            # Verify the directory exists and is actually a directory
-            if not directory.is_dir():
-                error(f"Path exists but is not a directory: {directory}")
-                success = False
-                
-        except PermissionError as e:
-            error(f"Permission denied when creating directory {directory}: {e}")
-            success = False
-        except OSError as e:
-            error(f"OS error when creating directory {directory}: {e}")
-            success = False
+            # Verify existence
+            if not dir_path.is_dir():
+                error(logger, f"Failed to verify directory: {dir_path}")
+                failed_dirs.append(dir_name)
         except Exception as e:
-            error(f"Unexpected error when creating directory {directory}: {e}")
-            success = False
+            error(logger, f"Error creating directory {dir_name}: {str(e)}")
+            failed_dirs.append(dir_name)
     
-    if success:
-        info("All required directories verified successfully.")
-    else:
-        error("Failed to create or verify one or more required directories.")
+    if failed_dirs:
+        error(logger, f"Failed to create/verify directories: {', '.join(failed_dirs)}")
+        return False
     
-    return success
+    info(logger, f"Successfully initialized {created_count} directories.")
+    return True

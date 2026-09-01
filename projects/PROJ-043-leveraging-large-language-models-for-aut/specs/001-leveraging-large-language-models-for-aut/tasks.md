@@ -84,8 +84,8 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/data/download.py`: Fetch `bigcode/the-stack-dedup` via `datasets.load_dataset`. **Strict Constraints**: Max attempts: 400. Stop immediately if 200 valid samples are found. Minimum valid required: 100. If <100 valid samples are found after 400 attempts, log a warning and halt with a clear error. Handle rate limits with exponential backoff. **FAIL LOUDLY** if the canonical dataset is inaccessible.
-- [ ] T013 [US1] Implement `code/data/static_analysis.py`: Parse Python AST to compute LOC, max nesting depth, parameter count, and **docstring presence** (boolean); use `radon` for cyclomatic complexity; use `pylint` to compute **PEP-8 adherence score** (normalized score) as the predictor. Flag unparseable functions. **Distinction**: Compute these metrics strictly on the *original* code to serve as predictors.
+- [X] T012 [US1] Implement `code/data/download.py`: Fetch `bigcode/the-stack-dedup` via `datasets.load_dataset`. **Strict Constraints**: Max attempts: 400. Stop immediately if 200 valid samples are found. Minimum valid required: 100. If <100 valid samples are found after 400 attempts, log a warning and halt with a clear error. Handle rate limits with exponential backoff. **FAIL LOUDLY** if the canonical dataset is inaccessible.
+- [X] T013 [US1] Implement `code/data/static_analysis.py`: Parse Python AST to compute LOC, max nesting depth, parameter count, and **docstring presence** (boolean); use `radon` for cyclomatic complexity; use `pylint` to compute **PEP-8 adherence score** (normalized score) as the predictor. Flag unparseable functions. **Distinction**: Compute these metrics strictly on the *original* code to serve as predictors.
 - [ ] T014 [US1] Implement `code/data/processor.py`: Orchestrate download and analysis, filter out unparseable functions, **validate that count >= 100 before saving**, and save `data/processed/raw_metrics.json` with original code and structural predictors.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -100,16 +100,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T016 [P] [US2] Unit test for API retry logic and timeout handling in `tests/unit/test_llm_client.py`
+- [X] T016 [P] [US2] Unit test for API retry logic and timeout handling in `tests/unit/test_llm_client.py`
 - [ ] T017 [P] [US2] Unit test for null baseline generation in `tests/unit/test_baseline.py`
 - [ ] T018 [P] [US2] Integration test for refactoring batch processing in `tests/integration/test_refactoring_pipeline.py`
 
 ### Implementation for User Story 2
 
-- [ ] T019 [US2] Implement `code/llm/refactoring.py`: Invoke HuggingFace Inference API for `WizardCoder-Python-13B` with zero-shot prompts; implement batching (≤10), retry logic (limited number of attempts), and **timeout=60** seconds per attempt.
-- [ ] T020 [US2] Implement `code/llm/baseline.py`: Generate null baseline (identity transformation) for each valid function.
-- [ ] T021 [US2] Implement `code/llm/quality.py`: Calculate cyclomatic complexity and pylint scores for original, refactored, and baseline code; compute deltas (Δ) for each. **Validation**: After computing the baseline delta (original vs. identity), verify that `|delta| < 0.01`. If this condition fails, raise a `ValueError` with a message indicating baseline generation failure.
-- [ ] T023 [US2] [P] Integrate caching: Modify `code/llm/refactoring.py` to use `code/utils/cache.py` with `function_hash` as the cache key; ensure cache check occurs before API call.
+- [X] T019 [US2] Implement `code/llm/refactoring.py`: Invoke HuggingFace Inference API for `WizardCoder-Python-13B` with zero-shot prompts; implement batching (≤10), retry logic (limited number of attempts), and **timeout=60** seconds per attempt.
+- [X] T020 [US2] Implement `code/llm/baseline.py`: Generate null baseline (identity transformation) for each valid function.
+- [X] T021 [US2] Implement `code/llm/quality.py`: Calculate cyclomatic complexity and pylint scores for original, refactored, and baseline code; compute deltas (Δ) for each. **Validation**: After computing the baseline delta (original vs. identity), verify that `|delta| < 0.01`. If this condition fails, raise a `ValueError` with a message indicating baseline generation failure.
+- [X] T023 [US2] [P] Integrate caching: Modify `code/llm/refactoring.py` to use `code/utils/cache.py` with `function_hash` as the cache key; ensure cache check occurs before API call.
 - [ ] T022 [US2] Implement `code/llm/pipeline.py`: Orchestrate refactoring and baseline generation (calling T019, T020, T021, T023), handle syntax errors in LLM output (mark as "Refactoring Failed"), and save `data/processed/refactoring_results.json` with deltas.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -124,7 +124,7 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T024 [P] [US3] Unit test for VIF calculation and predictor filtering in `tests/unit/test_regression.py`
+- [X] T024 [P] [US3] Unit test for VIF calculation and predictor filtering in `tests/unit/test_regression.py`
 - [ ] T025 [P] [US3] Unit test for one-sample t-test implementation in `tests/unit/test_stats.py`
 - [ ] T026 [P] [US3] Integration test for full modeling pipeline in `tests/integration/test_modeling_pipeline.py`
 

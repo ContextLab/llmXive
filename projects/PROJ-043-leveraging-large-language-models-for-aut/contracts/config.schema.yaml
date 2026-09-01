@@ -1,62 +1,32 @@
-# Configuration Schema for LLM Refactoring Pipeline
-# This schema defines the structure for runtime configuration validation
-# via Pydantic models in code/utils/schema_validation.py
-
+$schema: http://json-schema.org/draft-07/schema#
+title: LLM Refactoring Configuration
+description: Configuration schema for the LLM Refactoring Pipeline
 type: object
-title: ConfigSchema
-description: Runtime configuration parameters for the refactoring pipeline
-
 properties:
-  HF_API_KEY:
+  hf_api_key:
     type: string
-    description: Hugging Face API key for model inference
+    description: HuggingFace API Key
     pattern: "^hf_"
-    minLength: 20
-    
-  RANDOM_SEED:
+  random_seed:
     type: integer
     description: Random seed for reproducibility
-    default: 42
     minimum: 0
-    
-  MAX_ATTEMPTS:
+    default: 42
+  max_attempts:
     type: integer
-    description: Maximum retry attempts for API calls
+    description: Maximum attempts to fetch valid data
+    minimum: 1
     default: 400
-    minimum: 1
-    
-  MIN_VALID_FUNCTIONS:
+  min_valid_functions:
     type: integer
-    description: Minimum number of valid functions required to proceed
+    description: Minimum number of valid functions required
+    minimum: 1
     default: 100
-    minimum: 1
-    
-  BATCH_SIZE:
+  batch_size:
     type: integer
-    description: Number of functions to process in a single batch
-    default: 10
+    description: Batch size for LLM API calls
     minimum: 1
-    maximum: 20
-    
-  LOG_LEVEL:
-    type: string
-    description: Logging verbosity level
-    enum: [DEBUG, INFO, WARNING, ERROR, CRITICAL]
-    default: INFO
-    
-  CACHE_DIR:
-    type: string
-    description: Directory path for disk-based caching
-    default: "data/cache"
-    
-  OUTPUT_DIR:
-    type: string
-    description: Directory path for output files
-    default: "data/processed"
-    
+    maximum: 10
+    default: 10
 required:
-  - HF_API_KEY
-  - RANDOM_SEED
-  - MAX_ATTEMPTS
-  - MIN_VALID_FUNCTIONS
-  - BATCH_SIZE
+  - hf_api_key

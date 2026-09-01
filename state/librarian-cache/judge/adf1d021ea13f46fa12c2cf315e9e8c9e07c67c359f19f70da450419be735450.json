@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1608.04688",
+  "judged_at": "2026-09-01T21:45:43Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"program-as-weights: a programming paradigm for fuzzy functions\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly addresses the core mechanism of \"Program-as-Weights\" by investigating the determination and automatic tuning of weights in fuzzy logic programs, which is the specific variable and domain the user's research question targets.",
+  "relevant": true
+}

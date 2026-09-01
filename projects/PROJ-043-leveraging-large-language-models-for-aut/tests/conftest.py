@@ -1,36 +1,28 @@
 """
-Pytest configuration and shared fixtures for the test suite.
+Pytest configuration and shared fixtures.
 """
 import os
 import sys
 import pytest
 from pathlib import Path
 
-# Ensure project root is in path for imports
+# Add the project root to the path to allow imports from 'code/'
 @pytest.fixture(autouse=True)
 def add_project_root_to_path():
-    """Add project root to sys.path for imports during tests."""
     root = Path(__file__).parent.parent
-    if str(root) not in sys.path:
-        sys.path.insert(0, str(root))
+    if str(root / "code") not in sys.path:
+        sys.path.insert(0, str(root / "code"))
     yield
-    if str(root) in sys.path:
-        sys.path.remove(str(root))
+    if str(root / "code") in sys.path:
+        sys.path.remove(str(root / "code"))
 
 @pytest.fixture
 def sample_function_code():
-    """Provide a sample Python function string for testing."""
+    """Provides a sample Python function string for testing static analysis."""
     return """
-def calculate_fibonacci(n):
-    if n <= 1:
-  return n
-    else:
-  return calculate_fibonacci(n-1) + calculate_fibonacci(n-2)
+def calculate_sum(numbers):
+    total = 0
+    for num in numbers:
+  total += num
+    return total
 """
-
-@pytest.fixture
-def temp_output_dir(tmp_path):
-    """Provide a temporary directory for test outputs."""
-    output_dir = tmp_path / "test_outputs"
-    output_dir.mkdir()
-    return output_dir

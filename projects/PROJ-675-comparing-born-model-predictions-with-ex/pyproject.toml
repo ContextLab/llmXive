@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "born-model-solvation-comparison"
 version = "0.1.0"
-description = "Comparing Born Model Predictions with Experimental Solvation Energies of Small Ions"
+description = "Comparing Born Model Predictions with Experimental Solvation Energies"
 requires-python = ">=3.11"
 dependencies = [
     "pandas",
@@ -19,25 +19,34 @@ dependencies = [
     "pytest",
     "flake8",
     "black",
-    "pip-audit",
-    "pytest-cov",
-    "pydocstyle",
+    "pip-audit"
 ]
 
 [tool.black]
 line-length = 88
-target-version = ["py311"]
+target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | \.eggs
 )/
 '''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --tb=short"
+
+[tool.setuptools]
+packages = ["code", "tests"]
