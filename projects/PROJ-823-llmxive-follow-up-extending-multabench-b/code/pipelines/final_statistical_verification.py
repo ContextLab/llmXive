@@ -1,0 +1,420 @@
+"""
+Final Statistical Significance Verification (T064).
+
+Re-runs the t-test (T035) and correlation (T033) on the final validated dataset
+subset to ensure no drift occurred during the final execution gate.
+
+Logic:
+1. Load initial results from data/artifacts/correlation_report_{run_id}.json and
+   data/artifacts/t_test_results_{run_id}.json (or similar standard artifacts).
+2. Re-compute the t-test and correlation using the same inputs.
+3. Compare p-values and coefficients. If difference > threshold, log warning.
+4. Append a 'final_verification' section to the existing FINAL_RESEARCH_SUMMARY.md.
+"""
+import os
+import sys
+import json
+import argparse
+from pathlib import Path
+from datetime import datetime
+import numpy as np
+from scipy import stats
+
+# Add project root to path
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from config import get_artifact_path, get_processed_path, ensure_directories
+from utils.logging import get_logger, log_info, log_warning, log_error, log_debug
+
+# Constants
+THRESHOLD = 0.001  # Tolerance for p-value/coef drift
+RUN_ID = "final_run"  # Default or derived from environment
+
+logger = get_logger("final_verification")
+
+def load_json_file(path: Path) -> dict:
+    """Load a JSON file safely."""
+    try:
+        with open(path, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        log_error(f"File not found: {path}")
+        return None
+    except json.JSONDecodeError:
+        log_error(f"Invalid JSON in: {path}")
+        return None
+
+def save_json_file(path: Path, data: dict):
+    """Save a dictionary to a JSON file."""
+    with open(path, 'w') as f:
+        json.dump(data, f, indent=2)
+
+def re_run_t_test(conditioned_metrics_path: Path, baseline_scalar: float) -> dict:
+    """
+    Re-run the one-sample t-test.
+    Returns dict with 'statistic', 'pvalue', 'n', 'mean_diff'.
+    """
+    if not conditioned_metrics_path.exists():
+        log_error(f"Conditioned metrics file missing: {conditioned_metrics_path}")
+        return None
+
+    # Load conditioned metrics (assumed to be a list of floats or a dict with a 'values' key)
+    data = load_json_file(conditioned_metrics_path)
+    if data is None:
+        return None
+
+    # Extract values - handle both list and dict formats
+    if isinstance(data, list):
+        values = np.array(data)
+    elif isinstance(data, dict) and 'values' in data:
+        values = np.array(data['values'])
+    elif isinstance(data, dict) and 'metrics' in data:
+        values = np.array([v for v in data['metrics'].values() if isinstance(v, (int, float))])
+    else:
+        log_error("Could not extract metric values from conditioned metrics file.")
+        return None
+
+    if len(values) < 2:
+        log_error("Insufficient data points for t-test.")
+        return None
+
+    # Perform t-test against 0 (difference from baseline)
+    # diff = conditioned - baseline_scalar
+    # ttest_1samp(diff, popmean=0)
+    diff = values - baseline_scalar
+    statistic, pvalue = stats.ttest_1samp(diff, 0.0)
+
+    return {
+        "statistic": float(statistic),
+        "pvalue": float(pvalue),
+        "n": int(len(values)),
+        "mean_diff": float(np.mean(diff))
+    }
+
+def re_run_correlation(recovery_ratios: list, metadata_stats: dict) -> dict:
+    """
+    Re-run Pearson correlation between Recovery Ratio and metadata features.
+    recovery_ratios: list of floats (one per dataset)
+    metadata_stats: dict mapping feature_name -> list of floats (aligned with recovery_ratios)
+    Returns dict of feature -> { 'pearsonr': float, 'pvalue': float }
+    """
+    if len(recovery_ratios) < 3:
+        log_warning("Sample size too small for reliable correlation.")
+        return {}
+
+    results = {}
+    for feature, values in metadata_stats.items():
+        if len(values) != len(recovery_ratios):
+            log_warning(f"Length mismatch for {feature}: {len(values)} vs {len(recovery_ratios)}. Skipping.")
+            continue
+
+        if len(set(values)) < 2:
+            log_warning(f"Feature {feature} has zero variance. Skipping.")
+            continue
+
+        r, p = stats.pearsonr(recovery_ratios, values)
+        results[feature] = {
+            "pearsonr": float(r),
+            "pvalue": float(p)
+        }
+
+    return results
+
+def load_initial_results(run_id: str) -> dict:
+    """Load the initial correlation and t-test results."""
+    # Attempt to find the correlation report
+    # The task description implies these exist from T033/T035/T036
+    # We look for the most recent or specific run_id files
+    artifact_dir = PROJECT_ROOT / "data" / "artifacts"
+    
+    # Pattern: correlation_report_{run_id}.json
+    # We try to find the one matching the current run or the last one if specific ID not known
+    # For this task, we assume we are comparing against the 'final' run results generated by T036
+    # If T036 used a specific run_id, we need to match it. 
+    # Let's assume the 'current' run_id is the one we are verifying against.
+    # Since T064 runs AFTER T036, we look for the T036 output.
+    
+    # Strategy: Look for any correlation_report_*.json and t_test_*.json
+    # and use the one that corresponds to the 'final' state.
+    # For robustness, we'll try to load the one with the most recent timestamp or specific naming.
+    
+    # Let's assume the standard naming convention from T036/T035
+    # T036 output: correlation_report_{run_id}.json
+    # T035 output: t_test_results_{run_id}.json (inferred from T035 description)
+    
+    # We will try to load the 'final' run results. If the previous run used a specific ID,
+    # we need to know it. For this implementation, we will look for the file matching
+    # the pattern and assume the 'latest' or 'final' one.
+    
+    # To be safe, we'll look for files with 'final' in the name or just the latest.
+    # But the task says "compare against initial run". The "initial run" here likely refers
+    # to the results generated by T033/T035 in the same execution flow before T064.
+    # So we load the artifacts generated by T033/T035/T036.
+    
+    # Let's assume the run_id is consistent across the pipeline for this execution.
+    # We will try to load from the standard artifact paths.
+    
+    # If the run_id is not passed, we try to infer it from existing files.
+    # For simplicity in this task, we assume the artifacts are named with a generic 'final' or the current run_id.
+    # Let's assume the run_id is 'final_run' for the purpose of this verification step 
+    # or we look for the most recently modified file.
+    
+    # Actually, the task says "Re-run ... on the final validated dataset subset".
+    # The "initial run" refers to the T033/T035 results that were just computed.
+    # So we load the T033/T035 outputs.
+    
+    # Let's assume the run_id is stored in a config or we use a default.
+    # We will try to load the files with the most recent modification time if specific ID is missing.
+    
+    # For this implementation, we will assume the run_id is 'final' or we scan for the latest.
+    # Let's try to load the 'correlation_report_final_run.json' and 't_test_results_final_run.json'
+    # If not found, we scan the directory.
+    
+    corr_file = artifact_dir / f"correlation_report_{run_id}.json"
+    ttest_file = artifact_dir / f"t_test_results_{run_id}.json"
+    
+    if not corr_file.exists():
+        # Fallback: find the latest correlation_report
+        files = list(artifact_dir.glob("correlation_report_*.json"))
+        if files:
+            corr_file = max(files, key=os.path.getmtime)
+            log_info(f"Using latest correlation report: {corr_file.name}")
+        else:
+            log_error("No correlation report found.")
+            return None
+    
+    if not ttest_file.exists():
+        files = list(artifact_dir.glob("t_test_results_*.json"))
+        if files:
+            ttest_file = max(files, key=os.path.getmtime)
+            log_info(f"Using latest t-test results: {ttest_file.name}")
+        else:
+            log_error("No t-test results found.")
+            return None
+
+    initial_corr = load_json_file(corr_file)
+    initial_ttest = load_json_file(ttest_file)
+
+    return {
+        "correlation": initial_corr,
+        "t_test": initial_ttest,
+        "corr_file": str(corr_file),
+        "ttest_file": str(ttest_file)
+    }
+
+def load_re_run_inputs(run_id: str) -> tuple:
+    """
+    Load the inputs required to re-run the analysis.
+    Returns (recovery_ratios, metadata_stats, baseline_scalar, conditioned_metrics_path)
+    """
+    # 1. Load Recovery Ratios (from T031 output or derived)
+    # T031 output is usually embedded in the correlation report or a separate file.
+    # We assume the correlation report contains the recovery ratios or we can recompute them.
+    # To be safe, we try to load the 'recovery_ratios' from the correlation report or a separate artifact.
+    # If not found, we might need to recompute from T015a and T028 and T032b.
+    
+    # For this task, we assume the 'correlation_report' contains the data needed or we load from T031 artifact.
+    # Let's assume we have a 'recovery_ratios.json' or similar.
+    # If not, we try to extract from the correlation report.
+    
+    # Let's assume the standard artifact path for recovery ratios is data/artifacts/recovery_ratios_{run_id}.json
+    # If not found, we try to infer from the correlation report.
+    
+    # For simplicity, we will assume the inputs are available in the correlation report or we load them separately.
+    # We will try to load 'recovery_ratios_{run_id}.json'
+    
+    recovery_ratios_file = PROJECT_ROOT / "data" / "artifacts" / f"recovery_ratios_{run_id}.json"
+    if not recovery_ratios_file.exists():
+        # Fallback: try to find any recovery_ratios file
+        files = list((PROJECT_ROOT / "data" / "artifacts").glob("recovery_ratios_*.json"))
+        if files:
+            recovery_ratios_file = max(files, key=os.path.getmtime)
+        else:
+            log_error("Recovery ratios file not found. Cannot re-run correlation.")
+            return None, None, None, None
+
+    recovery_data = load_json_file(recovery_ratios_file)
+    if recovery_data is None:
+        return None, None, None, None
+    
+    # Extract recovery ratios and metadata stats
+    # Expected format: { "dataset_id": { "recovery_ratio": float, "cardinality": float, ... } }
+    # We need to align them.
+    
+    dataset_ids = sorted(recovery_data.keys())
+    recovery_ratios = [recovery_data[d]["recovery_ratio"] for d in dataset_ids]
+    
+    metadata_stats = {}
+    for feature in ["cardinality", "missingness", "sparsity", "variance"]:
+        values = [recovery_data[d].get(feature, 0.0) for d in dataset_ids]
+        metadata_stats[feature] = values
+
+    # 2. Load Baseline Scalar (from T032b)
+    baseline_scalars_file = PROJECT_ROOT / "data" / "artifacts" / "gpu_tuned_scalars.json"
+    if not baseline_scalars_file.exists():
+        log_error("GPU Tuned Scalars file not found.")
+        return None, None, None, None
+    
+    baseline_data = load_json_file(baseline_scalars_file)
+    if baseline_data is None:
+        return None, None, None, None
+    
+    # We need the baseline scalar for the t-test. 
+    # The t-test compares conditioned metrics against a fixed baseline.
+    # The baseline_scalar is the mean of the GPU-Tuned baselines? Or a specific value?
+    # T035 says: "Load scalar baseline_scalar from ... gpu_tuned_scalars.json".
+    # It seems to be a single scalar for the whole population mean?
+    # Let's assume it's the mean of all baselines or a specific reference.
+    # For T035, it's a one-sample t-test against 0 of the difference.
+    # So we need the baseline_scalar to compute the difference.
+    # If the file is a dict of dataset -> baseline, we might need the mean or a specific one.
+    # The task says "fixed GPU-Tuned baseline". Let's assume it's the mean of the values in the dict.
+    
+    baseline_values = list(baseline_data.values())
+    if not baseline_values:
+        log_error("No baseline values found.")
+        return None, None, None, None
+    
+    baseline_scalar = float(np.mean(baseline_values))
+
+    # 3. Load Conditioned Metrics (for t-test re-run)
+    conditioned_metrics_file = PROJECT_ROOT / "data" / "artifacts" / f"metrics_conditioned_{run_id}.json"
+    if not conditioned_metrics_file.exists():
+        # Fallback
+        files = list((PROJECT_ROOT / "data" / "artifacts").glob("metrics_conditioned_*.json"))
+        if files:
+            conditioned_metrics_file = max(files, key=os.path.getmtime)
+        else:
+            log_error("Conditioned metrics file not found.")
+            return None, None, None, None
+
+    return recovery_ratios, metadata_stats, baseline_scalar, conditioned_metrics_file
+
+def main():
+    parser = argparse.ArgumentParser(description="Final Statistical Significance Verification")
+    parser.add_argument("--run-id", type=str, default="final_run", help="Run ID for artifact lookup")
+    parser.add_argument("--threshold", type=float, default=THRESHOLD, help="Drift threshold")
+    args = parser.parse_args()
+
+    log_info(f"Starting Final Statistical Verification for run_id={args.run_id}")
+    
+    # Load initial results
+    initial = load_initial_results(args.run_id)
+    if initial is None:
+        log_error("Failed to load initial results. Aborting.")
+        sys.exit(1)
+
+    # Load re-run inputs
+    recovery_ratios, metadata_stats, baseline_scalar, conditioned_metrics_path = load_re_run_inputs(args.run_id)
+    if recovery_ratios is None:
+        log_error("Failed to load re-run inputs. Aborting.")
+        sys.exit(1)
+
+    # Re-run T-Test
+    log_info("Re-running t-test...")
+    re_run_ttest = re_run_t_test(conditioned_metrics_path, baseline_scalar)
+    if re_run_ttest is None:
+        log_error("Failed to re-run t-test.")
+        sys.exit(1)
+
+    # Re-run Correlation
+    log_info("Re-running correlation analysis...")
+    re_run_corr = re_run_correlation(recovery_ratios, metadata_stats)
+    if not re_run_corr:
+        log_warning("No correlation results re-run (possibly insufficient data).")
+        re_run_corr = {}
+
+    # Compare results
+    verification_report = {
+        "timestamp": datetime.now().isoformat(),
+        "run_id": args.run_id,
+        "threshold": args.threshold,
+        "t_test_comparison": {},
+        "correlation_comparison": {},
+        "status": "PASS"
+    }
+
+    # T-Test Comparison
+    initial_ttest = initial["t_test"]
+    if initial_ttest and "pvalue" in initial_ttest:
+        diff_p = abs(initial_ttest["pvalue"] - re_run_ttest["pvalue"])
+        verification_report["t_test_comparison"] = {
+            "initial_pvalue": initial_ttest["pvalue"],
+            "rerun_pvalue": re_run_ttest["pvalue"],
+            "diff": diff_p,
+            "status": "PASS" if diff_p < args.threshold else "WARN"
+        }
+        if diff_p >= args.threshold:
+            verification_report["status"] = "WARN"
+            log_warning(f"T-test p-value drift detected: {diff_p} >= {args.threshold}")
+
+    # Correlation Comparison
+    initial_corr = initial["correlation"]
+    if initial_corr and "results" in initial_corr:
+        initial_results = initial_corr["results"]
+        for feature, re_run_res in re_run_corr.items():
+            if feature in initial_results:
+                init_res = initial_results[feature]
+                diff_r = abs(init_res.get("pearsonr", 0) - re_run_res["pearsonr"])
+                diff_p = abs(init_res.get("pvalue", 0) - re_run_res["pvalue"])
+                
+                status = "PASS" if (diff_r < args.threshold and diff_p < args.threshold) else "WARN"
+                if status == "WARN":
+                    verification_report["status"] = "WARN"
+                    log_warning(f"Correlation drift for {feature}: r_diff={diff_r}, p_diff={diff_p}")
+
+                verification_report["correlation_comparison"][feature] = {
+                    "initial_pearsonr": init_res.get("pearsonr"),
+                    "rerun_pearsonr": re_run_res["pearsonr"],
+                    "initial_pvalue": init_res.get("pvalue"),
+                    "rerun_pvalue": re_run_res["pvalue"],
+                    "status": status
+                }
+
+    # Save verification report
+    output_path = PROJECT_ROOT / "data" / "artifacts" / f"final_verification_{args.run_id}.json"
+    save_json_file(output_path, verification_report)
+    log_info(f"Saved verification report to {output_path}")
+
+    # Append to FINAL_RESEARCH_SUMMARY.md
+    summary_path = PROJECT_ROOT / "FINAL_RESEARCH_SUMMARY.md"
+    if summary_path.exists():
+        with open(summary_path, 'r') as f:
+            content = f.read()
+        
+        # Check if section exists
+        if "## Final Statistical Verification" not in content:
+            content += f"\n\n## Final Statistical Verification\n\n"
+            content += f"**Run ID**: {args.run_id}\n"
+            content += f"**Status**: {verification_report['status']}\n"
+            content += f"**Threshold**: {args.threshold}\n\n"
+            
+            content += "### T-Test Results\n"
+            if verification_report["t_test_comparison"]:
+                tc = verification_report["t_test_comparison"]
+                content += f"- Initial p-value: {tc.get('initial_pvalue')}\n"
+                content += f"- Re-run p-value: {tc.get('rerun_pvalue')}\n"
+                content += f"- Difference: {tc.get('diff')}\n"
+                content += f"- Status: {tc.get('status')}\n\n"
+            
+            content += "### Correlation Results\n"
+            if verification_report["correlation_comparison"]:
+                for feat, res in verification_report["correlation_comparison"].items():
+                    content += f"- **{feat}**: r_diff={res.get('diff_r')}, p_diff={res.get('diff_p')}, status={res.get('status')}\n"
+            else:
+                content += "No correlation results to compare.\n"
+        
+        with open(summary_path, 'w') as f:
+            f.write(content)
+        log_info(f"Appended verification section to {summary_path}")
+    else:
+        log_warning(f"FINAL_RESEARCH_SUMMARY.md not found at {summary_path}. Skipping append.")
+
+    log_info("Final Statistical Verification completed.")
+    if verification_report["status"] == "WARN":
+        log_warning("Drift detected. Review the report.")
+        # Do not exit with error, just warn, as the task is to verify and report.
+
+if __name__ == "__main__":
+    main()

@@ -1871,3 +1871,389 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-31T07:47:46Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: MulTaBench paper supplementary material available at arXiv:2605.10616
+  claim_id: c_acdf13fd
+  context: 'Steps to acquire multabench_baselines.csv: 1. Locate the supplementary
+    material for the MulTaBench paper (arXiv:2605.10616).'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Locate the supplementary material for the MulTaBench paper (arXiv:2605.10616).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T20:50:42Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 0
+  canonical: MulTaBench paper supplementary material located at arXiv:2605.10616
+  claim_id: c_39ec0a14
+  context: 'Steps to acquire the data file: ''1. Locate the supplementary material
+    for the MulTaBench paper (arXiv:2605.10616). 2. Download the archive containing
+    multabench_baselines.csv.'''
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Locate the supplementary material for the MulTaBench paper (arXiv:2605.10616).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T20:50:51Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 0
+  canonical: MulTaBench paper supplementary material source is arXiv:2605.10616
+  claim_id: c_7fff3a5e
+  context: 'Steps to acquire data: ''1. Locate the supplementary material for the
+    MulTaBench paper (arXiv:2605.10616). 2. Download the archive containing multabench_baselines.csv.'''
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Locate the supplementary material for the MulTaBench paper (arXiv:2605.10616).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T20:52:11Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 0
+  canonical: Wilcoxon signed-rank test performed if p-value is less than 0.05
+  claim_id: c_6efd2518
+  context: 'Normality Check: Perform Shapiro-Wilk test on diff. If p-value < 0.05,
+    perform Wilcoxon signed-rank test: scipy.stats.wilcoxon(diff).'
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: If p-value < 0.05, perform Wilcoxon signed-rank test
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T20:52:13Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Script completion time target is 60 minutes on sample datasets
+  claim_id: c_dd8b9c9f
+  context: 'Independent Test: Verify script completes within 60 mins on a sample of
+    datasets, outputs valid parquet files, and no CUDA errors occur.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify script completes within 60 mins on a sample of datasets
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T20:53:49Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Training loss convergence target is 10 epochs on CPU with memory usage
+    under 7GB
+  claim_id: c_610c61ac
+  context: 'Independent Test: Verify training loss converges on a single dataset within
+    10 epochs on CPU and memory usage < 7GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify training loss converges on a single dataset within 10 epochs on
+    CPU and memory usage < 7GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T20:55:43Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Statistical power calculation uses statsmodels.stats.power.tt_solve_power
+  claim_id: c_a951466d
+  context: 'Logic: Use statsmodels.stats.power.tt_solve_power to calculate power for
+    a range of effect sizes (small, moderate, and large).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_power_calculation_uses_statsmodels.stats.power.t
+  kind: entity_fact
+  raw_text: Use statsmodels.stats.power.tt_solve_power to calculate power for a range
+    of effect sizes
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T20:56:20Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 0
+  canonical: MulTaBench paper supplementary material available at arXiv:2605.10616
+  claim_id: c_627856cb
+  context: 'Steps: ''1. Locate the supplementary material for the MulTaBench paper
+    (arXiv:2605.10616). 2. Download the archive containing multabench_baselines.csv.
+    3. Unzip the archive. 4. Place multabench_baselines.csv in data/raw/.'''
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Locate the supplementary material for the MulTaBench paper (arXiv:2605.10616).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T20:58:21Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Examples in document include test tasks
+  claim_id: c_dbfe31f9
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Examples_in_document_include_test_tasks
+  kind: entity_fact
+  raw_text: The examples below include test tasks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T20:58:48Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Random seeds employed to assess sensitivity of results to initialization
+    variability
+  claim_id: c_64c5ef1f
+  context: 'Requirement: Explicitly define and pin a set of sensitivity seeds in a
+    SENSITIVITY_SEEDS constant to ensure deterministic reproducibility across all
+    runs. Specific Seeds: A set of random seeds will be employed to assess the sensitivity
+    of the results to initialization variability.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: are accessible through open-source platforms (e.g., Llama by Touvron
+        et al. [38]) and prac-
+      source_id: '2406.08447'
+      url: https://arxiv.org/abs/2406.08447
+      value: '3'
+    filled: true
+  kind: entity_fact
+  raw_text: A set of random seeds will be employed to assess the sensitivity of the
+    results to initialization variability.
+  resolved_value: '3'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T20:59:38Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: No direct URL provided for multabench_baselines.csv; must be manually
+    located in paper supplementary materials
+  claim_id: c_1db7ea47
+  context: 'Note: No direct URL is provided; the file must be manually located in
+    the paper''s supplementary materials.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: paper supplementary materials
+    relation: located in
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/No_direct_URL_provided_for_multabench_baselines.csv;_must_be
+    source_value: https://en.wikipedia.org/wiki/No_direct_URL_provided_for_multabench_baselines.csv;_must_be
+    subject: No direct URL provided for multabench_baselines.csv; must be manually
+  kind: relational
+  raw_text: No direct URL is provided; the file must be manually located in the paper's
+    supplementary materials.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T21:00:57Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Independent test requires script completion within 60 minutes on sample
+    datasets
+  claim_id: c_4a20236c
+  context: 'Independent Test: Independent Test: Verify script completes within 60
+    mins on a sample of datasets, outputs valid parquet files, and no CUDA errors
+    occur., outputs valid parquet files, and no CUDA errors occur.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify script completes within 60 mins on a sample of datasets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T21:00:57Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Independent test requires training loss convergence within 10 epochs
+    on CPU with memory usage under 7GB
+  claim_id: c_fbb98424
+  context: 'Independent Test: Verify training loss converges on a single dataset within
+    10 epochs on CPU and memory usage < 7GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify training loss converges on a single dataset within 10 epochs on
+    CPU and memory usage < 7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T21:00:58Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Small sample warning appended if dataset count N is less than 30
+  claim_id: c_fcdc2840
+  context: 'Logic: If N < 30 after exclusions, append a ''Small Sample Warning'' to
+    the output report explicitly stating the limitation.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Small_sample_warning_appended_if_dataset_count_N_is_less_tha
+  kind: magnitude
+  raw_text: If N < 30 after exclusions, append a 'Small Sample Warning' to the output
+    report explicitly stating the limitation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T21:01:56Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: statsmodels.stats.power.tt_solve_power used to calculate statistical
+    power for small, moderate, and large effect sizes
+  claim_id: c_91c5f4c9
+  context: 'Logic: Use statsmodels.stats.power.tt_solve_power to calculate power for
+    a range of effect sizes (small, moderate, and large).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statsmodels.stats.power.tt_solve_power_used_to_calculate_sta
+  kind: entity_fact
+  raw_text: Use statsmodels.stats.power.tt_solve_power to calculate power for a range
+    of effect sizes (small, moderate, and large).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T21:01:58Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Plot note added if statistical power is greater than or equal to 0.8
+    for moderate effect size
+  claim_id: c_bee98f0e
+  context: If power >= 0.8, include a note in the plot stating 'Power is sufficient
+    (>0.8) for moderate effect size'. If generated, include a warning banner in the
+    plot if power is low.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Plot_note_added_if_statistical_power_is_greater_than_or_equa
+  kind: magnitude
+  raw_text: If power >= 0.8, include a note in the plot stating 'Power is sufficient
+    (>0.8) for moderate effect size'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T21:02:57Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Shapiro-Wilk test performed on difference vector for normality check
+  claim_id: c_ed6e713c
+  context: 'Normality Check: Perform Shapiro-Wilk test on diff.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Shapiro-Wilk_test_performed_on_difference_vector_for_normali
+  kind: entity_fact
+  raw_text: Perform Shapiro-Wilk test on diff.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T21:03:32Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: One-sample t-test performed using scipy.stats.ttest_1samp with popmean
+    0.0 if normality assumption fails
+  claim_id: c_10f4409a
+  context: 'Otherwise, perform one-sample t-test: scipy.stats.ttest_1samp(diff, popmean=0.0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Otherwise, perform one-sample t-test: scipy.stats.ttest_1samp(diff, popmean=0.0).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T21:03:53Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time and peak memory usage verified against acceptable
+    limits and thresholds
+  claim_id: c_6c59d408
+  context: 'Goal: Verify total execution time is strictly within acceptable limits
+    and peak memory usage never exceeds acceptable thresholds.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_time_and_peak_memory_usage_verified_again
+  kind: entity_fact
+  raw_text: Verify total execution time is strictly within acceptable limits and peak
+    memory usage never exceeds acceptable thresholds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T21:04:16Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: All tasks restricted to CPU-only CI environment with limited cores, constrained
+    RAM, and time constraints
+  claim_id: c_d9715c4d
+  context: 'CRITICAL: All tasks must run on CPU-only CI (limited cores, constrained
+    RAM, time-constrained execution). No GPU, no 8-bit quantization, no large model
+    fine-tuning.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/All_tasks_restricted_to_CPU-only_CI_environment_with_limited
+  kind: entity_fact
+  raw_text: All tasks must run on CPU-only CI (limited cores, constrained RAM, time-constrained
+    execution).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T21:05:07Z'

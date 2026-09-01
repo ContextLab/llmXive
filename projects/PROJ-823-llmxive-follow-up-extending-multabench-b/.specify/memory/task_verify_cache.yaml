@@ -5,14 +5,6 @@ T008c:
     \ `data/raw/multabench_baselines.csv`\u201D section that lists the required manual\
     \ steps (download, unzip, locate, and place the file), satisfying the task\u2019\
     s specification."
-T024:
-  c: false
-  h: febe7b0e616b2f5b939f63cbe2d760be6467b7c46a13a10b71385b5b9cdddecb
-  r: "The repository contains `code/analysis/metadata_stats.py`, but the required\
-    \ `compute_all_stats` implementation is not shown (the file is truncated) and\
-    \ no `data/processed/metadata_stats_summary.csv` file exists. The primary output\
-    \ artifact\u2014a summary CSV with the specified columns\u2014is missing, so the\
-    \ task is not genuinely completed."
 T024c:
   c: false
   h: f09be2646bbc813f84b0f97e459111cb7b426b0cf94d7befa744590795edf562
