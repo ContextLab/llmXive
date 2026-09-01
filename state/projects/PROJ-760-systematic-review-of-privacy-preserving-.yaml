@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-760-systematic-review-of-privacy-preserving-
-last_run_id: d3c9a3bc-f224-4ff5-9d55-d66f47441fd0
+last_run_id: 47464602-4eb6-40ba-af34-e428c77431dc
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-760-systematic-review-of-privacy-preserving-/specs/001-systematic-review-of-privacy-preserving
 title: Systematic Review of Privacy-Preserving Federated Learning Protocols
-updated_at: '2026-08-15T06:35:10.276014Z'
+updated_at: '2026-09-01T07:15:33.684678Z'

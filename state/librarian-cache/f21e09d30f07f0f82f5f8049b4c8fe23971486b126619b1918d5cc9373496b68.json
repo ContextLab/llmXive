@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-15T06:27:35Z",
+  "fetched_at": "2026-09-01T07:13:08Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,15 +9,15 @@
       "idea_body_excerpt": "Systematic Review of Privacy-Preserving Federated Learning Protocols",
       "target_n": 5
     },
-    "duration_seconds": 34.003,
-    "ended_at": "2026-08-15T06:27:35Z",
+    "duration_seconds": 46.5,
+    "ended_at": "2026-09-01T07:13:08Z",
     "expansion": null,
     "extracted_queries": [
       "differential privacy secure aggregation homomorphic encryption",
-      "FL clients model poisoning Byzantine fault tolerance",
-      "secure multi-party computation cryptographic protocols",
-      "utility accuracy communication overhead convergence rate",
-      "privacy leakage membership inference reconstruction attacks"
+      "federated learning TEE trusted execution environment enclaves",
+      "Byzantine robustness poisoning attacks model inversion",
+      "communication efficiency convergence rate utility privacy tradeoff",
+      "client leakage membership inference reconstruction attacks"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -26,21 +26,21 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "exhausted",
+    "outcome": "success",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2009.11248"
+        "2007.06081"
       ]
     },
     "per_query_hit_count": {
-      "FL clients model poisoning Byzantine fault tolerance": 3,
+      "Byzantine robustness poisoning attacks model inversion": 3,
       "Systematic Review of Privacy-Preserving Federated Learning Protocols computer science": 3,
+      "client leakage membership inference reconstruction attacks": 3,
+      "communication efficiency convergence rate utility privacy tradeoff": 3,
       "differential privacy secure aggregation homomorphic encryption": 3,
-      "privacy leakage membership inference reconstruction attacks": 3,
-      "secure multi-party computation cryptographic protocols": 3,
-      "utility accuracy communication overhead convergence rate": 3
+      "federated learning TEE trusted execution environment enclaves": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -55,7 +55,7 @@
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-08-15T06:27:01Z",
+    "started_at": "2026-09-01T07:12:22Z",
     "term_input": {
       "normalized": "systematic review of privacy-preserving federated learning protocols computer science",
       "raw": "Systematic Review of Privacy-Preserving Federated Learning Protocols computer science"
@@ -75,110 +75,45 @@
           "primary_pointer": "2305.05904"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Revisiting Fully Homomorphic Encryption Schemes')",
-        "failed_at": "2026-08-15T06:27:34Z",
+        "failed_at": "2026-09-01T07:12:51Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Among those faults Byzantine faults offers serious challenge to fault tolerance mechanism, because it often go undetected at the initial stage and it can easily propagate to other VMs before a detection is made. Consequently some of the mission critical application such as air traffic control, online baking etc still staying away from the cloud for such reasons. However if a Byzantine faults is not detected and tolerated at initial stage then applications such as big data analytics can go completely wrong in spite of hours of computations performed by the entire cloud. Therefore in the previous work a fool-proof Byzantine fault detection has been proposed, as a continuation this work designs a scheduling algorithm (WSSS) and checkpoint optimization algorithm (TCC) to tolerate and eliminate the Byzantine faults before it makes any impact. The WSSS algorithm keeps track of server performance which is part of Virtual Clusters to help allocate best performing server to mission critical application. WSSS therefore ranks the servers based on a counter which monitors every Virtual Nodes (VN) for time and performance failures. The TCC algorithm works to generalize the possible Byzantine error prone region through monitoring delay variation to start new VNs with previous checkpointing. Moreover it can stretch the state interval for performing and error free VNs in an effect to minimize the space, time and cost overheads caused by checkpointing. The analysis is performed with plotting state transition and CloudSim based simulation. The result shows TCC reduces fault tolerance overhead exponentially and the WSSS allots virtual resources effectively",
+          "claimed_abstract": "In a poisoning attack, an adversary with control over a small fraction of the training data attempts to select that data in a way that induces a corrupted model that misbehaves in favor of the adversary. We consider poisoning attacks against convex machine learning models and propose an efficient poisoning attack designed to induce a specified model. Unlike previous model-targeted poisoning attacks, our attack comes with provable convergence to {\\it any} attainable target classifier. The distance from the induced classifier to the target classifier is inversely proportional to the square root of the number of poisoning points. We also provide a lower bound on the minimum number of poisoning points needed to achieve a given target classifier. Our method uses online convex optimization, so finds poisoning points incrementally. This provides more flexibility than previous attacks which require a priori assumption about the number of poisoning points. Our attack is the first model-targeted poisoning attack that provides provable convergence for convex models, and in our experiments, it either exceeds or matches state-of-the-art attacks in terms of attack success rate and distance to the target model.",
           "claimed_authors": [
-            "Sathya Chinnathambi",
-            "Agilan Santhanam"
+            "Fnu Suya",
+            "Saeed Mahloujifar",
+            "Anshuman Suri",
+            "David Evans",
+            "Yuan Tian"
           ],
-          "claimed_title": "Scheduling and Checkpointing optimization algorithm for Byzantine fault tolerance in Cloud Clusters",
+          "claimed_title": "Model-Targeted Poisoning Attacks with Provable Convergence",
           "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1802.00951"
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16469"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Scheduling and Checkpointing optimization algorithm for Byzantine fault tolerance in Cloud Clusters')",
-        "failed_at": "2026-08-15T06:27:35Z",
+        "details": "query-relevance 0.111 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Model-Targeted Poisoning Attacks with Provable Convergence')",
+        "failed_at": "2026-09-01T07:12:53Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "In dynamic systems that adapt to users' needs and changing environments, dependability needs cannot be avoided. This paper proposes an orthogonal fault tolerance model as a means to manage and reason about multiple fault tolerance mechanisms that co-exist in dynamically adaptive systems. One of the key challenges associated with dynamically evolving fault tolerance needs is the feature interaction problem arising from the integration of fault tolerance features. The proposed approach provides a separation of fault tolerance concerns to study the effects of integrated fault tolerance on the system. This approach uses state machine and operational semantics to reason about these interactions and inconsistencies. The proposed approach is supported by the tool NuSMV to simulate and verify the state machines against logic statements.",
+          "claimed_abstract": "In this paper, we investigate the problem of distributed learning (DL) in the presence of Byzantine attacks. For this problem, various robust bounded aggregation (RBA) rules have been proposed at the central server to mitigate the impact of Byzantine attacks. However, current DL methods apply RBA rules for the local gradients from the honest devices and the disruptive information from Byzantine devices, and the learning performance degrades significantly when the local gradients of different devices vary considerably from each other. To overcome this limitation, we propose a new DL method to cope with Byzantine attacks based on coded robust aggregation (CRA-DL). Before training begins, the training data are allocated to the devices redundantly. During training, in each iteration, the honest devices transmit coded gradients to the server computed from the allocated training data, and the server then aggregates the information received from both honest and Byzantine devices using RBA rules. In this way, the global gradient can be approximately recovered at the server to update the global model. Compared with current DL methods applying RBA rules, the improvement of CRA-DL is attributed to the fact that the coded gradients sent by the honest devices are closer to each other. This closeness enhances the robustness of the aggregation against Byzantine attacks, since Byzantine messages tend to be significantly different from those of honest devices in this case. We theoretically analyze the convergence performance of CRA-DL. Finally, we present numerical results to verify the superiority of the proposed method over existing baselines, showing its enhanced learning performance under Byzantine attacks.",
           "claimed_authors": [
-            "Sobia K Khan"
+            "Chengxi Li",
+            "Ming Xiao",
+            "Mikael Skoglund"
           ],
-          "claimed_title": "Orthogonal Fault Tolerance for Dynamically Adaptive Systems",
+          "claimed_title": "Coded Robust Aggregation for Distributed Learning under Byzantine Attacks",
           "claimed_venue": "arXiv",
-          "claimed_year": 2014,
-          "primary_pointer": "1404.6830"
+          "claimed_year": 2025,
+          "primary_pointer": "2506.01989"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Orthogonal Fault Tolerance for Dynamically Adaptive Systems')",
-        "failed_at": "2026-08-15T06:27:35Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We introduce and solve the problem of Byzantine fault tolerant distributed quickest change detection in both continuous and discrete time setups. In this problem, multiple sensors sequentially observe random signals from the environment and send their observations to a control center that will determine whether there is a change in the statistical behavior of the observations. We assume that the signals are independent and identically distributed across sensors. An unknown subset of sensors are compromised and will send arbitrarily modified and even artificially generated signals to the control center. It is shown that the performance of the the so-called CUSUM statistic, which is optimal when all sensors are honest, will be significantly degraded in the presence of even a single dishonest sensor. In particular, instead of in a logarithmically the detection delay grows linearly with the average run length (ARL) to false alarm. To mitigate such a performance degradation, we propose a fully distributed low complexity detection scheme. We show that the proposed scheme can recover the log scaling. We also propose a centralized group-wise scheme that can further reduce the detection delay.",
-          "claimed_authors": [
-            "Erhan Bayraktar",
-            "Lifeng Lai"
-          ],
-          "claimed_title": "Byzantine Fault Tolerant Distributed Quickest Change Detection",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2013,
-          "primary_pointer": "1306.2086"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Byzantine Fault Tolerant Distributed Quickest Change Detection')",
-        "failed_at": "2026-08-15T06:27:35Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Quantum conference is a process of securely exchanging messages between three or more parties, using quantum resources. A Measurement Device Independent Quantum Dialogue (MDI-QD) protocol, which is secure against information leakage, has been proposed (Quantum Information Processing 16.12 (2017): 305) in 2017, is proven to be insecure against intercept-and-resend attack strategy. We first modify this protocol and generalize this MDI-QD to a three-party quantum conference and then to a multi-party quantum conference. We also propose a protocol for quantum multi-party XOR computation. None of these three protocols proposed here use entanglement as a resource and we prove the correctness and security of our proposed protocols.",
-          "claimed_authors": [
-            "Nayana Das",
-            "Goutam Paul"
-          ],
-          "claimed_title": "Secure Multi-Party Quantum Conference and Xor Computation",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2101.05560"
-        },
-        "details": "query-relevance 0.111 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Secure Multi-Party Quantum Conference and Xor Computation')",
-        "failed_at": "2026-08-15T06:27:35Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Multi-Party Quantum Computation (MPQC) has attracted a lot of attention as a potential killer-app for quantum networks through it's ability to preserve privacy and integrity of the highly valuable computations they would enable. Contributing to the latest challenges in this field, we present a composable protocol achieving blindness and verifiability even in the case of a single honest client. The security of our protocol is reduced, in an information-theoretically secure way, to that of a classical composable Secure Multi-Party Computation (SMPC) used to coordinate the various parties. Our scheme thus provides a statistically secure upgrade of such classical scheme to a quantum one with the same level of security.\n  In addition, (i) the clients can delegate their computation to a powerful fully fault-tolerant server and only need to perform single qubit operations to unlock the full potential of multi-party quantum computation; (ii) the amount of quantum communication with the server is reduced to sending quantum states at the beginning of the computation and receiving the output states at the end, which is optimal and removes the need for interactive quantum communication; and (iii) it has a low constant multiplicative qubit overhead compared to the single-client delegated protocol it is built upon.\n  The main technical ingredient of our paper is the bootstraping of the MPQC construction by Double Blind Quantum Computation, a new composable resource for blind multiparty quantum computation, that demonstrates the surprising fact that the full protocol does not require verifiability of all components to achieve security.",
-          "claimed_authors": [
-            "Theodoros Kapourniotis",
-            "Elham Kashefi",
-            "Luka Music",
-            "Harold Ollivier"
-          ],
-          "claimed_title": "Delegating Multi-Party Quantum Computations vs. Dishonest Majority in Two Quantum Rounds",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2102.12949"
-        },
-        "details": "query-relevance 0.111 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Delegating Multi-Party Quantum Computations vs. Dishonest Majority in Two Quantum Rounds')",
-        "failed_at": "2026-08-15T06:27:35Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We introduce a scheme for secure multi-party computation utilising the quantum correlations of entangled states. First we present a scheme for two-party computation, exploiting the correlations of a Greenberger-Horne-Zeilinger state to provide, with the help of a third party, a near-private computation scheme. We then present a variation of this scheme which is passively secure with threshold t=2, in other words, remaining secure when pairs of players conspire together provided they faithfully follow the protocol. We show that this can be generalised to computations of n-party polynomials of degree 2 with a threshold of n-1. The threshold achieved is significantly higher than the best known classical threshold, which satisfies the bound t<n/2.",
-          "claimed_authors": [
-            "Klearchos Loukopoulos",
-            "Daniel E. Browne"
-          ],
-          "claimed_title": "Secure Multi-Party Computation with a Dishonest Majority via Quantum Means",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2009,
-          "primary_pointer": "0906.2297"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Secure Multi-Party Computation with a Dishonest Majority via Quantum Means')",
-        "failed_at": "2026-08-15T06:27:35Z",
+        "details": "query-relevance 0.111 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Coded Robust Aggregation for Distributed Learning under Byzantine Attacks')",
+        "failed_at": "2026-09-01T07:12:53Z",
         "reason": "query_irrelevant"
       },
       {
@@ -196,62 +131,43 @@
           "primary_pointer": "2103.10093"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Conjectures on Convergence and Scalar Curvature')",
-        "failed_at": "2026-08-15T06:27:35Z",
+        "failed_at": "2026-09-01T07:12:53Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "In this paper we find tight sufficient conditions for the continuity of the value of the utility maximization problem from terminal wealth with respect to the convergence in distribution of the underlying processes. We also establish a weak convergence result for the terminal wealths of the optimal portfolios. Finally, we apply our results to the computation of the minimal expected shortfall (shortfall risk) in the Heston model by building an appropriate lattice approximation.",
+          "claimed_abstract": "A privacy-utility tradeoff is developed for an arbitrary set of finite-alphabet source distributions. Privacy is quantified using differential privacy (DP), and utility is quantified using expected Hamming distortion maximized over the set of distributions. The family of source distribution sets (source sets) is categorized into three classes, based on different levels of prior knowledge they capture. For source sets whose convex hull includes the uniform distribution, symmetric DP mechanisms are optimal. For source sets whose probability values have a fixed monotonic ordering, asymmetric DP mechanisms are optimal. For all other source sets, general upper and lower bounds on the optimal privacy leakage are developed and a necessary and sufficient condition for tightness are established. Differentially private leakage is an upper bound on mutual information (MI) leakage: the two criteria are compared analytically and numerically to illustrate the effect of adopting a stronger privacy criterion.",
           "claimed_authors": [
-            "Erhan Bayraktar",
-            "Yan Dolinsky",
-            "Jia Guo"
+            "Kousha Kalantari",
+            "Lalitha Sankar",
+            "Anand Sarwate"
           ],
-          "claimed_title": "Continuity of Utility Maximization under Weak Convergence",
+          "claimed_title": "Robust Privacy-Utility Tradeoffs under Differential Privacy and Hamming Distortion",
           "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1811.01420"
+          "claimed_year": 2016,
+          "primary_pointer": "1601.06426"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Continuity of Utility Maximization under Weak Convergence')",
-        "failed_at": "2026-08-15T06:27:35Z",
+        "details": "query-relevance 0.111 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Robust Privacy-Utility Tradeoffs under Differential Privacy and Hamming Distortion')",
+        "failed_at": "2026-09-01T07:12:53Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Convergence rate to the stationary distribution for continuous-time Markov processes can be studied using Lyapunov functions. Recent work by the author provided explicit rates of convergence in special case of a reflected jump-diffusion on a half-line. These results are proved for total variation distance and its generalizations: measure distances defined by test functions regardless of their continuity. Here we prove similar results for Wasserstein distance, convergence in which is related to convergence for continuou test functions. In some cases, including the reflected Ornstein-Uhlenbeck process, we get faster exponential convergence rates for Wasserstein distance than for total variation distance.",
+          "claimed_abstract": "Ensuring the usefulness of electronic data sources while providing necessary privacy guarantees is an important unsolved problem. This problem drives the need for an analytical framework that can quantify the safety of personally identifiable information (privacy) while still providing a quantifable benefit (utility) to multiple legitimate information consumers. This paper presents an information-theoretic framework that promises an analytical model guaranteeing tight bounds of how much utility is possible for a given level of privacy and vice-versa. Specific contributions include: i) stochastic data models for both categorical and numerical data; ii) utility-privacy tradeoff regions and the encoding (sanization) schemes achieving them for both classes and their practical relevance; and iii) modeling of prior knowledge at the user and/or data source and optimal encoding schemes for both cases.",
           "claimed_authors": [
-            "Andrey Sarantsev"
+            "Lalitha Sankar",
+            "S. Raj Rajagopalan",
+            "H. Vincent Poor"
           ],
-          "claimed_title": "Convergence rate to equilibrium in Wasserstein distance for reflected jump-diffusions",
+          "claimed_title": "Utility-Privacy Tradeoff in Databases: An Information-theoretic Approach",
           "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2003.10590"
+          "claimed_year": 2011,
+          "primary_pointer": "1102.3751"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Convergence rate to equilibrium in Wasserstein distance for reflected jump-diffusions')",
-        "failed_at": "2026-08-15T06:27:35Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Machine learning algorithms, when applied to sensitive data, pose a potential threat to privacy. A growing body of prior work has demonstrated that membership inference attack (MIA) can disclose specific private information in the training data to an attacker. Meanwhile, the algorithmic fairness of machine learning has increasingly caught attention from both academia and industry. Algorithmic fairness ensures that the machine learning models do not discriminate a particular demographic group of individuals (e.g., black and female people). Given that MIA is indeed a learning model, it raises a serious concern if MIA ``fairly'' treats all groups of individuals equally. In other words, whether a particular group is more vulnerable against MIA than the other groups. This paper examines the algorithmic fairness issue in the context of MIA and its defenses. First, for fairness evaluation, it formalizes the notation of vulnerability disparity (VD) to quantify the difference of MIA treatment on different demographic groups. Second, it evaluates VD on four real-world datasets, and shows that VD indeed exists in these datasets. Third, it examines the impacts of differential privacy, as a defense mechanism of MIA, on VD. The results show that although DP brings significant change on VD, it cannot eliminate VD completely. Therefore, fourth, it designs a new mitigation algorithm named FAIRPICK to reduce VD. An extensive set of experimental results demonstrate that FAIRPICK can effectively reduce VD for both with and without the DP deployment.",
-          "claimed_authors": [
-            "Bo Zhang",
-            "Ruotong Yu",
-            "Haipei Sun",
-            "Yanying Li",
-            "Jun Xu",
-            "Hui Wang"
-          ],
-          "claimed_title": "Privacy for All: Demystify Vulnerability Disparity of Differential Privacy against Membership Inference Attack",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2001.08855"
-        },
-        "details": "query-relevance 0.222 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Privacy for All: Demystify Vulnerability Disparity of Differential Privacy against Membership Inference Attack')",
-        "failed_at": "2026-08-15T06:27:35Z",
+        "details": "query-relevance 0.111 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Utility-Privacy Tradeoff in Databases: An Information-theoretic Approach')",
+        "failed_at": "2026-09-01T07:12:53Z",
         "reason": "query_irrelevant"
       },
       {
@@ -272,26 +188,25 @@
           "primary_pointer": "2502.00306"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Riddle Me This! Stealthy Membership Inference for Retrieval-Augmented Generation')",
-        "failed_at": "2026-08-15T06:27:35Z",
+        "failed_at": "2026-09-01T07:12:53Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Deep learning models have an intrinsic privacy issue as they memorize parts of their training data, creating a privacy leakage. Membership Inference Attacks (MIA) exploit it to obtain confidential information about the data used for training, aiming to steal information. They can be repurposed as a measurement of data integrity by inferring whether it was used to train a machine learning model. While state-of-the-art attacks achieve a significant privacy leakage, their requirements are not feasible enough, hindering their role as practical tools to assess the magnitude of the privacy risk. Moreover, the most appropriate evaluation metric of MIA, the True Positive Rate at low False Positive Rate lacks interpretability. We claim that the incorporation of Few-Shot Learning techniques to the MIA field and a proper qualitative and quantitative privacy evaluation measure should deal with these issues. In this context, our proposal is twofold. We propose a Few-Shot learning based MIA, coined as the FeS-MIA model, which eases the evaluation of the privacy breach of a deep learning model by significantly reducing the number of resources required for the purpose. Furthermore, we propose an interpretable quantitative and qualitative measure of privacy, referred to as Log-MIA measure. Jointly, these proposals provide new tools to assess the privacy leakage and to ease the evaluation of the training data integrity of deep learning models, that is, to analyze the privacy breach of a deep learning model. Experiments carried out with MIA over image classification and language modeling tasks and its comparison to the state-of-the-art show that our proposals excel at reporting the privacy leakage of a deep learning model with little extra information.",
+          "claimed_abstract": "We present two information leakage attacks that outperform previous work on membership inference against generative models. The first attack allows membership inference without assumptions on the type of the generative model. Contrary to previous evaluation metrics for generative models, like Kernel Density Estimation, it only considers samples of the model which are close to training data records. The second attack specifically targets Variational Autoencoders, achieving high membership inference accuracy. Furthermore, previous work mostly considers membership inference adversaries who perform single record membership inference. We argue for considering regulatory actors who perform set membership inference to identify the use of specific datasets for training. The attacks are evaluated on two generative model architectures, Generative Adversarial Networks (GANs) and Variational Autoencoders (VAEs), trained on standard image datasets. Our results show that the two attacks yield success rates superior to previous work on most data sets while at the same time having only very mild assumptions. We envision the two attacks in combination with the membership inference attack type formalization as especially useful. For example, to enforce data privacy standards and automatically assessing model quality in machine learning as a service setups. In practice, our work motivates the use of GANs since they prove less vulnerable against information leakage attacks while producing detailed samples.",
           "claimed_authors": [
-            "Daniel Jiménez-López",
-            "Nuria Rodríguez-Barroso",
-            "M. Victoria Luzón",
-            "Francisco Herrera"
+            "Benjamin Hilprecht",
+            "Martin Härterich",
+            "Daniel Bernau"
           ],
-          "claimed_title": "Membership Inference Attacks fueled by Few-Short Learning to detect privacy leakage tackling data integrity",
+          "claimed_title": "Reconstruction and Membership Inference Attacks against Generative Models",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2503.09365"
+          "claimed_year": 2019,
+          "primary_pointer": "1906.03006"
         },
-        "details": "query-relevance 0.222 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Membership Inference Attacks fueled by Few-Short Learning to detect privacy leakage tackling data integrity')",
-        "failed_at": "2026-08-15T06:27:35Z",
+        "details": "query-relevance 0.222 < 0.3 (query='Systematic Review of Privacy-Preserving Federated Learning Protocols computer sc', candidate_title='Reconstruction and Membership Inference Attacks against Generative Models')",
+        "failed_at": "2026-09-01T07:12:53Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -318,7 +233,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-15T06:27:32Z"
+          "verified_at": "2026-09-01T07:12:50Z"
         }
       },
       {
@@ -340,13 +255,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2009.11248",
           "http_status": 200,
-          "pdf_sample_score": 0.3056,
+          "pdf_sample_score": null,
           "query_relevance_score": 0.5556,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-15T06:27:33Z"
+          "verified_at": "2026-09-01T07:12:50Z"
         }
       },
       {
@@ -373,7 +288,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-15T06:27:33Z"
+          "verified_at": "2026-09-01T07:12:51Z"
         }
       },
       {
@@ -403,7 +318,153 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-15T06:27:34Z"
+          "verified_at": "2026-09-01T07:12:51Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ehsan Hallaji",
+            "Roozbeh Razavi-Far",
+            "Mehrdad Saif"
+          ],
+          "title": "Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2207.02337",
+        "summary": "The advent of federated learning has facilitated large-scale data exchange amongst machine learning models while maintaining privacy. Despite its brief history, federated learning is rapidly evolving to make wider use more practical. One of the most significant advancements in this domain is the incorporation of transfer learning into federated learning, which overcomes fundamental constraints of primary federated learning, particularly in terms of security. This chapter performs a comprehensive survey on the intersection of federated and transfer learning from a security point of view. The main goal of this study is to uncover potential vulnerabilities and defense mechanisms that might compromise the privacy and performance of systems that use federated and transfer learning.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2207.02337",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-01T07:12:52Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chaoyang He",
+            "Conghui Tan",
+            "Hanlin Tang",
+            "Shuang Qiu",
+            "Ji Liu"
+          ],
+          "title": "Central Server Free Federated Learning over Single-sided Trust Social Networks",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1910.04956",
+        "summary": "Federated learning has become increasingly important for modern machine learning, especially for data privacy-sensitive scenarios. Existing federated learning mostly adopts the central server-based architecture or centralized architecture. However, in many social network scenarios, centralized federated learning is not applicable (e.g., a central agent or server connecting all users may not exist, or the communication cost to the central server is not affordable). In this paper, we consider a generic setting: 1) the central server may not exist, and 2) the social network is unidirectional or of single-sided trust (i.e., user A trusts user B but user B may not trust user A). We propose a central server free federated learning algorithm, named Online Push-Sum (OPS) method, to handle this challenging but generic scenario. A rigorous regret analysis is also provided, which shows very interesting results on how users can benefit from communication with trusted users in the federated learning scenario. This work builds upon the fundamental algorithm framework and theoretical guarantees for federated learning in the generic social network scenario.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1910.04956",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-01T07:12:52Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tianyi Chen",
+            "Xiao Jin",
+            "Yuejiao Sun",
+            "Wotao Yin"
+          ],
+          "title": "VAFL: a Method of Vertical Asynchronous Federated Learning",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2007.06081",
+        "summary": "Horizontal Federated learning (FL) handles multi-client data that share the same set of features, and vertical FL trains a better predictor that combine all the features from different clients. This paper targets solving vertical FL in an asynchronous fashion, and develops a simple FL method. The new method allows each client to run stochastic gradient algorithms without coordination with other clients, so it is suitable for intermittent connectivity of clients. This method further uses a new technique of perturbed local embedding to ensure data privacy and improve communication efficiency. Theoretically, we present the convergence rate and privacy level of our method for strongly convex, nonconvex and even nonsmooth objectives separately. Empirically, we apply our method to FL on various image and healthcare datasets. The results compare favorably to centralized and synchronous FL methods.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2007.06081",
+          "http_status": 200,
+          "pdf_sample_score": 0.2004,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-01T07:12:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Minghong Fang",
+            "Xiaoyu Cao",
+            "Jinyuan Jia",
+            "Neil Zhenqiang Gong"
+          ],
+          "title": "Local Model Poisoning Attacks to Byzantine-Robust Federated Learning",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1911.11815",
+        "summary": "In federated learning, multiple client devices jointly learn a machine learning model: each client device maintains a local model for its local training dataset, while a master device maintains a global model via aggregating the local models from the client devices. The machine learning community recently proposed several federated learning methods that were claimed to be robust against Byzantine failures (e.g., system failures, adversarial manipulations) of certain client devices. In this work, we perform the first systematic study on local model poisoning attacks to federated learning. We assume an attacker has compromised some client devices, and the attacker manipulates the local model parameters on the compromised client devices during the learning process such that the global model has a large testing error rate. We formulate our attacks as optimization problems and apply our attacks to four recent Byzantine-robust federated learning methods. Our empirical results on four real-world datasets show that our attacks can substantially increase the error rates of the models learnt by the federated learning methods that were claimed to be robust against Byzantine failures of some client devices. We generalize two defenses for data poisoning attacks to defend against our local model poisoning attacks. Our evaluation results show that one defense can effectively defend against our attacks in some cases, but the defenses are not effective enough in other cases, highlighting the need for new defenses against our local model poisoning attacks to federated learning.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1911.11815",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-01T07:12:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kunhao Li",
+            "Di Wu",
+            "Jun Bai",
+            "Jing Xu",
+            "Lei Yang",
+            "Ziyi Zhang",
+            "Yiliao Song",
+            "Wencheng Yang",
+            "Taotao Cai",
+            "Yan Li"
+          ],
+          "title": "Who Owns This Sample: Cross-Client Membership Inference Attack in Federated Graph Neural Networks",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2507.19964",
+        "summary": "Graph-structured data is prevalent in many real-world applications, including social networks, financial systems, and molecular biology. Graph Neural Networks (GNNs) have become the de facto standard for learning from such data due to their strong representation capabilities. As GNNs are increasingly deployed in federated learning (FL) settings to preserve data locality and privacy, new privacy threats arise from the interaction between graph structures and decentralized training. In this paper, we present the first systematic study of cross-client membership inference attacks (CC-MIA) against node classification tasks of federated GNNs (FedGNNs), where a malicious client aims to infer which client owns the given data. Unlike prior centralized-focused work that focuses on whether a sample was included in training, our attack targets sample-to-client attribution, a finer-grained privacy risk unique to federated settings. We design a general attack framework that exploits FedGNNs' aggregation behaviors, gradient updates, and embedding proximity to link samples to their source clients across training rounds. We evaluate our attack across multiple graph datasets under realistic FL setups. Results show that our method achieves high performance on both membership inference and ownership identification. Our findings highlight a new privacy threat in federated graph learning-client identity leakage through structural and model-level cues, motivating the need for attribution-robust GNN design.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2507.19964",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-01T07:12:53Z"
         }
       }
     ]

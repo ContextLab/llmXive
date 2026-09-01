@@ -1,31 +1,26 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
-
 **Verdict**: pass
 
-The question investigates a substantive statistical phenomenon: how data distribution heterogeneity (non-IID skew) interacts with the noise injection of differential privacy to degrade model utility. It does not frame the inquiry around the performance of a specific algorithm (e.g., "Can FedAvg run faster?") but rather asks about the behavior of the system under varying statistical conditions, which is independent of the specific implementation details.
+The question investigates the statistical interaction between data heterogeneity (non-IID skew) and the utility costs of two distinct privacy mechanisms (Differential Privacy vs. Secure Aggregation). It focuses on a substantive relationship in the domain of distributed learning theory—how data distribution properties amplify specific privacy trade-offs—rather than asking whether a specific algorithm implementation can run within a time or hardware budget.
 
 ### Circularity check
-
 **Verdict**: pass
 
-The predictor variable (data skew level, $\alpha$) is an input parameter controlling the data partitioning strategy, while the predicted variable (utility cost/accuracy drop) is an output metric measured on a held-out test set. These are derived from distinct stages of the experimental pipeline (data generation vs. model evaluation), ensuring the relationship is empirically tested rather than mechanically constructed from the same signal.
+The predictor variable is the data partitioning parameter (Dirichlet concentration $\alpha$), which is a property of the input dataset distribution. The predicted variable is the model's final validation accuracy, which is derived from the model's performance on a held-out test set after training. These are independent sources; the accuracy is not mechanically constructed from the skew parameter itself but is an emergent property of the training dynamics under those conditions.
 
 ### Triviality check
-
-**Verdict**: concern
-
-While the interaction effect is not strictly predetermined, the general consensus in federated learning literature is that non-IID data and differential privacy both independently harm utility; thus, a null result (no interaction) might be less informative than a strong positive one. However, identifying a specific "critical skew threshold" where the cost explodes provides a specific, actionable insight that elevates the question beyond a simple confirmation of known degradation trends, making it potentially publishable even with mixed results.
-
-### Question-narrowing check
-
 **Verdict**: pass
 
-The question explicitly names a relationship in the domain: the interaction between "non-IID data heterogeneity" and the "utility cost of differential privacy." It does not constrain the inquiry to a specific budget, hardware constraint, or library version, but rather asks a generalizable scientific question about the trade-offs inherent to the protocol mechanics.
+Both outcomes are scientifically informative. A finding that non-IID skew drastically amplifies DP's utility cost would provide critical guidance for protocol selection in edge environments, potentially invalidating the use of DP in highly heterogeneous settings. Conversely, a null result (showing independence) would suggest that privacy mechanisms degrade utility additively rather than multiplicatively, challenging current assumptions about the compounding nature of these constraints.
+
+### Question-narrowing check
+**Verdict**: pass
+
+The question explicitly names a domain relationship: the interaction effect between data skew levels and the comparative efficacy of privacy protocols. It does not frame the inquiry around implementation constraints (e.g., "Can we run this on a CPU?") but rather asks a "how" and "does" question regarding the underlying behavior of the federated learning system under specific theoretical conditions.
 
 ### Overall verdict
-
 **Verdict**: validated
 
-The research question successfully isolates a specific, under-quantified interaction between data skew and privacy mechanisms without falling into method-narrowing or circularity traps. While the triviality check raises a minor concern regarding the expected direction of results, the specific goal of identifying a critical threshold provides sufficient novelty to justify the project. The question is ready to advance to project initialization.
+The research question successfully isolates a specific, unquantified interaction effect in federated learning theory without falling into implementation-method narrowing or circular reasoning. The proposed empirical approach (varying $\alpha$ and measuring accuracy) directly addresses the gap in understanding how data heterogeneity modulates privacy-utility trade-offs, making the project ready for initialization.

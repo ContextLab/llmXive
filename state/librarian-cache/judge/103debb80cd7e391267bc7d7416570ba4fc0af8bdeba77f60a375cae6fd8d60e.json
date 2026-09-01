@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1910.04956",
+  "judged_at": "2026-09-01T07:12:58Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "systematic review of privacy-preserving federated learning protocols computer science",
+  "rationale": "This paper addresses the user's question by proposing a specific federated learning protocol (Online Push-Sum) designed for privacy-sensitive scenarios without a central server, satisfying criteria (a) for measuring the same mechanism (federated learning protocols) and (d) as a foundational methodology for server-free federated learning. Although it focuses on social networks, it directly contributes to the body of work on privacy-preserving federated learning architectures requested in the syst",
+  "relevant": true
+}
