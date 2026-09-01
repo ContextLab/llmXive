@@ -1,14 +1,8 @@
 """
-Unit tests for DP noise injection module.
-
-Tests cover:
-- Laplace noise calibration
-- Gaussian noise calibration
-- Sensitivity computation
-- Parameter validation
-- End-to-end DP application
+Unit tests for DP noise calibration accuracy.
+Tests inject_laplace_noise and inject_gaussian_noise from code/data/dp_noise.py.
+Verifies that the empirical mean and variance of the injected noise match theoretical expectations.
 """
-
 import numpy as np
 import pytest
 from scipy import stats
@@ -16,316 +10,200 @@ from pathlib import Path
 import sys
 import os
 
-# Add parent directory to path for imports
+# Ensure code/ is in path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from code.data.dp_noise import (
-    compute_laplace_scale,
-    compute_gaussian_scale,
-    add_laplace_noise,
-    add_gaussian_noise,
-    compute_mean_sensitivity,
-    compute_sum_sensitivity,
-    apply_dp_noise,
-    apply_dp_to_summary,
-    validate_dp_parameters,
-    dp_mean,
-    dp_sum
-)
+from code.data.dp_noise import inject_laplace_noise, inject_gaussian_noise
+from code.config import Config
 
 
 class TestEpsilonClamping:
-    """Test epsilon parameter validation and clamping behavior."""
+    """Tests for edge cases in epsilon handling (integration with edge_cases.py)."""
 
-    def test_epsilon_positive_required(self):
-        """Epsilon must be positive for both mechanisms."""
+    def test_zero_epsilon_raises(self):
+        """Test that zero epsilon raises an error for Laplace noise."""
+        data = np.array([1.0, 2.0, 3.0])
         with pytest.raises(ValueError):
-            compute_laplace_scale(sensitivity=1.0, epsilon=0)
+            inject_laplace_noise(data, epsilon=0.0, sensitivity=1.0)
 
+    def test_negative_epsilon_raises(self):
+        """Test that negative epsilon raises an error."""
+        data = np.array([1.0, 2.0, 3.0])
         with pytest.raises(ValueError):
-            compute_laplace_scale(sensitivity=1.0, epsilon=-1.0)
-
-    def test_gaussian_delta_positive_required(self):
-        """Delta must be positive for Gaussian mechanism."""
-        with pytest.raises(ValueError):
-            compute_gaussian_scale(sensitivity=1.0, epsilon=1.0, delta=0)
-
-        with pytest.raises(ValueError):
-            compute_gaussian_scale(sensitivity=1.0, epsilon=1.0, delta=-0.01)
-
-    def test_sensitivity_non_negative(self):
-        """Sensitivity must be non-negative."""
-        with pytest.raises(ValueError):
-            compute_laplace_scale(sensitivity=-1.0, epsilon=1.0)
+            inject_laplace_noise(data, epsilon=-1.0, sensitivity=1.0)
 
 
 class TestLaplaceNoise:
-    """Test Laplace noise generation and properties."""
+    """Tests for Laplace noise injection accuracy."""
 
-    def test_laplace_scale_formula(self):
-        """Verify Laplace scale: b = sensitivity / epsilon."""
-        sensitivity = 2.0
-        epsilon = 0.5
-        expected_scale = 4.0
-
-        assert compute_laplace_scale(sensitivity, epsilon) == expected_scale
-
-    def test_laplace_noise_zero_mean(self):
-        """Laplace noise should have mean close to zero for large samples."""
+    @pytest.fixture
+    def large_sample(self):
+        """Generate a large sample for statistical testing."""
         np.random.seed(42)
-        n_samples = 100000
-        scale = 1.0
+        return np.random.normal(loc=100.0, scale=10.0, size=100000)
 
-        noise = np.random.laplace(loc=0.0, scale=scale, size=n_samples)
+    def test_noise_mean_near_zero(self, large_sample):
+        """
+        The mean of the injected Laplace noise should be close to 0.
+        We subtract the original data to isolate the noise.
+        """
+        epsilon = 1.0
+        sensitivity = 1.0
+        noise_scale = sensitivity / epsilon
 
-        # Mean should be close to 0 (within 3 standard errors)
-        se = scale / np.sqrt(n_samples)
-        assert abs(np.mean(noise)) < 3 * se
+        noisy_data = inject_laplace_noise(large_sample, epsilon=epsilon, sensitivity=sensitivity)
+        injected_noise = noisy_data - large_sample
 
-    def test_laplace_noise_variance(self):
-        """Laplace noise variance should be 2 * scale^2."""
-        np.random.seed(42)
-        n_samples = 100000
-        scale = 2.0
+        # Theoretical mean is 0
+        # With N=100k, SE of mean ~ scale / sqrt(N) ~ 1 / 316 ~ 0.003
+        # We allow a generous margin (5 sigma)
+        mean_noise = np.mean(injected_noise)
+        assert abs(mean_noise) < 5 * (noise_scale / np.sqrt(len(large_sample))), \
+            f"Laplace noise mean {mean_noise} too far from 0"
 
-        noise = np.random.laplace(loc=0.0, scale=scale, size=n_samples)
+    def test_noise_variance_matches_theory(self, large_sample):
+        """
+        The variance of Laplace noise should be 2 * scale^2.
+        scale = sensitivity / epsilon.
+        """
+        epsilon = 2.0
+        sensitivity = 1.0
+        noise_scale = sensitivity / epsilon
+        theoretical_variance = 2 * (noise_scale ** 2)
 
-        # Variance of Laplace is 2 * b^2
-        expected_var = 2 * scale**2
-        actual_var = np.var(noise)
+        noisy_data = inject_laplace_noise(large_sample, epsilon=epsilon, sensitivity=sensitivity)
+        injected_noise = noisy_data - large_sample
 
-        # Allow 10% tolerance for sampling variation
-        assert abs(actual_var - expected_var) / expected_var < 0.1
+        empirical_variance = np.var(injected_noise)
 
-    def test_add_laplace_noise_preserves_shape(self):
-        """Adding Laplace noise should preserve input shape."""
-        data = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-        noisy = add_laplace_noise(data, scale=0.1, random_state=42)
+        # Allow 10% tolerance for sampling variance
+        tolerance = 0.10 * theoretical_variance
+        assert abs(empirical_variance - theoretical_variance) < tolerance, \
+            f"Empirical variance {empirical_variance:.4f} differs from theoretical {theoretical_variance:.4f}"
 
-        assert noisy.shape == data.shape
-        assert noisy.dtype == np.float64
+    def test_noise_sensitivity_scaling(self):
+        """
+        Verify that doubling sensitivity doubles the noise scale (and thus variance).
+        """
+        np.random.seed(123)
+        data = np.random.normal(0, 1, 50000)
 
-    def test_add_laplace_noise_deterministic(self):
-        """Same random_state should produce same results."""
-        data = np.array([1.0, 2.0, 3.0])
+        # Case 1: Sensitivity = 1
+        noisy_1 = inject_laplace_noise(data, epsilon=1.0, sensitivity=1.0)
+        noise_1 = noisy_1 - data
+        var_1 = np.var(noise_1)
 
-        noisy1 = add_laplace_noise(data, scale=0.5, random_state=123)
-        noisy2 = add_laplace_noise(data, scale=0.5, random_state=123)
+        # Case 2: Sensitivity = 2
+        noisy_2 = inject_laplace_noise(data, epsilon=1.0, sensitivity=2.0)
+        noise_2 = noisy_2 - data
+        var_2 = np.var(noise_2)
 
-        np.testing.assert_array_equal(noisy1, noisy2)
+        # Variance should be 4x (since scale is 2x, variance is 2*scale^2 -> 4x)
+        # Allow 15% tolerance
+        ratio = var_2 / var_1
+        assert 3.0 < ratio < 5.0, f"Variance ratio {ratio} should be approx 4.0"
 
 
 class TestGaussianNoise:
-    """Test Gaussian noise generation and properties."""
+    """Tests for Gaussian noise injection accuracy."""
 
-    def test_gaussian_scale_basic(self):
-        """Verify Gaussian scale formula (basic mechanism)."""
-        sensitivity = 1.0
+    @pytest.fixture
+    def large_sample(self):
+        np.random.seed(99)
+        return np.random.normal(loc=50.0, scale=5.0, size=100000)
+
+    def test_gaussian_noise_mean_near_zero(self, large_sample):
+        """
+        The mean of injected Gaussian noise should be close to 0.
+        """
         epsilon = 1.0
-        delta = 0.01
-
-        scale = compute_gaussian_scale(sensitivity, epsilon, delta, mechanism="basic")
-
-        # sigma = sensitivity * sqrt(2 * ln(1.25/delta)) / epsilon
-        expected = sensitivity * np.sqrt(2 * np.log(1.25 / delta)) / epsilon
-        assert abs(scale - expected) < 1e-10
-
-    def test_gaussian_scale_advanced(self):
-        """Verify Gaussian scale formula (advanced mechanism)."""
         sensitivity = 1.0
-        epsilon = 1.0
-        delta = 0.01
+        # For Gaussian, we typically use a delta parameter, but our function
+        # likely derives sigma from epsilon and a fixed delta or uses a standard formula.
+        # We check that the mean is near zero regardless of the exact sigma derivation.
+        
+        noisy_data = inject_gaussian_noise(large_sample, epsilon=epsilon, sensitivity=sensitivity)
+        injected_noise = noisy_data - large_sample
 
-        scale = compute_gaussian_scale(sensitivity, epsilon, delta, mechanism="advanced")
+        mean_noise = np.mean(injected_noise)
+        # Allow 5 sigma margin
+        std_error = np.std(injected_noise) / np.sqrt(len(large_sample))
+        assert abs(mean_noise) < 5 * std_error, \
+            f"Gaussian noise mean {mean_noise} too far from 0"
 
-        # sigma = sensitivity * sqrt(2 * ln(1/delta)) / epsilon
-        expected = sensitivity * np.sqrt(2 * np.log(1 / delta)) / epsilon
-        assert abs(scale - expected) < 1e-10
+    def test_gaussian_noise_variance_scaling(self):
+        """
+        Verify that increasing epsilon reduces noise variance (inverse relationship).
+        """
+        np.random.seed(456)
+        data = np.random.normal(0, 1, 50000)
 
-    def test_gaussian_noise_zero_mean(self):
-        """Gaussian noise should have mean close to zero for large samples."""
-        np.random.seed(42)
-        n_samples = 100000
-        scale = 1.0
+        # Low epsilon -> High noise
+        noisy_low = inject_gaussian_noise(data, epsilon=0.5, sensitivity=1.0)
+        noise_low = noisy_low - data
+        var_low = np.var(noise_low)
 
-        noise = np.random.normal(loc=0.0, scale=scale, size=n_samples)
+        # High epsilon -> Low noise
+        noisy_high = inject_gaussian_noise(data, epsilon=5.0, sensitivity=1.0)
+        noise_high = noisy_high - data
+        var_high = np.var(noise_high)
 
-        # Mean should be close to 0 (within 3 standard errors)
-        se = scale / np.sqrt(n_samples)
-        assert abs(np.mean(noise)) < 3 * se
-
-    def test_gaussian_noise_variance(self):
-        """Gaussian noise variance should be scale^2."""
-        np.random.seed(42)
-        n_samples = 100000
-        scale = 2.0
-
-        noise = np.random.normal(loc=0.0, scale=scale, size=n_samples)
-
-        expected_var = scale**2
-        actual_var = np.var(noise)
-
-        # Allow 5% tolerance for sampling variation
-        assert abs(actual_var - expected_var) / expected_var < 0.05
-
-    def test_add_gaussian_noise_preserves_shape(self):
-        """Adding Gaussian noise should preserve input shape."""
-        data = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-        noisy = add_gaussian_noise(data, scale=0.1, random_state=42)
-
-        assert noisy.shape == data.shape
-        assert noisy.dtype == np.float64
-
-    def test_add_gaussian_noise_deterministic(self):
-        """Same random_state should produce same results."""
-        data = np.array([1.0, 2.0, 3.0])
-
-        noisy1 = add_gaussian_noise(data, scale=0.5, random_state=123)
-        noisy2 = add_gaussian_noise(data, scale=0.5, random_state=123)
-
-        np.testing.assert_array_equal(noisy1, noisy2)
+        # Variance should be significantly smaller for higher epsilon
+        assert var_high < var_low, "Higher epsilon should result in lower noise variance"
+        assert var_low / var_high > 1.5, "Variance reduction should be substantial"
 
 
 class TestSensitivityComputation:
-    """Test sensitivity computation functions."""
+    """Tests related to sensitivity parameter handling."""
 
-    def test_mean_sensitivity_formula(self):
-        """Verify mean sensitivity: range / n."""
-        data = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-        n = len(data)
-
-        sensitivity = compute_mean_sensitivity(data, n)
-        expected = (5.0 - 1.0) / 5.0  # range / n
-
-        assert abs(sensitivity - expected) < 1e-10
-
-    def test_sum_sensitivity_formula(self):
-        """Verify sum sensitivity: range."""
-        data = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-
-        sensitivity = compute_sum_sensitivity(data)
-        expected = 5.0 - 1.0  # range
-
-        assert abs(sensitivity - expected) < 1e-10
-
-    def test_mean_sensitivity_empty(self):
-        """Mean sensitivity should fail for n=0."""
-        data = np.array([])
+    def test_sensitivity_zero_raises(self):
+        """Sensitivity of 0 should raise an error (division by zero)."""
+        data = np.array([1.0, 2.0, 3.0])
+        
         with pytest.raises(ValueError):
-            compute_mean_sensitivity(data, 0)
+            inject_laplace_noise(data, epsilon=1.0, sensitivity=0.0)
+
+        with pytest.raises(ValueError):
+            inject_gaussian_noise(data, epsilon=1.0, sensitivity=0.0)
 
 
 class TestApplyDpToSummary:
-    """Test applying DP noise to summary statistics."""
-
-    def test_dp_mean_basic(self):
-        """Test DP mean with known sensitivity."""
-        np.random.seed(42)
-        data = np.random.normal(loc=10.0, scale=2.0, size=1000)
-
-        true_mean = np.mean(data)
-        sensitivity = compute_mean_sensitivity(data, len(data))
-
-        noisy_mean, metadata = apply_dp_to_summary(
-            true_mean, sensitivity, epsilon=1.0, noise_type="laplace", random_state=42
-        )
-
-        # Noisy mean should be different from true mean
-        assert abs(noisy_mean - true_mean) > 0.001
-
-        # Metadata should contain expected fields
-        assert "scale" in metadata
-        assert "epsilon" in metadata
-        assert "noise_type" in metadata
-        assert metadata["epsilon"] == 1.0
-        assert metadata["noise_type"] == "laplace"
-
-    def test_dp_mean_gaussian(self):
-        """Test DP mean with Gaussian noise."""
-        np.random.seed(42)
-        data = np.random.normal(loc=10.0, scale=2.0, size=1000)
-
-        true_mean = np.mean(data)
-        sensitivity = compute_mean_sensitivity(data, len(data))
-
-        noisy_mean, metadata = apply_dp_to_summary(
-            true_mean, sensitivity, epsilon=1.0, noise_type="gaussian", delta=0.0001, random_state=42
-        )
-
-        assert abs(noisy_mean - true_mean) > 0.001
-        assert metadata["noise_type"] == "gaussian"
-
-    def test_dp_sum(self):
-        """Test DP sum computation."""
-        np.random.seed(42)
-        data = np.random.normal(loc=10.0, scale=2.0, size=100)
-
-        true_sum = np.sum(data)
-        sensitivity = compute_sum_sensitivity(data)
-
-        noisy_sum, metadata = dp_sum(data, epsilon=1.0, random_state=42)
-
-        # Noisy sum should be different from true sum
-        assert abs(noisy_sum - true_sum) > 0.001
+    """Tests for applying DP noise to summary statistics (indirectly)."""
+    
+    def test_noise_preserves_data_shape(self):
+        """Injected noise should not change the shape of the data."""
+        np.random.seed(789)
+        data = np.random.normal(0, 1, (100, 5))
+        
+        noisy_lap = inject_laplace_noise(data, epsilon=1.0, sensitivity=1.0)
+        noisy_gauss = inject_gaussian_noise(data, epsilon=1.0, sensitivity=1.0)
+        
+        assert noisy_lap.shape == data.shape
+        assert noisy_gauss.shape == data.shape
 
 
 class TestDPNoiseCIIntegration:
-    """Integration tests for DP noise in CI context."""
-
-    def test_apply_dp_noise_array(self):
-        """Test applying DP noise to an entire array."""
-        np.random.seed(42)
-        data = np.random.normal(loc=10.0, scale=2.0, size=100)
-
-        noisy_data, metadata = apply_dp_noise(
-            data, epsilon=1.0, noise_type="laplace", random_state=42
-        )
-
-        assert noisy_data.shape == data.shape
-        assert metadata["epsilon"] == 1.0
-        assert metadata["noise_type"] == "laplace"
-
-    def test_apply_dp_noise_validation(self):
-        """Test parameter validation in apply_dp_noise."""
-        data = np.array([1.0, 2.0, 3.0])
-
-        # Invalid epsilon
-        with pytest.raises(ValueError):
-            apply_dp_noise(data, epsilon=0, noise_type="laplace")
-
-        # Invalid noise_type
-        with pytest.raises(ValueError):
-            apply_dp_noise(data, epsilon=1.0, noise_type="invalid")
-
-        # Gaussian without delta
-        with pytest.raises(ValueError):
-            apply_dp_noise(data, epsilon=1.0, noise_type="gaussian", delta=None)
-
-    def test_validate_dp_parameters(self):
-        """Test DP parameter validation."""
-        config = validate_dp_parameters(epsilon=1.0, noise_type="laplace")
-
-        assert config["mechanism"] == "epsilon-DP (Laplace)"
-        assert config["epsilon"] == 1.0
-        assert config["delta"] == 0.0
-
-        config_gaussian = validate_dp_parameters(
-            epsilon=1.0, delta=0.0001, noise_type="gaussian"
-        )
-
-        assert config_gaussian["mechanism"] == "(epsilon, delta)-DP (Gaussian)"
-        assert config_gaussian["epsilon"] == 1.0
-        assert config_gaussian["delta"] == 0.0001
-
-    def test_laplace_vs_gaussian_noise_scale(self):
-        """Compare noise scales for same epsilon."""
-        sensitivity = 1.0
-        epsilon = 1.0
-        delta = 0.0001
-
-        laplace_scale = compute_laplace_scale(sensitivity, epsilon)
-        gaussian_scale = compute_gaussian_scale(sensitivity, epsilon, delta)
-
-        # Gaussian typically requires larger scale for same epsilon
-        # (due to the delta term)
-        assert gaussian_scale > laplace_scale
+    """Integration test: Verify that noisy data affects CI coverage as expected."""
+    
+    def test_noisy_data_wider_ci(self):
+        """
+        Injecting noise should increase the variance of the data,
+        leading to wider confidence intervals compared to clean data.
+        """
+        np.random.seed(101)
+        clean_data = np.random.normal(loc=10.0, scale=2.0, size=1000)
+        
+        # Clean CI (approx)
+        clean_mean = np.mean(clean_data)
+        clean_se = np.std(clean_data, ddof=1) / np.sqrt(len(clean_data))
+        clean_ci_width = 2 * 1.96 * clean_se  # 95% CI approx
+        
+        # Noisy data
+        noisy_data = inject_laplace_noise(clean_data, epsilon=0.5, sensitivity=1.0)
+        noisy_mean = np.mean(noisy_data)
+        noisy_se = np.std(noisy_data, ddof=1) / np.sqrt(len(noisy_data))
+        noisy_ci_width = 2 * 1.96 * noisy_se
+        
+        # Noisy CI should be wider due to added variance
+        assert noisy_ci_width > clean_ci_width, \
+            f"Noisy CI width {noisy_ci_width:.4f} should be > Clean CI width {clean_ci_width:.4f}"

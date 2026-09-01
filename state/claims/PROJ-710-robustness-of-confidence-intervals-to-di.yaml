@@ -3685,3 +3685,1061 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-30T01:13:16Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: three synthetic populations of 1000000 rows each
+  claim_id: c_28f774f8
+  context: 'Generate THREE separate synthetic populations of N=1,000,000 rows each:
+    one for UCI Adult (Multinomial distribution for income/categoricals, Normal for
+    continuous), one for UCI Iris (Normal distribution for botanical features), and
+    one for UCI Wine Quality (Normal distribution for chemical features).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate THREE separate synthetic populations of N=1,000,000 rows each.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:21:11Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: micro-benchmark uses 10 bootstrap resamples to verify 1000 simulation
+    fits in 6 hours
+  claim_id: c_807302f1
+  context: Add a code/utils/feasibility_check.py script that runs a micro-benchmark
+    (e.g., a representative sample size, 10 bootstrap resamples) at startup to verify
+    that the full N_sim=1000 simulation will fit within the 6-hour runtime limit on
+    the target CPU runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a micro-benchmark (e.g., a representative sample size, 10 bootstrap
+    resamples) at startup to verify that the full N_sim=1000 simulation will fit within
+    the 6-hour runtime limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:21:44Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Set N_sim to 1000 for simulation count
+  claim_id: c_c6d77df9
+  context: Implement code/config.py with hyperparameters, random seeds, artifact paths,
+    and nominal_coverage_target (default a high confidence threshold). Set N_sim =
+    1000 to match plan feasibility check.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set N_sim = 1000 to match plan feasibility check.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:22:24Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Generate three synthetic populations of 1000000 rows each for UCI Adult,
+    Iris, and Wine Quality
+  claim_id: c_05842038
+  context: 'Generate THREE separate synthetic populations of N=1,000,000 rows each:
+    one for UCI Adult (Multinomial distribution for income/categoricals, Normal for
+    continuous), one for UCI Iris (Normal distribution for botanical features), and
+    one for UCI Wine Quality (Normal distribution for chemical features).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate THREE separate synthetic populations of N=1,000,000 rows each:
+    one for UCI Adult, one for UCI Iris, and one for UCI Wine Quality.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:23:09Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime must be within 6 hours on standard runner
+  claim_id: c_8d46ac12
+  context: Run quickstart.md validation to ensure the entire pipeline runs within
+    6 hours on a standard runner
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must run within 6 hours on a standard runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:24:07Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Verify standard error of coverage is less than 0.5 percent
+  claim_id: c_65e0a124
+  context: Implement code/analysis/convergence_check.py to run simulation with multiple
+    seeds and verify standard error of coverage < 0.5%
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_standard_error_of_coverage_is_less_than_0.5_percent
+  kind: magnitude
+  raw_text: Verify standard error of coverage is less than 0.5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:25:11Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Enforce minimum sample size of 10 for valid bootstrap
+  claim_id: c_c6840a57
+  context: Implement code/analysis/edge_cases.py function enforce_min_sample_size
+    to enforce minimum sample size for valid bootstrap (n < 10 check).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce minimum sample size for valid bootstrap with n < 10 check.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:25:11Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Run micro-benchmark with 10 bootstrap resamples for feasibility check
+  claim_id: c_ce3faf4e
+  context: Add a code/utils/feasibility_check.py script that runs a micro-benchmark
+    (e.g., a representative sample size, 10 bootstrap resamples) at startup to verify
+    that the full N_sim=1000 simulation will fit within the 6-hour runtime limit on
+    the target CPU runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a micro-benchmark with 10 bootstrap resamples at startup for feasibility
+    check.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:25:35Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Measure empirical coverage probability of standard 95 percent CIs
+  claim_id: c_33445650
+  context: 'Goal: Measure empirical coverage probability of standard 95% CIs for means
+    and regression coefficients on DP-perturbed data across varying epsilon values.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Measure empirical coverage probability of standard 95% CIs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:25:36Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Implement Outer Loop with 1000 independent samples
+  claim_id: c_a4c4fbd8
+  context: Implement code/main.py orchestration loop. Reads ground truth from code/config.py
+    (T003). Implements Outer Loop with N_sim=1000 independent samples x Inner Loop
+    (bootstrap resamples).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Outer Loop with N_sim=1000 independent samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:26:24Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Process and write results in batches of simulations to coverage_results.csv
+  claim_id: c_78a78277
+  context: 'Ensure code/main.py implements a chunked processing strategy for the N_sim
+    loop: process and write results in batches of simulations to artifacts/coverage_results.csv
+    using atomic writes (write to temp file then rename) to prevent memory accumulation
+    and ensure data integrity if the process crashes mid-write.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Process_and_write_results_in_batches_of_simulations_to_cover
+  kind: causal
+  raw_text: Process and write results in batches of simulations to artifacts/coverage_results.csv.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:26:27Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: generate three synthetic populations of 1000000 rows
+  claim_id: c_e9f31ebc
+  context: 'T003 [P] Generate THREE separate synthetic populations of N=1,000,000
+    rows each: one for UCI Adult (Multinomial distribution for income/categoricals,
+    Normal for continuous), one for UCI Iris (Normal distribution for botanical features),
+    and one for UCI Wine Quality (Normal distribution for chemical features).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate THREE separate synthetic populations of N=1,000,000 rows each.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:28:28Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis csv columns requirement
+  claim_id: c_f1730b00
+  context: 'T031 [US3] Implement and execute sensitivity analysis... The output artifacts/sensitivity_analysis.csv
+    MUST contain columns: threshold, passing_dataset_count, and delta_count (change
+    in count of datasets passing the criterion) to satisfy FR-006 and SC-005.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_csv_columns_requirement
+  kind: entity_fact
+  raw_text: 'The output artifacts/sensitivity_analysis.csv MUST contain columns: threshold,
+    passing_dataset_count, and delta_count.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:29:14Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: 1000 simulation runs within 6 hours
+  claim_id: c_b5925391
+  context: T040 [P] [Review] Add a code/utils/feasibility_check.py script that runs
+    a micro-benchmark... to verify that the full N_sim=1000 simulation will fit within
+    the 6-hour runtime limit on the target CPU runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full N_sim=1000 simulation will fit within the 6-hour runtime limit
+    on the target CPU runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:29:39Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: standard error of coverage threshold 0.5 percent
+  claim_id: c_d30dc4d1
+  context: T033 [P] Implement code/analysis/convergence_check.py to run simulation
+    with multiple seeds and verify standard error of coverage < 0.5%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify standard error of coverage < 0.5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:29:39Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: generate three synthetic populations of 1000000 rows each
+  claim_id: c_b972e77e
+  context: 'Generate THREE separate synthetic populations of N=1,000,000 rows each:
+    one for UCI Adult, one for UCI Iris, and one for UCI Wine Quality.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate THREE separate synthetic populations of N=1,000,000 rows each.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:30:40Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis output must contain threshold passing_dataset_count
+    and delta_count columns
+  claim_id: c_569e27ba
+  context: 'Mandatory: The output artifacts/sensitivity_analysis.csv MUST contain
+    columns: threshold, passing_dataset_count, and delta_count (change in count of
+    datasets passing the criterion) to satisfy FR-006 and SC-005.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_output_must_contain_threshold_passing_d
+  kind: entity_fact
+  raw_text: 'The output artifacts/sensitivity_analysis.csv MUST contain columns: threshold,
+    passing_dataset_count, and delta_count.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:30:43Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: pipeline must run within 6 hours on a standard runner
+  claim_id: c_3cb39920
+  context: Run quickstart.md validation to ensure the entire pipeline runs within
+    6 hours on a standard runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run quickstart.md validation to ensure the entire pipeline runs within
+    6 hours on a standard runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:31:15Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: standard error of coverage must be less than 0.5 percent
+  claim_id: c_3e87ad00
+  context: Implement code/analysis/convergence_check.py to run simulation with multiple
+    seeds and verify standard error of coverage < 0.5%.
+  evidence:
+    asserted: '0.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: Verify that the simulation pipeline runs with multiple seeds and the standard
+    error of coverage is less than 0.5%.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T05:31:15Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 2
+  canonical: simulation count set to 1000
+  claim_id: c_0ebe7d7e
+  context: T002 [P] Implement code/config.py with hyperparameters, random seeds, artifact
+    paths, and nominal_coverage_target (default a high confidence threshold). Set
+    N_sim = 1000 to match plan feasibility check.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set N_sim = 1000 to match plan feasibility check.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:36:36Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: generate three synthetic populations of 1000000 rows each
+  claim_id: c_0c10924e
+  context: 'T003 [P] Generate THREE separate synthetic populations of N=1,000,000
+    rows each: one for UCI Adult (Multinomial distribution for income/categoricals,
+    Normal for continuous), one for UCI Iris (Normal distribution for botanical features),
+    and one for UCI Wine Quality (Normal distribution for chemical features).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate THREE separate synthetic populations of N=1,000,000 rows each:
+    one for UCI Adult, one for UCI Iris, and one for UCI Wine Quality.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:36:37Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis output must contain threshold, passing_dataset_count,
+    and delta_count columns
+  claim_id: c_75e7fa23
+  context: 'T031 [US3] Implement and execute sensitivity analysis... Mandatory: The
+    output artifacts/sensitivity_analysis.csv MUST contain columns: threshold, passing_dataset_count,
+    and delta_count (change in count of datasets passing the criterion) to satisfy
+    FR-006 and SC-005.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_output_must_contain_threshold,_passing
+  kind: entity_fact
+  raw_text: 'The output artifacts/sensitivity_analysis.csv MUST contain columns: threshold,
+    passing_dataset_count, and delta_count.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:36:39Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: pipeline must run within 6 hours on standard runner
+  claim_id: c_eb93680f
+  context: T037 [P] Run quickstart.md validation to ensure the entire pipeline runs
+    within 6 hours on a standard runner
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run quickstart.md validation to ensure the entire pipeline runs within
+    6 hours on a standard runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:36:40Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: verify standard error of coverage is less than 0.5 percent
+  claim_id: c_7d7ce7b5
+  context: T033 [P] Implement code/analysis/convergence_check.py to run simulation
+    with multiple seeds and verify standard error of coverage < 0.5%
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_standard_error_of_coverage_is_less_than_0.5_percent
+  kind: magnitude
+  raw_text: Verify that standard error of coverage is less than 0.5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:36:43Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: enforce minimum sample size n less than 10 for valid bootstrap
+  claim_id: c_11460e7d
+  context: T014c [P] [US1] Implement code/analysis/edge_cases.py function enforce_min_sample_size
+    to enforce minimum sample size for valid bootstrap (n < 10 check).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Enforce_minimum_sample_size_n_less_than_10_for_valid_bootstr
+  kind: magnitude
+  raw_text: Enforce minimum sample size for valid bootstrap with an n < 10 check.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:38:01Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Three synthetic populations of 1,000,000 rows generated for UCI Adult,
+    UCI Iris, and UCI Wine Quality
+  claim_id: c_6f242131
+  context: 'T003 [P] Generate THREE separate synthetic populations of N=1,000,000
+    rows each: one for UCI Adult (Multinomial distribution for income/categoricals,
+    Normal for continuous), one for UCI Iris (Normal distribution for botanical features),
+    and one for UCI Wine Quality (Normal distribution for chemical features).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate THREE separate synthetic populations of N=1,000,000 rows each:
+    one for UCI Adult, one for UCI Iris, and one for UCI Wine Quality.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:39:18Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Simulation count set to 1000
+  claim_id: c_b0f03b41
+  context: T002 [P] Implement code/config.py with hyperparameters, random seeds, artifact
+    paths, and nominal_coverage_target (default a high confidence threshold). Set
+    N_sim = 1000 to match plan feasibility check.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set N_sim = 1000 to match plan feasibility check.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:39:19Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Standard error of coverage verified to be less than 0.5%
+  claim_id: c_b5cb5cf5
+  context: T033 [P] Implement code/analysis/convergence_check.py to run simulation
+    with multiple seeds and verify standard error of coverage < 0.5% (Depends on T013a)
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 0.5
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Standard_error_of_coverage_verified_to_be_less_than_0.5%25
+  kind: magnitude
+  raw_text: Verify standard error of coverage < 0.5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-01T05:40:07Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: N_sim set to 1000 for simulation
+  claim_id: c_9f199617
+  context: 'Phase 2, Task T002: Implement code/config.py with hyperparameters, random
+    seeds, artifact paths, and nominal_coverage_target. Set N_sim = 1000 to match
+    plan feasibility check.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set N_sim = 1000 to match plan feasibility check.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:41:43Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Three synthetic populations of 1,000,000 rows generated
+  claim_id: c_365f4ff5
+  context: 'Phase 2, Task T003: Generate THREE separate synthetic populations of N=1,000,000
+    rows each: one for UCI Adult, one for UCI Iris, and one for UCI Wine Quality.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate THREE separate synthetic populations of N=1,000,000 rows each.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:41:44Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis CSV contains threshold, passing_dataset_count, and
+    delta_count columns
+  claim_id: c_5a0fe8df
+  context: 'Phase 5, Task T031: Implement and execute sensitivity analysis. Mandatory:
+    The output artifacts/sensitivity_analysis.csv MUST contain columns: threshold,
+    passing_dataset_count, and delta_count to satisfy FR-006 and SC-005.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_CSV_contains_threshold,_passing_dataset
+  kind: entity_fact
+  raw_text: 'The output artifacts/sensitivity_analysis.csv MUST contain columns: threshold,
+    passing_dataset_count, and delta_count.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:42:00Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Standard error of coverage verification threshold is 0.5%
+  claim_id: c_fd047280
+  context: 'Phase 6, Task T033: Implement code/analysis/convergence_check.py to run
+    simulation with multiple seeds and verify standard error of coverage < 0.5%.'
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 0.5
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Standard_error_of_coverage_verification_threshold_is_0.5%25
+  kind: magnitude
+  raw_text: Verify that the standard error of coverage is less than 0.5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-01T05:42:04Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime limit is 6 hours
+  claim_id: c_5ca5b7bd
+  context: 'Phase 6, Task T037: Run quickstart.md validation to ensure the entire
+    pipeline runs within 6 hours on a standard runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure the entire pipeline runs within 6 hours on a standard runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:42:23Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: N_sim=1000 simulation must complete within 6 hours
+  claim_id: c_55654aa6
+  context: 'Phase 7, Task T040: Add a code/utils/feasibility_check.py script that
+    runs a micro-benchmark... to verify that the full N_sim=1000 simulation will fit
+    within the 6-hour runtime limit on the target CPU runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full N_sim=1000 simulation must fit within the 6-hour runtime limit
+    on the target CPU runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:42:52Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Micro-benchmark uses 10 bootstrap resamples
+  claim_id: c_3d6390cd
+  context: 'Phase 7, Task T040: Add a code/utils/feasibility_check.py script that
+    runs a micro-benchmark (e.g., a representative sample size, 10 bootstrap resamples)
+    at startup.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The micro-benchmark uses a representative sample size and 10 bootstrap
+    resamples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:43:21Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Generate three synthetic populations of 1,000,000 rows for UCI Adult,
+    UCI Iris, and UCI Wine Quality
+  claim_id: c_fce4fd39
+  context: 'T003: Generate THREE separate synthetic populations of N=1,000,000 rows
+    each... The generation MUST create three distinct populations with known parameters
+    (mean, variance, coefficients) specific to each dataset type to serve as independent
+    ground truth.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate THREE separate synthetic populations of N=1,000,000 rows each:
+    one for UCI Adult, one for UCI Iris, and one for UCI Wine Quality.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:45:33Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Set N_sim to 1000 for simulation
+  claim_id: c_a757a07d
+  context: 'T002: Implement code/config.py with hyperparameters, random seeds, artifact
+    paths, and nominal_coverage_target... Set N_sim = 1000 to match plan feasibility
+    check.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set N_sim = 1000 to match plan feasibility check.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:45:33Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Implement outer loop with 1000 independent samples
+  claim_id: c_6e18a1eb
+  context: 'T013a: Implements Outer Loop with N_sim=1000 independent samples x Inner
+    Loop (bootstrap resamples).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Outer Loop with N_sim=1000 independent samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:45:34Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Verify standard error of coverage is less than 0.5%
+  claim_id: c_9493aa4f
+  context: 'T033: Run simulation with multiple seeds and verify standard error of
+    coverage < 0.5%.'
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 0.5
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Verify_standard_error_of_coverage_is_less_than_0.5%25
+  kind: magnitude
+  raw_text: Verify that the standard error of coverage is less than 0.5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-01T05:45:38Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Ensure pipeline runs within 6 hours on a standard runner
+  claim_id: c_b2adb14d
+  context: 'T037: Run quickstart.md validation to ensure the entire pipeline runs
+    within 6 hours on a standard runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure the entire pipeline runs within 6 hours on a standard runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:45:39Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Process and write results in batches using atomic writes to prevent memory
+    accumulation
+  claim_id: c_1d9b2f84
+  context: 'T041: Ensure code/main.py implements a chunked processing strategy for
+    the N_sim loop: process and write results in batches of simulations to artifacts/coverage_results.csv
+    using atomic writes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Process_and_write_results_in_batches_using_atomic_writes_to
+  kind: causal
+  raw_text: Process and write results in batches of simulations to artifacts/coverage_results.csv
+    using atomic writes.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:45:42Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Enforce minimum sample size for valid bootstrap with n less than 10 check
+  claim_id: c_fad7aa82
+  context: 'T014c: Implement code/analysis/edge_cases.py function enforce_min_sample_size
+    to enforce minimum sample size for valid bootstrap (n < 10 check).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Enforce_minimum_sample_size_for_valid_bootstrap_with_n_less
+  kind: magnitude
+  raw_text: Enforce minimum sample size for valid bootstrap with a check for n < 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:45:46Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Three synthetic populations of 1,000,000 rows generated for UCI Adult,
+    UCI Iris, and UCI Wine Quality
+  claim_id: c_9d9ee346
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T003 task description'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate THREE separate synthetic populations of N=1,000,000 rows each:
+    one for UCI Adult (Multinomial distribution for income/categoricals, Normal for
+    continuous), one for UCI Iris (Normal distribution for botanical features), and
+    one for UCI Wine Quality (Normal distribution for chemical features).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:46:38Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Simulation count set to 1000
+  claim_id: c_81ce7abb
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T002 task description'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set N_sim = 1000 to match plan feasibility check.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:46:38Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Standard error of coverage verified to be less than 0.5%
+  claim_id: c_16802d82
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - T033 task description'
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 0.5
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Standard_error_of_coverage_verified_to_be_less_than_0.5%25
+  kind: magnitude
+  raw_text: Run simulation with multiple seeds and verify standard error of coverage
+    < 0.5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-01T05:47:27Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis output contains threshold, passing_dataset_count,
+    and delta_count columns
+  claim_id: c_a0f73804
+  context: 'Phase 5: User Story 3 - T031 task description'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_output_contains_threshold,_passing_data
+  kind: entity_fact
+  raw_text: 'The output artifacts/sensitivity_analysis.csv MUST contain columns: threshold,
+    passing_dataset_count, and delta_count.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:47:30Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime validated to be within 6 hours
+  claim_id: c_b870503c
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - T037 task description'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run quickstart.md validation to ensure the entire pipeline runs within
+    6 hours on a standard runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:47:31Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 3
+  canonical: simulation count set to 1000
+  claim_id: c_d24e5890
+  context: Implement code/config.py with hyperparameters, random seeds, artifact paths,
+    and nominal_coverage_target (default a high confidence threshold). Set N_sim =
+    1000 to match plan feasibility check.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set N_sim = 1000 to match plan feasibility check.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:48:18Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: three synthetic populations of 1000000 rows generated
+  claim_id: c_d1c78a87
+  context: 'Generate THREE separate synthetic populations of N=1,000,000 rows each:
+    one for UCI Adult (Multinomial distribution for income/categoricals, Normal for
+    continuous), one for UCI Iris (Normal distribution for botanical features), and
+    one for UCI Wine Quality (Normal distribution for chemical features).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate THREE separate synthetic populations of N=1,000,000 rows each:
+    one for UCI Adult, one for UCI Iris, and one for UCI Wine Quality.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:48:19Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: standard error of coverage threshold set to 0.5 percent
+  claim_id: c_6b8bff57
+  context: Implement code/analysis/convergence_check.py to run simulation with multiple
+    seeds and verify standard error of coverage < 0.5%.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Standard_error_of_coverage_threshold_set_to_0.5_percent
+  kind: magnitude
+  raw_text: Verify that standard error of coverage is less than 0.5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:48:21Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: minimum sample size for bootstrap set to 10
+  claim_id: c_c351d5cd
+  context: Implement code/analysis/edge_cases.py function enforce_min_sample_size
+    to enforce minimum sample size for valid bootstrap (n < 10 check).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce minimum sample size for valid bootstrap with an n < 10 check.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:48:22Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: pipeline runtime limit set to 6 hours
+  claim_id: c_ea03a730
+  context: Run quickstart.md validation to ensure the entire pipeline runs within
+    6 hours on a standard runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run the entire pipeline within 6 hours on a standard runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:48:58Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: N_sim set to 1000 for plan feasibility check
+  claim_id: c_77481b39
+  context: 'Task T002: Implement `code/config.py` with hyperparameters, random seeds,
+    artifact paths, and `nominal_coverage_target` (default a high confidence threshold).
+    **Set `N_sim = 1000`** to match plan feasibility check.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set `N_sim = 1000` to match plan feasibility check.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:51:37Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Three synthetic populations generated with 1,000,000 rows each
+  claim_id: c_0142497f
+  context: 'Task T003: **Generate THREE separate synthetic populations** of N=1,000,000
+    rows each: one for **UCI Adult**, one for **UCI Iris**, and one for **UCI Wine
+    Quality**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate THREE separate synthetic populations of N=1,000,000 rows each.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:51:38Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Pipeline validation requires completion within 6 hours on standard runner
+  claim_id: c_3a9db0d8
+  context: 'Task T037: Run `quickstart.md` validation to ensure the entire pipeline
+    runs within 6 hours on a standard runner'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run `quickstart.md` validation to ensure the entire pipeline runs within
+    6 hours on a standard runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:51:38Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Standard error of coverage verification threshold is less than 0.5 percent
+  claim_id: c_a2058361
+  context: 'Task T033: Implement `code/analysis/convergence_check.py` to run simulation
+    with multiple seeds and verify standard error of coverage < 0.5%.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Standard_error_of_coverage_verification_threshold_is_less_th
+  kind: magnitude
+  raw_text: Verify standard error of coverage < 0.5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:51:43Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis CSV must contain threshold, passing_dataset_count,
+    and delta_count columns
+  claim_id: c_2956cc15
+  context: 'Task T031: **Mandatory**: The output `artifacts/sensitivity_analysis.csv`
+    MUST contain columns: `threshold`, `passing_dataset_count`, and `delta_count`
+    (change in count of datasets passing the criterion) to satisfy FR-006 and SC-005.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_CSV_must_contain_threshold,_passing_dat
+  kind: entity_fact
+  raw_text: 'The output `artifacts/sensitivity_analysis.csv` MUST contain columns:
+    `threshold`, `passing_dataset_count`, and `delta_count`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:51:47Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Simulation uses 1000 independent samples
+  claim_id: c_b7c6d59e
+  context: "Task T013a: **Implements Outer Loop with `N_sim=1000`** independent samples\
+    \ \xD7 Inner Loop (bootstrap resamples)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation uses N_sim=1000 independent samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T05:52:57Z'

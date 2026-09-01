@@ -1,73 +1,74 @@
+"""
+Configuration for the Robustness of CI to DP Noise pipeline.
+Stores hyperparameters, random seeds, artifact paths, and ground truth parameters.
+"""
 import os
 from pathlib import Path
 
-# Project root is the directory containing this file
-project_root = Path(__file__).resolve().parent.parent
-code_root = project_root
+PROJECT_ROOT = Path(__file__).parent.parent
 
 class Config:
-    """
-    Central configuration for the robustness of confidence intervals to DP noise project.
-    
-    Attributes:
-        nominal_coverage_target: The target coverage probability (default 0.95).
-        random_seed: Seed for reproducibility.
-        n_sim: Number of simulation iterations (set to 1000 per feasibility check).
-        n_bootstrap: Number of bootstrap resamples per iteration.
-        artifacts_dir: Directory for output artifacts.
-        data_dir: Directory for data files.
-        figures_dir: Directory for output figures.
-    """
-    
     def __init__(self):
-        # Core Simulation Parameters
-        self.nominal_coverage_target = 0.95
-        self.random_seed = 42
-        self.n_sim = 1000  # Set to 1000 per feasibility check in plan
+        # Simulation parameters
+        self.n_sim = 1000
         self.n_bootstrap = 1000
+        self.confidence_level = 0.95
+        self.random_seed = 42
         
-        # Directory paths
-        self.artifacts_dir = project_root / "artifacts"
-        self.data_dir = project_root / "data"
-        self.figures_dir = project_root / "figures"
+        # Dataset parameters
+        self.datasets = ["adult", "iris", "wine"]
+        self.statistic_types = ["mean", "regression"]
+        self.epsilons = [0.1, 0.5, 1.0, 2.0, 5.0]
+        self.noise_types = ["laplace", "gaussian"]
         
-        # Ensure directories exist
-        self.artifacts_dir.mkdir(parents=True, exist_ok=True)
-        self.data_dir.mkdir(parents=True, exist_ok=True)
-        self.figures_dir.mkdir(parents=True, exist_ok=True)
+        # Sample sizes
+        self.sample_size = 1000
+        self.min_sample_size = 10
         
-        # DP Noise Parameters
-        self.epsilon_values = [0.1, 0.5, 1.0, 2.0, 5.0, 10.0]
-        self.noise_types = ['laplace', 'gaussian']
+        # Population sizes
+        self.population_size_adult = 1000000
+        self.population_size_iris = 1000000
+        self.population_size_wine = 1000000
         
-        # Datasets (for validation/sampling)
-        self.datasets = ['adult', 'iris', 'wine']
+        # Noise scales (base)
+        self.noise_scales = {
+            "laplace": 1.0,
+            "gaussian": 1.0
+        }
         
-        # Validation thresholds
-        self.min_sample_size = 30
-        self.max_noise_scale_factor = 10.0
+        # Regression features
+        self.regression_features = ["age", "education"] # For adult
+        self.regression_target = "income"
         
-        # GLM settings
-        self.glm_alpha = 0.05
+        # Mean target columns
+        self.mean_target_columns = {
+            "adult": "income",
+            "iris": "sepal_length",
+            "wine": "alcohol"
+        }
         
-        # Artifact paths (placeholders for dynamic generation)
-        self.ground_truth_path = self.data_dir / "ground_truth.json"
-        self.coverage_intermediate_path = self.artifacts_dir / "coverage_intermediate.csv"
-        self.coverage_results_path = self.artifacts_dir / "coverage_results.csv"
-        self.glm_summary_path = self.artifacts_dir / "glm_summary.json"
-        self.sensitivity_analysis_path = self.artifacts_dir / "sensitivity_analysis.csv"
+        # Ground truth parameters (for validation)
+        # These are approximate and should be computed from the population if needed
+        # But for the simulation, we compute them from the population sample
+        self.ground_truth = {}
 
     def get_artifact_path(self, filename: str) -> Path:
-        """Get the full path for an artifact file."""
-        return self.artifacts_dir / filename
+        return PROJECT_ROOT / "artifacts" / filename
 
     def get_data_path(self, filename: str) -> Path:
-        """Get the full path for a data file."""
-        return self.data_dir / filename
+        return PROJECT_ROOT / "data" / filename
 
     def get_figure_path(self, filename: str) -> Path:
-        """Get the full path for a figure file."""
-        return self.figures_dir / filename
+        return PROJECT_ROOT / "figures" / filename
 
-# Singleton instance for convenience
-config = Config()
+def get_artifact_path(filename: str) -> Path:
+    config = Config()
+    return config.get_artifact_path(filename)
+
+def get_data_path(filename: str) -> Path:
+    config = Config()
+    return config.get_data_path(filename)
+
+def get_figure_path(filename: str) -> Path:
+    config = Config()
+    return config.get_figure_path(filename)

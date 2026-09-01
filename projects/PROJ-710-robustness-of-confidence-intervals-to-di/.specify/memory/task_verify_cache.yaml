@@ -13,6 +13,13 @@ T003:
     \ `N_SIM` and `POPULATION_SIZE`) instead of the required 1,000,000\u2011sized\
     \ synthetic populations. Both the output artifact and the generation specifications\
     \ are missing/incorrect."
+T013d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `artifacts/coverage_results.csv` file was supplied, and the response contains\
+    \ no data showing that such a CSV exists, is non\u2011empty, or includes the required\
+    \ distinct columns `dataset` and `statistic (Mean/Regression)`. Without the actual\
+    \ aggregation output, the task requirement is not met."
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

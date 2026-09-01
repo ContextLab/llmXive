@@ -1,3 +1,3 @@
 """
-Utility functions for directory initialization, state updates, and configuration.
+Utility functions and helpers.
 """

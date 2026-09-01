@@ -23,13 +23,13 @@ The implementation must run entirely on CPU within 6 hours and 7 GB RAM.
 **Testing**: `pytest` (unit tests for DP noise calibration, CI construction, and GLM setup).  
 **Target Platform**: GitHub Actions free-tier runner (Linux, 2 CPU, ~7 GB RAM).  
 **Project Type**: Computational research / Simulation pipeline.  
-**Performance Goals**: Total runtime $\le$ a practical threshold suitable for standard workloads; memory usage $\le$ 7 GB.  
+**Performance Goals**: Total runtime $\le$ a practical threshold suitable for standard workloads; memory usage within acceptable system limits.  
 **Constraints**: No GPU; no 8-bit/4-bit quantization; strict adherence to synthetic population generation.
 
 > **Single Source of Truth (SSoT)**: Per Constitution Principle IV, all coverage rates, GLM results, and threshold sweep metrics are derived exclusively from `artifacts/coverage_results.csv` and `artifacts/sensitivity_analysis.csv`.
 
 **Computational Feasibility Check**:
-*   **Conditions**: 3 datasets $\times$ 5 $\epsilon$ values $\times$ 2 noise types = combinations.
+*   **Conditions**: Several datasets $\times$ 5 $\epsilon$ values $\times$ 2 noise types = combinations.
 * **Outer Loop**: [deferred] independent samples per condition = total noisy samples.
 *   **Inner Loop**: 1,000 bootstrap resamples per sample = total bootstrap draws.
 *   **Operations**: Vectorized numpy operations for noise and resampling. 30M draws is feasible in <6 hours on 2 cores if optimized (e.g., batched resampling).

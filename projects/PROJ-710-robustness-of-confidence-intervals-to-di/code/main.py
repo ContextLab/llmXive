@@ -1,205 +1,259 @@
-"""
-Main orchestration script for the DP Confidence Interval Robustness Simulation.
-
-This script orchestrates the full simulation pipeline:
-1. Loads ground truth parameters.
-2. Iterates over datasets, epsilon values, and noise types.
-3. Generates synthetic samples, applies DP noise, and computes CIs.
-4. Logs progress for every (dataset, epsilon, noise_type) combination.
-5. Aggregates results and calculates coverage statistics.
-"""
 import os
 import sys
 import json
 import logging
+import tempfile
+import shutil
+import time
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+# Project imports
+from config import Config, get_artifact_path, get_data_path, get_figure_path
+from data.dp_noise import inject_laplace_noise, inject_gaussian_noise
+from data.synthetic_pop import generate_adult_population, generate_iris_population, generate_wine_population
+from analysis.edge_cases import clamp_noise_scale, detect_collinearity, enforce_min_sample_size, get_edge_case_status
+from analysis.ci_builder import bootstrap_resample, compute_percentile_ci, build_ci_for_mean, build_ci_for_regression_coefficient
+from analysis.adjustments import apply_adjustments, compute_adjusted_ci
 
-from code.config import Config
-from code.data.synthetic_pop import load_ground_truth
-from code.data.dp_noise import apply_dp_noise
-from code.analysis.ci_builder import build_ci_for_mean, validate_ci_coverage
-from code.analysis.edge_cases import clamp_noise_scale, enforce_minimum_sample_size
-from code.analysis.progress_logger import SimulationProgressLogger
-from code.analysis.logging_config import setup_simulation_logger
-from code.analysis.validation import enforce_float64, ensure_cpu_only
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler(get_artifact_path('simulation.log'))
+    ]
+)
+logger = logging.getLogger(__name__)
 
-def run_simulation_pipeline():
+def load_population(dataset_name: str) -> pd.DataFrame:
     """
-    Execute the full simulation pipeline with logging.
+    Load the synthetic population for the specified dataset.
+    The populations are generated on-the-fly based on config parameters.
     """
-    # Initialize configuration
+    logger.info(f"Loading population for dataset: {dataset_name}")
+    if dataset_name == 'adult':
+        return generate_adult_population()
+    elif dataset_name == 'iris':
+        return generate_iris_population()
+    elif dataset_name == 'wine':
+        return generate_wine_population()
+    else:
+        raise ValueError(f"Unknown dataset: {dataset_name}")
+
+def run_simulation_condition(
+    dataset_name: str,
+    statistic_type: str,
+    epsilon: float,
+    noise_type: str,
+    n_sim: int = 1000,
+    bootstrap_n: int = 1000,
+    confidence_level: float = 0.95
+) -> List[Dict[str, Any]]:
+    """
+    Run the simulation loop for a single condition (dataset, statistic, epsilon, noise).
+    
+    This function implements the core logic:
+    1. Load population
+    2. Iterate N_sim times:
+       a. Sample data
+       b. Inject DP noise
+       c. Apply bias/variance adjustments (T021b integration)
+       d. Bootstrap resampling
+       e. Construct CIs
+       f. Check coverage
+    3. Aggregate results
+    """
+    logger.info(f"Starting simulation for {dataset_name}, {statistic_type}, epsilon={epsilon}, {noise_type}")
+    
+    # Load population
+    population = load_population(dataset_name)
+    
+    # Determine sample size (can be configurable)
+    sample_size = min(1000, len(population))
+    
+    results = []
+    
+    # Pre-compute ground truth for coverage check
+    if statistic_type == 'mean':
+        # Assuming the target variable is 'income' for adult, or specific columns for others
+        target_col = 'income' if dataset_name == 'adult' else population.columns[0]
+        true_param = population[target_col].mean()
+    elif statistic_type == 'regression':
+        # For regression, we need to define X and y
+        # Simplified: use first numeric column as y, second as X
+        numeric_cols = population.select_dtypes(include=[np.number]).columns
+        if len(numeric_cols) < 2:
+            raise ValueError(f"Need at least 2 numeric columns for regression in {dataset_name}")
+        y_col, x_col = numeric_cols[0], numeric_cols[1]
+        # Fit OLS on full population to get true coefficient
+        from scipy import stats
+        slope, intercept, r_value, p_value, std_err = stats.linregress(population[x_col], population[y_col])
+        true_param = slope
+    else:
+        raise ValueError(f"Unknown statistic type: {statistic_type}")
+    
+    logger.info(f"True parameter value: {true_param}")
+    
+    for sim_idx in range(n_sim):
+        # 1. Sample data
+        sample = population.sample(n=sample_size, random_state=sim_idx)
+        
+        # 2. Inject DP noise
+        if noise_type == 'laplace':
+            noisy_data = inject_laplace_noise(sample, epsilon=epsilon, sensitivity=1.0)
+        elif noise_type == 'gaussian':
+            noisy_data = inject_gaussian_noise(sample, epsilon=epsilon, delta=1e-5, sensitivity=1.0)
+        else:
+            raise ValueError(f"Unknown noise type: {noise_type}")
+        
+        # 3. Apply adjustments (T021b Integration)
+        # Calculate point estimate and SE from noisy data BEFORE bootstrap for adjustment
+        if statistic_type == 'mean':
+            target_col = 'income' if dataset_name == 'adult' else noisy_data.columns[0]
+            point_est = noisy_data[target_col].mean()
+            se_est = noisy_data[target_col].std() / np.sqrt(sample_size)
+        elif statistic_type == 'regression':
+            numeric_cols = noisy_data.select_dtypes(include=[np.number]).columns
+            y_col, x_col = numeric_cols[0], numeric_cols[1]
+            from scipy import stats
+            slope, intercept, r_value, p_value, std_err = stats.linregress(noisy_data[x_col], noisy_data[y_col])
+            point_est = slope
+            se_est = std_err
+        
+        noise_params = {'epsilon': epsilon, 'noise_type': noise_type, 'sensitivity': 1.0}
+        
+        # Apply adjustments based on statistic_type
+        try:
+            adj_result = apply_adjustments(
+                point_estimate=point_est,
+                standard_error=se_est,
+                statistic_type=statistic_type,
+                noise_params=noise_params
+            )
+            adjusted_point_est = adj_result['adjusted_estimate']
+            adjusted_se = adj_result['adjusted_se']
+            adjustment_method = adj_result['method']
+        except Exception as e:
+            logger.warning(f"Adjustment failed for sim {sim_idx}: {e}. Using unadjusted.")
+            adjusted_point_est = point_est
+            adjusted_se = se_est
+            adjustment_method = 'none'
+        
+        # 4. Bootstrap resampling on NOISY data
+        bootstrap_estimates = []
+        for _ in range(bootstrap_n):
+            resample = noisy_data.sample(n=sample_size, replace=True, random_state=np.random.randint(0, 1000000))
+            if statistic_type == 'mean':
+                target_col = 'income' if dataset_name == 'adult' else resample.columns[0]
+                boot_est = resample[target_col].mean()
+            elif statistic_type == 'regression':
+                numeric_cols = resample.select_dtypes(include=[np.number]).columns
+                y_col, x_col = numeric_cols[0], numeric_cols[1]
+                slope, _, _, _, _ = stats.linregress(resample[x_col], resample[y_col])
+                boot_est = slope
+            bootstrap_estimates.append(boot_est)
+        
+        # 5. Construct CIs
+        ci_lower, ci_upper = compute_percentile_ci(bootstrap_estimates, confidence_level=confidence_level)
+        
+        # 6. Check coverage (Unadjusted)
+        covered = (true_param >= ci_lower) and (true_param <= ci_upper)
+        
+        # 7. Check coverage (Adjusted)
+        adj_ci_lower, adj_ci_upper = compute_adjusted_ci(
+            adjusted_point_est, 
+            adjusted_se, 
+            confidence_level=confidence_level,
+            bootstrap_dist=bootstrap_estimates
+        )
+        adj_covered = (true_param >= adj_ci_lower) and (true_param <= adj_ci_upper)
+        
+        results.append({
+            'dataset': dataset_name,
+            'statistic': statistic_type,
+            'epsilon': epsilon,
+            'noise_type': noise_type,
+            'simulation_id': sim_idx,
+            'true_param': true_param,
+            'point_estimate': point_est,
+            'ci_lower': ci_lower,
+            'ci_upper': ci_upper,
+            'covered': covered,
+            'adjusted_point_estimate': adjusted_point_est,
+            'adjusted_ci_lower': adj_ci_lower,
+            'adjusted_ci_upper': adj_ci_upper,
+            'adjusted_coverage': adj_covered,
+            'adjustment_method': adjustment_method
+        })
+        
+        if (sim_idx + 1) % 100 == 0:
+            logger.info(f"Completed {sim_idx + 1}/{n_sim} simulations")
+    
+    return results
+
+def run_simulation_pipeline() -> None:
+    """
+    Run the full simulation pipeline across all datasets, statistics, and epsilon values.
+    Writes results to artifacts/coverage_results.csv with atomic writes.
+    """
     config = Config()
-    
-    # Ensure CPU-only and float64 enforcement
-    ensure_cpu_only()
-    
-    # Setup logging
-    logger = setup_simulation_logger(
-        logger_name="simulation_main",
-        log_level=logging.INFO,
-        output_dir=config.artifacts_dir
-    )
-    progress_logger = SimulationProgressLogger(logger)
-
-    logger.info("Starting DP Confidence Interval Robustness Simulation")
-    logger.info(f"Configuration: {config}")
-
-    # Load ground truth
-    ground_truth_path = config.ground_truth_path
-    if not ground_truth_path.exists():
-        logger.error(f"Ground truth file not found: {ground_truth_path}")
-        sys.exit(1)
-
-    ground_truth = load_ground_truth(ground_truth_path)
-    logger.info(f"Loaded ground truth for {len(ground_truth)} populations")
-
-    # Define simulation parameters
     datasets = config.datasets
+    statistics = config.statistics
     epsilons = config.epsilons
     noise_types = config.noise_types
-    statistics = config.statistics
-    sample_sizes = config.sample_sizes
-    n_bootstrap = config.n_bootstrap
-    nominal_coverage = config.nominal_coverage_target
+    n_sim = config.N_sim
+    bootstrap_n = config.bootstrap_n
+    confidence_level = config.confidence_level
+    
+    output_path = get_artifact_path('coverage_results.csv')
+    temp_path = output_path + '.tmp'
+    
+    logger.info(f"Starting full simulation pipeline. Output: {output_path}")
+    
+    all_results = []
+    
+    for dataset in datasets:
+        for stat in statistics:
+            for eps in epsilons:
+                for noise in noise_types:
+                    logger.info(f"Running condition: {dataset}, {stat}, eps={eps}, {noise}")
+                    results = run_simulation_condition(
+                        dataset_name=dataset,
+                        statistic_type=stat,
+                        epsilon=eps,
+                        noise_type=noise,
+                        n_sim=n_sim,
+                        bootstrap_n=bootstrap_n,
+                        confidence_level=confidence_level
+                    )
+                    all_results.extend(results)
+    
+    # Atomic write
+    logger.info(f"Writing {len(all_results)} results to {output_path}")
+    df = pd.DataFrame(all_results)
+    
+    # Ensure directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    
+    # Write to temp file first
+    df.to_csv(temp_path, index=False)
+    
+    # Atomic rename
+    shutil.move(temp_path, output_path)
+    
+    logger.info(f"Pipeline complete. Results saved to {output_path}")
 
-    # Prepare results storage
-    results = []
+def main():
+    """Main entry point."""
+    try:
+        run_simulation_pipeline()
+    except Exception as e:
+        logger.error(f"Pipeline failed: {e}", exc_info=True)
+        sys.exit(1)
 
-    total_conditions = len(datasets) * len(epsilons) * len(noise_types) * len(statistics) * len(sample_sizes)
-    condition_count = 0
-
-    # Outer Loop: Independent samples (simulated by iterating conditions)
-    for dataset_name in datasets:
-        for epsilon in epsilons:
-            for noise_type in noise_types:
-                for statistic in statistics:
-                    for sample_size in sample_sizes:
-                        condition_count += 1
-                        
-                        # Log START for this condition
-                        log_msg_start = (
-                            f"[START] Condition {condition_count}/{total_conditions}: "
-                            f"dataset={dataset_name}, epsilon={epsilon:.4f}, "
-                            f"noise_type={noise_type}, statistic={statistic}, "
-                            f"sample_size={sample_size}"
-                        )
-                        logger.info(log_msg_start)
-
-                        try:
-                            # 1. Load/Generate Population Data
-                            # For this simulation, we use the ground truth to simulate a population
-                            # In a real scenario, this might load from a file or generate on the fly
-                            gt_params = ground_truth.get(dataset_name, {})
-                            if not gt_params:
-                                logger.warning(f"No ground truth for {dataset_name}, skipping")
-                                continue
-
-                            # Simulate a sample from the population (using ground truth params)
-                            # This is a placeholder for the actual data generation logic
-                            # which would typically involve sampling from the distribution defined in ground_truth
-                            # For now, we assume the ground truth contains mean and std for the population
-                            pop_mean = float(gt_params.get('mean', 0.0))
-                            pop_std = float(gt_params.get('std', 1.0))
-                            
-                            # Generate sample
-                            np.random.seed(config.random_seed)
-                            sample_data = np.random.normal(pop_mean, pop_std, sample_size)
-                            sample_data = enforce_float64(sample_data)
-
-                            # 2. Apply DP Noise
-                            # Clamp noise scale for small epsilon
-                            safe_epsilon = clamp_noise_scale(epsilon, min_epsilon=config.min_epsilon)
-                            
-                            noisy_sample = apply_dp_noise(
-                                data=sample_data,
-                                epsilon=safe_epsilon,
-                                noise_type=noise_type,
-                                sensitivity=config.sensitivity
-                            )
-                            noisy_sample = enforce_float64(noisy_sample)
-
-                            # 3. Build Confidence Interval
-                            if statistic == 'mean':
-                                point_estimate = np.mean(noisy_sample)
-                                ci_lower, ci_upper = build_ci_for_mean(
-                                    data=noisy_sample,
-                                    n_bootstrap=n_bootstrap,
-                                    confidence_level=nominal_coverage,
-                                    random_seed=config.random_seed
-                                )
-                                covered = validate_ci_coverage(
-                                    point_estimate=point_estimate,
-                                    ci_lower=ci_lower,
-                                    ci_upper=ci_upper,
-                                    true_value=pop_mean
-                                )
-                            else:
-                                # Placeholder for regression statistic
-                                logger.warning(f"Statistic '{statistic}' not fully implemented, skipping")
-                                continue
-
-                            # 4. Calculate Deviation from Nominal
-                            deviation = covered - nominal_coverage
-
-                            # 5. Log COMPLETE for this condition
-                            log_msg_complete = (
-                                f"[COMPLETE] Condition {condition_count}/{total_conditions}: "
-                                f"dataset={dataset_name}, epsilon={epsilon:.4f}, "
-                                f"noise_type={noise_type}, statistic={statistic}, "
-                                f"sample_size={sample_size}, covered={covered:.4f}, "
-                                f"deviation={deviation:.4f}"
-                            )
-                            logger.info(log_msg_complete)
-
-                            # Store results
-                            results.append({
-                                'dataset': dataset_name,
-                                'epsilon': epsilon,
-                                'noise_type': noise_type,
-                                'statistic': statistic,
-                                'sample_size': sample_size,
-                                'point_estimate': float(point_estimate),
-                                'ci_lower': float(ci_lower),
-                                'ci_upper': float(ci_upper),
-                                'covered': int(covered),
-                                'deviation_from_nominal': float(deviation)
-                            })
-
-                        except Exception as e:
-                            # Log ERROR for this condition
-                            log_msg_error = (
-                                f"[ERROR] Condition {condition_count}/{total_conditions}: "
-                                f"dataset={dataset_name}, epsilon={epsilon:.4f}, "
-                                f"noise_type={noise_type}, statistic={statistic}, "
-                                f"sample_size={sample_size} - Error: {str(e)}"
-                            )
-                            logger.error(log_msg_error)
-                            logger.exception("Exception details:")
-                            continue
-
-    # Save intermediate results
-    if results:
-        results_df = pd.DataFrame(results)
-        intermediate_path = config.coverage_intermediate_path
-        results_df.to_csv(intermediate_path, index=False)
-        logger.info(f"Saved intermediate results to {intermediate_path}")
-
-        # Aggregate and save final results (simplified aggregation for this task)
-        # In a full implementation, this would calculate coverage rates across multiple seeds
-        final_path = config.coverage_results_path
-        results_df.to_csv(final_path, index=False)
-        logger.info(f"Saved final coverage results to {final_path}")
-    else:
-        logger.warning("No results generated. Check input parameters and ground truth.")
-
-    logger.info("Simulation pipeline completed.")
-
-if __name__ == "__main__":
-    run_simulation_pipeline()
+if __name__ == '__main__':
+    main()

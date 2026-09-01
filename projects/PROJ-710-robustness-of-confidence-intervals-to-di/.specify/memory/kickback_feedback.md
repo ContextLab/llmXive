@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001b` (rejected 1x): No `__init__.py` files are present in any of the required package directories (`code/`, `code/data/`, `code/analysis/`, `code/utils/`, `code/tests/`). The implementer provided only a feature specification and no filesystem artifacts, so the task requirement is not satisfied.
+- `T001b` (rejected 1x): No `__init__.py` files are presented for any of the required directories (`code/`, `code/data/`, `code/analysis/`, `code/utils/`, `code/tests/`). The provided artifacts relate only to a feature specification and contain no code files, so the task’s requirement of creating those package initializer files is not satisfied.
 
 ## Required change
 
