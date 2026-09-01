@@ -13,7 +13,7 @@ As a materials scientist, I want to download perovskite composition and thermal 
 
 **Why this priority**: Without reliable data and descriptors, no downstream modeling is possible. This is the foundational data pipeline that all subsequent analysis depends on.
 
-**Independent Test**: Can be fully tested by downloading a sample of the source datasets, computing descriptors for 50 perovskite formulas, and verifying that the output CSV contains the expected columns: [formula, T_d, atomic_fraction_A, atomic_fraction_B, atomic_fraction_X, weighted_ionic_radius, weighted_electronegativity, weighted_formation_enthalpy, variance_ionic_radius, variance_electronegativity] with non-null values.
+**Independent Test**: Can be fully tested by downloading a sample of the source datasets, computing descriptors for a representative subset of perovskite formulas, and verifying that the output CSV contains the expected columns: [formula, T_d, atomic_fraction_A, atomic_fraction_B, atomic_fraction_X, weighted_ionic_radius, weighted_electronegativity, weighted_formation_enthalpy, variance_ionic_radius, variance_electronegativity] with non-null values.
 
 **Acceptance Scenarios**:
 
@@ -33,7 +33,7 @@ As a data analyst, I want to implement three baseline regressors (Random Forest,
 
 **Acceptance Scenarios**:
 
-1. **Given** a preprocessed dataset with ≥200 entries and ≥10 compositional descriptors, **When** the model training pipeline runs with 5-fold cross-validation, **Then** all three baseline regressors produce R², RMSE, and MAE metrics for each fold.
+1. **Given** a preprocessed dataset with ≥200 entries and ≥10 compositional descriptors, **When** the model training pipeline runs with k-fold cross-validation, **Then** all three baseline regressors produce R², RMSE, and MAE metrics for each fold.
 2. **Given** grid search is configured with ≤10 hyperparameter combinations per model, **When** training completes, **Then** the best hyperparameters and corresponding cross-validation metrics are logged.
 3. **Given** the total compute budget is a fixed duration on a CPU-only runner, **When** model training and cross-validation execute, **Then** the pipeline completes within 4 hours ([deferred] of the 6-hour budget) with ≤10% of the budget consumed by hyperparameter search to ensure CI/CD efficiency.
 
