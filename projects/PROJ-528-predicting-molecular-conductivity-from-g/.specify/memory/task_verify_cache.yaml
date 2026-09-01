@@ -1,37 +1,3 @@
-T010:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No unit test code file or snippet was provided; the claim lacks any artifact\
-    \ showing a test (expected to fail) for the aromaticity index calculation on benzene\
-    \ (\u201Cc1ccccc1\u201D). The required test code is missing."
-T011:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No unit test code file was supplied; the only evidence is a generic project\
-    \ specification unrelated to the requested test. The required artifact\u2014a\
-    \ failing unit test that checks conjugation path length for butadiene versus butane\u2014\
-    is missing."
-T012:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer did not provide any unit\u2011test code or file containing the\
-    \ tests; the response only repeats the task description and specifications without\
-    \ any actual artifact. Consequently, the required test code (expected to fail)\
-    \ is missing."
-T017:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration, or documentation implementing the required fallback logic
-    (logging a warning and substituting topological proxies when quantum descriptors
-    are missing) was provided. The evidence lacks any artifact demonstrating that
-    this behavior exists, so the task is not satisfied.
-T018:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, tests, or documentation were provided showing that error handling for
-    invalid SMILES strings or missing conductivity values was added. The claim cannot
-    be verified because the required artifact (implementation changes or evidence
-    thereof) is absent.
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -83,3 +49,45 @@ T031:
     the retraining logic are present, and there is no evidence that the implementation
     reuses the exact split indices from T027 or the seed from T004. The required artifacts
     are missing, so the task is not satisfied.
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided only a feature specification for molecular descriptor\
+    \ computation and model training, with no unit\u2011test code, test files, or\
+    \ any artifact related to \u201CVIF calculation and thresholding.\u201D Consequently,\
+    \ the required unit test for VIF is missing entirely."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No unit\u2011test code, test data, or any artifact for a Benjamini\u2011Hochberg\
+    \ correction is present, and the provided project excerpt concerns molecular\u2011\
+    conductivity descriptors rather than statistical multiple\u2011testing correction.\
+    \ Consequently the required unit test does not exist or is not demonstrable."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No unit\u2011test code, test data, or test results for the correlation\u2011\
+    plot\u2011with\u2011confidence\u2011intervals feature were provided; the claim\
+    \ lacks any tangible artifact to verify that such a test exists and passes. The\
+    \ required test file (e.g., a pytest module) is missing."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, notebook, or output file implementing the calculation of Variance
+    Inflation Factors (VIF) for all predictor pairs is present. The provided artifacts
+    relate to descriptor computation and model training, not to the required VIF functionality,
+    and no VIF results or documentation are supplied. The task therefore remains unfinished.
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided artifacts only describe descriptor computation and modeling pipelines;\
+    \ there is no code, script, configuration, or test output that implements or demonstrates\
+    \ the required feature\u2011exclusion logic based on variance inflation factor\
+    \ (VIF) >\u202F10. Consequently, the task\u2019s core deliverable is missing."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or output file implementing the described iterative\
+    \ VIF\u2011based feature exclusion and model retraining loop is present. The required\
+    \ artifacts (the loop logic, use of the exact split indices from T027, and the\
+    \ random seed from T004) are missing, so the task is not satisfied."

@@ -1,0 +1,26 @@
+# Ruff configuration for llmxive-arcane
+# Extends pyproject.toml settings if needed, or provides specific overrides
+
+[lint]
+# Enable specific rules if not covered in pyproject.toml
+extend-select = [
+    "ANN", # flake8-annotations (optional, can be noisy)
+    "SIM", # flake8-simplify
+    "RET", # flake8-return
+]
+# Ignore specific rules that might be too strict for research code
+ignore = [
+    "ANN001", # Missing type annotation for function argument
+    "ANN201", # Missing return type annotation for public function
+    "ANN002", # Missing type annotation for *args
+    "ANN003", # Missing type annotation for **kwargs
+    "ANN202", # Missing return type annotation for private function
+    "ANN204", # Missing return type annotation for special method
+]
+
+[format]
+# Ensure ruff format aligns with black
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

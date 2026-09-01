@@ -1,10 +1,8 @@
 status: none
-intent: download GSM8K dataset with train test splits python package dataset
+intent: download GSM8K dataset as pip installable python package dataset
 required_fields:
 - question
 - answer
-- solution
-- split
-cache_key: f8948322804d67cfb281728787dec77ba0c4549e2150aca7958f9fbde0e31d7f
-searched_at: '2026-08-13T17:08:31.686495+00:00'
+cache_key: 36b96efc5c60705fc2e0c5b8c5b40a82f1eaae64fc60bc7a93d1bcf2fa567aba
+searched_at: '2026-09-01T01:05:54.350128+00:00'
 retry_count: 1

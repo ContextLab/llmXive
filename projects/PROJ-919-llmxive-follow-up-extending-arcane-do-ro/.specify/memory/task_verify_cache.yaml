@@ -1,3 +1,24 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure (`src/`, `tests/`, `data/`, `specs/001-gene-regulation/`)
+    was presented or listed, and no files were shown to confirm their existence. The
+    implementer provided no tangible evidence that the required project folders were
+    created.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration artifacts (e.g., `pyproject.toml`, `.ruff.toml`,
+    `black` settings, or CI integration scripts) are present in the provided evidence,
+    so the requirement to configure ruff and black is not demonstrated. The implementer
+    must add the actual configuration files and any related setup instructions.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that the required directories (`data/raw/`, `data/derived/`,\
+    \ `data/gold_standard/`, `artifacts/`) actually exist in the project repository,\
+    \ nor that they contain any files. The implementer\u2019s claim cannot be verified\
+    \ without these concrete artifacts."
 T011:
   c: false
   h: 5243e016ab74a6a68cba2dad07d254602c98c4d26d26c0dcb102c54266c30ecf

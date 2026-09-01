@@ -1,87 +1,85 @@
 import os
-import sys
-import logging
 import pandas as pd
 from typing import List, Dict, Any, Optional
 from rdkit import Chem
-from rdkit.Chem import AllChem
 from code.config import DATA_PATH
 from code.descriptors import compute_degree_statistics, compute_path_length_statistics, compute_ring_count, compute_huckel_aromaticity_index, compute_aromatic_ring_count, compute_bond_order_annotation, compute_bond_polarity, compute_resonance_energy
-from code.error_handler import validate_smiles_batch, check_conductivity_column, handle_invalid_smiles, handle_missing_conductivity
+import logging
 
-def load_smiles_from_file(filepath: str) -> pd.DataFrame:
-    """Loads SMILES strings from a CSV file and performs basic validation."""
+def load_smiles_from_file(path: str) -> pd.DataFrame:
+    """Loads SMILES strings from a CSV file and validates them."""
     try:
-        df = pd.read_csv(filepath)
-        df['valid'] = df['smiles'].apply(lambda x: validate_smiles_batch([x])[0])
-        df['error_msg'] = df['smiles'].apply(lambda x: handle_invalid_smiles(x))
+        df = pd.read_csv(path)
+        df['smiles'] = df['smiles'].astype(str)
+        df['valid'] = df['smiles'].apply(lambda x: True if Chem.MolFromSmiles(x) is not None else False)
+        df['error_msg'] = df['smiles'].apply(lambda x: '' if df['valid'][df.index == df.index[df['smiles'] == x]].iloc[0] else 'Invalid SMILES')
         return df
     except FileNotFoundError:
-        logging.error(f"File not found: {filepath}")
+        logging.error(f"File not found: {path}")
+        return pd.DataFrame()
+    except Exception as e:
+        logging.error(f"Error loading SMILES from file: {e}")
         return pd.DataFrame()
 
 def clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
-  """Cleans the dataframe by removing invalid SMILES and handling missing values."""
-  df = df[df['valid']]  # Keep only valid SMILES
-  return df
-      
+    """Filters out invalid SMILES from the DataFrame."""
+    df = df[df['valid']]
+    return df
 
 def main():
+    """Main function to load SMILES, compute descriptors, and save to CSV."""
+    input_file = os.path.join(DATA_PATH, 'raw', 'molecules.csv')
+    output_file = os.path.join(DATA_PATH, 'processed', 'descriptors.csv')
+
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    smiles_file = os.path.join(DATA_PATH, 'raw', 'molecules.csv')  # Assuming molecules.csv is in data/raw
 
-    df = load_smiles_from_file(smiles_file)
-    if df.empty:
-        logging.error("No valid SMILES found.")
-        sys.exit(1)
+    smiles_df = load_smiles_from_file(input_file)
+    if smiles_df.empty:
+        logging.error("No valid SMILES found. Exiting.")
+        return
 
-    df = clean_dataframe(df)
+    smiles_df = clean_dataframe(smiles_df)
+    if smiles_df.empty:
+        logging.error("No valid SMILES after cleaning. Exiting.")
+        return
 
     # Compute descriptors
-    try:
-      degree_stats = compute_degree_statistics(df['smiles'])
-      path_length_stats = compute_path_length_statistics(df['smiles'])
-      ring_counts = compute_ring_count(df['smiles'])
-      aromaticity_indices = compute_huckel_aromaticity_index(df['smiles'])
-      aromatic_ring_counts = compute_aromatic_ring_count(df['smiles'])
-      bond_order_annotations = compute_bond_order_annotation(df['smiles'])
-      bond_polarities = compute_bond_polarity(df['smiles'])
-      resonance_energies = compute_resonance_energy(df['smiles'])
+    smiles_list = smiles_df['smiles'].tolist()
+    degree_stats = compute_degree_statistics(smiles_list)
+    path_length_stats = compute_path_length_statistics(smiles_list)
+    ring_counts = compute_ring_count(smiles_list)
+    aromaticity_indices = compute_huckel_aromaticity_index(smiles_list)
+    conjugation_lengths = compute_aromatic_ring_count(smiles_list)
+    bond_order_annotations = compute_bond_order_annotation(smiles_list)
+    bond_polarities = compute_bond_polarity(smiles_list)
+    resonance_energies = compute_resonance_energy(smiles_list)
 
-    except Exception as e:
-        logging.error(f"Error computing descriptors: {e}")
-        sys.exit(1)
-
-
-    # Create the final DataFrame with all descriptors
-    descriptor_data = {
-        'smiles': df['smiles'],
-        'status': 'computed',  # Assuming successful computation
-        'degree_mean': degree_stats['mean'],
-        'degree_std': degree_stats['std'],
-        'degree_max': degree_stats['max'],
-        'degree_min': degree_stats['min'],
-        'path_length_mean': path_length_stats['mean'],
-        'path_length_std': path_length_stats['std'],
-        'path_length_max': path_length_stats['max'],
-        'path_length_min': path_length_stats['min'],
+    # Create a new DataFrame with the computed descriptors
+    descriptors_data = {
+        'smiles': smiles_df['smiles'],
+        'status': 'success',
+        'degree_mean': degree_stats[0],
+        'degree_std': degree_stats[1],
+        'degree_max': degree_stats[2],
+        'degree_min': degree_stats[3],
+        'path_length_mean': path_length_stats[0],
+        'path_length_std': path_length_stats[1],
+        'path_length_max': path_length_stats[2],
+        'path_length_min': path_length_stats[3],
         'aromaticity_index': aromaticity_indices,
-        'conjugation_length': aromatic_ring_counts,  # Using ring count as proxy for conjugation length
+        'conjugation_length': conjugation_lengths,
         'ring_count': ring_counts,
         'bond_polarity': bond_polarities,
         'resonance_energy': resonance_energies
     }
+    descriptors_df = pd.DataFrame(descriptors_data)
 
-    descriptors_df = pd.DataFrame(descriptor_data)
-
-    # Save to CSV
-    output_path = os.path.join(DATA_PATH, 'processed', 'descriptors.csv')
+    # Save the DataFrame to CSV
     try:
-        descriptors_df.to_csv(output_path, index=False)
-        logging.info(f"Descriptors saved to {output_path}")
+        descriptors_df.to_csv(output_file, index=False)
+        logging.info(f"Descriptors saved to {output_file}")
     except Exception as e:
         logging.error(f"Error saving descriptors to CSV: {e}")
-        sys.exit(1)
 
 if __name__ == "__main__":
     main()

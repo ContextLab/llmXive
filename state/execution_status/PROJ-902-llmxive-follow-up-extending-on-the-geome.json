@@ -9,11 +9,11 @@
     "python -m src.analysis.generate_report --state results/state.yaml -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/code/.venv/bin/python: Error while finding module specification for 'src.analysis.generate_report' (ModuleNotFoundError: No module named 'src.analysis')",
     "python -m src.cli.run_experiment  --condition frozen_opd  --variance-threshold 0.90  --seed-list 1 2 3... 30 -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/code/.venv/bin/python: Error while finding module specification for 'src.cli.run_experiment' (ModuleNotFoundError: No module named 'src.cli')"
   ],
-  "fix_rounds": 4,
+  "fix_rounds": 5,
   "model_tier": 1,
-  "total_attempts": 4,
+  "total_attempts": 5,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-08-13T17:07:42Z"
+  "updated_at": "2026-09-01T01:05:06Z"
 }

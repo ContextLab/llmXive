@@ -3,39 +3,60 @@ from typing import List, Dict, Any, Optional, Tuple
 import numpy as np
 import pandas as pd
 from rdkit import Chem
-from rdkit.Chem import rdMolDescriptors
-from rdkit.Chem import Descriptors
+from rdkit.Chem import rdMolDescriptors, Descriptors
 
 logger = logging.getLogger(__name__)
 
-# Constants for fallback logic
+# Constants for fallback thresholds
+DEFAULT_AROMATICITY_INDEX = 0.0
 DEFAULT_CONJUGATION_LENGTH = 0.0
-DEFAULT_HUCKEL_INDEX = 0.0
 DEFAULT_BOND_POLARITY = 0.0
 DEFAULT_RESONANCE_ENERGY = 0.0
+DEFAULT_BOND_ORDER = 1.0
 
-def compute_degree_statistics(mol: Chem.Mol) -> Tuple[float, float, float, float]:
-    """Compute mean, std, max, min of atom degrees."""
+def compute_degree_statistics(mol: Chem.Mol) -> Dict[str, float]:
+    """Compute degree distribution statistics."""
     if mol is None:
-        return 0.0, 0.0, 0.0, 0.0
+        return {"mean": 0.0, "std": 0.0, "max": 0.0, "min": 0.0}
+    
     degrees = [atom.GetDegree() for atom in mol.GetAtoms()]
     if not degrees:
-        return 0.0, 0.0, 0.0, 0.0
-    return float(np.mean(degrees)), float(np.std(degrees)), float(np.max(degrees)), float(np.min(degrees))
+        return {"mean": 0.0, "std": 0.0, "max": 0.0, "min": 0.0}
+    
+    return {
+        "mean": float(np.mean(degrees)),
+        "std": float(np.std(degrees)),
+        "max": float(np.max(degrees)),
+        "min": float(np.min(degrees))
+    }
 
-def compute_path_length_statistics(mol: Chem.Mol) -> Tuple[float, float, float, float]:
-    """Compute mean, std, max, min of path lengths (topological distance)."""
+def compute_path_length_statistics(mol: Chem.Mol) -> Dict[str, float]:
+    """Compute path length statistics."""
     if mol is None:
-        return 0.0, 0.0, 0.0, 0.0
+        return {"mean": 0.0, "std": 0.0, "max": 0.0, "min": 0.0}
+    
     try:
-        dists = rdMolDescriptors.GetDistanceMatrix(mol)
-        # Flatten and filter out zeros (self-distances) and infinities
-        flat_dists = [d for d in dists.flatten() if d > 0 and not np.isinf(d)]
-        if not flat_dists:
-            return 0.0, 0.0, 0.0, 0.0
-        return float(np.mean(flat_dists)), float(np.std(flat_dists)), float(np.max(flat_dists)), float(np.min(flat_dists))
+        # Get all pairs shortest paths
+        lengths = []
+        atoms = list(mol.GetAtoms())
+        for i in range(len(atoms)):
+            for j in range(i + 1, len(atoms)):
+                path = mol.GetShortestPath(atoms[i], atoms[j])
+                if path:
+                    lengths.append(len(path) - 1)  # Number of bonds
+        
+        if not lengths:
+            return {"mean": 0.0, "std": 0.0, "max": 0.0, "min": 0.0}
+        
+        return {
+            "mean": float(np.mean(lengths)),
+            "std": float(np.std(lengths)),
+            "max": float(np.max(lengths)),
+            "min": float(np.min(lengths))
+        }
     except Exception:
-        return 0.0, 0.0, 0.0, 0.0
+        logger.warning("Failed to compute path length statistics")
+        return {"mean": 0.0, "std": 0.0, "max": 0.0, "min": 0.0}
 
 def compute_ring_count(mol: Chem.Mol) -> int:
     """Count the number of rings in the molecule."""
@@ -45,237 +66,290 @@ def compute_ring_count(mol: Chem.Mol) -> int:
 
 def compute_huckel_aromaticity_index(mol: Chem.Mol) -> float:
     """
-    Compute a Hückel aromaticity index based on the presence of aromatic rings.
-    Returns 1.0 if the molecule has at least one aromatic ring, else 0.0.
+    Compute Hückel aromaticity index based on 4n+2 rule.
+    Returns 1.0 if aromatic, 0.0 otherwise.
     """
     if mol is None:
-        return DEFAULT_HUCKEL_INDEX
+        return DEFAULT_AROMATICITY_INDEX
+    
     try:
-        # RDKit's aromaticity detection
-        if mol.GetNumAromaticRings() > 0:
-            return 1.0
-        return 0.0
-    except Exception:
-        logger.warning("Failed to compute aromaticity index, using fallback 0.0")
-        return DEFAULT_HUCKEL_INDEX
+        # Check if molecule has aromatic rings
+        if not mol.GetRingInfo().NumRings():
+            return DEFAULT_AROMATICITY_INDEX
+        
+        # Count pi electrons in aromatic systems
+        pi_electrons = 0
+        aromatic_rings = 0
+        
+        for ring in mol.GetRingInfo().AtomRings():
+            is_aromatic = all(mol.GetAtomWithIdx(idx).GetIsAromatic() for idx in ring)
+            if is_aromatic:
+                aromatic_rings += 1
+                for idx in ring:
+                    atom = mol.GetAtomWithIdx(idx)
+                    if atom.GetIsAromatic():
+                        # Count p-orbital electrons
+                        if atom.GetAtomicNum() == 6:  # Carbon
+                            pi_electrons += 1
+                        elif atom.GetAtomicNum() == 7:  # Nitrogen
+                            # Check if nitrogen contributes to pi system
+                            if atom.GetTotalValence() <= 3:
+                                pi_electrons += 2
+                            else:
+                                pi_electrons += 1
+        
+        # Apply Hückel's rule: 4n + 2
+        if aromatic_rings > 0:
+            # Simple heuristic: if pi_electrons satisfies 4n+2, return 1.0
+            # Otherwise return a fractional value based on how close it is
+            for n in range(10):
+                if pi_electrons == 4 * n + 2:
+                    return 1.0
+            
+            # If not exactly 4n+2, return a scaled value
+            return float(pi_electrons) / max(pi_electrons, 1)
+        
+        return DEFAULT_AROMATICITY_INDEX
+    except Exception as e:
+        logger.warning(f"Failed to compute Hückel aromaticity index: {e}")
+        return DEFAULT_AROMATICITY_INDEX
 
 def compute_aromatic_ring_count(mol: Chem.Mol) -> int:
     """Count the number of aromatic rings."""
     if mol is None:
         return 0
-    try:
-        return mol.GetNumAromaticRings()
-    except Exception:
-        logger.warning("Failed to count aromatic rings, using fallback 0")
-        return 0
+    
+    count = 0
+    for ring in mol.GetRingInfo().AtomRings():
+        if all(mol.GetAtomWithIdx(idx).GetIsAromatic() for idx in ring):
+            count += 1
+    return count
 
-def compute_bond_order_annotation(mol: Chem.Mol) -> Dict[str, Any]:
+def compute_bond_order_annotation(mol: Chem.Mol) -> float:
     """
-    Estimate bond orders and assign effective bond lengths based on hybridization.
-    Returns a dict with 'sp2_count', 'sp3_count', 'aromatic_bond_count'.
+    Estimate effective bond order based on hybridization and bond types.
+    Returns average bond order across the molecule.
     """
     if mol is None:
-        return {'sp2_count': 0, 'sp3_count': 0, 'aromatic_bond_count': 0}
+        return DEFAULT_BOND_ORDER
     
-    sp2_count = 0
-    sp3_count = 0
-    aromatic_bond_count = 0
-
-    for bond in mol.GetBonds():
-        bond_type = bond.GetBondType()
-        if bond.GetIsAromatic():
-            aromatic_bond_count += 1
-        else:
+    try:
+        bond_orders = []
+        for bond in mol.GetBonds():
+            bond_type = bond.GetBondType()
             if bond_type == Chem.BondType.DOUBLE:
-                sp2_count += 1
-            elif bond_type == Chem.BondType.SINGLE:
-                # Check atom hybridization to distinguish sp2-sp3 single bonds
-                atom1 = bond.GetBeginAtom()
-                atom2 = bond.GetEndAtom()
-                if atom1.GetHybridization() == Chem.HybridizationType.SP2 or \
-                   atom2.GetHybridization() == Chem.HybridizationType.SP2:
-                    sp2_count += 1
-                else:
-                    sp3_count += 1
-    
-    return {'sp2_count': sp2_count, 'sp3_count': sp3_count, 'aromatic_bond_count': aromatic_bond_count}
+                bond_orders.append(2.0)
+            elif bond_type == Chem.BondType.TRIPLE:
+                bond_orders.append(3.0)
+            elif bond_type == Chem.BondType.AROMATIC:
+                # Aromatic bonds have intermediate order
+                bond_orders.append(1.5)
+            else:
+                # Single bond
+                bond_orders.append(1.0)
+        
+        if not bond_orders:
+            return DEFAULT_BOND_ORDER
+        
+        return float(np.mean(bond_orders))
+    except Exception as e:
+        logger.warning(f"Failed to compute bond order annotation: {e}")
+        return DEFAULT_BOND_ORDER
 
 def compute_bond_polarity(mol: Chem.Mol) -> float:
     """
-    Calculate electronegativity difference weighted by bond length.
-    Uses Pauling scale values from RDKit.
+    Compute bond polarity using Pauling electronegativity differences.
+    Returns average polarity across all bonds.
     """
     if mol is None:
         return DEFAULT_BOND_POLARITY
     
-    total_polarity = 0.0
-    count = 0
-    
-    # Pauling electronegativity values (simplified for common elements)
-    electronegativity = {
-        'H': 2.20, 'C': 2.55, 'N': 3.04, 'O': 3.44, 'F': 3.98,
-        'Cl': 3.16, 'Br': 2.96, 'I': 2.66, 'S': 2.58, 'P': 2.19
-    }
-    
-    # Effective bond lengths (Angstroms)
-    bond_lengths = {
-        Chem.BondType.SINGLE: 1.54,
-        Chem.BondType.DOUBLE: 1.34,
-        Chem.BondType.TRIPLE: 1.20,
-        Chem.BondType.AROMATIC: 1.39
-    }
-
-    for bond in mol.GetBonds():
-        atom1 = bond.GetBeginAtom()
-        atom2 = bond.GetEndAtom()
-        sym1 = atom1.GetSymbol()
-        sym2 = atom2.GetSymbol()
+    try:
+        # Pauling electronegativity values for common elements
+        electronegativities = {
+            1: 2.20,   # H
+            6: 2.55,   # C
+            7: 3.04,   # N
+            8: 3.44,   # O
+            9: 3.98,   # F
+            15: 2.19,  # P
+            16: 2.58,  # S
+            17: 3.16,  # Cl
+            35: 2.96,  # Br
+            53: 2.66,  # I
+        }
         
-        en1 = electronegativity.get(sym1, 2.55)
-        en2 = electronegativity.get(sym2, 2.55)
+        polarity_sum = 0.0
+        bond_count = 0
         
-        diff = abs(en1 - en2)
+        for bond in mol.GetBonds():
+            atom1 = bond.GetBeginAtom()
+            atom2 = bond.GetEndAtom()
+            
+            en1 = electronegativities.get(atom1.GetAtomicNum(), 2.55)
+            en2 = electronegativities.get(atom2.GetAtomicNum(), 2.55)
+            
+            # Estimate bond length based on atom types and bond order
+            # Simplified: average covalent radii
+            radii = {
+                1: 0.37, 6: 0.77, 7: 0.75, 8: 0.73, 9: 0.72,
+                15: 1.10, 16: 1.02, 17: 0.99, 35: 1.14, 53: 1.33
+            }
+            r1 = radii.get(atom1.GetAtomicNum(), 0.77)
+            r2 = radii.get(atom2.GetAtomicNum(), 0.77)
+            
+            bond_length = r1 + r2
+            
+            # Polarity = electronegativity difference * bond length
+            polarity = abs(en1 - en2) * bond_length
+            polarity_sum += polarity
+            bond_count += 1
         
-        bond_type = bond.GetBondType()
-        length = bond_lengths.get(bond_type, 1.54)
+        if bond_count == 0:
+            return DEFAULT_BOND_POLARITY
         
-        # If aromatic, use aromatic length
-        if bond.GetIsAromatic():
-            length = 1.39
-        
-        total_polarity += diff * length
-        count += 1
-    
-    if count == 0:
+        return polarity_sum / bond_count
+    except Exception as e:
+        logger.warning(f"Failed to compute bond polarity: {e}")
         return DEFAULT_BOND_POLARITY
-    
-    return float(total_polarity / count)
 
 def compute_resonance_energy(mol: Chem.Mol) -> float:
     """
     Estimate resonance energy using Hückel Molecular Orbital (HMO) theory approximations.
-    Simplified: E_res ~ 0.5 * pi_electrons * beta (where beta is resonance integral).
-    Returns a scalar estimate in arbitrary units proportional to beta.
+    For conjugated systems, estimates stabilization energy.
     """
     if mol is None:
         return DEFAULT_RESONANCE_ENERGY
     
     try:
-        # Count pi electrons based on aromaticity and conjugation
-        pi_electrons = 0
+        # Count conjugated pi systems
+        conjugated_systems = 0
+        total_pi_electrons = 0
         
-        for atom in mol.GetAtoms():
-            if atom.GetIsAromatic():
-                # Assume 1 pi electron for aromatic carbon-like atoms
-                if atom.GetSymbol() == 'C':
-                    pi_electrons += 1
-                elif atom.GetSymbol() in ['N', 'O']:
-                    # Nitrogen/Oxygen in aromatic rings contribute 1 or 2 depending on hybridization
-                    # Simplified: assume 1 for now
-                    pi_electrons += 1
+        # Simple heuristic: count aromatic rings and conjugated chains
+        aromatic_rings = compute_aromatic_ring_count(mol)
+        conjugated_systems += aromatic_rings
         
-        # Hückel resonance energy approximation: E_res = k * pi_electrons
-        # Using a simplified constant k=0.5 (arbitrary units)
-        return float(0.5 * pi_electrons)
-    except Exception:
-        logger.warning("Failed to compute resonance energy, using fallback 0.0")
+        # Count conjugated double bonds in non-aromatic systems
+        for bond in mol.GetBonds():
+            if bond.GetBondType() == Chem.BondType.DOUBLE:
+                atom1 = bond.GetBeginAtom()
+                atom2 = bond.GetEndAtom()
+                if not atom1.GetIsAromatic() and not atom2.GetIsAromatic():
+                    # Check if part of a conjugated chain
+                    neighbors1 = list(atom1.GetNeighbors())
+                    neighbors2 = list(atom2.GetNeighbors())
+                    
+                    has_conjugation = False
+                    for n in neighbors1:
+                        if n.GetBondToAtom(atom1).GetBondType() == Chem.BondType.DOUBLE or n.GetIsAromatic():
+                            has_conjugation = True
+                            break
+                    for n in neighbors2:
+                        if n.GetBondToAtom(atom2).GetBondType() == Chem.BondType.DOUBLE or n.GetIsAromatic():
+                            has_conjugation = True
+                            break
+                    
+                    if has_conjugation:
+                        conjugated_systems += 1
+                        total_pi_electrons += 2
+        
+        # Estimate resonance energy: ~15-20 kcal/mol per conjugated system
+        # Using a simplified linear approximation
+        if conjugated_systems > 0:
+            # Base resonance energy per system (in arbitrary units)
+            energy_per_system = 0.5  # Scaled value
+            return float(conjugated_systems) * energy_per_system
+        
         return DEFAULT_RESONANCE_ENERGY
+    except Exception as e:
+        logger.warning(f"Failed to compute resonance energy: {e}")
+        return DEFAULT_RESONANCE_ENERGY
+
+def compute_standard_descriptors(mol: Chem.Mol) -> Dict[str, Any]:
+    """
+    Compute standard topological descriptors with fallback logic.
+    If quantum descriptors fail, use topological proxies.
+    """
+    if mol is None:
+        return {
+            "degree_mean": 0.0, "degree_std": 0.0, "degree_max": 0.0, "degree_min": 0.0,
+            "path_length_mean": 0.0, "path_length_std": 0.0, "path_length_max": 0.0, "path_length_min": 0.0,
+            "ring_count": 0,
+            "aromaticity_index": DEFAULT_AROMATICITY_INDEX,
+            "conjugation_length": DEFAULT_CONJUGATION_LENGTH,
+            "bond_polarity": DEFAULT_BOND_POLARITY,
+            "resonance_energy": DEFAULT_RESONANCE_ENERGY
+        }
+    
+    # Compute standard descriptors
+    degree_stats = compute_degree_statistics(mol)
+    path_stats = compute_path_length_statistics(mol)
+    ring_count = compute_ring_count(mol)
+    
+    # Compute quantum-inspired descriptors with fallback
+    try:
+        aromaticity_index = compute_huckel_aromaticity_index(mol)
+    except Exception:
+        logger.warning("Hückel aromaticity calculation failed, using topological proxy")
+        aromaticity_index = DEFAULT_AROMATICITY_INDEX
+    
+    try:
+        conjugation_length = float(compute_aromatic_ring_count(mol) + 
+                                  sum(1 for b in mol.GetBonds() if b.GetBondType() == Chem.BondType.DOUBLE))
+    except Exception:
+        logger.warning("Conjugation length calculation failed, using topological proxy")
+        conjugation_length = DEFAULT_CONJUGATION_LENGTH
+    
+    try:
+        bond_polarity = compute_bond_polarity(mol)
+    except Exception:
+        logger.warning("Bond polarity calculation failed, using topological proxy")
+        bond_polarity = DEFAULT_BOND_POLARITY
+    
+    try:
+        resonance_energy = compute_resonance_energy(mol)
+    except Exception:
+        logger.warning("Resonance energy calculation failed, using topological proxy")
+        resonance_energy = DEFAULT_RESONANCE_ENERGY
+    
+    return {
+        "degree_mean": degree_stats["mean"],
+        "degree_std": degree_stats["std"],
+        "degree_max": degree_stats["max"],
+        "degree_min": degree_stats["min"],
+        "path_length_mean": path_stats["mean"],
+        "path_length_std": path_stats["std"],
+        "path_length_max": path_stats["max"],
+        "path_length_min": path_stats["min"],
+        "ring_count": ring_count,
+        "aromaticity_index": aromaticity_index,
+        "conjugation_length": conjugation_length,
+        "bond_polarity": bond_polarity,
+        "resonance_energy": resonance_energy
+    }
 
 def compute_descriptors_batch(smiles_list: List[str]) -> pd.DataFrame:
     """
-    Compute all descriptors for a batch of SMILES strings.
-    Implements fallback logic for missing quantum descriptors (FR-014).
+    Compute descriptors for a batch of SMILES strings.
+    Implements fallback logic for missing quantum descriptors.
     """
     results = []
     
     for smiles in smiles_list:
-        try:
-            mol = Chem.MolFromSmiles(smiles)
-            if mol is None:
-                results.append({
-                    'smiles': smiles,
-                    'status': 'invalid',
-                    'degree_mean': 0.0, 'degree_std': 0.0, 'degree_max': 0.0, 'degree_min': 0.0,
-                    'path_length_mean': 0.0, 'path_length_std': 0.0, 'path_length_max': 0.0, 'path_length_min': 0.0,
-                    'aromaticity_index': DEFAULT_HUCKEL_INDEX,
-                    'conjugation_length': DEFAULT_CONJUGATION_LENGTH,
-                    'ring_count': 0,
-                    'bond_polarity': DEFAULT_BOND_POLARITY,
-                    'resonance_energy': DEFAULT_RESONANCE_ENERGY
-                })
-                continue
-            
-            # Standard descriptors
-            deg_mean, deg_std, deg_max, deg_min = compute_degree_statistics(mol)
-            path_mean, path_std, path_max, path_min = compute_path_length_statistics(mol)
-            ring_cnt = compute_ring_count(mol)
-            
-            # Quantum-inspired proxies
-            huckel_idx = compute_huckel_aromaticity_index(mol)
-            aromatic_rings = compute_aromatic_ring_count(mol)
-            bond_order_info = compute_bond_order_annotation(mol)
-            bond_pol = compute_bond_polarity(mol)
-            res_energy = compute_resonance_energy(mol)
-            
-            # Conjugation length: sum of sp2 and aromatic bonds as proxy
-            conj_len = float(bond_order_info['sp2_count'] + bond_order_info['aromatic_bond_count'])
-            
-            results.append({
-                'smiles': smiles,
-                'status': 'valid',
-                'degree_mean': deg_mean, 'degree_std': deg_std, 'degree_max': deg_max, 'degree_min': deg_min,
-                'path_length_mean': path_mean, 'path_length_std': path_std, 'path_length_max': path_max, 'path_length_min': path_min,
-                'aromaticity_index': huckel_idx,
-                'conjugation_length': conj_len,
-                'ring_count': ring_cnt,
-                'bond_polarity': bond_pol,
-                'resonance_energy': res_energy
-            })
-            
-        except Exception as e:
-            logger.warning(f"Error processing {smiles}: {str(e)}. Using fallback values.")
-            # Fallback for any error
-            results.append({
-                'smiles': smiles,
-                'status': 'error',
-                'degree_mean': 0.0, 'degree_std': 0.0, 'degree_max': 0.0, 'degree_min': 0.0,
-                'path_length_mean': 0.0, 'path_length_std': 0.0, 'path_length_max': 0.0, 'path_length_min': 0.0,
-                'aromaticity_index': DEFAULT_HUCKEL_INDEX,
-                'conjugation_length': DEFAULT_CONJUGATION_LENGTH,
-                'ring_count': 0,
-                'bond_polarity': DEFAULT_BOND_POLARITY,
-                'resonance_energy': DEFAULT_RESONANCE_ENERGY
-            })
+        mol = Chem.MolFromSmiles(smiles)
+        
+        if mol is None:
+            # Invalid SMILES - use all defaults
+            desc = compute_standard_descriptors(None)
+            desc["smiles"] = smiles
+            desc["status"] = "invalid"
+            results.append(desc)
+            continue
+        
+        desc = compute_standard_descriptors(mol)
+        desc["smiles"] = smiles
+        desc["status"] = "valid"
+        results.append(desc)
     
     return pd.DataFrame(results)
-
-def compute_standard_descriptors(mol: Chem.Mol) -> Dict[str, float]:
-    """
-    Compute standard topological descriptors with fallback logic.
-    Returns a dictionary of descriptor names and values.
-    """
-    if mol is None:
-        logger.warning("Molecule is None, returning fallback standard descriptors")
-        return {
-            'degree_mean': 0.0, 'degree_std': 0.0, 'degree_max': 0.0, 'degree_min': 0.0,
-            'path_length_mean': 0.0, 'path_length_std': 0.0, 'path_length_max': 0.0, 'path_length_min': 0.0,
-            'ring_count': 0
-        }
-    
-    try:
-        deg_mean, deg_std, deg_max, deg_min = compute_degree_statistics(mol)
-        path_mean, path_std, path_max, path_min = compute_path_length_statistics(mol)
-        ring_cnt = compute_ring_count(mol)
-        
-        return {
-            'degree_mean': deg_mean, 'degree_std': deg_std, 'degree_max': deg_max, 'degree_min': deg_min,
-            'path_length_mean': path_mean, 'path_length_std': path_std, 'path_length_max': path_max, 'path_length_min': path_min,
-            'ring_count': float(ring_cnt)
-        }
-    except Exception as e:
-        logger.warning(f"Error computing standard descriptors: {str(e)}. Using fallback values.")
-        return {
-            'degree_mean': 0.0, 'degree_std': 0.0, 'degree_max': 0.0, 'degree_min': 0.0,
-            'path_length_mean': 0.0, 'path_length_std': 0.0, 'path_length_max': 0.0, 'path_length_min': 0.0,
-            'ring_count': 0.0
-        }

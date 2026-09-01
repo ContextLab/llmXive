@@ -117,15 +117,15 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T034 [P] [US3] Unit test for VIF calculation and thresholding
-- [~] T035 [P] [US3] Unit test for Benjamini-Hochberg correction implementation
-- [~] T036 [P] [US3] Unit test for correlation plot generation with confidence intervals
+- [ ] T034 [P] [US3] Unit test for VIF calculation and thresholding
+- [ ] T035 [P] [US3] Unit test for Benjamini-Hochberg correction implementation
+- [ ] T036 [P] [US3] Unit test for correlation plot generation with confidence intervals
 
 ### Implementation for User Story 3
 
-- [~] T037 [P] [US3] Implement VIF calculation for all predictor pairs (FR-013)
-- [~] T038 [US3] Implement feature exclusion logic for features with VIF > 10 (FR-013)
-- [~] T039 [US3] Implement iterative retraining loop: WHILE any VIF > 10, exclude the highest VIF feature and retrain model using the EXACT split indices from T027 and random seed from T004 (FR-013)
+- [ ] T037 [P] [US3] Implement VIF calculation for all predictor pairs (FR-013)
+- [ ] T038 [US3] Implement feature exclusion logic for features with VIF > 10 (FR-013)
+- [ ] T039 [US3] Implement iterative retraining loop: WHILE any VIF > 10, exclude the highest VIF feature and retrain model using the EXACT split indices from T027 and random seed from T004 (FR-013)
 - [~] T040 [US3] Compute feature importance rankings (permutation or tree-based) on the final VIF-filtered model (FR-005)
 - [~] T041 [US3] Calculate feature-conductivity (or target) correlations with p-values
 - [~] T042 [US3] Apply Benjamini-Hochberg FDR correction to p-values (FR-006)

@@ -1,12 +1,32 @@
-T001:
+T003a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or `MANIFEST.txt` file was presented in the evidence; without
-    a visible listing of the required folders (e.g., `projects/PROJ-280-investigating-microbial-community-succes/`,
-    `data/raw`, etc.) and the generated `MANIFEST.txt` that enumerates them, we cannot
-    confirm that the project structure was actually created. The implementer must
-    provide the filesystem layout (or a screenshot/command output) and the contents
-    of the manifest file.
+  r: No `.flake8` file content or path is provided in the evidence, so we cannot confirm
+    that a configuration file exists in the repository root with the required settings
+    (`max-line-length=100`, `ignore=E203,W503`, `exclude=venv,build`). The implementer
+    must supply the actual file.
+T006:
+  c: true
+  h: 84f64b3f4071b62a2fff17487e8f77f5e1b3523579249a2c9f1ee7c586380000
+  r: 'The `code/utils.py` file contains a full implementation of `get_logger(name:
+    str)` that creates the required `data/processed/audit_trail.log` file, uses the
+    specified log format, and configures both a `FileHandler` and a `StreamHandler`
+    with default INFO level. The absence of the log file itself is expected until
+    the logger is used.'
+T012:
+  c: false
+  h: 7eb3e0a033cd65ea2bccdb7597c81f113c1f1496eb92fd1b46e8fdea46bdd0ee
+  r: "The required output file `data/processed/metadata_with_rates.csv` does not exist,\
+    \ and the provided `code/02_preprocess.py` is truncated before any logic that\
+    \ writes this CSV or logs excluded\u2011sample counts. Consequently the task\u2019\
+    s core deliverable is missing."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or output feature tables were provided for the depth\u2011\
+    sensitivity sweep; the claim lacks any tangible artifact (e.g., subsampling scripts,\
+    \ generated tables at 2\u202Fk, 5\u202Fk, 10\u202Fk reads) to verify that the\
+    \ task was performed. The required outputs are missing."
 T020:
   c: false
   h: 1a82ad41879153bb5ddfd6e8f03b55df3532f12f03ebc55c09951d235c93c3a0
@@ -36,14 +56,6 @@ T037:
   r: No updated README or quickstart.md files were provided in the `docs/` directory,
     nor any evidence that documentation was modified. The required documentation artifacts
     are missing, so the task is not satisfied.
-T039:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No performance benchmarks, profiling data, or optimized code were provided to\
-    \ demonstrate that the pipeline now finishes within 6\u202Fhours on a 2\u2011\
-    CPU\u2011core machine. Evidence of timing tests, resource usage logs, or specific\
-    \ optimizations (e.g., parallelization, algorithmic improvements) is missing,\
-    \ so the requirement is not satisfied."
 T040:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -74,13 +86,3 @@ T046#1:
     \ exist, and the provided snippet of `code/05_correlation.py` does not show any\
     \ VIF calculation, flagging, or reporting logic. Without this JSON and explicit\
     \ report of excluded taxa, the task\u2019s requirements are not met."
-T047#1:
-  c: false
-  h: 84474a057cc7b9658c93595584b55dd7de2bc577a7bcde13fd86b41b885070cf
-  r: "The `code/99_generate_final_report.py` script exists, but the required output\
-    \ file `data/processed/final_analysis_report.json` is missing, indicating the\
-    \ aggregation has not been performed. The script is also truncated, so it\u2019\
-    s unclear whether it correctly merges all listed JSON artifacts and builds the\
-    \ required `data_lineage` section. The implementer must ensure the script runs\
-    \ successfully and produces the final JSON report containing the merged data and\
-    \ full lineage information."

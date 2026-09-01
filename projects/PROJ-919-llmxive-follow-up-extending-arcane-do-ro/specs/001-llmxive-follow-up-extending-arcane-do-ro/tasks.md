@@ -43,12 +43,12 @@
 - [X] T006 [P] Create base configuration management for seeds and model paths in `src/lib/config.py`
 - [X] T007 Implement data validation helpers in `src/lib/validators.py` (schema checks, type clamping)
 - [X] T008 [P] [US3] Setup experiment state tracking (logging run IDs, timestamps, parameter hashes, AND content hashes for state/parameters) in `src/lib/state.py` to satisfy Constitution Principle V.
-- [ ] T009 Load external Gold Standard dataset from `data/gold_standard/human_annotations.json` (no code‑generated data). This file must be a version‑controlled JSON artifact containing 20 manually annotated samples.
+- [ ] T009 Load external Gold Standard dataset from `data/gold_standard/human_annotations.json` (no code‑generated data). This file must be a version‑controlled JSON artifact containing 20 manually annotated samples. <!-- FAILED: unspecified -->
 - [ ] T010 [P] Create File: `specs/001-gene-regulation/contracts/axis.schema.yaml`. **Content**: Define YAML schema for `CharacterAxis` containing TWO objects: `Coarse` (fields: `character`, `axis_name`, `description`) and `Fine` (fields: `character`, `axis_name`, `description`, `source_observation`). **Note**: Single file for both schemas to prevent overwrite.
 - [ ] T015 [P] Create `data/derived/axes.jsonl` writer to store validated axis definitions.
 - [ ] T011b [P] Create File: `config/axes_input.yaml`. **Content**: Template YAML file with example Coarse/Fine axis definitions for 'Scrooge' and 'Elizabeth Bennet' to be used by T011 in CI mode.
 - [ ] T011 [US1] Implement `src/services/axis_generator.py` with logic to load axis definitions from `config/axes_input.yaml` (non‑interactive CI mode) or interactive CLI prompt. **Output**: `data/derived/axes.jsonl`.
-- [ ] T012 [US1] Implement semantic validation logic in `src/services/axis_generator.py` (lexical overlap > 0.4, embedding cosine distance < 0.3) using `sentence-transformers/all-MiniLM-L6-v2`. This logic MUST be called by T011a to block invalid input.
+- [ ] T012 [US1] Implement semantic validation logic in `src/services/axis_generator.py` (lexical overlap > 0.4 [UNRESOLVED-CLAIM: c_9907a51f — status=not_enough_info], embedding cosine distance < 0.3 [UNRESOLVED-CLAIM: c_6348401f — status=not_enough_info]) using `sentence-transformers/all-MiniLM-L6-v2`. This logic MUST be called by T011a to block invalid input.
 - [ ] T011a [US1] Implement `src/cli/axis_input.py` with independent input validation logic: requires two separate text blocks for Coarse and Fine axes. **Depends on**: T010, T012. **Logic**: Call T012's automated check before accepting input. If validation fails, reject input and log error.
 - [ ] T014 [P] [US1] Unit test for axis semantic overlap constraint in `tests/unit/test_axis_validation.py`. **Note**: This test depends on T010 (schema) and T012 (service) being implemented first.
 - [ ] T013 [US1] **Download Source Text**: Download public domain texts for source corpus. **Primary Sources**: 1) ` (Pride and Prejudice), 2) ` (A Christmas Carol). **Action**: Concatenate and save to `data/raw/arcane_corpus.jsonl`. **Constraint**: Must raise exception on download failure; NO synthetic fallback.
@@ -72,7 +72,7 @@
 
 **Goal**: Generate at least 50 unique "Out-of-World" scenario prompts per character that are semantically distant from the source text.
 
-**Independent Test**: The system generates a batch of probes, and a sample check confirms none contain direct quotes/plot points and average cosine similarity to source text is < 0.3.
+**Independent Test**: The system generates a batch of probes, and a sample check confirms none contain direct quotes/plot points and average cosine similarity to source text is < 0.3 [UNRESOLVED-CLAIM: c_7d42aa8c — status=not_enough_info].
 
 ### Tests for User Story 2 (OPTIONAL) ⚠️
 
@@ -81,7 +81,7 @@
 ### Implementation for User Story 2
 
 - [ ] T018 [US2] Implement `src/services/probe_generator.py` with logic to generate novel scenarios based on character axes. **Constraint**: Must use a small, quantized model (e.g., TinyLlama‑1.1B) on CPU. If generation fails, retry with different seed; do NOT fall back to synthetic templates.
-- [ ] T019 [US2] Implement semantic similarity check (cosine similarity < 0.3) against `data/raw/arcane_corpus.jsonl` (source text) in `src/services/probe_generator.py` using `sentence-transformers/all-MiniLM-L6-v2`. Must stream the corpus if too large for RAM, or load in chunks.
+- [ ] T019 [US2] Implement semantic similarity check (cosine similarity < 0.3 [UNRESOLVED-CLAIM: c_d8985456 — status=not_enough_info]) against `data/raw/arcane_corpus.jsonl` (source text) in `src/services/probe_generator.py` using `sentence-transformers/all-MiniLM-L6-v2`. Must stream the corpus if too large for RAM, or load in chunks.
 - [ ] T021 [P] Create `data/derived/probes.jsonl` writer to store validated out‑of‑world probes.
 - [ ] T020 [US2] Implement regeneration loop in `src/services/probe_generator.py` with explicit discard logic: **Step 1**: Generate candidate (T018). **Step 2**: Run T019 check. **Step 3**: If valid, save via T021. **Step 4**: If retry count > 150, log "Generation Limit Exceeded" and proceed with available valid probes (if >= 50) or mark character as invalid. **Depends on**: T018, T019, T021.
 - [ ] T022 [US2] Implement error handling for "Generation Limit Exceeded" in `src/services/probe_generator.py`. If `valid_probes < 50` after 150 attempts, set `character_status` to `'invalid'` in `data/derived/probes.jsonl` (Edge Cases, FR‑002).
@@ -107,7 +107,7 @@
 - [X] T026 [US3] Implement `src/services/judge_service.py` for LLM‑based consistency scoring using a standard Likert scale, with output validation, clamping, **and** adherence flag determined by checking that the response contains **at least 2 phase‑specific keywords** from the prompt.
 - [X] T027 [US3] Implement `src/services/rule_based_metric.py` to calculate a composite rule‑based score based on **keyword presence**, VADER sentiment alignment, and a configurable weighting factor (`w`). Formula: `score = w * sentiment_score + (1‑w) * keyword_match_score`. Keyword match score counts presence of phase‑specific keywords.
 - [X] T028 [P] Create `data/derived/results_raw.jsonl` writer to store raw responses and scores.
-- [X] T029 [US3] Implement Judge Calibration step in `src/services/judge_service.py` (Kappa > 0.6 against `data/gold_standard/human_annotations.json` using `sklearn.metrics.cohen_kappa_score` with quadratic weights). If Kappa ≤ 0.6, raise a RuntimeError and halt execution. If the gold standard file is missing or malformed, raise a clear error. **Depends on**: T009.
+- [X] T029 [US3] Implement Judge Calibration step in `src/services/judge_service.py` ({{claim:c_e64a59a9}} using `sklearn.metrics.cohen_kappa_score` with quadratic weights). If Kappa ≤ 0.6, raise a RuntimeError and halt execution. If the gold standard file is missing or malformed, raise a clear error. **Depends on**: T009.
 - [X] T029c [US3] Implement logic to aggregate Judge model output validation failures (scores outside the standard range), calculate the failure rate, and record it as a metric in `data/derived/judge_metrics.json` (SC‑005).
 - [X] T030 [US3] Implement `src/services/experiment_runner.py` to run target model under Coarse, Fine, and Hybrid conditions. Explicitly construct "Coarse Context", "Fine Context", and "Hybrid Context" strings as per Spec definitions. **Constraint**: Must handle timeouts per Edge Cases.
 - [X] T031 [US3] Implement timeout handling inside `experiment_runner`: if a single probe generation exceeds the timeout, log the failure, assign a default consistency score of 0, and continue to the next probe.

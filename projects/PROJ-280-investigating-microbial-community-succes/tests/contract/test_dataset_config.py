@@ -1,224 +1,104 @@
 """
-Contract tests for dataset configuration validation.
-
-These tests verify that the dataset_config_validator correctly validates
-configurations against the schema and handles edge cases appropriately.
+Contract test for dataset schema validation (T009).
+Validates that data/config/dataset_ids.json conforms to contracts/dataset-config.schema.yaml.
 """
 import json
 import os
-import tempfile
+import sys
+import unittest
 from pathlib import Path
 
-import pytest
-from jsonschema import ValidationError
+import yaml
+from jsonschema import validate, ValidationError, SchemaError
 
-# Import the validator module
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
-from dataset_config_validator import (
-    load_schema,
-    validate_config,
-    create_sample_config,
-)
+# Project root relative to this test
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+CONFIG_PATH = PROJECT_ROOT / "data" / "config" / "dataset_ids.json"
+SCHEMA_PATH = PROJECT_ROOT / "contracts" / "dataset-config.schema.yaml"
 
+class TestDatasetConfigSchema(unittest.TestCase):
+    """Contract tests for the dataset configuration JSON schema."""
 
-class TestLoadSchema:
-    """Tests for the load_schema function."""
+    def setUp(self):
+        """Load schema and config before each test."""
+        if not SCHEMA_PATH.exists():
+            self.fail(f"Schema file not found: {SCHEMA_PATH}")
+        if not CONFIG_PATH.exists():
+            self.fail(f"Config file not found: {CONFIG_PATH}")
 
-    def test_load_default_schema(self):
-        """Test loading the schema from the default path."""
-        schema = load_schema()
-        assert "properties" in schema
-        assert "version" in schema["properties"]
-        assert "datasets" in schema["properties"]
+        with open(SCHEMA_PATH, 'r') as f:
+            self.schema = yaml.safe_load(f)
 
-    def test_load_custom_schema(self):
-        """Test loading the schema from a custom path."""
-        # Create a temporary schema file
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-            f.write("""
-            $schema: http://json-schema.org/draft-07/schema#
-            type: object
-            properties:
-              test:
-                type: string
-            """)
-            temp_path = f.name
+        with open(CONFIG_PATH, 'r') as f:
+            self.config = json.load(f)
 
+    def test_schema_is_valid_yaml(self):
+        """Ensure the schema file itself is valid YAML."""
+        self.assertIsInstance(self.schema, dict)
+        self.assertIn('type', self.schema)
+        self.assertEqual(self.schema['type'], 'object')
+
+    def test_config_has_required_datasets_key(self):
+        """Config must have a 'datasets' key."""
+        self.assertIn('datasets', self.config)
+        self.assertIsInstance(self.config['datasets'], list)
+
+    def test_config_conforms_to_schema(self):
+        """The config JSON must validate against the schema."""
         try:
-            schema = load_schema(temp_path)
-            assert "properties" in schema
-            assert "test" in schema["properties"]
-        finally:
-            os.unlink(temp_path)
+            validate(instance=self.config, schema=self.schema)
+        except ValidationError as e:
+            self.fail(f"Config validation failed: {e.message}")
+        except SchemaError as e:
+            self.fail(f"Schema error: {e.message}")
 
-    def test_load_nonexistent_schema(self):
-        """Test that loading a nonexistent schema raises FileNotFoundError."""
-        with pytest.raises(FileNotFoundError):
-            load_schema("/nonexistent/path/schema.yaml")
+    def test_dataset_entries_have_required_fields(self):
+        """Each dataset entry must have id, source, and url."""
+        required_fields = {'id', 'source', 'url'}
+        for idx, ds in enumerate(self.config['datasets']):
+            missing = required_fields - set(ds.keys())
+            self.assertFalse(
+                missing,
+                f"Dataset at index {idx} is missing fields: {missing}"
+            )
 
+    def test_source_enum_values(self):
+        """Source must be either 'NCBI_SRA' or 'Zenodo'."""
+        valid_sources = {"NCBI_SRA", "Zenodo"}
+        for idx, ds in enumerate(self.config['datasets']):
+            self.assertIn(
+                ds['source'],
+                valid_sources,
+                f"Dataset {idx} has invalid source: {ds['source']}"
+            )
 
-class TestValidateConfig:
-    """Tests for the validate_config function."""
+    def test_sra_id_format(self):
+        """If source is NCBI_SRA, id must match SRR/ERR pattern."""
+        import re
+        sra_pattern = re.compile(r'^(SRR|ERR)[0-9]+$')
+        for idx, ds in enumerate(self.config['datasets']):
+            if ds['source'] == 'NCBI_SRA':
+                self.assertTrue(
+                    sra_pattern.match(ds['id']),
+                    f"Dataset {idx} has invalid SRA ID format: {ds['id']}"
+                )
 
-    def test_validate_valid_config(self):
-        """Test validation of a valid configuration."""
-        # Create a temporary valid config
-        valid_config = {
-            "version": "1.0.0",
-            "description": "Test configuration",
-            "datasets": [
-                {
-                    "id": "PRJNA123456",
-                    "source": "ncbi_sra",
-                    "description": "Test dataset",
-                    "metadata": {
-                        "wetland_type": "constructed",
-                        "nutrient_removal": True,
-                        "target_nutrients": ["nitrogen"],
-                        "sampling_stages": ["early"],
-                        "location": "Test Location",
-                        "study_period": "12_months"
-                    }
-                }
-            ]
-        }
+    def test_zenodo_url_format(self):
+        """If source is Zenodo, url must match Zenodo DOI pattern."""
+        import re
+        zenodo_pattern = re.compile(r'^10\.5281/zenodo\.[0-9]+$')
+        for idx, ds in enumerate(self.config['datasets']):
+            if ds['source'] == 'Zenodo':
+                # The schema expects 'url' to be the DOI string for Zenodo
+                # based on the provided schema snippet: url: string
+                # and the regex VALID_ZENDO = r'^10\.5281/zenodo\.[0-9]+$'
+                # The validator in validators.py checks 'url' against this.
+                # We check the actual field 'url' here.
+                self.assertTrue(
+                    zenodo_pattern.match(ds['url']),
+                    f"Dataset {idx} has invalid Zenodo URL format: {ds['url']}"
+                )
 
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump(valid_config, f)
-            temp_path = f.name
-
-        try:
-            is_valid, error = validate_config(temp_path)
-            assert is_valid is True
-            assert error is None
-        finally:
-            os.unlink(temp_path)
-
-    def test_validate_invalid_version_format(self):
-        """Test validation fails for invalid version format."""
-        invalid_config = {
-            "version": "invalid",
-            "description": "Test",
-            "datasets": []
-        }
-
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump(invalid_config, f)
-            temp_path = f.name
-
-        try:
-            is_valid, error = validate_config(temp_path)
-            assert is_valid is False
-            assert "Validation error" in error
-        finally:
-            os.unlink(temp_path)
-
-    def test_validate_missing_required_field(self):
-        """Test validation fails when required field is missing."""
-        invalid_config = {
-            "version": "1.0.0",
-            "description": "Test"
-            # Missing "datasets"
-        }
-
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump(invalid_config, f)
-            temp_path = f.name
-
-        try:
-            is_valid, error = validate_config(temp_path)
-            assert is_valid is False
-            assert "Validation error" in error
-        finally:
-            os.unlink(temp_path)
-
-    def test_validate_invalid_source(self):
-        """Test validation fails for invalid source value."""
-        invalid_config = {
-            "version": "1.0.0",
-            "description": "Test",
-            "datasets": [
-                {
-                    "id": "PRJNA123",
-                    "source": "invalid_source",
-                    "description": "Test",
-                    "metadata": {
-                        "wetland_type": "constructed",
-                        "nutrient_removal": True,
-                        "target_nutrients": ["nitrogen"],
-                        "sampling_stages": ["early"],
-                        "location": "Test",
-                        "study_period": "12_months"
-                    }
-                }
-            ]
-        }
-
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump(invalid_config, f)
-            temp_path = f.name
-
-        try:
-            is_valid, error = validate_config(temp_path)
-            assert is_valid is False
-            assert "Validation error" in error
-        finally:
-            os.unlink(temp_path)
-
-    def test_validate_nonexistent_config(self):
-        """Test validation of a nonexistent config file."""
-        is_valid, error = validate_config("/nonexistent/config.json")
-        assert is_valid is False
-        assert "not found" in error
-
-    def test_validate_invalid_json(self):
-        """Test validation of a file with invalid JSON."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            f.write("{ invalid json }")
-            temp_path = f.name
-
-        try:
-            is_valid, error = validate_config(temp_path)
-            assert is_valid is False
-            assert "Invalid JSON" in error
-        finally:
-            os.unlink(temp_path)
-
-
-class TestCreateSampleConfig:
-    """Tests for the create_sample_config function."""
-
-    def test_create_sample_config_creates_file(self):
-        """Test that create_sample_config creates a file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "sample_config.json")
-            create_sample_config(output_path)
-
-            assert os.path.exists(output_path)
-
-    def test_create_sample_config_valid_schema(self):
-        """Test that created sample config is valid against schema."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "sample_config.json")
-            create_sample_config(output_path)
-
-            is_valid, error = validate_config(output_path)
-            assert is_valid is True
-            assert error is None
-
-    def test_create_sample_config_structure(self):
-        """Test that created sample config has expected structure."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "sample_config.json")
-            create_sample_config(output_path)
-
-            with open(output_path, 'r') as f:
-                config = json.load(f)
-
-            assert "version" in config
-            assert "description" in config
-            assert "datasets" in config
-            assert len(config["datasets"]) > 0
-            assert config["datasets"][0]["id"] is not None
-            assert config["datasets"][0]["source"] in ["ncbi_sra", "zenodo"]
+if __name__ == '__main__':
+    # Run tests
+    unittest.main(verbosity=2)

@@ -1,3 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "investigating-microbial-community-succession"
+version = "0.1.0"
+description = "Analysis of microbial community succession in constructed wetlands"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scipy",
+    "scikit-bio",
+    "networkx",
+    "statsmodels",
+    "scikit-learn",
+    "seaborn",
+    "matplotlib",
+    "pyyaml",
+    "jsonschema"
+]
+
 [tool.black]
 line-length = 100
 target-version = ['py311']

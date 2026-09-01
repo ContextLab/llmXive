@@ -1,55 +1,54 @@
-"""
-Script to initialize the project's data directory structure.
-Creates required directories for raw, derived, gold standard data, and artifacts.
-"""
 import os
 import sys
 from pathlib import Path
 
 def setup_directories():
     """
-    Creates the standard data directory structure:
-    - data/raw/
-    - data/derived/
-    - data/gold_standard/
-    - artifacts/
+    Creates the required data directory structure for the llmXive project.
+    Directories created:
+      - data/raw/
+      - data/derived/
+      - data/gold_standard/
+      - artifacts/
     
     Returns:
         bool: True if all directories were created successfully, False otherwise.
     """
-    # Define the project root relative to the script location
-    # Assuming script is at code/scripts/setup_data_dirs.py
-    # Project root is code/
-    script_dir = Path(__file__).resolve().parent
-    project_root = script_dir.parent
-    data_root = project_root / "data"
-    artifacts_root = project_root / "artifacts"
-
+    base_path = Path(__file__).resolve().parent.parent
+    project_root = base_path / "data"
+    
     directories = [
-        data_root / "raw",
-        data_root / "derived",
-        data_root / "gold_standard",
-        artifacts_root
+        "raw",
+        "derived",
+        "gold_standard",
+        "../artifacts" # artifacts is at root level alongside data/
     ]
-
+    
     created_count = 0
-    for dir_path in directories:
+    for dir_name in directories:
+        target_path = project_root / dir_name if dir_name != "../artifacts" else base_path.parent / "artifacts"
+        
+        # Normalize the path to handle ../ correctly
+        target_path = target_path.resolve()
+        
         try:
-            dir_path.mkdir(parents=True, exist_ok=True)
-            # Create a .gitkeep file to ensure the directory is tracked by git
-            gitkeep_path = dir_path / ".gitkeep"
-            if not gitkeep_path.exists():
-                gitkeep_path.write_text("# Keep this directory in version control\n")
-            print(f"Created/Verified: {dir_path}")
+            target_path.mkdir(parents=True, exist_ok=True)
+            print(f"Directory created or exists: {target_path}")
             created_count += 1
         except PermissionError:
-            print(f"Error: Permission denied when creating {dir_path}", file=sys.stderr)
+            print(f"Error: Permission denied creating directory {target_path}", file=sys.stderr)
             return False
         except Exception as e:
-            print(f"Error: Failed to create {dir_path}: {e}", file=sys.stderr)
+            print(f"Error creating directory {target_path}: {e}", file=sys.stderr)
             return False
-
-    print(f"Successfully initialized {created_count} directories.")
+    
+    # Verify artifacts directory specifically as it's outside data/
+    artifacts_path = base_path.parent / "artifacts"
+    if not artifacts_path.exists():
+        print(f"Error: Artifacts directory was not created at {artifacts_path}", file=sys.stderr)
+        return False
+        
+    print(f"Successfully setup {created_count} directories.")
     return True
 
 def main():
