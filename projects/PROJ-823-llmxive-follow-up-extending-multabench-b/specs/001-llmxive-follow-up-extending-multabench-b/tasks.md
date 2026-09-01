@@ -230,6 +230,16 @@
 
 ---
 
+## Phase 11: Final Execution Gate & Human Handoff (New)
+
+**Purpose**: Execute the final pre-flight checks and prepare the project for human review if the automated analysis cycle completes successfully.
+
+- [ ] T062 [US1/US2/US3] **Final Pre-Flight Execution Gate**: Implement `code/pipelines/final_execution_gate.py` to run T059 (Data Verification), T055 (CI Guardrails), and T048b (Runtime Subset Check) in sequence. **Logic**: If ANY check fails, the script MUST exit with code 1 and log a detailed error. If ALL checks pass, the script proceeds to T048 (Final Validation). **Output**: `data/artifacts/final_gate_report.json` indicating pass/fail for each sub-check. **Dependency**: Must run BEFORE T048. **Constraint**: This is the final automated gate before the full pipeline run; it ensures no wasted CI time on invalid states.
+- [ ] T063 [Polish] **Generate Final Human-Readable Summary**: Implement `code/pipelines/generate_final_summary.py` to compile `data/artifacts/final_gate_report.json`, `data/artifacts/final_validation_report.md`, `data/artifacts/correlation_report_{run_id}.json`, and `data/artifacts/zero_variance_audit.log` into a single `FINAL_RESEARCH_SUMMARY.md` in the repository root. **Requirement**: This document must include a clear "Go/No-Go" recommendation for human review based on the success of T048 and the statistical validity of T033/T035. **Dependency**: Must run after T048 and T061.
+- [ ] T064 [US3] **Final Statistical Significance Verification**: Re-run the t-test (T035) and correlation (T033) on the final validated dataset subset to ensure no drift occurred during the final execution gate. **Logic**: Compare the final p-values against the initial run; if the difference exceeds a threshold (e.g., 1e-6), log a warning. **Output**: Append a `final_verification` section to `FINAL_RESEARCH_SUMMARY.md`. **Constraint**: This ensures the final results are reproducible and stable.
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -243,6 +253,7 @@
 - **Verification (Phase 7)**: Depends on completion of all User Story implementations
 - **Execution Hardening (Phase 9)**: Must be completed before any final CI run (T048)
 - **Review-Driven Revision (Phase 10)**: Must be completed before final sign-off to ensure all reviewer concerns regarding data integrity and statistical rigor are addressed.
+- **Final Execution Gate (Phase 11)**: Must be completed immediately before the final human review handoff.
 
 ### User Story Dependencies
 
@@ -342,3 +353,5 @@ With multiple developers:
 - **CRITICAL**: T058, T059, T060, and T061 are mandatory revision tasks to address specific reviewer concerns regarding statistical power visualization, data source verification (checksum), small sample robustness, and zero-variance handling. These must be completed before the project is considered fully analyzed and ready for human review.
 - **CRITICAL**: T059 must run BEFORE T048 as a pre-flight check.
 - **CRITICAL**: T015a is the definitive source for the Seed 42 baseline for FR-001.
+- **CRITICAL**: T062 is the final automated gate before the full pipeline run; it ensures no wasted CI time on invalid states.
+- **CRITICAL**: T063 and T064 are mandatory for the final human handoff to ensure all results are stable, verified, and summarized in a single document.

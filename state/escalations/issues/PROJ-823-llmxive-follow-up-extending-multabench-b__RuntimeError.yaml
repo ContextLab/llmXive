@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-09-01T19:41:39.220846+00:00'
+issue_number: 1332
+project_id: PROJ-823-llmxive-follow-up-extending-multabench-b
