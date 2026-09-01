@@ -1,11 +1,3 @@
-T017b:
-  c: false
-  h: f72052a5a6cbc73b560e8c048d73942f433a4d843eaf7095e0923c79cd2b7ff0
-  r: "The provided `code/analysis/validation.py` is truncated and does not contain\
-    \ the logic to compute the overall compliance percentage or write `data/processed/compliance_report.json`.\
-    \ Moreover, the required input file `data/processed/environment_logs.json` and\
-    \ the expected output file `data/processed/compliance_report.json` are absent.\
-    \ The task\u2019s core requirement is therefore unmet."
 T021:
   c: false
   h: c4e526b805d68afd4f2f59fa47a20e04401abec8e34e76d4c83ddf05f96d549f
@@ -14,13 +6,6 @@ T021:
     handling of the required input file. Moreover, the required data file `data/processed/calibrated_traces.csv`
     is absent, and no synthetic equivalent is provided. The task therefore lacks the
     necessary input artifact and a complete implementation.
-T029:
-  c: false
-  h: 0ce0dee49d0ba48ee142900e6128d007c3ad912e7e7db27a1712879cdc45c50e
-  r: The repository contains `code/data/compute/solvent_models.py`, but the file is
-    truncated and does not show any logic that writes the combined results to `data/compute/solvent_solvation.csv`.
-    Moreover, the CSV file itself is missing from the project. Without a concrete
-    implementation that produces the required output file, the task is not fulfilled.
 T035:
   c: true
   h: 886eabc2e4e0256c8c5c64aa93460da6849f071ac5116646ac5855232079c62b
