@@ -1,58 +1,65 @@
 # Quickstart: Quantization Robustness of Multi-Effect LoRA Adapters
 
 ## Prerequisites
-
 - Python 3.10+
-- 16GB+ RAM (recommended for smooth CPU execution)
-- GitHub Actions Runner (or local machine with equivalent resources)
+- 16GB+ RAM (CPU mode)
+- Git
 
 ## Installation
 
-1. Clone the repository and navigate to the project directory.
-2. Create a virtual environment:
+1. **Clone the repository**:
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   git clone <repo-url>
+   cd <project-dir>
    ```
-3. Install dependencies:
+
+2. **Install dependencies**:
    ```bash
    pip install -r code/requirements.txt
    ```
 
-## Configuration
-
-1. Edit `code/config.yaml` to define your prompts, seeds, and model paths.
-2. Ensure the `adapter` path points to a valid multi-effect LoRA adapter (safetensors).
+3. **Verify environment**:
+   ```bash
+   python -c "import torch; print(torch.__version__)"
+   ```
 
 ## Running the Pipeline
 
-1. **Baseline Generation (FP16)**:
-   ```bash
-   python code/main.py --phase baseline
-   ```
-   This generates a set of images and computes baseline metrics.
+### Step 1: Prepare Data (Synthesis or Download)
+The pipeline will automatically attempt to download the CollectionLoRA adapter. If it fails, it will synthesize one.
+```bash
+python code/main.py --phase prepare
+```
+*This step generates `data/subspace_ranks.json` and downloads/creates the adapters.*
 
-2. **Quantization and Generation (INT8, INT4)**:
-   ```bash
-   ./code/wrapper.sh python code/main.py --phase quantize
-   ```
-   **Note**: The `wrapper.sh` script handles OOM detection (Exit Code 137) and skips the affected level gracefully.
+### Step 2: Generate Baseline (FP16)
+```bash
+python code/main.py --phase generate --level FP16
+```
+*Generates reference images and computes baseline CLIP scores.*
 
-3. **Analysis**:
-   ```bash
-   python code/main.py --phase analysis
-   ```
-   This runs the Bayesian hierarchical model and correlation analysis.
+### Step 3: Generate Quantized Outputs
+```bash
+python code/main.py --phase generate --level INT8
+python code/main.py --phase generate --level INT4
+```
+*Note: INT4 may be skipped if CPU quantization backend fails.*
 
-## Output
+### Step 4: Statistical Analysis
+```bash
+python code/main.py --phase analyze
+```
+*Runs Bayesian hierarchical model and outputs `data/analysis_results.json`.*
 
-- **Results**: `data/results.csv` (aggregated metrics)
-- **Analysis**: `data/analysis_results.json` (statistical outputs)
-- **Subspace Ranks**: `data/subspace_ranks.json`
-- **State**: `state/project.yaml` (hashes and versioning)
+## Viewing Results
+
+- **Raw Metrics**: `data/results.csv`
+- **Statistical Summary**: `data/analysis_results.json`
+- **Generated Images**: `data/generated/`
+- **State/Hashes**: `state/artifacts.yaml`
 
 ## Troubleshooting
 
-- **Memory Error**: If the runner runs out of RAM, the `wrapper.sh` script will detect the out-of-memory exit code and skip the current quantization level. If the entire job exceeds 7GB, the experiment is aborted with 'MemoryLimitExceeded'.
-- **Quantization Failure**: If `torch.ao.quantization.dynamic_quant` fails, check the logs for "Backend Unavailable" and ensure `backend='dynamic'` is supported.
-- **Model Loading**: Ensure the adapter file is a valid `safetensors` file and contains the expected keys.
+- **OOM Error**: If the process exits with code 137, the system logs "MemoryLimitExceeded" and skips the level. Reduce the number of seeds in `code/config.yaml`.
+- **Quantization Failure**: If INT4 fails, check logs for "Backend Unavailable". The pipeline will proceed with INT8 and FP16 only.
+- **Missing Adapter**: If the synthetic adapter fails to construct, verify that the 5 single-effect LoRA sources are accessible.

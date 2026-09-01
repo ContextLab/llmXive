@@ -1,12 +1,25 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Subspace Ranks Schema"
-description: "Schema for the per-effect LoRA subspace ranks in data/subspace_ranks.json"
+title: "SubspaceRanks"
+description: "Schema for subspace rank analysis (data/subspace_ranks.json)"
 type: "object"
-patternProperties:
-  "^[a-zA-Z0-9_\\s-]+$":
+properties:
+  effect_id:
+    type: "string"
+    description: "Identifier for the effect"
+  subspace_rank:
     type: "integer"
-    minimum: 1
-    description: "Effect name and its effective rank"
+    description: "Effective rank computed via SVD"
+  rank_tolerance:
+    type: "number"
+    description: "Tolerance threshold used for SVD"
+  matrix_shape:
+    type: "array"
+    items:
+      type: "integer"
+    description: "Shape of the weight matrix [rows, cols]"
+required:
+  - effect_id
+  - subspace_rank
+  - rank_tolerance
+  - matrix_shape
 additionalProperties: false
-required: []
-description: "Key-value pairs where key is effect name and value is rank"

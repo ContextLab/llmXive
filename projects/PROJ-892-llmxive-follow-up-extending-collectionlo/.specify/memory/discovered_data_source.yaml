@@ -1,13 +1,15 @@
 status: none
-intent: download MS COCO Captions dataset via huggingface datasets python package
-  dataset
+intent: stable diffusion 1.5 checkpoint collectionlora adapter clip viT-b/32 embeddings
+  python package dataset
 required_fields:
-- image_id
-- file_path
-- image_url
-- caption_text
-- annotation_id
-- split
-cache_key: d2077ac84c0e8bf7c1d71d3bba7645b11c5022c29a71df470c042bd01c30e383
-searched_at: '2026-08-23T04:35:15.463972+00:00'
+- prompt_text
+- generated_image_path
+- clip_image_embedding
+- clip_text_embedding
+- cosine_similarity
+- lpips_distance
+- model_name
+- adapter_name
+cache_key: 48255b48523822f80e0747028a477a6b917b7eccb3bab69f6d3f430416200bec
+searched_at: '2026-09-01T02:39:56.148768+00:00'
 retry_count: 1

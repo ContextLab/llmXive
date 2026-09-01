@@ -19,6 +19,9 @@ properties:
             maxItems: 2
           width:
             type: "number"
+          status:
+            type: "string"
+            enum: ["Valid", "Underpowered"]
       int4:
         type: "object"
         properties:
@@ -32,6 +35,9 @@ properties:
             maxItems: 2
           width:
             type: "number"
+          status:
+            type: "string"
+            enum: ["Valid", "Underpowered", "BackendUnavailable", "Skipped"]
     required:
       - int8
       - int4
@@ -46,10 +52,13 @@ properties:
           type: "number"
         minItems: 2
         maxItems: 2
+      ess:
+        type: "integer"
+        description: "Effective Sample Size"
       status:
         type: "string"
-        enum: ["Valid", "Underpowered", "Not Testable", "Inconclusive"]
-        description: "Status of the correlation analysis"
+        enum: ["DescriptiveOnly", "Underpowered", "Valid"]
+        description: "Status of the correlation analysis (N=5 effects is inherently underpowered for significance)"
     required:
       - posterior_mean
       - hdi_95

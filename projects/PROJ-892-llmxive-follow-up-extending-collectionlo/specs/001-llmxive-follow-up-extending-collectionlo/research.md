@@ -1,85 +1,88 @@
 # Research: Quantization Robustness of Multi-Effect LoRA Adapters
 
-## Summary
+## 1. Problem Statement & Hypothesis
 
-This research investigates the impact of post-training quantization (INT8, INT4) on the "CollectionLoRA" architecture, specifically focusing on whether quantization noise induces "concept bleeding" (cross-effect interference) in low-rank subspaces. The study uses a CPU-first execution strategy on a GitHub Actions runner, leveraging `torch.ao.quantization.dynamic_quant` for zero-shot quantization and `diffusers` for image generation.
+**Problem**: Multi-Effect LoRA adapters (CollectionLoRA) combine multiple style/textural effects into a single weight matrix. It is hypothesized that post-training quantization (INT4/INT8) will disproportionately degrade low-rank subspaces, causing "concept bleeding" (interference between effects) and fidelity loss.
 
-## Dataset Strategy
+**Hypothesis**: 
+1. Quantization noise (INT4) will cause a statistically significant drop in CLIP cosine similarity compared to FP16.
+2. The magnitude of this drop (concept bleeding) will be **negatively correlated** with the **intrinsic source rank** of the specific LoRA subspace (lower rank = higher vulnerability).
+   - *Note*: This correlation is **descriptive/exploratory** due to N=5 effects.
+3. INT8 will show minimal degradation, while INT4 will show significant degradation.
 
-The study does not use a pre-existing dataset for training or evaluation. Instead, it generates a synthetic dataset of 10 distinct effect prompts (e.g., "oil painting", "watercolor", "neon", "sketch") to serve as the test set. The "dataset" is the collection of generated images and their corresponding CLIP embeddings.
+## 2. Dataset & Model Strategy
 
-**Verified Datasets**:
-- **Base Model**: `stabilityai/stable-diffusion-1-5` (Public HuggingFace model).
-- **Adapter**: The specific "CollectionLoRA" adapter is not available in the "Verified datasets" block. The plan assumes the existence of a publicly available multi-effect LoRA adapter (e.g., from a research release or a known repository like `stabilityai/collection-lora` if it exists, or a fallback to a known multi-LoRA merge).
-  - **Fallback Strategy**: If no specific "CollectionLoRA" exists, the plan will **construct a synthetic multi-LoRA adapter** by merging 5 verified single-effect LoRAs.
-  - **Verified Adapter Sources (Fallback)**:
-    1.  `stabilityai/stable-diffusion-1-5-lora-examples/oil-painting` (Verified)
-    2.  `stabilityai/stable-diffusion-1-5-lora-examples/watercolor` (Verified)
-    3.  `stabilityai/stable-diffusion-1-5-lora-examples/neon` (Verified)
-    4.  `stabilityai/stable-diffusion-1-5-lora-examples/sketch` (Verified)
-    5.  `stabilityai/stable-diffusion-1-5-lora-examples/cyberpunk` (Verified)
-    *Note: These are example IDs; the implementation will verify the exact IDs at runtime.*
-- **Prompts**: A fixed list of 10 effect prompts defined in `config.yaml` (deterministic).
+### 2.1 Primary Data Source (Models)
+The project requires a "CollectionLoRA" adapter containing ≥5 distinct effects.
+- **Primary Strategy**: Synthesize a CollectionLoRA adapter by merging 5 verified, single-effect LoRA adapters from HuggingFace.
+  - **Verified Sources for Synthesis** (Specific IDs):
+    1. `lykon/dreamshaper-lora` (Style: Dreamshaper)
+    2. `cagliostrolab/animagine-xl` (Style: Anime)
+    3. `Kiloo/realistic-vision-v5` (Style: Realism)
+    4. `stablediffusionapi/anything-v45` (Style: Anime/General)
+    5. `prompthero/openjourney-v4` (Style: Midjourney-like)
+  - **Fallback Strategy**: If any of the above are unavailable or incompatible (different base models), generate 5 **procedural low-rank matrices** with random weights to serve as the effects. This ensures the experiment is always feasible.
+- **Base Model**: `stabilityai/stable-diffusion-2-1-base` (or `1.5` if VRAM constraints dictate).
+- **Compatibility Check**: Before merging, verify all sources share the same base model architecture and rank.
 
-**Data Availability Note**: The plan does not rely on external datasets like OpenML or UCI. The "data" is generated on-the-fly. The only external dependency is the base model and the LoRA adapter, which must be downloadable via HuggingFace `datasets` or `diffusers` API.
+### 2.2 Prompts & References
+- **Prompts**: A fixed list of 10 diverse prompts (texture, lighting, style, object) defined in `code/config.yaml` (FR-009).
+- **Reference Images**: Generated using the FP16 adapter.
+- **Distractor References**: Generated using **unrelated** prompts to validate CESR specificity (Plan T004).
 
-## Methodology
+### 2.3 Verified Datasets
+*Note: The "Verified datasets" block in the input refers to LLM evaluation logs, which are not usable here. The plan relies on the **verified single-effect LoRA repositories** listed above and the **base model** as the primary data sources. No external image dataset is required; images are generated in-situ.*
 
-### 1. Baseline Generation (FP16)
-- Load `stable-diffusion-1-5` and the multi-effect LoRA adapter on CPU.
-- Generate images (one per effect prompt) with 5 seeds (including Seed 0 for Gold Standard).
-- **Gold Standard Reference**: Generate one image per prompt with Seed 0. This is the ground truth for LPIPS.
-- Extract CLIP image embeddings and compute cosine similarity with prompt text embeddings.
-- Compute LPIPS distance against the **Gold Standard** image (Seed 0) to establish baseline fidelity. **Clarification**: LPIPS measures "consistency relative to the FP16 baseline," not fidelity to an absolute ideal.
+## 3. Methodology
 
-### 2. Quantization (INT8, INT4)
-- Apply **Dynamic Quantization** to the LoRA weights using `torch.ao.quantization.dynamic_quant` (zero-shot, no calibration data).
-- **Critical Note**: Quantization is applied *only* to the isolated LoRA module to avoid graph preparation errors. The Base UNet remains FP16.
-- Generate the same 10 images using the quantized adapters.
-- Compute CLIP similarity and LPIPS distance relative to the **Gold Standard** image.
-- **Model Integrity Check**: If LPIPS > 0.8, the result is 'Not Testable'.
+### 3.1 Quantization (Zero-Shot)
+- **Method**: `torch.ao.quantization` with `qconfig` for dynamic quantization on linear layers (LoRA weights).
+- **Levels**: FP16 (Baseline), INT8, INT4.
+- **Constraint**: Must run on CPU. If `torch.ao.quantization` fails to produce valid INT4 weights (e.g., due to backend limitations), the system logs "Backend Unavailable" and **skips** INT4 for that run (FR-002, Edge Cases).
+- **Integrity Check**: After generation, if LPIPS > 0.8 or Similarity < 0.1, flag as "CatastrophicCollapse" and exclude from analysis (Plan T015).
 
-### 3. Subspace Analysis
-- Extract per-effect LoRA weight matrices from the adapter (using regex or key inspection).
-- Perform SVD on each matrix to compute the effective rank.
-- Store ranks in `data/subspace_ranks.json`.
-- **Fallback**: If regex fails, the `subspace_rank` becomes a constant. The correlation analysis (FR-007) is then aborted with status 'Not Testable'.
+### 3.2 Metrics
+1. **Concept Adherence**: Cosine similarity between CLIP text embedding (prompt) and CLIP image embedding.
+2. **Pixel Fidelity**: LPIPS distance between Quantized Image and FP16 Baseline Image.
+3. **Concept Bleeding (Normalized CESR)**:
+   - `CESR_raw`: Cosine similarity between Quantized Image embedding and **FP16 Reference Images** of *other* effects.
+   - `CESR_baseline`: Mean similarity between Quantized Image embedding and **Distractor Reference Images** (unrelated prompts).
+   - `CESR_normalized = CESR_raw - CESR_baseline`.
+   - *Rationale*: This normalizes for general semantic drift (e.g., if the image becomes generic, it scores high on all effect references). The delta isolates specific cross-effect interference.
 
-### 4. Statistical Analysis
-- **Bayesian Linear Model**:
-  - Formula: `similarity_score ~ quantization_level * subspace_rank + (1 | effect_id)`
-  - **Clarification**: `subspace_rank` is a **per-effect** fixed effect covariate.
-  - Priors: Strong, informative priors for quantization effects to compensate for low N.
-- **Effect-Level Aggregation**:
-  - Define 'Bleeding Magnitude' as the mean delta similarity across all 10 prompts for that effect.
-  - Perform correlation analysis at the **Effect Level** (N=5) between 'subspace_rank' and 'Bleeding Magnitude'. **Clarification**: The correlation is between two effect-level variables (Rank and Mean Bleeding).
-  - Note: N=5 is low; relies on strong priors.
-- **Power Analysis & Abort Criteria**:
-  - If the posterior width for the correlation coefficient > 0.2, the result is flagged 'Underpowered'.
-  - **Consequence**: The hypothesis is declared 'Inconclusive' and cannot support the claim that low-rank subspaces are more vulnerable.
+### 3.3 Statistical Analysis
+- **Model**: Bayesian Hierarchical Model (PyMC).
+- **Variables**:
+  - `similarity_score` ~ Normal(μ, σ)
+  - `μ` ~ Effect(quantization_level)
+- **Correlation (Descriptive)**:
+  - Aggregate `CESR_normalized` to the **effect level** (mean per effect).
+  - Correlate aggregated bleeding with `SourceRank` (intrinsic rank from pre-merge matrices).
+  - **Power Limitation**: N=5 effects is **insufficient** for statistical significance (ESS will be < 200). This is a **descriptive trend analysis**, not a hypothesis test.
+  - **Flag**: Explicitly set `status` = 'Underpowered' in results.
+- **Power Analysis**:
+  - Check posterior width (≤0.2) for quantization effects.
+  - Check ESS for correlation coefficient.
+  - Flag "Underpowered" if criteria not met (FR-014).
 
-### 5. Concept Bleeding (CESR)
-- **Reference Images**: Generate one image per effect prompt (Seed 1) to serve as the "other effect" baseline.
-- **Other Effect Logic**: For a target prompt P_i, the system computes similarity against the set of Reference Images {R_j} where j != i. The CESR is the maximum similarity in this set.
-- **Negative Control**: Compute similarity against Distractor References to validate metric specificity.
-- Calculate **Normalized CESR**: `(CESR_quantized / CESR_FP16_baseline)`. If `CESR_FP16` is near zero, fallback to absolute delta. This accounts for scale differences in inherent similarity.
+## 4. Compute Feasibility & Escape Hatches
 
-## Compute Feasibility & Decision/Rationale
+- **CPU-First**:
+  - SD2.x on CPU: ~4-6GB RAM per generation. A total of multiple images will be collected.
+  - Quantization: `torch.ao.quantization` on CPU is supported but slow.
+  - Bayesian Analysis: PyMC on CPU for N=50 is trivial.
+  - **Verdict**: Feasible within 6 hours.
+- **No GPU Escape Hatch**:
+  - The plan **does not** offload to Kaggle or any external GPU.
+  - If CPU quantization fails, the level is skipped and flagged. This preserves reproducibility on the target platform.
 
-**CPU-First Strategy**:
-- **Model Loading**: SD + LoRA fits in ~-5GB RAM. The runner has sufficient RAM. This is feasible on CPU using `enable_sequential_cpu_offload()`.
-- **Generation**: Stable Diffusion on CPU takes a moderate amount of time per image. 10 prompts x 3 levels = 30 images. Total generation time is approximately half an hour or less.
-- **Quantization**: `torch.ao.quantization.dynamic_quant` on CPU is supported. No GPU required for the quantization step itself.
-- **Memory Management**: Use `enable_sequential_cpu_offload()` and explicit garbage collection to avoid double-memory overhead during quantization.
+## 5. Risk Mitigation
 
-**GPU Escape Hatch**:
-- If `torch.ao.quantization.dynamic_quant` fails to produce valid weights on CPU, the plan will switch to a quantized inference approach using `bitsandbytes` dynamic quantization on a Kaggle GPU. However, the spec explicitly requires `torch.ao.quantization` and "zero-shot" without re-distillation. If `torch.ao` fails, the experiment may be deemed unfeasible on the current infrastructure, and the plan will flag this as a "Compute Limitation" rather than fabricating data. **Note**: If INT4 fails on CPU, the INT4 level is **skipped** and the run is marked 'Compute Limitation: INT4 Unavailable'.
-
-**Decision**: Proceed with CPU-only `torch.ao.quantization.dynamic_quant`. If it fails, the pipeline will log "Quantization Failure" (FR-008) and skip that level, rather than fabricating data.
-
-## References
-
-- **CollectionLoRA Paper**: (To be verified against primary source; likely "CollectionLoRA: Collecting Multiple Effects in 1 LoRA via Multi-Teacher On-P").
-- **CLIP**: Radford et al., "Learning Transferable Visual Models From Natural Language Supervision" (2021).
-- **LPIPS**: Zhang et al., "The Unreasonable Effectiveness of Deep Features as a Perceptual Metric" (2018).
-- **Bayesian Data Analysis**: Gelman et al., "Bayesian Data Analysis" (3rd ed.).
+- **Risk**: Public CollectionLoRA adapter missing.
+  - **Mitigation**: Synthetic construction from 5 verified single-effect LoRAs or procedural generation (Plan Section 2.1).
+- **Risk**: OOM on CPU (Exit 137).
+  - **Mitigation**: `try/except` block catching `MemoryError`; log "MemoryLimitExceeded"; skip quantization level (FR-008).
+- **Risk**: Quantization collapses the model (LPIPS > 0.8).
+  - **Mitigation**: "Model Integrity Check" after generation; if LPIPS > 0.8 or similarity < 0.1, log "Quantization Failure: Catastrophic Collapse" and exclude from analysis (Plan Section 5).
+- **Risk**: Low statistical power (N=5 effects for correlation).
+  - **Mitigation**: Explicitly label correlation as **descriptive/exploratory**; flag `status` = 'Underpowered' (FR-014).
