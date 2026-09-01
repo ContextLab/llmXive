@@ -1,63 +1,136 @@
+"""
+Project Initialization Script for llmXive HEA Predictive Power Pipeline.
+
+This script creates the required directory structure and initializes
+Python packages with __init__.py files. It also generates configuration
+files for linting (ruff) and formatting (black).
+"""
 import os
 from pathlib import Path
+import logging
 
-def main():
-    """
-    Create the root directory structure for the project.
-    This implements T001a and T001b (directory creation and __init__.py generation).
-    """
-    # Define the project root (current directory context for the script)
-    # Assuming this script runs from the project root or we define relative to cwd
-    root = Path.cwd()
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-    # Define all required directories
-    dirs = [
+def create_directory(path: Path) -> None:
+    """Create a directory if it doesn't exist."""
+    if not path.exists():
+        path.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Created directory: {path}")
+    else:
+        logger.info(f"Directory already exists: {path}")
+
+def create_init_file(path: Path) -> None:
+    """Create an empty __init__.py file in the given directory."""
+    init_file = path / "__init__.py"
+    if not init_file.exists():
+        init_file.touch()
+        logger.info(f"Created __init__.py in: {path}")
+    else:
+        logger.info(f"__init__.py already exists in: {path}")
+
+def create_config_files() -> None:
+    """Create configuration files for ruff and black."""
+    root = Path(__file__).parent.parent
+
+    # Create .ruff.toml
+    ruff_config = root / ".ruff.toml"
+    if not ruff_config.exists():
+        ruff_config.write_text("""
+# Ruff configuration
+line-length = 88
+target-version = "py39"
+
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+]
+ignore = [
+    "E501", # line too long (handled by black)
+]
+
+[lint.isort]
+known-first-party = ["code"]
+""")
+        logger.info("Created .ruff.toml")
+    else:
+        logger.info(".ruff.toml already exists")
+
+    # Create pyproject.toml (if not exists)
+    pyproject = root / "pyproject.toml"
+    if not pyproject.exists():
+        pyproject.write_text("""
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\\.pyi?$'
+exclude = '''
+/(
+    \\.git
+  | \\.hg
+  | \\.mypy_cache
+  | \\.tox
+  | \\.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+""")
+        logger.info("Created pyproject.toml")
+    else:
+        logger.info("pyproject.toml already exists")
+
+def main() -> None:
+    """Main function to initialize the project structure."""
+    root = Path(__file__).parent.parent
+
+    # Define required directories
+    directories = [
         "code",
         "data/raw",
         "data/processed",
         "data/models",
         "tests/unit",
         "tests/integration",
-        "specs"
+        "specs",
     ]
 
-    created_dirs = []
-    for dir_path in dirs:
+    logger.info("Starting project initialization...")
+
+    # Create directories
+    for dir_path in directories:
         full_path = root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(full_path))
-            print(f"Created directory: {full_path}")
-        else:
-            print(f"Directory already exists: {full_path}")
+        create_directory(full_path)
 
-    # Create __init__.py files to initialize Python packages
-    # Targets for T001b
-    init_targets = [
-        "code",
-        "tests",
-        "tests/unit",
-        "tests/integration"
-    ]
+    # Create __init__.py files in all directories
+    for dir_path in directories:
+        full_path = root / dir_path
+        create_init_file(full_path)
 
-    for target in init_targets:
-        full_path = root / target / "__init__.py"
-        if not full_path.exists():
-            full_path.touch()
-            print(f"Created __init__.py: {full_path}")
-        else:
-            print(f"__init__.py already exists: {full_path}")
+    # Create configuration files
+    create_config_files()
 
-    # Also ensure __init__.py exists in data subfolders if they are treated as packages
-    # though usually data is not a package, we ensure the structure is robust
-    for data_sub in ["raw", "processed", "models"]:
-        full_path = root / "data" / data_sub / "__init__.py"
-        if not full_path.exists():
-            full_path.touch()
-            print(f"Created __init__.py: {full_path}")
-
-    print("\nDirectory structure setup complete.")
-    return created_dirs
+    logger.info("Project initialization completed successfully.")
 
 if __name__ == "__main__":
     main()

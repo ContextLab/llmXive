@@ -1,3 +1,26 @@
+T004:
+  c: false
+  h: 7b2b3d8f61da46ea678bc5a52d2b6c68fafd4a5ad8f1312c14549d424faeb3df
+  r: The provided `code/config.py` contains a `setup_logging` function that starts
+    to create a rotating file handler, but the file is truncated (`file_` line ends
+    abruptly) and does not show the complete logger configuration (adding the handler,
+    setting level/formatter, etc.). Consequently the logging infrastructure is not
+    fully implemented, even though the log file itself is absent (which is acceptable).
+    The artifact must contain the complete, functional logging setup.
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `tests/unit/` or `tests/integration/` directories (with `__init__.py` files)
+    were presented in the provided evidence, so the required test infrastructure is
+    missing. The implementer must create the two directories and include the necessary
+    `__init__.py` files.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or test artifacts were provided showing that the dataset
+    checksum is validated against `config.EXPECTED_AFLOW_CHECKSUM` or that exponential
+    backoff with up to 3 retries is implemented. The required implementation and evidence
+    are missing.
 T017b:
   c: false
   h: 7fc44f4ee66e3d32d1f472696cfc0fde982e63c3e7fc81203de328191d9868e7
@@ -5,3 +28,11 @@ T017b:
     \ be computed or compared, and the `code/config.py` entry appears to be a placeholder\
     \ value rather than a verified checksum. Consequently the task\u2019s core requirement\
     \ is not satisfied."
+T021:
+  c: false
+  h: d387ffe6f933ec15317d1c788d82df3fefeb9bb6977b711b361153ceeeba77a5
+  r: "The required output file `data/processed/heas_train_features.csv` does not exist,\
+    \ so the weighted mean/variance descriptors are not produced. Additionally, the\
+    \ provided `code/feature_engineering.py` is truncated and does not show the implementation\
+    \ that writes the required CSV with the specified columns. The task\u2019s core\
+    \ deliverable is therefore missing."

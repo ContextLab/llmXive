@@ -1,52 +1,79 @@
+"""
+Configuration constants and utilities for the project.
+"""
 import logging
+import logging.handlers
 import os
 import sys
 from pathlib import Path
 
-# Project Root
+# --- Paths ---
 PROJECT_ROOT = Path(__file__).parent.parent
-DATA_RAW = PROJECT_ROOT / "data" / "raw"
-DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
-DATA_MODELS = PROJECT_ROOT / "data" / "models"
 CODE_DIR = PROJECT_ROOT / "code"
-TESTS_DIR = PROJECT_ROOT / "tests"
-SPECS_DIR = PROJECT_ROOT / "specs"
+DATA_DIR = PROJECT_ROOT / "data"
+DATA_RAW = DATA_DIR / "raw"
+DATA_PROCESSED = DATA_DIR / "processed"
+DATA_MODELS = DATA_DIR / "models"
+FIGURES_DIR = PROJECT_ROOT / "figures"
+LOGS_DIR = CODE_DIR / "logs"
 
-# Hyperparameters and Seeds
+# --- Hyperparameters & Seeds ---
 RANDOM_SEED = 42
-MIN_ELEMENTS = 5
-HOLDOUT_SIZE = 5000
-NOVEL_SIZE = 5000
+N_NOVEL_SAMPLES = 100  # Example value, adjust as needed
+EXPECTED_AFLOW_CHECKSUM = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"  # Placeholder, to be updated
 
-# Novel Composition Generation Constants (Task T002a)
-N_NOVEL_SAMPLES = 1000
-ELEMENT_SUBSET = [
+# --- Element List ---
+# Broad list of transition and post-transition metals
+ELEMENT_SOURCE_LIST = [
     "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn",
     "Y", "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd",
-    "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au", "Hg", "Al"
+    "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au", "Hg",
+    "Al", "Si", "P", "S", "Cl", "K", "Ca", "Ga", "Ge", "As", "Se", "Br",
+    "Rb", "Sr", "In", "Sn", "Sb", "Te", "I", "Cs", "Ba",
+    "La", "Ce", "Pr", "Nd", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho",
+    "Er", "Tm", "Yb", "Lu"
 ]
 
-# Dataset Configuration
-DATASET_HMAO_NAME = "hmao/all_apis_for_multiapi"
-# Computed SHA256 checksum of data/raw/hmao_raw.parquet (from T017a)
-# This value was retrieved from the HuggingFace dataset metadata and verified against the local file.
-EXPECTED_HMAO_CHECKSUM = "8f5e8e9e8c4e8f5e8e9e8c4e8f5e8e9e8c4e8f5e8e9e8c4e8f5e8e9e8c4e8f5e"
-# Note: The actual SHA256 for the specific dataset version should be updated here once verified.
-# For now, we use the computed value from T017a.
+# --- Logging Configuration ---
+def setup_logging():
+    """Configure logging to output to code/logs/app.log with rotating file handler."""
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    log_file = LOGS_DIR / "app.log"
+
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+
+    # Clear existing handlers
+    logger.handlers.clear()
+
+    # File handler with rotation
+    file_handler = logging.handlers.RotatingFileHandler(
+        log_file,
+        maxBytes=10 * 1024 * 1024,  # 10 MB
+        backupCount=5
+    )
+    file_handler.setLevel(logging.INFO)
+
+    # Formatter
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    file_handler.setFormatter(formatter)
+
+    # Console handler (optional, for immediate feedback)
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(formatter)
+
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+
+    return logger
 
 def ensure_dirs():
-    """Create required directory structure if it doesn't exist."""
-    dirs = [DATA_RAW, DATA_PROCESSED, DATA_MODELS, CODE_DIR, TESTS_DIR, SPECS_DIR]
-    for d in dirs:
+    """Ensure all required directories exist."""
+    for d in [DATA_RAW, DATA_PROCESSED, DATA_MODELS, FIGURES_DIR, LOGS_DIR]:
         d.mkdir(parents=True, exist_ok=True)
 
-def setup_logging():
-    """Configure basic logging infrastructure."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
-    return logging.getLogger(__name__)
+# Initialize logging on import if needed, or call explicitly
+# setup_logging()

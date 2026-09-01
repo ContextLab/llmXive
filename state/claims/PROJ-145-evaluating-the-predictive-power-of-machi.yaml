@@ -1541,3 +1541,254 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-30T04:54:07Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Dependencies include pymatgen, scikit-learn, pandas, numpy, scipy, datasets,
+    matplotlib, seaborn, pytest
+  claim_id: c_89cfa632
+  context: 'Phase 1: Setup (Shared Infrastructure) - Project Initialization task details.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dependencies_include_pymatgen,_scikit-learn,_pandas,_numpy,
+  kind: entity_fact
+  raw_text: Install dependencies from requirements.txt (pymatgen, scikit-learn, pandas,
+    numpy, scipy, datasets, matplotlib, seaborn, pytest).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T09:39:19Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Dataset fetch implements exponential backoff with maximum 3 retries
+  claim_id: c_2934ca4a
+  context: 'Phase 3: User Story 1 - Data Ingestion and Novel Composition Generation
+    - Implementation details for T012 and T016.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement exponential backoff with a maximum of 3 retries if the fetch
+    fails.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T09:39:46Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Data filtering logic requires 5 or more elements
+  claim_id: c_fe256cf8
+  context: 'Phase 3: User Story 1 - Tests for User Story 1 - Unit test for data filtering
+    logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter for multi-element systems with 5+ elements.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T09:40:54Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Descriptors calculated include weighted mean and variance for atomic
+    radius, electronegativity, VEC, melting point
+  claim_id: c_29392c73
+  context: 'Phase 4: User Story 2 - Descriptor Calculation and Model Training - Implementation
+    details for T021.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Descriptors_calculated_include_weighted_mean_and_variance_fo
+  kind: entity_fact
+  raw_text: Compute weighted mean and variance descriptors for atomic radius, electronegativity,
+    VEC, and melting point.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T09:41:37Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Numerical clamping threshold set to 1e-6
+  claim_id: c_20d63197
+  context: 'Phase 4: User Story 2 - Descriptor Calculation and Model Training - Implementation
+    details for T022.'
+  evidence:
+    asserted: 1e-06
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Implement numerical clamping logic with a minimum threshold of 1e-6 to
+    prevent division errors.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T09:41:38Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Model evaluation uses 5-fold cross-validation
+  claim_id: c_fe0ee69f
+  context: 'Phase 4: User Story 2 - Independent Test description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify 5-fold cross-validation R-squared is calculated.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T09:42:26Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Model training execution time limit is 6 hours on CPU
+  claim_id: c_265de450
+  context: 'Phase 4: User Story 2 - Independent Test description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execution must complete within 6 hours on CPU without GPU errors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T09:42:53Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Convex hull distance calculation uses 8 descriptor columns
+  claim_id: c_1bb1805b
+  context: 'Phase 5: User Story 3 - Extrapolation Evaluation and Uncertainty Analysis
+    - Implementation details for T031.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use scipy.spatial.ConvexHull on the training set's descriptor space (8
+    columns).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T09:43:59Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Permutation test requires minimum 10 samples per set
+  claim_id: c_587aaf31
+  context: 'Phase 5: User Story 3 - Statistical Test (Permutation) - Implementation
+    details for T032.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_requires_minimum_10_samples_per_set
+  kind: magnitude
+  raw_text: Raise a ValueError if the dataset size is insufficient for the permutation
+    test (e.g., less than 10 samples in either set).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T09:45:06Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Statistical correlation requires minimum 10 samples in true novel set
+  claim_id: c_74851d5e
+  context: 'Phase 5: User Story 3 - Statistical Robustness Check - Implementation
+    details for T035b.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_correlation_requires_minimum_10_samples_in_true
+  kind: magnitude
+  raw_text: Raise a ValueError if the true_novel set is empty or too small (less than
+    10 samples) for statistical correlation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T09:46:12Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Variance threshold calculated using ensemble of 10 Random Forest models
+    with seeds 0-9
+  claim_id: c_857b5356
+  context: 'Phase 5: User Story 3 - Threshold Calculation - Implementation details
+    for T035a.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train an ensemble of multiple independent Random Forest models on the
+    full training set using distinct random seeds (specifically 10 models, seeds 0-9).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T09:47:08Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Variance threshold based on 10th percentile
+  claim_id: c_2e4d750a
+  context: 'Phase 5: User Story 3 - Threshold Calculation - Implementation details
+    for T035a.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Variance_threshold_based_on_10th_percentile
+  kind: entity_fact
+  raw_text: Calculate the 10th percentile of the variance distribution for the training
+    set.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T09:48:18Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: Data ingestion memory usage limit is 7GB
+  claim_id: c_c60ea4c6
+  context: 'Phase N: Polish & Cross-Cutting Concerns - Profile code/data_ingestion.py
+    task details.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_ingestion_memory_usage_limit_is_7GB
+  kind: magnitude
+  raw_text: Optimize streaming logic to ensure less than 7GB RAM usage.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T09:48:54Z'
+- artifact_path: projects/PROJ-145-evaluating-the-predictive-power-of-machi/specs/001-evaluating-the-predictive-power-of-machi/tasks.md
+  attempts: 1
+  canonical: DFT calculation timeout set to 1 hour per job
+  claim_id: c_c5b07e49
+  context: 'Phase 5: User Story 3 - DFT Attempt - Implementation details for T041.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Submit DFT job with a timeout appropriate for the task duration (e.g.,
+    an hour per job).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T09:48:55Z'

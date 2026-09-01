@@ -4,10 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001a` (rejected 1x): No evidence of the required root directories (`code/`, `data/raw/`, `data/processed/`, `data/models/`, `tests/unit/`, `tests/integration/`, `specs/`) is provided; the implementer did not supply a directory listing or any files showing that these folders have been created. The task remains unfinished until the specified directories exist in the repository.
-- `T001b` (rejected 1x): No evidence of any `__init__.py` files was provided; the implementer did not show the new directories or the empty files required by task T001b. The required artifacts are missing, so the task is not satisfied.
-- `T004` (rejected 1x): No linting or formatting configuration files (e.g., ruff settings, black configuration, pre‑commit hooks) are present in the provided evidence, so the required artifact for task T004 is missing.
-- `T006` (rejected 1x): No `tests/` directory (or any subdirectories for unit and integration tests) is present in the repository, nor any files indicating that such a structure was created. The implementer provided no artifact matching the task requirement.
+- `T017a` (rejected 1x): The required output file `data/raw/aflow_raw.parquet` does not exist, and the provided `code/data_ingestion.py` loads a different HuggingFace dataset (`hmao/all_apis_for_multiapi`) rather than `foundry-ml/dataset_thermodynamics_aflow`. No checksum retrieval or verification is implemented.
+- `T015` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/true_novel.csv
 
 ## Required change
 

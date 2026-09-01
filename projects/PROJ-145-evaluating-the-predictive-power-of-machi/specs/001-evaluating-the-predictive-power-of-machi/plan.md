@@ -96,13 +96,13 @@ specs/001-evaluating-the-predictive-power-of-machi/
 ## Implementation Phases
 
 ### Phase 0: Data Ingestion & Novel Generation
-1. **Ingest**: Download `foundry-ml/dataset_thermodynamics_aflow`. Filter for 5+ elements. Split into `heas_train.csv` ([deferred]) and `holdout_known.csv` ([deferred]).
-2.  **Generate Novel**: Programmatically enumerate random 5+ element combinations. Query the *union* of `heas_train.csv` and `holdout_known.csv`. Filter for "Not Found" to create `true_novel.csv`.
+1. **Ingest**: Download `foundry-ml/dataset_thermodynamics_aflow`. Filter for + elements. Split into `heas_train.csv` ([deferred]) and `holdout_known.csv` ([deferred]).
+2.  **Generate Novel**: Programmatically enumerate random + element combinations. Query the *union* of `heas_train.csv` and `holdout_known.csv`. Filter for "Not Found" to create `true_novel.csv`.
 3.  **Validate**: Run `validate_splits.py` to ensure zero overlap between sets.
 
 ### Phase 1: Descriptor Calculation
 1.  **Calculate**: Run `descriptor_calc.py` using `pymatgen` to compute weighted mean/variance for atomic radius, electronegativity, VEC, and melting point.
-2.  **Clamp**: Apply $e-6$ threshold to near-zero variances.
+2.  **Clamp**: Apply a small threshold to near-zero variances.
 
 ### Phase 2: Model Training
 1.  **Train**: Run `model_training.py`. Train `RandomForestRegressor` and `GradientBoostingRegressor`.

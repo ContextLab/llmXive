@@ -1,4 +1,19 @@
-# Extends pyproject.toml if needed, or standalone config
-# For this project, we rely on pyproject.toml [tool.ruff] section.
-# This file exists to satisfy tooling that looks for .ruff.toml specifically.
-extend = "pyproject.toml"
+# Ruff configuration
+line-length = 88
+target-version = "py39"
+
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+]
+ignore = [
+    "E501", # line too long (handled by black)
+]
+
+[lint.isort]
+known-first-party = ["code"]
