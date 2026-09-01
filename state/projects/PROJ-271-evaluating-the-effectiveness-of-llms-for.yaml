@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-271-evaluating-the-effectiveness-of-llms-for
-last_run_id: 00d62696-b4be-42d1-b439-0e7465821938
+last_run_id: 1e016ce6-64bb-4637-9e54-531739e1dc7b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for
 title: Evaluating the Effectiveness of LLMs for Detecting Code Smells
-updated_at: '2026-08-31T17:50:54.586896Z'
+updated_at: '2026-09-01T13:52:15.624753Z'

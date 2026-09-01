@@ -1,4 +1,3 @@
-"""Verification script for statistical results."""
 import os
 import json
 import logging
@@ -7,81 +6,90 @@ import numpy as np
 from pathlib import Path
 from config import get_results_path, setup_logging
 
-logger = setup_logging(__name__)
 
-
-def load_json_file(filepath: str) -> dict:
+def load_json_file(path: str) -> Any:
     """Load a JSON file."""
-    with open(filepath, "r") as f:
+    with open(path, "r") as f:
         return json.load(f)
 
 
-def load_markdown_file(filepath: str) -> str:
+def load_markdown_file(path: str) -> str:
     """Load a markdown file."""
-    with open(filepath, "r") as f:
+    with open(path, "r") as f:
         return f.read()
 
 
-def validate_statistical_significance(data: dict) -> bool:
-    """Validate statistical significance results."""
-    if not isinstance(data, dict):
+def validate_statistical_significance(json_path: str) -> bool:
+    """Validate statistical significance JSON."""
+    try:
+        data = load_json_file(json_path)
+        if "mcnemar_pvalues" not in data or "drop_off" not in data:
+            logging.getLogger(__name__).error("Missing required fields in statistical significance JSON.")
+            return False
+        return True
+    except Exception as e:
+        logging.getLogger(__name__).error(f"Validation failed: {e}")
         return False
-    return all(isinstance(v, (float, type(None))) for v in data.values())
 
 
-def validate_logistic_regression(data: dict) -> bool:
-    """Validate logistic regression results."""
-    if not isinstance(data, dict):
+def validate_logistic_regression(json_path: str) -> bool:
+    """Validate logistic regression JSON."""
+    try:
+        data = load_json_file(json_path)
+        if "coefficients" not in data or "vif_scores" not in data:
+            logging.getLogger(__name__).error("Missing required fields in logistic regression JSON.")
+            return False
+        return True
+    except Exception as e:
+        logging.getLogger(__name__).error(f"Validation failed: {e}")
         return False
-    return "vif_scores" in data and "regression" in data
 
 
-def validate_sensitivity_report(content: str) -> bool:
-    """Validate sensitivity report content."""
-    return "LOC Thresholds Analysis" in content and "Threshold" in content
+def validate_sensitivity_report(md_path: str) -> bool:
+    """Validate sensitivity report markdown."""
+    try:
+        content = load_markdown_file(md_path)
+        if "Threshold" not in content or "FP Rate" not in content:
+            logging.getLogger(__name__).error("Invalid sensitivity report format.")
+            return False
+        return True
+    except Exception as e:
+        logging.getLogger(__name__).error(f"Validation failed: {e}")
+        return False
 
 
 def verify_results_completeness() -> bool:
-    """Verify all result files exist and are valid."""
-    files = {
-        "statistical_significance.json": validate_statistical_significance,
-        "logistic_regression.json": validate_logistic_regression,
-        "sensitivity_report.md": validate_sensitivity_report,
-    }
+    """Verify all required results artifacts exist and are valid."""
+    logger = setup_logging(__name__)
+    results_path = get_results_path()
+
+    artifacts = [
+        ("statistical_significance.json", validate_statistical_significance),
+        ("logistic_regression.json", validate_logistic_regression),
+        ("sensitivity_report.md", validate_sensitivity_report),
+        ("sensitivity_metrics.json", lambda p: os.path.exists(p))
+    ]
 
     all_valid = True
-    for filename, validator in files.items():
-        filepath = get_results_path(filename)
-        if not os.path.exists(filepath):
-            logger.error(f"Missing file: {filename}")
+    for artifact, validator in artifacts:
+        path = os.path.join(results_path, artifact)
+        if not os.path.exists(path):
+            logger.error(f"Missing artifact: {artifact}")
             all_valid = False
-            continue
-
-        try:
-            if filename.endswith(".json"):
-                data = load_json_file(filepath)
-            else:
-                data = load_markdown_file(filepath)
-
-            if not validator(data):
-                logger.error(f"Invalid content in {filename}")
-                all_valid = False
-            else:
-                logger.info(f"Validated {filename}")
-        except Exception as e:
-            logger.error(f"Error validating {filename}: {e}")
+        elif not validator(path):
+            logger.error(f"Invalid artifact: {artifact}")
             all_valid = False
+        else:
+            logger.info(f"Artifact valid: {artifact}")
 
     return all_valid
 
 
 def main():
-    """Main entry point."""
+    """Main entry point for results verification."""
     if verify_results_completeness():
-        print("All results verified.")
+        print("All results artifacts are valid.")
+        exit(0)
     else:
-        print("Verification failed.")
-
-
-if __name__ == "__main__":
-    main()
+        print("Some results artifacts are missing or invalid.")
+        exit(1)

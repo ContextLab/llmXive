@@ -28,37 +28,18 @@ T029:
   r: "No `results/` directory or files were presented, and thus there is no data to\
     \ inspect for validity or coverage of \u2265\u202F95% of the sample. The required\
     \ artifact is missing, so the task is not satisfied."
-T030c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer did not provide any `quickstart.md` file or its contents; no\
-    \ step\u2011by\u2011step setup, data download, pipeline execution, or result\u2011\
-    viewing instructions are present in the evidence. Consequently the required artifact\
-    \ is missing."
-T031a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact (e.g., a diff, updated files, or a script output) was provided to
-    demonstrate that unused imports were removed from the `code/` modules, nor any
-    verification that all modules now lack such imports. Without concrete evidence
-    of the code changes, the task cannot be considered completed.
-T031b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the `code/` directory being reformatted with Black is provided\u2014\
-    no diff, formatted files, or script output is shown, and the claim lacks any artifact\
-    \ to verify that all modules have been processed. The required artifact (the Black\u2011\
-    formatted code files) is missing."
-T032b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No CI dry\u2011run logs, timing reports, or any artifact demonstrating that\
-    \ the pipeline was executed on mock data and that the total runtime stayed under\
-    \ 6\u202Fhours are present. Without such evidence the requirement cannot be verified."
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `quickstart.md` validation run (e.g., execution logs, generated\
-    \ output, or a reproducibility report) was provided, and no artifacts confirming\
-    \ end\u2011to\u2011end reproducibility of the pipeline are present. The required\
-    \ validation artifact is missing."
+T035:
+  c: true
+  h: a23df33b73ff4d2f4e0ccf3d85ce2a702b6941339e75d91ad82381d4416664a0
+  r: "The repository contains the required `tests/contract/test_static_baseline_schema.py`\
+    \ file (5\u202FKB) implementing checks for file existence, required columns, and\
+    \ column data types, satisfying the SC\u2011005 contract test addition. The missing\
+    \ `data/static_baseline.csv` is not part of the deliverable for this task."
+T036:
+  c: true
+  h: d13b1d9e3786d26275143fd1f92dc9f477be038e10ca3ffd4cbb7a0fdd1edec9
+  r: "The repository contains a non\u2011empty `tests/contract/test_llm_output_schema.py`\
+    \ implementing the required schema\u2011validation logic for `data/processed/semantic_results.json`.\
+    \ The test file is fully written (imports, fixtures, and test functions) and satisfies\
+    \ the task of adding the contract test. The absence of the JSON data file does\
+    \ not affect the requirement, which only mandated adding the test."

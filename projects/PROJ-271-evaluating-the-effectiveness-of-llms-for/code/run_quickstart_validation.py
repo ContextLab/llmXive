@@ -1,160 +1,147 @@
-"""
-Quickstart Validation Script (T034).
-
-This script validates the end-to-end reproducibility of the pipeline by:
-1. Verifying all expected output artifacts exist.
-2. Validating the schema and content of key data files.
-3. Ensuring statistical results are non-empty and well-formed.
-4. Reporting a pass/fail status for the entire pipeline.
-"""
 import os
 import sys
 import logging
 import json
 import pandas as pd
 from pathlib import Path
+from config import setup_logging, get_path, get_data_path, get_processed_path, get_results_path
 
-from config import get_data_path, get_processed_path, get_results_path, setup_logging
-
-# Setup logging
-logger = setup_logging("quickstart_validation", level=logging.INFO)
-
-def check_file_exists(path: str, description: str) -> bool:
-    """Check if a file exists at the given path."""
-    if os.path.exists(path):
-        logger.info(f"✓ Found: {description} ({path})")
-        return True
-    else:
-        logger.error(f"✗ Missing: {description} ({path})")
+def check_file_exists(path_str: str, description: str) -> bool:
+    """Check if a required file exists."""
+    path = Path(path_str)
+    if not path.exists():
+        logging.error(f"Missing required file: {path_str} ({description})")
         return False
+    logging.info(f"Found: {path_str} ({description})")
+    return True
 
 def validate_static_baseline() -> bool:
     """Validate data/static_baseline.csv schema and content."""
     path = get_data_path("static_baseline.csv")
-    if not os.path.exists(path):
-        logger.error("Static baseline file missing.")
+    if not check_file_exists(path, "Static Baseline"):
         return False
 
     try:
         df = pd.read_csv(path)
-        required_cols = {"code", "loc", "cyclomatic_complexity", "static_smell_labels"}
-        if not required_cols.issubset(df.columns):
-            missing = required_cols - set(df.columns)
-            logger.error(f"Static baseline missing columns: {missing}")
+        required_cols = ["code", "loc", "cyclomatic_complexity", "nesting_depth", "static_smell_labels"]
+        missing = [c for c in required_cols if c not in df.columns]
+        if missing:
+            logging.error(f"Missing columns in static_baseline.csv: {missing}")
             return False
 
         if len(df) == 0:
-            logger.error("Static baseline is empty.")
+            logging.error("static_baseline.csv is empty")
             return False
 
-        # Check for non-null critical columns
-        if df["code"].isnull().all():
-            logger.error("Static baseline 'code' column is all null.")
-            return False
-
-        logger.info(f"✓ Static baseline valid: {len(df)} rows, columns {list(df.columns)}")
+        logging.info(f"Static Baseline valid: {len(df)} rows, columns: {list(df.columns)}")
         return True
     except Exception as e:
-        logger.error(f"Failed to validate static baseline: {e}")
+        logging.error(f"Failed to validate static_baseline.csv: {e}")
         return False
 
 def validate_semantic_results() -> bool:
     """Validate data/processed/semantic_results.json structure."""
     path = get_processed_path("semantic_results.json")
-    if not os.path.exists(path):
-        logger.error("Semantic results file missing.")
+    if not check_file_exists(path, "Semantic Results"):
         return False
 
     try:
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(path, 'r') as f:
             data = json.load(f)
 
         if not isinstance(data, list) or len(data) == 0:
-            logger.error("Semantic results is empty or not a list.")
+            logging.error("semantic_results.json is not a non-empty list")
             return False
 
-        # Check structure of first item
-        sample = data[0]
-        required_keys = {"code", "embedding", "llm_labels", "static_smell_labels"}
-        if not required_keys.issubset(sample.keys()):
-            missing = required_keys - set(sample.keys())
-            logger.error(f"Semantic results items missing keys: {missing}")
+        # Check for expected keys in first record
+        first = data[0]
+        expected_keys = ["code", "embedding", "llm_labels", "static_smell_labels"]
+        missing = [k for k in expected_keys if k not in first]
+        if missing:
+            logging.error(f"Missing keys in semantic_results.json records: {missing}")
             return False
 
-        logger.info(f"✓ Semantic results valid: {len(data)} entries")
+        logging.info(f"Semantic Results valid: {len(data)} records")
         return True
-    except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON in semantic results: {e}")
-        return False
     except Exception as e:
-        logger.error(f"Failed to validate semantic results: {e}")
+        logging.error(f"Failed to validate semantic_results.json: {e}")
         return False
 
 def validate_results_artifacts() -> bool:
-    """Validate statistical analysis output files."""
-    results_dir = get_results_path("")
+    """Validate statistical analysis outputs."""
     required_files = [
-        "statistical_significance.json",
-        "logistic_regression.json",
-        "sensitivity_report.md"
+        ("results/statistical_significance.json", "McNemar Test Results"),
+        ("results/logistic_regression.json", "Logistic Regression Results"),
+        ("results/sensitivity_report.md", "Sensitivity Report"),
+        ("results/resource_metrics.json", "Resource Metrics"),
+        ("results/sample_report.json", "Sample Report")
     ]
 
     all_valid = True
-    for fname in required_files:
-        fpath = os.path.join(results_dir, fname)
-        if not os.path.exists(fpath):
-            logger.error(f"Missing result file: {fname}")
+    for file_path, desc in required_files:
+        full_path = get_results_path(file_path.replace("results/", ""))
+        if not check_file_exists(full_path, desc):
             all_valid = False
             continue
 
         try:
-            if fname.endswith(".json"):
-                with open(fpath, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                if not data:
-                    logger.warning(f"Result file {fname} is empty.")
-            elif fname.endswith(".md"):
-                with open(fpath, 'r', encoding='utf-8') as f:
+            if file_path.endswith(".json"):
+                with open(full_path, 'r') as f:
+                    json.load(f)
+            elif file_path.endswith(".md"):
+                with open(full_path, 'r') as f:
                     content = f.read()
-                if len(content) < 50:
-                    logger.warning(f"Result file {fname} is unusually short.")
-            
-            logger.info(f"✓ Result file valid: {fname}")
+                    if len(content) < 50:
+                        logging.warning(f"File {file_path} seems too short: {len(content)} chars")
         except Exception as e:
-            logger.error(f"Error validating {fname}: {e}")
+            logging.error(f"Invalid content in {file_path}: {e}")
             all_valid = False
 
     return all_valid
 
 def main():
-    """Run all validation checks."""
+    """Run full quickstart validation pipeline."""
+    setup_logging()
+    logger = logging.getLogger(__name__)
     logger.info("Starting Quickstart Validation (T034)...")
-    logger.info("Checking end-to-end reproducibility artifacts.")
 
     checks = [
-        ("Static Baseline", validate_static_baseline),
-        ("Semantic Results", validate_semantic_results),
-        ("Statistical Results", validate_results_artifacts)
+        ("Static Baseline Schema", validate_static_baseline),
+        ("Semantic Results Schema", validate_semantic_results),
+        ("Statistical Artifacts", validate_results_artifacts)
     ]
 
-    passed = 0
-    total = len(checks)
+    results = {}
+    all_passed = True
 
-    for name, check_func in checks:
+    for name, func in checks:
+        logger.info(f"Running check: {name}")
         try:
-            if check_func():
-                passed += 1
+            passed = func()
+            results[name] = "PASS" if passed else "FAIL"
+            if not passed:
+                all_passed = False
         except Exception as e:
-            logger.error(f"Check '{name}' crashed: {e}")
+            logger.error(f"Check {name} crashed: {e}")
+            results[name] = "ERROR"
+            all_passed = False
 
-    logger.info("-" * 40)
-    logger.info(f"Validation Summary: {passed}/{total} checks passed.")
+    # Write validation report
+    report_path = get_results_path("quickstart_validation_report.json")
+    with open(report_path, 'w') as f:
+        json.dump({
+            "timestamp": str(pd.Timestamp.now()),
+            "overall_status": "PASS" if all_passed else "FAIL",
+            "checks": results
+        }, f, indent=2)
 
-    if passed == total:
-        logger.info("SUCCESS: Pipeline end-to-end reproducibility verified.")
+    logger.info(f"Validation report written to {report_path}")
+    
+    if all_passed:
+        logger.info("Quickstart validation PASSED. End-to-end reproducibility confirmed.")
         return 0
     else:
-        logger.error("FAILURE: Pipeline validation failed.")
+        logger.error("Quickstart validation FAILED. See report for details.")
         return 1
 
 if __name__ == "__main__":

@@ -1,4 +1,3 @@
-"""Validation script for baseline data."""
 import os
 import sys
 import logging
@@ -6,47 +5,39 @@ import pandas as pd
 from pathlib import Path
 from config import get_data_path, setup_logging
 
-logger = setup_logging(__name__)
 
-
-def validate_baseline(filepath: str) -> bool:
-    """Validate the baseline CSV file.
-
-    Args:
-        filepath: Path to the CSV file.
-
-    Returns:
-        True if valid.
+def validate_baseline(csv_path: str) -> bool:
     """
-    if not os.path.exists(filepath):
-        logger.error(f"File not found: {filepath}")
+    Validate the static baseline CSV.
+    """
+    logger = setup_logging(__name__)
+
+    try:
+        df = pd.read_csv(csv_path)
+        required_columns = ["code", "loc", "cyclomatic_complexity", "nesting_depth", "static_smell_labels"]
+
+        if not all(col in df.columns for col in required_columns):
+            logger.error(f"Missing required columns. Found: {df.columns.tolist()}")
+            return False
+
+        if len(df) == 0:
+            logger.error("Baseline CSV is empty.")
+            return False
+
+        logger.info(f"Validation passed. {len(df)} records found.")
+        return True
+
+    except Exception as e:
+        logger.error(f"Validation failed: {e}")
         return False
-
-    df = pd.read_csv(filepath)
-    required_cols = ["code", "loc", "cyclomatic_complexity", "static_smell_labels"]
-
-    if not all(col in df.columns for col in required_cols):
-        logger.error("Missing required columns.")
-        return False
-
-    if df.empty:
-        logger.error("DataFrame is empty.")
-        return False
-
-    logger.info(f"Baseline valid: {len(df)} rows, columns: {list(df.columns)}")
-    return True
 
 
 def main():
-    """Main entry point."""
-    filepath = get_data_path("static_baseline.csv")
-    if validate_baseline(filepath):
-        print("Validation passed.")
+    """Main entry point for baseline validation."""
+    csv_path = os.path.join(get_data_path(), "static_baseline.csv")
+    if validate_baseline(csv_path):
+        print("Baseline validation successful.")
         sys.exit(0)
     else:
-        print("Validation failed.")
+        print("Baseline validation failed.")
         sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()

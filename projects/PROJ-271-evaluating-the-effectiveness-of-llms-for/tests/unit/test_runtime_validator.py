@@ -1,45 +1,100 @@
 import os
 import json
+import time
 import tempfile
 import pytest
 from pathlib import Path
 
-# Import the module under test
-from code.runtime_validator import generate_mock_data_for_dry_run, run_dry_run_pipeline
+# Mock the config to use temp directories
+import sys
+from unittest.mock import patch, MagicMock
 
-class TestRuntimeValidator:
-    def test_generate_mock_data_creates_file(self):
-        """Test that mock data generation creates the expected file structure."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            paths = generate_mock_data_for_dry_run(tmpdir)
-            assert "baseline" in paths
-            assert os.path.exists(paths["baseline"])
+# Add code to path if not already
+code_path = Path(__file__).parent.parent.parent / "code"
+if str(code_path) not in sys.path:
+    sys.path.insert(0, str(code_path))
+
+from runtime_validator import run_dry_run_pipeline, generate_mock_data_for_dry_run
+from config import get_results_path, get_path
+
+@pytest.fixture
+def temp_dirs():
+    # Create temporary directories for this test
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # We can't easily override the global config paths in config.py without reloading
+        # So we will test the logic that doesn't strictly depend on global paths
+        # or we patch the get_path functions
+        yield tmpdir
+
+def test_generate_mock_data_structure():
+    """Test that mock data generation creates a valid CSV structure."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = os.path.join(tmpdir, "test_mock.csv")
+        generate_mock_data_for_dry_run(output_path, num_functions=3)
+        
+        assert os.path.exists(output_path)
+        
+        import pandas as pd
+        df = pd.read_csv(output_path)
+        
+        assert len(df) == 3
+        assert 'code' in df.columns
+        assert 'static_smell_labels' in df.columns
+        assert all(df['static_smell_labels'] == 'None')
+
+def test_dry_run_pipeline_completion():
+    """Test that the dry run pipeline completes successfully."""
+    # Patch the config functions to return temp paths
+    with tempfile.TemporaryDirectory() as tmpdir:
+        data_dir = os.path.join(tmpdir, "data")
+        results_dir = os.path.join(tmpdir, "results")
+        os.makedirs(data_dir, exist_ok=True)
+        os.makedirs(results_dir, exist_ok=True)
+        os.makedirs(os.path.join(data_dir, "processed"), exist_ok=True)
+        
+        with patch('runtime_validator.get_path', return_value=data_dir), \
+             patch('runtime_validator.get_results_path', return_value=results_dir):
+             
+            results = run_dry_run_pipeline(max_runtime_seconds=60.0)
             
-            with open(paths["baseline"], "r") as f:
-                content = f.read()
-                assert "code,loc,cyclomatic_complexity,static_smell_labels" in content
-                assert len(content) > 100  # Should have some rows
+            assert results['status'] == 'success'
+            assert 'total_runtime_seconds' in results
+            assert 'steps' in results
+            assert 'generate_mock_data' in results['steps']
+            assert 'mock_semantic_analysis' in results['steps']
+            assert 'mock_statistical_analysis' in results['steps']
+            
+            # Verify report file was created
+            report_path = os.path.join(results_dir, "runtime_dry_run_report.json")
+            assert os.path.exists(report_path)
+            
+            with open(report_path, 'r') as f:
+                saved_report = json.load(f)
+                assert saved_report['status'] == 'success'
 
-    def test_dry_run_pipeline_executes(self):
-        """Test that the dry run pipeline runs without crashing on mock data."""
-        # We limit the time to a small value to ensure the test doesn't hang
-        # but enough to let the mock logic run.
-        try:
-            result = run_dry_run_pipeline(max_runtime_seconds=3600.0) # 1 hour limit for test
-            assert isinstance(result, dict)
-            assert "total_runtime_seconds" in result
-            assert "success" in result
-        except Exception as e:
-            # If the test environment doesn't have the models, it might fail.
-            # But the task is to verify the runtime logic exists and runs.
-            # We assert that the function at least attempts to run.
-            pytest.skip(f"Model loading failed in test environment: {e}")
-
-    def test_runtime_check_logic(self):
-        """Test the logic of the runtime check."""
-        # We can't easily measure real time in a unit test without mocking time,
-        # but we can verify the result structure.
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # Generate mock data
-            paths = generate_mock_data_for_dry_run(tmpdir)
-            pass
+def test_runtime_within_limit():
+    """Test that the dry run completes within the specified time limit."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        data_dir = os.path.join(tmpdir, "data")
+        results_dir = os.path.join(tmpdir, "results")
+        os.makedirs(data_dir, exist_ok=True)
+        os.makedirs(results_dir, exist_ok=True)
+        os.makedirs(os.path.join(data_dir, "processed"), exist_ok=True)
+        
+        limit = 60.0 # 60 seconds
+        
+        with patch('runtime_validator.get_path', return_value=data_dir), \
+             patch('runtime_validator.get_results_path', return_value=results_dir):
+             
+            start = time.time()
+            results = run_dry_run_pipeline(max_runtime_seconds=limit)
+            elapsed = time.time() - start
+            
+            assert results['total_runtime_seconds'] < limit
+            assert results['status'] == 'success'
+            
+            # Also check the saved report
+            report_path = os.path.join(results_dir, "runtime_dry_run_report.json")
+            with open(report_path, 'r') as f:
+                report = json.load(f)
+                assert report['total_runtime_seconds'] < limit

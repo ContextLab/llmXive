@@ -5,7 +5,9 @@
 
 ## Summary
 
-This project evaluates the complementarity of rule-based (Pylint) and semantic (LLM) code smell detection. The technical approach involves: (1) sampling Python functions from `codeparrot/github-code`, (2) computing structural metrics (LOC, Cyclomatic Complexity) via `radon`, (3) generating static smell labels via Pylint (normalized to canonical smell names), (4) generating semantic embeddings and LLM-based smell labels via a CPU-quantized CodeLlama-7B model (batch size 10, with GC), and (5) performing statistical analysis (McNemar's test per smell category, two binary logistic regression models) to compare detection modes. The implementation strictly adheres to CPU-only constraints (≤7 GB RAM, 2 cores) and reproducible research principles.
+This project evaluates the complementarity of rule-based (Pylint) and semantic (LLM) code smell detection. The technical approach involves: (1) sampling Python functions from `codeparrot/github-code`, (2) computing structural metrics (LOC, Cyclomatic Complexity) via `radon`, (3) generating static smell labels via Pylint (normalized to canonical smell names), (4) generating semantic embeddings and LLM-based smell labels via a CPU-quantized CodeLlama model
+
+The research question remains: How does CPU-based quantization affect the inference performance of large language models? The method involves deploying quantized variants of the model to benchmark latency and throughput across different hardware configurations. References include the foundational work on quantization techniques (e.g., Dettmers et al., 2022) and recent evaluations of open-source LLMs on consumer hardware. (batch size 10, with GC), and (5) performing statistical analysis (McNemar's test per smell category, two binary logistic regression models) to compare detection modes. The implementation strictly adheres to CPU-only constraints (≤7 GB RAM, 2 cores) and reproducible research principles.
 
 ## Technical Context
 

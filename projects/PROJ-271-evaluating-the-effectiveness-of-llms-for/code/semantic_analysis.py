@@ -5,290 +5,212 @@ import gc
 import time
 from typing import List, Dict, Any, Optional, Tuple
 
+import pandas as pd
+import numpy as np
 from sentence_transformers import SentenceTransformer
 from llama_cpp import Llama
 
-from config import get_processed_path, get_data_path, get_results_path, setup_logging
-from monitoring import get_ram_usage_mb, get_cpu_utilization, capture_snapshot, record_batch_metrics, save_metrics_to_file, get_peak_ram_for_batch
+from config import get_data_path, get_processed_path, get_results_path, setup_logging
+from monitoring import record_batch_metrics, save_metrics_to_file
 
-logger = setup_logging(__name__)
 
-# --- Model Loading ---
-
-def load_embeddings_model(model_name: str = "all-MiniLM-L6-v2") -> SentenceTransformer:
-    """Load the sentence-transformers model for embeddings."""
-    logger.info(f"Loading embedding model: {model_name}")
+def load_embeddings_model(model_name: str = "sentence-transformers/all-MiniLM-L6-v2") -> SentenceTransformer:
+    """Load the sentence transformer model for embeddings."""
+    logger = setup_logging(__name__)
+    logger.info(f"Loading embedding model: {model_name}...")
     model = SentenceTransformer(model_name)
-    logger.info("Embedding model loaded successfully.")
+    logger.info("Embedding model loaded.")
     return model
 
-def load_llama_model(
-    model_path: str,
-    n_ctx: int = 4096,
-    n_threads: int = 4,
-    n_batch: int = 512,
-    use_mlock: bool = True
-) -> Llama:
-    """
-    Load the Llama model with optimized settings for RAM usage.
-    
-    Optimization Strategy for T032a:
-    1. n_ctx: Fixed to 4096 to prevent context window over-allocation.
-    2. n_batch: Reduced to 512 to limit peak RAM during prompt processing.
-    3. use_mlock: Enabled to prevent swapping to disk (reducing page faults).
-    4. n_threads: Configurable to balance CPU load vs memory bandwidth.
-    """
-    logger.info(f"Loading Llama model from: {model_path}")
+
+def load_llama_model(model_path: str, n_ctx: int = 4096) -> Llama:
+    """Load the quantized CodeLlama model."""
+    logger = setup_logging(__name__)
+    logger.info(f"Loading LLM from {model_path}...")
+
     if not os.path.exists(model_path):
-        # Fallback to HF hub download if path is a repo_id, though spec implies local path
-        # For this implementation, we assume the path is valid as per T014 setup
-        raise FileNotFoundError(f"Model file not found at {model_path}. Ensure T014 completed.")
-    
+        raise FileNotFoundError(f"Model file not found: {model_path}")
+
     model = Llama(
         model_path=model_path,
         n_ctx=n_ctx,
-        n_threads=n_threads,
-        n_batch=n_batch,
-        use_mlock=use_mlock,
+        n_threads=4,
         verbose=False
     )
-    logger.info("Llama model loaded successfully.")
+
+    # Verify quantization (basic check: file name or internal property)
+    if "q4" not in model_path.lower() and "Q4" not in model_path:
+        logger.warning("Model may not be 4-bit quantized. Proceeding with caution.")
+    else:
+        logger.info("Model is 4-bit quantized (verified from path).")
+
     return model
 
-# --- Data Loading ---
 
-def load_baseline_data(csv_path: str) -> List[Dict[str, Any]]:
-    """Load the static baseline CSV data."""
-    import pandas as pd
-    if not os.path.exists(csv_path):
-        raise FileNotFoundError(f"Baseline data not found at {csv_path}. Run T011a first.")
-    
-    logger.info(f"Loading baseline data from {csv_path}")
+def load_baseline_data(csv_path: str) -> pd.DataFrame:
+    """Load the static baseline CSV."""
+    logger = setup_logging(__name__)
+    logger.info(f"Loading baseline data from {csv_path}...")
     df = pd.read_csv(csv_path)
-    
-    # Ensure we have the required columns
-    required_cols = ['code', 'loc', 'cyclomatic_complexity', 'static_smell_labels']
-    for col in required_cols:
-        if col not in df.columns:
-            raise ValueError(f"Missing required column '{col}' in {csv_path}")
-    
-    # Convert to list of dicts for batch processing
-    data = df.to_dict(orient='records')
-    logger.info(f"Loaded {len(data)} functions from baseline.")
-    return data
+    logger.info(f"Loaded {len(df)} records.")
+    return df
 
-# --- Pre-processing ---
 
-def compute_embeddings(
-    model: SentenceTransformer,
-    texts: List[str],
-    batch_size: int = 32
-) -> List[List[float]]:
-    """Compute embeddings for a list of texts in batches."""
-    logger.info(f"Computing embeddings for {len(texts)} texts (batch_size={batch_size})")
-    embeddings = model.encode(texts, batch_size=batch_size, show_progress_bar=True, convert_to_numpy=True)
-    return embeddings.tolist()
+def compute_embeddings(model: SentenceTransformer, codes: List[str], batch_size: int = 16) -> np.ndarray:
+    """Compute embeddings for a list of code snippets."""
+    logger = setup_logging(__name__)
+    embeddings = []
+
+    for i in range(0, len(codes), batch_size):
+        batch = codes[i:i + batch_size]
+        batch_embeddings = model.encode(batch, convert_to_numpy=True)
+        embeddings.append(batch_embeddings)
+        gc.collect()
+
+    return np.vstack(embeddings)
+
 
 def check_context_window(text: str, max_tokens: int = 4096) -> bool:
-    """Estimate if text exceeds context window (rough char/token heuristic)."""
-    # Rough estimate: 4 chars per token for Python code
-    estimated_tokens = len(text) / 4
+    """Check if text fits within the context window (approximate token count)."""
+    # Simple approximation: 1 token ~ 4 characters
+    estimated_tokens = len(text) // 4
     return estimated_tokens <= max_tokens
 
-def truncate_text(text: str, max_chars: int = 16000) -> str:
-    """Truncate text to fit roughly within context window."""
+
+def truncate_text(text: str, max_tokens: int = 4096) -> str:
+    """Truncate text from the start to fit context window, preserving the end."""
+    # Simple approximation
+    max_chars = max_tokens * 4
     if len(text) <= max_chars:
         return text
-    return text[:max_chars] + "..."
+    return text[-max_chars:]
 
-# --- Inference ---
 
-def run_llm_inference(
-    model: Llama,
-    prompt: str,
-    max_tokens: int = 512,
-    temperature: float = 0.2
-) -> str:
-    """Run inference on the Llama model."""
-    output = model(
-        prompt,
-        max_tokens=max_tokens,
-        temperature=temperature,
-        stop=["</s>", "```"],
+def run_llm_inference(model: Llama, code: str, prompt: str) -> str:
+    """Run LLM inference on a single code snippet."""
+    full_prompt = prompt.replace("{code}", code)
+    response = model(
+        full_prompt,
+        max_tokens=512,
+        temperature=0.2,
+        stop=["\n\n"],
         echo=False
     )
-    return output['choices'][0]['text']
+    return response["choices"][0]["text"].strip()
 
-def parse_llm_output(output_text: str) -> List[str]:
-    """Parse the JSON list of smells from LLM output."""
-    import json
+
+def parse_llm_output(output: str) -> List[str]:
+    """Parse LLM output into a list of smell categories."""
     try:
-        # Clean up potential markdown or extra text
-        start_idx = output_text.find('[')
-        end_idx = output_text.rfind(']')
-        if start_idx == -1 or end_idx == -1:
+        # Expect JSON list
+        smells = json.loads(output)
+        if isinstance(smells, list):
+            return smells
+        else:
             return []
-        
-        json_str = output_text[start_idx:end_idx+1]
-        return json.loads(json_str)
-    except (json.JSONDecodeError, ValueError) as e:
-        logger.warning(f"Failed to parse LLM output: {e}")
+    except json.JSONDecodeError:
+        logging.getLogger(__name__).warning(f"Unparseable LLM output: {output}")
         return []
 
-# --- Main Pipeline with RAM Optimization ---
 
 def run_semantic_analysis(
-    baseline_path: Optional[str] = None,
-    output_path: Optional[str] = None,
-    embedding_model_name: str = "all-MiniLM-L6-v2",
-    llm_model_path: Optional[str] = None,
-    batch_size: int = 10,
-    llm_batch_size: int = 1
+    baseline_path: str,
+    embedding_model: SentenceTransformer,
+    llama_model: Llama,
+    prompt_path: str,
+    batch_size: int = 10
 ) -> Dict[str, Any]:
     """
-    Execute the full semantic analysis pipeline with RAM optimization.
-    
-    Optimization Strategy (T032a):
-    1. Batch Loading: Process data in small batches (default 10) to keep memory footprint low.
-    2. Explicit GC: Force garbage collection between batches to reclaim RAM.
-    3. Peak RAM Tracking: Monitor and record peak RAM usage per batch.
-    4. Context Management: Ensure model outputs are released immediately.
+    Run semantic analysis: compute embeddings and LLM labels.
     """
-    if baseline_path is None:
-        baseline_path = get_data_path("static_baseline.csv")
-    if output_path is None:
-        output_path = get_processed_path("semantic_results.json")
-    
-    logger.info("Starting Semantic Analysis Pipeline with RAM Optimization")
-    
-    # Load Models
-    embed_model = load_embeddings_model(embedding_model_name)
-    
-    if llm_model_path is None:
-        # Default path based on project structure, adjust if needed
-        llm_model_path = "models/codellama-7b-instruct.Q4_K_M.gguf" 
-        if not os.path.exists(llm_model_path):
-            # Fallback to common HF path if local not found (for testing purposes)
-            # In production, this should be a valid path from T014
-            logger.warning(f"LLM model not found at {llm_model_path}. Check T014 configuration.")
-            raise FileNotFoundError("LLM Model path invalid. Ensure T014 downloaded the model.")
-    
-    llm_model = load_llama_model(llm_model_path)
-    
-    # Load Data
-    data = load_baseline_data(baseline_path)
-    
-    # Load Prompt
-    prompt_path = "contracts/llm_prompt.txt"
-    if not os.path.exists(prompt_path):
-        raise FileNotFoundError(f"Prompt file not found at {prompt_path}. Ensure T015a completed.")
-    
-    with open(prompt_path, 'r') as f:
+    logger = setup_logging(__name__)
+    df = load_baseline_data(baseline_path)
+
+    # Load prompt
+    with open(prompt_path, "r") as f:
         prompt_template = f.read()
-    
+
     results = []
-    batch_metrics = []
-    
-    # Process in batches
-    total_batches = (len(data) + batch_size - 1) // batch_size
-    
-    for i in range(0, len(data), batch_size):
-        batch_data = data[i:i+batch_size]
-        batch_num = i // batch_size + 1
-        
-        logger.info(f"Processing batch {batch_num}/{total_batches} ({len(batch_data)} items)")
-        
-        # Capture start metrics
-        start_ram = get_ram_usage_mb()
-        start_time = time.time()
-        
+    metrics = []
+
+    for i in range(0, len(df), batch_size):
+        batch_df = df.iloc[i:i + batch_size]
+        batch_start = time.time()
+
         batch_results = []
-        
-        for item in batch_data:
-            code = item['code']
-            loc = item['loc']
-            cc = item['cyclomatic_complexity']
-            static_labels = item['static_smell_labels']
-            
-            # Check context window
+        for _, row in batch_df.iterrows():
+            code = row["code"]
+
+            # Truncate if necessary
             if not check_context_window(code):
                 code = truncate_text(code)
-                logger.debug(f"Truncated code for function at LOC {loc}")
-            
-            # Compute Embedding
-            embedding = compute_embeddings(embed_model, [code])[0]
-            
-            # Construct Prompt
-            prompt = prompt_template.replace("{code}", code)
-            
-            # Run LLM Inference
-            llm_output = run_llm_inference(llm_model, prompt)
-            detected_smells = parse_llm_output(llm_output)
-            
+                if not check_context_window(code):
+                    logger.warning("Code too long even after truncation. Skipping.")
+                    continue
+
+            # Compute embedding
+            embedding = embedding_model.encode([code], convert_to_numpy=True)[0]
+
+            # Run LLM inference
+            llm_output = run_llm_inference(llama_model, code, prompt_template)
+            smells = parse_llm_output(llm_output)
+
             batch_results.append({
                 "code": code,
-                "loc": loc,
-                "cyclomatic_complexity": cc,
-                "static_smell_labels": static_labels,
-                "embedding": embedding,
-                "llm_detected_smells": detected_smells,
-                "llm_raw_output": llm_output
+                "embedding": embedding.tolist(),
+                "llm_smell_labels": ",".join(smells)
             })
-            
-            # Force GC after every item in batch to minimize peak RAM
-            gc.collect()
-        
-        # Capture end metrics
-        end_ram = get_ram_usage_mb()
-        end_time = time.time()
-        
-        batch_time = end_time - start_time
-        batch_peak_ram = max(start_ram, end_ram)
-        
-        # Record batch metrics
-        metrics = {
-            "batch_id": batch_num,
-            "items_processed": len(batch_data),
-            "time_seconds": batch_time,
-            "peak_ram_mb": batch_peak_ram,
-            "cpu_utilization": get_cpu_utilization()
-        }
-        batch_metrics.append(metrics)
-        
-        logger.info(f"Batch {batch_num} complete. Time: {batch_time:.2f}s, Peak RAM: {batch_peak_ram:.2f}MB")
-        
+
+        batch_end = time.time()
+        batch_time = batch_end - batch_start
+
+        # Record metrics
+        batch_metrics = record_batch_metrics(
+            batch_id=i // batch_size,
+            time_seconds=batch_time,
+            items=len(batch_results)
+        )
+        metrics.append(batch_metrics)
+
         results.extend(batch_results)
-        
-        # Explicit GC after batch completion
         gc.collect()
-    
-    # Save Results
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    # Save Metrics
-    metrics_path = get_results_path("resource_metrics.json")
-    save_metrics_to_file(batch_metrics, metrics_path)
-    
-    logger.info(f"Semantic analysis complete. Results saved to {output_path}")
-    logger.info(f"Metrics saved to {metrics_path}")
-    
-    return {
-        "results_path": output_path,
-        "metrics_path": metrics_path,
-        "total_items": len(results),
-        "batches_processed": len(batch_metrics)
-    }
+
+    # Save metrics
+    save_metrics_to_file(metrics, os.path.join(get_results_path(), "resource_metrics.json"))
+
+    return results
+
 
 def main():
-    """Entry point for the script."""
-    try:
-        result = run_semantic_analysis()
-        print(f"Pipeline completed successfully. Processed {result['total_items']} items.")
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}", exc_info=True)
-        raise
+    """Main entry point for semantic analysis."""
+    logger = setup_logging(__name__)
 
-if __name__ == "__main__":
-    main()
+    # Paths
+    baseline_path = os.path.join(get_data_path(), "static_baseline.csv")
+    prompt_path = os.path.join("contracts", "llm_prompt.txt")
+    model_path = "models/CodeLlama-7B-Instruct-GGUF/Q4_K_M.gguf"  # Adjust as needed
+    output_path = os.path.join(get_processed_path(), "semantic_results.json")
+
+    try:
+        # Load models
+        embedding_model = load_embeddings_model()
+        llama_model = load_llama_model(model_path)
+
+        # Run analysis
+        results = run_semantic_analysis(
+            baseline_path=baseline_path,
+            embedding_model=embedding_model,
+            llama_model=llama_model,
+            prompt_path=prompt_path,
+            batch_size=10
+        )
+
+        # Save results
+        with open(output_path, "w") as f:
+            json.dump(results, f, indent=2)
+
+        logger.info(f"Semantic analysis complete. Results saved to {output_path}")
+
+    except Exception as e:
+        logger.error(f"Semantic analysis failed: {e}")
+        raise

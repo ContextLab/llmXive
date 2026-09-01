@@ -1,59 +1,56 @@
 import logging
 import json
 from typing import Dict, Any, List, Optional, Tuple
+
 import pandas as pd
 import numpy as np
 from radon.raw import analyze as radon_analyze
 
-logger = logging.getLogger(__name__)
 
 def compute_radon_metrics_safe(code: str) -> Dict[str, Any]:
     """
-    Safely compute Radon metrics, returning defaults on error.
+    Safely compute radon metrics. Returns default values on error.
     """
     try:
         result = radon_analyze(code)
         return {
             "loc": result.loc,
-            "lloc": result.lloc,
-            "sloc": result.sloc,
-            "complexity": result.complexity
+            "cyclomatic_complexity": result.complexity,
+            "nesting_depth": result.max_nesting
         }
     except Exception as e:
-        logger.warning(f"Radon analysis failed: {e}")
-        return {"loc": 0, "lloc": 0, "sloc": 0, "complexity": 0}
+        logging.getLogger(__name__).warning(f"Radon analysis failed: {e}")
+        return {"loc": 0, "cyclomatic_complexity": 0, "nesting_depth": 0}
 
-def validate_dataset_completeness(df: pd.DataFrame, required_columns: List[str]) -> bool:
-    """
-    Validate that a DataFrame has all required columns and no missing values.
-    """
-    missing_cols = [col for col in required_columns if col not in df.columns]
-    if missing_cols:
-        logger.error(f"Missing columns: {missing_cols}")
-        return False
-    
-    if df.isnull().any().any():
-        logger.warning("Dataset contains missing values")
-        return False
-    
-    return True
 
-def safe_json_parse(text: str) -> Optional[Dict[str, Any]]:
+def validate_dataset_completeness(df: pd.DataFrame, required_columns: List[str]) -> float:
     """
-    Safely parse JSON, returning None on failure.
+    Validate that a dataset has all required columns and calculate completeness.
+    """
+    if not all(col in df.columns for col in required_columns):
+        return 0.0
+
+    completeness = df.dropna(subset=required_columns).shape[0] / df.shape[0]
+    return completeness
+
+
+def safe_json_parse(json_str: str) -> Optional[Any]:
+    """
+    Safely parse JSON string. Returns None on error.
     """
     try:
-        return json.loads(text)
+        return json.loads(json_str)
     except json.JSONDecodeError:
         return None
+
 
 def calculate_statistics(values: List[float]) -> Dict[str, float]:
     """
     Calculate basic statistics for a list of values.
     """
     if not values:
-        return {"mean": 0, "std": 0, "min": 0, "max": 0}
-    
+        return {"mean": 0.0, "std": 0.0, "min": 0.0, "max": 0.0}
+
     arr = np.array(values)
     return {
         "mean": float(np.mean(arr)),
@@ -62,29 +59,33 @@ def calculate_statistics(values: List[float]) -> Dict[str, float]:
         "max": float(np.max(arr))
     }
 
+
 def parse_smell_labels(labels_str: str) -> List[str]:
     """
-    Parse a string of smell labels (e.g., "['LongMethod', 'ComplexCondition']")
-    into a list of strings.
+    Parse comma-separated smell labels string into a list.
     """
-    if not labels_str or labels_str == "None":
+    if not labels_str or labels_str == "":
         return []
-    try:
-        # Handle string representation of list
-        return json.loads(labels_str.replace("'", '"'))
-    except Exception:
-        return labels_str.split(",")
+    return [label.strip() for label in labels_str.split(",") if label.strip()]
 
-def create_detection_matrix(static_labels: List[str], semantic_labels: List[str]) -> Dict[str, int]:
+
+def create_detection_matrix(df: pd.DataFrame, smell_category: str) -> Dict[str, int]:
     """
-    Create a detection matrix counting overlaps.
+    Create a 2x2 detection matrix for a specific smell category.
+    Returns: {"both": int, "static_only": int, "llm_only": int, "neither": int}
     """
-    static_set = set(static_labels)
-    semantic_set = set(semantic_labels)
-    
+    # Parse static and LLM labels
+    static_detected = df["static_smell_labels"].apply(lambda x: smell_category in parse_smell_labels(x))
+    llm_detected = df["llm_smell_labels"].apply(lambda x: smell_category in parse_smell_labels(x))
+
+    both = ((static_detected) & (llm_detected)).sum()
+    static_only = ((static_detected) & (~llm_detected)).sum()
+    llm_only = ((~static_detected) & (llm_detected)).sum()
+    neither = ((~static_detected) & (~llm_detected)).sum()
+
     return {
-        "both": len(static_set & semantic_set),
-        "static_only": len(static_set - semantic_set),
-        "semantic_only": len(semantic_set - static_set),
-        "neither": 0 # Calculated based on total
+        "both": int(both),
+        "static_only": int(static_only),
+        "llm_only": int(llm_only),
+        "neither": int(neither)
     }

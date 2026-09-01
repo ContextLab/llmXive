@@ -2,73 +2,83 @@ import time
 import json
 from contextlib import contextmanager
 from typing import Dict, Any, Optional, List
+
 import psutil
 import os
 
-# Global tracking variables
-peak_ram_mb = 0.0
-batch_metrics: List[Dict[str, Any]] = []
 
 def get_ram_usage_mb() -> float:
-    """Get current RAM usage in MB for the current process."""
+    """Get current RAM usage in MB."""
     process = psutil.Process(os.getpid())
     return process.memory_info().rss / (1024 * 1024)
+
 
 def get_cpu_utilization() -> float:
     """Get current CPU utilization percentage."""
     return psutil.cpu_percent(interval=0.1)
 
+
 def get_system_ram_usage_mb() -> float:
-    """Get total system RAM usage in MB."""
+    """Get system RAM usage in MB."""
     return psutil.virtual_memory().used / (1024 * 1024)
 
+
 def get_system_cpu_utilization() -> float:
-    """Get total system CPU utilization percentage."""
-    return psutil.cpu_percent(interval=0.1)
+    """Get system CPU utilization percentage."""
+    return psutil.cpu_percent(interval=1)
+
 
 @contextmanager
-def track_inference_time(batch_id: int):
-    """Context manager to track inference time for a batch."""
+def track_inference_time():
+    """Context manager to track inference time."""
     start = time.time()
     try:
         yield
     finally:
         end = time.time()
-        duration = end - start
-        batch_metrics.append({
-            "batch_id": batch_id,
-            "duration_seconds": duration,
-            "timestamp": time.time()
-        })
+        logging.getLogger(__name__).info(f"Inference time: {end - start:.4f}s")
 
-def capture_snapshot() -> Dict[str, float]:
-    """Capture a snapshot of system resources."""
+
+def capture_snapshot() -> Dict[str, Any]:
+    """Capture a snapshot of current system resources."""
     return {
         "ram_mb": get_ram_usage_mb(),
-        "cpu_util": get_cpu_utilization(),
-        "system_ram_mb": get_system_ram_usage_mb(),
-        "system_cpu_util": get_system_cpu_utilization()
+        "cpu_percent": get_cpu_utilization(),
+        "timestamp": time.time()
     }
 
-def record_batch_metrics(batch_id: int, metrics: Dict[str, Any]) -> None:
-    """Record metrics for a specific batch."""
-    snapshot = capture_snapshot()
-    batch_metrics.append({
+
+def record_batch_metrics(
+    batch_id: int,
+    time_seconds: float,
+    items: int,
+    ram_mb: Optional[float] = None,
+    cpu_percent: Optional[float] = None
+) -> Dict[str, Any]:
+    """Record metrics for a batch."""
+    if ram_mb is None:
+        ram_mb = get_ram_usage_mb()
+    if cpu_percent is None:
+        cpu_percent = get_cpu_utilization()
+
+    return {
         "batch_id": batch_id,
-        "ram_mb": snapshot["ram_mb"],
-        "cpu_util": snapshot["cpu_util"],
-        "system_ram_mb": snapshot["system_ram_mb"],
-        "system_cpu_util": snapshot["system_cpu_util"],
-        **metrics
-    })
+        "time_seconds": time_seconds,
+        "items": items,
+        "ram_mb": ram_mb,
+        "cpu_percent": cpu_percent,
+        "timestamp": time.time()
+    }
 
-def save_metrics_to_file(output_path: str) -> None:
-    """Save collected metrics to a JSON file."""
+
+def save_metrics_to_file(metrics: List[Dict[str, Any]], output_path: str) -> None:
+    """Save metrics to a JSON file."""
     with open(output_path, "w") as f:
-        json.dump(batch_metrics, f, indent=2)
+        json.dump(metrics, f, indent=2)
 
-def get_peak_ram_for_batch() -> float:
-    """Get the peak RAM usage observed across all batches."""
+
+def get_peak_ram_for_batch(batch_metrics: List[Dict[str, Any]]) -> float:
+    """Get peak RAM usage from a list of batch metrics."""
     if not batch_metrics:
         return 0.0
     return max(m.get("ram_mb", 0) for m in batch_metrics)
