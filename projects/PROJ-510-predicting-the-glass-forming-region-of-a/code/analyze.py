@@ -1,6 +1,6 @@
 """
-Analysis module for glass-forming region prediction.
-Implements feature importance, collinearity checks, and sensitivity analysis.
+Analysis module for the Glass Forming Region prediction pipeline.
+Handles model analysis, collinearity detection, feature importance, and sensitivity analysis.
 """
 import logging
 import sys
@@ -9,228 +9,233 @@ import json
 from typing import Dict, List, Any, Tuple
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.inspection import permutation_importance
-from sklearn.metrics import f1_score, mean_squared_error
-from scipy.stats import ttest_rel
 import pickle
+from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.metrics import f1_score
+from scipy.stats import pearsonr
+import shap
 
-# Ensure we can import sibling modules
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-# Setup logging
-LOG_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'logs')
-os.makedirs(LOG_DIR, exist_ok=True)
-LOG_FILE = os.path.join(LOG_DIR, 'analysis.log')
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(LOG_FILE, mode='a'),
-        logging.StreamHandler(sys.stdout)
-    ]
-)
-logger = logging.getLogger(__name__)
-
-# Constants for sensitivity analysis
-SENSITIVITY_THRESHOLDS_KS = [50, 100, 150]
+# Constants
+DATA_PATH = "data/processed/processed_alloys.csv"
+MODEL_PATH = "data/models/random_forest_model.pkl"
+STABLE_MODEL_PATH = "data/models/random_forest_model_stable.pkl"
+CV_METRICS_PATH = "data/models/cv_metrics.json"
+CV_METRICS_STABLE_PATH = "data/models/cv_metrics_stable.json"
+COLLINEARITY_REPORT_PATH = "data/models/collinearity_report.json"
+COLLINEARITY_DECISION_PATH = "data/models/collinearity_decision.json"
+CORRELATION_THRESHOLD = 0.8
 RANDOM_STATE = 42
 
-def load_model_and_data(model_path: str, data_path: str) -> Tuple[RandomForestRegressor, pd.DataFrame]:
-    """Load the trained model and the processed dataset."""
+logger = logging.getLogger(__name__)
+
+def load_model_and_data(model_path: str, data_path: str) -> Tuple[Any, pd.DataFrame]:
+    """Load the trained model and processed dataset."""
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"Model file not found: {model_path}")
     if not os.path.exists(data_path):
         raise FileNotFoundError(f"Data file not found: {data_path}")
 
-    logger.info(f"Loading model from {model_path}")
     with open(model_path, 'rb') as f:
         model = pickle.load(f)
-
-    logger.info(f"Loading data from {data_path}")
     df = pd.read_csv(data_path)
-
-    # Expected columns for model training
-    feature_cols = ['mixing_enthalpy', 'atomic_size_mismatch', 'electronegativity_variance']
-    if not all(col in df.columns for col in feature_cols):
-        missing = [c for c in feature_cols if c not in df.columns]
-        raise ValueError(f"Missing required feature columns in data: {missing}")
-
-    if 'critical_cooling_rate' not in df.columns:
-        raise ValueError("Missing target column 'critical_cooling_rate' in data")
-
     return model, df
 
-def check_collinearity(df: pd.DataFrame, threshold: float = 0.8) -> Dict[str, Any]:
-    """Check for collinearity among features."""
-    feature_cols = ['mixing_enthalpy', 'atomic_size_mismatch', 'electronegativity_variance']
-    X = df[feature_cols]
-    corr_matrix = X.corr().abs()
+def check_collinearity(df: pd.DataFrame, threshold: float = CORRELATION_THRESHOLD) -> Dict[str, Any]:
+    """
+    Compute Pearson correlation matrix of engineered features and flag pairs with |ρ| > threshold.
+    Returns a report with flagged pairs and the full correlation matrix.
+    """
+    # Select only numeric feature columns (exclude target and metadata)
+    feature_cols = [col for col in df.columns if col not in ['critical_cooling_rate', 'composition']]
+    if not feature_cols:
+        raise ValueError("No feature columns found in the dataset.")
 
+    numeric_df = df[feature_cols].select_dtypes(include=[np.number])
+    corr_matrix = numeric_df.corr()
+    
     flagged_pairs = []
-    for i in range(len(corr_matrix.columns)):
-        for j in range(i + 1, len(corr_matrix.columns)):
-            col_i = corr_matrix.columns[i]
-            col_j = corr_matrix.columns[j]
-            corr_val = corr_matrix.iloc[i, j]
-            if corr_val > threshold:
+    features = corr_matrix.columns.tolist()
+    
+    for i in range(len(features)):
+        for j in range(i + 1, len(features)):
+            f1, f2 = features[i], features[j]
+            corr_val = corr_matrix.loc[f1, f2]
+            if abs(corr_val) > threshold:
                 flagged_pairs.append({
-                    "feature_1": col_i,
-                    "feature_2": col_j,
+                    "feature_1": f1,
+                    "feature_2": f2,
                     "correlation": float(corr_val)
                 })
-                logger.warning(f"High collinearity detected: {col_i} vs {col_j} (r={corr_val:.3f})")
-
+    
     report = {
         "threshold": threshold,
         "flagged_pairs": flagged_pairs,
-        "collinearity_detected": len(flagged_pairs) > 0
+        "has_collinearity": len(flagged_pairs) > 0,
+        "full_correlation_matrix": corr_matrix.to_dict()
     }
+    
+    logger.info(f"Collinearity check complete. Found {len(flagged_pairs)} pairs with |ρ| > {threshold}.")
     return report
 
-def analyze_feature_importance(model: RandomForestRegressor, X: pd.DataFrame, y: pd.Series, n_permutations: int = 1000) -> Dict[str, Any]:
-    """Perform permutation importance analysis."""
-    logger.info("Running permutation importance analysis...")
-    result = permutation_importance(model, X, y, n_permutations=n_permutations, random_state=RANDOM_STATE, n_jobs=-1)
-
-    feature_names = X.columns.tolist()
-    importance_data = []
-    for i, name in enumerate(feature_names):
-        importance_data.append({
-            "feature": name,
-            "importance_mean": float(result.importances_mean[i]),
-            "importance_std": float(result.importances_std[i])
-        })
-
-    # Sort by importance
-    importance_data.sort(key=lambda x: x['importance_mean'], reverse=True)
-
-    # Simple p-value estimation via permutation distribution (simplified for this task)
-    # In a full implementation, we would compare against a null distribution generated by shuffling y
-    # Here we assume the permutation importance is significant if mean > 2*std (heuristic)
-    for item in importance_data:
-        item['is_significant'] = item['importance_mean'] > (2 * item['importance_std'])
-        item['p_value'] = 0.0 if item['is_significant'] else 1.0 # Placeholder for actual calculation
-
-    return {
-        "feature_importance": importance_data,
-        "n_permutations": n_permutations,
-        "random_state": RANDOM_STATE
-    }
-
-def run_sensitivity_analysis(model: RandomForestRegressor, X_test: pd.DataFrame, y_test: pd.Series) -> pd.DataFrame:
+def analyze_feature_importance(model: Any, df: pd.DataFrame, feature_cols: List[str]) -> Dict[str, float]:
     """
-    Conduct sensitivity analysis sweeping specific thresholds {50, 100, 150} K/s.
-    Calculates RMSE on continuous predictions and F1-score on binarized labels.
+    Compute mean absolute SHAP values for feature importance.
+    Returns a dict mapping feature names to their mean absolute SHAP values.
     """
-    logger.info(f"Starting sensitivity analysis with thresholds: {SENSITIVITY_THRESHOLDS_KS}")
-
-    # Ensure continuous predictions
-    y_pred_cont = model.predict(X_test)
-
-    results = []
-    for threshold in SENSITIVITY_THRESHOLDS_KS:
-        logger.info(f"Processing threshold: {threshold} K/s")
-
-        # Binarize true labels and predictions
-        y_true_bin = (y_test >= threshold).astype(int)
-        y_pred_bin = (y_pred_cont >= threshold).astype(int)
-
-        # Calculate RMSE on continuous predictions (Primary Metric)
-        rmse = np.sqrt(mean_squared_error(y_test, y_pred_cont))
-
-        # Calculate F1-score on binarized labels (Secondary Metric)
-        # Handle case where F1 is undefined (e.g., all zeros)
-        try:
-            f1 = f1_score(y_true_bin, y_pred_bin, zero_division=0)
-        except Exception as e:
-            logger.warning(f"Could not compute F1 for threshold {threshold}: {e}")
-            f1 = 0.0
-
-        results.append({
-            "threshold": threshold,
-            "rmse": float(rmse),
-            "f1_score": float(f1)
-        })
-
-    report_df = pd.DataFrame(results)
-
-    # Calculate RMSE variance across thresholds
-    if len(report_df) > 1:
-        rmse_variance = report_df['rmse'].var()
-        mean_rmse = report_df['rmse'].mean()
-        relative_variance = rmse_variance / (mean_rmse ** 2) if mean_rmse > 0 else 0.0
-        logger.info(f"RMSE Variance: {rmse_variance:.4f}, Relative Variance: {relative_variance:.4f}")
-        report_df['rmse_variance'] = rmse_variance
+    X = df[feature_cols]
+    
+    # Use a subset for SHAP if dataset is large to save time
+    if len(X) > 1000:
+        X_sample = X.sample(n=1000, random_state=RANDOM_STATE)
     else:
-        report_df['rmse_variance'] = 0.0
+        X_sample = X
+    
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer.shap_values(X_sample)
+    
+    # Handle both regression and classification SHAP outputs
+    if isinstance(shap_values, list):
+        # For multi-class or complex outputs, take the first class or average
+        shap_values = shap_values[0] if len(shap_values) > 0 else shap_values[0]
+    
+    mean_abs_shap = np.mean(np.abs(shap_values), axis=0)
+    
+    importance_dict = {feature_cols[i]: float(mean_abs_shap[i]) for i in range(len(feature_cols))}
+    return importance_dict
 
-    return report_df
+def retrain_stable_model(
+    df: pd.DataFrame, 
+    dropped_feature: str, 
+    target_col: str = 'critical_cooling_rate'
+) -> Tuple[Any, Dict[str, Any]]:
+    """
+    Retrain a Random Forest model excluding the specified feature.
+    Performs 5-fold CV and returns the model and CV metrics.
+    """
+    feature_cols = [col for col in df.columns if col != target_col and col != 'composition']
+    if dropped_feature in feature_cols:
+        feature_cols.remove(dropped_feature)
+    
+    X = df[feature_cols]
+    y = df[target_col]
+    
+    model = RandomForestRegressor(n_estimators=100, random_state=RANDOM_STATE)
+    
+    # 5-fold CV
+    cv_scores = cross_val_score(model, X, y, cv=5, scoring='neg_root_mean_squared_error')
+    rmse_scores = np.sqrt(-cv_scores)
+    
+    cv_metrics = {
+        "fold_scores": [float(score) for score in rmse_scores],
+        "mean_rmse": float(np.mean(rmse_scores)),
+        "dropped_feature": dropped_feature
+    }
+    
+    # Train on full data
+    model.fit(X, y)
+    
+    return model, cv_metrics
 
 def run_analysis():
-    """Main entry point for the analysis pipeline."""
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    model_path = os.path.join(base_dir, 'data', 'models', 'random_forest_model.pkl')
-    data_path = os.path.join(base_dir, 'data', 'processed', 'processed_alloys.csv')
-    output_path = os.path.join(base_dir, 'data', 'processed', 'sensitivity_report.csv')
-
+    """
+    Main analysis pipeline:
+    1. Load model and data.
+    2. Check collinearity.
+    3. If collinearity exists, retrain stable model; else copy existing.
+    4. Save reports and decisions.
+    """
     logger.info("Starting Analysis Pipeline")
-
+    
+    # Ensure directories exist
+    os.makedirs("data/models", exist_ok=True)
+    
     # Load data and model
-    model, df = load_model_and_data(model_path, data_path)
-
-    # Prepare features and target
-    feature_cols = ['mixing_enthalpy', 'atomic_size_mismatch', 'electronegativity_variance']
-    X = df[feature_cols]
-    y = df['critical_cooling_rate']
-
-    # Split data (using the same logic as training to ensure consistency)
-    # Note: In a real scenario, we should load the exact test split used in training.
-    # Since we don't have the split indices, we re-split with the same seed.
-    from sklearn.model_selection import train_test_split
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=RANDOM_STATE)
-
-    # 1. Check Collinearity
-    logger.info("Checking collinearity...")
-    collinearity_report = check_collinearity(X)
-    collinearity_path = os.path.join(base_dir, 'data', 'processed', 'collinearity_report.json')
-    with open(collinearity_path, 'w') as f:
+    model, df = load_model_and_data(MODEL_PATH, DATA_PATH)
+    
+    # Identify feature columns
+    feature_cols = [col for col in df.columns if col not in ['critical_cooling_rate', 'composition']]
+    
+    # Step 1: Check collinearity
+    collinearity_report = check_collinearity(df)
+    
+    # Save collinearity report
+    with open(COLLINEARITY_REPORT_PATH, 'w') as f:
         json.dump(collinearity_report, f, indent=2)
-    logger.info(f"Collinearity report saved to {collinearity_path}")
+    logger.info(f"Saved collinearity report to {COLLINEARITY_REPORT_PATH}")
+    
+    decision = {}
+    
+    if collinearity_report["has_collinearity"]:
+        logger.info("Collinearity detected. Identifying feature to drop...")
+        
+        # Compute SHAP importance from initial model
+        shap_importance = analyze_feature_importance(model, df, feature_cols)
+        
+        # Find the feature with lowest mean absolute SHAP among collinear pairs
+        collinear_features = set()
+        for pair in collinearity_report["flagged_pairs"]:
+            collinear_features.add(pair["feature_1"])
+            collinear_features.add(pair["feature_2"])
+        
+        if not collinear_features:
+            raise ValueError("Collinearity detected but no features identified in pairs.")
+        
+        # Find lowest importance feature among collinear ones
+        dropped_feature = min(collinear_features, key=lambda x: shap_importance.get(x, float('inf')))
+        logger.info(f"Dropping feature with lowest SHAP importance among collinear pairs: {dropped_feature}")
+        
+        # Retrain stable model
+        stable_model, cv_metrics_stable = retrain_stable_model(df, dropped_feature)
+        
+        # Save stable model
+        with open(STABLE_MODEL_PATH, 'wb') as f:
+            pickle.dump(stable_model, f)
+        logger.info(f"Saved stable model to {STABLE_MODEL_PATH}")
+        
+        # Save CV metrics
+        with open(CV_METRICS_STABLE_PATH, 'w') as f:
+            json.dump(cv_metrics_stable, f, indent=2)
+        logger.info(f"Saved stable CV metrics to {CV_METRICS_STABLE_PATH}")
+        
+        decision = {
+            "retrain_required": True,
+            "dropped_feature": dropped_feature
+        }
+    else:
+        logger.info("No significant collinearity detected. Copying initial model as stable model.")
+        
+        # Copy initial model
+        with open(MODEL_PATH, 'rb') as src:
+            model_content = src.read()
+        with open(STABLE_MODEL_PATH, 'wb') as dst:
+            dst.write(model_content)
+        
+        # Copy CV metrics
+        with open(CV_METRICS_PATH, 'r') as src:
+            cv_metrics = json.load(src)
+        with open(CV_METRICS_STABLE_PATH, 'w') as dst:
+            json.dump(cv_metrics, dst, indent=2)
+        
+        decision = {
+            "retrain_required": False
+        }
+    
+    # Save decision
+    with open(COLLINEARITY_DECISION_PATH, 'w') as f:
+        json.dump(decision, f, indent=2)
+    logger.info(f"Saved collinearity decision to {COLLINEARITY_DECISION_PATH}")
+    
+    logger.info("Analysis pipeline completed successfully.")
+    return decision
 
-    # 2. Feature Importance
-    logger.info("Analyzing feature importance...")
-    importance_report = analyze_feature_importance(model, X_test, y_test)
-    importance_path = os.path.join(base_dir, 'data', 'processed', 'feature_importance.json')
-    with open(importance_path, 'w') as f:
-        json.dump(importance_report, f, indent=2)
-    logger.info(f"Feature importance report saved to {importance_path}")
-
-    # 3. Sensitivity Analysis
-    logger.info("Running sensitivity analysis...")
-    sensitivity_df = run_sensitivity_analysis(model, X_test, y_test)
-
-    # Save sensitivity report
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    sensitivity_df.to_csv(output_path, index=False)
-    logger.info(f"Sensitivity report saved to {output_path}")
-
-    # Verify stability
-    if 'rmse_variance' in sensitivity_df.columns:
-        variance_val = sensitivity_df['rmse_variance'].iloc[0]
-        mean_val = sensitivity_df['rmse'].mean()
-        if mean_val > 0:
-            relative_var = variance_val / (mean_val ** 2)
-            if relative_var < 0.1:
-                logger.info(f"Stability check PASSED: RMSE variance ({relative_var:.4f}) < 10%")
-            else:
-                logger.warning(f"Stability check FAILED: RMSE variance ({relative_var:.4f}) >= 10%")
-        else:
-            logger.warning("Mean RMSE is zero, cannot calculate relative variance.")
-
-    logger.info("Analysis Pipeline Complete")
-    return sensitivity_df
+def main():
+    """Entry point for the analysis script."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    run_analysis()
 
 if __name__ == "__main__":
-    run_analysis()
+    main()

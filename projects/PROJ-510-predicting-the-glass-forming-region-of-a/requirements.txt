@@ -9,3 +9,4 @@ scipy
 pydantic
 jsonschema
 pytest
+shap
