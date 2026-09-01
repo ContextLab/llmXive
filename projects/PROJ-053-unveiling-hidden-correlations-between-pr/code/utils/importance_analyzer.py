@@ -4,255 +4,275 @@ import json
 import logging
 import numpy as np
 from typing import List, Dict, Any, Optional, Tuple
-
 from sklearn.inspection import permutation_importance
 from scipy.stats import spearmanr
+from pathlib import Path
 
-from config import get_models_dir, get_results_dir, get_data_dir, get_random_seed, get_hardcoded_baseline_ranking, ensure_directories, get_logger
-from utils.logger import setup_logging
+from config import (
+    get_project_root,
+    get_models_dir,
+    get_results_dir,
+    get_hardcoded_baseline_ranking,
+    get_logger,
+    ensure_directories,
+    get_data_dir,
+    get_raw_data_dir,
+    get_processed_data_dir
+)
 
-def setup_importance_logger():
+def setup_importance_logger() -> logging.Logger:
     """Setup logger for importance analysis."""
-    return setup_logging("importance_analysis", "data/processed/importance_analysis.log")
+    ensure_directories()
+    logger = get_logger("importance_analyzer")
+    return logger
 
-def load_literature_baseline(logger: logging.Logger) -> Dict[str, int]:
+def load_literature_baseline(logger: logging.Logger) -> Optional[Dict[str, int]]:
     """
-    Load the hard-coded literature baseline from config if no user file is found.
-    Returns a dict mapping feature names to rank integers (1 = most important).
-    """
-    logger.info("Attempting to load hardcoded literature baseline from config...")
-    try:
-        baseline = get_hardcoded_baseline_ranking()
-        if baseline and "rankings" in baseline:
-            logger.info(f"Loaded hardcoded baseline: {baseline['rankings']}")
-            return baseline["rankings"]
-        else:
-            logger.warning("Hardcoded baseline found but missing 'rankings' key.")
-            return None
-    except Exception as e:
-        logger.error(f"Failed to retrieve hardcoded baseline from config: {e}")
-        return None
-
-def get_hardcoded_baseline_ranking() -> Dict[str, Any]:
-    """
-    Fallback to the config definition if user file is missing.
-    This wraps the config function to ensure type safety here.
-    """
-    # This is a wrapper to ensure we get the dict from config.py
-    # The actual definition is in config.py
-    from config import get_hardcoded_baseline_ranking as cfg_get
-    return cfg_get()
-
-def load_user_baseline(user_path: str, logger: logging.Logger) -> Optional[Dict[str, int]]:
-    """
-    Load user-provided baseline from JSON file.
+    Attempt to load a user-provided baseline from data/baseline_importance.json.
     Schema: {"rankings": {"feature_name": rank_int, ...}}
+    Returns None if not found.
     """
-    if not os.path.exists(user_path):
-        logger.info(f"User baseline file not found at {user_path}")
-        return None
+    baseline_path = os.path.join(get_data_dir(), "baseline_importance.json")
+    if os.path.exists(baseline_path):
+        try:
+            with open(baseline_path, 'r') as f:
+                data = json.load(f)
+            if "rankings" in data:
+                logger.info(f"Loaded user-provided baseline from {baseline_path}")
+                return data["rankings"]
+            else:
+                logger.warning(f"Baseline file {baseline_path} missing 'rankings' key.")
+        except Exception as e:
+            logger.error(f"Failed to parse baseline file {baseline_path}: {e}")
+    return None
 
-    try:
-        with open(user_path, 'r') as f:
-            data = json.load(f)
-        
-        if "rankings" not in data:
-            logger.error(f"User baseline file {user_path} missing 'rankings' key.")
-            return None
-        
-        logger.info(f"Loaded user baseline from {user_path}")
-        return data["rankings"]
-    except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON in user baseline file {user_path}: {e}")
-        return None
-    except Exception as e:
-        logger.error(f"Failed to load user baseline {user_path}: {e}")
-        return None
+def get_hardcoded_baseline_ranking(logger: logging.Logger) -> Dict[str, int]:
+    """
+    Return the hard-coded literature baseline defined in config.py.
+    This acts as the final fallback if no user file exists.
+    """
+    logger.info("Using hard-coded literature baseline from config.py")
+    return get_hardcoded_baseline_ranking()
 
-def calculate_permutation_importance(model, X_test: np.ndarray, y_test: np.ndarray, feature_names: List[str], logger: logging.Logger) -> Dict[str, float]:
+def load_user_baseline(logger: logging.Logger) -> Dict[str, int]:
     """
-    Calculate permutation importance for the trained model.
-    Returns a dict mapping feature names to their mean importance scores.
+    Main entry to get a baseline.
+    1. Try user file.
+    2. If missing, return hardcoded baseline from config.
+    Note: The task spec says "If neither user file nor hard-coded baseline exists, raise".
+    Since we provide a hardcoded one in config, we always return something unless config is broken.
+    However, strictly following the 'raise' instruction if config fails:
     """
-    logger.info("Calculating permutation importance on test set...")
-    try:
-        result = permutation_importance(
-            model, X_test, y_test, 
-            n_repeats=10, 
-            random_state=get_random_seed(), 
-            n_jobs=1
-        )
-        
-        importance_dict = {}
-        for i, name in enumerate(feature_names):
-            importance_dict[name] = result.importances_mean[i]
-        
-        logger.info("Permutation importance calculation complete.")
-        return importance_dict
-    except Exception as e:
-        logger.error(f"Failed to calculate permutation importance: {e}")
-        raise
+    user_baseline = load_literature_baseline(logger)
+    if user_baseline is not None:
+        return user_baseline
 
-def rank_list_to_feature_list(rankings: Dict[str, int], feature_names: List[str], logger: logging.Logger) -> List[float]:
+    hardcoded = get_hardcoded_baseline_ranking(logger)
+    if hardcoded:
+        return hardcoded
+
+    # If config didn't provide one, we raise as per spec
+    raise FileNotFoundError("No baseline provided for SC-004; cannot calculate correlation. Execution halted.")
+
+def calculate_permutation_importance(
+    model: Any,
+    X: np.ndarray,
+    y: np.ndarray,
+    feature_names: List[str],
+    n_repeats: int = 10,
+    random_state: int = 42
+) -> Dict[str, float]:
     """
-    Convert a ranking dict (feature -> rank) to a list of ranks aligned with feature_names.
-    If a feature is missing from the ranking, assign a default rank (len(feature_names) + 1).
+    Compute permutation importance for the trained GPR model.
+    Returns a dict mapping feature name to mean importance score.
+    """
+    result = permutation_importance(
+        model, X, y,
+        n_repeats=n_repeats,
+        random_state=random_state,
+        scoring='r2' # GPR usually maximizes log likelihood, but R2 is standard for importance
+    )
+    
+    importance_dict = {}
+    for i, name in enumerate(feature_names):
+        importance_dict[name] = result.importances_mean[i]
+    
+    return importance_dict
+
+def rank_list_to_feature_list(
+    ranking_dict: Dict[str, int],
+    all_features: List[str]
+) -> List[int]:
+    """
+    Convert a dictionary of {feature: rank} into a list of ranks 
+    ordered by the `all_features` list.
+    If a feature is missing in the ranking dict, assign rank 0 (or last?).
+    We assume missing features are least important (rank 0 or high number).
+    Let's assign rank 0 for missing to indicate 'not found' or lowest priority.
     """
     ranks = []
-    max_rank = len(feature_names) + 1
-    
-    for name in feature_names:
-        if name in rankings:
-            ranks.append(float(rankings[name]))
+    for feat in all_features:
+        if feat in ranking_dict:
+            ranks.append(ranking_dict[feat])
         else:
-            logger.warning(f"Feature '{name}' not found in baseline rankings. Assigning default rank {max_rank}.")
-            ranks.append(float(max_rank))
-    
+            # If a feature is in the model but not in the baseline, 
+            # we treat it as rank 0 (lowest) or assign a very high rank.
+            # Standard Spearman handles ties. Let's use 0.
+            ranks.append(0)
     return ranks
 
-def calculate_correlation_coefficient(model_ranks: List[float], baseline_ranks: List[float], logger: logging.Logger) -> float:
+def calculate_correlation_coefficient(
+    model_ranks: List[int],
+    baseline_ranks: List[int]
+) -> float:
     """
-    Calculate Spearman correlation between model ranks and baseline ranks.
+    Calculate Spearman correlation between two lists of ranks.
+    Returns the correlation coefficient (rho).
     """
-    try:
-        correlation, p_value = spearmanr(model_ranks, baseline_ranks)
-        logger.info(f"Spearman correlation calculated: {correlation:.4f} (p-value: {p_value:.4f})")
-        return float(correlation)
-    except Exception as e:
-        logger.error(f"Failed to calculate correlation: {e}")
-        raise
+    rho, _ = spearmanr(model_ranks, baseline_ranks)
+    return float(rho)
 
-def run_correlation_analysis(model, X_test: np.ndarray, y_test: np.ndarray, feature_names: List[str], 
-                             user_baseline_path: Optional[str] = None, 
-                             output_path: Optional[str] = None) -> Dict[str, Any]:
+def run_correlation_analysis(
+    model: Any,
+    X_test: np.ndarray,
+    y_test: np.ndarray,
+    feature_names: List[str],
+    logger: Optional[logging.Logger] = None
+) -> Tuple[Dict[str, float], float, Dict[str, int]]:
     """
-    Main orchestration function for T031.
-    1. Compute permutation importance.
-    2. Load baseline (user or hardcoded).
-    3. Calculate correlation.
-    4. Save results.
+    Orchestrates the full correlation analysis:
+    1. Calculate permutation importance.
+    2. Load baseline.
+    3. Rank both.
+    4. Calculate Spearman correlation.
+    5. Return results.
     """
-    logger = setup_importance_logger()
-    logger.info("Starting permutation importance correlation analysis (T031).")
+    if logger is None:
+        logger = setup_importance_logger()
 
     # 1. Calculate Permutation Importance
-    importance_scores = calculate_permutation_importance(model, X_test, y_test, feature_names, logger)
+    logger.info("Calculating permutation importance...")
+    importance_scores = calculate_permutation_importance(model, X_test, y_test, feature_names)
     
-    # Sort by importance (descending) to get ranks
+    # Sort by importance (descending) to get ranks. 
+    # Rank 1 = most important.
     sorted_features = sorted(importance_scores.items(), key=lambda x: x[1], reverse=True)
-    model_rankings = {feat: rank + 1 for rank, (feat, _) in enumerate(sorted_features)}
-    logger.info(f"Model rankings: {model_rankings}")
+    model_ranking = {feat: rank + 1 for rank, (feat, score) in enumerate(sorted_features)}
+    
+    logger.info(f"Model Ranking: {model_ranking}")
 
     # 2. Load Baseline
-    baseline_rankings = None
-    
-    if user_baseline_path:
-        baseline_rankings = load_user_baseline(user_baseline_path, logger)
-    
-    if not baseline_rankings:
-        logger.info("No user baseline found. Attempting hardcoded literature baseline.")
-        baseline_rankings = get_hardcoded_baseline_ranking()
-        if baseline_rankings:
-            baseline_rankings = baseline_rankings.get("rankings", {})
-    
-    if not baseline_rankings:
-        logger.error("No baseline provided for SC-004; cannot calculate correlation. Execution halted.")
-        raise FileNotFoundError("No baseline provided for SC-004; cannot calculate correlation. Execution halted.")
+    try:
+        baseline_ranking = load_user_baseline(logger)
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        raise
 
-    # 3. Calculate Correlation
-    model_ranks = rank_list_to_feature_list(model_rankings, feature_names, logger)
-    baseline_ranks = rank_list_to_feature_list(baseline_rankings, feature_names, logger)
-    
-    correlation = calculate_correlation_coefficient(model_ranks, baseline_ranks, logger)
+    logger.info(f"Baseline Ranking: {baseline_ranking}")
 
-    # 4. Prepare Results
-    results = {
-        "permutation_importance": importance_scores,
-        "model_rankings": model_rankings,
-        "baseline_rankings": baseline_rankings,
-        "permutation_importance_correlation": correlation,
-        "correlation_method": "spearman"
-    }
+    # 3. Convert to rank lists for correlation
+    # We need a consistent order. Use the feature_names from the model data.
+    model_ranks = rank_list_to_feature_list(model_ranking, feature_names)
+    baseline_ranks = rank_list_to_feature_list(baseline_ranking, feature_names)
 
-    # 5. Save Results
-    if output_path:
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(results, f, indent=2)
-        logger.info(f"Results saved to {output_path}")
+    logger.debug(f"Model Ranks vector: {model_ranks}")
+    logger.debug(f"Baseline Ranks vector: {baseline_ranks}")
 
-    logger.info("Correlation analysis complete.")
-    return results
+    # 4. Calculate Correlation
+    correlation = calculate_correlation_coefficient(model_ranks, baseline_ranks)
+    logger.info(f"Spearman Correlation (Model vs Baseline): {correlation:.4f}")
+
+    return importance_scores, correlation, model_ranking
 
 def main():
-    """CLI entry point for T031."""
-    import argparse
-    parser = argparse.ArgumentParser(description="Run permutation importance correlation analysis.")
-    parser.add_argument("--model-path", type=str, required=True, help="Path to saved GPR model (.pkl)")
-    parser.add_argument("--test-data-path", type=str, required=True, help="Path to processed test data CSV")
-    parser.add_argument("--user-baseline", type=str, default=None, help="Optional path to user baseline JSON")
-    parser.add_argument("--output", type=str, default=None, help="Output path for results JSON")
-    args = parser.parse_args()
-
+    """
+    Standalone entry point to run the analysis if called directly.
+    Assumes model and data are already saved in standard locations.
+    """
     logger = setup_importance_logger()
-    ensure_directories()
+    logger.info("Starting Permutation Importance Correlation Analysis (T031)")
 
     # Load Model
-    logger.info(f"Loading model from {args.model_path}")
-    try:
-        with open(args.model_path, 'rb') as f:
-            model = pickle.load(f)
-    except Exception as e:
-        logger.error(f"Failed to load model: {e}")
+    model_path = os.path.join(get_models_dir(), "gpr_model.pkl")
+    if not os.path.exists(model_path):
+        logger.error(f"Model not found at {model_path}")
         sys.exit(1)
+    
+    with open(model_path, 'rb') as f:
+        model = pickle.load(f)
+    logger.info("Loaded GPR Model")
 
     # Load Test Data
-    logger.info(f"Loading test data from {args.test_data_path}")
-    try:
-        import pandas as pd
-        df = pd.read_csv(args.test_data_path)
-        # Assume target is the last column or named 'yield_strength'/'ductility'
-        # For T031, we assume the model was trained on specific features.
-        # We need to identify features. Usually, we drop the target column.
-        target_col = None
-        for col in ['yield_strength', 'ductility', 'fatigue_life']:
-            if col in df.columns:
-                target_col = col
-                break
-        
-        if not target_col:
-            logger.error("Could not identify target column in test data.")
-            sys.exit(1)
-
-        X = df.drop(columns=[target_col]).values
-        y = df[target_col].values
-        feature_names = df.drop(columns=[target_col]).columns.tolist()
-    except Exception as e:
-        logger.error(f"Failed to load test data: {e}")
+    # We need the raw features to match the model's expectation.
+    # The preprocessed data is in data/processed/test.csv
+    test_csv_path = os.path.join(get_processed_data_dir(), "test.csv")
+    if not os.path.exists(test_csv_path):
+        logger.error(f"Test data not found at {test_csv_path}")
         sys.exit(1)
 
-    # Determine output path
-    output_path = args.output
-    if not output_path:
-        output_path = os.path.join(get_results_dir(), "importance_correlation.json")
+    import pandas as pd
+    df = pd.read_csv(test_csv_path)
+    
+    # Identify features and target. 
+    # Based on schema: predictors are laser_power, scan_speed, layer_thickness, 
+    # and encoded alloy types. Targets are yield_strength, ductility.
+    # We need to know which target the model was trained on.
+    # For simplicity, we assume the model file contains metadata or we try common targets.
+    # However, the task implies we run this on the *trained* model.
+    # Let's assume the model was trained on 'yield_strength' (common primary target).
+    # We will try to infer from the model's feature names if possible, 
+    # or just use all numeric columns except the known targets as features.
+    
+    # Better: Load the model's feature names if saved, otherwise infer.
+    # Let's assume the model object has a feature_names_ attribute or similar, 
+    # but sklearn GPR doesn't always store them.
+    # We will assume the columns in the CSV (excluding targets) are the features.
+    known_targets = ['yield_strength', 'ductility', 'fatigue_life']
+    features = [c for c in df.columns if c not in known_targets]
+    target = 'yield_strength' # Default assumption if not specified elsewhere
+    
+    if target not in df.columns:
+        logger.warning(f"Target {target} not found, trying first available target...")
+        for t in known_targets:
+            if t in df.columns:
+                target = t
+                break
+        else:
+            logger.error("No known target column found in test data.")
+            sys.exit(1)
+
+    X_test = df[features].values
+    y_test = df[target].values
+
+    logger.info(f"Using features: {features}")
+    logger.info(f"Using target: {target}")
 
     # Run Analysis
     try:
-        results = run_correlation_analysis(
-            model=model,
-            X_test=X,
-            y_test=y,
-            feature_names=feature_names,
-            user_baseline_path=args.user_baseline,
-            output_path=output_path
+        importance_scores, correlation, model_ranking = run_correlation_analysis(
+            model, X_test, y_test, features, logger
         )
-        print(f"Analysis complete. Correlation: {results['permutation_importance_correlation']}")
     except FileNotFoundError as e:
-        logger.error(str(e))
-        sys.exit(1)
-    except Exception as e:
         logger.error(f"Analysis failed: {e}")
         sys.exit(1)
+
+    # Save Results
+    results_path = os.path.join(get_results_dir(), "metrics.json")
+    metrics = {}
+    if os.path.exists(results_path):
+        with open(results_path, 'r') as f:
+            metrics = json.load(f)
+    
+    metrics["permutation_importance_correlation"] = correlation
+    metrics["permutation_importance_rankings"] = model_ranking
+    
+    with open(results_path, 'w') as f:
+        json.dump(metrics, f, indent=2)
+    
+    logger.info(f"Results saved to {results_path}")
+    logger.info(f"Correlation Coefficient: {correlation}")
+
+    return correlation
 
 if __name__ == "__main__":
     main()

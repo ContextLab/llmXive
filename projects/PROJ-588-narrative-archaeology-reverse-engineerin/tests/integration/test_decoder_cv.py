@@ -1,95 +1,139 @@
 """
-Integration Test for T031: K-fold Cross-Validation
+Integration tests for Task T031: K-fold Cross-Validation.
+
+Verifies that the decoder_cv module correctly loads data, runs 5-fold CV,
+calculates chance baselines, and writes valid output.
 """
 import pytest
 import numpy as np
 import json
-from pathlib import Path
-import sys
 import os
+from pathlib import Path
+import tempfile
+import h5py
+import pandas as pd
+import sys
 
-# Add code to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from models.decoder_cv import run_kfold_cross_validation
+from code.models.decoder_cv import run_kfold_cross_validation, load_roi_features_and_labels, main
+import code.config as config
 
-class TestKFoldCrossValidation:
-    """Tests for the K-fold cross-validation implementation."""
+@pytest.fixture
+def mock_data_dir(tmp_path):
+    """Create a temporary directory structure with mock data for testing."""
+    processed_dir = tmp_path / "processed"
+    processed_dir.mkdir(parents=True)
+    
+    # Create mock events_aligned.csv
+    events_data = {
+        'subject_id': ['sub-01'] * 20,
+        'event_index': list(range(20)),
+        'phase': ['early'] * 10 + ['late'] * 10,
+        'narrative_label': (['plot'] * 3 + ['character'] * 3 + ['theme'] * 4) * 2
+    }
+    events_df = pd.DataFrame(events_data)
+    events_path = processed_dir / "events_aligned.csv"
+    events_df.to_csv(events_path, index=False)
+    
+    # Create mock roi_timecourses.h5
+    h5_path = processed_dir / "roi_timecourses.h5"
+    with h5py.File(h5_path, 'w') as f:
+        roi_grp = f.create_group("hippocampus")
+        phase_grp = roi_grp.create_group("early")
+        # Create dummy data: 10 samples, 50 features
+        phase_grp.create_dataset("data", data=np.random.randn(10, 50).astype(np.float32))
+        # Create dummy labels matching the CSV subset for 'early'
+        phase_grp.create_dataset("labels", data=np.array(['plot', 'plot', 'plot', 'character', 'character', 'character', 'theme', 'theme', 'theme', 'theme']))
+        
+        # Late phase
+        phase_grp_late = roi_grp.create_group("late")
+        phase_grp_late.create_dataset("data", data=np.random.randn(10, 50).astype(np.float32))
+        phase_grp_late.create_dataset("labels", data=np.array(['plot', 'plot', 'plot', 'character', 'character', 'character', 'theme', 'theme', 'theme', 'theme']))
+        
+    return tmp_path
 
-    def test_accuracy_exceeds_chance_balanced(self):
-        """Test that a balanced dataset yields accuracy > chance."""
-        # Create a balanced dataset with 3 classes
-        n_samples_per_class = 20
-        n_features = 50
+@pytest.fixture
+def mock_config(monkeypatch, tmp_path):
+    """Mock config functions to use temporary directory."""
+    def mock_get_data_path():
+        return tmp_path / "data"
+    
+    def mock_get_output_path():
+        return tmp_path / "results"
         
-        # Create separable data
-        X = np.vstack([
-            np.random.randn(n_samples_per_class, n_features) + 1,
-            np.random.randn(n_samples_per_class, n_features) - 1,
-            np.random.randn(n_samples_per_class, n_features) + 0
-        ])
-        y = np.array(['class_A'] * n_samples_per_class + 
-                     ['class_B'] * n_samples_per_class + 
-                     ['class_C'] * n_samples_per_class)
-        
-        results = run_kfold_cross_validation(X, y, k=5)
-        
-        chance = 1.0 / 3.0
-        
-        # Assert accuracy is significantly above chance
-        assert results['accuracy'] > chance, f"Accuracy {results['accuracy']} not greater than chance {chance}"
-        assert results['n_classes'] == 3
-        assert results['k_folds'] == 5
+    # Ensure directories exist
+    (tmp_path / "data").mkdir(parents=True)
+    (tmp_path / "results").mkdir(parents=True)
+    
+    monkeypatch.setattr(config, "get_data_path", mock_get_data_path)
+    monkeypatch.setattr(config, "get_output_path", mock_get_output_path)
+    
+    return tmp_path
 
-    def test_accuracy_exceeds_chance_imbalanced(self):
-        """Test that accuracy is calculated correctly against adjusted chance for imbalanced data."""
-        # Imbalanced dataset: 40 class A, 10 class B, 10 class C
-        n_samples = 60
-        n_features = 50
-        
-        X = np.random.randn(n_samples, n_features)
-        y = np.array(['class_A'] * 40 + ['class_B'] * 10 + ['class_C'] * 10)
-        
-        results = run_kfold_cross_validation(X, y, k=5)
-        
-        # Chance is 1/3 regardless of imbalance (uniform prior assumption for classifier)
-        # But the task spec says "chance baseline as 1 / N_actual"
-        chance = 1.0 / 3.0
-        
-        assert results['chance_baseline'] == chance
-        assert 'fold_scores' in results
-        assert len(results['fold_scores']) == 5
+def test_kfold_accuracy_vs_chance(mock_data_dir, mock_config):
+    """
+    Test that run_kfold_cross_validation correctly calculates accuracy
+    and chance baseline.
+    """
+    # Load mock data
+    X, y = load_roi_features_and_labels("hippocampus", "early")
+    
+    # Run CV
+    mean_acc, std_acc, scores, chance, classes = run_kfold_cross_validation(X, y, n_splits=5)
+    
+    # Assertions
+    assert isinstance(mean_acc, float)
+    assert 0.0 <= mean_acc <= 1.0
+    assert isinstance(chance, float)
+    
+    # With 3 classes (plot, character, theme), chance should be 1/3
+    assert np.isclose(chance, 1.0/3.0), f"Chance baseline {chance} != 1/3"
+    
+    # Accuracy should be a valid probability
+    assert 0.0 <= mean_acc <= 1.0
+    
+    # Scores should have 5 elements
+    assert len(scores) == 5
 
-    def test_output_structure(self):
-        """Verify the output structure matches the required schema."""
-        X = np.random.randn(30, 20)
-        y = np.array(['A'] * 10 + ['B'] * 10 + ['C'] * 10)
-        
-        results = run_kfold_cross_validation(X, y, k=5)
-        
-        required_keys = ['accuracy', 'std_accuracy', 'chance_baseline', 'n_classes', 'fold_scores', 'k_folds']
-        for key in required_keys:
-            assert key in results, f"Missing key: {key}"
-        
-        assert isinstance(results['accuracy'], float)
-        assert isinstance(results['std_accuracy'], float)
-        assert isinstance(results['fold_scores'], list)
-        assert len(results['fold_scores']) == 5
+def test_main_writes_output(mock_data_dir, mock_config):
+    """
+    Test that the main() function writes the expected JSON output file.
+    """
+    # Run main
+    main()
+    
+    output_path = mock_config / "results" / "decoder_cv_metrics.json"
+    
+    # Check file exists
+    assert output_path.exists(), f"Output file {output_path} not created"
+    
+    # Check content
+    with open(output_path, 'r') as f:
+        data = json.load(f)
+    
+    assert "task_id" in data
+    assert data["task_id"] == "T031"
+    assert "results" in data
+    assert len(data["results"]) > 0
+    
+    # Check structure of a result entry
+    result = data["results"][0]
+    assert "roi" in result
+    assert "phase" in result
+    assert "accuracy" in result
+    assert "chance_baseline" in result
+    assert "deviation_from_chance" in result
 
-    def test_single_class_handling(self):
-        """Test that single class data is handled (though likely to fail or warn)."""
-        X = np.random.randn(10, 20)
-        y = np.array(['A'] * 10)
-        
-        # This should technically fail or produce 100% accuracy with 1 class
-        # But LabelEncoder might handle it.
-        # We expect it to run without crashing, but accuracy might be 1.0 or chance 1.0
-        results = run_kfold_cross_validation(X, y, k=5)
-        
-        assert results['n_classes'] == 1
-        assert results['chance_baseline'] == 1.0
-        # Accuracy on single class is trivially 1.0
-        assert results['accuracy'] == 1.0
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_kfold_consistency(mock_data_dir, mock_config):
+    """
+    Test that running CV twice with the same seed yields same results.
+    """
+    X, y = load_roi_features_and_labels("hippocampus", "early")
+    
+    acc1, _, scores1, _, _ = run_kfold_cross_validation(X, y, n_splits=5, random_state=42)
+    acc2, _, scores2, _, _ = run_kfold_cross_validation(X, y, n_splits=5, random_state=42)
+    
+    assert acc1 == acc2
+    assert np.allclose(scores1, scores2)

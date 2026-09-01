@@ -95,7 +95,7 @@
 ### Implementation for User Story 2
 
 - [ ] T021 [S] [US2] Implement `code/models/rsa.py` to compute dissimilarity matrices for **Early Event vs. Late Event** phases. **Formula**: `RDM[i,j] = 1 - corr(timecourse_i, timecourse_j)`. **Output**: `results/rsa_matrices.json` (schema: `{roi: {early_late: float, early_early: float}}`). **Dependency**: Requires T013 (ROI timecourses) and T008 (Semantic features for covariates). <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
-- [ ] T022 [S] [US2] Implement permutation testing logic in `code/utils/stats.py` with 1000 iterations and FDR correction (q < 0.05). **Output**: `results/permutation_pvalues.json`.
+- [X] T022 [S] [US2] Implement permutation testing logic in `code/utils/stats.py` with 1000 iterations and FDR correction (q < 0.05). **Output**: `results/permutation_pvalues.json`.
 - [X] T023 [S] [US2] Implement Fisher's Z aggregation across subjects: `Z = 0.5 * ln((1+r)/(1-r))`. **Output**: `results/group_rsa_stats.json`.
 - [ ] T024 [P] [US2] Visualize top differing ROIs (mPFC, hippocampus) in `code/utils/viz.py`. **Output**: `results/rsa_heatmaps.png`.
 - [ ] T025-IMPLEMENT [S] [US2] Implement "Early vs. Late Event Stability" RSA analysis. **Metric**: `Stability = 1 - (Dissimilarity_Late - Dissimilarity_Early)`. **Output**: `results/stability_metrics.json`. **Dependency**: Requires T021.

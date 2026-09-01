@@ -1,119 +1,121 @@
 """
-Unit tests for RSA dissimilarity matrix calculation (T019).
-
-Tests the `compute_dissimilarity_matrix` function from `code/models/rsa.py`.
-Verifies:
-1. Correct shape of the output matrix (N x N).
-2. Symmetry of the matrix.
-3. Zero values on the diagonal (self-similarity).
-4. Correct calculation of dissimilarity (1 - correlation) for known inputs.
+Unit tests for RSA module (T021).
 """
-import numpy as np
 import pytest
+import numpy as np
 from pathlib import Path
+import json
 import sys
+import os
 
-# Ensure project root is in path for imports
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from code.models.rsa import compute_dissimilarity_matrix
+from code.models.rsa import compute_dissimilarity_matrix, compare_early_late, run_rsa_analysis
 
+def test_compute_dissimilarity_matrix_basic():
+    """Test basic dissimilarity matrix computation."""
+    # Create simple 2D array: 3 events, 4 voxels
+    np.random.seed(42)
+    timecourses = np.random.rand(3, 4)
+    
+    rdm = compute_dissimilarity_matrix(timecourses)
+    
+    # Check shape
+    assert rdm.shape == (3, 3)
+    
+    # Check diagonal is zero (or very close)
+    assert np.allclose(np.diag(rdm), 0.0)
+    
+    # Check symmetry
+    assert np.allclose(rdm, rdm.T)
+    
+    # Check values are in [0, 2] (correlation distance range)
+    assert np.all((rdm >= 0) & (rdm <= 2))
 
-class TestComputeDissimilarityMatrix:
-    """Tests for the compute_dissimilarity_matrix function."""
+def test_compute_dissimilarity_matrix_identical():
+    """Test with identical timecourses (should be 0 dissimilarity)."""
+    timecourses = np.ones((3, 4))
+    rdm = compute_dissimilarity_matrix(timecourses)
+    assert np.allclose(rdm, 0.0)
 
-    def test_output_shape(self):
-        """Test that the output matrix is square (N x N)."""
-        n_events = 10
-        n_voxels = 5
-        # Create dummy timecourses: (n_events, n_voxels)
-        # Using random data for shape test
-        rng = np.random.default_rng(42)
-        timecourses = rng.standard_normal((n_events, n_voxels))
+def test_compare_early_late():
+    """Test Early vs. Late comparison."""
+    early_matrix = np.array([[0, 0.5, 0.6], [0.5, 0, 0.7], [0.6, 0.7, 0]])
+    late_matrix = np.array([[0, 0.2, 0.3], [0.2, 0, 0.4], [0.3, 0.4, 0]])
+    
+    diff = compare_early_late(early_matrix, late_matrix)
+    
+    # Mean of early (excluding diagonal): (0.5+0.6+0.5+0.7+0.6+0.7)/6 = 3.6/6 = 0.6
+    # Mean of late (excluding diagonal): (0.2+0.3+0.2+0.4+0.3+0.4)/6 = 1.8/6 = 0.3
+    # Difference: 0.6 - 0.3 = 0.3
+    assert np.isclose(diff, 0.3)
 
-        rdm = compute_dissimilarity_matrix(timecourses)
-
-        assert rdm.shape == (n_events, n_events), \
-            f"Expected shape ({n_events}, {n_events}), got {rdm.shape}"
-
-    def test_symmetry(self):
-        """Test that the RDM is symmetric (R[i,j] == R[j,i])."""
-        rng = np.random.default_rng(42)
-        timecourses = rng.standard_normal((8, 6))
-
-        rdm = compute_dissimilarity_matrix(timecourses)
-
-        # Check symmetry within floating point tolerance
-        assert np.allclose(rdm, rdm.T), "RDM is not symmetric"
-
-    def test_diagonal_zeros(self):
-        """Test that the diagonal elements are zero (self-similarity)."""
-        rng = np.random.default_rng(42)
-        timecourses = rng.standard_normal((8, 6))
-
-        rdm = compute_dissimilarity_matrix(timecourses)
-
-        # Diagonal should be 0 (1 - correlation(1.0) = 0)
-        np.testing.assert_array_almost_equal(
-            np.diag(rdm),
-            np.zeros(timecourses.shape[0]),
-            decimal=5,
-            err_msg="Diagonal elements should be zero"
-        )
-
-    def test_known_correlation(self):
-        """Test calculation with a known correlation case."""
-        # Create two identical vectors
-        v1 = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-        # Create a second vector perfectly correlated with v1
-        v2 = v1 * 2 + 1  # Linear transformation preserves correlation = 1.0
+def test_run_rsa_analysis_integration():
+    """
+    Integration test for run_rsa_analysis.
+    This test creates a mock roi_timecourses.h5 file and verifies the output.
+    """
+    import h5py
+    import tempfile
+    
+    # Create temporary directory and file
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        input_file = tmpdir / "roi_timecourses.h5"
+        output_file = tmpdir / "rsa_matrices.json"
         
-        # Create a third vector uncorrelated (or negatively correlated)
-        v3 = np.array([5.0, 4.0, 3.0, 2.0, 1.0]) # Perfectly negatively correlated (-1.0)
-
-        # Stack into (n_events, n_features)
-        timecourses = np.vstack([v1, v2, v3])
-
-        rdm = compute_dissimilarity_matrix(timecourses)
-
-        # R[0, 1] should be 1 - 1.0 = 0.0
-        expected_01 = 0.0
-        assert np.isclose(rdm[0, 1], expected_01, atol=1e-5), \
-            f"Expected R[0,1] to be {expected_01}, got {rdm[0, 1]}"
-
-        # R[0, 2] should be 1 - (-1.0) = 2.0
-        expected_02 = 2.0
-        assert np.isclose(rdm[0, 2], expected_02, atol=1e-5), \
-            f"Expected R[0,2] to be {expected_02}, got {rdm[0, 2]}"
-
-    def test_single_event(self):
-        """Test edge case with a single event."""
-        timecourses = np.array([[1.0, 2.0, 3.0]])
+        # Create mock data
+        with h5py.File(input_file, 'w') as f:
+            # Create mock ROI group
+            roi_group = f.create_group("hippocampus")
+            
+            # Create mock early and late data (5 events, 10 voxels)
+            np.random.seed(123)
+            early_data = np.random.rand(5, 10)
+            late_data = np.random.rand(5, 10)
+            
+            roi_group.create_dataset("early", data=early_data)
+            roi_group.create_dataset("late", data=late_data)
         
-        rdm = compute_dissimilarity_matrix(timecourses)
+        # Temporarily override config paths
+        import code.config as config
+        original_get_data_path = config.get_data_path
+        original_get_output_path = config.get_output_path
         
-        assert rdm.shape == (1, 1)
-        assert rdm[0, 0] == 0.0
-
-    def test_constant_timecourse_handling(self):
-        """Test behavior when a timecourse has zero variance (constant)."""
-        # One constant vector, one normal vector
-        # Correlation is undefined for constant vectors, usually returns NaN or 0 depending on implementation
-        # We expect the function to handle this gracefully (likely producing NaN or a defined fallback)
-        # The implementation uses scipy.spatial.distance.pdist with 'correlation', which returns 1.0 for constant vectors 
-        # (since correlation is undefined, but distance logic often treats it as max dissimilarity or 0).
-        # Let's verify it doesn't crash.
+        def mock_get_data_path(suffix):
+            if "roi_timecourses.h5" in suffix:
+                return str(input_file)
+            return str(tmpdir / suffix)
         
-        v_const = np.array([1.0, 1.0, 1.0])
-        v_var = np.array([1.0, 2.0, 3.0])
+        def mock_get_output_path(suffix):
+            return str(tmpdir / suffix)
         
-        timecourses = np.vstack([v_const, v_var])
+        config.get_data_path = mock_get_data_path
+        config.get_output_path = mock_get_output_path
         
-        # This should not raise an exception
         try:
-            rdm = compute_dissimilarity_matrix(timecourses)
-            # If it runs, it's a pass for this unit test (graceful handling)
-            assert rdm.shape == (2, 2)
-        except Exception as e:
-            pytest.fail(f"compute_dissimilarity_matrix raised an exception on constant timecourse: {e}")
+            # Run the analysis
+            result = run_rsa_analysis()
+            
+            # Verify output file exists
+            assert output_file.exists()
+            
+            # Verify JSON structure
+            with open(output_file, 'r') as f:
+                data = json.load(f)
+            
+            assert "hippocampus" in data
+            assert "early_early" in data["hippocampus"]
+            assert "late_late" in data["hippocampus"]
+            assert "early_late" in data["hippocampus"]
+            
+            # Verify values are floats
+            assert isinstance(data["hippocampus"]["early_early"], float)
+            assert isinstance(data["hippocampus"]["late_late"], float)
+            assert isinstance(data["hippocampus"]["early_late"], float)
+            
+        finally:
+            # Restore original functions
+            config.get_data_path = original_get_data_path
+            config.get_output_path = original_get_output_path

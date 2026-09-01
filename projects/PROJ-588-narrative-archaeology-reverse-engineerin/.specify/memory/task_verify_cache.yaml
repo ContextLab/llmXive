@@ -6,34 +6,12 @@ T017:
     \ and there is no implementation shown that actually skips subjects with excessive\
     \ motion or writes JSON\u2011formatted error entries to that log. The core artifact\
     \ (the error log with entries) is missing, so the task is not fulfilled."
-T021:
-  c: false
-  h: 18db38f3635b06abf9fed42cd859ff64e3f6b68e1bf80f160a04dad3923b7e41
-  r: 'The repository contains `code/models/rsa.py` with a generic dissimilarity function,
-    but it never loads ROI timecourses (T013) or semantic covariates (T008), nor does
-    it generate or write the required `results/rsa_matrices.json` file with the `{roi:
-    {early_late: float, early_early: float}}` schema. The expected output file is
-    missing entirely.'
 T022:
   c: false
   h: 7fc35885ad4ae6bda57cd9d7fc51a22aaf0c2c4ddbdc09df78be38975dfba1ae
   r: "The repository contains a `stats.py` with a permutation test (default 1000 iterations)\
     \ and an FDR\u2011correction helper, but the required output file `results/permutation_pvalues.json`\
     \ is absent, so the task\u2019s specified artifact is missing."
-T024:
-  c: false
-  h: 79b2bc59cfecf713433fce8686cdcfd8f8019626d628424b5a1a47b6a5e320a9
-  r: The `code/utils/viz.py` file is truncated and the `plot_early_late_roi_comparison`
-    function ends abruptly, indicating the visualization code is not fully implemented.
-    Moreover, the required output file `results/rsa_heatmaps.png` does not exist.
-    Both the functional artifact and the expected result are missing, so the task
-    is not satisfied.
-T031:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, notebook, script, or output files implementing a 5\u2011fold cross\u2011\
-    validation and reporting accuracy versus a chance baseline are present. The required\
-    \ artifact is missing, so the task is not satisfied."
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-14T04:02:40.465775Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-1053-llmxive-follow-up-extending-kronq-llm-qu
-last_run_id: null
+last_run_id: a4764794-d6a1-4b69-ad7c-6a7853545a8a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "KronQ: LLM Quantization via Kronecker-Factored
   Hessian"'
-updated_at: '2026-07-14T04:02:40.465775Z'
+updated_at: '2026-09-01T03:44:34.190099Z'

@@ -1,7 +1,3 @@
-"""
-Module for applying False Discovery Rate (FDR) correction to decoding results.
-Implements Benjamini-Hochberg procedure across narrative categories and ROIs.
-"""
 import numpy as np
 import json
 import logging
@@ -9,142 +5,181 @@ from pathlib import Path
 from statsmodels.stats.multitest import fdrcorrection
 import code.config as config
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def apply_fdr_to_results(results_path: str, output_path: str) -> dict:
+def apply_fdr_to_results(p_values: list, alpha: float = 0.05) -> dict:
     """
-    Loads decoder metrics, extracts p-values, applies FDR correction,
-    and saves the corrected results.
+    Apply Benjamini-Hochberg FDR correction to a list of p-values.
 
     Args:
-        results_path: Path to the decoder metrics JSON (from T030/T031).
-        output_path: Path where the FDR-corrected JSON will be written.
+        p_values: List of p-values to correct.
+        alpha: Significance threshold (default 0.05).
 
     Returns:
-        A dictionary containing the corrected metrics.
+        Dictionary containing:
+            - 'p_values': Original p-values
+            - 'corrected_p_values': FDR-corrected p-values
+            - 'is_significant': Boolean mask of significant results
+            - 'num_significant': Count of significant results
     """
-    logger.info(f"Loading decoder results from {results_path}")
-    try:
-        with open(results_path, 'r') as f:
-            data = json.load(f)
-    except FileNotFoundError:
-        raise FileNotFoundError(f"Decoder results file not found: {results_path}. "
-                                "Ensure T030 and T031 have been completed.")
-
-    # Extract p-values. We expect a list of results or a dict with a 'results' key.
-    # Based on T030/T031 output schema, we assume a list of entries with p-values.
-    # If the structure is flat, we adapt.
-    entries = []
-    if isinstance(data, list):
-        entries = data
-    elif isinstance(data, dict) and 'results' in data:
-        entries = data['results']
-    elif isinstance(data, dict):
-        # Single entry case
-        entries = [data]
-
-    if not entries:
-        logger.warning("No entries found in decoder results to correct.")
-        return data
-
-    # Collect p-values and metadata
-    p_values = []
-    metadata = []
-    for i, entry in enumerate(entries):
-        # Look for p-value key. T030 uses 'validation_p_value' or similar.
-        # T031 might produce 'p_value' from permutation testing against null.
-        p_val = entry.get('p_value')
-        if p_val is None:
-            p_val = entry.get('validation_p_value')
-        
-        if p_val is None:
-            logger.warning(f"Entry {i} missing p-value. Skipping.")
-            continue
-        
-        p_values.append(float(p_val))
-        metadata.append(entry)
-
     if not p_values:
-        logger.warning("No valid p-values found for FDR correction.")
-        return data
+        return {
+            'p_values': [],
+            'corrected_p_values': [],
+            'is_significant': [],
+            'num_significant': 0
+        }
 
-    p_values = np.array(p_values)
-    
-    logger.info(f"Applying FDR correction (Benjamini-Hochberg) to {len(p_values)} hypotheses.")
-    
     # Apply FDR correction
-    # reject: boolean array indicating which hypotheses are rejected
-    # pvals_corrected: adjusted p-values
-    reject, pvals_corrected, _, _ = fdrcorrection(p_values, alpha=0.05, method='indep')
+    reject, pvals_corrected, _, _ = fdrcorrection(np.array(p_values), alpha=alpha, method='indep')
 
-    # Update metadata with corrected values
-    corrected_results = []
-    for i, entry in enumerate(metadata):
-        new_entry = entry.copy()
-        new_entry['fdr_rejected'] = bool(reject[i])
-        new_entry['fdr_corrected_p_value'] = float(pvals_corrected[i])
-        corrected_results.append(new_entry)
-
-    # Construct final output structure
-    output_data = {
-        'correction_method': 'Benjamini-Hochberg (FDR)',
-        'alpha': 0.05,
-        'n_hypotheses': len(p_values),
-        'n_rejected': int(np.sum(reject)),
-        'results': corrected_results
+    return {
+        'p_values': p_values,
+        'corrected_p_values': pvals_corrected.tolist(),
+        'is_significant': reject.tolist(),
+        'num_significant': int(np.sum(reject))
     }
 
-    # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    logger.info(f"Writing FDR-corrected results to {output_path}")
-    with open(output_path, 'w') as f:
-        json.dump(output_data, f, indent=2)
-
-    return output_data
-
-def run_fdr_correction_pipeline() -> None:
+def run_fdr_correction_pipeline(
+    decoder_metrics_path: str,
+    rsa_metrics_path: str,
+    output_path: str
+) -> dict:
     """
-    Main entry point to run FDR correction on the decoder analysis results.
-    Reads from T030/T031 output and writes to results/fdr_corrected_metrics.json.
-    """
-    # Define paths based on config
-    input_path = config.get_output_path('decoder_metrics.json')
-    output_path = config.get_output_path('fdr_corrected_metrics.json')
-    
-    # If T030 output is a single file and T031 aggregates, we might need to 
-    # combine them. For now, we assume T031's output (or a combined file) 
-    # contains the p-values. 
-    # If T031 produces 'results/permutation_pvalues.json', we might need to merge.
-    # Assuming the primary p-values for narrative categories come from the 
-    # decoder evaluation (T030/T031 combined logic).
-    
-    # Fallback: if the specific input path doesn't exist, try common locations
-    if not Path(input_path).exists():
-        # Try to find the most recent decoder metrics file
-        possible_paths = [
-            config.get_output_path('decoder_metrics.json'),
-            'results/decoder_metrics.json',
-            'results/combined_decoder_results.json'
-        ]
-        found = False
-        for p in possible_paths:
-            if Path(p).exists():
-                input_path = p
-                logger.info(f"Using alternative input path: {input_path}")
-                found = True
-                break
-        if not found:
-            raise FileNotFoundError("Could not locate decoder metrics file for FDR correction.")
+    Run FDR correction pipeline across narrative categories and ROIs.
 
+    This function:
+    1. Loads decoder metrics (accuracy/p-values) for each narrative category
+    2. Loads RSA metrics (dissimilarity comparisons) for each ROI
+    3. Aggregates all p-values
+    4. Applies FDR correction
+    5. Writes results to output file
+
+    Args:
+        decoder_metrics_path: Path to decoder_metrics.json
+        rsa_metrics_path: Path to rsa_metrics.json (or group_rsa_stats.json)
+        output_path: Path to write fdr_corrected_results.json
+
+    Returns:
+        Dictionary with FDR correction results
+    """
+    logger.info(f"Loading decoder metrics from {decoder_metrics_path}")
     try:
-        apply_fdr_to_results(input_path, output_path)
-        logger.info("FDR correction completed successfully.")
-    except Exception as e:
-        logger.error(f"FDR correction failed: {e}")
-        raise
+        with open(decoder_metrics_path, 'r') as f:
+            decoder_data = json.load(f)
+    except FileNotFoundError:
+        logger.warning(f"Decoder metrics file not found: {decoder_metrics_path}")
+        decoder_data = {}
 
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    run_fdr_correction_pipeline()
+    logger.info(f"Loading RSA metrics from {rsa_metrics_path}")
+    try:
+        with open(rsa_metrics_path, 'r') as f:
+            rsa_data = json.load(f)
+    except FileNotFoundError:
+        logger.warning(f"RSA metrics file not found: {rsa_metrics_path}")
+        rsa_data = {}
+
+    # Collect all p-values from decoder results
+    decoder_p_values = []
+    decoder_labels = []
+
+    if 'per_category' in decoder_data:
+        for category, metrics in decoder_data['per_category'].items():
+            if 'p_value' in metrics:
+                decoder_p_values.append(metrics['p_value'])
+                decoder_labels.append(f"decoder_{category}")
+
+    # Collect p-values from RSA results (early vs late comparisons)
+    rsa_p_values = []
+    rsa_labels = []
+
+    if 'group_stats' in rsa_data:
+        for roi, stats in rsa_data['group_stats'].items():
+            if 'early_late_p_value' in stats:
+                rsa_p_values.append(stats['early_late_p_value'])
+                rsa_labels.append(f"rsa_{roi}_early_late")
+            if 'early_early_p_value' in stats:
+                rsa_p_values.append(stats['early_early_p_value'])
+                rsa_labels.append(f"rsa_{roi}_early_early")
+
+    # Combine all p-values
+    all_p_values = decoder_p_values + rsa_p_values
+    all_labels = decoder_labels + rsa_labels
+
+    if not all_p_values:
+        logger.warning("No p-values found to correct. Writing empty result.")
+        result = {
+            'decoder_results': apply_fdr_to_results(decoder_p_values),
+            'rsa_results': apply_fdr_to_results(rsa_p_values),
+            'combined_results': {
+                'p_values': [],
+                'corrected_p_values': [],
+                'labels': [],
+                'is_significant': [],
+                'num_significant': 0
+            },
+            'summary': {
+                'total_tests': 0,
+                'total_significant': 0,
+                'alpha': 0.05
+            }
+        }
+    else:
+        # Apply FDR to combined p-values
+        combined_result = apply_fdr_to_results(all_p_values)
+        combined_result['labels'] = all_labels
+
+        # Apply FDR to subsets for detailed reporting
+        decoder_result = apply_fdr_to_results(decoder_p_values)
+        decoder_result['labels'] = decoder_labels
+
+        rsa_result = apply_fdr_to_results(rsa_p_values)
+        rsa_result['labels'] = rsa_labels
+
+        result = {
+            'decoder_results': decoder_result,
+            'rsa_results': rsa_result,
+            'combined_results': combined_result,
+            'summary': {
+                'total_tests': len(all_p_values),
+                'total_significant': combined_result['num_significant'],
+                'alpha': 0.05,
+                'decoder_tests': len(decoder_p_values),
+                'decoder_significant': decoder_result['num_significant'],
+                'rsa_tests': len(rsa_p_values),
+                'rsa_significant': rsa_result['num_significant']
+            }
+        }
+
+    # Write results to output file
+    output_path_obj = Path(output_path)
+    output_path_obj.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_path_obj, 'w') as f:
+        json.dump(result, f, indent=2)
+
+    logger.info(f"FDR correction results written to {output_path}")
+    logger.info(f"Total tests: {result['summary']['total_tests']}, "
+               f"Significant: {result['summary']['total_significant']}")
+
+    return result
+
+def main():
+    """Main entry point for FDR correction pipeline."""
+    # Define paths
+    decoder_metrics_path = config.get_output_path('decoder_metrics.json')
+    rsa_metrics_path = config.get_output_path('group_rsa_stats.json')
+    output_path = config.get_output_path('fdr_corrected_results.json')
+
+    # Run pipeline
+    results = run_fdr_correction_pipeline(
+        decoder_metrics_path,
+        rsa_metrics_path,
+        output_path
+    )
+
+    return results
+
+if __name__ == '__main__':
+    main()

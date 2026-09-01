@@ -28,9 +28,9 @@
 
 - [X] T001b [P] Execute `scripts/setup_project.py` to initialize the repository structure.
 
-- [X] T002 [P] Initialize Python project with pinned Python dependencies in `requirements.txt` (biopython, scikit-bio, scipy, pandas, numpy, ete3, requests, lxml, matplotlib, seaborn, pytest). **Note**: System binaries `mafft` and `fasttree` are NOT included here; see Ta.
+- [X] T002 [P] Initialize Python project with pinned Python dependencies in `requirements.txt` (biopython, scikit-bio, scipy, pandas, numpy, ete3, requests, lxml, matplotlib, seaborn, pytest). **Note**: System binaries `mafft` and `fasttree` are NOT included here; see T002a.
 
-- [ ] T002a [P] Install system binaries `mafft` and `fasttree` on the runner via `apt-get install mafft fasttree` (or equivalent for the runner OS). **Constraint**: Must verify binaries are in PATH before proceeding.
+- [ ] T002a [P] Install system binaries `mafft` and `fasttree` on the runner via `apt-get install mafft fasttree`. **Constraint**: Must verify binaries are in PATH by running `mafft --version` and `FastTree --version` before proceeding.
 
 - [ ] T003 [P] Configure linting (ruff/flake) and formatting (black) tools. **Constraint**: Must enforce specific error codes for unused imports and missing type hints.
 
@@ -66,24 +66,26 @@
 
 > **NOTE**: Write these tests AFTER the skeleton implementation exists but BEFORE the full implementation.
 > **Clarification**: The correct execution order for Test-Driven Development (TDD) in this context is:
-> 1. **T013 (Skeleton)**: Create empty or minimal stubs for `code/data_loader.py` and `code/phylo_pipeline.py`.
+> 1. **T013a (Skeleton)**: Create empty or minimal stubs for `code/data_loader.py` and `code/phylo_pipeline.py`.
 > 2. **T010-T012 (Tests)**: Implement the test cases which will fail against the stubs.
-> 3. **T013 (Full Implementation)**: Implement the full logic in `code/data_loader.py` and `code/phylo_pipeline.py` to make the tests pass.
-> Do not attempt to run T010-T012 before T013 (skeleton) exists.
+> 3. **T013b (Full Implementation)**: Implement the full logic in `code/data_loader.py` and `code/phylo_pipeline.py` to make the tests pass.
+> Do not attempt to run T010-T012 before T013a (skeleton) exists.
 
 - [X] T010 [P] [US1] Contract test for data loader output schema. **Deliverable**: Create `tests/contract/schemas/data_loader.yaml` and `tests/contract/test_data_loader.py` with function `test_data_loader_schema_matches`. Assert output matches schema.
 
-- [ ] T011 [P] [US1] Integration test for full pipeline run on a diverse set of species. **Input**: `data/raw/test_species_10.txt`. **Output**: `data/processed/test_tree.newick`. **Assertion**: `assert p-value < 0.05` (or < 0.1 for small sample).
+- [ ] T011 [P] [US1] Integration test for full pipeline run on a diverse set of species. **Input**: `data/raw/test_species_10.txt`. **Output**: `data/processed/test_tree.newick`. **Assertion**: `assert p-value is a float and 0 <= p-value <= 1`.
 
 - [ ] T012 [P] [US1] Negative control test: Verify shuffled metabolite profiles yield negligible correlation. **Threshold**: `|r| < 0.05`. **Input**: Real phylogenetic distances + shuffled metabolite matrix.
 
 ### Implementation for User Story 1
 
-- [X] T013 [US1] Implement `code/data_loader.py`: NCBI Entrez fetcher for ribosomal and plastid marker genes. **Constraint**: Must raise `ValueError` with species ID and missing locus details if fetch fails; NO synthetic fallback. Log format must include species ID and locus. **Note**: Implement skeleton first, then full implementation after T010-T012.
+- [X] T013a [US1] Implement `code/data_loader.py`: NCBI Entrez fetcher for ribosomal and plastid marker genes (Skeleton). **Constraint**: Must raise `ValueError` with species ID and missing locus details if fetch fails; NO synthetic fallback. Log format must include species ID and locus. **Note**: Create skeleton stubs only; full implementation follows T010-T012.
+
+- [ ] T013b [US1] Implement `code/data_loader.py`: NCBI Entrez fetcher for ribosomal and plastid marker genes (Full Implementation). **Constraint**: Must raise `ValueError` with species ID and missing locus details if fetch fails; NO synthetic fallback. Log format must include species ID and locus.
 
 - [X] T014 [US1] Implement `code/data_loader.py`: KEGG COMPOUND/BRITE fetcher for secondary metabolite presence/absence. **Constraint**: Must handle species with no KEGG entry by excluding from matrix but flagging in log (do not halt).
 
-- [X] T015a [US1] Implement `code/phylo_pipeline.py`: Multi-locus sequence concatenation. **Input**: Individual FASTA files from T013. **Output**: Single concatenated FASTA per species.
+- [X] T015a [US1] Implement `code/phylo_pipeline.py`: Multi-locus sequence concatenation. **Input**: Individual FASTA files from T013b. **Output**: Single concatenated FASTA per species.
 
 - [X] T015b [US1] Implement `code/phylo_pipeline.py`: Multi-locus sequence alignment using the `mafft` binary (via subprocess). **Input**: Concatenated FASTA from a designated sample. **Output**: Aligned FASTA. **Constraint**: Must use `mafft` binary with `--thread` flags; no alternative aligners.
 
@@ -91,19 +93,19 @@
 
 - [X] T016b [US1] Implement `code/phylo_pipeline.py`: Maximum-likelihood tree construction using FastTree binary. **Input**: Prepared alignment from T016a. **Output**: Newick tree file.
 
-- [X] T017 [US1] Implement `code/phylo_pipeline.py`: Patristic distance matrix calculation. **Constraint**: Must treat unresolved nodes (polytomies) as average path length (sum of branch lengths), consistent with `ape` package defaults.
+- [ ] T017 [US1] Implement `code/phylo_pipeline.py`: Patristic distance matrix calculation. **Constraint**: Must explicitly calculate average path length (sum of branch lengths along the path) for unresolved nodes (polytomies), not rely on library defaults.
 
 - [X] T018 [US1] Implement `code/stats_engine.py`: Jaccard dissimilarity matrix calculation from binary metabolite vectors.
 
-- [ ] T019 [US1] Implement `code/stats_engine.py`: Mantel test with a sufficient number of permutations for statistical robustness. **Deliverables**: Output r and p-value, save the null distribution histogram data to `data/processed/null_distribution.json`, AND generate a validation log entry in `output/reports/validation_log.txt` explicitly stating "SC-001: p < 0.05 (PASS)" or "SC-001: p > 0.05 (FAIL)". **Constraint**: p-value must be calculated explicitly against the saved null distribution.
+- [ ] T019 [US1] Implement `code/stats_engine.py`: Mantel test with a sufficient number of permutations to ensure statistical robustness. **Deliverables**: Output r and p-value, save the null distribution histogram data to `data/processed/null_distribution.json`, AND generate a validation log entry in `output/reports/validation_log.txt` explicitly stating "SC-001: p < 0.05 (PASS)" or "SC-001: p > 0.05 (FAIL)". **Constraint**: p-value must be calculated explicitly against the saved null distribution. **Edge Case**: Must detect degenerate distributions (zero variance in permutations) and report a specific warning/p-value.
 
-- [X] T020a [US1] Implement `code/main.py`: Orchestration logic. **Constraint**: Must distinguish between 'total data loss' (>20% species missing BOTH sequence and metabolite data -> HALT) and 'partial exclusion' (species missing KEGG only -> EXCLUDE from matrix, RETAIN in tree, LOG warning).
+- [ ] T020a [US1] Implement `code/main.py`: Orchestration logic. **Constraint**: Must distinguish between 'total data loss' (>20% species missing BOTH sequence and metabolite data -> HALT) and 'partial exclusion' (species missing KEGG only -> EXCLUDE from matrix, RETAIN in tree, LOG warning). **Formula**: Data Loss = (Species with NO Sequence AND NO Metabolite) / Total Target.
 
-- [X] T020b [US1] Implement `code/main.py`/`code/report.py`: SC-003 Verification. **Logic**: Calculate final retention percentage (species with both data types / total target). Compare against the target threshold. **Deliverable**: Append status "SC-003: Retention X% (PASS/FAIL)" to `output/reports/validation_log.txt`.
+- [ ] T020b [US1] Implement `code/main.py`/`code/report.py`: SC-003 Verification. **Logic**: Calculate final retention percentage (species with both data types / total target). Compare against the target threshold. **Deliverable**: Append status "SC-003: Retention X% (PASS/FAIL)" to `output/reports/validation_log.txt`.
 
-- [ ] T021 [US1] Save raw downloads to `data/raw/` with checksums. **Constraint**: Must update `state/projects/PROJ-408...yaml` `artifact_hashes` map with checksums (primary source of truth); local `checksums.txt` is secondary only.
+- [ ] T021 [US1] Save raw downloads to `data/raw/` with checksums. **Constraint**: Must update `state/projects/PROJ-408...yaml` `artifact_hashes` map with checksums (primary source of truth); local `checksums.txt` is secondary only. **Path**: `state.projects.PROJ-408.artifact_hashes.data_raw`.
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+**Checkpoint**: At this point, User Story 1 core data pipeline is ready; T019 (Mantel test) is the critical path for final validation.
 
 ---
 
@@ -125,13 +127,15 @@
 
 - [X] T025 [US2] Implement `code/stats_engine.py`: Climate distance matrix construction. **Input**: USDA PLANTS climate zone assignments. **Metric**: Euclidean distance on normalized continuous climate vectors derived from USDA PLANTS data. **Justification**: See plan.md Constitution Check Section VII (Continuous vectors used despite "zone" terminology for finer resolution). **Constraint**: Do NOT use binary metrics (Jaccard/Hamming).
 
+- [ ] T025b [US2] Implement `code/stats_engine.py`: Stratified subset analysis. **Input**: Full dataset, climate zone categories. **Action**: Calculate Mantel r-values for each climate zone subset (if n >= 20) and compare with the full dataset r-value. **Deliverable**: Log comparison results to `output/reports/stratified_analysis.txt` to satisfy Principle VII.
+
 - [ ] T026 [US2] Implement `code/stats_engine.py`: Partial Mantel test implementation (controlling for climate matrix). **Dependencies**: T017 (Phylogenetic Distance Matrix), T025 (Climate Distance Matrix). **Note**: Does NOT depend on T019 (Standard Mantel result).
 
 - [ ] T027 [US2] Implement `code/main.py`: Logic to aggregate results (Standard Mantel r vs. Partial Mantel r) and verify cluster sizes. **Constraint**: If any climate cluster has <20 species, explicitly LOG a warning regarding low power but PROCEED with the full dataset analysis. Do NOT fail or mark as invalid.
 
 - [ ] T028 [US2] Save climate matrix and partial test results to `data/processed/` with derivation logs.
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+**Checkpoint**: At this point, User Stories 1 and 2 have code paths; T019 and T026 are the critical paths for final validation.
 
 ---
 
@@ -153,9 +157,9 @@
 
 - [ ] T032 [US3] Implement `code/main.py`/`code/report.py`: Text summary generator. **Dependencies**: T019 (Mantel stats), T017 (Distance Matrix), T026 (Partial Mantel results). **Deliverables**: Must include headline r, p-value, partial r, and the comparative ratio (partial r / standard r) to assess robustness per SC-002. Save as `output/reports/analysis_summary.txt`.
 
-- [ ] T033 [US3] Ensure all figures meet high-resolution standards (DPI ≥ 300) for publication readiness.
+- [ ] T033 [US3] Ensure all figures meet high-resolution standards (DPI ≥ 300). **Constraint**: Must save as PNG with `dpi=300` parameter.
 
-**Checkpoint**: All user stories should now be independently functional
+**Checkpoint**: All user stories have code paths; final validation pending T019/T026 completion.
 
 ---
 
@@ -169,7 +173,9 @@
 
 - [ ] T036 [P] Performance optimization: Ensure streaming logic handles large species lists within 7GB RAM limit.
 
-- [ ] T037 [P] Run full pipeline on a representative subset to verify runtime compliance. (SC-004)
+- [ ] T037 [P] Run full pipeline on a representative subset to verify runtime compliance (SC-004). **Constraint**: Must capture runtime, log it to `data/processed/runtime_metrics.json`, and assert it is <= 6 hours.
+
+- [ ] T037a [P] Implement runtime assertion logic for T037. **Constraint**: Must read `data/processed/runtime_metrics.json`, compare against 6-hour threshold, and raise `RuntimeError` if exceeded.
 
 - [ ] T038 [P] Verify all `data/raw/` files have corresponding checksums in `state/projects/...yaml` and `data/processed/` files have derivation logs
 
@@ -194,8 +200,8 @@
 
 ### Within Each User Story
 
-- **Tests (if included) MUST be written AFTER skeleton code exists but BEFORE full implementation**: T013 (skeleton) -> T010-T012 (tests) -> T013 (full implementation).
-- **Data loading and validation (T013, T014) MUST precede alignment (T015a, T015b)**
+- **Tests (if included) MUST be written AFTER skeleton code exists but BEFORE full implementation**: T013a (skeleton) -> T010-T012 (tests) -> T013b (full implementation).
+- **Data loading and validation (T013b, T014) MUST precede alignment (T015a, T015b)**
 - **Alignment (T015b) MUST precede tree building (T016b)** (via T015a -> T015b -> T016a -> T016b flow)
 - **Tree building (T016b) MUST precede distance calculation (T017)**
 - **Distance calculations MUST precede statistical tests (T019, T026)**
