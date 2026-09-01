@@ -1789,3 +1789,145 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-30T13:17:34Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Volume fractions match published values within 0.05
+  claim_id: c_4d8ea166
+  context: Independent Test for User Story 2 regarding texture quantification and
+    descriptor extraction.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The quantification module can be tested by processing a known benchmark\
+    \ dataset and verifying that the calculated volume fractions match published values\
+    \ within \xB10.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:00:28Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Absolute difference between calculated and benchmark volume fractions
+    is less than or equal to 0.05
+  claim_id: c_bdc94023
+  context: T018b implementation logic for benchmark comparison against Rosenstock
+    et al. (2018) values.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Absolute_difference_between_calculated_and_benchmark_volume
+  kind: magnitude
+  raw_text: Verify that delta <= 0.05 for all components (Brass, Copper, S, Goss).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:00:48Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: R-squared variation across interpolation tolerances is less than or equal
+    to 0.02
+  claim_id: c_d1411d76
+  context: Independent Test for User Story 4 regarding model robustness and extrapolation
+    bounds.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/R-squared_variation_across_interpolation_tolerances_is_less
+  kind: magnitude
+  raw_text: "Verify that the variation in R\xB2 across the swept tolerances is \u2264\
+    \ 0.02."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:01:43Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Sum of volume fractions equals 1.0 within 0.01
+  claim_id: c_5403eee9
+  context: T019 implementation logic for mass balance check.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the sum of major components (Brass, Copper, S, Goss) plus\
+    \ the 'random' fraction equals 1.0 \xB1 0.01 for every sample."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:03:43Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Sum of intensities in symmetry-equivalent regions matches within 2 percent
+  claim_id: c_8fef861b
+  context: T035 implementation logic for lattice symmetry constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement a check that ensures the sum of intensities in symmetry-equivalent\
+    \ regions matches within a tolerance (e.g., \xB12%) using the available volume\
+    \ fractions."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:03:44Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Data points with confidence index less than 0.1 are filtered
+  claim_id: c_a5c31ad5
+  context: T014 implementation logic for preprocessing EBSD data.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_points_with_confidence_index_less_than_0.1_are_filtered
+  kind: magnitude
+  raw_text: Filter out individual data points with confidence index < 0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:04:14Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Samples with more than 50 percent of points filtered are excluded
+  claim_id: c_362088c8
+  context: T014 implementation logic for data hygiene and exclusion.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Samples_with_more_than_50_percent_of_points_filtered_are_exc
+  kind: magnitude
+  raw_text: Flag samples where >50% of points are filtered as 'low reliability' and
+    EXCLUDE them from the final training set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:05:11Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Search window for texture components is 5 degrees
+  claim_id: c_f7f0855d
+  context: T018 implementation logic for calculating volume fractions using MTEX-style
+    search algorithms.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement a configurable search window of \xB15 degrees around the central\
+    \ values to account for lattice rotation spread."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:05:23Z'

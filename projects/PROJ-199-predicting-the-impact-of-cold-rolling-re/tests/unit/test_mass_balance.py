@@ -1,146 +1,170 @@
 import pytest
 import pandas as pd
 import numpy as np
+from pathlib import Path
+import json
+import tempfile
+import os
+
+# Import the module to test
 from code.features.mass_balance import (
     calculate_random_fraction,
     check_mass_balance,
     validate_descriptor_mass_balance,
     validate_dataset_mass_balance,
-    MASS_BALANCE_TOLERANCE,
+    TOLERANCE
 )
+
 
 class TestCalculateRandomFraction:
     def test_normal_case(self):
-        """Test that random fraction is calculated correctly."""
-        brass, copper, s, goss = 0.3, 0.2, 0.1, 0.1
-        random_frac = calculate_random_fraction(brass, copper, s, goss)
-        assert random_frac == 0.3  # 1.0 - 0.7
-
-    def test_sum_equals_one(self):
-        """Test when sum of components is exactly 1.0."""
-        brass, copper, s, goss = 0.25, 0.25, 0.25, 0.25
-        random_frac = calculate_random_fraction(brass, copper, s, goss)
-        assert random_frac == 0.0
+        # Sum of knowns = 0.8, random should be 0.2
+        result = calculate_random_fraction(0.2, 0.2, 0.2, 0.2)
+        assert np.isclose(result, 0.2)
 
     def test_sum_exceeds_one(self):
-        """Test when sum of components exceeds 1.0 (negative random)."""
-        brass, copper, s, goss = 0.4, 0.4, 0.4, 0.4
-        random_frac = calculate_random_fraction(brass, copper, s, goss)
-        assert random_frac == -0.6
+        # Sum of knowns = 1.1, random should be -0.1
+        result = calculate_random_fraction(0.3, 0.3, 0.3, 0.2)
+        assert np.isclose(result, -0.1)
+
+    def test_sum_less_than_one(self):
+        # Sum of knowns = 0.5, random should be 0.5
+        result = calculate_random_fraction(0.1, 0.1, 0.1, 0.2)
+        assert np.isclose(result, 0.5)
+
 
 class TestCheckMassBalance:
     def test_valid_balance(self):
-        """Test a valid mass balance scenario."""
-        brass, copper, s, goss = 0.3, 0.2, 0.1, 0.1
-        is_valid, deviation = check_mass_balance(brass, copper, s, goss)
+        is_valid, reason = check_mass_balance(
+            "sample_1", 0.2, 0.2, 0.2, 0.2, 0.2
+        )
         assert is_valid is True
-        assert deviation == 0.0
+        assert "Valid" in reason
 
-    def test_valid_with_tolerance(self):
-        """Test valid balance within tolerance."""
-        # Floating point arithmetic might cause tiny deviations
-        brass, copper, s, goss = 0.333333, 0.333333, 0.333333, 0.000001
-        is_valid, deviation = check_mass_balance(brass, copper, s, goss)
+    def test_invalid_balance_high(self):
+        # Sum = 1.05, deviation = 0.05 > 0.01
+        is_valid, reason = check_mass_balance(
+            "sample_2", 0.25, 0.25, 0.25, 0.25, 0.05
+        )
+        assert is_valid is False
+        assert "Mass balance violation" in reason
+
+    def test_invalid_balance_low(self):
+        # Sum = 0.95, deviation = 0.05 > 0.01
+        is_valid, reason = check_mass_balance(
+            "sample_3", 0.15, 0.15, 0.15, 0.15, 0.35
+        )
+        assert is_valid is False
+        assert "Mass balance violation" in reason
+
+    def test_tolerance_boundary(self):
+        # Sum = 1.01, deviation = 0.01 == tolerance (should be valid)
+        is_valid, reason = check_mass_balance(
+            "sample_4", 0.2, 0.2, 0.2, 0.2, 0.21
+        )
         assert is_valid is True
-        assert deviation <= MASS_BALANCE_TOLERANCE
 
-    def test_invalid_negative_random(self):
-        """Test invalid balance when sum > 1.0 (negative random)."""
-        brass, copper, s, goss = 0.4, 0.4, 0.4, 0.4
-        is_valid, deviation = check_mass_balance(brass, copper, s, goss)
-        assert is_valid is False
-        assert deviation == 0.6  # |1.0 - 0.4| = 0.6 (since random is -0.6, total sum is 0.4)
-        # Actually: total_sum = 1.6 + (-0.6) = 1.0? No.
-        # Logic: major_sum = 1.6. random = 1.0 - 1.6 = -0.6. total = 1.6 + (-0.6) = 1.0.
-        # But we check random >= 0. So it fails.
-        # The deviation check in code: abs(total_sum - 1.0) -> abs(1.0 - 1.0) = 0.
-        # But is_valid also requires random_frac >= 0.
-        # So is_valid is False because random_frac is negative.
-
-    def test_invalid_large_deviation(self):
-        """Test invalid balance with large deviation."""
-        brass, copper, s, goss = 0.1, 0.1, 0.1, 0.1
-        # Sum = 0.4, random = 0.6, total = 1.0.
-        # This is valid mathematically (total=1.0), but maybe we want to check if components are too low?
-        # The spec says: "sum of major components ... plus random ... equals 1.0".
-        # This is always true by definition of random.
-        # The real check is: is random >= 0?
-        # So 0.1+0.1+0.1+0.1 = 0.4 -> random=0.6 -> valid.
-        # Let's test a case where sum > 1.0
-        brass, copper, s, goss = 0.6, 0.6, 0.6, 0.6
-        is_valid, deviation = check_mass_balance(brass, copper, s, goss)
-        assert is_valid is False
 
 class TestValidateDescriptorMassBalance:
-    def test_valid_row(self):
-        """Test validation on a valid row."""
-        row = pd.Series({'brass': 0.3, 'copper': 0.2, 's': 0.1, 'goss': 0.1})
-        is_valid, deviation = validate_descriptor_mass_balance(row)
-        assert is_valid is True
-
-    def test_invalid_row(self):
-        """Test validation on an invalid row (sum > 1.0)."""
-        row = pd.Series({'brass': 0.4, 'copper': 0.4, 's': 0.4, 'goss': 0.4})
-        is_valid, deviation = validate_descriptor_mass_balance(row)
-        assert is_valid is False
-
-    def test_missing_columns(self):
-        """Test behavior when columns are missing (defaults to 0.0)."""
-        row = pd.Series({'brass': 0.5})
-        # copper, s, goss default to 0.0
-        is_valid, deviation = validate_descriptor_mass_balance(row)
-        assert is_valid is True  # 0.5 + 0.5 = 1.0
-
-class TestValidateDatasetMassBalance:
-    @pytest.fixture
-    def valid_df(self):
-        return pd.DataFrame({
-            'sample_id': [1, 2, 3],
-            'brass': [0.3, 0.2, 0.1],
-            'copper': [0.2, 0.3, 0.1],
-            's': [0.1, 0.1, 0.2],
-            'goss': [0.1, 0.1, 0.1],
-            'material': ['Al', 'Cu', 'Ni']
+    def setup_method(self):
+        # Create a mock dataframe
+        self.df_valid = pd.DataFrame({
+            'sample_id': ['A', 'B'],
+            'brass': [0.2, 0.3],
+            'copper': [0.2, 0.1],
+            's': [0.2, 0.2],
+            'goss': [0.2, 0.2],
+            'random': [0.2, 0.2]
         })
 
-    @pytest.fixture
-    def mixed_df(self):
-        return pd.DataFrame({
-            'sample_id': [1, 2, 3],
-            'brass': [0.3, 0.5, 0.1],
-            'copper': [0.2, 0.5, 0.1],
-            's': [0.1, 0.5, 0.2],
-            'goss': [0.1, 0.5, 0.1],
-            'material': ['Al', 'Cu', 'Ni']
+        self.df_invalid = pd.DataFrame({
+            'sample_id': ['C', 'D'],
+            'brass': [0.5, 0.1],
+            'copper': [0.5, 0.1],
+            's': [0.5, 0.1],
+            'goss': [0.5, 0.1],
+            'random': [0.5, 0.7] # D is valid (sum=1.0), C is invalid (sum=2.0)
         })
 
-    def test_exclude_invalid(self, valid_df, mixed_df):
-        """Test that invalid rows are excluded when exclude_invalid=True."""
-        # valid_df: all valid
-        result_valid = validate_dataset_mass_balance(valid_df, exclude_invalid=True)
-        assert len(result_valid) == 3
+        self.df_mixed = pd.DataFrame({
+            'sample_id': ['E', 'F', 'G'],
+            'brass': [0.2, 0.5, 0.1],
+            'copper': [0.2, 0.1, 0.1],
+            's': [0.2, 0.1, 0.1],
+            'goss': [0.2, 0.1, 0.1],
+            'random': [0.2, 0.7, 0.7] # E valid, F invalid (1.5), G valid
+        })
 
-        # mixed_df: row 1 (index 1) has sum=2.0 -> invalid
-        result_mixed = validate_dataset_mass_balance(mixed_df, exclude_invalid=True)
-        assert len(result_mixed) == 2
-        assert 1 not in result_mixed.index.tolist()
-
-    def test_include_invalid(self, mixed_df):
-        """Test that invalid rows are kept with a flag when exclude_invalid=False."""
-        result = validate_dataset_mass_balance(mixed_df, exclude_invalid=False)
-        assert 'mass_balance_valid' in result.columns
-        assert result.loc[0, 'mass_balance_valid'] is True
-        assert result.loc[1, 'mass_balance_valid'] is False
-        assert result.loc[2, 'mass_balance_valid'] is True
+    def test_all_valid(self):
+        valid_df, excluded = validate_descriptor_mass_balance(self.df_valid)
+        assert len(valid_df) == 2
+        assert len(excluded) == 0
 
     def test_all_invalid(self):
-        """Test behavior when all rows are invalid."""
-        df = pd.DataFrame({
-            'brass': [0.4, 0.4],
-            'copper': [0.4, 0.4],
-            's': [0.4, 0.4],
-            'goss': [0.4, 0.4],
-        })
-        result = validate_dataset_mass_balance(df, exclude_invalid=True)
-        assert len(result) == 0
-        assert result.empty is True
+        valid_df, excluded = validate_descriptor_mass_balance(self.df_invalid)
+        # C is invalid, D is valid (0.1+0.1+0.1+0.1+0.7 = 1.1 -> invalid? wait. 0.1*4=0.4, +0.7=1.1. Invalid)
+        # Actually D: 0.1+0.1+0.1+0.1+0.7 = 1.1. Deviation 0.1 > 0.01. Invalid.
+        # So both are invalid.
+        assert len(valid_df) == 0
+        assert len(excluded) == 2
+
+    def test_mixed_validity(self):
+        valid_df, excluded = validate_descriptor_mass_balance(self.df_mixed)
+        # E: 0.8+0.2=1.0 (Valid)
+        # F: 1.5 (Invalid)
+        # G: 0.4+0.7=1.1 (Invalid)
+        assert len(valid_df) == 1
+        assert valid_df['sample_id'].iloc[0] == 'E'
+        assert len(excluded) == 2
+        assert excluded[0]['sample_id'] == 'F'
+        assert excluded[1]['sample_id'] == 'G'
+
+    def test_missing_columns(self):
+        bad_df = pd.DataFrame({'sample_id': ['X'], 'brass': [0.5]})
+        with pytest.raises(ValueError, match="Missing required columns"):
+            validate_descriptor_mass_balance(bad_df)
+
+
+class TestValidateDatasetMassBalanceIntegration:
+    def test_full_flow(self, tmp_path):
+        # Create input CSV
+        input_data = {
+            'sample_id': ['S1', 'S2', 'S3'],
+            'brass': [0.2, 0.5, 0.1],
+            'copper': [0.2, 0.1, 0.1],
+            's': [0.2, 0.1, 0.1],
+            'goss': [0.2, 0.1, 0.1],
+            'random': [0.2, 0.7, 0.7]
+        }
+        df = pd.DataFrame(input_data)
+        input_path = tmp_path / "descriptors.csv"
+        df.to_csv(input_path, index=False)
+
+        output_report_path = tmp_path / "mass_balance_report.json"
+
+        # Run validation
+        success = validate_dataset_mass_balance(
+            descriptors_path=str(input_path),
+            output_report_path=str(output_report_path)
+        )
+
+        # Assertions
+        assert success is True
+        assert output_report_path.exists()
+
+        # Verify report content
+        with open(output_report_path) as f:
+            report = json.load(f)
+
+        assert report['total_samples'] == 3
+        assert report['valid_samples'] == 1
+        assert report['excluded_samples_count'] == 2
+        assert report['excluded_samples'][0]['sample_id'] == 'S2'
+        assert report['excluded_samples'][1]['sample_id'] == 'S3'
+
+        # Verify cleaned CSV exists
+        cleaned_path = tmp_path / "descriptors_cleaned.csv"
+        assert cleaned_path.exists()
+        cleaned_df = pd.read_csv(cleaned_path)
+        assert len(cleaned_df) == 1
+        assert cleaned_df['sample_id'].iloc[0] == 'S1'

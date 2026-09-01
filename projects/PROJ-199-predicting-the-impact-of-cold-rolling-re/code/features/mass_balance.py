@@ -1,200 +1,220 @@
 import os
 import sys
 import logging
+import json
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
 import numpy as np
 import pandas as pd
 
 from utils.logging import get_logger
-from config import get_data_path
 
 logger = get_logger(__name__)
 
-# Tolerance for mass balance check (1.0 ± 0.01)
-MASS_BALANCE_TOLERANCE = 0.01
+# Constants for mass balance validation
+TOLERANCE = 0.01
+COMPONENTS = ['brass', 'copper', 's', 'goss', 'random']
+
 
 def calculate_random_fraction(
-    brass: float, copper: float, s: float, goss: float
-) -> float:
-    """
-    Calculate the 'random' fraction as the remainder to reach 1.0.
-
-    Args:
-        brass: Volume fraction of Brass component.
-        copper: Volume fraction of Copper component.
-        s: Volume fraction of S component.
-        goss: Volume fraction of Goss component.
-
-    Returns:
-        The calculated random fraction (1.0 - sum of major components).
-    """
-    major_sum = brass + copper + s + goss
-    return 1.0 - major_sum
-
-def check_mass_balance(
     brass: float,
     copper: float,
     s: float,
     goss: float,
-    tolerance: float = MASS_BALANCE_TOLERANCE,
-) -> Tuple[bool, float]:
+    tolerance: float = TOLERANCE
+) -> float:
     """
-    Check if the sum of major components plus the implied random fraction equals 1.0.
-
-    Since 'random' is defined as the remainder, the check is effectively:
-    Does (brass + copper + s + goss) + (1.0 - (brass + copper + s + goss)) == 1.0?
-    Mathematically, this is always true unless there are floating point errors or
-    if the components themselves are invalid (e.g., negative, > 1.0).
-
-    However, per the task requirement, we verify that the sum of the MAJOR components
-    plus the calculated random fraction equals 1.0 within tolerance.
-    This implies we are checking the internal consistency of the descriptor calculation.
-
-    If the input components are such that their sum exceeds 1.0, the 'random' fraction
-    would be negative, which is physically invalid.
+    Calculate the implied random fraction based on the sum of known components.
+    If the sum of known components exceeds 1.0 + tolerance, this indicates an
+    invalid state, but we return the residual (which will be negative).
 
     Args:
-        brass: Volume fraction of Brass.
-        copper: Volume fraction of Copper.
-        s: Volume fraction of S.
-        goss: Volume fraction of Goss.
-        tolerance: Allowed deviation from 1.0.
+        brass: Brass volume fraction
+        copper: Copper volume fraction
+        s: S component volume fraction
+        goss: Goss volume fraction
+        tolerance: Tolerance for floating point errors
 
     Returns:
-        A tuple (is_valid, deviation).
-        is_valid: True if |sum - 1.0| <= tolerance.
-        deviation: The absolute difference from 1.0.
+        The calculated random fraction (1.0 - sum(others)).
     """
-    major_sum = brass + copper + s + goss
-    # The random fraction is implicitly 1.0 - major_sum
-    # Total sum = major_sum + (1.0 - major_sum) = 1.0
-    # The check is effectively ensuring the components are non-negative and sum <= 1.0
-    # so that random is non-negative.
-    # But strictly following the prompt: "verify that the sum of major components ... plus random ... equals 1.0"
-    # Since random = 1.0 - sum, the equation is always 1.0.
-    # The real constraint is: 0 <= sum <= 1.0.
-    # If sum > 1.0, random is negative -> invalid.
-    # If sum < 0, random > 1.0 -> invalid (though individual components should be >= 0).
+    known_sum = brass + copper + s + goss
+    return 1.0 - known_sum
 
-    # Let's interpret the requirement as checking if the calculated random fraction
-    # results in a total sum of 1.0 within floating point tolerance,
-    # AND ensuring the random fraction is non-negative (physically meaningful).
 
-    random_frac = 1.0 - major_sum
-    total_sum = major_sum + random_frac
+def check_mass_balance(
+    sample_id: str,
+    brass: float,
+    copper: float,
+    s: float,
+    goss: float,
+    random_frac: float,
+    tolerance: float = TOLERANCE
+) -> Tuple[bool, str]:
+    """
+    Check if the sum of all components equals 1.0 within tolerance.
 
-    deviation = abs(total_sum - 1.0)
-    is_valid = deviation <= tolerance and random_frac >= 0.0
+    Args:
+        sample_id: Identifier for the sample
+        brass: Brass volume fraction
+        copper: Copper volume fraction
+        s: S component volume fraction
+        goss: Goss volume fraction
+        random_frac: Random fraction
+        tolerance: Acceptable deviation from 1.0
 
-    if not is_valid:
-        logger.warning(
-            f"Mass balance check failed: sum={major_sum:.4f}, random={random_frac:.4f}, deviation={deviation:.6f}"
-        )
+    Returns:
+        Tuple of (is_valid, reason_string)
+    """
+    total = brass + copper + s + goss + random_frac
+    deviation = abs(total - 1.0)
 
-    return is_valid, deviation
+    if deviation > tolerance:
+        return False, f"Mass balance violation: Sum={total:.4f}, Deviation={deviation:.4f} (Tolerance={tolerance})"
+    return True, "Valid"
+
 
 def validate_descriptor_mass_balance(
-    row: pd.Series, tolerance: float = MASS_BALANCE_TOLERANCE
-) -> Tuple[bool, float]:
+    descriptors: pd.DataFrame,
+    tolerance: float = TOLERANCE
+) -> Tuple[pd.DataFrame, List[Dict[str, Any]]]:
     """
-    Validate mass balance for a single descriptor row.
+    Validate mass balance for every row in the descriptors dataframe.
+    Flags invalid samples and returns a report of excluded samples.
 
     Args:
-        row: A pandas Series containing 'brass', 'copper', 's', 'goss' columns.
-        tolerance: Allowed deviation from 1.0.
+        descriptors: DataFrame containing texture descriptors (must include
+                     'brass', 'copper', 's', 'goss', 'random' columns).
+        tolerance: Acceptable deviation from 1.0.
 
     Returns:
-        Tuple (is_valid, deviation).
+        Tuple of (valid_descriptors_df, excluded_samples_report_list)
     """
-    brass = row.get('brass', 0.0)
-    copper = row.get('copper', 0.0)
-    s = row.get('s', 0.0)
-    goss = row.get('goss', 0.0)
+    if not all(col in descriptors.columns for col in COMPONENTS):
+        missing = [c for c in COMPONENTS if c not in descriptors.columns]
+        raise ValueError(f"Missing required columns for mass balance check: {missing}")
 
-    return check_mass_balance(brass, copper, s, goss, tolerance)
-
-def validate_dataset_mass_balance(
-    df: pd.DataFrame,
-    tolerance: float = MASS_BALANCE_TOLERANCE,
-    exclude_invalid: bool = True,
-) -> pd.DataFrame:
-    """
-    Validate mass balance for all samples in a dataset.
-
-    Per T019: If the check fails, flag the sample as invalid and exclude it from output,
-    but DO NOT halt the pipeline. Log the exclusion.
-
-    Args:
-        df: DataFrame with 'brass', 'copper', 's', 'goss' columns.
-        tolerance: Allowed deviation from 1.0.
-        exclude_invalid: If True, return a filtered DataFrame excluding invalid rows.
-
-    Returns:
-        If exclude_invalid is True: DataFrame with only valid rows.
-        If exclude_invalid is False: Original DataFrame (with a new 'mass_balance_valid' column).
-    """
-    logger.info(f"Validating mass balance for {len(df)} samples with tolerance {tolerance}")
-
-    valid_indices = []
-    invalid_indices = []
-
-    for idx, row in df.iterrows():
-        is_valid, deviation = validate_descriptor_mass_balance(row, tolerance)
-        if is_valid:
-            valid_indices.append(idx)
-        else:
-            invalid_indices.append(idx)
-            logger.warning(
-                f"Excluding sample at index {idx} due to mass balance violation (deviation: {deviation:.6f})"
-            )
-
-    logger.info(
-        f"Mass balance validation complete: {len(valid_indices)} valid, {len(invalid_indices)} excluded."
+    # Calculate total sum
+    total_sum = (
+        descriptors['brass'] +
+        descriptors['copper'] +
+        descriptors['s'] +
+        descriptors['goss'] +
+        descriptors['random']
     )
 
-    if exclude_invalid:
-        if len(valid_indices) == 0:
-            logger.error("All samples failed mass balance check. Returning empty DataFrame.")
-            return pd.DataFrame(columns=df.columns)
-        return df.loc[valid_indices].reset_index(drop=True)
+    # Identify invalid rows
+    invalid_mask = (total_sum - 1.0).abs() > tolerance
+
+    # Prepare exclusion report
+    excluded_samples = []
+    if invalid_mask.any():
+        invalid_rows = descriptors[invalid_mask]
+        for idx, row in invalid_rows.iterrows():
+            sample_id = row.get('sample_id', f'index_{idx}')
+            total_val = total_sum.loc[idx]
+            deviation = abs(total_val - 1.0)
+            excluded_samples.append({
+                'sample_id': sample_id,
+                'reason': f"Mass balance violation: Sum={total_val:.6f}, Deviation={deviation:.6f}",
+                'brass': row['brass'],
+                'copper': row['copper'],
+                's': row['s'],
+                'goss': row['goss'],
+                'random': row['random'],
+                'total': total_val
+            })
+            logger.warning(f"Excluding sample {sample_id} due to mass balance violation: {deviation:.6f}")
+
+    # Filter valid data
+    valid_descriptors = descriptors[~invalid_mask].reset_index(drop=True)
+
+    return valid_descriptors, excluded_samples
+
+
+def validate_dataset_mass_balance(
+    descriptors_path: str,
+    output_report_path: str,
+    tolerance: float = TOLERANCE
+) -> bool:
+    """
+    Main entry point to run mass balance validation on the processed descriptors.
+    Generates a JSON report of excluded samples and saves valid data to a new CSV.
+
+    Args:
+        descriptors_path: Path to the input descriptors CSV (data/processed/descriptors.csv).
+        output_report_path: Path to save the mass balance report JSON.
+        tolerance: Acceptable deviation from 1.0.
+
+    Returns:
+        True if validation passed (at least some valid data exists), False if all data excluded.
+    """
+    logger.info(f"Loading descriptors from {descriptors_path}")
+    try:
+        df = pd.read_csv(descriptors_path)
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Input file not found: {descriptors_path}")
+
+    logger.info(f"Loaded {len(df)} samples. Validating mass balance (tolerance={tolerance})...")
+
+    valid_df, excluded_report = validate_descriptor_mass_balance(df, tolerance)
+
+    # Save the exclusion report
+    report_data = {
+        'validation_status': 'completed',
+        'tolerance': tolerance,
+        'total_samples': len(df),
+        'valid_samples': len(valid_df),
+        'excluded_samples_count': len(excluded_report),
+        'excluded_samples': excluded_report
+    }
+
+    report_path = Path(output_report_path)
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(report_path, 'w') as f:
+        json.dump(report_data, f, indent=2)
+    logger.info(f"Mass balance report saved to {output_report_path}")
+
+    # If valid data exists, save the cleaned CSV for downstream tasks (T020a)
+    if len(valid_df) > 0:
+        cleaned_output_path = report_path.parent / 'descriptors_cleaned.csv'
+        valid_df.to_csv(cleaned_output_path, index=False)
+        logger.info(f"Cleaned descriptors saved to {cleaned_output_path}")
     else:
-        df['mass_balance_valid'] = df.apply(
-            lambda row: validate_descriptor_mass_balance(row, tolerance)[0], axis=1
-        )
-        return df
+        logger.error("No valid samples remaining after mass balance check. Pipeline cannot proceed.")
+        return False
+
+    return True
+
 
 def main():
     """
-    Main entry point for mass balance validation script.
-    Reads descriptors from data/processed/descriptors.csv, validates, and saves filtered output.
+    CLI entry point for T019: Mass Balance Check.
+    Reads data/processed/descriptors.csv, validates mass balance,
+    and outputs data/processed/mass_balance_report.json.
     """
-    data_path = get_data_path()
-    input_file = Path(data_path) / "processed" / "descriptors.csv"
-    output_file = Path(data_path) / "processed" / "descriptors_validated.csv"
+    # Define paths relative to project root
+    project_root = Path(__file__).resolve().parent.parent.parent
+    input_path = project_root / "data" / "processed" / "descriptors.csv"
+    output_report_path = project_root / "data" / "processed" / "mass_balance_report.json"
 
-    if not input_file.exists():
-        logger.error(f"Input file not found: {input_file}")
+    # Check if input exists
+    if not input_path.exists():
+        logger.error(f"Input file not found: {input_path}")
+        logger.error("Ensure T018 (Descriptor Extraction) has completed successfully.")
         sys.exit(1)
 
-    logger.info(f"Loading descriptors from {input_file}")
-    df = pd.read_csv(input_file)
+    success = validate_dataset_mass_balance(
+        descriptors_path=str(input_path),
+        output_report_path=str(output_report_path)
+    )
 
-    required_cols = {'brass', 'copper', 's', 'goss'}
-    if not required_cols.issubset(df.columns):
-        logger.error(f"Missing required columns in {input_file}. Found: {df.columns.tolist()}")
+    if not success:
+        logger.error("Mass balance validation failed: No valid data remaining.")
         sys.exit(1)
 
-    validated_df = validate_dataset_mass_balance(df, exclude_invalid=True)
+    logger.info("T019 Mass Balance Check completed successfully.")
 
-    if validated_df.empty:
-        logger.error("No valid samples remaining after mass balance check. Aborting.")
-        sys.exit(1)
-
-    logger.info(f"Saving {len(validated_df)} valid samples to {output_file}")
-    validated_df.to_csv(output_file, index=False)
-
-    logger.info("Mass balance validation completed successfully.")
 
 if __name__ == "__main__":
     main()

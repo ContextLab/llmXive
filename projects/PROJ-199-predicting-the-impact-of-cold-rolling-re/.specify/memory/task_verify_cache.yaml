@@ -17,6 +17,12 @@ T002:
   r: No `.gitignore` file was presented in the evidence; the implementer did not supply
     any content covering Python, data, or IDE ignore patterns, so the required artifact
     is missing.
+T018c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No download script, dataset files, or verification logs are present; the required\
+    \ benchmark dataset has not been retrieved or validated, so the task\u2019s core\
+    \ deliverable is missing."
 T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

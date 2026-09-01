@@ -1,182 +1,269 @@
 """
-Unit tests for EBSD preprocessing pipeline.
+Unit tests for point filtering logic in code/data/preprocess.py.
+
+This module validates the confidence index filtering and sample rejection
+logic as specified in User Story 1 (US1).
 """
 
 import pytest
-import pandas as pd
 import numpy as np
 from pathlib import Path
-import tempfile
-import os
+from unittest.mock import patch, MagicMock
+import sys
 
-from code.data.preprocess import (
-    load_ebsd_data,
-    filter_by_confidence,
-    reindex_to_fcc,
-    process_ebsd_dataset,
-    CONFIDENCE_THRESHOLD,
-    RELIABILITY_THRESHOLD
-)
-from code.data.models import EbsdSample
+# Add project root to path for imports if running standalone
+if "code" not in sys.modules:
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-@pytest.fixture
-def sample_ebsd_data():
-    """Create sample EBSD data for testing."""
-    return pd.DataFrame({
-        'sample_id': ['S1', 'S1', 'S1', 'S2', 'S2', 'S2', 'S2'],
-        'phi1': [0.0, 45.0, 90.0, 0.0, 45.0, 90.0, 135.0],
-        'Phi': [0.0, 45.0, 90.0, 0.0, 45.0, 90.0, 135.0],
-        'phi2': [0.0, 45.0, 90.0, 0.0, 45.0, 90.0, 135.0],
-        'confidence': [0.9, 0.5, 0.05, 0.8, 0.3, 0.09, 0.95],
-        'reduction': [20, 20, 20, 40, 40, 40, 40],
-        'material': ['Al', 'Al', 'Al', 'Cu', 'Cu', 'Cu', 'Cu']
-    })
+from code.data.preprocess import filter_by_confidence, process_ebsd_dataset
+from code.data.models import EbsdSample, TextureDescriptor
 
-@pytest.fixture
-def temp_parquet_file(sample_ebsd_data):
-    """Create a temporary Parquet file with sample data."""
-    with tempfile.NamedTemporaryFile(suffix='.parquet', delete=False) as f:
-        sample_ebsd_data.to_parquet(f.name, index=False)
-        yield f.name
-        os.unlink(f.name)
 
-def test_filter_by_confidence_threshold(sample_ebsd_data):
-    """Test that confidence filtering works correctly."""
-    filtered, excluded = filter_by_confidence(sample_ebsd_data, threshold=0.1)
-    
-    # Check that all filtered rows have confidence >= 0.1
-    assert all(filtered['confidence'] >= 0.1)
-    
-    # Check that all excluded rows have confidence < 0.1
-    assert all(excluded['confidence'] < 0.1)
-    
-    # Check counts: 20, 0.05, 0.09 should be excluded (3 rows)
-    assert len(excluded) == 3
-    assert len(filtered) == 4
+class TestFilterPointsBelowConfidence:
+    """Tests for filtering individual data points with low confidence."""
 
-def test_filter_by_confidence_no_column():
-    """Test behavior when confidence column is missing."""
-    df_no_conf = pd.DataFrame({
-        'phi1': [0.0, 45.0],
-        'Phi': [0.0, 45.0],
-        'phi2': [0.0, 45.0]
-    })
-    
-    filtered, excluded = filter_by_confidence(df_no_conf)
-    
-    # Should return original data and empty excluded
-    assert len(filtered) == len(df_no_conf)
-    assert len(excluded) == 0
+    def test_filter_points_below_confidence(self):
+        """
+        Verify that filter_by_confidence removes points with confidence < 0.1
+        while keeping the sample object valid.
+        """
+        # Create a mock sample with mixed confidence values
+        # Using dummy orientation data (Euler angles) and confidence indices
+        num_points = 100
+        eulers = np.random.rand(num_points, 3) * 180.0  # Random Euler angles
+        confidences = np.random.rand(num_points)  # Random confidence [0, 1]
 
-def test_reindex_to_fcc_symmetry(sample_ebsd_data):
-    """Test that orientations are re-indexed to FCC symmetry."""
-    df_filtered, _ = filter_by_confidence(sample_ebsd_data, threshold=0.1)
-    df_reindexed = reindex_to_fcc(df_filtered)
-    
-    # Check that Euler angles are still valid (0-360 range)
-    assert all((df_reindexed['phi1'] >= 0) & (df_reindexed['phi1'] <= 360))
-    assert all((df_reindexed['Phi'] >= 0) & (df_reindexed['Phi'] <= 180))
-    assert all((df_reindexed['phi2'] >= 0) & (df_reindexed['phi2'] <= 360))
-    
-    # Check that we still have the same number of rows
-    assert len(df_reindexed) == len(df_filtered)
-    
-    # Check that columns are preserved
-    assert set(df_reindexed.columns) == set(df_filtered.columns)
+        # Ensure we have some points below 0.1 and some above
+        confidences[0:10] = 0.05  # Low confidence
+        confidences[10:20] = 0.95  # High confidence
+        confidences[20:] = 0.5  # Medium confidence
 
-def test_reindex_missing_euler_columns():
-    """Test behavior when Euler angle columns are missing."""
-    df_no_euler = pd.DataFrame({
-        'confidence': [0.5, 0.8],
-        'sample_id': ['S1', 'S2']
-    })
-    
-    result = reindex_to_fcc(df_no_euler)
-    
-    # Should return original data unchanged
-    assert len(result) == len(df_no_euler)
-    assert 'phi1' not in result.columns
-
-def test_process_ebsd_dataset(temp_parquet_file):
-    """Test the full preprocessing pipeline."""
-    with tempfile.NamedTemporaryFile(suffix='.parquet', delete=False) as out:
-        output_path = out.name
-    
-    try:
-        stats = process_ebsd_dataset(
-            temp_parquet_file,
-            output_path,
-            reduction_levels=[20, 40]
+        # Create a mock EbsdSample
+        # Note: EbsdSample expects specific fields based on model definition
+        sample = EbsdSample(
+            material="Al",
+            reduction=20,
+            eulers=eulers,
+            confidence_indices=confidences,
+            sample_id="test_sample_001"
         )
-        
-        # Check stats
-        assert stats['input_rows'] == 7
-        assert stats['filtered_by_confidence'] == 3
-        assert stats['final_rows'] == 4
-        assert stats['output_path'] == output_path
-        
-        # Check output file exists
-        assert Path(output_path).exists()
-        
-        # Check output content
-        df_out = pd.read_parquet(output_path)
-        assert len(df_out) == 4
-        assert all(df_out['confidence'] >= 0.1)
-        
-    finally:
-        if Path(output_path).exists():
-            os.unlink(output_path)
 
-def test_process_ebsd_dataset_with_exclusion():
-    """Test exclusion logic for low-reliability samples."""
-    # Create data where one sample has >50% low confidence
-    df = pd.DataFrame({
-        'sample_id': ['S1', 'S1', 'S1', 'S2', 'S2', 'S2', 'S2', 'S2'],
-        'phi1': [0.0, 45.0, 90.0, 0.0, 45.0, 90.0, 135.0, 180.0],
-        'Phi': [0.0, 45.0, 90.0, 0.0, 45.0, 90.0, 135.0, 180.0],
-        'phi2': [0.0, 45.0, 90.0, 0.0, 45.0, 90.0, 135.0, 180.0],
-        'confidence': [0.9, 0.5, 0.05, 0.8, 0.3, 0.09, 0.95, 0.08],
-        'reduction': [20, 20, 20, 40, 40, 40, 40, 40],
-        'material': ['Al', 'Al', 'Al', 'Cu', 'Cu', 'Cu', 'Cu', 'Cu']
-    })
-    
-    with tempfile.NamedTemporaryFile(suffix='.parquet', delete=False) as f:
-        f_path = f.name
-        df.to_parquet(f.name, index=False)
-    
-    with tempfile.NamedTemporaryFile(suffix='.parquet', delete=False) as out:
-        output_path = out.name
-    
-    try:
-        stats = process_ebsd_dataset(f_path, output_path)
-        
-        # S1 has 1/3 low confidence (33%) - should be kept
-        # S2 has 3/5 low confidence (60%) - should be excluded
-        # Final should have only S1 rows (2 rows: 0.9 and 0.5)
-        assert stats['excluded_samples'] >= 1  # At least S2 excluded
-        
-        df_out = pd.read_parquet(output_path)
-        assert len(df_out) <= 2  # Only S1 should remain
-        
-    finally:
-        if Path(f_path).exists():
-            os.unlink(f_path)
-        if Path(output_path).exists():
-            os.unlink(output_path)
+        # Apply the filter
+        filtered_sample = filter_by_confidence(sample, threshold=0.1)
 
-def test_load_ebsd_data_invalid_file():
-    """Test error handling for non-existent file."""
-    with pytest.raises(FileNotFoundError):
-        load_ebsd_data('/nonexistent/path/file.parquet')
+        # Assertions
+        assert filtered_sample is not None, "Filtered sample should not be None"
+        assert filtered_sample.sample_id == sample.sample_id, "Sample ID should be preserved"
+        assert filtered_sample.material == sample.material, "Material should be preserved"
+        assert filtered_sample.reduction == sample.reduction, "Reduction should be preserved"
 
-def test_load_ebsd_data_unsupported_format():
-    """Test error handling for unsupported file format."""
-    with tempfile.NamedTemporaryFile(suffix='.txt', delete=False) as f:
-        f.write(b"test")
-        temp_path = f.name
-    
-    try:
-        with pytest.raises(ValueError):
-            load_ebsd_data(temp_path)
-    finally:
-        os.unlink(temp_path)
+        # Check that all remaining confidences are >= 0.1
+        assert np.all(filtered_sample.confidence_indices >= 0.1), \
+            "All remaining points should have confidence >= 0.1"
+
+        # Check that the number of points is reduced
+        assert len(filtered_sample.confidence_indices) < len(sample.confidence_indices), \
+            "Filtered sample should have fewer points than original"
+
+        # Specifically check that we removed the low confidence points
+        expected_remaining = num_points - 10  # We set 10 points to 0.05
+        assert len(filtered_sample.confidence_indices) == expected_remaining, \
+            f"Expected {expected_remaining} points, got {len(filtered_sample.confidence_indices)}"
+
+        # Verify the orientations array shape matches the confidence array
+        assert filtered_sample.eulers.shape[0] == len(filtered_sample.confidence_indices), \
+            "Eulers array should match confidence array length"
+
+    def test_filter_all_points_below_threshold(self):
+        """
+        Verify behavior when ALL points are below the confidence threshold.
+        The sample should be returned but with zero points, or None depending on implementation.
+        Based on T014 logic, if >50% are filtered, it's flagged as low reliability.
+        """
+        num_points = 50
+        eulers = np.random.rand(num_points, 3) * 180.0
+        confidences = np.full(num_points, 0.05)  # All below 0.1
+
+        sample = EbsdSample(
+            material="Cu",
+            reduction=40,
+            eulers=eulers,
+            confidence_indices=confidences,
+            sample_id="test_sample_002"
+        )
+
+        filtered_sample = filter_by_confidence(sample, threshold=0.1)
+
+        # If implementation returns None for empty samples:
+        if filtered_sample is None:
+            pass  # Valid behavior
+        else:
+            # If it returns a sample with 0 points:
+            assert len(filtered_sample.confidence_indices) == 0, \
+                "Sample should have 0 points if all are filtered out"
+            assert filtered_sample.eulers.shape[0] == 0, \
+                "Eulers array should be empty"
+
+    def test_filter_no_points_below_threshold(self):
+        """
+        Verify behavior when NO points are below the confidence threshold.
+        The sample should be returned unchanged (or with identical data).
+        """
+        num_points = 50
+        eulers = np.random.rand(num_points, 3) * 180.0
+        confidences = np.full(num_points, 0.9)  # All above 0.1
+
+        sample = EbsdSample(
+            material="Ni",
+            reduction=60,
+            eulers=eulers,
+            confidence_indices=confidences,
+            sample_id="test_sample_003"
+        )
+
+        filtered_sample = filter_by_confidence(sample, threshold=0.1)
+
+        assert filtered_sample is not None
+        assert len(filtered_sample.confidence_indices) == num_points, \
+            "All points should be retained"
+        assert np.allclose(filtered_sample.confidence_indices, confidences), \
+            "Confidence values should be unchanged"
+
+
+class TestSampleRejectionNotTriggered:
+    """Tests for sample-level rejection logic."""
+
+    def test_sample_rejection_not_triggered(self):
+        """
+        Verify that a sample with mixed confidence values (some < 0.1, some >= 0.1)
+        is NOT rejected entirely, but processed with the valid points only.
+        This tests US-1 Scenario 2 and FR-002.
+        """
+        # Create a sample where 40% of points are below threshold
+        # This is < 50%, so the sample should NOT be rejected
+        num_points = 100
+        eulers = np.random.rand(num_points, 3) * 180.0
+        confidences = np.random.rand(num_points)
+
+        # Set 40 points to low confidence (40%)
+        confidences[0:40] = 0.05
+        # Set 60 points to high confidence (60%)
+        confidences[40:100] = 0.9
+
+        sample = EbsdSample(
+            material="Al",
+            reduction=20,
+            eulers=eulers,
+            confidence_indices=confidences,
+            sample_id="test_sample_004"
+        )
+
+        # Process the dataset (which includes filtering and potential rejection)
+        # We mock the logging to capture warnings if any
+        with patch('code.data.preprocess.logging') as mock_logging:
+            result = process_ebsd_dataset([sample], confidence_threshold=0.1)
+
+        # Assertions
+        assert result is not None, "Result should not be None"
+        assert len(result) > 0, "Result should contain samples"
+
+        # The sample should be in the result (not rejected)
+        # It might be the only sample or one of several
+        found_sample = False
+        for res_sample in result:
+            if res_sample.sample_id == sample.sample_id:
+                found_sample = True
+                # Verify it has filtered points
+                assert len(res_sample.confidence_indices) == 60, \
+                    "Sample should have 60 valid points (100 - 40 low confidence)"
+                assert np.all(res_sample.confidence_indices >= 0.1), \
+                    "All remaining points should have confidence >= 0.1"
+                break
+
+        assert found_sample, "Original sample should be in the result (not rejected)"
+
+    def test_sample_rejection_triggered_when_over_50_percent_filtered(self):
+        """
+        Verify that a sample where >50% of points are filtered IS rejected/excluded.
+        This tests the edge case mentioned in T014.
+        """
+        # Create a sample where 60% of points are below threshold
+        num_points = 100
+        eulers = np.random.rand(num_points, 3) * 180.0
+        confidences = np.random.rand(num_points)
+
+        # Set 60 points to low confidence (60% > 50%)
+        confidences[0:60] = 0.05
+        # Set 40 points to high confidence (40%)
+        confidences[60:100] = 0.9
+
+        sample = EbsdSample(
+            material="Cu",
+            reduction=40,
+            eulers=eulers,
+            confidence_indices=confidences,
+            sample_id="test_sample_005"
+        )
+
+        # Process the dataset
+        with patch('code.data.preprocess.logging') as mock_logging:
+            result = process_ebsd_dataset([sample], confidence_threshold=0.1)
+
+        # The sample should NOT be in the result (rejected due to >50% low reliability)
+        found_sample = False
+        for res_sample in result:
+            if res_sample.sample_id == sample.sample_id:
+                found_sample = True
+                break
+
+        assert not found_sample, \
+            "Sample should be excluded from result when >50% of points are filtered"
+
+    def test_mixed_samples_processing(self):
+        """
+        Verify that a dataset with multiple samples is processed correctly:
+        - Some samples retained (mixed confidence, <50% filtered)
+        - Some samples rejected (>50% filtered)
+        """
+        samples = []
+
+        # Sample 1: 30% low confidence -> should be retained
+        num_points = 100
+        eulers1 = np.random.rand(num_points, 3) * 180.0
+        confidences1 = np.random.rand(num_points)
+        confidences1[0:30] = 0.05
+        samples.append(EbsdSample(
+            material="Al", reduction=20, eulers=eulers1,
+            confidence_indices=confidences1, sample_id="sample_retain_1"
+        ))
+
+        # Sample 2: 70% low confidence -> should be rejected
+        eulers2 = np.random.rand(num_points, 3) * 180.0
+        confidences2 = np.random.rand(num_points)
+        confidences2[0:70] = 0.05
+        samples.append(EbsdSample(
+            material="Cu", reduction=40, eulers=eulers2,
+            confidence_indices=confidences2, sample_id="sample_reject_1"
+        ))
+
+        # Sample 3: 10% low confidence -> should be retained
+        eulers3 = np.random.rand(num_points, 3) * 180.0
+        confidences3 = np.random.rand(num_points)
+        confidences3[0:10] = 0.05
+        samples.append(EbsdSample(
+            material="Ni", reduction=60, eulers=eulers3,
+            confidence_indices=confidences3, sample_id="sample_retain_2"
+        ))
+
+        # Process
+        with patch('code.data.preprocess.logging') as mock_logging:
+            result = process_ebsd_dataset(samples, confidence_threshold=0.1)
+
+        # Verify results
+        result_ids = [s.sample_id for s in result]
+
+        assert "sample_retain_1" in result_ids, "Sample 1 should be retained"
+        assert "sample_reject_1" not in result_ids, "Sample 2 should be rejected"
+        assert "sample_retain_2" in result_ids, "Sample 3 should be retained"
+
+        assert len(result) == 2, "Exactly 2 samples should be in the result"
