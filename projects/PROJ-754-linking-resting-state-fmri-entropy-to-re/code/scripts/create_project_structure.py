@@ -1,111 +1,91 @@
-"""
-Script to create the project directory structure for llmXive PROJ-754.
-
-This script ensures the existence of all required directories as specified
-in the implementation plan, including top-level folders and specific subdirectories.
-"""
 import os
 import sys
 from pathlib import Path
+from typing import Optional
 
 def get_project_root() -> Path:
-    """Get the project root directory (parent of 'scripts' folder)."""
-    # Assuming this script is located at code/scripts/create_project_structure.py
-    # Project root is code/
-    current_file = Path(__file__).resolve()
-    scripts_dir = current_file.parent
-    return scripts_dir.parent
+    """
+    Determine the project root directory.
+    
+    Looks for the project root by checking for a .git directory,
+    or defaults to the current working directory if not found.
+    
+    Returns:
+        Path: The project root directory path.
+    """
+    current = Path.cwd()
+    
+    # Walk up the directory tree looking for .git
+    for parent in [current, *current.parents]:
+        if (parent / ".git").exists():
+            return parent
+        
+        # Also check for common project markers
+        if (parent / "requirements.txt").exists():
+            return parent
+    
+    # Fallback to current directory
+    return current
 
-def ensure_directory(dir_path: Path) -> bool:
+def ensure_directory(path: Path) -> bool:
     """
     Ensure a directory exists, creating it if necessary.
     
     Args:
-        dir_path: Path to the directory to create
+        path: The directory path to ensure exists.
         
     Returns:
-        True if directory was created or already exists, False on error
+        bool: True if the directory exists after the call (created or pre-existing).
     """
     try:
-        dir_path.mkdir(parents=True, exist_ok=True)
-        print(f"✓ Created/Verified: {dir_path}")
+        if not path.exists():
+            path.mkdir(parents=True, exist_ok=True)
+            return True
         return True
-    except Exception as e:
-        print(f"✗ Failed to create {dir_path}: {e}")
+    except OSError as e:
+        print(f"Error creating directory {path}: {e}", file=sys.stderr)
         return False
 
 def main():
-    """Create the full project directory structure."""
+    """
+    Main function to create the project directory structure.
+    
+    Creates the following directories relative to the project root:
+    - src/data, src/analysis, src/stats, src/config, src/utils, src/entities
+    - tests/unit, tests/integration
+    """
     project_root = get_project_root()
     print(f"Project root: {project_root}")
     
-    # Define all required directories relative to project root
-    required_dirs = [
-        # Top-level directories
-        "src",
-        "tests",
-        "data",
-        "reports",
-        "docs",
-        "scripts",
-        "state",
+    # Define the directories to create for T002
+    directories = [
+        # Source subdirectories
+        project_root / "src" / "data",
+        project_root / "src" / "analysis",
+        project_root / "src" / "stats",
+        project_root / "src" / "config",
+        project_root / "src" / "utils",
+        project_root / "src" / "entities",
         
-        # src subdirectories
-        "src/data",
-        "src/analysis",
-        "src/stats",
-        "src/config",
-        "src/utils",
-        "src/entities",
-        
-        # tests subdirectories
-        "tests/unit",
-        "tests/integration",
-        
-        # Additional data subdirectories (for organization)
-        "data/raw",
-        "data/cleaned",
-        "data/derived",
-        "data/results",
-        
-        # Additional reports subdirectory
-        "reports/figures",
-        
-        # Additional docs subdirectory
-        "docs/api",
+        # Test subdirectories
+        project_root / "tests" / "unit",
+        project_root / "tests" / "integration",
     ]
     
-    success_count = 0
-    failed_dirs = []
-    
-    for dir_str in required_dirs:
-        dir_path = project_root / dir_str
+    success = True
+    for dir_path in directories:
         if ensure_directory(dir_path):
-            success_count += 1
+            print(f"Created/Verified: {dir_path.relative_to(project_root)}")
         else:
-            failed_dirs.append(dir_str)
+            print(f"Failed to create: {dir_path.relative_to(project_root)}", file=sys.stderr)
+            success = False
     
-    print(f"\n{'='*60}")
-    print(f"Directory creation summary:")
-    print(f"  Total directories: {len(required_dirs)}")
-    print(f"  Successful: {success_count}")
-    print(f"  Failed: {len(failed_dirs)}")
-    
-    if failed_dirs:
-        print(f"\nFailed directories:")
-        for d in failed_dirs:
-            print(f"  - {d}")
-        sys.exit(1)
-    else:
-        print("\n✓ All directories created successfully!")
-        
-        # List the created structure
-        print(f"\nCreated directory tree:")
-        print(project_root)
-        for dir_str in required_dirs:
-            print(f"└── {dir_str}")
-        
+    if success:
+        print("Directory structure creation completed successfully.")
         sys.exit(0)
+    else:
+        print("Directory structure creation had errors.", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

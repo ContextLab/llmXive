@@ -17,7 +17,7 @@ The system MUST download HCP resting-state fMRI parcellated time series and Doma
 
 **Acceptance Scenarios**:
 
-1. **Given** valid HCP S3 credentials, **When** the pipeline executes, **Then** it downloads minimally preprocessed 4mm parcellated time series and DSRT scores.
+1. **Given** valid HCP S3 credentials, **When** the pipeline executes, **Then** it downloads minimally preprocessed mm parcellated time series and DSRT scores.
 2. **Given** a subject with mean FD ≥ 0.2mm, **When** the quality control step runs, **Then** that subject is excluded from the analysis cohort.
 
 ---
@@ -91,13 +91,13 @@ The system MUST fit a mass-univariate linear model per parcel predicting DSRT sc
 - **SC-001**: Total pipeline execution time is measured against the GitHub Actions free-tier limit. (See US-1)
 - **SC-002**: Peak memory usage is measured against the RAM constraint during entropy computation and model fitting. (See US-2)
 - **SC-003**: Output completeness is measured against the requirement for a parcel-wise association map and PDF report. (See US-3)
-- **SC-004**: Sensitivity analysis coverage is measured against the requirement to report rate variation across r ∈ {0.1, 0.15, 0.2} and m ∈ {3, 5, 7}. (See US-3)
+- **SC-004**: Sensitivity analysis coverage is measured against the requirement to report rate variation across low to moderate values of r and m ∈ {small, moderate, large}. (See US-3)
 - **SC-005**: Collinearity diagnostics (Variance Inflation Factor) for covariates (age, sex, mean FD) are measured against a threshold of VIF < 5. (See US-3)
 - **SC-006**: Statistical power is measured against the requirement that the report must state Power ≥ 0.80 for effect size d=0.3, or explicitly flag the study as underpowered if below this threshold. (See US-3)
 
 ## Assumptions
 
-- HCP provides minimally preprocessed 4mm parcellated time series that fit within the 14GB disk constraint when downloading a subset of 200 subjects; full cohort (N=1200) requires larger storage.
+- HCP provides minimally preprocessed 4mm parcellated time series that fit within a reasonable disk constraint when downloading a subset of 200 subjects; full cohort (N=1200) requires larger storage.
 - DSRT scores are available in the HCP behavioral dataset for all subjects in the selected subset.
 - The analysis is observational; any statistical association does not imply causal direction between neural entropy and risk-taking.
 - The `pyEntropy` package and `statsmodels` library are available in the CI environment without GPU dependencies.

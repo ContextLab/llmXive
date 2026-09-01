@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-754-linking-resting-state-fmri-entropy-to-re",
+  "tasks": [
+    {
+      "task_key": "T001",
+      "reject_count": 1,
+      "last_reason": "No directory tree or file listings were provided to confirm that the required top\u2011level folders (`src/`, `tests/`, `data/`, `reports/`, `docs/`, `scripts/`, `state/`) and the specified sub\u2011folders (`src/data`, `src/analysis`, `src/stats`, `src/config`, `src/utils`, `src/entities`, `tests/unit`, `tests/integration`) actually exist. Without concrete evidence of these directories, the claim cannot be verified.",
+      "first_seen": "2026-09-01T18:58:49.024336+00:00",
+      "last_seen": "2026-09-01T18:58:49.024336+00:00"
+    }
+  ],
+  "updated_at": "2026-09-01T18:58:49.024336+00:00"
+}

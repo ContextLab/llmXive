@@ -1707,24 +1707,6 @@
   updated_at: '2026-08-30T15:11:14Z'
 - artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
   attempts: 1
-  canonical: flag study as underpowered if power is less than 0.80
-  claim_id: c_cf227bc8
-  context: T031 [US3] ... explicitly flag the study as 'Underpowered' in the report
-    if Power < 0.80.
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Flag_study_as_underpowered_if_power_is_less_than_0.80
-  kind: magnitude
-  raw_text: flag the study as 'Underpowered' in the report if Power < 0.80
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-30T15:12:11Z'
-- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
-  attempts: 1
   canonical: sensitivity analysis grid uses r values 0.1 0.15 0.2 and m values 3 5
     7
   claim_id: c_8c6d3e56
@@ -1756,3 +1738,434 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-30T15:15:05Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: fetch 4mm parcellated time series for 200 subjects
+  claim_id: c_e783e14b
+  context: T012 [P] [US1] Implement HCP S3 downloader in src/data/download_hcp.py
+    to fetch minimally preprocessed 4mm parcellated time series and behavioral data
+    for N=200 subjects, selecting subjects deterministically using a fixed random
+    seed.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fetch minimally preprocessed 4mm parcellated time series and behavioral
+    data for N=200 subjects
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:45:12Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: process 50 parcels per batch with 4GB RAM limit
+  claim_id: c_550ee023
+  context: T021 [US2] Implement parcel-wise processing loop in src/analysis/compute_entropy.py
+    to handle parcels in batches of 50 parcels per batch to ensure peak RAM usage
+    does not exceed 4GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: process parcels in batches of 50 parcels per batch to ensure peak RAM
+    usage does not exceed 4GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:45:31Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: perform permutation-based FWE correction with 5000 iterations
+  claim_id: c_7b9ff509
+  context: T029 [US3] Implement Freedman-Lane permutation test (exactly 5,000 iterations)
+    in src/stats/permutation_test.py with a fixed random seed for shuffling.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: performing permutation-based FWE correction with exactly 5,000 iterations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:45:44Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: threshold p-values at 0.05
+  claim_id: c_486da593
+  context: T030 [US3] Implement FWE correction logic to threshold p-values at < 0.05
+    and generate data/results/corrected_pvalues.csv containing FWE-adjusted p-values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: threshold p-values at < 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:45:44Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: calculate power for effect size d=0.3
+  claim_id: c_7cee68c1
+  context: T031 [US3] Implement post-hoc power analysis (F-test) in src/stats/power_analysis.py
+    to calculate power for effect size d=0.3.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: calculate power for effect size d=0.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:46:14Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 2
+  canonical: flag study as underpowered if power is less than 0.80
+  claim_id: c_cf227bc8
+  context: T031 [US3] ... explicitly flag the study as 'Underpowered' in the report
+    if Power < 0.80.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_study_as_underpowered_if_power_is_less_than_0.80
+  kind: magnitude
+  raw_text: flag the study as 'Underpowered' in the report if Power < 0.80
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:47:05Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: use 500 permutations per grid point
+  claim_id: c_1b01185b
+  context: 'T033 [US3] ... Note: Uses N=500 permutations per grid point to ensure
+    total runtime stays within CI limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: use N=500 permutations per grid point to ensure total runtime stays within
+    CI limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:48:12Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: filter subjects with mean framewise displacement greater than or equal
+    to 0.2mm
+  claim_id: c_9fd13f16
+  context: "Goal: Download HCP resting-state fMRI parcellated time series and DSRT\
+    \ scores for a subset of subjects, filter high-motion subjects (FD \u2265 0.2mm),\
+    \ and ensure data quality."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_subjects_with_mean_framewise_displacement_greater_tha
+  kind: magnitude
+  raw_text: "filter high-motion subjects (FD \u2265 0.2mm)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:48:41Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: variance inflation factor must be less than 5
+  claim_id: c_3bc8eae0
+  context: T027 [US3] Implement Variance Inflation Factor (VIF) calculation for covariates
+    (Age, Sex, Mean FD) ... VIF must be < 5 (SC-005).
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: VIF must be < 5
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T18:48:51Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: test embedding dimension m in set 2 3 4
+  claim_id: c_814f16ca
+  context: "Grid: r \u2208 {0.1, 0.15, 0.2} (Tolerance) and m \u2208 {2, 3, 4} (Embedding\
+    \ Dimension)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "test embedding dimension m \u2208 {2, 3, 4}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:49:24Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: keep scale range fixed at 1 to 5
+  claim_id: c_f536da53
+  context: "Constraint: Keep Scale Range fixed at 1\u20135 for all grid points (per\
+    \ FR-003)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Keep Scale Range fixed at 1\u20135 for all grid points"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:49:58Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: sample size of 200 subjects
+  claim_id: c_2b13d1b1
+  context: Implement HCP S3 downloader in src/data/download_hcp.py to fetch minimally
+    preprocessed 4mm parcellated time series and behavioral data for N=200 subjects,
+    selecting subjects deterministically using a fixed random seed.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study will use a sample of N=200 subjects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:51:18Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: motion filter threshold of 0.2mm FD
+  claim_id: c_5327bebd
+  context: "Download HCP resting-state fMRI parcellated time series and DSRT scores\
+    \ for a subset of subjects, filter high-motion subjects (FD \u2265 0.2mm), and\
+    \ ensure data quality."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Motion_filter_threshold_of_0.2mm_FD
+  kind: magnitude
+  raw_text: Subjects will be filtered if their mean framewise displacement (FD) is
+    greater than or equal to 0.2mm.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:51:41Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: entropy computed across scales 1 to 5
+  claim_id: c_39fd5e48
+  context: "Compute multiscale sample entropy (mSE) for each cortical parcel across\
+    \ the valid subject cohort, averaging across scales m=1\u20135."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Multiscale sample entropy will be computed for scales 1 through 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:52:01Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: entropy embedding dimension of 2
+  claim_id: c_17de3038
+  context: Implement multiscale sample entropy function in src/analysis/entropy.py
+    to compute entropy for scales 1 through 5, using embedding dimension m=2 and tolerance
+    r=0.15.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The entropy calculation will use an embedding dimension of m=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:53:50Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: entropy batch size of 50 parcels with 4GB memory limit
+  claim_id: c_b4f0cc56
+  context: Implement parcel-wise processing loop in src/analysis/compute_entropy.py
+    to handle parcels in batches of 50 parcels per batch to ensure peak RAM usage
+    does not exceed 4GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Parcels will be processed in batches of 50 to limit RAM usage to 4GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:54:16Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: VIF calculation linked to Wikidata Q113106917
+  claim_id: c_9c72ce00
+  context: 'Implement Variance Inflation Factor (VIF) calculation for covariates (Age,
+    Sex, Mean FD) in src/stats/collinearity.py using statsmodels.stats.outliers_influence.variance_inflation_factor.
+    Note: {{claim:c_3bc8eae0}} (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917)
+    (SC-005).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/VIF_calculation_linked_to_Wikidata_Q113106917
+  kind: entity_fact
+  raw_text: The variance inflation factor calculation relies on Wikidata entry Q113106917.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:54:45Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: Linear Mixed Effects model with Subject random effect
+  claim_id: c_94865892
+  context: 'Implement mass-univariate Linear Mixed Effects (MixedLM) model per parcel
+    (DSRT ~ Entropy + Age + Sex + MeanFD + (1|Subject)) in src/stats/model_fitting.py.
+    Note: SPEC FR-004 MANDATES MixedLM with Subject random effect.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: linear mixed-effects model
+      source_id: Q120282163
+      url: https://www.wikidata.org/wiki/Q120282163
+      value: linear mixed-effects model
+    filled: true
+  kind: entity_fact
+  raw_text: The statistical model will be a Linear Mixed Effects (MixedLM) model with
+    a Subject random effect.
+  resolved_value: linear mixed-effects model
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T18:54:55Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: permutation test of 5000 iterations
+  claim_id: c_f44f2096
+  context: Implement Freedman-Lane permutation test (exactly 5,000 iterations) in
+    src/stats/permutation_test.py with a fixed random seed for shuffling.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Freedman-Lane permutation test will run for exactly 5,000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:55:10Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: power analysis for effect size d=0.3
+  claim_id: c_1de37bb8
+  context: Implement post-hoc power analysis (F-test) in src/stats/power_analysis.py
+    to calculate power for effect size d=0.3.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis will calculate power for an effect size of d=0.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:55:38Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: study flagged as underpowered if power is below 0.80
+  claim_id: c_3864137d
+  context: Save raw metrics to data/results/power_metrics.json and explicitly flag
+    the study as 'Underpowered' in the report if Power < 0.80.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Study_flagged_as_underpowered_if_power_is_below_0.80
+  kind: magnitude
+  raw_text: The study will be flagged as underpowered if the calculated power is less
+    than 0.80.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:56:10Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis grid for embedding dimensions 2, 3, and 4
+  claim_id: c_3cd13af2
+  context: "Sensitivity Analysis Driver: Create a wrapper script in src/stats/sensitivity_driver.py\
+    \ that orchestrates the full pipeline. Grid: r \u2208 {0.1, 0.15, 0.2} (Tolerance)\
+    \ and m \u2208 {2, 3, 4} (Embedding Dimension)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis grid will test embedding dimensions m in {2,
+    3, 4}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:58:12Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis grid for tolerance values 0.1, 0.15, and 0.2
+  claim_id: c_4aa38af4
+  context: "Sensitivity Analysis Driver: Create a wrapper script in src/stats/sensitivity_driver.py\
+    \ that orchestrates the full pipeline. Grid: r \u2208 {0.1, 0.15, 0.2} (Tolerance)\
+    \ and m \u2208 {2, 3, 4} (Embedding Dimension)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis grid will test tolerance values r in {0.1, 0.15,
+    0.2}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:58:30Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis uses 500 permutations per grid point
+  claim_id: c_077121db
+  context: 'Logic: For each grid point (r, m), re-run entropy computation (T020) with
+    embedding_dim=m and tolerance=r, keeping scales=range(1, 6). Note: Uses N=500
+    permutations per grid point to ensure total runtime stays within CI limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis will use 500 permutations per grid point.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:58:48Z'

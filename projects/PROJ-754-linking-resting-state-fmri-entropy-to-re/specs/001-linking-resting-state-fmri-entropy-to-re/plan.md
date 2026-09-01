@@ -20,7 +20,7 @@ The project must () download a subset of HCP minimally preprocessed 4 mm parcell
 - **Target Platform**: Linux (Ubuntu‑22.04) GitHub Actions runner.  
 - **Project Type**: Research library/CLI.  
 - **Constraints**: CPU‑only (GC‑001), ≤14 GB disk, ≤6 h runtime, ≤7 GB RAM.  
-- **Scale/Scope**: 200 subjects × 400 parcels (Schaefer‑400) → ~80 k entropy values.
+- **Scale/Scope**: A cohort of subjects will be recruited. × a high-resolution parcellation (Schaefer) → a large-scale set of entropy values.
 
 ## Constitution Check
 | Principle | Compliance Statement |
@@ -40,7 +40,7 @@ All principles are satisfied; no violations identified.
 | Phase | Description | FR IDs addressed | SC IDs addressed |
 |-------|-------------|------------------|-------------------|
 | **0 – Research** | Define dataset strategy, statistical methods, compute feasibility. | – | – |
-| **1 – Data Acquisition** | Download HCP time series (200 subjects) and DSRT scores; **verify presence of required columns (subject_id, DSRT, age, sex, mean_fd)**; **exclude subjects with mean FD ≥ 0.2 mm**; exclude missing DSRT. | FR‑001, FR‑002, FR‑006 (observational framing) | SC‑001 (runtime), SC‑002 (memory) |
+| **1 – Data Acquisition** | Download HCP time series (a cohort of subjects) and DSRT scores; **verify presence of required columns (subject_id, DSRT, age, sex, mean_fd)**; **exclude subjects with mean FD ≥ 0.2 mm**; exclude missing DSRT. | FR‑001, FR‑002, FR‑006 (observational framing) | SC‑001 (runtime), SC‑002 (memory) |
 | **2 – Entropy Computation** | Compute multiscale sample entropy (scales 1‑5) per parcel; average across scales; flag parcels with insufficient points. | FR‑003, FR‑008 (sensitivity setup) | SC‑002 (memory), SC‑003 (output completeness) |
 | **3 – Statistical Modeling** | Fit **OLS** model per parcel: `DSRT ~ Entropy + Age + Sex + MeanFD`. Compute VIF for covariates. Perform a sufficient number of **Freedman-Lane** permutations to build a max‑t null distribution. Apply FWE correction (p < 0.05). **Conduct post-hoc power analysis (F-test)**. | FR‑004, FR‑005, FR‑006, FR‑008 | SC‑004 (report), SC‑005 (VIF), SC‑006 (power) |
 | **4 – Reporting & Sensitivity** | Produce PDF report, parcel‑wise NIfTI map of significant clusters, power analysis, and sensitivity tables over `r` ∈ {low, medium, high} and `m` ∈ {3,5,7}. | FR‑007 (CPU‑only), FR‑008 (execution) | SC‑003, SC‑004, SC‑005, SC‑006 |
@@ -62,7 +62,7 @@ Each functional requirement (FR‑001 – FR‑008) and success criterion (S
 \*Times are based on prior benchmarks of `pyentropy` on a multi-core CI runner.
 
 ## Risks & Mitigations
-- **Permutation runtime**: If 5 000 permutations exceed 3 h, the script will monitor elapsed time and abort with a clear timeout error (SC‑001). Users can optionally reduce permutations via a CLI flag.
+- **Permutation runtime**: If a large number of permutations exceed 3 h, the script will monitor elapsed time and abort. with a clear timeout error (SC‑001). Users can optionally reduce permutations via a CLI flag.
 - **Memory spikes during entropy**: Computation proceeds parcel‑wise, loading one parcel's time series at a time to keep peak RAM < 4 GB (SC‑002).
 - **Missing HCP credentials**: The download script checks for `HCP_TOKEN` env var; absent or invalid token triggers a graceful exit with an informative message (FR‑001 edge case).
 - **Missing Data Columns**: The pipeline will explicitly check for required behavioral columns in the HCP dataset and fail gracefully if DSRT or covariates are absent.
