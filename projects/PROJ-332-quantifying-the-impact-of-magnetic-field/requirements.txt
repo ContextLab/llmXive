@@ -1,0 +1,8 @@
+scipy
+numpy
+matplotlib
+pandas
+pytest
+requests
+pyyaml
+pyyaml

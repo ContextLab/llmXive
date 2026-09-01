@@ -1,0 +1,68 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-and-analyze:
+    runs-on: ubuntu-latest
+    
+    # Global timeout for the entire job to ensure immediate abort on violation (FR-007)
+    timeout-minutes: 60
+    
+    strategy:
+      matrix:
+        python-version: [3.9]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Linting
+        run: |
+          flake8 code/ --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 code/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      - name: Run Unit Tests
+        run: |
+          pytest tests/unit/ -v
+
+      - name: Run Integration Tests
+        run: |
+          pytest tests/integration/ -v
+
+      - name: Execute Analysis Pipeline
+        # This step enforces the timeout at the CI level.
+        # If the script takes too long, GitHub Actions will kill it immediately.
+        # The script itself also has a timeout_guard, providing defense in depth.
+        run: |
+          python code/main.py --discharges 12345,12346,12347,12348,12349,12350,12351,12352,12353,12354 \
+            --timeout 3600 \
+            --memory-limit 7000 \
+            --output-dir data/processed
+        env:
+          # Ensure the environment is recognized as Linux for SIGALRM support
+          CI: "true"
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: analysis-results
+          path: |
+            data/processed/*.csv
+            data/processed/*.json
+            logs/*.log

@@ -1,0 +1,57 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Raw Dataset Schema
+description: Schema for raw data retrieved from MDSplus before validation and analysis.
+type: object
+required:
+  - discharge_id
+  - fields
+properties:
+  discharge_id:
+    type: integer
+    description: Unique identifier for the DIII-D discharge.
+  fields:
+    type: object
+    description: Dictionary of field names to their raw values or time-series data.
+    additionalProperties: true
+    properties:
+      efit:
+        type: object
+        description: EFIT equilibrium data.
+        properties:
+          q_profile:
+            type: array
+            items:
+              type: number
+            description: q-profile values.
+          b_tor:
+            type: number
+            description: Toroidal magnetic field at magnetic axis (Tesla).
+          shear:
+            type: number
+            description: Local magnetic shear.
+      islands:
+        type: object
+        description: Island chain data.
+        properties:
+          width:
+            type: number
+            description: Pre-calculated island width (m).
+      taue:
+        type: object
+        description: Energy confinement time data.
+        properties:
+          value:
+            type: number
+            description: Energy confinement time (s).
+      h98y2:
+        type: number
+        description: H-mode confinement enhancement factor.
+  metadata:
+    type: object
+    description: Additional metadata.
+    properties:
+      time_stamp:
+        type: string
+        format: date-time
+      source:
+        type: string

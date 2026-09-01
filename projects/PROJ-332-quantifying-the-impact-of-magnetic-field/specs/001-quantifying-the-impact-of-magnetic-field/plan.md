@@ -18,7 +18,7 @@ This feature implements a data pipeline and statistical analysis engine to estim
 **Project Type**: Scientific Data Pipeline / CLI Tool.  
 **Performance Goals**: Complete pipeline execution (retrieval + analysis) within 6 hours; memory usage < 6GB.  
 **Constraints**: No local GPU; no authentication for data (public archive only); strict adherence to constitutional data hygiene (checksums, no in-place modification).  
-**Scale/Scope**: Pilot study processing -10 DIII-D discharges.
+**Scale/Scope**: Pilot study processing of DIII-D discharges.
 
 > **Note on Data Feasibility**: The spec assumes the DIII-D MDSplus archive is accessible via `wget` without authentication. The "Verified datasets" block indicates **NO verified source found** for the live DIII-D MDSplus archive. The implementation plan attempts direct retrieval from the DIII-D public archive. If this fails (unreachable or restricted), the pipeline fails with a retry mechanism as per FR-001. A fallback to static verified data (if available) is attempted only as a demonstration, explicitly labeled as such. The plan does **not** use the placeholder HuggingFace URLs listed in the "Verified datasets" block (which appear to be unrelated test data) as a substitute for DIII-D data, as they do not contain the required physics variables (q-profile, island width, tau_e).
 
@@ -85,7 +85,7 @@ projects/PROJ-332-quantifying-the-impact-of-magnetic-field/
 ### Phase 0: Data Retrieval, Validation & Reference Check (FR-001, FR-009, Constitution II)
 1.  **Input**: List of 10 target DIII-D discharge IDs.
 2.  **Action**: Execute `data_retrieval.py` to fetch EFIT, island, and tau_e data from DIII-D public MDSplus via `wget`/`requests`.
-3.  **Retry Logic**: Implement multiple retries with 10s intervals on timeout. (Edge Case 1).
+3.  **Retry Logic**: Implement multiple retries with timed intervals on timeout. (Edge Case 1).
 4.  **Fallback**: If live archive fails, attempt to load a static, verified subset of DIII-D data (if available in a verified public repository like Zenodo/HuggingFace) as a *demonstration* only. If no verified static data exists, fail.
 5.  **Reference Validation**: Execute the `Reference-Validator Agent` to verify all citations in `research.md` before proceeding.
 6.  **Validation**: Parse raw files into a unified DataFrame. Check for missing `island_width`, `tau_e`, or `q-profile`. Exclude invalid discharges.

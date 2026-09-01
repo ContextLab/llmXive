@@ -1,0 +1,54 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`code/`, `data/raw/`, `data/processed/`,\
+    \ `artifacts/`, `tests/`) is presented; without confirming their existence and\
+    \ non\u2011emptiness, the task\u2019s core requirement is unmet. The implementer\
+    \ must add the specified project structure to the repository."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`\
+    \ with Black settings, or a pre\u2011commit hook) are present in the provided\
+    \ evidence, so the requirement to configure flake8/black is not satisfied. The\
+    \ implementer must add the appropriate configuration artifacts."
+T006:
+  c: false
+  h: 60288afe371a6d6b3f7f51f790951866f8d1ed1cc5ebcf7037dca7c258a8d583
+  r: "The repository contains a `code/utils/limits.py` with timeout and memory\u2011\
+    guard implementations, but `code/main.py` only imports these utilities and shows\
+    \ no evidence of actually applying them to the pipeline. Moreover, the required\
+    \ GitHub Actions workflow file `.github/workflows/ci.yml` is missing entirely,\
+    \ so the CI\u2011level timeout configuration is not present. The task is therefore\
+    \ not fully satisfied."
+T009:
+  c: false
+  h: c0ff7142e1900c60fd804c59be8f7d83c790e0fbc455e1a27e8c13fdda99e013
+  r: "The required artifact `tests/unit/test_retrieval.py` does not exist in the repository,\
+    \ so no unit test for MDSplus connection retry logic is present. The task\u2019\
+    s core deliverable is missing."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or module was presented that accesses MDSplus to fetch `island_width`,
+    checks for its presence, derives it via the Rutherford equation using `local magnetic
+    shear`, `q`, and `Bt`, logs warnings, or excludes discharges as specified. Without
+    any artifact, the requirement is not satisfied.
+T014b:
+  c: false
+  h: 422cb0f9cf8be97c87818e105c4f39e797ec393e34158cff8d3528faf97c8ca5
+  r: "The provided `code/data/validator.py` is incomplete (truncated mid\u2011function)\
+    \ and does not contain full validation logic, nor does it integrate validation\
+    \ \u201Cbefore any parsing or analysis.\u201D Moreover, the required schema files\
+    \ (`contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`) are missing\
+    \ from the repository, so the validator cannot actually validate against them.\
+    \ The task therefore remains unfinished."
+T016:
+  c: false
+  h: ebd852f436961ae357625a1b7a0cdad575f6e8975646626c74c7f99803a56ecd
+  r: "The required `data/processed/unified_analysis.csv` file does not exist, so the\
+    \ unified dataset was never saved. Moreover, while `code/data/preprocessing.py`\
+    \ is present, the provided excerpt does not show any implementation that adds\
+    \ a `confinement_mode` column, includes `tau_e`, or generates a checksum, and\
+    \ the rest of the file is truncated. Consequently the task\u2019s core requirements\
+    \ are unmet."
