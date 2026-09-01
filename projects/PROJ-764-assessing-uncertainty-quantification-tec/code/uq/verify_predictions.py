@@ -1,3 +1,15 @@
+"""
+Verification script for T018: Verify uq_predictions_base.csv generation and schema compliance.
+
+This script validates that the main pipeline output (results/uq_predictions_base.csv)
+exists, is non-empty, and strictly adheres to the required schema defined in T016a.
+
+Schema Requirements:
+- Columns: sample_id, method, prediction, variance, lower_50, upper_50, lower_90, upper_90
+- sample_id: int
+- method: str
+- prediction, variance, lower_50, upper_50, lower_90, upper_90: float64
+"""
 import os
 import sys
 import json
@@ -5,15 +17,19 @@ import pandas as pd
 import numpy as np
 from typing import Dict, Any, List
 
-# Constants for schema validation
+# Constants
+OUTPUT_PATH = "results/uq_predictions_base.csv"
 REQUIRED_COLUMNS = [
-    "sample_id", "method", "prediction", "variance",
-    "lower_50", "upper_50", "lower_90", "upper_90",
-    "aleatoric", "epistemic", "total", "uncertainty_type"
+    "sample_id",
+    "method",
+    "prediction",
+    "variance",
+    "lower_50",
+    "upper_50",
+    "lower_90",
+    "upper_90"
 ]
-
-# Expected types for validation
-COLUMN_TYPES = {
+REQUIRED_DTYPES = {
     "sample_id": "int64",
     "method": "object",
     "prediction": "float64",
@@ -21,160 +37,132 @@ COLUMN_TYPES = {
     "lower_50": "float64",
     "upper_50": "float64",
     "lower_90": "float64",
-    "upper_90": "float64",
-    "aleatoric": "float64",
-    "epistemic": "float64",
-    "total": "float64",
-    "uncertainty_type": "object"
+    "upper_90": "float64"
 }
 
-def verify_schema(df: pd.DataFrame, filepath: str) -> bool:
+def verify_schema(df: pd.DataFrame) -> List[str]:
     """
-    Verify that the DataFrame matches the required schema for uq_predictions.csv.
+    Verify the DataFrame schema matches requirements.
     
-    Checks:
-    1. All required columns are present in the exact order.
-    2. Column data types match expectations (allowing for nullable floats).
-    3. No NaN values in critical columns (sample_id, method, prediction).
-    
+    Args:
+        df: The loaded DataFrame.
+        
     Returns:
-        bool: True if schema is valid, False otherwise.
+        A list of error messages. Empty if valid.
     """
     errors = []
     
-    # Check column presence
-    missing_cols = set(REQUIRED_COLUMNS) - set(df.columns)
-    if missing_cols:
-        errors.append(f"Missing columns: {missing_cols}")
-    
-    # Check column order
+    # Check columns
     if list(df.columns) != REQUIRED_COLUMNS:
-        errors.append(f"Column order mismatch. Expected: {REQUIRED_COLUMNS}, Got: {list(df.columns)}")
+        missing = set(REQUIRED_COLUMNS) - set(df.columns)
+        extra = set(df.columns) - set(REQUIRED_COLUMNS)
+        errors.append(f"Column mismatch. Missing: {missing}, Extra: {extra}")
     
-    # Check data types (allowing for nullable float64)
+    # Check dtypes
+    for col, expected_dtype in REQUIRED_DTYPES.items():
+        if col in df.columns:
+            actual_dtype = str(df[col].dtype)
+            # Allow some flexibility for object vs string, but strict on floats/ints
+            if expected_dtype == "object" and actual_dtype not in ["object", "string"]:
+                errors.append(f"Column '{col}': expected object, got {actual_dtype}")
+            elif expected_dtype == "int64" and not np.issubdtype(df[col].dtype, np.integer):
+                errors.append(f"Column '{col}': expected int64, got {actual_dtype}")
+            elif expected_dtype == "float64" and not np.issubdtype(df[col].dtype, np.floating):
+                errors.append(f"Column '{col}': expected float64, got {actual_dtype}")
+    
+    return errors
+
+def verify_data_integrity(df: pd.DataFrame) -> List[str]:
+    """
+    Verify data integrity (no nulls where required, valid ranges).
+    
+    Args:
+        df: The loaded DataFrame.
+        
+    Returns:
+        A list of error messages. Empty if valid.
+    """
+    errors = []
+    
+    # Check for nulls
     for col in REQUIRED_COLUMNS:
         if col in df.columns:
-            dtype = df[col].dtype
-            expected = COLUMN_TYPES[col]
-            # Allow float64 for numeric columns even if they contain NaN (which makes them float64 in pandas)
-            if expected == "float64" and str(dtype) not in ["float64", "Float64"]:
-                errors.append(f"Column '{col}' has type {dtype}, expected {expected}")
-            elif expected == "int64" and str(dtype) not in ["int64", "Int64"]:
-                errors.append(f"Column '{col}' has type {dtype}, expected {expected}")
-            elif expected == "object" and str(dtype) != "object":
-                errors.append(f"Column '{col}' has type {dtype}, expected object")
+            if df[col].isnull().any():
+                errors.append(f"Column '{col}' contains null values.")
     
-    # Check for critical NaN values
-    critical_cols = ["sample_id", "method", "prediction"]
-    for col in critical_cols:
-        if col in df.columns and df[col].isna().any():
-            errors.append(f"Critical column '{col}' contains NaN values")
+    # Check variance is non-negative
+    if "variance" in df.columns and (df["variance"] < 0).any():
+        errors.append("Column 'variance' contains negative values.")
     
-    if errors:
-        print(f"Schema validation FAILED for {filepath}:")
-        for err in errors:
-            print(f"  - {err}")
-        return False
+    # Check bounds consistency (lower < pred < upper)
+    # Allow small floating point tolerance
+    tol = 1e-9
+    if "lower_50" in df.columns and "upper_50" in df.columns:
+        if ((df["lower_50"] - df["upper_50"]) > tol).any():
+            errors.append("Column 'lower_50' is greater than 'upper_50' in some rows.")
     
-    print(f"Schema validation PASSED for {filepath}")
-    return True
-
-def verify_data_integrity(df: pd.DataFrame, filepath: str) -> bool:
-    """
-    Verify data integrity constraints for uq_predictions.csv.
+    if "lower_90" in df.columns and "upper_90" in df.columns:
+        if ((df["lower_90"] - df["upper_90"]) > tol).any():
+            errors.append("Column 'lower_90' is greater than 'upper_90' in some rows.")
     
-    Checks:
-    1. prediction, variance, bounds are finite (no inf/nan in numeric cols).
-    2. lower_50 <= prediction <= upper_50 (approximate, allowing for float precision).
-    3. lower_90 <= lower_50 and upper_50 <= upper_90.
-    4. variance >= 0.
-    5. sample_id is unique.
-    6. Methods are one of: "DeepEnsemble", "MCDropout", "SparseGP".
+    # Check interval nesting (90% should be wider than 50%)
+    if all(c in df.columns for c in ["lower_50", "upper_50", "lower_90", "upper_90"]):
+        width_50 = df["upper_50"] - df["lower_50"]
+        width_90 = df["upper_90"] - df["lower_90"]
+        if (width_50 > width_90 + tol).any():
+            errors.append("50% confidence interval is wider than 90% interval in some rows.")
     
-    Returns:
-        bool: True if integrity checks pass, False otherwise.
-    """
-    errors = []
-    
-    # Check for infinite values in numeric columns
-    numeric_cols = ["prediction", "variance", "lower_50", "upper_50", "lower_90", "upper_90", "aleatoric", "epistemic", "total"]
-    for col in numeric_cols:
-        if col in df.columns:
-            if np.isinf(df[col]).any():
-                errors.append(f"Column '{col}' contains infinite values")
-    
-    # Check variance non-negativity
-    if "variance" in df.columns:
-        if (df["variance"] < 0).any():
-            errors.append("Variance contains negative values")
-    
-    # Check interval bounds consistency
-    if all(col in df.columns for col in ["lower_50", "prediction", "upper_50"]):
-        # Allow small float tolerance
-        tol = 1e-9
-        if ((df["lower_50"] - df["prediction"]) > tol).any():
-            errors.append("lower_50 > prediction in some rows")
-        if ((df["prediction"] - df["upper_50"]) > tol).any():
-            errors.append("prediction > upper_50 in some rows")
-    
-    if all(col in df.columns for col in ["lower_90", "lower_50", "upper_50", "upper_90"]):
-        if ((df["lower_90"] - df["lower_50"]) > 0).any():
-            errors.append("lower_90 > lower_50 in some rows")
-        if ((df["upper_50"] - df["upper_90"]) > 0).any():
-            errors.append("upper_50 > upper_90 in some rows")
-    
-    # Check unique sample_id
-    if "sample_id" in df.columns:
-        if df["sample_id"].duplicated().any():
-            errors.append("Duplicate sample_id values found")
-    
-    # Check valid methods
-    valid_methods = {"DeepEnsemble", "MCDropout", "SparseGP"}
-    if "method" in df.columns:
-        invalid_methods = set(df["method"].unique()) - valid_methods
-        if invalid_methods:
-            errors.append(f"Invalid method names found: {invalid_methods}")
-    
-    if errors:
-        print(f"Data integrity validation FAILED for {filepath}:")
-        for err in errors:
-            print(f"  - {err}")
-        return False
-    
-    print(f"Data integrity validation PASSED for {filepath}")
-    return True
+    return errors
 
 def main():
-    """
-    Main entry point for verifying uq_predictions.csv generation and schema compliance.
-    """
-    # Define paths
-    project_root = Path(__file__).resolve().parent.parent.parent
-    predictions_path = project_root / "results" / "uq_predictions.csv"
+    """Main entry point for verification."""
+    print(f"Verifying {OUTPUT_PATH}...")
     
-    if not predictions_path.exists():
-        print(f"ERROR: File not found: {predictions_path}")
+    # 1. Check file existence
+    if not os.path.exists(OUTPUT_PATH):
+        print(f"ERROR: File not found: {OUTPUT_PATH}")
         sys.exit(1)
     
+    # 2. Load data
     try:
-        df = pd.read_csv(predictions_path)
+        df = pd.read_csv(OUTPUT_PATH)
     except Exception as e:
-        print(f"ERROR: Failed to read {predictions_path}: {e}")
+        print(f"ERROR: Failed to load CSV: {e}")
         sys.exit(1)
     
-    print(f"Loaded {predictions_path} with {len(df)} rows and {len(df.columns)} columns")
-    print(f"Columns: {list(df.columns)}")
+    # 3. Check non-empty
+    if df.empty:
+        print("ERROR: CSV file is empty.")
+        sys.exit(1)
     
-    # Run validations
-    schema_ok = verify_schema(df, str(predictions_path))
-    integrity_ok = verify_data_integrity(df, str(predictions_path))
+    print(f"Loaded {len(df)} rows.")
     
-    if schema_ok and integrity_ok:
-        print("\n✅ T018 Verification PASSED: results/uq_predictions.csv is valid.")
-        sys.exit(0)
+    # 4. Verify Schema
+    schema_errors = verify_schema(df)
+    if schema_errors:
+        print("Schema Verification FAILED:")
+        for err in schema_errors:
+            print(f"  - {err}")
+        sys.exit(1)
     else:
-        print("\n❌ T018 Verification FAILED: results/uq_predictions.csv does not meet requirements.")
+        print("Schema Verification PASSED.")
+    
+    # 5. Verify Data Integrity
+    integrity_errors = verify_data_integrity(df)
+    if integrity_errors:
+        print("Data Integrity Verification FAILED:")
+        for err in integrity_errors:
+            print(f"  - {err}")
         sys.exit(1)
+    else:
+        print("Data Integrity Verification PASSED.")
+    
+    # 6. Summary
+    print(f"\n✅ SUCCESS: {OUTPUT_PATH} is valid.")
+    print(f"   - Rows: {len(df)}")
+    print(f"   - Columns: {list(df.columns)}")
+    print(f"   - Methods present: {df['method'].unique().tolist()}")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

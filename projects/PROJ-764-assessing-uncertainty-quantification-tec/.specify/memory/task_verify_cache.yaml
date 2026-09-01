@@ -1,56 +1,39 @@
-T001a:
+T012:
+  c: false
+  h: 7c31ad82d6a8b01a473164955bd2b34cdc9d0cbf7a209d3caa7a2b3b2121137f
+  r: "The repository contains `code/models/baseline_nn.py` with a 2\u2011layer heteroscedastic\
+    \ network, but the file does not include the required pre\u2011save parameter\u2011\
+    count assertion nor any code that saves a model checkpoint to `results/models/baseline_seed42.pt`.\
+    \ Moreover, the expected model file is absent from the `results/models` directory.\
+    \ The task\u2019s core requirement\u2014producing and saving the validated model\
+    \ artifact\u2014is therefore unmet."
+T016b:
+  c: false
+  h: 5a08642a0da35c7193ebd6bbcacb3c57471e1b63f69558df0e7fd1588dbf3ab3
+  r: The repository contains a `code/main.py` file, but its content is truncated and
+    does not show the required global timeout handler, the explicit waiting for T013/T014
+    completion, or the full pipeline that merges T016a outputs. Moreover, the expected
+    output file `results/uq_predictions_base.csv` is absent. These missing pieces
+    mean the orchestrator does not fulfill the stated requirements.
+T022b:
+  c: false
+  h: 4db8d923de11c400b5cf98678549ce11a26b7bcd2eb4d65f37a49e42570a6979
+  r: "The repository contains `code/uq/metrics.py` with a `decompose_uncertainty`\
+    \ function, but there is no script or notebook that imports and runs this function\
+    \ to create `results/uq_predictions.csv`. Moreover, both `results/uq_predictions_base.csv`\
+    \ and the required output `results/uq_predictions.csv` are missing, so the specified\
+    \ CSV with the required columns has not been generated. The task\u2019s core requirement\u2014\
+    populating the predictions CSV using the decomposition function\u2014is therefore\
+    \ unmet."
+T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory structure (`code/`, `data/`, `results/`, `tests/`, `docs/`) is presented
-    or referenced in the provided evidence; without visible artifacts, the requirement
-    cannot be confirmed as satisfied.
-T003:
+  r: No PDF or PNG reliability diagram files are present in the `results/` directory
+    (or any other location). The required visual artifacts for each UQ method are
+    missing, so the task is not satisfied.
+T025a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
-    \ settings, `.ruff.toml` or `ruff.toml`, or a pre\u2011commit hook setup) are\
-    \ present in the provided evidence, so the requirement to configure Ruff and Black\
-    \ is not demonstrated. The implementer must add the actual configuration artifacts\
-    \ and ensure they are non\u2011empty."
-T005:
-  c: false
-  h: 8c581a3af537258ad96f18c1cd8e0f17dc0c12e4d14d993262cabecee877511b
-  r: "The repository contains a fully\u2011implemented `code/data/download.py` with\
-    \ the required retry logic, but the expected output file `data/raw/oqmd.parquet`\
-    \ is absent (the file does not exist on disk). The task\u2019s primary deliverable\
-    \ \u2013 the downloaded dataset saved as a Parquet file \u2013 is missing, so\
-    \ the requirement is not satisfied."
-T006a:
-  c: false
-  h: 479607406a64eb26d3ce069a944257a7aa99df2beac8b8dc9c4b7ef53dbdecb1
-  r: The repository contains a `preprocess.py` that only loads config and reads split
-    files; it never performs the stratified random split with quantile binning, nor
-    does it write `raw_train.csv`, `raw_val.csv`, or `raw_test.csv`. Those three CSV
-    files are absent from `data/processed`. Consequently the required split logic
-    and output artifacts are missing.
-T006b:
-  c: false
-  h: 93f2217f272266597903f84a59c284c78d585b5f344b160b7d117c26e47b0fed
-  r: "The repository contains a partially\u2011implemented `code/data/preprocess.py`\
-    \ (the file is truncated and never reaches the PCA fitting/saving steps), and\
-    \ none of the required output artifacts (`exclusion_log.json`, the three `*_20pca.csv`\
-    \ files, or `pca_transformer.pkl`) exist on disk. Consequently the task\u2019\
-    s specifications are not satisfied."
-T015:
-  c: false
-  h: 36d02b255a18ca0e5baecab54a22222e0b79ea3c2c01cb4bbd5d85cda2fcecc9
-  r: "The repository lacks the required input files (`data/processed/raw_test.csv`,\
-    \ `data/processed/pca_transformer.pkl`) and the expected output model (`results/models/sparse_gp_model.pt`).\
-    \ Moreover, `code/models/sparse_gp.py` does not actually consume those files,\
-    \ contains truncated/incomplete training code, and has several bugs (e.g., missing\
-    \ `yaml` import, unfinished `likelihood.train` call). The task\u2019s core requirements\
-    \ are therefore unmet."
-T016:
-  c: false
-  h: 42b20284cad9375aaa2ff4887ffe6f2f64f4a14b2ccdfd21aab38604345ef913
-  r: "The repository contains `code/main.py`, but the script does not show a configured\
-    \ 5\u2011hour timeout (no `signal.alarm` or similar) and the file ends abruptly,\
-    \ indicating incomplete implementation. Moreover, the required output `results/uq_predictions.csv`\
-    \ is absent, so the orchestrator does not produce the mandated CSV with the exact\
-    \ columns and NULL fields. These missing pieces prevent the task from being considered\
-    \ complete."
+  h: 9af9028c3867c810131aa46bbb9d3080a769b231b6bdb42f36b9aa57d661e75d
+  r: The required output file `results/ece_scores_by_seed.json` is missing, so the
+    aggregated ECE scores for the three seed runs have not been provided. Without
+    this artifact, the task is not satisfied.

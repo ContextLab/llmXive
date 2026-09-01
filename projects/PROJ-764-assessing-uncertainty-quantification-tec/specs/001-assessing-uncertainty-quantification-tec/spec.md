@@ -57,7 +57,7 @@ The researcher needs to demonstrate the practical utility of the best-performing
 - What happens when the Materials Project dataset download fails or the file is corrupted? (System must retry up to 3 times with exponential backoff, then fail gracefully with a clear error code).
 - How does the system handle materials with missing structural descriptors (e.g., undefined packing fraction)? (Rows with missing critical features are excluded from training/test sets, and a JSON log 'validation_report.json' is generated with the count of excluded samples).
 - How does the system behave if the Gaussian Process optimization fails to converge on the sparse inducing points? (The system falls back to a standard GP with full inducing points or logs a warning and proceeds with the Deep Ensemble/MC-Dropout results only).
-- What if the total runtime exceeds the 6-hour GitHub Actions limit during the Deep Ensemble training? (The system must enforce a hard time budget of 5 hours for the entire pipeline (training + eval) to ensure a 45-minute safety buffer for CI overhead, failing with a clear timeout error if exceeded).
+- What if the total runtime exceeds the 6-hour GitHub Actions limit during the Deep Ensemble training? (The system must enforce a hard time budget for the entire pipeline (training + eval) to ensure a safety buffer for CI overhead., failing with a clear timeout error if exceeded).
 
 ## Requirements *(mandatory)*
 

@@ -66,7 +66,6 @@ def train_mc_dropout(input_dim: int, seed: int, epochs: int = 50, lr: float = 1e
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=32, shuffle=True)
 
     optimizer = optim.Adam(model.parameters(), lr=lr)
-    criterion = nn.MSELoss() # Not used directly, using heteroscedastic loss
 
     logger.info(f"Starting MC Dropout training with seed {seed}, epochs {epochs}")
     for epoch in range(epochs):
@@ -97,7 +96,7 @@ def run_mc_dropout_inference(model: MCDropoutModel, X: torch.Tensor, n_samples: 
         
     Returns:
         means: Tensor of shape (N, n_samples)
-        vars: Tensor of shape (N, n_samples)
+        vars_list: Tensor of shape (N, n_samples)
     """
     model.enable_dropout()
     means = []
@@ -117,7 +116,7 @@ def run_mc_dropout_inference(model: MCDropoutModel, X: torch.Tensor, n_samples: 
 def main(seed: int = 42):
     """
     Main entry point for T014.
-    Trains the MC Dropout model and saves it to results/models/mc_dropout_model.pt.
+    Trains the MC Dropout model and saves it to results/models/mc_dropout/mc_dropout_seed_<seed>.pt.
     """
     config = load_config()
     input_dim = 20
@@ -134,9 +133,9 @@ def main(seed: int = 42):
     model = train_mc_dropout(input_dim, seed, epochs=epochs)
     
     # Save the model
-    out_dir = Path("results/models")
+    out_dir = Path("results/models/mc_dropout")
     out_dir.mkdir(parents=True, exist_ok=True)
-    output_path = out_dir / "mc_dropout_model.pt"
+    output_path = out_dir / f"mc_dropout_seed_{seed}.pt"
     
     torch.save({
         'model_state_dict': model.state_dict(),
@@ -148,7 +147,7 @@ def main(seed: int = 42):
     
     # Verify inference works
     logger.info("Verifying inference with 30 stochastic passes...")
-    model.load_state_dict(torch.load(output_path)['model_state_dict'])
+    model.load_state_dict(torch.load(output_path, weights_only=True)['model_state_dict'])
     test_means, test_vars = run_mc_dropout_inference(model, X[:10], n_samples=30)
     logger.info(f"Inference successful. Mean shape: {test_means.shape}, Var shape: {test_vars.shape}")
 

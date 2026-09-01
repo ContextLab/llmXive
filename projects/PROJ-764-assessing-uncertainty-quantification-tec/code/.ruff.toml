@@ -1,8 +1,18 @@
-# Extends pyproject.toml settings for specific directory overrides if needed
-# Currently relies on pyproject.toml for main configuration
-extend = "pyproject.toml"
-
 [lint]
-# Add specific overrides for the code/ directory if necessary in the future
-# Example: Ignore specific rules for generated code
-# ignore = ["E402"]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # line-too-long (handled by black)
+    "B008", # do not perform function calls in argument defaults (common in ML)
+]
+extend-per-file-ignores = { "tests/*" = ["S101"] }
+
+[lint.isort]
+known-first-party = ["data", "models", "uq", "utils"]

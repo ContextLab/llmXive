@@ -123,6 +123,8 @@ def main(seed: int = 42):
     model = HeteroscedasticNN(input_dim, hidden_dims=[32, 16])
     total_params = sum(p.numel() for p in model.parameters())
     logger.info(f"Model total parameters: {total_params}")
+    
+    # Verification: Assert total_params <= 10000 before saving
     if total_params > 10000:
         raise ValueError(f"Model has {total_params} parameters, which exceeds the 10k limit.")
     else:

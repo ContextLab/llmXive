@@ -1,191 +1,161 @@
+"""
+Main orchestrator for the UQ pipeline.
+Chains data loading, model training, and UQ inference with a global 5-hour timeout.
+"""
 import os
 import sys
 import time
 import signal
 import logging
 import json
-import traceback
+import subprocess
 from pathlib import Path
 from datetime import datetime
 
-# Add project root to path
+# Add project root to path to ensure imports work
 project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(project_root / "code"))
 
-from code.data.download import download_oqmd_dataset, main as download_main
-from code.data.preprocess import main as preprocess_main
-from code.data.generate_validation_report import main as validation_report_main
-from code.models.baseline_nn import main as baseline_main
-from code.models.deep_ensemble import main as ensemble_main
-from code.models.mc_dropout import main as mc_dropout_main
-from code.models.sparse_gp import main as sparse_gp_main
-from code.uq.uncertainty_decomposition import main as uq_decomp_main
-from code.uq.compute_calibration_report import main as calibration_report_main
-from code.utils.logging_config import setup_logging, log_metric
-from code.uq.metrics import decompose_uncertainty
-import pandas as pd
-import numpy as np
+from utils.logging_config import setup_logging, log_pipeline_start, log_pipeline_end, log_metric
+from data.preprocess import main as preprocess_main
+from models.baseline_nn import main as baseline_nn_main
+from models.deep_ensemble import main as deep_ensemble_main
+from models.mc_dropout import main as mc_dropout_main
+from models.sparse_gp import main as sparse_gp_main
+from models.run_single_seed import main as run_single_seed_main
+
+# Configuration
+GLOBAL_TIMEOUT_HOURS = 5.0
+SEEDS_TO_RUN = [42, 43, 44]  # Based on T025a requirements
+OUTPUT_FILE = "results/uq_predictions_base.csv"
+
+logger = logging.getLogger(__name__)
 
 class TimeoutError(Exception):
     pass
 
 def timeout_handler(signum, frame):
-    raise TimeoutError("Pipeline timed out")
+    raise TimeoutError("Pipeline execution exceeded the 5-hour global timeout.")
+
+def run_command(cmd_list, description):
+    """Run a subprocess command and wait for completion."""
+    logger.info(f"Starting: {description}")
+    start_time = time.time()
+    try:
+        # Run the script as a subprocess to isolate execution and handle exit codes cleanly
+        result = subprocess.run(
+            [sys.executable] + cmd_list,
+            check=True,
+            capture_output=False,
+            text=True
+        )
+        elapsed = time.time() - start_time
+        logger.info(f"Completed: {description} in {elapsed:.2f}s")
+        return True
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Failed: {description} with exit code {e.returncode}")
+        raise e
+    except Exception as e:
+        logger.error(f"Error running {description}: {e}")
+        raise e
+
+def merge_predictions(seed_files, output_path):
+    """Merge individual seed prediction files into a single base CSV."""
+    import pandas as pd
+    import glob
+
+    all_dfs = []
+    # Pattern: results/uq_predictions_seed_<seed>.csv
+    for seed in SEEDS_TO_RUN:
+        file_path = f"results/uq_predictions_seed_{seed}.csv"
+        if os.path.exists(file_path):
+            df = pd.read_csv(file_path)
+            all_dfs.append(df)
+        else:
+            logger.warning(f"Predictions file for seed {seed} not found: {file_path}")
+
+    if not all_dfs:
+        logger.error("No prediction files found to merge.")
+        raise FileNotFoundError("No prediction files found to merge.")
+
+    combined_df = pd.concat(all_dfs, ignore_index=True)
+    combined_df.to_csv(output_path, index=False)
+    logger.info(f"Merged predictions saved to {output_path}")
+    return combined_df
 
 def run_pipeline():
-    logger = setup_logging()
-    logger.info("Starting UQ Pipeline")
-    
-    # Record start time
-    start_time = time.time()
+    """Orchestrate the full pipeline steps."""
+    log_pipeline_start("UQ Pipeline")
 
-    try:
-        # 1. Download
-        logger.info("Step 1: Downloading dataset")
-        download_main()
+    # Step 1: Preprocessing (T006a, T006b1, T006b2, T006b3)
+    # This generates the processed data and PCA artifacts needed for models
+    run_command(
+        ["data/preprocess.py"],
+        "Preprocessing (Split, Binning, PCA, Exclusion)"
+    )
 
-        # 2. Preprocess
-        logger.info("Step 2: Preprocessing data")
-        preprocess_main()
+    # Step 2: Train Models (T012, T013, T014, T015)
+    # These must complete before inference (T016a) can start
+    logger.info("Waiting for model training to complete...")
 
-        # 3. Generate Validation Report
-        logger.info("Step 3: Generating validation report")
-        validation_report_main()
+    # Train Baseline (T012)
+    run_command(
+        ["models/baseline_nn.py"],
+        "Training Baseline NN"
+    )
 
-        # 4. Train Models
-        logger.info("Step 4: Training Baseline NN")
-        baseline_main()
-        logger.info("Step 4: Training Deep Ensemble")
-        ensemble_main()
-        logger.info("Step 4: Training MC Dropout")
-        mc_dropout_main()
-        logger.info("Step 4: Training Sparse GP")
-        sparse_gp_main()
+    # Train Deep Ensemble (T013)
+    run_command(
+        ["models/deep_ensemble.py"],
+        "Training Deep Ensemble"
+    )
 
-        # 5. Generate Predictions
-        logger.info("Step 5: Generating UQ Predictions")
-        
-        # Load test data
-        test_df = pd.read_csv("data/processed/features_test_20pca.csv")
-        sample_ids = test_df.index.values
-        targets = test_df['formation_energy'].values
-        
-        # Load model predictions from individual model outputs
-        # We assume each model main() function writes its predictions to a standard location
-        # For this implementation, we'll run inference directly if the models support it
-        # or read from expected output files
-        
-        predictions = []
-        
-        # Helper to calculate confidence intervals
-        def calculate_intervals(preds, variances, z_50=0.674, z_90=1.645):
-            std = np.sqrt(variances)
-            lower_50 = preds - z_50 * std
-            upper_50 = preds + z_50 * std
-            lower_90 = preds - z_90 * std
-            upper_90 = preds + z_90 * std
-            return lower_50, upper_50, lower_90, upper_90
+    # Train MC Dropout (T014)
+    run_command(
+        ["models/mc_dropout.py"],
+        "Training MC Dropout"
+    )
 
-        # Process each method
-        methods_config = [
-            ('baseline', 'results/models/baseline_seed42.pt'),
-            ('deep_ensemble', 'results/models/ensemble_models/'),
-            ('mc_dropout', 'results/models/mc_dropout_model.pt'),
-            ('sparse_gp', 'results/models/sparse_gp_model.pt')
-        ]
-        
-        for method_name, model_path in methods_config:
-            logger.info(f"  Processing {method_name} predictions")
-            
-            try:
-                # Try to load predictions from model output file
-                pred_file = f"results/predictions/{method_name}_predictions.csv"
-                if os.path.exists(pred_file):
-                    method_preds = pd.read_csv(pred_file)
-                    preds = method_preds['prediction'].values
-                    variances = method_preds['variance'].values
-                else:
-                    # Fallback: run inference if model supports it
-                    # This would require extending each model's main() to also output predictions
-                    # For now, we'll use a placeholder approach that assumes models have run
-                    logger.warning(f"  {method_name} predictions file not found, using placeholder")
-                    preds = targets + np.random.normal(0, 0.05, len(targets))
-                    variances = np.abs(np.random.normal(0.02, 0.01, len(targets)))
-                    variances = np.maximum(variances, 0.001)
-                
-                lower_50, upper_50, lower_90, upper_90 = calculate_intervals(preds, variances)
-                
-                for i in range(len(targets)):
-                    predictions.append({
-                        'sample_id': int(sample_ids[i]),
-                        'method': method_name,
-                        'prediction': float(preds[i]),
-                        'variance': float(variances[i]),
-                        'lower_50': float(lower_50[i]),
-                        'upper_50': float(upper_50[i]),
-                        'lower_90': float(lower_90[i]),
-                        'upper_90': float(upper_90[i]),
-                        'aleatoric': np.nan,
-                        'epistemic': np.nan,
-                        'total': np.nan,
-                        'uncertainty_type': np.nan,
-                        'target': float(targets[i])
-                    })
-                    
-            except Exception as e:
-                logger.error(f"  Error processing {method_name}: {str(e)}")
-                logger.error(traceback.format_exc())
-                # Continue with other methods
-                continue
+    # Train Sparse GP (T015)
+    run_command(
+        ["models/sparse_gp.py"],
+        "Training Sparse GP"
+    )
 
-        # Create DataFrame and save
-        pred_df = pd.DataFrame(predictions)
-        pred_path = Path("results/uq_predictions.csv")
-        pred_path.parent.mkdir(parents=True, exist_ok=True)
-        pred_df.to_csv(pred_path, index=False)
-        logger.info(f"Saved predictions to {pred_path}")
+    # Step 3: Run Inference for each seed (T016a)
+    # This consumes the trained models and generates per-seed predictions
+    for seed in SEEDS_TO_RUN:
+        run_command(
+            ["models/run_single_seed.py", "--seed", str(seed)],
+            f"Running Inference for Seed {seed}"
+        )
 
-        # 6. Uncertainty Decomposition (T022a logic)
-        logger.info("Step 6: Uncertainty Decomposition")
-        uq_decomp_main()
+    # Step 4: Merge Results
+    merge_predictions(SEEDS_TO_RUN, OUTPUT_FILE)
 
-        # 7. Calibration Report
-        logger.info("Step 7: Generating Calibration Report")
-        calibration_report_main()
-
-        # Log total time
-        end_time = time.time()
-        total_time = end_time - start_time
-        log_metric("total_training_time", total_time)
-        logger.info(f"Pipeline completed successfully in {total_time:.2f} seconds")
-
-    except Exception as e:
-        logger.error(f"Pipeline failed: {str(e)}")
-        logger.error(traceback.format_exc())
-        raise
+    log_pipeline_end("UQ Pipeline")
+    logger.info("Pipeline completed successfully.")
 
 def main():
-    # Setup logging first
+    """Entry point with global timeout enforcement."""
+    # Setup logging
     setup_logging()
-    logger = logging.getLogger(__name__)
-    
-    # Setup timeout
-    timeout_hours = 5.0
-    timeout_seconds = timeout_hours * 3600
+    logger.info("Starting UQ Pipeline Orchestrator")
+
+    # Set global timeout
     signal.signal(signal.SIGALRM, timeout_handler)
-    signal.alarm(int(timeout_seconds))
+    signal.alarm(int(GLOBAL_TIMEOUT_HOURS * 3600))
 
     try:
         run_pipeline()
     except TimeoutError as e:
-        logger = logging.getLogger(__name__)
-        logger.error(f"Pipeline timed out: {e}")
+        logger.critical(f"Pipeline terminated: {e}")
         sys.exit(1)
     except Exception as e:
-        logger = logging.getLogger(__name__)
-        logger.error(f"Pipeline failed: {e}")
+        logger.critical(f"Pipeline failed unexpectedly: {e}")
         sys.exit(1)
     finally:
+        # Cancel the alarm
         signal.alarm(0)
 
 if __name__ == "__main__":
