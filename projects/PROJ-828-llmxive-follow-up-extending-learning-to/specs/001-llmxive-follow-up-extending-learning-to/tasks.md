@@ -32,7 +32,7 @@
 
 **Data Integrity & Failure Policy**: All data loaders (T007) MUST fail loudly if the real GSM8K fetch fails. No synthetic fallbacks permitted. If a verified real data source is injected by the execution stage, T007 must adopt that exact package/recipe immediately.
 
-**Pruning Strategy (T009)**: Target 300M ± 1% (297M-303M) [UNRESOLVED-CLAIM: c_a065ed8d — status=not_enough_info]. **Fallback Logic**: If exact target cannot be met, prune to the **closest available verified model size** (e.g., a representative number of top components) and log a `WARNING: Target 300M unreachable, using closest verified size {size}`. **Abort only if no verified model size is available**. Include verification logic to validate the pruned model architecture.
+**Pruning Strategy (T009)**: Target 300M ± 1% (297M-303M). **Fallback Logic**: If exact target cannot be met, prune to the **closest available verified model size** (e.g., a representative number of top components) and log a `WARNING: Target 300M unreachable, using closest verified size {size}`. **Abort only if no verified model size is available**. Include verification logic to validate the pruned model architecture.
 
 **CPU Feasibility & Scaling**: All training tasks (T043-T047) are explicitly constrained to CPU-only execution (vCPU, 7GB RAM) with a 6-hour wall-clock limit. Phase 3 (CPU Feasibility) MUST be completed before Phase 5 (Execution) to ensure streaming and memory safeguards are in place. **NO** GPU tasks are permitted in this revision; the "Real Data + Real Results" rule is satisfied by streaming the GSM8K subset and processing in chunks.
 
@@ -59,13 +59,13 @@
 - [X] T004 Implement `src/utils/seeds.py` for deterministic seed pinning across all variants
 - [X] T005 Implement `src/utils/memory_monitor.py` to track RAM usage and enforce a memory limit
 - [X] T006 Implement `src/utils/hasher.py` to compute SHA-256 hashes of all derived artifacts
-- [X] T007 Create `src/data/loader.py` to fetch GSM8K subset (≥1,000 problems [UNRESOLVED-CLAIM: c_ccb4755b — status=not_enough_info]) from HuggingFace `datasets` with checksum verification. **Constraint**: Must raise an exception immediately if fetch fails; NO synthetic fallbacks.
+- [X] T007 Create `src/data/loader.py` to fetch GSM8K subset (≥1,000 problems) from HuggingFace `datasets` with checksum verification. **Constraint**: Must raise an exception immediately if fetch fails; NO synthetic fallbacks.
 - [X] T008 Create `src/data/checksums.py` for data integrity verification
 - [X] T009 Implement `src/models/config.py` to programmatically prune `TinyLlama` to a reduced parameter scale. **Target**: 300M ± 1% (297M-303M). **Strategy**: 1) Remove layers from end until target range met. 2) If overshoot, remove attention heads from last remaining layer. 3) **Fallback**: If target not met, use **closest available verified model size** and log a `WARNING: Target 300M unreachable, using closest verified size {size}`. **Abort only if no verified model size is available**. **Include verification logic** to validate the pruned model architecture.
 - [X] T010 Implement `src/models/backbone.py` with hooks to capture attention projection updates
 - [X] T012 Create `src/cli/run_experiment.py` as the single entry point orchestrating all training and analysis. **Requirement**: Must define `--early-window-fraction`, `--early-alignment-threshold`, and `--num-seeds` CLI arguments.
 - [X] T013 [P] Create `tests/unit/test_svd.py` to verify SVD on small matrices fits memory constraints
-- [X] T014 [P] Create `tests/unit/test_projection.py` to verify projection math (cosine similarity ≥ 0.99 [UNRESOLVED-CLAIM: c_9efb6fd0 — status=not_enough_info])
+- [X] T014 [P] Create `tests/unit/test_projection.py` to verify projection math (cosine similarity ≥ 0.99)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -96,7 +96,7 @@
 ### Tests for User Story 1
 
 - [X] T015 [P] [US1] Contract test for OPD SVD output shape in `tests/unit/test_opd_svd.py`
-- [ ] T016 [P] [US1] Integration test for OPD data flow in `tests/integration/test_opd_flow.py`
+- [X] T016 [P] [US1] Integration test for OPD data flow in `tests/integration/test_opd_flow.py`
 
 ### Implementation for User Story 1
 
@@ -134,11 +134,11 @@
 - [ ] T026-impl [US2] Implement `src/training/low_rank_rl.py` loading subspace from `results/opd_subspace.npy` (Depends on T021 completion). **Constraint**: Phase 5 cannot start until T021 is marked complete. **Dependency**: T059 (Streaming), T060 (Online Stats).
 - [ ] T027 [US2] Implement **gradient projection logic** in `low_rank_rl.py` to constrain raw RL gradients to top-$k$ vectors
 - [ ] T028 [US2] Add logging to verify update vector lies entirely within span of top-$k$ vectors
-- [ ] T029 [US2] Log cosine similarity between applied update and subspace basis and **Assert cosine similarity >= 0.99 [UNRESOLVED-CLAIM: c_acda1d03 — status=not_enough_info] **; raise exception if violated.
+- [ ] T029 [US2] Log cosine similarity between applied update and subspace basis and **Assert cosine similarity >= 0.99 **; raise exception if violated.
 - [ ] T029a [US2] Enforce memory limit for Low-Rank RL training loop. Integrate `memory_monitor` to assert peak RAM < 7GB during training.
 - [ ] T030 [US2] Save Low-Rank RL training logs and checkpoints to `results/low_rank_rl/`
 - [ ] T030b [US2] Implement per-step update direction logging in `src/training/low_rank_rl.py`. **Storage**: Save per-layer update vectors to separate files `results/low_rank_rl/updates_seed_{i}/layer_{index:02d}.pt` (NOT a single stacked array). **Naming Convention**: `layer_{index:02d}.pt` where `index` is derived from the model's `state_dict` keys using regex `layer_(\\d+)`, defaulting to sequential numeric indices if named layers are found.
-- [ ] T030c-impl [US2] Implement real-time "Early Trajectory Alignment" logging in `src/training/low_rank_rl.py`. **Logic**: During the first `early_window` steps, calculate cosine similarity between current update and OPD trajectory. **Action**: Log to `results/low_rank_rl/early_alignment_log.json` and **Flag run as 'Low Alignment'** if alignment < 0.95 [UNRESOLVED-CLAIM: c_28d03e78 — status=not_enough_info] (do NOT abort).
+- [ ] T030c-impl [US2] Implement real-time "Early Trajectory Alignment" logging in `src/training/low_rank_rl.py`. **Logic**: During the first `early_window` steps, calculate cosine similarity between current update and OPD trajectory. **Action**: Log to `results/low_rank_rl/early_alignment_log.json` and **Flag run as 'Low Alignment'** if alignment < 0.95 (do NOT abort).
 - [ ] T030c-verify [US2] Verify that `results/low_rank_rl/early_alignment_log.json` exists and is valid JSON after T030c-impl. **Action**: If missing/invalid, abort T040.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -196,10 +196,10 @@
 ### Conditional Re-run Logic
 
 - [ ] T048a [US3] Implement power analysis calculation in `src/analysis/power_analysis.py` to check effect size and sample size.
-- [ ] T048b [US3] Implement conditional branching logic in `src/analysis/power_analysis.py` to check: (1) time remaining, (2) effect size < 0.5 [UNRESOLVED-CLAIM: c_2f1dce53 — status=not_enough_info]. If both conditions met AND N < 10, prepare for re-run.
+- [ ] T048b [US3] Implement conditional branching logic in `src/analysis/power_analysis.py` to check: (1) time remaining, (2) effect size < 0.5. If both conditions met AND N < 10, prepare for re-run.
 - [ ] T048c-check [US3] **Validate N >= 3**. Action: If N < 3, flag 'inconclusive' and STOP. Do not proceed to T048c-branch.
-- [ ] T048c-branch [US3] Execute conditional branching: if effect size < 0.5 [UNRESOLVED-CLAIM: c_2f1dce53 — status=not_enough_info] AND N < 10 AND time > 15% remaining [UNRESOLVED-CLAIM: c_8abf6028 — status=not_enough_info], trigger re-run logic.
-- [ ] T042-b [US3] **Orchestrate** conditional re-run for **ACTIVE variants** with **N=10 seeds [UNRESOLVED-CLAIM: c_4ac3c929 — status=not_enough_info]** if T048c-branch triggers.
+- [ ] T048c-branch [US3] Execute conditional branching: if effect size < 0.5 AND N < 10 AND time > 15% remaining, trigger re-run logic.
+- [ ] T042-b [US3] **Orchestrate** conditional re-run for **ACTIVE variants** with **N=10 seeds ** if T048c-branch triggers.
 - [ ] T048d [US3] Re-run analysis on new data if re-run occurred.
 
 ### Phase 7: Polish & Cross-Cutting Concerns

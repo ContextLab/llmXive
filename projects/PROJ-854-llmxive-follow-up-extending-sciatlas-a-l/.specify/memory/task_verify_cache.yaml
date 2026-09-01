@@ -34,9 +34,29 @@ T031:
     \ without the actual documentation changes, we cannot verify that the required\
     \ updates were made. The implementer must supply the modified markdown file showing\
     \ the final pipeline steps, dependencies, and exact CLI commands."
+T032b:
+  c: false
+  h: 88369eff7a099ef58ff45523239019e3b811b54d488418e20f05ccdc7d52d3e6
+  r: "The required file `src/services/embeddings.py` does not exist in the repository,\
+    \ so no refactored code implementing strict batch processing and memory release\
+    \ can be verified. The task\u2019s core artifact is missing."
 T037:
   c: false
   h: f7f5b88c96870b1aab41276122c3c490cc8a53a8a2bb79661ca0c19f95d2979d
   r: The required file `tests/integration/test_statistical_pipeline.py` does not exist,
     so the integration test with `test_binned_analysis_execution` is missing entirely.
     No evidence of the requested test implementation is present.
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `artifacts/validation_report.md` file was provided; thus there is no evidence
+    of an execution log, exit code, or artifact hashes, which are required to satisfy
+    the task. The implementer must generate and supply the validation report at the
+    specified path.
+T039:
+  c: false
+  h: ea0f2b915b9b71d186e9e451294a2810df0993dc2dadca0bea20d941b6778d6d
+  r: "The `src/services/ingest.py` file shows no import or usage of `memory_profiler`\
+    \ and does not log peak RAM usage per batch. Additionally, the required `src/services/embeddings.py`\
+    \ file is completely missing. Both files need the memory\u2011profiling integration\
+    \ and the embeddings module must exist."

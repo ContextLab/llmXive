@@ -1,11 +1,11 @@
 """
-Setup script to create the project directory structure for llmXive follow-up.
-Creates data/raw, data/processed, results, code, and tests directories.
+Task T001a: Create project directory structure.
+Creates the required directories for the llmXive follow-up project.
 """
 import os
 import sys
-import logging
 from pathlib import Path
+import logging
 
 # Configure logging
 logging.basicConfig(
@@ -14,11 +14,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-PROJECT_NAME = "PROJ-967-llmxive-follow-up-extending-beyond-scala"
-PROJECT_DIR = PROJECT_ROOT / "projects" / PROJECT_NAME
-
-DIRECTORIES_TO_CREATE = [
+PROJECT_ROOT = Path("projects/PROJ-967-llmxive-follow-up-extending-beyond-scala")
+REQUIRED_DIRS = [
     "data/raw",
     "data/processed",
     "results",
@@ -26,53 +23,51 @@ DIRECTORIES_TO_CREATE = [
     "tests"
 ]
 
-def ensure_directory(path: Path) -> bool:
+def ensure_directory(dir_path: Path) -> bool:
     """
-    Ensure a directory exists, creating it if necessary.
+    Ensures a directory exists, creating it if necessary.
     
     Args:
-        path: Path object representing the directory to create.
+        dir_path: Path object representing the directory to create.
         
     Returns:
         True if directory exists or was created successfully, False otherwise.
     """
     try:
-        path.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Created directory: {path}")
+        dir_path.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Directory created/verified: {dir_path}")
         return True
-    except Exception as e:
-        logger.error(f"Failed to create directory {path}: {e}")
+    except OSError as e:
+        logger.error(f"Failed to create directory {dir_path}: {e}")
         return False
 
 def main():
     """
-    Main entry point to create the project directory structure.
+    Main entry point for T001a.
+    Creates all required project directories.
     """
-    logger.info(f"Starting project structure setup for {PROJECT_NAME}")
+    logger.info(f"Starting project structure setup for: {PROJECT_ROOT}")
     
-    # Create the project root directory
-    if not ensure_directory(PROJECT_DIR):
+    # Ensure project root exists
+    if not ensure_directory(PROJECT_ROOT):
         logger.error("Failed to create project root directory. Exiting.")
         sys.exit(1)
     
-    created_count = 0
-    failed_count = 0
+    # Create all required subdirectories
+    success_count = 0
+    for dir_name in REQUIRED_DIRS:
+        full_path = PROJECT_ROOT / dir_name
+        if ensure_directory(full_path):
+            success_count += 1
     
-    for dir_name in DIRECTORIES_TO_CREATE:
-        dir_path = PROJECT_DIR / dir_name
-        if ensure_directory(dir_path):
-            created_count += 1
-        else:
-            failed_count += 1
+    logger.info(f"Setup complete: {success_count}/{len(REQUIRED_DIRS)} directories created successfully.")
     
-    logger.info(f"Directory creation complete: {created_count} created, {failed_count} failed")
-    
-    if failed_count > 0:
-        logger.error("Some directories failed to create.")
+    if success_count != len(REQUIRED_DIRS):
+        logger.error("Some directories failed to create. Check logs for details.")
         sys.exit(1)
-    else:
-        logger.info("All required directories created successfully.")
-        sys.exit(0)
+    
+    logger.info("All required directories are in place.")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

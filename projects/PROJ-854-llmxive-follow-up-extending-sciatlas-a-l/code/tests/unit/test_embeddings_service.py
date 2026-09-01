@@ -1,117 +1,150 @@
 """
 Unit tests for the embeddings service.
-
-Tests:
-- Model loading
-- Valid node filtering
-- Batched embedding generation
-- Novelty score computation
-- Memory profiling
 """
-
 import pytest
 import numpy as np
 from unittest.mock import patch, MagicMock
-
 from src.services.embeddings import (
     load_embedding_model,
     filter_valid_nodes,
     generate_embeddings_batched,
     compute_novelty_scores,
     process_nodes_for_embeddings,
-    log_memory_profile
+    log_memory_profile,
+    save_excluded_nodes,
+    compute_cluster_centroids
 )
+import pandas as pd
+import os
+import tempfile
 
 @patch('src.services.embeddings.SentenceTransformer')
-def test_load_embedding_model(mock_sentence_transformer):
-    """Test that the embedding model is loaded correctly."""
+def test_load_embedding_model(mock_transformer):
+    """Test that the model is loaded correctly."""
     mock_model = MagicMock()
-    mock_sentence_transformer.return_value = mock_model
-    
-    model = load_embedding_model()
-    
-    mock_sentence_transformer.assert_called_once_with(
-        'sentence-transformers/all-MiniLM-L6-v2',
-        device='cpu'
-    )
+    mock_transformer.return_value = mock_model
+
+    model = load_embedding_model("test-model")
+
+    mock_transformer.assert_called_once_with("test-model")
     assert model == mock_model
 
 def test_filter_valid_nodes():
-    """Test filtering of nodes with valid titles."""
+    """Test filtering of nodes with valid and invalid titles."""
     nodes = [
-        {'id': '1', 'title': 'Valid title'},
+        {'id': '1', 'title': 'Valid Title'},
         {'id': '2', 'title': ''},
-        {'id': '3', 'title': '   '},
-        {'id': '4', 'title': 'Another valid title'},
-        {'id': '5', 'title': None}
+        {'id': '3', 'title': None},
+        {'id': '4', 'title': '   '},
+        {'id': '5', 'title': 'Another Valid Title'},
+        {'id': '6'}  # Missing title key
     ]
-    
+
     valid_nodes, excluded_ids = filter_valid_nodes(nodes)
-    
+
     assert len(valid_nodes) == 2
     assert valid_nodes[0]['id'] == '1'
-    assert valid_nodes[1]['id'] == '4'
-    assert len(excluded_ids) == 3
+    assert valid_nodes[1]['id'] == '5'
+
+    assert len(excluded_ids) == 4
     assert '2' in excluded_ids
     assert '3' in excluded_ids
-    assert '5' in excluded_ids
+    assert '4' in excluded_ids
+    assert '6' in excluded_ids
+
+def test_save_excluded_nodes():
+    """Test saving excluded nodes to CSV."""
+    excluded_ids = ['1', '2', '3']
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = os.path.join(tmpdir, 'excluded.csv')
+        save_excluded_nodes(excluded_ids, output_path)
+
+        assert os.path.exists(output_path)
+        df = pd.read_csv(output_path)
+        assert len(df) == 3
+        assert list(df['node_id']) == ['1', '2', '3']
+
+def test_save_excluded_nodes_empty():
+    """Test saving empty excluded nodes list."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = os.path.join(tmpdir, 'excluded.csv')
+        save_excluded_nodes([], output_path)
+
+        # Should not create file if no excluded nodes
+        assert not os.path.exists(output_path)
 
 @patch('src.services.embeddings.SentenceTransformer')
-def test_generate_embeddings_batched(mock_sentence_transformer):
+def test_generate_embeddings_batched(mock_transformer):
     """Test batched embedding generation."""
     mock_model = MagicMock()
+    mock_transformer.return_value = mock_model
+
+    # Mock encode to return random embeddings
     mock_model.encode.return_value = np.random.rand(32, 384)
-    mock_sentence_transformer.return_value = mock_model
-    
-    model = load_embedding_model()
-    texts = ['text1'] * 50  # 50 texts, 2 batches (32 + 18)
-    
-    embeddings = generate_embeddings_batched(model, texts, batch_size=32)
-    
-    assert embeddings.shape == (50, 384)
-    assert mock_model.encode.call_count == 2
+
+    texts = ['Text 1', 'Text 2', 'Text 3'] * 10  # 30 texts
+    embeddings = generate_embeddings_batched(mock_model, texts, batch_size=10)
+
+    assert embeddings.shape == (30, 384)
+    assert mock_model.encode.call_count == 3  # 3 batches
+
+def test_compute_cluster_centroids():
+    """Test computation of cluster centroids."""
+    embeddings = np.array([
+        [1.0, 0.0],
+        [0.0, 1.0],
+        [1.0, 0.0],
+        [0.0, 1.0]
+    ])
+    cluster_labels = [0, 1, 0, 1]
+
+    centroids = compute_cluster_centroids(embeddings, cluster_labels)
+
+    assert 0 in centroids
+    assert 1 in centroids
+    assert np.allclose(centroids[0], [1.0, 0.0])
+    assert np.allclose(centroids[1], [0.0, 1.0])
 
 def test_compute_novelty_scores():
     """Test novelty score computation."""
-    # Create embeddings for 4 nodes
     embeddings = np.array([
-        [1.0, 0.0, 0.0],
-        [0.0, 1.0, 0.0],
-        [1.0, 0.0, 0.0],  # Same as node 0
-        [0.0, 0.0, 1.0]
+        [1.0, 0.0],  # On centroid
+        [0.9, 0.1],  # Slightly off
+        [0.0, 1.0],  # On other centroid
     ])
-    
-    # Assign to 2 clusters
-    topic_clusters = [0, 1, 0, 2]
-    
-    novelty_scores = compute_novelty_scores(embeddings, topic_clusters)
-    
-    assert len(novelty_scores) == 4
-    assert all(0.0 <= score <= 2.0 for score in novelty_scores)  # Cosine distance range
-    
-    # Node 0 and 2 are identical and in same cluster, should have low novelty
-    # Node 1 is in different cluster, should have higher novelty
+    cluster_labels = [0, 0, 1]
+
+    scores = compute_novelty_scores(embeddings, cluster_labels)
+
+    assert len(scores) == 3
+    assert scores[0] >= 0
+    assert scores[2] >= 0
+    # Node 0 should have lower novelty than node 1 (closer to centroid)
+    assert scores[0] <= scores[1]
 
 def test_process_nodes_for_embeddings():
     """Test node processing for embeddings."""
     nodes = [
-        {'id': '1', 'title': 'Valid title', 'topic_cluster': 0},
-        {'id': '2', 'title': '', 'topic_cluster': 1},
-        {'id': '3', 'title': 'Another valid', 'topic_cluster': 0}
+        {'id': '1', 'title': 'Valid'},
+        {'id': '2', 'title': ''},
+        {'id': '3', 'title': 'Also Valid'},
     ]
-    
-    valid_nodes, titles, excluded_ids = process_nodes_for_embeddings(nodes)
-    
-    assert len(valid_nodes) == 2
-    assert titles == ['Valid title', 'Another valid']
-    assert len(excluded_ids) == 1
-    assert excluded_ids[0] == '2'
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        log_path = os.path.join(tmpdir, 'excluded.csv')
+        valid_nodes, node_ids, texts = process_nodes_for_embeddings(nodes, log_path)
+
+        assert len(valid_nodes) == 2
+        assert node_ids == ['1', '3']
+        assert texts == ['Valid', 'Also Valid']
+
+        assert os.path.exists(log_path)
+        df = pd.read_csv(log_path)
+        assert len(df) == 1
+        assert df['node_id'].iloc[0] == '2'
 
 def test_log_memory_profile():
     """Test memory profiling logging."""
-    stats = log_memory_profile()
-    
-    # Should return a dict, possibly empty if psutil not available
-    assert isinstance(stats, dict)
-    if stats:
-        assert 'rss_mb' in stats or 'vms_mb' in stats
+    # This should not raise any errors
+    log_memory_profile("test_stage")

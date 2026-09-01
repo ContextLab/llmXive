@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.02398",
+  "judged_at": "2026-09-01T12:29:19Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "leveraging llms for automated generation of code complexity metrics computer science",
+  "rationale": "The paper focuses on image quality assessment for super-resolution tasks in computer vision, which is an entirely different domain from the user's question about generating code complexity metrics using LLMs. It fails the \"off-domain entirely\" rejection rule as it shares no measurable connection to the user's mechanism, variables, or empirical setting.",
+  "relevant": false
+}

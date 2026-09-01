@@ -23,7 +23,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan: Execute `mkdir -p src/{models,services,cli,lib} tests/{contract,integration,unit} data/{raw,processed} artifacts/{results,plots}` to create all required directories. <!-- FAILED: unspecified -->
-- [ ] T002 {{claim:c_d6eb7e14}} <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T002 {{claim:c_d6eb7e14}} <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools: Create `pyproject.toml` with explicit sections `[tool.black]` (line_length=88, target_version=['py311']) and `[tool.ruff]` (select=['E402', 'F401', 'I001'], ignore=[]) defining specific rules.
 
 ---
@@ -51,10 +51,9 @@ expected <block end>, but found '<scalar>'
 
 ---
 
-## Phase 3: User Story 1 - Data Ingestion and Topological Metric Computation (Priority: P1) 🎯 MVP
+## Phase 3 (1801.04624, https://arxiv.org/abs/1801.04624): User Story 1 - Data Ingestion and Topological Metric Computation (Priority: P1) 🎯 MVP
 
 **Goal**: Download OpenAlex subgraph, assign structural clusters (Louvain), and compute bridging coefficients.
-
 **Independent Test**: Can be fully tested by running the ingestion pipeline on a sampled subgraph and verifying that every node has a valid `bridging_coefficient` (0.0 to 1.0) and `primary_cluster` label, with no memory errors on CPU.
 
 ### Tests for User Story 1
@@ -88,7 +87,7 @@ expected <block end>, but found '<scalar>'
 ### Implementation for User Story 2
 
 - [ ] T023 [US2] Handle edge cases: Modify `src/services/embeddings.py` to **filter out nodes with missing/empty titles for novelty calculation ONLY, but retain them in the dataset for citation analysis**, logging excluded node IDs to `data/logs/excluded_nodes.csv` (See spec.md Edge Cases).
-- [ ] T020 [US2] Implement `src/services/embeddings.py`: Load `sentence-transformers/all-MiniLM-L6-v2` (CPU mode) and generate embeddings for all valid node titles in **batches** to meet 7GB RAM constraint, ensuring **no individual node latency exceeds a low-latency threshold** (See plan.md Complexity Tracking: Batched Embedding).
+- [ ] T020 [US2] Implement `src/services/embeddings.py`: Load `sentence-transformers/all-MiniLM-L6-v2 (2607.07974, https://arxiv.org/abs/2607.07974)` (CPU mode) and generate embeddings for all valid node titles in **batches** to meet 7GB RAM constraint, ensuring **no individual node latency exceeds a low-latency threshold** (See plan.md Complexity Tracking: Batched Embedding).
 - [X] T021 [US2] Implement `src/services/clustering.py`: Perform k-means clustering (k=100) on title embeddings to assign `topic_cluster` IDs (independent of Louvain) (See FR-008).
 - [ ] T022 [US2] Implement novelty calculation: Compute **cosine distance** between each node's title embedding and the **centroid** of its assigned `topic_cluster` to derive the `novelty_score`, ensuring the predictor (topology) and outcome (novelty) are mathematically independent (See FR-004).
 - [ ] T024 [US2] Save final dataset with citations, novelty scores, and clusters to `data/processed/final_analysis_dataset.parquet`.
@@ -134,12 +133,12 @@ expected <block end>, but found '<scalar>'
 
 - [ ] T031 [P] Documentation updates in `specs/001-bridging-coefficient-analysis/quickstart.md`: Update the "Prerequisites" and "Run" sections to reflect the final pipeline steps, dependencies, and exact CLI commands.
 - [X] T032 [P] Code cleanup and refactoring for memory efficiency (Ingest): Refactor `src/services/ingest.py` to use **generator expressions** for data loading to reduce peak RAM.
-- [~] T032b [P] Code cleanup and refactoring for memory efficiency (Embeddings): Refactor `src/services/embeddings.py` to ensure strict batch processing and memory release between batches.
+- [ ] T032b [P] Code cleanup and refactoring for memory efficiency (Embeddings): Refactor `src/services/embeddings.py` to ensure strict batch processing and memory release between batches.
 - [X] T033 [P] Verify embedding performance against SC-005: Create `tests/bench/test_embedding_speed.py` to run a benchmark on a representative sample, measure **maximum latency per node**, and assert that the max latency is ≤ 50ms. The test must fail if the threshold is exceeded, providing evidence that SC-005 is met.
 - [X] T034 [P] Additional unit tests for edge cases (isolated nodes, single-node clusters) in `tests/unit/test_graph_utils.py`: Implement functions `test_isolated_node` and `test_single_node_cluster`.
 - [X] T035 [P] Validate data source reachability: Create `tests/unit/test_data_source.py` to verify the OpenAlex API endpoint is reachable and `pyalex` can fetch a sample record before running the full pipeline.
-- [~] T039 [P] Add memory profiling: Integrate `memory_profiler` into `src/services/ingest.py` and `src/services/embeddings.py` to log peak RAM usage per batch, ensuring compliance with a specified data storage limit.
-- [~] T038 [P] Run `quickstart.md` validation to ensure full pipeline reproducibility: Execute the pipeline and generate `artifacts/validation_report.md` containing the execution log, exit code, and artifact hashes.
+- [ ] T039 [P] Add memory profiling: Integrate `memory_profiler` into `src/services/ingest.py` and `src/services/embeddings.py` to log peak RAM usage per batch, ensuring compliance with a specified data storage limit.
+- [ ] T038 [P] Run `quickstart.md` validation to ensure full pipeline reproducibility: Execute the pipeline and generate `artifacts/validation_report.md` containing the execution log, exit code, and artifact hashes.
 
 ---
 

@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-04T05:13:01Z",
+  "fetched_at": "2026-09-01T12:44:52Z",
   "field": "linguistics",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,104 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills from Collection, Reco\"",
       "target_n": 5
     },
-    "duration_seconds": 146.216,
-    "ended_at": "2026-07-04T05:13:01Z",
+    "duration_seconds": 44.641,
+    "ended_at": "2026-09-01T12:44:52Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "lifecycle governance of LLM agent skills"
+          "lifecycle governance of AI agent skills"
         ],
         [
           2,
-          "dynamic skill acquisition in language agents"
+          "collection and recognition of LLM agent capabilities"
         ],
         [
           3,
-          "LLM agent capability curation and management"
+          "agent skill lifecycle management in linguistics"
         ],
         [
           4,
-          "automated skill validation for conversational agents"
+          "governance frameworks for generative AI agents"
         ],
         [
           5,
-          "evolution of agent competencies in NLP systems"
+          "dynamic skill evaluation for language agents"
         ],
         [
           6,
-          "skill collection and recommendation frameworks for agents"
+          "agent capability taxonomy and lifecycle"
         ],
         [
           7,
-          "governance mechanisms for autonomous AI agents"
+          "lifecycle phases of AI agent competence"
         ],
         [
           8,
-          "continuous learning and skill refinement in LLMs"
+          "skill collection protocols for language models"
         ],
         [
           9,
-          "agent skill ontology and lifecycle management"
+          "recognition and curation of LLM skills"
         ],
         [
           10,
-          "human-in-the-loop skill governance for language models"
+          "governance of emergent agent abilities"
         ],
         [
           11,
-          "adaptive skill selection in multi-agent systems"
+          "lifecycle of linguistic agent competencies"
         ],
         [
           12,
-          "benchmarking and rating agent linguistic skills"
+          "AI agent skill acquisition and retirement"
         ],
         [
           13,
-          "skill-based routing and governance in LLM applications"
+          "managing the lifecycle of NLP agent skills"
         ],
         [
           14,
-          "lifecycle management of AI agent capabilities"
+          "framework for agent skill lifecycle in NLP"
         ],
         [
           15,
-          "community-driven skill curation for language agents"
+          "continuous evaluation of LLM agent capabilities"
         ],
         [
           16,
-          "skill degradation and maintenance in generative AI"
+          "agent skill governance in computational linguistics"
         ],
         [
           17,
-          "structured skill retrieval for LLM-based assistants"
+          "lifecycle management of autonomous language agents"
         ],
         [
           18,
-          "dynamic skill weighting in agent decision-making"
+          "skill recognition mechanisms for AI agents"
         ],
         [
           19,
-          "provenance tracking for agent-generated skills"
+          "governance models for evolving agent skills"
         ],
         [
           20,
-          "skill transferability and governance across LLM domains"
+          "lifecycle of specialized capabilities in language models"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "lifecycle governance of LLM agent skills": 5,
+        "lifecycle governance of AI agent skills": 4,
         "llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills from Collection, Reco\" linguistics": 0
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "agent skill lifecycle memorization contamination",
-      "LLM agent benchmarking skill evaluation datasets",
-      "emergent capabilities transfer learning agent autonomy",
-      "skill generalization zero-shot performance metrics",
-      "cognitive architecture skill acquisition theoretical framework"
+      "agent skill lifecycle governance retrieval",
+      "LLM instruction tuning dataset contamination",
+      "cognitive linguistics procedural memory transfer",
+      "skill acquisition evaluation metrics benchmarking",
+      "language model forgetting catastrophic interference"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,16 +120,16 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2603.18743"
+        "2608.25091"
       ]
     },
     "per_query_hit_count": {
-      "LLM agent benchmarking skill evaluation datasets": 0,
-      "agent skill lifecycle memorization contamination": 3,
-      "cognitive architecture skill acquisition theoretical framework": 3,
-      "emergent capabilities transfer learning agent autonomy": 3,
+      "LLM instruction tuning dataset contamination": 3,
+      "agent skill lifecycle governance retrieval": 3,
+      "cognitive linguistics procedural memory transfer": 2,
+      "language model forgetting catastrophic interference": 3,
       "llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills from Collection, Reco\" linguistics": 3,
-      "skill generalization zero-shot performance metrics": 3
+      "skill acquisition evaluation metrics benchmarking": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -138,7 +138,7 @@
       "rejections": []
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-04T05:10:35Z",
+    "started_at": "2026-09-01T12:44:08Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"skillsvote: lifecycle governance of agent skills from collection, reco\" linguistics",
       "raw": "llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills from Collection, Reco\" linguistics"
@@ -158,7 +158,7 @@
           "primary_pointer": "1602.00245"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills f', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
-        "failed_at": "2026-07-04T05:12:37Z",
+        "failed_at": "2026-09-01T12:44:35Z",
         "reason": "query_irrelevant"
       },
       {
@@ -175,7 +175,7 @@
           "primary_pointer": "1601.01126"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills f', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
-        "failed_at": "2026-07-04T05:12:37Z",
+        "failed_at": "2026-09-01T12:44:35Z",
         "reason": "query_irrelevant"
       },
       {
@@ -191,7 +191,7 @@
           "primary_pointer": "2606.14257"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills f', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
-        "failed_at": "2026-07-04T05:12:37Z",
+        "failed_at": "2026-09-01T12:44:35Z",
         "reason": "query_irrelevant"
       },
       {
@@ -207,26 +207,7 @@
           "primary_pointer": "2605.19362"
         },
         "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills f', candidate_title='Toward User Comprehension Supports for LLM Agent Skill Specifications')",
-        "failed_at": "2026-07-04T05:12:37Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Markdown skill libraries for LLM agents ship as free-form prose, forcing the agent to re-derive both the input schema and the concrete invocation syntax on every retrieval. We observe that this often produces a \"confused -> re-retrieve -> still confused\" loop in which the agent issues a partially-correct action, receives uninformative environment feedback, and re-retrieves the same prose. We propose Skill-as-Pseudocode (SaP), an automatic conversion of markdown skill libraries into typed pseudocode with deterministic quality control. For each cluster of similar procedural passages drawn from one or more skills, SaP extracts a typed contract and filters it through a four-check deterministic verifier (coverage, binding, replacement, risk). Promoted contracts are inlined into a rewritten skill skeleton together with restored concrete action templates, giving the agent two complementary signals: a typed signature for what the skill does and a concrete template for how to invoke it. On the 134-game ALFWorld unseen split with gpt-4o-mini, pooled across three seeds, SaP wins 82/402 paired games versus 47/402 for the Graph-of-Skills (GoS) baseline (pooled McNemar p = 8.2e-5), at -22.8 +/- 6.4% input tokens and -14.5 +/- 4.1% LLM calls per game.",
-          "claimed_authors": [
-            "Xinze Li",
-            "Yuhang Zang",
-            "Yixin Cao",
-            "Aixin Sun"
-          ],
-          "claimed_title": "Skill-as-Pseudocode: Refactoring Skill Libraries to Pseudocode for LLM Agents",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2605.27955"
-        },
-        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills f', candidate_title='Skill-as-Pseudocode: Refactoring Skill Libraries to Pseudocode for LLM Agents')",
-        "failed_at": "2026-07-04T05:12:37Z",
+        "failed_at": "2026-09-01T12:44:35Z",
         "reason": "query_irrelevant"
       },
       {
@@ -245,328 +226,221 @@
           "primary_pointer": "2605.03353"
         },
         "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills f', candidate_title='SkCC: Portable and Secure Skill Compilation for Cross-Framework LLM Agents')",
-        "failed_at": "2026-07-04T05:12:37Z",
+        "failed_at": "2026-09-01T12:44:36Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The advent of federated learning has facilitated large-scale data exchange amongst machine learning models while maintaining privacy. Despite its brief history, federated learning is rapidly evolving to make wider use more practical. One of the most significant advancements in this domain is the incorporation of transfer learning into federated learning, which overcomes fundamental constraints of primary federated learning, particularly in terms of security. This chapter performs a comprehensive survey on the intersection of federated and transfer learning from a security point of view. The main goal of this study is to uncover potential vulnerabilities and defense mechanisms that might compromise the privacy and performance of systems that use federated and transfer learning.",
+          "claimed_abstract": "Despite vision-language models' (VLMs) remarkable capabilities as versatile visual assistants, two substantial challenges persist within the existing VLM frameworks: (1) lacking task diversity in pretraining and visual instruction tuning, and (2) annotation error and bias in GPT-4 synthesized instruction tuning data. Both challenges lead to issues such as poor generalizability, hallucination, and catastrophic forgetting. To address these challenges, we construct Vision-Flan, the most diverse publicly available visual instruction tuning dataset to date, comprising 187 diverse tasks and 1,664,261 instances sourced from academic datasets, and each task is accompanied by an expert-written instruction. In addition, we propose a two-stage instruction tuning framework, in which VLMs are firstly finetuned on Vision-Flan and further tuned on GPT-4 synthesized data. We find this two-stage tuning framework significantly outperforms the traditional single-stage visual instruction tuning framework and achieves the state-of-the-art performance across a wide range of multi-modal evaluation benchmarks. Finally, we conduct in-depth analyses to understand visual instruction tuning and our findings reveal that: (1) GPT-4 synthesized data does not substantially enhance VLMs' capabilities but rather modulates the model's responses to human-preferred formats; (2) A minimal quantity (e.g., 1,000) of GPT-4 synthesized data can effectively align VLM responses with human-preference; (3) Visual instruction tuning mainly helps large-language models (LLMs) to understand visual features.",
           "claimed_authors": [
-            "Ehsan Hallaji",
-            "Roozbeh Razavi-Far",
-            "Mehrdad Saif"
+            "Zhiyang Xu",
+            "Chao Feng",
+            "Rulin Shao",
+            "Trevor Ashby",
+            "Ying Shen",
+            "Di Jin",
+            "Yu Cheng",
+            "Qifan Wang",
+            "Lifu Huang"
           ],
-          "claimed_title": "Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2207.02337"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills f', candidate_title='Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms')",
-        "failed_at": "2026-07-04T05:12:37Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In this work we create agents that can perform well beyond a single, individual task, that exhibit much wider generalisation of behaviour to a massive, rich space of challenges. We define a universe of tasks within an environment domain and demonstrate the ability to train agents that are generally capable across this vast space and beyond. The environment is natively multi-agent, spanning the continuum of competitive, cooperative, and independent games, which are situated within procedurally generated physical 3D worlds. The resulting space is exceptionally diverse in terms of the challenges posed to agents, and as such, even measuring the learning progress of an agent is an open research problem. We propose an iterative notion of improvement between successive generations of agents, rather than seeking to maximise a singular objective, allowing us to quantify progress despite tasks being incomparable in terms of achievable rewards. We show that through constructing an open-ended learning process, which dynamically changes the training task distributions and training objectives such that the agent never stops learning, we achieve consistent learning of new behaviours. The resulting agent is able to score reward in every one of our humanly solvable evaluation levels, with behaviour generalising to many held-out points in the universe of tasks. Examples of this zero-shot generalisation include good performance on Hide and Seek, Capture the Flag, and Tag. Through analysis and hand-authored probe tasks we characterise the behaviour of our agent, and find interesting emergent heuristic behaviours such as trial-and-error experimentation, simple tool use, option switching, and cooperation. Finally, we demonstrate that the general capabilities of this agent could unlock larger scale transfer of behaviour through cheap finetuning.",
-          "claimed_authors": [
-            " Open Ended Learning Team",
-            "Adam Stooke",
-            "Anuj Mahajan",
-            "Catarina Barros",
-            "Charlie Deck",
-            "Jakob Bauer",
-            "Jakub Sygnowski",
-            "Maja Trebacz",
-            "Max Jaderberg",
-            "Michael Mathieu",
-            "Nat McAleese",
-            "Nathalie Bradley-Schmieg",
-            "Nathaniel Wong",
-            "Nicolas Porcel",
-            "Roberta Raileanu",
-            "Steph Hughes-Fitt",
-            "Valentin Dalibard",
-            "Wojciech Marian Czarnecki"
-          ],
-          "claimed_title": "Open-Ended Learning Leads to Generally Capable Agents",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2107.12808"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills f', candidate_title='Open-Ended Learning Leads to Generally Capable Agents')",
-        "failed_at": "2026-07-04T05:12:37Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The transfer learning toolkit wraps the codes of 17 transfer learning models and provides integrated interfaces, allowing users to use those models by calling a simple function. It is easy for primary researchers to use this toolkit and to choose proper models for real-world applications. The toolkit is written in Python and distributed under MIT open source license. In this paper, the current state of this toolkit is described and the necessary environment setting and usage are introduced.",
-          "claimed_authors": [
-            "Fuzhen Zhuang",
-            "Keyu Duan",
-            "Tongjia Guo",
-            "Yongchun Zhu",
-            "Dongbo Xi",
-            "Zhiyuan Qi",
-            "Qing He"
-          ],
-          "claimed_title": "Transfer Learning Toolkit: Primers and Benchmarks",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1911.08967"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills f', candidate_title='Transfer Learning Toolkit: Primers and Benchmarks')",
-        "failed_at": "2026-07-04T05:12:37Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Recent progress in large-scale zero-shot speech synthesis has been significantly advanced by language models and diffusion models. However, the generation process of both methods is slow and computationally intensive. Efficient speech synthesis using a lower computing budget to achieve quality on par with previous work remains a significant challenge. In this paper, we present FlashSpeech, a large-scale zero-shot speech synthesis system with approximately 5\\% of the inference time compared with previous work. FlashSpeech is built on the latent consistency model and applies a novel adversarial consistency training approach that can train from scratch without the need for a pre-trained diffusion model as the teacher. Furthermore, a new prosody generator module enhances the diversity of prosody, making the rhythm of the speech sound more natural. The generation processes of FlashSpeech can be achieved efficiently with one or two sampling steps while maintaining high audio quality and high similarity to the audio prompt for zero-shot speech generation. Our experimental results demonstrate the superior performance of FlashSpeech. Notably, FlashSpeech can be about 20 times faster than other zero-shot speech synthesis systems while maintaining comparable performance in terms of voice quality and similarity. Furthermore, FlashSpeech demonstrates its versatility by efficiently performing tasks like voice conversion, speech editing, and diverse speech sampling. Audio samples can be found in https://flashspeech.github.io/.",
-          "claimed_authors": [
-            "Zhen Ye",
-            "Zeqian Ju",
-            "Haohe Liu",
-            "Xu Tan",
-            "Jianyi Chen",
-            "Yiwen Lu",
-            "Peiwen Sun",
-            "Jiahao Pan",
-            "Weizhen Bian",
-            "Shulin He",
-            "Wei Xue",
-            "Qifeng Liu",
-            "Yike Guo"
-          ],
-          "claimed_title": "FlashSpeech: Efficient Zero-Shot Speech Synthesis",
+          "claimed_title": "Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2404.14700"
+          "primary_pointer": "2402.11690"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills f', candidate_title='FlashSpeech: Efficient Zero-Shot Speech Synthesis')",
-        "failed_at": "2026-07-04T05:12:37Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills f', candidate_title='Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning')",
+        "failed_at": "2026-09-01T12:44:36Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "One of the most impressive results of recent NLP history is the ability of pre-trained language models to solve new tasks in a zero-shot setting. To achieve this, NLP tasks are framed as natural language prompts, generating a response indicating the predicted output. Nonetheless, the performance in such settings often lags far behind its supervised counterpart, suggesting a large space for potential improvement. In this paper, we explore methods to utilize unlabeled data to improve zero-shot performance. Specifically, we take advantage of the fact that multiple prompts can be used to specify a single task, and propose to regularize prompt consistency, encouraging consistent predictions over this diverse set of prompts. Our method makes it possible to fine-tune the model either with extra unlabeled training data, or directly on test input at inference time in an unsupervised manner. In experiments, our approach outperforms the state-of-the-art zero-shot learner, T0 (Sanh et al., 2022), on 9 out of 11 datasets across 4 NLP tasks by up to 10.6 absolute points in terms of accuracy. The gains are often attained with a small number of unlabeled examples.",
+          "claimed_abstract": "Instruction tuning significantly enhances the performance of large language models (LLMs) across various tasks. However, the procedure to optimizing the mixing of instruction datasets for LLM fine-tuning is still poorly understood. This study categorizes instructions into three primary types: NLP downstream tasks, coding, and general chat. We explore the effects of instruction tuning on different combinations of datasets on LLM performance, and find that certain instruction types are more advantageous for specific applications but can negatively impact other areas. This work provides insights into instruction mixtures, laying the foundations for future research.",
           "claimed_authors": [
-            "Chunting Zhou",
-            "Junxian He",
-            "Xuezhe Ma",
-            "Taylor Berg-Kirkpatrick",
-            "Graham Neubig"
+            "Renxi Wang",
+            "Haonan Li",
+            "Minghao Wu",
+            "Yuxia Wang",
+            "Xudong Han",
+            "Chiyu Zhang",
+            "Timothy Baldwin"
           ],
-          "claimed_title": "Prompt Consistency for Zero-Shot Task Generalization",
+          "claimed_title": "Demystifying Instruction Mixing for Fine-tuning Large Language Models",
           "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2205.00049"
+          "claimed_year": 2023,
+          "primary_pointer": "2312.10793"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills f', candidate_title='Prompt Consistency for Zero-Shot Task Generalization')",
-        "failed_at": "2026-07-04T05:12:37Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills f', candidate_title='Demystifying Instruction Mixing for Fine-tuning Large Language Models')",
+        "failed_at": "2026-09-01T12:44:36Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Recently, zero-shot learning (ZSL) emerged as an exciting topic and attracted a lot of attention. ZSL aims to classify unseen classes by transferring the knowledge from seen classes to unseen classes based on the class description. Despite showing promising performance, ZSL approaches assume that the training samples from all seen classes are available during the training, which is practically not feasible. To address this issue, we propose a more generalized and practical setup for ZSL, i.e., continual ZSL (CZSL), where classes arrive sequentially in the form of a task and it actively learns from the changing environment by leveraging the past experience. Further, to enhance the reliability, we develop CZSL for a single head continual learning setting where task identity is revealed during the training process but not during the testing. To avoid catastrophic forgetting and intransigence, we use knowledge distillation and storing and replay the few samples from previous tasks using a small episodic memory. We develop baselines and evaluate generalized CZSL on five ZSL benchmark datasets for two different settings of continual learning: with and without class incremental. Moreover, CZSL is developed for two types of variational autoencoders, which generates two types of features for classification: (i) generated features at output space and (ii) generated discriminative features at the latent space. The experimental results clearly indicate the single head CZSL is more generalizable and suitable for practical applications.",
+          "claimed_abstract": "In the swiftly expanding domain of Natural Language Processing (NLP), the potential of GPT-based models for the financial sector is increasingly evident. However, the integration of these models with financial datasets presents challenges, notably in determining their adeptness and relevance. This paper introduces a distinctive approach anchored in the Instruction Tuning paradigm for open-source large language models, specifically adapted for financial contexts. Through this methodology, we capitalize on the interoperability of open-source models, ensuring a seamless and transparent integration. We begin by explaining the Instruction Tuning paradigm, highlighting its effectiveness for immediate integration. The paper presents a benchmarking scheme designed for end-to-end training and testing, employing a cost-effective progression. Firstly, we assess basic competencies and fundamental tasks, such as Named Entity Recognition (NER) and sentiment analysis to enhance specialization. Next, we delve into a comprehensive model, executing multi-task operations by amalgamating all instructional tunings to examine versatility. Finally, we explore the zero-shot capabilities by earmarking unseen tasks and incorporating novel datasets to understand adaptability in uncharted terrains. Such a paradigm fortifies the principles of openness and reproducibility, laying a robust foundation for future investigations in open-source financial large language models (FinLLMs).",
           "claimed_authors": [
-            "Chandan Gautam",
-            "Sethupathy Parameswaran",
-            "Ashish Mishra",
-            "Suresh Sundaram"
+            "Neng Wang",
+            "Hongyang Yang",
+            "Christina Dan Wang"
           ],
-          "claimed_title": "Generalized Continual Zero-Shot Learning",
+          "claimed_title": "FinGPT: Instruction Tuning Benchmark for Open-Source Large Language Models in Financial Datasets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.04793"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills f', candidate_title='FinGPT: Instruction Tuning Benchmark for Open-Source Large Language Models in Financial Datasets')",
+        "failed_at": "2026-09-01T12:44:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Tabletop roleplaying games (TTRPGs) and procedural content generators can both be understood as systems of rules for producing content. In this paper, we argue that TTRPG design can usefully be viewed as procedural content generator design. We present several case studies linking key concepts from PCG research -- including possibility spaces, expressive range analysis, and generative pipelines -- to key concepts in TTRPG design. We then discuss the implications of these relationships and suggest directions for future work uniting research in TTRPGs and PCG.",
+          "claimed_authors": [
+            "Matthew Guzdial",
+            "Devi Acharya",
+            "Max Kreminski",
+            "Michael Cook",
+            "Mirjam Eladhari",
+            "Antonios Liapis",
+            "Anne Sullivan"
+          ],
+          "claimed_title": "Tabletop Roleplaying Games as Procedural Content Generators",
           "claimed_venue": "arXiv",
           "claimed_year": 2020,
-          "primary_pointer": "2011.08508"
+          "primary_pointer": "2007.06108"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills f', candidate_title='Generalized Continual Zero-Shot Learning')",
-        "failed_at": "2026-07-04T05:12:37Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills f', candidate_title='Tabletop Roleplaying Games as Procedural Content Generators')",
+        "failed_at": "2026-09-01T12:44:36Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Neuroethology has been an active field of study for more than a century now. Out of some of the most interesting species that has been studied so far, weakly electric fish is a fascinating one. It performs communication, echo-location and inter-species detection efficiently with an interesting configuration of sensors, neu-rons and a simple brain. In this paper we propose a cognitive architecture inspired by the way these fishes handle and process information. We believe that it is eas-ier to understand and mimic the neural architectures of a simpler species than that of human. Hence, the proposed architecture is expected to both help research in cognitive robotics and also help understand more complicated brains like that of human beings.",
+          "claimed_abstract": "The primary tasks of a cognitive system is to survive and to maximize a life-long utility function, like the number of offsprings. A direct computational maximization of life-long utility is however not possible in complex environments, especially in the context, of real-world time constraints. The central role of emotions is to serve as an intermediate layer in the space of policies available to agents and animals, leading to a large dimensional reduction of complexity.\n  We review our current understanding of the functional role of emotions, stressing the role of the neuromodulators mediating emotions for the diffusive homeostatic control system of the brain. We discuss a recent proposal, that emotional diffusive control is characterized, in contrast to neutral diffusive control, by interaction effects, viz by interferences between emotional arousal and reward signaling. Several proposals for the realization of synthetic emotions are discussed in this context, together with key open issues regarding the interplay between emotional motivational drives and diffusive control.",
           "claimed_authors": [
-            "Amit Kumar Mishra"
+            "Claudius Gros"
           ],
-          "claimed_title": "WEBCA: Weakly-Electric-Fish Bioinspired Cognitive Architecture",
+          "claimed_title": "Cognition and Emotion: Perspectives of a Closing Gap",
           "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1806.11401"
+          "claimed_year": 2010,
+          "primary_pointer": "1002.3035"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills f', candidate_title='WEBCA: Weakly-Electric-Fish Bioinspired Cognitive Architecture')",
-        "failed_at": "2026-07-04T05:12:37Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills f', candidate_title='Cognition and Emotion: Perspectives of a Closing Gap')",
+        "failed_at": "2026-09-01T12:44:36Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The topic of joint actions has been deeply studied in the context of Human-Human interaction in order to understand how humans cooperate. Creating autonomous robots that collaborate with humans is a complex problem, where it is relevant to apply what has been learned in the context of Human-Human interaction. The question is what skills to implement and how to integrate them in order to build a cognitive architecture, allowing a robot to collaborate efficiently and naturally with humans. In this paper, we first list a set of skills that we consider essential for Joint Action, then we analyze the problem from the robot's point of view and discuss how they can be instantiated in human-robot scenarios. Finally, we open the discussion on how to integrate such skills into a cognitive architecture for human-robot collaborative problem solving and task achievement.",
+          "claimed_abstract": "Evaluation methodologies for language models increasingly combine multiple signals, from automated metrics and LLM-as-judge ratings to human assessments and benchmark suite results. When these signals are aggregated via averaging, evaluation confidence can then substantially exceed the reliability of the weakest signal: a phenomenon we call trust inflation in evaluation. We argue that evaluation scores should be treated as epistemic claims with three properties: formality (human evaluation provides stronger evidence than an automated metric), scope (a benchmark result applies to the tested distribution, not universally), and validity windows (benchmark results expire as contamination accumulates and distributions shift). Several converging research traditions (chain-of-thought analysis, possibilistic logic, and algebraic theory) establish weakest-link aggregation as the conservative endpoint of a parameterized operator family controlled by a single pessimism parameter. Drawing on those traditions, and on concrete lessons from building an evaluation harness for agentic AI, we propose that evaluation results carry explicit metadata (formality tier, scope declaration, and expiration date) to make their epistemic status transparent. We illustrate the cost of mean aggregation on the public HELM leaderboard: across 54 frontier models on ten scenarios, the top-five models ranked by mean score and by weakest-link are completely disjoint.",
           "claimed_authors": [
-            "Sandra Devin",
-            "Grégoire Milliez",
-            "Michelangelo Fiore",
-            "Aurélie Clodic",
-            "Rachid Alami"
+            "Sankalp Gilda",
+            "Shlok Gilda"
           ],
-          "claimed_title": "Some essential skills and their combination in an architecture for a cognitive and interactive robot",
+          "claimed_title": "Position: Evaluation Scores Are Perishable Knowledge Claims",
           "claimed_venue": "arXiv",
-          "claimed_year": 2016,
-          "primary_pointer": "1603.00583"
+          "claimed_year": 2026,
+          "primary_pointer": "2607.26191"
         },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills f', candidate_title='Some essential skills and their combination in an architecture for a cognitive and interactive robot')",
-        "failed_at": "2026-07-04T05:12:37Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills f', candidate_title='Position: Evaluation Scores Are Perishable Knowledge Claims')",
+        "failed_at": "2026-09-01T12:44:36Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We present an initial set of factors, features, and constraints for developing a Computational Auditory System (CAS, aka less formally an artificial ear, AE) for use by cognitive architectures. We start to define a CAS and what tasks it should be able to perform. We then outline the features of a CAS for use by a cognitive architecture and factors that influence its performance. We conclude with an update on what has been created so far and insights on how to create and use a CAS in a cognitive architecture and include a set of functionalities for an artificial ear.",
+          "claimed_abstract": "Long-horizon reasoning in recent LLMs demands that the model switch between distinct skills inside a reasoning chain, such as first doing a math derivation, then using the result to plan a schedule. We call such problems cross-skill long-horizon tasks: multi-step tasks whose steps require different reasoning skills and depend on earlier outputs. Existing benchmarks often evaluate individual skills, lacking a principled way to measure how well a model switches between skills. We address this gap from both the evaluation and training sides. We introduce Skill Entropy, a measure of the difficulty of switching from one skill to another. We then propose Skill^2-Bench, a benchmark of cross-skill long-horizon tasks built over 558 skills across 9 verifiable and open-ended domains. Each task is assigned a task-level skill-entropy score and grouped into three difficulty levels. Evaluating 8 frontier and 4 open-source models on Skill^2-Bench reveals a skill-switching gap: accuracy decreases on higher-entropy tasks. We then turn skill entropy from a benchmark scale into a training signal. We propose Skill-Entropy RL, an RL framework where the model predicts not only the answer at each step but also the skill used to produce it. The reward combines step-level correctness with a skill-entropy reward that measures the alignment between the model-predicted skill sequence and the gold skill sequence. On Qwen3-4B-Instruct and Qwen3-1.7B, Skill-Entropy RL improves the Skill^2-Bench score from 34.4% to 68.4% and from 14.6% to 40.1%, respectively, outperforming competitive baselines. The same pipeline can be applied to off-the-shelf training data such as OpenR1-Math, indicating that skill entropy is a reusable training signal. Code available at: https://github.com/Gen-Verse/Skill-Entropy-RL",
           "claimed_authors": [
-            "Frank E. Ritter",
-            "Mathieu Brener"
+            "Yinghui He",
+            "Ling Yang",
+            "Jiarui Liu",
+            "Yongjin Yang",
+            "Lechen Zhang",
+            "Yingcheng Wu",
+            "Zhenfei Yin",
+            "Mengdi Wang",
+            "Sanjeev Arora"
           ],
-          "claimed_title": "An Initial Description of Capabilities and Constraints for a Computational Auditory System (an Artificial Ear) for Cognitive Architectures",
+          "claimed_title": "Toward Skill-Native LLMs: Skill Entropy for Benchmarking and Training Long-Horizon Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2608.05139"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills f', candidate_title='Toward Skill-Native LLMs: Skill Entropy for Benchmarking and Training Long-Horizon Reasoning')",
+        "failed_at": "2026-09-01T12:44:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evaluating the quality and relevance of textual outputs from Large Language Models (LLMs) remains challenging and resource-intensive. Existing automated metrics often fail to capture the complexity and variability inherent in LLM-generated outputs. Moreover, these metrics typically rely on explicit reference standards, limiting their use mostly to domains with objective benchmarks. This work introduces a novel evaluation framework designed to approximate expert-level assessments of LLM-generated content. The proposed method employs pairwise comparisons of outputs by multiple LLMs, reducing biases from individual models. An Elo rating system is used to generate stable and interpretable rankings. Adjustable agreement thresholds, from full unanimity to majority voting, allow flexible control over evaluation confidence and coverage. The method's effectiveness is demonstrated through evaluating competency profiles extracted from scientific abstracts. Preliminary results show that automatically derived rankings correlate well with expert judgments, significantly reducing the need for extensive human intervention. By offering a scalable, consistent, and domain-agnostic evaluation layer, the framework supports more efficient and reliable quality assessments of LLM outputs across diverse applications.",
+          "claimed_authors": [
+            "Bertil Braun",
+            "Martin Forell"
+          ],
+          "claimed_title": "(Towards) Scalable Reliable Automated Evaluation with Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.28282"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills f', candidate_title='(Towards) Scalable Reliable Automated Evaluation with Large Language Models')",
+        "failed_at": "2026-09-01T12:44:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Explaining the behaviors of deep neural networks, usually considered as black boxes, is critical especially when they are now being adopted over diverse aspects of human life. Taking the advantages of interpretable machine learning (interpretable ML), this work proposes a novel tool called Catastrophic Forgetting Dissector (or CFD) to explain catastrophic forgetting in continual learning settings. We also introduce a new method called Critical Freezing based on the observations of our tool. Experiments on ResNet articulate how catastrophic forgetting happens, particularly showing which components of this famous network are forgetting. Our new continual learning algorithm defeats various recent techniques by a significant margin, proving the capability of the investigation. Critical freezing not only attacks catastrophic forgetting but also exposes explainability.",
+          "claimed_authors": [
+            "Giang Nguyen"
+          ],
+          "claimed_title": "Overcoming Catastrophic Forgetting by XAI",
           "claimed_venue": "arXiv",
           "claimed_year": 2022,
-          "primary_pointer": "2202.05332"
+          "primary_pointer": "2211.14177"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills f', candidate_title='An Initial Description of Capabilities and Constraints for a Computational Auditory System (an Artificial Ear) for Cognitive Architectures')",
-        "failed_at": "2026-07-04T05:12:37Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills f', candidate_title='Overcoming Catastrophic Forgetting by XAI')",
+        "failed_at": "2026-09-01T12:44:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Catastrophic forgetting remains a severe hindrance to the broad application of artificial neural networks (ANNs), however, it continues to be a poorly understood phenomenon. Despite the extensive amount of work on catastrophic forgetting, we argue that it is still unclear how exactly the phenomenon should be quantified, and, moreover, to what degree all of the choices we make when designing learning systems affect the amount of catastrophic forgetting. We use various testbeds from the reinforcement learning and supervised learning literature to (1) provide evidence that the choice of which modern gradient-based optimization algorithm is used to train an ANN has a significant impact on the amount of catastrophic forgetting and show that-surprisingly-in many instances classical algorithms such as vanilla SGD experience less catastrophic forgetting than the more modern algorithms such as Adam. We empirically compare four different existing metrics for quantifying catastrophic forgetting and (2) show that the degree to which the learning systems experience catastrophic forgetting is sufficiently sensitive to the metric used that a change from one principled metric to another is enough to change the conclusions of a study dramatically. Our results suggest that a much more rigorous experimental methodology is required when looking at catastrophic forgetting. Based on our results, we recommend inter-task forgetting in supervised learning must be measured with both retention and relearning metrics concurrently, and intra-task forgetting in reinforcement learning must-at the very least-be measured with pairwise interference.",
+          "claimed_authors": [
+            "Dylan R. Ashley",
+            "Sina Ghiassian",
+            "Richard S. Sutton"
+          ],
+          "claimed_title": "Does the Adam Optimizer Exacerbate Catastrophic Forgetting?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2102.07686"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills f', candidate_title='Does the Adam Optimizer Exacerbate Catastrophic Forgetting?')",
+        "failed_at": "2026-09-01T12:44:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "When finetuning large language models for specialized tasks such as mathematical reasoning, models exhibit catastrophic forgetting, losing previously learned capabilities. We investigate this by finetuning Flan-T5-Base (250M parameters) on the DeepMind Mathematics dataset and measuring forgetting on MultiNLI. Math-only training improves mathematical accuracy from 3.1\\% to 12.0\\% but causes NLI accuracy to collapse from 81.0\\% to 16.5\\%--a 64.5 percentage point drop occurring within the first 1,000 training steps. We propose mixed training strategies that interleave mathematical and NLI examples during training. Our results demonstrate that mixed training completely eliminates catastrophic forgetting while maintaining equivalent mathematical performance: the balanced 1:1 ratio achieves 12.0\\% math accuracy (matching math-only) while preserving 86.2\\% NLI accuracy. We systematically explore mixing ratios from 1:1 to 15:1, finding that even minimal NLI exposure (6.2\\%) provides effective regularization. These findings demonstrate that specialization need not require forgetting general capabilities, with implications for scaling to larger models where mixed training may confer additional benefits beyond forgetting prevention.",
+          "claimed_authors": [
+            "John Graham Reynolds"
+          ],
+          "claimed_title": "Mitigating Catastrophic Forgetting in Mathematical Reasoning Finetuning through Mixed Training",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.13706"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SkillsVote: Lifecycle Governance of Agent Skills f', candidate_title='Mitigating Catastrophic Forgetting in Mathematical Reasoning Finetuning through Mixed Training')",
+        "failed_at": "2026-09-01T12:44:36Z",
         "reason": "query_irrelevant"
       }
     ],
     "verified_citations": [
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Renjun Xu",
-            "Yang Yan"
-          ],
-          "title": "Agent Skills for Large Language Models: Architecture, Acquisition, Security, and the Path Forward",
-          "venue": "arXiv",
-          "year": 2026
-        },
-        "primary_pointer": "2602.12430",
-        "summary": "The transition from monolithic language models to modular, skill-equipped agents marks a defining shift in how large language models (LLMs) are deployed in practice. Rather than encoding all procedural knowledge within model weights, agent skills -- composable packages of instructions, code, and resources that agents load on demand -- enable dynamic capability extension without retraining. It is formalized in a paradigm of progressive disclosure, portable skill definitions, and integration with the Model Context Protocol (MCP). This survey provides a comprehensive treatment of the agent skills landscape, as it has rapidly evolved during the last few months. We organize the field along four axes: (i) architectural foundations, examining the SKILL$.$md specification, progressive context loading, and the complementary roles of skills and MCP; (ii) skill acquisition, covering reinforcement learning with skill libraries, autonomous skill discovery (SEAgent), and compositional skill synthesis; (iii) deployment at scale, including the computer-use agent (CUA) stack, GUI grounding advances, and benchmark progress on OSWorld and SWE-bench; and (iv) security, where recent empirical analyses reveal that 26.1% of community-contributed skills contain vulnerabilities, motivating our proposed Skill Trust and Lifecycle Governance Framework -- a four-tier, gate-based permission model that maps skill provenance to graduated deployment capabilities. We identify seven open challenges -- from cross-platform skill portability to capability-based permission models -- and propose a research agenda for realizing trustworthy, self-improving skill ecosystems. Unlike prior surveys that broadly cover LLM agents or tool use, this work focuses specifically on the emerging skill abstraction layer and its implications for the next generation of agentic systems. Project repo: https://github.com/scienceaix/agentskills",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2602.12430",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 1.0,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-04T05:12:52Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Boqin Yuan",
-            "Yue Su",
-            "Renchu Song",
-            "Sen Yang",
-            "Jing Qin"
-          ],
-          "title": "ClawTrace: Cost-Aware Tracing for LLM Agent Skill Distillation",
-          "venue": "arXiv",
-          "year": 2026
-        },
-        "primary_pointer": "2604.23853",
-        "summary": "Skill-distillation pipelines learn reusable rules from LLM agent trajectories, but they lack a key signal: how much each step costs. Without per-step cost, a pipeline cannot distinguish adding a missing step to fix a bug from removing an expensive step that never affected the outcome. We use the cost-attribution gap to ask whether the rule types inside a distilled skill transfer the same way to new tasks. ClawTrace records cost-attributed agent traces and compiles each session into a TraceCard; CostCraft reads TraceCards and writes three kinds of skill patches: preserve, prune, and repair. We find a pattern aggregate metrics hide. On 30 held-out SpreadsheetBench tasks across two seeds, removing prune patches roughly tripled the quality-regression count without lowering median cost. Across the full 84-task SkillsBench transfer, CostCraft saves no aggregate cost. All three quality regressions trace to the preserve lane, and both quality wins trace to the prune lane: prune patches act as quality guardrails while preserve patches drive regressions. We argue that reusable agent skills should be evaluated at the rule-type level, not as monolithic instruction packages. To support this, we release ClawTrace, the TraceCard schema, and the full set of typed skills.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2604.23853",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.6,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-04T05:12:52Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Yipeng Ouyang",
-            "Yi Xiao",
-            "Yuhao Gu",
-            "Xianwei Zhang"
-          ],
-          "title": "SkCC: Portable and Secure Skill Compilation for Cross-Framework LLM Agents",
-          "venue": "arXiv",
-          "year": 2026
-        },
-        "primary_pointer": "2605.03353",
-        "summary": "LLM agents increasingly rely on reusable skills (e.g., SKILL markdown files) to execute complex tasks, yet these artifacts lack portability: agent frameworks are highly sensitive to prompt formatting, leading to a large performance variation for the same skill. Nevertheless, most skills are authored once as format-agnostic Markdown, necessitating costly per-framework rewrites and also leaving security largely unaddressed, with widespread vulnerabilities in practice. To address this, we present SkCC, a compiler for LLM agents that introduces classical compilation design into agent skill development. SkCC centers on SkIR, a strongly-typed intermediate representation that decouples skill semantics from framework-specific formatting, thus enabling portable deployment across agent frameworks. Atop of this IR, a static Optimizer enforces security constraints, blocking vulnerabilities before deployment. Implemented as a four-phase pipeline, SkCC effectively reduces adaptation complexity from $O(m \\times n)$ to $O(m + n)$ across $m$ skills and $n$ frameworks. Experiments on SkillsBench demonstrate that SkCC delivers consistent and substantial gains over original counterparts, with pass rate increases from 21.1% to 33.3% on Claude Code and from 35.1% to 48.7% on Kimi CLI. Further, the design achieves sub-10ms compilation latency, 94.8% proactive security trigger rate, and 10-46% runtime token savings across frameworks.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2605.03353",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.6,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-04T05:12:52Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Huichi Zhou",
-            "Siyuan Guo",
-            "Anjie Liu",
-            "Zhongwei Yu",
-            "Ziqin Gong",
-            "Bowen Zhao",
-            "Zhixun Chen",
-            "Menglong Zhang",
-            "Yihang Chen",
-            "Jinsong Li",
-            "Runyu Yang",
-            "Qiangbin Liu",
-            "Xinlei Yu",
-            "Jianmin Zhou",
-            "Na Wang",
-            "Chunyang Sun",
-            "Jun Wang"
-          ],
-          "title": "Memento-Skills: Let Agents Design Agents",
-          "venue": "arXiv",
-          "year": 2026
-        },
-        "primary_pointer": "2603.18743",
-        "summary": "We introduce \\emph{Memento-Skills}, a generalist, continually-learnable LLM agent system that functions as an \\emph{agent-designing agent}: it autonomously constructs, adapts, and improves task-specific agents through experience. The system is built on a memory-based reinforcement learning framework with \\emph{stateful prompts}, where reusable skills (stored as structured markdown files) serve as persistent, evolving memory. These skills encode both behaviour and context, enabling the agent to carry forward knowledge across interactions.\n  Starting from simple elementary skills (like Web search and terminal operations), the agent continually improves via the \\emph{Read--Write Reflective Learning} mechanism introduced in \\emph{Memento~2}~\\cite{wang2025memento2}. In the \\emph{read} phase, a behaviour-trainable skill router selects the most relevant skill conditioned on the current stateful prompt; in the \\emph{write} phase, the agent updates and expands its skill library based on new experience. This closed-loop design enables \\emph{continual learning without updating LLM parameters}, as all adaptation is realised through the evolution of externalised skills and prompts.\n  Unlike prior approaches that rely on human-designed agents, Memento-Skills enables a generalist agent to \\emph{design agents end-to-end} for new tasks. Through iterative skill generation and refinement, the system progressively improves its own capabilities. Experiments on the \\emph{General AI Assistants} benchmark and \\emph{Humanity's Last Exam} demonstrate sustained gains, achieving 26.2\\% and 116.2\\% relative improvements in overall accuracy, respectively. Code is available at https://github.com/Memento-Teams/Memento-Skills.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2603.18743",
-          "http_status": 200,
-          "pdf_sample_score": 0.2528,
-          "query_relevance_score": 0.6,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-04T05:12:52Z"
-        }
-      },
       {
         "bibliographic_info": {
           "authors": [
@@ -590,12 +464,114 @@
           "final_url": "https://arxiv.org/abs/2605.18401",
           "http_status": 200,
           "pdf_sample_score": null,
+          "query_relevance_score": 0.5455,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-01T12:44:35Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Renjun Xu",
+            "Yang Yan"
+          ],
+          "title": "Agent Skills for Large Language Models: Architecture, Acquisition, Security, and the Path Forward",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.12430",
+        "summary": "The transition from monolithic language models to modular, skill-equipped agents marks a defining shift in how large language models (LLMs) are deployed in practice. Rather than encoding all procedural knowledge within model weights, agent skills -- composable packages of instructions, code, and resources that agents load on demand -- enable dynamic capability extension without retraining. It is formalized in a paradigm of progressive disclosure, portable skill definitions, and integration with the Model Context Protocol (MCP). This survey provides a comprehensive treatment of the agent skills landscape, as it has rapidly evolved during the last few months. We organize the field along four axes: (i) architectural foundations, examining the SKILL$.$md specification, progressive context loading, and the complementary roles of skills and MCP; (ii) skill acquisition, covering reinforcement learning with skill libraries, autonomous skill discovery (SEAgent), and compositional skill synthesis; (iii) deployment at scale, including the computer-use agent (CUA) stack, GUI grounding advances, and benchmark progress on OSWorld and SWE-bench; and (iv) security, where recent empirical analyses reveal that 26.1% of community-contributed skills contain vulnerabilities, motivating our proposed Skill Trust and Lifecycle Governance Framework -- a four-tier, gate-based permission model that maps skill provenance to graduated deployment capabilities. We identify seven open challenges -- from cross-platform skill portability to capability-based permission models -- and propose a research agenda for realizing trustworthy, self-improving skill ecosystems. Unlike prior surveys that broadly cover LLM agents or tool use, this work focuses specifically on the emerging skill abstraction layer and its implications for the next generation of agentic systems. Project repo: https://github.com/scienceaix/agentskills",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.12430",
+          "http_status": 200,
+          "pdf_sample_score": null,
           "query_relevance_score": 1.0,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-04T05:12:53Z"
+          "verified_at": "2026-09-01T12:44:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhonghao Zhan",
+            "Hamed Haddadi"
+          ],
+          "title": "Auto-Policy, not Auto-Skill: Compiled Agent Skills for the Physical World",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2608.25091",
+        "summary": "Self-evolving Skill harnesses (AutoSkills, Hermes Agent) generate more advisory orchestration automatically; their reported gains are efficiency, not safety. This misses the actual gap: a Skill describes how an agent should behave; a Policy decides which behavior is allowed to become an action. Today's format covers the first with markdown and scripts; the second is left to the model. Generating more Skills scales the gap, not the safety, especially when a wrong invocation can unlock a door or move money. Two adjacent attacks are documented: malicious skills compromising cloud software, and jailbroken LLM-controlled robots causing physical harm. Their intersection, malicious agent skills causing physical harm, follows directly but has not been reported. We name this class Borrowed Authority: Skills format gives the receiving agent no typed way to reject an inter-agent permission claim, so a malicious or misused Skill can drive actuation by attaching one. We propose Edge Skillguard, a typed authority layer that lives inside the Skill artifact rather than between tools as workflow engines do, with guards over world state and sensor evidence. On a live edge control-plane testbed, the guards reject 60/60 borrowed-authority requests across five attack variants without blocking benign requests, and the result holds at 5x scale and across hosts over a Tailscale mesh. These results suggest that high-risk Skills should co-package typed invocation policy with procedural knowledge, so that physical actions depend on machine-checkable evidence rather than peer-agent claims.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2608.25091",
+          "http_status": 200,
+          "pdf_sample_score": 0.3306,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-01T12:44:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Horatio Morgan"
+          ],
+          "title": "AI Governance Control Stack for Operational Stability: Achieving Hardened Governance in AI Systems",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.03262",
+        "summary": "Artificial intelligence systems are increasingly embedded in high-stakes decision environments, yet many governance approaches focus primarily on policy guidance rather than operational stability mechanisms. As AI deployments scale, organizations require governance architectures capable of maintaining reliable, auditable, and accountable behavior over time. This paper introduces the AI Governance Control Stack for Operational Stability, a layered governance architecture designed to ensure traceable and resilient AI system behavior.\n  The proposed control stack integrates six complementary governance layers: system-of-record version governance, evidence-based verification, decision-time explainability logging, telemetry monitoring, model drift detection, and governance escalation. Together, these layers provide a structured mechanism for preserving governance integrity across the AI lifecycle while enabling organizations to detect instability, respond to emerging risks, and maintain regulatory accountability.\n  The architecture aligns operational governance practices with emerging regulatory and standards frameworks, including the EU AI Act, ISO/IEC 42001 Artificial Intelligence Management Systems, and the NIST AI Risk Management Framework. By combining explainability infrastructure with continuous monitoring and human oversight mechanisms, the governance control stack provides a practical blueprint for achieving hardened AI governance in complex enterprise environments.\n  The paper contributes a conceptual governance architecture and a framework alignment analysis demonstrating how operational stability mechanisms can strengthen responsible AI implementation. The findings suggest that organizations must move beyond static policy frameworks toward integrated governance control systems capable of sustaining trustworthy AI operation in dynamic environments.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.03262",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-01T12:44:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Khalid Adnan Alsayed"
+          ],
+          "title": "Operational AI Deployment Assurance: Governance-State Orchestration Under Threshold-Sensitive Deployment Conditions -- A Governance Framework for High-Stakes AI Systems",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.27827",
+        "summary": "AI governance frameworks increasingly emphasize fairness, transparency, accountability, and lifecycle risk management in high-stakes domains. However, many current approaches remain observational, relying on static metric reporting, post-hoc auditing, and monitoring dashboards without directly governing deployment readiness, remediation progression, escalation states, or assurance-driven deployment control. This paper introduces Operational AI Deployment Assurance (OADA), a governance framework for translating fairness disagreement, subgroup instability, threshold sensitivity, remediation outcomes, and operational uncertainty into deployment-oriented assurance decisions. Building on prior work on the Fairness Disagreement Index (FDI) and FairRisk-FDI, OADA reframes governance uncertainty as an operational concern within AI deployment pipelines rather than a byproduct of metric disagreement. The framework introduces Deployment Assurance Scores, Deployment Readiness Classifications, Threshold Stability Zones, Governance Escalation States, and remediation-aware assurance progression. These constructs support lifecycle-oriented governance decisions across high-stakes settings by connecting evaluation outputs to deployment-state interpretation, reassessment, escalation, and operational control. Through deployment-oriented evaluation across facial recognition systems, with discussion extended to healthcare AI as a representative high-stakes domain, the paper demonstrates how systems may appear acceptable under isolated fairness or performance metrics while still exhibiting instability that affects deployment readiness. The proposed framework positions operational deployment assurance as a governance layer between evaluation and real-world AI deployment.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.27827",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-01T12:44:42Z"
         }
       }
     ]

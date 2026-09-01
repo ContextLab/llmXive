@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.12317",
+  "judged_at": "2026-09-01T12:29:15Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "leveraging llms for automated generation of code complexity metrics computer science",
+  "rationale": "The paper focuses on improving code generation accuracy via retrieval-augmented generation (RAG) and does not measure, analyze, or propose methods for generating code complexity metrics. It fails to satisfy any inclusion criteria as it addresses a different dependent variable (execution accuracy) and mechanism (retrieval evolution) rather than the user's specific interest in complexity metrics.",
+  "relevant": false
+}

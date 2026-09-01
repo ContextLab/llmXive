@@ -6,11 +6,6 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T008** — declared artifact(s) missing/empty/invalid: conftest.py
 - **T016** — declared artifact(s) missing/empty/invalid: data/processed/subgraph_with_clusters.parquet
 - **T023** — The required source file `src/services/embeddings.py` does not exist, and the log file `data/logs/excluded_nodes.csv` is also missing, so the edge‑case handling and logging specified in the task have not been implemented. The next implementer must create/modify the embeddings module and generate the CSV log.
-- **T020** — declared artifact(s) missing/empty/invalid: src/services/embeddings.py
-- **T022** — No code, data files, or computed results were supplied; there is no implementation that computes title embeddings, derives topic‑cluster centroids, or calculates cosine‑distance novelty scores as required. Consequently the task’s deliverable (a functional novelty‑score calculation) is missing.
-- **T024** — declared artifact(s) missing/empty/invalid: data/processed/final_analysis_dataset.parquet
-- **T037** — The required file `tests/integration/test_statistical_pipeline.py` does not exist, so the integration test with `test_binned_analysis_execution` is missing entirely. No evidence of the requested test implementation is present.
-- **T028** — No code, script, or documentation was provided that implements a multiple‑comparison correction (Bonferroni or Benjamini‑Hochberg) nor a CLI flag to select the method. Without such artifacts, the requirement is not satisfied.
-- **T029** — declared artifact(s) missing/empty/invalid: results/analysis_report.md
-- **T030** — declared artifact(s) missing/empty/invalid: results/statistical_metrics.json
-- **T031** — No evidence of the `specs/001-bridging-coefficient-analysis/quickstart.md` file or its updated “Prerequisites” and “Run” sections is provided; without the actual documentation changes, we cannot verify that the required updates were made. The implementer must supply the modified markdown file showing the final pipeline steps, dependencies, and exact CLI commands.
+- **T032b** — The required file `src/services/embeddings.py` does not exist in the repository, so no refactored code implementing strict batch processing and memory release can be verified. The task’s core artifact is missing.
+- **T039** — The `src/services/ingest.py` file shows no import or usage of `memory_profiler` and does not log peak RAM usage per batch. Additionally, the required `src/services/embeddings.py` file is completely missing. Both files need the memory‑profiling integration and the embeddings module must exist.
+- **T038** — No `artifacts/validation_report.md` file was provided; thus there is no evidence of an execution log, exit code, or artifact hashes, which are required to satisfy the task. The implementer must generate and supply the validation report at the specified path.

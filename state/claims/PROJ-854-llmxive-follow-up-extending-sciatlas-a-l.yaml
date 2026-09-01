@@ -330,3 +330,391 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-13T00:36:16Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: embedding generation uses sentence-transformers/all-MiniLM-L6-v2 on CPU
+    to meet 7GB RAM constraint
+  claim_id: c_b40a8430
+  context: 'T020 [US2] Implement src/services/embeddings.py: Load sentence-transformers/all-MiniLM-L6-v2
+    (CPU mode) and generate embeddings for all valid node titles in batches to meet
+    7GB RAM constraint, ensuring no individual node latency exceeds a low-latency
+    threshold.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Embedding_generation_uses_sentence-transformers/all-MiniLM-L
+  kind: entity_fact
+  raw_text: Use sentence-transformers/all-MiniLM-L6-v2 (CPU mode) and generate embeddings
+    for all valid node titles in batches to meet 7GB RAM constraint.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:46:01Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: k-means clustering with k=100 performed on title embeddings
+  claim_id: c_52dd3bc6
+  context: 'T021 [US2] Implement src/services/clustering.py: Perform k-means clustering
+    (k=100) on title embeddings to assign topic_cluster IDs (independent of Louvain)
+    (See FR-008).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform k-means clustering (k=100) on title embeddings to assign topic_cluster
+    IDs (independent of Louvain).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:46:55Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: bridging_coefficient calculation formula is inter-cluster edges divided
+    by total degree
+  claim_id: c_dce559fd
+  context: 'T014 [US1] Implement src/models/graph_utils.py: Complete the implementation
+    of calc_bridging(G, clusters) to calculate bridging_coefficient for each node
+    (inter-cluster edges / total degree), handling degree-0 nodes gracefully.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bridging_coefficient_calculation_formula_is_inter-cluster_ed
+  kind: entity_fact
+  raw_text: bridging_coefficient is calculated as inter-cluster edges / total degree.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:47:15Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: degree-0 nodes assigned bridging_coefficient value of 0.0
+  claim_id: c_057e704e
+  context: 'T015 [US1] Add validation in src/models/graph_utils.py::calc_bridging:
+    Add try/except block to explicitly assign a value of 0.0 for degree-0 nodes to
+    prevent division-by-zero and satisfy Edge Cases.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assign a value of 0.0 for degree-0 nodes to prevent division-by-zero.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:47:42Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: every node has valid bridging_coefficient between 0.0 and 1.0
+  claim_id: c_4e424d4b
+  context: 'Independent Test: Can be fully tested by running the ingestion pipeline
+    on a sampled subgraph and verifying that every node has a valid bridging_coefficient
+    (0.0 to 1.0) and primary_cluster label, with no memory errors on CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Every node has a valid bridging_coefficient (0.0 to 1.0) and primary_cluster
+    label.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:48:27Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: embedding latency threshold of 50ms per node
+  claim_id: c_ee946af5
+  context: "T033 [P] Verify embedding performance against SC-005: Create tests/bench/test_embedding_speed.py\
+    \ to run a benchmark on a representative sample, measure maximum latency per node,\
+    \ and assert that the max latency is \u2264 50ms."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Embedding_latency_threshold_of_50ms_per_node
+  kind: entity_fact
+  raw_text: "The test must assert that the max latency is \u2264 50ms."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:51:56Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: 7GB RAM constraint for batched embedding
+  claim_id: c_2a91be90
+  context: 'T020 [US2] Implement src/services/embeddings.py: Load sentence-transformers/all-MiniLM-L6-v2
+    (CPU mode) and generate embeddings for all valid node titles in batches to meet
+    7GB RAM constraint...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/7GB_RAM_constraint_for_batched_embedding
+  kind: entity_fact
+  raw_text: The implementation targets a 7GB RAM constraint.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:52:57Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: sentence-transformers/all-MiniLM-L6-v2 model for embeddings
+  claim_id: c_e85d0bc7
+  context: 'T020 [US2] Implement src/services/embeddings.py: Load sentence-transformers/all-MiniLM-L6-v2
+    (CPU mode) and generate embeddings for all valid node titles in batches...'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: embedding (i.e., all-MiniLM-L6-v2) in an
+      source_id: '2607.07974'
+      url: https://arxiv.org/abs/2607.07974
+      value: all-MiniLM-L6-v2
+    filled: true
+  kind: entity_fact
+  raw_text: The implementation uses sentence-transformers/all-MiniLM-L6-v2 for embeddings.
+  resolved_value: all-MiniLM-L6-v2
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T12:53:57Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: k-means clustering with k=100 on title embeddings
+  claim_id: c_702b91bb
+  context: 'T021 [US2] Implement src/services/clustering.py: Perform k-means clustering
+    (k=100) on title embeddings to assign topic_cluster IDs...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation performs k-means clustering with k=100 on title embeddings.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:55:22Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: degree-stratified random sampling for subgraph construction
+  claim_id: c_e75627d2
+  context: 'T012 [US1] Implement src/services/ingest.py: Fetch OpenAlex data via pyalex
+    with degree-stratified random sampling to target subgraph size...'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "Junpeng Zhu1,2, Hui Li1,2(\uF02A), Mei Chen1,2, Zhenyu Dai1,2 and Ming\
+        \ Zhu3"
+      source_id: '1801.04624'
+      url: https://arxiv.org/abs/1801.04624
+      value: '3'
+    filled: true
+  kind: entity_fact
+  raw_text: The implementation uses degree-stratified random sampling for the subgraph.
+  resolved_value: '3'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T12:55:56Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: 'bridging_coefficient calculation formula: inter-cluster edges / total
+    degree'
+  claim_id: c_86eb9f8c
+  context: 'T014 [US1] Implement src/models/graph_utils.py: Complete the implementation
+    of calc_bridging(G, clusters) to calculate bridging_coefficient for each node
+    (inter-cluster edges / total degree)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bridging_coefficient_calculation_formula:_inter-cluster_edge
+  kind: entity_fact
+  raw_text: The implementation calculates bridging_coefficient as inter-cluster edges
+    divided by total degree.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:56:22Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: bridging_coefficient assigned as 0.0 for degree-0 nodes
+  claim_id: c_185ca113
+  context: 'T015 [US1] Add validation in src/models/graph_utils.py::calc_bridging:
+    Add try/except block to explicitly assign a value of 0.0 for degree-0 nodes to
+    prevent division-by-zero...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation assigns a bridging_coefficient value of 0.0 for degree-0
+    nodes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:56:50Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: Spearman rank correlation between bridging_coefficient and citation_count/novelty_score
+  claim_id: c_a8214dca
+  context: 'T026 [US3] Implement src/services/analysis.py: Calculate Spearman rank
+    correlation between bridging_coefficient and citation_count/novelty_score (See
+    FR-005).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spearman_rank_correlation_between_bridging_coefficient_and_c
+  kind: entity_fact
+  raw_text: The analysis calculates Spearman rank correlation between bridging_coefficient
+    and citation_count/novelty_score.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:57:24Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: linear regression between bridging_coefficient and citation_count/novelty_score
+  claim_id: c_0e53d792
+  context: 'T027b [US3] Implement src/services/analysis.py: Perform linear regression
+    between bridging_coefficient and citation_count/novelty_score (See FR-005).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Linear_regression_between_bridging_coefficient_and_citation
+  kind: entity_fact
+  raw_text: The analysis performs linear regression between bridging_coefficient and
+    citation_count/novelty_score.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:58:03Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: binned non-linear analysis to detect inverted-U effects
+  claim_id: c_fcecd035
+  context: 'T027c [US3] Implement src/services/analysis.py: Perform binned non-linear
+    analysis (to detect inverted-U effects) as an exploratory extension...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Binned_non-linear_analysis_to_detect_inverted-U_effects
+  kind: entity_fact
+  raw_text: The analysis performs binned non-linear analysis to detect inverted-U
+    effects.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:58:40Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: multiple-comparison correction using Bonferroni or Benjamini-Hochberg
+  claim_id: c_9b213644
+  context: T028 [US3] Apply multiple-comparison correction (Bonferroni or Benjamini-Hochberg)
+    to all p-values, configurable via a CLI flag to allow selection of method...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Multiple-comparison_correction_using_Bonferroni_or_Benjamini
+  kind: entity_fact
+  raw_text: The implementation applies multiple-comparison correction (Bonferroni
+    or Benjamini-Hochberg) to all p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:59:49Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: OpenAlex data source accessed via pyalex
+  claim_id: c_1e222d41
+  context: 'T012 [US1] Implement src/services/ingest.py: Fetch OpenAlex data via pyalex
+    with degree-stratified random sampling...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenAlex_data_source_accessed_via_pyalex
+  kind: entity_fact
+  raw_text: The data source is OpenAlex accessed via the pyalex library.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T13:00:24Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: Louvain community detection for primary_cluster assignment
+  claim_id: c_6005a888
+  context: 'T013 [US1] Implement src/services/clustering.py: Run Louvain community
+    detection on the graph G to assign primary_cluster IDs...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Louvain_community_detection_for_primary_cluster_assignment
+  kind: entity_fact
+  raw_text: The implementation uses Louvain community detection to assign primary_cluster
+    IDs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T13:01:20Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: novelty_score derived from cosine distance to topic cluster centroid
+  claim_id: c_52df263f
+  context: 'T022 [US2] Implement novelty calculation: Compute cosine distance between
+    each node''s title embedding and the centroid of its assigned topic_cluster to
+    derive the novelty_score...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Novelty_score_derived_from_cosine_distance_to_topic_cluster
+  kind: entity_fact
+  raw_text: The implementation uses cosine distance between node title embeddings
+    and topic cluster centroids to derive novelty_score.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T13:01:45Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: 'constraint: multi-core CPU, sufficient memory, time limit'
+  claim_id: c_8bd48435
+  context: 'Critical Constraint: All tasks must run on a multi-core CPU with sufficient
+    memory and a time limit.. No GPU, no low-bit quantization.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Constraint:_multi-core_CPU,_sufficient_memory,_time_limit
+  kind: entity_fact
+  raw_text: The specification references a constraint that all tasks must run on a
+    multi-core CPU with sufficient memory and a time limit.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T13:02:29Z'
