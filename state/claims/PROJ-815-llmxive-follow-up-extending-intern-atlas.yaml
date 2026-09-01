@@ -368,3 +368,277 @@
   source_type: external
   status: refuted
   updated_at: '2026-08-23T21:36:16Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Pipeline aborts on LLM-inferred edge types
+  claim_id: c_28c66fc4
+  context: 'Task T013: Implement extract_intern_atlas.py to load graph, filter nodes
+    by year (2010-2018), import and call abort_if_llm_inferred() from code/utils/graph_utils.py
+    to enforce human-annotated edge types; if LLM-inferred types found, ABORT immediately.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_aborts_on_LLM-inferred_edge_types
+  kind: entity_fact
+  raw_text: The pipeline must abort immediately if LLM-inferred edge types are found.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:01:20Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Feature computation handles zero outgoing edges
+  claim_id: c_197306b9
+  context: 'Task T014: Implement compute_features.py to calculate bottleneck_resolution_ratio
+    and branching_entropy; handle nodes with 0 outgoing edges gracefully.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Nodes with 0 outgoing edges must be handled gracefully in feature computation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:01:59Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Duplicate resolution uses earliest date then alphabetical journal
+  claim_id: c_eec33b2d
+  context: 'Task T015: Implement merge_retractions.py to map nodes using exact DOI
+    match first, then Levenshtein fuzzy match (ratio >= 0.85); implement duplicate
+    resolution (earliest date, then alphabetical journal).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Duplicate_resolution_uses_earliest_date_then_alphabetical_jo
+  kind: magnitude
+  raw_text: Duplicate resolution for retraction mapping prioritizes the earliest date,
+    then alphabetical journal.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:02:43Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Levenshtein fuzzy match ratio threshold is 0.85
+  claim_id: c_3fac9926
+  context: 'Task T015: Implement merge_retractions.py to map nodes to retraction databases
+    using exact DOI match first, then Levenshtein fuzzy match (ratio >= 0.85) for
+    title/author.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A Levenshtein fuzzy match ratio of 0.85 or higher is used for title/author
+    matching.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:03:13Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Methodological error maps to label 1
+  claim_id: c_1c05bb81
+  context: 'Task T016: Implement label mapping logic... test_label_mapping_methodological_error_returns_1:
+    Input reason=''methodological error'', Expected output=1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The label mapping logic assigns label 1 for methodological error.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:03:50Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Fraud maps to label 2
+  claim_id: c_bad3d7d0
+  context: 'Task T016: Implement label mapping logic... test_label_mapping_fraud_returns_2:
+    Input reason=''fraud'', Expected output=2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The label mapping logic assigns label 2 for fraud.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:04:30Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Other reasons map to label 0
+  claim_id: c_c3ba5435
+  context: 'Task T016: Implement label mapping logic... test_label_mapping_robust_returns_0:
+    Input reason=''other'', Expected output=0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The label mapping logic assigns label 0 for reasons categorized as 'other'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:05:15Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Irreproducibility maps to label 1
+  claim_id: c_a90ef388
+  context: 'Task T016: Implement label mapping logic... test_label_mapping_irreproducibility_returns_1:
+    Input reason=''irreproducibility'', Expected output=1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The label mapping logic assigns label 1 for irreproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:05:45Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Retraction status 2 maps to binary 0
+  claim_id: c_62377888
+  context: 'Task T016b: Implement label conversion logic... test_binary_conversion_maps_2_to_0:
+    Input status=2 -> Binary=0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The binary conversion maps retraction status 2 to binary 0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:06:22Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Pipeline aborts with specific error if ground truth labels missing
+  claim_id: c_6ebde235
+  context: 'Task T017: Implement main pipeline orchestrator... if missing, it MUST
+    ABORT with the exact message: ''No ground truth labels found for the specified
+    time window; analysis cannot proceed.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_aborts_with_specific_error_if_ground_truth_labels_m
+  kind: entity_fact
+  raw_text: The pipeline aborts with the message 'No ground truth labels found for
+    the specified time window; analysis cannot proceed.' if labels are missing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:07:03Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Stratified permutation test uses 100 iterations
+  claim_id: c_16d22204
+  context: 'Task T031: Perform stratified permutation test with exactly n=100 iterations
+    (as per FR-007) shuffling labels while controlling for field_of_study and publication_venue.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stratified permutation test performs exactly 100 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:08:08Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps thresholds 0.3, 0.5, and 0.7
+  claim_id: c_f304ac72
+  context: 'Task T032: Run threshold sweep over the specific set {0.3, 0.5, 0.7} (as
+    per FR-008 and SC-002); calculate and report FPR/FNR for each.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis runs a threshold sweep over the set {0.3, 0.5,
+    0.7}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:08:48Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Instability flagged if VIF > 5
+  claim_id: c_6077fc5a
+  context: 'Task T032: Run threshold sweep... calculate VIF and MI for predictors;
+    flag instability if VIF > 5 or MI > 0.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Instability is flagged if the Variance Inflation Factor (VIF) exceeds
+    5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:09:33Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Instability flagged if MI > 0.1
+  claim_id: c_912a89b1
+  context: 'Task T032: Run threshold sweep... calculate VIF and MI for predictors;
+    flag instability if VIF > 5 or MI > 0.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Instability is flagged if Mutual Information (MI) exceeds 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:10:28Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Covariate adjustment conditional on permutation test failure or skip
+  claim_id: c_b462feba
+  context: 'Task T034: Conditional Execution: This task runs ONLY if the stratified
+    permutation test (T031) is skipped, fails, or is explicitly disabled.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Covariate_adjustment_conditional_on_permutation_test_failure
+  kind: entity_fact
+  raw_text: Covariate adjustment is performed only if the stratified permutation test
+    is skipped, fails, or is explicitly disabled.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:11:28Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: Threshold sensitivity plot uses 300 DPI
+  claim_id: c_8c5d505e
+  context: 'Task T037: Generate plots... Threshold sensitivity plot to data/processed/plots/threshold_sweep.png...
+    use PNG format with DPI=300 resolution as per SC-002.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold sensitivity plot must have a resolution of 300 DPI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:12:14Z'

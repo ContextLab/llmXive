@@ -4,9 +4,6 @@ __pycache__/
 *$py.class
 *.so
 .Python
-env/
-venv/
-ENV/
 build/
 develop-eggs/
 dist/
@@ -23,23 +20,45 @@ wheels/
 .installed.cfg
 *.egg
 
-# Data
-data/raw/*.json
-data/raw/*.csv
-data/processed/*.csv
-data/plots/*.png
-data/plots/*.jpg
+# Virtual Environments
+venv/
+ENV/
+env/
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
+
+# Environment Variables (SECRETS)
+.env
+.env.local
+.env.*.local
+
+# Data
+data/raw/*.json
+data/raw/*.csv
+data/processed/*
+data/plots/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/plots/.gitkeep
+
+# Logs
+*.log
+logs/
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Secrets
-.env
-*.key
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+
+# Jupyter
+.ipynb_checkpoints

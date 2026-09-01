@@ -28,9 +28,15 @@ T007:
     or code are missing.
 T012:
   c: false
-  h: 2e27abccae734cf9cdcfe2bb1450e450720772158191e2503194045ab8ee9fc2
-  r: "The repository contains `data/raw/nist_materials.json` but the required checksum\
-    \ file `data/raw/nist_materials.json.sha256` is absent, and the provided `code/data_ingestion.py`\
-    \ snippet shows no logic that writes such a checksum (nor any fetching of live\
-    \ NIST data). The task\u2019s core output \u2013 a saved SHA256 checksum \u2013\
-    \ is therefore missing."
+  h: 4cf24dff1593a887056a3c48ecc9cd172cb2a5f1ca3989ec8e4f707b8ee56878
+  r: "The required output files `data/raw/nist_materials.json` and its `.sha256` checksum\
+    \ are absent, and the provided `code/data_ingestion.py` (as shown) contains no\
+    \ logic that fetches NIST data, writes the JSON file, or generates the checksum.\
+    \ Consequently the task\u2019s core requirement is not fulfilled."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No CSV file, validation script, or test output was provided; therefore there
+    is no evidence that the output CSV was checked for missing values or that all
+    cost entries are positive scalars. The required artifact (a validated CSV or verification
+    report) is missing.

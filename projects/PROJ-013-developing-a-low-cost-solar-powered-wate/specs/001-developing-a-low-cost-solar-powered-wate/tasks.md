@@ -99,14 +99,14 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T017 [P] [US2] Unit test for view factor calculation in `tests/unit/test_simulation.py`: Verify `calculate_view_factor` exists with signature `(geometry: GeometryConfig, angle: float) -> float` and asserts the result is within [0, 1].
-- [ ] T018 [P] [US2] Unit test for convective heat transfer coefficient calculation in `tests/unit/test_simulation.py`: Verify `calculate_convective_coeff` exists with signature `(temp_diff: float, geometry: GeometryConfig) -> float` and asserts the result is positive.
-- [ ] T019 [P] [US2] Integration test for energy balance closure in `tests/integration/test_simulation.py`: Verify `run_simulation` returns a result where `input_energy ≈ output_energy + losses` within a tolerance of a minimal margin.
+- [X] T017 [P] [US2] Unit test for view factor calculation in `tests/unit/test_simulation.py`: Verify `calculate_view_factor` exists with signature `(geometry: GeometryConfig, angle: float) -> float` and asserts the result is within [0, 1].
+- [X] T018 [P] [US2] Unit test for convective heat transfer coefficient calculation in `tests/unit/test_simulation.py`: Verify `calculate_convective_coeff` exists with signature `(temp_diff: float, geometry: GeometryConfig) -> float` and asserts the result is positive.
+- [X] T019 [P] [US2] Integration test for energy balance closure in `tests/integration/test_simulation.py`: Verify `run_simulation` returns a result where `input_energy ≈ output_energy + losses` within a tolerance of a minimal margin.
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/simulation.py`: Define `GeometryConfig` class supporting flat-plate, single-slope, and double-slope. **Model slope variations via "view factors" and "convective heat transfer coefficients"** (as per Plan Summary). Reference `data-model.md` for exact attributes (inclination_angle, surface_area). Calculate effective projected area using view factors, not simple cosine projection.
-- [ ] T021 [US2] Implement `code/simulation.py`: Create the 1D transient heat transfer ODE system using `scipy.integrate.solve_ivp`, incorporating solar irradiance boundary conditions from the data fetched in **T008**.
+- [X] T020 [US2] Implement `code/simulation.py`: Define `GeometryConfig` class supporting flat-plate, single-slope, and double-slope. **Model slope variations via "view factors" and "convective heat transfer coefficients"** (as per Plan Summary). Reference `data-model.md` for exact attributes (inclination_angle, surface_area). Calculate effective projected area using view factors, not simple cosine projection.
+- [X] T021 [US2] Implement `code/simulation.py`: Create the 1D transient heat transfer ODE system using `scipy.integrate.solve_ivp`, incorporating solar irradiance boundary conditions from the data fetched in **T008**.
 - [ ] T022 [US2] Implement `code/simulation.py`: Calculate time-averaged thermal efficiency $\eta$ over the final 30 minutes of the transient simulation for every valid material-geometry combination.
 - [ ] T023 [US2] Implement `code/validation.py`: Perform **Primary Validation**: Check **Energy Balance Closure** (Input Energy = Output Energy + Losses). **If this check fails, exclude the data point from results.** This is the hard gate per the Plan.
 - [ ] T024 [US2] Implement `code/validation.py`: Perform **Secondary Check**: Log if calculated efficiency $\eta$ falls within ±10% of the mean efficiency (0.45) from Duffie & Beckman as a warning, but **DO NOT** exclude the data point based on this check alone.

@@ -1,1 +1,2 @@
-# This directory stores processed data derived from raw inputs (e.g., materials.csv, simulation_results.csv).
+# This directory stores processed data files.
+# Intermediate results and final datasets for analysis go here.

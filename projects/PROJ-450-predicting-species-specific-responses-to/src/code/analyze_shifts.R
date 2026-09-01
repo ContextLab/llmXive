@@ -1,184 +1,221 @@
-#' Analyze Niche Shifts vs Regional Warming
-#'
-#' This script performs regression analysis (PGLS or WLS) to relate niche shift magnitude (ΔN)
-#' to regional warming (ΔT). It also computes per-region summaries.
-#'
-#' @param input_centroids Path to data/processed/centroids.csv
-#' @param input_shifts Path to data/processed/shifts.csv (output of compute_shifts.R)
-#' @param phylogeny_path Path to data/phylogeny.tre (optional)
-#' @param output_results Path to results/regression_results.csv
-#' @param output_summary Path to results/regression_summary.csv
-#' @param log_path Path to logs/analysis.log
-#' @param config_path Path to config.yaml
-#'
-#' @export
-run_analysis <- function(
-  input_centroids = "data/processed/centroids.csv",
-  input_shifts = "data/processed/shifts.csv",
-  phylogeny_path = "data/phylogeny.tre",
-  output_results = "results/regression_results.csv",
-  output_summary = "results/regression_summary.csv",
-  log_path = "logs/analysis.log",
-  config_path = "config.yaml"
-) {
-  # Load utilities
-  source("src/code/utils.R")
+# src/code/analyze_shifts.R
+# Analyze niche shifts (Delta N) against regional warming (Delta T)
+# Implements PGLS if phylogeny available, otherwise WLS.
+# Includes detailed logging per FR-010.
 
-  # Initialize logging
-  init_logging(log_path, task = "T027-US2-Analysis")
-  log_msg("INFO", "Starting niche shift analysis (T027)")
-  log_msg("INFO", paste("Input centroids:", input_centroids))
-  log_msg("INFO", paste("Input shifts:", input_shifts))
-  log_msg("INFO", paste("Phylogeny file:", phylogeny_path))
+library(caper)
+library(phylolm)
+library(dplyr)
+library(tidyr)
+library(lubridate)
+library(here)
+library(ggplot2)
 
-  # Load data
-  if (!file.exists(input_centroids)) {
-    log_msg("ERROR", "Centroids file not found. Run US1 first.")
-    stop("Centroids file missing")
-  }
-  if (!file.exists(input_shifts)) {
-    log_msg("ERROR", "Shifts file not found. Run compute_shifts.R first.")
-    stop("Shifts file missing")
-  }
+# Source utility functions (logging, directory checks)
+source(here("src", "code", "utils.R"))
 
-  centroids <- read.csv(input_centroids, stringsAsFactors = FALSE)
-  shifts <- read.csv(input_shifts, stringsAsFactors = FALSE)
+# Configuration
+log_file <- here("logs", "analysis_shifts.log")
+input_shifts <- here("data", "processed", "shifts.csv")
+input_centroids <- here("data", "processed", "centroids.csv")
+phylogeny_file <- here("data", "phylogeny.tre")
+output_results <- here("results", "regression_summary.csv")
+output_regions <- here("results", "regional_regression_summary.csv")
 
-  log_msg("INFO", paste("Loaded", nrow(centroids), "centroid records"))
-  log_msg("INFO", paste("Loaded", nrow(shifts), "shift records"))
+# Initialize logging
+init_logging(log_file)
+log_message(paste("Starting analysis for", Sys.time()))
 
-  # Merge data
-  merged <- merge(centroids, shifts, by = c("species", "taxonomic_group"))
-  log_msg("INFO", paste("Merged dataset size:", nrow(merged)))
+# Check inputs
+if (!file.exists(input_shifts)) {
+  log_error("Input file not found: shifts.csv. Run compute_shifts.R first.")
+  stop("Missing input: shifts.csv")
+}
 
-  # Check for phylogeny
-  has_phylogeny <- file.exists(phylogeny_path) && file.info(phylogeny_path)$size > 0
-  method_used <- if (has_phylogeny) "PGLS" else "WLS"
-  log_msg("INFO", paste("Phylogeny present:", has_phylogeny, "- Using", method_used, "regression"))
+log_message(paste("Loading data from", input_shifts))
+shifts_df <- read.csv(input_shifts, stringsAsFactors = FALSE)
 
-  # Prepare data for regression
-  # Filter out NAs in critical columns
-  valid_data <- merged[!is.na(merged$delta_N) & !is.na(merged$delta_T), ]
-  log_msg("INFO", paste("Valid records for regression:", nrow(valid_data)))
+# Validate required columns
+required_cols <- c("species", "delta_N", "delta_T", "taxonomic_group")
+if (!all(required_cols %in% names(shifts_df))) {
+  missing <- setdiff(required_cols, names(shifts_df))
+  log_error(paste("Missing columns in shifts.csv:", paste(missing, collapse=", ")))
+  stop("Invalid shifts.csv schema")
+}
 
-  if (nrow(valid_data) < 3) {
-    log_msg("WARN", "Insufficient data for regression (n < 3). Skipping.")
-    # Write empty results
-    write.csv(data.frame(), output_results, row.names = FALSE)
-    write.csv(data.frame(), output_summary, row.names = FALSE)
-    log_msg("INFO", "Analysis completed with empty results due to insufficient data.")
-    return(invisible(NULL))
-  }
+log_message(paste("Loaded", nrow(shifts_df), "species records for analysis"))
 
-  # Run regression
-  log_msg("INFO", "Executing regression model...")
+# Determine method: PGLS or WLS
+use_pgl <- FALSE
+if (file.exists(phylogeny_file)) {
+  log_message("Phylogeny file detected. Attempting PGLS.")
   tryCatch({
-    if (has_phylogeny) {
-      # PGLS
-      log_msg("INFO", "Loading phylogeny for PGLS...")
-      tree <- ape::read.tree(phylogeny_path)
-      # Ensure tip labels match species names
-      # (Simplified: assumes species names match tip labels)
-      valid_data$species <- as.character(valid_data$species)
-      # Match data to tree
-      common_species <- intersect(valid_data$species, tree$tip.label)
-      if (length(common_species) < 3) {
-        log_msg("WARN", "Not enough species overlap with phylogeny. Falling back to WLS.")
-        method_used <- "WLS"
-        model <- lm(delta_N ~ delta_T, data = valid_data)
-      } else {
-        phy_data <- valid_data[valid_data$species %in% common_species, ]
-        phy_data <- phy_data[match(tree$tip.label, phy_data$species), ]
-        model <- caper::pgls(delta_N ~ delta_T, data = phy_data, lambda = "ML")
-      }
-    } else {
-      # WLS
-      model <- lm(delta_N ~ delta_T, data = valid_data)
+    tree <- read.tree(phylogeny_file)
+    if (!is.null(tree) && length(tree$tip.label) > 0) {
+      use_pgl <- TRUE
+      log_message(paste("Loaded phylogeny with", length(tree$tip.label), "tips."))
     }
-
-    log_msg("INFO", "Regression model fitted successfully.")
-
-    # Extract results
-    coef_summary <- summary(model)$coefficients
-    slope <- coef_summary["delta_T", "Estimate"]
-    p_value <- coef_summary["delta_T", "Pr(>|t|)"]
-    r_squared <- summary(model)$r.squared
-
-    # Confidence Interval (95%)
-    conf_int <- confint(model, "delta_T", level = 0.95)
-
-    log_msg("INFO", paste("Slope:", slope))
-    log_msg("INFO", paste("P-value:", p_value))
-    log_msg("INFO", paste("R-squared:", r_squared))
-    log_msg("INFO", paste("95% CI:", conf_int[1], "-", conf_int[2]))
-
-    # Save main results
-    results_df <- data.frame(
-      method = method_used,
-      slope = slope,
-      ci_lower = conf_int[1],
-      ci_upper = conf_int[2],
-      r_squared = r_squared,
-      p_value = p_value,
-      n_species = nrow(valid_data)
-    )
-    dir.create(dirname(output_results), showWarnings = FALSE, recursive = TRUE)
-    write.csv(results_df, output_results, row.names = FALSE)
-    log_msg("INFO", paste("Main results saved to", output_results))
-
-    # Per-region analysis (Latitudinal bands)
-    log_msg("INFO", "Computing per-region summaries...")
-    valid_data$lat_band <- floor(valid_data$mean_lat / 10) * 10
-    region_summary <- do.call(rbind, lapply(split(valid_data, valid_data$lat_band), function(df) {
-      if (nrow(df) < 3) return(NULL)
-      tryCatch({
-        if (has_phylogeny && method_used == "PGLS") {
-          # Simplified: re-run PGLS if possible, else WLS
-          # (Skipping complex phylogeny matching per band for this step, using WLS for bands)
-          m <- lm(delta_N ~ delta_T, data = df)
-        } else {
-          m <- lm(delta_N ~ delta_T, data = df)
-        }
-        cs <- summary(m)$coefficients
-        ci <- confint(m, "delta_T", level = 0.95)
-        data.frame(
-          lat_band = unique(df$lat_band),
-          n_species = nrow(df),
-          slope = cs["delta_T", "Estimate"],
-          ci_lower = ci[1],
-          ci_upper = ci[2],
-          r_squared = summary(m)$r.squared,
-          p_value = cs["delta_T", "Pr(>|t|)"]
-        )
-      }, error = function(e) {
-        log_msg("WARN", paste("Failed to compute region", unique(df$lat_band), ":", e$message))
-        NULL
-      })
-    }))
-
-    if (!is.null(region_summary) && nrow(region_summary) > 0) {
-      write.csv(region_summary, output_summary, row.names = FALSE)
-      log_msg("INFO", paste("Region summary saved to", output_summary))
-    } else {
-      log_msg("WARN", "No valid region summaries could be computed.")
-      write.csv(data.frame(), output_summary, row.names = FALSE)
-    }
-
   }, error = function(e) {
-    log_msg("ERROR", paste("Regression failed:", e$message))
-    stop(e)
+    log_warning(paste("Failed to load phylogeny:", e$message, "Falling back to WLS."))
+    use_pgl <- FALSE
   })
-
-  log_msg("INFO", "Analysis completed successfully.")
+} else {
+  log_message("No phylogeny file found. Using WLS (Weighted Least Squares).")
 }
 
-# Run if called directly
-if (!interactive()) {
-  args <- commandArgs(trailingOnly = TRUE)
-  if (length(args) > 0) {
-    # Parse arguments if needed, otherwise use defaults
-    run_analysis()
+# --- Global Regression ---
+log_message("Starting global regression analysis.")
+
+# Clean data for regression (remove NAs in dependent variables)
+clean_data <- shifts_df %>%
+  filter(!is.na(delta_N), !is.na(delta_T))
+
+if (nrow(clean_data) < 2) {
+  log_error("Insufficient data points for regression (need >= 2).")
+  stop("Not enough valid data points")
+}
+
+log_message(paste("Running regression on", nrow(clean_data), "valid points."))
+
+global_result <- NULL
+if (use_pgl) {
+  # Prepare data for caper (requires species matching tree)
+  # Note: In a real scenario, we might need to prune the tree or data
+  # to match. Here we assume taxon names match tip labels.
+  tryCatch({
+    tree <- read.tree(phylogeny_file)
+    # Prune tree to match data
+    common_tips <- intersect(tree$tip.label, clean_data$species)
+    if (length(common_tips) < 2) {
+      log_warning("Few matching species between data and tree. Using WLS fallback.")
+      use_pgl <- FALSE
+      stop("Mismatch")
+    }
+    tree_pruned <- keep.tip(tree, common_tips)
+    data_pruned <- clean_data %>% filter(species %in% common_tips)
+    rownames(data_pruned) <- data_pruned$species
+
+    comp_data <- comparative.data(tree_pruned, data_pruned, names.col = "species", v = TRUE, warn = FALSE)
+
+    model <- pgls(delta_N ~ delta_T, data = comp_data, lambda = "ML")
+    global_result <- list(
+      method = "PGLS",
+      slope = coef(model)[2],
+      ci_lower = confint(model)[2, 1],
+      ci_upper = confint(model)[2, 2],
+      r_squared = summary(model)$r.squared,
+      p_value = summary(model)$coefficients[2, 4]
+    )
+    log_message("PGLS regression completed successfully.")
+  }, error = function(e) {
+    log_warning(paste("PGLS failed:", e$message, "Falling back to WLS."))
+    use_pgl <- FALSE
+  })
+}
+
+if (!use_pgl) {
+  # WLS Fallback
+  log_message("Running WLS regression.")
+  model <- lm(delta_N ~ delta_T, data = clean_data)
+  summ <- summary(model)
+  global_result <- list(
+    method = "WLS",
+    slope = coef(model)[2],
+    ci_lower = summ$coefficients[2, 1] - 1.96 * summ$coefficients[2, 2],
+    ci_upper = coef(model)[2] + 1.96 * summ$coefficients[2, 2],
+    r_squared = summ$r.squared,
+    p_value = summ$coefficients[2, 4]
+  )
+  log_message("WLS regression completed successfully.")
+}
+
+# Log Global Results
+log_message(paste("Global Regression Results (", global_result$method, "):", sep=""))
+log_message(paste("  Slope:", round(global_result$slope, 4)))
+log_message(paste("  95% CI: [", round(global_result$ci_lower, 4), ", ", round(global_result$ci_upper, 4), "]"))
+log_message(paste("  R-squared:", round(global_result$r_squared, 4)))
+log_message(paste("  P-value:", format.pval(global_result$p_value)))
+
+# Save Global Results
+global_df <- data.frame(
+  analysis_type = "Global",
+  method = global_result$method,
+  slope = global_result$slope,
+  ci_lower = global_result$ci_lower,
+  ci_upper = global_result$ci_upper,
+  r_squared = global_result$r_squared,
+  p_value = global_result$p_value
+)
+
+write.csv(global_df, output_results, row.names = FALSE)
+log_message(paste("Global results saved to", output_results))
+
+# --- Per-Region Analysis (Latitudinal Bands) ---
+log_message("Starting per-region analysis (10-degree latitudinal bands).")
+
+# Assign regions based on centroids (using period 1 lat/lon for envelope)
+# Assuming centroids.csv has 'lat', 'lon' for the first period or average
+if (!file.exists(input_centroids)) {
+  log_warning("centroids.csv not found. Skipping per-region analysis.")
+  write.csv(data.frame(), output_regions, row.names = FALSE)
+} else {
+  centroids_df <- read.csv(input_centroids, stringsAsFactors = FALSE)
+  # Map species to lat band
+  # Assuming centroids has 'species' and 'lat' (mean lat)
+  if ("lat" %in% names(centroids_df)) {
+    merged_data <- merge(clean_data, centroids_df[, c("species", "lat")], by = "species", all.x = TRUE)
+    merged_data$lat_band <- cut(merged_data$lat, breaks = seq(-90, 90, by = 10), include.lowest = TRUE)
+    merged_data$region_label <- as.character(merged_data$lat_band)
   } else {
-    run_analysis()
+    log_warning("Centroids missing 'lat' column. Skipping per-region analysis.")
+    merged_data <- clean_data
+    merged_data$region_label <- "Unknown"
+  }
+
+  region_results <- list()
+  unique_regions <- unique(merged_data$region_label)
+  unique_regions <- unique_regions[!is.na(unique_regions)]
+
+  log_message(paste("Analyzing", length(unique_regions), "regions."))
+
+  for (region in unique_regions) {
+    region_data <- merged_data %>% filter(region_label == region)
+    if (nrow(region_data) < 2) {
+      log_message(paste("  Region", region, ": Insufficient data (n=", nrow(region_data), "). Skipping."))
+      next
+    }
+
+    log_message(paste("  Processing region:", region, " (n=", nrow(region_data), ")"))
+
+    # Run WLS for region (simpler, no phylogeny per region usually)
+    tryCatch({
+      lm_model <- lm(delta_N ~ delta_T, data = region_data)
+      summ <- summary(lm_model)
+      res <- list(
+        region = region,
+        n = nrow(region_data),
+        slope = coef(lm_model)[2],
+        ci_lower = summ$coefficients[2, 1] - 1.96 * summ$coefficients[2, 2],
+        ci_upper = coef(lm_model)[2] + 1.96 * summ$coefficients[2, 2],
+        r_squared = summ$r.squared,
+        p_value = summ$coefficients[2, 4]
+      )
+      region_results[[region]] <- res
+      log_message(paste("    Result: Slope=", round(res$slope, 3), ", p=", format.pval(res$p_value)))
+    }, error = function(e) {
+      log_warning(paste("    Regression failed for region", region, ":", e$message))
+    })
+  }
+
+  # Compile and save region results
+  if (length(region_results) > 0) {
+    region_df <- bind_rows(lapply(region_results, as.data.frame))
+    write.csv(region_df, output_regions, row.names = FALSE)
+    log_message(paste("Regional results saved to", output_regions))
+  } else {
+    log_message("No valid region results to save.")
+    write.csv(data.frame(), output_regions, row.names = FALSE)
   }
 }
+
+log_message("Analysis completed successfully.")

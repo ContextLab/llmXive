@@ -1,106 +1,159 @@
 #!/usr/bin/env Rscript
 # compute_centroids.R
-# Task: T015a & T015b
-# Description: Calculate arithmetic mean of climate variables per species/period
-#              and output:
-#              1. data/processed/centroids.csv (aggregated means)
-#              2. data/processed/points_with_climate.csv (raw points with climate)
+#
+# Purpose:
+#   1. Read raw occurrence data with climate values (from extract_climate.R).
+#   2. Compute arithmetic mean (centroid) of climate variables per species/period.
+#   3. Output two files:
+#      - data/processed/centroids.csv (aggregated means)
+#      - data/processed/points_with_climate.csv (raw points with climate values, for FR-005)
 #
 # Inputs:
-#   - data/processed/points_with_climate.csv (from T014 extract_climate.R)
+#   - data/processed/points_with_climate_raw.csv (output of extract_climate.R)
 #
 # Outputs:
 #   - data/processed/centroids.csv
-#   - data/processed/points_with_climate.csv (ensured to exist)
+#   - data/processed/points_with_climate.csv (re-validated and saved as intermediate artifact)
 
-# Load project-wide utilities and configuration
-# Assuming T004 utils.R is available in src/code/
+# Load project utilities
 source("src/code/utils.R")
 
-# Ensure required directories exist
+# --- Configuration ---
+INPUT_FILE <- "data/processed/points_with_climate_raw.csv"
+OUTPUT_CENTROIDS <- "data/processed/centroids.csv"
+OUTPUT_POINTS <- "data/processed/points_with_climate.csv"
+
+# Ensure output directory exists
 ensure_dir("data/processed")
 
-# Define file paths
-input_file <- "data/processed/points_with_climate.csv"
-centroids_output <- "data/processed/centroids.csv"
+# --- Logging ---
+log_start("compute_centroids")
+log_info(paste("Input file:", INPUT_FILE))
 
-# Check if input file exists
-if (!file.exists(input_file)) {
-  stop(paste("CRITICAL: Input file not found:", input_file, 
-             "\nPlease run src/code/extract_climate.R (T014) first."))
+# --- Check Input ---
+if (!file.exists(INPUT_FILE)) {
+  log_error("Input file not found: ", INPUT_FILE)
+  log_error("Please run src/code/extract_climate.R first.")
+  stop("Missing input file for compute_centroids.R")
 }
 
-log_info("Starting centroid computation...")
-log_info(paste("Reading data from:", input_file))
-
-# Read the raw occurrence data with climate values
-# Expected columns: species, period, temp, precip, lat, lon, ...
-tryCatch({
-  df <- read.csv(input_file, stringsAsFactors = FALSE)
+# --- Load Data ---
+log_info("Loading raw occurrence data with climate values...")
+df_raw <- tryCatch({
+  read.csv(INPUT_FILE, stringsAsFactors = FALSE)
 }, error = function(e) {
-  stop(paste("Failed to read input CSV:", e$message))
+  log_error("Failed to read input file: ", e$message)
+  stop(e)
 })
 
-log_info(paste("Loaded", nrow(df), "records."))
-
-# Validate required columns
-required_cols <- c("species", "period", "temp", "precip")
-missing_cols <- setdiff(required_cols, names(df))
+# Validate expected columns
+required_cols <- c("species", "period", "temp_mean", "precip_mean", "latitude", "longitude")
+missing_cols <- setdiff(required_cols, names(df_raw))
 if (length(missing_cols) > 0) {
-  stop(paste("Input file is missing required columns:", 
-             paste(missing_cols, collapse = ", ")))
+  log_error("Missing required columns in input: ", paste(missing_cols, collapse = ", "))
+  stop("Input file missing required columns.")
 }
 
-# Ensure numeric types for climate variables
-df$temp <- as.numeric(df$temp)
-df$precip <- as.numeric(df$precip)
+# --- Data Cleaning & Validation ---
+log_info("Validating data integrity...")
 
-# Filter out rows with NA climate values to ensure accurate means
-# (Though T014 should have handled this, we double-check)
-valid_rows <- complete.cases(df[, required_cols])
-if (sum(!valid_rows) > 0) {
-  log_warning(paste("Removing", sum(!valid_rows), 
-                    "records with NA climate values."))
-  df <- df[valid_rows, ]
+# Filter out rows with missing climate values (NA) as per data hygiene requirements
+initial_count <- nrow(df_raw)
+df_clean <- df_raw[!is.na(df_raw$temp_mean) & !is.na(df_raw$precip_mean), ]
+filtered_count <- initial_count - nrow(df_clean)
+
+if (filtered_count > 0) {
+  log_warn(paste("Filtered out", filtered_count, "rows due to NA climate values."))
 }
 
-# T015a: Calculate arithmetic mean of climate variables per species/period
-log_info("Computing centroids (arithmetic means) per species and period...")
+# Filter out rows with invalid coordinates (NA or outside reasonable bounds)
+df_clean <- df_clean[!is.na(df_clean$latitude) & !is.na(df_clean$longitude), ]
+after_coord_filter <- nrow(df_clean)
+coord_filtered <- nrow(df_clean) - after_coord_filter
 
-# Use base R aggregate to compute means
+if (coord_filtered > 0) {
+  log_warn(paste("Filtered out", coord_filtered, "rows due to invalid coordinates."))
+}
+
+# Ensure coordinates are within valid ranges
+df_clean <- df_clean[df_clean$latitude >= -90 & df_clean$latitude <= 90, ]
+df_clean <- df_clean[df_clean$longitude >= -180 & df_clean$longitude <= 180, ]
+final_count <- nrow(df_clean)
+
+log_info(paste("Total records processed:", initial_count))
+log_info(paste("Records after cleaning:", final_count))
+
+if (final_count == 0) {
+  log_error("No valid records remaining after cleaning.")
+  stop("No valid data to process.")
+}
+
+# --- Output 1: Save Raw Points with Climate (Intermediate Artifact for FR-005) ---
+log_info("Saving intermediate artifact: points_with_climate.csv")
+
+# Select specific columns for the output to ensure consistency
+points_output <- df_clean[, c("species", "period", "latitude", "longitude", "temp_mean", "precip_mean")]
+
+tryCatch({
+  write.csv(points_output, OUTPUT_POINTS, row.names = FALSE)
+  log_info(paste("Successfully saved", nrow(points_output), "records to", OUTPUT_POINTS))
+}, error = function(e) {
+  log_error("Failed to write points_with_climate.csv: ", e$message)
+  stop(e)
+})
+
+# --- Output 2: Compute Centroids (Aggregated Means) ---
+log_info("Computing centroids per species and period...")
+
 # Group by species and period, calculate mean of temp and precip
-centroids <- aggregate(
-  cbind(temp, precip) ~ species + period,
-  data = df,
-  FUN = mean,
-  na.rm = TRUE
+centroids_list <- list()
+
+unique_species <- unique(df_clean$species)
+unique_periods <- unique(df_clean$period)
+
+results <- data.frame(
+  species = character(),
+  period = character(),
+  temp_mean_centroid = numeric(),
+  precip_mean_centroid = numeric(),
+  record_count = integer(),
+  stringsAsFactors = FALSE
 )
 
-# Add metadata columns
-centroids$computed_at <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
-centroids$record_count <- ave(df$temp, df$species, df$period, FUN = length)
-
-# Reorder columns for clarity
-centroids <- centroids[, c("species", "period", "temp", "precip", "record_count", "computed_at")]
-
-# Write centroids output
-log_info(paste("Writing centroids to:", centroids_output))
-write.csv(centroids, centroids_output, row.names = FALSE)
-
-# Verify output
-if (!file.exists(centroids_output)) {
-  stop("Failed to write centroids output file.")
+for (sp in unique_species) {
+  for (per in unique_periods) {
+    subset_data <- df_clean[df_clean$species == sp & df_clean$period == per, ]
+    
+    if (nrow(subset_data) > 0) {
+      temp_mean_val <- mean(subset_data$temp_mean, na.rm = TRUE)
+      precip_mean_val <- mean(subset_data$precip_mean, na.rm = TRUE)
+      
+      results <- rbind(results, data.frame(
+        species = sp,
+        period = per,
+        temp_mean_centroid = temp_mean_val,
+        precip_mean_centroid = precip_mean_val,
+        record_count = nrow(subset_data),
+        stringsAsFactors = FALSE
+      ))
+    } else {
+      log_warn(paste("No data found for species:", sp, "period:", per))
+    }
+  }
 }
 
-log_success(paste("Successfully generated", nrow(centroids), "centroid records."))
+# Write Centroids CSV
+tryCatch({
+  write.csv(results, OUTPUT_CENTROIDS, row.names = FALSE)
+  log_info(paste("Successfully saved", nrow(results), "centroids to", OUTPUT_CENTROIDS))
+}, error = function(e) {
+  log_error("Failed to write centroids.csv: ", e$message)
+  stop(e)
+})
 
-# T015b: Ensure points_with_climate.csv is written (as intermediate artifact)
-# The input file is already points_with_climate.csv, but we ensure it is 
-# explicitly written to the output location as required by the task spec.
-log_info("Ensuring points_with_climate.csv is present as intermediate artifact...")
-write.csv(df, input_file, row.names = FALSE)
+# --- Final Logging ---
+log_info("compute_centroids.R completed successfully.")
+log_info(paste("Output files:", OUTPUT_CENTROIDS, "and", OUTPUT_POINTS))
 
-log_success("Centroid computation and intermediate artifact generation complete.")
-
-# Return invisible to allow sourcing
-invisible(TRUE)
+# Return invisible for sourcing
+invisible(results)

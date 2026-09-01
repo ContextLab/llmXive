@@ -83,8 +83,8 @@
 
 - [X] T013 [US1] Implement `src/code/fetch_gbif.R` to query GBIF for `PRESERVED_SPECIMEN` using species list from `data/species_list.csv` (or CLI arg), parse dates, filter by ≥50 year span, and save raw CSV to `data/raw/`
 - [X] T014 [US1] Implement `src/code/extract_climate.R` to extract mean annual temp (°C) and precip (mm) from WorldClim v2 layers (loaded via T007) for 1970-2000 and 1991-2020, handling NAs
-- [ ] T015a [US1] Implement `src/code/compute_centroids.R` to calculate arithmetic mean of climate variables per species/period and output `data/processed/centroids.csv` (aggregated means)
-- [ ] T015b [US1] Implement `src/code/compute_centroids.R` to also output `data/processed/points_with_climate.csv` (raw occurrence points with climate values) as an intermediate artifact specifically for FR-005 global z-scoring <!-- FAILED: unspecified -->
+- [X] T015a [US1] Implement `src/code/compute_centroids.R` to calculate arithmetic mean of climate variables per species/period and output `data/processed/centroids.csv` (aggregated means)
+- [X] T015b [US1] Implement `src/code/compute_centroids.R` to also output `data/processed/points_with_climate.csv` (raw occurrence points with climate values) as an intermediate artifact specifically for FR-005 global z-scoring <!-- FAILED: unspecified -->
 - [X] T017 [US1] Enhance logging in `src/code/fetch_gbif.R` and `compute_centroids.R` to record record counts, filtering decisions, and species warnings (FR-010) <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -101,11 +101,11 @@
 
 - [X] T018 [P] [US2] Unit test for Euclidean distance calculation in standardized climate space in `tests/unit/test_shifts.R`
 - [X] T019 [P] [US2] Unit test for regional warming calculation (independent grid) in `tests/unit/test_regional_warming.R`
-- [ ] T020 [P] [US2] Integration test: Verify PGLS regression output schema and plot generation in `tests/integration/test_us2_regression.R` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T020 [P] [US2] Integration test: Verify PGLS regression output schema and plot generation in `tests/integration/test_us2_regression.R` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `src/code/compute_shifts.R` to perform global z-scoring (temp, precip) across ALL species occurrence points pooled (from `data/processed/points_with_climate.csv`) and calculate Euclidean distance (ΔN) between periods (FR-005) <!-- ATOMIZE: requested -->
+- [X] T021 [US2] Implement `src/code/compute_shifts.R` to perform global z-scoring (temp, precip) across ALL species occurrence points pooled (from `data/processed/points_with_climate.csv`) and calculate Euclidean distance (ΔN) between periods (FR-005) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T022 [US2] Implement `src/code/compute_regional_warming.R` to calculate ΔT from WorldClim rasters by computing the zonal mean over the species' occurrence envelope (bounding box from min/max lat/lon of species points) using an *independent regional climate grid* to avoid circularity (FR-006)
 - [ ] T023a [US2] Implement `src/code/analyze_shifts.R` to perform regression of ΔN vs ΔT: If `data/phylogeny.tre` exists and is valid, run PGLS (primary method); else run WLS (fallback per Plan). Output slope, 95% CI, R², p-value, and per-region summaries (FR-007, FR-011, Plan Statistical Rigor) <!-- FAILED: unspecified -->
 - [X] T023c [US2] Implement `src/code/analyze_shifts.R` output formatting for regression results (slope, CI, R², p-value) and per-region summaries (FR-011)
@@ -135,7 +135,7 @@
 - [X] T031 [US3] Implement `src/code/sensitivity.R` to perform a set of random subsamples of [deferred] of records per species using `set.seed(42)` for reproducibility (FR-009) <!-- FAILED: unspecified -->
 - [X] T032 [US3] Implement `src/code/sensitivity.R` to recompute niche shift magnitude for each replicate and calculate mean/SD of shifts
 - [X] T033 [US3] Add logic in `src/code/sensitivity.R` to flag species with SD ≥ 0.2 climate-space units and skip species with <80 records (FR-009)
-- [ ] T034 [US3] Output `results/sensitivity_summary.csv` and append detailed log entries for subsampling outcomes (FR-010) <!-- FAILED: unspecified -->
+- [X] T034 [US3] Output `results/sensitivity_summary.csv` and append detailed log entries for subsampling outcomes (FR-010) <!-- FAILED: unspecified -->
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -146,12 +146,12 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T035 [P] Run `testthat` suite for all unit and integration tests
-- [ ] T036a [P] Validate SC-001: Check logs to confirm ≥90% of supplied species with ≥50 valid records produced a complete `centroids.csv` record for both periods
+- [ ] T036a [P] Validate SC-001: Check logs to confirm ≥90% of supplied species with ≥50 valid records produced a complete `centroids.csv` record for both periods <!-- FAILED: unspecified -->
 - [ ] T036b [P] Validate SC-006: Check per-region regression summary to confirm ≥80% of regions produced computable results (count of regions with valid results / total regions)
-- [~] T037 [P] Verify all PNG plots meet 1200x800px resolution requirement (SC-004)
-- [~] T038 [P] Validate log file warning ratio is ≤5% of total processed records (SC-005)
-- [~] T039 [P] Run `quickstart.md` validation to ensure end-to-end pipeline execution completes within 6 hours <!-- FAILED: unspecified -->
-- [~] T040 [P] Final documentation update: Ensure `research.md` and `data-model.md` reflect final query parameters and checksums
+- [ ] T037 [P] Verify all PNG plots meet 1200x800px resolution requirement (SC-004)
+- [ ] T038 [P] Validate log file warning ratio is ≤5% of total processed records (SC-005)
+- [ ] T039 [P] Run `quickstart.md` validation to ensure end-to-end pipeline execution completes within 6 hours <!-- FAILED: unspecified -->
+- [ ] T040 [P] Final documentation update: Ensure `research.md` and `data-model.md` reflect final query parameters and checksums
 
 ---
 

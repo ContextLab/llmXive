@@ -1,115 +1,91 @@
-#' Generate Visualization for Niche Shifts vs Regional Warming
-#'
-#' Creates a scatter plot of ΔN vs ΔT, colored by taxonomic group.
-#'
-#' @param input_results Path to results/regression_results.csv
-#' @param input_shifts Path to data/processed/shifts.csv
-#' @param output_plot Path to figures/shifts_vs_warming.png
-#' @param log_path Path to logs/analysis.log
-#' @param width Plot width in pixels
-#' @param height Plot height in pixels
-#'
-#' @export
-generate_plot <- function(
-  input_results = "results/regression_results.csv",
-  input_shifts = "data/processed/shifts.csv",
-  output_plot = "figures/shifts_vs_warming.png",
-  log_path = "logs/analysis.log",
-  width = 1200,
-  height = 800
-) {
-  # Load utilities
-  source("src/code/utils.R")
+# src/code/plotting.R
+# Generate visualization of niche shift vs regional warming
+# Includes detailed logging per FR-010.
 
-  # Initialize logging
-  init_logging(log_path, task = "T027-Plotting")
-  log_msg("INFO", "Starting plot generation (T027)")
-  log_msg("INFO", paste("Input results:", input_results))
-  log_msg("INFO", paste("Input shifts:", input_shifts))
-  log_msg("INFO", paste("Output plot:", output_plot))
+library(ggplot2)
+library(dplyr)
+library(here)
 
-  # Check inputs
-  if (!file.exists(input_shifts)) {
-    log_msg("ERROR", "Shifts file not found.")
-    stop("Shifts file missing")
-  }
-  if (!file.exists(input_results)) {
-    log_msg("WARN", "Results file not found. Plotting will proceed without regression line.")
-  }
+# Source utility functions
+source(here("src", "code", "utils.R"))
 
-  # Load data
-  shifts <- read.csv(input_shifts, stringsAsFactors = FALSE)
-  log_msg("INFO", paste("Loaded", nrow(shifts), "shift records for plotting"))
+# Configuration
+log_file <- here("logs", "plotting.log")
+input_shifts <- here("data", "processed", "shifts.csv")
+input_centroids <- here("data", "processed", "centroids.csv")
+output_plot <- here("results", "niche_shift_vs_warming.png")
+resolution_w <- 1200
+resolution_h <- 800
 
-  # Ensure required columns exist
-  required_cols <- c("species", "delta_N", "delta_T", "taxonomic_group")
-  missing_cols <- setdiff(required_cols, names(shifts))
-  if (length(missing_cols) > 0) {
-    log_msg("ERROR", paste("Missing columns:", paste(missing_cols, collapse = ", ")))
-    stop("Missing required columns in shifts data")
-  }
+# Initialize logging
+init_logging(log_file)
+log_message(paste("Starting plotting process for", Sys.time()))
 
-  # Load results for regression line (optional)
-  regression_line <- NULL
-  if (file.exists(input_results)) {
-    results_df <- read.csv(input_results, stringsAsFactors = FALSE)
-    if (nrow(results_df) > 0) {
-      regression_line <- results_df[1, ] # Take first row
-      log_msg("INFO", "Loaded regression parameters for plot line.")
-    }
-  }
+# Check inputs
+if (!file.exists(input_shifts)) {
+  log_error("Input file not found: shifts.csv")
+  stop("Missing input: shifts.csv")
+}
 
-  # Create plot
-  log_msg("INFO", "Constructing ggplot object...")
-  p <- ggplot2::ggplot(shifts, ggplot2::aes(x = delta_T, y = delta_N, color = taxonomic_group)) +
-    ggplot2::geom_point(size = 3, alpha = 0.7) +
-    ggplot2::labs(
-      title = "Niche Shift (ΔN) vs Regional Warming (ΔT)",
-      x = "Regional Warming (ΔT, °C)",
-      y = "Niche Shift Magnitude (ΔN, standard units)",
-      color = "Taxonomic Group"
-    ) +
-    ggplot2::theme_minimal() +
-    ggplot2::theme(
-      plot.title = ggplot2::element_text(hjust = 0.5, size = 16, face = "bold"),
-      axis.title = ggplot2::element_text(size = 12),
-      legend.title = ggplot2::element_text(size = 12)
-    )
+log_message(paste("Loading data from", input_shifts))
+shifts_df <- read.csv(input_shifts, stringsAsFactors = FALSE)
 
-  # Add regression line if available
-  if (!is.null(regression_line)) {
-    log_msg("INFO", "Adding regression line to plot...")
-    slope <- regression_line$slope
-    # Estimate intercept from mean values or assume 0 if not provided (simplified)
-    # Better: re-run lm if data allows, but here we approximate or use provided stats
-    # For robustness, we re-calculate intercept from the data used in regression if possible.
-    # Since we don't have the exact model object, we'll skip the line or draw a rough one.
-    # To be safe, we'll just log that we have the stats but not draw a potentially wrong line.
-    log_msg("INFO", "Regression stats available, but exact intercept not stored. Skipping line overlay to avoid error.")
-    # Alternatively, if we had the model object, we'd do:
-    # p <- p + ggplot2::geom_abline(intercept = intercept, slope = slope, linetype = "dashed")
-  }
+# Validate columns
+required_cols <- c("species", "delta_N", "delta_T", "taxonomic_group")
+if (!all(required_cols %in% names(shifts_df))) {
+  missing <- setdiff(required_cols, names(shifts_df))
+  log_error(paste("Missing columns in shifts.csv:", paste(missing, collapse=", ")))
+  stop("Invalid shifts.csv schema")
+}
 
-  # Save plot
-  log_msg("INFO", paste("Saving plot to", output_plot, "with dimensions", width, "x", height))
-  dir.create(dirname(output_plot), showWarnings = FALSE, recursive = TRUE)
-  ggplot2::ggsave(
+# Filter valid data
+plot_data <- shifts_df %>%
+  filter(!is.na(delta_N), !is.na(delta_T), !is.na(taxonomic_group))
+
+if (nrow(plot_data) == 0) {
+  log_error("No valid data points for plotting.")
+  stop("No data to plot")
+}
+
+log_message(paste("Plotting", nrow(plot_data), "data points."))
+log_message(paste("Taxonomic groups:", paste(unique(plot_data$taxonomic_group), collapse=", ")))
+
+# Create Plot
+log_message("Generating scatter plot (Delta N vs Delta T).")
+
+p <- ggplot(plot_data, aes(x = delta_T, y = delta_N, color = taxonomic_group)) +
+  geom_point(alpha = 0.7, size = 2) +
+  geom_smooth(method = "lm", se = TRUE, color = "black", linetype = "dashed") +
+  labs(
+    title = "Niche Shift Magnitude (ΔN) vs Regional Warming (ΔT)",
+    x = expression(paste("Regional Warming (", delta, "T, ", degree, "C)")),
+    y = expression(paste("Niche Shift (", delta, "N, standardized units)")),
+    caption = paste("Generated by llmXive pipeline on", Sys.Date())
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    legend.position = "right",
+    panel.grid.minor = element_blank()
+  )
+
+log_message("Plot object created. Saving to file.")
+
+# Save Plot
+tryCatch({
+  ggsave(
     filename = output_plot,
     plot = p,
-    width = width / 100, # Convert px to inches (assuming 100 DPI)
-    height = height / 100,
-    dpi = 100
+    width = resolution_w / 100, # Convert px to inches (approx 100dpi base)
+    height = resolution_h / 100,
+    dpi = 150, # Ensure high resolution
+    limitsize = FALSE
   )
-  log_msg("INFO", "Plot saved successfully.")
-}
+  log_message(paste("Plot saved successfully to", output_plot))
+  log_message(paste("Resolution: ", resolution_w, "x", resolution_h, "px"))
+}, error = function(e) {
+  log_error(paste("Failed to save plot:", e$message))
+  stop("Plot save failed")
+})
 
-# Run if called directly
-if (!interactive()) {
-  args <- commandArgs(trailingOnly = TRUE)
-  if (length(args) > 0) {
-    # Parse arguments if needed
-    generate_plot()
-  } else {
-    generate_plot()
-  }
-}
+log_message("Plotting process completed.")

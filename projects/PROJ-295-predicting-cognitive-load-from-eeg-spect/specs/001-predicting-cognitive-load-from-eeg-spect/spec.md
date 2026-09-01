@@ -63,9 +63,9 @@ The system must train a Ridge Regression model to predict cognitive load from sp
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and preprocess the OpenNeuro dataset., applying a 1–45 Hz bandpass filter, downsampling to 250 Hz, and removing 50/60 Hz line noise (See US-1).
+- **FR-001**: System MUST download and preprocess the OpenNeuro dataset., applying a bandpass filter with a lower cutoff in the low-frequency range, downsampling to 250 Hz, and removing /60 Hz line noise (See US-1).
 - **FR-002**: System MUST apply Independent Component Analysis (ICA) to remove eye-blink artifacts and retain only clean epochs for analysis (See US-1).
-- **FR-003**: System MUST compute Power Spectral Density (PSD) using Welch's method and extract log-transformed relative power for theta (4–7 Hz) and alpha (8–12 Hz) bands per channel (See US-2).
+- **FR-003**: System MUST compute Power Spectral Density (PSD) using Welch's method and extract log-transformed relative power for theta and alpha bands per channel (See US-2).
 - **FR-004**: System MUST derive a continuous cognitive load proxy label from gaze fixation stability (variance) aligned to each EEG epoch (See US-2).
 - **FR-005**: System MUST train a Ridge Regression model using [deferred] of subjects for training and tune the regularization alpha via subject-wise 5-fold cross-validation (See US-3).
 - **FR-006**: System MUST evaluate model performance using Pearson correlation and RMSE on a [deferred] held-out test set and compare against a mean-baseline predictor (See US-3).
@@ -99,4 +99,4 @@ The system must train a Ridge Regression model to predict cognitive load from sp
 - The Ridge Regression model with L2 regularization is sufficient to handle potential collinearity among EEG channels without requiring more complex, GPU-accelerated deep learning architectures.
 - The sufficiency of the sample size to detect a moderate effect size (R² ≥ 0.2) is a hypothesis to be tested via power analysis during the research phase, rather than a pre-existing fact, given the constraints of a CPU-only environment.
 - The 1–45 Hz frequency range is sufficient to capture the relevant theta and alpha spectral power changes associated with cognitive load, ignoring higher frequency bands (gamma) which may be more susceptible to noise.
-- The computational complexity of the ICA and Welch's PSD methods on the downsampled (250 Hz) data will not exceed the 6-hour runtime limit of the GitHub Actions runner.
+- The computational complexity of the ICA and Welch's PSD methods on the downsampled data will not exceed the 6-hour runtime limit of the GitHub Actions runner.

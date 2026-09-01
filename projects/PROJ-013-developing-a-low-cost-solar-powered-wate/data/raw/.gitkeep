@@ -1,2 +1,2 @@
-# This directory stores raw data fetched from external sources (e.g., NASA POWER, NIST).
-# Do not commit generated files here; add them to .gitignore.
+# This directory stores raw data files.
+# Files here are typically large or from external sources.

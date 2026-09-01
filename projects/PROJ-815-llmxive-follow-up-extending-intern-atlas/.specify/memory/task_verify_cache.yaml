@@ -1,25 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directory tree (`projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/...`)\
-    \ was provided; the implementer did not supply a listing, screenshot, or any file\u2011\
-    system artifact confirming that the specified folders exist. The task cannot be\
-    \ considered complete until the full project structure is created and verified."
-T002:
-  c: false
-  h: 421c904c3fe11ac338b2103869e24d55914e41c65c844454393f1297950f7290
-  r: The required file `projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/requirements.txt`
-    does not exist, and the existing `requirements.txt` uses version ranges instead
-    of exact pins from `pip freeze`. The task demands a deterministic, pinned requirements
-    file at the specified project path.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,
-    `pyproject.toml` with Black settings) or setup scripts are present in the provided
-    evidence, so the requirement to configure ruff/flake8 and Black is not satisfied.
-    The implementer must add the appropriate configuration files and ensure they are
-    integrated into the project's workflow.
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

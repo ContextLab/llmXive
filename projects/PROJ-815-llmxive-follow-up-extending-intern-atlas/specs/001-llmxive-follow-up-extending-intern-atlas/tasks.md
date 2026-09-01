@@ -83,7 +83,7 @@
 
 - [X] T013 [P] [US1] Implement `code/data/extract_intern_atlas.py`: Load graph, filter nodes by year (2010-2018), **import and call `abort_if_llm_inferred()` from `code/utils/graph_utils.py`** to enforce human-annotated edge types; if LLM-inferred types found, **ABORT immediately**. Handle missing edge types.
 - [ ] T014 [P] [US1] Implement `code/data/compute_features.py`: Calculate `bottleneck_resolution_ratio` (improves/replaces edges / total outgoing) and `branching_entropy` (Shannon entropy of downstream method types); handle nodes with 0 outgoing edges gracefully
-- [X] T015 [P] [US1] Implement `code/data/merge_retractions.py`: Map nodes to retraction databases using exact DOI match first, then Levenshtein fuzzy match (ratio >= 0.85) for title/author [UNRESOLVED-CLAIM: c_9293ddf6 — status=not_enough_info]; implement duplicate resolution (earliest date, then alphabetical journal)
+- [X] T015 [P] [US1] Implement `code/data/merge_retractions.py`: Map nodes to retraction databases using exact DOI match first, then Levenshtein fuzzy match (ratio >= 0.85) for title/author; implement duplicate resolution (earliest date, then alphabetical journal)
 - [ ] T016 [US1] Implement label mapping logic in `code/data/merge_retractions.py` to assign label `1` (Fragile), `2` (Retraction-Only), or `0` (Robust) based on retraction reason (FR-004); **Output must preserve all three states in `data/processed/features_2010_2018.csv`**. **Write test cases to `tests/unit/test_label_mapping.py`** with the following specific functions and assertions:
  - `test_label_mapping_methodological_error_returns_1`: Input reason="methodological error", Expected output=1.
  - `test_label_mapping_fraud_returns_2`: Input reason="fraud", Expected output=2.
