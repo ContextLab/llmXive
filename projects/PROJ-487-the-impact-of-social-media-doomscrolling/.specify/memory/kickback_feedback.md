@@ -4,10 +4,12 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T013` (rejected 1x): The provided `fetch_google_trends.py` contains the fetch and retry logic but does not include code that writes the retrieved data to `data/raw/google_trends.csv` nor records its MD5 checksum, and the expected CSV file is absent from the repository. The task’s core output (the CSV file and its checksum) is therefore missing.
-- `T019` (rejected 1x): No `preprocess.py` file or code snippet was provided, and there is no evidence that z‑score normalization after stationarity testing has been implemented. The required artifact is missing, so the task is not satisfied.
-- `T020` (rejected 1x): No `preprocess.py` file (or any code) was provided showing the implementation of z‑score normalization after stationarity checks; without the artifact we cannot confirm the required functionality exists. The next implementer must add or supply the updated `preprocess.py` containing the normalization step.
-- `T022` (rejected 1x): No code, script, or test artifact was provided showing that a validation check was added to abort with the message “Insufficient data for Granger causality” when the time‑series length is under 20. Without a concrete implementation or evidence of the new behavior, the requirement is not satisfied.
+- `T001` (rejected 1x): No evidence of a `.project_init.json` file in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/` was provided, nor any displayed content matching the required JSON. The implementer must create the file with the exact specified fields and values.
+- `T002` (rejected 1x): No evidence of the required directories (`data/raw/`, `data/processed/`, `data/reports/` under `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`) or the `.gitkeep` files within them is provided. The implementer must add these folders and place a `.gitkeep` file in each to satisfy the task.
+- `T003` (rejected 1x): No evidence of the required directories (`code/data/`, `code/tests/`, `code/utils/`) or the `__init__.py` files within them is provided; without these artifacts the task is not satisfied.
+- `T008` (rejected 1x): The `validation.py` module exists, but the required schema files (`contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`) are missing, and the provided code is truncated so it’s unclear whether it actually validates data against those specific schemas. Without the schemas (or a stub that loads them) the utility cannot fulfill the task’s requirement.
+- `T015` (rejected 1x): declared artifact(s) missing/empty/invalid: data/raw/gdelt_events.csv, data/raw/google_trends.csv
+- `T021` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/aligned_timeseries.csv, data/processed/stationarity_check.csv
 
 ## Required change
 

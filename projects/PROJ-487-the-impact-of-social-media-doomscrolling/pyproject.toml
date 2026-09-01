@@ -1,66 +1,7 @@
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "proj-487-news-volume-anxiety"
-version = "0.1.0"
-description = "Analysis of aggregate negative news publication volume on anticipatory anxiety"
-readme = "README.md"
-requires-python = ">=3.8"
-dependencies = [
-    "pandas",
-    "numpy",
-    "statsmodels",
-    "requests",
-    "scikit-learn",
-    "matplotlib",
-    "seaborn",
-    "pyyaml",
-    "pytrends",
-    "reportlab",
-    "python-dotenv",
-    "jsonschema",
-]
-
-[project.optional-dependencies]
-dev = [
-    "flake8",
-    "black",
-    "isort",
-    "pytest",
-    "responses",
-    "pytest-cov",
-]
-
 [tool.black]
-line-length = 100
-target-version = ['py39', 'py310', 'py311']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-)/
-'''
+line-length = 88
+target-version = ['py311']
 
-[tool.isort]
-profile = "black"
-line_length = 88
-known_first_party = ["code", "utils", "data", "tests"]
-known_third_party = ["pandas", "numpy", "statsmodels", "requests", "sklearn", "matplotlib", "seaborn", "yaml", "reportlab", "dotenv", "jsonschema"]
-skip = [".git", ".venv", "venv", "build", "dist", "__pycache__"]
-
-[tool.pytest.ini_options]
-testpaths = ["code/tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
+[tool.flake8]
+max-line-length = 88
+ignore = ["E203", "W503"]

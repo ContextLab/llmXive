@@ -10,21 +10,38 @@ from statsmodels.tsa.stattools import adfuller
 # Ensure the project root is in the path so we can import the module
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from data.preprocess import test_stationarity, ensure_stationarity
+from data.preprocess import test_stationarity, ensure_stationarity, align_timestamps
 
 class TestTimestampAlignment(unittest.TestCase):
     """Existing test class for timestamp alignment (T016)."""
     
     def test_timestamp_alignment_intersection(self):
         """Test that align_timestamps returns only the intersection of dates."""
-        from data.preprocess import align_timestamps
         
         # Create two dataframes with overlapping date ranges
+        # Range 1: 2020-01-01 to 2020-06-30
         dates1 = pd.date_range(start='2020-01-01', end='2020-06-30', freq='D')
+        # Range 2: 2020-03-01 to 2020-09-30
         dates2 = pd.date_range(start='2020-03-01', end='2020-09-30', freq='D')
         
-        df1 = pd.DataFrame({'date': dates1, 'gdelt_count': np.random.rand(len(dates1))})
-        df2 = pd.DataFrame({'date': dates2, 'trends_score': np.random.rand(len(dates2))})
+        # Create distinct values to verify preservation
+        # Use a simple formula so we can predict values if needed, 
+        # but primarily checking the date range intersection.
+        np.random.seed(42)
+        df1 = pd.DataFrame({
+            'date': dates1, 
+            'gdelt_count': np.random.rand(len(dates1)) * 100
+        })
+        df2 = pd.DataFrame({
+            'date': dates2, 
+            'trends_score': np.random.rand(len(dates2)) * 100
+        })
+        
+        # Include a zero value in the intersection to verify preservation logic
+        # Find a date in the intersection (e.g., 2020-03-15)
+        intersection_start = pd.Timestamp('2020-03-01')
+        test_date_idx = (intersection_start - dates1[0]).days
+        df1.loc[test_date_idx, 'gdelt_count'] = 0.0
         
         result = align_timestamps(df1, df2)
         
@@ -32,12 +49,29 @@ class TestTimestampAlignment(unittest.TestCase):
         expected_start = pd.Timestamp('2020-03-01')
         expected_end = pd.Timestamp('2020-06-30')
         
-        self.assertEqual(result['date'].min(), expected_start)
-        self.assertEqual(result['date'].max(), expected_end)
-        self.assertEqual(len(result), (expected_end - expected_start).days + 1)
+        self.assertEqual(result['date'].min(), expected_start, 
+                         f"Start date {result['date'].min()} should be {expected_start}")
+        self.assertEqual(result['date'].max(), expected_end, 
+                         f"End date {result['date'].max()} should be {expected_end}")
         
-        # Verify zero values are preserved (not interpolated) if they existed in the intersection
-        # (This is a basic check; more rigorous checks would verify specific interpolation logic)
+        # Calculate expected length: inclusive of start and end
+        expected_length = (expected_end - expected_start).days + 1
+        self.assertEqual(len(result), expected_length, 
+                         f"Length {len(result)} should be {expected_length}")
+        
+        # Verify zero values are preserved (not interpolated to non-zero)
+        # Check the specific row where we set 0.0 in df1
+        # In the result, the date should be 2020-03-15 (or similar in range)
+        # We check that the value is 0.0, not interpolated to something else
+        mask = result['date'] == pd.Timestamp('2020-03-15')
+        if mask.any():
+            val = result.loc[mask, 'gdelt_count'].iloc[0]
+            self.assertEqual(val, 0.0, "Zero value should be preserved, not interpolated")
+        
+        # Verify that columns are correctly aligned
+        self.assertIn('gdelt_count', result.columns)
+        self.assertIn('trends_score', result.columns)
+        self.assertIn('date', result.columns)
 
 class TestADFStationarity(unittest.TestCase):
     """Test class for ADF test and differencing logic (T017)."""

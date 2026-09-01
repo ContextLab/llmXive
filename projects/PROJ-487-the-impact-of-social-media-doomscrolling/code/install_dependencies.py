@@ -1,78 +1,74 @@
 """
-Task T005: Install dependencies from code/requirements.txt.
-
-This script installs the required packages and verifies their presence.
-It is designed to be run within the project's virtual environment.
+Script to install project dependencies from requirements.txt.
+This script ensures all dependencies listed in code/requirements.txt are installed
+in the current Python environment.
 """
 import os
 import sys
 import subprocess
 from pathlib import Path
+import logging
 
-def main():
-    project_root = Path(__file__).parent.parent
-    requirements_path = project_root / "code" / "requirements.txt"
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+def install_dependencies():
+    """
+    Install dependencies from code/requirements.txt.
+    
+    Raises:
+        SystemExit: If installation fails.
+    """
+    # Determine the project root (parent of 'code' directory)
+    current_file = Path(__file__).resolve()
+    code_dir = current_file.parent
+    project_root = code_dir.parent
+    requirements_path = code_dir / "requirements.txt"
 
     if not requirements_path.exists():
-        print(f"ERROR: requirements.txt not found at {requirements_path}")
+        logger.error(f"Requirements file not found at: {requirements_path}")
         sys.exit(1)
 
-    logger = logging.getLogger(__name__)
-    logger.info(f"Installing dependencies from {requirements_path}")
+    logger.info(f"Installing dependencies from: {requirements_path}")
 
-    # Install dependencies
     try:
-        subprocess.run(
-            [sys.executable, "-m", "pip", "install", "-r", str(requirements_path)],
+        # Use pip from the current interpreter to ensure we install into the right env
+        result = subprocess.run(
+            [sys.executable, "-m", "pip", "install", "-r", str(requirements_path), "--upgrade"],
             check=True,
-            capture_output=False
+            capture_output=True,
+            text=True
         )
+        
+        logger.info("Installation output:")
+        if result.stdout:
+            for line in result.stdout.splitlines():
+                logger.info(line)
+        
+        if result.stderr:
+            for line in result.stderr.splitlines():
+                logger.warning(line)
+
+        logger.info("Dependencies installed successfully.")
+        
     except subprocess.CalledProcessError as e:
-        print(f"ERROR: Failed to install dependencies: {e}")
+        logger.error(f"Failed to install dependencies. Exit code: {e.returncode}")
+        if e.stdout:
+            logger.error(e.stdout)
+        if e.stderr:
+            logger.error(e.stderr)
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error during installation: {e}")
         sys.exit(1)
 
-    # Required packages to verify
-    required_packages = [
-        "pandas",
-        "numpy",
-        "statsmodels",
-        "requests",
-        "scikit-learn",
-        "matplotlib",
-        "seaborn",
-        "pyyaml",
-        "pytrends"
-    ]
-
-    print("\nVerifying installed packages...")
-    all_present = True
-
-    for package in required_packages:
-        try:
-            # Use pip list to verify presence
-            result = subprocess.run(
-                [sys.executable, "-m", "pip", "list"],
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            if package.lower() in result.stdout.lower():
-                print(f"✓ {package} is installed")
-            else:
-                print(f"✗ {package} is MISSING")
-                all_present = False
-        except subprocess.CalledProcessError as e:
-            print(f"✗ Error checking {package}: {e}")
-            all_present = False
-
-    if not all_present:
-        print("\nERROR: One or more required packages are missing.")
-        sys.exit(1)
-
-    print("\nAll dependencies installed and verified successfully.")
-    sys.exit(0)
+def main():
+    """Entry point for the script."""
+    install_dependencies()
 
 if __name__ == "__main__":
-    import logging
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     main()

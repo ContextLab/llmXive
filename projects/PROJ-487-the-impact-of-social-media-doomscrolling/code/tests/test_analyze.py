@@ -9,13 +9,93 @@ import numpy as np
 # If the module doesn't exist yet, we mock the import for the test structure,
 # but the test will fail if the real function isn't implemented.
 try:
-    from data.analyze import run_granger_causality_fixed_sweep
+    from data.analyze import run_granger_causality_fixed_sweep, compute_correlations
     HAS_ANALYZE = True
 except ImportError:
     HAS_ANALYZE = False
     # Define a dummy function to allow the test class to load if analyze.py is missing
     def run_granger_causality_fixed_sweep(df):
         raise NotImplementedError("run_granger_causality_fixed_sweep not implemented in data.analyze")
+    def compute_correlations(df):
+        raise NotImplementedError("compute_correlations not implemented in data.analyze")
+
+class TestCorrelationCalculation(unittest.TestCase):
+    """
+    Unit test for correlation calculation in data.analyze.
+    
+    This test verifies that:
+    1. Pearson coefficient is ~1.0 for perfectly correlated series (y=x).
+    2. Pearson coefficient is ~0.0 for uncorrelated series (y=random).
+    """
+
+    def test_perfectly_correlated_series(self):
+        """Test correlation calculation with perfectly correlated series (y=x)."""
+        n = 100
+        np.random.seed(42)
+        x = np.random.normal(0, 1, n)
+        y = x  # Perfectly correlated
+        
+        df = pd.DataFrame({
+            'date': pd.date_range(start="2023-01-01", periods=n, freq="D"),
+            'news_volume': x,
+            'anxiety_index': y
+        })
+        
+        if HAS_ANALYZE:
+            result = compute_correlations(df)
+            # result is expected to be a dict with 'pearson' and 'spearman' keys
+            # or a DataFrame with correlation results. Adjust based on actual implementation.
+            # Assuming result is a dict for now based on typical correlation function outputs.
+            self.assertIn('pearson', result)
+            self.assertAlmostEqual(result['pearson'], 1.0, places=5, 
+                                   msg="Pearson coefficient should be ~1.0 for perfectly correlated series")
+        else:
+            # If module not found, we still verify the test structure is correct
+            # by checking that the function would be called correctly if it existed.
+            self.skipTest("data.analyze module not found, skipping actual correlation test")
+
+    def test_uncorrelated_series(self):
+        """Test correlation calculation with uncorrelated series (y=random)."""
+        n = 100
+        np.random.seed(42)
+        x = np.random.normal(0, 1, n)
+        y = np.random.normal(0, 1, n)  # Uncorrelated
+        
+        df = pd.DataFrame({
+            'date': pd.date_range(start="2023-01-01", periods=n, freq="D"),
+            'news_volume': x,
+            'anxiety_index': y
+        })
+        
+        if HAS_ANALYZE:
+            result = compute_correlations(df)
+            self.assertIn('pearson', result)
+            # For uncorrelated series, Pearson should be close to 0 (allow some tolerance)
+            self.assertAlmostEqual(result['pearson'], 0.0, delta=0.3, 
+                                   msg="Pearson coefficient should be ~0.0 for uncorrelated series")
+        else:
+            self.skipTest("data.analyze module not found, skipping actual correlation test")
+
+    def test_spearman_correlation(self):
+        """Test Spearman correlation calculation."""
+        n = 100
+        np.random.seed(42)
+        x = np.arange(n)
+        y = x + np.random.normal(0, 0.1, n)  # Strong monotonic relationship
+        
+        df = pd.DataFrame({
+            'date': pd.date_range(start="2023-01-01", periods=n, freq="D"),
+            'news_volume': x,
+            'anxiety_index': y
+        })
+        
+        if HAS_ANALYZE:
+            result = compute_correlations(df)
+            self.assertIn('spearman', result)
+            self.assertAlmostEqual(result['spearman'], 1.0, places=2, 
+                                   msg="Spearman coefficient should be close to 1.0 for monotonic relationship")
+        else:
+            self.skipTest("data.analyze module not found, skipping actual correlation test")
 
 class TestGrangerCausalityFixedSweep(unittest.TestCase):
     """

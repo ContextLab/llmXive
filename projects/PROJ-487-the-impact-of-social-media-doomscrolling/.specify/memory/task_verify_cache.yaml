@@ -1,60 +1,78 @@
-T001:
+T004a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `.project_init.json` file in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`
-    was provided, nor any displayed content matching the required JSON. The implementer
-    must create the file with the exact specified fields and values.
-T002:
+  r: No evidence of a `venv` directory or the required `venv/bin/activate` script
+    was provided; the implementer did not supply any artifact confirming the virtual
+    environment was created. The missing `venv/bin/activate` file must be shown to
+    satisfy the task.
+T004b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`data/raw/`, `data/processed/`, `data/reports/`
-    under `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`) or the `.gitkeep`
-    files within them is provided. The implementer must add these folders and place
-    a `.gitkeep` file in each to satisfy the task.
-T003:
+  r: No evidence was presented showing that `projects/PROJ-487-the-impact-of-social-media-doomscrolling/venv/bin/activate`
+    exists; the implementer did not provide a directory listing, screenshot, or any
+    file verification output. The required artifact is missing.
+T010a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`code/data/`, `code/tests/`, `code/utils/`)
-    or the `__init__.py` files within them is provided; without these artifacts the
-    task is not satisfied.
-T004:
+  r: The claim that a `test_fetch_gdelt.py` file exists in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/tests/`
+    cannot be verified because no such file or its contents were provided. The required
+    test file is missing from the evidence, so the task is not satisfied.
+T010b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `venv` directory (or activation script) was provided in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`,
-    nor any documentation showing the environment was created and activated. The required
-    artifact is missing.
-T008:
-  c: false
-  h: beac17a4f42ec6e179ee58749766d306d215bb8999ca20136875563c5bf61227
-  r: "The `code/utils/validation.py` file is present, but it does not show any logic\
-    \ that specifically loads `contracts/dataset.schema.yaml` or `contracts/output.schema.yaml`,\
-    \ and the required schema files are absent from the repository. Without those\
-    \ schema files and explicit validation against them, the utility cannot fulfill\
-    \ the task\u2019s requirement."
-T011:
-  c: false
-  h: 8ad0eaef581618ad7032c50afc4d1d923dba7c2340819fa6091be6b910e4ef3d
-  r: "The `fetch_gdelt.py` script is incomplete (truncated mid\u2011function, no CSV\u2011\
-    writing logic) and the required output file `data/raw/gdelt_events.csv` does not\
-    \ exist. Consequently the task\u2019s core deliverable\u2014fetching data and\
-    \ saving it to the specified CSV\u2014is not satisfied."
-T012:
-  c: false
-  h: 5164da81acc9769b97f103b6cd9788060103458bcae8325edcca0a46026ee8ff
-  r: "The provided `fetch_gdelt.py` contains retry logic and configuration, but the\
-    \ visible portion ends before any code that actually queries the GDELT EventCount\
-    \ API, filters for negative\u2011sentiment events, writes `data/raw/gdelt_events.csv`,\
-    \ or creates the accompanying MD5 checksum file. Moreover, the expected output\
-    \ CSV (and its .md5 file) are absent from the repository. The implementation must\
-    \ include the data\u2011fetching, CSV\u2011writing, and checksum\u2011generation\
-    \ steps to satisfy the task."
-T014:
+  r: "No `test_fetch_gdelt.py` file or its contents were presented, and there is no\
+    \ evidence that mock logic using the `responses` library was added to simulate\
+    \ two 500\u2011error requests followed by a successful one. The required test\
+    \ artifact is missing."
+T010c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No test code, mock setup, log output, or exit\u2011status evidence was provided\
-    \ to show that `fetch_gdelt.py` and `fetch_google_trends.py` were run with a mocked\
-    \ 500\u2011error, that retries occurred, and that the scripts logged the error\
-    \ and exited with a non\u2011zero code. The required artifacts are missing."
+  r: "No test file `test_fetch_gdelt.py` with a `test_retry_logic_on_failure` function\
+    \ containing the required assertion is present; the claim provides no artifact\
+    \ or code to verify the retry\u2011count check or the final successful response.\
+    \ The required test implementation is missing."
+T011a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `test_fetch_google_trends.py` file in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/tests/`\
+    \ was provided; without the actual test file, the task requirement is not satisfied.\
+    \ The implementer must add the requested test file containing appropriate unit\
+    \ tests for the Google Trends data\u2011fetching functionality."
+T011b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `test_fetch_google_trends.py` file or any test code was presented, and there
+    is no evidence of mock logic that supplies an invalid keyword list and asserts
+    a `ValueError`. The required test artifact is missing.
+T011c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No test file `test_fetch_google_trends.py` with a `test_invalid_keyword_validation`
+    function containing the required ValueError assertion is present; the claim provides
+    no artifact or code to verify. The required test implementation is missing.
+T012a:
+  c: false
+  h: 24f5633a525982cd79c691ea65a4d6ee0d5aba9042e82eee90377bb94844c8c7
+  r: "The `fetch_gdelt.py` script contains only a placeholder implementation and never\
+    \ writes any data to `data/raw/gdelt_events.csv`, which is also missing. Consequently\
+    \ the required fetch logic, CSV output, and full retry\u2011backoff behavior are\
+    \ not present. The task must be completed by implementing real GDELT queries,\
+    \ aggregating `EventCount` for negative sentiment, and saving the results to the\
+    \ specified CSV file."
+T013a:
+  c: false
+  h: 92029609d943bb06fc4e0b34b9bcd44e3e828102d1c82856573c049a526fe1cf
+  r: "The repository contains `fetch_google_trends.py` with retry logic, but the script\
+    \ never creates the required `data/raw/google_trends.csv` (the file is missing)\
+    \ and the shown code does not include any CSV\u2011writing step. Hence the primary\
+    \ output artifact demanded by the task is absent."
+T014a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `test_fetch_error_handling.py` file (or the specific `test_500_exit_code`\
+    \ test) was found in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/tests/`,\
+    \ nor any code showing the required `responses` mock, log verification, and non\u2011\
+    zero exit assertion. The required test artifact is missing."
 T017:
   c: false
   h: b78606058de20d14f4ad7e37a37235c1b876985bfd7a9a6cb7fca3521208d944
@@ -71,13 +89,6 @@ T018:
     (2) respects daily alignment, and (3) linearly interpolates only `NaN` values
     while leaving zeroes untouched. The required raw CSV paths are referenced correctly,
     satisfying the implementation requirement.
-T021:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or test output was provided showing that a validation check\
-    \ was added to abort with the specific error message when the time\u2011series\
-    \ length is under 20. Without an artifact demonstrating this behavior, the requirement\
-    \ is not satisfied."
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

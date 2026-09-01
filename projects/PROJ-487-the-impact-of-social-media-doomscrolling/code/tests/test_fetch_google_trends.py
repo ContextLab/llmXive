@@ -2,141 +2,95 @@ import unittest
 import sys
 import os
 from unittest.mock import patch, MagicMock, call
-
-# Ensure project root is in path for imports
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-
 from utils.logging import get_logger
-
-# We attempt to import the validation logic from the fetch module if it exists.
-# If T012 (implementation) has not run yet, we define the validation logic locally
-# to ensure the unit test can run and verify the logic independently.
-# This satisfies the "Write Test" requirement even if the implementation is pending.
-
-try:
-    from code.data import fetch_google_trends
-    HAS_FETCH_MODULE = True
-    # Check if the module exposes the validation function directly
-    if hasattr(fetch_google_trends, 'validate_keywords'):
-        validate_keywords = fetch_google_trends.validate_keywords
-    else:
-        # Fallback: define locally for testing if the module exists but hides the function
-        # This ensures the test logic is testable regardless of implementation details
-        def validate_keywords(keywords):
-            invalid = []
-            for kw in keywords:
-                if not isinstance(kw, str) or len(kw.strip()) == 0:
-                    invalid.append(kw)
-                # Check for obviously invalid patterns (e.g., only special chars)
-                elif not any(c.isalnum() for c in kw):
-                    invalid.append(kw)
-            if invalid:
-                raise ValueError(f"Invalid keywords detected: {invalid}")
-            return keywords
-except (ImportError, ModuleNotFoundError):
-    HAS_FETCH_MODULE = False
-
-    # Define the expected validation logic locally for the unit test
-    # This represents the contract that T012 must implement.
-    def validate_keywords(keywords):
-        """
-        Validates a list of keywords for Google Trends queries.
-        Raises ValueError if any keyword is invalid (empty, non-string, or invalid chars).
-        """
-        invalid = []
-        for kw in keywords:
-            if not isinstance(kw, str) or len(kw.strip()) == 0:
-                invalid.append(kw)
-            # Check for obviously invalid patterns (e.g., only special chars)
-            elif not any(c.isalnum() for c in kw):
-                invalid.append(kw)
-        
-        if invalid:
-            raise ValueError(f"Invalid keywords detected: {invalid}")
-        return keywords
+from data.fetch_google_trends import fetch_google_trends
 
 class TestGoogleTrendsKeywordValidation(unittest.TestCase):
     """
-    Unit tests for Google Trends keyword validation logic.
-    Ensures that the fetch script validates keywords before querying.
+    Tests for Google Trends keyword validation logic.
+    Specifically tests that invalid keywords raise a ValueError
+    with a message listing the invalid keyword(s).
     """
 
     def setUp(self):
         self.logger = get_logger(__name__)
 
-    def test_valid_keywords(self):
-        """Test that valid, non-empty keywords pass validation."""
-        valid_keywords = ["anticipatory anxiety", "worry about future", "mental health"]
-        result = validate_keywords(valid_keywords)
-        self.assertEqual(result, valid_keywords)
-
-    def test_empty_keyword_rejection(self):
-        """Test that empty or whitespace-only keywords are rejected."""
-        invalid_keywords = ["", "   ", "\t", "\n"]
-        for keyword in invalid_keywords:
-            with self.assertRaises(ValueError):
-                validate_keywords([keyword])
-
-    def test_special_character_handling(self):
-        """Test that keywords with special characters are handled (or rejected if spec says so)."""
-        # Assuming standard strings are allowed, but we test for extreme cases
-        valid_special = ["anxiety (2024)", "worry & stress"]
-        result = validate_keywords(valid_special)
-        self.assertEqual(result, valid_special)
-
-    def test_invalid_keyword_validation(self):
+    @patch('data.fetch_google_trends.pytrends')
+    def test_invalid_keyword_validation(self, mock_pytrends):
         """
-        Test for invalid keyword validation as per T011 spec.
-        Mock: Pass a list containing one invalid keyword (e.g., "!!!invalid!!!").
-        Assertion: Verify the function raises a ValueError with a message listing the invalid keyword.
+        Verify that fetch_google_trends raises a ValueError when
+        provided with a list containing an invalid keyword.
+        The error message must list the invalid keyword.
         """
-        invalid_keyword = "!!!invalid!!!"
-        
+        # Arrange: Setup mock to avoid actual API calls, but we expect
+        # the validation to happen before any API interaction.
+        mock_trends = MagicMock()
+        mock_pytrends.request.TrendReq.return_value = mock_trends
+
+        # Define an invalid keyword (e.g., containing only special characters)
+        invalid_keywords = ["!!!!!", "valid_keyword"]
+
+        # Act & Assert: The function should raise a ValueError
+        # because "!!!!!" is not a valid search term for Google Trends.
         with self.assertRaises(ValueError) as context:
-            validate_keywords([invalid_keyword])
+            fetch_google_trends(invalid_keywords, start_date="2023-01-01", end_date="2023-01-31")
+
+        # Verify the error message contains the invalid keyword
+        error_message = str(context.exception)
+        self.assertIn("!!!!!", error_message,
+                      f"Error message '{error_message}' should list the invalid keyword '!!!!!'")
+
+        self.logger.info("Test passed: ValueError raised with correct message for invalid keyword.")
+
+    @patch('data.fetch_google_trends.pytrends')
+    def test_all_valid_keywords(self, mock_pytrends):
+        """
+        Verify that fetch_google_trends proceeds without raising an error
+        when all keywords are valid (simulated by not raising in validation).
+        """
+        # Arrange
+        mock_trends = MagicMock()
+        mock_pytrends.request.TrendReq.return_value = mock_trends
         
-        # Verify the exception message contains the invalid keyword
-        self.assertIn(invalid_keyword, str(context.exception))
-        self.assertIn("Invalid keywords", str(context.exception))
+        # Mock the build_payload and get_data methods to simulate success
+        mock_trends.build_payload.return_value = mock_trends
+        mock_trends.get_data.return_value = {"date": ["2023-01-01"], "value": [10]}
 
-    def test_fetch_script_uses_validation(self):
+        valid_keywords = ["anticipatory anxiety", "worry about future"]
+
+        # Act: This should not raise
+        try:
+            result = fetch_google_trends(valid_keywords, start_date="2023-01-01", end_date="2023-01-31")
+            self.assertIsNotNone(result)
+            self.logger.info("Test passed: Valid keywords processed successfully.")
+        except ValueError:
+            self.fail("fetch_google_trends raised ValueError for valid keywords unexpectedly.")
+
+    def test_empty_keyword_list(self):
         """
-        Verify that if the fetch module exists, it attempts to validate keywords.
-        If the module doesn't exist yet, we assert that the test environment
-        expects the validation logic to be present.
+        Verify that an empty list of keywords raises a ValueError.
         """
-        if HAS_FETCH_MODULE:
-            # If the module exists, we check if it has a validation function
-            # or if the main function validates inputs.
-            # This is a structural test.
-            self.assertTrue(
-                hasattr(fetch_google_trends, 'validate_keywords') or
-                hasattr(fetch_google_trends, 'run') or
-                hasattr(fetch_google_trends, 'fetch_google_trends'),
-                "fetch_google_trends should have validation or run logic"
-            )
-        else:
-            # If the module isn't ready, we assert that the test is waiting for it.
-            # The test passes if it correctly identifies the missing module.
-            self.skipTest("fetch_google_trends module not yet implemented (T012)")
+        # Act & Assert
+        with self.assertRaises(ValueError) as context:
+            fetch_google_trends([], start_date="2023-01-01", end_date="2023-01-31")
+        
+        self.assertIn("empty", str(context.exception).lower(),
+                      "Error message should indicate the keyword list is empty.")
 
-    def test_keyword_list_integrity(self):
-        """Test that the expected keyword list matches the specification."""
-        expected = ["anticipatory anxiety", "worry about future"]
-        result = validate_keywords(expected)
-        self.assertEqual(result, expected)
+    @patch('data.fetch_google_trends.pytrends')
+    def test_mixed_valid_invalid_keywords(self, mock_pytrends):
+        """
+        Verify that if a mix of valid and invalid keywords is provided,
+        the invalid ones are caught and reported.
+        """
+        mock_trends = MagicMock()
+        mock_pytrends.request.TrendReq.return_value = mock_trends
 
-    def test_keyword_type_checking(self):
-        """Test that non-string keywords are rejected."""
-        non_strings = [123, None, ["anxiety"], {"keyword": "anxiety"}]
-        for item in non_strings:
-            with self.assertRaises((ValueError, TypeError)):
-                # Our validation logic checks type, so it should raise ValueError
-                # or we can wrap in a try/except to catch TypeError if we check type explicitly
-                try:
-                    validate_keywords([item])
-                except (ValueError, TypeError):
-                    pass # Expected
+        mixed_keywords = ["valid_term", "123!@#", "another_valid"]
 
-if __name__ == '__main__':
-    unittest.main()
+        with self.assertRaises(ValueError) as context:
+            fetch_google_trends(mixed_keywords, start_date="2023-01-01", end_date="2023-01-31")
+
+        error_message = str(context.exception)
+        self.assertIn("123!@#", error_message,
+                      f"Error message '{error_message}' should list the invalid keyword '123!@#'")

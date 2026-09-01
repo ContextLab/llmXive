@@ -1,3 +1,3 @@
 """
-Test suite for the news volume anxiety study pipeline.
+Unit tests for the Impact of Social Media Doomscrolling project.
 """

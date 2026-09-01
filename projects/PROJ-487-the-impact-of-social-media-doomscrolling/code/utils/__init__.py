@@ -1,3 +1,3 @@
 """
-Utility modules for logging, validation, and configuration.
+Utility functions for the Impact of Social Media Doomscrolling project.
 """

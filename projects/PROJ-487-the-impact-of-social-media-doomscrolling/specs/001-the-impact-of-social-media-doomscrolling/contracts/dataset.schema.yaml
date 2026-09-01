@@ -1,36 +1,24 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: TimeSeriesRecord
-description: Schema for raw and processed time-series data records (GDELT and Google Trends).
+description: Schema for aggregate negative news publication volume and anxiety search trend records.
 type: object
+required:
+  - date
+  - value
+  - source
 properties:
   date:
     type: string
-    description: ISO 8601 formatted date (YYYY-MM-DD).
-    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
-  source:
-    type: string
-    description: Source of the data (e.g., 'gdelt', 'google_trends').
-    enum:
-      - gdelt
-      - google_trends
-  metric_name:
-    type: string
-    description: Name of the metric being recorded.
-    minLength: 1
+    description: ISO8601 formatted date string (YYYY-MM-DD).
+    pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
   value:
     type: number
-    description: The numeric value of the metric.
-  is_stationary:
-    type: boolean
-    description: Flag indicating if the series is stationary (for processed data).
-    default: false
-  z_score:
-    type: ["number", "null"]
-    description: Normalized z-score value (null if not yet normalized).
-    default: null
-required:
-  - date
-  - source
-  - metric_name
-  - value
+    description: The numeric value of the metric (event count or search interest index).
+    minimum: 0
+  source:
+    type: string
+    description: The source of the data (e.g., 'GDELT', 'GoogleTrends').
+    enum:
+      - GDELT
+      - GoogleTrends
 additionalProperties: false

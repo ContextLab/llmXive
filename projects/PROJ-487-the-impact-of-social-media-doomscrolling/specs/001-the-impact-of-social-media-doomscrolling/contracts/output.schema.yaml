@@ -1,87 +1,38 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: AnalysisResult
-description: Schema for statistical analysis results (correlation, Granger causality, etc.).
+description: Schema for statistical analysis results (Granger causality, correlation).
 type: object
-properties:
-  analysis_id:
-    type: string
-    description: Unique identifier for the analysis run.
-    minLength: 1
-  timestamp:
-    type: string
-    description: ISO 8601 timestamp of when the analysis was performed.
-    pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
-  correlation:
-    type: object
-    description: Correlation analysis results.
-    properties:
-      pearson_coeff:
-        type: number
-      pearson_p_value:
-        type: number
-      spearman_coeff:
-        type: number
-      spearman_p_value:
-        type: number
-    required:
-      - pearson_coeff
-      - pearson_p_value
-      - spearman_coeff
-      - spearman_p_value
-  granger_causality:
-    type: array
-    description: Results for Granger causality tests at various lags.
-    items:
-      type: object
-      properties:
-        lag:
-          type: integer
-          minimum: 1
-        p_value:
-          type: number
-        is_significant:
-          type: boolean
-      required:
-        - lag
-        - p_value
-        - is_significant
-  sensitivity_analysis:
-    type: object
-    description: Sensitivity analysis results.
-    properties:
-      total_lags_tested:
-        type: integer
-        minimum: 0
-      significant_lags_count:
-        type: integer
-        minimum: 0
-      significance_rate:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-    required:
-      - total_lags_tested
-      - significant_lags_count
-      - significance_rate
-  statistical_validity:
-    type: object
-    description: Bonferroni-corrected statistical validity check.
-    properties:
-      bonferroni_alpha:
-        type: number
-      min_p_value:
-        type: number
-      is_valid:
-        type: boolean
-    required:
-      - bonferroni_alpha
-      - min_p_value
-      - is_valid
 required:
-  - analysis_id
-  - timestamp
-  - correlation
-  - granger_causality
-  - sensitivity_analysis
-  - statistical_validity
+  - metric
+  - coefficient
+  - p_value
+  - lag
+  - significance_flag
+  - stationarity_status
+properties:
+  metric:
+    type: string
+    description: The name of the metric being analyzed (e.g., 'GrangerCausality', 'PearsonCorrelation').
+  coefficient:
+    type: number
+    description: The calculated coefficient (e.g., F-statistic, correlation coefficient).
+  p_value:
+    type: number
+    description: The p-value associated with the test statistic.
+    minimum: 0
+    maximum: 1
+  lag:
+    type: integer
+    description: The lag order used for the test.
+    minimum: 1
+  significance_flag:
+    type: boolean
+    description: True if the result is statistically significant (p < alpha), False otherwise.
+  stationarity_status:
+    type: string
+    description: The stationarity status of the underlying series used for this result.
+    enum:
+      - stationary
+      - non-stationary
+      - differenced
 additionalProperties: false

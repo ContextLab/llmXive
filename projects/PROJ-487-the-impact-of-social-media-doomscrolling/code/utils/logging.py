@@ -1,7 +1,3 @@
-"""
-Logging utility configuration.
-Provides a standard logger setup for the project.
-"""
 import logging
 import os
 import sys
@@ -9,105 +5,105 @@ import json
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Optional
-
-# Project root
-_project_root = Path(__file__).resolve().parent.parent.parent
-_log_dir = _project_root / "logs"
+from config import Configuration
 
 class JSONFormatter(logging.Formatter):
-    """Custom formatter to output logs in JSON format."""
+    """Custom formatter that outputs logs in JSON format."""
     
     def format(self, record: logging.LogRecord) -> str:
-        log_obj = {
-            "timestamp": self.formatTime(record, "%Y-%m-%dT%H:%M:%S"),
+        log_data = {
+            "timestamp": self.formatTime(record, self.datefmt),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
             "module": record.module,
             "function": record.funcName,
-            "line": record.lineno
+            "line": record.lineno,
         }
+        
         if record.exc_info:
-            log_obj["exc_info"] = self.formatException(record.exc_info)
-        return json.dumps(log_obj)
-
+            log_data["exception"] = self.formatException(record.exc_info)
+        
+        return json.dumps(log_data)
 
 def setup_logging(
-    level: int = logging.INFO,
     log_file: Optional[Path] = None,
-    console: bool = True
+    level: int = logging.INFO,
+    json_format: bool = True
 ) -> None:
     """
-    Configures the root logger.
+    Configure the root logger with file and console handlers.
     
     Args:
-        level: Logging level (e.g., logging.DEBUG, logging.INFO).
-        log_file: Path to the log file. If None, defaults to logs/app.log.
-        console: Whether to log to console.
+        log_file: Path to the log file. If None, uses a default location.
+        level: Logging level (e.g., logging.INFO, logging.DEBUG).
+        json_format: Whether to use JSON formatting for log messages.
     """
-    if log_file is None:
-        _log_dir.mkdir(exist_ok=True)
-        log_file = _log_dir / "app.log"
+    logger = logging.getLogger()
+    logger.setLevel(level)
     
-    # Ensure log directory exists
-    log_file.parent.mkdir(parents=True, exist_ok=True)
-
-    # Root logger configuration
-    root_logger = logging.getLogger()
-    root_logger.setLevel(level)
-
-    # Clear existing handlers to avoid duplicates
-    root_logger.handlers.clear()
-
-    # File Handler
+    # Clear existing handlers
+    logger.handlers.clear()
+    
+    # Determine log file path
+    if log_file is None:
+        project_root = Path(__file__).parent.parent.parent
+        log_file = project_root / "logs" / "app.log"
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    # File handler
     file_handler = RotatingFileHandler(
         log_file,
-        maxBytes=10*1024*1024, # 10MB
+        maxBytes=10 * 1024 * 1024,  # 10 MB
         backupCount=5
     )
     file_handler.setLevel(level)
-    file_handler.setFormatter(JSONFormatter())
-    root_logger.addHandler(file_handler)
-
-    # Console Handler
-    if console:
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(level)
-        # Use a simpler format for console
-        console_formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-        console_handler.setFormatter(console_formatter)
-        root_logger.addHandler(console_handler)
-
+    file_handler.setFormatter(JSONFormatter() if json_format else logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    ))
+    logger.addHandler(file_handler)
+    
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(level)
+    console_handler.setFormatter(JSONFormatter() if json_format else logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    ))
+    logger.addHandler(console_handler)
 
 def get_logger(name: str) -> logging.Logger:
     """
-    Gets a logger with the specified name.
+    Get a logger with the specified name.
     
     Args:
-        name: Logger name (usually __name__).
+        name: Logger name (typically __name__).
         
     Returns:
-        Configured logger instance.
+        A configured logger instance.
     """
     return logging.getLogger(name)
 
-
-def configure_root_logger() -> None:
-    """Alias for setup_logging with defaults."""
-    setup_logging()
-
+def configure_root_logger(config: Optional[Configuration] = None) -> None:
+    """
+    Configure the root logger based on configuration settings.
+    
+    Args:
+        config: Configuration object (optional).
+    """
+    if config is None:
+        config = Configuration()
+    
+    setup_logging(
+        log_file=config.log_file,
+        level=config.log_level,
+        json_format=config.json_log_format
+    )
 
 def main():
-    """Test the logging setup."""
+    """Main entry point for logging configuration."""
     setup_logging()
     logger = get_logger(__name__)
-    logger.info("Logging setup test successful.")
-    logger.debug("This is a debug message.")
-    logger.warning("This is a warning message.")
-    logger.error("This is an error message.")
-
+    logger.info("Logging configured successfully")
 
 if __name__ == "__main__":
     main()
