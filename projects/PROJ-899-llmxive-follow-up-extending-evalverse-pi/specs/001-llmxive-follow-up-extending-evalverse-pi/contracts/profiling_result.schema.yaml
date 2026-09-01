@@ -1,0 +1,33 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Profiling Result Schema
+description: Schema for data/processed/profiling_logs.json
+type: array
+items:
+  type: object
+  properties:
+    clip_id:
+      type: string
+      description: "Unique identifier for the clip"
+    artifact_hash:
+      type: string
+      description: "SHA-256 hash of the clip data"
+    git_commit:
+      type: string
+      description: "Git commit hash of the code"
+    seed:
+      type: integer
+      description: "Random seed used"
+    peak_memory_mb:
+      type: number
+      description: "Peak RAM usage in MB"
+    processing_time_ms:
+      type: number
+      description: "Time taken to process the clip in ms"
+  required:
+    - clip_id
+    - artifact_hash
+    - git_commit
+    - seed
+    - peak_memory_mb
+    - processing_time_ms
+  additionalProperties: false

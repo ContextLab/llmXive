@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ModelPerformance"
-description: "Schema for model evaluation metrics for a specific dimension trained against human expert ground truth."
+description: "Schema for model evaluation metrics for a specific dimension trained against VLM-generated ground truth."
 type: "object"
 required:
   - dimension
@@ -25,10 +25,10 @@ properties:
     description: "Type of model used."
   pearson_correlation:
     type: "number"
-    description: "Pearson correlation coefficient between model predictions and human expert scores."
+    description: "Pearson correlation coefficient between model predictions and VLM scores."
   spearman_correlation:
     type: "number"
-    description: "Spearman correlation coefficient between model predictions and human expert scores."
+    description: "Spearman correlation coefficient between model predictions and VLM scores."
   ci_lower_95:
     type: "number"
     description: "Lower bound of the 95% confidence interval for Pearson correlation."

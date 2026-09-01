@@ -1,0 +1,43 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Correlation Result Schema
+description: Schema for data/processed/correlations.csv
+type: object
+properties:
+  dimension:
+    type: string
+    description: "Name of the video dimension (e.g., 'action_jump')"
+  feature_type:
+    type: string
+    description: "Type of low-level feature (e.g., 'optical_flow')"
+  pearson_r:
+    type: number
+    description: "Pearson correlation coefficient"
+  pearson_ci_lower:
+    type: number
+    description: "Lower bound of 95% confidence interval"
+  pearson_ci_upper:
+    type: number
+    description: "Upper bound of 95% confidence interval"
+  spearman_r:
+    type: number
+    description: "Spearman correlation coefficient"
+  n_samples:
+    type: integer
+    description: "Number of clips used in calculation"
+  p_value:
+    type: number
+    description: "Raw p-value from correlation test"
+  adjusted_p_value:
+    type: number
+    description: "Benjamini-Hochberg adjusted p-value"
+required:
+  - dimension
+  - feature_type
+  - pearson_r
+  - pearson_ci_lower
+  - pearson_ci_upper
+  - spearman_r
+  - n_samples
+  - p_value
+  - adjusted_p_value
+additionalProperties: false
