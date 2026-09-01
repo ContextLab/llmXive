@@ -1,7 +1,0 @@
-T015:
-  c: false
-  h: 5f5eaee7c3c6179ae3bf44f7ff6a7a0f90283a95554af192048e1c7dc8c52d82
-  r: The `preprocess.py` file defines `load_schema` but never calls `jsonschema.validate`
-    on the filtered DataFrame, and the code after the truncation does not show any
-    such validation step. Therefore the required schema validation after filtering
-    is missing.

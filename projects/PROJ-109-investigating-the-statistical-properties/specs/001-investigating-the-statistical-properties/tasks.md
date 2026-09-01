@@ -45,9 +45,9 @@
 
 - [ ] T001A Create project directory structure: `mkdir -p code/data code/analysis data/raw data/processed results tests/unit tests/integration docs`
 - [ ] T001B Create `__init__.py` files in all new directories to ensure Python package recognition.
-- [ ] T002A Install Python dependencies: `pip install pandas numpy scipy scikit-learn matplotlib seaborn requests h5py astropy numba pytest`
+- [ ] T002A Install Python dependencies: `pip install pandas numpy scipy scikit-learn matplotlib seaborn requests h5py astropy numba pytest [UNRESOLVED-CLAIM: c_f86ca0ae — status=not_enough_info]`
 - [ ] T002B Generate `requirements.txt` with exact versions using `pip freeze`.
-- [X] T003 [P] Configure linting (flake8/pylint) and formatting (black) tools in `pyproject.toml` (black --line-length 88, flake8 max-line-length=100)
+- [X] T003 [P] Configure linting (flake8/pylint) and formatting (black) tools in `pyproject.toml` (black --line-length 88 [UNRESOLVED-CLAIM: c_91ca6ffd — status=not_enough_info], flake8 max-line-length=100 [UNRESOLVED-CLAIM: c_500a8ac2 — status=not_enough_info])
 
 ---
 
@@ -57,14 +57,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Create `code/config.py` with pinned random seeds, file paths, simulation box size (suitable for capturing large-scale structure), and critical density constants. **Also include**: Bullock et al. parameters (c_200, alpha) for verification in T036A.
-- [ ] T005A [P] Configure significance threshold (alpha=0.05) and correction method (Benjamini-Hochberg) in `code/config.py` as parameters for the analysis logic (See T033 for implementation). Do NOT mark as immutable constants; these are configuration inputs for the statistical tests.
-- [ ] T005B [P] Create `code/contracts/halo.schema.yaml` and `code/contracts/results.schema.yaml` for data validation
+- [ ] T004 [P] Create `code/config.py` with pinned random seeds, file paths, simulation box size (suitable for capturing large-scale structure), and critical density constants. **Also include**: Bullock et al. parameters (c_200, alpha) [UNRESOLVED-CLAIM: c_452f9268 — status=not_enough_info] for verification in T036A.
+- [ ] T005A [P] Configure {{claim:c_eb9e63b2}} and correction method ({{claim:c_243ea95f}} (Wikidata Q136366870, https://www.wikidata.org/wiki/Q136366870)) in `code/config.py` as parameters for the analysis logic (See T033 for implementation). Do NOT mark as immutable constants; these are configuration inputs for the statistical tests.
+- [ ] T005B [P]Create `code/contracts/halo.schema.yaml` and `code/contracts/results.schema.yaml` for data validation
 - [X] T006 [P] Setup logging infrastructure in `code/utils/logging.py` (format: `%(asctime)s - %(levelname)s - %(message)s`, level: INFO, output: `logs/pipeline.log`)
 - [ ] T007A [P] [US1] Implement streaming infrastructure in `code/data/streaming.py`:
  1. Class `ChunkedHDF5Reader` with `__init__(path, chunk_size)` and `__iter__` methods
- 2. Function `stream_halos(chunk_size=10000)` returning generator of halo dictionaries
-- [ ] T007B [P] [US1] Implement synthetic data generator with controlled deviations in `code/data/synthetic_generator.py`. **Primary Execution Path**: This task generates the synthetic data with controlled deviations required for the current "Pipeline Validation" scope. It must also be triggerable as a fallback if the real data download (T012) fails. Output schema: HDF5, deviation: offset NFW concentration by a small magnitude, use a fixed random seed, path: `data/raw/synthetic_halos.h5`. **Must also**: Record the generated file's checksum in `state/projects/PROJ-109-investigating-the-statistical-properties.yaml` (Constitution Principle III). **Dependency**: Must complete before T012 to ensure fallback data is ready.
+ 2. Function `stream_halos(chunk_size=10000) [UNRESOLVED-CLAIM: c_76fb9486 — status=not_enough_info]` returning generator of halo dictionaries
+- [ ] T007B [P] [US1] Implement synthetic data generator with controlled deviations in `code/data/synthetic_generator.py`. **Primary Execution Path**: This task generates the synthetic data with controlled deviations required for the current "Pipeline Validation" scope. It must also be triggerable as a fallback if the real data download (T012) fails. Output schema: HDF5, deviation: offset NFW concentration by a small magnitude [UNRESOLVED-CLAIM: c_5763751d — status=not_enough_info], use a fixed random seed, path: `data/raw/synthetic_halos.h5`. **Must also**: Record the generated file's checksum in `state/projects/PROJ-109-investigating-the-statistical-properties.yaml` (Constitution Principle III). **Dependency**: Must complete before T012 to ensure fallback data is ready.
 - [ ] T007C [US1] Generate memory-mapped particle stream file in `data/raw/particle_stream_mmap.dat` using `code/data/streaming.py`. **Purpose**: Produce the memory-mapped particle stream required for T017's cKDTree overdensity calculation (Plan Phase 1, Step 3). **Input**: Synthetic data from T007B or real data from T012. **Output**: Memory-mapped file containing particle positions. **Dependency**: Must complete before T017.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -73,7 +73,7 @@
 
 ## Phase 3: User Story 1 - Data Acquisition and Pre-processing (Priority: P1) 🎯 MVP
 
-**Goal**: Download and filter public cosmological simulation catalogs (IllustrisTNG TNG100-1 and Millennium) to produce a validated halo dataset ready for structural analysis. If real data is unavailable, generate synthetic data with controlled deviations.
+**Goal**: Download and filter public cosmological simulation catalogs (IllustrisTNG TNG100-1 and Millennium [UNRESOLVED-CLAIM: c_b6ca5b68 — status=not_enough_info]) to produce a validated halo dataset ready for structural analysis. If real data is unavailable, generate synthetic data with controlled deviations.
 
 **Independent Test**: Can be fully tested by successfully downloading both catalogs (including particle data) or generating synthetic data, and producing a consolidated dataset file that contains all required columns (mass, position, velocity, particle counts).
 
@@ -89,12 +89,12 @@
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `code/data/download.py` to fetch IllustrisTNG TNG100-1 and Millennium catalogs via API. **Execution Flow**: Attempt real download -> If HTTP 403/Timeout/404, log 'DATA_GAP: Real data unavailable, switching to synthetic' -> Trigger synthetic fallback. (FR-001)
-- [X] T013 [US1] Implement halo filtering logic in `code/data/preprocess.py` to retain only halos with ≥300 particles. **Verification**: Assert output dataset contains only rows where `particle_count >= 300`. Log the exact count of filtered vs total halos. (FR-002)
-- [X] T014 [US1] Implement chunked streaming writer in `code/data/preprocess.py` to save filtered data as `data/processed/filtered_halos_{timestamp}.parquet`. **Schema**: Output must contain columns [mass, position, velocity, particle_count, overdensity, shape, spin, concentration, fit_status]. (chunk_size=10k, compression=snappy)
+- [X] T012 [US1] Implement `code/data/download.py` to fetch IllustrisTNG TNG100-1 and Millennium [UNRESOLVED-CLAIM: c_b6ca5b68 — status=not_enough_info] catalogs via API. **Execution Flow**: Attempt real download -> If HTTP 403/Timeout/404, log 'DATA_GAP: Real data unavailable, switching to synthetic' -> Trigger synthetic fallback. (FR-001)
+- [X] T013 [US1] Implement halo filtering logic in `code/data/preprocess.py` to retain only halos with ≥300 particles [UNRESOLVED-CLAIM: c_f5e81021 — status=not_enough_info]. **Verification**: Assert output dataset contains only rows where `particle_count >= 300`. Log the exact count of filtered vs total halos. (FR-002)
+- [X] T014 [US1] Implement chunked streaming writer in `code/data/preprocess.py` to save filtered data as `data/processed/filtered_halos_{timestamp}.parquet`. **Schema**: Output must contain columns [mass, position, velocity, particle_count, overdensity, shape, spin, concentration, fit_status]. (chunk_size=10k [UNRESOLVED-CLAIM: c_5cd500fd — status=not_enough_info], compression=snappy [UNRESOLVED-CLAIM: c_0c35cf94 — status=not_enough_info])
 - [ ] T015 [US1] Add validation against `code/contracts/halo.schema.yaml` after filtering in `code/data/preprocess.py`. **Requirement**: Must load `halo.schema.yaml` and call `jsonschema.validate` on the data.
 - [X] T016 [US1] Add logging for data gap detection in `code/data/download.py` (message: 'DATA_GAP: Real data unavailable, switching to synthetic'; trigger: HTTP 403/Timeout)
-- [X] T017 [US1] Implement local overdensity calculation in `code/data/compute_metrics.py` using cKDTree with periodic boundary wrapping. **Specification**: Use a spherical top-hat of a characteristic radius. **Method**: cKDTree neighbor counting on the memory-mapped particle stream produced by T007C. **Statistical Validity**: Overdensity calculated as Δ = ρ_local / ρ_critical. (FR-003)
+- [X] T017 [US1] Implement local overdensity calculation in `code/data/compute_metrics.py` using cKDTree with periodic boundary wrapping. **Specification**: Use a spherical top-hat of a characteristic radius. **Method**: cKDTree neighbor counting on the memory-mapped particle stream produced by T007C. **Statistical Validity**: Overdensity calculated as Δ = ρ_local / ρ_critical [UNRESOLVED-CLAIM: c_3c4826b8 — status=not_enough_info]. (FR-003)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -104,13 +104,13 @@
 
 **Goal**: Compute shape (s=c/a), spin parameter (λ), and concentration index (c) for each halo using validated physical formulas.
 
-**Independent Test**: Can be fully tested by running the metric computation on a a sample of halos and verifying that output distributions match expected physical ranges (shape s ∈ [0,1], spin λ ∈ [0,1], concentration c > 0).
+**Independent Test**: Can be fully tested by running the metric computation on a a sample of halos and verifying that output distributions match expected physical ranges (shape s ∈ [0,1] [UNRESOLVED-CLAIM: c_28d64884 — status=not_enough_info], spin λ ∈ [0,1] [UNRESOLVED-CLAIM: c_24ebadd0 — status=not_enough_info], concentration c > 0 [UNRESOLVED-CLAIM: c_2b839fc0 — status=not_enough_info]).
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T018 [P] [US2] Unit test `test_inertia_tensor_shape` in `tests/unit/test_metrics.py`
 - [X] T019 [P] [US2] Unit test `test_spin_parameter_subsample` in `tests/unit/test_spin.py` <!-- FAILED: unspecified -->
-- [ ] T020 [P] [US2] Unit test `test_nfw_convergence` in `tests/unit/test_concentration.py`
+- [X] T020 [P] [US2] Unit test `test_nfw_convergence` in `tests/unit/test_concentration.py`
 - [ ] T021 [P] [US2] Integration test `test_full_metric_pipeline` in `tests/integration/test_metrics.py`
 
 ### Implementation for User Story 2
@@ -144,13 +144,13 @@
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Implement mass binning with specific boundaries (^10, 10^11, 10^12 M⊙ h⁻¹) and environment binning (Δ < 200 vs ≥ 200) in `code/analysis/stats.py` (FR-007)
+- [ ] T031 [US3] Implement mass binning with specific boundaries (^10, 10^11, 10^12 M⊙ h⁻¹) [UNRESOLVED-CLAIM: c_44699e76 — status=not_enough_info] and environment binning (Δ < 200 vs ≥ 200) [UNRESOLVED-CLAIM: c_c287a4b5 — status=not_enough_info] in `code/analysis/stats.py` (FR-007)
 - [ ] T032 [P] [US3] Implement two-sample KS tests between low/high environmental bins for shape, spin, and concentration in `code/analysis/stats.py` (FR-008)
-- [ ] T033 [P] [US3] Implement Benjamini-Hochberg correction for multiple hypothesis testing across multiple KS tests (multiple metrics x multiple bins) in `code/analysis/stats.py` (FR-009); use threshold from `code/config.py`.
+- [ ] T033 [P] [US3] Implement {{claim:c_243ea95f}} correction for multiple hypothesis testing across multiple KS tests (multiple metrics x multiple bins) in `code/analysis/stats.py` (FR-009); use threshold from `code/config.py`.
 - [ ] T034 [P] [US3] Implement Spearman's ρ correlation between halo mass and each structural metric in `code/analysis/stats.py` (FR-010)
-- [ ] T035 [US3] Implement comparison against Bullock et al. (2001) analytic fit in `code/analysis/stats.py`. **Dependency**: Requires parameters verified in T036A. (FR-011)
+- [ ] T035 [US3] Implement comparison against Bullock et al. (2001) analytic fit [UNRESOLVED-CLAIM: c_20fe2b2f — status=not_enough_info] in `code/analysis/stats.py`. **Dependency**: Requires parameters verified in T036A. (FR-011)
 - [ ] T036A [US3] Load and verify Bullock et al. (2001) parameters from `code/config.py`. **Verification**: Compare loaded values against the cited paper (Bullock et al. 2001). **Action**: Fail if parameters cannot be verified or do not match the canonical source. **Output**: Validated parameters for T036B.
-- [ ] T036B [US3] Implement the Bullock et al. (2001) analytic fit function in `code/analysis/stats.py` using the verified parameters from T036A.
+- [ ] T036B [US3] Implement the Bullock et al. (2001) analytic fit [UNRESOLVED-CLAIM: c_20fe2b2f — status=not_enough_info] function in `code/analysis/stats.py` using the verified parameters from T036A.
 - [ ] T037 [US3] Implement visualization generation (scatter plots, KDE curves, heatmaps) using matplotlib/seaborn in `code/analysis/visualize.py` (FR-012)
 - [ ] T038 [US3] Save all results (p-values, effect sizes, convergence rates) to `results/statistics.json`
 - [ ] T039 [US3] Save visualizations as PNG/PDF in `results/figures/`
@@ -169,7 +169,7 @@
 - [ ] T042A [P] Unit test `test_halo_300_particles_boundary` in `tests/unit/test_edge_cases.py`
 - [ ] T042B [P] Unit test `test_nfw_fit_failure_handling` in `tests/unit/test_edge_cases.py`
 - [ ] T042C [P] Unit test `test_empty_bin_handling` in `tests/unit/test_edge_cases.py`
-- [ ] T043 [US3] Run quickstart.md validation and verify pipeline execution within 6 hours on GitHub Actions free-tier runner (2 cores, 7GB RAM) using full synthetic dataset (~10^5 halos). (command: `python code/main.py --run-all`; output: `results/timing.json`)
+- [ ] T043 [US3] Run quickstart.md validation and verify pipeline execution within 6 hours [UNRESOLVED-CLAIM: c_b0468f97 — status=not_enough_info] on GitHub Actions free-tier runner (2 cores, 7GB RAM) using full synthetic dataset (~10^5 halos [UNRESOLVED-CLAIM: c_fc5bb8e3 — status=not_enough_info]). (command: `python code/main.py --run-all`; output: `results/timing.json`)
 
 ---
 

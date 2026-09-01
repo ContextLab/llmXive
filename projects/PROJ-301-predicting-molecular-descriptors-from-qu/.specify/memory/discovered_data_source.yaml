@@ -1,15 +1,15 @@
 status: none
-intent: QM9 dataset Harvard Dataverse HuggingFace mirror download python package dataset
+intent: download QM9 dataset from Harvard Dataverse or HuggingFace datasets python
+  package dataset
 required_fields:
 - molecule_id
-- atom_index
-- atomic_number
-- x
-- y
-- z
+- atomic_numbers
+- coordinates_x
+- coordinates_y
+- coordinates_z
 - dipole_moment
 - homo_energy
 - lumo_energy
-cache_key: b8af0a322f6b8822f6cb22613f389e7bdf134f79b30da50698961906dbc105f3
-searched_at: '2026-07-31T21:53:02.891048+00:00'
+cache_key: 859755ac6665ce333996f06d2534ae15286a959ee5471c24794b0974c361bc80
+searched_at: '2026-09-01T18:27:47.493637+00:00'
 retry_count: 1
