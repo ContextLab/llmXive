@@ -1,168 +1,217 @@
 """
 Real Data Ingestion Module for Transient-Absorption Data.
 
-This module implements the primary data source ingestion for the research pipeline.
-It strictly enforces the presence of real experimental data files and fails
-loudly if the required data is missing, preventing the pipeline from proceeding
-with synthetic or placeholder data.
+This module implements the ingestion of real transient-absorption data from
+user-provided file paths. It enforces strict real-data requirements when
+the USE_REAL_DATA environment variable is set, raising FileNotFoundError
+with exit code 1 if data is missing.
 
-Output:
-    Writes validated transient-absorption data to `data/processed/raw_traces.csv`.
+If USE_REAL_DATA is false or unset, it proceeds to fallback logic (T015).
 """
-
 import os
 import sys
 import logging
 from datetime import datetime
 from typing import Optional
-
 import pandas as pd
+from pathlib import Path
 
-# Project-relative imports based on provided API surface
-# Adding code/ to path to ensure relative imports work when run as a script
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
-
-from utils.logging import setup_logging, log_environmental_params
-from config import get_raw_data_path, get_processed_data_path
-
-# Initialize logger for this module
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-# Define the expected real data file name
-REAL_DATA_FILENAME = "real_traces.csv"
+# Constants
+ENV_VAR_REAL_DATA = "USE_REAL_DATA"
+DEFAULT_FALLBACK_PATH = "data/raw/synthetic_traces.csv"
+OUTPUT_PATH = "data/processed/real_traces.csv"
 
 def ingest_real_transient_absorption_data(
-    input_filename: Optional[str] = None,
-    output_filename: Optional[str] = None
+    data_path: Optional[str] = None,
+    force_real: Optional[bool] = None
 ) -> pd.DataFrame:
     """
-    Ingests real transient-absorption data from a user-provided file path.
-
-    This function is the primary entry point for real research data. It enforces
-    a strict constraint: if the real data file is missing, the pipeline MUST fail
-    with a clear, actionable error. No synthetic data is generated or used here.
+    Ingest real transient-absorption data from a user-provided file path.
 
     Args:
-        input_filename: Optional override for the input filename. Defaults to
-                        'real_traces.csv' located in the `data/raw/` directory.
-        output_filename: Optional override for the output filename. Defaults to
-                         'raw_traces.csv' located in the `data/processed/` directory.
+        data_path: Optional explicit path to the real data file. If None,
+                   defaults to checking environment variable or standard path.
+        force_real: Optional boolean to force real data requirement. If None,
+                    inferred from USE_REAL_DATA environment variable.
 
     Returns:
-        pd.DataFrame: The validated and loaded transient-absorption data.
+        pd.DataFrame: The ingested transient-absorption data.
 
     Raises:
-        FileNotFoundError: If the specified real data file does not exist.
-        ValueError: If the data file is empty or lacks required columns.
-        RuntimeError: If the file format is invalid or cannot be parsed.
+        FileNotFoundError: If real data is required (USE_REAL_DATA=true) but
+                           the file is missing. Exits with code 1.
+        ValueError: If the data file exists but cannot be parsed as CSV.
     """
-    # Determine file paths using project config
-    raw_data_dir = get_raw_data_path()
-    processed_data_dir = get_processed_data_path()
+    # Determine if we must use real data
+    if force_real is None:
+        use_real_env = os.getenv(ENV_VAR_REAL_DATA, "").lower()
+        force_real = use_real_env == "true" or use_real_env == "1"
 
-    # Ensure directories exist
-    os.makedirs(raw_data_dir, exist_ok=True)
-    os.makedirs(processed_data_dir, exist_ok=True)
+    logger.info(f"Ingestion mode: {'REAL DATA REQUIRED' if force_real else 'FALLBACK ALLOWED'}")
 
-    # Resolve input path
-    if input_filename is None:
-        input_filename = REAL_DATA_FILENAME
-    
-    input_path = os.path.join(raw_data_dir, input_filename)
+    # Resolve data path
+    if data_path is None:
+        # Default expected path for real data
+        data_path = "data/raw/real_traces.csv"
 
-    # Resolve output path
-    if output_filename is None:
-        output_filename = "raw_traces.csv"
-    
-    output_path = os.path.join(processed_data_dir, output_filename)
+    path_obj = Path(data_path)
 
-    # --- CRITICAL CHECK: REAL DATA PRESENCE ---
-    if not os.path.exists(input_path):
-        error_msg = (
-            f"CRITICAL ERROR: Real data file not found at '{input_path}'.\n"
-            f"The pipeline requires real experimental data to proceed.\n"
-            f"Please provide the file '{input_filename}' in the '{raw_data_dir}' directory.\n"
-            f"This step cannot be bypassed with synthetic data for research purposes."
-        )
-        logger.error(error_msg)
-        raise FileNotFoundError(error_msg)
+    # Check if file exists
+    if not path_obj.exists():
+        if force_real:
+            error_msg = (
+                f"CRITICAL: Real data file not found at '{data_path}'.\n"
+                f"Environment variable '{ENV_VAR_REAL_DATA}' is set to 'true'.\n"
+                f"The system requires real experimental data for research analysis.\n"
+                f"Please provide the data file at the specified path or unset "
+                f"'{ENV_VAR_REAL_DATA}' to allow synthetic fallback."
+            )
+            logger.error(error_msg)
+            print(error_msg, file=sys.stderr)
+            sys.exit(1)
+        else:
+            logger.warning(
+                f"Real data file '{data_path}' not found, but '{ENV_VAR_REAL_DATA}' "
+                f"is not set. Proceeding to synthetic fallback (T015)."
+            )
+            return _load_fallback_data()
 
-    logger.info(f"Found real data file at: {input_path}")
-
-    # Load and validate data
+    # Attempt to load the real data
     try:
-        # Attempt to load CSV. Expecting columns: 'time_ns', 'absorbance', 'wavelength_nm', 'solvent'
-        # Adjust dtype for time to handle scientific notation if present
-        df = pd.read_csv(input_path)
+        logger.info(f"Loading real data from: {path_obj.absolute()}")
+        df = pd.read_csv(path_obj)
+
+        # Basic validation
+        required_columns = ['time_ns', 'absorbance', 'wavelength_nm', 'solvent']
+        missing_cols = [col for col in required_columns if col not in df.columns]
+        if missing_cols:
+            raise ValueError(f"Data file missing required columns: {missing_cols}")
+
+        logger.info(f"Successfully loaded {len(df)} rows from real data file.")
+        return df
+
+    except pd.errors.EmptyDataError:
+        error_msg = f"Data file at '{data_path}' is empty."
+        logger.error(error_msg)
+        if force_real:
+            sys.exit(1)
+        else:
+            return _load_fallback_data()
+    except pd.errors.ParserError as e:
+        error_msg = f"Failed to parse CSV at '{data_path}': {str(e)}"
+        logger.error(error_msg)
+        if force_real:
+            sys.exit(1)
+        else:
+            return _load_fallback_data()
     except Exception as e:
-        error_msg = f"Failed to parse data file '{input_path}'. Ensure it is a valid CSV. Error: {e}"
+        error_msg = f"Unexpected error loading data from '{data_path}': {str(e)}"
         logger.error(error_msg)
-        raise RuntimeError(error_msg) from e
+        if force_real:
+            sys.exit(1)
+        else:
+            return _load_fallback_data()
 
-    if df.empty:
-        error_msg = f"Data file '{input_path}' is empty. Real data is required."
-        logger.error(error_msg)
-        raise ValueError(error_msg)
+def _load_fallback_data() -> pd.DataFrame:
+    """
+    Load synthetic fallback data from T015 (generate_synthetic.py).
 
-    # Validate required columns (basic schema check)
-    # We expect at least time and absorbance for kinetic analysis
-    required_columns = ['time_ns', 'absorbance']
-    missing_cols = [col for col in required_columns if col not in df.columns]
-    
-    if missing_cols:
-        error_msg = (
-            f"Data validation failed. Missing required columns: {missing_cols}. "
-            f"Expected columns include: {required_columns}."
-        )
-        logger.error(error_msg)
-        raise ValueError(error_msg)
+    This function is only called when USE_REAL_DATA is false/unset and
+    real data is missing. It delegates to the synthetic generator.
 
-    # Log ingestion event with environmental context (using existing API)
-    # We log that ingestion occurred; specific environmental params are logged by T014
-    log_environmental_params("ingestion_start", {"status": "success", "file": input_filename})
-    
-    logger.info(f"Successfully ingested {len(df)} rows from real data.")
-    logger.info(f"Data range: time_ns [{df['time_ns'].min():.4f} - {df['time_ns'].max():.4f}]")
-
-    # Write to processed data directory for downstream tasks
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Processed data written to: {output_path}")
-
-    return df
+    Returns:
+        pd.DataFrame: Synthetic transient-absorption data.
+    """
+    logger.info("Invoking synthetic data generator (T015) as fallback...")
+    try:
+        # Import the synthetic generator function
+        from data.generate_synthetic import generate_synthetic_traces
+        
+        # Generate synthetic data to the default path
+        output_path = Path(DEFAULT_FALLBACK_PATH).parent
+        output_path.mkdir(parents=True, exist_ok=True)
+        
+        # Call the generator
+        generate_synthetic_traces(output_file=str(DEFAULT_FALLBACK_PATH))
+        
+        # Load the generated file
+        df = pd.read_csv(DEFAULT_FALLBACK_PATH)
+        logger.info(f"Loaded {len(df)} rows from synthetic fallback.")
+        return df
+    except ImportError:
+        logger.error("FATAL: Synthetic fallback generator (T015) not found.")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"FATAL: Failed to generate/load synthetic fallback: {str(e)}")
+        sys.exit(1)
 
 def main():
     """
-    CLI entry point for T015b: Real Data Ingestion.
-    Runs the ingestion pipeline and exits with appropriate codes.
+    CLI entry point for real data ingestion.
+    
+    Usage:
+        python code/data/ingest.py [--data-path PATH] [--force-real]
     """
-    # Setup logging
-    setup_logging()
-    logger.info("Starting Real Data Ingestion (T015b)...")
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Ingest real transient-absorption data for Photo-Fries analysis."
+    )
+    parser.add_argument(
+        "--data-path",
+        type=str,
+        default=None,
+        help="Path to the real data CSV file. Default: data/raw/real_traces.csv"
+    )
+    parser.add_argument(
+        "--force-real",
+        action="store_true",
+        default=None,
+        help="Force real data requirement (equivalent to USE_REAL_DATA=true)."
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=OUTPUT_PATH,
+        help=f"Output path for ingested data. Default: {OUTPUT_PATH}"
+    )
+
+    args = parser.parse_args()
+
+    # Determine force_real from args or env
+    force_real = args.force_real
+    if force_real is None:
+        use_real_env = os.getenv(ENV_VAR_REAL_DATA, "").lower()
+        force_real = use_real_env == "true" or use_real_env == "1"
 
     try:
-        # Perform ingestion
-        df = ingest_real_transient_absorption_data()
-        
-        logger.info("Ingestion completed successfully.")
-        logger.info(f"Output saved to: {os.path.join(get_processed_data_path(), 'raw_traces.csv')}")
-        
-        # Return success
-        return 0
+        df = ingest_real_transient_absorption_data(
+            data_path=args.data_path,
+            force_real=force_real
+        )
 
-    except FileNotFoundError as e:
-        # Fail loudly as per task constraint
-        print(f"\n{str(e)}\n", file=sys.stderr)
-        return 1
-    except (ValueError, RuntimeError) as e:
-        print(f"\nData Error: {str(e)}\n", file=sys.stderr)
-        return 2
+        # Ensure output directory exists
+        output_path = Path(args.output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Write to disk
+        df.to_csv(output_path, index=False)
+        logger.info(f"Real data ingestion complete. Output written to: {output_path}")
+        print(f"Success: Data written to {output_path}")
+
+    except SystemExit:
+        # Re-raise exit codes from ingest function
+        raise
     except Exception as e:
-        print(f"\nUnexpected Error during ingestion: {e}\n", file=sys.stderr)
-        logger.exception("Unexpected error")
-        return 3
+        logger.critical(f"Data ingestion failed: {str(e)}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

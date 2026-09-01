@@ -102,7 +102,7 @@ The researcher MUST be able to correlate computed solvation free energies with t
 
 - **SC-006**: All findings framed as associational (not causal) given observational design without random assignment. (See US-3)
 - **SC-007**: Power analysis documented for sample size (n ≥ 3 per solvent); effect size estimation deferred to implementation phase. (See US-3)
-- **SC-008**: Threshold sensitivity analysis performed for any decision cutoffs (e.g., lifetime discrepancy threshold ∈ {0.01, 0.05, 0.1} ns) with reported variation in false-positive/false-negative rates. (See US-2)
+- **SC-008**: Threshold sensitivity analysis performed for any decision cutoffs (e.g., lifetime discrepancy threshold) with reported variation in false-positive/false-negative rates. (See US-2)
 - **SC-009**: Perform collinearity diagnostics (VIF analysis) to distinguish effects of dielectric constant and solvation energy if multiple predictors are used. (See US-3)
 - **SC-010**: Logged dielectric constants match the versioned lookup table reference for ≥98% of configured solvents (measured against lookup table version hash). (See US-1)
 

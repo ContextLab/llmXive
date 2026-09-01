@@ -6,6 +6,14 @@ T021:
     handling of the required input file. Moreover, the required data file `data/processed/calibrated_traces.csv`
     is absent, and no synthetic equivalent is provided. The task therefore lacks the
     necessary input artifact and a complete implementation.
+T029c:
+  c: false
+  h: 32eb5b06d0c8973370db69ae5c20cf194d94ff89e8942e0db72e243de43729a1
+  r: "The required output file `data/compute/solvent_solvation.csv` does not exist,\
+    \ and the provided `solvent_models.py` contains only a partial, simulated implementation\
+    \ that does not demonstrably combine real results from T029a and T029b. The artifact\
+    \ is incomplete and does not satisfy the task\u2019s requirement to produce the\
+    \ combined CSV."
 T035:
   c: true
   h: 886eabc2e4e0256c8c5c64aa93460da6849f071ac5116646ac5855232079c62b
@@ -13,3 +21,12 @@ T035:
     \ and contains logic to load the instrument model from `data/chemicals/instrument_config.yaml`,\
     \ falling back to the required generic model when the file or the model key is\
     \ missing. This matches the task\u2019s constraints."
+T048:
+  c: false
+  h: e90505fcf36950bc5c89fd29bf6341af93752e6ef19c9f66e49cb014f17bb151
+  r: "The required input `data/processed/correlation_results.json` does not exist,\
+    \ and the expected output `data/processed/trend_verification_report.json` is missing.\
+    \ Moreover, the provided `validation.py` (truncated) only contains functions for\
+    \ solvent reference loading and dielectric checks; it does not implement the trend\u2011\
+    verification logic that reads the correlation and kinetic files and writes the\
+    \ report. The task therefore remains unfinished."

@@ -1,23 +1,17 @@
 """
-CLI entry point for the Solvent Effects on Photo-Fries Rearrangement pipeline.
+Main CLI entry point for the Solvent Effects on Photo-Fries Rearrangement project.
 
-This module configures and executes a series of solvent experiments spanning
-non-polar to moderate-polar conditions (low to moderate dielectric constant).
-It orchestrates the workflow:
-1. Validates environmental conditions (via T014).
-2. Loads solvent properties from the versioned lookup table (T006/T008).
-3. Filters solvents based on the requested dielectric constant range.
-4. Logs the run configuration and environmental parameters.
-5. Triggers the data ingestion or synthetic generation pipeline.
+This module orchestrates the experimental workflow:
+1. Parses command-line arguments for mode (simulate/real) and configuration.
+2. Configures the solvent series (multiple solvents, epsilon range low to moderate).
+3. Invokes the environment logging module (T014) to record experimental conditions.
+4. Executes the selected workflow (simulation or real data ingestion).
 
 Dependencies:
-- code/analysis/environment.py (T014)
-- code/data/loaders.py (T008)
-- code/data/ingest.py (T015b)
-- code/data/generate_synthetic.py (T015)
-- code/config.py (T009)
-- code/utils/seeds.py (T004)
-- code/utils/logging.py (T005)
+- analysis.environment (T014): For logging environmental parameters.
+- data.loaders: For fetching solvent properties.
+- data.ingest (T015b): For real data ingestion.
+- data.generate_synthetic (T015): For synthetic data generation (fallback).
 """
 
 import os
@@ -26,291 +20,247 @@ import logging
 import argparse
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any, Optional
 
-# Import from project modules
-from config import get_processed_data_path, get_raw_data_path, get_chemicals_path
-from utils.seeds import set_seed
-from utils.logging import setup_logging, log_environmental_params, log_compliance_check
-from analysis.environment import validate_environmental_conditions, record_run_environment, get_environment_summary
-from data.loaders import get_solvent_properties, get_all_solvents, get_dielectric_constant_range, SolventDataError
+# Import from sibling modules using the exact API surface provided
+from analysis.environment import record_run_environment, write_environment_logs
+from data.loaders import get_solvent_properties, get_all_solvents, SolventDataError
 from data.ingest import ingest_real_transient_absorption_data
 from data.generate_synthetic import generate_synthetic_traces
+from utils.logging import setup_logging, log_environmental_params
+from utils.seeds import set_seed
+from config import get_processed_data_path, get_raw_data_path, ensure_directories
 
-# Configure logger for this module
-logger = logging.getLogger(__name__)
 
+def parse_arguments():
+    """
+    Parse command-line arguments for the main experiment runner.
 
-def parse_arguments() -> argparse.Namespace:
-    """Parse command line arguments for the solvent series configuration."""
+    Returns:
+        argparse.Namespace: Parsed arguments including mode, solvents, and paths.
+    """
     parser = argparse.ArgumentParser(
-        description="Configure and execute a solvent series for Photo-Fries rearrangement kinetics."
+        description="CLI entry point for Solvent Effects on Photo-Fries Rearrangement."
+    )
+    parser.add_argument(
+        "--mode",
+        type=str,
+        choices=["simulate", "real"],
+        default="simulate",
+        help="Mode of execution: 'simulate' uses synthetic data, 'real' uses real data ingestion."
     )
     parser.add_argument(
         "--solvents",
         type=str,
         nargs="+",
-        default=None,
-        help="Specific solvent names to include in the series. If None, uses range filtering."
+        default=["cyclohexane", "toluene", "acetonitrile", "methanol"],
+        help="List of solvent names to include in the series (default: low to moderate epsilon)."
     )
     parser.add_argument(
-        "--epsilon-min",
-        type=float,
-        default=1.0,
-        help="Minimum dielectric constant (epsilon) for the solvent series."
+        "--n-replicates",
+        type=int,
+        default=3,
+        help="Number of replicates per solvent condition (default: 3)."
     )
     parser.add_argument(
-        "--epsilon-max",
-        type=float,
-        default=15.0,
-        help="Maximum dielectric constant (epsilon) for the solvent series."
-    )
-    parser.add_argument(
-        "--use-synthetic",
-        action="store_true",
-        default=False,
-        help="Force use of synthetic data generation (fallback for CI/testing)."
-    )
-    parser.add_argument(
-        "--real-data-path",
+        "--data-path",
         type=str,
         default=None,
-        help="Path to real transient absorption data file. If provided, ingestion is attempted."
+        help="Path to real data file (required if mode='real' and USE_REAL_DATA is set)."
     )
     parser.add_argument(
         "--seed",
         type=int,
         default=42,
-        help="Random seed for reproducibility."
+        help="Random seed for reproducibility (default: 42)."
     )
     parser.add_argument(
-        "--output-dir",
+        "--log-level",
         type=str,
-        default=None,
-        help="Override default output directory for processed logs."
+        default="INFO",
+        help="Logging level (default: INFO)."
     )
     return parser.parse_args()
 
 
-def select_solvents(
-    epsilon_min: float,
-    epsilon_max: float,
-    specific_solvents: Optional[List[str]] = None
-) -> List[Dict[str, Any]]:
+def select_solvents(solvent_names):
     """
-    Select solvents from the lookup table based on dielectric constant range
-    or specific names.
+    Select and validate a series of solvents from the lookup table.
 
     Args:
-        epsilon_min: Minimum dielectric constant.
-        epsilon_max: Maximum dielectric constant.
-        specific_solvents: Optional list of specific solvent names.
+        solvent_names (list): List of solvent names to select.
 
     Returns:
-        List of solvent property dictionaries.
+        list: List of validated solvent property dictionaries.
 
     Raises:
-        SolventDataError: If no solvents match the criteria or specific names are invalid.
+        SystemExit: If a requested solvent is not found in the lookup table.
     """
-    try:
-        if specific_solvents:
-            logger.info(f"Selecting specific solvents: {specific_solvents}")
-            selected = []
-            for name in specific_solvents:
-                props = get_solvent_properties(name)
-                if props:
-                    selected.append(props)
-                    logger.debug(f"Loaded solvent: {name} (ε={props.get('dielectric_constant')})")
-                else:
-                    logger.warning(f"Solvent '{name}' not found in lookup table.")
-            
-            if not selected:
-                raise SolventDataError("No valid solvents found in the provided list.")
-            return selected
+    selected_solvents = []
+    available_solvents = get_all_solvents()
+    available_names = [s['name'] for s in available_solvents]
+
+    for name in solvent_names:
+        if name not in available_names:
+            logging.error(f"Solvent '{name}' not found in lookup table. Available: {available_names}")
+            raise SystemExit(1)
+        
+        props = get_solvent_properties(name)
+        if props:
+            selected_solvents.append(props)
+            logging.info(f"Selected solvent: {name} (ε={props.get('dielectric_constant', 'N/A')})")
         else:
-            logger.info(f"Filtering solvents by dielectric constant range: [{epsilon_min}, {epsilon_max}]")
-            all_solvents = get_all_solvents()
-            filtered = [
-                s for s in all_solvents
-                if epsilon_min <= s.get("dielectric_constant", 0) <= epsilon_max
-            ]
-            
-            if not filtered:
-                raise SolventDataError(
-                    f"No solvents found in range [{epsilon_min}, {epsilon_max}]. "
-                    f"Available range: {get_dielectric_constant_range()}"
-                )
-            
-            logger.info(f"Selected {len(filtered)} solvents for the series.")
-            return filtered
+            logging.warning(f"Could not retrieve properties for {name}, skipping.")
 
-    except SolventDataError:
-        raise
-    except Exception as e:
-        raise SolventDataError(f"Error selecting solvents: {str(e)}")
+    if not selected_solvents:
+        logging.error("No valid solvents selected. Exiting.")
+        raise SystemExit(1)
+
+    # Sort by dielectric constant (low to moderate)
+    selected_solvents.sort(key=lambda x: x.get('dielectric_constant', 0))
+    return selected_solvents
 
 
-def run_experiment_series(
-    solvents: List[Dict[str, Any]],
-    use_synthetic: bool,
-    real_data_path: Optional[str],
-    seed: int,
-    output_dir: Optional[str] = None
-) -> Dict[str, Any]:
+def run_experiment_series(solvents, n_replicates, mode, data_path=None):
     """
-    Execute the experimental protocol for the selected solvent series.
+    Execute the experiment series for the selected solvents.
 
-    1. Validates environmental conditions.
-    2. Records the run environment.
-    3. Ingests real data or generates synthetic traces.
-    4. Logs the configuration and results.
+    This function:
+    1. Logs the experimental configuration.
+    2. Iterates through each solvent and replicate.
+    3. Records environmental conditions for each run.
+    4. Generates synthetic data or ingests real data as per mode.
 
     Args:
-        solvents: List of solvent configurations.
-        use_synthetic: Flag to force synthetic data generation.
-        real_data_path: Path to real data file if available.
-        seed: Random seed.
-        output_dir: Optional override for output directory.
+        solvents (list): List of validated solvent dictionaries.
+        n_replicates (int): Number of replicates per solvent.
+        mode (str): Execution mode ('simulate' or 'real').
+        data_path (str, optional): Path to real data file.
 
     Returns:
-        Summary dictionary of the run.
+        dict: Summary of the experiment run.
     """
-    set_seed(seed)
-    logger.info(f"Running experiment series with seed: {seed}")
-    
-    # 1. Validate and Record Environment
-    logger.info("Validating environmental conditions...")
-    is_valid, issues = validate_environmental_conditions()
-    if not is_valid:
-        logger.warning(f"Environmental validation warnings: {issues}")
-        # We proceed but log the warnings as per SC-010 handling
-    
-    env_summary = record_run_environment()
-    logger.info(f"Environment recorded: {env_summary}")
-    
-    # 2. Determine Data Source
-    processed_path = Path(output_dir) if output_dir else get_processed_data_path()
-    processed_path.mkdir(parents=True, exist_ok=True)
-    
-    data_source = "synthetic"
-    raw_data_file = None
-    
-    if real_data_path and not use_synthetic:
-        logger.info(f"Attempting to ingest real data from: {real_data_path}")
-        if os.path.exists(real_data_path):
-            raw_data_file = real_data_path
-            data_source = "real"
-        else:
-            logger.error(f"Real data file not found at: {real_data_path}. "
-                         "Falling back to synthetic data generation as per T015 logic.")
-            data_source = "synthetic"
-    elif use_synthetic:
-        logger.info("Forcing synthetic data generation.")
-        data_source = "synthetic"
-    
-    # 3. Process Data
-    results = {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "solvents": [s["name"] for s in solvents],
-        "epsilon_range": {
-            "min": min(s["dielectric_constant"] for s in solvents),
-            "max": max(s["dielectric_constant"] for s in solvents)
-        },
-        "environment": env_summary,
-        "data_source": data_source,
-        "runs": []
-    }
-    
+    ensure_directories()
+    processed_path = get_processed_data_path()
+    raw_path = get_raw_data_path()
+
+    run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+    environment_logs = []
+
+    logging.info(f"Starting experiment series: Run ID={run_id}")
+    logging.info(f"Solvents: {[s['name'] for s in solvents]}")
+    logging.info(f"Replicates per solvent: {n_replicates}")
+    logging.info(f"Mode: {mode}")
+
     for solvent in solvents:
-        solvent_name = solvent["name"]
-        logger.info(f"Processing solvent: {solvent_name} (ε={solvent['dielectric_constant']})")
-        
-        run_result = {
-            "solvent": solvent_name,
-            "epsilon": solvent["dielectric_constant"],
-            "status": "completed"
-        }
-        
-        if data_source == "real":
-            # Ingest real data for this solvent (simulated by filtering or mapping)
-            # In a real scenario, the ingest function would handle the file parsing
-            # Here we assume the real_data_path contains data for the series or a specific run
-            try:
-                # We call the ingest function which validates the file existence
-                # and returns the data structure. For this CLI, we assume the file
-                # contains the necessary data for the series.
-                data_df = ingest_real_transient_absorption_data(raw_data_file)
-                # In a real implementation, we would filter data_df by solvent_name
-                # For now, we log the ingestion success
-                run_result["data_points"] = len(data_df) if data_df is not None else 0
-            except Exception as e:
-                run_result["status"] = "failed"
-                run_result["error"] = str(e)
-                logger.error(f"Failed to ingest data for {solvent_name}: {e}")
-        else:
-            # Generate synthetic traces
-            try:
-                trace_data = generate_synthetic_traces(
-                    solvent_name=solvent_name,
-                    epsilon=solvent["dielectric_constant"],
-                    seed=seed
+        solvent_name = solvent['name']
+        epsilon = solvent.get('dielectric_constant', 'Unknown')
+        logging.info(f"Processing solvent: {solvent_name} (ε={epsilon})")
+
+        for i in range(1, n_replicates + 1):
+            run_name = f"{run_id}_{solvent_name}_rep{i}"
+            logging.info(f"  Running replicate {i}/{n_replicates}...")
+
+            # 1. Record environmental conditions (T014 dependency)
+            env_data = record_run_environment(
+                run_id=run_name,
+                solvent_name=solvent_name,
+                dielectric_constant=epsilon,
+                replicate=i,
+                substrate_mass=0.150,  # Example: 150 mg (per FR-007)
+                integration_time_ms=100.0  # Example: 100 ms
+            )
+            environment_logs.append(env_data)
+
+            # 2. Execute data generation/ingestion based on mode
+            if mode == "simulate":
+                # Generate synthetic trace for this run
+                output_file = raw_path / f"synthetic_{run_name}.csv"
+                generate_synthetic_traces(
+                    output_path=str(output_file),
+                    solvent=solvent_name,
+                    replicate=i,
+                    seed=(i * 100)  # Deterministic seed per replicate
                 )
-                run_result["data_points"] = len(trace_data) if trace_data is not None else 0
-            except Exception as e:
-                run_result["status"] = "failed"
-                run_result["error"] = str(e)
-                logger.error(f"Failed to generate synthetic data for {solvent_name}: {e}")
-        
-        results["runs"].append(run_result)
-    
-    # 4. Log Compliance
-    log_compliance_check("solvent_series_config", results)
-    
-    # 5. Save Summary
-    summary_file = processed_path / "experiment_series_summary.json"
-    with open(summary_file, "w") as f:
-        import json
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Experiment series summary saved to: {summary_file}")
-    return results
+                logging.info(f"    Generated synthetic data: {output_file}")
+            elif mode == "real":
+                # Ingest real data
+                if data_path and os.path.exists(data_path):
+                    try:
+                        ingest_real_transient_absorption_data(
+                            input_path=data_path,
+                            output_dir=str(raw_path),
+                            solvent=solvent_name,
+                            replicate=i,
+                            run_id=run_name
+                        )
+                        logging.info(f"    Ingested real data for {run_name}")
+                    except FileNotFoundError as e:
+                        logging.error(f"    Real data ingestion failed: {e}")
+                        raise
+                else:
+                    # Fallback to synthetic if real data path is missing (only if USE_REAL_DATA is not enforced)
+                    use_real = os.getenv("USE_REAL_DATA", "").lower() == "true"
+                    if use_real:
+                        logging.error("USE_REAL_DATA=true but data path missing or file not found.")
+                        raise FileNotFoundError(f"Real data file not found at {data_path}")
+                    
+                    logging.warning("Real data path missing, falling back to synthetic (USE_REAL_DATA not enforced).")
+                    output_file = raw_path / f"synthetic_{run_name}.csv"
+                    generate_synthetic_traces(
+                        output_path=str(output_file),
+                        solvent=solvent_name,
+                        replicate=i,
+                        seed=(i * 100)
+                    )
+
+    # 3. Write consolidated environment logs (T014 output)
+    env_log_path = processed_path / "environment_logs.json"
+    write_environment_logs(environment_logs, str(env_log_path))
+    logging.info(f"Environment logs written to: {env_log_path}")
+
+    return {
+        "run_id": run_id,
+        "solvents": [s['name'] for s in solvents],
+        "total_runs": len(solvents) * n_replicates,
+        "environment_log_path": str(env_log_path)
+    }
 
 
 def main():
-    """Main entry point for the CLI."""
+    """
+    Main entry point for the CLI.
+    """
     args = parse_arguments()
-    
+
     # Setup logging
-    log_level = logging.DEBUG if args.use_synthetic else logging.INFO
-    setup_logging(level=log_level)
-    
-    logger.info("Starting Solvent Effects Pipeline (T013)")
-    
+    setup_logging(level=args.log_level)
+
+    # Set random seeds for reproducibility
+    set_seed(args.seed)
+
     try:
         # Select solvents
-        solvents = select_solvents(
-            epsilon_min=args.epsilon_min,
-            epsilon_max=args.epsilon_max,
-            specific_solvents=args.solvents
+        selected_solvents = select_solvents(args.solvents)
+
+        # Run the experiment series
+        result = run_experiment_series(
+            solvents=selected_solvents,
+            n_replicates=args.n_replicates,
+            mode=args.mode,
+            data_path=args.data_path
         )
-        
-        # Run the series
-        results = run_experiment_series(
-            solvents=solvents,
-            use_synthetic=args.use_synthetic,
-            real_data_path=args.real_data_path,
-            seed=args.seed,
-            output_dir=args.output_dir
-        )
-        
-        logger.info("Pipeline execution completed successfully.")
-        print(f"Completed: {len(results['runs'])} runs processed.")
-        
+
+        logging.info("Experiment series completed successfully.")
+        logging.info(f"Summary: {result}")
+
     except SolventDataError as e:
-        logger.critical(f"Data configuration error: {e}")
+        logging.error(f"Solvent data error: {e}")
+        sys.exit(1)
+    except FileNotFoundError as e:
+        logging.error(f"File not found: {e}")
         sys.exit(1)
     except Exception as e:
-        logger.critical(f"Unexpected error during execution: {e}")
+        logging.error(f"Unexpected error: {e}")
         sys.exit(1)
 
 

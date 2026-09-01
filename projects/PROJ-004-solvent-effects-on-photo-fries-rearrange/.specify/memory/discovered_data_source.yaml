@@ -1,0 +1,13 @@
+status: none
+intent: solvent property lookup table NIST Chemistry WebBook CRC Handbook python package
+  dataset
+required_fields:
+- solvent_name
+- dielectric_constant
+- temperature_C
+- relative_humidity_percent
+- source_reference
+- version
+cache_key: 48b998bd779cd05f2355781ee934ba300a943361b7db102cce0becb1951bdbd1
+searched_at: '2026-09-01T20:13:15.000512+00:00'
+retry_count: 1

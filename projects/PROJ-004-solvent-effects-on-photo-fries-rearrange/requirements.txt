@@ -7,6 +7,5 @@ pymatgen
 matplotlib
 seaborn
 pymc
-arviz
-ruff
-black
+pytest
+pytest-cov

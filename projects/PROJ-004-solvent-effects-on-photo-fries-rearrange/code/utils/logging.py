@@ -1,5 +1,7 @@
 """
-Structured logging utilities for environmental parameters.
+Logging Utilities.
+
+Provides structured logging for environmental parameters and compliance checks.
 """
 
 import json
@@ -9,110 +11,97 @@ import sys
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
+
 class EnvironmentalFormatter(logging.Formatter):
-    """Custom formatter for environmental parameter logs."""
-
+    """Custom formatter for environmental logs."""
+    
     def format(self, record):
-        log_data = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "level": record.levelname,
-            "component": getattr(record, 'component', 'unknown'),
-            "action": getattr(record, 'action', 'unknown'),
-            "message": record.getMessage(),
-        }
+        # Add timestamp and level
+        base_msg = super().format(record)
         
-        # Attach extra environmental fields if present
-        if hasattr(record, 'env_params'):
-            log_data['env_params'] = record.env_params
+        # If the record has environmental data, format it nicely
+        if hasattr(record, 'env_data'):
+            env_str = json.dumps(record.env_data, indent=2)
+            return f"{base_msg}\n{env_str}"
         
-        return json.dumps(log_data)
+        return base_msg
 
 
-def setup_logging(log_level: str = "INFO", log_file: Optional[str] = None) -> logging.Logger:
+def setup_logging(
+    log_level: str = "INFO",
+    log_file: Optional[str] = None
+) -> logging.Logger:
     """
-    Setup logging configuration with environmental formatting.
-
+    Set up logging configuration.
+    
     Args:
-        log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+        log_level: Logging level (DEBUG, INFO, WARNING, ERROR)
         log_file: Optional file path for log output
-
+        
     Returns:
-        Configured logger instance
+        Configured logger
     """
-    logger = logging.getLogger('llmXive')
+    logger = logging.getLogger("llmXive")
     logger.setLevel(getattr(logging, log_level.upper()))
-
+    
+    # Clear existing handlers
+    logger.handlers.clear()
+    
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setFormatter(EnvironmentalFormatter())
+    console_formatter = EnvironmentalFormatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)
-
-    # File handler if specified
+    
+    # File handler
     if log_file:
-        os.makedirs(os.path.dirname(log_file) or '.', exist_ok=True)
         file_handler = logging.FileHandler(log_file)
-        file_handler.setFormatter(EnvironmentalFormatter())
+        file_formatter = EnvironmentalFormatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        file_handler.setFormatter(file_formatter)
         logger.addHandler(file_handler)
-
+    
     return logger
 
 
 def log_environmental_params(
     logger: logging.Logger,
-    temperature: Optional[float] = None,
-    humidity: Optional[float] = None,
-    dielectric_constant: Optional[float] = None,
-    solvent_name: Optional[str] = None,
-    **kwargs
+    params: Dict[str, Any],
+    level: int = logging.INFO
 ) -> None:
     """
-    Log environmental parameters in a structured format.
-
-    Args:
-        logger: Logger instance to use
-        temperature: Temperature in Celsius
-        humidity: Relative humidity in percent
-        dielectric_constant: Dielectric constant of the solvent
-        solvent_name: Name of the solvent
-        **kwargs: Additional parameters to log
-    """
-    env_params = {}
-    if temperature is not None:
-        env_params['temperature_c'] = temperature
-    if humidity is not None:
-        env_params['humidity_percent'] = humidity
-    if dielectric_constant is not None:
-        env_params['dielectric_constant'] = dielectric_constant
-    if solvent_name is not None:
-        env_params['solvent_name'] = solvent_name
+    Log environmental parameters as a structured record.
     
-    env_params.update(kwargs)
-
-    logger.info(
-        "Environmental parameters recorded",
-        extra={'env_params': env_params}
-    )
+    Args:
+        logger: Logger instance
+        params: Dictionary of parameters
+        level: Logging level
+    """
+    logger.log(level, "Environmental Parameters", extra={'env_data': params})
 
 
 def log_compliance_check(
-    component: str,
-    action: str,
-    details: str
+    logger: logging.Logger,
+    check_name: str,
+    passed: bool,
+    details: Optional[Dict[str, Any]] = None
 ) -> None:
     """
-    Log a compliance check event.
-
+    Log a compliance check result.
+    
     Args:
-        component: The component performing the check
-        action: The action taken (e.g., 'fetch', 'validate', 'skip')
-        details: Detailed message about the compliance check
+        logger: Logger instance
+        check_name: Name of the compliance check
+        passed: Whether the check passed
+        details: Optional details about the check
     """
-    logger = logging.getLogger('llmXive')
-    logger.info(
-        f"Compliance check: {action}",
-        extra={
-            'component': component,
-            'action': action,
-            'details': details
-        }
-    )
+    status = "PASSED" if passed else "FAILED"
+    msg = f"Compliance Check: {check_name} - {status}"
+    
+    if details:
+        logger.info(msg, extra={'env_data': details})
+    else:
+        logger.info(msg)

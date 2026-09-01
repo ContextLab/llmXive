@@ -1,0 +1,9 @@
+matplotlib  # auto-added: imported by run-book but missing from venv
+numpy  # auto-added: imported by run-book but missing from venv
+pandas  # auto-added: imported by run-book but missing from venv
+scipy  # auto-added: imported by run-book but missing from venv
+seaborn  # auto-added: imported by run-book but missing from venv
+scikit-learn  # auto-added: imported by run-book but missing from venv
+tensorflow  # auto-added: imported by run-book but missing from venv
+torch  # auto-added: imported by run-book but missing from venv
+pyyaml  # auto-added: imported by run-book but missing from venv

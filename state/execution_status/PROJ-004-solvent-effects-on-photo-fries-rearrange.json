@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-004-solvent-effects-on-photo-fries-rearrange",
+  "ok": false,
+  "reason": "23 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/analysis/ground_state.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026t     silent fallback to synthetic data.      Returns:         D\u2026\u201d; code/data/generate_synthetic.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ion Traces.  This module generates deterministic synthetic transient-absorption tra\u2026\u201d; code/data/generate_synthetic.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026np.ndarray:     \"\"\"     Generate a synthetic exponential decay curve\u2026\u201d; 2 command(s) failed: python code/main.py --mode simulate (rc=1); python code/main.py --mode real --data-path data/raw/ (rc=1); 4 declared deliverable(s) absent: data/compute/solvent_solvation.csv; data/processed/environment_logs.json; data/processed/kinetic_metrics.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --mode simulate -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/code/main.py\", line 36, in <module>\n    from data.loaders import get_solvent_properties, get_all_solvents, get_dielectric_constant_range, SolventDataError\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/code/data/loaders.py\", line 10, in <module>\n    import yaml\nModuleNotFoundError: No module named 'yaml'",
+    "python code/main.py --mode real --data-path data/raw/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/code/main.py\", line 36, in <module>\n    from data.loaders import get_solvent_properties, get_all_solvents, get_dielectric_constant_range, SolventDataError\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/code/data/loaders.py\", line 10, in <module>\n    import yaml\nModuleNotFoundError: No module named 'yaml'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-01T20:12:20Z"
+}
