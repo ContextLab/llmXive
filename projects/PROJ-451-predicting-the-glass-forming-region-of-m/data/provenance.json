@@ -1,28 +1,39 @@
 {
   "schema_version": "1.0.0",
-  "description": "Schema and instance for tracking data provenance including source URLs and checksums.",
+  "description": "Schema and instance for tracking data provenance including source URLs (Zenodo, Materials Project) and checksums.",
   "sources": [
     {
       "source_id": "zenodo_gfr_2023",
       "source_type": "zenodo",
-      "url": "https://doi.org/10.5281/zenodo.1234567",
-      "description": "Glass forming region dataset from Science Advances",
+      "url": "https://doi.org/10.1126/sciadv.aaq1566",
+      "description": "Glass forming region dataset from Science Advances (Primary Source)",
       "checksum_algorithm": "sha256",
       "checksum": null,
       "retrieved_at": null,
-      "status": "pending"
+      "status": "pending",
+      "metadata": {
+        "record_id": "10.1126/sciadv.aaq1566",
+        "expected_file": "alloy_data.csv"
+      }
     },
     {
-      "source_id": "materials_project_api",
+      "source_id": "materials_project_api_v3",
       "source_type": "api",
       "url": "https://next-gen.materialsproject.org/api/v3",
-      "description": "Materials Project elemental properties and compositions",
+      "description": "Materials Project elemental properties and compositions (Supplementary)",
       "checksum_algorithm": "sha256",
       "checksum": null,
       "retrieved_at": null,
-      "status": "pending"
+      "status": "pending",
+      "metadata": {
+        "api_version": "v3",
+        "auth_required": true,
+        "auth_env_var": "MATERIALS_PROJECT_API_KEY"
+      }
     }
   ],
   "processing_steps": [],
-  "artifacts": []
+  "artifacts": [],
+  "created_at": null,
+  "updated_at": null
 }

@@ -1,14 +1,14 @@
 import os
 import pytest
 from pathlib import Path
-from unittest.mock import patch
+import tempfile
+import shutil
 
-# Assuming the config module is in code/config.py and we run tests from project root
-# Adjust import if test runner setup requires a different path
-import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "code"))
-
-from config import (
+from code.utils.config import (
+    _get_project_root,
+    _load_env_file,
+    init_environment,
+    validate_environment,
     get_materials_project_api_key,
     get_materials_project_base_url,
     get_data_path,
@@ -17,141 +17,183 @@ from config import (
     get_results_path,
     get_custom_dataset_path,
     ensure_data_directories,
-    validate_environment,
-    _PROJECT_ROOT,
-    _DATA_ROOT,
-    _RAW_DATA_DIR,
-    _PROCESSED_DATA_DIR,
-    _RESULTS_DIR
+    DEFAULT_BASE_URL,
 )
 
 
-class TestConfigPaths:
-    """Tests for path retrieval functions."""
+class TestConfig:
+    """Test cases for config module."""
 
-    def test_get_data_path(self):
-        """Test that get_data_path returns the correct data root directory."""
-        path = get_data_path()
-        assert isinstance(path, Path)
-        assert path.name == "data"
-        # Check it's under the project root
-        assert _PROJECT_ROOT in path.parents or path == _PROJECT_ROOT
+    def test_get_project_root(self):
+        """Test that project root is correctly identified."""
+        root = _get_project_root()
+        assert root.exists()
+        # Should be the parent of code/ directory
+        assert (root / "code").exists()
 
-    def test_get_raw_data_path(self):
-        """Test that get_raw_data_path returns the correct raw data directory."""
-        path = get_raw_data_path()
-        assert isinstance(path, Path)
-        assert path.name == "raw"
-        assert get_data_path() in path.parents
+    def test_load_env_file_creates_dict(self):
+        """Test that _load_env_file correctly parses env file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            env_path = Path(tmpdir) / ".env"
+            env_path.write_text(
+                "TEST_KEY=test_value\n"
+                "TEST_KEY_2=another value\n"
+                "# This is a comment\n"
+                "\n"
+                "QUOTED_KEY=\"quoted value\"\n"
+                "SINGLE_QUOTED='single quoted'\n"
+            )
 
-    def test_get_processed_data_path(self):
-        """Test that get_processed_data_path returns the correct processed data directory."""
-        path = get_processed_data_path()
-        assert isinstance(path, Path)
-        assert path.name == "processed"
-        assert get_data_path() in path.parents
+            _load_env_file(env_path)
 
-    def test_get_results_path(self):
-        """Test that get_results_path returns the correct results directory."""
-        path = get_results_path()
-        assert isinstance(path, Path)
-        assert path.name == "results"
-        assert get_data_path() in path.parents
+            assert os.environ.get("TEST_KEY") == "test_value"
+            assert os.environ.get("TEST_KEY_2") == "another value"
+            assert os.environ.get("QUOTED_KEY") == "quoted value"
+            assert os.environ.get("SINGLE_QUOTED") == "single quoted"
 
+    def test_load_env_file_nonexistent(self):
+        """Test that _load_env_file handles missing file gracefully."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            env_path = Path(tmpdir) / "nonexistent.env"
+            # Should not raise
+            _load_env_file(env_path)
 
-class TestConfigAPI:
-    """Tests for API configuration functions."""
+    def test_validate_environment_missing_key(self, monkeypatch):
+        """Test validation fails when required key is missing."""
+        # Ensure the key is not set
+        monkeypatch.delenv("MATERIALS_PROJECT_API_KEY", raising=False)
 
-    @patch.dict(os.environ, {"MATERIALS_PROJECT_API_KEY": "test_api_key_123"})
-    def test_get_materials_project_api_key_success(self):
-        """Test successful retrieval of API key."""
-        key = get_materials_project_api_key()
-        assert key == "test_api_key_123"
+        assert validate_environment() is False
 
-    @patch.dict(os.environ, {}, clear=True)
-    def test_get_materials_project_api_key_missing(self):
-        """Test that missing API key raises RuntimeError."""
-        with pytest.raises(RuntimeError) as exc_info:
+    def test_validate_environment_with_key(self, monkeypatch):
+        """Test validation passes when required key is set."""
+        monkeypatch.setenv("MATERIALS_PROJECT_API_KEY", "test_key")
+
+        assert validate_environment() is True
+
+    def test_get_materials_project_api_key_missing(self, monkeypatch):
+        """Test that missing API key raises ValueError."""
+        monkeypatch.delenv("MATERIALS_PROJECT_API_KEY", raising=False)
+
+        with pytest.raises(ValueError, match="MATERIALS_PROJECT_API_KEY not set"):
             get_materials_project_api_key()
-        assert "MATERIALS_PROJECT_API_KEY" in str(exc_info.value)
 
-    @patch.dict(os.environ, {"MATERIALS_PROJECT_BASE_URL": "https://custom.url/api"})
-    def test_get_materials_project_base_url_custom(self):
-        """Test retrieval of custom base URL."""
-        url = get_materials_project_base_url()
-        assert url == "https://custom.url/api"
+    def test_get_materials_project_api_key_present(self, monkeypatch):
+        """Test that API key is returned when set."""
+        test_key = "test_api_key_123"
+        monkeypatch.setenv("MATERIALS_PROJECT_API_KEY", test_key)
 
-    @patch.dict(os.environ, {}, clear=True)
-    def test_get_materials_project_base_url_default(self):
-        """Test retrieval of default base URL."""
-        url = get_materials_project_base_url()
-        assert url == "https://next-gen.materialsproject.org/api"
+        assert get_materials_project_api_key() == test_key
 
+    def test_get_materials_project_base_url_default(self, monkeypatch):
+        """Test default base URL is returned when not set."""
+        monkeypatch.delenv("MATERIALS_PROJECT_BASE_URL", raising=False)
 
-class TestConfigCustomDataset:
-    """Tests for custom dataset path configuration."""
+        assert get_materials_project_base_url() == DEFAULT_BASE_URL
 
-    @patch.dict(os.environ, {"CUSTOM_DATASET_PATH": "/path/to/dataset.csv"})
-    def test_get_custom_dataset_path_success(self):
-        """Test successful retrieval of custom dataset path."""
+    def test_get_materials_project_base_url_custom(self, monkeypatch):
+        """Test custom base URL is returned when set."""
+        custom_url = "https://custom.materialsproject.org"
+        monkeypatch.setenv("MATERIALS_PROJECT_BASE_URL", custom_url)
+
+        assert get_materials_project_base_url() == custom_url
+
+    def test_get_data_path_default(self, monkeypatch):
+        """Test default data path when DATA_PATH not set."""
+        monkeypatch.delenv("DATA_PATH", raising=False)
+
+        path = get_data_path()
+        assert path.name == "data"
+
+    def test_get_data_path_custom(self, monkeypatch):
+        """Test custom data path when DATA_PATH is set."""
+        monkeypatch.setenv("DATA_PATH", "custom_data")
+
+        path = get_data_path()
+        assert path.name == "custom_data"
+
+    def test_get_raw_data_path_default(self, monkeypatch):
+        """Test default raw data path."""
+        monkeypatch.delenv("DATA_RAW_PATH", raising=False)
+
+        path = get_raw_data_path()
+        assert path.name == "raw"
+
+    def test_get_processed_data_path_default(self, monkeypatch):
+        """Test default processed data path."""
+        monkeypatch.delenv("DATA_PROCESSED_PATH", raising=False)
+
+        path = get_processed_data_path()
+        assert path.name == "processed"
+
+    def test_get_results_path_default(self, monkeypatch):
+        """Test default results path."""
+        monkeypatch.delenv("DATA_RESULTS_PATH", raising=False)
+
+        path = get_results_path()
+        assert path.name == "results"
+
+    def test_get_custom_dataset_path_none(self, monkeypatch):
+        """Test get_custom_dataset_path returns None when not set."""
+        monkeypatch.delenv("DATA_CUSTOM_PATH", raising=False)
+
+        assert get_custom_dataset_path() is None
+
+    def test_get_custom_dataset_path_custom(self, monkeypatch):
+        """Test get_custom_dataset_path returns path when set."""
+        monkeypatch.setenv("DATA_CUSTOM_PATH", "custom/dataset")
+
         path = get_custom_dataset_path()
-        assert isinstance(path, Path)
-        assert str(path) == "/path/to/dataset.csv"
+        assert path is not None
+        assert path.name == "dataset"
 
-    @patch.dict(os.environ, {}, clear=True)
-    def test_get_custom_dataset_path_missing(self):
-        """Test that missing custom dataset path returns None."""
-        path = get_custom_dataset_path()
-        assert path is None
+    def test_ensure_data_directories_creates(self, monkeypatch, tmp_path):
+        """Test that ensure_data_directories creates directories."""
+        # Mock _get_project_root to return tmp_path
+        import code.utils.config as config_module
 
+        original_get_root = config_module._get_project_root
 
-class TestConfigDirectories:
-    """Tests for directory management functions."""
+        def mock_get_root():
+            return tmp_path
 
-    def test_ensure_data_directories(self, tmp_path):
-        """Test that ensure_data_directories creates the necessary directories."""
-        # Mock the project root to a temporary directory for this test
-        with patch('config._PROJECT_ROOT', tmp_path):
-            with patch('config._DATA_ROOT', tmp_path / "data"):
-                with patch('config._RAW_DATA_DIR', tmp_path / "data" / "raw"):
-                    with patch('config._PROCESSED_DATA_DIR', tmp_path / "data" / "processed"):
-                        with patch('config._RESULTS_DIR', tmp_path / "data" / "results"):
-                            ensure_data_directories()
+        config_module._get_project_root = mock_get_root
 
-                            assert (tmp_path / "data").exists()
-                            assert (tmp_path / "data" / "raw").exists()
-                            assert (tmp_path / "data" / "processed").exists()
-                            assert (tmp_path / "data" / "results").exists()
+        try:
+            ensure_data_directories()
 
-    def test_validate_environment_success(self, tmp_path):
-        """Test validate_environment when API key is set and directories can be created."""
-        # We can't easily mock the global _PROJECT_ROOT for validate_environment
-        # as it relies on the module-level constant.
-        # For a robust test, we might need to refactor config to allow injection of paths.
-        # For now, we test the API key part with a patch.
-        with patch.dict(os.environ, {"MATERIALS_PROJECT_API_KEY": "test_key"}):
-            # This test might fail if the actual project root doesn't have write permissions
-            # or if the directory structure is unexpected.
-            # A more isolated test would require refactoring.
-            # Let's assume the environment is generally valid for this test context.
-            # We'll just check that it doesn't crash if key is present.
-            # In a real scenario, we'd mock the directory checks too.
-            result = validate_environment()
-            # We can't guarantee True without mocking filesystem, but we can ensure it runs
-            assert isinstance(result, bool)
+            assert (tmp_path / "data").exists()
+            assert (tmp_path / "data" / "raw").exists()
+            assert (tmp_path / "data" / "processed").exists()
+            assert (tmp_path / "data" / "results").exists()
+        finally:
+            config_module._get_project_root = original_get_root
 
+    def test_init_environment_loads_env_file(self, monkeypatch, tmp_path):
+        """Test that init_environment loads .env file."""
+        env_file = tmp_path / ".env"
+        env_file.write_text("TEST_INIT_KEY=init_value\n")
 
-class TestConfigInit:
-    """Tests for environment initialization."""
+        # Mock _get_project_root and env path
+        import code.utils.config as config_module
 
-    def test_init_environment(self, tmp_path):
-        """Test that init_environment calls ensure_data_directories."""
-        with patch('config.ensure_data_directories') as mock_ensure:
-            with patch('config._PROJECT_ROOT', tmp_path):
-                with patch('config._DATA_ROOT', tmp_path / "data"):
-                    with patch('config._RAW_DATA_DIR', tmp_path / "data" / "raw"):
-                        with patch('config._PROCESSED_DATA_DIR', tmp_path / "data" / "processed"):
-                            with patch('config._RESULTS_DIR', tmp_path / "data" / "results"):
-                                from config import init_environment
-                                init_environment()
-                                mock_ensure.assert_called_once()
+        original_get_root = config_module._get_project_root
+        original_load_env = config_module._load_env_file
+
+        def mock_get_root():
+            return tmp_path
+
+        def mock_load_env(env_path):
+            if env_path.exists():
+                original_load_env(env_path)
+
+        config_module._get_project_root = mock_get_root
+        config_module._load_env_file = mock_load_env
+
+        try:
+            init_environment(str(env_file))
+
+            assert os.environ.get("TEST_INIT_KEY") == "init_value"
+        finally:
+            config_module._get_project_root = original_get_root
+            config_module._load_env_file = original_load_env

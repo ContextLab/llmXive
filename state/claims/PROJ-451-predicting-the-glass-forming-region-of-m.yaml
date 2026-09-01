@@ -947,3 +947,136 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-30T09:41:50Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: examples include test tasks
+  claim_id: c_0ffdfd80
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Examples_include_test_tasks
+  kind: entity_fact
+  raw_text: The examples below include test tasks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T13:45:36Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: fetch data from Zenodo DOI 10.1126/sciadv.aaq1566
+  claim_id: c_9478a918
+  context: 'Implement data ingestion script scripts/ingest.py to fetch from Zenodo
+    DOI 10.1126/sciadv.aaq1566 (file: alloy_data.csv) and Materials Project API (v3,
+    API Key via env, fields: composition, phase, elemental properties).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: fetch from Zenodo DOI 10.1126/sciadv.aaq1566
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T13:45:40Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: use Materials Project API version 3
+  claim_id: c_9a46e194
+  context: 'Implement data ingestion script scripts/ingest.py to fetch from Zenodo
+    DOI 10.1126/sciadv.aaq1566 (file: alloy_data.csv) and Materials Project API (v3,
+    API Key via env, fields: composition, phase, elemental properties).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Materials Project API (v3)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T13:46:29Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: system calculates balanced accuracy, precision, recall, F1-score and
+    executes paired t-test to report p-values
+  claim_id: c_27e0c499
+  context: 'Independent Test: Verify system calculates balanced accuracy, precision,
+    recall, F1-score for all models, and executes paired t-test to report p-values.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_calculates_balanced_accuracy,_precision,_recall,_F1-s
+  kind: entity_fact
+  raw_text: Verify system calculates balanced accuracy, precision, recall, F1-score
+    for all models, and executes paired t-test to report p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T13:47:31Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: implement paired t-test using scipy.stats.ttest_rel to compare RF/XGBoost
+    vs. baseline reporting p-values
+  claim_id: c_1d7f5d76
+  context: 'Implement paired t-test (using scipy.stats.ttest_rel) to compare RF/XGBoost
+    vs. baseline, reporting p-values. Input: Fold-level scores from T027 (or T024).
+    Output: Append p-values to data/results/model_performance_metrics.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_paired_t-test_using_scipy.stats.ttest_rel_to_compa
+  kind: entity_fact
+  raw_text: Implement paired t-test (using scipy.stats.ttest_rel) to compare RF/XGBoost
+    vs. baseline, reporting p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T13:48:28Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: generate SHAP summary plot using matplotlib and seaborn saving to data/results/shap_summary.png
+  claim_id: c_19f46207
+  context: Generate SHAP summary plot for top descriptors using matplotlib/seaborn
+    and save to data/results/shap_summary.png
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_SHAP_summary_plot_using_matplotlib_and_seaborn_savi
+  kind: entity_fact
+  raw_text: Generate SHAP summary plot for top descriptors using matplotlib/seaborn
+    and save to data/results/shap_summary.png
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T13:49:07Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: verify SHAP plots generated for top-ranked descriptors and permutation
+    importance scores are non-negative and sum to unity
+  claim_id: c_82fd9044
+  context: 'Independent Test: Verify SHAP plots are generated for the top-ranked descriptors
+    and permutation importance scores are non-negative and sum to unity.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_SHAP_plots_generated_for_top-ranked_descriptors_and_p
+  kind: entity_fact
+  raw_text: Verify SHAP plots are generated for the top-ranked descriptors and permutation
+    importance scores are non-negative and sum to unity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T13:49:55Z'

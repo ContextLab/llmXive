@@ -1,3 +1,1 @@
-# This directory is for raw and processed data files
-# Data files are not tracked in git to keep the repository size manageable.
-# Add specific data files to .gitignore if needed.
+# Placeholder to ensure data/ directory exists in version control

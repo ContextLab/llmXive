@@ -43,9 +43,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project directory structure (`projects/PROJ-451-predicting-the-glass-forming-region-of-m/`) per `plan.md` <!-- ATOMIZE: requested -->
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (scikit-learn, xgboost, pandas, numpy, shap, scipy, requests, pytest)
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T001a [P] Create root directory structure (`projects/PROJ-451-predicting-the-glass-forming-region-of-m/`) per `plan.md` <!-- FAILED: unspecified -->
+- [ ] T001b [P] Create `code/`, `data/`, `tests/`, `docs/`, `notebooks/` subdirectories
+- [X] T001c [P] Initialize Python 3.11 project with `requirements.txt` (scikit-learn, xgboost, pandas, numpy, shap, scipy, requests, pytest)
+- [ ] T002 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -55,11 +56,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Implement `utils/io.py` with functions for loading CSV/JSON data and handling Materials Project API requests (API Key via env var, v3 endpoint)
-- [ ] T005 [P] Implement `utils/dedup.py` for deduplicating compositions by unique chemical formula (normalized atomic fractions), {{claim:c_6a2d6a3c}} ({{claim:c_a08f7f27}}, https://www.wikidata.org/wiki/Q19881044)
-- [X] T006 Create `data/provenance.json` schema for tracking source URLs (Zenodo) and checksums
-- [ ] T007 [P] Setup `data/raw/` and `data/processed/` directory structure with `.gitkeep`
-- [ ] T008 Configure environment configuration management for API keys (Materials Project) and dataset paths
+- [X] T003 [P] [US1] Implement `utils/dedup.py` for deduplicating compositions by unique chemical formula. **Algorithm**: Normalize formula to Hill system (C first, then H, then alphabetical), sort elements, compare strings. **Output**: `data/processed/deduped_compositions.csv`. Retain records from primary source (Science Advances) if duplicates exist (FR-010).
+- [X] T004 [P] Create `data/provenance.json` schema for tracking source URLs (Zenodo) and checksums
+- [ ] T005 [P] Setup `data/raw/` and `data/processed/` directory structure with `.gitkeep`
+- [ ] T006 [P] Configure environment configuration management. **Deliverables**: Create `.env.example` with placeholders for `MATERIALS_PROJECT_API_KEY` and `DATA_PATH`; create `utils/config.py` to load and validate these keys from `.env` or environment variables.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -69,22 +69,22 @@
 
 **Goal**: Load alloy composition data from Science Advances and Materials Project, compute atomic-scale descriptors, and output a structured dataset.
 
-**Independent Test**: verify output dataset contains ≥1000 alloy compositions with ≥10 computed descriptors [UNRESOLVED-CLAIM: c_48c7a230 — status=not_enough_info], and descriptor values fall within physically reasonable ranges (e.g., atomic size mismatch ∈ [non-negative, ]).
+**Independent Test**: verify output dataset contains ≥1000 alloy compositions with ≥10 computed descriptors, and descriptor values fall within physically reasonable ranges (e.g., atomic size mismatch ∈ [non-negative, 1], electronegativity difference ∈ [non-negative, 3]).
 
 ### Implementation for User Story 1
 
-- [X] T009 [P] [US1] Write unit test for `features/descriptors.py` in `tests/unit/test_descriptors.py` (verify formula correctness for the specific descriptors: Atomic Radius, Electronegativity, Valence Electron Concentration, Atomic Size Mismatch, Mixing Enthalpy, Atomic Size Difference, Valence Electron Size Mismatch, Electron-Atom Ratio, Miedema's Heat of Formation, and Atomic Packing Factor). **Note**: This is a TDD 'write test' task; expect initial failure.
-- [X] T010 [P] [US1] Write unit test for `utils/dedup.py` in `tests/unit/test_dedup.py` (verify deduplication logic and source retention). **Note**: This is a TDD 'write test' task; expect initial failure.
-- [ ] T012 [P] [US1] Create `features/descriptors.py` to compute a set of atomic descriptors: Atomic Radius, Electronegativity, Valence Electron Concentration, Atomic Size Mismatch (δ), Mixing Enthalpy (ΔHmix), Atomic Size Difference, Valence Electron Size Mismatch, Electron-Atom Ratio, Miedema's Heat of Formation, and Atomic Packing Factor. Ensure all formulas are implemented and documented.
-- [ ] T013 [US1] Implement data ingestion script `code/main.py` (or `scripts/ingest.py`) to fetch from Zenodo DOI and Materials Project API (v3, API Key via env, fields: composition, phase, elemental properties), merging records. **Constraint**: If the primary DOI source is unavailable, MUST fallback to the synthetic generator (T013b) to ensure reproducibility per plan.md.
-- [ ] T013b [US1] Implement synthetic data generator `utils/synthetic.py` to generate valid alloy compositions with realistic descriptors when canonical DOI is unavailable (supports reproducibility per plan.md Constitution Check).
-- [X] T011 [US1] Integration test for data ingestion pipeline in `tests/integration/test_ingestion.py` (Requires T013 completion).
-- [ ] T014 [US1] Implement label filtering in `utils/io.py` to exclude compositions lacking definitive phase labels (amorphous/crystalline) per FR-009
-- [ ] T015 [US1] Implement dataset capping logic in `utils/io.py` to enforce ≤10,000 compositions limit [UNRESOLVED-CLAIM: c_4103d627 — status=not_enough_info] per FR-007 using **stratified random sampling** by alloy system. This task ensures the hard cap is met before training.
-- [ ] T016 [US1] Generate `data/processed/engineered_dataset.csv` with all required descriptors and metadata
-- [ ] T017 [US1] Add validation checks to ensure ≥95% descriptor completeness and drop compositions with missing elemental properties
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [X] T007 [P] [US1] Write unit test for `features/descriptors.py` in `tests/unit/test_descriptors.py` (verify formula correctness for the specific descriptors: Atomic Radius, Electronegativity, Valence Electron Concentration, Atomic Size Mismatch, Mixing Enthalpy, etc.). **Note**: This is a TDD 'write test' task; expect initial failure.
+- [X] T008 [P] [US1] Write unit test for `utils/dedup.py` in `tests/unit/test_dedup.py` (verify deduplication logic and source retention). **Note**: This is a TDD 'write test' task; expect initial failure.
+- [X] T009 [P] [US1] Create `features/descriptors.py` to compute atomic descriptors. **Core (Mandatory)**: Atomic Size Mismatch (δ), Electronegativity Difference (Δχ), Mixing Enthalpy (ΔHmix). **Optional (Extension)**: Atomic Radius, Valence Electron Concentration, etc. **Reference**: Use formulas and constants defined in `docs/thermodynamics.md`.
+- [ ] T010 [US1] Implement data ingestion script `scripts/ingest.py` to fetch from Zenodo DOI `10.1126/sciadv.aaq1566` (file: `alloy_data.csv`) and Materials Project API (v3, API Key via env, fields: composition, phase, elemental properties). **Constraint**: If the primary DOI source is unavailable, the script MUST raise a `ValueError` immediately. Synthetic data (T011) is NOT a fallback for the main pipeline; it is a separate local testing tool.
+- [ ] T011 [US1] Implement synthetic data generator `utils/synthetic.py` to generate valid alloy compositions with realistic descriptors for local testing and reproducibility verification when the canonical DOI is inaccessible. **Note**: This is a parallel task to T010, not a fallback.
+- [X] T012 [US1] Integration test for data ingestion pipeline in `tests/integration/test_ingestion.py` (Requires T010 and T011 completion).
+- [ ] T013 [US1] Implement label filtering in `scripts/ingest.py` or `utils/io.py` to exclude compositions lacking definitive phase labels (amorphous/crystalline) per FR-009. **Output**: `data/processed/filtered_dataset.csv`.
+- [ ] T014 [US1] Implement dataset capping logic in `scripts/ingest.py` to enforce ≤10,000 compositions limit per FR-007 using **stratified random sampling** by alloy system. **Priority**: Retain records from primary source (Science Advances) first (FR-010). **Logic**: Use 'primary base element' derivation from T020 for stratification.
+- [ ] T015 [US1] Generate `data/processed/engineered_dataset.csv` with all required descriptors and metadata.
+- [ ] T016 [US1] Add validation checks to ensure ≥95% descriptor completeness and drop compositions with missing elemental properties. **Output**: `data/processed/completeness_report.json`.
+- [ ] T017 [US1] Implement strict error handling in `utils/io.py` for elemental property lookups: if a required property (e.g., electronegativity for a rare earth) is missing, the script MUST raise a `ValueError` immediately rather than dropping the row silently or imputing a default value, ensuring data hygiene per FR-001.
+- [ ] T018 [US1] Implement streaming/iterative processing in `scripts/ingest.py` to handle large datasets **ONLY IF** size > 10,000 rows, otherwise load into memory. This ensures compliance with the 7 GB RAM constraint in FR-007 as a safety measure.
 
 ---
 
@@ -96,22 +96,22 @@
 
 ### Implementation for User Story 2
 
-- [X] T019 [P] [US2] Write unit test for model training loop in `tests/unit/test_training.py` (verify stratified split logic). **Note**: This is a TDD 'write test' task; expect initial failure.
-- [ ] T020 [US2] Create `models/train.py` with stratified k-fold cross-validation logic (stratify by alloy system, derived by extracting primary base element via regex).
+- [ ] T019 [P] [US2] Write unit test for model training loop in `tests/unit/test_training.py` (verify stratified split logic). **Note**: This is a TDD 'write test' task; expect initial failure.
+- [ ] T020 [US2] Create `models/train.py` with stratified k-fold cross-validation logic. **Stratification Logic**: Extract 'primary base element' via regex (e.g., match the most abundant element or the first element in Hill order) to define 'alloy system'.
 - [ ] T021 [P] [US2] Implement Random Forest classifier training with hyperparameter optimization (grid search or randomized search) within `models/train.py`
 - [ ] T022 [P] [US2] Implement XGBoost classifier training with hyperparameter optimization within `models/train.py`
 - [ ] T023 [P] [US2] Implement Logistic Regression baseline training in `models/train.py`
 - [ ] T024 [US2] Implement metrics calculation (balanced accuracy, precision, recall, F1) in `models/evaluate.py`
-- [ ] T026 [US2] Implement Bonferroni correction logic for multiple hypothesis testing per FR-008 in `utils/stats.py`. **Mandatory**: This logic must be available before T025.
-- [ ] T025 [US2] Implement **paired t-test** (using `scipy.stats.ttest_rel`) to compare RF/XGBoost vs. baseline, reporting p-values. **Mandatory**: Apply Bonferroni correction (from T026) as the primary method for multiple hypothesis testing per FR-008.
-- [ ] T027 [US2] Generate `data/results/model_performance_metrics.json` with all fold-level scores and aggregate metrics
-- [ ] T028 [US2] Add logic to handle edge cases: insufficient samples per alloy system for stratification (fallback to simple split or warning)
-- [ ] T030 [P] [US2] Write unit test for 80/20 split logic in `tests/unit/test_split.py`. **Note**: This is a TDD 'write test' task; expect initial failure.
-- [ ] T029 [US2] Apply /20 stratified train/test split logic in `models/train.py` (stratify by alloy system) to satisfy FR-003. **Note**: This task resolves the [deferred] status in FR-003 by defining the implementation logic ([deferred] train, [deferred] test).
-- [ ] T031 [US2] Apply Bonferroni correction to final p-values in `model_performance_metrics.json` and update metrics
+- [ ] T025 [US2] Implement **Bonferroni correction** logic for multiple hypothesis testing per FR-008 in `utils/stats.py`. **Mandatory**: This logic must be available before T026.
+- [ ] T026 [US2] Implement **paired t-test** (using `scipy.stats.ttest_rel`) to compare RF/XGBoost vs. baseline, reporting p-values. **Input**: Fold-level scores from T027 (or T024). **Output**: Append p-values to `data/results/model_performance_metrics.json`. Apply Bonferroni correction (from T025) as the primary method for multiple hypothesis testing per FR-008.
+- [ ] T027 [US2] Add logic to handle edge cases: insufficient samples per alloy system for stratification (fallback to simple split or warning)
+- [ ] T028 [US2] Write unit test for split logic in `tests/unit/test_split.py`. **Note**: This is a TDD 'write test' task; expect initial failure.
+- [ ] T029 [US2] Apply stratified train/test split logic in `models/train.py` (stratify by alloy system) to satisfy FR-003. **Logic**: Determine split ratio based on class balance and alloy system distribution (deferred, not hardcoded to 80/20).
+- [ ] T030 [US2] Apply Bonferroni correction to final p-values in `data/results/model_performance_metrics.json` and update metrics. **Note**: Must run before T031 to ensure the generated artifact contains corrected values.
+- [ ] T031 [US2] Generate `data/results/model_performance_metrics.json` with all fold-level scores and aggregate metrics (including corrected p-values).
 - [ ] T032 [US2] Integration test for full training pipeline in `tests/integration/test_training_pipeline.py`
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T033 [US2] Add explicit handling for the boundary condition where p = 0.05 exactly in `utils/stats.py`: the system MUST report the exact p-value and a specific status flag (e.g., "boundary_significance") rather than a binary pass/fail, ensuring scientific rigor per the edge case analysis in spec.md.
+- [ ] T034 [US2] Ensure `models/train.py` enforces `device="cpu"` explicitly in all model initializations (RF, XGBoost, LR) to prevent accidental GPU usage and ensure compatibility with the 2-core CPU runner constraint.
 
 ---
 
@@ -119,22 +119,21 @@
 
 **Goal**: Extract permutation importance and generate SHAP plots to explain model predictions.
 
-**Independent Test**: Verify SHAP plots are generated for the top-ranked descriptors and permutation importance scores are non-negative and sum to unity [UNRESOLVED-CLAIM: c_8bd65f87 — status=not_enough_info].
+**Independent Test**: Verify SHAP plots are generated for the top-ranked descriptors and permutation importance scores are non-negative and sum to unity.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T033 [P] [US3] Unit test for SHAP value computation in `tests/unit/test_interpretability.py`
-- [ ] T034 [P] [US3] Integration test for visualization generation in `tests/integration/test_viz.py`
+- [ ] T035 [P] [US3] Unit test for SHAP value computation in `tests/unit/test_interpretability.py`
+- [ ] T036 [P] [US3] Integration test for visualization generation in `tests/integration/test_viz.py`
 
 ### Implementation for User Story 3
 
-- [ ] T035 [P] [US3] Implement permutation importance calculation in `models/evaluate.py`
-- [ ] T036 [US3] Implement SHAP value computation for the trained Random Forest model in `models/evaluate.py`
-- [ ] T037 [US3] Generate SHAP summary plot for top descriptors using `matplotlib`/`seaborn` and save to `data/results/shap_summary.png`
-- [ ] T038 [US3] Generate feature importance bar chart (top descriptors) and save to `data/results/feature_importance.png`
-- [ ] T039 [US3] Write interpretability report to `data/results/interpretability_report.md` summarizing key physical drivers
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T037 [P] [US3] Implement permutation importance calculation in `models/evaluate.py`
+- [ ] T038 [US3] Implement SHAP value computation for the trained Random Forest model in `models/evaluate.py`
+- [ ] T039 [US3] Generate SHAP summary plot for top descriptors using `matplotlib`/`seaborn` and save to `data/results/shap_summary.png`
+- [ ] T040 [US3] Generate feature importance bar chart (top descriptors) and save to `data/results/feature_importance.png`
+- [ ] T041 [US3] Write interpretability report to `data/results/interpretability_report.md`. **Sections**: 1. Executive Summary, 2. Top 3 Physical Drivers (with % contribution), 3. SHAP Analysis of Key Descriptors, 4. Implications for Alloy Design.
+- [ ] T042 [US3] Implement validation logic in `models/evaluate.py` to verify that permutation importance scores are normalized (sum to 1.0) and non-negative before saving results, ensuring compliance with the acceptance criteria in US-3.
 
 ---
 
@@ -142,12 +141,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T040 [P] Documentation updates: `quickstart.md` (setup, run, data sources)
-- [ ] T041 [P] Documentation updates: `research.md` (methodology, results, statistical tests)
-- [ ] T042 Code cleanup and refactoring in `code/`
-- [ ] T043 Performance optimization for CPU-only execution (ensure no GPU calls, optimize memory usage)
-- [ ] T044 [P] Run quickstart.md validation to ensure end-to-end reproducibility
-- [ ] T045 Verify all artifacts (datasets, models, plots) are checksummed in `data/provenance.json`
+- [ ] T043 [P] Documentation updates: `quickstart.md` (setup, run, data sources)
+- [ ] T044 [P] Documentation updates: `research.md` (methodology, results, statistical tests)
+- [ ] T045 Code cleanup and refactoring in `code/`
+- [ ] T046 [P] Performance optimization for CPU-only execution (ensure no GPU calls, optimize memory usage)
+- [ ] T047 [P] Run quickstart.md validation to ensure end-to-end reproducibility
+- [ ] T048 [P] Verify all artifacts (datasets, models, plots) are checksummed in `data/provenance.json`
 
 ---
 
@@ -196,7 +195,7 @@ Task: "Write unit test for utils/dedup.py in tests/unit/test_dedup.py"
 
 # Launch all models for User Story 1 together:
 Task: "Create features/descriptors.py to compute atomic size mismatch..."
-Task: "Implement data ingestion script code/main.py..."
+Task: "Implement data ingestion script scripts/ingest.py..."
 ```
 
 ---
@@ -241,9 +240,11 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All data ingestion must use real sources (Zenodo DOI or Materials Project API); synthetic data is ONLY a fallback when the DOI is unavailable (T013b).
+- **Critical Constraint**: All data ingestion must use real sources (Zenodo DOI or Materials Project API); synthetic data is ONLY for local testing (T011), not a fallback for the main pipeline (T010).
 - **Critical Constraint**: All models must run on CPU-only CI with limited cores and memory; no GPU/CUDA dependencies.
-- **Critical Constraint**: Dataset must be capped using stratified random sampling to preserve statistical validity (T015).
-- **Critical Constraint**: All 10 descriptors must be computed and verified [UNRESOLVED-CLAIM: c_f042a138 — status=not_enough_info] (T012, T009).
+- **Critical Constraint**: Dataset must be capped using stratified random sampling to preserve statistical validity (T014), retaining primary source records first.
+- **Critical Constraint**: All 10 descriptors are computed, but only 3 (size mismatch, electronegativity, mixing enthalpy) are mandatory per spec (T009).
 - **Critical Constraint**: Paired t-test must be the primary statistical test; Bonferroni correction is mandatory for multiple comparisons (T025, T026).
-- **Critical Constraint**: Bonferroni correction must be applied to final p-values (T031).
+- **Critical Constraint**: Bonferroni correction must be applied to final p-values before generating metrics (T030, T031).
+- **Critical Constraint**: Data loaders must fail loudly on missing elemental properties (T017) and stream only if dataset > 10k rows (T018) to ensure data integrity and resource compliance.
+- **Critical Constraint**: Statistical tests must handle boundary conditions explicitly (T033).

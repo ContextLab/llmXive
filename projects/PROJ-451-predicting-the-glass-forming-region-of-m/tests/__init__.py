@@ -1,3 +1,1 @@
-"""
-Test suite initialization.
-"""
+# Tests package for PROJ-451

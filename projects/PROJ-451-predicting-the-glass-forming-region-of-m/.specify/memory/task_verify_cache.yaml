@@ -1,3 +1,9 @@
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `utils/synthetic.py` file or any code for a synthetic data generator is present
+    in the provided evidence, so the required artifact does not exist and the task
+    is not satisfied.
 T013:
   c: false
   h: b914bf1c760e906078dcc11d5b48bfe83b41e6360f363b86e90b52f75cd34175
@@ -7,12 +13,6 @@ T013:
     \ is unavailable. Additionally, the script\u2019s handling of the API key, required\
     \ fields, and final merged output are not demonstrated. The missing implementation\
     \ details must be added to satisfy the task."
-T013b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `utils/synthetic.py` file or any code implementing a synthetic data generator
-    is present in the provided evidence, so the required artifact does not exist and
-    the task cannot be considered fulfilled.
 T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

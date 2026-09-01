@@ -1,1 +1,2 @@
-# Placeholder for processed data directory
+# This directory stores processed, cleaned, and engineered datasets.
+# Derived from raw data via scripts in code/ or notebooks/.

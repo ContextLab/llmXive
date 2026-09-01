@@ -1,1 +1,2 @@
-# Placeholder for raw data directory
+# This directory stores raw, immutable data downloaded from external sources.
+# Do not modify files here directly.

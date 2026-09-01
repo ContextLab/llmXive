@@ -1,17 +1,18 @@
 """
-Synthetic data generator for metallic glass alloy compositions.
+Synthetic Data Generator for Metallic Glass Alloy Compositions.
 
-This module provides functions to generate valid alloy compositions with
-realistic descriptors when the canonical DOI source is unavailable.
-It is designed to support reproducibility per plan.md Constitution Check.
+This module generates valid alloy compositions with realistic descriptors
+for local testing and reproducibility verification when the canonical
+DOI is inaccessible.
 
-IMPORTANT: This is a FALLBACK mechanism ONLY. The primary data source
-(Zenodo DOI or Materials Project API) MUST be attempted first.
+IMPORTANT: This is a testing utility ONLY. It is NOT a fallback for the
+main ingestion pipeline (T010). The main pipeline MUST fail loudly if
+real data sources are unavailable.
 """
 
 import numpy as np
 import pandas as pd
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 import logging
 from pathlib import Path
 from features.descriptors import compute_all_descriptors
@@ -19,111 +20,179 @@ from features.descriptors import compute_all_descriptors
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Fixed seed for reproducibility
-REPRODUCIBLE_SEED = 42
+# Real elemental properties based on standard periodic table data
+# Sources: WebElements, Materials Project, and standard thermodynamic tables
+ELEMENT_PROPERTIES = {
+    # Atomic Radius (pm), Electronegativity (Pauling), Valence Electrons
+    'Zr': {'radius': 160, 'electronegativity': 1.33, 'valence': 4},
+    'Ti': {'radius': 147, 'electronegativity': 1.54, 'valence': 4},
+    'Hf': {'radius': 159, 'electronegativity': 1.30, 'valence': 4},
+    'Cu': {'radius': 128, 'electronegativity': 1.90, 'valence': 1},
+    'Zn': {'radius': 134, 'electronegativity': 1.65, 'valence': 2},
+    'Ni': {'radius': 124, 'electronegativity': 1.91, 'valence': 2},
+    'Al': {'radius': 143, 'electronegativity': 1.61, 'valence': 3},
+    'Be': {'radius': 112, 'electronegativity': 1.57, 'valence': 2},
+    'Mg': {'radius': 160, 'electronegativity': 1.31, 'valence': 2},
+    'La': {'radius': 187, 'electronegativity': 1.10, 'valence': 3},
+    'Ce': {'radius': 182, 'electronegativity': 1.12, 'valence': 3},
+    'Pd': {'radius': 137, 'electronegativity': 2.20, 'valence': 2},
+    'Pt': {'radius': 139, 'electronegativity': 2.28, 'valence': 2},
+    'Ag': {'radius': 144, 'electronegativity': 1.93, 'valence': 1},
+    'Au': {'radius': 144, 'electronegativity': 2.54, 'valence': 1},
+    'Fe': {'radius': 126, 'electronegativity': 1.83, 'valence': 2},
+    'Co': {'radius': 125, 'electronegativity': 1.88, 'valence': 2},
+    'Y': {'radius': 180, 'electronegativity': 1.22, 'valence': 3},
+    'Nb': {'radius': 146, 'electronegativity': 1.60, 'valence': 5},
+    'Mo': {'radius': 139, 'electronegativity': 2.16, 'valence': 6},
+    'Ta': {'radius': 146, 'electronegativity': 1.50, 'valence': 5},
+    'W': {'radius': 139, 'electronegativity': 2.36, 'valence': 6},
+    'Sn': {'radius': 145, 'electronegativity': 1.96, 'valence': 4},
+    'In': {'radius': 167, 'electronegativity': 1.78, 'valence': 3},
+    'Ga': {'radius': 135, 'electronegativity': 1.81, 'valence': 3},
+    'Si': {'radius': 118, 'electronegativity': 1.90, 'valence': 4},
+    'B': {'radius': 85, 'electronegativity': 2.04, 'valence': 3},
+    'C': {'radius': 77, 'electronegativity': 2.55, 'valence': 4},
+    'P': {'radius': 110, 'electronegativity': 2.19, 'valence': 5},
+    'S': {'radius': 103, 'electronegativity': 2.58, 'valence': 6},
+}
 
-# Representative alloy systems for metallic glasses
-# Format: (base_element, common_alloying_elements, typical_ranges)
-ALLOY_SYSTEMS = [
-    ("Zr", ["Ti", "Cu", "Ni", "Al", "Be"], [(0.3, 0.7), (0.0, 0.3), (0.0, 0.3), (0.0, 0.2), (0.0, 0.1)]),
-    ("Pd", ["Si", "Ge", "Cu", "Ni", "Ag"], [(0.4, 0.8), (0.0, 0.2), (0.0, 0.2), (0.0, 0.2), (0.0, 0.1)]),
-    ("La", ["Al", "Ni", "Cu", "Co", "Fe"], [(0.4, 0.8), (0.0, 0.3), (0.0, 0.2), (0.0, 0.2), (0.0, 0.1)]),
-    ("Mg", ["Cu", "Zn", "Ni", "Ag", "Y"], [(0.4, 0.8), (0.0, 0.3), (0.0, 0.2), (0.0, 0.2), (0.0, 0.1)]),
-    ("Ti", ["Zr", "Cu", "Ni", "Al", "Be"], [(0.3, 0.7), (0.0, 0.3), (0.0, 0.3), (0.0, 0.2), (0.0, 0.1)]),
-    ("Fe", ["B", "Si", "C", "Cr", "Ni"], [(0.4, 0.8), (0.0, 0.3), (0.0, 0.2), (0.0, 0.2), (0.0, 0.1)]),
-    ("Cu", ["Zr", "Hf", "Ti", "Al", "Ni"], [(0.3, 0.7), (0.0, 0.3), (0.0, 0.3), (0.0, 0.2), (0.0, 0.1)]),
-    ("Ni", ["Nb", "Ti", "Zr", "Al", "Cu"], [(0.3, 0.7), (0.0, 0.3), (0.0, 0.3), (0.0, 0.2), (0.0, 0.1)]),
+# Common metallic glass forming systems with typical composition ranges
+GLASS_FORMING_SYSTEMS = [
+    # Zr-based systems (most common)
+    {'base': 'Zr', 'elements': ['Cu', 'Ni', 'Al', 'Be'], 'ranges': [(30, 70), (5, 35), (5, 30), (0, 20)]},
+    {'base': 'Zr', 'elements': ['Cu', 'Ni', 'Ti', 'Al'], 'ranges': [(30, 65), (10, 35), (5, 25), (5, 20)]},
+    {'base': 'Zr', 'elements': ['Cu', 'Al', 'Ni', 'Be'], 'ranges': [(35, 60), (10, 25), (5, 20), (0, 15)]},
+    # Ti-based systems
+    {'base': 'Ti', 'elements': ['Cu', 'Ni', 'Zr', 'Al'], 'ranges': [(25, 60), (10, 35), (10, 40), (5, 25)]},
+    {'base': 'Ti', 'elements': ['Cu', 'Zr', 'Ni', 'Be'], 'ranges': [(30, 55), (15, 40), (5, 25), (0, 15)]},
+    # Pd-based systems
+    {'base': 'Pd', 'elements': ['Cu', 'Ni', 'P', 'Si'], 'ranges': [(35, 65), (10, 35), (10, 30), (0, 15)]},
+    {'base': 'Pd', 'elements': ['Ag', 'Cu', 'P', 'Si'], 'ranges': [(30, 55), (10, 30), (10, 35), (5, 20)]},
+    # La-based systems
+    {'base': 'La', 'elements': ['Al', 'Cu', 'Ni', 'Be'], 'ranges': [(20, 50), (15, 40), (10, 35), (0, 20)]},
+    # Mg-based systems
+    {'base': 'Mg', 'elements': ['Cu', 'Zn', 'Ni', 'Al'], 'ranges': [(30, 60), (10, 35), (5, 25), (5, 20)]},
+    # Y-based systems
+    {'base': 'Y', 'elements': ['Al', 'Cu', 'Ni', 'Co'], 'ranges': [(25, 50), (15, 40), (10, 35), (5, 25)]},
+    # Fe-based systems
+    {'base': 'Fe', 'elements': ['B', 'Si', 'P', 'C'], 'ranges': [(60, 85), (5, 20), (5, 20), (0, 15)]},
+    # Nb-based systems
+    {'base': 'Nb', 'elements': ['Cu', 'Al', 'Ni', 'Si'], 'ranges': [(25, 55), (10, 35), (10, 30), (5, 20)]},
 ]
 
-# Phase labels for metallic glass datasets
-PHASE_LABELS = ["amorphous", "crystalline"]
-PHASE_WEIGHTS = [0.4, 0.6]  # Typical distribution in experimental datasets
+# Phase labels with realistic distribution (amorphous vs crystalline)
+PHASE_LABELS = ['amorphous', 'crystalline']
+AMORPHOUS_PROBABILITY = 0.65  # Slight bias towards amorphous for glass-forming region study
 
-def generate_composition_from_system(
-    system_idx: int,
-    rng: np.random.Generator
-) -> Dict[str, Any]:
+def generate_composition_from_system(system_idx: int, rng: np.random.Generator) -> Tuple[str, float]:
     """
-    Generate a single alloy composition from a specified alloy system.
+    Generate a random composition from a specific glass-forming system.
 
     Args:
-        system_idx: Index of the alloy system to use
+        system_idx: Index of the glass-forming system to use
         rng: NumPy random generator for reproducibility
 
     Returns:
-        Dictionary with 'composition' (string) and 'phase' label
+        Tuple of (composition_string, phase_label)
     """
-    base_element, alloying_elements, ranges = ALLOY_SYSTEMS[system_idx]
+    system = GLASS_FORMING_SYSTEMS[system_idx]
+    elements = system['elements']
+    ranges = system['ranges']
 
-    # Generate random atomic fractions that sum to 1.0
-    n_elements = len(alloying_elements) + 1
-    fractions = np.zeros(n_elements)
+    # Generate random percentages that sum to 100
+    n_elements = len(elements)
+    raw_values = [rng.uniform(ranges[i][0], ranges[i][1]) for i in range(n_elements)]
 
-    # Sample from Dirichlet distribution for realistic proportions
-    # Adjust concentration to favor base element
-    concentration_params = [2.0] + [1.0] * n_elements
-    raw_fractions = rng.dirichlet(concentration_params)
+    # Normalize to sum to 100
+    total = sum(raw_values)
+    percentages = [v / total * 100 for v in raw_values]
 
-    # Normalize to ensure sum is exactly 1.0
-    fractions = raw_fractions / raw_fractions.sum()
+    # Round to 1 decimal place and adjust to ensure sum is exactly 100
+    rounded = [round(p, 1) for p in percentages]
+    diff = 100 - sum(rounded)
+    if diff != 0:
+        rounded[0] += diff
 
-    # Build composition string
-    elements = [base_element] + alloying_elements
+    # Build composition string in Hill system format (base element first for clarity)
+    # For alloys, we'll use a simplified format: Element1x1+Element2x2+...
     composition_parts = []
-    for elem, frac in zip(elements, fractions):
-        if frac > 0.01:  # Only include elements with >1% concentration
-            composition_parts.append(f"{elem}{frac:.3f}")
+    for elem, pct in zip(elements, rounded):
+        if pct > 0.1:  # Only include elements with significant percentage
+            composition_parts.append(f"{elem}{pct:.1f}")
 
-    composition_str = "".join(composition_parts)
+    composition_str = "+".join(composition_parts)
 
-    # Assign phase label based on weights
-    phase = rng.choice(PHASE_LABELS, p=PHASE_WEIGHTS)
+    # Determine phase label with realistic probability
+    is_amorphous = rng.random() < AMORPHOUS_PROBABILITY
+    phase_label = 'amorphous' if is_amorphous else 'crystalline'
 
-    return {
-        "composition": composition_str,
-        "phase": phase
-    }
+    return composition_str, phase_label
 
 def generate_synthetic_dataset(
     n_samples: int = 1000,
-    seed: int = REPRODUCIBLE_SEED
+    seed: Optional[int] = 42,
+    systems_to_include: Optional[List[int]] = None
 ) -> pd.DataFrame:
     """
     Generate a synthetic dataset of alloy compositions with realistic descriptors.
 
-    This function creates a dataset that mimics the structure and statistical
-    properties of real metallic glass datasets, suitable for testing the
-    pipeline when canonical data sources are unavailable.
-
     Args:
-        n_samples: Number of compositions to generate (default: 1000)
+        n_samples: Number of samples to generate
         seed: Random seed for reproducibility
+        systems_to_include: List of system indices to include (None = all systems)
 
     Returns:
-        pandas DataFrame with compositions, phases, and computed descriptors
+        DataFrame with compositions, phase labels, and computed descriptors
     """
-    rng = np.random.default_rng(seed)
+    if seed is not None:
+        rng = np.random.default_rng(seed)
+    else:
+        rng = np.random.default_rng()
 
-    logger.info(f"Generating {n_samples} synthetic alloy compositions...")
+    if systems_to_include is None:
+        systems_to_include = list(range(len(GLASS_FORMING_SYSTEMS)))
 
-    # Generate base compositions
-    compositions = []
-    for i in range(n_samples):
-        # Cycle through alloy systems to ensure diversity
-        system_idx = i % len(ALLOY_SYSTEMS)
-        comp_data = generate_composition_from_system(system_idx, rng)
-        compositions.append(comp_data)
+    if not systems_to_include:
+        raise ValueError("At least one glass-forming system must be specified")
 
-    df = pd.DataFrame(compositions)
+    data = []
+    samples_per_system = n_samples // len(systems_to_include)
+    remainder = n_samples % len(systems_to_include)
 
-    logger.info("Computing atomic descriptors for generated compositions...")
+    for i, system_idx in enumerate(systems_to_include):
+        n_for_system = samples_per_system + (1 if i < remainder else 0)
+        for _ in range(n_for_system):
+            composition_str, phase_label = generate_composition_from_system(system_idx, rng)
+            data.append({
+                'composition': composition_str,
+                'phase': phase_label,
+                'source': 'synthetic'
+            })
 
-    # Compute descriptors using the existing feature engineering pipeline
-    # This ensures consistency with the main pipeline
+    df = pd.DataFrame(data)
+
+    # Apply descriptor computation
+    logger.info(f"Computing descriptors for {len(df)} synthetic compositions...")
     df_with_descriptors = apply_descriptors_to_dataframe(df)
 
-    logger.info(f"Generated dataset with {len(df_with_descriptors)} samples")
-    logger.info(f"Descriptor columns: {list(df_with_descriptors.columns)}")
+    # Verify descriptor completeness
+    required_descriptors = [
+        'atomic_size_mismatch', 'electronegativity_difference', 'mixing_enthalpy',
+        'atomic_radius', 'valence_electron_concentration', 'atomic_size_difference',
+        'valence_electron_size_mismatch', 'electron_atom_ratio', 'miedema_heat_of_formation',
+        'atomic_packing_factor'
+    ]
+
+    missing_cols = [col for col in required_descriptors if col not in df_with_descriptors.columns]
+    if missing_cols:
+        logger.warning(f"Missing descriptors: {missing_cols}")
+    else:
+        logger.info("All required descriptors computed successfully")
+
+    # Add metadata
+    df_with_descriptors['is_synthetic'] = True
+    df_with_descriptors['generation_seed'] = seed
+    df_with_descriptors['generation_timestamp'] = pd.Timestamp.now().isoformat()
 
     return df_with_descriptors
 
@@ -132,133 +201,87 @@ def apply_descriptors_to_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     Apply descriptor computation to a DataFrame of compositions.
 
     Args:
-        df: DataFrame with 'composition' and 'phase' columns
+        df: DataFrame with 'composition' column
 
     Returns:
         DataFrame with added descriptor columns
     """
-    # Use the existing descriptor computation pipeline
-    # This ensures consistency with the main data processing workflow
-    df_descriptors = df.copy()
-
-    # Compute all descriptors for each composition
-    descriptor_results = []
-    for idx, row in df_descriptors.iterrows():
-        try:
-            descriptors = compute_all_descriptors(row['composition'])
-            descriptor_results.append(descriptors)
-        except Exception as e:
-            logger.warning(f"Failed to compute descriptors for {row['composition']}: {e}")
-            # Create default descriptors for failed compositions
-            descriptor_results.append({
-                'atomic_radius': 0.0,
-                'electronegativity': 0.0,
-                'valence_electron_concentration': 0.0,
-                'atomic_size_mismatch': 0.0,
-                'mixing_enthalpy': 0.0,
-                'atomic_size_difference': 0.0,
-                'valence_electron_size_mismatch': 0.0,
-                'electron_atom_ratio': 0.0,
-                'miedema_heat_of_formation': 0.0,
-                'atomic_packing_factor': 0.0
-            })
-
-    descriptors_df = pd.DataFrame(descriptor_results)
-
-    # Combine with original dataframe
-    result_df = pd.concat([df_descriptors, descriptors_df], axis=1)
-
-    return result_df
+    # Use the existing compute_all_descriptors function from features.descriptors
+    # This ensures consistency with the main pipeline
+    try:
+        result_df = compute_all_descriptors(df)
+        return result_df
+    except Exception as e:
+        logger.error(f"Error computing descriptors: {e}")
+        raise
 
 def save_synthetic_dataset(
     df: pd.DataFrame,
     output_path: str,
     provenance_info: Optional[Dict[str, Any]] = None
-) -> Path:
+) -> None:
     """
-    Save the synthetic dataset to a CSV file with provenance information.
+    Save synthetic dataset to CSV with provenance information.
 
     Args:
-        df: DataFrame containing the synthetic dataset
+        df: DataFrame to save
         output_path: Path to save the CSV file
         provenance_info: Optional dictionary with provenance metadata
-
-    Returns:
-        Path object of the saved file
     """
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
 
-    df.to_csv(output_path, index=False)
+    # Add provenance metadata to the CSV as comments if available
+    df.to_csv(output_file, index=False)
 
-    logger.info(f"Saved synthetic dataset to {output_path}")
+    logger.info(f"Saved synthetic dataset to {output_file} with {len(df)} samples")
 
-    # Save provenance information if provided
     if provenance_info:
-        provenance_path = output_path.with_suffix('.json')
-        with open(provenance_path, 'w') as f:
-            import json
+        provenance_file = output_file.with_suffix('.json')
+        import json
+        with open(provenance_file, 'w') as f:
             json.dump(provenance_info, f, indent=2)
-        logger.info(f"Saved provenance information to {provenance_path}")
-
-    return output_path
+        logger.info(f"Saved provenance information to {provenance_file}")
 
 def main():
-    """
-    Main entry point for generating synthetic dataset.
-
-    This function is designed to be called from the command line or
-    as part of the main ingestion pipeline when canonical data sources fail.
-    """
+    """Main entry point for generating synthetic dataset."""
     import argparse
 
-    parser = argparse.ArgumentParser(
-        description="Generate synthetic metallic glass alloy dataset"
-    )
-    parser.add_argument(
-        "--n-samples",
-        type=int,
-        default=1000,
-        help="Number of synthetic samples to generate"
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        default="data/processed/synthetic_dataset.csv",
-        help="Output path for the synthetic dataset"
-    )
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=REPRODUCIBLE_SEED,
-        help="Random seed for reproducibility"
-    )
+    parser = argparse.ArgumentParser(description='Generate synthetic alloy dataset')
+    parser.add_argument('--n-samples', type=int, default=1000, help='Number of samples to generate')
+    parser.add_argument('--seed', type=int, default=42, help='Random seed for reproducibility')
+    parser.add_argument('--output', type=str, default='data/processed/synthetic_dataset.csv',
+                      help='Output file path')
+    parser.add_argument('--systems', type=str, default=None,
+                      help='Comma-separated list of system indices to include')
 
     args = parser.parse_args()
 
-    # Generate the dataset
+    # Parse systems if provided
+    systems_to_include = None
+    if args.systems:
+        systems_to_include = [int(x.strip()) for x in args.systems.split(',')]
+
+    logger.info(f"Generating {args.n_samples} synthetic samples with seed {args.seed}")
     df = generate_synthetic_dataset(
         n_samples=args.n_samples,
-        seed=args.seed
+        seed=args.seed,
+        systems_to_include=systems_to_include
     )
 
     # Prepare provenance information
     provenance_info = {
-        "source": "synthetic_generator",
-        "seed": args.seed,
-        "n_samples": args.n_samples,
-        "timestamp": pd.Timestamp.now().isoformat(),
-        "note": "This is synthetic data for testing when canonical sources are unavailable"
+        'source': 'synthetic_generator',
+        'task_id': 'T011',
+        'seed': args.seed,
+        'n_samples': args.n_samples,
+        'systems_included': systems_to_include if systems_to_include else list(range(len(GLASS_FORMING_SYSTEMS))),
+        'generation_timestamp': pd.Timestamp.now().isoformat(),
+        'note': 'This is synthetic data for testing only. Not for production use.'
     }
 
-    # Save the dataset
-    save_synthetic_dataset(
-        df,
-        args.output,
-        provenance_info=provenance_info
-    )
+    save_synthetic_dataset(df, args.output, provenance_info)
+    logger.info("Synthetic dataset generation complete")
 
-    logger.info("Synthetic dataset generation completed successfully")
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
