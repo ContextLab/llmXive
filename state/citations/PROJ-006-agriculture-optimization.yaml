@@ -490,14 +490,3 @@
   verification_status: verified
   verified_against_url: https://doi.org/10.1126/science.1204531
   verified_at: '2026-04-29T20:54:35.267015Z'
-- artifact_hash: 93eaeb57ed8824ad1ff9ac9ce96fb1fef9ae0001d0386dd030bbb7f5ce2de82a
-  artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: "Holm\u2013Bonferroni method - Wikipedia"
-  kind: url
-  value: "https://en.wikipedia.org/wiki/Holm\u2013Bonferroni_method"
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/Holm%E2%80%93Bonferroni_method
-  verified_at: '2026-08-29T20:00:19.717778Z'

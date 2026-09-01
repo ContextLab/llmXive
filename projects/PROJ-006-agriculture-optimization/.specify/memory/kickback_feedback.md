@@ -4,9 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T022` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/analysis_dataset.csv
-- `T022a` (rejected 1x): The required artifact `data/processed/analysis_dataset.csv` is absent, so the validation script cannot be executed and no evidence of a passing validation is provided. The task’s core requirement—running `src/cli/validate.py` on the final dataset and asserting success—is therefore unmet.
-- `T026` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/regression_results.json
+- `T010` (rejected 1x): The provided `synthetic_generator.py` does not produce all required columns (e.g., `village_id` is missing, column names `CSA_Index`, `Stability_Score`, and `HFIAS` are mismatched in case), and it does not use a multivariate normal distribution for the continuous variables as specified. Moreover, the referenced `contracts/dataset.schema.yaml` file is absent, so the generator cannot be validated against the schema.
+- `T041a` (rejected 1x): The provided artifacts show the pipeline script but the required output file `data/processed/analysis_dataset.csv` is missing, and there is no evidence of a successful run (exit code 0, row count >300, or CI execution). The task’s core verification steps have not been demonstrated.
 
 ## Required change
 

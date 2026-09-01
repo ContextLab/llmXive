@@ -1,19 +1,19 @@
 {
   "project_id": "PROJ-006-agriculture-optimization",
   "ok": false,
-  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/scripts/validate_dataset_schema.py: self-declared fabricated metric \u2014 \u201c\u2026n required}         # Provide dummy values for required fields to avoid\u2026\u201d; 4 command(s) failed: python src/cli/run_pipeline.py --stage ingest (rc=2); python src/cli/run_pipeline.py --stage ingest --use-synthetic (rc=2); python src/cli/run_pipeline.py --stage full (rc=2); 2 declared deliverable(s) absent: data/processed/analysis_dataset.csv; data/processed/regression_results.json",
+  "reason": "4 command(s) failed: python src/cli/run_pipeline.py --stage ingest (rc=1); python src/cli/run_pipeline.py --stage ingest --use-synthetic (rc=1); python src/cli/run_pipeline.py --stage full (rc=1); 6 declared deliverable(s) absent: data/logs/linkage_validation.json; data/processed/analysis_dataset.csv; data/processed/analysis_dataset_village_aggregated.csv",
   "artifacts": [],
   "failures": [
-    "python src/cli/run_pipeline.py --stage ingest -> rc=2\n    usage: run_pipeline.py [-h] [--no-synthetic] [--dry-run]\n                       [--log-level {DEBUG,INFO,WARNING,ERROR,CRITICAL}]\nrun_pipeline.py: error: unrecognized arguments: --stage ingest",
-    "python src/cli/run_pipeline.py --stage ingest --use-synthetic -> rc=2\n    usage: run_pipeline.py [-h] [--no-synthetic] [--dry-run]\n                       [--log-level {DEBUG,INFO,WARNING,ERROR,CRITICAL}]\nrun_pipeline.py: error: unrecognized arguments: --stage ingest --use-synthetic",
-    "python src/cli/run_pipeline.py --stage full -> rc=2\n    usage: run_pipeline.py [-h] [--no-synthetic] [--dry-run]\n                       [--log-level {DEBUG,INFO,WARNING,ERROR,CRITICAL}]\nrun_pipeline.py: error: unrecognized arguments: --stage full",
-    "python src/cli/validate.py --input data/processed/analysis_dataset.csv --contract contracts/dataset.schema.yaml -> rc=2\n    usage: validate.py [-h] [--schema-type {dataset,regression,sensitivity}]\n                   [--no-strict]\n                   file_path\nvalidate.py: error: unrecognized arguments: --input --contract contracts/dataset.schema.yaml"
+    "python src/cli/run_pipeline.py --stage ingest -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-006-agriculture-optimization/src/cli/run_pipeline.py\", line 8, in <module>\n    from src.data.generators.synthetic_generator import SyntheticDataGenerator, main as generate_synthetic_main\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-006-agriculture-optimization/code/src/data/generators/synthetic_generator.py\", line 13, in <module>\n    logger = setup_logging(\"synthetic_generator\")\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"",
+    "python src/cli/run_pipeline.py --stage ingest --use-synthetic -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-006-agriculture-optimization/src/cli/run_pipeline.py\", line 8, in <module>\n    from src.data.generators.synthetic_generator import SyntheticDataGenerator, main as generate_synthetic_main\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-006-agriculture-optimization/code/src/data/generators/synthetic_generator.py\", line 13, in <module>\n    logger = setup_logging(\"synthetic_generator\")\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "python src/cli/run_pipeline.py --stage full -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-006-agriculture-optimization/src/cli/run_pipeline.py\", line 8, in <module>\n    from src.data.generators.synthetic_generator import SyntheticDataGenerator, main as generate_synthetic_main\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-006-agriculture-optimization/code/src/data/generators/synthetic_generator.py\", line 13, in <module>\n    logger = setup_logging(\"synthetic_generator\")\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/h",
+    "python src/cli/validate.py --input data/processed/analysis_dataset.csv --contract contracts/dataset.schema.yaml -> rc=2\n    usage: validate.py [-h] --schema-type {dataset,regression,sensitivity}\n                   [--no-strict]\n                   [--log-level {DEBUG,INFO,WARNING,ERROR,CRITICAL}]\n                   file_path\nvalidate.py: error: the following arguments are required: --schema-type"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
-  "failure_class": "fabrication",
+  "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-08-29T19:08:35Z"
+  "updated_at": "2026-09-01T00:51:45Z"
 }

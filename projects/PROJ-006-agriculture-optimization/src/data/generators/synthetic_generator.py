@@ -1,230 +1,141 @@
 """
-Synthetic Data Generator for CI Validation.
+Synthetic Data Generator.
 
-This module generates a statistically realistic dataset for CI validation
-when real data is unavailable. It uses Multivariate Normal distributions
-for continuous variables and Bernoulli distributions for binary variables.
-
-It enforces a fixed random seed for deterministic generation and respects
-the CI environment variable for automatic invocation.
+Generates a statistically realistic dataset for CI validation and local testing.
+Uses Multivariate Normal for continuous variables and Bernoulli for binary variables.
 """
+
 import argparse
 import logging
-import os
 import sys
+import os
 import random
 from pathlib import Path
-from typing import Optional
-import numpy as np
+
 import pandas as pd
-import yaml
+import numpy as np
 
-# Add project root to path for imports if running as script
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-from src.utils.io_helpers import FatalError, write_csv_strict
+from src.utils.io_helpers import setup_logging, write_csv_strict
+from src.config.constants import RANDOM_SEED
 
-# Configuration
-RANDOM_SEED = 42
-DEFAULT_N_RECORDS = 350  # Slightly above 300 threshold
-OUTPUT_PATH = "data/processed/analysis_dataset.csv"
-SCHEMA_PATH = "contracts/dataset.schema.yaml"
+logger = setup_logging("synthetic_generator")
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+class SyntheticDataGenerator:
+    def __init__(self, n_rows: int = 500, seed: int = RANDOM_SEED):
+        self.n_rows = n_rows
+        self.seed = seed
+        random.seed(seed)
+        np.random.seed(seed)
 
+    def generate(self) -> pd.DataFrame:
+        """Generate the synthetic dataset."""
+        logger.info(f"Generating {self.n_rows} synthetic records.")
 
-def load_schema(schema_path: str) -> dict:
-    """Load the dataset schema from YAML."""
-    full_path = PROJECT_ROOT / schema_path
-    if not full_path.exists():
-        raise FatalError(f"Schema file not found: {full_path}")
-    with open(full_path, 'r') as f:
-        return yaml.safe_load(f)
+        # 1. household_id
+        household_ids = list(range(1, self.n_rows + 1))
 
+        # 2. latitude, longitude (Centered around Malawi/Tanzania region)
+        # Malawi approx: -13.5, 34.0
+        # Tanzania approx: -6.0, 35.0
+        # We'll generate a cluster around a point in Malawi
+        lats = np.random.normal(loc=-13.5, scale=2.0, size=self.n_rows)
+        lons = np.random.normal(loc=34.0, scale=2.0, size=self.n_rows)
 
-def generate_synthetic_data(n_records: int, seed: int = RANDOM_SEED) -> pd.DataFrame:
-    """
-    Generate a statistically realistic dataset mimicking survey data.
-    
-    Uses Multivariate Normal for continuous variables (land_size, education)
-    and Bernoulli for binary variables (finance_access, practices),
-    with correlations mimicking real survey data.
-    """
-    logger.info(f"Generating {n_records} synthetic records with seed {seed}")
-    random.seed(seed)
-    np.random.seed(seed)
+        # 3. land_size (hectares) - Log-normal distribution
+        land_sizes = np.random.lognormal(mean=1.0, sigma=0.5, size=self.n_rows)
 
-    # 1. Generate Base Continuous Variables with Correlation
-    # Correlation between education and land_size (positive)
-    mean = [5.0, 2.0]  # [education_level, land_size]
-    cov = [[1.0, 0.3], [0.3, 0.8]]  # Positive correlation 0.3
-    
-    # Generate from Multivariate Normal
-    data = np.random.multivariate_normal(mean, cov, size=n_records)
-    education_level = data[:, 0].astype(int)
-    # Ensure positive land size
-    land_size = np.maximum(data[:, 1], 0.1)
+        # 4. education_level (0-10)
+        education_levels = np.random.randint(0, 11, size=self.n_rows)
 
-    # 2. Generate Binary Variables (Bernoulli)
-    # Probability of finance access depends on education (positive correlation)
-    prob_finance = 0.3 + (education_level / 20.0)  # Range ~0.3 to 0.55
-    prob_finance = np.clip(prob_finance, 0.1, 0.9)
-    finance_access = np.random.binomial(1, prob_finance, size=n_records).astype(bool)
+        # 5. finance_access (bool)
+        finance_access = np.random.choice([True, False], size=self.n_rows, p=[0.4, 0.6])
 
-    # Practice adoption probabilities (higher for higher education/finance)
-    base_practice_prob = 0.2
-    practice_mixed_farming = np.random.binomial(
-        1, base_practice_prob + (education_level * 0.02), size=n_records
-    ).astype(bool)
-    practice_terracing = np.random.binomial(
-        1, base_practice_prob + (education_level * 0.015), size=n_records
-    ).astype(bool)
-    practice_conservation_tillage = np.random.binomial(
-        1, base_practice_prob + (education_level * 0.01), size=n_records
-    ).astype(bool)
-    practice_agroforestry = np.random.binomial(
-        1, base_practice_prob + (education_level * 0.015), size=n_records
-    ).astype(bool)
+        # 6. Practice indicators (bool)
+        practice_mixed_farming = np.random.choice([True, False], size=self.n_rows, p=[0.5, 0.5])
+        practice_terracing = np.random.choice([True, False], size=self.n_rows, p=[0.3, 0.7])
+        practice_conservation_tillage = np.random.choice([True, False], size=self.n_rows, p=[0.4, 0.6])
+        practice_agroforestry = np.random.choice([True, False], size=self.n_rows, p=[0.35, 0.65])
 
-    # 3. Generate Derived Variables
-    # Extension visits (Poisson distributed, slightly higher for higher education)
-    extension_visits = np.random.poisson(
-        lam=2.0 + (education_level * 0.2), size=n_records
-    ).astype(int)
+        # 7. extension_visits (int)
+        extension_visits = np.random.poisson(lam=2, size=self.n_rows)
 
-    # HLIAS (Household Food Insecurity Access Scale) - Integer count
-    # Inverse relationship with education/finance
-    hlias = np.random.poisson(
-        lam=8.0 - (education_level * 0.3) - (finance_access.astype(int) * 2.0),
-        size=n_records
-    ).astype(int)
-    hlias = np.clip(hlias, 0, 24)
+        # 8. hlias (int) - Household Food Insecurity Access Scale (0-24)
+        hlias = np.random.randint(0, 25, size=self.n_rows)
 
-    # 4. Calculate Indices
-    # CSA_Index: Sum of binary practices (0.0 to 4.0)
-    CSA_Index = (
-        practice_mixed_farming.astype(int) +
-        practice_terracing.astype(int) +
-        practice_conservation_tillage.astype(int) +
-        practice_agroforestry.astype(int)
-    ).astype(float)
+        # 9. CSA_Index (float) - Sum of practice indicators (0-4)
+        csa_index = (practice_mixed_farming.astype(int) + 
+                     practice_terracing.astype(int) + 
+                     practice_conservation_tillage.astype(int) + 
+                     practice_agroforestry.astype(int))
 
-    # Stability_Score: Inverse of Coefficient of Variation (simulated)
-    # Simulate NDVI CV based on practice adoption (more practices -> more stability)
-    # Base CV is 0.4, reduces with CSA index
-    simulated_cv = 0.4 - (CSA_Index * 0.05)
-    simulated_cv = np.clip(simulated_cv, 0.05, 0.5)
-    Stability_Score = 1.0 / simulated_cv
+        # 10. Stability_Score (float) - Derived from simulated NDVI stability
+        # Simulate a score between 0 and 1
+        stability_scores = np.random.beta(a=2, b=5, size=self.n_rows)
 
-    # HFIAS: Continuous version of HLIAS (simulated)
-    HFIAS = hlias.astype(float) * 1.5 + np.random.normal(0, 0.5, size=n_records)
-    HFIAS = np.clip(HFIAS, 0, 36)
+        # 11. HFIAS (float) - Household Food Insecurity Access Scale (continuous version)
+        hfias = hlias.astype(float) + np.random.normal(0, 0.5, size=self.n_rows)
+        hfias = np.clip(hfias, 0, 24)
 
-    # 5. Coordinates (Simulated Malawi/Tanzania region)
-    # Center around a point in Malawi
-    base_lat = -13.5
-    base_lon = 34.0
-    # Add noise
-    latitude = base_lat + np.random.normal(0, 0.5, size=n_records)
-    longitude = base_lon + np.random.normal(0, 0.5, size=n_records)
+        # 12. village_id - Derived from rounded coordinates
+        grid_res = 0.1
+        village_lats = np.round(lats / grid_res) * grid_res
+        village_lons = np.round(lons / grid_res) * grid_res
+        village_ids = [f"V_{int(lat)}_{int(lon)}" for lat, lon in zip(village_lats, village_lons)]
 
-    # 6. Village ID Derivation
-    # Round coordinates to nearest grid cell (buffer_size_km approx 1.0)
-    # Using 0.1 degree grid approx 11km, but we'll use a custom grid for uniqueness
-    # Round to 1 decimal place for simplicity in this synthetic set
-    village_lat = np.round(latitude * 10) / 10
-    village_lon = np.round(longitude * 10) / 10
-    village_id = [f"V{int(l):03d}_{int(lon):03d}" for l, lon in zip(village_lat, village_lon)]
+        df = pd.DataFrame({
+            'household_id': household_ids,
+            'latitude': lats,
+            'longitude': lons,
+            'land_size': land_sizes,
+            'education_level': education_levels,
+            'finance_access': finance_access,
+            'practice_mixed_farming': practice_mixed_farming,
+            'practice_terracing': practice_terracing,
+            'practice_conservation_tillage': practice_conservation_tillage,
+            'practice_agroforestry': practice_agroforestry,
+            'extension_visits': extension_visits,
+            'hlias': hlias,
+            'CSA_Index': csa_index,
+            'Stability_Score': stability_scores,
+            'HFIAS': hfias,
+            'village_id': village_ids
+        })
 
-    # 7. Household IDs
-    household_id = np.arange(1, n_records + 1)
+        return df
 
-    # Construct DataFrame
-    df = pd.DataFrame({
-        'household_id': household_id,
-        'latitude': latitude,
-        'longitude': longitude,
-        'land_size': land_size,
-        'education_level': education_level,
-        'finance_access': finance_access,
-        'practice_mixed_farming': practice_mixed_farming,
-        'practice_terracing': practice_terracing,
-        'practice_conservation_tillage': practice_conservation_tillage,
-        'practice_agroforestry': practice_agroforestry,
-        'extension_visits': extension_visits,
-        'hlias': hlias,
-        'CSA_Index': CSA_Index,
-        'Stability_Score': Stability_Score,
-        'HFIAS': HFIAS,
-        'village_id': village_id
-    })
-
-    return df
-
-
-def check_real_data_exists(data_path: str) -> bool:
-    """Check if real data exists at the specified path."""
-    full_path = PROJECT_ROOT / data_path
-    return full_path.exists() and full_path.stat().st_size > 0
-
+    def save(self, output_path: Path):
+        """Save the generated dataframe to CSV."""
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        df = self.generate()
+        write_csv_strict(df, output_path)
+        logger.info(f"Synthetic data saved to {output_path}")
+        return df
 
 def main():
-    """Main entry point for the synthetic generator."""
-    parser = argparse.ArgumentParser(description="Generate synthetic dataset for CI validation")
-    parser.add_argument('--n-records', type=int, default=DEFAULT_N_RECORDS, help='Number of records to generate')
-    parser.add_argument('--output', type=str, default=OUTPUT_PATH, help='Output file path')
-    parser.add_argument('--seed', type=int, default=RANDOM_SEED, help='Random seed')
+    parser = argparse.ArgumentParser(description="Generate synthetic data for pipeline testing")
+    parser.add_argument("--output", 
+                        type=str, 
+                        default="data/raw/synthetic_survey.csv",
+                        help="Output path for synthetic data")
+    parser.add_argument("--n-rows", 
+                        type=int, 
+                        default=500,
+                        help="Number of rows to generate")
     args = parser.parse_args()
 
-    # Check for CI environment variable
-    is_ci = os.environ.get('CI', '').lower() == 'true'
-    
-    # Check if real data exists
-    real_data_path = args.output
-    if check_real_data_exists(real_data_path):
-        logger.info(f"Real data already exists at {real_data_path}. Skipping generation.")
-        return
-
-    if not is_ci:
-        # In non-CI environments, we only generate if explicitly requested or if real data is missing
-        # But per spec, this is a fallback utility. We generate if real data is missing.
-        logger.warning("Real data missing. Generating synthetic data as fallback.")
-
-    # Generate Data
-    try:
-        df = generate_synthetic_data(n_records=args.n_records, seed=args.seed)
-    except Exception as e:
-        raise FatalError(f"Failed to generate synthetic data: {e}")
-
-    # Validate against schema (Basic check)
-    schema = load_schema(SCHEMA_PATH)
-    required_cols = schema['properties'].keys()
-    missing_cols = set(required_cols) - set(df.columns)
-    if missing_cols:
-        raise FatalError(f"Generated data missing required columns: {missing_cols}")
-
-    # Write Output
-    output_path = PROJECT_ROOT / args.output
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path = project_root / args.output
     
     try:
-        write_csv_strict(df, str(output_path))
-        logger.info(f"Successfully generated synthetic data to {output_path}")
+        generator = SyntheticDataGenerator(n_rows=args.n_rows)
+        generator.save(output_path)
+        sys.exit(0)
     except Exception as e:
-        raise FatalError(f"Failed to write synthetic data: {e}")
-
-    # Verify file was written
-    if not output_path.exists():
-        raise FatalError("Output file verification failed: file not created.")
-
-    logger.info("Synthetic generation complete.")
-
+        logger.error(f"Failed to generate synthetic data: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

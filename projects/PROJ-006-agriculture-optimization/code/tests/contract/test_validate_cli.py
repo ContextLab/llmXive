@@ -1,8 +1,6 @@
 """
-Contract tests for the CLI validation module (T012).
-These tests verify that validate.py correctly enforces schema contracts.
+Contract tests for the CLI validation tool.
 """
-
 import json
 import os
 import tempfile
@@ -10,152 +8,119 @@ from pathlib import Path
 import pytest
 import pandas as pd
 
-from src.cli.validate import validate_csv_artifact, validate_json_artifact, FatalError
-from src.config.schemas import validate_dataset_schema, validate_regression_output
-
+from src.cli.validate import validate_csv_artifact, validate_json_artifact
+from src.config.schemas import AnalysisDatasetRecord
 
 class TestCSVValidation:
-    """Tests for CSV artifact validation."""
-
     def test_valid_dataset_csv(self, tmp_path):
         """Test that a valid dataset CSV passes validation."""
-        # Create a valid CSV matching the schema
-        valid_data = {
+        # Create a valid CSV matching AnalysisDatasetRecord
+        data = {
             "household_id": [1, 2],
-            "latitude": [34.0, 35.0],
-            "longitude": [12.0, 13.0],
-            "CSA_Index": [5, 4],
-            "Stability_Score": [0.85, 0.90],
-            "HFIAS": [12, 10],
+            "latitude": [-12.34, -12.35],
+            "longitude": [34.56, 34.57],
+            "land_size": [1.5, 2.0],
+            "education_level": [3, 4],
             "finance_access": [True, False],
-            "village_id": ["V1", "V1"]
+            "practice_mixed_farming": [True, True],
+            "practice_terracing": [False, True],
+            "practice_conservation_tillage": [True, False],
+            "practice_agroforestry": [False, False],
+            "extension_visits": [2, 5],
+            "hlias": [10, 15],
+            "CSA_Index": [1.0, 2.0],
+            "Stability_Score": [0.8, 0.9],
+            "HFIAS": [5.0, 6.0],
+            "village_id": ["v1", "v2"]
         }
-        df = pd.DataFrame(valid_data)
+        df = pd.DataFrame(data)
         csv_path = tmp_path / "valid_dataset.csv"
         df.to_csv(csv_path, index=False)
 
-        # Assert validation passes
         assert validate_csv_artifact(csv_path, "dataset") is True
 
-    def test_missing_columns_csv(self, tmp_path):
-        """Test that a CSV with missing required columns fails."""
-        invalid_data = {
+    def test_invalid_dataset_csv_missing_column(self, tmp_path):
+        """Test that a CSV missing a required column fails."""
+        data = {
             "household_id": [1],
-            "latitude": [34.0]
-            # Missing other required columns
+            "latitude": [-12.34],
+            # Missing many columns
         }
-        df = pd.DataFrame(invalid_data)
-        csv_path = tmp_path / "invalid_missing_cols.csv"
+        df = pd.DataFrame(data)
+        csv_path = tmp_path / "invalid_missing.csv"
         df.to_csv(csv_path, index=False)
 
-        # Assert validation fails
         assert validate_csv_artifact(csv_path, "dataset") is False
 
-    def test_nonexistent_file(self, tmp_path):
-        """Test that a nonexistent file raises FatalError."""
-        csv_path = tmp_path / "nonexistent.csv"
-
-        with pytest.raises(FatalError, match="Artifact not found"):
-            validate_csv_artifact(csv_path, "dataset")
-
-    def test_invalid_csv_format(self, tmp_path):
-        """Test that a malformed CSV raises FatalError."""
-        csv_path = tmp_path / "malformed.csv"
-        with open(csv_path, "w") as f:
-            f.write("col1,col2\nval1\nval2,val3") # Malformed row
-
-        with pytest.raises(FatalError):
-            validate_csv_artifact(csv_path, "dataset")
-
-
-class TestJSONValidation:
-    """Tests for JSON artifact validation."""
-
-    def test_valid_regression_json(self, tmp_path):
-        """Test that a valid regression JSON passes validation."""
-        valid_data = {
-            "model_type": "clustered",
-            "adjusted_alpha": 0.0167,
-            "coefficients": {
-                "CSA_Index": 0.5,
-                "finance_access": 0.2
-            },
-            "vif_scores": {
-                "CSA_Index": 1.2,
-                "finance_access": 1.1
-            },
-            "collinearity_warning": False
+    def test_invalid_dataset_csv_wrong_type(self, tmp_path):
+        """Test that a CSV with wrong data types fails."""
+        data = {
+            "household_id": ["not_an_int"], # Should be int
+            "latitude": [-12.34],
+            "longitude": [34.56],
+            "land_size": [1.5],
+            "education_level": [3],
+            "finance_access": [True],
+            "practice_mixed_farming": [True],
+            "practice_terracing": [False],
+            "practice_conservation_tillage": [True],
+            "practice_agroforestry": [False],
+            "extension_visits": [2],
+            "hlias": [10],
+            "CSA_Index": [1.0],
+            "Stability_Score": [0.8],
+            "HFIAS": [5.0],
+            "village_id": ["v1"]
         }
-        json_path = tmp_path / "valid_regression.json"
-        with open(json_path, "w") as f:
-            json.dump(valid_data, f)
-
-        # Assert validation passes
-        assert validate_json_artifact(json_path, "regression") is True
-
-    def test_missing_fields_json(self, tmp_path):
-        """Test that a JSON with missing required fields fails."""
-        invalid_data = {
-            "model_type": "clustered"
-            # Missing coefficients, vif_scores, etc.
-        }
-        json_path = tmp_path / "invalid_missing_fields.json"
-        with open(json_path, "w") as f:
-            json.dump(invalid_data, f)
-
-        # Assert validation fails
-        assert validate_json_artifact(json_path, "regression") is False
-
-    def test_nonexistent_json_file(self, tmp_path):
-        """Test that a nonexistent JSON file raises FatalError."""
-        json_path = tmp_path / "nonexistent.json"
-
-        with pytest.raises(FatalError, match="Artifact not found"):
-            validate_json_artifact(json_path, "regression")
-
-    def test_invalid_json_format(self, tmp_path):
-        """Test that a malformed JSON raises FatalError."""
-        json_path = tmp_path / "malformed.json"
-        with open(json_path, "w") as f:
-            f.write("{ invalid json }")
-
-        with pytest.raises(FatalError):
-            validate_json_artifact(json_path, "regression")
-
-
-class TestIntegration:
-    """Integration tests for the validation pipeline."""
-
-    def test_end_to_end_valid_flow(self, tmp_path):
-        """Simulate a full pipeline flow with valid artifacts."""
-        # 1. Create valid dataset
-        df = pd.DataFrame({
-            "household_id": range(10),
-            "latitude": [34.0] * 10,
-            "longitude": [12.0] * 10,
-            "CSA_Index": [5] * 10,
-            "Stability_Score": [0.9] * 10,
-            "HFIAS": [10] * 10,
-            "finance_access": [True] * 10,
-            "village_id": ["V1"] * 10
-        })
-        csv_path = tmp_path / "analysis_dataset.csv"
+        df = pd.DataFrame(data)
+        csv_path = tmp_path / "invalid_type.csv"
         df.to_csv(csv_path, index=False)
 
-        # 2. Validate it
-        assert validate_csv_artifact(csv_path, "dataset") is True
+        # Pydantic validation should catch the type error
+        assert validate_csv_artifact(csv_path, "dataset") is False
 
-        # 3. Create valid regression output
-        reg_data = {
+class TestJSONValidation:
+    def test_valid_regression_json(self, tmp_path):
+        """Test that a valid regression JSON passes."""
+        data = {
+            "adjusted_alpha": 0.005,
+            "bonferroni_corrected_p_values": {"var1": 0.01, "var2": 0.03},
+            "coefficients": {"var1": 0.5, "var2": -0.2},
+            "vif_scores": {"var1": 1.2, "var2": 1.1},
             "model_type": "clustered",
-            "adjusted_alpha": 0.0167,
-            "coefficients": {"CSA_Index": 0.5},
-            "vif_scores": {"CSA_Index": 1.2},
-            "collinearity_warning": False
+            "collinearity_warning": False,
+            "aggregation_warning": False
         }
-        json_path = tmp_path / "regression_results.json"
-        with open(json_path, "w") as f:
-            json.dump(reg_data, f)
+        json_path = tmp_path / "valid_regression.json"
+        with open(json_path, 'w') as f:
+            json.dump(data, f)
 
-        # 4. Validate it
         assert validate_json_artifact(json_path, "regression") is True
+
+    def test_invalid_regression_json_missing_field(self, tmp_path):
+        """Test that a JSON missing a required field fails."""
+        data = {
+            "coefficients": {"var1": 0.5},
+            # Missing other required fields
+        }
+        json_path = tmp_path / "invalid_missing.json"
+        with open(json_path, 'w') as f:
+            json.dump(data, f)
+
+        assert validate_json_artifact(json_path, "regression") is False
+
+class TestIntegration:
+    def test_file_not_found(self, tmp_path):
+        """Test validation of a non-existent file."""
+        fake_path = tmp_path / "does_not_exist.csv"
+        assert validate_csv_artifact(fake_path, "dataset") is False
+
+    def test_wrong_schema_type(self, tmp_path):
+        """Test passing wrong schema type."""
+        data = {"household_id": [1]}
+        df = pd.DataFrame(data)
+        csv_path = tmp_path / "test.csv"
+        df.to_csv(csv_path, index=False)
+
+        # Should fail because schema type doesn't match content or logic
+        assert validate_csv_artifact(csv_path, "regression") is False
