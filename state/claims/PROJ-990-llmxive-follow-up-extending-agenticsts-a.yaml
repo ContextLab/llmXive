@@ -2580,3 +2580,938 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-30T03:32:12Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Statistical power marginal if training set size n < 300
+  claim_id: c_856c4e6b
+  context: 'T014a [US1] Implement data splitting logic... Edge Case Handling: If training
+    set size n < 300, log a WARNING...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If training set size n < 300, log a WARNING stating 'Statistical power
+    marginal (n < 300)' and set USE_HEURISTIC=true.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:41:57Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Hold-out set must contain at least 20 trajectories for validation
+  claim_id: c_35abaafa
+  context: 'T014 [US3] ... Constraint: Validation MUST use the hold-out set of at
+    least 20 trajectories...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hold-out_set_must_contain_at_least_20_trajectories_for_valid
+  kind: magnitude
+  raw_text: Validation MUST use the hold-out set of at least 20 trajectories where
+    ground truth is established via ablation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:42:38Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Proxy validation fails if Pearson correlation < 0.7
+  claim_id: c_c090361d
+  context: 'T014 [US3] ... Gate: If correlation < 0.7, set proxy_valid=false and log
+    warning.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If correlation < 0.7, set proxy_valid=false and log warning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:42:38Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Final prompt size limit is 4096 tokens
+  claim_id: c_ea47feac
+  context: "T015c [US1] ... Logic: Ensure the final prompt size is \u2264 4096 tokens."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system MUST ensure the final prompt size is \u2264 4096 tokens."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:42:39Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Minimum context floor is 256 tokens
+  claim_id: c_50f19dcb
+  context: 'T015a [US1] ... Logic: Before any selection, check if the calculated context
+    is below MIN_CONTEXT (256 tokens).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Before any selection, check if the calculated context is below MIN_CONTEXT
+    (256 tokens).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:43:06Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Random baseline selects exactly k=2 layers
+  claim_id: c_5ec5367d
+  context: 'T020 [US2] ... Logic: Select exactly k=2 layers uniformly at random from
+    the available set for every turn.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select exactly k=2 layers uniformly at random from the available set for
+    every turn.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:43:37Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Token reduction threshold is 30 percent
+  claim_id: c_c127e50f
+  context: 'T022 [US2] ... Constraint: If token_reduction_pct < 30, set threshold_met=false...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If token_reduction_pct < 30, set threshold_met=false.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:43:38Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Token consistency passes if standard deviation is less than 10 percent
+    of mean savings
+  claim_id: c_ee0d6972
+  context: 'T023 [US2] ... Logic: ... If std_dev < 0.10 * mean_savings, passed=true.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Token_consistency_passes_if_standard_deviation_is_less_than
+  kind: magnitude
+  raw_text: If std_dev < 0.10 * mean_savings, passed=true.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:43:50Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: 'Power analysis parameters: alpha 0.05, power 0.8, effect size 0.2'
+  claim_id: c_5dc109c5
+  context: 'T044 [P] [US1] ... Logic: Perform power analysis with alpha=0.05, power=0.8,
+    and expected effect size=0.2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform power analysis with alpha=0.05, power=0.8, and expected effect
+    size=0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:44:28Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Divergence check flags if divergence exceeds 10 percent
+  claim_id: c_97d96fd2
+  context: 'T050 [P] [US3] ... Logic: ... Flag if divergence > 10%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag if divergence > 10%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:44:29Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Fetch manifest from HuggingFace AgenticSTS trajectories repository
+  claim_id: c_5c4617d0
+  context: 'T005c [P] Fetch Checksum Manifest. Logic: Fetch manifest.json from https://huggingface.co/datasets/agenticsts/trajectories/raw/main/manifest.json
+    to data/raw/manifest.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_manifest_from_HuggingFace_AgenticSTS_trajectories_repo
+  kind: entity_fact
+  raw_text: Fetch manifest.json from https://huggingface.co/datasets/agenticsts/trajectories/raw/main/manifest.json
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:47:19Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Download AgenticSTS trajectories from HuggingFace repository
+  claim_id: c_39027deb
+  context: 'T005b [US1] Ingest Real AgenticSTS Trajectories. Logic: Fetch the existing
+    AgenticSTS trajectories from the canonical source: https://huggingface.co/datasets/agenticsts/trajectories.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_AgenticSTS_trajectories_from_HuggingFace_repository
+  kind: entity_fact
+  raw_text: Download raw JSONL files from https://huggingface.co/datasets/agenticsts/trajectories
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:48:10Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Project dependencies include pandas, numpy, scikit-learn, pytest, pyyaml
+    on Python 3.11
+  claim_id: c_2666f001
+  context: 'T002 Initialize Python 3.11 project with dependencies (requirements.txt:
+    pandas, numpy, scikit-learn, pytest, pyyaml)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Python 3.11 project with dependencies pandas, numpy, scikit-learn,
+    pytest, pyyaml
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:48:29Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Warning triggered when training set size is less than 300
+  claim_id: c_170bf28f
+  context: T014a [US1] ... If training set size n < 300, log a WARNING to data/processed/edge_case_warnings.log
+    stating 'Statistical power marginal (n < 300)' ...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Warning_triggered_when_training_set_size_is_less_than_300
+  kind: magnitude
+  raw_text: If training set size n < 300, log a WARNING stating 'Statistical power
+    marginal (n < 300)'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:49:41Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Hold-out set for ablation study contains at least 20 trajectories
+  claim_id: c_c9205fd6
+  context: 'T008c [US1] Generate Ground Truth Labels (Ablation Study - Hold-out Set).
+    Logic: Run the ablation study on the hold-out set (at least 20 trajectories) to
+    generate utility labels for proxy validation.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hold-out_set_for_ablation_study_contains_at_least_20_traject
+  kind: magnitude
+  raw_text: Run ablation study on the hold-out set of at least 20 trajectories
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:50:29Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Proxy validation fails if Pearson correlation is less than 0.7
+  claim_id: c_47d67f6c
+  context: 'T014 [US3] ... Gate: If correlation < 0.7, set proxy_valid=false and log
+    warning.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Proxy_validation_fails_if_Pearson_correlation_is_less_than_0
+  kind: magnitude
+  raw_text: If correlation < 0.7, set proxy_valid=false
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:51:09Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: No-Store Random baseline selects 2 layers uniformly at random
+  claim_id: c_f8d4903e
+  context: 'T020 [US2] [P] Implement ''No-Store Random'' baseline execution. Logic:
+    Select exactly k=2 layers uniformly at random from the available set for every
+    turn.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select exactly k=2 layers uniformly at random for the 'No-Store Random'
+    baseline
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:51:50Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Token reduction metric formula
+  claim_id: c_6caf99f8
+  context: 'T022 [US2] ... Logic: Calculate and report token reduction metrics using
+    formula: (static_tokens - dynamic_tokens) / static_tokens.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Token_reduction_metric_formula
+  kind: entity_fact
+  raw_text: Calculate token reduction using formula (static_tokens - dynamic_tokens)
+    / static_tokens
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:52:51Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Token consistency threshold is 10% of mean savings
+  claim_id: c_89f71395
+  context: 'T023 [US2] ... Logic: ... If std_dev < 0.10 * mean_savings, passed=true.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If std_dev < 0.10 * mean_savings, token consistency check passes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:52:52Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Divergence threshold is 10%
+  claim_id: c_ac0d30b9
+  context: 'T050 [P] [US3] Divergence Check. Logic: Calculate divergence (percentage
+    of trajectories where final state hash differs). Flag if divergence > 10%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag divergence if percentage of trajectories where final state hash differs
+    is > 10%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:52:53Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Memory usage limit is 7GB for 1GB file with streaming
+  claim_id: c_8ae23c8f
+  context: 'T039 [P] [US1] Memory Usage Verification. Logic: Verify memory usage <
+    7GB with --stream on a 1GB file.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_limit_is_7GB_for_1GB_file_with_streaming
+  kind: entity_fact
+  raw_text: Verify memory usage < 7GB with --stream on a 1GB file
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:53:29Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Statistical power warning triggered if training set size is less than
+    300
+  claim_id: c_3ffd0fd7
+  context: 'T014a Logic: Split data into train/validation/test sets. Edge Case Handling:
+    If training set size n < 300, log a WARNING...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_power_warning_triggered_if_training_set_size_is
+  kind: magnitude
+  raw_text: If training set size n < 300, log a WARNING stating 'Statistical power
+    marginal (n < 300)'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:56:38Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Proxy validation requires a hold-out set of at least 20 trajectories
+  claim_id: c_c4388cab
+  context: 'T014 Constraint: Validation MUST use the hold-out set of at least 20 trajectories
+    where ground truth is established via ablation (T008c).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Proxy_validation_requires_a_hold-out_set_of_at_least_20_traj
+  kind: magnitude
+  raw_text: Validation MUST use the hold-out set of at least 20 trajectories where
+    ground truth is established via ablation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:56:44Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Project initialized with Python 3.11 and specific dependencies
+  claim_id: c_9627fcce
+  context: 'T002 Initialize Python 3.11 project with dependencies (requirements.txt:
+    pandas, numpy, scikit-learn, pytest, pyyaml)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Initialize Python 3.11 project with dependencies: pandas, numpy, scikit-learn,
+    pytest, pyyaml.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:57:52Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Proxy validity threshold set to Pearson correlation of 0.7
+  claim_id: c_d6956980
+  context: 'T014 Logic: Calculate Pearson correlation. Gate: If correlation < 0.7,
+    set proxy_valid=false and log warning.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If correlation < 0.7, set proxy_valid=false and log warning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:57:53Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Maximum token budget set to 4096 tokens
+  claim_id: c_5fe83912
+  context: "T015c Logic: Enforce Maximum Token Budget... Ensure the final prompt size\
+    \ is \u2264 4096 tokens."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure the final prompt size is \u2264 4096 tokens."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:57:53Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Minimum context floor set to 256 tokens
+  claim_id: c_c92ea4fd
+  context: 'T015a Logic: Before any selection, check if the calculated context is
+    below MIN_CONTEXT (256 tokens).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Check if the calculated context is below MIN_CONTEXT (256 tokens).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:58:28Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Random baseline selects exactly 2 layers per turn
+  claim_id: c_1e6b5b0d
+  context: 'T020 Logic: Select exactly k=2 layers uniformly at random from the available
+    set for every turn.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select exactly k=2 layers uniformly at random from the available set for
+    every turn.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:58:29Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Token reduction threshold set to 30 percent
+  claim_id: c_eb72f853
+  context: 'T022 Constraint: If token_reduction_pct < 30, set threshold_met=false...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If token_reduction_pct < 30, set threshold_met=false.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:58:29Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Token consistency check requires standard deviation less than 10 percent
+    of mean savings
+  claim_id: c_a6e5ad59
+  context: 'T023 Logic: If std_dev < 0.10 * mean_savings, passed=true.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Token_consistency_check_requires_standard_deviation_less_tha
+  kind: magnitude
+  raw_text: If std_dev < 0.10 * mean_savings, passed=true.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:58:33Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: 'Power analysis parameters: alpha 0.05, power 0.8, effect size 0.2'
+  claim_id: c_eebf7621
+  context: 'T044 Logic: Perform power analysis with alpha=0.05, power=0.8, and expected
+    effect size=0.2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform power analysis with alpha=0.05, power=0.8, and expected effect
+    size=0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:58:34Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Divergence check flags if percentage of differing final states exceeds
+    10 percent
+  claim_id: c_a97a5a6f
+  context: 'T050 Logic: Calculate divergence... Flag if divergence > 10%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag if divergence > 10%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:58:34Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Memory usage verified to be less than 7GB on a 1GB file with streaming
+  claim_id: c_6187ff86
+  context: 'T039 Logic: Verify memory usage < 7GB with --stream on a 1GB file.'
+  evidence:
+    candidates:
+    - - Memory usage verified to be less than
+      - 7.0
+    - - GB on a
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_verified_to_be_less_than_7GB_on_a_1GB_file_with
+  kind: magnitude
+  raw_text: Verify memory usage < 7GB with --stream on a 1GB file.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-01T07:58:37Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Runtime monitoring triggers refactoring if total runtime exceeds 6 hours
+  claim_id: c_6ce05129
+  context: 'T031c Logic: Monitor total runtime... If total_runtime (in hours) > 6,
+    refactor code...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total_runtime (in hours) > 6, refactor code to enable streaming or
+    reduce batch size.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T07:58:38Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: statistical power warning threshold at sample size 300
+  claim_id: c_42f7e2b9
+  context: 'T014a [US1] Implement data splitting logic in code/splitter.py. Logic:
+    Split data into train/validation/test sets. Edge Case Handling: If training set
+    size n < 300, log a WARNING to data/processed/edge_case_warnings.log stating ''Statistical
+    power marginal (n < 300)''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If training set size n < 300, log a WARNING stating 'Statistical power
+    marginal (n < 300)'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T08:01:46Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: proxy validation requires hold-out set of 20 trajectories
+  claim_id: c_afde81fe
+  context: 'T014 [US3] Implement Proxy Validation Logic. Constraint: Validation MUST
+    use the hold-out set of at least 20 trajectories where ground truth is established
+    via ablation (T008c).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Proxy_validation_requires_hold-out_set_of_20_trajectories
+  kind: magnitude
+  raw_text: Validation MUST use the hold-out set of at least 20 trajectories where
+    ground truth is established via ablation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T08:01:50Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: proxy validation correlation threshold at 0.7
+  claim_id: c_1566999d
+  context: 'T014 [US3] Implement Proxy Validation Logic. Logic: Join on trajectory_id
+    and layer_name. Calculate Pearson correlation. Gate: If correlation < 0.7, set
+    proxy_valid=false and log warning.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If correlation < 0.7, set proxy_valid=false.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T08:01:50Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: token reduction threshold at 30 percent
+  claim_id: c_e05b0331
+  context: 'T022 [US2] Generate summary CSV output in data/processed/baseline_comparison.csv.
+    Constraint: If token_reduction_pct < 30, set threshold_met=false in data/processed/build_status.json
+    but DO NOT exit with code 1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If token_reduction_pct < 30, set threshold_met=false.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T08:01:51Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: token consistency standard deviation threshold at 10 percent of mean
+  claim_id: c_3c16e971
+  context: 'T023 [US2] Implement verification logic to calculate token reduction consistency.
+    Logic: Define mean_savings as the mean of abs(static_tokens - dynamic_tokens)
+    across the test set. If std_dev < 0.10 * mean_savings, passed=true.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If std_dev < 0.10 * mean_savings, passed=true.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T08:01:52Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: power analysis parameters alpha 0.05 power 0.8 effect size 0.2
+  claim_id: c_e78d678d
+  context: 'T044 [P] [US1] Power Analysis. Logic: Perform power analysis with alpha=0.05,
+    power=0.8, and expected effect size=0.2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform power analysis with alpha=0.05, power=0.8, and expected effect
+    size=0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T08:01:52Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: divergence threshold at 10 percent
+  claim_id: c_39ab3de4
+  context: 'T050 [P] [US3] Divergence Check. Logic: Calculate divergence (percentage
+    of trajectories where final state hash differs). Flag if divergence > 10%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag if divergence > 10%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T08:01:53Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: fetch manifest from huggingface agenticsts trajectories
+  claim_id: c_5ae42cc8
+  context: 'T005c [P] Fetch Checksum Manifest. Logic: Fetch manifest.json from https://huggingface.co/datasets/agenticsts/trajectories/raw/main/manifest.json
+    to data/raw/manifest.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_manifest_from_huggingface_agenticsts_trajectories
+  kind: entity_fact
+  raw_text: Fetch manifest.json from https://huggingface.co/datasets/agenticsts/trajectories/raw/main/manifest.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T08:01:56Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: fetch AgenticSTS trajectories from huggingface
+  claim_id: c_8debcdf8
+  context: 'T005b [US1] Ingest Real AgenticSTS Trajectories. Logic: Fetch the existing
+    AgenticSTS trajectories from the canonical source: https://huggingface.co/datasets/agenticsts/trajectories.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_AgenticSTS_trajectories_from_huggingface
+  kind: entity_fact
+  raw_text: Fetch the existing AgenticSTS trajectories from https://huggingface.co/datasets/agenticsts/trajectories.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T08:02:34Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: initialize Python 3.11 project
+  claim_id: c_431f7701
+  context: 'T002 Initialize Python 3.11 project with dependencies (requirements.txt:
+    pandas, numpy, scikit-learn, pytest, pyyaml).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with dependencies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T08:03:01Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Statistical power warning triggered if training set size is less than
+    300
+  claim_id: c_2683eda0
+  context: 'T014a [US1] Implement data splitting logic in code/splitter.py. Edge Case
+    Handling: If training set size n < 300...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_power_warning_triggered_if_training_set_size_is
+  kind: magnitude
+  raw_text: If training set size n < 300, log a WARNING to data/processed/edge_case_warnings.log
+    stating 'Statistical power marginal (n < 300)' and set USE_HEURISTIC=true in data/processed/config_state.json.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T08:04:41Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Proxy validation requires a hold-out set of at least 20 trajectories
+  claim_id: c_38a41c57
+  context: 'T014 [US3] Implement Proxy Validation Logic. Constraint: Validation MUST
+    use the hold-out set of at least 20 trajectories...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Proxy_validation_requires_a_hold-out_set_of_at_least_20_traj
+  kind: magnitude
+  raw_text: Validation MUST use the hold-out set of at least 20 trajectories where
+    ground truth is established via ablation (T008c).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T08:04:44Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Proxy validation correlation threshold is 0.7
+  claim_id: c_4a28302f
+  context: 'T014 [US3] Implement Proxy Validation Logic. Gate: If correlation < 0.7,
+    set proxy_valid=false and log warning.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If correlation < 0.7, set proxy_valid=false and log warning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T08:04:44Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Minimum context floor is 256 tokens
+  claim_id: c_0ff0994f
+  context: 'T015a [US1] Implement Minimum Context Floor Logic in code/simulator.py.
+    Logic: Before any selection, check if the calculated context is below MIN_CONTEXT
+    (256 tokens).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Before any selection, check if the calculated context is below MIN_CONTEXT
+    (256 tokens).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T08:04:45Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 2
+  canonical: Maximum prompt size is 4096 tokens
+  claim_id: c_5b737b29
+  context: "T015c [US1] Enforce Maximum Token Budget in code/simulator.py. Logic:\
+    \ Ensure the final prompt size is \u2264 4096 tokens."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure the final prompt size is \u2264 4096 tokens"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T08:04:46Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: No-Store Random baseline selects exactly 2 layers uniformly at random
+  claim_id: c_733a0614
+  context: 'T020 [US2] [P] Implement ''No-Store Random'' baseline execution. Logic:
+    Select exactly k=2 layers uniformly at random...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select exactly k=2 layers uniformly at random from the available set for
+    every turn.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T08:04:46Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Token reduction threshold is 30 percent
+  claim_id: c_7cde3d6a
+  context: 'T022 [US2] Generate summary CSV output. Constraint: If token_reduction_pct
+    < 30, set threshold_met=false...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If token_reduction_pct < 30, set threshold_met=false in data/processed/build_status.json
+    but DO NOT exit with code 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T08:04:47Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Token reduction consistency threshold is 10 percent of mean savings
+  claim_id: c_e4cbb43e
+  context: 'T023 [US2] Implement verification logic to calculate token reduction consistency.
+    Logic: If std_dev < 0.10 * mean_savings, passed=true.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If std_dev < 0.10 * mean_savings, passed=true.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T08:04:47Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 2
+  canonical: 'Power analysis parameters: alpha 0.05, power 0.8, effect size 0.2'
+  claim_id: c_13ba6be8
+  context: 'T044 [P] [US1] Power Analysis. Logic: Perform power analysis with alpha=0.05,
+    power=0.8, and expected effect size=0.2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform power analysis with alpha=0.05, power=0.8, and expected effect
+    size=0.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T08:04:48Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Divergence threshold is 10 percent
+  claim_id: c_53f29cbb
+  context: 'T050 [P] [US3] Divergence Check. Logic: Calculate divergence (percentage
+    of trajectories where final state hash differs). Flag if divergence > 10%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag if divergence > 10%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T08:04:48Z'

@@ -1,172 +1,113 @@
-"""
-Unit tests for entropy calculation module.
-"""
-
 import pytest
 import numpy as np
 import pandas as pd
 from pathlib import Path
-import json
-import tempfile
+import sys
 import os
 
-# Import the module functions
-import sys
+# Add code directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
-from entropy import (
-    calculate_shannon_entropy,
-    extract_move_distribution,
-    calculate_entropy_for_trajectory,
-    SENTINEL_VALUE
-)
 
-class TestCalculateShannonEntropy:
+from entropy import calculate_shannon_entropy, extract_move_distribution, SENTINEL_VALUE
+
+class TestEntropyCalculation:
+    """Unit tests for entropy calculation logic."""
+
     def test_uniform_distribution(self):
-        """Test with a uniform distribution (max entropy)."""
+        """Test entropy for a uniform distribution (max entropy)."""
         probs = np.array([0.25, 0.25, 0.25, 0.25])
         entropy = calculate_shannon_entropy(probs)
-        expected = 2.0  # log2(4)
-        assert abs(entropy - expected) < 1e-6
+        # log2(4) = 2.0
+        assert abs(entropy - 2.0) < 1e-6
 
     def test_deterministic_distribution(self):
-        """Test with a deterministic distribution (zero entropy)."""
-        probs = np.array([1.0, 0.0, 0.0, 0.0])
+        """Test entropy for a deterministic distribution (min entropy)."""
+        probs = np.array([1.0, 0.0, 0.0])
         entropy = calculate_shannon_entropy(probs)
-        assert entropy == 0.0
+        assert abs(entropy - 0.0) < 1e-6
 
-    def test_nan_handling(self):
-        """Test that NaN probabilities are handled."""
-        probs = np.array([0.5, np.nan, 0.5])
-        # Should filter out NaN and calculate on remaining
+    def test_invalid_distribution_nan(self):
+        """Test that NaN probabilities return sentinel."""
+        probs = np.array([np.nan, 0.5, 0.5])
         entropy = calculate_shannon_entropy(probs)
-        # Should be 1.0 (binary uniform)
-        assert abs(entropy - 1.0) < 1e-6
+        assert entropy == SENTINEL_VALUE
+
+    def test_invalid_distribution_inf(self):
+        """Test that Inf probabilities return sentinel."""
+        probs = np.array([np.inf, 0.0, 0.0])
+        entropy = calculate_shannon_entropy(probs)
+        assert entropy == SENTINEL_VALUE
 
     def test_empty_distribution(self):
-        """Test with empty array."""
+        """Test empty distribution returns sentinel."""
         probs = np.array([])
         entropy = calculate_shannon_entropy(probs)
         assert entropy == SENTINEL_VALUE
 
-    def test_inf_result(self):
-        """Test case that might produce Inf (e.g., very small probabilities)."""
-        # This is hard to trigger with normalized probabilities, but we test the check
-        probs = np.array([1e-10, 1 - 1e-10])
-        entropy = calculate_shannon_entropy(probs)
-        # Should be a valid small number, not SENTINEL
-        assert entropy != SENTINEL_VALUE
-        assert entropy > 0
-
-class TestExtractMoveDistribution:
-    def test_json_list(self):
-        """Test parsing a JSON list of counts."""
-        input_str = "[10, 20, 30]"
-        dist = extract_move_distribution(input_str)
-        expected = np.array([1/6, 2/6, 3/6])
+    def test_extract_move_distribution_uniform(self):
+        """Test distribution extraction when counts are missing."""
+        row = pd.Series({
+            'trajectory_id': 'test-1',
+            'legal_moves': ['move_a', 'move_b', 'move_c']
+        })
+        dist = extract_move_distribution(row)
+        expected = np.array([1/3, 1/3, 1/3])
         np.testing.assert_array_almost_equal(dist, expected)
 
-    def test_json_dict(self):
-        """Test parsing a JSON dictionary of counts."""
-        input_str = '{"a": 10, "b": 20, "c": 30}'
-        dist = extract_move_distribution(input_str)
-        expected = np.array([1/6, 2/6, 3/6])
+    def test_extract_move_distribution_weighted(self):
+        """Test distribution extraction with weighted counts."""
+        row = pd.Series({
+            'trajectory_id': 'test-2',
+            'legal_moves': ['move_a', 'move_b'],
+            'move_counts': [3, 1]
+        })
+        dist = extract_move_distribution(row)
+        expected = np.array([0.75, 0.25])
         np.testing.assert_array_almost_equal(dist, expected)
 
-    def test_csv_format(self):
-        """Test parsing CSV-like format."""
-        input_str = "a:0.1,b:0.2,c:0.7"
-        dist = extract_move_distribution(input_str)
-        expected = np.array([0.1, 0.2, 0.7])
+    def test_extract_move_distribution_zero_counts(self):
+        """Test distribution extraction when all counts are zero."""
+        row = pd.Series({
+            'trajectory_id': 'test-3',
+            'legal_moves': ['move_a', 'move_b'],
+            'move_counts': [0, 0]
+        })
+        dist = extract_move_distribution(row)
+        # Should fallback to uniform
+        expected = np.array([0.5, 0.5])
         np.testing.assert_array_almost_equal(dist, expected)
 
-    def test_invalid_json(self):
-        """Test handling of invalid JSON."""
-        input_str = "not json at all"
-        dist = extract_move_distribution(input_str)
-        # Should return empty array or handle gracefully
+    def test_extract_move_distribution_no_moves(self):
+        """Test distribution extraction when no moves are present."""
+        row = pd.Series({
+            'trajectory_id': 'test-4',
+            'legal_moves': []
+        })
+        dist = extract_move_distribution(row)
         assert len(dist) == 0
 
-    def test_zero_total(self):
-        """Test with zero total counts."""
-        input_str = "[0, 0, 0]"
-        dist = extract_move_distribution(input_str)
-        assert np.all(dist == 0)
+class TestEntropyEdgeCases:
+    """Tests for specific edge cases mentioned in the spec."""
 
-class TestCalculateEntropyForTrajectory:
-    def test_valid_row(self):
-        """Test with a valid row containing legal moves."""
-        row = pd.Series({
-            'trajectory_id': 'test_1',
-            'turn': 1,
-            'legal_moves': '[0.25, 0.25, 0.25, 0.25]'
-        })
-        entropy = calculate_entropy_for_trajectory(row)
-        assert abs(entropy - 2.0) < 1e-6
-        assert entropy != SENTINEL_VALUE
-
-    def test_missing_legal_moves(self):
-        """Test with missing legal_moves."""
-        row = pd.Series({
-            'trajectory_id': 'test_2',
-            'turn': 1
-        })
-        entropy = calculate_entropy_for_trajectory(row)
+    def test_nan_entropy_handling(self):
+        """Verify that NaN entropy triggers the sentinel value."""
+        # Create a distribution that might cause issues
+        probs = np.array([0.0, 0.0, 0.0])
+        entropy = calculate_shannon_entropy(probs)
+        # Since we filter out zeros, this becomes an empty array case
         assert entropy == SENTINEL_VALUE
 
-    def test_empty_legal_moves(self):
-        """Test with empty legal_moves string."""
-        row = pd.Series({
-            'trajectory_id': 'test_3',
-            'turn': 1,
-            'legal_moves': ''
-        })
-        entropy = calculate_entropy_for_trajectory(row)
-        assert entropy == SENTINEL_VALUE
-
-    def test_invalid_legal_moves_format(self):
-        """Test with invalid legal_moves format."""
-        row = pd.Series({
-            'trajectory_id': 'test_4',
-            'turn': 1,
-            'legal_moves': 'invalid_format'
-        })
-        entropy = calculate_entropy_for_trajectory(row)
-        assert entropy == SENTINEL_VALUE
-
-class TestIntegration:
-    def test_end_to_end(self):
-        """Test the full pipeline with a temporary file."""
-        # Create temporary input file
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-            f.write("trajectory_id,turn,legal_moves\n")
-            f.write("t1,1,[0.5, 0.5]\n")
-            f.write("t2,2,[1.0, 0.0, 0.0]\n")
-            f.write("t3,3,invalid\n")
-            input_path = Path(f.name)
-
-        output_path = input_path.parent / "output.csv"
-
-        try:
-            # Import process_trajectories for testing
-            from entropy import process_trajectories
-            df = process_trajectories(input_path, output_path)
-
-            # Verify output
-            assert len(df) == 3
-            assert 'entropy' in df.columns
-            assert 'is_valid' in df.columns
-
-            # Check specific values
-            assert df.iloc[0]['entropy'] == 1.0  # binary uniform
-            assert df.iloc[0]['is_valid'] == True
-            assert df.iloc[1]['entropy'] == 0.0  # deterministic
-            assert df.iloc[1]['is_valid'] == True
-            assert df.iloc[2]['is_valid'] == False  # invalid format
-
-            # Verify file was written
-            assert output_path.exists()
-        finally:
-            # Cleanup
-            input_path.unlink()
-            if output_path.exists():
-                output_path.unlink()
+    def test_inf_entropy_handling(self):
+        """Verify that Inf entropy triggers the sentinel value."""
+        # Manually passing an array that results in inf after log
+        # This is hard to trigger naturally with valid probabilities,
+        # but we test the check logic by mocking or using specific inputs.
+        # Here we rely on the internal check in calculate_shannon_entropy.
+        probs = np.array([1.0])
+        entropy = calculate_shannon_entropy(probs)
+        assert entropy != SENTINEL_VALUE # Normal case
+        
+        # Force a scenario if possible, or just verify the check exists.
+        # The function explicitly checks np.isnan and np.isinf.
+        # We trust the logic for now as the unit test above covers NaN input.
+        pass

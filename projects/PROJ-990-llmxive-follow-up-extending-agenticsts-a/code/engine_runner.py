@@ -1,154 +1,363 @@
+"""
+Engine Runner for AgenticSTS Simulation.
+
+This module provides the CLI interface and execution logic for re-simulating
+trajectories with different memory strategies (dynamic, static, random) and
+layer ablation configurations.
+
+It acts as the execution engine for T008 (Ablation Study), T017 (Dynamic Simulation),
+T019 (Static Baseline), and T020 (Random Baseline).
+"""
+
 import os
 import sys
 import json
 import logging
 import random
 import hashlib
+import argparse
+import time
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Dict, List, Any, Optional, Tuple
 
-from config import load_config_from_file
+# Import from existing project modules
+from parser import load_schema, validate_trajectory_against_schema
+from simulator import run_dynamic_simulation, run_baseline_simulation, estimate_layer_tokens
+from ablation import run_ablation_study, generate_ablation_config
+from config import load_config_from_file, ensure_directories
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('llmXive.engine_runner')
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('data/processed/engine_runner.log')
+    ]
+)
+logger = logging.getLogger(__name__)
 
-def load_test_set_ids() -> list:
-    """Load test set IDs from data/processed/test_set.csv."""
-    config = load_config_from_file('config.json')
-    path = Path(config['data']['processed']) / 'test_set.csv'
+# Constants
+PROJECT_ROOT = Path(__file__).parent.parent
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+SCHEMA_PATH = PROJECT_ROOT / "contracts" / "trajectory.schema.yaml"
+
+def load_test_set_ids(filepath: Optional[str] = None) -> List[str]:
+    """
+    Load trajectory IDs from the test set split.
+    Falls back to a specific file if not provided, or scans processed directory.
+    """
+    if filepath is None:
+        filepath = DATA_PROCESSED_DIR / "test_set.csv"
+    
+    path = Path(filepath)
     if not path.exists():
         logger.error(f"Test set file not found: {path}")
         return []
-    import pandas as pd
-    df = pd.read_csv(path)
-    if 'trajectory_id' not in df.columns:
-        logger.error(f"Column 'trajectory_id' not found in {path}. Columns: {df.columns.tolist()}")
-        return []
-    return df['trajectory_id'].tolist()
-
-def run_static_baseline():
-    """Delegate to baseline_static_runner for static all-layers baseline."""
+    
     try:
-        from baseline_static_runner import run_static_baseline as _run_static
-        _run_static()
-    except ImportError as e:
-        logger.error(f"Failed to import run_static_baseline from baseline_static_runner: {e}")
-        raise
-
-def run_random_baseline():
-    """
-    Run No-Store Random baseline execution.
-    
-    Logic:
-    1. Load test set trajectory IDs from data/processed/test_set.csv.
-    2. For each trajectory, invoke the engine_runner logic with policy="Random".
-       - Select k layers uniformly at random for each turn.
-       - NO memory of past layers (no-store).
-    3. Output: data/processed/simulation_logs_random.json.
-    
-    The simulation uses the actual trajectory data to determine valid layer options
-    and outcome metrics, ensuring real measurements rather than synthetic values.
-    """
-    config = load_config_from_file('config.json')
-    ids = load_test_set_ids()
-    
-    if not ids:
-        logger.warning("No test set IDs found. Skipping random baseline.")
-        # Write empty result to satisfy artifact requirement
-        out_path = Path(config['data']['processed']) / 'simulation_logs_random.json'
-        out_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(out_path, 'w') as f:
-            json.dump({"simulations": [], "summary": {"total_trajectories": 0, "win_rate": 0.0, "avg_tokens": 0.0, "policy": "random"}}, f, indent=2)
-        return
-
-    simulations = []
-    total_tokens = 0
-    wins = 0
-    
-    # Load trajectory data to simulate random selection based on real structure
-    # We assume the test_set.csv contains trajectory_ids that map to processed data
-    # or raw data. For this baseline, we simulate the 'no-store' random selection
-    # on a per-turn basis if trajectory details are available, or use a representative
-    # random k if only IDs are available.
-    # To be robust and "real", we attempt to load the processed metrics if they exist
-    # to determine the number of available layers (k_max) for each trajectory.
-    
-    metrics_path = Path(config['data']['processed']) / 'metrics_with_moves.csv'
-    metrics_df = None
-    if metrics_path.exists():
         import pandas as pd
-        metrics_df = pd.read_csv(metrics_path)
+        df = pd.read_csv(path)
+        if 'trajectory_id' not in df.columns:
+            logger.error("test_set.csv missing 'trajectory_id' column")
+            return []
+        return df['trajectory_id'].tolist()
+    except Exception as e:
+        logger.error(f"Failed to load test set IDs: {e}")
+        return []
+
+def load_raw_trajectories(ids: List[str], schema_path: Optional[Path] = None) -> List[Dict[str, Any]]:
+    """
+    Load raw trajectory data for a given list of IDs.
+    Reads from data/raw/agenticsts_trajectories.jsonl.
+    """
+    raw_file = DATA_RAW_DIR / "agenticsts_trajectories.jsonl"
+    if not raw_file.exists():
+        raise FileNotFoundError(f"Raw data file missing: {raw_file}. Run T005b first.")
     
-    for traj_id in ids:
-        # Determine available layers (k_max) for this trajectory
-        # If we have metrics, count unique layers; otherwise assume a default range (1-5)
-        k_max = 5 
-        if metrics_df is not None and 'trajectory_id' in metrics_df.columns:
-            subset = metrics_df[metrics_df['trajectory_id'] == traj_id]
-            if not subset.empty:
-                # Assume 'layer_id' column exists or count rows as turns/layers
-                if 'layer_id' in subset.columns:
-                    k_max = subset['layer_id'].nunique()
-                else:
-                    k_max = max(1, len(subset))
-        
-        # No-Store Random: Select k uniformly at random from [1, k_max]
-        # This simulates the agent picking a random depth every turn without memory
-        k_selected = random.randint(1, k_max)
-        
-        # Estimate tokens: Realistic estimate based on layer count and average token size
-        # Average layer size ~128 tokens (configurable, but 128 is a reasonable heuristic)
-        tokens_used = k_selected * 128
-        
-        # Outcome: In a real simulation, this would come from the engine.
-        # Since we are running a baseline on existing trajectory data, we simulate the outcome
-        # based on the random selection logic. If the original trajectory was a win,
-        # and we picked layers randomly, we might still win or lose.
-        # To be "real" and not fabricated, we derive a probabilistic outcome based on k_selected.
-        # Higher k_selected (more context) generally correlates with better outcomes in AgenticSTS.
-        # We use a deterministic seed derived from traj_id for reproducibility, then random.
-        seed_val = int(hashlib.md5(traj_id.encode()).hexdigest(), 16) % (2**32)
-        rng = random.Random(seed_val)
-        
-        # Simulate outcome: Higher k -> higher win probability
-        win_prob = min(0.9, 0.3 + (k_selected / k_max) * 0.6)
-        is_win = rng.random() < win_prob
-        
-        if is_win:
-            wins += 1
-        total_tokens += tokens_used
-        
-        simulations.append({
-            "trajectory_id": traj_id,
-            "policy": "random",
-            "k_selected": k_selected,
-            "tokens_used": tokens_used,
-            "outcome": "win" if is_win else "loss"
-        })
+    if schema_path is None:
+        schema_path = SCHEMA_PATH
     
-    avg_tokens = total_tokens / len(ids) if ids else 0.0
-    win_rate = wins / len(ids) if ids else 0.0
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file missing: {schema_path}. Run T003a first.")
     
-    output = {
-        "simulations": simulations,
-        "summary": {
-            "total_trajectories": len(ids),
-            "win_rate": win_rate,
-            "avg_tokens": avg_tokens,
-            "policy": "random",
-            "seed_info": "Reproducible via MD5 hash of trajectory_id"
-        }
-    }
+    schema = load_schema(schema_path)
     
-    out_path = Path(config['data']['processed']) / 'simulation_logs_random.json'
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(out_path, 'w') as f:
-        json.dump(output, f, indent=2)
+    trajectories = []
+    count = 0
+    with open(raw_file, 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                record = json.loads(line)
+                # Validate against schema
+                if not validate_trajectory_against_schema(record, schema):
+                    logger.warning(f"Trajectory {record.get('trajectory_id', 'unknown')} failed schema validation. Skipping.")
+                    continue
+                
+                if record.get('trajectory_id') in ids:
+                    trajectories.append(record)
+                    count += 1
+                    if len(trajectories) == len(ids):
+                        break
+            except json.JSONDecodeError as e:
+                logger.warning(f"Invalid JSON line in raw data: {e}")
+                continue
     
-    logger.info(f"Random baseline complete. Output: {out_path} (N={len(ids)}, WinRate={win_rate:.2f})")
+    logger.info(f"Loaded {len(trajectories)} trajectories for processing.")
+    return trajectories
+
+def get_all_layers() -> List[str]:
+    """
+    Returns the list of all available memory layers as defined in the schema.
+    """
+    if not SCHEMA_PATH.exists():
+        raise FileNotFoundError(f"Schema missing: {SCHEMA_PATH}")
+    
+    schema = load_schema(SCHEMA_PATH)
+    # The schema typically defines fields. We look for a 'layers' or specific context fields.
+    # Based on typical AgenticSTS structure, layers are often: 'initial_state', 'observation', 'action', 'reward', 'thought'
+    # We extract them dynamically from the schema definition if possible, or use a standard set.
+    if 'properties' in schema:
+        # Heuristic: look for properties that sound like context layers
+        potential_layers = [k for k in schema['properties'].keys() 
+                            if k in ['initial_state', 'observation', 'action', 'reward', 'thought', 'legal_moves', 'context']]
+        if potential_layers:
+            return potential_layers
+    
+    # Fallback standard set if schema doesn't explicitly list them in a way we can parse
+    return ['initial_state', 'observation', 'action', 'reward', 'thought', 'legal_moves']
+
+def estimate_tokens_for_trajectory(trajectory: Dict[str, Any]) -> int:
+    """
+    Estimate token count for a trajectory based on its content.
+    """
+    total = 0
+    for layer in get_all_layers():
+        content = trajectory.get(layer, "")
+        if isinstance(content, str):
+            total += estimate_layer_tokens(content)
+        elif isinstance(content, list):
+            total += sum(estimate_layer_tokens(str(item)) for item in content)
+    return total
+
+def run_static_baseline_simulation(ids: List[str], output_path: Optional[Path] = None) -> Dict[str, Any]:
+    """
+    Run the Static All-Layers baseline.
+    Retrieves ALL available memory layers for every turn.
+    """
+    logger.info(f"Starting Static Baseline Simulation for {len(ids)} trajectories.")
+    
+    trajectories = load_raw_trajectories(ids)
+    if not trajectories:
+        logger.warning("No trajectories found for static baseline.")
+        return {"status": "empty", "results": []}
+    
+    results = []
+    for traj in trajectories:
+        start_time = time.time()
+        # Simulate static: use all layers
+        log_entry = run_baseline_simulation(
+            trajectory=traj,
+            mode="static",
+            layers=get_all_layers()
+        )
+        end_time = time.time()
+        
+        log_entry['runtime_seconds'] = end_time - start_time
+        log_entry['total_tokens'] = estimate_tokens_for_trajectory(traj)
+        results.append(log_entry)
+    
+    if output_path is None:
+        output_path = DATA_PROCESSED_DIR / "simulation_logs_static.json"
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump({"mode": "static", "count": len(results), "results": results}, f, indent=2)
+    
+    logger.info(f"Static baseline complete. Output written to {output_path}")
+    return {"status": "success", "count": len(results), "output": str(output_path)}
+
+def run_random_baseline_simulation(ids: List[str], k: int = 2, output_path: Optional[Path] = None) -> Dict[str, Any]:
+    """
+    Run the No-Store Random baseline.
+    Selects exactly k=2 layers uniformly at random for every turn.
+    """
+    logger.info(f"Starting Random Baseline Simulation (k={k}) for {len(ids)} trajectories.")
+    
+    trajectories = load_raw_trajectories(ids)
+    if not trajectories:
+        logger.warning("No trajectories found for random baseline.")
+        return {"status": "empty", "results": []}
+    
+    all_layers = get_all_layers()
+    if len(all_layers) < k:
+        logger.warning(f"Only {len(all_layers)} layers available, but k={k}. Adjusting k.")
+        k = len(all_layers)
+    
+    results = []
+    for traj in trajectories:
+        start_time = time.time()
+        # Select random k layers
+        selected_layers = random.sample(all_layers, k)
+        
+        log_entry = run_baseline_simulation(
+            trajectory=traj,
+            mode="random",
+            layers=selected_layers,
+            seed=random.randint(0, 2**32-1)
+        )
+        end_time = time.time()
+        
+        log_entry['runtime_seconds'] = end_time - start_time
+        log_entry['total_tokens'] = estimate_tokens_for_trajectory(traj)
+        log_entry['selected_layers'] = selected_layers
+        results.append(log_entry)
+    
+    if output_path is None:
+        output_path = DATA_PROCESSED_DIR / "simulation_logs_random.json"
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump({"mode": "random", "k": k, "count": len(results), "results": results}, f, indent=2)
+    
+    logger.info(f"Random baseline complete. Output written to {output_path}")
+    return {"status": "success", "count": len(results), "output": str(output_path)}
+
+def run_dynamic_simulation(ids: List[str], model_path: Optional[Path] = None, output_path: Optional[Path] = None) -> Dict[str, Any]:
+    """
+    Run the Dynamic Policy simulation.
+    Uses the trained model to select layers based on utility prediction.
+    """
+    logger.info(f"Starting Dynamic Simulation for {len(ids)} trajectories.")
+    
+    trajectories = load_raw_trajectories(ids)
+    if not trajectories:
+        logger.warning("No trajectories found for dynamic simulation.")
+        return {"status": "empty", "results": []}
+    
+    # Default model path if not provided
+    if model_path is None:
+        model_path = PROJECT_ROOT / "models" / "layer_utility_classifier.pkl"
+    
+    if not model_path.exists():
+        logger.warning(f"Model not found at {model_path}. Running without model (fallback to heuristic/static).")
+        # Fallback behavior: could run static or random if model is missing
+        # For this task, we assume the model exists or we handle the error
+        raise FileNotFoundError(f"Model file missing: {model_path}. Run T009 first.")
+    
+    results = []
+    for traj in trajectories:
+        start_time = time.time()
+        log_entry = run_dynamic_simulation(
+            trajectory=traj,
+            model_path=model_path
+        )
+        end_time = time.time()
+        
+        log_entry['runtime_seconds'] = end_time - start_time
+        log_entry['total_tokens'] = estimate_tokens_for_trajectory(traj)
+        results.append(log_entry)
+    
+    if output_path is None:
+        output_path = DATA_PROCESSED_DIR / "simulation_logs_dynamic.json"
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump({"mode": "dynamic", "count": len(results), "results": results}, f, indent=2)
+    
+    logger.info(f"Dynamic simulation complete. Output written to {output_path}")
+    return {"status": "success", "count": len(results), "output": str(output_path)}
+
+def run_ablation_experiment(ids: List[str], ablation_layer: str, output_path: Optional[Path] = None) -> Dict[str, Any]:
+    """
+    Run ablation study for a specific layer on a set of trajectories.
+    This is used by T008 to generate ground truth labels.
+    """
+    logger.info(f"Running ablation study for layer '{ablation_layer}' on {len(ids)} trajectories.")
+    
+    trajectories = load_raw_trajectories(ids)
+    if not trajectories:
+        logger.warning("No trajectories found for ablation study.")
+        return {"status": "empty", "results": []}
+    
+    # Generate ablation config
+    config = generate_ablation_config(ablation_layer=ablation_layer)
+    
+    results = []
+    for traj in trajectories:
+        start_time = time.time()
+        # Run ablation simulation
+        log_entry = run_ablation_study(
+            trajectory=traj,
+            config=config
+        )
+        end_time = time.time()
+        
+        log_entry['runtime_seconds'] = end_time - start_time
+        log_entry['ablated_layer'] = ablation_layer
+        results.append(log_entry)
+    
+    if output_path is None:
+        output_path = DATA_PROCESSED_DIR / f"ablation_results_{ablation_layer}.json"
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump({"layer": ablation_layer, "count": len(results), "results": results}, f, indent=2)
+    
+    logger.info(f"Ablation study for '{ablation_layer}' complete. Output written to {output_path}")
+    return {"status": "success", "count": len(results), "output": str(output_path)}
 
 def main():
-    run_random_baseline()
+    parser = argparse.ArgumentParser(description="Engine Runner for AgenticSTS Simulation")
+    parser.add_argument('--mode', type=str, choices=['dynamic', 'static', 'random', 'ablation'], required=True,
+                        help='Simulation mode')
+    parser.add_argument('--ablate-layer', type=str, default=None,
+                        help='Layer to ablate (required for ablation mode)')
+    parser.add_argument('--k', type=int, default=2,
+                        help='Number of random layers for random mode')
+    parser.add_argument('--output', type=str, default=None,
+                        help='Output file path (optional)')
+    parser.add_argument('--input-ids', type=str, default=None,
+                        help='Path to CSV with trajectory IDs (optional, defaults to test_set.csv)')
+    
+    args = parser.parse_args()
+    
+    # Load IDs
+    ids = load_test_set_ids(args.input_ids)
+    if not ids:
+        logger.error("No trajectory IDs found. Exiting.")
+        sys.exit(1)
+    
+    try:
+        if args.mode == 'static':
+            result = run_static_baseline_simulation(ids, Path(args.output) if args.output else None)
+        elif args.mode == 'random':
+            result = run_random_baseline_simulation(ids, k=args.k, output_path=Path(args.output) if args.output else None)
+        elif args.mode == 'dynamic':
+            result = run_dynamic_simulation(ids, output_path=Path(args.output) if args.output else None)
+        elif args.mode == 'ablation':
+            if not args.ablate_layer:
+                logger.error("--ablate-layer is required for ablation mode")
+                sys.exit(1)
+            result = run_ablation_experiment(ids, args.ablate_layer, Path(args.output) if args.output else None)
+        else:
+            logger.error(f"Unknown mode: {args.mode}")
+            sys.exit(1)
+        
+        if result.get('status') == 'success':
+            print(json.dumps(result, indent=2))
+            sys.exit(0)
+        else:
+            print(json.dumps(result, indent=2))
+            sys.exit(1)
+            
+    except Exception as e:
+        logger.error(f"Execution failed: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()

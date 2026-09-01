@@ -1,1 +1,22 @@
-[]
+- artifact_hash: f0f95355c2de66aea317e42c4b5c152abe92074e082b3c0332be4d017e1c4dba
+  artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/agenticsts/trajectories/raw/main/manifest.json`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/agenticsts/trajectories/raw/main/manifest.json
+  verified_at: '2026-09-01T08:04:49.208545Z'
+- artifact_hash: f0f95355c2de66aea317e42c4b5c152abe92074e082b3c0332be4d017e1c4dba
+  artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/agenticsts/trajectories`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/agenticsts/trajectories
+  verified_at: '2026-09-01T08:04:49.208545Z'
