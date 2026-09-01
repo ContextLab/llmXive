@@ -1,5 +1,4 @@
 """
 llmXive Consciousness Bootstrapping Project.
-
-Core code modules for recursive self-modeling and meta-cognitive evaluation.
+Core codebase for recursive self-attention and meta-cognitive metrics.
 """

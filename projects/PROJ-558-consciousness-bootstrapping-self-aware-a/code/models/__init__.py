@@ -1,11 +1,14 @@
 """
 Model definitions and wrappers.
-
-Exports:
-  - BaseLlamaWrapper
-  - ModelCheckpoint
-  - RecursionState, TemporalRecursiveSelfAttention, RecursiveLlamaWrapper, create_recursive_model
+Exports: BaseLlamaWrapper, RecursiveLlamaWrapper, ModelCheckpoint
 """
 from .base_llama import BaseLlamaWrapper
+from .recursive_llama import RecursiveLlamaWrapper, TemporalRecursiveSelfAttention
 from .checkpoint import ModelCheckpoint
-from .recursive_llama import RecursionState, TemporalRecursiveSelfAttention, RecursiveLlamaWrapper, create_recursive_model
+
+__all__ = [
+    "BaseLlamaWrapper",
+    "RecursiveLlamaWrapper",
+    "TemporalRecursiveSelfAttention",
+    "ModelCheckpoint"
+]

@@ -39,7 +39,7 @@ The 100k token limit is derived from the available memory:
 - Remaining for context/overhead: a substantial amount of memory.
 - Estimated memory per token (with recursive overhead): moderate.
 - Max tokens: 2.8 GB / 28 KB ≈ a large-scale context window suitable for extensive document analysis.
-This calculation ensures the model fits within the 7 GB RAM limit while accounting for the recursive module's memory footprint.
+This calculation ensures the model fits within the available RAM limit while accounting for the recursive module's memory footprint.
 
 ## Constitution Check
 

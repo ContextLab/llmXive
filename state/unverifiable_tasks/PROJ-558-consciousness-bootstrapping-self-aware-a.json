@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-558-consciousness-bootstrapping-self-aware-a",
+  "tasks": [
+    {
+      "task_key": "T001a",
+      "reject_count": 1,
+      "last_reason": "No evidence of the required `projects/PROJ-558-consciousness-bootstrapping-self-aware-a/` directory tree (with `data/raw`, `data/processed`, `code`, `tests`, `artifacts`, `artifacts/checkpoints`, `artifacts/reports`) is provided; the implementer did not supply any file\u2011system listing or screenshots confirming its existence. The task remains undone.",
+      "first_seen": "2026-09-01T11:55:42.857597+00:00",
+      "last_seen": "2026-09-01T11:55:42.857597+00:00"
+    }
+  ],
+  "updated_at": "2026-09-01T11:55:42.857597+00:00"
+}

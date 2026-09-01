@@ -6451,3 +6451,352 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-30T07:00:02Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Training pipeline completes within 120 minutes on GitHub Actions CPU
+    runner producing two checkpoints
+  claim_id: c_83f5e7e0
+  context: 'Independent Test: The training pipeline is expected to execute on GitHub
+    Actions CPU runner, produce two checkpoints, and complete within 120 minutes without
+    OOM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training pipeline is expected to execute on GitHub Actions CPU runner,
+    produce two checkpoints, and complete within 120 minutes without OOM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T11:38:50Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Token limit script outputs configuration template with placeholder value
+  claim_id: c_2991e987
+  context: 'Output: The script must print the calculated token_limit and write a configuration
+    template to code/utils/config_template.py with the value as a placeholder (e.g.
+    TOKEN_LIMIT = <VALUE>).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Token_limit_script_outputs_configuration_template_with_place
+  kind: entity_fact
+  raw_text: The script must print the calculated token_limit and write a configuration
+    template to code/utils/config_template.py with the value as a placeholder.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T11:40:42Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Derivation tool accepts RAM and model size arguments
+  claim_id: c_7e987e8e
+  context: 'Input: Script must accept command-line arguments for total_ram_gb, os_overhead_gb,
+    safety_margin_gb, model_size_gb, and bytes_per_token.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Derivation_tool_accepts_RAM_and_model_size_arguments
+  kind: entity_fact
+  raw_text: The script must accept command-line arguments for total_ram_gb, os_overhead_gb,
+    safety_margin_gb, model_size_gb, and bytes_per_token.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T11:41:14Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Training script raises ValueError if data exceeds token limit
+  claim_id: c_f072d1b1
+  context: 'Logic: If the training data exceeds the token_limit, the script MUST raise
+    a ValueError and exit with a non-zero status code.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_script_raises_ValueError_if_data_exceeds_token_limi
+  kind: entity_fact
+  raw_text: If the training data exceeds the token_limit, the script MUST raise a
+    ValueError and exit with a non-zero status code.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T11:42:29Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Memory error raised if RSS exceeds 6.5 GB
+  claim_id: c_ec1f7b62
+  context: If RSS > 6.5GB, raise MemoryError and exit with code 1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If RSS > 6.5GB, raise MemoryError and exit with code 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T11:42:30Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Recursive attention module accepts max_recursion_depth parameter defaulting
+    to 2
+  claim_id: c_df987c94
+  context: 'Constraint: The module MUST accept a max_recursion_depth parameter (default
+    2) as a configurable argument.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The module MUST accept a max_recursion_depth parameter (default 2) as
+    a configurable argument.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T11:43:43Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Training script validates recursion depth does not exceed 2
+  claim_id: c_e69fb804
+  context: Add validation to train.py to prevent recursion depth > 2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add validation to train.py to prevent recursion depth > 2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T11:43:44Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Token limit derivation accepts 5 RAM-related arguments
+  claim_id: c_ce72f6c1
+  context: 'Input: Script must accept command-line arguments for total_ram_gb, os_overhead_gb,
+    safety_margin_gb, model_size_gb, and bytes_per_token.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script must accept command-line arguments for total_ram_gb, os_overhead_gb,
+    safety_margin_gb, model_size_gb, and bytes_per_token.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T11:43:45Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Confidence loss function uses temperature 0.7, top_p 0.9, max_tokens
+    256, n_samples 3
+  claim_id: c_c662f7ad
+  context: 'Implementation Logic: Define a function compute_confidence_loss(model,
+    batch, generate_paths_callback, temperature=0.7, top_p=0.9, max_tokens=256, n_samples=3)
+    that: (1) Uses generate_paths_callback...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script must implement a function compute_confidence_loss(model, batch,
+    generate_paths_callback, temperature=0.7, top_p=0.9, max_tokens=256, n_samples=3).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T11:44:19Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Proxy signal is 1 if majority vote consistent, 0 otherwise
+  claim_id: c_f884853a
+  context: 'Correctness Logic: The proxy signal is 1 if the majority vote is consistent
+    (i.e., the model agrees with itself), 0 otherwise.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The proxy signal is 1 if the majority vote is consistent (i.e., the model
+    agrees with itself), 0 otherwise.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T11:45:01Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Tie-breaking rule selects first path for 1-1-1 distribution
+  claim_id: c_5712a366
+  context: 'Tie-Breaking Rule: If the three paths generate three distinct final answers
+    (1-1-1 distribution), treat as a tie and select the first generated path (as per
+    Spec Edge Cases).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the three paths generate three distinct final answers (1-1-1 distribution),
+    treat as a tie and select the first generated path.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T11:45:51Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Validation script checks token_limit presence and type
+  claim_id: c_215ab887
+  context: 'Logic: Verify token_limit is present, is a positive integer, and conforms
+    to the required system capacity.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validation_script_checks_token_limit_presence_and_type
+  kind: entity_fact
+  raw_text: The script must verify token_limit is present, is a positive integer,
+    and conforms to the required system capacity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T11:47:16Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Validation fails if token limit exceeds 7 GB derived limit
+  claim_id: c_cc22c639
+  context: If token_limit is missing, not an integer, or exceeds the 7GB derived limit,
+    log CRITICAL error and exit 1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If token_limit exceeds the 7GB derived limit, log CRITICAL error and exit
+    1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T11:47:50Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Base Llama wrapper implements transformer with fewer than 300 million
+    parameters
+  claim_id: c_7aefb1fd
+  context: Implement base_llama.py wrapper for a small transformer (<300M params)
+    in code/models/base_llama.py.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Base_Llama_wrapper_implements_transformer_with_fewer_than_30
+  kind: magnitude
+  raw_text: Implement base_llama.py wrapper for a small transformer (<300M params)
+    in code/models/base_llama.py.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T11:50:03Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Project directory structure includes 7 specific subdirectories
+  claim_id: c_5a4af797
+  context: 'Create directory structure: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/
+    with subdirs data/raw, data/processed, code, tests, artifacts, artifacts/checkpoints,
+    artifacts/reports.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Create directory structure: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/
+    with subdirs data/raw, data/processed, code, tests, artifacts, artifacts/checkpoints,
+    artifacts/reports.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T11:51:49Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Project initialized with torch CPU-only, transformers, datasets, scikit-learn
+  claim_id: c_92ac44b4
+  context: Initialize a Python project with torch (CPU-only), transformers, datasets,
+    scikit-learn in requirements.txt
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_initialized_with_torch_CPU-only,_transformers,_datas
+  kind: entity_fact
+  raw_text: Initialize a Python project with torch (CPU-only), transformers, datasets,
+    scikit-learn in requirements.txt.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T11:52:48Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Self-Consistency Benchmark uses GSM8K dataset distinct from MMLU
+  claim_id: c_69aa12e3
+  context: The Self-Consistency Benchmark is implemented using the GSM8K dataset (T004b-GSM8K),
+    ensuring it is distinct from standard MMLU tasks.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Self-Consistency_Benchmark_uses_GSM8K_dataset_distinct_from
+  kind: entity_fact
+  raw_text: The Self-Consistency Benchmark is implemented using the GSM8K dataset
+    (T004b-GSM8K), ensuring it is distinct from standard MMLU tasks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T11:53:33Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Plan sliding window mitigation contradicts spec hard-fail requirement
+  claim_id: c_5c1110f6
+  context: 'Plan Divergence Note: The plan.md mention of ''sliding window'' mitigation
+    for OOM is a contradiction to the spec''s hard-fail requirement. T014 implements
+    the hard-fail.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plan_sliding_window_mitigation_contradicts_spec_hard-fail_re
+  kind: entity_fact
+  raw_text: The plan.md mention of 'sliding window' mitigation for OOM is a contradiction
+    to the spec's hard-fail requirement.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T11:55:16Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: Plan external calibration loss contradicts spec internal proxy requirement
+  claim_id: c_a46e7351
+  context: 'Plan Divergence Note: The plan.md mention of ''external calibration loss''
+    is a contradiction to the spec''s ''internal proxy'' requirement. T012-IMPL implements
+    the spec.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plan_external_calibration_loss_contradicts_spec_internal_pro
+  kind: entity_fact
+  raw_text: The plan.md mention of 'external calibration loss' is a contradiction
+    to the spec's 'internal proxy' requirement.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T11:55:42Z'
