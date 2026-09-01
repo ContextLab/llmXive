@@ -1,0 +1,15 @@
+status: none
+intent: Gender Bias Lexicon StereoSet BiasLexicon VADER lexicon python package dataset
+required_fields:
+- file_path
+- line_number
+- token_type
+- original_token
+- normalized_token
+- bias_category
+- bias_score
+- sentiment_compound_score
+- token_position
+cache_key: e7cacb2ad63a4c4bd464867222509a4769b9aa0ea0ec624e4af97e740652b442
+searched_at: '2026-09-01T09:17:44.034985+00:00'
+retry_count: 1
