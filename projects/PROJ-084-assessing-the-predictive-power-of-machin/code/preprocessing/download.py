@@ -15,7 +15,7 @@ from datasets import load_dataset
 if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from config import DATA_RAW_DIR
+from config import DATA_RAW_DIR, DATA_RESULTS_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +33,7 @@ def download_uspto_dataset(output_path: Path) -> Path:
     
     The dataset is loaded, converted to Parquet, and saved to the specified output path.
     A SHA256 checksum is calculated and logged immediately after the file is written.
+    The checksum is also written to data/results/download_checksum.txt.
     
     Args:
         output_path: Path where the parquet file will be saved.
@@ -45,21 +46,16 @@ def download_uspto_dataset(output_path: Path) -> Path:
     """
     if output_path.exists():
         logger.warning(f"File already exists at {output_path}. Skipping download.")
-        # Still verify checksum? The task says "generate... immediately after fetch".
-        # If we skip fetch, we skip generation. But we should probably log the existing checksum.
-        # For strict adherence to "after fetch", we might skip if exists, or re-calc.
-        # Let's re-calc to ensure integrity even if cached.
+        # Re-calculate checksum for existing file to ensure integrity
         actual_sha = calculate_sha256(output_path)
         logger.info(f"Existing file SHA256: {actual_sha}")
+        _write_checksum(actual_sha)
         return output_path
 
     logger.info("Loading USPTO dataset from 'flying-sausages/uspto_yield'...")
     try:
         # Load the dataset. The 'uspto_yield' dataset typically has a 'train' split.
-        # We load it into memory. If it's too large, we might need streaming, but 
-        # for the initial download and conversion to parquet, we assume it fits 
-        # or we process in chunks if the dataset object supports it.
-        # The dataset 'flying-sausages/uspto_yield' is relatively small (approx 100k rows).
+        # We load it into memory. The dataset is relatively small (approx 100k rows).
         dataset = load_dataset("flying-sausages/uspto_yield", split="train")
         
         logger.info(f"Dataset loaded successfully. Number of rows: {len(dataset)}")
@@ -79,15 +75,26 @@ def download_uspto_dataset(output_path: Path) -> Path:
         checksum = calculate_sha256(output_path)
         logger.info(f"SHA256 checksum for {output_path}: {checksum}")
         
+        # Write checksum to the specific results file
+        _write_checksum(checksum)
+        
         return output_path
         
     except Exception as e:
         logger.error(f"Failed to download or process dataset: {e}")
-        # Fail loudly as per requirements
+        # Fail loudly as per requirements - do not fall back to synthetic
         raise FileNotFoundError(
             f"Failed to download USPTO dataset from 'flying-sausages/uspto_yield'. "
             f"Error: {e}"
         ) from e
+
+def _write_checksum(checksum: str) -> None:
+    """Write the checksum to the results directory."""
+    checksum_path = DATA_RESULTS_DIR / "download_checksum.txt"
+    checksum_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(checksum_path, "w") as f:
+        f.write(checksum)
+    logger.info(f"Checksum written to {checksum_path}")
 
 def main():
     """Main entry point for download script."""

@@ -60,7 +60,7 @@ A researcher needs to evaluate how well the trained models generalize across dif
 - What happens when the USPTO dataset contains duplicate reactions with conflicting yield values? (System must handle by averaging or selecting the most frequent value, with logging).
 - How does the system handle reactions where the yield is reported as a range (e.g., "50-60%") rather than a single value? (System must either exclude these or parse the midpoint, with explicit handling documented).
 - How does the system handle reactions with missing reagent information? (System must exclude these entries during preprocessing to ensure valid fingerprint generation).
-- What happens if the stratified split results in a reaction class with fewer than 10 samples in the test set? (System must either merge small classes or exclude them from per-class analysis, with a warning).
+- What happens if the stratified split results in a reaction class with an insufficient number of samples in the test set? (System must either merge small classes or exclude them from per-class analysis, with a warning).
 
 ## Requirements
 

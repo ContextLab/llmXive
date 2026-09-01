@@ -1,32 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directories (`code/`, `data/raw/`, `data/processed/`,\
-    \ `data/results/`, `tests/`) being present on disk is provided; the claim is unsubstantiated.\
-    \ The implementer must create these folders (e.g., via `mkdir -p`) and show that\
-    \ they exist and are non\u2011empty."
-T003:
-  c: false
-  h: d7958ac3f4a4ac5f045e2aa0f4978d53e0546519c71c4e092cf05f6a611124d3
-  r: The `pyproject.toml` file contains the required `ruff` and `black` configuration,
-    but the required `setup.cfg` file is missing entirely, so the task of configuring
-    both tools as specified has not been fully completed. The missing `setup.cfg`
-    must be added/updated for the task to be considered complete.
-T007b:
-  c: false
-  h: af4ccd63b3f2802faf290486c42823626388a7f8b5003423933bec0565e159d3
-  r: "The provided `validators.py` defines Pydantic models but does not actually load\
-    \ a `dataset.schema.yaml`, and the required `schema.yaml` file is missing from\
-    \ the repository. Without the schema file and code that reads and validates against\
-    \ it, the task\u2019s requirement is not fulfilled."
-T008b:
-  c: false
-  h: af4ccd63b3f2802faf290486c42823626388a7f8b5003423933bec0565e159d3
-  r: The repository lacks the required `output.schema.yaml` file, so the validator
-    cannot load the schema it is supposed to enforce. Moreover, the `load_schema`
-    helper in `code/utils/validators.py` is truncated and does not show a complete
-    implementation for loading and applying the schema. Both the missing schema file
-    and the incomplete loading logic mean the task is not genuinely fulfilled.
 T010:
   c: false
   h: 9e2b40fe733ec54227ebe30f7a5096ff09673dde804aeac3bae4d5f31bb5bf12
@@ -35,46 +6,21 @@ T010:
     \ function is truncated and the required data files are absent). Both the input\
     \ parquet file and the expected output parquet file are missing, so the task\u2019\
     s core requirement is not satisfied."
-T014:
-  c: false
-  h: 86abc53bedde16b65521f871dd51d6bed43c87e002552596c59ba91fb2a2c9f7
-  r: The required raw USPTO parquet file (`data/raw/uspto_raw.parquet`) is absent,
-    so the script cannot load the data as the task demands. Moreover, the provided
-    `sanitize.py` excerpt shows only helper functions and does not include code that
-    reads the parquet file, indicating the implementation is incomplete. The missing
-    input file and lack of loading logic must be addressed.
-T017:
-  c: false
-  h: c80f23335e14b9d3d348960d5a4a16aaa46d47f2350b8b425b9be90d1a3f8953
-  r: The `ingest.py` script exists but the required output file `data/processed/cleaned_reactions.parquet`
-    is missing, and the provided code snippet is truncated before showing the fingerprint
-    generation and saving steps, so we cannot confirm that all pipeline stages (SMILES
-    parsing, yield extraction, fingerprinting, validation, and Parquet export) are
-    fully implemented. The missing output file must be generated for the task to be
-    considered complete.
 T018:
   c: false
-  h: b4002c01bb6cb52d42aa3aaa1134274bcdbd725b0b32393972e062e04e6079fc
-  r: "The required `data/results/data_quality_report.json` file does not exist, and\
-    \ the provided `ingest.py` snippet shows only generic logging setup without any\
-    \ concrete log statements for exclusion reasons or data\u2011quality metrics.\
-    \ Both artifacts required by the task are missing or incomplete."
-T022b:
+  h: ad9af99da473a90e050256103cd56d34f24f9f98784b03b2148572943122c9e4
+  r: "The required output file `data/results/data_quality_report.json` does not exist,\
+    \ so the pipeline\u2019s data\u2011quality report (including `exclusion_fraction`\
+    \ and exclusion reasons) is missing. Consequently the task\u2019s core deliverable\
+    \ is not satisfied."
+T019:
   c: false
-  h: 0780e24ecb635ecb529ad4a1c17929252c897f93f0b1e1a05510a9ca4113c0af
-  r: "The repository contains a partially\u2011implemented `code/modeling/split.py`\
-    \ (the file is truncated and shows no logic that writes the split indices), and\
-    \ the required output file `data/processed/split_indices.parquet` is absent. Consequently\
-    \ the stratified split is not actually performed nor saved as specified."
-T023:
-  c: false
-  h: 43ad88df651d543efc0b4bb6dace42b6cd8f7eccfca6881b08679234317bdb2c
-  r: "The repository lacks the required `data/processed/split_indices.parquet` and\
-    \ the resulting `data/processed/validation_set.parquet` files, and the provided\
-    \ `code/modeling/split.py` (truncated) only defines a scaffold\u2011based split\
-    \ function\u2014it does not contain code that reads the split indices and writes\
-    \ the held\u2011out validation set. The core functionality and output files the\
-    \ task demands are absent."
+  h: b5db8ee7f6de6eb8078fff329188e6d45a15b0b6633a599252fb067215f990da
+  r: The provided `download.py` is truncated, lacks the fallback `wget` logic, and
+    references an undefined `_write_checksum` function. Moreover, the required output
+    files `data/raw/uspto_raw.parquet` and `data/results/download_checksum.txt` are
+    absent, indicating the script has not been executed or does not correctly create
+    them. The implementation does not fully meet the task specifications.
 T030:
   c: false
   h: ab39ea1f432ee4ca454e13511e907ff980817575b515b77a35d4e27d9bd2625b

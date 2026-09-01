@@ -1,36 +1,34 @@
-version: 1.0.0
-description: >
-  Schema definition for the processed USPTO reaction dataset.
-  Used by code/utils/validators.py to enforce data integrity before modeling.
+# Dataset Schema for USPTO Reaction Data
+# Fields: smiles, yield, reaction_class, fingerprint_ecfp, fingerprint_maccs
 fields:
-  - name: smiles
+  smiles:
     type: string
-    constraints:
-      nullable: false
-      description: "Canonical SMILES string of the reaction or product"
-  - name: yield
+    required: true
+    description: Canonical SMILES string of the reaction
+  yield:
     type: float
-    constraints:
-      nullable: false
-      minimum: 0.0
-      maximum: 100.0
-      description: "Reaction yield percentage (0.0 to 100.0)"
-  - name: reaction_class
+    required: true
+    min: 0.0
+    max: 100.0
+    description: Reaction yield percentage
+  reaction_class:
     type: string
-    constraints:
-      nullable: false
-      description: "Categorical label for the reaction type (e.g., 'Suzuki', 'Heck')"
-  - name: fingerprint_ecfp
+    required: true
+    description: Classification of the reaction type
+  fingerprint_ecfp:
     type: list
+    required: true
     item_type: integer
-    constraints:
-      nullable: false
-      length: 2048
-      description: "ECFP4 fingerprint vector (2048 bits)"
-  - name: fingerprint_maccs
+    length: 2048
+    description: ECFP4 fingerprint (2048 bits)
+  fingerprint_maccs:
     type: list
+    required: true
     item_type: integer
-    constraints:
-      nullable: false
-      length: 167
-      description: "MACCS keys fingerprint vector (167 bits)"
+    length: 167
+    description: MACCS fingerprint (167 bits)
+
+validation_rules:
+  no_nulls: true
+  fingerprint_binary: true
+  yield_range: [0.0, 100.0]

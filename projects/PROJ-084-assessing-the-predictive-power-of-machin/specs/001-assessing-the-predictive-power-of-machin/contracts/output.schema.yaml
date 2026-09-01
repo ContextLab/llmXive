@@ -1,61 +1,26 @@
-# Output Schema for Model Training and Evaluation Results
-# Used by code/utils/validators.py to validate model output artifacts
-type: object
-required:
-  - model_type
-  - hyperparameters
-  - metrics
-  - split_ratios
-properties:
+# Output Schema for Model Results
+fields:
   model_type:
     type: string
-    description: Type of model (e.g., "RandomForest", "SVM")
-    enum:
-      - RandomForest
-      - SVM
+    required: true
+    description: Type of model (e.g., RandomForest, SVM)
   hyperparameters:
-    type: object
-    description: Dictionary of hyperparameters used for the model
-    additionalProperties: true
+    type: dict
+    required: true
+    description: Hyperparameters used for the model
   metrics:
-    type: object
-    required:
-      - R2
-      - RMSE
-      - MAE
-    properties:
-      R2:
-        type: number
-        description: R-squared coefficient
-      RMSE:
-        type: number
-        description: Root Mean Squared Error
-      MAE:
-        type: number
-        description: Mean Absolute Error
+    type: dict
+    required: true
+    description: Performance metrics
+    keys:
+      R2: float
+      RMSE: float
+      MAE: float
   split_ratios:
-    type: object
-    required:
-      - train
-      - val
-      - test
-    properties:
-      train:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-        description: Proportion of data in training set
-      val:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-        description: Proportion of data in validation set
-      test:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-        description: Proportion of data in test set
-  metadata:
-    type: object
-    description: Optional metadata (timestamp, dataset version, etc.)
-    additionalProperties: true
+    type: dict
+    required: true
+    description: Train/Val/Test split ratios
+    keys:
+      train: float
+      val: float
+      test: float

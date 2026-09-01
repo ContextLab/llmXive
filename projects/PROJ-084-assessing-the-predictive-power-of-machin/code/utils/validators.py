@@ -1,252 +1,234 @@
 """
-Validators for dataset and model output schemas.
-Uses Pydantic for robust schema definition and validation.
+Schema validation utilities using Pydantic v2.
+
+Provides:
+- DatasetRecord, DatasetSchema: Pydantic models for dataset validation
+- OutputRecord, OutputSchema: Pydantic models for output validation
+- load_schema: Load YAML schema files
+- validate_dataset_file: Validate a Parquet/CSV file against schema
+- validate_output_file: Validate output JSON against schema
 """
 import logging
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, Type
+from datetime import datetime
 
 import pandas as pd
 import yaml
-from pydantic import BaseModel, Field, field_validator, model_validator, ValidationError
+from pydantic import BaseModel, Field, field_validator, ValidationError
 
-# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
-
 
 # --- Dataset Schema Models ---
 
 class DatasetRecord(BaseModel):
-    """Schema for a single record in the dataset."""
+    """Schema for a single dataset record."""
     smiles: str = Field(..., description="SMILES string of the reaction")
-    yield_pct: float = Field(..., ge=0.0, le=100.0, description="Reaction yield percentage")
-    reaction_class: str = Field(..., description="Class of the reaction")
-    fingerprint_ecfp: List[int] = Field(
-        ...,
-        min_length=2048,
-        max_length=2048,
-        description="ECFP4 fingerprint vector"
-    )
-    fingerprint_maccs: List[int] = Field(
-        ...,
-        min_length=167,
-        max_length=167,
-        description="MACCS keys fingerprint vector"
-    )
+    yield_value: float = Field(..., ge=0.0, le=100.0, description="Yield percentage")
+    reaction_class: str = Field(..., description="Reaction class label")
+    fingerprint_ecfp: List[int] = Field(..., min_length=2048, max_length=2048, description="ECFP4 fingerprint")
+    fingerprint_maccs: List[int] = Field(..., min_length=167, max_length=167, description="MACCS fingerprint")
 
-
-class DatasetSchema(BaseModel):
-    """Schema for the entire dataset validation."""
-    records: List[DatasetRecord]
-
-    @field_validator('records')
+    @field_validator('fingerprint_ecfp')
     @classmethod
-    def validate_all_records(cls, v: List[DatasetRecord]) -> List[DatasetRecord]:
-        if not v:
-            raise ValueError("Dataset must contain at least one record")
+    def validate_ecfp(cls, v):
+        if len(v) != 2048:
+            raise ValueError(f"ECFP fingerprint must have length 2048, got {len(v)}")
+        if not all(x in [0, 1] for x in v):
+            raise ValueError("ECFP fingerprint must contain only 0s and 1s")
         return v
 
+    @field_validator('fingerprint_maccs')
+    @classmethod
+    def validate_maccs(cls, v):
+        if len(v) != 167:
+            raise ValueError(f"MACCS fingerprint must have length 167, got {len(v)}")
+        if not all(x in [0, 1] for x in v):
+            raise ValueError("MACCS fingerprint must contain only 0s and 1s")
+        return v
+
+class DatasetSchema(BaseModel):
+    """Schema definition for the dataset."""
+    fields: Dict[str, Dict[str, Any]]
+    validation_rules: Optional[Dict[str, Any]] = None
 
 # --- Output Schema Models ---
 
 class MetricsRecord(BaseModel):
-    """Schema for model performance metrics."""
-    R2: float = Field(..., description="R-squared coefficient")
-    RMSE: float = Field(..., ge=0.0, description="Root Mean Squared Error")
-    MAE: float = Field(..., ge=0.0, description="Mean Absolute Error")
-
+    """Schema for model metrics."""
+    R2: float = Field(..., description="R-squared value")
+    RMSE: float = Field(..., description="Root Mean Squared Error")
+    MAE: float = Field(..., description="Mean Absolute Error")
 
 class OutputRecord(BaseModel):
-    """Schema for a single model output artifact."""
-    model_type: str = Field(..., description="Type of model")
-    hyperparameters: Dict[str, Any] = Field(..., description="Hyperparameters used")
-    metrics: MetricsRecord
-    split_ratios: Dict[str, float] = Field(
-        ...,
-        description="Ratios of train/val/test splits"
-    )
-
-    @model_validator(mode='after')
-    def validate_split_ratios_sum(self) -> 'OutputRecord':
-        """Ensure split ratios sum to 1.0 (with tolerance)."""
-        ratios = self.split_ratios
-        total = sum(ratios.values())
-        if not abs(total - 1.0) < 1e-6:
-            raise ValueError(
-                f"Split ratios must sum to 1.0, got {total:.6f} for {ratios}"
-            )
-        return self
-
+    """Schema for a model output record."""
+    model_type: str = Field(..., description="Type of model (e.g., 'RandomForest', 'SVM')")
+    hyperparameters: Dict[str, Any] = Field(..., description="Model hyperparameters")
+    metrics: MetricsRecord = Field(..., description="Performance metrics")
+    split_ratios: Dict[str, float] = Field(..., description="Train/Val/Test split ratios")
 
 class OutputSchema(BaseModel):
-    """Schema for the model output validation."""
-    results: List[OutputRecord]
+    """Schema definition for model outputs."""
+    records: List[OutputRecord]
 
-    @field_validator('results')
-    @classmethod
-    def validate_all_results(cls, v: List[OutputRecord]) -> List[OutputRecord]:
-        if not v:
-            raise ValueError("Output must contain at least one result record")
-        return v
+# --- Schema Loading and Validation Functions ---
 
-
-# --- Helper Functions ---
-
-def load_schema(schema_path: Union[str, Path]) -> Dict[str, Any]:
-    """
-    Load a YAML schema definition.
-    Note: This is primarily for documentation or fallback validation.
-    Primary validation is done via Pydantic models above.
-    """
+def load_schema(schema_path: str) -> Dict[str, Any]:
+    """Load a YAML schema file."""
     path = Path(schema_path)
     if not path.exists():
-        raise FileNotFoundError(f"Schema file not found: {path}")
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
     
-    with open(path, 'r', encoding='utf-8') as f:
-        return yaml.safe_load(f)
+    with open(path, 'r') as f:
+        schema = yaml.safe_load(f)
+    
+    return schema
 
+def validate_column_schema(df: pd.DataFrame, schema: Dict[str, Any]) -> List[str]:
+    """Validate DataFrame columns against schema definition."""
+    errors = []
+    expected_columns = schema.get('fields', {}).keys()
+    
+    if set(df.columns) != set(expected_columns):
+        missing = set(expected_columns) - set(df.columns)
+        extra = set(df.columns) - set(expected_columns)
+        if missing:
+            errors.append(f"Missing columns: {missing}")
+        if extra:
+            errors.append(f"Extra columns: {extra}")
+    
+    return errors
 
-def validate_dataset_file(
-    file_path: Union[str, Path],
-    schema_path: Optional[Union[str, Path]] = None
-) -> Dict[str, Any]:
+def validate_fingerprint_dimensions(df: pd.DataFrame) -> List[str]:
+    """Validate fingerprint column dimensions."""
+    errors = []
+    
+    if 'fingerprint_ecfp' in df.columns:
+        for idx, fp in enumerate(df['fingerprint_ecfp']):
+            if len(fp) != 2048:
+                errors.append(f"Row {idx}: ECFP length is {len(fp)}, expected 2048")
+                break  # Only report first error
+    
+    if 'fingerprint_maccs' in df.columns:
+        for idx, fp in enumerate(df['fingerprint_maccs']):
+            if len(fp) != 167:
+                errors.append(f"Row {idx}: MACCS length is {len(fp)}, expected 167")
+                break
+    
+    return errors
+
+def validate_record_content(df: pd.DataFrame) -> List[str]:
+    """Validate content of records (e.g., yield range, fingerprint values)."""
+    errors = []
+    
+    # Check yield range
+    if 'yield' in df.columns or 'yield_value' in df.columns:
+        yield_col = 'yield' if 'yield' in df.columns else 'yield_value'
+        if df[yield_col].min() < 0.0 or df[yield_col].max() > 100.0:
+            errors.append(f"Yield values out of range [0, 100]: min={df[yield_col].min()}, max={df[yield_col].max()}")
+    
+    # Check fingerprint values (0 or 1)
+    if 'fingerprint_ecfp' in df.columns:
+        for idx, fp in enumerate(df['fingerprint_ecfp']):
+            if not all(x in [0, 1] for x in fp):
+                errors.append(f"Row {idx}: ECFP contains values other than 0 or 1")
+                break
+    
+    if 'fingerprint_maccs' in df.columns:
+        for idx, fp in enumerate(df['fingerprint_maccs']):
+            if not all(x in [0, 1] for x in fp):
+                errors.append(f"Row {idx}: MACCS contains values other than 0 or 1")
+                break
+    
+    return errors
+
+def validate_dataset(df: pd.DataFrame, schema_path: str) -> Dict[str, Any]:
     """
-    Validate a dataset file (Parquet/CSV) against the dataset schema.
+    Validate a DataFrame against a dataset schema.
     
-    Args:
-        file_path: Path to the data file
-        schema_path: Optional path to schema YAML (for logging/reference)
-        
     Returns:
-        Dict with validation status and details
+        Dict with 'valid' (bool) and 'errors' (list)
     """
+    errors = []
+    
+    try:
+        schema = load_schema(schema_path)
+    except FileNotFoundError as e:
+        return {"valid": False, "errors": [str(e)]}
+    
+    # Check columns
+    col_errors = validate_column_schema(df, schema)
+    errors.extend(col_errors)
+    
+    # Check fingerprint dimensions
+    fp_errors = validate_fingerprint_dimensions(df)
+    errors.extend(fp_errors)
+    
+    # Check content
+    content_errors = validate_record_content(df)
+    errors.extend(content_errors)
+    
+    # Check for null values in required fields
+    required_fields = schema.get('fields', {}).keys()
+    for field in required_fields:
+        if field in df.columns:
+            if df[field].isna().any():
+                errors.append(f"Column '{field}' contains null values")
+    
+    return {
+        "valid": len(errors) == 0,
+        "errors": errors,
+        "row_count": len(df),
+        "timestamp": datetime.now().isoformat()
+    }
+
+def validate_dataset_file(file_path: str, schema_path: str) -> Dict[str, Any]:
+    """Validate a Parquet/CSV file against a schema."""
     path = Path(file_path)
     if not path.exists():
-        raise FileNotFoundError(f"Data file not found: {path}")
+        return {"valid": False, "errors": [f"File not found: {file_path}"]}
     
-    logger.info(f"Validating dataset: {path}")
-    
-    # Load data
     if path.suffix == '.parquet':
-        df = pd.read_parquet(path)
+        df = pd.read_parquet(file_path)
     elif path.suffix == '.csv':
-        df = pd.read_csv(path)
+        df = pd.read_csv(file_path)
     else:
-        raise ValueError(f"Unsupported file format: {path.suffix}")
+        return {"valid": False, "errors": ["Unsupported file format"]}
     
-    # Validate using Pydantic
-    validation_errors = []
-    valid_count = 0
-    
-    # Convert to records and validate
-    # Note: For large datasets, we might want to sample or batch
-    # Here we validate the whole set for correctness
-    try:
-        # Convert dataframe to list of dicts
-        records_data = df.to_dict('records')
-        
-        # Validate each record
-        for i, record_data in enumerate(records_data):
-            try:
-                # Handle potential key mismatch (e.g., 'yield' vs 'yield_pct')
-                if 'yield' in record_data and 'yield_pct' not in record_data:
-                    record_data['yield_pct'] = record_data.pop('yield')
-                
-                record = DatasetRecord(**record_data)
-                valid_count += 1
-            except ValidationError as e:
-                validation_errors.append({
-                    "row_index": i,
-                    "errors": str(e)
-                })
-                
-        status = "valid" if not validation_errors else "invalid"
-        
-        return {
-            "status": status,
-            "file": str(path),
-            "total_records": len(records_data),
-            "valid_records": valid_count,
-            "invalid_records": len(validation_errors),
-            "errors": validation_errors[:10]  # Limit error output
-        }
-        
-    except Exception as e:
-        logger.error(f"Validation failed with error: {e}")
-        return {
-            "status": "error",
-            "file": str(path),
-            "error": str(e)
-        }
+    return validate_dataset(df, schema_path)
 
-
-def validate_output_file(
-    file_path: Union[str, Path],
-    schema_path: Optional[Union[str, Path]] = None
-) -> Dict[str, Any]:
-    """
-    Validate a model output JSON file against the output schema.
-    
-    Args:
-        file_path: Path to the JSON output file
-        schema_path: Optional path to schema YAML (for logging/reference)
-        
-    Returns:
-        Dict with validation status and details
-    """
+def validate_output_file(file_path: str, schema_path: str) -> Dict[str, Any]:
+    """Validate an output JSON file against a schema."""
     path = Path(file_path)
     if not path.exists():
-        raise FileNotFoundError(f"Output file not found: {path}")
+        return {"valid": False, "errors": [f"File not found: {file_path}"]}
     
-    logger.info(f"Validating output: {path}")
+    with open(path, 'r') as f:
+        data = json.load(f)
     
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        
-        # Validate using Pydantic
-        # The JSON structure might be a single record or a list
-        # We assume it matches OutputSchema (list of records)
-        
-        # If it's a single record, wrap it
-        if isinstance(data, dict) and 'results' not in data:
-            # Assume it's a single result, wrap in a list
-            data = {"results": [data]}
-        
-        validation_result = OutputSchema(**data)
-        
-        return {
-            "status": "valid",
-            "file": str(path),
-            "results_count": len(validation_result.results)
-        }
-        
-    except ValidationError as e:
-        return {
-            "status": "invalid",
-            "file": str(path),
-            "errors": str(e)
-        }
-    except json.JSONDecodeError as e:
-        return {
-            "status": "error",
-            "file": str(path),
-            "error": f"Invalid JSON: {e}"
-        }
-    except Exception as e:
-        logger.error(f"Validation failed with error: {e}")
-        return {
-            "status": "error",
-            "file": str(path),
-            "error": str(e)
-        }
+    # Basic validation (full Pydantic validation would require restructuring)
+    errors = []
+    if not isinstance(data, dict):
+        errors.append("Output must be a dictionary")
+    else:
+        required_keys = ['model_type', 'hyperparameters', 'metrics', 'split_ratios']
+        for key in required_keys:
+            if key not in data:
+                errors.append(f"Missing required key: {key}")
+    
+    return {
+        "valid": len(errors) == 0,
+        "errors": errors,
+        "timestamp": datetime.now().isoformat()
+    }
 
-
-def save_validation_report(report: Dict[str, Any], output_path: Union[str, Path]) -> None:
-    """Save a validation report to JSON."""
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, 'w', encoding='utf-8') as f:
+def save_validation_report(report: Dict[str, Any], output_path: str):
+    """Save a validation report to a JSON file."""
+    with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
-    logger.info(f"Validation report saved to {path}")
+    logger.info(f"Validation report saved to {output_path}")

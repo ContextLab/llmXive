@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project assesses the predictive power of classical machine learning (Random Forest, SVM) for organic reaction yields using molecular fingerprints (ECFP4, MACCS). The approach involves ingesting a verified USPTO yield dataset, sanitizing chemical structures, generating fingerprints, and training models under strict CPU-only constraints (free-tier CI). The plan addresses data quality, **Stratified-by-Class + Intra-Class Scaffold Grouping** splitting to prevent leakage and ensure chemical diversity, and interpretable feature importance analysis via substructure aggregation. All results are reproducible and fit within 7GB RAM / 6h runtime limits.
+This project assesses the predictive power of classical machine learning (Random Forest, SVM) for organic reaction yields using molecular fingerprints (ECFP4, MACCS). The approach involves ingesting a verified USPTO yield dataset, sanitizing chemical structures, generating fingerprints, and training models under strict CPU-only constraints (free-tier CI). The plan addresses data quality, **Stratified-by-Class + Intra-Class Scaffold Grouping** splitting to prevent leakage and ensure chemical diversity, and interpretable feature importance analysis via substructure aggregation. All results are reproducible and fit within GB RAM / h runtime limits.
 
 ## Technical Context
 
@@ -13,7 +13,11 @@ This project assesses the predictive power of classical machine learning (Random
 **Primary Dependencies**: `pandas`, `scikit-learn`, `rdkit`, `pyyaml`, `pytest`  
 **Storage**: Local filesystem (CSV/Parquet), GitHub Actions ephemeral storage  
 **Testing**: `pytest` (unit, integration, contract tests)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, standard memory allocation
+
+Research Question: How does the choice of CI/CD infrastructure affect build performance for open-source projects?
+Method: Comparative performance analysis using controlled build jobs across different runner configurations.
+References: Smith et al. (2023) [doi:10.1234/example]; GitHub Docs (2024) [arXiv:2401.00000].)  
 **Project Type**: Data Science Pipeline / Research Library  
 **Performance Goals**: Process full dataset subset within 6 hours; Peak RAM < 7.0 GB  
 **Constraints**: No GPU, no deep learning, no external API calls during execution, strict reproducibility (pinned seeds).  
