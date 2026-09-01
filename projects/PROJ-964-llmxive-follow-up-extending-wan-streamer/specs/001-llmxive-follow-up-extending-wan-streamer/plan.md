@@ -1,44 +1,40 @@
-# Implementation Plan: llmXive follow-up: extending "Wan-Streamer v0.1: End-to-end Real-time Interactive Foundation Models"
+# Implementation Plan: llmXive follow-up: extending "Wan-Streamer v0.1"
 
-**Branch**: `001-llmxive-streamer-optimization` | **Date**: 2026-07-12 | **Spec**: `specs/001-llmxive-streamer-optimization/spec.md`
+**Branch**: `001-llmxive-streamer-optimization` | **Date**: 2026-07-12 | **Spec**: `spec.md`
+**Input**: Feature specification from `specs/001-llmxive-streamer-optimization/spec.md`
 
 ## Summary
 
-This project investigates the existence of "low-information manifolds" in audio-visual generation by training a lightweight CPU-tractable estimator to predict latent vector deltas based on turn-taking semantics. The core approach involves extracting time-series latent data and turn-taking labels from Wan-Streamer v0.1 logs (or VoxCeleb2 fallback), training a shallow RNN/Transformer to predict delta magnitude and uncertainty, and simulating a hybrid inference pipeline that skips flow-matching steps for predicted "low-priority" frames.
-
-**Scope Limitation**: The primary research claim ("Extending Wan-Streamer") is contingent on the availability of Wan-Streamer v0.1 training logs. 
-- **If logs are available**: The project performs full Hybrid Inference Simulation against the Wan-Streamer baseline, measuring FID degradation and latency reduction as per SC-001/SC-002.
-- **If logs are missing**: The project falls back to VoxCeleb2 for *methodological validation* only. The results are framed as a "Proof-of-Concept for the Pipeline" rather than "Wan-Streamer Optimization". The Hybrid Simulation in this mode uses a linear interpolation baseline, and FID degradation metrics are reported as "Proxy Simulation Results" with explicit disclaimers.
-
-Success is measured by a ≥20% latency reduction with ≤5% FID degradation (if logs available), validated via paired statistical tests (TOST, bootstrap) and a randomized counterfactual intervention to establish causal efficacy.
+This project extends the "Wan-Streamer v0.1" architecture to investigate "low-information manifolds" in audio-visual generation. The core hypothesis is that turn-taking semantics (interruptions vs. pauses) predict the magnitude of latent vector deltas, allowing a lightweight estimator to skip expensive flow-matching steps for "low-priority" frames without significant perceptual degradation. The implementation involves extracting labeled time-series data from Wan-Streamer logs (or a verified conversational fallback), training a CPU-tractable RNN/Transformer estimator, simulating a hybrid inference pipeline with randomized counterfactuals, and validating quality-latency trade-offs using **Segment-Level FID** and proxy MOS metrics under strict CPU constraints (≤7 GB RAM, ≤6 hours).
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `torch` (CPU wheel), `scikit-learn`, `pandas`, `pyyaml`, `datasets` (HuggingFace), `numpy`, `scipy` (for TOST/bootstrap), `torchmetrics` (for FID), `opencv-python`.  
-**Storage**: Local filesystem (Parquet/CSV) for intermediate data; GitHub Actions ephemeral storage.  
-**Testing**: `pytest` (unit/contract), shell scripts for integration (data extraction, training, simulation).  
-**Target Platform**: Linux (GitHub Actions Free Tier: limited CPU resources, limited RAM, no GPU).  
-**Project Type**: Research/Computational Experiment.  
-**Performance Goals**: Training ≤ 6h; Peak RAM ≤ 7 GB; Inference simulation latency reduction ≥ 20%.  
-**Constraints**: No GPU/CUDA; No quantization libraries requiring CUDA; Strict memory limits; Reproducibility via pinned seeds.  
-**Scale/Scope**: Sampled dataset ≤ 1 GB (target 10k+ frames); A lightweight model
+**Primary Dependencies**: `torch` (CPU-only), `transformers`, `datasets`, `scikit-learn`, `pandas`, `pyyaml`, `numpy`, `faster-fid` (or equivalent CPU-optimized FID), `torchaudio`, `librosa`  
+**Storage**: Local filesystem (`data/` for artifacts, `code/` for scripts), `state.yaml` for versioning  
+**Testing**: `pytest` (unit/integration), `pytest-cov`  
+**Target Platform**: Linux (GitHub Actions CPU runner: vCPU, 7 GB RAM, 14 GB disk)  
+**Project Type**: Research/Computational Experiment  
+**Performance Goals**: Training ≤ 6 hours; Inference simulation ≤ 2 hours; Peak RAM ≤ 7 GB  
+**Constraints**: No GPU access for training; must use open, downloadable datasets; must implement randomized counterfactuals (FR-008) and propensity-score matching (FR-005).  
+**Scale/Scope**: Sampled dataset ≤ 1 GB; Model parameters < 50M; A large-scale dataset comprising tens of thousands of frames for training and evaluation..
 
-The research question, method, and references remain unchanged as no specific empirical values were asserted in this context beyond the quantifier to be generalized.; simulation pipeline.
-
-**Dataset Version Pinning**: To satisfy Constitution Principle I (Reproducibility), the `code/config.py` file will pin the exact HuggingFace dataset revision for VoxCeleb2 (e.g., `revision: 'main'` or a specific commit hash) to ensure the canonical source is fetched on every run.
+> **Reproducibility Note**: All datasets are fetched via `datasets.load_dataset(..., revision="pin")` with explicit revision hashes stored in `state.yaml`. Random seeds are pinned in all scripts.
+> **Data Validity**: If the primary source (Wan-Streamer logs) lacks conversational structure, the project will either use a verified conversational fallback or reframe the hypothesis to 'monologue dynamics' to avoid training on noise.
 
 ## Constitution Check
 
-| Principle | Status | Compliance Strategy |
-|-----------|--------|---------------------|
-| **I. Reproducibility** | PASS | All random seeds pinned in `code/`; Data fetched from verified URLs (VoxCeleb2) or checksummed local logs (treated as canonical artifacts); `requirements.txt` pinned. Local logs are only for dev; reproducible runs use canonical source. |
-| **II. Verified Accuracy** | PASS | Citations restricted to verified dataset URLs provided in spec; No external claims without source. |
-| **III. Data Hygiene** | PASS | Raw data checksummed; Derivations (latents, labels) written to new files; PII scan passed (VoxCeleb2 is public). |
-| **IV. Single Source of Truth** | PASS | All metrics (FID, Latency) computed by `code/` and logged to `data/`; No hand-typed numbers in `plan.md`. |
-| **V. Versioning Discipline** | PASS | Artifact hashes recorded in `state.yaml` via `update_state_yaml` task module. |
-| **VI. Latency-Quality Trade-off** | PASS | Plan mandates paired statistical tests (TOST is a paired test; compares Hybrid vs. Baseline on same frames) and randomized counterfactuals to validate claims. |
-| **VII. Validation Independence** | PASS | Estimator trained on latent/turn data; FID/MOS computed by separate, frozen pre-trained models (not used in training). |
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+| Principle | Status | Evidence/Plan |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | Plan mandates `datasets.load_dataset(..., revision="pin")` and `random.seed` in all scripts. `state.yaml` tracks artifact hashes. Dataset fetch tasks (T009) verify revision hashes. |
+| **II. Verified Accuracy** | **PASS** | All citations (Wan-Streamer, VoxCeleb2) reference verified URLs from the input block. No fabricated URLs. |
+| **III. Data Hygiene** | **PASS** | `data/` directory structure enforces checksums. No in-place modifications; derivations use new filenames. |
+| **IV. Single Source of Truth** | **PASS** | `data-model.md` defines schema; `contracts/` provides YAML validation. All metrics trace to `data/` rows. |
+| **V. Versioning Discipline** | **PASS** | `code/utils/state_manager.py` (FR-020) updates `state.yaml` with content hashes. Key path `state.validation_status` is explicitly defined. |
+| **VI. Latency-Quality Trade-off** | **PASS** | Plan includes **Bootstrap-based Equivalence Test** for FID (due to non-Gaussianity) and **Paired** TOST for Latency. Both are implemented as paired tests (same segment under hybrid vs. baseline) to satisfy the 'paired' constraint. |
+| **VII. Validation Independence** | **PASS** | Estimator training data is partitioned from FID/MOS evaluation data via a **time-based split** (or stratified by speaker) to ensure no data leakage. |
 
 ## Project Structure
 
@@ -50,62 +46,145 @@ specs/001-llmxive-streamer-optimization/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/
+├── contracts/           # Phase 1 output
 │   ├── dataset.schema.yaml
-│   ├── dataset_schema.schema.yaml
-│   ├── estimator_predictions.schema.yaml
-│   ├── evaluation_metrics.schema.yaml
-│   ├── hybrid_metrics.schema.yaml
-│   ├── latents.schema.yaml
-│   ├── metrics.schema.yaml
-│   └── model_output.schema.yaml
-└── tasks.md             # Phase 2 output
+│   └── output.schema.yaml
+└── tasks.md             # Phase 2 output (not created here)
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/
-├── code/
-│   ├── __init__.py
-│   ├── requirements.txt
-│   ├── config.py                # Dataset version pinning
-│   ├── data/
-│   │   ├── extract_latents.py       # FR-001, US-1
-│   │   ├── preprocess.py            # US-1
-│   │   └── validate_sampling.py     # FR-015
-│   ├── models/
-│   │   ├── estimator.py             # FR-002, US-2 (RNN/Transformer)
-│   │   └── trainer.py               # US-2
-│   ├── inference/
-│   │   ├── hybrid_sim.py            # FR-003, US-3
-│   │   ├── fallback_handler.py      # FR-006, FR-009
-│   │   └── randomized_intervention.py # FR-008
-│   ├── metrics/
-│   │   ├── fid_stability.py         # FR-010, FR-011
-│   │   ├── mos_validation.py        # FR-012, FR-013
-│   │   └── stats_tests.py           # FR-005, FR-007, FR-016
-│   └── utils/
-│       ├── state_manager.py         # FR-020
-│       └── config.py
+code/
 ├── data/
-│   ├── raw/                         # Downloaded datasets
-│   ├── processed/                   # Extracted latents, labels
-│   └── artifacts/                   # Model checkpoints, logs
-├── tests/
-│   ├── contract/                    # Schema validation tests
-│   ├── integration/                 # End-to-end pipeline tests
-│   └── unit/                        # Model logic tests
-└── state.yaml
+│   ├── extract_turn_taking.py       # FR-001, US-1 -> Outputs TurnTakingEvent records
+│   ├── preprocess_latents.py        # Data cleaning
+│   └── fetch_data.py                # FR-019, FR-022 (Includes revision hash verification)
+├── model/
+│   ├── estimator_train.py           # FR-002, US-2 (Includes FR-023 Power Limitation logging)
+│   ├── estimator_inference.py       # FR-003, FR-006
+│   ├── hybrid_simulate.py           # FR-003, US-3, FR-008
+│   └── execute_fallback.py          # FR-009 (Explicit task module for fallback logic)
+├── metrics/
+│   ├── calculate_fid.py             # FR-004
+│   ├── validate_proxy_mos.py        # FR-012, FR-013 (Includes FR-024 Assumption Validated logging)
+│   ├── calculate_fid_stability_corr.py # FR-010, FR-011 (Explicit task module)
+│   ├── analyze_latency_bias.py      # FR-005, FR-007 (Explicit task module)
+│   └── statistical_tests.py         # FR-005
+├── utils/
+│   ├── state_manager.py             # FR-020 (Updates state.validation_status)
+│   ├── sampling_utils.py            # FR-015, FR-014
+│   ├── reduce_sample_size.py        # FR-014 (Explicit task module)
+│   ├── validate_sampling_distribution.py # FR-015 (Explicit task module)
+│   └── config_loader.py             # T012a verification
+├── inference/
+│   └── full_solver.py               # T060 (Explicit script for full solver)
+├── main.py                          # Orchestrator
+└── requirements.txt                 # Pinned dependencies
+
+data/
+├── raw/                             # Downloaded datasets (checksummed)
+├── processed/                       # Extracted CSV/Parquet (checksummed)
+└── artifacts/                       # Model checkpoints, logs
+
+tests/
+├── unit/
+├── integration/
+├── contract/                        # Validates against contracts/
+└── link_check.py                    # T038b (Verifies links in quickstart.md/data-model.md)
 ```
 
-**Structure Decision**: Single `code/` directory with modular sub-packages (`data`, `models`, `inference`, `metrics`) to isolate responsibilities and facilitate independent testing of the estimator vs. the evaluation metrics (Constitution Principle VII).
+**Structure Decision**: Single-project structure with clear separation of `data`, `model`, and `metrics` modules to enforce the validation independence required by Constitution Principle VII. Explicit task modules (FR-007, FR-009, FR-011, FR-014, FR-015) are mapped to specific script files.
 
 ## Complexity Tracking
 
+> **Fill ONLY if Constitution Check has violations that must be justified**
+
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Randomized Counterfactual (FR-008)** | Required to distinguish "easy to skip" from "easy to generate" and establish causal effect (US-3, Edge Cases). | Observational propensity matching alone (FR-005) is insufficient for causal claims; it only adjusts for confounders, does not prove intervention efficacy. |
-| **Fallback Logic (FR-006, FR-009)** | Ensures quality safety when uncertainty is high; prevents degradation on non-smooth trajectories. | Blind skipping based on prediction alone risks >5% FID degradation on ambiguous frames. |
-| **Hybrid Simulation (FR-003)** | Necessary to measure the *actual* trade-off of the proposed skipping strategy. | Running only the estimator does not measure the system-level latency/quality impact. |
-| **Segment-Level FID** | FID is a batch metric; per-frame FID is mathematically invalid. | Using per-frame FID would yield degenerate results. We compute FID over segments (windows) to maintain validity while approximating frame-level granularity. |
+| Randomized Counterfactuals (FR-008) | Required to distinguish "easy to skip" from "easy to generate" and establish causal effect. | Observational data alone (propensity matching) cannot rule out confounding variables in the latent trajectory. |
+| Hybrid Inference Simulation | Essential to measure the *actual* FID degradation of skipping steps. | A purely theoretical model of latency/quality trade-off lacks empirical validity for the 5% threshold claim. |
+| Two-Stage Validation (Estimator vs. FID) | Prevents circular validation (Principle VII). | Using the same data/model for training and evaluation would inflate performance metrics. |
+| Segment-Level FID | Required for construct validity in video generation. | Frame-level FID fails to capture temporal artifacts (jitter, flicker) introduced by skipping steps. |
+
+## Methodology
+
+### 1. Data Extraction & Preprocessing (US-1, FR-001)
+*   **Input**: Raw video/audio (Wan-Streamer logs or verified conversational fallback).
+*   **Process**:
+    *   **Label Validity Check**: Verify that the dataset contains actual conversational turn-taking (interruptions/pauses). If only monologues are present, reframe hypothesis to 'monologue dynamics' or fail.
+    *   Extract latent trajectories using a frozen encoder.
+    *   Compute `latent_delta_magnitude` between consecutive frames.
+    *   Apply heuristic thresholds (FR-018) to label frames as "interruption", "pause", or "normal".
+    *   Filter for events: Target ≥500 interruptions and ≥500 pauses (US-1 AS-2). If fewer exist, log actual count and proceed.
+*   **Output**: `data/processed/turn_taking_dataset.parquet` (Schema: `timestamp`, `semantic_feature`, `prosodic_feature`, `latent_delta_magnitude`, `turn_label`).
+*   **Verification**: T009 verifies dataset revision hash; T012a verifies config file existence.
+
+### 2. Lightweight Estimator Training (US-2, FR-002)
+*   **Model**: 2-layer LSTM or shallow Transformer (CPU-optimized).
+*   **Task**: Predict `latent_delta_magnitude` and `uncertainty_score` (0.0-1.0) from history of semantic/prosodic features.
+*   **Constraints**:
+    *   Max RAM: 7 GB.
+    *   Max Runtime: 6 hours.
+    *   **Power Limitation (FR-023)**: If training exceeds limits, `reduce_sample_size.py` reduces sample size. If minimum sample size (calculated in Power Analysis) is reached, log "Power Limitation: Insufficient Sample" and exit with non-zero code.
+*   **Validation**:
+    *   MSE vs. Zero-Delta Baseline (Target: >10% improvement).
+    *   **Two-Stage Validation**: (1) Train on Subset A. (2) Run FULL solver on Subset B (held-out) to generate Ground Truth FID Stability. (3) Correlate predictions with Ground Truth.
+    *   Uncertainty calibration (SC-006).
+
+### 3. Hybrid Inference Simulation (US-3, FR-003)
+*   **Pipeline**:
+    *   For each frame: Estimator predicts delta and uncertainty.
+    *   **Skip Mechanism**: "Estimated (Skip)" is defined as **reusing the previous frame or linear interpolation** (explicitly defined to avoid ambiguity).
+    *   **Decision Logic**:
+        *   If `uncertainty > 0.8` (Threshold [deferred]): Use Full Solver.
+        *   If `uncertainty ≤ 0.8` AND **not** in randomized subset: Use Estimated (Skip).
+        *   **Randomized Counterfactual (FR-008)**: Force skip on ≥5% of frames regardless of prediction to establish causal effect.
+        *   **Precedence (FR-017)**: Randomized intervention overrides deterministic fallback.
+*   **Metrics**:
+    *   **Latency**: Inference time per frame.
+    *   **Quality**: **Segment-Level FID** (computed over sliding windows of 10-20 frames) and Proxy MOS.
+    *   **Statistical Tests**:
+        *   **Bootstrap-based Equivalence Test** for FID (due to non-Gaussianity).
+        *   Paired TOST for Latency.
+        *   Propensity-score matched paired test for latency validation.
+
+## Statistical Rigor & Power Analysis
+
+*   **Multiple Comparisons**: If multiple metrics (FID, MOS, Latency) are tested, apply Bonferroni or Benjamini-Hochberg correction.
+*   **Power Analysis (FR-016)**:
+    *   **Pre-Execution Calculation**: The system MUST calculate the required N to detect a statistically significant FID degradation
+
+The research question is: What sample size is needed to detect a meaningful change in model performance?
+The method is: Power analysis based on expected effect sizes.
+References: Cohen (1988); Faul et al. (2009). with [deferred] power (e.g., 0.8) BEFORE data extraction.
+    *   **Fail-Fast**: If the available sample (after sampling) is < required N, the system logs "Power Limitation: Insufficient Sample" and exits with a non-zero code. **It does not proceed with an underpowered sample.**
+*   **Causal Inference**:
+    *   **Observational**: Propensity-score matching (FR-005) controls for covariates (e.g., speaker identity, frame complexity) to validate latency reduction.
+    *   **Causal**: Randomized counterfactuals (FR-008) isolate the effect of the "skip" action from the "easy frame" property.
+
+## Compute Feasibility Strategy
+
+*   **CPU-First**: All training and inference simulations are designed for CPU.
+    *   Use `torch.no_grad()` for inference.
+    *   Use small batch sizes (e.g., 8-16) to stay within 7 GB RAM.
+    *   Use streaming datasets to avoid loading full data into memory.
+*   **GPU Escape Hatch**: Not applicable for this specific plan as the estimator and simulation are designed to be CPU-tractable. If a future iteration requires a large-scale flow-matching solver that exceeds CPU capabilities, the plan would need to be revised to use the Kaggle GPU offload mechanism (scaled down).
+
+## Risks & Mitigations
+
+| Risk | Mitigation |
+| :--- | :--- |
+| **Dataset Mismatch**: VoxCeleb2 lacks explicit turn-taking labels. | **Dataset Validity Gate**: If Wan-Streamer logs are missing, the system checks for a verified conversational fallback. If none exists, it reframes the hypothesis to 'monologue dynamics' (removing 'interruption' labels) or fails. |
+| **Power Limitation**: Dataset too large for 7 GB RAM. | Stream data; reduce sample size (FR-014); **Fail** if minimum sample size reached (FR-023). |
+| **No Human Data**: Proxy MOS cannot be validated against human ratings. | Log "Assumption Validated (No Human Data Available)" (FR-012, SC-007) and skip correlation test. |
+| **Wan-Streamer Logs Missing**: Primary source unavailable. | Automatically fallback to verified conversational dataset (FR-019) or reframe hypothesis. |
+
+## Validation & Verification Tasks
+
+*   **T009 (Data Source Check)**: Fetch data; **verify revision hash** matches pinned config.
+*   **T012a (Config Check)**: Create config; **verify file exists and is valid YAML**.
+*   **T037 (Quickstart Validation)**: Execute `quickstart.md` dry-run; generate **Quickstart Validation Report** with logs.
+*   **T038b (Link Verification)**: Run `tests/link_check.py` to verify all links in `quickstart.md` and `data-model.md` exist.
+*   **T043 (State Update)**: Update `state.yaml` key `state.validation_status`.
+*   **T060 (Full Solver)**: Run `python code/inference/full_solver.py --input <segment> --output <path>`.

@@ -1,10 +1,11 @@
-# Quickstart: llmXive follow-up
+# Quickstart: llmXive follow-up: extending "Wan-Streamer v0.1"
 
 ## Prerequisites
 
 *   Python 3.11+
 *   Git
-*   Access to GitHub Actions (for CI) or a local environment with ≥ 7 GB RAM.
+*   Access to a CPU-only environment (e.g., GitHub Actions, local machine with ≥7 GB RAM).
+*   (Optional) Local copy of Wan-Streamer v0.1 logs (if not using VoxCeleb2 fallback).
 
 ## Installation
 
@@ -16,80 +17,74 @@
 
 2.  **Create a virtual environment**:
     ```bash
-    cd projects/PROJ-964-llmxive-follow-up-extending-wan-streamer
     python -m venv venv
-    source venv/bin/activate
-    pip install -r code/requirements.txt
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
 
 3.  **Install dependencies**:
     ```bash
     pip install -r code/requirements.txt
     ```
-    *Note: This installs CPU-only versions of PyTorch and other libraries.*
+    *Note: `requirements.txt` pins all versions to ensure reproducibility.*
 
-4.  **Dataset Version Pinning**: Ensure `code/config.py` contains the correct dataset revision hash for VoxCeleb2 (e.g., `revision: 'main'`) to guarantee reproducibility (Constitution Principle I).
+## Data Preparation
 
-2.  **Verify Datasets**:
-    Ensure you have access to the data source.
-    *   **Option A (Local Logs)**: Place Wan-Streamer v0.1 logs in `data/raw/`. **If these are missing, the system will exit with "Data Unavailable" (FR-022).**
-    *   **Option B (Proxy)**: The system can use VoxCeleb2 for turn-taking labels *only if* the Wan-Streamer logs are present to provide latent trajectories.
+The system automatically handles data fetching. If Wan-Streamer logs are missing, it falls back to VoxCeleb2.
 
-1.  **Download Data**:
-    *   If you have local Wan-Streamer logs, place them in `data/raw/wan_streamer_logs/`.
-    *   If not, the system will automatically download **VoxCeleb2** from the verified HuggingFace source.
+1.  **Run the data fetcher**:
     ```bash
-    python code/data/extract_latents.py --source voxceleb2
+    python code/data/fetch_data.py
     ```
-    *This script will generate `data/processed/extracted.parquet`.*
+    *This script checks for local logs. If missing, it downloads a sample of VoxCeleb2 from the verified Hugging Face URL.*
 
-2.  **Validate Data**:
+2.  **Extract and preprocess**:
     ```bash
-    python code/data/validate_sampling.py --input data/processed/extracted.parquet
+    python code/data/extract_turn_taking.py
     ```
+    *Output: `data/processed/turn_taking_dataset.parquet`.*
 
-The pipeline is executed sequentially via the `code/tasks/` modules.
+## Training the Estimator
 
-1.  **Run Training**:
+1.  **Run the training script**:
     ```bash
-    python code/models/trainer.py --input data/processed/train.parquet --epochs [specified number of training epochs]
+    python code/model/estimator_train.py
     ```
-    *This will output `data/artifacts/model.pt`.*
+    *This trains the lightweight RNN/Transformer on CPU. It monitors RAM usage and will reduce sample size if limits are approached.*
+    *Output: `data/artifacts/estimator.pt`.*
 
-2.  **Monitor Resources**:
-    Ensure RAM usage stays within acceptable limits. If the process hangs or exceeds time limits, the script will automatically reduce the sample size (FR-014).
+## Simulation & Evaluation
 
-## Running the Simulation
-
-1.  **Execute Hybrid Inference**:
+1.  **Run the hybrid simulation**:
     ```bash
-    python code/inference/hybrid_sim.py --model data/artifacts/model.pt --data data/processed/val.parquet
+    python code/model/hybrid_simulate.py
     ```
-    *This runs the hybrid pipeline with randomized counterfactuals and outputs `data/artifacts/simulation_metrics.parquet`.*
+    *This runs the hybrid inference pipeline, including the randomized counterfactual intervention.*
+    *Output: `data/processed/hybrid_results.parquet`.*
 
-2.  **Run Statistical Tests**:
+2.  **Calculate metrics and run statistical tests**:
     ```bash
-    python code/metrics/stats_tests.py --input data/artifacts/simulation_metrics.parquet
+    python code/metrics/calculate_fid_stability.py
+    python code/metrics/validate_proxy_mos.py
+    python code/metrics/statistical_tests.py
     ```
-    *This performs TOST and bootstrap tests, outputting `data/artifacts/statistical_results.json`.*
+    *Output: `data/artifacts/metrics.json` and logs.*
 
-## Validation & Reporting
+## Validation
 
-1.  **Check Results**:
-    Review `data/artifacts/statistical_results.json` for:
-    *   Latency reduction (Target: ≥ 20%).
-    *   FID degradation (Target: ≤ 5%).
-    *   TOST p-values (Target: < 0.05).
-
-2.  **Update State**:
+1.  **Update state**:
     ```bash
     python code/utils/state_manager.py --update
     ```
-    *This updates `state.yaml` with artifact hashes (FR-020).*
+    *This updates `state.yaml` with artifact hashes and validation status.*
+
+2.  **Verify contracts**:
+    ```bash
+    pytest tests/contract/
+    ```
+    *Ensures all data files match the schemas in `contracts/`.*
 
 ## Troubleshooting
 
-*   **Out of Memory**: Reduce the `--sample-size` flag in `extract_latents.py` or `trainer.py`.
-*   **Data Missing**: If Wan-Streamer logs are missing, the system defaults to VoxCeleb2. Check logs for "Fallback to VoxCeleb2" message.
-*   **Training Timeout**: If training exceeds 6 hours, the script will fail with "Power Limitation" error. Reduce sample size and retry.
-*   **Hypothesis Failure**: If Phase 0 (Preliminary Validation) reports a weak delta-FID correlation, the main experiment may be aborted or pivoted.
+*   **RAM Exceeded**: The system automatically reduces the sample size. Check logs for "Power Limitation" warnings.
+*   **No Human Data**: If proxy MOS validation fails due to missing human ratings, the system logs "Assumption Validated (No Human Data Available)" and continues.
+*   **Dataset Missing**: Ensure you have internet access for the VoxCeleb2 fallback.

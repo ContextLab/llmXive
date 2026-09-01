@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+title: "Hybrid Inference Output Schema"
+description: "Schema for the hybrid inference results and metrics"
+required:
+  - frame_index
+  - generation_method
+  - latency_ms
+  - is_counterfactual
+  - predicted_delta
+  - uncertainty_score
+properties:
+  frame_index:
+    type: integer
+    description: "Index of the frame in the sequence"
+  generation_method:
+    type: string
+    enum:
+      - skipped
+      - full
+    description: "Method used to generate the frame"
+  latency_ms:
+    type: number
+    description: "Inference time in milliseconds"
+  is_counterfactual:
+    type: boolean
+    description: "True if the skip was forced by randomized intervention"
+  predicted_delta:
+    type: number
+    description: "Predicted latent delta magnitude"
+  uncertainty_score:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Model confidence score"
+  actual_delta:
+    type: number
+    description: "Ground truth latent delta magnitude"
+  fid_stability:
+    type: number
+    description: "Relative change in FID for this frame (skipped vs full)"
+additionalProperties: false

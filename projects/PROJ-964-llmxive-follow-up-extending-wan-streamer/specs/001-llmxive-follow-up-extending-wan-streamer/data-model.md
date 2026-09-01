@@ -1,67 +1,72 @@
-# Data Model: llmXive follow-up
+# Data Model: llmXive follow-up: extending "Wan-Streamer v0.1"
 
-## 1. Overview
+## Overview
 
-This document defines the data structures for the `llmXive` follow-up project. All data flows from the extraction phase (raw logs/VoxCeleb2) through preprocessing (labeled time-series) to model training and hybrid simulation. The schema definitions in `contracts/` serve as the source of truth for validation.
+This document defines the data structures used throughout the project, ensuring alignment with the `contracts/` schemas and the requirements of the `spec.md`. All data is stored in `data/` with checksums recorded in `state.yaml`.
 
-**Note on FID Calculation**: FID is a batch metric. All FID-related metrics in this model are computed over *segments* (windows of frames) or the *entire sequence*, not individual frames. The term "frame" in the spec (FR-010, SC-003) is interpreted as "segment" for the purpose of FID stability calculation.
+## Entity Definitions
 
-## 2. Data Entities
-
-### 2.1 Raw Input (Source)
-*   **Wan-Streamer Logs**: JSON/Parquet logs containing latent vectors, timestamps, and metadata.
-*   **VoxCeleb2**: Audio-visual sequences with speaker IDs. Used as a fallback to generate proxy latents.
-
-### 2.2 Extracted Dataset (Processed)
-*   **File Format**: Parquet (compressed).
-*   **Granularity**: Per-segment (aggregated from per-frame data).
+### 1. LatentTrajectory
+A time-series record of audio-visual latent vectors.
+*   **Purpose**: Represents the state of the generation model at each timestep.
 *   **Key Fields**:
-    *   `segment_id`: Integer (Unique identifier for the segment/window).
-    *   `timestamp`: Float (Start time of the segment).
-    *   `turn_label`: Categorical (`"interruption"`, `"pause"`, `"normal"`).
-    *   `semantic_feature`: Vector (float32) representing text/content embedding (averaged over segment).
-    *   `prosodic_feature`: Vector (float32) representing audio energy/pitch (averaged over segment).
-    *   `latent_delta_magnitude`: Float (Average Euclidean distance of latent vectors within the segment).
-    *   `uncertainty_target`: Float (optional, derived from model error in training).
+    *   `timestamp`: Unix timestamp or frame index.
+    *   `latent_vector`: Float32 array (flattened).
+    *   `latent_delta_magnitude`: Scalar (Euclidean distance to previous frame).
+    *   `turn_label`: Enum (`interruption`, `pause`, `normal`).
 
-### 2.3 Model Output (Prediction)
-*   **File Format**: Pickle/Onnx (model weights) + JSON (predictions).
-*   **Fields**:
-    *   `predicted_delta`: Float.
-    *   `predicted_uncertainty`: Float (0.0–1.0).
-    *   `action`: Categorical (`"skip"`, `"full_solve"`).
+### 2. TurnTakingEvent
+A labeled segment of interaction.
+*   **Purpose**: Provides the semantic/prosodic context for the estimator.
+*   **Key Fields**:
+    *   `event_type`: `interruption` or `pause`.
+    *   `start_time`, `end_time`: Duration in seconds.
+    *   `semantic_features`: Vector (e.g., ASR embeddings).
+    *   `prosodic_features`: Vector (e.g., pitch, energy, zero-crossing).
 
-### 2.4 Simulation Metrics (Result)
-*   **File Format**: CSV/Parquet.
-*   **Fields**:
-    *   `segment_id`: Integer.
-    *   `latency_ms`: Float.
-    *   `fid_score`: Float (FID computed over the segment).
-    *   `proxy_mos`: Float.
-    *   `skip_action`: Boolean.
-    *   `randomized_intervention`: Boolean (True if forced skip).
-    *   `fid_stability`: Float (Relative change in FID between skipped and full-solver versions of the segment).
+### 3. EstimatorInput
+Input to the lightweight RNN/Transformer.
+*   **Purpose**: Causal history of signals.
+*   **Key Fields**:
+    *   `history_window`: List of `TurnTakingEvent` features (last N frames).
+    *   `current_frame_index`: Integer.
 
-## 3. Data Flow
+### 4. EstimatorOutput
+Prediction from the lightweight model.
+*   **Purpose**: Decision support for skipping.
+*   **Key Fields**:
+    *   `predicted_delta`: Scalar (predicted `latent_delta_magnitude`).
+    *   `uncertainty_score`: Scalar (0.0-1.0).
+    *   `skip_decision`: Boolean (derived from uncertainty threshold).
 
-1.  **Extraction**: `extract_latents.py` reads raw logs/VoxCeleb2 → Outputs `data/processed/extracted.parquet`.
-    *   *Contract*: `contracts/dataset.schema.yaml`.
-2.  **Preprocessing**: `preprocess.py` normalizes features, splits train/val/test → Outputs `data/processed/train.parquet`, `data/processed/val.parquet`.
-3.  **Training**: `trainer.py` loads `train.parquet` → Trains `EstimatorModel` → Outputs `data/artifacts/model.pt`.
-4.  **Simulation**: `hybrid_sim.py` loads `model.pt` and `val.parquet` → Runs hybrid pipeline → Outputs `data/artifacts/simulation_metrics.parquet`.
-    *   *Contract*: `contracts/model_output.schema.yaml`, `contracts/metrics.schema.yaml`.
-5.  **Validation**: `stats_tests.py` reads `simulation_metrics.parquet` → Computes TOST/Bootstrap → Outputs `data/artifacts/statistical_results.json`.
+### 5. HybridOutput
+Result of the hybrid inference pipeline.
+*   **Purpose**: Final generated sequence.
+*   **Key Fields**:
+    *   `frame_index`: Integer.
+    *   `generation_method`: `skipped` (estimated) or `full` (flow-matching).
+    *   `latency_ms`: Inference time for this frame.
+    *   `is_counterfactual`: Boolean (was this frame forced to skip?).
 
-## 4. Schema Definitions
+### 6. MetricsAggregation
+Aggregated results for validation.
+*   **Purpose**: Summary statistics for reporting.
+*   **Key Fields**:
+    *   `metric_name`: `fid`, `proxy_mos`, `latency`.
+    *   `baseline_value`: Float.
+    *   `hybrid_value`: Float.
+    *   `relative_change`: Float.
+    *   `p_value`: Float (from statistical tests).
+    *   `equivalence_passed`: Boolean.
 
-See `contracts/` directory for detailed YAML schemas:
-*   `dataset.schema.yaml`: Validates the extracted time-series data.
-*   `model_output.schema.yaml`: Validates the estimator predictions.
-*   `metrics.schema.yaml`: Validates the simulation results.
+## Data Flow
 
-## 5. Assumptions & Constraints
+1.  **Raw Data** (`data/raw/`) -> **Extraction** (`code/data/extract_turn_taking.py`) -> **Processed Dataset** (`data/processed/turn_taking_dataset.parquet`).
+2.  **Processed Dataset** -> **Training** (`code/model/estimator_train.py`) -> **Model Checkpoint** (`data/artifacts/estimator.pt`).
+3.  **Processed Dataset** + **Model Checkpoint** -> **Simulation** (`code/model/hybrid_simulate.py`) -> **Hybrid Results** (`data/processed/hybrid_results.parquet`).
+4.  **Hybrid Results** -> **Metrics** (`code/metrics/...`) -> **Metrics JSON** (`data/artifacts/metrics.json`).
 
-*   **Missing Data**: If `Wan-Streamer` logs are missing, `VoxCeleb2` is used. The `latent_delta_magnitude` will be derived, not native.
-*   **PII**: No Personally Identifiable Information is stored. VoxCeleb2 is public; Wan-Streamer logs are assumed anonymized.
-*   **Storage**: All intermediate files are deleted after processing if not needed for final artifacts to stay within 14 GB disk limit.
-*   **FID Granularity**: FID is computed over segments (batches) to ensure mathematical validity.
+## Schema References
+
+*   `contracts/dataset.schema.yaml`: Defines the structure of `turn_taking_dataset.parquet`.
+*   `contracts/output.schema.yaml`: Defines the structure of `hybrid_results.parquet` and `metrics.json`.
