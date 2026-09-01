@@ -1,8 +1,5 @@
 {
-  "status": "no_real_data",
-  "accession": null,
-  "url": null,
-  "use_synthetic": true,
-  "reason": "No suitable SRA study found with paired 16S and serology data",
-  "timestamp": "2023-10-27 10:00:00"
+  "search_query": "16S rRNA AND (influenza OR flu) AND (serology OR antibody OR titer) AND (human OR Homo sapiens)",
+  "results": [],
+  "status": "no_results_found"
 }

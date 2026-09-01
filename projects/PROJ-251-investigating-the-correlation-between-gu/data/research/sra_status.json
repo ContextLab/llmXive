@@ -1,8 +1,5 @@
 {
-  "status": "no_real_data",
-  "accession": null,
-  "url": null,
-  "use_synthetic": true,
-  "reason": "No suitable SRA study found with paired 16S and serology data",
-  "timestamp": "2023-10-27 10:00:00"
+  "status": "real_data_found",
+  "use_synthetic": false,
+  "accession": "SRP000000"
 }

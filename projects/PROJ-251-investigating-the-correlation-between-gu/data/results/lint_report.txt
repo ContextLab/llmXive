@@ -1,28 +1,18 @@
-LINTING AND FORMATTING REPORT
-==================================================
+Lint Report - 039_run_linting.py
+Project Root: /workspace
+Target Directory: /workspace/code
+============================================================
 
-Code directory: /project/code
-Ruff exit code: 0
-Black exit code: 0
+--- Ruff Check (with fixes) ---
+Exit Code: 0
+All checks passed!
 
-STATUS: SUCCESS - All checks passed and formatting applied.
-
-### RUFF CHECK AND FIX ###
-RUFF CHECK RESULTS (Exit Code: 0)
-==================================================
-No issues found (or no output).
-
-RUFF FIX RESULTS (Exit Code: 0)
-==================================================
-No fixes needed or applied.
-
-### BLACK FORMAT ###
-BLACK CHECK RESULTS (Exit Code: 0)
-==================================================
+--- Black Format ---
+Exit Code: 0
 All done! ✨ 🍰 ✨
-0 files would be reformatted, 0 files left unchanged.
+18 files left unchanged.
 
-BLACK FORMAT RESULTS (Exit Code: 0)
-==================================================
-All done! ✨ 🍰 ✨
-0 files would be reformatted, 0 files left unchanged.
+============================================================
+SUMMARY
+Ruff Check Status: SUCCESS
+Black Format Status: SUCCESS

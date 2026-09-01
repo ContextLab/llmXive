@@ -1,26 +1,39 @@
-T011b:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No synthetic dataset artifact was supplied; there is no file, code, or description\
-    \ showing that a dataset was generated, nor any evidence that it meets the conditional\
-    \ requirements of the task. The implementer\u2019s claim lacks any tangible output."
-T011d:
+  r: I looked for the required project root directories (`code/`, `data/raw`, `data/processed`,
+    `data/results`, `tests/`, `data/research`) in the provided artifacts but none
+    were present or listed. Without these directories actually existing, the task
+    requirement is not satisfied.
+T008a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No ingestion script, validation logs, or output CSV containing the filtered\
-    \ microbiome\u2011serology dataset is provided, nor are there any correlation\
-    \ analysis results, CLR\u2011transformed data, Shannon diversity calculations,\
-    \ or predictive\u2011modeling artifacts (e.g., Random Forest model files, cross\u2011\
-    validation reports). The required deliverables are missing, so the task is not\
-    \ satisfied."
-T020c:
+  r: "No `.env` template file was presented in the evidence, and thus there is no\
+    \ file containing the required `SRA_TOKEN` and `DATA_SOURCE_URL` placeholders.\
+    \ The implementer must add a non\u2011empty `.env` (or `.env.example`) file with\
+    \ those placeholder variables."
+T010:
   c: false
-  h: f2e56235017df8ff957afae766796ac4ba5aa97db2241cdd43f7f1c2c1207a9f
-  r: The `code/02_preprocess.py` script contains a `calculate_shannon_diversity` function,
-    but the required input file `data/processed/data_norm.csv` is absent, so the calculation
-    cannot be performed on real data. Additionally, the script is truncated (`run_shanno`
-    is incomplete), indicating the implementation is not fully functional. The missing
-    data file must be provided (and the script completed) for the task to be satisfied.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No ingestion script, output CSV, logs, or analysis results were provided; the\
+    \ claim lacks any tangible artifacts (code, data files, or result tables) that\
+    \ demonstrate the required data filtering, validation, correlation calculations,\
+    \ multiple\u2011testing correction, or predictive modeling. The implementer must\
+    \ supply the actual scripts and generated output files to satisfy the user stories."
+T011a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or resulting data files were provided that fetch the pre\u2011\
+    processed OTU table and serology metadata for the SRP accession series, so the\
+    \ required artifact is missing. The task remains undone."
+T011e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, notebook, or data artifact implementing the required preprocessing
+    chain (normalization, diversity calculation, log transformation, and CLR transformation)
+    was provided. Consequently, there is no evidence that the preprocessing steps
+    have been performed or that any output dataset meets the specifications. The task
+    remains unfinished.
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -29,6 +42,15 @@ T032:
     \ subjects, Spearman correlation table with raw and BH\u2011adjusted p\u2011values,\
     \ Shannon diversity calculations, and nested\u2011CV Random Forest performance\
     \ metrics) are missing, so the task is not satisfied."
+T032a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or result artifacts (e.g., ingestion script, CSV output,\
+    \ correlation tables, or modeling reports) were provided. Consequently, none of\
+    \ the required user stories\u2014data ingestion/validation, CLR\u2011based correlation\
+    \ analysis with multiple\u2011testing correction, or nested cross\u2011validated\
+    \ Random Forest modeling\u2014can be verified as implemented. The task lacks the\
+    \ necessary tangible outputs."
 T034d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -43,3 +65,10 @@ T036a:
     \ precision, recall, or F1\u2011score for the high/low responder classification\
     \ was provided. The claim lacks any concrete artifact demonstrating that these\
     \ metrics were calculated and recorded."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting reports, diff logs, or updated code files are provided
+    to demonstrate that ruff checks were run, issues were identified, and black formatting
+    was applied and fixed across the `code/` directory. The required artifacts are
+    missing.

@@ -4,15 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T010` (rejected 1x): No ingestion script, output CSV, logs, or analysis results were provided; the claim lacks any tangible artifacts (code, data files, or result tables) required to demonstrate that SRA data were searched, filtered, validated, and that downstream correlation and modeling steps were performed. The implementer must supply the actual scripts and generated output files to satisfy the user stories.
-- `T001` (rejected 1x): No directory listings or file system evidence were provided showing that the required folders (`code/`, `data/raw`, `data/processed`, `data/results`, `specs/001-investigating-the-correlation-between-gu/contracts/`) actually exist; without such artifacts the claim cannot be verified.
-- `T039` (rejected 1x): No linting or formatting artifacts (e.g., ruff output logs, black diff reports, or updated, clean code files) are present to demonstrate that ruff checks were run and all issues were fixed. The required evidence of the codebase being lint‑checked and black‑formatted is missing.
-- `T001a` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
-- `T008a` (rejected 1x): No `.env` template file was provided in the evidence; there is no file containing placeholders for `SRA_TOKEN` and `DATA_SOURCE_URL`, so the required artifact is missing.
-- `T011a` (rejected 1x): No code, script, or fetched data files are provided to demonstrate that the pre‑processed OTU table and serology metadata for the SRP accession series have been retrieved; the required artifact (a data ingestion implementation and its output) is missing.
-- `T019a` (rejected 1x): No code, notebook, script, or data file was provided that performs or demonstrates conversion of the OTU table to relative abundances, nor any output showing the normalized values. The required artifact for task T019a is missing.
-- `T013` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
-- `T024` (rejected 1x): declared artifact(s) missing/empty/invalid: data/results/correlation_results.csv
+- `T011b` (rejected 1x): No synthetic dataset artifact was supplied; there is no file, code, or description showing that a dataset was generated, nor any evidence that it meets the conditional requirements of the task. The implementer’s claim lacks any tangible output.
+- `T011d` (rejected 1x): No ingestion script, validation logs, or output CSV containing the filtered microbiome‑serology dataset is provided, nor are there any correlation analysis results, CLR‑transformed data, Shannon diversity calculations, or predictive‑modeling artifacts (e.g., Random Forest model files, cross‑validation reports). The required deliverables are missing, so the task is not satisfied.
 
 ## Required change
 

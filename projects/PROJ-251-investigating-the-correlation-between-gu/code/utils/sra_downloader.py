@@ -10,46 +10,42 @@ from utils.logging_config import get_logger
 logger = get_logger(__name__)
 
 class DataUnavailableError(Exception):
-    """Raised when requested data cannot be fetched from the source."""
+    """Raised when SRA data is unavailable."""
     pass
 
 def get_sra_run_ids(accession: str) -> List[str]:
-    """
-    Retrieves SRA Run IDs for a given study accession.
-    Note: This is a placeholder for the actual implementation which would use E-utilities.
-    """
-    # Placeholder implementation
-    logger.warning("get_sra_run_ids is a placeholder. In a real scenario, this would query NCBI E-utilities.")
+    """Gets list of SRR run IDs for a given SRP accession."""
+    # This would typically use esearch/esummary to map SRP -> SRR
+    # Placeholder for actual implementation
+    logger.info(f"Fetching run IDs for {accession}")
     return []
 
 def prefetch_sra_run(run_id: str) -> bool:
-    """
-    Prefetches data for a specific SRA run.
-    """
-    logger.info(f"Prefetching run {run_id}...")
-    # Placeholder
+    """Prefetches a single SRA run."""
+    logger.info(f"Prefetching {run_id}")
     return True
 
 def fasterq_dump(run_id: str, output_dir: Path) -> Path:
-    """
-    Converts SRA run to FASTQ files.
-    """
-    logger.info(f"Running fasterq-dump for {run_id}...")
-    # Placeholder
-    return output_dir / "dummy.fastq"
+    """Runs fasterq-dump for a specific run ID."""
+    logger.info(f"Running fasterq-dump for {run_id}")
+    return output_dir / f"{run_id}.fastq"
 
 def download_fastq_for_study(accession: str, output_dir: Path) -> List[Path]:
-    """
-    Downloads and converts all runs for a study.
-    """
-    logger.info(f"Downloading study {accession}...")
-    # Placeholder
-    return []
+    """Downloads all fastq files for a study."""
+    run_ids = get_sra_run_ids(accession)
+    if not run_ids:
+        raise DataUnavailableError(f"No run IDs found for {accession}")
+    
+    paths = []
+    for rid in run_ids:
+        paths.append(fasterq_dump(rid, output_dir))
+    return paths
 
-def run_strategy_b(accession: str, output_dir: Path) -> Tuple[List[Path], bool]:
+def run_strategy_b(accession: str, output_dir: Path) -> Tuple[Path, Path]:
     """
-    Runs Strategy B: Download raw FASTQ and process with DADA2.
+    Strategy B: Downloads raw fastq files and processes them.
+    Returns (otu_table_path, serology_path).
     """
-    logger.info(f"Executing Strategy B for {accession}...")
-    # Placeholder
-    return [], False
+    logger.info(f"Starting Strategy B for {accession}")
+    # Implementation would go here
+    raise DataUnavailableError("Strategy B not implemented in this task")

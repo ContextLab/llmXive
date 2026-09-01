@@ -1,3 +1,7 @@
+"""
+Task T039: Run ruff check and black format on all files in code/ and fix all reported issues.
+Generates a lint report at data/results/lint_report.txt.
+"""
 import os
 import sys
 import subprocess
@@ -5,92 +9,114 @@ import json
 from pathlib import Path
 import logging
 
-# Add project root to path if needed, though running from root usually suffices
-# Ensure we are running from the project root
-project_root = Path(__file__).resolve().parent.parent
-os.chdir(project_root)
-
-# Setup logging to file and console
-log_path = project_root / "data" / "results" / "lint_report.txt"
-log_path.parent.mkdir(parents=True, exist_ok=True)
-
+# Setup logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(log_path),
-        logging.StreamHandler(sys.stdout)
-    ]
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def run_command(cmd: list, description: str) -> bool:
-    """Run a shell command and log the result."""
-    logger.info(f"Running: {description}")
-    logger.info(f"Command: {' '.join(cmd)}")
-    
+def run_command(cmd: list, check: bool = True) -> subprocess.CompletedProcess:
+    """Run a shell command and return the result."""
+    logger.info(f"Running command: {' '.join(cmd)}")
     try:
         result = subprocess.run(
             cmd,
-            check=False,
+            check=check,
             capture_output=True,
-            text=True,
-            timeout=300
+            text=True
         )
-        
-        if result.stdout:
-            logger.info(result.stdout)
-        if result.stderr:
-            # Stderr often contains formatting info from black/ruff, log as info
-            logger.info(result.stderr)
-        
-        if result.returncode == 0:
-            logger.info(f"Success: {description} completed without errors.")
-            return True
-        else:
-            logger.error(f"Failure: {description} failed with exit code {result.returncode}")
-            return False
-    except subprocess.TimeoutExpired:
-        logger.error(f"Timeout: {description} timed out.")
-        return False
-    except Exception as e:
-        logger.error(f"Error running {description}: {e}")
-        return False
+        return result
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Command failed with exit code {e.returncode}")
+        logger.error(f"stdout: {e.stdout}")
+        logger.error(f"stderr: {e.stderr}")
+        raise
 
 def main():
-    logger.info("=" * 60)
-    logger.info("Starting Linting and Formatting Pipeline (Task T039)")
-    logger.info("=" * 60)
-
+    """Execute ruff check and black format, then generate report."""
+    project_root = Path(__file__).parent.parent
     code_dir = project_root / "code"
-    if not code_dir.exists():
-        logger.error(f"Code directory not found: {code_dir}")
-        return 1
+    results_dir = project_root / "data" / "results"
+    report_path = results_dir / "lint_report.txt"
 
-    # 1. Run Ruff Check and Fix
-    # ruff check code/ --fix
-    ruff_success = run_command(
-        ["ruff", "check", str(code_dir), "--fix"],
-        "Ruff Check and Fix"
-    )
+    # Ensure results directory exists
+    results_dir.mkdir(parents=True, exist_ok=True)
 
-    # 2. Run Black Format
-    # black code/
-    black_success = run_command(
-        ["black", str(code_dir)],
-        "Black Format"
-    )
+    report_lines = []
+    report_lines.append(f"Linting Report for {code_dir}")
+    report_lines.append("=" * 50)
+    report_lines.append("")
 
-    # Final Status
-    logger.info("=" * 60)
-    if ruff_success and black_success:
-        logger.info("Pipeline Status: SUCCESS")
-        logger.info("All files have been linted and formatted successfully.")
-        return 0
+    # Step 1: Run ruff check (with fixes)
+    logger.info("Running ruff check with fix...")
+    try:
+        ruff_result = run_command(
+            [sys.executable, "-m", "ruff", "check", str(code_dir), "--fix"],
+            check=False  # Don't fail immediately, we want to capture output
+        )
+        ruff_exit_code = ruff_result.returncode
+        ruff_output = ruff_result.stdout + ruff_result.stderr
+
+        report_lines.append("RUFF CHECK:")
+        report_lines.append(f"Exit Code: {ruff_exit_code}")
+        if ruff_output.strip():
+            report_lines.append("Output:")
+            report_lines.append(ruff_output)
+        report_lines.append("")
+
+        if ruff_exit_code != 0:
+            # If ruff still has issues after fix, we might need to check if they are fixable
+            # For now, we log the exit code. If it's non-zero, it means there are remaining issues.
+            logger.warning(f"Ruff check found issues that could not be automatically fixed (Exit Code: {ruff_exit_code})")
+    except Exception as e:
+        report_lines.append(f"RUFF CHECK ERROR: {str(e)}")
+        ruff_exit_code = 1
+
+    # Step 2: Run black format
+    logger.info("Running black format...")
+    try:
+        black_result = run_command(
+            [sys.executable, "-m", "black", str(code_dir)],
+            check=False
+        )
+        black_exit_code = black_result.returncode
+        black_output = black_result.stdout + black_result.stderr
+
+        report_lines.append("BLACK FORMAT:")
+        report_lines.append(f"Exit Code: {black_exit_code}")
+        if black_output.strip():
+            report_lines.append("Output:")
+            report_lines.append(black_output)
+        report_lines.append("")
+    except Exception as e:
+        report_lines.append(f"BLACK FORMAT ERROR: {str(e)}")
+        black_exit_code = 1
+
+    # Summary
+    report_lines.append("SUMMARY:")
+    report_lines.append(f"Ruff Exit Code: {ruff_exit_code}")
+    report_lines.append(f"Black Exit Code: {black_exit_code}")
+
+    if ruff_exit_code == 0 and black_exit_code == 0:
+        report_lines.append("Status: SUCCESS - All files linted and formatted.")
+        final_status = 0
     else:
-        logger.error("Pipeline Status: FAILED")
-        logger.error("One or more steps failed. Check the log for details.")
-        return 1
+        report_lines.append("Status: ISSUES FOUND - Please review the output above.")
+        final_status = 1
+
+    report_lines.append("")
+    report_lines.append("=" * 50)
+
+    # Write report
+    report_content = "\n".join(report_lines)
+    with open(report_path, "w", encoding="utf-8") as f:
+        f.write(report_content)
+
+    logger.info(f"Lint report written to {report_path}")
+
+    # Exit with appropriate code
+    sys.exit(final_status)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

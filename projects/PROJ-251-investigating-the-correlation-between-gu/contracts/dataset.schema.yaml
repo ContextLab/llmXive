@@ -15,3 +15,11 @@ properties:
     type: number
   titer_post:
     type: number
+  shannon_diversity:
+    type: number
+  log_titer:
+    type: number
+  taxa_clr:
+    type: array
+    items:
+      type: number

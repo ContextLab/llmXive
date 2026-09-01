@@ -3,32 +3,24 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 from utils.logging_config import get_logger
 
-logger = get_logger(__name__)
-
-def log_search_progress(stage: str, details: str = "") -> None:
-    """Log a search progress message."""
-    msg = f"SRA Search: {stage}"
-    if details:
-        msg += f" - {details}"
-    logger.info(msg)
+def log_search_progress(current: int, total: int) -> None:
+    """Logs progress of SRA search."""
+    logger = get_logger(__name__)
+    logger.info(f"Search progress: {current}/{total}")
 
 def validate_accession_format(accession: str) -> bool:
-    """Validate SRA accession format."""
+    """Validates SRA accession format."""
     if not accession:
         return False
-    prefixes = ('SRP', 'SRS', 'SRX', 'SRR')
-    return any(accession.upper().startswith(p) for p in prefixes)
+    return accession.startswith(("SRP", "SRR", "SRX"))
 
-def format_search_query() -> str:
-    """Return the standardized search query."""
-    return (
-        '"16S rRNA AND (influenza OR flu) AND (serology OR antibody OR titer) AND (human OR Homo sapiens)"'
-    )
+def format_search_query(query: str) -> str:
+    """Formats a search query."""
+    return query.strip()
 
-def create_error_report(error_type: str, message: str) -> Dict[str, Any]:
-    """Create a standardized error report dictionary."""
+def create_error_report(error: Exception, context: str) -> Dict[str, Any]:
+    """Creates an error report dictionary."""
     return {
-        "error_type": error_type,
-        "message": message,
-        "status": "failed"
+        "error": str(error),
+        "context": context
     }
