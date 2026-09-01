@@ -75,7 +75,7 @@ A researcher can apply permutation importance to the Random Forest and saliency 
 
 ### Measurable Outcomes
 
-- **SC-001**: GNN model achieves lower MAE than Random Forest baseline on held-out test set with 95% confidence intervals for both MAE and RMSE (statistically significant at α=0.05)
+- **SC-001**: GNN model achieves lower MAE than Random Forest baseline on held-out test set with confidence intervals for both MAE and RMSE (statistically significant at α=0.05)
 - **SC-002**: Feature attribution analysis identifies at least 3 structural features contributing to predictive variance (e.g., electronegative atom placement, local bond angles)
 - **SC-003**: All experiments complete within 6h runtime on 2 CPU cores (constraint applies to entire pipeline from data download through final visualization)
 - **SC-004**: Paired t-tests confirm performance delta between D GNN and D baseline across multiple random seeds

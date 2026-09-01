@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a comparative study to determine the extent to which 3D conformational geometry provides independent predictive information for molecular dipole moments beyond 2D connectivity and atom types. The system downloads a verified subset of the QM9 dataset, extracts 3D coordinates and 2D descriptors (Morgan fingerprints, **Topological** Coulomb matrices), and trains a lightweight SchNet-style GNN against a Random Forest baseline. Crucially, the study includes **ablation variants** (SchNet-Randomized, SchNet-2D) to causally isolate the 3D geometry signal. The pipeline rigorously validates that 3D geometry adds value, performs statistical significance testing (Wilcoxon signed-rank test + bootstrap), and generates feature attribution maps (Input Gradients) to identify structural drivers. The entire pipeline is designed to run within 6 hours on 2 CPU cores with <8GB RAM, using a reduced subset ([deferred] molecules) and simplified architecture to ensure feasibility.
+This feature implements a comparative study to determine the extent to which 3D conformational geometry provides independent predictive information for molecular dipole moments beyond 2D connectivity and atom types. The system downloads a verified subset of the QM dataset, extracts 3D coordinates and 2D descriptors (Morgan fingerprints, **Topological** Coulomb matrices), and trains a lightweight SchNet-style GNN against a Random Forest baseline. Crucially, the study includes **ablation variants** (SchNet-Randomized, SchNet-2D) to causally isolate the 3D geometry signal. The pipeline rigorously validates that D geometry adds value, performs statistical significance testing (Wilcoxon signed-rank test + bootstrap), and generates feature attribution maps (Input Gradients) to identify structural drivers. The entire pipeline is designed to run within 6 hours on 2 CPU cores with <8GB RAM, using a reduced subset ([deferred] molecules) and simplified architecture to ensure feasibility.
 
 ## Technical Context
 
@@ -124,7 +124,9 @@ projects/PROJ-262-predicting-molecular-dipole-moments-with/
 | **Streaming Data Loading** | QM9 full size may exceed 8GB RAM. | Loading full dataset into memory risks OOM failure on CI. |
 | **5 Random Seeds** | Required for statistical significance (SC-001, SC-005). | Single seed results are not robust and fail paired t-test requirements. |
 | **Ablation Variants** | Required to prove 3D contribution (Plan Phase 2). | Baseline-only comparison cannot distinguish 3D signal from noise. |
-| **Reduced Subset (5k)** | Required to meet 6h runtime on 2 vCPUs. | Full dataset exceeds compute budget. |
+| **Reduced Subset (Scaled)
+
+The research question investigates the impact of dataset subsampling on model generalization. The method involves training on progressively smaller subsets of the full dataset to identify performance thresholds. References: [Preserve original citation here].** | Required to meet 6h runtime on 2 vCPUs. | Full dataset exceeds compute budget. |
 
 ## Methodology
 
@@ -146,8 +148,8 @@ projects/PROJ-262-predicting-molecular-dipole-moments-with/
     *   **SchNet-2D**: SchNet architecture trained **without** 3D coordinates (only 2D features).
     *   **RF-Combined**: Random Forest trained on 2D + 3D features.
 *   **Protocol**:
-    *   **Splits**: Random 80/10/10 (Train/Val/Test).
-    *   **Seeds**: 5 independent random seeds.
+    *   **Splits**: Random split into training, validation, and test sets..
+    *   **Seeds**: Multiple independent random seeds.
     *   **Epochs**: 50 epochs with early stopping (patience=10).
 
 ### 3. Evaluation & Statistics
@@ -159,7 +161,9 @@ projects/PROJ-262-predicting-molecular-dipole-moments-with/
     *   **SchNet**: **Input Gradients** (w.r.t. coordinates) and Integrated Gradients.
 
 ### 4. GPU Escape Hatch
-*   If CPU run exceeds a reasonable duration threshold or fails, the runner will detect CUDA availability (if offloaded to Kaggle) and re-run with `device="cuda"` and 8-bit quantization. This is a fallback only; the primary plan is CPU-tractable.
+*   If CPU run exceeds a reasonable duration threshold or fails, the runner will detect CUDA availability (if offloaded to Kaggle) and re-run with `device="cuda"` and Quantization
+
+The research question is how to optimize model efficiency through reduced precision. The method involves applying low-bit quantization techniques to compress model weights and activations. References: [DOI/arXiv/author-year].. This is a fallback only; the primary plan is CPU-tractable.
 
 ## Compute Feasibility
 *   **CPU-First**: SchNet with 32 hidden units and 5k samples is computationally feasible on 2 vCPUs within 6 hours.
