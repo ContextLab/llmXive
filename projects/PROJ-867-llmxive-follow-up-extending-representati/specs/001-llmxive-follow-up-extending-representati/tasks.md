@@ -85,11 +85,11 @@
 
 ### Implementation for User Story 1
 
-- [ ] T015 [P] [US1] Implement `code/models/rf_encoder.py` wrapping `microsoft/layoutlmv3-base` with weights frozen and pixel-decoder layers disabled
-- [ ] T016 [US1] Implement `code/data/preprocessing.py` logic to load images (using T005 loader), resize to 224x224, and extract RF token sequences via T015
-- [ ] T017 [US1] Implement NaN detection and clamping logic in `code/data/preprocessing.py` to handle floating-point instability on CPU
-- [ ] T018 [US1] Implement logic to pad/truncate token sequences to a fixed context window in `code/data/preprocessing.py`
-- [ ] T019 [US1] Add error handling for corrupted/blank images to return minimal valid structure in `code/data/preprocessing.py`
+- [X] T015 [P] [US1] Implement `code/models/rf_encoder.py` wrapping `microsoft/layoutlmv3-base` with weights frozen and pixel-decoder layers disabled
+- [X] T016 [US1] Implement `code/data/preprocessing.py` logic to load images (using T005 loader), resize to 224x224, and extract RF token sequences via T015
+- [X] T017 [US1] Implement NaN detection and clamping logic in `code/data/preprocessing.py` to handle floating-point instability on CPU
+- [X] T018 [US1] Implement logic to pad/truncate token sequences to a fixed context window in `code/data/preprocessing.py`
+- [X] T019 [US1] Add error handling for corrupted/blank images to return minimal valid structure in `code/data/preprocessing.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -140,7 +140,7 @@
 - [ ] T034 [US3] Implement `code/main.py` orchestration to run RF and Baseline training, evaluation, and statistical comparison sequentially across multiple random seeds (depends on T033, T036)
 - [ ] T035 [US3] Implement logic to aggregate per-seed results from `data/results/` into `data/results/aggregated_scores.json` (seed-level metrics)
 - [ ] T037 [US3] Log total runtime and memory peak usage to `data/results/metrics.json` (SC-005, FR-007)
-- [ ] T038 [US3] Implement verification logic to compare logged runtime against the 6-hour CI job threshold [UNRESOLVED-CLAIM: c_bcceaca3 — status=not_enough_info] and raise `SystemExit(1)` if exceeded (SC-005)
+- [ ] T038 [US3] Implement verification logic to compare logged runtime against the 6-hour CI job threshold and raise `SystemExit(1)` if exceeded (SC-005)
 
 **Checkpoint**: All user stories should now be independently functional; Statistical significance computed
 

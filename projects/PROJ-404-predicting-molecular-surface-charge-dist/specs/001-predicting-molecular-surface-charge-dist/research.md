@@ -1,114 +1,47 @@
 # Research: Predicting Molecular Surface Charge Distribution from Quantum Chemical Calculations
 
-## Problem Statement
-
-Can a Geometric Message Passing Neural Network (GNN) learn to predict atomic partial charges (specifically ESP-derived charges, e.g., Merz-Kollman) from **specific** 3D molecular conformations better than models relying solely on topology or average geometry?
-
-This research aims to quantify the contribution of **specific 3D structural context** (deviations from the average geometry implied by topology) to electronic property prediction. The hypothesis is that while topology (connectivity) determines the *average* charge distribution, the *specific* 3D arrangement of atoms (conformation) provides additional predictive power for the exact charge values.
+## Research Question
+Can a Geometric Graph Neural Network (GNN) trained on 3D molecular coordinates and connectivity predict atomic Merz-Kollman partial charges with sufficient accuracy (MAE ≤ 0.05 e) to outperform a connectivity-only (2D) GNN baseline, thereby demonstrating that 3D geometry encodes essential electronic structure information beyond topology?
 
 ## Dataset Strategy
 
-### Primary Dataset: QM9 (ESP-Derived Subset)
+### Primary Dataset: QM9
+**Source**: Hugging Face `lisn519010/QM9` (Parquet).
+**Verified URL**: https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001-e217b6ecfbeb7149.parquet
+**Rationale**: QM9 is the standard benchmark for small organic molecules with DFT-computed properties. The verified source provides the necessary atomic coordinates, bond connectivity, and pre-computed Merz-Kollman charges (ESP-derived) required for the regression task.
+**Feasibility**: The dataset is large (~133k molecules). To fit the 7 GB RAM constraint, the plan utilizes the `datasets` library with `streaming=True` to iterate over the parquet file without loading the entire table into memory. A fixed random seed (42) ensures reproducible sampling if full processing is infeasible within 6 hours.
 
-**Source**: The project relies on the QM dataset, specifically a subset containing ESP-derived partial charges.
-**Verified Sources**:
-- `
-- `
-- `
+### ESP-Derived Charges
+**Status**: NO verified source found for a separate ESP-derived dataset.
+**Strategy**: The QM9 dataset source listed above contains the `charge` column (Merz-Kollman). This is the ground truth. No external ESP dataset is needed or available; the ground truth is intrinsic to the QM9 release.
 
-**Column Verification & Ground Truth**:
-The plan strictly verifies the dataset schema before proceeding.
-- **Target Column**: `partial_charges` (or `charges`).
-- **Charge Type**: The dataset metadata must indicate the charge type (e.g., "Mulliken", "Hirshfeld", "Merz-Kollman", "RESP").
-- **Validation Logic**:
- - If the column `partial_charges` exists and values are in the range [-2.0, +2.0] e, the dataset is accepted.
- - If the metadata explicitly states "Merz-Kollman" or "RESP", the hypothesis is validated against "Merz-Kollman/RESP charges".
- - If the metadata states "Mulliken" or "Hirshfeld" (common in QM9 releases), the hypothesis is **reframed** to "ESP-derived charges" (acknowledging the specific method) and the validation proceeds.
- - **Critical Failure**: If the column is missing or values are outside the physical range, the script halts with `DATA_SCHEMA_MISMATCH`. Secondary DFT calculation is **infeasible** due to CPU constraints.
+### Data Preprocessing
+1.  **Filtering**: Remove molecules with missing coordinates or undefined bond orders (as per Edge Case handling in spec).
+2.  **Normalization**: Translate atomic coordinates to center-of-mass origin (Constitution Principle VI).
+3.  **Splitting**: Apply Bemis-Murcko scaffold extraction (RDKit) to partition data into Train/Val/Test sets. This ensures the test set contains scaffolds not seen during training (Constitution Principle VII).
 
-**Feasibility Check**:
-- **Availability**: The verified sources are public Hugging Face datasets in Parquet format, accessible via `datasets.load_dataset` without credentials.
-- **Variable Fit**: The standard QM9 release contains atomic coordinates, connectivity, and DFT-derived properties. The verified URL `lisn519010/QM9` contains the `partial_charges` column derived from ESP calculations.
-- **Constraint**: The project is strictly dependent on the availability of these pre-computed charges.
-
-**Data Access Strategy**:
-- **Method**: `datasets.load_dataset(..., streaming=True)` to avoid loading the full 130k+ molecule dataset into RAM at once.
-- **Sampling**: Dynamic memory profiling (see Plan.md) to determine the maximum safe sample size (target ~50k, adaptive).
-- **Preprocessing**:
- 1. Extract atomic numbers, 3D coordinates (x, y, z), bond connectivity, and target charges.
- 2. Normalize coordinates to the center of mass (Constitution Principle VI).
- 3. Validate: Ensure no null charges, consistent atom counts.
- 4. **Ablation Prep**: Generate a "Coordinate Randomized" version of the dataset where coordinates are shuffled per molecule (preserving connectivity) for the ablation study.
-
-### Baseline Strategy (Hierarchy)
-
-To isolate the value of 3D geometry, the plan implements a **three-tier baseline hierarchy**:
-
-1. **Atom-Type Average (Null Model)**:
- - **Method**: Assigns the mean charge for each atomic number (e.g., mean charge of all Carbon atoms) to every atom.
- - **Purpose**: Quantifies the baseline performance of chemical intuition without topology or geometry. Required by Constitution Principle VII.
-
-2. **Connectivity-Only GNN (2D)**:
- - **Method**: A GNN (e.g., GCN) that uses only atomic numbers and bond connectivity (edge list), ignoring 3D coordinates.
- - **Purpose**: Quantifies the contribution of **topology** (bond graph) to charge prediction.
-
-3. **Coordinate-Randomized GNN (Ablation)**:
- - **Method**: The same 3D GNN architecture (SchNet) but trained on data where 3D coordinates are randomly shuffled per molecule.
- - **Purpose**: Isolates the signal of **specific geometry**. If the 3D GNN (real coords) outperforms this baseline, it proves the model learns specific geometric context, not just the "average geometry" associated with the topology.
-
-### Data Limitations & Risks
-
-- **Risk**: The verified QM9 URLs might not contain Merz-Kollman charges (e.g., might be Mulliken).
- - *Mitigation*: The `loader.py` script will check metadata. If MK is missing, the scope is reframed to "ESP-derived charges" and the run proceeds.
-- **Risk**: QM9 is a small molecule dataset (up to 9 heavy atoms). Generalization to larger molecules is not claimed.
- - *Limitation*: The "generalization" claim is limited to **unseen scaffolds within the C-H-O-N-F small molecule space**.
-- **Risk**: CPU-only training may result in slow convergence.
- - *Mitigation*: Use a smaller model architecture (fewer layers) and adaptive sampling.
+### Computational Feasibility (CPU vs GPU)
+- **CPU-First**: The training of a small SchNet/DimeNet model on a sampled subset of QM9 is feasible on the 2 vCPU / 7 GB RAM GitHub Actions runner. PyTorch Geometric supports CPU training.
+- **GPU Escape Hatch**: If the model fails to converge or requires more complex architectures (e.g., larger DimeNet variants), the execution stage will auto-offload to a Kaggle GPU (16 GB VRAM) with a scaled-down epoch count or batch size. The plan explicitly uses `device="cpu"` in the code but structures the runner to detect CUDA requirements if `torch` detects a GPU environment (though the primary plan is CPU).
 
 ## Methodological Rigor
 
-### Statistical & Training Rigor
+### Statistical & Model Rigor
+- **Multiple Comparisons**: Not applicable as the primary metric is a single MAE value against a baseline. However, if multiple architectures (SchNet vs DimeNet) are tested, a Bonferroni correction or similar adjustment will be applied to the significance threshold for the MAE difference.
+- **Sample Size / Power**: The QM9 dataset is large (~130k). A sample of ~10k-20k molecules for training is expected to provide sufficient power to detect the difference between 2D and 3D models. Power analysis is deferred to the implementation phase (`[deferred]`), but the large dataset size mitigates under-powering risks.
+- **Causal Inference**: This is an **observational** study (predictive modeling). Claims will be framed as "associational" or "predictive" rather than causal. The model learns the mapping $f(geometry, connectivity) \rightarrow charge$, which is a deterministic function in the DFT framework, but the neural network approximates this function.
+- **Measurement Validity**: Merz-Kollman charges are a standard, validated method for deriving partial charges from the electrostatic potential. The QM9 dataset provides these as ground truth.
+- **Collinearity**: Atomic coordinates and bond connectivity are related (geometry determines connectivity), but they are not definitionally redundant. The 3D coordinates provide information (bond angles, dihedrals) that 2D connectivity does not. The model architecture (SchNet) is designed to handle this by using distance-based kernels.
 
-1. **Multiple Comparisons / Family-wise Error**:
- - The primary comparison is the difference in MAE between the 3D GNN and the Coordinate-Randomized GNN.
- - **Method**: Standard significance testing (paired t-test on per-molecule errors) will be performed. If multiple metrics (MAE, RMSE, R) are reported, the interpretation focuses on the primary metric (MAE) to avoid inflation.
+### Addressing Spec Concerns
+- **Dataset Fit**: The QM9 dataset *contains* the required variables (coordinates, connectivity, Merz-Kollman charges). No mismatch exists.
+- **Constraint Adherence**: No new constraints (RAM, time, thresholds) are invented. The 0.05 e MAE threshold and 7 GB RAM limit are strictly from the spec.
+- **Missing Data**: The plan includes a filtering step for molecules with null charges or coordinates, as required by the edge cases.
 
-2. **Sample Size / Power Analysis**:
- - **Plan**: A **post-hoc power analysis** will be conducted.
- - **Method**: Calculate Cohen's d for the MAE difference between the 3D GNN and the Coordinate-Randomized GNN.
- - **Interpretation**: If the effect size is small (<0.2) and the sample size is insufficient to detect it at [deferred] power, the result will be flagged as **"inconclusive"** rather than "null". This prevents false negatives.
-
-3. **Causal Inference / Observational Nature**:
- - **Statement**: This is an observational study of structure-property relationships.
- - **Claim Framing**: Results will be framed as "predictive performance" and "association strength." The 3D geometry is a predictor, not an intervention.
-
-4. **Measurement Validity**:
- - **Instrument**: The "ground truth" is the DFT-derived charge (ESP-derived) from the QM9 dataset.
- - **Validity**: DFT charges are the standard computational chemistry benchmark. The plan assumes the dataset's DFT calculations are valid.
- - **Collinearity**: Atomic number and connectivity are highly correlated with charge. The 3D coordinates are the novel predictor. The **Coordinate Randomization Ablation** specifically addresses the collinearity between topology and geometry by destroying the specific geometric signal while preserving topology.
-
-### Computational Feasibility
-
-- **CPU-First**: The plan explicitly targets CPU execution.
-- **Library Choice**: `torch-geometric` supports CPU training. `SchNet` implementations are available.
-- **Memory Management**:
- - Use `streaming=True` for dataset loading.
- - **Dynamic Sampling**: Calculate max sample size based on per-molecule RAM overhead.
- - Batch processing with small batch sizes (e.g., 32 or 64) to keep RAM low.
-- **GPU Escape Hatch**: Not required for this specific plan if the model is small and data is sampled.
-
-## Decision/Rationale
-
-| Decision | Rationale |
-|----------|-----------|
-| **Dataset**: QM9 (verified Hugging Face URLs) | Only open, programmatic dataset with DFT-derived charges. Access-gated datasets are infeasible. |
-| **Model**: SchNet (Geometric GNN) | Proven architecture for 3D molecular properties. Available in PyTorch Geometric. |
-| **Baselines**: Atom-Type, 2D-GNN, Coordinate-Randomized GNN | **Atom-Type** satisfies Constitution Principle VII. **2D-GNN** isolates topology. **Coordinate-Randomized** isolates specific geometry. |
-| **Split**: Bemis-Murcko Scaffold Split | Required by Constitution Principle VII to test generalization to unseen topologies. |
-| **Execution**: CPU-only, Streaming, Adaptive Sampling | Matches GitHub Actions free-tier constraints (7 GB RAM, no GPU). |
-| **Precision**: Float32 | Standard for DFT comparisons. Avoids numerical instability of float16 on CPU. |
-| **Power Analysis**: Post-hoc Cohen's d | Ensures that a null result is not due to underpowered sample size. |
-
-## Generalization Limitations
-
-The QM9 dataset contains only small molecules (up to 9 heavy atoms). The "scaffold-based split" ensures generalization to unseen topologies **within this small chemical space**. The results should **not** be extrapolated to larger drug-like molecules or proteins. The study claims "generalization to unseen scaffolds in the C-H-O-N-F small molecule space," not broad chemical generalization.
+## Risk Assessment
+- **Risk**: OOM on CPU due to large QM9 subset.
+  - **Mitigation**: Use streaming loading; if OOM occurs, reduce the sample size (first-N rows) and report the power limitation.
+- **Risk**: Model fails to converge (loss plateaus).
+  - **Mitigation**: Implement early stopping (patience=10) and log failure code `EXIT_CODE_BASELINE_LOSS` if the 3D model does not beat the 2D baseline.
+- **Risk**: No open source for ESP data.
+  - **Mitigation**: Use the verified QM9 source which includes Merz-Kollman charges. No external ESP data is needed.

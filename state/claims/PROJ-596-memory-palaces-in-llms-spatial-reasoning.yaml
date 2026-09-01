@@ -2397,3 +2397,402 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-29T15:30:45Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: single-core execution environment enforced with OMP_NUM_THREADS=1 and
+    torch.set_num_threads
+  claim_id: c_d12c6ca8
+  context: 'T001a Create projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/
+    directory structure (code, data, artifacts, tests). Constraint: Must enforce single-core
+    execution environment (set OMP_NUM_THREADS=1 and torch.set_num_threads()) to strictly
+    adhere to Spec Assumptions and SC-007/SC-008.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must enforce single-core execution environment by setting OMP_NUM_THREADS=1
+    and torch.set_num_threads().
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T10:05:14Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: cryptographic hash checksum computed and stored in data/raw/checksums.json
+  claim_id: c_fff35663
+  context: T004 [P] Implement dataset download and verification script (code/data/download.py)
+    for the three permitted datasets... Each download must compute and store a cryptographic
+    hash checksum in data/raw/checksums.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cryptographic_hash_checksum_computed_and_stored_in_data/raw/
+  kind: entity_fact
+  raw_text: The dataset download script must compute and store a cryptographic hash
+    checksum in data/raw/checksums.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T10:06:26Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: memory monitoring signals batch size reduction if RSS > 6.0 GB
+  claim_id: c_5cebf5aa
+  context: "T005a [P] Implement memory monitoring utility (code/training/memory_monitor.py)\
+    \ to track RSS and trigger batch\u2011size reduction. Logic: Must measure process\
+    \ RSS after each batch. If RSS > 6.0 GB, signal the trainer to reduce batch size."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory monitoring utility must measure process RSS after each batch
+    and signal the trainer to reduce batch size if RSS > 6.0 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T10:06:26Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: memory monitoring outputs memory_log.json with peak RSS per batch
+  claim_id: c_1d179931
+  context: "T005a [P] Implement memory monitoring utility (code/training/memory_monitor.py)\
+    \ to track RSS and trigger batch\u2011size reduction. Output: memory_log.json\
+    \ with peak RSS per batch."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_monitoring_outputs_memory_log.json_with_peak_RSS_per
+  kind: entity_fact
+  raw_text: The memory monitoring utility must output memory_log.json with peak RSS
+    per batch.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T10:06:59Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: RuntimeError raised if single sample exceeds memory during dataset capping
+  claim_id: c_49a05f6d
+  context: 'Fallback: If even a single sample exceeds memory, the system MUST raise
+    a RuntimeError with a clear message; it must not return an empty dataset or loop.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RuntimeError_raised_if_single_sample_exceeds_memory_during_d
+  kind: entity_fact
+  raw_text: The system must raise a RuntimeError if even a single sample exceeds memory
+    during dataset capping.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T10:07:27Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: dataset capping logs subsampling_rate and cap_reason in training_run.schema.yaml
+  claim_id: c_ac806b9f
+  context: 'Output: Log subsampling_rate and cap_reason in training_run.schema.yaml.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_capping_logs_subsampling_rate_and_cap_reason_in_trai
+  kind: entity_fact
+  raw_text: The dataset capping logic must log subsampling_rate and cap_reason in
+    training_run.schema.yaml.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T10:07:57Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: gpt2-medium loaded with 4-bit quantization when RAM permits
+  claim_id: c_f5043730
+  context: "T006 [P] Implement model loading utilities (code/models/loading.py) that\
+    \ provide functions to load: gpt2-medium (with 4\u2011bit quantization) when RAM\
+    \ permits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model loading utility must load gpt2-medium with 4-bit quantization
+    when RAM permits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T10:08:29Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: spatial model uses 2-D grid with 64 slots
+  claim_id: c_8de09088
+  context: 'Overflow Handling: FIFO eviction (oldest slot overwritten) if capacity
+    (8x8=64) is exceeded.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The spatial model uses a 2-D grid with a capacity of 8x8=64 slots.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T10:08:59Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: coordinate assignment uses Learned Embedding Lookup based on content
+  claim_id: c_3443f11e
+  context: "T036 [P] Implement coordinate assignment logic for episodic chunks (FR\u2011\
+    001). This task must define the algorithm for mapping episodic chunks to (x, y)\
+    \ coordinates in the 2-D grid using a Learned Embedding Lookup based on content."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Coordinate_assignment_uses_Learned_Embedding_Lookup_based_on
+  kind: entity_fact
+  raw_text: The coordinate assignment logic must use a Learned Embedding Lookup based
+    on content, not a deterministic hash.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T10:09:32Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: Holm-Bonferroni applied if min uncorrected p-values < 0.001, else Bonferroni
+  claim_id: c_901bfec4
+  context: "T020 [US2] Implement multiple\u2011comparison correction (Bonferroni or\
+    \ Holm-Bonferroni) for the three dataset comparisons (bAbI, LAMBADA, Story Cloze)\
+    \ (FR\u2011006). Logic: If min(uncorrected_p_values) < 0.001, apply Holm-Bonferroni;\
+    \ otherwise apply Bonferroni."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must apply Holm-Bonferroni correction if min(uncorrected_p_values)
+    < 0.001, otherwise apply Bonferroni correction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T10:09:33Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: semantically unrelated items assigned to adjacent grid coordinates with
+    Manhattan distance 1 for spatial model
+  claim_id: c_ceff2693
+  context: 'Requirement: Must assign semantically unrelated items (similarity < 0.2)
+    to adjacent grid coordinates (Manhattan distance = 1) for the spatial model, and
+    to random indices for the non-spatial model.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The interference distance metric must assign semantically unrelated items
+    (similarity < 0.2) to adjacent grid coordinates (Manhattan distance = 1) for the
+    spatial model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T10:09:54Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: interference distance computed separately for spatial and non-spatial
+    variants
+  claim_id: c_66b0c1d1
+  context: "T024 [P] [US3] Implement interference distance metric in code/evaluation/metrics.py.\
+    \ Logic: The metric must be computed separately for the spatial variant and the\
+    \ non\u2011spatial baseline."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Interference_distance_computed_separately_for_spatial_and_no
+  kind: entity_fact
+  raw_text: The interference distance metric must be computed separately for the spatial
+    variant and the non-spatial baseline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T10:10:28Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: evaluation results stored in artifacts/results/recall_accuracy.json with
+    seeds, accuracies, mean, std
+  claim_id: c_6f2b9f55
+  context: "T015 [P] [US1] Implement evaluation script (code/evaluation/metrics.py)\
+    \ to compute exact\u2011match recall per seed and store results in artifacts/results/recall_accuracy.json.\
+    \ Schema: { \"seeds\": [int], \"accuracies\": [float], \"mean\": float, \"std\"\
+    : float }."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Evaluation_results_stored_in_artifacts/results/recall_accura
+  kind: causal
+  raw_text: The evaluation script must store results in artifacts/results/recall_accuracy.json
+    with seeds, accuracies, mean, and std.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T10:10:34Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: training orchestration verifies runtime <= 5 hours and aborts if exceeded
+  claim_id: c_5bfe069a
+  context: "T016c [US1] Implement evaluation and reporting orchestration (code/main.py\
+    \ part 3). Logic: Must run T015, compute hyperparameter logs, verify runtime \u2264\
+    \ 5 hours (log deviation to run_summary.json if exceeded), and generate artifacts/results/run_summary.json."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The training orchestration must verify runtime \u2264 5 hours and abort\
+    \ if exceeded."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T10:10:35Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: hyperparameters and memory usage logged per run in artifacts/results/hyperparams_log.json
+  claim_id: c_d479e21c
+  context: T017 [US1] Log hyperparameters and memory usage per run (including final
+    batch size and any dataset capping) in artifacts/results/hyperparams_log.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hyperparameters_and_memory_usage_logged_per_run_in_artifacts
+  kind: entity_fact
+  raw_text: The system must log hyperparameters and memory usage per run in artifacts/results/hyperparams_log.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T10:11:07Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: slot occupancy distribution recorded per epoch
+  claim_id: c_6a01ffe0
+  context: T025 [P] [US3] Implement slot occupancy distribution logger in code/evaluation/metrics.py
+    that records the distribution per epoch for each run; output to artifacts/metrics/slot_occupancy_epoch_{epoch}.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Slot_occupancy_distribution_recorded_per_epoch
+  kind: entity_fact
+  raw_text: The slot occupancy distribution must be recorded per epoch for each run.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T10:11:56Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: coordinate variance recorded per epoch
+  claim_id: c_fa33b6b8
+  context: T026 [P] [US3] Implement coordinate variance logger in code/evaluation/metrics.py
+    that records variance per epoch; output to artifacts/metrics/coordinate_variance_epoch_{epoch}.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Coordinate_variance_recorded_per_epoch
+  kind: entity_fact
+  raw_text: The coordinate variance must be recorded per epoch.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T10:13:22Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: same dataset samples used for spatial and non-spatial variants in interference
+    distance metric
+  claim_id: c_e41e891c
+  context: 'Constraint: Must use the same dataset samples for both variants to ensure
+    a valid comparison.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Same_dataset_samples_used_for_spatial_and_non-spatial_varian
+  kind: entity_fact
+  raw_text: The system must use the same dataset samples for both spatial and non-spatial
+    variants when computing the interference distance metric.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T10:13:55Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: range of seeds used for evaluation in User Story 1
+  claim_id: c_308ca074
+  context: "T015 [P] [US1] Implement evaluation script (code/evaluation/metrics.py)\
+    \ to compute exact\u2011match recall per seed and store results in artifacts/results/recall_accuracy.json.\
+    \ Constraint: Must use a range of seeds."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use a range of seeds for evaluation in User Story 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T10:14:28Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: 'three permitted datasets used: bAbI Task, LAMBADA, Story Cloze Test'
+  claim_id: c_b399093a
+  context: 'T004 [P] Implement dataset download and verification script (code/data/download.py)
+    for the three permitted datasets: bAbI Task via datasets.load_dataset("babi",
+    "task3_10k"), LAMBADA via datasets.load_dataset("lambada"), Story Cloze Test via
+    datasets.load_dataset("story_cloze").'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Three_permitted_datasets_used:_bAbI_Task,_LAMBADA,_Story_Clo
+  kind: entity_fact
+  raw_text: 'The system must use three permitted datasets: bAbI Task, LAMBADA, and
+    Story Cloze Test.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T10:15:01Z'
+- artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/tasks.md
+  attempts: 1
+  canonical: runtime deviations logged to run_summary.json if exceeding 5 hours
+  claim_id: c_fb74fa18
+  context: "T016c [US1] Implement evaluation and reporting orchestration (code/main.py\
+    \ part 3). Logic: Must run T015, compute hyperparameter logs, verify runtime \u2264\
+    \ 5 hours (log deviation to run_summary.json if exceeded), and generate artifacts/results/run_summary.json."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must log deviations to run_summary.json if runtime exceeds
+    5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T10:15:34Z'

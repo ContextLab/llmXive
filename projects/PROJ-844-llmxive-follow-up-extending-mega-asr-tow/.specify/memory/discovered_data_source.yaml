@@ -1,13 +1,14 @@
 status: none
-intent: huggingface datasets chime5 download python package dataset
+intent: Voices in the Wild 2M dataset OpenSLR python package dataset
 required_fields:
-- audio_filepath
-- transcript
+- clip_id
 - speaker_id
-- room_id
-- session_id
-- microphone_channel
-- sample_rate
-cache_key: f5a97755f87c7bc57c61194d1bfa4a41e6baf5797b8af69702e48c7a1fa3abd8
-searched_at: '2026-08-31T13:31:51.218730+00:00'
+- language
+- recording_environment
+- audio_url
+- transcription
+- sampling_rate
+- duration
+cache_key: a3c0a3005f3d4936c36fe64a437fae1d660d65944a24506b9eeca70b66ebfdfe
+searched_at: '2026-09-01T09:49:09.248819+00:00'
 retry_count: 1

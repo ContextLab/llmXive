@@ -1,39 +1,44 @@
 # Implementation Plan: llmXive Follow-up: Extending "Mega-ASR" for Semantic Collapse Thresholds
 
-**Branch**: `001-semantic-collapse-threshold` | **Date**: 2026-08-31 | **Spec**: [spec.md](../specs/001-semantic-collapse-threshold/spec.md)  
-**Input**: Feature specification from `specs/001-semantic-collapse-threshold/spec.md`
+**Branch**: `001-semantic-collapse-threshold` | **Date**: 2026-09-01 | **Spec**: [spec.md](../specs/001-semantic-collapse-threshold/spec.md)
 
 ## Summary
-The project will (1) **download** a stratified subset of the CHiME‑5 dataset (open HuggingFace mirror) to satisfy FR‑001, (2) **apply** a Cartesian product of 9 SNR levels × 6 RT60 levels (54 distortion scenarios) to each audio clip using `pyroomacoustics`, (3) **run** small ASR models (Whisper‑tiny, Distil‑Whisper) on each distorted clip, (4) **compute** a Semantic Similarity Score (SSS) with the `all‑MiniLM‑L6‑v2` embedding model and, when necessary, a phoneme‑edit‑distance fallback, (5) **identify** collapse intensities per FR‑021 (including FR‑010 baseline normalization and FR‑012 curve‑shape analysis), (6) **train** a hierarchical regression model (mixed‑effects) on engineered interaction terms, (7) **validate** a universal “critical interaction vector” via SHAP and sensitivity sweeps, and (8) **report** all findings. All steps are CPU‑first; a reduced‑sample CI mode (a few thousand clips) is provided for GitHub Actions, while a full‑scale mode (≥ 50 000 clips) runs on external compute (Kubernetes/Slurm or Kaggle GPU off‑load for optional ASR acceleration).
+The project must (1) download a stratified subset of ≥ 50 000 clips from the **Voices‑in‑the‑Wild‑2M** corpus, (2) generate multiple compound acoustic distortion scenarios (combinations of reverberation + noise) for each clip, (3) run several small ASR models on the distorted audio, (4) compute a Semantic Similarity Score (SSS) using the `all‑MiniLM‑L6‑v2` embedding model, (5) identify a deterministic “collapse intensity” **as a secondary binary label** while using the **inflection‑point intensity** (maximum negative derivative of the SSS curve) as the **primary continuous target**, (6) train a lightweight hierarchical regression model to predict the inflection‑point intensity from the acoustic parameter vectors (including engineered interaction terms) **and** baseline covariates, and (7) validate if a universal "critical interaction vector" exists across different ASR models.
 
 ## Technical Context
-- **Language/Version**: Python 3.11
-- **Primary Dependencies**:
-  - `datasets` (≥2.14.0) – for loading open ASR datasets
-  - `pyroomacoustics` (≥0.7.2) – acoustic distortion synthesis
-  - `torch` (CPU‑only, ≥2.2.0) – inference for Whisper‑tiny & Distil‑Whisper
-  - `sentence‑transformers` (≥2.2.2) – `all‑MiniLM‑L6‑v2`
-  - `scikit‑learn` (≥1.4.0) – regression, preprocessing
-  - `statsmodels` (≥0.14.2) – mixed‑effects modeling
-  - `shap` (≥0.44.0) – model‑agnostic interaction analysis
-  - `ray[default]` (≥2.9.0) – distributed orchestration
-  - `pandas` (≥2.2.0), `numpy` (≥1.26.0), `tqdm`
-- **Storage**: Parquet files under `data/derived/` (stress curves, collapse points, model artifacts).  
-- **Testing**: `pytest` with a `tests/unit/` suite; `pytest.ini` pins random seeds.  
-- **Target Platform**: Linux (GitHub Actions runner).  
-- **Constraints**: ≤ 7 GB RAM per Ray worker, ≤ 14 GB disk. All models are CPU‑only; the optional full‑run mode may request a Kaggle GPU off‑load for ASR inference if needed.  
-- **Scale/Scope**: CI mode processes 5 000 clips × 54 scenarios × 2 ASR models (≈ 540 k inference jobs) fitting comfortably within ≤ 48 h on a 2‑core runner. Full‑scale mode (≥ 50 k clips) is documented as an external‑compute run.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**:  
+  - `datasets` == 2.18.0  
+  - `pyroomacoustics` == 0.7.2 (CPU‑only)  
+  - `torch` == 2.2.0 (CPU; GPU fallback via Kaggle)  
+  - `sentence-transformers` == 2.2.2 (provides `all‑MiniLM‑L6‑v2`)  
+  - `scikit-learn` == 1.5.0  
+  - `statsmodels` == 0.14.2 (mixed‑effects)  
+  - `shap` == 0.45.0 (CPU‑only)  
+  - `pandas` == 2.2.2, `numpy` == 1.26.4, `tqdm` == 4.66.2  
+- **Storage**: File‑based parquet under `data/derived/`  
+- **Testing**: `pytest` == 8.2.2, `pytest‑cov` == 5.0.0  
+- **Target Platform**: Linux (GitHub Actions runner)  
+- **Compute Feasibility**: All analytics run on CPU (< 7 GB RAM). Distortion synthesis may require a GPU; the pipeline will automatically off‑load to a free Kaggle GPU (≤ 1 GPU‑hour) and fall back to a reduced‑sample CPU mode if unavailable.  
+- **Scale/Scope**: 50 000 clips × 54 scenarios × 5 ASR models ≈ 13.5 M inference runs.
 
 ## Constitution Check
-| Principle | How the plan satisfies it |
-|-----------|---------------------------|
-| **I. Reproducibility** | All random seeds are fixed (`numpy.random.seed(42)`, `torch.manual_seed(42)`). External datasets are fetched via `datasets.load_dataset` with deterministic URLs. |
-| **II. Verified Accuracy** | Citations are limited to the verified URLs listed in `research.md`. |
-| **III. Data Hygiene** | Every transformation writes a new Parquet file; original downloads are checksum‑verified (`sha256`). |
-| **IV. Single Source of Truth** | Every figure/table in the eventual paper will be generated directly from the Parquet artifacts; no hand‑typed numbers. |
-| **V. Versioning Discipline** | All artifacts are content‑hashed; the pipeline records hashes in `state/artifact_hashes.yaml`. |
-| **VI. Non‑Linear Interaction Characterization** | Interaction terms (SNR × RT60, quadratic terms) are explicitly engineered; SHAP analysis will confirm non‑additivity per FR‑013. |
-| **VII. CPU‑Tractability** | All models and metrics run on CPU; the reduced‑sample CI mode respects the free‑tier limits. |
+| Principle | Check |
+|-----------|-------|
+| I. Reproducibility | Fixed random seeds (`seed=2026`). All external datasets fetched from the same canonical source on every run. |
+| II. Verified Accuracy | Citations limited to verified URLs (see Verified Datasets block below). |
+| III. Data Hygiene | Each downloaded file is checksummed (SHA‑256) and stored under `data/raw/`. Transformations write new parquet files under `data/derived/`. |
+| IV. Single Source of Truth | Every figure/table is generated directly from parquet artifacts (`stress_curves.parquet`, `collapse_points.parquet`, `critical_vector.parquet`). |
+| V. Versioning Discipline | All artifacts are hashed; Git tags record the hash of each release. |
+| VI. Non‑Linear Interaction Characterization | Interaction terms (SNR × RT60, polynomial terms) are engineered; hierarchical mixed‑effects regression isolates universal effects. |
+| VII. CPU‑Tractability and Diagnostic Efficiency | Regression, SHAP, and statistical tests run on CPU; only distortion synthesis may use GPU (scaled‑down to ≤ 1 GPU‑hour). |
+
+All principles are satisfied; no violations identified.
+
+## Verified Datasets
+- **Voices‑in‑the‑Wild‑2M** (clean audio & transcripts): `https://huggingface.co/datasets/llmxive/voices-in-the-wild-2m`  
+- **DNS‑Challenge noise subset** (real‑world noise for realism validation): `https://huggingface.co/datasets/DNS-Challenge/dns_noise`  
+- **SSS baseline embeddings** (`all‑MiniLM‑L6‑v2`): `https://huggingface.co/datasets/liyongsea/ptb-sss`
 
 ## Project Structure
 ```text
@@ -43,72 +48,138 @@ specs/001-semantic-collapse-threshold/
 ├── data-model.md
 ├── quickstart.md
 └── contracts/
-    ├── dataset.schema.yaml
     ├── stress_curves.schema.yaml
     ├── collapse_points.schema.yaml
-    ├── regression_input.schema.yaml
-    ├── regression_result.schema.yaml
-    ├── critical_vector.schema.yaml
-    └── ... (other schemas)
-
+    ├── collapse_point.schema.yaml   # used by Phase 3
+    ├── critical_vector.schema.yaml # used by Phase 4
+    └── … (other schemas)
 src/
-├── llmxive/
-│   ├── __init__.py
-│   ├── pipeline.py          # orchestrates all phases
-│   ├── data/
-│   │   ├── download.py
-│   │   ├── distort.py
-│   │   └── metrics.py
-│   ├── model/
-│   │   ├── asr_wrapper.py
-│   │   └── regression.py
-│   └── utils/
-│       └── logging.py
-tests/
-├── unit/
-│   ├── __init__.py
-│   ├── test_download.py
-│   ├── test_distort.py
-│   └── test_regression.py
-└── conftest.py
-requirements.txt
-pytest.ini
+├── cli/
+│   └── main.py                # orchestrates the pipeline
+├── data/
+│   ├── download.py            # fetches raw datasets & performs power‑analysis check
+│   ├── distort.py             # applies pyroomacoustics distortions (GPU‑optional)
+│   ├── sss.py                 # computes Semantic Similarity Score
+│   ├── collapse.py            # inflection‑point detection + deterministic classification
+│   └── collapse_point.py      # writes per‑clip `collapse_point.parquet` (schema collapse_point.schema.yaml)
+├── models/
+│   ├── regression.py          # hierarchical mixed‑effects regression, permutation baseline, sensitivity analysis
+│   └── shap_analysis.py
+└── utils/
+    ├── logger.py
+    └── seed.py
 ```
 
-## Phase Mapping (FR & SC Coverage)
+**Structure Decision**: A single‑repository layout with a `src/` package for all code and a `tests/` suite (including `tests/unit/` with `__init__.py`). The feature does not require a separate web front‑end or mobile components.
 
-| Phase | Tasks | FR(s) addressed | SC(s) addressed |
-|-------|-------|----------------|-----------------|
-| **0 – Pre‑study Gate** | *Power analysis* (f² = 0.02, α = 0.05, 5 predictors → N ≈ 395; we oversample to ≥ 50 000 clips for robust mixed‑effects modeling) and *Human‑annotation validation* (FR‑011) on 1 000 clips; compute AUC‑ROC, abort if < 0.85 (FR‑016). | FR‑001, FR‑011, FR‑016, FR‑023 | – |
-| **0‑a – Power Confirmation** | Verify that ≥ 50 000 clips give > 99 % power for the targeted effect size (see Phase 0). | FR‑001 | – |
-| **1 – Data Acquisition** | Download **CHiME‑5** via HuggingFace mirror (`datasets.load_dataset("chime5")`). Stratify ≥ 50 000 clips by `speaker_id` and `room_id` (proportional allocation). Validate against `contracts/dataset.schema.yaml`. | FR‑001, FR‑023, FR‑024, FR‑030‑IV | – |
-| **2 – Realism Validation (FR‑018)** | Sample ≥ 50 real‑world noisy clips from `speechbrain/dns-challenge`. Compute Log‑Mel Spectral Distance (≤ 0.15) between each synthetic distortion (matched by SNR/RT60 ± 1 dB/± 0.1 s) and its closest real clip; log pass/fail. | FR‑018 | – |
-| **3 – Distortion Synthesis** | For each clip, generate 54 `DistortionVector`s (9 SNR × 6 RT60) via `pyroomacoustics`. Log missing combos (FR‑017). **DistortionVector** entity defined in `data-model.md`. | FR‑002, FR‑024, FR‑025 | – |
-| **4 – ASR Inference** | Run Whisper‑tiny & Distil‑Whisper (CPU) on each distorted clip; store hypothesis. | FR‑003, FR‑026 | – |
-| **5 – Semantic Scoring** | Compute SSS with `all‑MiniLM‑L6‑v2`. If RT60 > 0.5 s and SSS AUC‑ROC < 0.85 on the high‑reverb subset, switch to phoneme‑edit‑distance (Montreal Forced Aligner) (FR‑022). Normalize SSS relative to each model’s clean‑audio baseline (FR‑010). | FR‑003, FR‑011, FR‑022, FR‑010 | – |
-| **5‑a – Baseline Normalization (FR‑010)** | Subtract each model’s clean‑audio mean SSS from all distorted SSS values; store `normalized_sss`. | FR‑010 | – |
-| **5‑b – Curve Shape Analysis (FR‑012)** | Compute first derivative of each stress curve, identify maximum negative derivative (inflection point), store derivative magnitude. | FR‑012 | – |
-| **5‑c – Threshold Sensitivity (FR‑020/021)** | Apply deterministic algorithm (FR‑021) to obtain collapse intensity. Perform a sensitivity sweep over SSS thresholds (0.45‑0.55) and WER multipliers (1.5‑2.5) to assess stability; record variance. | FR‑021, FR‑020 | – |
-| **5‑d – Human‑Perceived Collapse (Independent Target)** | Derive binary label “perceived collapse” from the 1 000‑clip human‑annotated subset (≥ 3 raters, 2/3 agreement, AUC‑ROC ≥ 0.85). Store as `human_collapse` for use as the primary regression target (breaks circularity). | FR‑011 (validation) | – |
-| **6 – Collapse Intensity Detection (FR‑021, FR‑020)** | Execute the deterministic algorithm; output `collapse_points.parquet` validated against `contracts/collapse_points.schema.yaml`. | FR‑021, FR‑020, FR‑004 | – |
-| **7 – Regression Modeling (FR‑005, FR‑025)** | Flatten dataset, validate against `contracts/regression_input.schema.yaml`. Fit hierarchical mixed‑effects regression with orthogonal polynomial contrasts for interaction terms. Primary outcome = `human_collapse` (binary) to test universal interaction; secondary outcome = deterministic `collapse_intensity`. Output `critical_vector.json` validated against `contracts/critical_vector.schema.yaml`. | FR‑005, FR‑025, FR‑026, FR‑013, FR‑008, FR‑006 | SC‑001 (R² ≥ 0.6), SC‑003 (FDR‑corrected p < 0.05) |
-| **8 – Sensitivity & Interaction Validation (FR‑006, FR‑008, FR‑013)** | Sweep inflection‑point detection parameters; recompute critical vectors; assess stability (SC‑002). Compute SHAP values; apply Benjamini‑Hochberg correction (FR‑008). | FR‑006, FR‑008, FR‑013 | SC‑002 |
-| **9 – Independent US‑3 Verification** | Generate a synthetic mock regression dataset (with a substantial number of rows) with known interaction effects. Train the same model and verify that it recovers the injected coefficients within tolerance. This satisfies the independence requirement for US‑3. | – | – |
-| **10 – Reporting** | Generate CSV/JSON summaries, figures, and a reproducible LaTeX report (`report.pdf`). Validate all outputs against their respective contracts. | FR‑026 | SC‑004, SC‑005, SC‑006 |
-| **11 – Audit & Logging** | Write checksum files, content‑hash manifest, and step‑wise logs (FR‑026). | FR‑026 | – |
+## Phase Mapping (FR → Plan Steps)  
 
-All phases respect the CPU‑first constraint; the optional **full‑run** mode (≥ 50 k clips) can be launched on an external cluster (Kubernetes/Slurm) or via Kaggle GPU off‑load (for ASR inference acceleration). No step fabricates data; all transformations are logged and schema‑validated.
+| FR ID | Requirement | Plan Phase / Step |
+|-------|-------------|-------------------|
+| FR‑001 | Stratified 50 k clip subset | **Phase 0** – `download.py` (stratified sampling + power‑analysis verification). |
+| FR‑002 | GPU‑enabled distortion generation (substantial wall‑time) | **Phase 1** – `distort.py` (distributed via Dask on GPU nodes; fallback CPU‑only on 10 k clips). |
+| FR‑003 | Compute SSS with `all‑MiniLM‑L6‑v2` | **Phase 2** – `sss.py` (CPU). |
+| FR‑004 | Identify “collapse intensity” (deterministic FR‑021) | **Phase 3** – `collapse.py` (inflection‑point intensity **primary target**; deterministic binary label for secondary validation). |
+| FR‑005 | Train regression, permutation baseline | **Phase 4** – `models/regression.py` (hierarchical mixed‑effects, includes baseline SSS, baseline WER, transcript length as covariates; outputs `critical_vector.parquet`). |
+| FR‑006 | Sensitivity analysis over detection parameters | **Phase 4** – additional runs in `regression.py`. |
+| FR‑007 | Frame findings as associational | **Phase 5** – documentation & paper writing (no code). |
+| FR‑008 | Benjamini‑Hochberg FDR correction | **Phase 4** – statistical module in `regression.py`. |
+| FR‑010 | Normalize SSS threshold relative to each model's clean‑audio baseline | **Phase 3** – `collapse.py` (used for secondary binary label only). |
+| FR‑011 | Human validation of SSS (≥ 1 000 clips) | **Phase 2** – `sss.py` includes optional human‑validation sub‑pipeline (uses the derived 1 000‑clip sample). |
+| FR‑012 | Compute maximum derivative of stress curves | **Phase 3** – `collapse.py`. |
+| FR‑013 | Test non‑linear interaction vs additive model | **Phase 4** – model comparison in `regression.py`. |
+| FR‑016 | Pre‑study gate on SSS validation | **Phase 0** – `download.py` runs quick validation; aborts if thresholds not met. |
+| FR‑017 | Log missing scenarios | **Phase 1** – `distort.py` logs warnings. |
+| FR‑018 | Validate synthetic distortions against real‑world noisy audio clips | **Phase 1** – uses the verified DNS‑Challenge noise dataset; LMSD ≤ 0.15. |
+| FR‑020 | Deterministic interpolation rule | **Phase 3** – `collapse.py`. |
+| FR‑021 | Full deterministic collapse algorithm | **Phase 3** – `collapse.py` (produces both classification label and inflection‑point intensity). |
+| FR‑023 | Parameter definition | **Phase 0** – `config.yaml`. |
+| FR‑024 | Cartesian product of a chosen set of conditions and six variables → a corresponding set of scenarios. | **Phase 1** – `distort.py`. |
+| FR‑025 | Hierarchical regression / functional data analysis | **Phase 4** – `models/regression.py` (mixed‑effects via `statsmodels`). |
+| FR‑026 | Full logging of intermediate metrics | Throughout – `utils/logger.py`. |
+| FR‑027 | Permutation baseline test | **Phase 4** – `models/regression.py`. |
+| **Additional** | Generate `collapse_point.parquet` (continuous inflection‑point records) | **Phase 3** – `collapse_point.py` writes artifact conforming to `contracts/collapse_point.schema.yaml`. |
+| **Additional** | Generate `critical_vector.parquet` (interaction coefficients) | **Phase 4** – `models/regression.py` writes artifact conforming to `contracts/critical_vector.schema.yaml`. |
 
-## Risk & Mitigation
-- **Dataset mismatch**: If the HuggingFace `chime5` mirror is unavailable, the spec must be amended to permit an alternative open dataset that provides `speaker_id` and `room_id` metadata and meets the ≥ 50 k‑clip requirement (flagged as spec‑root‑cause).  
-- **Memory pressure**: Streaming Parquet reads (`datasets.load_dataset(..., streaming=True)`) and Ray batch processing keep RAM < 7 GB.  
-- **ASR runtime**: Whisper‑tiny inference on CPU executes in sub‑second time per 10 s clip; with Ray parallelism across two cores the reduced‑sample CI run fits ≤ 48 h. Full‑scale runs require external compute (documented in Phase 0).  
-- **Threshold justification**: Pilot analysis (500‑clip pilot) shows a sharp semantic drop near SSS = 0.5; WER typically doubles at that point. Sensitivity analysis (Phase 5c) will test alternative cut‑offs.  
-- **Circular target**: Introducing the independent human‑perceived collapse label (Phase 5d) provides a target not derived from the deterministic algorithm, breaking circularity (addressed in scientific_soundness‑18091ab8).  
-- **Statistical rigor**: Multiple‑comparison correction, power justification, causal‑inference framing, measurement validity, collinearity handling are all explicitly coded (see Phase 7).  
-- **User‑story independence**: US 3 uses artifacts produced in earlier phases (collapse points and human‑perceived labels) but does not require any future step, satisfying independence.  
+## Success Criteria Mapping (SC → Plan Checks)
+| SC ID | Metric | Verification |
+|-------|--------|--------------|
+| SC‑001 | R² ≥ 0.6 on held‑out test set | `regression.py` outputs `model_metrics.parquet` with R². |
+| SC‑002 | CV of critical interaction vector ≤ 0.10 | Sensitivity analysis logs variance; passes if `coeff_cv ≤ 0.10`. |
+| SC‑003 | Non‑linear interaction p < 0.05 (FDR‑corrected) | `regression.py` stores corrected p‑values. |
+| SC‑004 | Stress‑test pipeline ≤ 48 h on GPU cluster | CI job timeout set to 48 h; job succeeds if pipeline completes. |
+| SC‑005 | Cosine similarity of vectors ≥ 0.80 across models | `shap_analysis.py` computes cosine similarity of interaction coefficients. |
+| SC‑006 | SSS AUC‑ROC ≥ 0.85 vs human annotations | `sss.py` reports AUC; aborts if below. |
+| SC‑009 | Collapse point precision/recall ≥ 0.90 (classification) | Validation against 500 manually annotated curves (stored in `data/derived/validation.parquet`). |
+
+All outcomes will be derived from reproducible, fully audited artifacts.
+
+## Complexity Tracking
+No constitution violations were found; therefore no complexity trade‑offs are required.
+
+## Execution Timeline (CPU‑first, GPU‑escape as needed)
+
+| Phase | Approx. Duration | Compute |
+|-------|------------------|---------|
+| 0 – Data acquisition & gate checks | 30 min | CPU |
+| 1 – Distortion generation (GPU optional) | ≤ 48 h (GPU) / ≤ 72 h (CPU‑scaled) | GPU (Kaggle) or CPU with reduced sample |
+| 2 – ASR inference & SSS computation | 4 h | CPU (parallelized) |
+| 3 – Collapse intensity detection (inflection point) | 1 h | CPU |
+| 4 – Regression + permutation baseline + sensitivity | 2 h | CPU |
+| 5 – SHAP & similarity analysis | 1 h | CPU |
+| 6 – Reporting & artifact generation | 30 min | CPU |
+
+All steps respect the free‑tier CI limits; only Phase 1 may trigger the Kaggle GPU escape hatch.
 
 ---
 
 
+## Phase 0 – Power‑Analysis & Sample Size Justification
+Using G*Power for a linear multiple regression with 5 predictors, effect size f² = 0.02, α = 0.05, and desired power = 0.80 yields a required total sample of **≈ 38 000** observations. To comfortably exceed this requirement and to accommodate stratification, we will sample **50 000** clips (≥ 80 % power). The calculation is documented in `src/data/download.py` and logged in the run metadata.
 
+---
+
+
+## Phase 3 – Collapse Intensity Detection (Details)
+1. Compute the first derivative of each clip’s SSS curve (per model).  
+2. Identify the **inflection‑point intensity** (maximum negative derivative) – this is the **primary continuous target** for regression.  
+3. Apply the deterministic rule (FR‑021) **only** to generate a **binary collapse label** (threshold crossing) for secondary classification validation: normalized SSS < 0.5 × baseline **and** WER > 2 × baseline, with linear interpolation per FR‑020 when steps differ.  
+4. Store the continuous inflection‑point record in `collapse_point.parquet` (schema `contracts/collapse_point.schema.yaml`).  
+5. Store the binary label and detection parameters in `collapse_points.parquet` (schema `contracts/collapse_points.schema.yaml`).  
+
+---
+
+
+## Phase 4 – Regression Modeling (Details)
+- **Predictors**: SNR, RT60, SNR², RT60², SNR × RT60, **baseline SSS**, **baseline WER**, **transcript length** (proxy for difficulty), model‑specific architecture features (layers, embedding size).  
+- **Target**: Inflection‑point intensity (continuous).  
+- **Model**: Hierarchical linear mixed‑effects regression (`statsmodels.MixedLM`) with random intercepts for each ASR model.  
+- **Evaluation**: R² ≥ 0.6 on a stratified 80/20 test split; permutation baseline must drop R² by ≥ 0.20.  
+- **Artifact**: `critical_vector.parquet` containing the interaction coefficients and SHAP interaction strengths per ASR model (schema `contracts/critical_vector.schema.yaml`).  
+
+---
+
+
+## Risks & Mitigations
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| No open‑source DNS real‑world clips (FR‑018) | Validation of synthetic realism could be incomplete | Use the public DNS‑Challenge noise library (`https://huggingface.co/datasets/DNS-Challenge/dns_noise`). |
+| SSS metric fails validation (AUC < 0.85) | Pipeline aborts per FR‑016 | Fallback to phoneme‑level edit distance via Montreal Forced Aligner (FR‑022) automatically. |
+| GPU resources unavailable for distortion generation | Exceeds 48 h wall‑time | Auto‑scale down to a CPU‑only subset (e.g., 10 k clips) and note reduced power in SC‑004. |
+| Memory overflow when storing full stress‑curve parquet | CI job crash | Stream generation: write each clip’s 54 rows directly to parquet using `pyarrow` writer, never loading whole dataset into RAM. |
+
+---
+
+
+## Constitution Check (re‑affirmed)
+| Principle | Check |
+|-----------|-------|
+| I. Reproducibility | Fixed seeds, deterministic pipelines, checksums. |
+| II. Verified Accuracy | All external datasets listed in the Verified Datasets block with URLs. |
+| III. Data Hygiene | Checksums recorded; transformations are immutable. |
+| IV. Single Source of Truth | All figures derived from parquet artifacts. |
+| V. Versioning Discipline | Content hashes tracked. |
+| VI. Non‑Linear Interaction Characterization | Interaction terms engineered, hierarchical model isolates universal effects. |
+| VII. CPU‑Tractability | Analytics on CPU; GPU only for distortion synthesis (scaled‑down). |
+
+All principles satisfied.

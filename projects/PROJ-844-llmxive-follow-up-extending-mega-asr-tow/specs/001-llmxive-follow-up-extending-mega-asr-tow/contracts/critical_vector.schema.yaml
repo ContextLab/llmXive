@@ -1,49 +1,48 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Critical Interaction Vector Schema
-description: Schema for regression model results predicting collapse intensity
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Critical Interaction Vector"
 type: object
 properties:
   vector_id:
     type: string
-    description: "Unique identifier for the critical vector"
-  model_id:
+    description: "Unique identifier for the critical vector."
+  model_name:
     type: string
-    description: "ASR model identifier"
+    description: "ASR model identifier."
   snr_coeff:
     type: number
-    description: "Coefficient for SNR"
+    description: "Coefficient for SNR."
   rt60_coeff:
     type: number
-    description: "Coefficient for RT60"
+    description: "Coefficient for RT60."
   snr_sq_coeff:
     type: number
-    description: "Coefficient for SNR squared"
+    description: "Coefficient for SNR squared."
   rt60_sq_coeff:
     type: number
-    description: "Coefficient for RT60 squared"
+    description: "Coefficient for RT60 squared."
   interaction_coeff:
     type: number
-    description: "Coefficient for SNR×RT60 interaction"
+    description: "Coefficient for the SNR × RT60 interaction term."
   r2_score:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: "R-squared score on test set"
+    description: "R‑squared on test set."
   mae:
     type: number
     minimum: 0.0
-    description: "Mean Absolute Error"
+    description: "Mean Absolute Error."
   p_value_interaction:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: "FDR‑corrected p‑value for interaction term"
+    description: "FDR‑corrected p‑value for interaction term."
   shap_interaction_strength:
     type: number
-    description: "SHAP value magnitude for interaction"
+    description: "SHAP interaction strength magnitude."
 required:
   - vector_id
-  - model_id
+  - model_name
   - snr_coeff
   - rt60_coeff
   - snr_sq_coeff

@@ -24,18 +24,27 @@ properties:
   snr_rt60:
     type: "number"
     description: "Feature: Interaction term (SNR * RT60)."
-  normalized_inflection_coord:
-    type: ["number", "null"]
-    description: "Target: Relative position of the inflection point within the normalized SNR/RT60 space (0.0 to 1.0). Null if undefined."
-  sigmoid_slope:
-    type: ["number", "null"]
-    description: "Target: Slope of the fitted sigmoid curve at the inflection point. Null if undefined."
+  baseline_sss:
+    type: "number"
+    description: "Covariate: Baseline SSS on clean audio."
+  baseline_wer:
+    type: "number"
+    description: "Covariate: Baseline WER on clean audio."
+  transcript_length:
+    type: "integer"
+    description: "Covariate: Number of tokens in the reference transcript."
   model_layers:
     type: "integer"
     description: "Feature: Number of layers in the ASR model."
   model_embedding_size:
     type: "integer"
     description: "Feature: Embedding size of the ASR model."
+  normalized_inflection_coord:
+    type: ["number", "null"]
+    description: "Target: Relative position of the inflection point within the normalized SNR/reverberation‑time space (0.0 to 1.0). Null if undefined."
+  sigmoid_slope:
+    type: ["number", "null"]
+    description: "Target: Slope of the fitted sigmoid function at the inflection point ; null if undefined."
 required:
   - clip_id
   - model_name
@@ -44,8 +53,11 @@ required:
   - snr_sq
   - rt60_sq
   - snr_rt60
-  - normalized_inflection_coord
-  - sigmoid_slope
+  - baseline_sss
+  - baseline_wer
+  - transcript_length
   - model_layers
   - model_embedding_size
+  - normalized_inflection_coord
+  - sigmoid_slope
 additionalProperties: false

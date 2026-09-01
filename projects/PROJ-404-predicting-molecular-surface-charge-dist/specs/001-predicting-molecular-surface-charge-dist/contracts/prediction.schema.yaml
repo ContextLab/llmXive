@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Prediction Report Schema"
+description: "Schema for the final evaluation report comparing 3D GNN and 2D baseline."
+type: "object"
+properties:
+  model_version:
+    type: "string"
+    description: "Version identifier for the trained model."
+  dataset_version:
+    type: "string"
+    description: "Version identifier for the dataset used."
+  metrics:
+    type: "object"
+    description: "Metrics for the 3D GNN model."
+    properties:
+      mae:
+        type: "number"
+        description: "Mean Absolute Error in elementary charge (e)."
+      rmse:
+        type: "number"
+        description: "Root Mean Squared Error in elementary charge (e)."
+      pearson_r:
+        type: "number"
+        description: "Pearson correlation coefficient between predicted and actual charges."
+    required:
+      - "mae"
+      - "rmse"
+      - "pearson_r"
+  baseline_metrics:
+    type: "object"
+    description: "Metrics for the 2D connectivity-only baseline."
+    properties:
+      mae:
+        type: "number"
+        description: "Mean Absolute Error in elementary charge (e)."
+      rmse:
+        type: "number"
+        description: "Root Mean Squared Error in elementary charge (e)."
+      pearson_r:
+        type: "number"
+        description: "Pearson correlation coefficient between predicted and actual charges."
+    required:
+      - "mae"
+      - "rmse"
+      - "pearson_r"
+  hypothesis_validated:
+    type: "boolean"
+    description: "True if 3D GNN MAE <= 0.05 e AND 3D GNN MAE < 2D Baseline MAE."
+  exit_code:
+    type: "integer"
+    description: "Exit code for the pipeline (0 for success, non-zero for failure)."
+required:
+  - "model_version"
+  - "dataset_version"
+  - "metrics"
+  - "baseline_metrics"
+  - "hypothesis_validated"
+  - "exit_code"
+additionalProperties: false

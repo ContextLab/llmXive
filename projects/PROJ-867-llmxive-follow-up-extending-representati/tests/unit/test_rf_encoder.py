@@ -1,159 +1,173 @@
 """
-Unit tests for RF Token Shape Validation (Task T013).
+Unit tests for RF Encoder (T015).
 
-Validates that the RF Encoder produces tensors of the correct dimensionality
-when processing images, without invoking pixel-decoding layers or CUDA.
+Tests validate:
+1. Model loads correctly with frozen weights
+2. Token shape matches expected dimensionality
+3. No gradients are computed (frozen)
+4. Pixel-decoder layers are not invoked
 """
-import unittest
-import sys
-from pathlib import Path
-from typing import Tuple
-
-# Ensure code/ is in path for imports
-code_root = Path(__file__).parent.parent.parent / "code"
-if str(code_root) not in sys.path:
-    sys.path.insert(0, str(code_root))
-
-import numpy as np
+import pytest
 import torch
-from torch import nn
+import numpy as np
+from pathlib import Path
+import sys
 
-# Import the module under test
-# We will mock the heavy transformers import if needed, but the task
-# asks to test the shape logic. If the module doesn't exist yet (T015),
-# we define a minimal mock implementation here to validate the TEST LOGIC.
-# In a real CI run, T015 would exist. To ensure this test is runnable
-# and validates the *contract* of the RF Encoder, we import or define it.
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-try:
-    from models.rf_encoder import RFEncoder, RFEncoderConfig
-except ImportError:
-    # Fallback for testing the logic if T015 hasn't been implemented yet.
-    # This ensures the test file itself is valid and can be executed
-    # to verify the expected behavior once the implementation exists.
-    class RFEncoderConfig:
-        def __init__(self, hidden_size=768, num_labels=5, image_size=224):
-            self.hidden_size = hidden_size
-            self.num_labels = num_labels
-            self.image_size = image_size
-            self.max_position_embeddings = 512
+from models.rf_encoder import RFEncoder, create_rf_encoder
 
-    class RFEncoder(nn.Module):
-        """
-        Mock implementation for T013 testing purposes.
-        Represents the expected interface for T015.
-        """
-        def __init__(self, config: RFEncoderConfig):
-            super().__init__()
-            self.config = config
-            # Mock embedding layer
-            self.image_embedder = nn.Linear(224 * 224 * 3, config.hidden_size)
-            self.position_embeddings = nn.Parameter(torch.randn(1, config.max_position_embeddings, config.hidden_size))
-            self.frozen = True
 
-        def forward(self, pixel_values: torch.Tensor) -> torch.Tensor:
-            # Simulate processing: flatten and project
-            batch_size = pixel_values.shape[0]
-            # Simple mock projection to hidden_size
-            x = pixel_values.view(batch_size, -1)
-            x = self.image_embedder(x)
-            # Add sequence dimension (mock)
-            x = x.unsqueeze(1) + self.position_embeddings[:, :x.shape[1], :]
-            return x
+class TestRFEncoderInitialization:
+    """Test RF Encoder initialization and weight freezing."""
+    
+    def test_encoder_creates_without_error(self):
+        """Test that RFEncoder initializes successfully."""
+        encoder = create_rf_encoder()
+        assert encoder is not None
+        assert isinstance(encoder, RFEncoder)
+    
+    def test_weights_are_frozen(self):
+        """Test that all model weights are frozen (requires_grad=False)."""
+        encoder = create_rf_encoder()
+        
+        frozen_count = 0
+        total_count = 0
+        
+        for param in encoder.model.parameters():
+            total_count += 1
+            if not param.requires_grad:
+                frozen_count += 1
+        
+        assert frozen_count == total_count, \
+            f"Not all weights are frozen: {frozen_count}/{total_count}"
+    
+    def test_model_is_in_eval_mode(self):
+        """Test that the model is in evaluation mode."""
+        encoder = create_rf_encoder()
+        assert encoder.model.training is False
+    
+    def test_hidden_size_matches_config(self):
+        """Test that hidden size matches expected value (768 for base)."""
+        encoder = create_rf_encoder()
+        assert encoder.hidden_size == 768
 
-        def freeze(self):
-            for param in self.parameters():
-                param.requires_grad = False
 
-class TestRFTokenShapeValidation(unittest.TestCase):
-    """
-    Tests for T013: Unit test for RF token shape validation.
-    """
-
-    def setUp(self):
-        """Initialize configuration and model."""
-        self.config = RFEncoderConfig(
-            hidden_size=768,
-            num_labels=5,
-            image_size=224
-        )
-        self.model = RFEncoder(self.config)
-        self.model.freeze()
-
-    def test_input_tensor_shape(self):
-        """
-        Verify that the input tensor matches the expected image dimensions (224x224x3).
-        """
+class TestRFEncoderForwardPass:
+    """Test RF Encoder forward pass and output shapes."""
+    
+    @pytest.fixture
+    def encoder(self):
+        """Create a test encoder."""
+        return create_rf_encoder()
+    
+    @pytest.fixture
+    def dummy_inputs(self):
+        """Create dummy inputs for testing."""
         batch_size = 2
-        # Expected: (batch, channels, height, width)
-        expected_shape = (batch_size, 3, 224, 224)
-        dummy_input = torch.randn(*expected_shape)
-        self.assertEqual(dummy_input.shape, expected_shape)
+        seq_length = 128  # Smaller for faster testing
+        
+        input_ids = torch.randint(0, 10000, (batch_size, seq_length))
+        attention_mask = torch.ones((batch_size, seq_length), dtype=torch.long)
+        bbox = torch.randint(0, 1000, (batch_size, seq_length, 4))
+        pixel_values = torch.randn((batch_size, 3, 224, 224))
+        
+        return {
+            'input_ids': input_ids,
+            'attention_mask': attention_mask,
+            'bbox': bbox,
+            'pixel_values': pixel_values
+        }
+    
+    def test_extract_tokens_returns_correct_shape(self, encoder, dummy_inputs):
+        """Test that extract_tokens returns correct tensor shape."""
+        tokens = encoder.extract_tokens(**dummy_inputs)
+        
+        batch_size = dummy_inputs['input_ids'].shape[0]
+        seq_length = dummy_inputs['input_ids'].shape[1]
+        
+        expected_shape = (batch_size, seq_length, encoder.hidden_size)
+        
+        assert tokens.shape == expected_shape, \
+            f"Shape mismatch: {tokens.shape} vs {expected_shape}"
+    
+    def test_forward_returns_tuple(self, encoder, dummy_inputs):
+        """Test that forward returns a tuple of (last_hidden_state, pooler_output)."""
+        last_hidden_state, pooler_output = encoder.forward(**dummy_inputs)
+        
+        assert isinstance(last_hidden_state, torch.Tensor)
+        assert isinstance(pooler_output, torch.Tensor)
+        
+        # Check shapes
+        batch_size = dummy_inputs['input_ids'].shape[0]
+        seq_length = dummy_inputs['input_ids'].shape[1]
+        
+        assert last_hidden_state.shape == (batch_size, seq_length, encoder.hidden_size)
+        assert pooler_output.shape == (batch_size, encoder.hidden_size)
+    
+    def test_no_gradients_computed(self, encoder, dummy_inputs):
+        """Test that no gradients are computed during forward pass."""
+        tokens = encoder.extract_tokens(**dummy_inputs)
+        
+        # Check that no gradient history is tracked
+        assert tokens.grad_fn is None, "Gradients were computed (grad_fn is not None)"
+        
+        # Check individual parameters
+        for param in encoder.model.parameters():
+            assert param.grad is None, f"Parameter {param.shape} has gradients"
+    
+    def test_single_image_extraction(self, encoder):
+        """Test extraction from a single image (batch_size=1)."""
+        input_ids = torch.randint(0, 10000, (1, 64))
+        attention_mask = torch.ones((1, 64), dtype=torch.long)
+        bbox = torch.randint(0, 1000, (1, 64, 4))
+        pixel_values = torch.randn((1, 3, 224, 224))
+        
+        tokens = encoder.extract_tokens(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            bbox=bbox,
+            pixel_values=pixel_values
+        )
+        
+        assert tokens.shape == (1, 64, encoder.hidden_size)
 
-    def test_output_token_shape(self):
-        """
-        Verify that the output tensor has the correct token sequence dimensionality.
-        Expected: (batch_size, sequence_length, hidden_size)
-        """
-        batch_size = 4
-        dummy_input = torch.randn(batch_size, 3, 224, 224)
 
-        with torch.no_grad():
-            output = self.model(dummy_input)
-
-        # Check dimensions
-        self.assertEqual(output.dim(), 3, "Output must be 3D: (B, L, D)")
-        self.assertEqual(output.shape[0], batch_size, "Batch size mismatch")
-        self.assertEqual(output.shape[2], self.config.hidden_size, "Hidden size mismatch")
-        # Sequence length depends on implementation, but should be > 0
-        self.assertGreater(output.shape[1], 0, "Sequence length must be positive")
-
+class TestRFEncoderCPUOnly:
+    """Test that RF Encoder runs on CPU only (no CUDA)."""
+    
     def test_no_cuda_usage(self):
-        """
-        Ensure the model runs on CPU without CUDA errors.
-        """
-        if torch.cuda.is_available():
-            self.skipTest("CUDA available, but test enforces CPU execution for this task.")
+        """Test that the encoder does not require CUDA."""
+        encoder = create_rf_encoder()
         
-        dummy_input = torch.randn(1, 3, 224, 224)
+        # Force to CPU explicitly
+        encoder = encoder.cpu()
         
-        # Ensure model is on CPU
-        self.model = self.model.cpu()
+        # Verify all parameters are on CPU
+        for param in encoder.parameters():
+            assert param.device.type == 'cpu', \
+                f"Parameter on device {param.device}, expected cpu"
+    
+    def test_forward_pass_on_cpu(self):
+        """Test forward pass on CPU."""
+        encoder = create_rf_encoder().cpu()
         
-        with torch.no_grad():
-            try:
-                output = self.model(dummy_input)
-                # If we get here, no CUDA error occurred
-                self.assertIsNotNone(output)
-            except RuntimeError as e:
-                if "CUDA" in str(e):
-                    self.fail("Model attempted to use CUDA despite CPU enforcement.")
-                raise
+        input_ids = torch.randint(0, 10000, (1, 32))
+        attention_mask = torch.ones((1, 32), dtype=torch.long)
+        bbox = torch.randint(0, 1000, (1, 32, 4))
+        pixel_values = torch.randn((1, 3, 224, 224))
+        
+        tokens = encoder.extract_tokens(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            bbox=bbox,
+            pixel_values=pixel_values
+        )
+        
+        assert tokens.device.type == 'cpu'
+        assert tokens.shape == (1, 32, encoder.hidden_size)
 
-    def test_frozen_parameters(self):
-        """
-        Verify that model parameters are frozen (requires_grad=False).
-        """
-        for name, param in self.model.named_parameters():
-            self.assertFalse(param.requires_grad, f"Parameter {name} is not frozen.")
-
-    def test_sequence_length_consistency(self):
-        """
-        Verify that sequence length is consistent across different batch sizes.
-        """
-        model = RFEncoder(self.config)
-        model.freeze()
-
-        input_1 = torch.randn(1, 3, 224, 224)
-        input_4 = torch.randn(4, 3, 224, 224)
-
-        with torch.no_grad():
-            out_1 = model(input_1)
-            out_4 = model(input_4)
-
-        # Sequence length (dim 1) should be identical regardless of batch size
-        self.assertEqual(out_1.shape[1], out_4.shape[1], 
-                         "Sequence length varies with batch size, which is unexpected for fixed input resolution.")
 
 if __name__ == "__main__":
-    unittest.main()
+    pytest.main([__file__, "-v"])

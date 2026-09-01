@@ -1,67 +1,51 @@
-# Quickstart: Predicting Molecular Surface Charge Distribution from Quantum Chemical Calculations
+# Quickstart: Molecular Charge Prediction
 
 ## Prerequisites
-
 - Python 3.11+
-- Git
-- Access to a GitHub Actions free-tier runner (or local machine with sufficient RAM)
+- Access to a GitHub Actions free-tier runner (or local environment with 7 GB+ RAM).
+- Internet access to download QM9 from Hugging Face.
 
-## Setup
+## Installation
+1.  **Clone the repository** and navigate to the project directory.
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r projects/PROJ-404-predicting-molecular-surface-charge-dist/code/requirements.txt
+    ```
 
-1. **Clone the Repository**
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-404-predicting-molecular-surface-charge-dist
-   ```
-
-2. **Install Dependencies**
-   ```bash
-   pip install -r code/requirements.txt
-   ```
-   *Note: `requirements.txt` includes `torch`, `torch-geometric`, `rdkit`, `datasets`.*
-
-3. **Verify Data Availability**
-   The system will automatically download the QM9 dataset from the verified Hugging Face URL on first run. Ensure internet access is available.
-
-## Execution
-
-### 1. Data Loading & Validation
-Run the data loader to verify the dataset and memory constraints.
+## Data Preparation
+The data is loaded directly from the Hugging Face dataset. No manual download is required.
+The `loader.py` script handles streaming and filtering.
 ```bash
-python code/data/loader.py --check-memory
+# Verify data loading and schema
+python projects/PROJ-404-predicting-molecular-surface-charge-dist/code/data/loader.py --verify
 ```
-*Expected Output*: Summary of loaded features, memory usage, and validation status (Pass/Fail).
 
-### 2. Preprocessing & Splitting
-Generate scaffold-based splits and normalize coordinates.
+## Training
+Run the training script. This will:
+1.  Load the QM9 subset.
+2.  Perform a scaffold-based split.
+3.  Train the 3D GNN (SchNet/DimeNet).
+4.  Train the 2D baseline.
+5.  Save model weights and logs.
+
 ```bash
-python code/data/preprocess.py --seed 42
+python projects/PROJ-404-predicting-molecular-surface-charge-dist/code/train/trainer.py --epochs 10 --seed 42
 ```
-*Expected Output*: `data/processed/splits.json` and normalized tensor files.
 
-### 3. Training
-Train the Geometric GNN (SchNet) on CPU.
+## Evaluation
+Run the evaluation script to generate the final report and validate the hypothesis.
 ```bash
-python code/train.py --epochs 100 --patience 10 --seed 42
+python projects/PROJ-404-predicting-molecular-surface-charge-dist/code/eval/evaluator.py
 ```
-*Expected Output*: `models/schnet_model.pt` and `reports/training_log.json`.
-*Note*: This step may take up to 6 hours. Early stopping will trigger if validation MAE does not improve for a specified patience period..
+This script will output a JSON report and set an exit code based on the hypothesis validation (MAE ≤ 0.05 e and improvement over baseline).
 
-### 4. Evaluation & Baseline Comparison
-Evaluate the trained model and compare against the 2D baseline.
+## Testing
+Run the unit and integration tests to ensure the pipeline is working correctly.
 ```bash
-python code/eval.py --model models/schnet_model.pt
+pytest projects/PROJ-404-predicting-molecular-surface-charge-dist/tests/
 ```
-*Expected Output*: `reports/results.md` containing MAE, RMSE, R, and a pass/fail status for the hypothesis (MAE <= 0.05 e).
-
-## Troubleshooting
-
-- **OOM Error**: If the loader fails, reduce the sample size in `code/data/loader.py` (e.g., `max_samples=20000`).
-- **CUDA Error**: The script is designed for CPU. If CUDA is detected, force CPU mode by setting `CUDA_VISIBLE_DEVICES=""` or modifying `device="cpu"` in the code.
-- **Missing Charges**: If the dataset lacks Merz-Kollman charges, the script will halt with `DATA_SCHEMA_MISMATCH`. Check the Hugging Face dataset schema.
-
-## Success Criteria
-
-- The training loop completes at least 10 epochs.
-- The final model MAE is lower than the 2D baseline MAE.
-- The `results.md` report is generated with all required metrics.

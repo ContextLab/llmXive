@@ -1,22 +1,55 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Collapse Points Schema"
+title: "Collapse Points"
 type: object
+properties:
+  clip_id:
+    type: string
+    description: "Identifier of the audio clip."
+  model_name:
+    type: string
+    enum: ["whisper-tiny", "distil-whisper", "wav2vec2-base", "custom-model-1", "custom-model-2"]
+    description: "ASR model."
+  collapse_intensity:
+    type: object
+    description: "Distortion vector where collapse occurs (null if none)."
+    properties:
+      snr_db:
+        type: number
+        description: "SNR at collapse."
+      rt60_s:
+        type: number
+        description: "RT60 at collapse."
+    required:
+      - snr_db
+      - rt60_s
+  collapse_method:
+    type: string
+    enum: ["threshold_crossing", "inflection_point", "none"]
+    description: "Algorithmic source per FR‑021."
+  baseline_sss:
+    type: number
+    description: "SSS on clean audio for this clip/model."
+  baseline_wer:
+    type: number
+    description: "WER on clean audio for this clip/model."
+  detection_params:
+    type: object
+    description: "Parameters used for the deterministic rule."
+    properties:
+      sss_threshold_factor:
+        type: number
+        description: "Factor of baseline SSS (default 0.5)."
+      wer_multiplier:
+        type: number
+        description: "Multiplier of baseline WER (default 2)."
+    required:
+      - sss_threshold_factor
+      - wer_multiplier
 required:
   - clip_id
   - model_name
   - collapse_intensity
   - collapse_method
-properties:
-  clip_id:
-    type: string
-    description: "Unique identifier of the original audio clip."
-  model_name:
-    type: string
-    description: "ASR model name (e.g., 'whisper-tiny')."
-  collapse_intensity:
-    type: ["number", "null"]
-    description: "Scalar intensity value (e.g., combined SNR/RT60) where collapse occurs; null if no collapse detected."
-  collapse_method:
-    type: string
-    enum: ["inflection_point","threshold_crossing","none"]
-    description: "Algorithmic source of the reported intensity per FR‑021."
+  - baseline_sss
+  - baseline_wer
+additionalProperties: false

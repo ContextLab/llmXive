@@ -1,45 +1,54 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Stress Curves Schema"
+title: "Stress Curves"
 type: object
-required:
-  - clip_id
-  - speaker_id
-  - room_id
-  - model_name
-  - snr_db
-  - rt60_s
-  - step_index
-  - asr_hypothesis
-  - wer
-  - sss
 properties:
   clip_id:
     type: string
-    description: "Unique identifier of the original audio clip."
+    description: "Unique identifier from the Voices‑in‑the‑Wild‑2M source."
   speaker_id:
     type: string
     description: "Speaker identifier (used for stratification)."
-  room_id:
+  environment_id:
     type: string
-    description: "Room identifier (proxy for acoustic environment)."
+    description: "Recording environment proxy."
   model_name:
     type: string
-    description: "ASR model used for inference (e.g., 'whisper-tiny')."
+    enum: ["whisper-tiny", "distil-whisper", "wav2vec2-base", "custom-model-1", "custom-model-2"]
+    description: "ASR model used."
   snr_db:
     type: number
-    description: "Signal‑to‑Noise Ratio in decibels."
+    description: "Signal‑to‑Noise Ratio (dB)."
   rt60_s:
     type: number
-    description: "Reverberation time (RT60) in seconds."
-  step_index:
-    type: integer
-    description: "Index of the distortion step (0‑53)."
-  asr_hypothesis:
+    description: "Reverberation time (seconds)."
+  distortion_id:
     type: string
-    description: "Transcription output from the ASR model."
+    description: "Composite key, e.g., 'snr-10_rt60-0.8'."
+  asr_transcript:
+    type: string
+    description: "ASR hypothesis."
   wer:
     type: number
-    description: "Word Error Rate (0 – 1)."
+    description: "Word Error Rate (0‑1)."
   sss:
     type: number
-    description: "Semantic Similarity Score (0 – 1)."
+    description: "Semantic Similarity Score (cosine similarity, 0‑1)."
+  phoneme_edit_distance:
+    type: number
+    description: "Fallback metric for high‑reverb clips (optional)."
+  timestamp:
+    type: string
+    format: date-time
+    description: "Processing timestamp."
+required:
+  - clip_id
+  - speaker_id
+  - environment_id
+  - model_name
+  - snr_db
+  - rt60_s
+  - distortion_id
+  - asr_transcript
+  - wer
+  - sss
+additionalProperties: false

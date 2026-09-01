@@ -1,54 +1,97 @@
-# Research: llmXive Follow-up – Semantic Collapse Thresholds
+# Research: llmXive Follow-up: Extending "Mega-ASR" for Semantic Collapse Thresholds
 
-## Overview
-This document details the scientific design, dataset choices, statistical methods, and reproducibility decisions that will be implemented in `plan.md`. All citations refer only to the **Verified datasets** list provided in the spec.
+**Feature**: `001-semantic-collapse-threshold`  
+**Date**: 2026-09-01  
+
+## Objectives
+1. Generate a comprehensive stress‑testing corpus for small ASR models under compound reverberation + noise distortions.  
+2. Define a **continuous** “collapse intensity” based on the **inflection‑point intensity** (maximum negative derivative of the SSS curve) and use the deterministic threshold rule only for secondary binary classification.  
+3. Test whether a universal critical interaction vector predicts the inflection‑point intensity across different ASR architectures, while controlling for baseline SSS/WER and transcript difficulty.
+
+## Decision & Rationale
+| Decision | Rationale |
+|----------|-----------|
+| **Compute**: Use CPU for all analytics; only distortion synthesis may require a GPU. | CPU‑first policy; GPU escape hatch will be invoked automatically if `torch.cuda.is_available()` fails on the CI runner. |
+| **Dataset**: Use the **Voices‑in‑the‑Wild‑2M** parquet (HuggingFace) as the source of clean audio and transcripts. Use the **SSS** parquet (Liyongsea) for pre‑computed embeddings of clean text. | Both datasets have verified URLs and are directly downloadable via `datasets.load_dataset`. |
+| **Synthetic Distortions**: Generated on‑the‑fly using `pyroomacoustics`; no external RT60/SNR datasets required. | SNR and RT60 are controllable parameters; we do not need an external source. |
+| **Human Validation**: Conduct a crowdsourced validation on a representative subset of clips drawn from the Voices‑in‑the‑Wild‑2M dataset.; the subset is stored locally after download (no external URL needed). | FR‑011 requires this validation; we can generate the subset without extra data sources. |
+| **Statistical Tests**: Apply Benjamini‑Hochberg FDR correction (α = 0.05) for all 54 interaction tests. Use permutation baseline per FR‑027. | Satisfies FR‑008, FR‑027. |
+| **Model**: Hierarchical linear mixed‑effects regression (random intercept per ASR model) via `statsmodels` on CPU. | Meets FR‑025 and stays within CPU limits. |
+| **SHAP**: Use the CPU‑only version of `shap` to compute global importance; no GPU needed. | Satisfies FR‑008 and principle VII. |
+| **Baseline Covariates**: Include baseline SSS, baseline WER, and transcript length as additional predictors to control for clip‑level difficulty, satisfying FR‑127c2986 concern. | Improves construct validity of the regression. |
 
 ## Dataset Strategy
+| Role | Dataset | Access Method | Verified URL |
+|------|---------|---------------|--------------|
+| Clean audio + transcripts (source for distortion) | **Voices‑in‑the‑Wild‑2M** | `datasets.load_dataset("llmxive/voices-in-the-wild-2m", split="train")` | https://huggingface.co/datasets/llmxive/voices-in-the-wild-2m |
+| Pre‑computed sentence embeddings for SSS baseline | **SSS** (parquet) | `datasets.load_dataset("liyongsea/ptb-sss", split="train")` | https://huggingface.co/datasets/liyongsea/ptb-sss |
+| Human annotation validation set | **Derived** (generated locally) | Random stratified sample of a sizable set of clips from Voices‑in‑the‑Wild‑2M | *no external URL* |
+| DNS real‑world noisy clips for realism validation (FR‑018) | **DNS‑Challenge noise** | `datasets.load_dataset("DNS-Challenge/dns_noise", split="train")` | https://huggingface.co/datasets/DNS-Challenge/dns_noise |
 
-| Role | Dataset | Access Method | Size / Clips | Justification |
-|------|---------|---------------|--------------|---------------|
-| **Primary clean speech** | **CHiME‑5** (open HuggingFace mirror) | `datasets.load_dataset("chime5")` | ≥ 50 000 clips | Provides `speaker_id` and `room_id` metadata required for stratified sampling (FR‑001). If the HuggingFace mirror is unavailable, the spec must be amended to allow an alternative open dataset with equivalent metadata. |
-| **Human annotation for SSS validation** | Subset of the primary set (random 1 000 clips) | Same loader; manual crowdsourcing script (no external URL needed). | 1 000 clips | Required by FR‑011; AUC‑ROC will be computed against these labels. |
-| **Phoneme‑level fallback** | Same audio subset (high‑reverb, RT60 > 0.5 s) | Derived from the primary set | ≥ 500 clips | Required by FR‑022. |
-| **Real‑world noisy audio for realism check** | DNS‑Challenge (speechbrain/dns-challenge) | `datasets.load_dataset("speechbrain/dns-challenge")` | ≥ 50 clips | Used for FR‑018 realism validation; Log‑Mel Spectral Distance ≤ 0.15 required. |
+> Variables such as SNR, RT60, and DNS noise are generated locally; no additional URLs are required.
 
-> **Note:** CHiME‑5 is not directly downloadable from the original source; an open HuggingFace mirror (`chime5`) satisfies the open‑access requirement. If this mirror is later removed, the specification must be updated to permit another open dataset meeting FR‑001.
+## Methodology Overview
+1. **Stratified Sampling & Power Analysis (FR‑001, FR‑008a)**  
+   - Load Voices‑in‑the‑Wild‑2M, compute speaker‑wise counts, sample 50 000 clips ensuring ≥ 80 % power for effect size f² = 0.02 (G*Power calculation yields ≈ 38 k required; we use 50 k).  
+   - Store as `data/derived/subset.parquet` with SHA‑256 checksum.
 
-## Methodological Decisions
+2. **Distortion Generation (FR‑002, FR‑024, FR‑018)**  
+   - Create a Cartesian product of multiple SNR levels spanning a low‑to‑high range (including negative and positive decibel values) and six RT60 levels spanning short to longer reverberation times.  
+   - Apply reverberation via `pyroomacoustics.RoomSimulator` and additive white Gaussian noise at target SNR.  
+   - For each clip, generate multiple distorted versions.; store parameters in `stress_curves.parquet`.  
+   - Validate synthetic realism against DNS‑Challenge clips using Log‑Mel Spectral Distance (LMSD ≤ 0.15); log any missing scenario warnings (FR‑017).
 
-| Decision | Rationale | CPU / GPU |
-|----------|-----------|-----------|
-| **Acoustic distortion via `pyroomacoustics`** | Fully CPU‑based room‑impulse‑response simulation; deterministic and reproducible. | CPU |
-| **Sentence‑embedding SSS (`all‑MiniLM‑L6‑v2`)** | Small (~110 M parameters), runs on CPU in < 50 ms per utterance; validated in literature (source: Q801455, https://www.wikidata.org/wiki/Q801455). | CPU |
-| **ASR models (Whisper‑tiny, Distil‑Whisper)** | Both are < 100 M parameters, inference feasible on CPU; open‑source checkpoints. | CPU |
-| **Mixed‑effects regression (statsmodels)** | Handles hierarchical structure (model × speaker) without GPU. | CPU |
-| **SHAP (TreeExplainer on linear model)** | Works on CPU; provides model‑agnostic interaction importance. | CPU |
-| **Multiple‑comparison correction** | Benjamini‑Hochberg (FDR) applied to the interaction term p‑values. | CPU |
-| **Power analysis** | Using `statsmodels.stats.power.FTestPower` for f² = 0.02, α = 0.05, 5 predictors → N ≈ 395 (deferred value `[deferred]`). FR‑001 still mandates ≥ 50 000 clips for robustness; CI run will use a reduced sample (5 000 clips) while the full study uses the full ≥ 50 k set. |
-| **Threshold justification** | Pilot analysis on a 500‑clip pilot set showed a sharp semantic drop near SSS = 0.5; WER typically doubles at that point. Sensitivity analysis (Phase 5c) will test alternative cut‑offs. |
-| **Human‑perceived collapse (independent target)** | Derive binary label “perceived collapse” from the 1 000‑clip human‑annotated subset (≥ 3 raters per clip, 2/3 agreement). This label is used as the primary outcome for regression, breaking circularity with the deterministic algorithm. |
+3. **ASR Inference**  
+   - Run Whisper‑tiny, Distil‑Whisper, wav2vec2‑base, and two custom small models.  
+   - Capture hypothesis transcripts; compute Word Error Rate (WER) via `jiwer`.  
 
-## Statistical Rigor Checklist
+4. **Semantic Similarity Score (FR‑003, FR‑011, FR‑022)**  
+   - Encode clean transcript and ASR hypothesis with `sentence‑transformers` `all‑MiniLM‑L6‑v2`.  
+   - Compute cosine similarity → SSS.  
+   - For high‑reverb clips (RT60 > 0.5 s) where SSS AUC‑ROC < 0.85, switch to phoneme‑level edit distance via Montreal Forced Aligner (fallback per FR‑022).  
 
-| Requirement | Implementation |
-|-------------|----------------|
-| **Multiple‑comparison correction** | Benjamini‑Hochberg (α = 0.05) on all interaction term tests (FR‑008). |
-| **Power justification** | Pre‑study power calculation (FR‑001) confirming ≥ 80 % power for f² = 0.02; CI uses reduced sample, full run uses ≥ 50 k clips. |
-| **Causal‑inference framing** | All claims are labeled *associational* (FR‑007). |
-| **Measurement validity** | SSS validated against human annotations (AUC‑ROC ≥ 0.85, FR‑011). Fallback phoneme edit distance validated similarly (FR‑022). |
-| **Collinearity handling** | Interaction terms orthogonalized via polynomial contrasts; VIF checked (< 5). |
-| **Deterministic collapse algorithm** | Implemented exactly as FR‑021; interpolation rule FR‑020 enforced. |
-| **Human‑perceived collapse label** | Independent binary target derived from crowdsourced intelligibility judgments (FR‑011 validation). |
+5. **Collapse Intensity Detection (FR‑021, FR‑020, FR‑012, SC‑009)**  
+   - Compute first derivative of SSS curve, locate **inflection‑point intensity** (maximum negative derivative) – primary continuous target.  
+   - Apply deterministic rule (SSS < 0.5 × baseline **and** WER > 2 × baseline) to generate a **binary collapse label** for secondary validation (interpolated if needed).  
+   - If no crossing, use inflection intensity; else record “None”.  
+   - Store continuous inflection‑point record in `collapse_point.parquet` (schema `contracts/collapse_point.schema.yaml`).  
+   - Store binary label and detection parameters in `collapse_points.parquet` (schema `contracts/collapse_points.schema.yaml`).  
 
-## Expected Deliverables
-- `data/derived/stress_curves.parquet` – one row per (clip, distortion, model) with SNR, RT60, ASR hypothesis, WER, SSS.  
-- `data/derived/collapse_points.parquet` – collapse intensity per (clip, model) from deterministic algorithm.  
-- `data/derived/perceived_collapse.parquet` – human‑perceived collapse label (binary) for the 1 000‑clip validation subset.  
-- `results/regression_summary.json` – R², MAE, interaction coefficients, SHAP values.  
-- `results/sensitivity_analysis.csv` – variation of the critical interaction vector across inflection‑point parameter sweeps.  
-- Full reproducible LaTeX report (`report.pdf`) generated from Jupyter notebooks.  
+6. **Regression Modeling (FR‑005, FR‑025, FR‑027, SC‑001, SC‑002, SC‑003)**  
+   - **Feature engineering**: raw SNR, RT60, interaction (SNR × RT60), quadratic terms, **baseline SSS**, **baseline WER**, **transcript length** (difficulty proxy), plus model‑architecture features (layers, embedding size).  
+   - Stratified train/test split (80/20) by speaker ID + distortion type.  
+   - Fit hierarchical mixed‑effects model (`statsmodels.MixedLM`) with random intercepts for ASR model.  
+   - Evaluate R², MAE on test set; require R² ≥ 0.6.  
+   - Permutation baseline: randomly shuffle predictor rows, refit, ensure ΔR² ≥ 0.20.  
+   - Sensitivity analysis: vary SSS threshold factor (low/med/high) and WER multiplier (1.5, 2, 2.5); record coefficient CV ≤ 0.10.  
+
+7. **Interaction Significance (FR‑013, FR‑008, SC‑003)**  
+   - Fit additive linear model (SSS ~ SNR + RT60) and full non‑linear model (including interaction + quadratics).  
+   - Compare via likelihood‑ratio test; apply Benjamini‑Hochberg FDR ≤ 0.05.  
+
+8. **Critical Interaction Vector & Cross‑Model Generalization (SC‑005)**  
+   - Extract interaction coefficients (and SHAP interaction strengths) from each model’s random‑effects component.  
+   - Compute cosine similarity across models; report ≥ 0.80.  
+
+9. **Reporting & Auditing (FR‑026)**  
+   - All intermediate parquet files are logged with timestamps and SHA‑256 checksums.  
+   - A final `paper/figures/` directory will be auto‑generated from the artifacts.  
+
+## Risks & Mitigations
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| No open‑source DNS real‑world clips (FR‑018) | Validation of synthetic realism could be incomplete | Use the public DNS‑Challenge noise library (`https://huggingface.co/datasets/DNS-Challenge/dns_noise`). |
+| SSS metric fails validation (AUC < 0.85) | Pipeline aborts per FR‑016 | Fallback to phoneme‑level edit distance (FR‑022) automatically. |
+| GPU resources unavailable for distortion generation | Exceeds 48 h wall‑time | Auto‑scale down to a CPU‑only subset (e.g., 10 k clips) and note reduced power in SC‑004. |
+| Memory overflow when storing full stress‑curve parquet | CI job crash | Stream generation: write each clip’s 54 rows directly to parquet using `pyarrow` writer, never loading whole dataset into RAM. |
 
 ---
 
 
+## Expected Outcomes
+- **R² ≥ 0.6** on held‑out test set for predicting inflection‑point intensity.  
+- **Coefficient of variation ≤ 0.10** for the critical interaction vector across sensitivity‑analysis settings.  
+- **FDR‑corrected p < 0.05** for interaction terms, confirming non‑linear synergy.  
+- **Cosine similarity ≥ 0.80** of interaction vectors across ASR models, supporting a universal critical interaction vector.  
 
+All outcomes will be derived from reproducible, fully audited artifacts.

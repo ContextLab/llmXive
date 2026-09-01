@@ -1,66 +1,58 @@
-# Data Model: Predicting Molecular Surface Charge Distribution from Quantum Chemical Calculations
+# Data Model: Predicting Molecular Surface Charge Distribution
 
 ## Overview
+This document defines the data schemas for the molecular charge prediction pipeline. It ensures that data loading, training, and evaluation steps operate on consistent structures, adhering to the project's data hygiene and reproducibility principles.
 
-This document defines the data structures, schemas, and transformation pipelines required for the project. The data flows from raw Hugging Face Parquet files through preprocessing (normalization, splitting) to model input tensors.
+## Entity Definitions
 
-## Entities
+### Molecule
+A single chemical entity represented as a graph with 3D attributes.
+- **ID**: Unique identifier (e.g., `qm9_id`).
+- **Atoms**: List of atomic numbers ($Z$).
+- **Coordinates**: 3D Cartesian coordinates ($x, y, z$) in Angstroms.
+- **Bonds**: List of edge indices and bond types (single, double, etc.).
+- **Charges**: Ground-truth Merz-Kollman partial charges for each atom.
 
-### 1. Molecule
-Represents a single chemical entity in the dataset.
+### Model Artifact
+The trained GNN instance.
+- **Weights**: PyTorch state dictionary.
+- **Config**: Architecture hyperparameters (hidden_dim, num_layers, etc.).
+- **Metadata**: Training seed, dataset version, timestamp.
 
-**Attributes**:
-- `molecule_id`: Unique identifier (string).
-- `atomic_numbers`: List of integers (atomic number for each atom).
-- `coordinates`: 2D array of floats (N_atoms x 3).
-- `connectivity`: 2D array of integers (N_atoms x N_atoms) or edge list (N_edges x 2).
-- `charges`: 1D array of floats (N_atoms). Ground truth Merz-Kollman charges.
-- `scaffold_id`: Integer identifier for the Bemis-Murcko scaffold.
-- `split`: String ('train', 'val', 'test').
-
-**Constraints**:
-- `len(atomic_numbers) == len(coordinates) == len(charges)`
-- No null values in `charges`.
-- Coordinates normalized to center of mass.
-
-### 2. ModelArtifact
-Represents the trained model state.
-
-**Attributes**:
-- `model_id`: Unique identifier (hash).
-- `architecture`: String ('SchNet', 'DimeNet', 'Baseline').
-- `weights_path`: Relative path to `.pt` file.
-- `training_config`: JSON blob (epochs, lr, seed, batch_size).
-- `metrics`: JSON blob (train_loss, val_mae, test_mae, test_rmse, test_r).
-
-### 3. PredictionBatch
-Intermediate output of the model inference.
-
-**Attributes**:
-- `batch_id`: Integer.
-- `predictions`: 2D array (N_molecules x N_atoms).
-- `ground_truth`: 2D array (N_molecules x N_atoms).
-- `molecule_ids`: List of strings.
+### Prediction
+The output of the model for a given molecule.
+- **Molecule ID**: Reference to the input molecule.
+- **Predicted Charges**: Vector of scalar charge predictions.
+- **Ground Truth Charges**: Vector of actual Merz-Kollman charges.
+- **Metrics**: MAE, RMSE, $R$ for the molecule (optional, aggregated at dataset level).
 
 ## Data Flow
 
-1. **Ingestion**: `data/raw/` -> `data/loader.py` (streaming) -> `Molecule` objects.
-2. **Preprocessing**: `Molecule` -> `data/preprocess.py` (normalize coords, extract scaffold) -> `Molecule` (enriched).
-3. **Splitting**: `Molecule` -> `data/splitter.py` (Bemis-Murcko) -> `train/val/test` sets.
-4. **Model Input**: `train/val/test` -> `data/dataset.py` (PyTorch Dataset) -> `Data` objects (PyG).
-5. **Training**: `Data` -> `models/schnet.py` -> `ModelArtifact`.
-6. **Evaluation**: `ModelArtifact` + `test` -> `eval.py` -> `metrics` report.
+1.  **Raw Input**: QM9 Parquet file (streamed).
+2.  **Processed Input**: Normalized coordinates, scaffold split indices.
+3.  **Model Input**: PyTorch Geometric `Data` objects (batched).
+4.  **Output**: JSON report with aggregated metrics.
 
-## Constraints & Validation
+## Schema Details
 
-- **Memory**: The total size of the `train` set in memory must not exceed a manageable threshold consistent with available system resources.
-- **Schema**: All `Molecule` objects must match the `contracts/molecule.schema.yaml`.
-- **Numerical Stability**: Coordinates must be normalized (mean=0, std=1 or center of mass=0).
-- **Split Integrity**: No scaffold overlap between train, val, and test.
+### Input Schema (QM9 Subset)
+Derived from the Hugging Face QM9 dataset.
+- `atom_types`: `List[int]` (Atomic numbers)
+- `positions`: `List[List[float]]` (3D coordinates)
+- `bonds`: `List[List[int]]` (Edge indices)
+- `charge`: `List[float]` (Merz-Kollman charges)
 
-## File Formats
-
-- **Raw**: Parquet (from Hugging Face).
-- **Processed**: JSONL or Pickle (for intermediate splits, if needed).
-- **Model**: PyTorch `.pt` (state dict).
-- **Reports**: Markdown/JSON.
+### Output Schema (Evaluation Report)
+JSON structure for the final report.
+- `model_version`: `string`
+- `dataset_version`: `string`
+- `metrics`:
+  - `mae`: `float`
+  - `rmse`: `float`
+  - `pearson_r`: `float`
+- `baseline_metrics`:
+  - `mae`: `float`
+  - `rmse`: `float`
+  - `pearson_r`: `float`
+- `hypothesis_validated`: `boolean` (True if 3D MAE ≤ 0.05 e AND 3D MAE < 2D MAE)
+- `exit_code`: `integer`

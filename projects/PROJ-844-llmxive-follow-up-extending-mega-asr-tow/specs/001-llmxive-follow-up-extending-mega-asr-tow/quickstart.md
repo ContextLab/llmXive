@@ -1,84 +1,71 @@
-# Quickstart: Running the Semantic Collapse Threshold Pipeline
+# Quickstart: Semantic Collapse Threshold Study
 
-> **Prerequisite**: GitHub Actions runner with Python 3.11. All commands assume execution from the repository root.
+This guide walks you through reproducing the full end‑to‑end pipeline on a fresh GitHub Actions runner.
 
-## 1. Install Dependencies
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
+## Prerequisites
+- Python 3.11 (installed automatically by the CI environment)  
+- No manual GPU provisioning needed; the pipeline will auto‑offload to a free Kaggle GPU if required.
 
-## 2. Verify Dataset Checksums
-```bash
-python -m llmxive.utils.checksum verify
-```
-(Will download the three open ASR datasets and record SHA hashes under `data/checksums.yaml`.)
+## Step‑by‑Step
 
-## 3. Execute the Full Pipeline (CI‑mode)
-```bash
-python -m llmxive.pipeline \
-    --sample-size 5000 \   # reduced sample for CI feasibility (≈ several hundred k jobs)
-    --snr-levels -6,-3,0,3,6,9,12,15,18 \
-    --rt60-levels 0.2,0.4,0.6,0.8,1.0,1.2 \
-    --asr-models whisper-tiny distil-whisper \
-    --seed 42 \
-    --mode ci
-```
-The command performs all phases (0–10) defined in `plan.md`. Intermediate artifacts are written to `data/derived/`.
+1. **Clone the repository** (already present in the CI workspace).
 
-## 4. Execute the Full‑Scale Pipeline (External Compute)
-```bash
-python -m llmxive.pipeline \
-    --sample-size 50000 \   # full study size (≥ 50 000 clips)
-    --snr-levels -6,-3,0,3,6,9,12,15,18 \
-    --rt60-levels 0.2,0.4,0.6,0.8,1.0,1.2 \
-    --asr-models whisper-tiny distil-whisper \
-    --seed 42 \
-    --mode full
-```
-- **CI‑mode** runs on the free GitHub Actions runner (2 CPU cores, ≤ 7 GB RAM).  
-- **Full‑scale** mode is intended for a Kubernetes/Slurm cluster or a Kaggle GPU off‑load; it will exceed the free‑tier limits and therefore must be launched on external resources.
+2. **Create a virtual environment & install dependencies**
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
 
-## 5. Independent US‑3 Verification (Mock Data Test)
-```bash
-python -m llmxive.pipeline \
-    --mock-regression-test true \
-    --seed 42
-```
-This generates a synthetic regression dataset with known interaction effects, trains the same hierarchical model, and checks that the recovered coefficients match the ground‑truth within tolerance. It provides an independent verification of US‑3 without requiring the full stress‑curve generation.
+3. **Run the pipeline orchestrator**
+   ```bash
+   python -m src.cli.main \
+       --stage all \
+       --sample-size 50000 \
+       --seed 2026 \
+       --log-dir logs/
+   ```
+   - `--stage all` executes every phase in order (download → distort → sss → collapse → regression → analysis).  
+   - The script automatically checks for GPU availability; if unavailable, it falls back to a CPU‑only reduced sample (of modest size) and logs the change.
 
-## 6. Inspect Results
-```bash
-# Stress curves (first 5 rows)
-head -n 5 data/derived/stress_curves.parquet | pandasql -c "SELECT * FROM stdin LIMIT 5"
+4. **Outputs**
+   - `data/derived/subset.parquet` – stratified 50 k clip list.  
+   - `data/derived/stress_curves.parquet` – Several distortion rows per clip, ASR hypotheses, WER, SSS.  
+   - `data/derived/collapse_points.parquet` – deterministic classification labels + detection parameters (Schema 2).  
+   - `data/derived/collapse_point.parquet` – inflection‑point intensity records (primary regression target, Schema 3).  
+   - `data/derived/critical_vector.parquet` – interaction coefficients and SHAP strengths per ASR model (Schema 4).  
+   - `data/derived/model_metrics.parquet` – R², MAE, permutation baseline ΔR², sensitivity CVs.  
+   - `reports/figures/` – PDF/PNG figures for the paper (stress curves, interaction heatmaps, SHAP summary).  
 
-# Collapse points summary
-python -c "import pandas as pd; df=pd.read_parquet('data/derived/collapse_points.parquet'); print(df.describe())"
+5. **Verification**
+   ```bash
+   pytest -q tests/
+   python -m src.tests.contract.test_contracts
+   ```
+   - Unit tests confirm each stage’s contract compliance.  
+   - Contract tests validate that the parquet files conform to the schemas defined in `contracts/`.
 
-# Regression performance
-cat results/regression_summary.json | jq .
-```
+6. **Inspect Results**
+   ```python
+   import pandas as pd
+   metrics = pd.read_parquet("data/derived/model_metrics.parquet")
+   print(metrics)
+   ```
+   Verify that `R2 >= 0.6`, `perm_drop >= 0.20`, and `coeff_cv <= 0.10`.  
 
-## 7. Run Unit Tests
-```bash
-pytest -vv
-```
-The test suite includes:
-- `tests/unit/__init__.py` – ensures the package is importable.
-- `tests/unit/test_download.py` – verifies dataset download, checksum validation, and schema compliance (`contracts/dataset.schema.yaml`).
-- `tests/unit/test_distort.py` – checks distortion generation, missing‑scenario logging, and `DistortionVector` integrity.
-- `tests/unit/test_regression.py` – validates regression input schema (`contracts/regression_input.schema.yaml`) and critical vector output schema (`contracts/critical_vector.schema.yaml`).
+7. **Re‑run with alternative parameters (optional)**
+   ```bash
+   python -m src.cli.main \
+       --stage regression \
+       --sss-threshold-factor 0.6 \
+       --wer-multiplier 2.5
+   ```
+   This triggers the sensitivity analysis (FR‑006).
 
-All tests are deterministic (seed = 42) and will fail if any required artifact is missing.
+## FAQ
+- **Do I need a GPU?** No. The pipeline will attempt GPU for the distortion stage; if it fails, it will automatically down‑sample and continue on CPU, logging the change.
+- **Where are the raw datasets stored?** Under `data/raw/` after download; checksums are recorded in the project state file.
+- **How is reproducibility ensured?** All random seeds are fixed (`seed=2026`), and every transformation writes a new file with a SHA‑256 hash recorded in the state file.
+- **Which contract files are generated?** `collapse_point.parquet` follows `contracts/collapse_point.schema.yaml`; `critical_vector.parquet` follows `contracts/critical_vector.schema.yaml`.
 
-## 8. Reproduce the Paper Figures
-```bash
-jupyter nbconvert --to pdf --execute notebooks/report.ipynb
-```
-The notebook reads directly from the Parquet artifacts, guaranteeing the *single source of truth* principle.
-
----
-
-
-
+Enjoy your reproducible semantic collapse analysis!  
