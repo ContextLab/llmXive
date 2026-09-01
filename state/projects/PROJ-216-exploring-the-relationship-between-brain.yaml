@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T19:28:39.524089Z'
-current_stage: tasked
+current_stage: in_progress
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-216-exploring-the-relationship-between-brain
-last_run_id: 77987033-0782-4230-a4c1-2c06b4b78b81
+last_run_id: 87ac2f85-7436-4e2c-874a-43fc5f2a4118
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain
 title: Exploring the Relationship Between Brain Network Dynamics and Musical Creativity
-updated_at: '2026-08-31T09:02:11.262831Z'
+updated_at: '2026-09-01T22:52:47.216107Z'

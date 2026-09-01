@@ -5300,3 +5300,340 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-31T08:49:13Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 0
+  canonical: primary dataset is OpenNeuro ds000224
+  claim_id: c_c03eb1e0
+  context: Download resting-state fMRI data from OpenNeuro ds000224 (primary for Fluid
+    Intelligence)...
+  evidence:
+    entailment_evidence: Primary dataset is OpenNeuro ds000224
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Primary_dataset_is_OpenNeuro_ds000224
+  kind: entity_fact
+  raw_text: The primary dataset for the study is OpenNeuro ds000224.
+  resolved_value: Primary dataset is OpenNeuro ds000224
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T22:42:28Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 0
+  canonical: fallback dataset is OpenNeuro ds000230
+  claim_id: c_4dc80d80
+  context: download ds000224 (primary) and ds000230 (fallback).
+  evidence:
+    entailment_evidence: Fallback dataset is OpenNeuro ds000230 - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Fallback_dataset_is_OpenNeuro_ds000230
+  kind: entity_fact
+  raw_text: The fallback dataset for the study is OpenNeuro ds000230.
+  resolved_value: Fallback dataset is OpenNeuro ds000230
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T22:42:28Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: study sample size of 10 subjects
+  claim_id: c_317e1b33
+  context: 'The ''Limitations'' section must explicitly state: ''This study utilizes
+    a sample size of N=10 subjects, which provides low statistical power for detecting
+    small effect sizes.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study utilizes a sample size of N=10 subjects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T22:43:00Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: system applies Bonferroni correction instead of FDR
+  claim_id: c_3b286769
+  context: 'Amend Spec FR-005 (Correction Method): Execute ... --old ''System MUST
+    apply False Discovery Rate (FDR) correction'' --new ''System MUST apply Bonferroni
+    correction (Benjamini-Hochberg is NOT used).'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_applies_Bonferroni_correction_instead_of_FDR
+  kind: entity_fact
+  raw_text: The system MUST apply Bonferroni correction (Benjamini-Hochberg is NOT
+    used).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T22:43:22Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: system uses Fluid Intelligence scores as fallback for creativity proxy
+  claim_id: c_6a9fb8ab
+  context: Amend Spec FR-001 ... --new 'If no valid creativity proxy (TTCT/AUT) is
+    found, the system MUST validate for and use Fluid Intelligence scores (if present).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_uses_Fluid_Intelligence_scores_as_fallback_for_creati
+  kind: entity_fact
+  raw_text: The system MUST validate for and use Fluid Intelligence scores as a fallback
+    if no valid creativity proxy is found.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T22:43:41Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: analysis runtime limit of 6 hours
+  claim_id: c_b2685d26
+  context: "Amend Spec SC-005 ... 'constraint of \u2264 7 GB RAM and \u2264 6 hours\
+    \ total runtime on a GitHub Actions -core runner for the N=10 CI run'"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis must be completed within 6 hours total runtime on a GitHub
+    Actions runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T22:44:06Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: analysis memory limit of 7 GB
+  claim_id: c_036c602c
+  context: "Amend Spec SC-005 ... 'constraint of \u2264 7 GB RAM and \u2264 6 hours\
+    \ total runtime on a GitHub Actions -core runner for the N=10 CI run'"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis must run with a memory constraint of 7 GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T22:44:28Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: preprocessing pipeline uses FSL/AFNI tools
+  claim_id: c_a8599839
+  context: 'Implement Preprocessing Pipeline ... using FSL/AFNI. Order: 1. 3dTshift
+    ... 2. fsl_motion_outliers ... 3. 3dAllineate ... 4. 3dBandpass'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Preprocessing_pipeline_uses_FSL/AFNI_tools
+  kind: entity_fact
+  raw_text: The preprocessing pipeline uses FSL/AFNI tools including 3dTshift, fsl_motion_outliers,
+    3dAllineate, and 3dBandpass.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T22:45:00Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Schaefer atlas used for connectivity matrix
+  claim_id: c_21a92b80
+  context: 'Acquire Schaefer Atlas: Download the Schaefer atlas ... to data/external/.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Schaefer_atlas_used_for_connectivity_matrix
+  kind: entity_fact
+  raw_text: The Schaefer atlas is used for connectivity matrix generation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T22:46:01Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: 'retry logic parameters: 1s initial, 30s max, 2x multiplier, 5 retries'
+  claim_id: c_04488ad3
+  context: Implement Exponential backoff retry logic with initial_delay=1s, max_delay=30s,
+    multiplier=2, max_retries=5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exponential backoff retry logic uses an initial delay of 1s, max delay
+    of 30s, multiplier of 2, and max retries of 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T22:46:21Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: motion artifact threshold of 0.5mm FD
+  claim_id: c_4e510e64
+  context: Implement logic to detect excessive motion on preprocessed data (e.g.,
+    FD > 0.5mm) and flag subjects.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Motion_artifact_threshold_of_0.5mm_FD
+  kind: magnitude
+  raw_text: Motion artifacts are detected using a framewise displacement (FD) threshold
+    greater than 0.5mm.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T22:47:07Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: target completion rate of 90%
+  claim_id: c_bf41a894
+  context: "Amend Spec SC-001 ... 'targeting \u2265 90% completion (N=10 CI run)'"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study targets 90% completion rate.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T22:47:07Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Schaefer atlas naming convention
+  claim_id: c_e3d48a85
+  context: Download the Schaefer atlas (e.g., Schaefer_<N>Parcels_Networks) to data/external/.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Schaefer_atlas_naming_convention
+  kind: entity_fact
+  raw_text: The Schaefer atlas used is of the form Schaefer_<N>Parcels_Networks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T22:48:19Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: graph metrics include global efficiency and clustering coefficient
+  claim_id: c_6e431db7
+  context: Implement global efficiency and clustering coefficient calculation using
+    networkx...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Graph_metrics_include_global_efficiency_and_clustering_coeff
+  kind: entity_fact
+  raw_text: Graph metrics calculated include global efficiency and clustering coefficient.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T22:48:44Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: modularity calculation uses Louvain algorithm
+  claim_id: c_3cd998f5
+  context: Implement modularity calculation (Louvain) with resolution parameter sweep
+    fallback...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Modularity_calculation_uses_Louvain_algorithm
+  kind: entity_fact
+  raw_text: Modularity calculation uses the Louvain algorithm.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T22:49:02Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: effect sizes calculated using Cohen's d
+  claim_id: c_a62dd8b6
+  context: Calculate effect sizes (Cohen's d) and confidence intervals...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Effect_sizes_calculated_using_Cohen%27s_d
+  kind: entity_fact
+  raw_text: Effect sizes are calculated using Cohen's d.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T22:51:11Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: correlation analysis uses Pearson or Spearman
+  claim_id: c_0e82d628
+  context: Implement Pearson/Spearman correlation analysis between graph metrics and
+    Fluid Intelligence scores...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Correlation_analysis_uses_Pearson_or_Spearman
+  kind: entity_fact
+  raw_text: Correlation analysis uses Pearson or Spearman correlation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T22:51:38Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: resource profile JSON schema
+  claim_id: c_a8e35ab8
+  context: 'resource_profile.json must contain: {"peak_ram_gb": float, "total_runtime_hours":
+    float, "subjects_processed": int}.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Resource_profile_JSON_schema
+  kind: entity_fact
+  raw_text: The resource profile JSON includes peak_ram_gb, total_runtime_hours, and
+    subjects_processed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T22:52:02Z'
+- artifact_path: projects/PROJ-216-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: sample info JSON schema
+  claim_id: c_060e2af1
+  context: 'sample_info.json must contain: {"total_available": int, "subjects_used":
+    int, "sampling_method": string, "seed": int (optional)}.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sample_info_JSON_schema
+  kind: entity_fact
+  raw_text: The sample info JSON includes total_available, subjects_used, sampling_method,
+    and an optional seed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T22:52:44Z'

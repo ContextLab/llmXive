@@ -4,6 +4,13 @@ T006:
   r: "No `data-model.md` file was presented, nor any excerpt showing the required\
     \ definitions of `Subject`, `GraphMetric`, and `BehavioralScore` with their attributes\
     \ and types. Without the artifact, the task\u2019s core deliverable is missing."
+T015c:
+  c: false
+  h: 4654c158e052dc43970de098ccbec95b40aaa9946060dcc1f44a0aa7ff52211a
+  r: The repository lacks the required `data/processed/sample_info.json` file, and
+    the provided `code/download.py` does not contain any logic to generate or write
+    that JSON with the specified schema. Consequently, the explicit sample size declaration
+    requirement is not met.
 T025:
   c: false
   h: bfe60c921f1461a0b55dd7f329d1c35400bdd4897abb4bb1e2b25bbcc102f3c2
@@ -31,9 +38,3 @@ T036:
     we cannot confirm that the required documentation artifacts exist or have been
     modified as requested. The implementer must provide the updated markdown files
     (or their relevant sections) to satisfy the task.
-T044:
-  c: true
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer explicitly marked T044 as deprecated and noted it has been moved\
-    \ to Phase\u202F1 (T015c), matching the task\u2019s requirement to mark it completed/deprecated.\
-    \ No additional artifacts are needed."

@@ -15,85 +15,90 @@ import os
 # Add parent directory to path to allow importing code/download.py
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from download import download_dataset
+from download import download_dataset_with_retry
 
 
 class TestDownloadRetryLogic:
-    """Tests for the retry mechanism in download_dataset."""
+    """Tests for the retry mechanism in download_dataset_with_retry."""
 
     @patch('download.time.sleep')
-    @patch('download.cli.download')
-    def test_retry_logic_on_failure(self, mock_download, mock_sleep):
+    @patch('download.subprocess.run')
+    def test_retry_logic_on_failure(self, mock_run, mock_sleep):
         """
         Verify that the function attempts to download exactly 3 times
         before raising an exception when the source is consistently unavailable.
         """
         # Configure mock to always fail
-        mock_download.side_effect = Exception("Simulated network failure")
+        mock_run.return_value = MagicMock(returncode=1, stderr="Simulated network failure")
 
-        with pytest.raises(Exception) as exc_info:
+        with pytest.raises(RuntimeError) as exc_info:
             # Call the function with a dummy dataset ID
-            download_dataset("ds000000", download_path="/tmp/test", max_retries=3)
+            download_dataset_with_retry("ds000000", download_path=MagicMock(), max_retries=3)
 
         # Verify the exception message
-        assert "Simulated network failure" in str(exc_info.value)
+        assert "Failed to download" in str(exc_info.value)
 
-        # Verify download was called exactly 3 times (max_retries)
-        assert mock_download.call_count == 3
+        # Verify subprocess.run was called exactly 3 times (max_retries)
+        assert mock_run.call_count == 3
 
         # Verify sleep was called twice (between attempts 1-2 and 2-3)
         assert mock_sleep.call_count == 2
 
     @patch('download.time.sleep')
-    @patch('download.cli.download')
-    def test_exponential_backoff_timing(self, mock_download, mock_sleep):
+    @patch('download.subprocess.run')
+    def test_exponential_backoff_timing(self, mock_run, mock_sleep):
         """
         Verify that the sleep duration follows exponential backoff (2^attempt).
-        Attempt 1 fails -> sleep 2^1 = 2s
-        Attempt 2 fails -> sleep 2^2 = 4s
+        Attempt 1 fails -> sleep 2^1 = 2s (initial_delay=2 in test? No, default is 1.0)
+        Default initial_delay=1.0, multiplier=2.0
+        Attempt 1 fails -> sleep 1.0
+        Attempt 2 fails -> sleep 2.0
         """
-        mock_download.side_effect = Exception("Fail")
+        mock_run.return_value = MagicMock(returncode=1, stderr="Fail")
 
-        with pytest.raises(Exception):
-            download_dataset("ds000000", download_path="/tmp/test", max_retries=3)
+        with pytest.raises(RuntimeError):
+            download_dataset_with_retry("ds000000", download_path=MagicMock(), max_retries=3, initial_delay=1.0)
 
         # Check sleep arguments
-        # Call 1: sleep(2)
-        # Call 2: sleep(4)
-        assert mock_sleep.call_args_list[0][0][0] == 2.0
-        assert mock_sleep.call_args_list[1][0][0] == 4.0
+        # Call 1: sleep(1.0)
+        # Call 2: sleep(2.0)
+        assert mock_sleep.call_args_list[0][0][0] == 1.0
+        assert mock_sleep.call_args_list[1][0][0] == 2.0
 
-    @patch('download.cli.download')
-    def test_success_on_first_attempt(self, mock_download):
+    @patch('download.subprocess.run')
+    def test_success_on_first_attempt(self, mock_run):
         """Verify that if the first attempt succeeds, no retries occur."""
-        mock_download.return_value = True
+        mock_run.return_value = MagicMock(returncode=0, stdout="Success")
 
-        download_dataset("ds000000", download_path="/tmp/test")
+        download_dataset_with_retry("ds000000", download_path=MagicMock())
 
-        mock_download.assert_called_once()
+        mock_run.assert_called_once()
 
     @patch('download.time.sleep')
-    @patch('download.cli.download')
-    def test_success_on_second_attempt(self, mock_download, mock_sleep):
+    @patch('download.subprocess.run')
+    def test_success_on_second_attempt(self, mock_run, mock_sleep):
         """Verify that if the second attempt succeeds, only one retry occurs."""
         # First call fails, second call succeeds
-        mock_download.side_effect = [Exception("First fail"), True]
+        mock_run.side_effect = [
+            MagicMock(returncode=1, stderr="First fail"),
+            MagicMock(returncode=0, stdout="Success")
+        ]
 
-        download_dataset("ds000000", download_path="/tmp/test", max_retries=3)
+        download_dataset_with_retry("ds000000", download_path=MagicMock(), max_retries=3)
 
         # Should be called twice
-        assert mock_download.call_count == 2
+        assert mock_run.call_count == 2
         # Should sleep once
         assert mock_sleep.call_count == 1
 
     @patch('download.time.sleep')
-    @patch('download.cli.download')
-    def test_max_retries_parameter_respected(self, mock_download, mock_sleep):
+    @patch('download.subprocess.run')
+    def test_max_retries_parameter_respected(self, mock_run, mock_sleep):
         """Verify that the max_retries parameter limits the number of attempts."""
-        mock_download.side_effect = Exception("Always fails")
+        mock_run.return_value = MagicMock(returncode=1, stderr="Always fails")
 
-        with pytest.raises(Exception):
-            download_dataset("ds000000", download_path="/tmp/test", max_retries=2)
+        with pytest.raises(RuntimeError):
+            download_dataset_with_retry("ds000000", download_path=MagicMock(), max_retries=2)
 
         # Should be called exactly 2 times
-        assert mock_download.call_count == 2
+        assert mock_run.call_count == 2
