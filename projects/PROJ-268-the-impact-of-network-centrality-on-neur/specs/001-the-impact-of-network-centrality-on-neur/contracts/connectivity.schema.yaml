@@ -1,0 +1,33 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Connectivity Matrix Schema
+description: Schema for Structural and Functional Connectivity Matrices (400x400).
+type: object
+properties:
+  matrix:
+    type: array
+    items:
+      type: array
+      items:
+        type: number
+    minItems: 400
+    maxItems: 400
+    description: "400x400 matrix of connectivity values. Structural: streamline count. Functional: Pearson correlation."
+  type:
+    type: string
+    enum:
+      - structural
+      - functional
+    description: "Type of connectivity matrix."
+  atlas:
+    type: string
+    const: "Schaefer400"
+    description: "Atlas used for parcellation."
+  threshold:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Density threshold used for structural matrix (if applicable)."
+required:
+  - matrix
+  - type
+  - atlas

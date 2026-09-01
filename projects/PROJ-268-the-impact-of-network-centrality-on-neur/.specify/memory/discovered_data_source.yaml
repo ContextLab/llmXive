@@ -1,0 +1,14 @@
+status: none
+intent: download OpenNeuro ds000224 and ds003071 datasets with Schaefer 400 atlas
+  python package dataset
+required_fields:
+- subject_id
+- structural_connectivity_matrix_400x400
+- functional_connectivity_matrix_400x400
+- framewise_displacement_metric
+- preprocessing_status_flag
+- atlas_name
+- download_timestamp
+cache_key: f0b9371836debdb95ea0cb569fd2166696af8d4f1c89fae5a27c5c7b10c807c3
+searched_at: '2026-09-01T04:55:34.063133+00:00'
+retry_count: 1

@@ -1,0 +1,55 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Results Schema
+description: Schema for the output of the statistical analysis (Spearman correlation + permutation test).
+type: array
+items:
+  type: object
+  properties:
+    metric_type:
+      type: string
+      enum:
+        - degree
+        - betweenness
+        - eigenvector
+      description: "The centrality metric being tested."
+    rho:
+      type: number
+      description: "Spearman correlation coefficient."
+    p_value_uncorrected:
+      type: number
+      minimum: 0
+      maximum: 1
+      description: "Raw p-value from Spearman test."
+    p_value_permutation:
+      type: number
+      minimum: 0
+      maximum: 1
+      description: "Permutation-corrected p-value (n=1000, subject-level)."
+    effect_size_ci:
+      type: array
+      items:
+        type: number
+      minItems: 2
+      maxItems: 2
+      description: "95% Confidence Interval (Fisher's z transformed)."
+    n_permutations:
+      type: integer
+      const: 1000
+      description: "Number of permutations performed."
+    threshold_density:
+      type: number
+      minimum: 0
+      maximum: 1
+      description: "Density threshold used for the structural graph."
+    stability_index:
+      type: number
+      description: "Standard deviation of rho across thresholds (sensitivity analysis)."
+  required:
+    - metric_type
+    - rho
+    - p_value_uncorrected
+    - p_value_permutation
+    - effect_size_ci
+    - n_permutations
+    - threshold_density
+    - stability_index
