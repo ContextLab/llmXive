@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-09-01T11:47:41.734210+00:00'
+issue_number: 1329
+project_id: PROJ-921-llmxive-follow-up-extending-achieving-go

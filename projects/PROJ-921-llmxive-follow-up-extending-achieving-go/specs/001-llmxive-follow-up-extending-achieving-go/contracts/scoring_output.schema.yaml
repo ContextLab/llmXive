@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Scoring Output Schema"
+description: "Schema for proxy model scores stored in data/processed/scores.jsonl"
+type: "object"
+properties:
+  response_id:
+    type: "string"
+    description: "Foreign key to the response"
+  novelty:
+    type: "integer"
+    minimum: 1
+    maximum: 5
+    description: "Score for novelty (1-5)"
+  feasibility:
+    type: "integer"
+    minimum: 1
+    maximum: 5
+    description: "Score for feasibility (1-5)"
+  consistency:
+    type: "integer"
+    minimum: 1
+    maximum: 5
+    description: "Score for logical consistency (1-5)"
+  rationale:
+    type: "string"
+    description: "Raw text rationale from the proxy model"
+  confidence:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Confidence score of the evaluation"
+  is_low_confidence:
+    type: "boolean"
+    description: "True if variance > 1.5 or entropy > 2.0"
+required:
+  - response_id
+  - novelty
+  - feasibility
+  - consistency
+  - rationale
+  - confidence
+  - is_low_confidence
+additionalProperties: false

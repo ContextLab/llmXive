@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistics Output Schema"
+description: "Schema for final statistical results stored in data/processed/stats.json"
+type: "object"
+properties:
+  correlation:
+    type: "object"
+    properties:
+      coefficient:
+        type: "number"
+        description: "Point-Biserial correlation coefficient"
+      p_value:
+        type: "number"
+        description: "P-value for the correlation"
+      method:
+        type: "string"
+        description: "Method used (e.g., point_biserial)"
+    required:
+      - coefficient
+      - p_value
+      - method
+  t_test:
+    type: "object"
+    properties:
+      t_stat:
+        type: "number"
+        description: "T-statistic"
+      p_value:
+        type: "number"
+        description: "P-value for the t-test"
+      method:
+        type: "string"
+        description: "Method used (e.g., paired_t)"
+    required:
+      - t_stat
+      - p_value
+      - method
+  power_analysis:
+    type: "object"
+    properties:
+      n:
+        type: "integer"
+        description: "Sample size used"
+      effect_size:
+        type: "number"
+        description: "Cohen's d used for calculation"
+      power:
+        type: "number"
+        description: "Calculated power"
+    required:
+      - n
+      - effect_size
+      - power
+required:
+  - correlation
+  - t_test
+  - power_analysis
+additionalProperties: false

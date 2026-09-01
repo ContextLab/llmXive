@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Inference Output Schema"
+description: "Schema for model inference results stored in data/processed/inference_results.jsonl"
+type: "object"
+properties:
+  prompt_id:
+    type: "string"
+    description: "Unique identifier for the prompt"
+  model_name:
+    type: "string"
+    description: "Name of the model (e.g., SU-01, Baseline)"
+  response_id:
+    type: "string"
+    description: "Unique identifier for the response"
+  text:
+    type: "string"
+    description: "Generated text content"
+  token_count:
+    type: "integer"
+    description: "Number of tokens generated"
+  truncated:
+    type: "boolean"
+    description: "True if generation was truncated by max_tokens"
+  seed:
+    type: "integer"
+    description: "Random seed used for generation"
+  temperature:
+    type: "number"
+    description: "Temperature parameter used"
+required:
+  - prompt_id
+  - model_name
+  - response_id
+  - text
+  - token_count
+  - truncated
+  - seed
+  - temperature
+additionalProperties: false

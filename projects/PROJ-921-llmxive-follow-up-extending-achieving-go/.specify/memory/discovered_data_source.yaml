@@ -1,0 +1,10 @@
+status: none
+intent: download IMO IPhO Olympiad datasets and OpenSci-Reason prompts python package
+  dataset
+required_fields:
+- id
+- prompt
+- dataset
+cache_key: 3c8098a055e9ec6369652141f42df6558789ec1dbc37f7b545b406350c04943a
+searched_at: '2026-09-01T11:19:32.713312+00:00'
+retry_count: 1
