@@ -1,11 +1,11 @@
 status: none
-intent: Open Science Framework Replication Project metadata download python package
-  dataset
+intent: download OSF Reproducibility Project Psychology replication dataset csv python
+  package dataset
 required_fields:
+- study_id
 - year
-- effect_size
+- cohen_d
 - sample_size
-- field
-cache_key: a0bbf44ab12bc899351a97ca7bf12b3f92d5e9e630504ab8809fa8107d44e3e0
-searched_at: '2026-08-30T20:12:48.020859+00:00'
+cache_key: b3a09c17dba034cbef6fd0528ce4f3d77e5ed6b3e8192dcc11a828e7ad1d2be1
+searched_at: '2026-09-01T18:54:49.557986+00:00'
 retry_count: 1

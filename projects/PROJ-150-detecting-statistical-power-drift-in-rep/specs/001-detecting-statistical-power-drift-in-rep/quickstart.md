@@ -1,65 +1,57 @@
 # Quickstart: Detecting Statistical Power Drift in Replicated Studies
 
 ## Prerequisites
-
 - Python 3.11+
-- pip
-- Access to HuggingFace (public datasets, no token required for these URLs)
+- `pip`
+- GB+ RAM available
 
 ## Installation
 
-1. **Clone the repository** (or navigate to the project directory).
-2. **Create a virtual environment**:
+1. **Clone the repository** (if not already done).
+2. **Install dependencies**:
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   cd code
+   pip install -r requirements.txt
    ```
-3. **Install dependencies**:
-   ```bash
-   pip install -r projects/PROJ-150-detecting-statistical-power-drift-in-rep/code/requirements.txt
-   ```
+   *Dependencies*: `pandas`, `statsmodels`, `scipy`, `matplotlib`, `pyyaml`, `datasets`, `pytest`.
 
-## Running the Pipeline
+## Data Download
 
-The pipeline consists of four sequential steps. Run them in order:
-
-### Step 1: Download Data
-Fetches the verified OSF datasets.
+The pipeline automatically downloads the OSF dataset from HuggingFace upon first run. To download manually:
 ```bash
-python projects/PROJ-150-detecting-statistical-power-drift-in-rep/code/download_data.py
+python download_data.py
 ```
-*Output*: `data/raw/osf_replication.parquet` (or CSV).
+This will create `data/raw/` with the verified parquet/CSV files and generate checksums.
 
-### Step 2: Preprocess & Calculate Power
-Cleans data, handles missing values, and calculates post-hoc power.
+## Running the Analysis
+
+Execute the full pipeline:
 ```bash
-python projects/PROJ-150-detecting-statistical-power-drift-in-rep/code/preprocess.py
+python -m code.run_pipeline
 ```
-*Output*: `data/derived/cleaned_data.csv`, `logs/preprocess.log`.
+This script orchestrates:
+1. Data download and validation.
+2. Power calculation.
+3. Residualization and LMM/GLMM fitting and LRT.
+4. Permutation test (sufficient iterations for convergence).
+5. Sensitivity analysis (calculating FPR from null distribution).
+6. Input Permutation test.
+7. Visualization generation.
 
-### Step 3: Fit Model & Run Robustness
-Fits the LMM, runs permutation test, and sensitivity analysis.
+**Expected Runtime**: ~1-2 hours on a standard CPU (well within the specified time limit).
+
+## Output Artifacts
+
+- `data/derived/power_estimates.csv`: Calculated power for each study.
+- `data/derived/residuals.csv`: Residuals for plotting.
+- `data/derived/schema_validation.json`: Validation report (T007).
+- `results/power_drift_scatter.png`: The primary visualization (residual power vs. year).
+- `results/robustness_summary.json`: Permutation p-values, sensitivity results (including FPR), and input permutation results.
+
+## Verification
+
+To verify the results:
 ```bash
-python projects/PROJ-150-detecting-statistical-power-drift-in-rep/code/model_fit.py
-python projects/PROJ-150-detecting-statistical-power-drift-in-rep/code/robustness.py
+pytest tests/
 ```
-*Output*: `results/lmm_final_summary.json`, `results/permutation_pvalue.json`, `results/sensitivity_report.json`.
-
-### Step 4: Visualize
-Generates the residual power plot.
-```bash
-python projects/PROJ-150-detecting-statistical-power-drift-in-rep/code/visualize.py
-```
-*Output*: `results/plots/residual_power_vs_year.png`.
-
-## Verifying Results
-
-1. Check `results/lmm_final_summary.json` for the `slope_year` and `p_value_parametric`.
-2. Compare `p_value_parametric` with `p_value_permutation` in `results/permutation_pvalue.json` for consistency.
-3. Review `results/sensitivity_report.json` to ensure drift significance is stable across alpha thresholds.
-
-## Troubleshooting
-
-- **Missing Columns**: If the download fails to find `sample_size`, check the `logs/preprocess.log` for "Dataset schema mismatch" warnings. The script will halt if required columns are missing.
-- **Convergence Failure**: If the LMM fails to converge, the script will attempt to simplify the random effects (remove `original_study_id`) and log a warning.
-- **Memory Error**: If the permutation test runs out of memory, the script will automatically reduce iterations to [deferred] and flag the result as "approximate" in the output JSON.
+This runs unit tests for power formulas and integration tests ensuring the pipeline produces the expected output files.

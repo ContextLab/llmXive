@@ -1,131 +1,111 @@
 # Implementation Plan: Detecting Statistical Power Drift in Replicated Studies
 
-**Branch**: `001-detect-power-drift` | **Date**: 2026-07-30 | **Spec**: `spec.md`
-**Input**: Feature specification from `/specs/001-detect-power-drift/spec.md`
+**Branch**: `001-detect-power-drift` | **Date**: 2024-05-21 | **Spec**: `specs/001-detecting-statistical-power-drift-in-rep/spec.md`
+**Input**: Feature specification from `/specs/001-detecting-statistical-power-drift-in-rep/spec.md`
 
 ## Summary
 
-This feature implements a statistical pipeline to detect temporal drift in post-hoc statistical power within replication studies. The core approach involves: (1) ingesting replication metadata from verified OSF sources, (2) calculating post-hoc power using standard formulas (Cohen's *d*, odds ratio) with fixed $\alpha=0.05$, (3) calculating **residual power** (power residuals after regressing on N and d) to avoid tautology, (4) fitting a linear mixed-effects model (LMM) `residual_power ~ year + (1|field)` to isolate residual temporal trends, and (5) validating results via non-parametric permutation tests (shuffling year and inputs) and alpha-sensitivity sweeps. The implementation adheres to CPU-only constraints (max a minimal number of cores, limited RAM) and strictly avoids fabricating data or inventing constraints not present in the spec.
+This feature implements a statistical pipeline to detect temporal drift in post-hoc statistical power within replication studies. The system calculates power estimates from reported effect sizes and sample sizes, fits a linear mixed-effects model to isolate the residual trend of power over time (adjusting for effect size and N), and validates findings via non-parametric permutation tests and sensitivity analyses across alpha thresholds. The implementation adheres to strict compute constraints (CPU-only, limited RAM) and data hygiene principles.
+
+**Key Methodological Correction**: To avoid tautology, the outcome variable is defined as **Residual Power** (the residual of a preliminary regression of Power on Effect Size and Sample Size) or the Non-Centrality Parameter (NCP) is modeled directly. This ensures the drift model predicts unexplained variance rather than a deterministic function of its inputs.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `statsmodels` (for LMM), `scipy`, `numpy`, `seaborn`, `matplotlib`, `pyyaml`, `datasets` (HuggingFace), `scikit-learn` (for stratified sampling).  
-**Storage**: Local file system (`data/`, `results/`, `code/`). No external database.  
-**Testing**: `pytest` (unit tests for power formulas, schema validation).  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7GB RAM).  
-**Project Type**: Data analysis pipeline / CLI script.  
-**Performance Goals**: Complete end-to-end analysis (download, clean, model, permute, visualize) within the standard GitHub Actions free-tier limit.  
-**Constraints**: CPU-only execution; no GPU; streaming data if dataset > 500MB; strict handling of missing data (log & skip, no crash); random seed pinning for reproducibility.  
-**Scale/Scope**: Single dataset (OSF Reproducibility Project subset); A sufficient number of permutations (with a lower fallback count if timeout occurs); 1 LMM fit; alpha-sensitivity points.
+**Primary Dependencies**: `pandas`, `statsmodels` (for LMM/GLMM), `scipy`, `matplotlib`, `pyyaml`, `datasets` (HuggingFace)  
+**Storage**: Local filesystem (`data/raw`, `data/derived`), CSV/Parquet formats  
+**Testing**: `pytest` (unit tests for power formulas, integration tests for pipeline)  
+**Target Platform**: Linux (GitHub Actions runner)  
+**Project Type**: Data analysis pipeline / CLI  
+**Performance Goals**: Complete full pipeline (download -> model -> plot) within 3.14 hours on 2-core CPU.  
+**Constraints**: No GPU; must handle missing data gracefully; must stream large datasets if >7GB.  
+**Scale/Scope**: Analysis of a substantial set of replication records (OSF data subset).
+
+> Note: The "3.14 hours" runtime limit is a project constraint derived from the CI runner's maximum job duration policy.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research.*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- **I. Reproducibility**: Plan mandates pinned `requirements.txt`, fixed random seeds in `code/`, and canonical OSF dataset loading. All results traceable to `data/`. **PASS**.
-- **II. Verified Accuracy**: Citations in `research.md` restricted to verified URLs (OSF). No external claims without source. **PASS**.
-- **III. Data Hygiene**: Raw data downloaded to `data/raw/` with checksums. Derivations (cleaned data, power estimates, residuals) saved to `data/derived/` with new filenames. **PASS**.
-- **IV. Single Source of Truth**: All figures/statistics in paper generated from `results/*.json` or `data/derived/*.csv`. No hand-typed numbers. Mechanism: All visualizations are generated programmatically from `results/*.json` files, which are derived directly from `data/derived/`. No manual entry is permitted. **PASS**.
-- **V. Versioning Discipline**: Artifacts (code, data, results) will carry content hashes in state file. **PASS**.
-- **VI. Power Re-estimation Consistency**: Plan explicitly defines post-hoc power calculation using reported effect size and sample size, ignoring author-reported power. **PASS**.
-- **VII. Temporal Drift Modeling Rigor**: Plan mandates LMM with `year` fixed effect + random intercepts on residual power, plus a large number of permutations (with documented fallback). **PASS**.
+- **I. Reproducibility**: Plan mandates `random_seed` pinning in `code/` and deterministic dataset fetching from HuggingFace.
+- **II. Verified Accuracy**: All citations in `research.md` are limited to the verified dataset URLs provided in the `Dataset Strategy` section below.
+- **III. Data Hygiene**: Raw data will be checksummed; derived files (`residuals.csv`, `power_estimates.csv`) will be generated with explicit derivation logs.
+- **IV. Single Source of Truth**: All plots and statistics will be generated programmatically from `data/derived` files; no manual entry.
+- **V. Versioning**: Artifacts will include content hashes. The `state/projects/PROJ-150-detecting-statistical-power-drift-in-rep.yaml` file will be updated by a dedicated `update_state.py` script upon completion of each phase.
+- **VI. Power Re-estimation Consistency**: Power will be calculated post-hoc using Cohen's *d* and N, ignoring author-reported power.
+- **VII. Temporal Drift Modeling Rigor**: The plan explicitly includes the LMM (`residual_power ~ year + (1|field)`) and a permutation test.
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-detect-power-drift/
+specs/001-detecting-statistical-power-drift-in-rep/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── tasks.md             # Phase 2 output
+├── contracts/           # Phase 1 output
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-150-detecting-statistical-power-drift-in-rep/
-├── code/
-│   ├── __init__.py
-│   ├── download_data.py      # Fetches OSF datasets, saves to data/raw/
-│   ├── preprocess.py         # Cleans data, calculates power, residuals, logs warnings
-│   ├── model_fit.py          # Fits LMM on residuals, runs LRT, saves lmm_final_summary.json
-│   ├── robustness.py         # Permutation tests (year & input), sensitivity analysis
-│   ├── aggregate.py          # DerSimonian-Laird cross-field aggregation
-│   ├── visualize.py          # Generates residual power plots
-│   └── requirements.txt      # Pinned dependencies
-├── data/
-│   ├── raw/                  # Downloaded parquet/CSV files (checksummed)
-│   └── derived/
-│       ├── cleaned_data.csv  # Filtered, power-calculated
-│       └── power_estimates.csv (includes residual_power)
-├── results/
-│   ├── lmm_final_summary.json
-│   ├── permutation_pvalue.json
-│   ├── permutation_consistency.json
-│   ├── sensitivity_report.json
-│   └── plots/
-│       └── residual_power_vs_year.png
-├── contracts/
-│   ├── dataset.schema.yaml
-│   ├── lmm_summary.schema.yaml
-│   ├── sensitivity_report.schema.yaml
-│   └── ... (other schemas)
-└── README.md
+code/
+├── download_data.py         # Fetches OSF data from HuggingFace
+├── calculate_power.py       # Computes post-hoc power (FR-001)
+├── fit_model.py             # LMM fitting and LRT (FR-002, FR-003)
+├── robustness.py            # Permutation test (FR-004) & Sensitivity (FR-005)
+├── aggregate.py             # Inverse-variance weighting (FR-006) & Input Permutation (FR-007)
+├── visualize.py             # Generates scatter plots (FR-009)
+├── validate_source.py       # Schema validation (T007) - WRITES data/derived/schema_validation.json
+├── update_state.py          # Updates state/ YAML (Constitution Principle V)
+└── requirements.txt         # Pinned dependencies
+
+data/
+├── raw/                     # Downloaded parquet/CSV (checksummed)
+└── derived/
+    ├── power_estimates.csv  # Intermediate power calculations
+    ├── residuals.csv        # Residuals for plotting (T013)
+    └── schema_validation.json # Validation output (T007)
+
+results/
+└── power_drift_scatter.png  # Final visualization (T013)
 ```
 
-**Structure Decision**: Single-project structure (Option 1) selected. The analysis is a linear pipeline (download -> clean -> model -> validate -> visualize) best served by modular scripts in `code/` rather than a complex web service or multi-repo setup. This minimizes overhead and aligns with CPU-only CI constraints.
+**Structure Decision**: Single-project structure chosen to minimize I/O overhead on the CI runner. All scripts are modular but orchestrated sequentially to ensure data flows correctly from download to visualization.
 
 ## Complexity Tracking
 
-| Complexity | Why Needed | Simpler Alternative Rejected Because |
+| Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Residual Power Modeling | Required to avoid tautology (regressing power on its own inputs). The spec requires adjusting for inputs, which is achieved by modeling the *residuals* of power after accounting for N and d. | Regressing `power ~ year + N + d` creates perfect multicollinearity and invalidates the `year` coefficient. |
-| Mixed-Effects Model (vs. OLS) | Required by Spec (FR-002) and Constitution Principle VII to account for clustering by `field` and `original_study_id`. | OLS would ignore hierarchical structure, violating the "Temporal Drift Modeling Rigor" principle and inflating Type I error. |
-| Permutation Test (10k iters) | Required by Spec (FR-004) and Constitution Principle VII to validate against model misspecification. | Fewer iterations would yield unstable empirical p-values, failing the "Robustness" acceptance criteria. Fallback to [deferred] is only for hard timeout. |
-| Sensitivity Sweep | Required by Spec (FR-005) to ensure findings are not alpha-dependent. | Single alpha check (0.05) is insufficient to prove robustness per User Story 2. |
-| Cross-Field Aggregation | Required by Spec (FR-006) to generalize findings. | Single-field analysis ignores heterogeneity across disciplines. |
-| Input Permutation | Required by Spec (FR-007) to validate against input distribution changes. | Year-only permutation does not test if the drift is driven by input changes. |
+| Linear Mixed-Effects Model (LMM) | Required by FR-002 and Constitution Principle VII to control for field heterogeneity. | Simple linear regression would ignore clustering by `field` and `original_study_id`, violating statistical rigor. |
+| Residual Power Outcome | Required to avoid tautology (Power = f(d, N)). | Modeling raw Power while including d and N as covariates creates a mathematically unstable model. |
+| Permutation Test (10k) | Required by Constitution Principle VII to validate against model misspecification. | Parametric assumptions alone are insufficient for the "skeptical peer reviewer" scenario (US-2). |
+| Sensitivity Sweep | Required by FR-005 to address alpha-threshold dependency. | Single alpha test fails to satisfy SC-003 stability measurement. |
+| DerSimonian-Laird Aggregation | Required by FR-006 to combine field-specific slopes. | Simple averaging ignores heterogeneity between fields. |
+| Input Permutation (FR-007) | Required to validate that drift is not an artifact of input distribution changes. | Year permutation (FR-004) only tests year drift; input permutation tests the stability of the relationship between inputs and drift. |
 
+## Data Merging Strategy
 
-## Phase Breakdown
+To resolve conflicts if multiple datasets contain values for the same study ID:
+1. **Primary Source**: The OSF Replication Project (Nosek et al.) is the ground truth.
+2. **Fallback Logic**: If a study is missing in the primary source, check secondary sources.
+3. **Conflict Resolution**: If a study exists in multiple sources with different values, the value from the primary source is used. If missing in primary, the value from the secondary source with the highest data completeness (most fields filled) is selected.
+4. **Validation**: Any study with missing `effect_size` or `sample_size` in all sources is dropped with a warning (FR-008).
 
-### Phase 0: Data Ingestion & Validation
-- **Goal**: Download verified OSF dataset, validate schema (year, effect_size, sample_size, field).
-- **Output**: `data/raw/osf_replication.parquet` (checksummed).
-- **Risk**: Dataset lacks required columns. **Mitigation**: Halt with error if schema mismatch.
+## Versioning Mechanism
 
-### Phase 1: Preprocessing & Residual Calculation
-- **Goal**: Clean data, calculate post-hoc power, then calculate `residual_power` (residuals of power ~ N + d).
-- **Output**: `data/derived/power_estimates.csv` (includes `residual_power`).
-- **Risk**: Missing data. **Mitigation**: Log and skip rows with missing N or effect_size.
+To satisfy Constitution Principle V:
+- The `state/projects/PROJ-150-detecting-statistical-power-drift-in-rep.yaml` file is the single source of truth for project state.
+- The `update_state.py` script is responsible for updating this file.
+- It runs after each major phase (download, calculation, modeling, robustness) to update the `updated_at` timestamp and record content hashes of the new artifacts.
+- The `state/` directory structure is defined in the `Project Structure` section above.
 
-### Phase 2: Primary Model (LMM)
-- **Goal**: Fit `residual_power ~ year + (1|field)`. Perform LRT.
-- **Output**: `results/lmm_final_summary.json`.
-- **Risk**: Convergence failure. **Mitigation**: Simplify random effects (remove `original_study_id` if needed).
+## Cross-Reference of Verified Datasets
 
-### Phase 3: Robustness Checks
-- **Goal**: 
-  1. Permutation Test (Year): Shuffle `year` labels (10k iters).
-  2. Permutation Test (Input): Shuffle `effect_size` and `sample_size` (10k iters).
-  3. Sensitivity Analysis: Sweep alpha across a range of low-to-moderate values..
-- **Output**: `results/permutation_pvalue.json`, `results/sensitivity_report.json`.
-- **Risk**: Timeout. **Mitigation**: Fallback to a sufficient number of permutations, log as "approximate".
-
-### Phase 4: Cross-Field Aggregation (FR-006)
-- **Goal**: Calculate field-specific drift slopes. Combine using DerSimonian-Laird inverse-variance weighting.
-- **Output**: `results/aggregated_drift.json`.
-- **Risk**: Heterogeneity too high. **Mitigation**: Report I-squared statistic; do not force aggregation if I-squared > 75%.
-
-### Phase 5: Input Permutation Validation (FR-007)
-- **Goal**: Generate null distribution of drift slopes by shuffling inputs (effect_size, sample_size) while holding year constant. Compare observed slope to null.
-- **Output**: `results/input_permutation.json`.
-- **Risk**: High variance in null distribution. **Mitigation**: Increase iterations if needed (within time budget).
-
-### Phase 6: Visualization & Reporting
-- **Goal**: Generate residual power vs. year plot. Compile final report.
-- **Output**: `results/plots/residual_power_vs_year.png`, `results/final_report.md`.
+To satisfy Constitution Principle II:
+- The 'Verified Datasets' block in `research.md` lists the exact URLs used.
+- The 'Dataset Strategy' in `research.md` and the 'Technical Context' in `plan.md` explicitly reference these same URLs.
+- No fallback to unverified sources is permitted; if the verified sources are inaccessible, the pipeline halts.

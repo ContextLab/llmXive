@@ -1,22 +1,22 @@
-- artifact_hash: af619f8c32d923695960dc0c90e2502de53179339b9458adcf21b82362014f20
+- artifact_hash: 488c7c62424b5da946f17578420f473031e5c2a8f4b58b68ef96e29f96d3652d
   artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: OSF
   kind: url
-  value: https://osf.io/ezcuj/`
+  value: https://osf.io/v7g23/`
   verification_status: pending
-  verified_against_url: https://osf.io/ezcuj/
-  verified_at: '2026-08-30T20:19:23.780765Z'
-- artifact_hash: af619f8c32d923695960dc0c90e2502de53179339b9458adcf21b82362014f20
+  verified_against_url: https://osf.io/v7g23/
+  verified_at: '2026-09-01T19:00:57.510314Z'
+- artifact_hash: 488c7c62424b5da946f17578420f473031e5c2a8f4b58b68ef96e29f96d3652d
   artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: OSF
+  fetched_title: null
   kind: url
-  value: https://osf.io/59xqz/`
+  value: https://huggingface.co/datasets/osf-replication-project/data`
   verification_status: pending
-  verified_against_url: https://osf.io/59xqz/
-  verified_at: '2026-08-30T20:19:23.780765Z'
+  verified_against_url: https://huggingface.co/datasets/osf-replication-project/data
+  verified_at: '2026-09-01T19:00:57.510314Z'

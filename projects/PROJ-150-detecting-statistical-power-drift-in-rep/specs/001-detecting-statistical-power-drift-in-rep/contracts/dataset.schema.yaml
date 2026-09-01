@@ -1,31 +1,36 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Cleaned Replication Study Dataset"
-description: "Schema for the cleaned dataset after power calculation and missing data handling."
+title: "ReplicationStudy"
+description: "Schema for the cleaned and processed replication study data used in power drift analysis."
 type: "object"
 properties:
   study_id:
     type: "string"
-    description: "Unique identifier for the study."
+    description: "Unique identifier for the replication study."
   year:
     type: "integer"
-    description: "Calendar year of the replication."
+    description: "Publication year of the replication study."
+    minimum: 1900
+    maximum: 2099
   field:
     type: "string"
     description: "Discipline or field of study."
   original_study_id:
     type: "string"
-    description: "ID of the original study being replicated."
+    description: "Identifier of the original study being replicated."
   effect_size:
     type: "number"
-    description: "Reported effect size (Cohen's d or log-odds)."
+    description: "Reported effect size (Cohen's d or log odds ratio)."
+    minimum: -10.0
+    maximum: 10.0
   sample_size:
     type: "integer"
-    description: "Total sample size of the replication."
+    description: "Total sample size (N) of the replication study."
+    minimum: 1
   power_estimate:
     type: "number"
+    description: "Post-hoc calculated statistical power (0.0 to 1.0)."
     minimum: 0.0
     maximum: 1.0
-    description: "Calculated post-hoc statistical power."
 required:
   - study_id
   - year

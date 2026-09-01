@@ -1,139 +1,204 @@
-"""
-Validates the downloaded source data for URL reachability and title-token-overlap.
-
-This module ensures that the data fetched in T006 is valid by:
-1. Verifying the file exists locally.
-2. Checking if the file can be opened and contains the expected header.
-3. Performing a token overlap check between the dataset title and the file content
-   (specifically looking for the title in the first N rows or metadata).
-
-It fails loudly if the data is missing, corrupted, or does not meet the overlap threshold.
-"""
 import os
 import sys
-import hashlib
+import json
 import csv
-import re
+import logging
 from pathlib import Path
-from typing import Tuple, List
+from urllib.parse import urlparse
 
-# Constants
-DATA_FILE_PATH = Path("data/raw/data.csv")
-EXPECTED_TITLE = "Reproducibility Project: Psychology"
-MIN_OVERLAP_THRESHOLD = 0.7
-MAX_ROWS_TO_SCAN = 100  # Scan first 100 rows for title presence
+# Configure logging for the module
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-def load_file_content(filepath: Path) -> Tuple[str, List[str]]:
-    """
-    Reads the file content and returns the raw text and the CSV headers.
-    
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the file is empty or not a valid CSV.
-    """
-    if not filepath.exists():
-        raise FileNotFoundError(f"Source data file not found at {filepath}")
-    
-    try:
-        with open(filepath, 'r', encoding='utf-8') as f:
-            content = f.read()
-    except Exception as e:
-        raise ValueError(f"Failed to read file content: {e}")
-    
-    if not content.strip():
-        raise ValueError("File is empty.")
-    
-    lines = content.splitlines()
-    if len(lines) < 1:
-        raise ValueError("File has no lines.")
-    
-    # Parse headers
-    try:
-        reader = csv.reader([lines[0]])
-        headers = next(reader)
-    except Exception as e:
-        raise ValueError(f"Failed to parse CSV headers: {e}")
-    
-    return content, headers
+# Define the required columns based on the task specification
+REQUIRED_COLUMNS = {'year', 'effect_size', 'sample_size', 'field'}
 
-def calculate_token_overlap(text: str, target: str) -> float:
+class DataFetchError(Exception):
+    """Custom exception for data fetching or validation errors."""
+    pass
+
+def check_url_reachability(url: str) -> bool:
     """
-    Calculates the Jaccard similarity (overlap) between tokens in the text and the target.
+    Checks if a URL is reachable.
     
     Args:
-        text: The content to search (e.g., file content).
-        target: The target title string.
+        url (str): The URL to check.
         
     Returns:
-        A float between 0.0 and 1.0 representing the overlap ratio.
+        bool: True if reachable, False otherwise.
     """
-    # Normalize and tokenize
-    def tokenize(s: str) -> set:
-        # Convert to lowercase and split by non-alphanumeric characters
-        tokens = set(re.findall(r'\w+', s.lower()))
-        return tokens - {''}  # Remove empty strings
-    
-    text_tokens = tokenize(text)
-    target_tokens = tokenize(target)
-    
-    if not target_tokens:
-        return 0.0
-    
-    intersection = text_tokens.intersection(target_tokens)
-    union = text_tokens.union(target_tokens)
-    
-    if not union:
-        return 0.0
-        
-    return len(intersection) / len(union)
-
-def validate_source() -> bool:
-    """
-    Main validation routine.
-    
-    Returns:
-        True if validation passes.
-        
-    Raises:
-        SystemExit: If validation fails (fails loudly).
-    """
-    print(f"Validating source data at: {DATA_FILE_PATH}")
-    
-    # 1. Check file existence and readability
     try:
-        content, headers = load_file_content(DATA_FILE_PATH)
-        print(f"File loaded successfully. Headers: {headers}")
-    except (FileNotFoundError, ValueError) as e:
-        print(f"CRITICAL: {e}")
-        sys.exit(1)
+        parsed = urlparse(url)
+        if not parsed.scheme or not parsed.netloc:
+            logger.error(f"Invalid URL format: {url}")
+            return False
+        
+        # Simple head request to check reachability without downloading full content
+        # Note: This might not work for all servers that block HEAD requests
+        # In such cases, we might need to rely on file existence checks or other methods
+        import urllib.request
+        req = urllib.request.Request(url, method='HEAD')
+        with urllib.request.urlopen(req, timeout=10) as response:
+            return response.status == 200
+    except Exception as e:
+        logger.warning(f"URL reachability check failed (might be HEAD-blocked): {e}")
+        # If HEAD fails, we might still consider it potentially reachable if we can't confirm otherwise
+        # But for strict validation, we return False if we can't confirm
+        return False
+
+def load_file_content(file_path: str) -> list:
+    """
+    Loads the content of a CSV file.
     
-    # 2. Check URL reachability (implicit via file existence and content check)
-    # Since we can't re-fetch without T006 context, we assume T006 succeeded if file exists.
-    # If the file exists but is 0 bytes, load_file_content handles it.
+    Args:
+        file_path (str): Path to the CSV file.
+        
+    Returns:
+        list: List of dictionaries representing rows, or empty list if file not found.
+    """
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Input file {file_path} not found")
     
-    # 3. Title-Token-Overlap Check
-    # We scan the content for the expected title.
-    overlap_score = calculate_token_overlap(content, EXPECTED_TITLE)
+    rows = []
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                rows.append(row)
+        logger.info(f"Loaded {len(rows)} rows from {file_path}")
+    except Exception as e:
+        logger.error(f"Error reading CSV file {file_path}: {e}")
+        raise DataFetchError(f"Failed to read CSV file: {e}")
     
-    print(f"Calculated title-token-overlap: {overlap_score:.2f} (Threshold: {MIN_OVERLAP_THRESHOLD})")
+    return rows
+
+def validate_schema(rows: list, required_columns: set) -> dict:
+    """
+    Validates that the loaded data contains the required columns.
     
-    if overlap_score < MIN_OVERLAP_THRESHOLD:
-        print(f"CRITICAL: Title-token-overlap ({overlap_score:.2f}) is below threshold ({MIN_OVERLAP_THRESHOLD}).")
-        print("The downloaded file does not appear to contain the expected dataset title.")
-        sys.exit(1)
+    Args:
+        rows (list): List of dictionaries representing rows.
+        required_columns (set): Set of required column names.
+        
+    Returns:
+        dict: Validation report containing status and details.
+    """
+    if not rows:
+        return {
+            "status": "failed",
+            "reason": "No data rows found in file",
+            "missing_columns": list(required_columns),
+            "found_columns": []
+        }
     
-    print("Validation passed: URL reachability (file present) and title-token-overlap checks succeeded.")
-    return True
+    # Get columns from the first row (assuming consistent structure)
+    found_columns = set(rows[0].keys())
+    
+    missing_columns = required_columns - found_columns
+    extra_columns = found_columns - required_columns
+    
+    status = "valid" if not missing_columns else "invalid"
+    
+    report = {
+        "status": status,
+        "required_columns": sorted(list(required_columns)),
+        "found_columns": sorted(list(found_columns)),
+        "missing_columns": sorted(list(missing_columns)),
+        "extra_columns": sorted(list(extra_columns)),
+        "row_count": len(rows),
+        "sample_row": rows[0] if rows else {}
+    }
+    
+    if status == "valid":
+        logger.info("Schema validation PASSED: All required columns present.")
+    else:
+        logger.error(f"Schema validation FAILED: Missing columns {missing_columns}")
+        
+    return report
+
+def save_validation_report(report: dict, output_path: str) -> None:
+    """
+    Saves the validation report to a JSON file.
+    
+    Args:
+        report (dict): The validation report to save.
+        output_path (str): Path to the output JSON file.
+    """
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        logger.info(f"Created output directory: {output_dir}")
+    
+    try:
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(report, f, indent=2, default=str)
+        logger.info(f"Validation report saved to {output_path}")
+    except Exception as e:
+        logger.error(f"Failed to save validation report: {e}")
+        raise DataFetchError(f"Failed to write validation report: {e}")
+
+def validate_source(input_path: str = "data/raw/data.csv", output_path: str = "data/derived/schema_validation.json") -> dict:
+    """
+    Main function to validate the source data file.
+    
+    Args:
+        input_path (str): Path to the input CSV file.
+        output_path (str): Path to save the validation report.
+        
+    Returns:
+        dict: The validation report.
+    """
+    logger.info(f"Starting source validation for {input_path}")
+    
+    # Check if file exists first
+    if not os.path.exists(input_path):
+        error_msg = f"Input file {input_path} not found. Please run code/download_data.py first."
+        logger.error(error_msg)
+        report = {
+            "status": "failed",
+            "reason": "File not found",
+            "file_path": input_path,
+            "required_columns": sorted(list(REQUIRED_COLUMNS)),
+            "found_columns": [],
+            "missing_columns": sorted(list(REQUIRED_COLUMNS)),
+            "row_count": 0,
+            "sample_row": {}
+        }
+        save_validation_report(report, output_path)
+        raise DataFetchError(error_msg)
+    
+    # Load the file content
+    rows = load_file_content(input_path)
+    
+    # Validate schema
+    report = validate_schema(rows, REQUIRED_COLUMNS)
+    
+    # Save the report
+    save_validation_report(report, output_path)
+    
+    # Raise an error if validation failed to stop downstream processes
+    if report["status"] != "valid":
+        raise DataFetchError(f"Schema validation failed: {report['reason']}")
+        
+    return report
 
 def main():
-    """Entry point for the script."""
+    """Main entry point for the script."""
+    input_path = "data/raw/data.csv"
+    output_path = "data/derived/schema_validation.json"
+    
     try:
-        validate_source()
-    except SystemExit as e:
-        # Re-raise to ensure the process exits with non-zero status on failure
-        raise e
+        validate_source(input_path, output_path)
+        logger.info("Source validation completed successfully.")
+    except DataFetchError as e:
+        logger.error(f"Validation process failed: {e}")
+        sys.exit(1)
+    except FileNotFoundError as e:
+        logger.error(f"File not found error: {e}")
+        sys.exit(1)
     except Exception as e:
-        print(f"Unexpected error during validation: {e}")
+        logger.error(f"Unexpected error during validation: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

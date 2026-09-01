@@ -1,60 +1,50 @@
-import os
-import sys
-import logging
-import json
+"""
+Preprocessing module for statistical power drift analysis.
+Validates grouping variables for variance and cardinality.
+"""
 import pandas as pd
 import numpy as np
+import json
+import logging
+import os
+import sys
 from pathlib import Path
 
-from download import get_file_hash
-from logging_config import (
-    setup_logging,
-    get_module_logger,
-    log_operation_start,
-    log_operation_complete,
-    log_data_filter_step,
-    log_skipped_row,
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
-from power_calc import calculate_power_cohen_d
-
-# Ensure the logger is configured with the project's specific setup
-logger = get_module_logger(__name__)
+logger = logging.getLogger(__name__)
 
 class DataFetchError(Exception):
-    """Raised when the raw data file is missing or fetch fails."""
+    """Custom exception for data fetching errors."""
     pass
 
-def load_raw_data(raw_data_path: Path) -> pd.DataFrame:
+def load_raw_data(input_path: str) -> pd.DataFrame:
     """
-    Load raw data from the specified path.
+    Load raw data from CSV.
     
     Args:
-        raw_data_path: Path to the raw data CSV file.
+        input_path: Path to the input CSV file.
         
     Returns:
-        DataFrame containing the raw data.
+        DataFrame with raw data.
         
     Raises:
-        DataFetchError: If the file does not exist.
+        DataFetchError: If file not found.
     """
-    if not raw_data_path.exists():
-        log_operation_start(logger, "load_raw_data", f"Checking path: {raw_data_path}")
-        raise DataFetchError(f"Raw data file not found at {raw_data_path}. "
-                             "Please run code/download.py first to fetch data.")
+    if not os.path.exists(input_path):
+        raise DataFetchError(f"Raw data file not found at {input_path}. Please run code/download_data.py first to fetch data.")
     
-    log_operation_start(logger, "load_raw_data", f"Loading raw data from: {raw_data_path}")
-    try:
-        df = pd.read_csv(raw_data_path)
-        log_operation_complete(logger, "load_raw_data", f"Loaded {len(df)} rows.")
-        return df
-    except Exception as e:
-        log_operation_start(logger, "load_raw_data", f"Error loading data: {e}")
-        raise
+    logger.info(f"Loading raw data from {input_path}")
+    df = pd.read_csv(input_path)
+    logger.info(f"Loaded {len(df)} rows")
+    return df
 
 def filter_missing_rows(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Filter out rows where critical columns are missing or NaN.
-    Logs each skipped row as per FR-008.
+    Filter out rows with missing critical columns.
     
     Args:
         df: Input DataFrame.
@@ -62,120 +52,181 @@ def filter_missing_rows(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         Filtered DataFrame.
     """
-    log_operation_start(logger, "filter_missing_rows", "Starting missing row filtering.")
+    initial_count = len(df)
+    df = df.dropna(subset=['year', 'effect_size', 'sample_size'])
+    skipped = initial_count - len(df)
     
-    critical_cols = ['year', 'effect_size', 'sample_size']
-    missing_mask = df[critical_cols].isna().any(axis=1)
-    rows_to_drop = df[missing_mask].index.tolist()
-    
-    if len(rows_to_drop) > 0:
-        log_data_filter_step(logger, "filter_missing_rows", 
-                             reason="Missing critical columns (year, effect_size, sample_size)",
-                             rows_affected=len(rows_to_drop))
-        for idx in rows_to_drop:
-            row_data = df.loc[idx]
-            missing_cols = [col for col in critical_cols if pd.isna(row_data[col])]
-            log_skipped_row(logger, idx, missing_cols)
-    
-    filtered_df = df.dropna(subset=critical_cols)
-    log_operation_complete(logger, "filter_missing_rows", 
-                           f"Filtered {len(rows_to_drop)} rows. Remaining: {len(filtered_df)}.")
-    return filtered_df
+    if skipped > 0:
+        logger.warning(f"Skipped {skipped} rows due to missing data")
+    else:
+        logger.info("No rows skipped due to missing data")
+        
+    return df
 
 def compute_power_estimates(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Calculate power estimates for the cleaned data using Cohen's d.
+    Compute power estimates using Cohen's d.
     
     Args:
-        df: Filtered DataFrame.
+        df: DataFrame with effect_size and sample_size.
         
     Returns:
-        DataFrame with added 'power_estimate' column.
+        DataFrame with power_estimate column.
     """
-    log_operation_start(logger, "compute_power_estimates", "Calculating power estimates.")
-    
-    # Apply power calculation row-wise
-    # Assuming effect_size is Cohen's d or convertible. 
-    # If effect_size is d, n1=n2=n/2 for two-sample t-test logic usually, 
-    # but here we assume sample_size is the total N and we use the helper.
-    # The helper calculate_power_cohen_d expects d, n1, n2. 
-    # For a two-group design, n1 = n2 = sample_size / 2.
-    
-    def calc_row_power(row):
-        try:
-            n_total = row['sample_size']
-            if n_total < 2:
-                return np.nan
-            n1 = n_total / 2
-            n2 = n_total / 2
-            d = row['effect_size']
-            return calculate_power_cohen_d(d, n1, n2, alpha=0.05)
-        except Exception as e:
-            logger.warning(f"Could not calculate power for row {row.name}: {e}")
+    def calculate_power(effect_size, n, alpha=0.05):
+        """Calculate power for a two-tailed t-test."""
+        if pd.isna(effect_size) or pd.isna(n) or n < 2:
             return np.nan
+        
+        d = float(effect_size)
+        n_val = int(n)
+        ncp = d * np.sqrt(n_val / 2)
+        df_val = n_val - 2
+        critical_t = stats.t.ppf(1 - alpha/2, df_val)
+        power = 1 - stats.t.cdf(critical_t, df_val, ncp)
+        return power
 
-    df['power_estimate'] = df.apply(calc_row_power, axis=1)
+    from scipy import stats
     
-    # Log any resulting NaNs in power estimate
-    nan_power_count = df['power_estimate'].isna().sum()
-    if nan_power_count > 0:
-        log_data_filter_step(logger, "compute_power_estimates", 
-                             reason="Power calculation resulted in NaN",
-                             rows_affected=nan_power_count)
-    
-    log_operation_complete(logger, "compute_power_estimates", 
-                           f"Computed power estimates for {len(df)} rows.")
+    logger.info("Computing power estimates")
+    df['power_estimate'] = df.apply(
+        lambda row: calculate_power(row['effect_size'], row['sample_size']),
+        axis=1
+    )
     return df
 
-def save_cleaned_data(df: pd.DataFrame, output_path: Path) -> None:
+def save_cleaned_data(df: pd.DataFrame, output_path: str):
     """
-    Save the cleaned and processed DataFrame to CSV.
+    Save cleaned data to CSV.
     
     Args:
-        df: The processed DataFrame.
-        output_path: Path to save the CSV file.
+        df: DataFrame to save.
+        output_path: Output file path.
     """
-    log_operation_start(logger, "save_cleaned_data", f"Saving cleaned data to: {output_path}")
-    
-    # Ensure directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     df.to_csv(output_path, index=False)
+    logger.info(f"Saved {len(df)} rows to {output_path}")
+
+def validate_groupings(df: pd.DataFrame) -> dict:
+    """
+    Validate grouping variables for variance and cardinality.
     
-    log_operation_complete(logger, "save_cleaned_data", 
-                           f"Saved {len(df)} rows to {output_path}")
-    logger.info(f"Artifact written: {output_path}")
+    Args:
+        df: DataFrame with grouping columns.
+        
+    Returns:
+        Validation dictionary with status and valid levels.
+    """
+    validation = {}
+    group_cols = ['field', 'original_study_id']
+    
+    for group_col in group_cols:
+        if group_col not in df.columns:
+            logger.warning(f"Column {group_col} not found in DataFrame. Skipping validation.")
+            validation[group_col] = {"status": "missing", "valid_levels": []}
+            continue
+            
+        unique_levels = df[group_col].unique()
+        
+        # Check if factor has any levels
+        if len(unique_levels) == 0:
+            validation[group_col] = {"status": "single_level", "valid_levels": []}
+            logger.warning(f"Factor {group_col} has no levels.")
+            continue
+        
+        if len(unique_levels) == 1:
+            validation[group_col] = {"status": "single_level", "valid_levels": list(unique_levels)}
+            logger.warning(f"Factor {group_col} has only one level: {unique_levels[0]}.")
+            continue
+        
+        valid_levels = []
+        for level in unique_levels:
+            group_data = df[df[group_col] == level]
+            
+            # Skip single-item groups (zero variance by definition)
+            if len(group_data) < 2:
+                continue
+            
+            # Check if power_residual or power_estimate column exists
+            target_col = 'power_residual' if 'power_residual' in df.columns else 'power_estimate'
+            if target_col not in group_data.columns:
+                logger.warning(f"Column {target_col} not found in DataFrame. Cannot compute variance.")
+                continue
+                
+            var_val = group_data[target_col].var()
+            
+            # Check for NaN (single item) or 0 variance
+            if pd.isna(var_val) or var_val == 0:
+                continue
+                
+            valid_levels.append(level)
+        
+        if len(valid_levels) == 0:
+            validation[group_col] = {"status": "single_level", "valid_levels": []}
+            logger.warning(f"Factor {group_col} has no valid levels with variance > 0. Dropping from model.")
+        else:
+            validation[group_col] = {"status": "valid", "valid_levels": valid_levels}
+            logger.info(f"Factor {group_col}: Valid with {len(valid_levels)} levels.")
+    
+    return validation
+
+def save_validation(validation: dict, output_path: str):
+    """
+    Save validation results to JSON.
+    
+    Args:
+        validation: Validation dictionary.
+        output_path: Output file path.
+    """
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(validation, f, indent=2)
+    logger.info(f"Saved grouping validation to {output_path}")
 
 def main():
-    """Main entry point for the preprocessing script."""
-    setup_logging()
-    project_root = Path(__file__).parent.parent
-    raw_data_path = project_root / "data" / "raw" / "data.csv"
-    output_path = project_root / "data" / "derived" / "cleaned_data.csv"
+    """Main preprocessing pipeline."""
+    logger.info("[START] preprocess_pipeline: Starting preprocessing pipeline.")
     
-    log_operation_start(logger, "preprocess_pipeline", "Starting preprocessing pipeline.")
+    # Define paths
+    input_path = "data/raw/data.csv"
+    output_csv = "data/derived/cleaned_data.csv"
+    output_json = "data/derived/grouping_validation.json"
     
+    # Load raw data
     try:
-        # 1. Load Raw Data
-        df = load_raw_data(raw_data_path)
-        
-        # 2. Filter Missing Rows
-        df_clean = filter_missing_rows(df)
-        
-        # 3. Compute Power Estimates
-        df_final = compute_power_estimates(df_clean)
-        
-        # 4. Save Output
-        save_cleaned_data(df_final, output_path)
-        
-        log_operation_complete(logger, "preprocess_pipeline", "Pipeline completed successfully.")
-        
+        df = load_raw_data(input_path)
     except DataFetchError as e:
         logger.error(f"Data fetch error: {e}")
         sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error during preprocessing: {e}")
-        sys.exit(1)
+    
+    # Filter missing rows
+    df = filter_missing_rows(df)
+    
+    # Compute power estimates
+    df = compute_power_estimates(df)
+    
+    # Calculate residuals (Pilot OLS to control for inputs)
+    # This creates the 'power_residual' needed for downstream tasks
+    if len(df) > 2 and 'power_estimate' in df.columns and 'effect_size' in df.columns and 'sample_size' in df.columns:
+        import statsmodels.api as sm
+        logger.info("Calculating power residuals using pilot OLS model")
+        X = df[['effect_size', 'sample_size']].fillna(0)
+        y = df['power_estimate'].fillna(0)
+        X = sm.add_constant(X)
+        model = sm.OLS(y, X).fit()
+        df['power_residual'] = df['power_estimate'] - model.predict(X)
+    else:
+        logger.warning("Insufficient data for residual calculation, setting residuals to 0")
+        df['power_residual'] = 0.0
+    
+    # Save cleaned data
+    save_cleaned_data(df, output_csv)
+    
+    # Validate groupings
+    validation = validate_groupings(df)
+    save_validation(validation, output_json)
+    
+    logger.info("[END] preprocess_pipeline: Pipeline completed successfully.")
 
 if __name__ == "__main__":
     main()

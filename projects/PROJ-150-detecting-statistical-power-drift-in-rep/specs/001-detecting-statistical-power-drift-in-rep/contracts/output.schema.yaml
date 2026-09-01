@@ -1,77 +1,65 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "LMM Drift Output Schema"
-description: "Schema for the primary statistical output including LMM results and derived drift metrics."
+title: "DriftModelOutput"
+description: "Schema for the statistical model output and robustness metrics."
 type: "object"
 properties:
-  lmm_results:
+  model_summary:
     type: "object"
-    description: "Results from the Linear Mixed-Effects Model."
     properties:
       slope_year:
         type: "number"
-        description: "Coefficient for the year predictor."
-      se_year:
+        description: "Estimated drift slope per calendar year."
+      se_slope:
         type: "number"
-        description: "Standard error of the year slope."
-      p_value_lrt:
+        description: "Standard error of the slope estimate."
+      p_value_parametric:
         type: "number"
-        description: "P-value from the Likelihood-Ratio Test."
-      model_converged:
-        type: "boolean"
-        description: "Flag indicating if the model converged successfully."
-    required:
-      - slope_year
-      - se_year
-      - p_value_lrt
-      - model_converged
-  permutation_results:
-    type: "object"
-    description: "Results from the permutation test."
-    properties:
+        description: "P-value from the Likelihood Ratio Test."
       p_value_permutation:
         type: "number"
-        description: "Empirical p-value from the permutation test."
-      permutation_count:
-        type: "integer"
-        description: "Number of permutations performed."
-      is_approximate:
+        description: "Empirical p-value from 10,000 permutations."
+      random_effects_variance:
+        type: "object"
+        properties:
+          field:
+            type: "number"
+          original_study_id:
+            type: "number"
+        required:
+          - field
+          - original_study_id
+      model_converged:
         type: "boolean"
-        description: "True if the count was reduced due to timeout."
     required:
+      - slope_year
+      - se_slope
+      - p_value_parametric
       - p_value_permutation
-      - permutation_count
-      - is_approximate
+      - random_effects_variance
+      - model_converged
   sensitivity_analysis:
     type: "array"
-    description: "Results of the alpha threshold sweep."
     items:
       type: "object"
       properties:
         alpha_value:
           type: "number"
-          description: "The alpha threshold tested."
+          description: "Alpha threshold tested."
         drift_significant:
           type: "boolean"
-          description: "True if p-value < alpha_value."
+          description: "Whether drift was significant at this alpha."
+        false_positive_rate:
+          type: "number"
+          description: "Estimated false positive rate at this threshold."
       required:
         - alpha_value
         - drift_significant
-  metadata:
-    type: "object"
-    description: "Run metadata."
-    properties:
-      timestamp:
-        type: "string"
-        format: "date-time"
-      dataset_checksum:
-        type: "string"
-        description: "Checksum of the input dataset."
-    required:
-      - timestamp
-      - dataset_checksum
+        - false_positive_rate
+  robust:
+    type: "boolean"
+    description: "True if drift significance is stable across all tested alphas."
 required:
-  - lmm_results
-  - permutation_results
+  - model_summary
   - sensitivity_analysis
-  - metadata
+  - robust
 additionalProperties: false
