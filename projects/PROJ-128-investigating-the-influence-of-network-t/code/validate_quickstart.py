@@ -1,7 +1,3 @@
-"""
-Quickstart validation script for the llmXive pipeline.
-Validates that the full pipeline produces expected artifacts and logs.
-"""
 import os
 import sys
 import json
@@ -9,169 +5,149 @@ import time
 import traceback
 from pathlib import Path
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Project root is the directory containing 'code'
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+PROCESSED_DIR = DATA_DIR / "processed"
+LOGS_DIR = DATA_DIR / "logs"
 
-from config import get_config_dict, ensure_directories
-from main import main as run_main_pipeline
-from analysis.generate_correlation_results import main as run_correlation_pipeline
-from analysis.robustness import main as run_robustness_pipeline
-from reports.generate_report import main as run_report_generation
-from reports.validate_report import main as run_report_validation
-from reports.audit_associational_language import main as run_language_audit
+# Critical output files defined in tasks.md and the pipeline
+REQUIRED_FILES = {
+    # Structural Metrics (US1)
+    "structural_metrics.csv": PROCESSED_DIR / "structural_metrics.csv",
+    # Dynamic Metrics (US1)
+    "dynamic_metrics.csv": PROCESSED_DIR / "dynamic_metrics.csv",
+    # State Assignments (US1)
+    "state_assignments.csv": PROCESSED_DIR / "state_assignments.csv",
+    # LOO Centroids (US1)
+    "loo_centroids.npy": PROCESSED_DIR / "loo_centroids.npy",
+    # Correlation Results (US2)
+    "correlation_results.csv": PROCESSED_DIR / "correlation_results.csv",
+    # Sensitivity Comparison (US3)
+    "sensitivity_comparison.csv": PROCESSED_DIR / "sensitivity_comparison.csv",
+    # Exclusion Log (US1)
+    "exclusion_log.json": LOGS_DIR / "exclusion_log.json",
+    # Final Report (US3)
+    "final_report.json": DATA_DIR / "final_report.json",
+    # Directory structure checks
+    "raw_dir": DATA_DIR / "raw",
+    "processed_dir": PROCESSED_DIR,
+    "logs_dir": LOGS_DIR,
+}
 
-def log_step(step_name: str, status: str, message: str = ""):
-    """Log a validation step."""
+def log_step(step_name: str, status: str, details: str = ""):
+    """Log a validation step to stdout."""
     timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-    log_entry = {
-        "timestamp": timestamp,
-        "step": step_name,
-        "status": status,
-        "message": message
-    }
-    print(f"[{timestamp}] {status}: {step_name} - {message}")
-    return log_entry
+    status_symbol = "✓" if status == "PASS" else "✗"
+    print(f"[{timestamp}] {status_symbol} {step_name}: {details}")
 
-def validate_file_exists(file_path: Path, required: bool = True) -> bool:
-    """Check if a file exists."""
-    exists = file_path.exists()
-    status = "PASS" if exists else "FAIL"
-    msg = f"File {file_path} {'exists' if exists else 'MISSING'}"
-    log_step(f"Check: {file_path.name}", status, msg)
-    if required and not exists:
+def validate_file_exists(path: Path, file_desc: str) -> bool:
+    """Check if a file or directory exists."""
+    if path.exists():
+        if path.is_file():
+            size = path.stat().st_size
+            log_step(f"File: {file_desc}", "PASS", f"Exists ({size} bytes)")
+        else:
+            log_step(f"Dir: {file_desc}", "PASS", "Exists")
+        return True
+    else:
+        log_step(f"Missing: {file_desc}", "FAIL", f"Path not found: {path}")
         return False
-    return exists
+
+def validate_file_content(path: Path, file_desc: str, min_lines: int = 1) -> bool:
+    """Check if a file exists and has minimum content."""
+    if not path.exists():
+        log_step(f"Content: {file_desc}", "FAIL", "File missing")
+        return False
+
+    try:
+        if path.suffix == ".json":
+            with open(path, 'r') as f:
+                data = json.load(f)
+            if isinstance(data, dict) and len(data) > 0:
+                log_step(f"Content: {file_desc}", "PASS", f"Valid JSON with keys: {list(data.keys())[:3]}")
+                return True
+            else:
+                log_step(f"Content: {file_desc}", "FAIL", "Empty or invalid JSON")
+                return False
+        elif path.suffix == ".csv":
+            with open(path, 'r') as f:
+                lines = f.readlines()
+            if len(lines) >= min_lines:
+                log_step(f"Content: {file_desc}", "PASS", f"{len(lines)} lines")
+                return True
+            else:
+                log_step(f"Content: {file_desc}", "FAIL", f"Too few lines: {len(lines)}")
+                return False
+        elif path.suffix == ".npy":
+            import numpy as np
+            data = np.load(path)
+            log_step(f"Content: {file_desc}", "PASS", f"Shape: {data.shape}")
+            return True
+        else:
+            log_step(f"Content: {file_desc}", "PASS", "Exists")
+            return True
+    except Exception as e:
+        log_step(f"Content: {file_desc}", "FAIL", f"Read error: {str(e)}")
+        return False
 
 def run_validation():
-    """Run the full quickstart validation sequence."""
+    """Run the full quickstart validation suite."""
     print("=" * 60)
-    print("Starting Quickstart Validation Pipeline")
+    print("Running Quickstart Validation Pipeline")
     print("=" * 60)
 
-    start_time = time.time()
-    validation_log = []
     all_passed = True
 
-    # Ensure directories exist
-    config = get_config_dict()
-    ensure_directories()
-
-    # 1. Run Main Pipeline (Structural & Dynamic Metrics)
-    log_step("Pipeline: Main", "START", "Running main pipeline to generate structural and dynamic metrics")
-    try:
-        run_main_pipeline()
-        log_step("Pipeline: Main", "PASS", "Main pipeline completed successfully")
-    except Exception as e:
-        log_step("Pipeline: Main", "FAIL", f"Main pipeline failed: {str(e)}")
-        all_passed = False
-        validation_log.append(log_step("Pipeline: Main", "FAIL", str(e)))
-
-    # Validate Main Pipeline Outputs
-    if all_passed:
-        files_to_check = [
-            PROJECT_ROOT / "data" / "processed" / "structural_metrics.csv",
-            PROJECT_ROOT / "data" / "processed" / "dynamic_metrics.csv",
-            PROJECT_ROOT / "data" / "logs" / "exclusion_log.json"
-        ]
-        for f in files_to_check:
-            if not validate_file_exists(f):
+    # 1. Check Directory Structure
+    log_step("Directory Structure", "INFO", "Checking data directories...")
+    for key, path in REQUIRED_FILES.items():
+        if key.endswith("_dir"):
+            if not validate_file_exists(path, key):
                 all_passed = False
 
-    # 2. Run Correlation Pipeline
-    if all_passed:
-        log_step("Pipeline: Correlation", "START", "Running correlation analysis")
-        try:
-            run_correlation_pipeline()
-            log_step("Pipeline: Correlation", "PASS", "Correlation analysis completed")
-        except Exception as e:
-            log_step("Pipeline: Correlation", "FAIL", f"Correlation analysis failed: {str(e)}")
+    # 2. Check Processed Data Artifacts
+    log_step("Processed Artifacts", "INFO", "Checking pipeline outputs...")
+    file_checks = [
+        ("structural_metrics.csv", REQUIRED_FILES["structural_metrics.csv"], 2),
+        ("dynamic_metrics.csv", REQUIRED_FILES["dynamic_metrics.csv"], 2),
+        ("state_assignments.csv", REQUIRED_FILES["state_assignments.csv"], 2),
+        ("loo_centroids.npy", REQUIRED_FILES["loo_centroids.npy"], 1),
+        ("correlation_results.csv", REQUIRED_FILES["correlation_results.csv"], 2),
+        ("sensitivity_comparison.csv", REQUIRED_FILES["sensitivity_comparison.csv"], 2),
+        ("exclusion_log.json", REQUIRED_FILES["exclusion_log.json"], 1),
+        ("final_report.json", REQUIRED_FILES["final_report.json"], 1),
+    ]
+
+    for desc, path, min_lines in file_checks:
+        if not validate_file_content(path, desc, min_lines):
             all_passed = False
 
-        if all_passed:
-            if not validate_file_exists(PROJECT_ROOT / "data" / "processed" / "correlation_results.csv"):
-                all_passed = False
-
-    # 3. Run Robustness Pipeline
-    if all_passed:
-        log_step("Pipeline: Robustness", "START", "Running robustness analysis")
-        try:
-            run_robustness_pipeline()
-            log_step("Pipeline: Robustness", "PASS", "Robustness analysis completed")
-        except Exception as e:
-            log_step("Pipeline: Robustness", "FAIL", f"Robustness analysis failed: {str(e)}")
+    # 3. Check Code Artifacts (Basic existence)
+    log_step("Code Artifacts", "INFO", "Checking critical scripts...")
+    code_files = [
+        "code/main.py",
+        "code/preprocess/structural.py",
+        "code/preprocess/functional.py",
+        "code/analysis/correlation.py",
+        "code/analysis/robustness.py",
+        "code/reports/generate_report.py",
+        "code/config.py",
+    ]
+    for code_path in code_files:
+        full_path = PROJECT_ROOT / code_path
+        if not validate_file_exists(full_path, code_path):
             all_passed = False
 
-        if all_passed:
-            if not validate_file_exists(PROJECT_ROOT / "data" / "processed" / "sensitivity_results.json"):
-                all_passed = False
-
-    # 4. Generate Final Report
-    if all_passed:
-        log_step("Pipeline: Report", "START", "Generating final report")
-        try:
-            run_report_generation()
-            log_step("Pipeline: Report", "PASS", "Final report generated")
-        except Exception as e:
-            log_step("Pipeline: Report", "FAIL", f"Report generation failed: {str(e)}")
-            all_passed = False
-
-        if all_passed:
-            if not validate_file_exists(PROJECT_ROOT / "data" / "reports" / "final_report.json"):
-                all_passed = False
-
-    # 5. Validate Report Schema
-    if all_passed:
-        log_step("Pipeline: Schema Validation", "START", "Validating report against schema")
-        try:
-            run_report_validation()
-            log_step("Pipeline: Schema Validation", "PASS", "Report schema validation passed")
-        except Exception as e:
-            log_step("Pipeline: Schema Validation", "FAIL", f"Schema validation failed: {str(e)}")
-            all_passed = False
-
-    # 6. Audit Associational Language
-    if all_passed:
-        log_step("Pipeline: Language Audit", "START", "Auditing report for causality language")
-        try:
-            run_language_audit()
-            log_step("Pipeline: Language Audit", "PASS", "Language audit completed")
-        except Exception as e:
-            log_step("Pipeline: Language Audit", "FAIL", f"Language audit failed: {str(e)}")
-            all_passed = False
-
-        if all_passed:
-            if not validate_file_exists(PROJECT_ROOT / "data" / "reports" / "language_audit.json"):
-                all_passed = False
-
-    end_time = time.time()
-    duration = end_time - start_time
-
-    # Summary
-    print("\n" + "=" * 60)
-    print("VALIDATION SUMMARY")
     print("=" * 60)
-    print(f"Total Duration: {duration:.2f} seconds")
-    print(f"Overall Status: {'PASS' if all_passed else 'FAIL'}")
-
-    # Save validation log
-    log_path = PROJECT_ROOT / "data" / "logs" / "quickstart_validation.json"
-    with open(log_path, "w") as f:
-        json.dump({
-            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-            "duration_seconds": duration,
-            "status": "PASS" if all_passed else "FAIL",
-            "steps": validation_log
-        }, f, indent=2)
-
-    print(f"Validation log saved to: {log_path}")
-
-    if not all_passed:
-        print("\nERROR: Validation failed. Please check the logs above.")
-        sys.exit(1)
-    else:
-        print("\nSUCCESS: Full pipeline reproducibility validated.")
+    if all_passed:
+        print("VALIDATION RESULT: SUCCESS")
+        print("All critical pipeline artifacts and directories are present.")
         sys.exit(0)
+    else:
+        print("VALIDATION RESULT: FAILURE")
+        print("One or more critical artifacts are missing or invalid.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     run_validation()

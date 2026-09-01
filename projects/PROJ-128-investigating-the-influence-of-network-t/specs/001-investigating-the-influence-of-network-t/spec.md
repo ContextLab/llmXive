@@ -73,7 +73,7 @@ A researcher needs to verify that the findings are robust to parameter choices (
 - **FR-003**: System MUST calculate per-subject dynamic metrics including number of visited states and mean dwell time for each state based on the common state space defined in FR-002. (See US-1)
 - **FR-004**: System MUST test for normality (Shapiro-Wilk, α=0.05) on structural and dynamic metrics; if normality is violated, use Spearman's rank correlation, otherwise use Pearson's correlation, between each structural metric and each dynamic metric across the subject cohort. (See US-2)
 - **FR-005**: System MUST apply Benjamini-Hochberg FDR correction (q=0.05) to all correlation p-values to control for multiple comparisons. (See US-2)
-- **FR-006**: System MUST perform a sensitivity analysis by re-running the dynamic state extraction with a 20 TR window length and comparing results. (See US-3)
+- **FR-006**: System MUST perform a sensitivity analysis by re-running the dynamic state extraction with a variable time window length and comparing results. (See US-3)
 - **FR-007**: System MUST explicitly label all statistical associations as "associational" and not causal in the final output. (See US-3)
 - **FR-008**: System MUST define the structural network thresholding strategy as proportional density (e.g., [deferred] density) and perform a sensitivity analysis on this threshold (±5%) to ensure result robustness. (See US-3)
 
@@ -93,7 +93,7 @@ A researcher needs to verify that the findings are robust to parameter choices (
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: The correlation between structural global efficiency and dynamic state stability (hypothesized to be stable) is measured against the null hypothesis of no association (r=0) using the appropriate correlation method (Pearson or Spearman) and FDR-corrected p-values. (See US-2)
-- **SC-002**: The robustness of dynamic state metrics is measured against the baseline (30 TR window) by calculating the absolute difference in correlation coefficients when using a 20 TR window. (See US-3)
+- **SC-002**: The robustness of dynamic state metrics is measured against the baseline (standard TR window) by calculating the absolute difference in correlation coefficients when using a 20 TR window. (See US-3)
 - **SC-003**: The computational feasibility is measured against the GitHub Actions free-tier constraints (a limited number of CPU cores, a limited amount of RAM, a time limit) by verifying the total runtime and peak memory usage of the full pipeline via a generated resource usage report. (See US-3)
 - **SC-004**: The methodological validity is measured against the requirement for observational inference by verifying that the final report contains explicit "associational" framing and no causal language. (See US-3)
 - **SC-005**: The data completeness is measured against the total cohort size by calculating the percentage of subjects successfully processed, with exclusions explicitly categorized by reason (e.g., convergence failure, sparsity >90%). (See US-1)

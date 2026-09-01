@@ -1,3 +1,9 @@
+"""
+Optimized Main Pipeline Entry Point
+
+This script runs the full pipeline with CPU-optimized settings,
+ensuring no GPU calls are made and memory usage is minimized.
+"""
 import os
 import sys
 import gc
@@ -5,60 +11,104 @@ import traceback
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from config import get_config_dict
+
+# Import optimization utilities
 from utils.cpu_optimization import (
     validate_no_gpu_acceleration,
     optimize_memory_usage,
-    chunked_dataframe_iterator,
-    set_random_seed
+    set_random_seed,
+    force_gc_collect
 )
+from config import get_config_dict, ensure_directories
 from preprocess.structural import run_structural_pipeline
 from preprocess.functional import run_functional_pipeline
+from analysis.correlation import run_correlation_analysis
+from analysis.robustness import run_sensitivity_analysis
+from reports.generate_report import generate_final_report
+from reports.audit_associational_language import generate_audit_report
 
-def main() -> None:
+def main():
     """
-    Optimized main entry point for the pipeline with memory management.
-    Ensures CPU-only execution and efficient memory usage.
+    Main entry point for the optimized pipeline.
     """
-    # Set random seed for reproducibility
-    set_random_seed(42)
-    
-    # Validate CPU-only execution
-    validate_no_gpu_acceleration()
-    
+    # 1. Validate CPU-only environment
+    print("Validating CPU-only environment...")
+    if not validate_no_gpu_acceleration():
+        print("WARNING: GPU acceleration detected. Proceeding in CPU-only mode anyway, but results may be affected.")
+
+    # 2. Set random seed for reproducibility
     config = get_config_dict()
-    processed_dir = Path(config['paths']['processed_dir'])
-    logs_dir = Path(config['paths']['logs_dir'])
-    
-    # Ensure directories exist
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    logs_dir.mkdir(parents=True, exist_ok=True)
-    
-    print("Starting optimized pipeline execution...")
-    print("CPU-only mode validated.")
-    
-    # In a real implementation, we would:
-    # 1. Load subject list from data directory
-    # 2. Process each subject in chunks to manage memory
-    # 3. Aggregate results and save to CSV
-    
-    # Placeholder for actual processing logic
-    # This ensures the optimized path is available and tested
-    
-    try:
-        # Example of chunked processing pattern
-        # (Would be used with real data)
-        chunk_size = config.get('batch_size', 100)
-        
-        print(f"Batch processing configured with chunk size: {chunk_size}")
-        print("Pipeline ready for CPU-optimized execution.")
-        
-    except Exception as e:
-        print(f"Error during pipeline execution: {e}")
-        traceback.print_exc()
-        sys.exit(1)
-    finally:
-        gc.collect()
+    seed = config.get('RANDOM_SEED', 42)
+    set_random_seed(seed)
 
-if __name__ == '__main__':
+    # 3. Ensure directories exist
+    ensure_directories()
+
+    # 4. Run Structural Pipeline
+    print("Running Structural Pipeline...")
+    try:
+        structural_results = run_structural_pipeline()
+        print(f"Structural metrics saved to {structural_results.get('output_path')}")
+    except Exception as e:
+        print(f"Error in Structural Pipeline: {e}")
+        traceback.print_exc()
+        return
+
+    # 5. Run Functional Pipeline
+    print("Running Functional Pipeline...")
+    try:
+        functional_results = run_functional_pipeline()
+        print(f"Dynamic metrics saved to {functional_results.get('output_path')}")
+    except Exception as e:
+        print(f"Error in Functional Pipeline: {e}")
+        traceback.print_exc()
+        return
+
+    # 6. Run Correlation Analysis
+    print("Running Correlation Analysis...")
+    try:
+        correlation_results = run_correlation_analysis()
+        print(f"Correlation results saved to {correlation_results.get('output_path')}")
+    except Exception as e:
+        print(f"Error in Correlation Analysis: {e}")
+        traceback.print_exc()
+        return
+
+    # 7. Run Sensitivity Analysis
+    print("Running Sensitivity Analysis...")
+    try:
+        sensitivity_results = run_sensitivity_analysis()
+        print(f"Sensitivity results saved to {sensitivity_results.get('output_path')}")
+    except Exception as e:
+        print(f"Error in Sensitivity Analysis: {e}")
+        traceback.print_exc()
+        return
+
+    # 8. Generate Final Report
+    print("Generating Final Report...")
+    try:
+        report_path = generate_final_report()
+        print(f"Final report saved to {report_path}")
+    except Exception as e:
+        print(f"Error generating Final Report: {e}")
+        traceback.print_exc()
+        return
+
+    # 9. Audit Associational Language
+    print("Auditing Associational Language...")
+    try:
+        audit_path = generate_audit_report()
+        print(f"Audit report saved to {audit_path}")
+    except Exception as e:
+        print(f"Error in Associational Language Audit: {e}")
+        traceback.print_exc()
+        return
+
+    # 10. Force garbage collection at the end
+    collected = force_gc_collect()
+    print(f"Garbage collection completed. Collected {collected} objects.")
+
+    print("Pipeline completed successfully.")
+
+if __name__ == "__main__":
     main()

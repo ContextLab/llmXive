@@ -1,3 +1,12 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The response provides only a feature specification and no evidence that the\
+    \ required directories (`code/`, `data/`, `contracts/`, `tests/`) have been created;\
+    \ no file listings or screenshots are shown. Consequently, the claim that the\
+    \ project directory structure exists cannot be verified. The implementer must\
+    \ create and show the four directories (and preferably non\u2011empty placeholder\
+    \ files) to satisfy the task."
 T003:
   c: true
   h: 563e4d6952a6c6339af60e582e8e49bb4c38d0f3e84bbabbbf0759e380dba581
@@ -11,21 +20,30 @@ T012:
   r: The required artifact `tests/unit/test_structural.py` does not exist in the repository,
     so no unit test for `code/preprocess/structural.py` is provided. The task remains
     unfinished.
-T041:
+T050:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code artifacts, diff logs, or documentation were provided to demonstrate that
-    any cleanup or refactoring was performed, nor any evidence that GPU calls were
-    removed. Without tangible files or test results, the claim cannot be verified.
-T042:
+  r: No `docs/` directory or updated `README.md` file was provided; the claim of documentation
+    updates cannot be verified because the required artifacts are missing. The task
+    remains unfinished until the documentation files are added and contain the expected
+    updates.
+T051:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `quickstart.md` validation run, logs, or reproducibility output
-    is present; the required artifact confirming that the full pipeline was executed
-    and validated is missing.
-T043:
+  r: No code, diff, or documentation was provided showing that any cleanup or refactoring
+    was performed, nor any evidence that GPU calls were removed. Without tangible
+    artifacts, the claim cannot be verified.
+T052:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No review document or report was provided; the implementer did not supply any
-    artifact demonstrating a final review of the reports for associational language
-    compliance. The required compliance review output is missing.
+  r: No evidence of a `quickstart.md` validation run (e.g., logs, screenshots, generated
+    output files, or a report confirming reproducibility) is present, and no artifacts
+    demonstrating that the pipeline was executed and validated are provided. The implementer
+    therefore has not satisfied the task requirement.
+T053:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No review document, checklist, or any artifact demonstrating a final assessment\
+    \ of the generated reports for \u201Cassociational\u201D language compliance and\
+    \ scope adherence is present. The implementer provided only the original feature\
+    \ specification; there is no evidence of a completed T053 review."

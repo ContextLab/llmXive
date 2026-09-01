@@ -1,1 +1,1 @@
-# Contracts and Schema definitions
+# Schema definitions for data validation.

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T06:50:24.325210Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-128-investigating-the-influence-of-network-t
-last_run_id: 976c39e8-cee1-4e40-8114-a3c76a1df8f9
+last_run_id: bf075e2b-f9e3-4960-919b-fcbb6b67641a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-128-investigating-the-influence-of-network-t/specs/001-investigating-the-influence-of-network-t
 title: Investigating the Influence of Network Topology on Spontaneous Brain Activity
   Patterns
-updated_at: '2026-08-30T12:42:51.459130Z'
+updated_at: '2026-09-01T17:09:00.843944Z'

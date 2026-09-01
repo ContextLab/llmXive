@@ -44,25 +44,25 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project directory structure (`code/`, `data/`, `contracts/`, `tests/`) as per implementation plan.
-- [X] T002 Create `requirements.txt` pinning all dependencies (nilearn, networkx, scikit-learn, pandas, numpy, statsmodels, scipy, pyyaml).
+- [X] T002 Create `requirements.txt` pinning all dependencies (nilearn, networkx, scikit-learn, pandas, numpy, statsmodels, scipy, pyyaml>=6.0).
 - [X] T003 [P] Configure linting (flake8/pylint) and formatting (black) tools in `pyproject.toml` or `.pre-commit-config.yaml`.
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Implement `code/config.py` for paths, seeds, and baseline parameters (30 TR window, 20 TR sensitivity, k=5).
-- [X] T005 [P] Implement `code/config.py` hyperparameters section for density thresholds and statistical alpha levels.
+- [X] T004 [P] Implement `code/config.py` for paths, seeds, and baseline parameters. Explicitly set: `WINDOW_LENGTH = 30` (in TRs), `WINDOW_STEP = 1` (in TRs), `K_MEANS_K = 5`, `DENSITY_THRESHOLD_BASELINE = None`.
+- [X] T005 [P] Implement `code/config.py` hyperparameters section for density thresholds, explicitly creating variables `DENSITY_THRESHOLD_BASELINE = None` and `DENSITY_THRESHOLD_VARIATION = 0.05` for deferred definition per FR-008.
 - [X] T006 [P] Create `code/preprocess/__init__.py` and data loading utilities for HCP OpenNeuro data (dMRI/fMRI).
 - [X] T007 [P] Implement `code/preprocess/structural.py` skeleton with placeholder for graph metric calculation.
 - [X] T008 [P] Implement `code/preprocess/functional.py` skeleton for sliding-window and state extraction.
 - [X] T009 [P] Create `code/analysis/correlation.py` skeleton for statistical testing.
 - [X] T010 [P] Create `code/reports/generate_report.py` skeleton for final output.
-- [ ] T011 [P] Setup `data/` directory structure (raw, processed, logs) and `contracts/` schema files (`dataset.schema.yaml`, `output.schema.yaml`).
+- [X] T011 [P] Setup `data/` directory structure (raw, processed, logs) and `contracts/` schema files (`dataset.schema.yaml`, `output.schema.yaml`).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -70,23 +70,23 @@
 
 ## Phase 3: User Story 1 - Compute Structural and Dynamic Graph Metrics (Priority: P1) 🎯 MVP
 
-**Goal**: Derive quantitative topological metrics (global efficiency, average clustering, modularity) from dMRI and dynamic functional states (dwell time, visited states) from fMRI for a cohort.
+**Goal**: Derive quantitative topological metrics (global efficiency, average clustering, modularity) from dMRI and dynamic functional states (dwell time, visited states) from fMRI for a cohort using Leave-One-Out (LOO) K-Means to ensure independence.
 
 **Independent Test**: Run pipeline on a single subject's preprocessed HCP data; verify output JSON contains non-null values for structural global efficiency, clustering, modularity, and dynamic state dwell times.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T012 [P] [US1] Unit test for `code/preprocess/structural.py` graph metric calculation in `tests/unit/test_structural.py`.
-- [X] T013 [P] [US1] Unit test for `code/preprocess/functional.py` k-means state extraction in `tests/unit/test_functional.py`.
+- [X] T013 [P] [US1] Unit test for `code/preprocess/functional.py` LOO k-means state extraction in `tests/unit/test_functional.py`.
 - [X] T014 [P] [US1] Integration test for single-subject pipeline in `tests/integration/test_single_subject.py`.
 
 ### Implementation for User Story 1
 
 - [X] T015 [US1] Implement structural graph metric calculation (global efficiency, clustering, modularity) in `code/preprocess/structural.py` using NetworkX. Handle sparsity >90% exclusion.
-- [X] T016 [US1] Implement sliding-window correlation in `code/preprocess/functional.py` with **strict parameters**: 30 TR window, 1 TR step, and **concatenating these windowed matrices across all subjects** before k-means clustering.
-- [X] T017 [US1] Implement **Leave-One-Out (LOO) K-Means (k=5)** clustering for dynamic states in `code/preprocess/functional.py`. **Algorithm**: For each subject `i`, centroids must be calculated by clustering the windowed matrices of **all subjects j != i** (excluding the target subject) to derive centroids, then assign subject `i`'s windows to these centroids. **Must run sequentially** to ensure strict subject isolation during centroid derivation and prevent circular correlation (Constitution Principle VI).
+- [X] T016 [US1] Implement **Leave-One-Out (LOO) K-Means Centroid Generation** in `code/preprocess/functional.py`. For each subject, compute sliding-window correlations (window_length=30 TR, step=1 TR) for all OTHER subjects (N-1), concatenate these matrices, and apply k-means (k=5) to generate **LOO Centroids**. **Output**: Save LOO Centroids to `data/processed/loo_centroids.npy`. **Constraint**: Must strictly enforce independence (subject i is never used to generate centroids for subject i).
+- [X] T017 [US1] Implement **LOO State Assignment** in `code/preprocess/functional.py`. Load LOO Centroids from `data/processed/loo_centroids.npy` (generated by T016). Assign windowed matrices of each subject to the corresponding LOO Centroids to determine state sequences. Calculate per-subject dynamic metrics (number of visited states, mean dwell time). **Output**: Save per-subject state assignments and metrics to `data/processed/state_assignments.csv` and `data/processed/dynamic_metrics.csv`.
 - [X] T018 [US1] Implement per-subject dynamic metric calculation (number of visited states, mean dwell time) in `code/preprocess/functional.py`.
-- [ ] T019 [US1] Implement batch processing logic in `code/main.py` to aggregate metrics into `data/processed/structural_metrics.csv` and `data/processed/dynamic_metrics.csv`. **Dependency**: This task relies on the schema defined in `contracts/output.schema.yaml` (set up in Task T011 in Phase 2) to ensure correct CSV structure.
+- [X] T019 [US1] Implement batch processing logic in `code/main.py` to aggregate metrics into `data/processed/structural_metrics.csv` and `data/processed/dynamic_metrics.csv`. **Dependency**: Requires `contracts/output.schema.yaml` (completed in T011) and completion of T015-T018.
 - [X] T020 [US1] Implement subject exclusion logging (convergence failure, sparsity) to `data/logs/exclusion_log.json`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -111,7 +111,7 @@
 - [X] T025 [US2] Implement correlation calculation between structural and dynamic metrics across the cohort in `code/analysis/correlation.py`.
 - [X] T026 [US2] Implement Benjamini-Hochberg FDR correction (q=0.05) on all p-values in `code/analysis/correlation.py`.
 - [X] T027 [US2] Generate `data/processed/correlation_results.csv` containing r-values, raw p-values, and FDR-corrected p-values.
-- [ ] T028 [US2] Handle edge case: If FDR correction yields zero significant findings, ensure report explicitly states this rather than omitting results.
+- [X] T028 [US2] Handle edge case: If FDR correction yields zero significant findings, ensure report explicitly states this rather than omitting results.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -130,13 +130,19 @@
 
 ### Implementation for User Story 3
 
-- [X] T031 [US3] Implement sensitivity analysis for window length in `code/analysis/robustness.py`. This must explicitly compare the **30 TR baseline** against a **20 TR sensitivity check** as mandated by FR-006 and SC-002.
-- [X] T032 [US3] Implement sensitivity analysis for structural threshold density (±5% variation) in `code/analysis/robustness.py`.
+- [X] T031 [US3] Implement sensitivity analysis for window length in `code/analysis/robustness.py`. Explicitly compare **baseline (a fixed number of TRs)** against **sensitivity (TR)** windows as mandated by FR-006 and SC-002. Calculate and save the absolute difference in correlation coefficients for all metric pairs to `data/processed/sensitivity_comparison.csv`.
+- [X] T032 [US3] Implement sensitivity analysis for structural **proportional density** threshold (±5% variation) in `code/analysis/robustness.py` as mandated by FR-008.
 - [X] T033 [US3] Implement resource usage monitoring (peak RAM, runtime) in `code/main.py` to verify CPU-only constraints (GB/h).
-- [X] T034 [US3] Generate final report in `code/reports/generate_report.py` with explicit "associational" framing (FR-007) and sensitivity tables. **Requirement**: The report MUST explicitly calculate and display the "absolute difference between 30 TR and 20 TR correlation coefficients" to satisfy SC-002.
-- [ ] T035 [US3] Validate report against `contracts/output.schema.yaml` to ensure all required fields (r, p, FDR, sensitivity, absolute difference) are present.
+- [X] T034 [US3] Generate final report in `code/reports/generate_report.py` with explicit "associational" framing (FR-007) and sensitivity tables. **Requirement**: The report MUST explicitly calculate and display the "absolute difference between 30 TR and 20 TR correlation coefficients" using data from `data/processed/sensitivity_comparison.csv` to satisfy SC-002.
+- [X] T035 [US3] Validate report against `contracts/output.schema.yaml` to ensure all required fields (r, p, FDR, sensitivity, absolute difference) are present.
 
 **Checkpoint**: All user stories should now be independently functional
+
+---
+
+## Phase 6: Revision - Tractography Noise Sensitivity (Priority: P2) - **REMOVED**
+
+**Note**: The "Tractography Noise Sensitivity" analysis (varying confidence thresholds) was identified as unapproved scope creep (not present in FR-001 through FR-008 or plan.md). Tasks T040-T044 have been removed to strictly adhere to the project's authorized scope. No further sensitivity analyses beyond those explicitly mandated in FR-006 (window length) and FR-008 (density threshold) are to be implemented.
 
 ---
 
@@ -144,10 +150,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T040 [P] Documentation updates in `docs/` and `README.md`.
-- [ ] T041 Code cleanup and refactoring for CPU efficiency (ensure no GPU calls).
-- [ ] T042 Run `quickstart.md` validation to ensure full pipeline reproducibility.
-- [ ] T043 Final review of all reports for "associational" language compliance.
+- [ ] T050 [P] Documentation updates in `docs/` and `README.md`.
+- [ ] T051 Code cleanup and refactoring for CPU efficiency (ensure no GPU calls).
+- [ ] T052 Run `quickstart.md` validation to ensure full pipeline reproducibility.
+- [ ] T053 Final review of all reports for "associational" language compliance and scope adherence.
 
 ---
 
@@ -160,6 +166,7 @@
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
+- **Revision (Phase 6)**: **REMOVED** - No revision tasks currently authorized.
 - **Polish (Final Phase)**: Depends on all desired user stories and revisions being complete
 
 ### User Story Dependencies
@@ -167,6 +174,7 @@
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 and US2 data output
+- **Revision (Phase 6)**: **REMOVED**
 - **Polish (Final Phase)**: Depends on all desired user stories and revisions being complete
 
 ### Within Each User Story
@@ -245,3 +253,5 @@ With multiple developers:
 - **Critical Constraint**: All tasks must run on CPU-only (a limited number of cores, GB RAM). No GPU, no 8-bit quantization, no large LLMs.
 - **Data Integrity**: No fake data. All metrics must come from real HCP data fetched via OpenNeuro/URL.
 - **Scope Constraint**: Only implement features explicitly mandated by FR-001 through FR-008. No unapproved sensitivity analyses (e.g., tractography confidence) are permitted.
+- **Methodological Note**: Tasks T016 and T017 now implement the Plan-mandated "Leave-One-Out (LOO)" K-Means strategy to ensure statistical independence, correcting the previous "concatenate-all" error.
+- **Revision Note**: Phase 6 (Tractography Noise Sensitivity) has been removed as it was not authorized by the spec or plan.

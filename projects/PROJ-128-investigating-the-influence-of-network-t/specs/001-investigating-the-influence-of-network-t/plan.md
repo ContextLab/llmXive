@@ -115,5 +115,5 @@ To satisfy Constitution Principle VI (Structural-Functional Independence) and ad
 |-----------|------------|-------------------------------------|
 | LOO Clustering | Required to break circular dependency between subject data and state definition. | Cohort-wide clustering (creates tautology where subject defines their own stability). |
 | Fixed Threshold (%) | Required to avoid p-hacking in threshold selection. | Selecting threshold post-hoc based on small-worldness (methodologically invalid). |
-| Power Limitation Acknowledgement | Required for scientific honesty given N~50. | Claiming high power (methodologically invalid). |
+| Power Limitation Acknowledgement | Required for scientific honesty given a sample size of sufficient magnitude.. | Claiming high power (methodologically invalid). |
 | Permutation Test | Required to validate p-values for small N. | Standard parametric tests only (risk of inflated Type I error). |

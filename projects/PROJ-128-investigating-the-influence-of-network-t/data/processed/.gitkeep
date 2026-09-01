@@ -1,2 +1,1 @@
-# Directory for processed metrics (CSVs, JSONs)
-# Do not commit actual data files here
+# Directory for processed data (CSVs, NPYs, JSONs)
