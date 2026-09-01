@@ -11,12 +11,12 @@
         "page": 15
       }
     ],
-    "audited_at": "2026-09-01T11:18:06.874951+00:00"
+    "audited_at": "2026-09-01T11:47:31.016944+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-642-minwm-a-full-stack-open-source-framework",
-  "updated_at": "2026-09-01T11:18:06.874970+00:00"
+  "updated_at": "2026-09-01T11:47:31.016959+00:00"
 }
