@@ -5,3 +5,9 @@ T016:
     repository, so the integration test artifact is missing entirely. Without this
     test file, the OPD data flow cannot be verified. The implementer must add the
     missing test file with appropriate test code.
+T018c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `results/opd/accumulated_matrix_seed_{i}.npy` files (or any other output)
+    were provided; the claim lacks the required accumulated matrix artifact, so the
+    task is not satisfied.

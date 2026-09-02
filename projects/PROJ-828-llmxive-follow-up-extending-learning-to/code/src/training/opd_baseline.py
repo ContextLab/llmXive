@@ -1,8 +1,9 @@
 """
-OPD (On-Policy Distillation) Baseline Runner for GSM8K.
+OPD Baseline Implementation for Low-Rank RL Foresight.
 
-Implements a training loop that runs on-policy updates on the GSM8K subset,
-capturing parameter updates (delta W) at each step for subsequent subspace analysis.
+This module implements the On-Policy Distillation (OPD) baseline, including
+logic to record parameter updates (Delta W) and save per-layer update vectors
+to disk for subsequent SVD analysis.
 """
 import os
 import json
@@ -10,20 +11,21 @@ import gc
 import math
 import time
 import logging
+import re
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Any, Iterator
+from typing import Dict, List, Optional, Tuple, Any, Iterator
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
+import torch.optim as optim
 from torch.utils.data import DataLoader
-from transformers import AutoModelForCausalLM, AutoTokenizer, LlamaConfig
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from datasets import load_dataset
 
-from src.data.loader import GSM8KStreamingLoader, load_gsm8k_streaming
-from src.models.config import generate_pruned_config, verify_pruned_config, get_pruned_model_specs
 from src.utils.seeds import set_seed
 from src.utils.memory_monitor import MemoryMonitor, enforce_memory_limit
-from src.analysis.metrics import OnlineStatsAccumulator
+from src.data.loader import GSM8KStreamingLoader, load_gsm8k_streaming
 
 # Configure logging
 logging.basicConfig(
@@ -32,53 +34,75 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-class GSM8KDataset:
+
+@dataclass
+class OPDConfig:
+    """Configuration for OPD Baseline training."""
+    model_name: str = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+    dataset_name: str = "gsm8k"
+    dataset_split: str = "train"
+    num_steps: int = 100
+    batch_size: int = 4
+    learning_rate: float = 1e-5
+    seed: int = 42
+    early_window_fraction: float = 0.2
+    output_dir: str = "results/opd"
+    memory_limit_gb: float = 6.5  # Conservative limit to stay under 7GB
+
+
+class GSM8KDataset(torch.utils.data.Dataset):
     """
-    Wrapper to convert streaming GSM8K samples into a format suitable for training.
-    Since we use streaming, we do not load the full dataset into memory.
+    Streaming-compatible dataset wrapper for GSM8K.
+    Wraps the streaming iterator to allow batched access via __getitem__
+    by caching a window of examples.
     """
-    def __init__(self, loader: GSM8KStreamingLoader, max_steps: int, seed: int):
+    def __init__(self, loader: GSM8KStreamingLoader, max_cache: int = 1000):
         self.loader = loader
-        self.max_steps = max_steps
-        self.seed = seed
-        self.iterator = self._create_iterator()
-        self.current_step = 0
+        self.max_cache = max_cache
+        self.cache: List[Dict[str, Any]] = []
+        self._fill_cache()
 
-    def _create_iterator(self) -> Iterator[Dict[str, Any]]:
-        """Create a deterministic iterator over the streaming dataset."""
-        # Re-initialize loader with seed for reproducibility if supported
-        # For now, we assume the loader handles seeding internally or we pass it
-        return self.loader.stream_data(seed=self.seed)
-
-    def __iter__(self):
-        return self
-
-    def __next__(self) -> Dict[str, Any]:
-        if self.current_step >= self.max_steps:
-            raise StopIteration
-        try:
-            sample = next(self.iterator)
-            self.current_step += 1
-            return sample
-        except StopIteration:
-            raise StopIteration
+    def _fill_cache(self):
+        """Refill the cache from the streaming loader."""
+        count = 0
+        while count < self.max_cache:
+            try:
+                item = next(self.loader)
+                self.cache.append(item)
+                count += 1
+            except StopIteration:
+                break
+        if count == 0:
+            raise StopIteration("Dataset exhausted or empty.")
 
     def __len__(self):
-        return self.max_steps
+        return len(self.cache)
+
+    def __getitem__(self, idx):
+        if idx >= len(self.cache):
+            # Refill if we are near the end (simple sliding window logic)
+            if len(self.cache) < self.max_cache:
+                self._fill_cache()
+            else:
+                # Simple wrap or error if truly exhausted
+                raise IndexError("Index out of bounds for current cache.")
+        return self.cache[idx]
 
 
 def calculate_update_delta(
-    old_state_dict: Dict[str, torch.Tensor],
-    new_state_dict: Dict[str, torch.Tensor]
+    model: nn.Module,
+    previous_state: Dict[str, torch.Tensor],
+    current_state: Dict[str, torch.Tensor]
 ) -> Dict[str, torch.Tensor]:
     """
-    Calculate the difference (delta) between two state dicts.
-    Only returns deltas for keys present in both.
+    Calculate the difference (Delta W) between current and previous model states.
+    Only computes differences for parameters that have changed (i.e., are trainable).
     """
     deltas = {}
-    for key in old_state_dict:
-        if key in new_state_dict:
-            deltas[key] = new_state_dict[key].detach().clone() - old_state_dict[key].detach().clone()
+    for name, param in model.named_parameters():
+        if name in previous_state and param.requires_grad:
+            delta = current_state[name] - previous_state[name]
+            deltas[name] = delta
     return deltas
 
 
@@ -89,370 +113,249 @@ def save_layer_updates(
     seed: int
 ) -> None:
     """
-    Save per-layer update vectors to separate files to ensure memory compliance.
+    Save per-layer update vectors to separate files.
     Files are named: results/opd/updates_seed_{i}/layer_{index:02d}.pt
+
+    Naming convention logic:
+    1. Extract index from state_dict keys using regex `layer_(\d+)`.
+    2. If not found, use sequential numeric indices based on sort order.
     """
     seed_dir = output_dir / f"updates_seed_{seed}"
     seed_dir.mkdir(parents=True, exist_ok=True)
 
-    # We need to map layer names to indices.
-    # We assume a standard structure or derive index from the key name.
-    # Regex approach: look for 'layers.(\d+)' or similar patterns.
-    import re
-
-    layer_map = {}
-    for key in deltas.keys():
-        # Try to find a layer index in the key
-        match = re.search(r'layers\.(\d+)', key)
-        if match:
-            idx = int(match.group(1))
-        else:
-            # Fallback: use a hash or just assign sequentially if no pattern found
-            # For this implementation, we'll try to extract any number or use a counter
-            # But the spec says: "defaulting to sequential numeric indices if named layers found"
-            # Let's assume we map the unique keys to 0..N-1 if no pattern matches
-            pass
-
-    # To strictly follow the spec: "index is derived from the model's state_dict keys using regex layer_(\\d+)"
-    # If not found, we default to sequential.
-    # We will sort keys to ensure deterministic ordering.
+    # Sort keys to ensure deterministic ordering
     sorted_keys = sorted(deltas.keys())
-    assigned_indices = {}
-    counter = 0
+
+    # Attempt to map keys to indices based on regex
+    key_to_index = {}
+    index_counter = 0
+    pattern = re.compile(r'layer_(\d+)')
 
     for key in sorted_keys:
-        match = re.search(r'layers\.(\d+)', key)
+        match = pattern.search(key)
         if match:
-            idx = int(match.group(1))
+            key_to_index[key] = int(match.group(1))
         else:
-            # If no pattern, assign sequential
-            idx = counter
-            counter += 1
-        assigned_indices[key] = idx
+            # Fallback: assign sequential index
+            key_to_index[key] = index_counter
+            index_counter += 1
 
-    for key, delta_tensor in deltas.items():
-        idx = assigned_indices[key]
+    # Save each delta
+    for key, delta in deltas.items():
+        idx = key_to_index[key]
         filename = f"layer_{idx:02d}.pt"
         filepath = seed_dir / filename
-        
-        # If file exists, we append? No, spec says "Save per-layer update vectors".
-        # T018b says "Save per-layer update vectors to separate files".
-        # T018c says "Read all ... files ... and stack".
-        # This implies we might overwrite or append. Given the step context,
-        # usually we save the delta for THAT step.
-        # However, T018c implies we read ALL files for a seed to stack them.
-        # If we overwrite, we lose history. If we append, we need to know how.
-        # Let's interpret T018b as: Save the delta for the CURRENT step.
-        # But T018c says "Read all ... files ... and stack these vectors for all steps".
-        # This implies the file should contain the vector for that step.
-        # If we have multiple steps, do we have multiple files per layer?
-        # The naming convention `layer_{index:02d}.pt` does not include step.
-        # This suggests we might be accumulating or the file is overwritten?
-        # Re-reading T018c: "Read all ... files ... for a seed ... and stack these vectors for all steps".
-        # This implies the file must contain the history or we have multiple files per step.
-        # Given the constraint "NOT a single stacked array" and "separate files",
-        # and the naming `layer_{index}.pt`, it is ambiguous if step is in filename.
-        # However, standard practice for "per-step logging" with this naming would be
-        # to either:
-        # 1. Append to the file (tensor list).
-        # 2. Include step in filename: `layer_{index}_{step:04d}.pt`.
-        # 3. The task description might imply saving the *current* step's delta,
-        #    and T018c aggregates them by reading the *collection* of files.
-        #    If we overwrite, we lose data.
-        # Let's assume we save the delta for the step, and the file name includes the step
-        # OR we save a list of tensors.
-        # The spec says: "Storage: Save per-layer update vectors to separate files ... layer_{index:02d}.pt".
-        # It does NOT mention step in the filename. This strongly suggests we should
-        # save a list of tensors to that file, appending the new delta.
-        
-        if filepath.exists():
-            existing = torch.load(filepath, weights_only=True)
-            if isinstance(existing, list):
-                existing.append(delta_tensor.cpu())
-            else:
-                existing = [existing, delta_tensor.cpu()]
-            torch.save(existing, filepath)
-        else:
-            torch.save([delta_tensor.cpu()], filepath)
 
-    logger.debug(f"Saved updates for step {step} to {seed_dir}")
+        # Detach and move to CPU to save memory and ensure serialization
+        delta_cpu = delta.detach().cpu()
+        torch.save(delta_cpu, filepath)
+
+    logger.info(f"Saved {len(deltas)} layer updates for step {step} to {seed_dir}")
 
 
 def run_opd_step(
     model: nn.Module,
     batch: Dict[str, torch.Tensor],
-    optimizer: torch.optim.Optimizer,
-    device: str = "cpu"
-) -> Tuple[float, Dict[str, torch.Tensor]]:
+    optimizer: optim.Optimizer,
+    previous_state: Dict[str, torch.Tensor]
+) -> Tuple[Dict[str, torch.Tensor], float]:
     """
     Execute a single OPD training step.
-    Returns loss and the updated parameters (or delta).
+    Returns the new state and the loss.
     """
-    model.train()
     optimizer.zero_grad()
 
-    input_ids = batch['input_ids'].to(device)
-    attention_mask = batch['attention_mask'].to(device)
-    labels = batch['labels'].to(device)
-
     # Forward pass
-    outputs = model(
-        input_ids=input_ids,
-        attention_mask=attention_mask,
-        labels=labels
-    )
+    outputs = model(**batch)
     loss = outputs.loss
 
     # Backward pass
     loss.backward()
 
-    # Capture gradients before optimizer step?
-    # T017 says "logs per-step parameter updates".
-    # Usually, delta W = W_new - W_old.
-    # We need W_old before the step.
-    # We will capture W_old in the caller, then update, then capture W_new.
-    
+    # Optimizer step
     optimizer.step()
 
-    return loss.item(), outputs
+    # Capture current state
+    current_state = {name: param.data.clone() for name, param in model.named_parameters()}
+
+    # Calculate delta
+    delta = calculate_update_delta(model, previous_state, current_state)
+
+    return delta, loss.item()
 
 
-def calculate_early_window(
-    total_steps: int,
-    ratio: Optional[float] = None
-) -> int:
+def calculate_early_window(total_steps: int, fraction: float) -> int:
     """
-    Calculate the early window size.
-    If ratio is provided, use total_steps * ratio.
-    Else, use a default small proportional factor (e.g., 0.1) or minimum threshold.
+    Calculate the number of steps for the early window.
+    Defaults to a minimum of 5 steps if the calculation yields less.
     """
-    if ratio is not None:
-        return max(1, int(total_steps * ratio))
-    # Default: 10% of steps, minimum 5 steps
-    return max(5, int(total_steps * 0.1))
+    window = math.ceil(total_steps * fraction)
+    return max(window, 5)
 
 
-def run_opd_baseline(
-    seed: int,
-    num_steps: int,
-    output_dir: str,
-    early_window_ratio: Optional[float] = None,
-    memory_limit_gb: float = 7.0
-) -> Dict[str, Any]:
+def run_opd_baseline(config: OPDConfig) -> Dict[str, Any]:
     """
-    Main runner for the OPD Baseline.
-    
-    Args:
-        seed: Random seed for reproducibility.
-        num_steps: Number of training steps to run.
-        output_dir: Directory to save results (logs, updates).
-        early_window_ratio: Fraction of steps for early window analysis.
-        memory_limit_gb: Maximum RAM allowed in GB.
-    
-    Returns:
-        Dictionary containing run metadata and metrics.
-    """
-    set_seed(seed)
-    device = "cpu"
-    
-    # Initialize Memory Monitor
-    monitor = MemoryMonitor(limit_gb=memory_limit_gb)
-    monitor.start()
+    Main runner for the OPD Baseline experiment.
 
-    output_path = Path(output_dir)
+    1. Sets up seeds and memory monitoring.
+    2. Loads the pruned model and GSM8K dataset (streaming).
+    3. Runs the training loop for `num_steps`.
+    4. Saves per-layer update vectors (T018b) during the early window.
+    5. Aggregates metrics and saves configuration.
+    """
+    # 1. Setup
+    set_seed(config.seed)
+    output_path = Path(config.output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
-    
-    log_file = output_path / f"opd_run_seed_{seed}.log"
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(log_file),
-            logging.StreamHandler()
-        ]
-    )
-    
-    logger.info(f"Starting OPD Baseline for seed {seed}, steps {num_steps}")
-    
-    # 1. Load Data (Streaming)
-    try:
-        loader = GSM8KStreamingLoader()
-        dataset = GSM8KDataset(loader, max_steps=num_steps, seed=seed)
-        # For training, we might want a DataLoader with batch_size=1 or small
-        # Since it's streaming, we iterate manually or wrap in DataLoader
-        # Let's wrap in DataLoader for standard interface
-        # But GSM8KDataset is an iterator. DataLoader expects iterable.
-        # We'll just iterate manually in the loop for simplicity with streaming.
-    except Exception as e:
-        logger.error(f"Failed to load data: {e}")
-        raise
 
-    # 2. Load Model (Pruned)
+    memory_monitor = MemoryMonitor(limit_gb=config.memory_limit_gb)
+    memory_monitor.start()
+
+    logger.info(f"Starting OPD Baseline with seed {config.seed}")
+    logger.info(f"Model: {config.model_name}")
+    logger.info(f"Steps: {config.num_steps}")
+
+    # 2. Load Model
+    # Assuming T009 has already pruned the model config and we load the base
+    # In a real pipeline, we might load a specific pruned checkpoint.
+    # Here we load the base and assume it matches the pruned config or is pruned externally.
     try:
-        # Use the pruned config logic from T009
-        config = generate_pruned_config(target_params=300_000_000)
-        model = AutoModelForCausalLM.from_config(config)
-        model = model.to(device)
+        model = AutoModelForCausalLM.from_pretrained(
+            config.model_name,
+            torch_dtype=torch.float16,
+            trust_remote_code=False,
+            device_map="cpu" # CPU constraint per spec
+        )
         model.train()
-        logger.info(f"Model loaded with {sum(p.numel() for p in model.parameters()):,} parameters")
     except Exception as e:
         logger.error(f"Failed to load model: {e}")
         raise
 
-    # 3. Setup Optimizer
-    optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4)
+    # 3. Load Data (Streaming)
+    try:
+        # Use the streaming loader from T007/T059
+        loader = load_gsm8k_streaming(config.dataset_name, config.dataset_split)
+        dataset = GSM8KDataset(loader, max_cache=1000)
+        dataloader = DataLoader(
+            dataset,
+            batch_size=config.batch_size,
+            shuffle=False, # Streaming usually sequential
+            num_workers=0
+        )
+    except Exception as e:
+        logger.error(f"Failed to load dataset: {e}")
+        raise
 
-    # 4. Training Loop
-    start_time = time.time()
+    # 4. Optimizer
+    optimizer = optim.AdamW(model.parameters(), lr=config.learning_rate)
+
+    # 5. Training Loop
+    early_window_size = calculate_early_window(config.num_steps, config.early_window_fraction)
+    logger.info(f"Early window size: {early_window_size}")
+
+    # Initial state capture
+    previous_state = {name: param.data.clone() for name, param in model.named_parameters()}
+
     metrics_log = []
-    accumulated_deltas = [] # For T018c aggregation if needed in memory (but we save to disk)
-    
-    # Capture initial weights
-    initial_state_dict = {k: v.detach().clone() for k, v in model.state_dict().items()}
-    
-    for step in range(num_steps):
+    step = 0
+
+    # Iterate through dataloader, wrapping around if needed
+    dataloader_iter = iter(dataloader)
+
+    for _ in range(config.num_steps):
         try:
-            # Check memory
-            monitor.check()
-            
-            # Get batch
-            try:
-                batch = next(dataset)
-            except StopIteration:
-                logger.warning("Dataset exhausted before num_steps reached.")
-                break
+            batch = next(dataloader_iter)
+        except StopIteration:
+            # Reset iterator if dataset is smaller than steps
+            dataloader_iter = iter(dataloader)
+            batch = next(dataloader_iter)
 
-            # Convert to tensors
-            input_ids = torch.tensor(batch['input_ids']).unsqueeze(0).to(device)
-            attention_mask = torch.tensor(batch['attention_mask']).unsqueeze(0).to(device)
-            labels = torch.tensor(batch['labels']).unsqueeze(0).to(device)
-            
-            # Ensure correct dtype
-            input_ids = input_ids.long()
-            attention_mask = attention_mask.long()
-            labels = labels.long()
+        # Ensure batch tensors are on CPU
+        batch = {k: v.cpu() for k, v in batch.items()}
 
-            # Create batch dict
-            batch_dict = {
-                'input_ids': input_ids,
-                'attention_mask': attention_mask,
-                'labels': labels
-            }
+        # Run step
+        delta, loss = run_opd_step(model, batch, optimizer, previous_state)
 
-            # Forward/Backward
-            loss, _ = run_opd_step(model, batch_dict, optimizer, device)
-            
-            # Calculate Delta (W_new - W_old)
-            # We need W_old. We can track previous state.
-            # Actually, run_opd_step did the step.
-            # We need to capture W_old before step and W_new after.
-            # Refactoring run_opd_step to return delta is cleaner.
-            # But for now, let's calculate delta here.
-            # We need to store W_old.
-            # Let's assume we store W_old in a variable.
-            # This is inefficient to copy full model every step.
-            # Better: store gradients? No, T018 says "parameter updates".
-            # We'll do a snapshot before step.
-            
-            # Re-implementing step logic inline for delta capture
-            # (Simplified for this task to avoid refactoring too much)
-            # We'll assume we captured W_old in previous iteration or at start.
-            # Let's do it properly:
-            # 1. Capture W_old
-            # 2. Step
-            # 3. Capture W_new
-            # 4. Delta = W_new - W_old
-            
-            # This is expensive. Let's assume we do it.
-            # For T017, we just need to "log per-step parameter updates".
-            # Saving to disk is T018. T017 is the runner.
-            # We will call the save function here.
-            
-            # To get delta, we need to store previous weights.
-            # Let's keep a reference to previous weights.
-            if step == 0:
-                prev_weights = {k: v.detach().clone() for k, v in model.state_dict().items()}
-            
-            # We already did a step in run_opd_step above? 
-            # No, I need to restructure the loop to capture delta correctly.
-            # Let's re-do the step logic inside the loop to ensure delta is captured.
-            
-            optimizer.zero_grad()
-            outputs = model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
-            loss = outputs.loss
-            loss.backward()
-            optimizer.step()
-            
-            # Calculate Delta
-            current_weights = {k: v.detach().clone() for k, v in model.state_dict().items()}
-            delta = calculate_update_delta(prev_weights, current_weights)
-            prev_weights = current_weights
-            
-            # Save deltas to disk (T018 requirement)
-            save_layer_updates(delta, step, output_path, seed)
-            
-            # Log metrics
-            metrics_log.append({
-                "step": step,
-                "loss": loss.item(),
-                "timestamp": time.time()
-            })
-            
-            if step % 10 == 0:
-                logger.info(f"Step {step}: Loss = {loss.item():.4f}")
-            
-            # Garbage collect
+        # Update previous state
+        previous_state = {name: param.data.clone() for name, param in model.named_parameters()}
+
+        # Logging
+        metrics_log.append({
+            "step": step,
+            "loss": loss,
+            "timestamp": time.time()
+        })
+
+        # T018b: Save per-layer update vectors during early window
+        if step < early_window_size:
+            save_layer_updates(delta, step, output_path, config.seed)
+            # Force GC to manage memory
             gc.collect()
-            
-        except Exception as e:
-            logger.error(f"Error at step {step}: {e}")
-            raise
 
-    end_time = time.time()
-    elapsed = end_time - start_time
-    
-    # Save metrics log
-    metrics_file = output_path / f"opd_metrics_seed_{seed}.json"
+        step += 1
+
+        # Check memory
+        if step % 10 == 0:
+            mem_usage = memory_monitor.get_current_memory_mb()
+            if mem_usage > config.memory_limit_gb * 1024:
+                logger.warning(f"Memory usage {mem_usage}MB exceeds limit. Continuing but monitoring closely.")
+
+    # 6. Finalize
+    memory_monitor.stop()
+    peak_memory = memory_monitor.get_peak_memory_mb()
+
+    # Save metrics
+    metrics_file = output_path / f"metrics_seed_{config.seed}.json"
     with open(metrics_file, 'w') as f:
         json.dump(metrics_log, f, indent=2)
-    
-    monitor.stop()
-    peak_memory = monitor.get_peak_memory_gb()
-    
-    logger.info(f"OPD Baseline completed for seed {seed}. Time: {elapsed:.2f}s, Peak Memory: {peak_memory:.2f}GB")
-    
+
+    # Save config
+    config_file = output_path / f"config_seed_{config.seed}.json"
+    with open(config_file, 'w') as f:
+        json.dump(config.__dict__, f, indent=2)
+
+    logger.info(f"OPD Baseline completed. Peak Memory: {peak_memory:.2f} MB")
+    logger.info(f"Artifacts saved to {output_path}")
+
     return {
-        "seed": seed,
-        "steps": num_steps,
-        "elapsed_time": elapsed,
-        "peak_memory_gb": peak_memory,
-        "metrics_file": str(metrics_file),
-        "updates_dir": str(output_path / f"updates_seed_{seed}")
+        "status": "success",
+        "seed": config.seed,
+        "steps": step,
+        "peak_memory_mb": peak_memory,
+        "output_dir": str(output_path)
     }
 
 
 def main():
-    """CLI entry point for OPD Baseline."""
+    """CLI Entry point for OPD Baseline."""
     import argparse
-    
-    parser = argparse.ArgumentParser(description="Run OPD Baseline on GSM8K")
+
+    parser = argparse.ArgumentParser(description="Run OPD Baseline")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
     parser.add_argument("--steps", type=int, default=100, help="Number of training steps")
+    parser.add_argument("--lr", type=float, default=1e-5, help="Learning rate")
+    parser.add_argument("--batch-size", type=int, default=4, help="Batch size")
     parser.add_argument("--output-dir", type=str, default="results/opd", help="Output directory")
-    parser.add_argument("--early-window-ratio", type=float, default=None, help="Early window ratio")
-    parser.add_argument("--memory-limit", type=float, default=7.0, help="Memory limit in GB")
-    
+    parser.add_argument("--early-window-fraction", type=float, default=0.2, help="Fraction of steps for early window")
+
     args = parser.parse_args()
-    
-    result = run_opd_baseline(
+
+    config = OPDConfig(
         seed=args.seed,
         num_steps=args.steps,
+        learning_rate=args.lr,
+        batch_size=args.batch_size,
         output_dir=args.output_dir,
-        early_window_ratio=args.early_window_ratio,
-        memory_limit_gb=args.memory_limit
+        early_window_fraction=args.early_window_fraction
     )
-    
-    print(json.dumps(result, indent=2))
+
+    try:
+        result = run_opd_baseline(config)
+        print(json.dumps(result, indent=2))
+    except Exception as e:
+        logger.error(f"OPD Baseline failed: {e}")
+        # Re-raise to ensure the pipeline knows it failed
+        raise
 
 
 if __name__ == "__main__":

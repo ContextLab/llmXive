@@ -1,5 +1,5 @@
-'|allow must not':
-  quote: 'P31: card game'
-  source_id: Q25503169
-  url: https://www.wikidata.org/wiki/Q25503169
-  value: '3'
+'|7gb ram vcpu':
+  quote: 'P3879: 76'
+  source_id: Q19823792
+  url: https://www.wikidata.org/wiki/Q19823792
+  value: '76'
