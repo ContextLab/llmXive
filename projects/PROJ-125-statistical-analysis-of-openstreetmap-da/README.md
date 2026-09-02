@@ -1,129 +1,134 @@
 # Statistical Analysis of OpenStreetMap Data for Urban Heat Island Effects
 
-This project implements a pipeline to ingest OpenStreetMap (OSM) and satellite thermal data,
-perform exploratory spatial analysis, and fit spatial regression models to study Urban Heat Island (UHI) effects.
+This project implements a reproducible pipeline to analyze the relationship between OpenStreetMap (OSM) derived urban features and Land Surface Temperature (LST) to study Urban Heat Island (UHI) effects.
 
 ## Prerequisites
 
 - Python 3.9+
-- pip (Python package manager)
-- A valid Overpass API key (optional for small queries, recommended for production use)
-- AWS credentials (optional, for satellite data retrieval if using AWS sources)
+- pip
+- System dependencies: `gdal`, `proj`, `geos` (via `apt`, `brew`, or `conda`)
 
 ## Installation
 
-1. Clone the repository:
+1. **Clone the repository**:
  ```bash
  git clone <repository-url>
- cd statistical-analysis-of-openstreetmap-data
+ cd PROJ-125-statistical-analysis-of-openstreetmap-da
  ```
 
-2. Create a virtual environment (recommended):
+2. **Create a virtual environment**:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
 
-3. Install dependencies:
+3. **Install dependencies**:
  ```bash
  pip install -r requirements.txt
  ```
 
-4. Configure environment variables:
- - Copy `.env.example` to `.env`:
+4. **Configure environment variables**:
+ Create a `.env` file in the project root based on `.env.example`:
  ```bash
  cp.env.example.env
  ```
- - Edit `.env` and add your API keys:
- ```
- OVERPASS_API_KEY=your_overpass_key_here
- AWS_ACCESS_KEY_ID=your_aws_key
- AWS_SECRET_ACCESS_KEY=your_aws_secret
- ```
+ Edit `.env` to include your API keys:
+ - `OVERPASS_API_KEY`: Your Overpass API key (if required by your endpoint)
+ - `AWS_ACCESS_KEY` / `AWS_SECRET_KEY`: For satellite data access (if using AWS)
 
 ## Project Structure
 
 ```
 .
 ├── code/ # Source code
-│ ├── config.py # Configuration and path constants
-│ ├── ingest.py # Data ingestion (OSM, Satellite)
+│ ├── config.py # Configuration and environment management
+│ ├── ingest.py # Data ingestion (OSM, Satellite, Socioeconomic)
 │ ├── eda.py # Exploratory Data Analysis
-│ ├── modeling.py # Spatial regression models
+│ ├── modeling.py # Spatial regression modeling
 │ ├── utils/ # Utility modules (logging, memory, env)
-│ └──...
-├── data/ # Data directories
+│ ├── models/ # Data models and schemas
+│ └── scripts/ # Helper scripts (setup, validation, profiling)
+├── data/ # Data storage (excluded from git)
 │ ├── raw/ # Raw downloaded data
-│ ├── processed/ # Aligned raster stacks
-│ └── results/ # Analysis outputs (metrics, reports)
-├── tests/ # Test suite
-├── specs/ # Feature specifications
+│ ├── processed/ # Aligned rasters and intermediate data
+│ └── results/ # Final outputs (metrics, reports, plots)
+├── tests/ # Unit and integration tests
+├── docs/ # Documentation
 ├── requirements.txt # Python dependencies
+├──.env.example # Template for environment variables
 └── README.md # This file
 ```
 
-## CLI Usage
+## CLI Usage Examples
 
-The pipeline is composed of several scripts. Each script can be run independently.
+The pipeline is executed via Python scripts located in `code/` and `code/scripts/`.
 
 ### 1. Setup Project Directories
-Creates the necessary directory structure.
+Creates the necessary directory structure (`data/raw`, `data/processed`, etc.).
 ```bash
-python code/setup_project.py
+python code/scripts/setup_dirs.py
 ```
 
-### 2. Ingest Data (OSM & Satellite)
-Downloads OSM vector data and satellite thermal imagery, then aligns them to a common raster grid.
+### 2. Ingest Data
+Downloads OSM vector data and satellite thermal imagery for a specific city (e.g., New York City) and generates aligned rasters.
 ```bash
-python code/ingest.py --city "New York"
+python code/ingest.py --city "New York City"
 ```
-*Output*: Aligned GeoTIFFs in `data/processed/` and metadata in `data/metadata.json`.
+*Note: Requires valid API keys in `.env`.*
 
-### 3. Exploratory Data Analysis (EDA)
+### 3. Run Exploratory Data Analysis (EDA)
 Computes correlation matrices, spatial autocorrelation (Moran's I), and variograms.
 ```bash
-python code/eda.py
+python code/eda.py --city "New York City"
 ```
-*Output*: `data/results/correlation_matrix.csv`, `data/results/spatial_stats.json`, `data/results/eda_report.md`.
+Outputs:
+- `data/results/correlation_matrix.csv`
+- `data/results/spatial_stats.json`
+- `data/results/eda_report.md`
+- `data/results/eda_plots.png`
 
-### 4. Fetch Literature Bounds
-Retrieves upper-bound R² values from literature for proxy validity checks.
+### 4. Run Spatial Modeling Pipeline
+Fits OLS, SAR, and GWR models with spatial cross-validation.
 ```bash
-python code/fetch_literature_bounds.py
+python code/modeling.py --city "New York City"
 ```
-*Output*: `data/literature_bounds.json`.
+Outputs:
+- `data/results/metrics.csv`
+- `data/results/sensitivity_report.md`
 
-### 5. Run Spatial Modeling Pipeline
-Fits OLS, SAR, and GWR models with spatial cross-validation and sensitivity analysis.
+### 5. Validate Quickstart
+Verifies that the pipeline runs end-to-end and produces expected outputs.
 ```bash
-python code/modeling.py
+python code/scripts/validate_quickstart.py
 ```
-*Output*: Model coefficients, cross-validation metrics, and sensitivity reports in `data/results/`.
 
-### 6. Export Metrics
-Consolidates all metrics into a single CSV file.
+### 6. Profile Memory Usage
+Analyzes memory consumption of ingestion and modeling scripts.
 ```bash
-python code/metrics_exporter.py
+python code/scripts/run_memory_profile.py
 ```
-*Output*: `data/results/metrics.csv`.
-
-### 7. Generate Reports
-- **EDA Report**: `python code/reports/eda_report_generator.py`
-- **Sensitivity Report**: `python code/sensitivity_report.py`
 
 ## Configuration
 
-Edit `code/config.py` to modify:
-- `MAX_BLOCKS`: Maximum number of spatial blocks for sampling (default: 100).
-- `CITY_BOUNDS`: Default city boundaries.
-- `CRS`: Coordinate Reference System settings.
+Edit `code/config.py` to adjust:
+- `CITIES`: Dictionary of city definitions (bbox, CRS).
+- `MAX_BLOCKS`: Maximum number of spatial blocks for sampling.
+- `MEMORY_LIMIT_MB`: Memory safety threshold (default: 6000 MB).
+- `GWR_BANDWIDTHS`: List of bandwidths for GWR sensitivity analysis.
 
 ## Testing
 
-Run the test suite using pytest:
+Run the test suite using `pytest`:
 ```bash
 pytest tests/ -v
 ```
+
+## Contributing
+
+1. Create a feature branch.
+2. Implement changes and ensure tests pass.
+3. Run linting: `python code/scripts/run_linting.py`.
+4. Submit a pull request.
 
 ## License
 

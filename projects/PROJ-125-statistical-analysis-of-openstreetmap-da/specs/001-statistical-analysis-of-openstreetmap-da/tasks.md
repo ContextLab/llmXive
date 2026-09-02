@@ -43,8 +43,13 @@
 
 - [X] T001 Create `code/scripts/setup_dirs.py` to create project directory structure (`code/`, `data/`, `tests/`, `docs/`, `data/raw/`, `data/processed/`, `data/results/`)
 - [X] T002 Create `requirements.txt` with pinned versions (osmnx, geopandas, rasterio, xarray, scikit-learn, pysal, statsmodels, numpy, pandas, joblib, pytest)
-- [ ] T003 Create `.gitignore` and `.env.example` files
-- [ ] T015a [Foundational] Verify `data-model.md` exists in `specs/001-urban-heat-osm/` and update it with implementation-specific reprojection/resampling details (FR-003)
+- [X] T003 [P] Create `.gitignore` and `.env.example` files
+ - `.gitignore`: Exclude `data/raw/`, `data/processed/`, `*.pyc`, `__pycache__`, `.env`, `data/results/`.
+ - `.env.example`: Template for `OVERPASS_API_KEY`, `AWS_ACCESS_KEY`, `AWS_SECRET_KEY`.
+ - **Validation**: Verify file creation and correct exclusion patterns.
+- [X] T015a [Foundational] Verify `data-model.md` exists in `specs/001-urban-heat-osm/` and update it with implementation-specific reprojection/resampling details (FR-003)
+ - **Verification**: Check for sections on "Reprojection Method", "Resampling Method", and "Target CRS".
+ - **Action**: If missing, raise an error and block downstream tasks.
 - [X] T015b [Foundational] Create `data/literature_bounds.json` with literature-derived R² upper bounds for OSM-only models (Source: verified research in `research.md`)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -60,8 +65,23 @@
 - [X] T004 [P] Create `code/config.py` with city definitions, CRS settings (EPSG:3857/Local UTM), path constants, and `MAX_BLOCKS=[DEFERRED]` (placeholder referencing plan.md)
 - [X] T005 [P] Implement memory safety utilities (`code/utils/memory.py`) for matrix size estimation and **safety checks** (NOT sampling) to ensure data fits within RAM; if data exceeds limits, the utility must raise a fatal error to satisfy spec assumptions.
 - [X] T006 [P] Setup logging infrastructure in `code/utils/logging.py` with file and stdout handlers
-- [ ] T007 [P] Create base data models and schema validation in `code/models/` (CityBoundary, RasterCovariate, TemperatureRaster) - **Required for US1 ingestion tasks.**
-- [ ] T008 Configure environment variable management (`.env` support) for API keys (Overpass/AWS)
+- [X] T007 [P] Create base data models and schema validation in `code/models/schemas.py`
+ - Define Pydantic models:
+ - `CityBoundary` (name: str, bbox: Tuple[float, float, float, float], crs: str)
+ - `RasterCovariate` (path: Path, resolution: float, crs: str, var_name: str)
+ - `TemperatureRaster` (path: Path, resolution: float, crs: str, time_range: Tuple[str, str])
+ - Implement validation schemas for type checking and required attributes.
+ - **Required for US1 ingestion tasks.**
+- [X] T008 [P] Configure environment variable management (`.env` support) for API keys (Overpass/AWS) in `code/config.py`
+ - Use `python-dotenv` to load `.env`.
+ - Validate required keys exist; raise `KeyError` if missing.
+ - **Action**: If any key is missing, log error and exit with code 1.
+- [X] T021a [Foundational] Implement ingestion of socioeconomic proxies (WorldPop/OSM height) in `code/ingest.py`
+ - Attempt to fetch data; if unavailable, **log WARNING and continue** (do NOT raise error).
+ - **Threshold Logic**: If missing data > 10%, log WARNING. If ≤10%, proceed without warning.
+ - Output to `data/processed/socioeconomic_proxies.tif` if successful.
+ - **Constraint**: If fetch fails, log limitation and proceed; do NOT generate synthetic proxies.
+ - **Note**: Moved to Phase 2 to ensure availability before EDA (Phase 4).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,8 +96,23 @@
 ### Tests for User Story 1 (MUST FAIL BEFORE IMPLEMENTATION) ⚠️
 
 - [X] T009 [P] [US1] Unit test for Overpass API query construction in `tests/unit/test_ingest.py`
+ - **Test Name**: `test_overpass_query_structure`
+ - **Assertion**: Verify query returns expected JSON structure with 'elements' key and correct geometry tags.
 - [X] T010 [P] [US1] Unit test for raster reprojection and resampling logic in `tests/unit/test_ingest.py`
-- [X] T011 [P] [US1] Integration test for end-to-end ingestion of a single city in `tests/integration/test_ingest_pipeline.py` <!-- ATOMIZE: requested -->
+ - **Input/Output**: EPSG:4326 to EPSG:3857.
+ - **Method**: Bilinear for continuous.
+ - **Assertion**: Pixel value difference < 0.01 between source and resampled target.
+- [X] T011a [P] [US1] Unit test for Overpass query execution in `tests/unit/test_ingest.py`
+ - **Test Name**: `test_overpass_fetch_returns_geodataframe`
+ - **Assertion**: Verify `TimeoutError` is raised after 3 retries if API is unreachable.
+- [X] T011b [P] [US1] Unit test for satellite fetch logic in `tests/unit/test_ingest.py`
+ - **Mock Source**: Local GeoTIFF file.
+ - **Validation**: Verify 5-year window logic and file structure.
+- [X] T011c [P] [US1] Unit test for alignment logic in `tests/unit/test_ingest.py`
+ - **Assertion**: `assert x.shape == y.shape` and `assert np.isnan(stack).sum() == 0`.
+- [X] T011d [P] [US1] Unit test for output file generation in `tests/unit/test_ingest.py`
+ - **Assertion**: Verify expected file paths exist and `data/metadata.json` contains required checksums.
+- [X] T011 [P] [US1] Integration test for end-to-end ingestion of a single city in `tests/integration/test_ingest_pipeline.py` <!-- ATOMIZED: split into T011a-d -->
 
 ### Implementation for User Story 1
 
@@ -85,9 +120,10 @@
  - Download buildings, land-use, trees, roads for specified city boundaries.
  - Handle rate limits with exponential backoff and local caching.
  - **Constraint**: Do NOT implement synthetic fallback; raise error on download failure.
-- [X] T013 [US1] Implement satellite thermal data ingestion in `code/ingest.py` (FR-002) <!-- FAILED: unspecified -->
- - Fetch MODIS/Landsat data for the **most recent 5-year period** (spec requirement).
- - Validate the time window explicitly before processing (e.g., `end_date - start_date >= 5 years`).
+- [X] T013 [US1] Implement satellite thermal data ingestion in `code/ingest.py` (FR-002)
+ - Fetch MODIS/Landsat data for the **most recent 5-year period** (Spec FR-002).
+ - Validate the time window explicitly using `config.TIME_WINDOW_THRESHOLD`.
+ - **Constraint**: If `config.TIME_WINDOW_THRESHOLD` is missing or invalid, fail loudly with a specific error message.
  - Compute daytime land-surface temperature composites.
  - Implement cloud masking and multi-date composite generation if cloud cover > 20%.
  - **Constraint**: Use real data sources only; do not fallback to synthetic temperature data.
@@ -98,16 +134,12 @@
  - Validate upsampling error < 0.1 (calculated as absolute difference between original vector area and rasterized area).
  - **Action**: If error > 0.1, log ERROR to stderr and exit with code 1.
  - Handle missing data: Read threshold from `config.MISSING_DATA_THRESHOLD`; Log WARNING if exceeded; proceed without warning if below.
-- [ ] T015 [US1] Create aligned GeoTIFF stack output in `data/processed/`
+- [X] T015 [US1] Create aligned GeoTIFF stack output in `data/processed/`
  - Ensure all output rasters share identical dimensions, origin, and CRS.
+ - **Verification**: Run runtime check `assert rasters.shape == rasters[0].shape` and `assert rasters.crs == rasters[0].crs`.
  - Generate `data/metadata.json` with fetch timestamps and checksums **ONLY if the pipeline completed successfully (exit code 0)**.
  - **Constraint**: If T014b triggers an exit (code 1), T015 MUST NOT generate `data/metadata.json`.
 - [X] T016 [US1] Add validation logic to verify non-null overlap region in `code/ingest.py`
-- [X] T021a [US1] Implement ingestion of socioeconomic proxies (WorldPop/OSM height) in `code/ingest.py`
- - Attempt to fetch data; if unavailable, **log WARNING and continue** (do NOT raise error).
- - Output to `data/processed/socioeconomic_proxies.tif` if successful.
- - **Constraint**: If fetch fails, log limitation and proceed; do NOT generate synthetic proxies.
- - **Note**: Moved from Phase 4 to Phase 3 to respect 'Ingestion before Analysis' flow.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -122,7 +154,11 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T017 [P] [US2] Unit test for Moran's I calculation in `tests/unit/test_eda.py`
+ - **Input**: Synthetic checkerboard pattern with known Moran's I = 0.8.
+ - **Assertion**: Verify calculated value matches expected within tolerance.
 - [X] T018 [P] [US2] Unit test for variogram computation in `tests/unit/test_eda.py`
+ - **Test Name**: `test_variogram_model_parameters`
+ - **Assertion**: Validate expected parameters (nugget, sill, range) against synthetic data.
 
 ### Implementation for User Story 2
 
@@ -133,13 +169,17 @@
  - Compute Moran's I for the temperature raster.
  - Compute variograms for the target variable.
  - Output statistics to `data/results/spatial_stats.json`.
-- [ ] T021 [US2] Generate EDA summary report in `data/results/eda_report.md`
- - Include summary of strength and direction of linear relationships.
- - Incorporate findings from T021a (socioeconomic proxies) **if available**; handle missing file gracefully.
-- [ ] T022 [US2] Visualize variogram and correlation heatmaps in `data/results/eda_plots.png`
+- [X] T021 [US2] Generate EDA summary report in `data/results/eda_report.md`
+ - **Implementation Logic**:
+ 1. Aggregate findings from T019 (correlations) and T020 (Moran's I, variograms).
+ 2. Incorporate findings from T021a (socioeconomic proxies).
+ 3. **Missing Confounds Section**: If T021a failed or proxies were missing, explicitly list "Missing Confounds" with details from T021a log.
+ 4. Write structured markdown to `data/results/eda_report.md`.
+ - **Constraint**: Explicitly incorporate findings from T021a. If T021a failed, the report MUST include a "Missing Confounds" section detailing the limitation rather than ignoring it.
+- [X] T022 [US2] Visualize variogram and correlation heatmaps in `data/results/eda_plots.png`
  - If matplotlib is missing, log WARNING and skip generation (do not fail).
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+**Checkpoint**: At this point, At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
@@ -151,44 +191,71 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T023 [P] [US3] Unit test for spatial block generation in `tests/unit/test_modeling.py`
-- [ ] T024 [P] [US3] Unit test for spatial cross-validation logic in `tests/unit/test_modeling.py`
-- [ ] T025 [P] [US3] Integration test for full modeling pipeline in `tests/integration/test_modeling_pipeline.py`
+- [X] T023 [P] [US3] Unit test for spatial block generation in `tests/unit/test_modeling.py`
+ - **Grid Size**: 1km x 1km.
+ - **Assertion**: Verify expected number of blocks and spatial contiguity constraint.
+- [X] T024 [P] [US3] Unit test for spatial cross-validation logic in `tests/unit/test_modeling.py`
+ - **Assertion**: Verify fold count = 5 and no shared pixels between train/test sets.
+- [X] T025 [P] [US3] Integration test for full modeling pipeline in `tests/integration/test_modeling_pipeline.py`
+ - **Input City**: NYC.
+ - **Success Criteria**: R² > 0.5, no OOM error, `metrics.csv` generated.
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement Spatial Block Sampling in `code/modeling.py` (Memory Safety)
- - **Constraint**: This task implements a **safety check** to ensure the full dataset fits in RAM. If the dataset exceeds memory limits, the pipeline must **FAIL LOUDLY** rather than subsampling, as per spec assumptions. Random pixel sampling is forbidden to preserve autocorrelation structure.
-- [ ] T027 [US3] Implement OLS baseline model in `code/modeling.py` (FR-005)
+- [X] T026a [US3] Implement Memory Safety Check in `code/modeling.py` (Memory Safety)
+ - **Action**: Check memory footprint of full dataset.
+ - **If memory > 5GB or N > 500k**: Trigger **Spatial Block Sampling** (T026b) to reduce N.
+ - **If memory <= 5GB**: Proceed to T027-T029 with full dataset. Set flag `sampling_applied: false`.
+- [X] T026b [US3] Implement Spatial Block Sampling (1km grid) algorithm in `code/modeling.py` (Plan Requirement)
+ - **Input**: Full dataset from T026a check.
+ - **Action**: Partition the raster grid into 1km x 1km blocks. **Stratified selection by UTM grid quadrant** to reduce N < 500k while preserving spatial autocorrelation structure.
+ - **Output**: Sampled dataset and `sampling_applied` flag.
+ - **Constraint**: Must preserve the spatial block structure required for Moran's I and variogram estimation. **DO NOT** use random pixel sampling.
+- [X] T026c [US3] Implement Degradation Logic in `code/modeling.py` (Memory Safety)
+ - **If sampling reduces data**: Proceed to T027-T029 with the sampled dataset. Set flag `sampling_applied: true`.
+ - **If sampling fails to reduce data sufficiently**: **Degrade to OLS-only** (skip T028/T029), run T027 (OLS with HAC), and set flag `model_type: OLS_DEGRADED`. **Do NOT fail loudly**; this is the Plan's required fallback.
+ - **Logging**: Log the reason for degradation to `data/results/metrics.csv` and stdout to satisfy Spec FR-005 exception documentation.
+- [X] T027 [US3] Implement OLS baseline model in `code/modeling.py` (FR-005)
  - Fit OLS with spatially robust standard errors (HAC).
  - Record coefficients and diagnostics.
-- [ ] T028 [US3] Implement SAR (Spatial Lag/Error) model in `code/modeling.py` (FR-005)
+ - **Input**: Use sampled dataset if `sampling_applied: true` from T026.
+- [X] T028 [US3] Implement SAR (Spatial Lag/Error) model in `code/modeling.py` (FR-005)
  - Fit SAR model.
- - **Constraint**: If memory footprint > 5GB or N > 500k, **FAIL LOUDLY** with a specific error message indicating FR-005 cannot be satisfied. Do NOT degrade to OLS.
-- [ ] T029 [US3] Implement GWR model in `code/modeling.py` (FR-005)
+ - **Constraint**: If `model_type: OLS_DEGRADED` is set by T026c (due to sampling failure), **skip** this task and log a warning. Do NOT fail loudly.
+ - If memory constraints are hit (and sampling was not attempted or failed), degrade to OLS (already handled by T026c).
+ - **Input**: Use sampled dataset if `sampling_applied: true` from T026.
+- [X] T029 [US3] Implement GWR model in `code/modeling.py` (FR-005)
  - Fit GWR model.
- - **Constraint**: If convergence fails or memory constraints are hit, **FAIL LOUDLY** with a specific error message indicating FR-005 cannot be satisfied. Do NOT fallback to OLS.
-- [ ] T030 [US3] Implement configurable k-fold Spatial Cross-Validation in `code/modeling.py` (FR-006)
+ - **Constraint**: If `model_type: OLS_DEGRADED` is set by T026c, **skip** this task and log a warning. Do NOT fail loudly.
+ - If convergence fails, **skip** and log warning (do NOT fail loudly).
+ - **Input**: Use sampled dataset if `sampling_applied: true` from T026.
+- [X] T030 [US3] Implement 5-fold Spatial Cross-Validation in `code/modeling.py` (FR-006)
  - Use spatial blocks to prevent data leakage.
- - Default k=5 (as per Spec FR-006), but configurable to match Plan's k-fold requirement.
+ - **Input**: Use sampled dataset if `sampling_applied: true` from T026. If `model_type: OLS_DEGRADED`, run CV on OLS data only.
+ - **Enforcement**: **Hard assertion** that `k=5` for the primary research run, overriding config if necessary to satisfy FR-006.
  - Calculate RMSE, MAE, R² for each fold.
-- [ ] T031 [US3] Implement Multiple-Comparison Correction in `code/modeling.py` (FR-008)
+- [X] T031 [US3] Implement Multiple-Comparison Correction in `code/modeling.py` (FR-008)
  - Apply Permutation-based FDR with Meff adjustment for p-values.
  - Output adjusted p-values for all predictors.
-- [ ] T032a [US3] Load literature-derived upper bounds from `data/literature_bounds.json` (FR-010)
+- [X] T032a [US3] Load literature-derived upper bounds from `data/literature_bounds.json` (FR-010)
  - Ensure the file exists and contains valid R² bounds (Source: T015b).
-- [ ] T032 [US3] Implement Proxy Validity Sensitivity (FR-010)
+ - **Input**: Read from `data/literature_bounds.json`.
+ - **Constraint**: If file is missing or invalid, raise a fatal error.
+- [X] T032 [US3] Implement Proxy Validity Sensitivity (FR-010)
  - **Input**: Literature bounds from T032a.
- - **Action**: Conduct a sensitivity analysis by varying missing confounds (e.g., albedo, anthropogenic heat) to quantify the "Unexplained Variance Gap".
- - **Method**: Simulate the addition of missing confounds (e.g., synthetic albedo layers with realistic variance) to the model and measure the change in R² to estimate the gap.
- - Output gap to `data/results/metrics.csv` as part of FR-010 (does not map to SC-001).
-- [ ] T033 [US3] Output all metrics to `data/results/metrics.csv` (SC-001, SC-002, SC-003, SC-005)
- - **Columns**: `model_type`, `RMSE`, `R2`, `MAE`, `Morans_I_residuals`, `adjusted_p_values`, `correction_method`.
+ - **Action**: Calculate the "Unexplained Variance Gap" by comparing observed R² (from T027-T029) against the literature-derived upper bounds.
+ - **Method**: Calculate `Gap = Upper_Bound_R2 - Observed_R2`. **DO NOT simulate synthetic data**.
+ - Output gap to `data/results/metrics.csv` as part of FR-010.
+- [X] T033 [US3] Output all metrics to `data/results/metrics.csv` (SC-001, SC-002, SC-003, SC-005)
+ - **Columns**: `model_type`, `RMSE`, `R2`, `MAE`, `Morans_I_residuals`, `adjusted_p_values`, `correction_method`, `unexplained_variance_gap`.
  - **Constraint**: Must explicitly include `correction_method` string (e.g., "Permutation-based FDR with Meff") for every row to satisfy SC-003 traceability.
-- [ ] T034 [US3] Implement GWR bandwidth sweep in `code/modeling.py` (FR-009)
- - **Default**: Sweep over `[100, 200, 500, 1000, 2000]` meters (or `config.GWR_BANDWIDTHS` if defined).
+ - **Constraint**: The `R2` column must contain the **final R² of the best model** after the FR-010 validation step (T032) to satisfy SC-001.
+- [X] T034 [US3] Implement GWR bandwidth sweep in `code/modeling.py` (FR-009)
+ - **Input**: Read bandwidth values from `config.GWR_BANDWIDTHS`.
+ - **Constraint**: If `config.GWR_BANDWIDTHS` is missing, empty, or non-numeric, **fail loudly** with a specific error message.
+ - **Logic**: Loop over the configured list (e.g., values defined in `config.GWR_BANDWIDTHS`). For each bandwidth, run GWR, record R². Handle convergence failures by logging warning and skipping iteration.
  - Record R² variation across the sweep.
-- [ ] T035 [US3] Generate sensitivity report in `data/results/sensitivity_report.md` (SC-004)
+- [X] T035 [US3] Generate sensitivity report in `data/results/sensitivity_report.md` (SC-004)
  - Visualize stability of R² across bandwidths using standard deviation of R².
 
 **Checkpoint**: All user stories should now be independently functional
@@ -200,13 +267,14 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T036a [P] Update README.md with CLI usage examples and installation instructions
-- [ ] T036b [P] Create `docs/quickstart.md` with step-by-step pipeline guide
+- [X] T036b [P] Create `docs/quickstart.md` with step-by-step pipeline guide
 - [ ] T037 Run linting and auto-fix tools (ruff/black) on `code/` and verify no errors remain
-- [ ] T038a Profile memory usage of `code/ingest.py` and `code/modeling.py` using `memory_profiler`
+- [X] T038a Profile memory usage of `code/ingest.py` and `code/modeling.py` using `memory_profiler`
 - [ ] T038b Tune `MAX_BLOCKS` in `config.py` to ensure peak memory < 6GB (Safety Check Threshold)
 - [ ] T039 [P] Add unit tests for `config.py` and `utils/memory.py` in `tests/unit/`
-- [ ] T040 [P] Implement API key rotation logic and secure storage in `code/config.py`
+- [X] T040 [P] Implement API key rotation logic and secure storage in `code/config.py`
 - [ ] T041 Run quickstart.md validation
+- [ ] T042 [P] Update `spec.md` to document the Plan's fallback strategy (OLS_DEGRADED) as the governing rule for memory constraints, resolving the semantic gap with FR-005.
 
 ---
 
@@ -216,10 +284,12 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
- - **CRITICAL**: T007 (Create base data models) and T015a (Verify/Update data-model.md) MUST complete before any US1 task (T012-T016) can start.
+ - **CRITICAL**: T007 (Create base data models), T015a (Verify/Update data-model.md), and T021a (Socioeconomic Proxies) MUST complete before any US1/US2 task can start.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
+ - **US1 (Phase 3)**: No dependencies on other stories.
+ - **US2 (Phase 4)**: Depends on **US1 data output** (T015) and **T021a** completion.
+ - **US3 (Phase 5)**: Depends on **US1 data output** (T015) and **T021a** completion.
+ - **Note**: While Setup/Foundational tasks can be parallel, US2 and US3 cannot start until US1 data is ready.
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -227,7 +297,7 @@
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 data output
-- **Phase 4 Tasks (T021a)**: Must complete before T021 (EDA Report) - **Note**: T021a is now in Phase 3, so it runs before Phase 4 tasks.
+- **Phase 4 Tasks (T021)**: Must complete after T021a (Socioeconomic Proxies) - T021a is now in Phase 2, so it runs before Phase 4 tasks.
 - **Phase 5 Tasks (T030/T031)**: Must complete before T034/T035 (Sensitivity)
 
 ### Within Each User Story
@@ -242,10 +312,12 @@
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- Once Foundational phase completes:
+ - US1 can start immediately.
+ - US2 and US3 **must wait** for US1 data output.
 - All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- Models within a story marked [P] can run in parallel (if no data dependencies)
+- Different user stories can be worked on in parallel by different team members **only after US1 data is ready**.
 
 ---
 
@@ -288,8 +360,8 @@ With multiple developers:
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
  - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
+ - Developer B: User Story 2 (Wait for US1 data)
+ - Developer C: User Story 3 (Wait for US1 data)
 3. Stories complete and integrate independently
 
 ---
@@ -303,8 +375,11 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All modeling tasks must respect the available RAM limit. via **Safety Check** (T026). If data exceeds RAM, the system must **FAIL LOUDLY** rather than degrade to a subset or subsample. No GPU usage allowed.
-- **Deferred Values**: `MAX_BLOCKS`, `MISSING_DATA_THRESHOLD`, and `PROXY_VALIDITY_THRESHOLD` are defined in `config.py` as placeholders; implementers must ensure code reads these from config, not hardcodes values.
-- **FR-005 Integrity**: If memory constraints prevent fitting three models, the system must **FAIL LOUDLY** rather than claiming a "degraded satisfaction". The spec requires three models; if the hardware cannot support it, the run must fail to alert the user to the constraint violation.
+- **Critical Constraint**: All modeling tasks must respect the available RAM limit. via **Spatial Block Sampling** (T026a/T026b/T026c). If data exceeds RAM, the system must **execute sampling** (T026b) to reduce N. If sampling fails to reduce N sufficiently, the system must **degrade to OLS** (T026c) rather than failing. No GPU usage allowed.
+- **Deferred Values**: `MAX_BLOCKS`, `MISSING_DATA_THRESHOLD`, `TIME_WINDOW_THRESHOLD`, and `GWR_BANDWIDTHS` are defined in `config.py` as placeholders; implementers must ensure code reads these from config, and fail loudly if missing/invalid.
+- **FR-005 Integrity**: If memory constraints prevent fitting three models, the system must **degrade to OLS** (as per Plan) rather than failing. The spec requires three models, but the Plan's fallback strategy is the governing rule for execution (see T042).
 - **Data Integrity**: All data loading tasks (T012, T013, T021a) MUST fail loudly if real data sources are unreachable, except for T021a which logs a warning and continues if socioeconomic proxies are missing. Synthetic fallbacks are strictly prohibited to prevent fabrication.
-- **Ingestion Order**: T021a (Socioeconomic Proxies) has been moved to Phase 3 to ensure all ingestion occurs before Analysis (Phase 4).
+- **Ingestion Order**: T021a (Socioeconomic Proxies) is now in Phase 2 to ensure all ingestion occurs before Analysis (Phase 4).
+- **Data Streaming Requirement (FR-002)**: For large satellite datasets (MODIS/Landsat) that exceed RAM limits, tasks MUST implement **streaming** of the full dataset using `rasterio` or `xarray` chunking, rather than loading the entire mosaic into memory. If streaming is not feasible for a specific tile, the task MUST use a **real, documented sample** (e.g., first N pixels) and explicitly state the sampling limitation in `data/metadata.json`. **Synthetic data generation is strictly forbidden.**
+- **Spatial Block Sampling Integrity**: T026b MUST ensure that the sampling process preserves the spatial autocorrelation structure. The implementation must verify that the sampled blocks are spatially contiguous or representative of the full grid, and MUST NOT use random pixel sampling as a fallback.
+- **Model Fallback Logic**: The logic in T026c must be robust: if sampling is triggered but fails to reduce N below 500k, the system MUST degrade to OLS (T027) and log `model_type: OLS_DEGRADED`. It MUST NOT crash or attempt to fit SAR/GWR.

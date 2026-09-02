@@ -11,9 +11,35 @@ T032:
     matrices, model reports) were supplied for any of the three user stories, so the
     required artifacts do not exist to verify that the ingestion, EDA, and spatial
     modeling steps were implemented. The task therefore remains incomplete.
-T036a:
+T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated\u202FREADME.md file was provided or shown, and there is no evidence\
-    \ of added CLI usage examples or installation instructions. The required artifact\
-    \ is missing, so the task is not satisfied."
+  r: No linting reports, fixed code files, or verification logs are provided; there
+    is no evidence that ruff/black were run on the `code/` directory or that any errors
+    remain. The required artifact (linting output or clean code) is missing.
+T038b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `config.py` file or evidence of a tuned `MAX_BLOCKS` value is provided, and\
+    \ there is no proof that peak memory usage has been verified to stay below the\
+    \ 6\u202FGB threshold. The required artifact is missing."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I looked for new unit\u2011test files under `tests/unit/` that target `config.py`\
+    \ and `utils/memory.py`. No such test modules (e.g., `test_config.py` or `test_memory.py`)\
+    \ are present, nor any evidence of added test code. The required unit tests are\
+    \ missing, so the task is not satisfied."
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a quickstart.md file or any validation results is present; the
+    implementer provided no artifact (e.g., the markdown file, validation script output,
+    or logs) to demonstrate that the quickstart documentation was actually checked.
+    Consequently the task requirement cannot be confirmed as satisfied.
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `spec.md` file is provided or shown; without the actual document we
+    cannot verify that the fallback strategy `OLS_DEGRADED` has been documented as
+    the governing rule for memory constraints. The required artifact is missing.

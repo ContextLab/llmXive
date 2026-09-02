@@ -14,7 +14,7 @@ This project implements a reproducible statistical pipeline to analyze the relat
 **Excluded Dependencies**: `mgwr`, `pygeoda` (removed due to memory overhead and CPU feasibility risks).  
 **Storage**: Local filesystem (`data/raw/`, `data/processed/`, `data/interim/`). No external database.  
 **Testing**: `pytest` (unit tests for data ingestion, integration tests for pipeline flow), `pytest-cov`.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7 GB RAM, No GPU).  
+**Target Platform**: Linux (GitHub Actions free-tier runner: limited CPU, 7 GB RAM, No GPU).  
 **Project Type**: Data Science Pipeline / CLI Tool.  
 **Performance Goals**: Process a single city (e.g., NYC) within 4 hours on free-tier CI. Memory usage < 6 GB during peak raster processing.  
 **Constraints**: No GPU acceleration. No large-LLM inference. Data must be subsampled using **Spatial Block Sampling** if it exceeds RAM limits. All random seeds must be pinned.  

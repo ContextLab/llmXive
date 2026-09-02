@@ -1,7 +1,9 @@
 """
-Memory Profiling Module.
-Profiles memory usage of key pipeline scripts (ingest.py, modeling.py)
-using memory_profiler and psutil.
+Memory profiling utilities for the Urban Heat Island analysis pipeline.
+
+This module provides tools to profile memory usage of the ingestion and modeling
+scripts using the memory_profiler package. It generates detailed reports of
+memory consumption at various stages of the pipeline execution.
 """
 import os
 import sys
@@ -10,213 +12,263 @@ import logging
 import subprocess
 import time
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, List, Optional, Any, Tuple
+
+# Attempt to import memory_profiler; if missing, provide a graceful fallback
+try:
+    from memory_profiler import profile
+    MEMORY_PROFILER_AVAILABLE = True
+except ImportError:
+      MEMORY_PROFILER_AVAILABLE = False
+      # Define a no-op decorator if memory_profiler is not installed
+      def profile(func):
+          def wrapper(*args, **kwargs):
+              return func(*args, **kwargs)
+          return wrapper
 
 from utils.logging import get_logger
 from config import get_path
 
+# Initialize logger
 logger = get_logger(__name__)
 
-def run_with_memory_profile(script_path: Path, args: Optional[List[str]] = None) -> Dict[str, Any]:
+def run_with_memory_profile(
+    script_path: str,
+    output_json: Optional[str] = None,
+    timeout_seconds: int = 300
+) -> Tuple[bool, str]:
     """
-    Run a Python script under memory_profiler and capture the output.
+    Run a script with memory profiling enabled and capture the output.
     
     Args:
-        script_path: Path to the script to profile
-        args: Optional list of command line arguments to pass to the script
+        script_path: Path to the Python script to profile (e.g., 'code/ingest.py').
+        output_json: Optional path to write the memory profile summary JSON.
+        timeout_seconds: Timeout for the script execution.
         
     Returns:
-        Dictionary containing execution stats and memory metrics
+        Tuple of (success: bool, message: str)
     """
-    if not script_path.exists():
-        raise FileNotFoundError(f"Script not found: {script_path}")
-        
+    if not MEMORY_PROFILER_AVAILABLE:
+        logger.error(
+            "memory_profiler is not installed. "
+            "Install it via: pip install memory-profiler"
+        )
+        return False, "memory_profiler not installed"
+
+    script_path_obj = Path(script_path)
+    if not script_path_obj.exists():
+        return False, f"Script not found: {script_path}"
+
+    # Construct the command to run with memory profiler
+    # We use the -m memory_profiler approach which outputs to stdout
     cmd = [
-        sys.executable, "-m", "memory_profiler", 
-        "--include-children", "--multiprocess"
+        sys.executable,
+        "-m",
+        "memory_profiler",
+        "--log-file",
+        str(script_path_obj.with_suffix(".memlog")),
+        script_path
     ]
-    
-    if args:
-        cmd.extend(args)
-        
-    cmd.append(str(script_path))
-    
-    logger.info(f"Running memory profile for: {' '.join(cmd)}")
-    
-    result = {
-        "script": script_path.name,
-        "start_time": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "status": "running",
-        "output_lines": [],
-        "peak_memory_mb": 0.0,
-        "total_memory_increase_mb": 0.0,
-        "error": None
-    }
-    
+
+    # Add arguments if the script expects them (e.g., --city NYC)
+    # For now, we run the main() function as defined in the script
+    # The script itself should handle its own argument parsing or run with defaults
+
+    logger.info(f"Running memory profile on {script_path}...")
+    start_time = time.time()
+
     try:
-        proc = subprocess.run(
+        # Run the command
+        result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
-            timeout=300,  # 5 minute timeout
-            env=os.environ
+            timeout=timeout_seconds,
+            env={**os.environ, "PYTHONUNBUFFERED": "1"}
         )
-        
-        result["end_time"] = time.strftime("%Y-%m-%d %H:%M:%S")
-        result["status"] = "success" if proc.returncode == 0 else "failed"
-        
-        # Combine stdout and stderr for analysis
-        output = proc.stdout + proc.stderr
-        result["output_lines"] = output.split('\n')
-        
-        # Parse memory_profiler output for peak memory
-        peak_memory = 0.0
-        for line in result["output_lines"]:
-            if "Maximum memory usage" in line or "Mem" in line:
-                try:
-                    # Extract numeric values from lines like "Mem: 123.45 MiB"
-                    parts = line.split()
-                    for part in parts:
+
+        elapsed = time.time() - start_time
+
+        if result.returncode != 0:
+            error_msg = f"Script failed with code {result.returncode}\nSTDERR: {result.stderr}"
+            logger.error(error_msg)
+            return False, error_msg
+
+        # Parse the memory log file if it exists
+        log_file = script_path_obj.with_suffix(".memlog")
+        profile_data = []
+        if log_file.exists():
+            with open(log_file, 'r') as f:
+                lines = f.readlines()
+                # Parse the memory profiler output lines
+                # Format: Line #    Mem used    Increment    Line contents
+                for line in lines:
+                    parts = line.strip().split()
+                    if len(parts) >= 5 and parts[0].isdigit():
                         try:
-                            val = float(part)
-                            if val > peak_memory:
-                                peak_memory = val
+                            profile_data.append({
+                                "line": int(parts[0]),
+                                "memory_mb": float(parts[1]),
+                                "increment": float(parts[2]),
+                                "code": " ".join(parts[5:])
+                            })
                         except ValueError:
                             continue
-                except Exception:
-                    continue
-                    
-        result["peak_memory_mb"] = peak_memory
-        
-        if proc.returncode != 0:
-            result["error"] = proc.stderr.strip()
-            logger.error(f"Script failed with return code {proc.returncode}: {result['error']}")
-            
+
+        # Generate summary
+        summary = {
+            "script": str(script_path),
+            "success": True,
+            "execution_time_seconds": elapsed,
+            "total_lines_profiled": len(profile_data),
+            "peak_memory_mb": max([p["memory_mb"] for p in profile_data]) if profile_data else 0,
+            "average_memory_mb": sum([p["memory_mb"] for p in profile_data]) / len(profile_data) if profile_data else 0,
+            "profile_data": profile_data
+        }
+
+        if output_json:
+            with open(output_json, 'w') as f:
+                json.dump(summary, f, indent=2)
+            logger.info(f"Memory profile summary written to {output_json}")
+
+        logger.info(f"Memory profiling completed in {elapsed:.2f}s. Peak memory: {summary['peak_memory_mb']:.2f} MB")
+        return True, f"Success. Peak memory: {summary['peak_memory_mb']:.2f} MB"
+
     except subprocess.TimeoutExpired:
-        result["status"] = "timeout"
-        result["error"] = "Execution timed out after 300 seconds"
-        logger.error(result["error"])
+        return False, f"Script execution timed out after {timeout_seconds} seconds"
     except Exception as e:
-        result["status"] = "error"
-        result["error"] = str(e)
-        logger.error(f"Profiling error: {e}")
-        
-    return result
+        logger.exception(f"Error during memory profiling: {e}")
+        return False, str(e)
 
-def profile_pipeline_scripts() -> Dict[str, Any]:
+def profile_pipeline_scripts(
+    scripts: List[str],
+    output_dir: Optional[str] = None
+) -> Dict[str, Any]:
     """
-    Profile memory usage of ingest.py and modeling.py.
+    Profile multiple pipeline scripts and aggregate results.
     
+    Args:
+        scripts: List of script paths to profile (e.g., ['code/ingest.py', 'code/modeling.py']).
+        output_dir: Directory to save individual and summary reports.
+        
     Returns:
-        Dictionary with profiling results for each script
+        Dictionary containing aggregated profiling results.
     """
-    project_root = get_path("PROJECT_ROOT")
-    results = {
-        "profile_timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "scripts": {}
-    }
-    
-    scripts_to_profile = [
-        "code/ingest.py",
-        "code/modeling.py"
-    ]
-    
-    for script_rel_path in scripts_to_profile:
-        script_path = Path(project_root) / script_rel_path
-        
-        if not script_path.exists():
-            logger.warning(f"Script not found: {script_path}")
-            results["scripts"][script_rel_path] = {
-                "status": "not_found",
-                "error": f"Script not found: {script_path}"
-            }
-            continue
-            
-        logger.info(f"Profiling {script_rel_path}...")
-        script_result = run_with_memory_profile(script_path)
-        results["scripts"][script_rel_path] = script_result
-        
-        # Save individual report
-        output_dir = Path(project_root) / "data" / "results"
-        output_dir.mkdir(parents=True, exist_ok=True)
-        
-        individual_report_path = output_dir / f"memory_profile_{Path(script_rel_path).stem}.json"
-        with open(individual_report_path, 'w') as f:
-            json.dump(script_result, f, indent=2)
-            logger.info(f"Saved individual report: {individual_report_path}")
-            
-    # Save combined report
-    combined_report_path = output_dir / "memory_profile_combined.json"
-    with open(combined_report_path, 'w') as f:
-        json.dump(results, f, indent=2)
-        logger.info(f"Saved combined report: {combined_report_path}")
-        
-    return results
+    if not MEMORY_PROFILER_AVAILABLE:
+        logger.warning("memory_profiler not available. Skipping profiling.")
+        return {"error": "memory_profiler not installed", "results": {}}
 
-def generate_summary_report(results: Dict[str, Any]) -> str:
+    output_path = Path(output_dir) if output_dir else get_path("data", "results")
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    results = {}
+    for script in scripts:
+        script_name = Path(script).stem
+        output_json = output_path / f"{script_name}_memory_profile.json"
+        
+        success, message = run_with_memory_profile(script, str(output_json))
+        results[script] = {
+            "success": success,
+            "message": message,
+            "output_file": str(output_json) if success else None
+        }
+
+    # Generate summary report
+    summary = {
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "scripts_profiled": len(scripts),
+        "successful_profiles": sum(1 for r in results.values() if r["success"]),
+        "results": results
+    }
+
+    summary_file = output_path / "memory_profile_summary.json"
+    with open(summary_file, 'w') as f:
+        json.dump(summary, f, indent=2)
+    
+    logger.info(f"Memory profiling summary saved to {summary_file}")
+    return summary
+
+def generate_summary_report(
+    profile_results: Dict[str, Any],
+    threshold_mb: float = 6000.0
+) -> str:
     """
     Generate a human-readable summary report from profiling results.
     
     Args:
-        results: Profiling results dictionary
+        profile_results: Dictionary of profiling results (output of profile_pipeline_scripts).
+        threshold_mb: Memory threshold in MB to flag potential issues.
         
     Returns:
-        Summary report string
+        Formatted string report.
     """
     lines = [
         "# Memory Profiling Report",
-        f"Generated: {results.get('profile_timestamp', 'N/A')}",
+        f"Generated: {profile_results.get('timestamp', 'N/A')}",
+        f"Scripts Profiled: {profile_results.get('scripts_profiled', 0)}",
+        f"Successful Profiles: {profile_results.get('successful_profiles', 0)}",
         "",
-        "## Summary"
+        "## Individual Script Results",
+        ""
     ]
-    
-    for script_path, script_result in results.get("scripts", {}).items():
-        lines.append(f"\n### {script_path}")
-        lines.append(f"- Status: {script_result.get('status', 'unknown')}")
-        lines.append(f"- Peak Memory: {script_result.get('peak_memory_mb', 0.0):.2f} MB")
-        
-        if script_result.get("error"):
-            lines.append(f"- Error: {script_result['error']}")
-            
-    # Add recommendations based on memory usage
-    lines.append("\n## Recommendations")
-    max_mem = 0
-    for script_result in results.get("scripts", {}).values():
-        mem = script_result.get("peak_memory_mb", 0.0)
-        if mem > max_mem:
-            max_mem = mem
-            
-    if max_mem > 6000:  # 6GB threshold
-        lines.append("- ⚠️ Peak memory usage exceeds 6GB. Consider reducing MAX_BLOCKS or using streaming.")
-    elif max_mem > 4000:
-        lines.append("- ⚠️ Peak memory usage is high (>4GB). Monitor closely during full runs.")
-    else:
-        lines.append("- ✅ Memory usage is within acceptable limits.")
-        
+
+    for script, data in profile_results.get("results", {}).items():
+        lines.append(f"### {script}")
+        if data["success"]:
+            lines.append(f"- Status: SUCCESS")
+            if data.get("output_file"):
+                lines.append(f"- Output: {data['output_file']}")
+                # Try to load the specific result for peak memory
+                try:
+                    with open(data["output_file"], 'r') as f:
+                        specific_data = json.load(f)
+                        peak = specific_data.get("peak_memory_mb", 0)
+                        lines.append(f"- Peak Memory: {peak:.2f} MB")
+                        if peak > threshold_mb:
+                            lines.append(f"- ⚠️ WARNING: Exceeds threshold of {threshold_mb} MB")
+                except Exception:
+                    lines.append("- Could not read detailed metrics")
+        else:
+            lines.append(f"- Status: FAILED")
+            lines.append(f"- Error: {data['message']}")
+        lines.append("")
+
+    lines.append("## Recommendations")
+    lines.append("")
+    lines.append("- If peak memory exceeds 6GB, consider enabling spatial block sampling (T026b).")
+    lines.append("- If specific functions show high memory spikes, consider chunking or streaming data.")
+    lines.append("- Ensure all temporary files are cleaned up after processing.")
+
     return "\n".join(lines)
 
 def main():
-    """Main entry point for memory profiling."""
-    logger.info("Starting memory profiling pipeline")
+    """
+    Main entry point for memory profiling.
     
-    try:
-        results = profile_pipeline_scripts()
-        summary = generate_summary_report(results)
-        
-        # Save summary report
-        project_root = get_path("PROJECT_ROOT")
-        report_path = Path(project_root) / "data" / "results" / "memory_profile_summary.md"
-        report_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(report_path, 'w') as f:
-            f.write(summary)
-            
-        logger.info(f"Memory profiling complete. Report saved to {report_path}")
-        print(summary)
-        
-    except Exception as e:
-        logger.error(f"Memory profiling failed: {e}")
-        raise
+    Profiles the ingestion and modeling scripts by default.
+    """
+    logger.info("Starting memory profiling pipeline...")
+
+    # Define scripts to profile
+    scripts_to_profile = [
+        "code/ingest.py",
+        "code/modeling.py"
+    ]
+
+    # Run profiling
+    results = profile_pipeline_scripts(scripts_to_profile)
+
+    # Generate and print report
+    report = generate_summary_report(results)
+    print(report)
+    
+    # Log the report to file as well
+    log_report_path = get_path("data", "results", "memory_profile_report.md")
+    with open(log_report_path, 'w') as f:
+        f.write(report)
+    logger.info(f"Report saved to {log_report_path}")
+
+    return 0 if results["successful_profiles"] == len(scripts_to_profile) else 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

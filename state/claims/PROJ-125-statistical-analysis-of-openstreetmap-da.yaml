@@ -383,3 +383,363 @@
   source_type: external
   status: verified
   updated_at: '2026-08-15T00:53:44Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/tasks.md
+  attempts: 1
+  canonical: satellite fetch logic validates 5-year window
+  claim_id: c_527414a7
+  context: T011b [P] [US1] Unit test for satellite fetch logic in tests/unit/test_ingest.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify 5-year window logic and file structure.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T02:56:11Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/tasks.md
+  attempts: 1
+  canonical: compute Moran's I for temperature raster
+  claim_id: c_69293db0
+  context: T020 [US2] Implement spatial autocorrelation analysis in code/eda.py (FR-004)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_Moran%27s_I_for_temperature_raster
+  kind: entity_fact
+  raw_text: Compute Moran's I for the temperature raster.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T02:56:33Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/tasks.md
+  attempts: 1
+  canonical: spatial block generation grid size 1km x 1km
+  claim_id: c_252edb44
+  context: T023 [P] [US3] Unit test for spatial block generation in tests/unit/test_modeling.py
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spatial_block_generation_grid_size_1km_x_1km
+  kind: entity_fact
+  raw_text: 'Grid Size: 1km x 1km.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T02:56:49Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/tasks.md
+  attempts: 1
+  canonical: spatial cross-validation fold count 5
+  claim_id: c_c7119736
+  context: T024 [P] [US3] Unit test for spatial cross-validation logic in tests/unit/test_modeling.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify fold count = 5 and no shared pixels between train/test sets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T02:57:15Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/tasks.md
+  attempts: 1
+  canonical: memory safety check triggers sampling if memory exceeds 5GB or N exceeds
+    500k
+  claim_id: c_cb07a971
+  context: T026a [US3] Implement Memory Safety Check in code/modeling.py (Memory Safety)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If memory > 5GB or N > 500k: Trigger Spatial Block Sampling (T026b) to
+    reduce N.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T02:57:15Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/tasks.md
+  attempts: 1
+  canonical: spatial block sampling reduces N below 500k using 1km grid blocks
+  claim_id: c_78de53b8
+  context: T026b [US3] Implement Spatial Block Sampling (1km grid) algorithm in code/modeling.py
+    (Plan Requirement)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Partition the raster grid into 1km x 1km blocks. Stratified selection
+    by UTM grid quadrant to reduce N < 500k while preserving spatial autocorrelation
+    structure.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T02:57:25Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/tasks.md
+  attempts: 1
+  canonical: unexplained variance gap calculated as upper bound R2 minus observed
+    R2
+  claim_id: c_be07440e
+  context: T032 [US3] Implement Proxy Validity Sensitivity (FR-010)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unexplained_variance_gap_calculated_as_upper_bound_R2_minus
+  kind: entity_fact
+  raw_text: Calculate Gap = Upper_Bound_R2 - Observed_R2.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T02:57:56Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/tasks.md
+  attempts: 1
+  canonical: sensitivity report visualizes R2 stability using standard deviation
+  claim_id: c_e8b0f483
+  context: T035 [US3] Generate sensitivity report in data/results/sensitivity_report.md
+    (SC-004)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_report_visualizes_R2_stability_using_standard_de
+  kind: entity_fact
+  raw_text: "Visualize stability of R\xB2 across bandwidths using standard deviation\
+    \ of R\xB2."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T02:58:26Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/tasks.md
+  attempts: 1
+  canonical: peak memory limit set to 6GB
+  claim_id: c_7173b9aa
+  context: T038b Tune MAX_BLOCKS in config.py to ensure peak memory < 6GB (Safety
+    Check Threshold)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_limit_set_to_6GB
+  kind: entity_fact
+  raw_text: Tune MAX_BLOCKS in config.py to ensure peak memory < 6GB (Safety Check
+    Threshold)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T02:58:41Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/tasks.md
+  attempts: 1
+  canonical: satellite fetch logic uses 5-year window
+  claim_id: c_c6bce190
+  context: 'T011b [P] [US1] Unit test for satellite fetch logic in tests/unit/test_ingest.py
+    - Mock Source: Local GeoTIFF file. - Validation: Verify 5-year window logic and
+    file structure.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify 5-year window logic and file structure.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T03:00:45Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/tasks.md
+  attempts: 1
+  canonical: missing data threshold is 10 percent
+  claim_id: c_5a97ae12
+  context: "T021a [Foundational] Implement ingestion of socioeconomic proxies... Threshold\
+    \ Logic: If missing data > 10%, log WARNING. If \u226410%, proceed without warning."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If missing data > 10%, log WARNING.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T03:00:45Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/tasks.md
+  attempts: 1
+  canonical: compute daytime land-surface temperature composites
+  claim_id: c_d70df6d2
+  context: T013 [US1] Implement satellite thermal data ingestion... Compute daytime
+    land-surface temperature composites.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_daytime_land-surface_temperature_composites
+  kind: entity_fact
+  raw_text: Compute daytime land-surface temperature composites.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T03:01:16Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/tasks.md
+  attempts: 1
+  canonical: cloud masking if cloud cover exceeds 20 percent
+  claim_id: c_1035b9c7
+  context: T013 [US1] Implement satellite thermal data ingestion... Implement cloud
+    masking and multi-date composite generation if cloud cover > 20%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement cloud masking and multi-date composite generation if cloud cover
+    > 20%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T03:01:16Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/tasks.md
+  attempts: 1
+  canonical: upsampling error threshold is 0.1
+  claim_id: c_18a6627b
+  context: T014b [US1] Implement upsampling error validation and exit logic... Validate
+    upsampling error < 0.1 (calculated as absolute difference between original vector
+    area and rasterized area).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validate upsampling error < 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T03:01:16Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/tasks.md
+  attempts: 1
+  canonical: synthetic checkerboard pattern has Moran's I of 0.8
+  claim_id: c_d17080ca
+  context: 'T017 [P] [US2] Unit test for Moran''s I calculation... Input: Synthetic
+    checkerboard pattern with known Moran''s I = 0.8.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Input: Synthetic checkerboard pattern with known Moran''s I = 0.8.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T03:01:27Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/tasks.md
+  attempts: 1
+  canonical: spatial block grid size is 1km by 1km
+  claim_id: c_df96c3dd
+  context: 'T023 [P] [US3] Unit test for spatial block generation... Grid Size: 1km
+    x 1km.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spatial_block_grid_size_is_1km_by_1km
+  kind: entity_fact
+  raw_text: 'Grid Size: 1km x 1km.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T03:01:28Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/tasks.md
+  attempts: 1
+  canonical: spatial cross-validation fold count is 5
+  claim_id: c_6a8c283a
+  context: 'T024 [P] [US3] Unit test for spatial cross-validation logic... Assertion:
+    Verify fold count = 5 and no shared pixels between train/test sets.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify fold count = 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T03:01:40Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/tasks.md
+  attempts: 1
+  canonical: memory threshold is 5GB or sample size threshold is 500000
+  claim_id: c_d6f1cc3a
+  context: 'T026a [US3] Implement Memory Safety Check... If memory > 5GB or N > 500k:
+    Trigger Spatial Block Sampling (T026b) to reduce N.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If memory > 5GB or N > 500k: Trigger Spatial Block Sampling.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T03:01:40Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/tasks.md
+  attempts: 1
+  canonical: reduce sample size to less than 500000
+  claim_id: c_f8c9f099
+  context: T026b [US3] Implement Spatial Block Sampling (1km grid) algorithm... Stratified
+    selection by UTM grid quadrant to reduce N < 500k while preserving spatial autocorrelation
+    structure.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reduce_sample_size_to_less_than_500000
+  kind: magnitude
+  raw_text: Stratified selection by UTM grid quadrant to reduce N < 500k.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T03:02:03Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/tasks.md
+  attempts: 1
+  canonical: spatial cross-validation k is 5
+  claim_id: c_771f004a
+  context: 'T030 [US3] Implement 5-fold Spatial Cross-Validation... Enforcement: Hard
+    assertion that k=5 for the primary research run, overriding config if necessary
+    to satisfy FR-006.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Hard assertion that k=5 for the primary research run.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T03:02:22Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/tasks.md
+  attempts: 1
+  canonical: peak memory limit is 6GB
+  claim_id: c_6f582aea
+  context: T038b Tune MAX_BLOCKS in config.py to ensure peak memory < 6GB (Safety
+    Check Threshold)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_limit_is_6GB
+  kind: entity_fact
+  raw_text: Tune MAX_BLOCKS in config.py to ensure peak memory < 6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T03:02:26Z'
