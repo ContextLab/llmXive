@@ -12,13 +12,12 @@ T010:
     must add this test file with appropriate test cases.
 T013:
   c: false
-  h: 5afc69e4840fa60935c2e59faf35986add5f92ba9e4667519e3ffc8f774897c7
-  r: "The `surrogate_service.py` file is truncated and contains an unfinished error\u2011\
-    handling block (`except DataLoadError as e: \u2026 r`), and it does not provide\
-    \ any method to actually compute segregation energies from the loaded data. Moreover,\
-    \ the required `data/raw/dft_energies.json` file is missing, so the service cannot\
-    \ load the real dataset as mandated. The implementation therefore does not meet\
-    \ the task\u2019s requirements."
+  h: 58fdf03e23efcad18a22ccfd90a57ff7111aa746c465800509144ddec4d7704c
+  r: "The required file `data/raw/dft_energies.json` does not exist, yet `SurrogateService._load_data`\
+    \ falls back to a placeholder instead of raising a hard error as the task mandates.\
+    \ Consequently the service does not strictly enforce the \u201Craise error if\
+    \ missing\u201D constraint and cannot guarantee loading real DFT energies. The\
+    \ implementation therefore does not satisfy the task\u2019s core requirement."
 T013b:
   c: false
   h: 6aaef090a006442e35a76c1e19ddb47104f740b35239c5b38a1faaddba64e67b
@@ -26,18 +25,34 @@ T013b:
     \ does not exist, so the function cannot actually load any DFT energies (it would\
     \ raise `DataLoadError`). No placeholder file is provided either, meaning the\
     \ implementation cannot satisfy the task\u2019s core requirement."
-T017a:
+T021a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `research/fr002_deviation.md` file is present in the provided evidence; the\
-    \ implementer did not supply the required markdown document, so the task\u2019\
-    s core deliverable is missing."
-T017b:
+  r: "No code, data, or result files were provided that show interaction terms were\
+    \ generated, a regression model was built, or statistical metrics (p\u2011values,\
+    \ MSE reduction) were computed. Consequently the required evidence for User Story\u202F\
+    2 is missing."
+T022:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: I could find no `research/spec_amendment_fr002.md` file or any content provided
-    in the submission; therefore the required specification document does not exist
-    or is empty, so the task is not satisfied.
+  r: "No code, script, or log file was provided that implements the MSE comparison,\
+    \ prints the required \u201CMSE reduction: X% (Threshold: 10%)\u201D message,\
+    \ or raises a warning when the reduction is \u226410\u202F%. Without these artifacts\
+    \ the task\u2019s requirement cannot be verified."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, test results, or any other artifact demonstrating\
+    \ that significance testing (p\u2011value\u202F<\u202F0.05) for interaction coefficients\
+    \ has been implemented is present. The claim lacks the required implementation\
+    \ and verification output, so the task requirement is not satisfied."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, module, or test output was provided that implements the required\
+    \ \u201Cflag systems where no significant cooperative effects are detected\u201D\
+    \ logic, nor any evidence that it runs after T025. The artifact is missing entirely,\
+    \ so the task is not satisfied."
 T045a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

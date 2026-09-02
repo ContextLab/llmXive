@@ -1507,3 +1507,259 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-31T22:38:48Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: PolynomialFeatures degree 2 generate interaction terms
+  claim_id: c_b95bff07
+  context: 'Generate interaction terms for regression. Requirements: 1. Use sklearn.preprocessing.PolynomialFeatures(degree=2,
+    include_bias=False) to generate interaction terms (e.g., Cr*Mo, Cr*V).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use sklearn.preprocessing.PolynomialFeatures(degree=2, include_bias=False)
+    to generate interaction terms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T07:20:02Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: Cross-validation R squared standard deviation threshold 0.05
+  claim_id: c_ce644391
+  context: "Constraint: Check if CV R\xB2 standard deviation <= 0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Check if CV R\xB2 standard deviation <= 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T07:21:16Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: MSE reduction threshold 10 percent for cooperative effects
+  claim_id: c_596b9a7e
+  context: Implement logic to compare MSE of interaction model vs. additive binary
+    null hypothesis, requiring >10% MSE reduction to confirm cooperative effects.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Require >10% MSE reduction to confirm cooperative effects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T07:21:16Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: Standard deviation threshold 0.05 for cross-validation metrics
+  claim_id: c_b73c38a7
+  context: "Output: Log Mean R\xB2: X, Std Dev: Y and flag if Std Dev > 0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag if Std Dev > 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T07:21:17Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: Minimum detectable concentration 0.1 atomic percent
+  claim_id: c_95cb7502
+  context: Define the minimum detectable concentration (e.g., 0.1 at.%) and the detection
+    limit for trace elements (Cr, Mo, V, W) at grain boundaries.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Minimum detectable concentration is 0.1 at.%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T07:22:13Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: Needle-shaped specimen diameter 100 nanometers
+  claim_id: c_b3abfa65
+  context: "Estimate the quantity of material required (e.g., needle\u2011shaped specimens\
+    \ of ~100 nm diameter) and the preparation method (FIB lift\u2011out)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Needle-shaped specimens of ~100 nm diameter are required.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T07:22:41Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: Literature DOI 10.1016/j.actamat.2020.01.015 APT measurement BCC Fe alloys
+  claim_id: c_2cc89a50
+  context: Cite specific literature (DOI 10.1016/j.actamat.2020.01.015) where APT
+    has successfully measured similar segregation in BCC Fe alloys.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: Cite specific literature DOI 10.1016/j.actamat.2020.01.015 where APT has
+    successfully measured similar segregation in BCC Fe alloys.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T07:22:45Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: Thermodynamic consistency deviation threshold 0.1 eV
+  claim_id: c_5f18e08b
+  context: 'Constraint: If energies deviate by > 0.1 eV from CALPHAD trends, log a
+    warning and flag the data for review.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Thermodynamic consistency check triggers warning if energies deviate by
+    > 0.1 eV from CALPHAD trends.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T07:22:45Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: Parameter extrapolation range 500 to 900 Kelvin
+  claim_id: c_e226bf37
+  context: "Requirement: Use scipy.interpolate.interp1d or numpy.polyfit for linear\
+    \ extrapolation of missing parameters in the 500\u2011900 K range."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Extrapolation of missing parameters is performed in the 500\u2011900\
+    \ K range."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T07:24:32Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: Linear extrapolation method scipy.interpolate.interp1d or numpy.polyfit
+  claim_id: c_455a283c
+  context: "Requirement: Use scipy.interpolate.interp1d or numpy.polyfit for linear\
+    \ extrapolation of missing parameters in the 500\u2011900 K range."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Linear_extrapolation_method_scipy.interpolate.interp1d_or_nu
+  kind: entity_fact
+  raw_text: Use scipy.interpolate.interp1d or numpy.polyfit for linear extrapolation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T07:25:05Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: Prohibition of sklearn.linear_model.LinearRegression for extrapolation
+  claim_id: c_98c215dd
+  context: 'Constraint: Do NOT use sklearn.linear_model.LinearRegression for this
+    specific extrapolation task; use dedicated interpolation libraries to avoid conceptual
+    confusion and ensure thermodynamic consistency.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Prohibition_of_sklearn.linear_model.LinearRegression_for_ext
+  kind: entity_fact
+  raw_text: Do NOT use sklearn.linear_model.LinearRegression for the specific extrapolation
+    task.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T07:25:53Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: Equilibrium concentration cap 1.0
+  claim_id: c_0aed52d2
+  context: Cap equilibrium concentration at 1.0 and return a 'saturation' flag if
+    the calculated value exceeds 1.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cap equilibrium concentration at 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T07:26:25Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: Interaction term column naming convention
+  claim_id: c_e94a9856
+  context: 'Constraint: Use exact column naming convention: Cr_Mo, Cr_V, Mo_V, Cr_W,
+    Mo_W, V_W (underscores for interactions).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Interaction_term_column_naming_convention
+  kind: entity_fact
+  raw_text: 'Use specific column naming convention: Cr_Mo, Cr_V, Mo_V, Cr_W, Mo_W,
+    V_W.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T07:27:11Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: Heatmap visualization style viridis and Normalize
+  claim_id: c_d8619378
+  context: 'Style: Use cmap=viridis and norm=Normalize (symmetric range to handle
+    negative values). Do NOT use LogNorm.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Heatmap_visualization_style_viridis_and_Normalize
+  kind: entity_fact
+  raw_text: Use cmap=viridis and norm=Normalize for heatmaps.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T07:27:46Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain/tasks.md
+  attempts: 1
+  canonical: Prohibition of LogNorm for heatmaps
+  claim_id: c_0473b2c5
+  context: 'Style: Use cmap=viridis and norm=Normalize (symmetric range to handle
+    negative values). Do NOT use LogNorm.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Prohibition_of_LogNorm_for_heatmaps
+  kind: entity_fact
+  raw_text: Do NOT use LogNorm for heatmaps.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T07:28:20Z'

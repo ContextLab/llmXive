@@ -1,3 +1,4 @@
+# Existing dependencies
 pymatgen
 ase
 numpy
@@ -10,6 +11,6 @@ requests
 memory_profiler
 ruff
 black
+quantum-espresso-runner
 pytest
-pydantic
-statsmodels
+pytest-cov
