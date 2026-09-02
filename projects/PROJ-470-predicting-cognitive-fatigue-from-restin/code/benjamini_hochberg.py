@@ -1,3 +1,13 @@
+"""
+Benjamini-Hochberg Correction Module for Multiple Comparisons.
+
+Implements the Benjamini-Hochberg (BH) procedure to control the False Discovery Rate (FDR)
+across multiple hypothesis tests (e.g., correlations across EEG electrodes).
+
+This module is designed to be run as a standalone script or imported as a library.
+It reads analysis results from `data/analysis/correlation_results.csv`, applies the BH correction,
+and writes the corrected results to `data/analysis/bh_corrected_results.csv`.
+"""
 import os
 import sys
 import json
@@ -6,188 +16,192 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 
-def load_config(config_path="code/config.yaml"):
-    """Load configuration from YAML file."""
+# Configure project paths
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+ANALYSIS_DIR = DATA_DIR / "analysis"
+INPUT_FILE = ANALYSIS_DIR / "correlation_results.csv"
+OUTPUT_FILE = ANALYSIS_DIR / "bh_corrected_results.csv"
+
+def load_config():
+    """Load configuration from code/config.yaml."""
+    config_path = PROJECT_ROOT / "code" / "config.yaml"
+    if not config_path.exists():
+        raise FileNotFoundError(f"Configuration file not found: {config_path}")
+    
     import yaml
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
-def setup_logger(name, log_file="logs/pipeline.log", level=logging.INFO):
-    """Set up a logger that writes to both file and console."""
-    os.makedirs(os.path.dirname(log_file), exist_ok=True)
+def setup_logger(name):
+    """Setup a logger that writes to console and a file."""
     logger = logging.getLogger(name)
-    logger.setLevel(level)
+    logger.setLevel(logging.INFO)
     
     if not logger.handlers:
-        fh = logging.FileHandler(log_file)
-        fh.setLevel(level)
-        ch = logging.StreamHandler()
-        ch.setLevel(level)
-        
+        # Console handler
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        fh.setFormatter(formatter)
         ch.setFormatter(formatter)
-        
-        logger.addHandler(fh)
         logger.addHandler(ch)
+        
+        # File handler (optional, for pipeline logs)
+        log_dir = PROJECT_ROOT / "logs"
+        log_dir.mkdir(exist_ok=True)
+        fh = logging.FileHandler(log_dir / f"{name}.log")
+        fh.setLevel(logging.INFO)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
     
     return logger
 
 def run_benjamini_hochberg(p_values, alpha=0.05):
     """
-    Perform Benjamini-Hochberg correction for multiple comparisons.
-    
-    Parameters:
-    -----------
+    Apply the Benjamini-Hochberg procedure to a list of p-values.
+
+    Parameters
+    ----------
     p_values : array-like
-        Array of raw p-values.
+        Array of p-values to correct.
     alpha : float
-        False Discovery Rate (FDR) threshold.
-        
-    Returns:
-    --------
+        Desired False Discovery Rate (FDR) threshold.
+
+    Returns
+    -------
     dict
-        Dictionary containing:
-        - 'adjusted_p_values': array of BH-adjusted p-values
-        - 'is_significant': boolean array indicating significance at alpha
-        - 'num_significant': count of significant results
+        A dictionary containing:
+        - 'rejected': Boolean array indicating which hypotheses are rejected.
+        - 'adjusted_p_values': The BH-adjusted p-values.
+        - 'thresholds': The BH thresholds used for comparison.
     """
-    p_values = np.array(p_values)
+    p_values = np.asarray(p_values)
     n = len(p_values)
     
     if n == 0:
         return {
+            'rejected': np.array([]),
             'adjusted_p_values': np.array([]),
-            'is_significant': np.array([], dtype=bool),
-            'num_significant': 0
+            'thresholds': np.array([])
         }
-    
-    # Sort p-values and keep original indices
+
+    # Sort p-values and keep track of original indices
     sorted_indices = np.argsort(p_values)
     sorted_p_values = p_values[sorted_indices]
     
-    # Calculate BH critical values
-    # For each p-value at rank i (1-indexed), critical value is (i/n) * alpha
+    # Calculate BH thresholds
+    # The threshold for the i-th smallest p-value is (i+1)/n * alpha
     ranks = np.arange(1, n + 1)
-    critical_values = (ranks / n) * alpha
+    thresholds = (ranks / n) * alpha
     
-    # Find the largest k such that p_(k) <= critical_(k)
-    # We work backwards from the largest p-value
-    is_significant_sorted = np.zeros(n, dtype=bool)
-    found_significant = False
+    # Determine rejection
+    # Find the largest k such that p_(k) <= (k/n) * alpha
+    # Then reject all hypotheses 1..k
+    # We do this by checking from the largest rank downwards
+    rejected = np.zeros(n, dtype=bool)
     
+    # Standard BH step-down procedure
+    # Find the largest i such that p_(i) <= (i/n) * alpha
+    # Note: ranks are 1-based here
     for i in range(n - 1, -1, -1):
-        if sorted_p_values[i] <= critical_values[i]:
-            # All p-values with rank <= i are significant
-            is_significant_sorted[:i+1] = True
-            found_significant = True
+        if sorted_p_values[i] <= thresholds[i]:
+            rejected[:i+1] = True
             break
     
-    # Map significance back to original order
-    is_significant = np.zeros(n, dtype=bool)
-    is_significant[sorted_indices] = is_significant_sorted
-    
-    # Calculate adjusted p-values
-    # adjusted_p[i] = min( (n/i) * p[i], 1.0 ) for sorted p-values
-    # We ensure monotonicity by taking cumulative min from the end
-    adjusted_sorted = np.zeros(n)
+    # Calculate adjusted p-values (q-values)
+    # adjusted_p[i] = min( (n/k) * p_(k) for k >= i )
+    # To ensure monotonicity, we take the cumulative minimum from the right
+    adjusted = np.zeros(n)
     for i in range(n):
-        rank = i + 1
-        adjusted_sorted[i] = sorted_p_values[i] * n / rank
+        # The adjusted p-value for the i-th sorted p-value is the minimum of
+        # (n/k) * p_k for all k >= i
+        candidates = (n / ranks[i:]) * sorted_p_values[i:]
+        adjusted[i] = np.min(candidates)
     
-    # Ensure monotonicity: adjusted p-values must be non-decreasing
-    for i in range(n - 2, -1, -1):
-        adjusted_sorted[i] = min(adjusted_sorted[i], adjusted_sorted[i+1])
-    
-    # Clip to [0, 1]
-    adjusted_sorted = np.clip(adjusted_sorted, 0, 1)
+    # Ensure adjusted p-values do not exceed 1.0
+    adjusted = np.minimum(adjusted, 1.0)
     
     # Map back to original order
-    adjusted_p_values = np.zeros(n)
-    adjusted_p_values[sorted_indices] = adjusted_sorted
+    final_rejected = np.zeros(n, dtype=bool)
+    final_adjusted = np.zeros(n)
     
-    num_significant = int(np.sum(is_significant))
+    final_rejected[sorted_indices] = rejected
+    final_adjusted[sorted_indices] = adjusted
     
     return {
-        'adjusted_p_values': adjusted_p_values,
-        'is_significant': is_significant,
-        'num_significant': num_significant
+        'rejected': final_rejected,
+        'adjusted_p_values': final_adjusted,
+        'thresholds': thresholds  # Note: thresholds are aligned with sorted order, useful for debugging
     }
 
 def main():
-    """Main entry point for Benjamini-Hochberg correction task."""
-    logger = setup_logger("benjamini_hochberg")
-    logger.info("Starting Benjamini-Hochberg correction pipeline")
+    """
+    Main entry point for the Benjamini-Hochberg correction script.
     
+    Reads correlation results from data/analysis/correlation_results.csv,
+    applies BH correction across electrodes, and writes results to
+    data/analysis/bh_corrected_results.csv.
+    """
+    logger = setup_logger("benjamini_hochberg")
+    logger.info("Starting Benjamini-Hochberg correction pipeline.")
+    
+    # Load configuration
     try:
         config = load_config()
         alpha = config.get('fdr_threshold', 0.05)
-        
-        # Load analysis results containing p-values
-        # Expected location based on pipeline flow
-        analysis_results_path = Path("data/analysis/correlation_results.csv")
-        
-        if not analysis_results_path.exists():
-            logger.error(f"Analysis results file not found: {analysis_results_path}")
-            logger.error("Run code/analysis.py first to generate correlation results.")
-            sys.exit(1)
-        
-        df = pd.read_csv(analysis_results_path)
-        
-        # Identify columns containing p-values
-        p_value_cols = [col for col in df.columns if 'p_value' in col.lower()]
-        
-        if not p_value_cols:
-            logger.error("No p-value columns found in analysis results.")
-            logger.error(f"Available columns: {list(df.columns)}")
-            sys.exit(1)
-        
-        logger.info(f"Found p-value columns: {p_value_cols}")
-        
-        # Apply BH correction to each p-value column
-        output_rows = []
-        
-        for col in p_value_cols:
-            logger.info(f"Processing {col}")
-            p_vals = df[col].dropna().values
-            
-            if len(p_vals) == 0:
-                logger.warning(f"No valid p-values in {col}, skipping")
-                continue
-            
-            result = run_benjamini_hochberg(p_vals, alpha=alpha)
-            
-            # Add adjusted p-values and significance to dataframe
-            df[f"{col}_adjusted"] = result['adjusted_p_values']
-            df[f"{col}_significant"] = result['is_significant']
-            
-            logger.info(f"  Significant results at alpha={alpha}: {result['num_significant']}/{len(p_vals)}")
-            
-            # Store summary for output
-            output_rows.append({
-                'metric': col,
-                'raw_significant': int(df[col] <= alpha).sum(),
-                'bh_adjusted_significant': result['num_significant'],
-                'fdr_threshold': alpha
-            })
-        
-        # Save corrected results
-        output_path = Path("data/analysis/bh_corrected_results.csv")
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        df.to_csv(output_path, index=False)
-        logger.info(f"Saved BH-corrected results to {output_path}")
-        
-        # Save summary
-        summary_df = pd.DataFrame(output_rows)
-        summary_path = Path("data/analysis/bh_correction_summary.csv")
-        summary_df.to_csv(summary_path, index=False)
-        logger.info(f"Saved BH correction summary to {summary_path}")
-        
-        logger.info("Benjamini-Hochberg correction completed successfully")
-        
+        logger.info(f"Using FDR threshold (alpha): {alpha}")
     except Exception as e:
-        logger.error(f"Error during BH correction: {str(e)}", exc_info=True)
+        logger.warning(f"Could not load config or find fdr_threshold, using default 0.05. Error: {e}")
+        alpha = 0.05
+
+    # Check input file
+    if not INPUT_FILE.exists():
+        logger.error(f"Input file not found: {INPUT_FILE}")
+        logger.error("This script requires 'data/analysis/correlation_results.csv' to be generated by analysis.py first.")
         sys.exit(1)
 
+    # Load data
+    try:
+        df = pd.read_csv(INPUT_FILE)
+        logger.info(f"Loaded {len(df)} correlation results from {INPUT_FILE}")
+    except Exception as e:
+        logger.error(f"Failed to read input file: {e}")
+        sys.exit(1)
+
+    # Validate required columns
+    required_cols = ['p_value']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        logger.error(f"Missing required columns in input file: {missing_cols}")
+        logger.error(f"Available columns: {list(df.columns)}")
+        sys.exit(1)
+
+    # Apply BH correction
+    logger.info("Applying Benjamini-Hochberg correction...")
+    results = run_benjamini_hochberg(df['p_value'].values, alpha=alpha)
+    
+    # Add results to dataframe
+    df['is_significant_bh'] = results['rejected']
+    df['p_value_adjusted'] = results['adjusted_p_values']
+    
+    # Sort by adjusted p-value for readability
+    df_sorted = df.sort_values('p_value_adjusted')
+    
+    # Write output
+    try:
+        ANALYSIS_DIR.mkdir(parents=True, exist_ok=True)
+        df_sorted.to_csv(OUTPUT_FILE, index=False)
+        logger.info(f"Successfully wrote corrected results to {OUTPUT_FILE}")
+        
+        # Log summary
+        num_rejected = np.sum(results['rejected'])
+        logger.info(f"Summary: {num_rejected} out of {len(df)} hypotheses rejected at FDR {alpha}")
+        
+    except Exception as e:
+        logger.error(f"Failed to write output file: {e}")
+        sys.exit(1)
+
+    return 0
+
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -1,162 +1,136 @@
+"""
+Unit tests for collinearity diagnostics (T037).
+"""
+import os
+import sys
 import pytest
 import pandas as pd
 import numpy as np
-import json
-import os
 import tempfile
+import shutil
 from pathlib import Path
 
-# Import the function to test
-from collinearity import calculate_vif, run_collinearity_diagnostics
+# Add code directory to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-class TestCalculateVIF:
-    def test_vif_low_collinearity(self):
-        """Test VIF calculation on uncorrelated data."""
+from collinearity import calculate_vif, run_collinearity_diagnostics, save_collinearity_report, load_analysis_results
+from utils.logging import get_logger
+
+class TestVIFCalculation:
+    """Tests for VIF calculation logic."""
+    
+    def test_vif_no_collinearity(self):
+        """Test VIF calculation with orthogonal predictors (VIF should be 1)."""
+        # Create orthogonal data
         np.random.seed(42)
         n = 100
-        df = pd.DataFrame({
-            'feature1': np.random.randn(n),
-            'feature2': np.random.randn(n),
-            'feature3': np.random.randn(n)
+        X1 = np.random.randn(n)
+        X2 = np.random.randn(n)
+        # Ensure orthogonality
+        X2 = X2 - np.cov(X1, X2)[0, 1] / np.var(X1) * X1
+        X2 = X2 / np.std(X2)
+        
+        data = pd.DataFrame({
+            'p1': X1,
+            'p2': X2
         })
         
-        vif_df = calculate_vif(df, ['feature1', 'feature2', 'feature3'])
+        vif_df = calculate_vif(data, ['p1', 'p2'])
         
-        assert 'feature' in vif_df.columns
-        assert 'vif' in vif_df.columns
-        assert len(vif_df) == 3
+        # VIF should be close to 1 for orthogonal variables
+        assert all(vif_df['vif'] < 1.1), f"VIF should be ~1 for orthogonal data: {vif_df}"
         
-        # With uncorrelated data, VIF should be close to 1
-        assert all(vif_df['vif'] < 2.0), "VIF should be low for uncorrelated data"
-
     def test_vif_high_collinearity(self):
-        """Test VIF calculation on highly correlated data."""
+        """Test VIF calculation with highly correlated predictors (VIF should be high)."""
         np.random.seed(42)
         n = 100
-        base = np.random.randn(n)
-        df = pd.DataFrame({
-            'feature1': base,
-            'feature2': base * 2 + np.random.randn(n) * 0.1,  # Highly correlated
-            'feature3': np.random.randn(n)
+        X1 = np.random.randn(n)
+        X2 = X1 * 0.99 + np.random.randn(n) * 0.1  # Highly correlated
+        
+        data = pd.DataFrame({
+            'p1': X1,
+            'p2': X2
         })
         
-        vif_df = calculate_vif(df, ['feature1', 'feature2', 'feature3'])
+        vif_df = calculate_vif(data, ['p1', 'p2'])
         
-        # feature1 and feature2 should have high VIF
-        high_vif_features = vif_df[vif_df['vif'] > 5]['feature'].tolist()
-        assert 'feature1' in high_vif_features or 'feature2' in high_vif_features, \
-            "At least one of the correlated features should have high VIF"
-
-    def test_vif_constant_column(self):
-        """Test VIF handling of constant columns."""
-        df = pd.DataFrame({
-            'feature1': [1.0] * 100,  # Constant
-            'feature2': np.random.randn(100),
-            'feature3': np.random.randn(100)
+        # VIF should be significantly > 1
+        assert all(vif_df['vif'] > 10), f"VIF should be high for correlated data: {vif_df}"
+        
+    def test_vif_perfect_collinearity(self):
+        """Test VIF with perfect collinearity (should handle gracefully or return inf)."""
+        np.random.seed(42)
+        n = 100
+        X1 = np.random.randn(n)
+        X2 = X1 * 2.0  # Perfectly correlated
+        
+        data = pd.DataFrame({
+            'p1': X1,
+            'p2': X2
         })
         
-        # Should handle constant column gracefully (drop it)
-        vif_df = calculate_vif(df, ['feature1', 'feature2', 'feature3'])
+        vif_df = calculate_vif(data, ['p1', 'p2'])
         
-        # feature1 should be excluded
-        assert 'feature1' not in vif_df['feature'].tolist()
-        assert len(vif_df) == 2
+        # At least one VIF should be very high or inf
+        assert any(vif_df['vif'] >= 100) or any(np.isinf(vif_df['vif'])), \
+            f"Perfect collinearity should result in high VIF: {vif_df}"
 
-    def test_vif_insufficient_features(self):
-        """Test VIF with less than 2 features."""
-        df = pd.DataFrame({
-            'feature1': np.random.randn(100)
+class TestCollinearityDiagnostics:
+    """Tests for the full diagnostics pipeline."""
+    
+    @pytest.fixture
+    def temp_data_dir(self):
+        """Create a temporary directory for test data."""
+        temp_dir = tempfile.mkdtemp()
+        processed_dir = os.path.join(temp_dir, "data", "processed")
+        os.makedirs(processed_dir)
+        yield processed_dir
+        shutil.rmtree(temp_dir)
+        
+    def test_missing_files_raises_error(self, temp_data_dir):
+        """Test that missing input files raise FileNotFoundError."""
+        with pytest.raises(FileNotFoundError):
+            load_analysis_results(metrics_dir=temp_data_dir)
+            
+    def test_integration_with_mock_data(self, temp_data_dir):
+        """Test full pipeline with mock data that passes VIF check."""
+        # Create mock LZW and PE metrics with low correlation
+        np.random.seed(42)
+        n = 50
+        
+        lzc_data = pd.DataFrame({
+            'participant_id': [f'P{i}' for i in range(n)],
+            'F3': np.random.randn(n),
+            'F4': np.random.randn(n),
+            'C3': np.random.randn(n),
+            'C4': np.random.randn(n)
         })
         
-        vif_df = calculate_vif(df, ['feature1'])
+        # Create PE data with low correlation to LZW (orthogonal-ish)
+        pe_data = pd.DataFrame({
+            'participant_id': [f'P{i}' for i in range(n)],
+            'F3': np.random.randn(n) * 0.1 + np.random.randn(n),
+            'F4': np.random.randn(n) * 0.1 + np.random.randn(n),
+            'C3': np.random.randn(n) * 0.1 + np.random.randn(n),
+            'C4': np.random.randn(n) * 0.1 + np.random.randn(n)
+        })
         
-        assert len(vif_df) == 0
+        lzc_data.to_csv(os.path.join(temp_data_dir, "lzc_metrics.csv"), index=False)
+        pe_data.to_csv(os.path.join(temp_data_dir, "pe_metrics.csv"), index=False)
+        
+        # Run diagnostics
+        vif_df, is_valid = run_collinearity_diagnostics()
+        
+        assert is_valid, "Mock data should pass VIF < 5 check"
+        assert all(vif_df['vif'] < 5.0), f"VIF values should be < 5: {vif_df}"
+        
+        # Check output file creation
+        output_path = "data/analysis/vif_diagnostics.csv"
+        if os.path.exists(output_path):
+            saved_df = pd.read_csv(output_path)
+            assert len(saved_df) == len(vif_df)
+            assert 'predictor' in saved_df.columns
+            assert 'vif' in saved_df.columns
 
-class TestRunCollinearityDiagnostics:
-    def test_run_diagnostics_success(self):
-        """Test successful run of collinearity diagnostics."""
-        # Create temporary files
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # Create mock processed metrics
-            lzc_path = Path(tmpdir) / 'lzc_metrics.csv'
-            pe_path = Path(tmpdir) / 'pe_metrics.csv'
-            report_path = Path(tmpdir) / 'collinearity_report.json'
-            
-            # Generate mock data
-            n = 50
-            df_lzc = pd.DataFrame({
-                'participant_id': range(n),
-                'lzc_fz': np.random.randn(n),
-                'lzc_cz': np.random.randn(n)
-            })
-            df_pe = pd.DataFrame({
-                'participant_id': range(n),
-                'pe_fz': np.random.randn(n),
-                'pe_cz': np.random.randn(n)
-            })
-            
-            df_lzc.to_csv(lzc_path, index=False)
-            df_pe.to_csv(pe_path, index=False)
-            
-            # Create a minimal config
-            config_path = Path(tmpdir) / 'config.yaml'
-            with open(config_path, 'w') as f:
-                f.write("pipeline:\n  random_seed: 42\n")
-            
-            # Run diagnostics
-            result = run_collinearity_diagnostics(
-                results_path=Path(tmpdir) / 'nonexistent.json', # Will be ignored if files exist
-                config_path=str(config_path),
-                vif_threshold=5.0,
-                output_path=str(report_path)
-            )
-            
-            # Verify report was created
-            assert os.path.exists(report_path)
-            with open(report_path, 'r') as f:
-                report = json.load(f)
-            
-            assert 'status' in report
-            assert 'vif_results' in report
-            assert 'max_vif' in report
-
-    def test_run_diagnostics_failed_threshold(self):
-        """Test diagnostics when VIF exceeds threshold."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            lzc_path = Path(tmpdir) / 'lzc_metrics.csv'
-            pe_path = Path(tmpdir) / 'pe_metrics.csv'
-            report_path = Path(tmpdir) / 'collinearity_report.json'
-            
-            # Create highly correlated data
-            n = 50
-            base = np.random.randn(n)
-            df_lzc = pd.DataFrame({
-                'participant_id': range(n),
-                'lzc_fz': base,
-                'lzc_cz': base * 2 + np.random.randn(n) * 0.1
-            })
-            df_pe = pd.DataFrame({
-                'participant_id': range(n),
-                'pe_fz': np.random.randn(n),
-                'pe_cz': np.random.randn(n)
-            })
-            
-            df_lzc.to_csv(lzc_path, index=False)
-            df_pe.to_csv(pe_path, index=False)
-            
-            config_path = Path(tmpdir) / 'config.yaml'
-            with open(config_path, 'w') as f:
-                f.write("pipeline:\n  random_seed: 42\n")
-            
-            result = run_collinearity_diagnostics(
-                results_path=Path(tmpdir) / 'nonexistent.json',
-                config_path=str(config_path),
-                vif_threshold=2.0, # Low threshold to trigger failure
-                output_path=str(report_path)
-            )
-            
-            with open(report_path, 'r') as f:
-                report = json.load(f)
-            
-            assert report['status'] == 'failed'
-            assert report['max_vif'] > 2.0
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

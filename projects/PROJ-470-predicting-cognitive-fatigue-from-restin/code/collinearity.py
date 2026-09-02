@@ -1,3 +1,7 @@
+"""
+Collinearity diagnostics module for VIF calculation.
+Implements SC-004: Variance Inflation Factor (VIF) < 5 constraint.
+"""
 import os
 import sys
 import json
@@ -6,199 +10,191 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 import logging
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 
-# Import from existing modules
-from utils.logging import get_logger, log_participant_exclusion
+# Import existing utilities from project structure
+from utils.logging import get_logger
 
-def load_config(config_path='code/config.yaml'):
+def load_config(config_path="code/config.yaml"):
     """Load configuration from YAML file."""
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
-def load_analysis_results(analysis_dir='data/analysis'):
-    """
-    Load analysis results from CSV files in the analysis directory.
-    Specifically looks for correlation results or feature metrics.
-    """
-    results = {}
-    analysis_path = Path(analysis_dir)
-    
-    if not analysis_path.exists():
-        logging.warning(f"Analysis directory {analysis_dir} does not exist.")
-        return results
+def setup_logger(name, log_file="data/analysis/collinearity.log"):
+    """Setup logger for collinearity diagnostics."""
+    logger = get_logger(name, log_file)
+    return logger
 
-    for csv_file in analysis_path.glob('*.csv'):
-        try:
-            df = pd.read_csv(csv_file)
-            results[csv_file.stem] = df
-        except Exception as e:
-            logging.warning(f"Could not load {csv_file}: {e}")
-    
-    return results
-
-def calculate_vif(df, feature_columns, target_column=None):
+def load_analysis_results(metrics_dir="data/processed"):
     """
-    Calculate Variance Inflation Factor (VIF) for given features.
+    Load Lempel-Ziv Complexity and Permutation Entropy metrics.
+    Returns a combined DataFrame of predictors.
+    """
+    lzc_path = os.path.join(metrics_dir, "lzc_metrics.csv")
+    pe_path = os.path.join(metrics_dir, "pe_metrics.csv")
+    
+    if not os.path.exists(lzc_path):
+        raise FileNotFoundError(f"Required file missing: {lzc_path}")
+    if not os.path.exists(pe_path):
+        raise FileNotFoundError(f"Required file missing: {pe_path}")
+        
+    lzc_df = pd.read_csv(lzc_path)
+    pe_df = pd.read_csv(pe_path)
+    
+    # Ensure consistent participant_id column name if necessary
+    if 'participant_id' not in lzc_df.columns:
+        # Try to find a suitable ID column or fail
+        raise ValueError(f"lzc_metrics.csv missing 'participant_id' column. Columns: {lzc_df.columns.tolist()}")
+    
+    # Merge on participant_id to create the combined predictor set
+    # Assuming both files have 'participant_id' and channel-specific columns
+    # We need to align them. If channels differ, we might need to handle that,
+    # but for VIF we assume the same set of features per participant.
+    # Let's assume the structure is: participant_id, channel_1, channel_2, ...
+    
+    # Merge
+    combined = pd.merge(lzc_df, pe_df, on='participant_id', suffixes=('_lzc', '_pe'))
+    
+    # Identify predictor columns (exclude participant_id and any non-numeric)
+    predictor_cols = combined.select_dtypes(include=[np.number]).columns.tolist()
+    if 'participant_id' in predictor_cols:
+        predictor_cols.remove('participant_id')
+        
+    if len(predictor_cols) == 0:
+        raise ValueError("No numeric predictor columns found in merged metrics.")
+        
+    return combined, predictor_cols
+
+def calculate_vif(data, predictors):
+    """
+    Calculate Variance Inflation Factor for each predictor.
     
     Args:
-        df: DataFrame containing the data
-        feature_columns: List of column names to calculate VIF for
-        target_column: Optional target column (not used for VIF calculation itself)
+        data: DataFrame containing predictor variables
+        predictors: List of column names to calculate VIF for
         
     Returns:
-        DataFrame with columns: feature, vif
+        DataFrame with columns: ['predictor', 'vif']
     """
-    if len(feature_columns) < 2:
-        logging.warning("VIF calculation requires at least 2 features.")
-        return pd.DataFrame(columns=['feature', 'vif'])
-
-    X = df[feature_columns].dropna()
-    if X.empty:
-        logging.warning("No valid data for VIF calculation after dropping NaNs.")
-        return pd.DataFrame(columns=['feature', 'vif'])
-
-    # Add intercept
-    X_with_intercept = pd.DataFrame({'intercept': 1, **X.to_dict(orient='list')})
+    X = data[predictors]
+    
+    # Add constant for intercept if needed (statsmodels VIF usually expects it)
+    # However, vif function in statsmodels.stats.outliers_influence 
+    # calculates VIF for each column in X. 
+    # Standard VIF formula: 1 / (1 - R^2_j) where R^2_j is from regressing X_j on other Xs.
     
     vif_data = []
-    for col in feature_columns:
-        if col not in X_with_intercept.columns:
-            continue
+    for i, col in enumerate(predictors):
+        # Calculate VIF for this column
+        # Using the standard approach: regress col on all other predictors
+        y = X[col]
+        X_other = X.drop(columns=[col])
         
-        # Regress this feature against all other features
-        y = X_with_intercept[col]
-        X_other = X_with_intercept.drop(columns=[col])
-        
-        # Fit OLS manually using numpy
-        # X_other = X_other.values
-        # y = y.values
-        
-        # Check for perfect multicollinearity (rank deficiency)
-        try:
-            # Using numpy.linalg.lstsq for regression
-            # Add bias term if not already present in X_other for this regression
-            # Actually, X_with_intercept already has 'intercept', so X_other includes it
-            # We need to solve X_other * beta = y
-            
-            # Check rank
-            rank = np.linalg.matrix_rank(X_other.values)
-            if rank < X_other.shape[1]:
-                vif = np.inf
-            else:
-                # R^2 calculation
-                # y_pred = np.linalg.lstsq(X_other.values, y, rcond=None)[0]
-                # Actually, we need to solve the linear system
-                coeffs, residuals, rank, s = np.linalg.lstsq(X_other.values, y, rcond=None)
-                y_pred = X_other.values @ coeffs
-                
-                ss_res = np.sum((y - y_pred) ** 2)
-                ss_tot = np.sum((y - np.mean(y)) ** 2)
-                
-                if ss_tot == 0:
-                    r_squared = 0
+        # If X_other is empty (only 1 predictor), VIF is undefined or 1
+        if X_other.empty:
+            vif_val = 1.0
+        else:
+            # Add constant for the regression
+            try:
+                from sklearn.linear_model import LinearRegression
+                reg = LinearRegression().fit(X_other, y)
+                r_squared = reg.score(X_other, y)
+                if r_squared >= 1.0:
+                    vif_val = np.inf
                 else:
-                    r_squared = 1 - (ss_res / ss_tot)
-                
-                vif = 1 / (1 - r_squared) if (1 - r_squared) != 0 else np.inf
-            
-            vif_data.append({'feature': col, 'vif': vif})
-        except Exception as e:
-            logging.error(f"Error calculating VIF for {col}: {e}")
-            vif_data.append({'feature': col, 'vif': np.nan})
-
+                    vif_val = 1.0 / (1.0 - r_squared)
+            except Exception as e:
+                logging.error(f"Error calculating VIF for {col}: {e}")
+                vif_val = np.inf
+        
+        vif_data.append({'predictor': col, 'vif': vif_val})
+        
     return pd.DataFrame(vif_data)
 
-def run_collinearity_diagnostics(config, analysis_results=None):
+def run_collinearity_diagnostics(config=None):
     """
-    Run collinearity diagnostics on the analysis results.
+    Run full collinearity diagnostics pipeline.
     
-    Args:
-        config: Configuration dictionary
-        analysis_results: Pre-loaded analysis results (optional)
-        
     Returns:
-        DataFrame with VIF values
+        Tuple (vif_df, is_valid) where is_valid is True if all VIF < 5
     """
-    logger = get_logger(__name__)
+    logger = setup_logger("collinearity")
+    logger.info("Starting collinearity diagnostics (VIF calculation)")
     
-    if analysis_results is None:
-        analysis_results = load_analysis_results()
+    if config is None:
+        config = load_config()
     
-    # Determine which features to check
-    # Typically we check the complexity metrics (LZC, PE) if they are combined
-    # We look for files like 'correlation_results.csv' or merged feature files
-    
-    vif_results = pd.DataFrame()
-    
-    # Try to find a combined feature set or correlation results
-    # If 'correlation_results' exists, it might have the features we need
-    if 'correlation_results' in analysis_results:
-        df = analysis_results['correlation_results']
-        # Identify feature columns (exclude participant_id, etc.)
-        feature_cols = [col for col in df.columns if col not in ['participant_id', 'subject_id', 'channel', 'threshold', 'count_significant', 'vif']]
+    try:
+        df, predictors = load_analysis_results()
+        logger.info(f"Loaded {len(df)} participants with {len(predictors)} predictors")
         
-        # We need at least 2 features to calculate VIF
-        if len(feature_cols) >= 2:
-            vif_results = calculate_vif(df, feature_cols)
-            logger.info(f"Calculated VIF for {len(feature_cols)} features.")
-        else:
-            logger.warning(f"Not enough features ({len(feature_cols)}) to calculate VIF.")
-    else:
-        # Fallback: check for merged feature files
-        for key, df in analysis_results.items():
-            feature_cols = [col for col in df.columns if col not in ['participant_id', 'subject_id', 'channel', 'threshold', 'count_significant', 'vif']]
-            if len(feature_cols) >= 2:
-                vif_results = calculate_vif(df, feature_cols)
-                logger.info(f"Calculated VIF for {len(feature_cols)} features from {key}.")
-                break
+        vif_df = calculate_vif(df, predictors)
         
-        if vif_results.empty:
-            logger.warning("No suitable data found for VIF calculation.")
+        # Log results
+        logger.info("VIF Results:")
+        for _, row in vif_df.iterrows():
+            logger.info(f"  {row['predictor']}: VIF = {row['vif']:.4f}")
+        
+        # Check constraint: VIF < 5
+        max_vif = vif_df['vif'].max()
+        is_valid = max_vif < 5.0
+        
+        if not is_valid:
+            failed_predictors = vif_df[vif_df['vif'] >= 5.0]['predictor'].tolist()
+            error_msg = (
+                f"Collinearity constraint violated (SC-004). "
+                f"Max VIF = {max_vif:.4f}. "
+                f"Predictors with VIF >= 5: {failed_predictors}. "
+                f"Model assumptions invalid. Exiting."
+            )
+            logger.error(error_msg)
+            raise ValueError(error_msg)
+        
+        logger.info("Collinearity diagnostics passed. All VIF < 5.")
+        return vif_df, True
+        
+    except FileNotFoundError as e:
+        logger.error(f"Data file missing: {e}")
+        raise
+    except ValueError as e:
+        logger.error(f"Validation error: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during diagnostics: {e}")
+        raise
 
-    return vif_results
-
-def save_collinearity_report(vif_results, output_path='data/analysis/vif_report.csv'):
+def save_collinearity_report(vif_df, output_path="data/analysis/vif_diagnostics.csv"):
     """
-    Save VIF results to CSV.
+    Save VIF diagnostics to CSV.
     
     Args:
-        vif_results: DataFrame with VIF values
-        output_path: Path to save the report
+        vif_df: DataFrame with 'predictor' and 'vif' columns
+        output_path: Path to save the CSV
     """
-    output_dir = os.path.dirname(output_path)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    
-    vif_results.to_csv(output_path, index=False)
-    logging.info(f"VIF report saved to {output_path}")
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    vif_df.to_csv(output_path, index=False)
+    logging.info(f"VIF diagnostics saved to {output_path}")
 
 def main():
     """Main entry point for collinearity diagnostics."""
-    logging.basicConfig(level=logging.INFO)
-    logger = get_logger(__name__)
+    logger = setup_logger("collinearity")
+    logger.info("=== Collinearity Diagnostics (T037) ===")
     
     try:
-        config = load_config()
-        logger.info("Starting collinearity diagnostics.")
+        vif_df, is_valid = run_collinearity_diagnostics()
+        save_collinearity_report(vif_df)
+        logger.info("Task T037 completed successfully.")
+        sys.exit(0)
         
-        vif_results = run_collinearity_diagnostics(config)
-        
-        if not vif_results.empty:
-            save_collinearity_report(vif_results)
-            
-            # Check for high VIF values
-            high_vif = vif_results[vif_results['vif'] >= 5]
-            if not high_vif.empty:
-                logger.warning(f"High VIF detected for {len(high_vif)} features: {high_vif['feature'].tolist()}")
-                logger.warning("Consider removing features with VIF >= 5 to reduce multicollinearity.")
-            else:
-                logger.info("All VIF values are below 5. No significant multicollinearity detected.")
-        else:
-            logger.warning("No VIF results to report.")
-            
+    except FileNotFoundError as e:
+        logger.error(f"Critical file missing: {e}")
+        sys.exit(1)
+    except ValueError as e:
+        logger.error(f"Collinearity check failed: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Collinearity diagnostics failed: {e}")
+        logger.error(f"Pipeline failed: {e}")
         sys.exit(1)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

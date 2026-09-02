@@ -1,3 +1,11 @@
+T010:
+  c: false
+  h: 3ee9d132d5749fd6978e60b3b070e9ffa55c22f0d5155f90aa66052c7ac5f791
+  r: "The repository contains a partially shown `code/download.py` that does not demonstrate\
+    \ the required validation of EEG\u202F+\u202Ffatigue variables, nor any download\
+    \ logic, and the script is truncated. Moreover, the required output artifacts\
+    \ `data/raw/download_manifest.json` and `data/processed/participant_exclusion_log.csv`\
+    \ are absent. The task\u2019s success conditions are therefore not met."
 T011:
   c: false
   h: f1fc712b9d83c49a1ab86bb050465e06594c6b66a3c617eefac3fbd19304ac85
@@ -7,6 +15,15 @@ T011:
     \ signal, applies the band\u2011pass and notch filters, and writes the processed\
     \ data to the specified path. Consequently the task\u2019s core requirements are\
     \ not fulfilled."
+T012:
+  c: false
+  h: 52f73d912d3ba39ed1aec8100efb01ccd2fd0ee57040ab97dde4636b6414fb6e
+  r: "The required `data/processed/exclusion_log.csv` file does not exist, so the\
+    \ logging requirement cannot be verified. Moreover, the provided `code/preprocess.py`\
+    \ snippet only shows a threshold check for amplitude and does not implement exclusion\
+    \ of segments shorter than 120\u202Fseconds, nor does it demonstrate writing the\
+    \ required columns (`participant_id, reason, timestamp`) to the CSV. The artifact\u2011\
+    rejection logic is therefore incomplete."
 T014:
   c: false
   h: be11b7ad5377b1c9da590f3188988417fa4b7a8ec03c905323ba424c6bcb58f1
@@ -16,13 +33,14 @@ T014:
     \ and is truncated). Consequently the script does not meet the specification of\
     \ calculating LZC per channel and writing the results to the CSV. The missing\
     \ CSV and absent LZC logic must be added."
-T015:
+T016:
   c: false
-  h: 7232310c42a0297d96a3b0f4762850f6c54c8c1382caa7fe4dff602a75f4d7bb
-  r: The repository lacks the required `data/processed/cleaned_eeg.fif` input file
-    and the output `data/processed/lzc_metrics.csv`. Moreover, `code/features.py`
-    does not contain any logic that iterates over participants, computes LZC per channel,
-    and writes the results to the specified CSV, so the core task is unimplemented.
+  h: 069fd76a930437909959119caa1826f027dc57bb60d2934628d92b1fa70acd4e
+  r: "The repository contains a `code/features.py` file, but it is truncated (the\
+    \ `calculate_permutation_entropy` function is incomplete) and there is no code\
+    \ that writes the permutation\u2011entropy results to `data/processed/pe_metrics.csv`.\
+    \ Moreover, the required CSV file is absent from the project. The task\u2019s\
+    \ core output is therefore missing."
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -30,6 +48,12 @@ T020:
     Hochberg multiple\u2011comparison correction across electrodes is present. The\
     \ claim lacks any artifact to verify that FR\u2011005\u2019s correction step has\
     \ been added, so the required implementation is missing."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, function, script, or documentation implementing the Benjamini\u2011\
+    Hochberg multiple\u2011comparison correction across electrodes is present. The\
+    \ claim lacks any artifact to verify, so the required implementation is missing."
 T023:
   c: false
   h: c298234d782ea951fb05e72bb6d8b547139f9b405b5c6ce0c84e800a6fd5f601
@@ -38,20 +62,17 @@ T023:
     \ warning logging. Additionally, the required output file `data/analysis/vif_report.csv`\
     \ is absent. Both the test and the CSV report need to be added to satisfy the\
     \ task."
-T024:
+T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `docs/` directory or documentation files were provided, and there is no evidence
-    that any documentation covering pipeline parameters, data sources, or statistical
-    interpretation guidelines exists. The required artifact is missing, so the task
-    is not satisfied.
-T026a:
+  r: "No artifact showing the pipeline was executed, nor any measurement of peak RSS\
+    \ or a report confirming that memory usage stayed \u2264\u202F7\u202FGB is present.\
+    \ The claim lacks the required evidence (e.g., monitoring logs, screenshots, or\
+    \ a summary table) to verify the memory\u2011usage requirement."
+T036:
   c: false
-  h: 3d557eb67b6120501a342f4490675b126872d7004d88ce116f1c73a8a381d049
-  r: "The repository lacks the required `data/processed/lzc_metrics.csv` (the task\
-    \ expects the script to read this real file) and does not include the implementation\
-    \ module (`check_sample_size.py`) that performs the sample\u2011size check, exits\
-    \ with code\u202F1, and writes `validation_report.json`. The provided test file\
-    \ is incomplete (truncated) and only checks return values, not the required exit\
-    \ code or fallback to `pe_metrics.csv`. The necessary enforcement code and full\
-    \ verification tests are missing."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No runtime logs, timing report, or monitoring script are provided to demonstrate\
+    \ that the total pipeline execution stays within the 6\u2011hour limit; the task\
+    \ entry even notes \u201CFAILED: unspecified\u201D. The required evidence of a\
+    \ measured pipeline duration is missing."

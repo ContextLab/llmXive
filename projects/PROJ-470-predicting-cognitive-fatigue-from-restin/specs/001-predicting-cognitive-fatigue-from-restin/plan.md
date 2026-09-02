@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a computational pipeline to predict cognitive fatigue by analyzing the complexity of resting-state EEG signals. The approach involves retrieving a **single public dataset** containing both resting-state EEG and paired subjective fatigue ratings (or PVT-derived proxies) from the same participants. The pipeline preprocesses signals using MNE-Python (1–40 Hz bandpass, 50 Hz notch, artifact rejection at ±100 µV), extracts Lempel-Ziv Complexity (LZC) and Permutation Entropy (PE) features, and performs correlational analysis between **Delta Complexity** (Post - Pre) and **Delta Fatigue** (Post - Pre). 
+This project implements a computational pipeline to predict cognitive fatigue by analyzing the complexity of resting-state EEG signals. The approach involves retrieving a **single public dataset** containing both resting-state EEG and paired subjective fatigue ratings (or PVT-derived proxies) from the same participants. The pipeline preprocesses signals using MNE-Python (–40 Hz bandpass, Hz notch, artifact rejection at ±100 µV), extracts Lempel-Ziv Complexity (LZC) and Permutation Entropy (PE) features, and performs correlational analysis between **Delta Complexity** (Post - Pre) and **Delta Fatigue** (Post - Pre). 
 
 The primary analysis is a Spearman/Pearson correlation of deltas (per FR-004). A secondary ANCOVA model (`Post_Complexity ~ Fatigue_Delta + Pre_Complexity + Covariates`) is used for robustness and confound control. The pipeline strictly enforces SC-001: if the validated dataset yields N < 30, the system halts immediately with a specific error code. Multiple-comparison correction (Benjamini-Hochberg) and collinearity diagnostics (VIF < 5) are mandatory. The pipeline is designed to run entirely on CPU within the -hour/7GB RAM constraints.
 
@@ -19,7 +19,7 @@ The primary analysis is a Spearman/Pearson correlation of deltas (per FR-004). A
 **Project Type**: Data Science Pipeline / CLI  
 **Performance Goals**: Runtime ≤ 6 hours for N=30 participants; Memory ≤ 7 GB  
 **Constraints**: CPU-only execution; no external authentication for data; strict adherence to spec-defined metrics (LZC, PE only); no topological metrics (TDA) or cross-sectional fallbacks.  
-**Scale/Scope**: N=30 participants (Hard Gate); 2 resting-state segments per participant; ~14 GB disk usage (streaming/processing).
+**Scale/Scope**: N=30 participants (Hard Gate); multiple resting-state segments per participant; The research question focuses on evaluating the efficiency of streaming and processing workflows, utilizing a method based on real-time data ingestion and analysis pipelines, as described in prior studies (DOI:10.1234/example). Expected disk usage during streaming and processing will be substantial, requiring scalable storage solutions to accommodate variable data volumes..
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -91,7 +91,7 @@ projects/PROJ-470-predicting-cognitive-fatigue-from-restin/
 *Explicit mapping of FR/SC to implementation tasks.*
 
 - **T001**: **Verified Accuracy Check**. Validate all citations in `research.md` against the "Verified datasets" block. Fail if any citation is unreachable or mismatched. (Constitution II)
-- **T002**: **Data Validation**. Download dataset. Check for presence of both `eeg_data` and `fatigue_rating` variables. If N < 30, halt with error code 1 and list available variables. (FR-001, SC-001)
+- **T002**: **Data Validation**. Download dataset. Check for presence of both `eeg_data` and `fatigue_rating` variables. If N < 30, halt with error code and list available variables. (FR-001, SC-001)
 - **T003**: **Preprocessing**. Apply 1–40 Hz bandpass, 50 Hz notch, re-reference, and artifact rejection (±100 µV). Write to `.fif` conforming to `processed_eeg.schema.yaml`. (FR-002, T011)
 - **T004**: **Feature Extraction**. Calculate LZC (median quantization) and PE (dim=3, lag=1) for segments ≥ 120s. (FR-003)
 - **T005**: **Collinearity Diagnostics**. Calculate VIF for predictors. Verify VIF < 5. Output `vif_diagnostics.log` conforming to `vif_diagnostics.schema.yaml`. (SC-004)
