@@ -18997,3 +18997,344 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-30T16:53:09Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Fixed-size subset generation with seed 42 and size 5000
+  claim_id: c_2d20017e
+  context: T016a [US1] [FR-001, FR-002] Implement fixed-size subset generation in
+    projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/create_subset.py
+    (seed=42, size=5000).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'T016a: Implement fixed-size subset generation (seed=42, size=5000).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T12:42:10Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: project uses single lowest-energy conformer per molecule
+  claim_id: c_72fdd165
+  context: The project explicitly documents that conformational ensemble sampling
+    is out-of-scope and uses a single lowest-energy conformer.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Project_uses_single_lowest-energy_conformer_per_molecule
+  kind: magnitude
+  raw_text: The project uses a single lowest-energy conformer per molecule.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T12:45:07Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: ground truth is QM9 DFT data BLYP/6-31G* level
+  claim_id: c_1ec3388b
+  context: The validation report explicitly states the ground truth is QM9 DFT data
+    (BLYP/6-31G* level) verified via DOI 10.1038/sdata.2014.22.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ground truth for the model is QM9 DFT data at the BLYP/6-31G* level.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T12:45:36Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: physical measurement validation is out-of-scope
+  claim_id: c_8cc71723
+  context: The project scope explicitly excludes physical measurement validation such
+    as Stark-effect spectroscopy.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Physical_measurement_validation_is_out-of-scope
+  kind: entity_fact
+  raw_text: Physical measurement validation (e.g., Stark-effect spectroscopy) is out-of-scope.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T12:46:21Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: model uses no hardcoded physical constants
+  claim_id: c_12c552a9
+  context: The model architecture adheres strictly to FR-004 without hardcoded physical
+    constants or physics-informed loss terms.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_uses_no_hardcoded_physical_constants
+  kind: entity_fact
+  raw_text: The model uses no hardcoded physical constants.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T12:46:52Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: dataset subset size is 5000 molecules
+  claim_id: c_c4bad44e
+  context: The fixed-size subset generation task specifies a seed of 42 and a size
+    of 5000.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset subset size is 5000 molecules.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T12:47:10Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: training uses 50 epochs
+  claim_id: c_322eb476
+  context: The goal for User Story 2 specifies training with 50 epochs and early stopping.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training pipeline uses 50 epochs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T12:47:31Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: memory constraint is less than 8 GB
+  claim_id: c_1c60b124
+  context: The project enforces a memory constraint of less than 8 GB using a specific
+    decorator.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_constraint_is_less_than_8_GB
+  kind: magnitude
+  raw_text: The memory constraint is enforced at less than 8 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T12:47:51Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: paired t-tests use alpha 0.05
+  claim_id: c_555291a9
+  context: The evaluation task specifies computing paired t-tests with an alpha of
+    0.05 as the primary method.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical significance test uses an alpha level of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T12:48:19Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: RMSE variance less than 10 percent
+  claim_id: c_e5e33dc4
+  context: The pipeline validation task requires verifying that the RMSE variance
+    remains less than 10%.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RMSE_variance_less_than_10_percent
+  kind: magnitude
+  raw_text: The RMSE variance must remain less than 10%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T12:48:48Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: BLYP functional Wikidata ID Q138548786
+  claim_id: c_03cfe08d
+  context: The research documentation explicitly links the BLYP functional to Wikidata
+    ID Q138548786.
+  evidence:
+    entailment_evidence: BLYP functional Wikidata ID Q138548786
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/BLYP_functional_Wikidata_ID_Q138548786
+  kind: entity_fact
+  raw_text: The BLYP functional is identified by Wikidata ID Q138548786.
+  resolved_value: BLYP functional Wikidata ID Q138548786
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T12:48:54Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: C-N bond length is 1.32 angstroms
+  claim_id: c_b57c23f7
+  context: "The documentation mentions the C-N bond length of 1.32 \xC5 as an example\
+    \ of a hardcoded constant that is excluded."
+  evidence:
+    asserted: '1.32'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: "The C-N bond length is approximately 1.32 \xC5."
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T12:48:57Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset ground truth is BLYP DFT level
+  claim_id: c_d66246be
+  context: 'Update research.md to explicitly document scope boundaries: state that
+    physical measurement validation (e.g., Stark-effect spectroscopy) is out-of-scope
+    and that QM DFT reference data (BLYP (Wikidata Q138548786, https://www.wikidata.org/wiki/Q138548786)/level
+    per the dataset specification) serves as the sole ground truth'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1813: BLYP'
+      source_id: Q138548786
+      url: https://www.wikidata.org/wiki/Q138548786
+      value: BLYP
+    filled: true
+  kind: entity_fact
+  raw_text: The project uses QM DFT reference data (BLYP (Wikidata Q138548786)/level
+    per the dataset specification) as the sole ground truth.
+  resolved_value: BLYP
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T12:50:42Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 subset size is 5000 molecules with seed 42
+  claim_id: c_44399ad1
+  context: 'Implement fixed-size subset generation in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/create_subset.py
+    (seed=42, size=5000). Logic: Randomly sample a representative subset of molecules
+    from the filtered dataset'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A fixed-size subset of 5000 molecules is generated from the filtered dataset
+    with seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T12:51:00Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Model training uses 50 epochs and patience 10 for early stopping
+  claim_id: c_fdd8e024
+  context: "Train lightweight SchNet\u2011style GNN and Random Forest baseline on\
+    \ identical train/test splits, evaluate both on held\u2011out test set using MAE\
+    \ and RMSE for dipole moments (50 epochs with early stopping patience=10)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The SchNet-style GNN and Random Forest baseline are trained for 50 epochs
+    with early stopping patience=10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T12:51:18Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Memory constraint limit is 8 GB
+  claim_id: c_e5d9418a
+  context: Enforce memory constraint (< 8 GB) (@memory_limit(8*1024**3)) in projects/PROJ-262-predicting-molecular-dipole-moments-with/code/utils/memory_constraint.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_constraint_limit_is_8_GB
+  kind: magnitude
+  raw_text: The memory constraint is enforced at less than 8 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T12:51:24Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Paired t-tests with alpha 0.05 used for statistical significance
+  claim_id: c_e7da6bc4
+  context: "Update projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/evaluate.py\
+    \ to compute and report paired t-tests (\u03B1=0.05) as the primary method (per\
+    \ Spec FR-008, SC-004) comparing RMSE distributions between GNN and baseline."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Statistical significance testing uses paired t-tests with alpha=0.05 as
+    the primary method.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T12:51:42Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM9 dataset DOI is 10.1038/sdata.2014.22
+  claim_id: c_9a6cb1ae
+  context: Run reference-validator to verify DOI 10.1038/sdata.2014.22 local metadata
+    and record hash in state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: The QM9 dataset reference DOI is 10.1038/sdata.2014.22.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T12:51:50Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: Ground truth is BLYP/6-31G* level
+  claim_id: c_de2fe57f
+  context: 'The tool must generate data/reports/validation_protocol.md with specific
+    table columns for error margins, explicitly stating: (1) The ground truth is QM9
+    DFT data (BLYP/6-31G* level, verified via T091)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ground truth for dipole moments is verified at the BLYP/6-31G* level.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T12:52:13Z'

@@ -1,2 +1,1 @@
-# This directory stores result files (reports, models, logs)
-# Ensure .gitkeep is present to track the directory in git
+# This directory stores results, logs, and checksums.

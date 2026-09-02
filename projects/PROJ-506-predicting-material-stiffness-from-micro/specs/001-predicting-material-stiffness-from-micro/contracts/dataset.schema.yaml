@@ -1,9 +1,13 @@
-# Dataset Schema for Microstructure Stiffness Prediction
-# This schema defines the expected structure for the generated dataset metadata.
-# Used by code/data_generation/validate_tensors.py for schema conformity checks.
+# Dataset Schema Contract for Microstructure Stiffness Prediction
+# This file defines the required fields and types for the generated dataset.
+# It is used by code/data_generation/validate_tensors.py to ensure data integrity.
+#
+# Referenced by: T012, T017, T018, T019
+#
+schema_version: "1.0.0"
+description: "Schema for microstructure dataset entries used in CNN training"
 
 type: object
-description: "Metadata entry for a single microstructure sample including topological metrics and ground truth stiffness."
 required:
   - image_path
   - stiffness_tensor
@@ -16,58 +20,53 @@ required:
 properties:
   image_path:
     type: string
-    description: "Relative path to the microstructure image file (PNG format)."
+    description: "Relative path to the PNG image file (e.g., data/raw/micro_12345.png)"
     pattern: "^data/raw/micro_\\d+\\.png$"
-    example: "data/raw/micro_42.png"
-
+    
   stiffness_tensor:
     type: array
-    description: "6x6 effective elastic stiffness tensor in Voigt notation (C11, C12, C13, C14, C15, C16, C22, ... C66)."
+    description: "Effective elastic stiffness tensor (Voigt notation: C11, C12, C13, C22, C23, C33, C44, C55, C66)"
     items:
       type: number
-      format: float
-    minItems: 36
-    maxItems: 36
-    description_detail: "Symmetric 6x6 matrix flattened to 1D array of 36 floats (units: GPa)."
-    example: [160.5, 65.2, 65.2, 0.0, 0.0, 0.0, 65.2, 160.5, 65.2, 0.0, 0.0, 0.0, 65.2, 65.2, 160.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 45.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 45.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 45.1]
-
+      format: double
+    minItems: 9
+    maxItems: 9
+    description_detail: "Values must be within Voigt-Reuss-Hill bounds"
+    
   inclusion_density:
     type: number
     format: float
-    description: "Volume fraction of inclusions (or voids) in the microstructure."
+    description: "Volume fraction of inclusions (0.0 to 1.0)"
     minimum: 0.0
     maximum: 1.0
-    example: 0.35
-
+    
   topology_type:
     type: string
-    description: "The topological arrangement of the microstructure."
+    description: "Classification of the microstructure topology"
     enum:
-      - "random_spheres"
-      - "aligned_ellipses"
-      - "gyroid"
-      - "lattice"
-    example: "random_spheres"
-
+      - "random_dispersed"
+      - "clustered"
+      - "aligned"
+      - "layered"
+      
   shape_factor:
     type: number
     format: float
-    description: "Geometric shape factor derived from the microstructure (e.g., aspect ratio or circularity metric)."
+    description: "Dimensionless metric describing the geometric complexity of inclusions (e.g., 4*pi*Area/Perimeter^2)"
     minimum: 0.0
-    example: 1.25
-
+    maximum: 1.0
+    
   connectivity:
     type: number
     format: float
-    description: "Connectivity metric of the inclusion phase (e.g., Euler characteristic normalized or percolation probability)."
+    description: "Metric describing the percolation or connectivity of the inclusion phase"
     minimum: 0.0
     maximum: 1.0
-    example: 0.85
-
+    
   seed:
     type: integer
-    description: "Random seed used to generate this specific microstructure for reproducibility."
+    description: "Random seed used for deterministic generation of this microstructure"
     minimum: 0
-    example: 42
-
+    
 additionalProperties: false
+strict_validation: true

@@ -1,108 +1,96 @@
 """
-Contract test for dataset schema conformity.
-
-Tests that generated data conforms to the schema defined in
-specs/001-predict-stiffness-cnn/contracts/dataset.schema.yaml
+Contract test for dataset schema validation.
+Verifies that the dataset schema file exists, is valid YAML, and contains
+all required fields defined in T012.
 """
 import pytest
-import json
 import yaml
 from pathlib import Path
-import sys
-import os
+from typing import Any, Dict
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+SCHEMA_PATH = Path("specs/001-predict-stiffness-cnn/contracts/dataset.schema.yaml")
 
-from code.data_generation.validate_tensors import (
-    load_schema,
-    validate_schema_conformity,
-    validate_vrh_bounds
-)
+# Required fields as per T012 and data-model.md
+REQUIRED_FIELDS = {
+    "image_path": str,
+    "stiffness_tensor": list,
+    "inclusion_density": float,
+    "topology_type": str,
+    "shape_factor": float,
+    "connectivity": float,
+    "seed": int,
+}
 
-@pytest.fixture
-def schema():
-    """Load the dataset schema."""
-    schema_path = Path("specs/001-predict-stiffness-cnn/contracts/dataset.schema.yaml")
-    if not schema_path.exists():
-        pytest.skip("Schema file not found")
-    return load_schema(str(schema_path))
+def test_dataset_schema_exists():
+    """Verify the schema file exists on disk."""
+    assert SCHEMA_PATH.exists(), f"Dataset schema file missing at {SCHEMA_PATH}"
 
-@pytest.fixture
-def valid_record():
-    """Create a valid test record."""
-    return {
-        "image_path": "data/raw/micro_42.png",
-        "stiffness_tensor": [100.0, 100.0, 100.0, 40.0, 40.0, 40.0],
-        "inclusion_density": 0.3,
-        "topology_type": "random_disks",
-        "shape_factor": 0.85,
-        "connectivity": 0.5,
-        "seed": 42
+def test_dataset_schema_valid_yaml():
+    """Verify the schema file is valid YAML."""
+    try:
+        with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
+            schema = yaml.safe_load(f)
+        assert isinstance(schema, dict), "Schema root must be a dictionary"
+    except yaml.YAMLError as e:
+        pytest.fail(f"Schema file is not valid YAML: {e}")
+
+def test_dataset_schema_has_properties():
+    """Verify the schema contains a 'properties' key."""
+    with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
+        schema = yaml.safe_load(f)
+    assert "properties" in schema, "Schema must contain 'properties' key"
+
+def test_dataset_schema_contains_all_required_fields():
+    """Verify all required fields defined in T012 are present in the schema."""
+    with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
+        schema = yaml.safe_load(f)
+
+    properties = schema.get("properties", {})
+    missing_fields = []
+
+    for field_name, expected_type in REQUIRED_FIELDS.items():
+        if field_name not in properties:
+            missing_fields.append(field_name)
+
+    assert not missing_fields, f"Missing required fields in schema: {missing_fields}"
+
+def test_dataset_schema_field_types_match_contract():
+    """Verify the type definitions in the schema match the contract expectations."""
+    with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
+        schema = yaml.safe_load(f)
+
+    properties = schema.get("properties", {})
+
+    # Map our expected Python types to common YAML/JSON schema type strings
+    type_mapping = {
+        str: ["string"],
+        int: ["integer", "number"],
+        float: ["number"],
+        list: ["array"],
     }
 
-@pytest.fixture
-def invalid_record_missing_field():
-    """Create a record missing a required field."""
-    return {
-        "image_path": "data/raw/micro_42.png",
-        "stiffness_tensor": [100.0, 100.0, 100.0, 40.0, 40.0, 40.0],
-        "inclusion_density": 0.3,
-        "topology_type": "random_disks",
-        # Missing shape_factor, connectivity, seed
-    }
+    for field_name, expected_type in REQUIRED_FIELDS.items():
+        field_def = properties[field_name]
+        expected_schema_types = type_mapping.get(expected_type, [expected_type.__name__])
 
-@pytest.fixture
-def invalid_record_wrong_type():
-    """Create a record with wrong field types."""
-    return {
-        "image_path": 123,  # Should be string
-        "stiffness_tensor": "not_a_list",  # Should be list
-        "inclusion_density": 1.5,  # Out of range
-        "topology_type": "invalid_type",  # Not in enum
-        "shape_factor": 0.85,
-        "connectivity": 0.5,
-        "seed": 42
-    }
+        # Handle both simple type string and object with 'type' key
+        actual_type = field_def.get("type", field_def) if isinstance(field_def, dict) else field_def
 
-def test_schema_loading(schema):
-    """Test that schema loads correctly."""
-    assert schema is not None
-    assert "required_fields" in schema
-    assert len(schema["required_fields"]) == 7
+        if actual_type not in expected_schema_types:
+            pytest.fail(
+                f"Field '{field_name}' has type '{actual_type}', "
+                f"expected one of {expected_schema_types}"
+            )
 
-def test_valid_record_conforms(valid_record, schema):
-    """Test that a valid record passes schema validation."""
-    is_valid, errors = validate_schema_conformity(valid_record, schema)
-    assert is_valid
-    assert len(errors) == 0
+def test_dataset_schema_stiffness_tensor_is_array():
+    """Specific check that stiffness_tensor is defined as an array."""
+    with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
+        schema = yaml.safe_load(f)
 
-def test_missing_field_fails(invalid_record_missing_field, schema):
-    """Test that missing required fields are detected."""
-    is_valid, errors = validate_schema_conformity(invalid_record_missing_field, schema)
-    assert not is_valid
-    assert len(errors) > 0
-    assert any("shape_factor" in e for e in errors)
+    properties = schema.get("properties", {})
+    stiffness_def = properties.get("stiffness_tensor", {})
 
-def test_wrong_type_fails(invalid_record_wrong_type, schema):
-    """Test that type mismatches are detected."""
-    is_valid, errors = validate_schema_conformity(invalid_record_wrong_type, schema)
-    # Note: This basic validator checks presence, not types
-    # More sophisticated type checking would be added in a full implementation
-    assert not is_valid or len(errors) > 0
+    # Can be defined as "type: array" or just "array"
+    actual_type = stiffness_def.get("type", stiffness_def) if isinstance(stiffness_def, dict) else stiffness_def
 
-def test_vrh_bounds_valid():
-    """Test VRH bounds validation with valid tensor."""
-    tensor = [100.0, 100.0, 100.0, 40.0, 40.0, 40.0]
-    density = 0.3
-    is_valid, error = validate_vrh_bounds(tensor, density)
-    # Should be valid for reasonable parameters
-    assert is_valid or "outside" not in error.lower()
-
-def test_vrh_bounds_wrong_length():
-    """Test VRH bounds validation with wrong tensor length."""
-    tensor = [100.0, 100.0, 100.0]  # Only 3 components
-    density = 0.3
-    is_valid, error = validate_vrh_bounds(tensor, density)
-    assert not is_valid
-    assert "Invalid tensor length" in error
+    assert actual_type == "array", "stiffness_tensor must be an array type"

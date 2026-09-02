@@ -1,70 +1,83 @@
 import os
-import sys
-from pathlib import Path
 import pytest
+from pathlib import Path
+import tempfile
+import shutil
 
-# Ensure we can import from the code directory
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Import the module under test
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+from setup_project import create_directories, create_init_files, check_structure
 
-from code.setup_project import create_directories, verify_structure
+@pytest.fixture
+def temp_project_root():
+    """Create a temporary directory for testing."""
+    temp_dir = tempfile.mkdtemp()
+    yield Path(temp_dir)
+    # Cleanup after test
+    shutil.rmtree(temp_dir)
 
-class TestProjectSetup:
-    def test_directories_created(self, tmp_path, monkeypatch):
-        """Test that create_directories creates the expected folder structure."""
-        monkeypatch.chdir(tmp_path)
-        dirs = create_directories()
-        
-        expected_subdirs = [
-            "code/data_generation",
-            "code/training",
-            "code/evaluation",
-            "code/utils",
-            "data/raw",
-            "data/processed",
-            "tests/unit",
-            "tests/contract",
-            "tests/integration",
-            "specs/001-predict-stiffness-cnn/contracts",
-        ]
-        
-        for sub in expected_subdirs:
-            assert (tmp_path / sub).is_dir(), f"Directory {sub} was not created"
+def test_create_directories(temp_project_root):
+    """Test that create_directories creates all required directories."""
+    created = create_directories(temp_project_root)
+    
+    # Check that the correct number of directories were created
+    expected_count = 10
+    assert len(created) == expected_count, f"Expected {expected_count} directories, got {len(created)}"
+    
+    # Check specific directories exist
+    required_dirs = [
+        "code/data_generation",
+        "code/training",
+        "data/raw",
+        "tests/unit",
+        "specs/001-predict-stiffness-cnn/contracts"
+    ]
+    
+    for dir_path in required_dirs:
+        full_path = temp_project_root / dir_path
+        assert full_path.exists(), f"Directory {dir_path} was not created"
+        assert full_path.is_dir(), f"{dir_path} is not a directory"
 
-    def test_verify_structure_success(self, tmp_path, monkeypatch):
-        """Test that verify_structure returns True after setup."""
-        monkeypatch.chdir(tmp_path)
-        # Run the setup logic
-        create_directories()
-        # Create the required init files manually for the test
-        (tmp_path / "code").mkdir()
-        (tmp_path / "code" / "__init__.py").touch()
-        (tmp_path / "code" / "data_generation").mkdir()
-        (tmp_path / "code" / "data_generation" / "__init__.py").touch()
-        (tmp_path / "code" / "training").mkdir()
-        (tmp_path / "code" / "training" / "__init__.py").touch()
-        (tmp_path / "code" / "evaluation").mkdir()
-        (tmp_path / "code" / "evaluation" / "__init__.py").touch()
-        (tmp_path / "code" / "utils").mkdir()
-        (tmp_path / "code" / "utils" / "__init__.py").touch()
-        (tmp_path / "tests").mkdir()
-        (tmp_path / "tests" / "__init__.py").touch()
-        (tmp_path / "tests" / "unit").mkdir()
-        (tmp_path / "tests" / "unit" / "__init__.py").touch()
-        (tmp_path / "tests" / "contract").mkdir()
-        (tmp_path / "tests" / "contract" / "__init__.py").touch()
-        (tmp_path / "tests" / "integration").mkdir()
-        (tmp_path / "tests" / "integration" / "__init__.py").touch()
-        
-        # Create placeholder files
-        (tmp_path / "code" / "main.py").touch()
-        (tmp_path / "code" / "data_generation" / "generate_microstructures.py").touch()
-        (tmp_path / "code" / "data_generation" / "compute_stiffness.py").touch()
-        (tmp_path / "code" / "training" / "model.py").touch()
-        (tmp_path / "code" / "training" / "train.py").touch()
-        (tmp_path / "code" / "evaluation" / "stats_utils.py").touch()
-        (tmp_path / "code" / "evaluation" / "evaluate.py").touch()
-        (tmp_path / "docs").mkdir()
-        (tmp_path / "docs" / "constitution_amendment_proposal.md").touch()
+def test_create_init_files(temp_project_root):
+    """Test that create_init_files creates all required __init__.py files."""
+    # First create directories
+    create_directories(temp_project_root)
+    
+    created = create_init_files(temp_project_root)
+    
+    # Check that the correct number of files were created
+    expected_count = 9
+    assert len(created) == expected_count, f"Expected {expected_count} files, got {len(created)}"
+    
+    # Check specific files exist
+    required_files = [
+        "code/__init__.py",
+        "code/data_generation/__init__.py",
+        "tests/__init__.py",
+        "tests/unit/__init__.py"
+    ]
+    
+    for file_path in required_files:
+        full_path = temp_project_root / file_path
+        assert full_path.exists(), f"File {file_path} was not created"
+        assert full_path.is_file(), f"{file_path} is not a file"
 
-        success, msg = verify_structure()
-        assert success is True, f"Verification failed: {msg}"
+def test_check_structure_success(temp_project_root):
+    """Test check_structure returns success when all directories exist."""
+    create_directories(temp_project_root)
+    
+    success, missing = check_structure(temp_project_root)
+    
+    assert success is True, "check_structure should return True when all directories exist"
+    assert len(missing) == 0, f"No directories should be missing, but found: {missing}"
+
+def test_check_structure_failure(temp_project_root):
+    """Test check_structure returns failure when directories are missing."""
+    # Don't create any directories
+    
+    success, missing = check_structure(temp_project_root)
+    
+    assert success is False, "check_structure should return False when directories are missing"
+    assert len(missing) > 0, "Should report missing directories"
+    assert "code/data_generation" in missing, "Should report code/data_generation as missing"

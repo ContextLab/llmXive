@@ -1,26 +1,38 @@
-# Output Schema for Model Results
-fields:
-  model_type:
-    type: string
-    required: true
-    description: Type of model (e.g., RandomForest, SVM)
-  hyperparameters:
-    type: dict
-    required: true
-    description: Hyperparameters used for the model
-  metrics:
-    type: dict
-    required: true
-    description: Performance metrics
-    keys:
-      R2: float
-      RMSE: float
-      MAE: float
-  split_ratios:
-    type: dict
-    required: true
-    description: Train/Val/Test split ratios
-    keys:
-      train: float
-      val: float
-      test: float
+model_type:
+  type: string
+  description: Name of the model type (e.g., 'RandomForest', 'SVM')
+hyperparameters:
+  type: object
+  description: Dictionary of hyperparameters used for the model
+  additionalProperties: true
+metrics:
+  type: object
+  description: Evaluation metrics for the model
+  properties:
+    R2:
+      type: number
+      description: R-squared coefficient
+    RMSE:
+      type: number
+      description: Root Mean Squared Error
+    MAE:
+      type: number
+      description: Mean Absolute Error
+  required:
+    - R2
+    - RMSE
+    - MAE
+split_ratios:
+  type: object
+  description: Ratios used for train/validation/test splits
+  properties:
+    train:
+      type: number
+    validation:
+      type: number
+    test:
+      type: number
+  required:
+    - train
+    - validation
+    - test

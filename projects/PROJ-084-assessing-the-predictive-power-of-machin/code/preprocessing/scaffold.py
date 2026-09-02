@@ -34,7 +34,7 @@ def get_murcko_scaffold(smiles: str) -> Optional[str]:
         if mol is None:
             return None
         
-        scaffold = MurckoScaffold.GetScaffoldForMol(mol)
+        scaffold = MurckoScaffold.GetScaffoldForMol(mol, makeChiral=False, minNonRingSize=0)
         if scaffold is None:
             return None
             

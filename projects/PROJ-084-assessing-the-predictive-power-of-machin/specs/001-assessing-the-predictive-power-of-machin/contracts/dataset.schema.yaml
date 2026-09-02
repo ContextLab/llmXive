@@ -1,34 +1,25 @@
-# Dataset Schema for USPTO Reaction Data
-# Fields: smiles, yield, reaction_class, fingerprint_ecfp, fingerprint_maccs
 fields:
-  smiles:
+  - name: smiles
     type: string
-    required: true
-    description: Canonical SMILES string of the reaction
-  yield:
+    constraints:
+      non_null: true
+      min_length: 1
+  - name: yield
     type: float
-    required: true
-    min: 0.0
-    max: 100.0
-    description: Reaction yield percentage
-  reaction_class:
+    constraints:
+      min: 0.0
+      max: 100.0
+  - name: reaction_class
     type: string
-    required: true
-    description: Classification of the reaction type
-  fingerprint_ecfp:
+    constraints:
+      non_null: true
+  - name: fingerprint_ecfp
     type: list
-    required: true
-    item_type: integer
-    length: 2048
-    description: ECFP4 fingerprint (2048 bits)
-  fingerprint_maccs:
+    item_type: int
+    constraints:
+      length: 2048
+  - name: fingerprint_maccs
     type: list
-    required: true
-    item_type: integer
-    length: 167
-    description: MACCS fingerprint (167 bits)
-
-validation_rules:
-  no_nulls: true
-  fingerprint_binary: true
-  yield_range: [0.0, 100.0]
+    item_type: int
+    constraints:
+      length: 167

@@ -1,14 +1,15 @@
-T016:
+T016a:
   c: false
-  h: 46c3c95c681dc23b2404b8d8967eed06e4f87091280ec6fc47d5f5c2948dde21
-  r: "The `create_subset.py` script is incomplete (truncated) and does not contain\
-    \ logic to select a deterministic 5000\u2011molecule subset or write it to a Parquet\
-    \ file, and the required `data/processed/subset_final.parquet` file is missing.\
-    \ The task\u2019s core output is therefore not present."
-T019:
+  h: 234d912c69a469c66bed0b5c9faf81a4dc0d44fdb4984a768234a68b0ab1ea0c
+  r: "The script `create_subset.py` correctly implements deterministic subset creation\
+    \ with seed\u202F42 and size\u202F5000, but the required output file `data/processed/subset_final.parquet`\
+    \ is missing, so the task\u2019s primary artifact is not present. The implementer\
+    \ must run the script (or otherwise generate) to produce the parquet file at the\
+    \ specified location."
+T019a:
   c: false
-  h: 9d2ff2ff52f526a695a84175f59eacad85a6f0312fb74037dca07bf8278faa4a
-  r: "The required `data/reports/excluded_molecules.csv` file does not exist, and\
-    \ the `state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml`\
-    \ file is also missing, so the script\u2019s output and the state\u2011update\
-    \ step are not present. The task\u2019s core deliverables are therefore not satisfied."
+  h: cfd016fc027149b996a42ea7144d07ece47897944a29429fd5383cf14027be84
+  r: "The provided `handle_missing_coords.py` is incomplete (truncated) and never\
+    \ reaches the part that writes `data/reports/excluded_molecules.csv`. Moreover,\
+    \ the expected CSV file is absent from the repository. The task\u2019s required\
+    \ output file is therefore missing."

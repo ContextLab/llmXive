@@ -1,31 +1,46 @@
-# Project Constitution
+# Project Constitution: Predicting Material Stiffness from Microstructure
 
-## I. Purpose
-This document establishes the fundamental principles governing the llmXive automated science pipeline for predicting material stiffness from microstructure images.
+## Version: 1.0.0
+## Last Updated: 2023-10-27
 
-## II. Scientific Integrity
-All research outputs must be reproducible, transparent, and grounded in physical reality. Synthetic data generation must be clearly distinguished from experimental measurements.
+## Preamble
+This document establishes the governing principles, constraints, and ethical guidelines for the automated science pipeline project **PROJ-506**. All research, code generation, and data analysis must adhere to these principles.
 
-## III. Data Provenance
-Every data point must be traceable to its source. Metadata must include generation parameters, seeds, and validation status.
+## Principle I: Scientific Integrity
+All data generated, processed, or analyzed must be traceable to its source. Synthetic data must be explicitly labeled as such. No results shall be fabricated or selectively reported to support a predetermined hypothesis.
 
-## IV. Methodology Transparency
-All algorithms, hyperparameters, and preprocessing steps must be explicitly documented and version-controlled.
+## Principle II: Reproducibility
+Every experiment, model training run, and statistical analysis must be fully reproducible given the code, configuration, and input data artifacts. Version control and artifact hashing are mandatory.
 
-## V. Validation Standards
-Models must be validated against independent test sets. Performance metrics must be reported with confidence intervals where applicable.
+## Principle III: Computational Efficiency
+Solutions must be optimized for the target hardware (CPU-only free-tier constraints). Algorithms must be selected to ensure completion within the defined time budget (6 hours for training).
 
-## VI. Numerical Homogenization
-**Principle VI:** The project explicitly permits the use of **FFT-based numerical homogenization** as the ground-truth method for calculating effective elastic stiffness tensors from microstructure images. This method is recognized as a rigorous alternative to analytical homogenization for complex microstructures, provided that:
-1. The solver converges to a physically valid solution.
-2. Results are validated against Voigt-Reuss-Hill bounds.
-3. Convergence criteria and numerical parameters are explicitly logged.
+## Principle IV: Data Privacy and Security
+No personal identifiable information (PII) shall be used. All synthetic data generation must ensure that no real-world material data is inadvertently leaked or reverse-engineered.
 
-This amendment supersedes any prior restriction favoring only analytical methods for complex topologies where closed-form solutions are intractable.
+## Principle V: Transparency
+All assumptions, limitations, and potential biases in the models and data generation processes must be documented and reported in the final analysis.
 
-## VII. Governance
-Amendments to this constitution require a formal proposal, review, and consensus as defined in the project governance protocol.
+## Principle VI: Numerical Homogenization and Analytical Bounds
+**Explicit Permission and Constraints for FFT-Based Methods**
 
-## VIII. Revision History
-- v1.0: Initial constitution.
-- v1.1: Amendment to Principle VI permitting FFT-based numerical homogenization (Task T002a).
+1. **Permitted Method**: This project explicitly permits the use of **FFT-based numerical homogenization** (Fast Fourier Transform) for computing the effective elastic stiffness tensors of periodic microstructures. This method is approved as the primary ground truth generator for the dataset, provided the implementation is stable and converges within the defined tolerance.
+
+2. **Validity Range of Analytical Bounds**:
+ The project acknowledges the validity of analytical bounds (Voigt-Reuss-Hill, Mori-Tanaka, and Hashin-Shtrikman) for validation purposes.
+ - **Voigt Bound**: Valid as the upper bound for stiffness assuming uniform strain.
+ - **Reuss Bound**: Valid as the lower bound for stiffness assuming uniform stress.
+ - **Hill Average**: The arithmetic mean of Voigt and Reuss bounds, serving as the standard reference for isotropic approximations.
+ - **Constraint**: The FFT-based numerical results **MUST** fall within the Voigt-Reuss bounds. If a computed stiffness tensor falls outside these bounds, the microstructure generation or the solver configuration is considered invalid and must be discarded.
+ - **Documentation**: The validity of these bounds is documented for inclusion densities ranging from 0.0 to 1.0 and for the specific two-phase material system (matrix and void/inclusion) defined in the data generation schema.
+
+3. **Solver Requirements**:
+ - The FFT solver must handle periodic boundary conditions.
+ - Convergence criteria must be strictly enforced (e.g., relative residual < 1e-4).
+ - CPU-optimized implementations (e.g., using `pyfftw` or `scipy.fft`) are required to meet the execution time constraints.
+
+## Principle VII: Ethical AI Usage
+AI models used in this pipeline are tools for assistance and automation. Final scientific interpretation and responsibility for results rest with the human researchers.
+
+## Principle VIII: Continuous Improvement
+This constitution may be amended only through a formal proposal process (see `amendment_process.md`) requiring consensus and verification of the proposed changes against scientific best practices.

@@ -1308,24 +1308,6 @@
   updated_at: '2026-07-13T21:57:02Z'
 - artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
   attempts: 1
-  canonical: output directory contains 2000 or more image files with stiffness tensors
-    within Voigt-Reuss-Hill bounds
-  claim_id: c_3776030d
-  context: "Independent Test: Output directory contains \u2265 2,000 image files and\
-    \ a metadata file with stiffness tensors within Voigt-Reuss-Hill bounds."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Output directory contains \u2265 2,000 image files and a metadata file\
-    \ with stiffness tensors within Voigt-Reuss-Hill bounds."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T21:57:26Z'
-- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
-  attempts: 1
   canonical: shallow CNN trained on generated dataset using PyTorch CPU-only mode
     completes within 6 hours
   claim_id: c_65972679
@@ -1665,26 +1647,6 @@
   status: not_enough_info
   updated_at: '2026-08-15T06:23:31Z'
 - artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
-  attempts: 1
-  canonical: Full pipeline runtime is less than or equal to 6 hours on simulated free-tier
-    constraints
-  claim_id: c_458d6078
-  context: "Verify full pipeline runtime is \u2264 6 hours on simulated free-tier\
-    \ constraints."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Full_pipeline_runtime_is_less_than_or_equal_to_6_hours_on_si
-  kind: magnitude
-  raw_text: "Verify full pipeline runtime is \u2264 6 hours on simulated free-tier\
-    \ constraints."
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-15T06:25:29Z'
-- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
   attempts: 2
   canonical: 2000 image files with stiffness tensors within Voigt-Reuss-Hill bounds
   claim_id: c_f0561d80
@@ -1701,26 +1663,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-19T18:59:42Z'
-- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
-  attempts: 7
-  canonical: Output directory contains at least 2000 image files with stiffness tensors
-    within Voigt-Reuss-Hill bounds
-  claim_id: c_072625a0
-  context: "Independent Test: Output directory contains \u2265 2,000 image files and\
-    \ a metadata file with stiffness tensors within Voigt-Reuss-Hill bounds."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Output_directory_contains_at_least_2000_image_files_with_sti
-  kind: magnitude
-  raw_text: "Output directory contains \u2265 2,000 image files and a metadata file\
-    \ with stiffness tensors within Voigt-Reuss-Hill bounds."
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-19T19:02:21Z'
 - artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
   attempts: 1
   canonical: Full pipeline runtime is less than or equal to 6 hours on simulated free-tier
@@ -1846,3 +1788,134 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-19T19:04:21Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime is less than or equal to 6 hours on simulated free-tier
+    constraints
+  claim_id: c_a9c87ebf
+  context: "Phase N: Polish & Cross-Cutting Concerns ... T046 Verify full pipeline\
+    \ runtime is \u2264 6 hours on simulated free-tier constraints."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_runtime_is_less_than_or_equal_to_6_hours_on_si
+  kind: magnitude
+  raw_text: "Verify full pipeline runtime is \u2264 6 hours on simulated free-tier\
+    \ constraints."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T12:58:37Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: Tests are optional and only included if explicitly requested in the feature
+    specification
+  claim_id: c_ce5105d8
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tests_are_optional_and_only_included_if_explicitly_requested
+  kind: entity_fact
+  raw_text: The examples below include test tasks. Tests are OPTIONAL - only include
+    them if explicitly requested in the feature specification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T12:59:39Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 9
+  canonical: Output directory contains at least 2000 image files with stiffness tensors
+    within Voigt-Reuss-Hill bounds
+  claim_id: c_072625a0
+  context: "Independent Test: Output directory contains \u2265 2,000 image files and\
+    \ a metadata file with stiffness tensors within Voigt-Reuss-Hill bounds."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_directory_contains_at_least_2000_image_files_with_sti
+  kind: magnitude
+  raw_text: "Output directory contains \u2265 2,000 image files and a metadata file\
+    \ with stiffness tensors within Voigt-Reuss-Hill bounds."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T12:59:40Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 2
+  canonical: Full pipeline runtime is less than or equal to 6 hours on simulated free-tier
+    constraints
+  claim_id: c_458d6078
+  context: "Verify full pipeline runtime is \u2264 6 hours on simulated free-tier\
+    \ constraints."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_runtime_is_less_than_or_equal_to_6_hours_on_si
+  kind: magnitude
+  raw_text: "Verify full pipeline runtime is \u2264 6 hours on simulated free-tier\
+    \ constraints."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T12:59:42Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 2
+  canonical: output directory contains 2000 or more image files with stiffness tensors
+    within Voigt-Reuss-Hill bounds
+  claim_id: c_3776030d
+  context: "Independent Test: Output directory contains \u2265 2,000 image files and\
+    \ a metadata file with stiffness tensors within Voigt-Reuss-Hill bounds."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Output directory contains \u2265 2,000 image files and a metadata file\
+    \ with stiffness tensors within Voigt-Reuss-Hill bounds."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T13:01:12Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: training completes within 6 hours on 2-core CPU
+  claim_id: c_fdb4d0b8
+  context: 'Independent Test: Training completes within 6 hours on 2-core CPU, saves
+    model artifact, and reports MSE/R2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Training completes within 6 hours on 2-core CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T13:01:50Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: full pipeline runtime is 6 hours or less on simulated free-tier constraints
+  claim_id: c_6019696f
+  context: "- [ ] T046 Verify full pipeline runtime is \u2264 6 hours on simulated\
+    \ free-tier constraints."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify full pipeline runtime is \u2264 6 hours on simulated free-tier\
+    \ constraints."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T13:01:50Z'

@@ -1,26 +1,41 @@
 T010:
   c: false
-  h: 9e2b40fe733ec54227ebe30f7a5096ff09673dde804aeac3bae4d5f31bb5bf12
-  r: "The repository contains `code/preprocessing/scaffold.py`, but it does not load\
-    \ `cleaned_reactions.parquet` nor write `scaffold_groups.parquet` (the `main`\
-    \ function is truncated and the required data files are absent). Both the input\
-    \ parquet file and the expected output parquet file are missing, so the task\u2019\
-    s core requirement is not satisfied."
-T018:
-  c: false
-  h: ad9af99da473a90e050256103cd56d34f24f9f98784b03b2148572943122c9e4
-  r: "The required output file `data/results/data_quality_report.json` does not exist,\
-    \ so the pipeline\u2019s data\u2011quality report (including `exclusion_fraction`\
-    \ and exclusion reasons) is missing. Consequently the task\u2019s core deliverable\
-    \ is not satisfied."
+  h: c89a4fbc5e950779256dd9479265be93c29648b94004401cbdea67b141097a79
+  r: The repository contains a partially implemented `scaffold.py` (functions for
+    generating scaffolds) but the script does not load `data/processed/cleaned_reactions.parquet`,
+    create a `scaffold_id` column, or write `data/processed/scaffold_groups.parquet`.
+    Moreover, the required input parquet file and the expected output parquet file
+    are absent. The task therefore remains unfinished.
 T019:
   c: false
-  h: b5db8ee7f6de6eb8078fff329188e6d45a15b0b6633a599252fb067215f990da
-  r: The provided `download.py` is truncated, lacks the fallback `wget` logic, and
-    references an undefined `_write_checksum` function. Moreover, the required output
-    files `data/raw/uspto_raw.parquet` and `data/results/download_checksum.txt` are
-    absent, indicating the script has not been executed or does not correctly create
-    them. The implementation does not fully meet the task specifications.
+  h: cdb44b51144b73eff6c0e7c0d689e17b94b5e027f1c8539918bda81aa1b8dd21
+  r: "The provided `download.py` is truncated and does not contain the full implementation\
+    \ (e.g., the dataset loading line is incomplete, no code to convert to Parquet,\
+    \ no fallback wget logic, and no checksum writing after a successful download).\
+    \ Additionally, the expected output files `data/raw/uspto_raw.parquet` and `data/results/download_checksum.txt`\
+    \ are missing. The task\u2019s requirements are therefore not satisfied."
+T022:
+  c: false
+  h: 24bc76b999036cbea8dac9ea6c65c8b4ecc74bbb72392dbe01335432ce4dc2b0
+  r: The repository contains `code/modeling/split.py`, but the required output artifacts
+    (`data/processed/stratified_groups.csv`, `data/results/split_log.json`, `data/processed/validation_set_indices.csv`)
+    are absent, so the split functionality cannot be verified as producing the specified
+    files. The task is therefore not fully satisfied.
+T026a:
+  c: false
+  h: a21420f24c00d36c61ed87b0d4598a32d87b260f62441d54cae0dc6775854802
+  r: The repository contains a partially implemented `code/modeling/evaluate.py`,
+    but it does not include logic that writes `data/results/test_metrics.json`, and
+    that file is absent from the project. Consequently the required output JSON with
+    the specified metric keys is not produced. The task therefore remains unfinished.
+T027b:
+  c: false
+  h: 5d2609b684df7bb286ae40f9783003870398ac3b90d6a290ac8ece424aa57d97
+  r: "The required output files `data/results/memory_profile.log` and `data/results/runtime_profile.json`\
+    \ are missing, and the provided `train.py` snippet is truncated before showing\
+    \ any assertion of peak RAM\u202F<\u202F7\u202FGB or saving of those logs. Thus\
+    \ the implementation does not demonstrably satisfy the task\u2019s output and\
+    \ validation requirements."
 T030:
   c: false
   h: ab39ea1f432ee4ca454e13511e907ff980817575b515b77a35d4e27d9bd2625b

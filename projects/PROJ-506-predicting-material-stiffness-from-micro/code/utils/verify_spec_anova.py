@@ -1,60 +1,88 @@
 import sys
-from pathlib import Path
 import re
+from pathlib import Path
 
 def verify_anova_mention(spec_path: str, plan_path: str) -> bool:
     """
-    Verify that spec.md FR-007 and plan.md Methodology explicitly state 
-    'One-way ANOVA' and 'Tukey HSD'.
+    Verify that spec.md (FR-007) and plan.md (Methodology) explicitly state
+    'One-way ANOVA and Tukey HSD'.
     
     Args:
         spec_path: Path to spec.md
         plan_path: Path to plan.md
         
     Returns:
-        bool: True if both documents contain the required phrases, False otherwise.
+        True if both files contain the required text, False otherwise.
     """
-    spec_content = Path(spec_path).read_text()
-    plan_content = Path(plan_path).read_text()
+    target_phrase = "One-way ANOVA and Tukey HSD"
     
-    # Check for One-way ANOVA in spec.md (looking for FR-007 context)
-    anova_spec_found = re.search(r"One-way\s+ANOVA", spec_content, re.IGNORECASE) is not None
-    tukey_spec_found = re.search(r"Tukey\s+HSD", spec_content, re.IGNORECASE) is not None
-    
-    # Check for One-way ANOVA in plan.md (Methodology section)
-    anova_plan_found = re.search(r"One-way\s+ANOVA", plan_content, re.IGNORECASE) is not None
-    tukey_plan_found = re.search(r"Tukey\s+HSD", plan_content, re.IGNORECASE) is not None
-    
-    spec_ok = anova_spec_found and tukey_spec_found
-    plan_ok = anova_plan_found and tukey_plan_found
-    
-    if not spec_ok:
-        print(f"FAIL: spec.md missing required phrases. ANOVA: {anova_spec_found}, Tukey: {tukey_spec_found}")
-    if not plan_ok:
-        print(f"FAIL: plan.md missing required phrases. ANOVA: {anova_plan_found}, Tukey: {tukey_plan_found}")
+    # Check spec.md for FR-007 mentioning the phrase
+    spec_file = Path(spec_path)
+    if not spec_file.exists():
+        print(f"ERROR: {spec_path} does not exist.")
+        return False
         
-    return spec_ok and plan_ok
+    spec_content = spec_file.read_text()
+    
+    # Look for FR-007 section and check for the phrase
+    # We search for the phrase anywhere in the file, but ideally near FR-007
+    if target_phrase not in spec_content:
+        print(f"ERROR: '{target_phrase}' not found in {spec_path}")
+        return False
+        
+    # Check if FR-007 exists in the spec
+    if "FR-007" not in spec_content:
+        print(f"ERROR: FR-007 not found in {spec_path}")
+        return False
+        
+    print(f"SUCCESS: Found '{target_phrase}' and FR-007 in {spec_path}")
+    
+    # Check plan.md for Methodology section mentioning the phrase
+    plan_file = Path(plan_path)
+    if not plan_file.exists():
+        print(f"ERROR: {plan_path} does not exist.")
+        return False
+        
+    plan_content = plan_file.read_text()
+    
+    if target_phrase not in plan_content:
+        print(f"ERROR: '{target_phrase}' not found in {plan_path}")
+        return False
+        
+    # Check if Methodology section exists
+    if "Methodology" not in plan_content:
+        print(f"ERROR: Methodology section not found in {plan_path}")
+        return False
+        
+    print(f"SUCCESS: Found '{target_phrase}' and Methodology section in {plan_path}")
+    
+    return True
 
 def main():
     """Main entry point for verification."""
-    project_root = Path(__file__).resolve().parent.parent.parent
-    spec_path = project_root / "specs" / "001-predict-stiffness-cnn" / "spec.md"
-    plan_path = project_root / "specs" / "001-predict-stiffness-cnn" / "plan.md"
+    # Default paths relative to project root
+    spec_path = "specs/001-predict-stiffness-cnn/spec.md"
+    plan_path = "plan.md"
     
-    if not spec_path.exists():
-        print(f"ERROR: spec.md not found at {spec_path}")
-        sys.exit(1)
-    if not plan_path.exists():
-        print(f"ERROR: plan.md not found at {plan_path}")
-        sys.exit(1)
+    # Allow override via command line arguments
+    if len(sys.argv) >= 3:
+        spec_path = sys.argv[1]
+        plan_path = sys.argv[2]
         
-    success = verify_anova_mention(str(spec_path), str(plan_path))
+    print(f"Verifying alignment between {spec_path} and {plan_path}...")
+    print(f"Looking for: 'One-way ANOVA and Tukey HSD'")
+    print("-" * 50)
     
+    success = verify_anova_mention(spec_path, plan_path)
+    
+    print("-" * 50)
     if success:
-        print("SUCCESS: Spec and Plan alignment verified for One-way ANOVA and Tukey HSD.")
+        print("VERIFICATION PASSED: Spec and Plan are aligned on statistical methods.")
+        print("Task T005v can be marked as [X] READY.")
         sys.exit(0)
     else:
-        print("FAILURE: Alignment verification failed. Check documents.")
+        print("VERIFICATION FAILED: Required text not found in both files.")
+        print("Task T005v CANNOT be marked as completed.")
         sys.exit(1)
 
 if __name__ == "__main__":

@@ -1,96 +1,64 @@
 """
 Verification script for T004v: Verify Spec Resolution.
 
-Inspects spec.md to confirm that FR-001 and US-1 Acceptance Scenario 1
+This script inspects `spec.md` to confirm that FR-001 and US-1 Acceptance Scenario 1
 explicitly state "128x128 pixels".
 """
 import sys
 import re
 from pathlib import Path
 
-def verify_spec(spec_path: Path) -> bool:
+def verify_spec() -> bool:
     """
-    Verify that spec.md contains the required resolution specifications.
-    
-    Args:
-        spec_path: Path to the spec.md file.
-        
+    Inspect spec.md for the required resolution text.
+
     Returns:
-        True if verification passes, False otherwise.
+        bool: True if the text is found, False otherwise.
     """
+    spec_path = Path("specs/001-predict-stiffness-cnn/spec.md")
+
     if not spec_path.exists():
-        print(f"ERROR: spec.md not found at {spec_path}")
+        print(f"ERROR: {spec_path} does not exist.")
         return False
 
-    content = spec_path.read_text(encoding='utf-8')
-    
-    # Check for FR-001
-    fr001_pattern = r'FR-001.*?128x128.*?pixels'
-    fr001_match = re.search(fr001_pattern, content, re.IGNORECASE | re.DOTALL)
-    
-    # Check for US-1 Acceptance Scenario 1
-    us1_pattern = r'US-1.*?Acceptance Scenario.*?1.*?128x128.*?pixels'
-    us1_match = re.search(us1_pattern, content, re.IGNORECASE | re.DOTALL)
-    
-    # More lenient checks if specific phrasing varies
-    if not fr001_match:
-        # Try looking for FR-001 and 128x128 pixels separately in proximity
-        fr001_section = re.search(r'FR-001.*?(?=FR-002|US-|$)', content, re.DOTALL)
-        if fr001_section and '128x128' in fr001_section.group() and 'pixels' in fr001_section.group():
-            fr001_match = True
-        else:
-            fr001_match = False
-    
-    if not us1_match:
-        # Try looking for US-1 and 128x128 pixels in proximity
-        us1_section = re.search(r'US-1.*?(?=US-2|$)', content, re.DOTALL)
-        if us1_section and 'Acceptance Scenario' in us1_section.group() and '128x128' in us1_section.group() and 'pixels' in us1_section.group():
-            us1_match = True
-        else:
-            us1_match = False
+    content = spec_path.read_text()
 
-    success = True
-    
-    if not fr001_match:
-        print("FAIL: FR-001 does not explicitly state '128x128 pixels'")
-        success = False
-    else:
-        print("PASS: FR-001 explicitly states '128x128 pixels'")
-        
-    if not us1_match:
-        print("FAIL: US-1 Acceptance Scenario 1 does not explicitly state '128x128 pixels'")
-        success = False
-    else:
-        print("PASS: US-1 Acceptance Scenario 1 explicitly states '128x128 pixels'")
-        
-    return success
+    # Check for FR-001 mentioning 128x128
+    fr_001_pattern = r"FR-001.*128x128.*pixels|128x128.*pixels.*FR-001"
+    fr_001_match = re.search(fr_001_pattern, content, re.IGNORECASE | re.DOTALL)
 
-def main() -> int:
-    """Main entry point for the verification script."""
-    # Look for spec.md in common locations
-    possible_paths = [
-        Path("specs/001-predict-stiffness-cnn/spec.md"),
-        Path("spec.md"),
-        Path("docs/spec.md"),
-    ]
-    
-    spec_path = None
-    for p in possible_paths:
-        if p.exists():
-            spec_path = p
-            break
-    
-    if spec_path is None:
-        print("ERROR: Could not find spec.md in any expected location")
-        return 1
-        
-    print(f"Verifying spec at: {spec_path}")
-    if verify_spec(spec_path):
-        print("\nT004v VERIFICATION: PASSED")
-        return 0
+    # Check for US-1 Acceptance Scenario 1 mentioning 128x128
+    us_1_pattern = r"US-1.*Acceptance Scenario 1.*128x128.*pixels|128x128.*pixels.*US-1.*Acceptance Scenario 1"
+    us_1_match = re.search(us_1_pattern, content, re.IGNORECASE | re.DOTALL)
+
+    # If the specific combined patterns fail, do a broader search to be robust
+    # looking for the specific phrase in the context of FR-001 or US-1
+    if not fr_001_match:
+        # Look for FR-001 section and check if 128x128 appears nearby
+        fr_section = re.search(r"FR-001.*?(?=\n\n|\n#|\n##|$)", content, re.DOTALL)
+        if fr_section and "128x128" in fr_section.group() and "pixels" in fr_section.group():
+            fr_001_match = True
+
+    if not us_1_match:
+        # Look for US-1 Acceptance Scenario 1 section and check if 128x128 appears nearby
+        us_section = re.search(r"US-1.*?Acceptance Scenario 1.*?(?=\n\n|\n#|\n##|$)", content, re.DOTALL)
+        if us_section and "128x128" in us_section.group() and "pixels" in us_section.group():
+            us_1_match = True
+
+    if fr_001_match and us_1_match:
+        print("SUCCESS: spec.md contains '128x128 pixels' in both FR-001 and US-1 Acceptance Scenario 1.")
+        return True
     else:
-        print("\nT004v VERIFICATION: FAILED")
-        return 1
+        print("FAILURE: Could not confirm '128x128 pixels' in required locations.")
+        if not fr_001_match:
+            print("  - Missing or incorrect FR-001 reference.")
+        if not us_1_match:
+            print("  - Missing or incorrect US-1 Acceptance Scenario 1 reference.")
+        return False
+
+def main():
+    success = verify_spec()
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

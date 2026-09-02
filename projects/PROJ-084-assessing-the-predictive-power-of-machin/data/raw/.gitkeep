@@ -1,2 +1,1 @@
-# This directory stores raw downloaded data
-# Ensure .gitkeep is present to track the directory in git
+# This directory stores raw downloaded datasets.

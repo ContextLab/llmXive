@@ -1,38 +1,15 @@
-- artifact_hash: ef77bd7eb3c312d34ecd6a33f335eedc51232997f88cf9712b92efbd9393a267
-  artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/research.md
+- artifact_hash: 350f6b1ce0bc0021b226e9a111783a91fb83c765cb138c355cdfc9cb5f6f07ed
+  artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: "AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score \xB7\
-    \ Datasets at Hugging Face"
+  fetched_title: cpu
   kind: url
-  value: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/...`
-  verification_status: verified
-  verified_against_url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score
-  verified_at: '2026-07-09T14:09:16.396152Z'
-- artifact_hash: ef77bd7eb3c312d34ecd6a33f335eedc51232997f88cf9712b92efbd9393a267
-  artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: "abisee/cnn_dailymail \xB7 Datasets at Hugging Face"
-  kind: url
-  value: https://huggingface.co/datasets/abisee/cnn_dailymail/...`
-  verification_status: verified
-  verified_against_url: https://huggingface.co/datasets/abisee/cnn_dailymail
-  verified_at: '2026-07-09T14:09:16.396152Z'
-- artifact_hash: ef77bd7eb3c312d34ecd6a33f335eedc51232997f88cf9712b92efbd9393a267
-  artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: "lucainiao/MAESTRO_2004_SYNTH \xB7 Datasets at Hugging Face"
-  kind: url
-  value: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH/...`
-  verification_status: verified
-  verified_against_url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH
-  verified_at: '2026-07-09T14:09:16.396152Z'
-- artifact_hash: e67bba2cd8d6e9fd6247046a76e06fbb82e3360f32321012956cc5ba7f7cc8c6
+  value: https://download.pytorch.org/whl/cpu`
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-09-02T12:54:14.308073Z'
+- artifact_hash: ea0d5ab170e19eda86e6faf74612e50c0332253fe8548fa312f385f0a3751eed
   artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -42,4 +19,4 @@
   value: https://download.pytorch.org/whl/cpu`
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-08-19T19:04:21.416738Z'
+  verified_at: '2026-09-02T13:02:39.076532Z'

@@ -70,13 +70,13 @@ description: "Task list for feature implementation"
 - [X] T007 Initialize Python + project. Create `requirements.txt` with the following exact content. **Note**: When installing, use `pip install -r requirements.txt --index-url https://download.pytorch.org/whl/cpu` to ensure the correct CPU-only wheel is selected.
  ```text
  torch
- scikit-image==0.21.0 [UNRESOLVED-CLAIM: c_8a47223d — status=not_enough_info]
- scipy==1.11.0 [UNRESOLVED-CLAIM: c_534b4e5a — status=not_enough_info]
- numpy==1.24.0 [UNRESOLVED-CLAIM: c_0e4505d8 — status=not_enough_info]
- pandas==2.0.0 [UNRESOLVED-CLAIM: c_1638e4ac — status=not_enough_info]
- pytest==7.3.0 [UNRESOLVED-CLAIM: c_ac4f2a0d — status=not_enough_info]
- scikit-learn==1.2.0 [UNRESOLVED-CLAIM: c_b26fb986 — status=not_enough_info]
- pyfftw==0.13.1 [UNRESOLVED-CLAIM: c_8d9b1aba — status=not_enough_info]
+ scikit-image==0.21.0
+ scipy==1.11.0
+ numpy==1.24.0
+ pandas==2.0.0
+ pytest==7.3.0
+ scikit-learn==1.2.0
+ pyfftw==0.13.1
  ```
 - [X] T008 [P] Configure linting and formatting. Create `pyproject.toml` with `ruff` and `black` configuration. Enable rules for `E`, `F`, `W`, `I`, and `N`. Execute `ruff check.` and `black --check.` to verify configuration.
 
@@ -102,21 +102,21 @@ description: "Task list for feature implementation"
 
 **Goal**: Generate synthetic microstructure images with known ground truth stiffness (US-1) with varying void/inclusion densities and compute their effective elastic stiffness tensors using FFT-based numerical homogenization.
 
-**Independent Test**: Output directory contains ≥ 2,000 image files and a metadata file with stiffness tensors within Voigt-Reuss-Hill bounds. [UNRESOLVED-CLAIM: c_072625a0 — status=not_enough_info]
+**Independent Test**: Output directory contains ≥ 2,000 image files and a metadata file with stiffness tensors within Voigt-Reuss-Hill bounds.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [ ] T014 [P] [US1] Unit test for microstructure generation logic in `tests/unit/test_generation.py`
-- [ ] T015 [P] [US1] Unit test for FFT homogenization convergence in `tests/unit/test_homogenization.py`
-- [ ] T016 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py` (depends on T012)
+- [X] T014 [P] [US1] Unit test for microstructure generation logic in `tests/unit/test_generation.py`
+- [X] T015 [P] [US1] Unit test for FFT homogenization convergence in `tests/unit/test_homogenization.py`
+- [X] T016 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py` (depends on T012)
 
 ### Implementation for User Story 1
 
-- [ ] T017 [US1] Implement stratified microstructure generator in `code/data_generation/generate_microstructures.py` (FR-001, uses `scikit-image`, ensures density-topology decoupling). Output: PNG files in `data/raw/` named `micro_{seed}.png` (128x128 pixels, as per verified FR-001 in T004v). **Depends on T012**. **Status**: BLOCKED until Phase 0 is complete.
+- [X] T017 [US1] Implement stratified microstructure generator in `code/data_generation/generate_microstructures.py` (FR-001, uses `scikit-image`, ensures density-topology decoupling). Output: PNG files in `data/raw/` named `micro_{seed}.png` (128x128 pixels, as per verified FR-001 in T004v). **Depends on T012**. **Status**: BLOCKED until Phase 0 is complete.
 - [ ] T017b [US1] **Calculate Topological Metrics**: Extend T017 to calculate `shape_factor` and `connectivity` for each generated microstructure and include them in the metadata. **Dependency**: T017 (Generation). **Note**: These metrics are recorded but NOT used for stratification (stratification is strictly by density and topology per FR-005). **Status**: **READY** (Unblocks T031).
-- [ ] T018 [US1] Implement stiffness tensor calculator in `code/data_generation/compute_stiffness.py` (FR-002, calls FFT solver, outputs to `data/raw/`). **Depends on T012**. **Status**: BLOCKED until Phase 0 is complete.
+- [X] T018 [US1] Implement stiffness tensor calculator in `code/data_generation/compute_stiffness.py` (FR-002, calls FFT solver, outputs to `data/raw/`). **Depends on T012**. **Status**: BLOCKED until Phase 0 is complete.
 - [ ] T019 [US1] Add validation logic to check physical plausibility of generated tensors (Voigt-Reuss-Hill bounds) and schema conformity (depends on T012, T009, T017, T018). Note: VRH used ONLY for filtering invalid runs; ground truth is the FFT value. Explicitly validate that FFT results fall within VRH bounds; if not, flag and exclude. **CRITICAL**: Log the specific reason for exclusion (e.g., "Solver Convergence Failure" or "Unphysical Microstructure") to `data/processed/validation_log.csv`. **Schema**: CSV with columns `entry_id, reason, density, topology`. **Note**: This defines the schema explicitly as required by data hygiene.
 - [ ] T020 [US1] Create orchestration script `code/main.py` to run generation pipeline end-to-end. CLI args: `--seed`, `--n_samples`. Sequence: generate -> compute -> validate. Exit codes: 0=success, 1=fail. (depends on T017, T018, T019).
 - [ ] T021 [US1] Log derivation metadata (seeds, parameters, density values, shape_factor, connectivity) to `data/processed/derivation_log.json` (depends on T020). **Schema**: `{"seeds": [int], "parameters": {"density": float, "topology": str}, "density_values": [float], "topology_types": [str]}`.
@@ -193,7 +193,7 @@ description: "Task list for feature implementation"
 - [ ] T043 Performance optimization of FFT solver for CPU cache efficiency
 - [ ] T044 [P] Additional unit tests for edge cases (extreme void density, solver convergence) in `tests/unit/`
 - [ ] T045 Run `quickstart.md` validation to ensure end-to-end reproducibility
-- [ ] T046 Verify full pipeline runtime is ≤ 6 hours on simulated free-tier constraints. [UNRESOLVED-CLAIM: c_e421cc69 — status=not_enough_info]
+- [ ] T046 Verify full pipeline runtime is ≤ 6 hours on simulated free-tier constraints.
 
 ---
 

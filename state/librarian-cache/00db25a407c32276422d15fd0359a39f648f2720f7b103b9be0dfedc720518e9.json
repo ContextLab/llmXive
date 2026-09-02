@@ -1,0 +1,692 @@
+{
+  "fetched_at": "2026-09-02T12:41:02Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Evolving Agents in the Dark: Retrospective Harness Optimization via Se\"",
+      "target_n": 5
+    },
+    "duration_seconds": 46.743,
+    "ended_at": "2026-09-02T12:41:02Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "retrospective harness optimization for evolving agents"
+        ],
+        [
+          2,
+          "dark environment agent evolution strategies"
+        ],
+        [
+          3,
+          "LLM-based agent self-improvement in unobserved settings"
+        ],
+        [
+          4,
+          "evolutionary optimization of agent reward functions"
+        ],
+        [
+          5,
+          "black-box agent training with retrospective feedback"
+        ],
+        [
+          6,
+          "harness design for autonomous agent evolution"
+        ],
+        [
+          7,
+          "LLM-driven retrospective analysis for agent tuning"
+        ],
+        [
+          8,
+          "optimizing agent behavior via post-hoc evaluation"
+        ],
+        [
+          9,
+          "evolutionary search for agent control policies in darkness"
+        ],
+        [
+          10,
+          "LLMXive framework for agent evolution"
+        ],
+        [
+          11,
+          "adaptive agent evolution without explicit environmental cues"
+        ],
+        [
+          12,
+          "retrospective learning for multi-agent systems"
+        ],
+        [
+          13,
+          "evolutionary algorithms for LLM agent refinement"
+        ],
+        [
+          14,
+          "harnessing evolutionary dynamics in agent-based LLMs"
+        ],
+        [
+          15,
+          "self-optimizing agents via retrospective performance review"
+        ],
+        [
+          16,
+          "dark adaptation strategies for evolving AI agents"
+        ],
+        [
+          17,
+          "iterative agent optimization using retrospective signals"
+        ],
+        [
+          18,
+          "evolutionary reinforcement learning in unobserved domains"
+        ],
+        [
+          19,
+          "LLM agent evolution through retrospective reward shaping"
+        ],
+        [
+          20,
+          "autonomous agent adaptation via hidden feedback loops"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"Evolving Agents in the Dark: Retrospective Harness Optimization via Se\" computer science": 0,
+        "retrospective harness optimization for evolving agents": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "test-time compute scaling law agent optimization",
+      "evolutionary strategies black-box hyperparameter tuning",
+      "neuroevolution fitness landscape surrogate modeling",
+      "inference-time search trajectory reward maximization",
+      "algorithmic distillation meta-learning gradient-free"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.09498"
+      ]
+    },
+    "per_query_hit_count": {
+      "algorithmic distillation meta-learning gradient-free": 3,
+      "evolutionary strategies black-box hyperparameter tuning": 3,
+      "inference-time search trajectory reward maximization": 3,
+      "llmXive follow-up: extending \"Evolving Agents in the Dark: Retrospective Harness Optimization via Se\" computer science": 3,
+      "neuroevolution fitness landscape surrogate modeling": 3,
+      "test-time compute scaling law agent optimization": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-09-02T12:40:15Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"evolving agents in the dark: retrospective harness optimization via se\" computer science",
+      "raw": "llmXive follow-up: extending \"Evolving Agents in the Dark: Retrospective Harness Optimization via Se\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Evolving Agents in the Dark: Retrospective Harness', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-09-02T12:40:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Evolving Agents in the Dark: Retrospective Harness', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-09-02T12:40:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Evolving Agents in the Dark: Retrospective Harness', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-09-02T12:40:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Scaling test-time compute has emerged as a key ingredient for enabling large language models (LLMs) to solve difficult problems, but comes with high latency and inference cost. We introduce sleep-time compute, which allows models to \"think\" offline about contexts before queries are presented: by anticipating what queries users might ask and pre-computing useful quantities, we can significantly reduce the compute requirements at test-time. To demonstrate the efficacy of our method, we create modified versions of two reasoning tasks - Stateful GSM-Symbolic and Stateful AIME. We find that sleep-time compute can reduce the amount of test-time compute needed to achieve the same accuracy by ~ 5x on Stateful GSM-Symbolic and Stateful AIME and that by scaling sleep-time compute we can further increase accuracy by up to 13% on Stateful GSM-Symbolic and 18% on Stateful AIME. Furthermore, we introduce Multi-Query GSM-Symbolic, which extends GSM-Symbolic by including multiple related queries per context. By amortizing sleep-time compute across related queries about the same context using Multi-Query GSM-Symbolic, we can decrease the average cost per query by 2.5x. We then conduct additional analysis to understand when sleep-time compute is most effective, finding the predictability of the user query to be well correlated with the efficacy of sleep-time compute. Finally, we conduct a case-study of applying sleep-time compute to a realistic agentic SWE task.",
+          "claimed_authors": [
+            "Kevin Lin",
+            "Charlie Snell",
+            "Yu Wang",
+            "Charles Packer",
+            "Sarah Wooders",
+            "Ion Stoica",
+            "Joseph E. Gonzalez"
+          ],
+          "claimed_title": "Sleep-time Compute: Beyond Inference Scaling at Test-time",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.13171"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Evolving Agents in the Dark: Retrospective Harness', candidate_title='Sleep-time Compute: Beyond Inference Scaling at Test-time')",
+        "failed_at": "2026-09-02T12:40:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this article, we propose an anomalous chaotic system of the scaling-law ordinary differential equations involving the Mandelbrot scaling law. This chaotic behavior shows the \"Wukong\" effect. The comparison among the Lorenz and scaling-law attractors is discussed in detail. We also suggest the conjecture for the fixed point theory for the fractal SL attractor. The scaling-law chaos may be open a new door in the study of the chaos theory.",
+          "claimed_authors": [
+            "Xiao-Jun Yang"
+          ],
+          "claimed_title": "A scaling law chaotic system",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.09816"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Evolving Agents in the Dark: Retrospective Harness', candidate_title='A scaling law chaotic system')",
+        "failed_at": "2026-09-02T12:40:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, the scaling-law vector calculus, which is related to the connection between the vector calculus and the scaling law in fractal geometry, is addressed based on the Leibniz derivative and Stieltjes integral for the first time. The Gauss-Ostrogradsky-like theorem, Stokes-like theorem, Green-like theorem, and Green-like identities are considered in the sense of the scaling-law vector calculus. The Navier-Stokes-like equations are obtained in detail. The obtained result is as a potentially mathematical tool proposed to develop an important way of approaching this challenge for the scaling-law flows.",
+          "claimed_authors": [
+            "Xiao-Jun Yang"
+          ],
+          "claimed_title": "The scaling-law flows: An attempt at scaling-law vector calculus",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.13897"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Evolving Agents in the Dark: Retrospective Harness', candidate_title='The scaling-law flows: An attempt at scaling-law vector calculus')",
+        "failed_at": "2026-09-02T12:40:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Management and mission planning over a swarm of unmanned aerial vehicle (UAV) remains to date as a challenging research trend in what regards to this particular type of aircrafts. These vehicles are controlled by a number of ground control station (GCS), from which they are commanded to cooperatively perform different tasks in specific geographic areas of interest. Mathematically the problem of coordinating and assigning tasks to a swarm of UAV can be modeled as a constraint satisfaction problem, whose complexity and multiple conflicting criteria has hitherto motivated the adoption of multi-objective solvers such as multi-objective evolutionary algorithm (MOEA). The encoding approach consists of different alleles representing the decision variables, whereas the fitness function checks that all constraints are fulfilled, minimizing the optimization criteria of the problem. In problems of high complexity involving several tasks, UAV and GCS, where the space of search is huge compared to the space of valid solutions, the convergence rate of the algorithm increases significantly. To overcome this issue, this work proposes a weighted random generator for the creation and mutation of new individuals. The main objective of this work is to reduce the convergence rate of the MOEA solver for multi-UAV mission planning using weighted random strategies that focus the search on potentially better regions of the solution space. Extensive experimental results over a diverse range of scenarios evince the benefits of the proposed approach, which notably improves this convergence rate with respect to a naïve MOEA approach.",
+          "claimed_authors": [
+            "Cristian Ramirez-Atencia",
+            "Javier Del Ser",
+            "David Camacho"
+          ],
+          "claimed_title": "Weighted strategies to guide a multi-objective evolutionary algorithm for multi-UAV mission planning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.18749"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Evolving Agents in the Dark: Retrospective Harness', candidate_title='Weighted strategies to guide a multi-objective evolutionary algorithm for multi-UAV mission planning')",
+        "failed_at": "2026-09-02T12:40:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Hyperparameter optimization is a crucial problem in Evolutionary Computation. In fact, the values of the hyperparameters directly impact the trajectory taken by the optimization process, and their choice requires extensive reasoning by human operators. Although a variety of self-adaptive Evolutionary Algorithms have been proposed in the literature, no definitive solution has been found. In this work, we perform a preliminary investigation to automate the reasoning process that leads to the choice of hyperparameter values. We employ two open-source Large Language Models (LLMs), namely Llama2-70b and Mixtral, to analyze the optimization logs online and provide novel real-time hyperparameter recommendations. We study our approach in the context of step-size adaptation for (1+1)-ES. The results suggest that LLMs can be an effective method for optimizing hyperparameters in Evolution Strategies, encouraging further research in this direction.",
+          "claimed_authors": [
+            "Leonardo Lucio Custode",
+            "Fabio Caraffini",
+            "Anil Yaman",
+            "Giovanni Iacca"
+          ],
+          "claimed_title": "An investigation on the use of Large Language Models for hyperparameter tuning in Evolutionary Algorithms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.02451"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Evolving Agents in the Dark: Retrospective Harness', candidate_title='An investigation on the use of Large Language Models for hyperparameter tuning in Evolutionary Algorithms')",
+        "failed_at": "2026-09-02T12:40:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Black-box optimization is primarily important for many compute-intensive applications, including reinforcement learning (RL), robot control, etc. This paper presents a novel theoretical framework for black-box optimization, in which our method performs stochastic update with the implicit natural gradient of an exponential-family distribution. Theoretically, we prove the convergence rate of our framework with full matrix update for convex functions. Our theoretical results also hold for continuous non-differentiable black-box functions. Our methods are very simple and contain less hyper-parameters than CMA-ES \\cite{hansen2006cma}. Empirically, our method with full matrix update achieves competitive performance compared with one of the state-of-the-art method CMA-ES on benchmark test problems. Moreover, our methods can achieve high optimization precision on some challenging test functions (e.g., $l_1$-norm ellipsoid test problem and Levy test problem), while methods with explicit natural gradient, i.e., IGO \\cite{ollivier2017information} with full matrix update can not. This shows the efficiency of our methods.",
+          "claimed_authors": [
+            "Yueming Lyu",
+            "Ivor W. Tsang"
+          ],
+          "claimed_title": "Black-box Optimizer with Implicit Natural Gradient",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.04301"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Evolving Agents in the Dark: Retrospective Harness', candidate_title='Black-box Optimizer with Implicit Natural Gradient')",
+        "failed_at": "2026-09-02T12:40:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fitness landscapes are a useful concept to study the dynamics of meta-heuristics. In the last two decades, they have been applied with success to estimate the optimization power of several types of evolutionary algorithms, including genetic algorithms and genetic programming. However, so far they have never been used to study the performance of machine learning algorithms on unseen data, and they have never been applied to neuroevolution. This paper aims at filling both these gaps, applying for the first time fitness landscapes to neuroevolution and using them to infer useful information about the predictive ability of the method. More specifically, we use a grammar-based approach to generate convolutional neural networks, and we study the dynamics of three different mutations to evolve them. To characterize fitness landscapes, we study autocorrelation and entropic measure of ruggedness. The results show that these measures are appropriate for estimating both the optimization power and the generalization ability of the considered neuroevolution configurations.",
+          "claimed_authors": [
+            "Nuno M. Rodrigues",
+            "Sara Silva",
+            "Leonardo Vanneschi"
+          ],
+          "claimed_title": "A Study of Fitness Landscapes for Neuroevolution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2001.11272"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Evolving Agents in the Dark: Retrospective Harness', candidate_title='A Study of Fitness Landscapes for Neuroevolution')",
+        "failed_at": "2026-09-02T12:40:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multi-fidelity surrogate modeling aims to learn an accurate surrogate at the highest fidelity level by combining data from multiple sources. Traditional methods relying on Gaussian processes can hardly scale to high-dimensional data. Deep learning approaches utilize neural network based encoders and decoders to improve scalability. These approaches share encoded representations across fidelities without including corresponding decoder parameters. This hinders inference performance, especially in out-of-distribution scenarios when the highest fidelity data has limited domain coverage. To address these limitations, we propose Multi-fidelity Residual Neural Processes (MFRNP), a novel multi-fidelity surrogate modeling framework. MFRNP explicitly models the residual between the aggregated output from lower fidelities and ground truth at the highest fidelity. The aggregation introduces decoders into the information sharing step and optimizes lower fidelity decoders to accurately capture both in-fidelity and cross-fidelity information. We show that MFRNP significantly outperforms state-of-the-art in learning partial differential equations and a real-world climate modeling task. Our code is published at: https://github.com/Rose-STL-Lab/MFRNP",
+          "claimed_authors": [
+            "Ruijia Niu",
+            "Dongxia Wu",
+            "Kai Kim",
+            "Yi-An Ma",
+            "Duncan Watson-Parris",
+            "Rose Yu"
+          ],
+          "claimed_title": "Multi-Fidelity Residual Neural Processes for Scalable Surrogate Modeling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.18846"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Evolving Agents in the Dark: Retrospective Harness', candidate_title='Multi-Fidelity Residual Neural Processes for Scalable Surrogate Modeling')",
+        "failed_at": "2026-09-02T12:40:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the last years, reinforcement learning received a lot of attention. One method to solve reinforcement learning tasks is Neuroevolution, where neural networks are optimized by evolutionary algorithms. A disadvantage of Neuroevolution is that it can require numerous function evaluations, while not fully utilizing the available information from each fitness evaluation. This is especially problematic when fitness evaluations become expensive. To reduce the cost of fitness evaluations, surrogate models can be employed to partially replace the fitness function. The difficulty of surrogate modeling for Neuroevolution is the complex search space and how to compare different networks. To that end, recent studies showed that a kernel based approach, particular with phenotypic distance measures, works well. These kernels compare different networks via their behavior (phenotype) rather than their topology or encoding (genotype). In this work, we discuss the use of surrogate model-based Neuroevolution (SMB-NE) using a phenotypic distance for reinforcement learning. In detail, we investigate a) the potential of SMB-NE with respect to evaluation efficiency and b) how to select adequate input sets for the phenotypic distance measure in a reinforcement learning problem. The results indicate that we are able to considerably increase the evaluation efficiency using dynamic input sets.",
+          "claimed_authors": [
+            "Jörg Stork",
+            "Martin Zaefferer",
+            "Thomas Bartz-Beielstein",
+            "A. E. Eiben"
+          ],
+          "claimed_title": "Surrogate Models for Enhancing the Efficiency of Neuroevolution in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.09300"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Evolving Agents in the Dark: Retrospective Harness', candidate_title='Surrogate Models for Enhancing the Efficiency of Neuroevolution in Reinforcement Learning')",
+        "failed_at": "2026-09-02T12:40:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose an inference-time scaling approach for pretrained flow models. Recently, inference-time scaling has gained significant attention in LLMs and diffusion models, improving sample quality or better aligning outputs with user preferences by leveraging additional computation. For diffusion models, particle sampling has allowed more efficient scaling due to the stochasticity at intermediate denoising steps. On the contrary, while flow models have gained popularity as an alternative to diffusion models--offering faster generation and high-quality outputs in state-of-the-art image and video generative models--efficient inference-time scaling methods used for diffusion models cannot be directly applied due to their deterministic generative process. To enable efficient inference-time scaling for flow models, we propose three key ideas: 1) SDE-based generation, enabling particle sampling in flow models, 2) Interpolant conversion, broadening the search space and enhancing sample diversity, and 3) Rollover Budget Forcing (RBF), an adaptive allocation of computational resources across timesteps to maximize budget utilization. Our experiments show that SDE-based generation, particularly variance-preserving (VP) interpolant-based generation, improves the performance of particle sampling methods for inference-time scaling in flow models. Additionally, we demonstrate that RBF with VP-SDE achieves the best performance, outperforming all previous inference-time scaling approaches.",
+          "claimed_authors": [
+            "Jaihoon Kim",
+            "Taehoon Yoon",
+            "Jisung Hwang",
+            "Minhyuk Sung"
+          ],
+          "claimed_title": "Inference-Time Scaling for Flow Models via Stochastic Generation and Rollover Budget Forcing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.19385"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Evolving Agents in the Dark: Retrospective Harness', candidate_title='Inference-Time Scaling for Flow Models via Stochastic Generation and Rollover Budget Forcing')",
+        "failed_at": "2026-09-02T12:40:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The recent success of inference-time scaling in large language models has inspired similar explorations in video diffusion. In particular, motivated by the existence of \"golden noise\" that enhances video quality, prior work has attempted to improve inference by optimising or searching for better initial noise. However, these approaches have notable limitations: they either rely on priors imposed at the beginning of noise sampling or on rewards evaluated only on the denoised and decoded videos. This leads to error accumulation, delayed and sparse reward signals, and prohibitive computational cost, which prevents the use of stronger search algorithms. Crucially, stronger search algorithms are precisely what could unlock substantial gains in controllability, sample efficiency and generation quality for video diffusion, provided their computational cost can be reduced. To fill in this gap, we enable efficient inference-time scaling for video diffusion through latent reward guidance, which provides intermediate, informative and efficient feedback along the denoising trajectory. We introduce a latent reward model that scores partially denoised latents at arbitrary timesteps with respect to visual quality, motion quality, and text alignment. Building on this model, we propose LatSearch, a novel inference-time search mechanism that performs Reward-Guided Resampling and Pruning (RGRP). In the resampling stage, candidates are sampled according to reward-normalised probabilities to reduce over-reliance on the reward model. In the pruning stage, applied at the final scheduled step, only the candidate with the highest cumulative reward is retained, improving both quality and efficiency. We evaluate LatSearch on the VBench-2.0 benchmark and demonstrate that it consistently improves video generation across multiple evaluation dimensions compared to the baseline Wan2.1 model.",
+          "claimed_authors": [
+            "Zengqun Zhao",
+            "Ziquan Liu",
+            "Yu Cao",
+            "Shaogang Gong",
+            "Zhensong Zhang",
+            "Jifei Song",
+            "Jiankang Deng",
+            "Ioannis Patras"
+          ],
+          "claimed_title": "LatSearch: Latent Reward-Guided Search for Faster Inference-Time Scaling in Video Diffusion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.14526"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Evolving Agents in the Dark: Retrospective Harness', candidate_title='LatSearch: Latent Reward-Guided Search for Faster Inference-Time Scaling in Video Diffusion')",
+        "failed_at": "2026-09-02T12:40:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Inference-time computation methods enhance the performance of Large Language Models (LLMs) by leveraging additional computational resources to achieve superior results. Common techniques, such as Best-of-N sampling, Majority Voting, and variants of tree-search algorithms have proven to be effective in boosting the performance of LLMs. These approaches strategically trade increased computational resources for improved model responses. In this work, we proposed DARWIN, an inference-time alignment method that leverages the guidance of a reward model to achieve alignment through a reward-guided tree search. Empirical evidences indicates that our method outperforms other inference-time alignment methods such as Best-of-N and ARGS on two widely accepted alignment benchmarks AlpacaEval 2 and MT-Bench. Furthermore, we show that our inference-time approach achieves performance comparable to preference-tuned models on both benchmarks, highlighting the effectiveness of trading inference-time compute for enhanced performance during inference. We have released our codes at https://github.com/declare-lab/darwin.",
+          "claimed_authors": [
+            "Chia-Yu Hung",
+            "Navonil Majumder",
+            "Ambuj Mehrish",
+            "Soujanya Poria"
+          ],
+          "claimed_title": "Inference Time Alignment with Reward-Guided Tree Search",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.15193"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Evolving Agents in the Dark: Retrospective Harness', candidate_title='Inference Time Alignment with Reward-Guided Tree Search')",
+        "failed_at": "2026-09-02T12:40:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While deep reinforcement learning (RL) has fueled multiple high-profile successes in machine learning, it is held back from more widespread adoption by its often poor data efficiency and the limited generality of the policies it produces. A promising approach for alleviating these limitations is to cast the development of better RL algorithms as a machine learning problem itself in a process called meta-RL. Meta-RL is most commonly studied in a problem setting where, given a distribution of tasks, the goal is to learn a policy that is capable of adapting to any new task from the task distribution with as little data as possible. In this survey, we describe the meta-RL problem setting in detail as well as its major variations. We discuss how, at a high level, meta-RL research can be clustered based on the presence of a task distribution and the learning budget available for each individual task. Using these clusters, we then survey meta-RL algorithms and applications. We conclude by presenting the open problems on the path to making meta-RL part of the standard toolbox for a deep RL practitioner.",
+          "claimed_authors": [
+            "Jacob Beck",
+            "Risto Vuorio",
+            "Evan Zheran Liu",
+            "Zheng Xiong",
+            "Luisa Zintgraf",
+            "Chelsea Finn",
+            "Shimon Whiteson"
+          ],
+          "claimed_title": "A Tutorial on Meta-Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.08028"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Evolving Agents in the Dark: Retrospective Harness', candidate_title='A Tutorial on Meta-Reinforcement Learning')",
+        "failed_at": "2026-09-02T12:40:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent years have witnessed an abundance of new publications and approaches on meta-learning. This community-wide enthusiasm has sparked great insights but has also created a plethora of seemingly different frameworks, which can be hard to compare and evaluate. In this paper, we aim to provide a principled, unifying framework by revisiting and strengthening the connection between meta-learning and traditional supervised learning. By treating pairs of task-specific data sets and target models as (feature, label) samples, we can reduce many meta-learning algorithms to instances of supervised learning. This view not only unifies meta-learning into an intuitive and practical framework but also allows us to transfer insights from supervised learning directly to improve meta-learning. For example, we obtain a better understanding of generalization properties, and we can readily transfer well-understood techniques, such as model ensemble, pre-training, joint training, data augmentation, and even nearest neighbor based methods. We provide an intuitive analogy of these methods in the context of meta-learning and show that they give rise to significant improvements in model performance on few-shot learning.",
+          "claimed_authors": [
+            "Wei-Lun Chao",
+            "Han-Jia Ye",
+            "De-Chuan Zhan",
+            "Mark Campbell",
+            "Kilian Q. Weinberger"
+          ],
+          "claimed_title": "Revisiting Meta-Learning as Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2002.00573"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Evolving Agents in the Dark: Retrospective Harness', candidate_title='Revisiting Meta-Learning as Supervised Learning')",
+        "failed_at": "2026-09-02T12:40:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "There is no free lunch, no single learning algorithm that will outperform other algorithms on all data. In practice different approaches are tried and the best algorithm selected. An alternative solution is to build new algorithms on demand by creating a framework that accommodates many algorithms. The best combination of parameters and procedures is searched here in the space of all possible models belonging to the framework of Similarity-Based Methods (SBMs). Such meta-learning approach gives a chance to find the best method in all cases. Issues related to the meta-learning and first tests of this approach are presented.",
+          "claimed_authors": [
+            "Włodzisław Duch",
+            "Karol Grudzińsk"
+          ],
+          "claimed_title": "Meta-learning: searching in the model space",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1806.06207"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Evolving Agents in the Dark: Retrospective Harness', candidate_title='Meta-learning: searching in the model space')",
+        "failed_at": "2026-09-02T12:40:44Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wenbo Pan",
+            "Shujie Liu",
+            "Chin-Yew Lin",
+            "Jingying Zeng",
+            "Xianfeng Tang",
+            "Xiangyang Zhou",
+            "Yan Lu",
+            "Xiaohua Jia"
+          ],
+          "title": "Evolving Agents in the Dark: Retrospective Harness Optimization via Self-Preference",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.05922",
+        "summary": "AI agents rely on a harness of skills, tools, and workflows to solve complex problems. Continually improving this harness is essential for adapting to new tasks. However, existing optimization methods typically require ground-truth validation sets, yet such labeled data is difficult to acquire in practical deployment settings. To address this problem, we introduce Retrospective Harness Optimization (RHO), a self-supervised method that optimizes the agent harness using only past trajectories. Specifically, RHO selects a diverse coreset of challenging tasks from past trajectories and re-solves them in parallel. The agent analyzes these rollouts using self-validation and self-consistency, then generates candidate harness updates and selects the most effective one by its own pairwise self-preference. We evaluate RHO across three diverse domains, spanning software engineering, technical work, and knowledge work. Notably, a single optimization round improves the pass rate on SWE-Bench Pro from 59% to 78% without any external grading. Furthermore, our analysis demonstrates that RHO effectively targets prior failure modes. As a result, the optimized harness alters the agent's behavior patterns and sustains higher accuracy during long-horizon sessions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.05922",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-02T12:40:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ruhan Wang",
+            "Yucheng Shi",
+            "Zongxia Li",
+            "Zhongzhi Li",
+            "Yue Yu",
+            "Junyao Yang",
+            "Kishan Panaganti",
+            "Haitao Mi",
+            "Dongruo Zhou",
+            " Leoweiliang"
+          ],
+          "title": "Harness Handbook: Making Evolving Agent Harnesses Readable,Navigable, and Editable",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2607.13285",
+        "summary": "The capability of a modern AI agent depends not only on its foundation model but also on its harness, which constructs prompts, manages state, invokes tools, and coordinates execution. As models, APIs, environments, and requirements evolve, the harness must be continually modified. Before such a change can be made, a developer or coding agent must identify all code locations that implement the target behavior. This is difficult because production harnesses are large, tightly coupled, and behaviorally distributed, while modification requests describe what the system should do and repositories are organized by files and modules. Code search, repository indexing, and long-context processing ease inspection, but still leave this behavior-to-code mapping to be recovered by hand. Behavior localization is therefore a central bottleneck in harness evolution. We introduce the Harness Handbook, a behavior-centric representation synthesized automatically from a harness codebase via static analysis and LLM-assisted structuring, linking each behavior to its corresponding source. We also introduce Behavior-Guided Progressive Disclosure (BGPD), which guides agents from high-level behaviors to relevant implementation details and verifies candidate locations against the current source. On diverse modification requests from two open-source harnesses, Handbook-Assisted planning improves behavior localization and edit-plan quality while using fewer planner tokens, with the largest gains on scattered sites, rarely executed paths, and cross-module interactions. Evolving complex agentic systems thus depends not only on generating edits, but also on determining where those edits should be made.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2607.13285",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-02T12:40:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xuying Ning",
+            "Katherine Tieu",
+            "Dongqi Fu",
+            "Tianxin Wei",
+            "Zihao Li",
+            "Yuanchen Bei",
+            "Jiaru Zou",
+            "Mengting Ai",
+            "Zhining Liu",
+            "Ting-Wei Li",
+            "Lingjie Chen",
+            "Yanjun Zhao",
+            "Ke Yang",
+            "Bingxuan Li",
+            "Cheng Qian",
+            "Gaotang Li",
+            "Xiao Lin",
+            "Zhichen Zeng",
+            "Ruizhong Qiu",
+            "Sirui Chen",
+            "Yifan Sun",
+            "Xiyuan Yang",
+            "Ruida Wang",
+            "Rui Pan",
+            "Chenyuan Yang",
+            "Dylan Zhang",
+            "Liri Fang",
+            "Zikun Cui",
+            "Yang Cao",
+            "Pan Chen",
+            "Dorothy Sun",
+            "Ren Chen",
+            "Mahesh Srinivasan",
+            "Nipun Mathur",
+            "Yinglong Xia",
+            "Hong Li",
+            "Hong Yan",
+            "Pan Lu",
+            "Lingming Zhang",
+            "Tong Zhang",
+            "Hanghang Tong",
+            "Jingrui He"
+          ],
+          "title": "Code as Agent Harness",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.18747",
+        "summary": "Recent large language models (LLMs) have demonstrated strong capabilities in understanding and generating code, from competitive programming to repository-level software engineering. In emerging agentic systems, code is no longer only a target output. It increasingly serves as an operational substrate for agent reasoning, acting, environment modeling, and execution-based verification. We frame this shift through the lens of agent harnesses and introduce code as agent harness: a unified view that centers code as the basis for agent infrastructure. To systematically study this perspective, we organize the survey around three connected layers. First, we study the harness interface, where code connects agents to reasoning, action, and environment modeling. Second, we examine harness mechanisms: planning, memory, and tool use for long-horizon execution, together with feedback-driven control and optimization that make harness reliable and adaptive. Third, we discuss scaling the harness from single-agent systems to multi-agent settings, where shared code artifacts support multi-agent coordination, review, and verification. Across these layers, we summarize representative methods and practical applications of code as agent harness, spanning coding assistants, GUI/OS automation, embodied agents, scientific discovery, personalization and recommendation, DevOps, and enterprise workflows. We further outline open challenges for harness engineering, including evaluation beyond final task success, verification under incomplete feedback, regression-free harness improvement, consistent shared state across multiple agents, human oversight for safety-critical actions, and extensions to multimodal environments. By centering code as the harness of agentic AI, this survey provides a unified roadmap toward executable, verifiable, and stateful AI agent systems.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.18747",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-02T12:40:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Debangshu Banerjee",
+            "Changming Xu",
+            "Eugene Ie",
+            "Ming Zhang",
+            "Daiyi Peng",
+            "Chu-Cheng Lin",
+            "Gagandeep Singh"
+          ],
+          "title": "SEVerA: Verified Synthesis of Self-Evolving Agents",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.25111",
+        "summary": "Recent advances have shown the effectiveness of self-evolving LLM agents on tasks such as program repair and scientific discovery. In this paradigm, a planner LLM synthesizes an agent program that invokes parametric models, including LLMs, which are then tuned per task to improve performance. However, existing self-evolving agent frameworks provide no formal guarantees of safety or correctness. Because such programs are often executed autonomously on unseen inputs, this lack of guarantees raises reliability and security concerns. We formulate agentic code generation as a constrained learning problem, combining hard formal specifications with soft objectives capturing task utility. We introduce Formally Guarded Generative Models (FGGM), which allow the planner LLM to specify a formal output contract for each generative model call using first-order logic. Each FGGM call wraps the underlying model in a rejection sampler with a verified fallback, ensuring every returned output satisfies the contract for any input and parameter setting. Building on FGGM, we present SEVerA (Self-Evolving Verified Agents), a three-stage framework: Search synthesizes candidate parametric programs containing FGGM calls; Verification proves correctness with respect to hard constraints for all parameter values, reducing the problem to unconstrained learning; and Learning applies scalable gradient-based optimization, including GRPO-style fine-tuning, to improve the soft objective while preserving correctness. We evaluate SEVerA on Dafny program verification, symbolic math synthesis, and policy-compliant agentic tool use ($τ^2$-bench). Across tasks, SEVerA achieves zero constraint violations while improving performance over unconstrained and SOTA baselines, showing that formal behavioral constraints not only guarantee correctness but also steer synthesis toward higher-quality agents.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.25111",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-02T12:40:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hangfan Zhang",
+            "Shao Zhang",
+            "Kangcong Li",
+            "Chen Zhang",
+            "Yang Chen",
+            "Yiqun Zhang",
+            "Lei Bai",
+            "Shuyue Hu"
+          ],
+          "title": "Self-Harness: Harnesses That Improve Themselves",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.09498",
+        "summary": "The performance of LLM-based agents is jointly shaped by their base models and the harnesses that mediate their interaction with the environment. Because different models exhibit distinct behaviors, effective harness design is inherently model-specific. Yet agent harnesses are still largely engineered by human experts, a paradigm that scales poorly as modern LLMs become increasingly diverse and rapidly evolving. In this paper, we introduce Self-Harness, a new paradigm in which an LLM-based agent improves its own operating harness, without relying on human engineers or stronger external agents. We operationalize Self-Harness as an iterative loop with three stages: Weakness Mining, which identifies model-specific failure patterns from execution traces; Harness Proposal, which generates diverse yet minimal harness modifications tied to these failures; and Proposal Validation, which accepts candidate edits only after regression testing. We instantiate Self-Harness across Terminal-Bench-2.0, SWE-bench Verified, and AppWorld using a minimal initial harness and three base models from diverse families: MiniMax M2.5, Qwen3.5-35B-A3B, and GLM-5. Across all nine model--benchmark combinations, every final harness improves both held-in and held-out pass rates, with overall relative gains of up to 132%. Qualitative analyses further show that the retained mechanisms address benchmark-specific bottlenecks in artifact handling and runtime control, software-patch verification, and application-state retrieval. These results suggest a path toward LLM-based agents that are not merely shaped by their harnesses, but can also participate in reshaping them.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.09498",
+          "http_status": 200,
+          "pdf_sample_score": 0.3599,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-02T12:40:50Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"evolving agents in the dark: retrospective harness optimization via se\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

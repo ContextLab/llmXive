@@ -1,237 +1,217 @@
-"""
-Stratified microstructure generator.
-
-Generates 128x128 pixel synthetic microstructure images with varying
-void/inclusion densities and topologies.
-"""
 import numpy as np
 from skimage.draw import disk, ellipse
 from skimage import io
+from skimage.measure import regionprops, label
+from skimage import morphology
 from pathlib import Path
-import random
-import json
 import logging
-from typing import Dict, List, Tuple, Optional
+from typing import Tuple, Dict, Any
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def generate_microstructure(
     seed: int,
     density: float,
-    topology_type: str,
+    topology: str,
     size: int = 128
 ) -> np.ndarray:
     """
-    Generate a single microstructure image.
+    Generate a synthetic 2D microstructure image.
     
     Args:
-        seed: Random seed for reproducibility
-        density: Inclusion density (0.0 to 1.0)
-        topology_type: One of 'random', 'aligned', 'clustered'
-        size: Image size (default 128x128)
-        
+        seed: Random seed for reproducibility.
+        density: Inclusion density (0.0 to 1.0).
+        topology: 'void' or 'inclusion' (stratification target).
+        size: Image dimensions (default 128x128).
+    
     Returns:
-        2D numpy array representing the microstructure (0=void, 1=inclusion)
+        np.ndarray: Binary image (0=matrix, 1=inclusion/void).
     """
     np.random.seed(seed)
-    random.seed(seed)
+    image = np.zeros((size, size), dtype=np.uint8)
     
-    # Initialize empty image (void phase)
-    image = np.zeros((size, size), dtype=np.float32)
-    
-    # Calculate number of inclusions based on density
-    # Approximate inclusion area as 1% of total for estimation
-    avg_inclusion_area = (size * size) * 0.01
-    target_inclusion_area = density * (size * size)
-    n_inclusions = max(1, int(target_inclusion_area / avg_inclusion_area))
-    
-    for i in range(n_inclusions):
-        # Random center
-        cx = np.random.randint(5, size - 5)
-        cy = np.random.randint(5, size - 5)
+    if topology == 'void':
+        # Generate voids (black holes in white matrix)
+        # We'll generate the matrix as 1s and voids as 0s
+        image = np.ones((size, size), dtype=np.uint8)
+        target_void_area = int(size * size * density)
+        current_void_area = 0
         
-        # Random radius (scaled for size)
-        radius = np.random.randint(3, 10)
+        while current_void_area < target_void_area:
+            # Random center
+            cy, cx = np.random.randint(10, size - 10, 2)
+            # Random radius
+            radius = np.random.randint(5, 20)
+            
+            # Create disk
+            y, x = disk((cy, cx), radius, shape=(size, size))
+            if np.any(y < size) and np.any(x < size):
+                new_void = (image[y, x] == 1).sum()
+                if current_void_area + new_void <= target_void_area:
+                    image[y, x] = 0
+                    current_void_area += new_void
+                    # Check for convergence
+                    if new_void == 0:
+                        break
+    elif topology == 'inclusion':
+        # Generate inclusions (white particles in black matrix)
+        target_inclusion_area = int(size * size * density)
+        current_inclusion_area = 0
         
-        if topology_type == 'random':
-            # Random orientation and position
-            rr, cc = disk((cx, cy), radius)
-            # Ensure within bounds
-            mask = (rr >= 0) & (rr < size) & (cc >= 0) & (cc < size)
-            if mask.any():
-                image[rr[mask], cc[mask]] = 1.0
-                
-        elif topology_type == 'aligned':
-            # Aligned in a grid-like pattern
-            # Use deterministic offset based on iteration
-            offset_x = (i * 7) % (size - 10)
-            offset_y = (i * 11) % (size - 10)
-            rr, cc = disk((offset_x + 5, offset_y + 5), radius)
-            mask = (rr >= 0) & (rr < size) & (cc >= 0) & (cc < size)
-            if mask.any():
-                image[rr[mask], cc[mask]] = 1.0
-                
-        elif topology_type == 'clustered':
-            # Cluster around a few centers
-            cluster_centers = [
-                (size // 3, size // 3),
-                (2 * size // 3, size // 3),
-                (size // 2, 2 * size // 3)
-            ]
-            center = cluster_centers[i % len(cluster_centers)]
-            # Add small random perturbation
-            cx = center[0] + np.random.randint(-10, 10)
-            cy = center[1] + np.random.randint(-10, 10)
-            cx = np.clip(cx, 5, size - 5)
-            cy = np.clip(cy, 5, size - 5)
-            rr, cc = disk((cx, cy), radius)
-            mask = (rr >= 0) & (rr < size) & (cc >= 0) & (cc < size)
-            if mask.any():
-                image[rr[mask], cc[mask]] = 1.0
-        else:
-            raise ValueError(f"Unknown topology_type: {topology_type}")
+        while current_inclusion_area < target_inclusion_area:
+            cy, cx = np.random.randint(10, size - 10, 2)
+            radius = np.random.randint(5, 20)
+            
+            y, x = disk((cy, cx), radius, shape=(size, size))
+            if np.any(y < size) and np.any(x < size):
+                new_inclusion = (image[y, x] == 0).sum()
+                if current_inclusion_area + new_inclusion <= target_inclusion_area:
+                    image[y, x] = 1
+                    current_inclusion_area += new_inclusion
+                    if new_inclusion == 0:
+                        break
+    else:
+        raise ValueError(f"Unknown topology: {topology}")
     
     return image
 
-def save_microstructure(
-    image: np.ndarray,
-    output_path: Path,
-    seed: int
-) -> None:
-    """Save microstructure image to disk."""
-    # Normalize to 0-255 for PNG
-    image_8bit = (image * 255).astype(np.uint8)
-    io.imsave(output_path, image_8bit, check_contrast=False)
-    logger.info(f"Saved microstructure to {output_path}")
-
-def calculate_topological_metrics(
-    image: np.ndarray
-) -> Dict[str, float]:
+def calculate_topological_metrics(image: np.ndarray) -> Dict[str, float]:
     """
-    Calculate topological metrics for a microstructure.
+    Calculate topological metrics: shape_factor and connectivity.
     
     Args:
-        image: Binary microstructure image
-        
+        image: Binary image (0=background, 1=foreground).
+    
     Returns:
-        Dictionary with shape_factor and connectivity metrics
+        Dict containing:
+            - shape_factor: Ratio of area to perimeter squared (normalized).
+            - connectivity: Euler number (components - holes).
     """
-    # Calculate inclusion density (fraction of non-zero pixels)
-    density = float(np.mean(image > 0.5))
+    if image.max() == 0:
+        # Empty image
+        return {
+            "shape_factor": 0.0,
+            "connectivity": 0.0
+        }
     
-    # Calculate shape factor (perimeter^2 / (4 * pi * area))
-    # For a perfect circle, shape_factor = 1.0
-    # Higher values indicate more irregular shapes
-    from skimage.measure import label, regionprops
-    
-    labeled = label(image > 0.5)
-    regions = regionprops(labeled)
+    # Label connected components
+    labeled_image = label(image, connectivity=1)
+    regions = regionprops(labeled_image)
     
     if not regions:
         return {
-            'shape_factor': 0.0,
-            'connectivity': 0.0,
-            'inclusion_density': density
+            "shape_factor": 0.0,
+            "connectivity": 0.0
         }
     
-    # Aggregate metrics across all regions
-    total_area = 0
-    total_perimeter_sq = 0
-    n_components = len(regions)
-    
+    # Calculate shape factor for each region and average
+    shape_factors = []
     for region in regions:
         area = region.area
         perimeter = region.perimeter
-        total_area += area
-        total_perimeter_sq += perimeter ** 2
+        if perimeter > 0:
+            # Shape factor: 4 * pi * area / perimeter^2 (1.0 for circle, <1 for others)
+            sf = (4 * np.pi * area) / (perimeter ** 2)
+            shape_factors.append(sf)
     
-    shape_factor = total_perimeter_sq / (4 * np.pi * total_area) if total_area > 0 else 0.0
+    avg_shape_factor = np.mean(shape_factors) if shape_factors else 0.0
     
-    # Connectivity: ratio of number of components to expected for random distribution
-    # Simplified: use number of components normalized by area
-    connectivity = 1.0 / (1.0 + n_components * 0.1) if total_area > 0 else 0.0
+    # Calculate connectivity (Euler number)
+    # Euler number = number of objects - number of holes
+    # For binary images, we can use the Euler characteristic
+    # Using 8-connectivity for objects, 4-connectivity for holes
+    euler_number = 0
+    for region in regions:
+        euler_number += region.euler_number
+    
+    # Normalize connectivity by number of objects to get a relative measure
+    n_objects = len(regions)
+    relative_connectivity = euler_number / n_objects if n_objects > 0 else 0.0
     
     return {
-        'shape_factor': float(shape_factor),
-        'connectivity': float(connectivity),
-        'inclusion_density': density,
-        'n_components': n_components
+        "shape_factor": float(avg_shape_factor),
+        "connectivity": float(relative_connectivity)
     }
 
-def main(args) -> int:
+def save_microstructure(
+    image: np.ndarray,
+    seed: int,
+    output_dir: Path
+) -> Path:
     """
-    Main entry point for microstructure generation.
+    Save microstructure image to disk.
     
     Args:
-        args: Namespace with seed, n_samples, output_dir
-        
+        image: Binary image to save.
+        seed: Seed used for generation (for filename).
+        output_dir: Directory to save to.
+    
     Returns:
-        Exit code (0 for success, 1 for failure)
+        Path to saved file.
     """
-    import logging
-    logging.basicConfig(level=logging.INFO)
-    
-    output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+    filename = f"micro_{seed}.png"
+    filepath = output_dir / filename
+    io.imsave(filepath, image, check_contrast=False)
+    logger.info(f"Saved microstructure: {filepath}")
+    return filepath
+
+def main():
+    """
+    CLI entry point for microstructure generation.
+    Generates images and calculates topological metrics.
+    """
+    import argparse
+    import json
+    import sys
     
-    seeds = list(range(args.seed, args.seed + args.n_samples))
-    metadata = []
+    parser = argparse.ArgumentParser(description="Generate microstructures with topological metrics")
+    parser.add_argument("--seed", type=int, required=True, help="Random seed")
+    parser.add_argument("--density", type=float, required=True, help="Inclusion density (0-1)")
+    parser.add_argument("--topology", type=str, required=True, choices=["void", "inclusion"], help="Topology type")
+    parser.add_argument("--output-dir", type=str, default="data/raw", help="Output directory for images")
+    parser.add_argument("--metadata-dir", type=str, default="data/processed", help="Directory for metadata files")
+    args = parser.parse_args()
     
-    # Define stratification parameters
-    densities = [0.1, 0.2, 0.3, 0.4, 0.5]
-    topology_types = ['random', 'aligned', 'clustered']
+    # Generate
+    logger.info(f"Generating microstructure with seed={args.seed}, density={args.density}, topology={args.topology}")
+    image = generate_microstructure(
+        seed=args.seed,
+        density=args.density,
+        topology=args.topology,
+        size=128
+    )
     
-    logger.info(f"Generating {args.n_samples} microstructures...")
+    # Calculate topological metrics
+    metrics = calculate_topological_metrics(image)
+    logger.info(f"Topological metrics: {metrics}")
     
-    for i, seed in enumerate(seeds):
-        # Cycle through densities and topologies for stratification
-        density = densities[i % len(densities)]
-        topology_type = topology_types[i % len(topology_types)]
-        
-        try:
-            # Generate image
-            image = generate_microstructure(
-                seed=seed,
-                density=density,
-                topology_type=topology_type,
-                size=128
-            )
-            
-            # Calculate topological metrics
-            metrics = calculate_topological_metrics(image)
-            
-            # Save image
-            output_path = output_dir / f"micro_{seed}.png"
-            save_microstructure(image, output_path, seed)
-            
-            # Record metadata
-            entry = {
-                'seed': seed,
-                'image_path': str(output_path),
-                'inclusion_density': metrics['inclusion_density'],
-                'topology_type': topology_type,
-                'shape_factor': metrics['shape_factor'],
-                'connectivity': metrics['connectivity']
-            }
-            metadata.append(entry)
-            
-        except Exception as e:
-            logger.error(f"Failed to generate microstructure {seed}: {e}")
-            return 1
+    # Save image
+    output_path = save_microstructure(image, args.seed, Path(args.output_dir))
     
     # Save metadata
-    metadata_path = output_dir / "metadata.json"
-    with open(metadata_path, 'w') as f:
+    metadata = {
+        "seed": args.seed,
+        "density": args.density,
+        "topology_type": args.topology,
+        "image_path": str(output_path),
+        "shape_factor": metrics["shape_factor"],
+        "connectivity": metrics["connectivity"],
+        "size": 128
+    }
+    
+    metadata_dir = Path(args.metadata_dir)
+    metadata_dir.mkdir(parents=True, exist_ok=True)
+    metadata_file = metadata_dir / f"metadata_{args.seed}.json"
+    
+    with open(metadata_file, "w") as f:
         json.dump(metadata, f, indent=2)
     
-    logger.info(f"Generated {len(metadata)} microstructures. Metadata saved to {metadata_path}")
+    logger.info(f"Saved metadata to {metadata_file}")
+    print(json.dumps(metadata))
+    
     return 0
 
 if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser(description="Generate synthetic microstructures")
-    parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--n_samples", type=int, default=10)
-    parser.add_argument("--output_dir", type=str, default="data/raw")
-    args = parser.parse_args()
-    exit(main(args))
+    sys.exit(main())
