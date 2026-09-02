@@ -1,0 +1,15 @@
+status: none
+intent: download delay discounting procrastination scale n-back task dataset python
+  package dataset
+required_fields:
+- participant_id
+- discount_rate_k
+- procrastination_score
+- n_back_accuracy
+- n_back_hits
+- n_back_false_alarms
+- raw_indifference_points
+- assessment_date
+cache_key: 95a9003785e030390d0f219a1a64ad23a208840329b7683c1801a35d03fba92d
+searched_at: '2026-09-02T17:45:07.189007+00:00'
+retry_count: 1

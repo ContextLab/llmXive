@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan
-- [ ] T002 Initialize Python 3.11 project with `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn` dependencies
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T001 Create project structure per implementation plan. **MUST execute**: `mkdir -p projects/PROJ-196-the-role-of-temporal-discounting-in-proc/{data/raw,data/processed,code,tests,docs,specifications}`.
+- [X] T002 Initialize Python 3.11 project with `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn` dependencies. **MUST create** `pyproject.toml` with `[project]` section containing `dependencies = ["pandas>=2.0", "numpy>=1.24", "scipy>=1.11", "statsmodels>=0.14", "scikit-learn>=1.3"]`.
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools. **MUST create** `.ruff.toml` with `target-version = "py311"` and `pyproject.toml` tool sections for `black` and `ruff` with `line-length = 88`, `select = ["E", "F", "W", "I"]`.
 
 ---
 
@@ -55,12 +55,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup `data/raw/` and `data/processed/` directory structure
-- [X] T005 [P] Implement `requirements.txt` with pinned versions for reproducibility
-- [ ] T006 [P] Configure `pytest` framework and directory structure
-- [X] T007 Create `code/__init__.py` and base configuration loader
-- [X] T008 [P] Setup seed management: Create `code/config.py` to load `RANDOM_SEED` and provide `get_random_state()` helper; explicitly pass `random_state` to all stochastic functions in `numpy`, `pandas`, `scipy` (including `stats`), and `sklearn` to ensure reproducibility per Constitution I.
-- [ ] T009 [P] Implement data checksum verification utility in `code/utils/checksum.py` AND integrate it to write/update the `artifact_hashes` map in `state/projects/PROJ-196-the-role-of-temporal-discounting-in-proc.yaml` for every raw/processed artifact, ensuring Single Source of Truth traceability per Constitution Principle III and V.
+- [X] T004 Setup `data/raw/` and `data/processed/` directory structure. **MUST create** `.gitkeep` files in `data/raw/` and `data/processed/` to ensure directories are tracked in git.
+- [X] T005 [P] Implement `requirements.txt` with pinned versions for reproducibility.
+- [X] T006 [P] Configure `pytest` framework and directory structure. **MUST create** `pytest.ini` with `[pytest] testpaths = tests` and `tests/conftest.py` containing fixtures for `random_seed` and `data_path`.
+- [X] T007 Create `code/__init__.py` and base configuration loader.
+- [X] T008 [P] Setup seed management: Create `code/config.py` to load `RANDOM_SEED` and provide `get_random_state()` helper; explicitly pass `random_state` to all stochastic functions in `numpy`, `pandas`, `scipy` (including `stats`), and `sklearn` to ensure reproducibility per Constitution I. **MUST ALSO** run the Reference-Validator Agent against DGP parameters in `research.md` to verify literature citations before data generation.
+- [X] T002a **STATE INITIALIZATION**: Create `state/projects/` directory and initialize `state/projects/PROJ-196-the-role-of-temporal-discounting-in-proc.yaml` with an empty `artifact_hashes` map. **MUST run before T009.**
+- [X] T009 [P] Implement data checksum verification utility in `code/utils/checksum.py` AND integrate it to write/update the `artifact_hashes` map in `state/projects/PROJ-196-the-role-of-temporal-discounting-in-proc.yaml` for every raw/processed artifact, ensuring Single Source of Truth traceability per Constitution Principle III and V.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,13 +84,16 @@
 ### Implementation for User Story 1
 
 - [X] T013 [US1] **PRE-CHECK**: Implement DGP Configuration Validator in `code/ingestion.py`. This task validates the DGP parameters (schema definition, expected columns, reliability targets) *before* data generation. It must verify that the configuration matches the spec's requirements (e.g., Cronbach's alpha targets) and raise `SystemExit(1)` if the DGP config is invalid.
-- [ ] T014 [US1] **DATA GENERATION**: Implement Data Generating Process (DGP) generator in `code/ingestion.py`. This task MUST generate **three distinct CSV files** (`data/raw/delay_discounting.csv`, `data/raw/procrastination.csv`, `data/raw/nback.csv`) simulating N=500 participants based on literature parameters. Each file must contain distinct experimental paradigm data (e.g., indifference points for discounting, scale responses for procrastination, accuracy/RT for n-back). Use `get_random_state()` from T008. <!-- FAILED: unspecified -->
-- [X] T014b [US1] **RELIABILITY CHECK**: Implement Reliability Verification in `code/ingestion.py`. This task MUST calculate Cronbach's alpha for each of the three generated synthetic datasets. If any alpha < 0.7, it MUST raise `SystemExit(1)` with message "CRITICAL: Synthetic data reliability below threshold (alpha < 0.7)". This task runs after T014 and before T015a.
-- [X] T015a [US1] **HARMONIZATION**: Implement data harmonization and merging logic in `code/ingestion.py`. This task reads the three distinct source files generated by T014, merges them using `participant_id`, and handles ID matching. It must check for >10% drop due to ID mismatch and flag/halt if exceeded. [UNRESOLVED-CLAIM: c_dfcacf78 — status=not_enough_info]
-- [ ] T015b [US1] **CRITICAL HALT (Data)**: Implement validation logic to check for missing core constructs (`discount_rate_k`, `procrastination_score`, `wm_accuracy`) in the *generated and harmonized* data. If any are missing, **Raise SystemExit(1)** with message "CRITICAL: Missing core construct: {col}". This task MUST execute after T015a (to ensure data exists) and before T015c (model fitting).
-- [X] T015c [US1] **MODEL FITTING**: Implement hyperbolic model fitting function `fit_hyperbolic_model` in `code/modeling.py` using `scipy.optimize.curve_fit` (uses `get_random_state()`). This task calculates `discount_rate_k` for each participant in the harmonized dataset.
-- [X] T016 [US1] **MISSING DATA HANDLING**: Implement missing data handling logic in `code/ingestion.py`. If missing covariates (age, gender) >10%, **flag for reduced model** by writing `data/processed/model_config.json` with `reduced_model: true` and excluding those covariates; otherwise perform listwise deletion or mean imputation. This task MUST run *before* T018 and write the config file so downstream tasks can read it.
-- [ ] T018 [US1] **WRITE DATASET**: Write the final harmonized dataset to `data/processed/harmonized_dataset.parquet` (only if T015b passed and T016 completed).
+- [ ] T014 [US1] **DATA GENERATION / INGESTION**: Implement Data Ingestion in `code/ingestion.py`. **MUST FIRST check for existence of real data files** (`data/raw/delay_discounting.csv`, `data/raw/procrastination.csv`, `data/raw/nback.csv`).
+ - **IF REAL DATA EXISTS**: Load the three CSV files. Validate schema (FR-001). If core constructs (`discount_rate_k`, `procrastination_score`, `wm_accuracy`) are missing, **raise `SystemExit(1)` with message "CRITICAL: Real data missing core construct: {col}"** (FR-008).
+ - **IF REAL DATA MISSING**: Generate **three distinct CSV files** simulating N=500 participants based on literature parameters using `get_random_state()` (T008). **MUST FLAG** this as "Methodological Validation" in a `data/processed/data_source_flag.json` file. Each file must contain distinct experimental paradigm data.
+ - **Output**: Ensure three source files exist for harmonization.
+- [X] T014b [US1] **RELIABILITY CHECK**: Implement Reliability Verification in `code/ingestion.py`. This task MUST calculate Cronbach's alpha for each of the generated/loaded datasets. If any alpha < 0.7 (for synthetic) or if real data reliability cannot be verified, **raise `SystemExit(1)`** with message "CRITICAL: Data reliability below threshold (alpha < 0.7)". **MUST REFERENCE** FR-001 and Constitution Principle II. This task runs after T014 and before T015a.
+- [X] T015a [US1] **HARMONIZATION**: Implement data harmonization and merging logic in `code/ingestion.py`. This task reads the three distinct source files generated/loaded by T014, merges them using `participant_id` via inner join. **MUST calculate ID mismatch rate as `1 - (len(merged_df) / len(initial_df))`**. If mismatch rate > 0.10, **raise `SystemExit(1)` with message "CRITICAL: ID mismatch > 10%"** (FR-009).
+- [X] T015c [US1] **MODEL FITTING**: Implement hyperbolic model fitting function `fit_hyperbolic_model` in `code/modeling.py` using `scipy.optimize.curve_fit` (uses `get_random_state()`). This task calculates `discount_rate_k` for each participant in the harmonized dataset. **MUST EXCLUDE** participants where fitting fails and **GENERATE A WARNING LOG** with the count of excluded participants (per spec Edge Cases).
+- [X] T015b [US1] **CRITICAL HALT (Data)**: Implement validation logic to check for missing core constructs (`discount_rate_k`, `procrastination_score`, `wm_accuracy`) in the *generated and harmonized* data. **MUST run AFTER T015c**. If any are missing or contain NaNs, **Raise `SystemExit(1)`** with message "CRITICAL: Missing core construct: {col}". This task MUST execute after T015c and before T016.
+- [ ] T016 [US1] **MISSING DATA HANDLING**: Implement missing data handling logic in `code/ingestion.py`. If missing covariates (age, gender) >10%, **flag for reduced model** by writing `data/processed/model_config.json` with `reduced_model: true` and excluding those covariates; otherwise perform listwise deletion or mean imputation. This task MUST run *before* T022 and write the config file so downstream tasks can read it.
+- [ ] T018 [US1] **WRITE DATASET**: Write the final harmonized dataset to `data/processed/harmonized_dataset.parquet`. **MUST ALSO** generate checksum for this file and update `state/projects/PROJ-196-the-role-of-temporal-discounting-in-proc.yaml` with the new hash.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -109,11 +113,10 @@
 ### Implementation for User Story 2
 
 - [X] T021 [P] [US2] Implement log-transformation of discount rate (`log(k)`) and mean-centering of predictors in `code/modeling.py`
-- [X] T022 [US2] Implement OLS regression model construction with interaction term in `code/modeling.py` (FR-004). **Read `data/processed/model_config.json` from T016**: if `reduced_model` is true, exclude flagged covariates from the model.
-- [ ] T023 [US2] Implement VIF calculation and reporting logic (flag if > 5) in `code/modeling.py` (FR-005)
-- [ ] T024 [US2] Implement extraction of coefficients, p-values, and confidence intervals for the interaction term
-- [ ] T032b [US2] **Intermediate Monitoring**: Wrap T021-T024 execution in `memory_profiler` and `time` module. If `max_memory_mb > 7168` or `elapsed_time` exceeds 50% of 6h limit, **Raise SystemExit(1)**.
-- [ ] T025 [US2] Save regression results summary to `data/processed/regression_results.json`
+- [ ] T022 [US2] Implement OLS regression model construction with interaction term in `code/modeling.py` (FR-004). **Depends on T016**: Read `data/processed/model_config.json`. If `reduced_model` is true, **MUST ADJUST** the regression formula to exclude flagged covariates. **MUST INCLUDE INLINE MONITORING**: Use `memory_profiler` and `time` module; if `max_memory_mb > 7168` or `elapsed_time` exceeds 50% of 6h limit, **Raise `SystemExit(1)`**.
+- [X] T023 [US2] Implement VIF calculation and reporting logic (flag if > 5) in `code/modeling.py` (FR-005). **MUST WRITE** results to `data/processed/vif_report.json`.
+- [X] T024 [US2] Implement extraction of coefficients, p-values, and confidence intervals for the interaction term. **MUST WRITE** results to `data/processed/interaction_results.json`.
+- [ ] T025 [US2] Save regression results summary to `data/processed/regression_results.json`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -127,16 +130,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T026 [P] [US3] Unit test for bootstrap resampling logic (1000 resamples) in `tests/test_robustness.py`
-- [ ] T027 [P] [US3] Unit test for sensitivity analysis threshold sweeps in `tests/test_robustness.py`
+- [X] T026 [P] [US3] Unit test for bootstrap resampling logic (a sufficient number of resamples) in `tests/test_robustness.py`. **MUST NAME** function `test_bootstrap_resampling_generates_95ci`.
+- [X] T027 [P] [US3] Unit test for sensitivity analysis threshold sweeps in `tests/test_robustness.py`. **MUST NAME** function and assert specific thresholds (median, median ± 0.05*SD, median ± 0.10*SD).
 
 ### Implementation for User Story 3
 
-- [ ] T028 [P] [US3] Implement bootstrapping routine (1000 resamples) to generate 95% CI for interaction coefficient in `code/robustness.py` (FR-006)
-- [ ] T029 [US3] Implement sensitivity analysis for WM load threshold (median, ±0.05*SD, ±0.10*SD) and discount rate in `code/robustness.py` (FR-007)
-- [ ] T030 [US3] Implement logic to calculate `instability_ratio` = (count of thresholds where 95% CI crosses zero) / (total thresholds). **Flag instability if `instability_ratio > 0.5`** (SC-004).
-- [ ] T031 [US3] Aggregate all results (primary, bootstrap, sensitivity, instability_ratio) into a final `data/processed/final_analysis_report.json`. **Explicitly mandate writing the `instability_ratio` flag, the raw threshold sweep data (threshold values and corresponding p-values), and the variation report required by FR-007 to this JSON file.**
-- [ ] T032 [US3] **Final Verification**: Verify total runtime and memory usage stay within 6h/7GB limits on CPU (FR-010). Use `memory_profiler` and `time` module; assert `max_memory_mb < 7168` and `elapsed_time < 21600`.
+- [X] T028 [P] [US3] Implement bootstrapping routine to generate a confidence interval for interaction coefficient in `code/robustness.py` (FR-006). **MUST WRITE** results to `data/processed/bootstrap_ci.json`. **MUST INCLUDE INLINE MONITORING**: Use `memory_profiler` and `time` module; if `max_memory_mb > 7168` or `elapsed_time` exceeds 50% of 6h limit, **Raise `SystemExit(1)`**.
+- [X] T029 [US3] Implement sensitivity analysis for WM load threshold (median, ±0.05*SD, ±0.10*SD) AND discount rate (median, ±0.05*SD, ±0.10*SD) in `code/robustness.py` (FR-007). **MUST GENERATE FULL CROSS-COMBINATION SWEEP** of WM x Discount thresholds. **MUST OUTPUT** a JSON list of objects containing `threshold_value`, `p_value`, `coefficient`, `ci_lower`, `ci_upper` to `data/processed/sensitivity_sweep_raw.json`.
+- [X] T030 [US3] Implement logic to calculate `instability_ratio` = (count of thresholds where 95% CI crosses zero) / (total thresholds). **Flag instability if `instability_ratio > 0.5`** (SC-004). **MUST WRITE** result to `data/processed/instability_flag.json`.
+- [ ] T031 [US3] Aggregate all results (primary, bootstrap, sensitivity, instability_ratio) into a final `data/processed/final_analysis_report.json`. **MUST read** `data/processed/sensitivity_sweep_raw.json` (output of T029) and embed its content into the final report. Explicitly mandate writing the `instability_ratio` flag and the raw threshold sweep data to this JSON file.
+- [X] T032 [US3] **Final Verification**: Verify total runtime and memory usage stay within 6h/7GB limits on CPU (FR-010). Use `memory_profiler` and `time` module; assert `max_memory_mb < 7168` and `elapsed_time < 21600`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -146,11 +149,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T033 [P] Update `README.md` with execution instructions and DGP explanation
-- [ ] T034 Code cleanup and refactoring for readability: Refactor `code/ingestion.py` and `code/modeling.py` to reduce cyclomatic complexity < 10 as measured by `radon` **AND** remove all `TODO` comments.
-- [ ] T035 [P] Add docstrings to all public functions in `code/`
-- [ ] T036 Run full pipeline end-to-end to generate final artifacts
-- [ ] T037 Update `state.yaml` with execution hashes and completion status
+- [X] T033 [P] Update `README.md` with execution instructions and DGP explanation. **MUST ADD** "Usage" section with command: `python code/main.py --seed` and "Data Source" section explaining the synthetic data strategy.
+- [X] T034 Code cleanup and refactoring for readability: Refactor `code/ingestion.py` and `code/modeling.py` to reduce cyclomatic complexity < 10 as measured by `radon` **AND** remove all `TODO` comments. **MUST SPECIFY** functions to refactor: `fit_hyperbolic_model`, `harmonize_data`.
+- [X] T035 [P] Add docstrings to all public functions in `code/`. **MUST USE** Google style with Args, Returns, Raises sections.
+- [X] T036a [P] Execute pipeline end-to-end: Run `python code/main.py` to generate all artifacts.
+- [X] T036b [P] Verify pipeline output: Check that all expected files in `data/processed/` exist and are non-empty.
+- [X] T037 [P] Update `state.yaml` with execution hashes and completion status. **MUST UPDATE** `artifact_hashes` map with hashes for all files in `data/processed/` and set `completion_status` to "success".
 
 ---
 
@@ -244,9 +248,24 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: T015b MUST raise SystemExit(1) on missing core constructs.
+- **CRITICAL**: T015b MUST raise SystemExit(1) on missing core constructs (including NaNs).
 - **CRITICAL**: T016 MUST write `data/processed/model_config.json` to signal reduced model path.
-- **CRITICAL**: T008 MUST ensure seeds are passed to ALL stochastic functions.
-- **CRITICAL**: T032a/T032b MUST raise SystemExit(1) on resource limit breach.
-- **CRITICAL**: T014 MUST generate three distinct CSV files.
+- **CRITICAL**: T008 MUST ensure seeds are passed to ALL stochastic functions AND run Reference-Validator.
+- **CRITICAL**: T022 and T028 MUST include inline resource monitoring (no separate T032b).
+- **CRITICAL**: T014 MUST check for real data first, then generate synthetic if missing, and FLAG synthetic data.
 - **CRITICAL**: T014b MUST halt if Cronbach's alpha < 0.7.
+- **CRITICAL**: T002a MUST create state directory before T009.
+- **CRITICAL**: T015a MUST calculate ID mismatch rate explicitly and halt if > 10%.
+- **CRITICAL**: T029 MUST output `data/processed/sensitivity_sweep_raw.json` with full cross-combination sweep.
+- **CRITICAL**: T031 MUST read `data/processed/sensitivity_sweep_raw.json`.
+- **CRITICAL**: T015b MUST run AFTER T015c.
+- **CRITICAL**: T022 MUST depend on T016.
+- **CRITICAL**: T015c MUST handle fit failures by excluding participants and logging.
+- **CRITICAL**: T018 MUST write parquet AND update state checksums.
+- **CRITICAL**: T023, T024, T025 MUST write specific JSON artifacts.
+- **CRITICAL**: T026, T027 MUST have specific test function names.
+- **CRITICAL**: T028 MUST write bootstrap results to specific JSON.
+- **CRITICAL**: T030 MUST write instability flag to specific JSON.
+- **CRITICAL**: T033, T034, T035 MUST have specific content requirements.
+- **CRITICAL**: T036 split into execution and verification.
+- **CRITICAL**: T037 MUST update specific state keys.

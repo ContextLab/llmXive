@@ -91,7 +91,7 @@ The system must perform robustness checks, specifically bootstrapping with a suf
 - **SC-001**: The primary interaction effect (log(k) × continuous WM metric) is measured against a statistical significance threshold of p < 0.05 to determine hypothesis support. (See US-2)
 - **SC-002**: The stability of the interaction effect is measured against a confidence interval derived from bootstrap resamples; the interval must not cross zero if the primary effect is significant. (See US-3)
 - **SC-003**: Multicollinearity is measured against a VIF threshold of 5; all predictors must have VIF < 5 to validate the model's independence assumptions. (See US-2)
-- **SC-004**: The sensitivity of the results is measured against the variation in the interaction p-value across the defined threshold sweeps (median, median ± 0.05*SD, median ± 0.10*SD); instability is flagged if the 95% CI for the interaction effect crosses zero in more than 50% of the swept thresholds. (See US-3)
+- **SC-004**: The sensitivity of the results is measured against the variation in the interaction p-value across the defined threshold sweeps (median, median ± 0.05*SD, median ± 0.10*SD); instability is flagged if the confidence interval for the interaction effect crosses zero in more than 50% of the swept thresholds. (See US-3)
 - **SC-005**: The total analysis runtime is measured against a practical upper-bound limit on a CPU-only GitHub Actions runner; the pipeline must complete within this bound. (See US-3)
 
 ## Assumptions

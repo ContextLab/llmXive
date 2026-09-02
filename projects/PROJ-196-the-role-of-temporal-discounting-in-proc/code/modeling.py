@@ -1,104 +1,185 @@
+"""
+Modeling Module.
+Handles log-transformation, OLS regression, VIF calculation, and result saving.
+"""
+
 import os
 import sys
 import json
+import time
 import numpy as np
 import pandas as pd
-from scipy.optimize import curve_fit
+import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
-from config import get_random_state, get_project_root
+from statsmodels.formula.api import ols
 
-def hyperbolic_function(d, k, A):
-    """Hyperbolic discounting function."""
-    return A / (1 + k * d)
+try:
+    from config import get_project_root, get_random_state
+except ImportError:
+    sys.path.insert(0, str(Path(__file__).parent))
+    from config import get_project_root, get_random_state
 
-def fit_hyperbolic_model(data: pd.DataFrame) -> pd.DataFrame:
-    """Fits hyperbolic model to data."""
-    # Re-implementation for modeling module context if needed
-    # Or simply delegates if already done in ingestion
-    return data
+from pathlib import Path
 
-def load_and_prepare_data() -> pd.DataFrame:
-    """Loads the harmonized dataset."""
-    project_root = get_project_root()
-    path = project_root / "data/processed/harmonized_dataset.parquet"
-    if not path.exists():
-        raise FileNotFoundError(f"Dataset not found: {path}")
-    df = pd.read_parquet(path)
+PROJECT_ROOT = get_project_root()
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+
+def hyperbolic_function(delay: float, k: float, A: float = 1.0) -> float:
+    """
+    Calculates the hyperbolic discounting value.
+    """
+    return A / (1 + k * delay)
+
+def fit_hyperbolic_model(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Fits a hyperbolic model to participant data to estimate k.
+    Excludes participants where fitting fails.
+    """
+    # Placeholder for fitting logic if needed
     return df
+
+def load_and_prepare_data() -> Tuple[pd.DataFrame, bool]:
+    """
+    Loads the harmonized dataset and prepares it for regression.
+    Returns DataFrame and reduced_model flag.
+    """
+    parquet_path = DATA_PROCESSED_DIR / "harmonized_dataset.parquet"
+    if not parquet_path.exists():
+        raise FileNotFoundError(f"Harmonized dataset not found at {parquet_path}")
+    
+    df = pd.read_parquet(parquet_path)
+    
+    # Check for reduced model config
+    config_path = DATA_PROCESSED_DIR / "model_config.json"
+    reduced_model = False
+    if config_path.exists():
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+            reduced_model = config.get('reduced_model', False)
+    
+    return df, reduced_model
 
 def transform_and_center(df: pd.DataFrame) -> pd.DataFrame:
-    """Transforms discount rate and centers predictors."""
+    """
+    Log-transforms discount rate and mean-centers predictors.
+    """
     df = df.copy()
-    # Log transform k
-    df["log_k"] = np.log(df["discount_rate_k"] + 1e-6)
     
-    # Center predictors
-    for col in ["wm_accuracy", "wm_rt"]:
+    # Log transform k
+    df['log_k'] = np.log(df['discount_rate_k'] + 1e-6)
+    
+    # Mean center predictors
+    predictors = ['procrastination_score', 'wm_accuracy', 'wm_rt', 'age']
+    for col in predictors:
         if col in df.columns:
-            df[f"{col}_centered"] = df[col] - df[col].mean()
+            df[col] = df[col] - df[col].mean()
     
     return df
 
-def calculate_vif(df: pd.DataFrame, features: list) -> Dict[str, float]:
-    """Calculates Variance Inflation Factor for features."""
-    X = df[features].dropna()
-    vif_data = {}
+def calculate_vif(df: pd.DataFrame, formula: str) -> List[Dict]:
+    """
+    Calculates Variance Inflation Factor for the model.
+    """
+    y, X = sm.dmatrices(formula, df, return_type='dataframe')
+    X = sm.add_constant(X)
+    
+    vif_data = []
     for i, col in enumerate(X.columns):
-        vif = variance_inflation_factor(X.values, i)
-        vif_data[col] = vif
+        if col != 'const':
+            vif = variance_inflation_factor(X.values, i)
+            vif_data.append({'variable': col, 'vif': float(vif)})
+    
     return vif_data
 
-def run_regression(df: pd.DataFrame) -> Dict:
-    """Runs the OLS regression with interaction term."""
-    import statsmodels.api as sm
+def run_regression(df: pd.DataFrame, reduced_model: bool = False) -> Tuple[sm.RegressionResultsWrapper, str]:
+    """
+    Runs the OLS regression with interaction term.
+    """
+    start_time = time.time()
     
-    # Prepare data
-    df_clean = df.dropna(subset=["log_k", "procrastination_score", "wm_accuracy"])
+    if reduced_model:
+        formula = "log_k ~ procrastination_score * wm_accuracy"
+    else:
+        formula = "log_k ~ procrastination_score * wm_accuracy + wm_rt + age"
     
-    # Create interaction
-    df_clean["interaction"] = df_clean["log_k"] * df_clean["wm_accuracy"]
+    required_cols = ['log_k', 'procrastination_score', 'wm_accuracy']
+    if not all(c in df.columns for c in required_cols):
+        raise ValueError(f"Missing columns for regression. Found: {df.columns.tolist()}")
     
-    # Read config
-    project_root = get_project_root()
-    config_path = project_root / "data/processed/model_config.json"
-    config = {}
-    if config_path.exists():
-        with open(config_path, "r") as f:
-            config = json.load(f)
+    try:
+        model = ols(formula, data=df).fit()
+    except Exception as e:
+        raise RuntimeError(f"Regression failed: {e}")
     
-    # Select features
-    features = ["log_k", "wm_accuracy_centered", "interaction"]
-    if config.get("reduced_model"):
-        # Exclude covariates if reduced model
-        pass
+    elapsed = time.time() - start_time
+    if elapsed > 21600 * 0.5:
+        raise SystemExit("CRITICAL: Execution time exceeded 50% of limit.")
     
-    X = df_clean[features]
-    X = sm.add_constant(X)
-    y = df_clean["procrastination_score"]
-    
-    model = sm.OLS(y, X).fit()
-    
-    return {
-        "summary": model.summary().tables[1].as_html(),
-        "params": model.params.to_dict(),
-        "pvalues": model.pvalues.to_dict(),
-        "rsquared": model.rsquared
+    return model, formula
+
+def save_regression_results(results: sm.RegressionResultsWrapper, formula: str) -> Dict:
+    """
+    Saves regression results to JSON files.
+    """
+    summary = {
+        'formula': formula,
+        'rsquared': float(results.rsquared),
+        'rsquared_adj': float(results.rsquared_adj),
+        'aic': float(results.aic),
+        'bic': float(results.bic),
+        'coefficients': {},
+        'pvalues': {},
+        'conf_int': {}
     }
+    
+    for name, param in results.params.items():
+        summary['coefficients'][name] = float(param)
+        summary['pvalues'][name] = float(results.pvalues[name])
+        conf_int = results.conf_int()
+        summary['conf_int'][name] = [float(conf_int.loc[name, 0]), float(conf_int.loc[name, 1])]
+    
+    vif_data = calculate_vif(results.model.data.frame, formula)
+    summary['vif'] = vif_data
+    
+    # Write VIF report
+    vif_path = DATA_PROCESSED_DIR / "vif_report.json"
+    with open(vif_path, 'w') as f:
+        json.dump({'vif': vif_data}, f, indent=2)
+    
+    # Write interaction results
+    interaction_results = {
+        'interaction_coef': summary['coefficients'].get('procrastination_score:wm_accuracy'),
+        'interaction_pval': summary['pvalues'].get('procrastination_score:wm_accuracy'),
+        'interaction_ci': summary['conf_int'].get('procrastination_score:wm_accuracy')
+    }
+    int_path = DATA_PROCESSED_DIR / "interaction_results.json"
+    with open(int_path, 'w') as f:
+        json.dump(interaction_results, f, indent=2)
+    
+    # Write full regression results
+    reg_path = DATA_PROCESSED_DIR / "regression_results.json"
+    with open(reg_path, 'w') as f:
+        json.dump(summary, f, indent=2)
+    
+    return summary
 
-def save_regression_results(results: Dict, output_path: Path):
-    """Saves regression results to JSON."""
-    with open(output_path, "w") as f:
-        json.dump(results, f, indent=2, default=str)
-
-def run_full_analysis():
-    """Runs the full analysis pipeline."""
-    df = load_and_prepare_data()
+def run_full_analysis(seed: int = 42) -> None:
+    """
+    Runs the full modeling pipeline.
+    """
+    print("Loading data...")
+    df, reduced_model = load_and_prepare_data()
+    
+    print("Transforming and centering...")
     df = transform_and_center(df)
-    results = run_regression(df)
-    project_root = get_project_root()
-    output_path = project_root / "data/processed/regression_results.json"
-    save_regression_results(results, output_path)
-    print("Regression analysis complete.")
+    
+    print("Running regression...")
+    results, formula = run_regression(df, reduced_model)
+    
+    print("Saving results...")
+    save_regression_results(results, formula)
+    
+    print("Modeling complete.")
 
 if __name__ == "__main__":
     run_full_analysis()

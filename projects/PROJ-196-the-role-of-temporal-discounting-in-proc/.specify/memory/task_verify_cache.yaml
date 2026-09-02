@@ -1,11 +1,3 @@
-T014:
-  c: false
-  h: 4c886da191fdf8078602f7e7f704ed4ea0ab11d82ef9fcbacb3b73e135891ede
-  r: "The `code/ingestion.py` file is truncated and does not contain a complete implementation\
-    \ (e.g., `generate_procrastination_data` ends with `return pd.Dat` and no functions\
-    \ write CSV files). Moreover, the required CSV files (`data/raw/delay_discounting.csv`,\
-    \ `data/raw/procrastination.csv`, `data/raw/nback.csv`) are absent from the repository.\
-    \ The task\u2019s core deliverables are therefore missing."
 T015b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -13,3 +5,20 @@ T015b:
     logic (checking for missing `discount_rate_k`, `procrastination_score`, `wm_accuracy`
     and raising `SystemExit(1)` with the specified message). Consequently, the artifact
     needed to satisfy T015b is absent.
+T016:
+  c: false
+  h: 1d0fc97551ddc6955b339937ba2f151a1bd7cb181c42c90fb066dac0d015168a
+  r: The repository contains `code/ingestion.py`, but the shown content (and truncation)
+    does not include any logic for detecting missing age/gender, applying the >10%
+    threshold, performing imputation or listwise deletion, nor writing `data/processed/model_config.json`.
+    Moreover, the required `data/processed/model_config.json` file is absent. The
+    missing configuration file and lack of the specified handling code mean the task
+    requirements are not met.
+T022:
+  c: false
+  h: 8dae96574d1ac609fdf7138464c51b273e4ab6061e4388b463d4af0e30581e70
+  r: "The `model_config.json` file does not exist, so the code cannot read the `reduced_model`\
+    \ flag as required. Moreover, `code/modeling.py` ends abruptly in the `run_regression`\
+    \ function (truncated formula) and lacks the mandated memory\u2011profiler and\
+    \ elapsed\u2011time checks that would raise `SystemExit(1)` when limits are exceeded.\
+    \ These missing pieces prevent the task from being fully satisfied."
