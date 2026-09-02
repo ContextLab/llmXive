@@ -1,155 +1,180 @@
+"""
+T024: Aggregate Results for User Story 2.
+
+This task reads the outputs of T020c, T021a, T021b, T021d, and T022
+and aggregates them into a single canonical file: results/shap_analysis.json.
+
+Note: T024 is the sole writer of results/shap_analysis.json.
+"""
 import os
-import json
 import sys
+import json
 import logging
 from pathlib import Path
-from datetime import datetime
+from typing import Dict, Any, Optional
 
-from utils.constants import RESULTS_DIR, DATA_INTERMEDIATE_DIR, DATA_PROCESSED_DIR
-from utils.io import compute_file_hash, log_artifact
+# Ensure project root is in path if running from code/
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+RESULTS_DIR = PROJECT_ROOT / "results"
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    stream=sys.stdout
+)
 logger = logging.getLogger(__name__)
 
-RESULTS_DIR = Path(RESULTS_DIR)
-DATA_INTERMEDIATE_DIR = Path(DATA_INTERMEDIATE_DIR)
-DATA_PROCESSED_DIR = Path(DATA_PROCESSED_DIR)
 
-def load_json_file(file_path: Path) -> dict:
+def load_json_file(file_path: Path) -> Optional[Dict[str, Any]]:
     """Load a JSON file and return its contents as a dictionary."""
+    if not file_path.exists():
+        logger.error(f"Required input file not found: {file_path}")
+        return None
     try:
-        with open(file_path, 'r') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             return json.load(f)
-    except FileNotFoundError:
-        logger.warning(f"File not found: {file_path}. Returning empty dict.")
-        return {}
     except json.JSONDecodeError as e:
-        logger.error(f"Error decoding JSON from {file_path}: {e}")
-        return {}
+        logger.error(f"Failed to parse JSON in {file_path}: {e}")
+        return None
+    except Exception as e:
+        logger.error(f"Unexpected error reading {file_path}: {e}")
+        return None
 
-def save_json_file(file_path: Path, data: dict) -> bool:
+
+def save_json_file(file_path: Path, data: Dict[str, Any]) -> bool:
     """Save a dictionary to a JSON file."""
     try:
         file_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(file_path, 'w') as f:
-            json.dump(data, f, indent=2)
-        logger.info(f"Saved JSON to {file_path}")
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, sort_keys=True)
+        logger.info(f"Successfully wrote output to: {file_path}")
         return True
     except Exception as e:
-        logger.error(f"Error saving JSON to {file_path}: {e}")
+        logger.error(f"Failed to write output to {file_path}: {e}")
         return False
 
-def aggregate_metrics() -> dict:
-    """Aggregate metrics from evaluate.py output."""
-    # T021b (evaluate.py) should have generated a metrics-like structure or we derive it.
-    # Based on task descriptions, T021b generates metrics. We look for a specific file
-    # or construct it if T021b outputted to a known location not yet aggregated.
-    # Assuming T021b outputted to results/eval_metrics.json or similar, or we construct from state.
-    # Let's assume T021b wrote to results/model_metrics.json if it existed.
-    # Since T021b is executed, we expect some output. If not, we create a placeholder structure
-    # that MUST be filled by real data if available.
-    
-    metrics_path = RESULTS_DIR / "model_metrics.json" # Assumed output from T021b
-    metrics_data = load_json_file(metrics_path)
-    
-    if not metrics_data:
-        # Fallback: Try to construct from other available files if T021b didn't write a specific file
-        # But per spec, T021b should have produced metrics.
-        logger.warning("No model_metrics.json found. Creating empty metrics structure.")
-        metrics_data = {
-            "balanced_accuracy": None,
-            "roc_auc": None,
-            "permutation_p_value": None,
-            "framing": "associational"
-        }
-    
-    # Ensure framing is present
-    metrics_data["framing"] = "associational"
-    return metrics_data
 
-def aggregate_shap_analysis() -> dict:
-    """Aggregate SHAP/Correlation analysis from T021a and T021c."""
-    # T021a outputs to results/shap_analysis.json (key: training_correlations)
-    # T021c outputs to results/shap_analysis.json (key: global_correlations)
-    # We need to merge these.
-    
-    shap_path = RESULTS_DIR / "shap_analysis.json"
-    existing_shap = load_json_file(shap_path)
-    
-    # Load VIF scores from T022
-    vif_path = DATA_INTERMEDIATE_DIR / "vif_scores.json"
-    vif_data = load_json_file(vif_path)
-    
-    # Structure the final shap_analysis
-    result = {
-        "top_features": [], # Should come from T020 feature_importance_ranking.json
-        "training_correlations": existing_shap.get("training_correlations", []),
-        "global_correlations": existing_shap.get("global_correlations", []),
-        "collinearity_vif": vif_data.get("vif_scores", []),
-        "framing": "associational"
+def aggregate_metrics(
+    feature_importance: Dict[str, Any],
+    correlation_analysis: Dict[str, Any],
+    model_validation: Dict[str, Any],
+    sensitivity_analysis: Dict[str, Any],
+    vif_scores: Dict[str, Any]
+) -> Dict[str, Any]:
+    """
+    Aggregate all metrics into a single canonical structure.
+
+    This function combines the outputs from:
+    - T020c: Feature Importance Ranking
+    - T021a: Correlation Analysis (Raw)
+    - T021b: Model Validation (Hold-out/Permutation)
+    - T021d: Sensitivity Analysis
+    - T022: VIF Scores (Collinearity)
+
+    The resulting structure is designed to be the canonical source for
+    SHAP-like analysis summaries (even if actual SHAP values weren't computed,
+    this file serves as the aggregated interpretability report).
+    """
+    aggregated = {
+        "metadata": {
+            "task_id": "T024",
+            "description": "Aggregated results for Plant Disease Resistance Prediction",
+            "generated_at": None  # Will be set by caller if needed, or left to default
+        },
+        "model_performance": {
+            "balanced_accuracy": model_validation.get("balanced_accuracy"),
+            "roc_auc": model_validation.get("roc_auc"),
+            "permutation_p_value": model_validation.get("permutation_p_value"),
+            "permutation_n": model_validation.get("permutation_n", 1000),
+            "validation_method": model_validation.get("validation_method", "hold-out" if model_validation.get("holdout_indices") else "full")
+        },
+        "feature_importance": {
+            "top_metabolites": feature_importance.get("top_metabolites", []),
+            "method": feature_importance.get("method", "mean_decrease_impurity"),
+            "total_features_analyzed": feature_importance.get("total_features", 0)
+        },
+        "correlation_analysis": {
+            "significant_correlations": correlation_analysis.get("significant_correlations", []),
+            "threshold_r": correlation_analysis.get("threshold_r", 0.4),
+            "threshold_p": correlation_analysis.get("threshold_p", 0.01),
+            "fdr_method": correlation_analysis.get("fdr_method", "benjamini_hochberg")
+        },
+        "sensitivity_analysis": {
+            "thresholds": sensitivity_analysis.get("thresholds", []),
+            "fpr_values": sensitivity_analysis.get("fpr_values", []),
+            "fnr_values": sensitivity_analysis.get("fnr_values", []),
+            "optimal_threshold": sensitivity_analysis.get("optimal_threshold")
+        },
+        "collinearity": {
+            "vif_scores": vif_scores.get("vif_scores", {}),
+            "high_collinearity_features": vif_scores.get("high_collinearity_features", []),
+            "threshold_vif": vif_scores.get("threshold_vif", 5.0)
+        }
     }
-    
-    # Load top features from T020
-    feature_ranking_path = RESULTS_DIR / "feature_importance_ranking.json"
-    feature_ranking = load_json_file(feature_ranking_path)
-    if feature_ranking and "top_metabolites" in feature_ranking:
-        result["top_features"] = feature_ranking["top_metabolites"]
-    
-    return result
 
-def aggregate_pathway_analysis() -> dict:
-    """Aggregate pathway analysis from T026a, T026b, T026c."""
-    # T026c should have written to results/pathway_analysis.json
-    pathway_path = RESULTS_DIR / "pathway_analysis.json"
-    pathway_data = load_json_file(pathway_path)
-    
-    if not pathway_data:
-        logger.warning("No pathway_analysis.json found. Creating empty structure.")
-        pathway_data = {
-            "pathway_mappings": [],
-            "narrative_report": "",
-            "framing": "associational"
-        }
-    
-    pathway_data["framing"] = "associational"
-    return pathway_data
+    # Add a summary section
+    aggregated["summary"] = {
+        "num_significant_correlations": len(correlation_analysis.get("significant_correlations", [])),
+        "num_high_vif_features": len(vif_scores.get("high_collinearity_features", [])),
+        "model_valid": model_validation.get("balanced_accuracy") is not None and model_validation.get("balanced_accuracy") > 0.5,
+        "permutation_significant": model_validation.get("permutation_p_value", 1.0) < 0.05
+    }
+
+    return aggregated
+
 
 def main():
-    """Main entry point for T024: Aggregate results and generate final JSON files."""
-    logger.info("Starting T024: Aggregating results...")
-    
-    # 1. Aggregate Metrics
-    metrics = aggregate_metrics()
-    metrics_file = RESULTS_DIR / "metrics.json"
-    if save_json_file(metrics_file, metrics):
-        hash_val = compute_file_hash(metrics_file)
-        log_artifact(str(metrics_file), hash_val)
-    else:
-        logger.error("Failed to save metrics.json")
-        return 1
+    """
+    Main entry point for T024.
+    Reads all prerequisite artifacts and writes the aggregated result.
+    """
+    logger.info("Starting T024: Aggregate Results")
 
-    # 2. Aggregate SHAP Analysis
-    shap_analysis = aggregate_shap_analysis()
-    shap_file = RESULTS_DIR / "shap_analysis.json"
-    if save_json_file(shap_file, shap_analysis):
-        hash_val = compute_file_hash(shap_file)
-        log_artifact(str(shap_file), hash_val)
-    else:
-        logger.error("Failed to save shap_analysis.json")
-        return 1
+    # Define input paths
+    input_paths = {
+        "feature_importance": RESULTS_DIR / "feature_importance_ranking.json",
+        "correlation_analysis": RESULTS_DIR / "correlation_analysis_raw.json",
+        "model_validation": RESULTS_DIR / "model_validation.json",
+        "sensitivity_analysis": RESULTS_DIR / "sensitivity_analysis.json",
+        "vif_scores": RESULTS_DIR / "vif_scores.json"
+    }
 
-    # 3. Aggregate Pathway Analysis
-    pathway_analysis = aggregate_pathway_analysis()
-    pathway_file = RESULTS_DIR / "pathway_analysis.json"
-    if save_json_file(pathway_file, pathway_analysis):
-        hash_val = compute_file_hash(pathway_file)
-        log_artifact(str(pathway_file), hash_val)
-    else:
-        logger.error("Failed to save pathway_analysis.json")
-        return 1
+    # Output path
+    output_path = RESULTS_DIR / "shap_analysis.json"
 
-    logger.info("T024 completed successfully. All result files generated.")
-    return 0
+    # Load all inputs
+    inputs = {}
+    missing_files = []
+    for key, path in input_paths.items():
+        data = load_json_file(path)
+        if data is None:
+            missing_files.append(str(path))
+        inputs[key] = data
+
+    if missing_files:
+        logger.error(f"Missing required input files: {missing_files}")
+        logger.error("T024 cannot proceed without all prerequisite artifacts.")
+        sys.exit(1)
+
+    # Aggregate
+    logger.info("Aggregating metrics...")
+    aggregated_data = aggregate_metrics(
+        feature_importance=inputs["feature_importance"],
+        correlation_analysis=inputs["correlation_analysis"],
+        model_validation=inputs["model_validation"],
+        sensitivity_analysis=inputs["sensitivity_analysis"],
+        vif_scores=inputs["vif_scores"]
+    )
+
+    # Save output
+    if save_json_file(output_path, aggregated_data):
+        logger.info("T024 completed successfully.")
+        sys.exit(0)
+    else:
+        logger.error("T024 failed to write output.")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

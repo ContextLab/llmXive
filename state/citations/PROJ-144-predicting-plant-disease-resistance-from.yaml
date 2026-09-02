@@ -31,3 +31,25 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmxive
   verified_at: '2026-08-12T06:00:41.266117Z'
+- artifact_hash: 578aca236f3cc0cc9414735793fa3897da171465f101f4ac3308fc46ca49395b
+  artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.metabolomicsworkbench.org/data/REST.php`
+  verification_status: mismatch
+  verified_against_url: https://www.metabolomicsworkbench.org/data/REST.php
+  verified_at: '2026-09-02T07:01:12.825581Z'
+- artifact_hash: 578aca236f3cc0cc9414735793fa3897da171465f101f4ac3308fc46ca49395b
+  artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://rest.kegg.jp/link/pathway/`
+  verification_status: unreachable
+  verified_against_url: https://rest.kegg.jp/link/pathway/
+  verified_at: '2026-09-02T07:01:12.825581Z'

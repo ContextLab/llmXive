@@ -21,24 +21,20 @@ T005:
     \ and a SHA256 hash to `state/artifact_hashes.yaml` (creating the file if absent).\
     \ The required functionality is present and the code will generate the YAML log\
     \ as specified."
-T013:
+T014b:
   c: false
-  h: 5ae21698219558c3b16e5c6eff6ae2495603d459fa35acef45e5f0e87a476020
-  r: "The repository contains a partially shown `code/data/validate_temporal.py`,\
-    \ but the file is truncated and does not demonstrate a complete pipeline that\
-    \ reads the raw phenotype CSVs, writes `data/processed/temporal_validation_log.json`,\
-    \ or guarantees the script halts on missing temporal markers. Moreover, the required\
-    \ output file `data/processed/temporal_validation_log.json` is absent. The task\u2019\
-    s core deliverables are therefore not fulfilled."
-T017:
+  h: 37efb5f92fd04d08158cad03634b03ed4b29b3e77c6a3384a0972668fa17361b
+  r: "The required input `data/processed/heterogeneity_report.json` does not exist,\
+    \ so the label\u2011harmonization step cannot be performed as specified. The missing\
+    \ artifact must be provided (or generated) for the task to be considered complete."
+T017a:
   c: false
-  h: bd53dce30904fd5aa2a8a29e549597c71b38707197111bf3cbb5de18d9f148dd
-  r: "The required input files (`data/raw/study_manifest.json`, `data/processed/harmonized_labels.csv`)\
-    \ are missing, and none of the expected output files (`batch_corrected_matrix.csv`,\
-    \ `labels.csv`, `preprocess_log.json`) exist. Moreover, `code/data/preprocess.py`\
-    \ contains only placeholder `pass` statements and does not implement the preprocessing\
-    \ logic, so it cannot generate the required artifacts or record checksums. The\
-    \ task\u2019s requirements are therefore not met."
+  h: 2567d604f6ad3d096f6a2c8829113ddf35e572917727f4baf60f0479c905715e
+  r: "The required input `data/processed/harmonized_labels.csv` is missing, so the\
+    \ pre\u2011check would raise `DataUnavailableError` and the script was never executed.\
+    \ Consequently the expected output files (`batch_corrected_matrix.csv`, `labels.csv`,\
+    \ `preprocess_log.json`) are also absent. The task therefore is not genuinely\
+    \ completed."
 T019:
   c: false
   h: 74347121ce103044f520c0bbaa7f3ed95f75f62c5caaa66cb681a60919589a76
@@ -47,30 +43,21 @@ T019:
     \ module it imports (`code/modeling/evaluate.py`) does not exist, so the test\
     \ cannot be executed. The required implementation file is missing, preventing\
     \ the task from being truly completed."
-T021a:
-  c: false
-  h: 3ff0462366b7f7878bd72fb2e8b3b0b9b53c1ee3d911b4a0dc115380be08f7d0
-  r: "The provided `code/modeling/evaluate.py` contains model evaluation logic, not\
-    \ the required correlation analysis, and never writes `results/shap_analysis.json`.\
-    \ Moreover, the necessary input files `data/processed/split_indices.json` and\
-    \ `data/processed/batch_corrected_matrix.csv` are absent, so the script cannot\
-    \ even run the intended computation. The task\u2019s specifications are therefore\
-    \ not met."
-T021d:
-  c: false
-  h: b972f150dcaadeda4ff00898c95cadb3dca733bba14ce05a54f57b4f95184f4a
-  r: The `code/modeling/evaluate.py` file ends abruptly inside `sensitivity_analysis()`
-    (truncated code, no threshold sweep or FPR/FNR computation) and the required output
-    file `results/sensitivity_analysis.json` does not exist. Both the implementation
-    and the expected result artifact are missing.
-T022:
+T020c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No VIF calculation artifact, script, or output for the top\u201110 metabolites\
-    \ is present; the implementer did not provide any code, data matrix, or results\
-    \ showing that `statsmodels.stats.outliers_influence.variance_inflation_factor`\
-    \ was applied after dropping the intercept column. Consequently the required collinearity\
-    \ diagnostics are not demonstrated."
+  r: "No code, notebook, script, or output file that extracts the Random Forest\u2019\
+    s feature importances and ranks metabolites by mean decrease in impurity is present.\
+    \ The task required a concrete artifact (e.g., a CSV or figure) showing the importance\
+    \ values and the ordered list of metabolites, which is missing, so the requirement\
+    \ is not met."
+T021b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data, or result artifacts (e.g., model training scripts, validation
+    metrics, permutation test outputs, or figures) are present to demonstrate that
+    model validation and permutation testing were performed. The claim lacks any tangible
+    evidence that the required validation pipeline was implemented or executed.
 T025:
   c: false
   h: 581f8b61ae458695fd8af0e25bf9ae76856d2ca3da52cd2465573360ca11d659
