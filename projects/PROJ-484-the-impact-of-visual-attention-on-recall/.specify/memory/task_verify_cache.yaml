@@ -25,14 +25,6 @@ T006a:
   r: No `specs/001-visual-attention-recall/data-model.md` file or its contents were
     provided; thus the required schema document for Participant, Stimulus, and Trial
     entities is missing. The implementer must create and supply this markdown artifact.
-T017:
-  c: false
-  h: 92e8fd2725d824838f100a63be530020d7e1d35d6ef09e84572cfb83a626f3bb
-  r: "The required output file `data/processed/analysis.csv` does not exist, and the\
-    \ schema file `schema.yaml` is also missing. The provided `preprocess.py` script\
-    \ is incomplete (truncated) and contains no logic that writes an analysis\u2011\
-    ready CSV or validates it against a schema. Consequently, the task\u2019s core\
-    \ requirement is not satisfied."
 T040:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

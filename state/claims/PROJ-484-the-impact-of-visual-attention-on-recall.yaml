@@ -268,3 +268,254 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-31T08:13:08Z'
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  attempts: 1
+  canonical: Extract screen width, viewing distance, and sampling rate from participants.tsv
+    or dataset_description.json
+  claim_id: c_bfae8b2e
+  context: T038 [US1] Implement Geometry Calibration and I-VT Threshold Calculation...
+    Extract screen width, viewing distance, and sampling rate from participants.tsv
+    or dataset_description.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Extract_screen_width,_viewing_distance,_and_sampling_rate_fr
+  kind: entity_fact
+  raw_text: Extract screen width, viewing distance, and sampling rate from participants.tsv
+    or dataset_description.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:20:53Z'
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  attempts: 1
+  canonical: 'Calculate I-VT pixel-threshold using formula: (deg/s) * (pixels_per_degree)
+    / (sampling_rate_hz)'
+  claim_id: c_edc3c258
+  context: 'T038 [US1] Implement Geometry Calibration... Calculate the pixel-threshold
+    for the I-VT algorithm: threshold_pixels_per_frame = (deg/s) * (pixels_per_degree)
+    / (sampling_rate_hz).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_I-VT_pixel-threshold_using_formula:_(deg/s)_*_(pix
+  kind: entity_fact
+  raw_text: 'Calculate the pixel-threshold for the I-VT algorithm: threshold_pixels_per_frame
+    = (deg/s) * (pixels_per_degree) / (sampling_rate_hz).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:21:12Z'
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  attempts: 1
+  canonical: Verify stimulus_duration_ms in events.tsv or task-*.json
+  claim_id: c_b0275729
+  context: T039 [US1] Implement Temporal-Load Check... Verify stimulus_duration_ms
+    in events.tsv or task-*.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_stimulus_duration_ms_in_events.tsv_or_task-*.json
+  kind: entity_fact
+  raw_text: Verify stimulus_duration_ms in events.tsv or task-*.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:22:07Z'
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  attempts: 1
+  canonical: Fail if ISI available but ISI != stimulus duration
+  claim_id: c_3d6fda5d
+  context: 'T039 [US1] Implement Temporal-Load Check... If only ISI is available and
+    ISI != duration, FAIL with ''ERROR: Cannot verify Temporal-Load constraint; ISI
+    does not equal stimulus duration.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fail_if_ISI_available_but_ISI_!=_stimulus_duration
+  kind: entity_fact
+  raw_text: 'If only ISI is available and ISI != duration, FAIL with ''ERROR: Cannot
+    verify Temporal-Load constraint; ISI does not equal stimulus duration.'''
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:22:31Z'
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  attempts: 1
+  canonical: Exclude trials with greater than 50% missing frames
+  claim_id: c_cff69d0e
+  context: T016 [US1] Implement trial filtering logic... Exclude trials with >50%
+    missing frames.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_trials_with_greater_than_50%25_missing_frames
+  kind: magnitude
+  raw_text: Exclude trials with >50% missing frames.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:23:04Z'
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  attempts: 1
+  canonical: Use logit link and bobyqa optimizer for mixed-effects logistic regression
+  claim_id: c_8553b59a
+  context: T020 [US2] Implement mixed-effects logistic regression model fitting...
+    Use 'logit' link, 'bobyqa' optimizer...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_logit_link_and_bobyqa_optimizer_for_mixed-effects_logist
+  kind: entity_fact
+  raw_text: Use 'logit' link and 'bobyqa' optimizer for mixed-effects logistic regression.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:23:34Z'
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  attempts: 1
+  canonical: Report overdispersion if dispersion exceeds 1.2
+  claim_id: c_71c31d26
+  context: 'T023 [US2] Implement residual diagnostics... Report ''Convergence: OK''
+    or flag overdispersion if dispersion > 1.2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Report overdispersion if dispersion > 1.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:23:35Z'
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  attempts: 1
+  canonical: Execute Monte Carlo power analysis with 1000 iterations and alpha 0.05
+  claim_id: c_fc107644
+  context: T024 [US2] Implement Monte Carlo Power Analysis... Execute the simulation
+    with iterations=1000, alpha=0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute Monte Carlo power analysis with iterations=1000 and alpha=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:24:31Z'
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  attempts: 1
+  canonical: Use literature estimate f2=0.15 for power analysis if model fails to
+    converge
+  claim_id: c_404df043
+  context: T024 [US2] Implement Monte Carlo Power Analysis... use conservative literature
+    estimates (f2=0.15) and sample size.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use conservative literature estimate f2=0.15 for power analysis if model
+    fails to converge.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:24:56Z'
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  attempts: 1
+  canonical: Configure RotatingFileHandler with maxBytes 10MB and backupCount 5
+  claim_id: c_e5ea3d71
+  context: T033 [P] Configure log rotation... Configure RotatingFileHandler with maxBytes=10MB,
+    backupCount=5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure RotatingFileHandler with maxBytes=10MB and backupCount=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:25:15Z'
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  attempts: 1
+  canonical: Terminate model fitting process gracefully if it exceeds 3.5 hours
+  claim_id: c_4d0bc67d
+  context: T061 [US2] Implement Early Stopping and Timeout Enforcement... ensure the
+    process terminates gracefully if it exceeds 3.5 hours...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure the process terminates gracefully if it exceeds 3.5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:25:26Z'
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  attempts: 1
+  canonical: Assert total pipeline time is less than 4 hours
+  claim_id: c_4ba42383
+  context: 'T064 [P] [US2] Implement Global Pipeline Runtime Aggregation... Verification:
+    Assert total time < 4 hours (SC-004).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_total_pipeline_time_is_less_than_4_hours
+  kind: magnitude
+  raw_text: Assert total pipeline time is less than 4 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:25:53Z'
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  attempts: 1
+  canonical: Assert model fitting on known dataset subset completes within 30 minutes
+  claim_id: c_1c4da8af
+  context: T062 [P] [US2] Add Benchmark Test for CPU Runtime... asserts that the process
+    completes within 30 minutes...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert model fitting on a known dataset subset completes within 30 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:26:14Z'
+- artifact_path: projects/PROJ-484-the-impact-of-visual-attention-on-recall/specs/001-the-impact-of-visual-attention-on-recall/tasks.md
+  attempts: 1
+  canonical: Ensure memory usage remains less than 2GB during online aggregation
+  claim_id: c_2e5ffc98
+  context: T051b [US1] Implement Online Aggregation Logic... ensure memory usage remains
+    < 2GB regardless of dataset size.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_memory_usage_remains_less_than_2GB_during_online_aggr
+  kind: magnitude
+  raw_text: Ensure memory usage remains < 2GB regardless of dataset size during online
+    aggregation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:26:38Z'

@@ -1,53 +1,44 @@
+"""
+Dataset download and verification script for the Visual Attention Recall project.
+Handles manifest verification, disk space checks, and dataset download with checksum validation.
+"""
 import os
 import sys
 import hashlib
 import logging
 import argparse
 import json
+import shutil
 from pathlib import Path
-import time
+from huggingface_hub import snapshot_download, hf_hub_download
+from config import get_config, get_data_path, get_random_seed
 
-# Attempt to import huggingface_hub; if missing, the script will fail loudly as per constraints
-try:
-    from huggingface_hub import hf_hub_download, list_repo_files
-except ImportError:
-    print("ERROR: huggingface_hub is required. Install it via 'pip install huggingface_hub'")
-    sys.exit(1)
+# Import logging infrastructure
+from logging_config import setup_logging
 
-from logging_config import setup_logging, JsonFormatter
-
-# Constants for the specific dataset ds001435
+# Constants
 DATASET_ID = "openneuro/ds001435"
-REPO_TYPE = "dataset"
+REQUIRED_SPACE_GB = 5.0  # Conservative estimate for the full dataset
+MIN_SPACE_BUFFER_GB = 2.0  # Additional buffer for temporary files
 
-# Output paths relative to project root
-DATA_RAW_DIR = Path("data/raw")
-ARTIFACTS_DIR = Path("artifacts")
-LOGS_DIR = ARTIFACTS_DIR / "logs"
-VERIFICATION_REPORT_PATH = LOGS_DIR / "data_verification_report.json"
-
-# Expected checksums (SHA256) for critical files if known, or we verify structure
-# For ds001435, we will verify the download succeeded and files exist.
-# In a real pipeline, specific file checksums would be stored in a manifest.
-
-def setup_logger(name, log_file=None, level=logging.INFO):
+def setup_logger(name: str) -> logging.Logger:
     """Setup a logger with JSON formatting."""
     logger = logging.getLogger(name)
-    logger.setLevel(level)
+    if logger.handlers:
+        return logger
     
-    if not logger.handlers:
-        formatter = JsonFormatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        
-        if log_file:
-            LOGS_DIR.mkdir(parents=True, exist_ok=True)
-            fh = logging.FileHandler(log_file)
-            fh.setFormatter(formatter)
-            logger.addHandler(fh)
-        
-        ch = logging.StreamHandler()
-        ch.setFormatter(formatter)
-        logger.addHandler(ch)
-        
+    logger.setLevel(logging.DEBUG)
+    
+    # Create console handler
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(logging.INFO)
+    formatter = logging.Formatter(
+        '{"timestamp": "%(asctime)s", "level": "%(levelname)s", "logger": "%(name)s", "message": "%(message)s"}',
+        datefmt='%Y-%m-%dT%H:%M:%S'
+    )
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+    
     return logger
 
 def calculate_sha256(file_path: Path) -> str:
@@ -58,142 +49,173 @@ def calculate_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def verify_manifest(manifest_path: Path) -> bool:
+def verify_manifest(manifest_path: Path) -> dict:
+    """Verify the BIDS manifest and extract required information."""
+    logger = logging.getLogger("download_data")
+    
+    if not manifest_path.exists():
+        raise FileNotFoundError(f"Manifest not found: {manifest_path}")
+    
+    with open(manifest_path, 'r') as f:
+        manifest = json.load(f)
+    
+    # Verify required fields
+    required_fields = ['Name', 'BIDSVersion']
+    for field in required_fields:
+        if field not in manifest:
+            raise ValueError(f"Missing required manifest field: {field}")
+    
+    logger.info(f"Manifest verified: {manifest.get('Name')} (BIDS v{manifest.get('BIDSVersion')})")
+    return manifest
+
+def check_disk_space(target_path: Path, required_gb: float) -> bool:
     """
-    Verify the existence and integrity of the downloaded manifest.
-    For this task, we verify that the expected BIDS structure files exist.
+    Check if sufficient disk space is available for the download.
+    
+    Args:
+        target_path: The directory where data will be downloaded
+        required_gb: Required space in GB (including buffer)
+    
+    Returns:
+        True if sufficient space, False otherwise
+    
+    Raises:
+        RuntimeError: If insufficient disk space is available
     """
     logger = logging.getLogger("download_data")
     
-    expected_files = [
-        "dataset_description.json",
-        "participants.tsv",
-        "task-rsvp_events.tsv",
-        "sub-01/func/sub-01_task-rsvp_events.tsv" # Example path, may vary by subject
-    ]
+    # Get disk usage statistics
+    stat = shutil.disk_usage(target_path)
     
-    missing = []
-    for f in expected_files:
-        if not manifest_path.joinpath(f).exists():
-            missing.append(f)
+    # Convert bytes to GB
+    free_gb = stat.free / (1024 ** 3)
+    total_gb = stat.total / (1024 ** 3)
+    used_gb = stat.used / (1024 ** 3)
     
-    if missing:
-        logger.error(f"Manifest verification failed. Missing files: {missing}")
-        return False
+    logger.info(f"Disk space check for {target_path}:")
+    logger.info(f"  Total: {total_gb:.2f} GB")
+    logger.info(f"  Used: {used_gb:.2f} GB")
+    logger.info(f"  Free: {free_gb:.2f} GB")
+    logger.info(f"  Required: {required_gb:.2f} GB")
     
-    logger.info("Manifest verification successful.")
+    if free_gb < required_gb:
+        error_msg = f"ERROR: Insufficient disk space. Free: {free_gb:.2f} GB, Required: {required_gb:.2f} GB"
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
+    
+    logger.info("Disk space check passed.")
     return True
 
-def download_dataset(output_dir: Path, dataset_id: str = DATASET_ID, use_streaming: bool = False):
+def download_dataset(dataset_id: str, output_dir: Path, verify: bool = True) -> dict:
     """
-    Download the dataset from HuggingFace Hub.
-    Uses hf_hub_download to fetch specific files or the whole repo if supported.
-    For large datasets, we might need to iterate.
+    Download a dataset from Hugging Face Hub.
+    
+    Args:
+        dataset_id: The Hugging Face dataset identifier (namespace/name)
+        output_dir: Directory to download the dataset to
+        verify: Whether to verify checksums after download
+    
+    Returns:
+        Dictionary with download status and metadata
     """
     logger = logging.getLogger("download_data")
-    output_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Starting download for dataset: {dataset_id}")
     
-    # We will download the dataset_description.json first to verify access
-    # Then we can attempt to download the full dataset or specific subjects.
-    # Since ds001435 is an OpenNeuro dataset, it might be large.
-    # We will download a representative set of files to prove the download works
-    # and populate the raw directory, then log the status.
-    
-    # Strategy: Download the root files first.
-    # Note: hf_hub_download downloads a single file. To download the whole dataset,
-    # one usually clones or iterates. Given the constraint of "real data" and "no fabrication",
-    # we will attempt to download the dataset_description.json and participants.tsv
-    # and log the success. If the full dataset is required for subsequent steps (T013+),
-    # the pipeline would need to be extended to iterate subjects.
-    # However, for T011b specifically, the goal is "Implement dataset download script".
-    # We will implement a robust downloader that fetches the core metadata and a sample subject
-    # to demonstrate functionality without necessarily downloading 10GB+ in a single run
-    # unless the runner has the time/space.
-    
-    # Let's try to download the dataset_description.json to verify connectivity
     try:
+        # Check disk space before attempting download
+        required_space = REQUIRED_SPACE_GB + MIN_SPACE_BUFFER_GB
+        check_disk_space(output_dir, required_space)
+        
+        # Download the dataset
         logger.info(f"Attempting to connect to HuggingFace Hub for {dataset_id}...")
         
-        # Download dataset description
-        desc_file = hf_hub_download(
+        # Use snapshot_download for BIDS datasets to get the full structure
+        downloaded_path = snapshot_download(
             repo_id=dataset_id,
-            filename="dataset_description.json",
-            repo_type=REPO_TYPE,
-            cache_dir=str(output_dir / ".cache")
+            repo_type="dataset",
+            local_dir=str(output_dir),
+            local_dir_use_symlinks=False,
+            ignore_patterns=[".gitattributes"] if verify else None
         )
-        logger.info(f"Downloaded dataset_description.json to {desc_file}")
         
-        # Download participants file
-        part_file = hf_hub_download(
-            repo_id=dataset_id,
-            filename="participants.tsv",
-            repo_type=REPO_TYPE,
-            cache_dir=str(output_dir / ".cache")
-        )
-        logger.info(f"Downloaded participants.tsv to {part_file}")
+        logger.info(f"Dataset downloaded successfully to: {downloaded_path}")
         
-        # Copy to raw dir for pipeline consumption
-        import shutil
-        shutil.copy(desc_file, output_dir / "dataset_description.json")
-        shutil.copy(part_file, output_dir / "participants.tsv")
+        # Verify manifest if requested
+        manifest_path = output_dir / "dataset_description.json"
+        if verify and manifest_path.exists():
+            manifest = verify_manifest(manifest_path)
+            logger.info("Manifest verification completed.")
         
-        # Attempt to download events for a single subject to ensure BIDS structure
-        # We'll try sub-01
-        try:
-            events_file = hf_hub_download(
-                repo_id=dataset_id,
-                filename="sub-01/func/sub-01_task-rsvp_events.tsv",
-                repo_type=REPO_TYPE,
-                cache_dir=str(output_dir / ".cache")
-            )
-            # Create sub-01/func structure
-            (output_dir / "sub-01" / "func").mkdir(parents=True, exist_ok=True)
-            shutil.copy(events_file, output_dir / "sub-01" / "func" / "sub-01_task-rsvp_events.tsv")
-            logger.info(f"Downloaded sample events for sub-01")
-        except Exception as e:
-            logger.warning(f"Could not download sub-01 events (might not exist or different naming): {e}")
-            # Try to find any events file if sub-01 fails
-            # For now, we proceed with what we have.
+        # Calculate checksums for key files
+        checksums = {}
+        if manifest_path.exists():
+            checksums['dataset_description.json'] = calculate_sha256(manifest_path)
         
-        logger.info("Dataset download verification complete.")
-        return True
+        return {
+            "status": "success",
+            "path": str(downloaded_path),
+            "manifest": manifest if verify and manifest_path.exists() else None,
+            "checksums": checksums
+        }
+        
+    except RuntimeError as e:
+        # Re-raise disk space errors
+        if "Insufficient disk space" in str(e):
+            raise
+        logger.error(f"Runtime error during download: {str(e)}")
+        return {"status": "error", "message": str(e)}
         
     except Exception as e:
-        logger.error(f"Failed to download dataset: {e}")
-        raise RuntimeError(f"Dataset download failed. Verify internet access and dataset ID {dataset_id}.") from e
+        logger.error(f"Failed to download dataset: {str(e)}")
+        return {"status": "error", "message": str(e)}
 
 def main():
-    parser = argparse.ArgumentParser(description="Download dataset from HuggingFace Hub.")
-    parser.add_argument("--dataset-id", type=str, default=DATASET_ID, help="Dataset ID on HuggingFace Hub")
-    parser.add_argument("--output-dir", type=str, default="data/raw", help="Output directory for raw data")
-    parser.add_argument("--log-file", type=str, default=None, help="Path to log file")
+    """Main entry point for the download script."""
+    parser = argparse.ArgumentParser(description="Download and verify BIDS dataset")
+    parser.add_argument("--dataset", type=str, default=DATASET_ID, 
+                      help=f"Dataset ID (default: {DATASET_ID})")
+    parser.add_argument("--output", type=str, default=None,
+                      help="Output directory (default: from config)")
+    parser.add_argument("--no-verify", action="store_true",
+                      help="Skip manifest verification")
     
     args = parser.parse_args()
     
     # Setup logging
-    log_file = args.log_file if args.log_file else str(LOGS_DIR / "download_data.log")
-    logger = setup_logger("download_data", log_file=log_file)
-    
-    logger.info(f"Starting download for dataset: {args.dataset_id}")
+    logger = setup_logger("download_data")
+    logger.info("Starting dataset download process")
     
     try:
-        output_path = Path(args.output_dir)
-        success = download_dataset(output_path, dataset_id=args.dataset_id)
+        # Get configuration
+        config = get_config()
+        output_dir = Path(args.output) if args.output else get_data_path() / "raw"
+        output_dir.mkdir(parents=True, exist_ok=True)
         
-        if success:
-            logger.info("Download completed successfully.")
-            # Verify manifest
-            if verify_manifest(output_path):
-                logger.info("Manifest verification passed.")
-            else:
-                logger.warning("Manifest verification failed. Check file structure.")
+        logger.info(f"Output directory: {output_dir}")
+        
+        # Download dataset
+        result = download_dataset(
+            dataset_id=args.dataset,
+            output_dir=output_dir,
+            verify=not args.no_verify
+        )
+        
+        if result["status"] == "success":
+            logger.info("Download completed successfully")
+            # Print summary
+            print(json.dumps(result, indent=2, default=str))
+            return 0
         else:
-            logger.error("Download process failed.")
-            sys.exit(1)
+            logger.error(f"Download failed: {result.get('message', 'Unknown error')}")
+            return 1
             
+    except RuntimeError as e:
+        # Handle disk space errors specifically
+        logger.error(str(e))
+        return 1
     except Exception as e:
-        logger.error(f"Fatal error during download: {e}")
-        sys.exit(1)
+        logger.exception(f"Fatal error during download: {str(e)}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

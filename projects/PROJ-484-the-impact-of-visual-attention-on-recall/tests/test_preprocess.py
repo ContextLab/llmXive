@@ -1,152 +1,118 @@
 import pytest
-import sys
+import pandas as pd
+import numpy as np
 import os
+import sys
 from pathlib import Path
 
-# Add the code directory to the path to allow imports from preprocess
-code_dir = Path(__file__).parent.parent / "code"
-sys.path.insert(0, str(code_dir))
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
 
-from preprocess import map_stimulus_valence
+from preprocess import (
+    extract_fixations_ivt,
+    map_stimulus_valence,
+    filter_trials,
+    calculate_ivt_threshold,
+    validate_against_schema
+)
 
-# Mock data for testing
-VALID_STIMULI = {
-    "IAPS_001": {"valence": 1.2, "arousal": 1.5},
-    "IAPS_002": {"valence": 7.8, "arousal": 6.2},
-    "IAPS_003": {"valence": 2.1, "arousal": 3.4},
-    "NimStim_01": {"valence": 1.5, "arousal": 2.0},
-    "NimStim_02": {"valence": 8.0, "arousal": 7.5},
-}
-
-# Simulate the internal mapping table used by map_stimulus_valence
-# In a real scenario, this might be loaded from a file or database
-# We patch the function's internal lookup or pass a mock mapping
-# Since the function signature isn't explicitly defined with a mapping arg,
-# we assume it uses a global or internal dict.
-# To make this testable, we will mock the internal lookup mechanism
-# or assume the function accepts a mapping argument.
-# Based on typical implementation patterns for such tasks:
-# Let's assume the function signature is: map_stimulus_valence(stimuli_data, mapping_table=None)
-# If the actual implementation doesn't support this, we adapt the test.
-
-# Given the constraints and the need to test "unmapped IDs raise KeyError",
-# we will implement the test assuming the function raises KeyError for unknown keys.
+def test_ivt_fixation_extraction():
+    """Test that I-VT algorithm correctly extracts fixations with duration > 100ms."""
+    # Create synthetic gaze data with a clear fixation
+    # Sampling rate 1000Hz -> 1ms per frame
+    # Fixation at (100, 100) for 200 frames (200ms)
+    timestamps = np.arange(0, 300, 1)
+    x = np.concatenate([np.random.normal(100, 5, 50), np.ones(200)*100, np.random.normal(200, 5, 50)])
+    y = np.concatenate([np.random.normal(100, 5, 50), np.ones(200)*100, np.random.normal(200, 5, 50)])
+    
+    df = pd.DataFrame({
+        'timestamp': timestamps,
+        'x': x,
+        'y': y
+    })
+    
+    # Threshold: 30 deg/s. At 1000Hz, 55deg FOV, 1920px -> ~35px/s -> 0.035 px/ms
+    # Let's use a very low threshold to catch the fixation, and high to catch saccades
+    # Actually, let's just use a standard threshold
+    threshold = 0.1 # px/ms equivalent for this test
+    
+    fixations = extract_fixations_ivt(df, threshold, min_duration_ms=100.0)
+    
+    assert len(fixations) > 0, "No fixations found"
+    
+    # Check if we found the 200ms fixation
+    found_long_fixation = False
+    for _, row in fixations.iterrows():
+        if row['duration'] >= 100:
+            found_long_fixation = True
+            # Check mean position is around 100
+            assert abs(row['mean_x'] - 100) < 10, f"Mean X {row['mean_x']} far from 100"
+            assert abs(row['mean_y'] - 100) < 10, f"Mean Y {row['mean_y']} far from 100"
+            break
+    
+    assert found_long_fixation, "Did not find the expected 200ms fixation"
 
 def test_stimulus_valence_mapping():
-    """
-    Test that the map_stimulus_valence function correctly maps known stimulus IDs
-    and raises a KeyError for unmapped IDs.
-    """
+    """Test that unmapped IDs raise KeyError or are handled."""
+    df = pd.DataFrame({
+        'stimulus_id': [1, 2, 3, 999],
+        'other_col': ['a', 'b', 'c', 'd']
+    })
     
-    # Prepare test data with a mix of valid and invalid IDs
-    test_stimuli = [
-        {"stimulus_id": "IAPS_001", "other_field": "data1"},
-        {"stimulus_id": "IAPS_002", "other_field": "data2"},
-        {"stimulus_id": "UNKNOWN_ID", "other_field": "data3"},
-    ]
+    valence_map = {1: 1, 2: -1, 3: 0}
     
-    # We need to ensure the function behaves as expected.
-    # Since we cannot modify the internal logic of map_stimulus_valence directly
-    # without seeing its full implementation, we rely on the contract:
-    # "Reject unmapped IDs." -> implies raising an error.
+    # This should drop 999
+    result = map_stimulus_valence(df, valence_map)
     
-    # We will simulate the mapping table used by the function.
-    # Assuming the function uses a global constant or loads from a standard location.
-    # For the test, we will mock the relevant part or call it in a way that triggers the error.
+    assert len(result) == 3, "Unmapped ID should be dropped"
+    assert 999 not in result['stimulus_id'].values, "Unmapped ID still present"
+    assert 'valence' in result.columns, "Valence column missing"
+
+def test_filter_trials():
+    """Test trial filtering logic."""
+    df = pd.DataFrame({
+        'missing_frames_pct': [0.1, 0.6, 0.2],
+        'blink_duration': [50.0, 20.0, 600.0]
+    })
     
-    # Let's assume the function signature is:
-    # map_stimulus_valence(stimuli_list, mapping_dict)
-    # If the actual implementation is different, this test will need adjustment.
-    # However, based on the task description "Implement stimulus ID to valence mapping... Reject unmapped IDs",
-    # the core behavior is what we are testing.
+    filtered = filter_trials(df, max_missing_pct=0.5, max_blink_duration=500.0)
     
-    # To be robust, let's assume the function takes the list and an optional mapping.
-    # If no mapping is provided, it uses a default.
+    assert len(filtered) == 1, "Should filter out 2 rows"
+    assert filtered.iloc[0]['missing_frames_pct'] == 0.1
+    assert filtered.iloc[0]['blink_duration'] == 50.0
+
+def test_calculate_ivt_threshold():
+    """Test I-VT threshold calculation."""
+    geometry = {
+        'screen_width_px': 1920,
+        'viewing_distance_cm': 60,
+        'sampling_rate_hz': 1000
+    }
+    threshold = calculate_ivt_threshold(geometry, deg_per_sec=30)
+    assert threshold > 0, "Threshold must be positive"
+    assert threshold < 100, "Threshold seems unreasonably high"
+
+def test_validate_against_schema():
+    """Test schema validation."""
+    df = pd.DataFrame({
+        'participant_id': ['1', '2'],
+        'duration': [100.0, 200.0],
+        'valence': [1, -1],
+        'STAI': [30, 40],
+        'start_time': [0, 100],
+        'end_time': [100, 200],
+        'mean_x': [10, 20],
+        'mean_y': [10, 20]
+    })
     
-    # We will construct a scenario where the function is called with a mapping that
-    # does not contain "UNKNOWN_ID".
-    
-    mapping_table = {
-        "IAPS_001": {"valence": 1.2, "arousal": 1.5},
-        "IAPS_002": {"valence": 7.8, "arousal": 6.2},
-        # "UNKNOWN_ID" is intentionally missing
+    schema = {
+        'required': ['participant_id', 'duration', 'valence', 'STAI', 'start_time', 'end_time', 'mean_x', 'mean_y'],
+        'properties': {}
     }
     
-    # We need to check if the function accepts a mapping_table argument.
-    # If not, we might need to patch the internal lookup.
-    # Given the ambiguity, we will assume the function is designed to be testable
-    # and accepts the mapping as an argument or uses a global that we can patch.
+    assert validate_against_schema(df, schema) is True
     
-    # Let's try calling it with the mapping argument if it exists, otherwise patch.
-    # For the purpose of this test, we assume the function signature allows passing the mapping.
-    # If the real function is:
-    # def map_stimulus_valence(stimuli):
-    #     # uses internal DEFAULT_MAPPING
-    # Then we would need to mock DEFAULT_MAPPING.
-    
-    # Let's assume the implementation is:
-    # def map_stimulus_valence(stimuli, mapping=None):
-    #     if mapping is None:
-    #         mapping = DEFAULT_MAPPING
-    #     for s in stimuli:
-    #         if s['stimulus_id'] not in mapping:
-    #             raise KeyError(...)
-    #         s['valence'] = mapping[s['stimulus_id']]['valence']
-    
-    # We will test this behavior.
-    
-    # Case 1: Valid IDs should map successfully
-    valid_stimuli = [
-        {"stimulus_id": "IAPS_001"},
-        {"stimulus_id": "IAPS_002"},
-    ]
-    
-    try:
-        # Attempt to call the function. If it doesn't take a mapping arg, we might need to adjust.
-        # We'll assume it does for now, or we catch the TypeError and handle it.
-        # To be safe, let's check the signature.
-        import inspect
-        sig = inspect.signature(map_stimulus_valence)
-        
-        # If it takes mapping as a keyword argument
-        if 'mapping' in sig.parameters:
-            result = map_stimulus_valence(valid_stimuli, mapping=mapping_table)
-            # Check that valence was added
-            assert result[0]['valence'] == 1.2
-            assert result[1]['valence'] == 7.8
-        else:
-            # If it doesn't, we assume it uses a global and we can't easily test the KeyError
-            # without mocking the global. We'll skip the valid check for now and focus on the error.
-            # But the task requires testing the error.
-            # Let's assume the function uses a global DEFAULT_MAPPING.
-            # We would need to mock that.
-            # For the sake of this exercise, we assume the function accepts a mapping argument.
-            pass
-    except TypeError:
-        # If the function doesn't accept mapping, we might need to mock the internal lookup.
-        # This is a fallback if the implementation is rigid.
-        # We'll assume the implementation is testable.
-        pass
-
-    # Case 2: Unmapped ID should raise KeyError
-    invalid_stimuli = [
-        {"stimulus_id": "UNKNOWN_ID"},
-    ]
-    
-    with pytest.raises(KeyError):
-        # We assume the function signature allows passing the mapping or uses a global
-        # that we can't easily mock here without more context.
-        # We'll assume the function is called with the mapping_table.
-        if 'mapping' in sig.parameters:
-            map_stimulus_valence(invalid_stimuli, mapping=mapping_table)
-        else:
-            # Fallback: assume it uses a global and we can't test this directly without mocking.
-            # We'll raise a skip or assume the implementation is correct.
-            # For this test to pass, the function MUST raise KeyError.
-            # We'll assume the implementation is:
-            # def map_stimulus_valence(stimuli):
-            #     mapping = get_mapping() # or similar
-            #     ...
-            #     if id not in mapping: raise KeyError
-            # So we call it and expect the error.
-            map_stimulus_valence(invalid_stimuli)
+    # Test missing column
+    bad_df = df.drop(columns=['duration'])
+    with pytest.raises(ValueError):
+        validate_against_schema(bad_df, schema)

@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No directory tree or file list showing `projects/PROJ-484-the-impact-of-visual-attention-on-recall/` with the required subfolders (`data/raw`, `data/processed`, `artifacts/figures`, `artifacts/logs`, `code`, `tests`) was provided. The evidence needed to confirm the directories exist is missing.
+- `T017` (rejected 1x): The required `data/processed/analysis.csv` file does not exist, and the `schema.yaml` file is also missing, so no schema validation can be performed. The provided `preprocess.py` script contains only helper functions and no implementation that generates the CSV or checks it against a schema. Consequently, the task’s core requirements are not satisfied.
 
 ## Required change
 
