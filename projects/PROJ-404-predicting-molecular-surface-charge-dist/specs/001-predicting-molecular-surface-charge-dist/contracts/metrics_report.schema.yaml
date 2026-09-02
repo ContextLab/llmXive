@@ -30,6 +30,12 @@ properties:
   peak_memory_gb:
     type: "number"
     description: "Peak memory usage in GB."
+  generalization_gap_train_val:
+    type: "number"
+    description: "Difference between Training MAE and Validation MAE."
+  generalization_gap_val_test:
+    type: "number"
+    description: "Difference between Validation MAE and Test MAE."
 required:
   - model_type
   - test_set_size
@@ -40,4 +46,6 @@ required:
   - hypothesis_validated
   - training_time_hours
   - peak_memory_gb
+  - generalization_gap_train_val
+  - generalization_gap_val_test
 additionalProperties: false

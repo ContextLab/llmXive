@@ -189,6 +189,30 @@
 
 - [X] T038 Run quickstart.md validation by executing `python code/quickstart.py --validate` and verifying exit code 0, satisfying Constitution Principle I.
 
+- [ ] T049 [P] [US1] Implement explicit data source verification in `code/data/loader.py`: Add a pre-flight check that validates the QM9 HuggingFace dataset ID `qm9` contains the `merzkollman_charges` column by downloading a single sample record; fail immediately if the column is missing to prevent silent schema mismatches.
+
+- [ ] T050 [US2] Implement explicit CPU-only constraint enforcement in `code/train.py`: Add a runtime assertion that checks `torch.cuda.is_available()` and raises a `RuntimeError` if a GPU is detected, ensuring the model is trained strictly on CPU as per the free-tier constraint, with a clear error message directing the user to the Kaggle GPU offload path if GPU acceleration is required.
+
+- [ ] T051 [US3] Implement scaffold leakage verification in `code/eval.py`: Add a diagnostic step that cross-references the scaffold IDs of the test set against the training set to ensure zero overlap, raising a `ValueError` if any scaffold ID appears in both sets, to satisfy FR-004 generalization requirements.
+
+- [ ] T052 [P] [US1] Add memory usage logging to `code/data/loader.py`: Implement a wrapper around the streaming iterator that logs peak RAM usage every 1000 molecules using `psutil` to ensure the 7 GB limit is not exceeded during the initial data load phase.
+
+- [ ] T053 [US2] Add training time monitoring in `code/train.py`: Implement a timer that logs the total wall-clock time after each epoch and raises a `TimeoutError` if the total time exceeds 5.5 hours, allowing the process to exit gracefully before the 6-hour runner limit is hit.
+
+- [ ] T054 [P] [US3] Implement a "Hypothesis Not Validated" report generator in `code/eval.py`: If the hypothesis check (T044) fails, generate a detailed `reports/failure_analysis.md` explaining which baseline was beaten and by how much, to aid in research iteration.
+
+- [ ] T055 [US2] Implement model size verification in `code/train.py`: Add a post-save check that verifies the saved model file size is < 500 MB; if larger, log a warning and attempt to save in a compressed format or reduce the number of saved checkpoints.
+
+- [ ] T056 [P] [US1] Implement a "Data Integrity Checksum" task in `code/data/loader.py`: After loading the first batch, compute a SHA-256 hash of the first 1000 rows of the charge vector and log it to `reports/data_checksum.log` to ensure data consistency across runs.
+
+- [ ] T057 [US3] Implement a "Baseline Performance Threshold" check in `code/eval.py`: If the Atom-Type Average baseline MAE is > 0.15 e, log a warning that the baseline is too weak to be a meaningful comparison, but do not fail the run.
+
+- [ ] T058 [P] [US2] Implement a "Gradient Norm Logging" task in `code/train.py`: Log the L2 norm of the gradients after each backward pass to detect vanishing/exploding gradients early, writing to `reports/gradient_norms.log`.
+
+- [ ] T059 [US1] Implement a "Schema Drift Detector" in `code/data/loader.py`: If the dataset schema changes (e.g., new columns added or removed), raise a `SchemaMismatchError` with a list of expected vs. actual columns to prevent silent data corruption.
+
+- [ ] T060 [P] [US3] Implement a "Generalization Gap Visualization" task in `code/eval.py`: Generate a simple text-based plot (using `matplotlib` or `ascii-table`) showing the MAE gap between Train, Val, and Test sets to visually confirm overfitting or underfitting.
+
 ---
 
 ## Dependencies & Execution Order

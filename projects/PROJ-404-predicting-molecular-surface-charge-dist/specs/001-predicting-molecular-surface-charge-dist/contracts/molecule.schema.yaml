@@ -1,52 +1,47 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Molecule Schema"
-description: "Schema for a single molecule in the QM9 dataset with ESP-derived charges."
+title: "MoleculeSchema"
+description: "Schema for a single molecule instance in the QM9 dataset."
 type: "object"
 properties:
-  molecule_id:
+  mol_id:
     type: "string"
     description: "Unique identifier for the molecule."
-  atomic_numbers:
+  atoms:
     type: "array"
+    description: "List of atomic numbers."
     items:
       type: "integer"
-    description: "List of atomic numbers for each atom."
-  coordinates:
+  positions:
     type: "array"
+    description: "3D coordinates (x, y, z) for each atom."
     items:
       type: "array"
       items:
         type: "number"
-    minItems: 2
-    description: "3D coordinates (x, y, z) for each atom. Normalized to center of mass."
+        format: "float"
+      minItems: 3
+      maxItems: 3
+  charges_merkollman:
+    type: "array"
+    description: "Ground truth Merz-Kollman partial charges."
+    items:
+      type: "number"
+      format: "float"
   connectivity:
     type: "array"
+    description: "Bond connectivity (source, target, bond_type)."
     items:
       type: "array"
       items:
         type: "integer"
-    description: "Adjacency matrix or edge list representing bond connectivity."
-  charges:
-    type: "array"
-    items:
-      type: "number"
-    description: "Ground truth ESP-derived partial charges (Merz-Kollman)."
-  scaffold_id:
-    type: "integer"
-    description: "Identifier for the Bemis-Murcko scaffold."
-  split:
+  scaffold:
     type: "string"
-    enum:
-      - "train"
-      - "val"
-      - "test"
-    description: "Data split assignment."
+    description: "Bemis-Murcko scaffold hash."
 required:
-  - molecule_id
-  - atomic_numbers
-  - coordinates
-  - connectivity
-  - charges
-  - scaffold_id
-  - split
+  - "mol_id"
+  - "atoms"
+  - "positions"
+  - "charges_merkollman"
+  - "connectivity"
+  - "scaffold"
 additionalProperties: false

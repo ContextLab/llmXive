@@ -1,59 +1,44 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Prediction Report Schema"
-description: "Schema for the final evaluation report comparing 3D GNN and 2D baseline."
+title: "PredictionSchema"
+description: "Schema for model predictions and evaluation metrics."
 type: "object"
 properties:
-  model_version:
+  experiment_id:
     type: "string"
-    description: "Version identifier for the trained model."
-  dataset_version:
+    description: "Unique identifier for the experiment run."
+  model_type:
     type: "string"
-    description: "Version identifier for the dataset used."
+    enum:
+      - "3D-GNN"
+      - "2D-GNN"
+    description: "Type of model used."
   metrics:
     type: "object"
-    description: "Metrics for the 3D GNN model."
     properties:
       mae:
         type: "number"
-        description: "Mean Absolute Error in elementary charge (e)."
+        description: "Mean Absolute Error."
       rmse:
         type: "number"
-        description: "Root Mean Squared Error in elementary charge (e)."
+        description: "Root Mean Squared Error."
       pearson_r:
         type: "number"
-        description: "Pearson correlation coefficient between predicted and actual charges."
+        description: "Pearson correlation coefficient."
     required:
       - "mae"
       - "rmse"
       - "pearson_r"
-  baseline_metrics:
-    type: "object"
-    description: "Metrics for the 2D connectivity-only baseline."
-    properties:
-      mae:
-        type: "number"
-        description: "Mean Absolute Error in elementary charge (e)."
-      rmse:
-        type: "number"
-        description: "Root Mean Squared Error in elementary charge (e)."
-      pearson_r:
-        type: "number"
-        description: "Pearson correlation coefficient between predicted and actual charges."
-    required:
-      - "mae"
-      - "rmse"
-      - "pearson_r"
-  hypothesis_validated:
-    type: "boolean"
-    description: "True if 3D GNN MAE <= 0.05 e AND 3D GNN MAE < 2D Baseline MAE."
-  exit_code:
+  samples_processed:
     type: "integer"
-    description: "Exit code for the pipeline (0 for success, non-zero for failure)."
+    description: "Number of molecules in the test set."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO8601 timestamp of the run."
 required:
-  - "model_version"
-  - "dataset_version"
+  - "experiment_id"
+  - "model_type"
   - "metrics"
-  - "baseline_metrics"
-  - "hypothesis_validated"
-  - "exit_code"
+  - "samples_processed"
+  - "timestamp"
 additionalProperties: false

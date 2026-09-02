@@ -1,11 +1,11 @@
 status: none
-intent: download QM9 dataset with Merz Kollman charges python package dataset
+intent: QM9 Merz-Kollman charges dataset download Hugging Face python package dataset
 required_fields:
 - molecule_id
 - atomic_numbers
 - coordinates
-- bond_connectivity
+- bond_indices
 - merz_kollman_charges
-cache_key: 7cd2a2db6b233c035320d5b07121d445d0ca158b8ac17dc40d59a8dde1d9fb95
-searched_at: '2026-09-01T10:22:52.167144+00:00'
+cache_key: 14af43a9c5993f0ed2262c0db5c436fa5b347b252422baf421166d2e05f3bb78
+searched_at: '2026-09-02T18:15:45.712867+00:00'
 retry_count: 1
