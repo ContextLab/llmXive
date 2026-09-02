@@ -91,3 +91,11 @@ T038b:
     were checked for existence; the required verification artifact is missing. The
     implementer must supply the verification script (or its output) that confirms
     each referenced file exists.
+T089:
+  c: false
+  h: f9ad9d345b96d3dd452803ec4afc84a57fe59622df0901102ac3b835dc515d2d
+  r: "The `extract_turn_taking.py` file is present but its content is truncated (e.g.,\
+    \ unfinished `turn_stabilit` line) and lacks a CLI entry point that actually runs\
+    \ the wrapped logic and writes `data/processed/turn_taking_dataset.parquet`. Moreover,\
+    \ the required Parquet output file does not exist. The task\u2019s core requirement\u2014\
+    producing the dataset file with the correct schema\u2014is therefore unmet."

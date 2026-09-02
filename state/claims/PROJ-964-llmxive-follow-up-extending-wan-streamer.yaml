@@ -2568,26 +2568,6 @@
   updated_at: '2026-09-01T23:31:45Z'
 - artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
   attempts: 1
-  canonical: turn-taking label precision >= 0.7
-  claim_id: c_0da48ba2
-  context: 'Assumption about turn-taking labels: The semantic and prosodic signals
-    derived from the input audio/text are sufficient to distinguish ''low-information''
-    turns from ''high-information'' interruptions with a precision of at least 0.7.'
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/turn-taking_label_precision_%3E=_0.7
-  kind: magnitude
-  raw_text: The precision of distinguishing low-information turns from high-information
-    interruptions is assumed to be at least 0.7.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-01T23:32:17Z'
-- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
-  attempts: 1
   canonical: TOST margin delta 0.05
   claim_id: c_cd33ad8e
   context: "T049: Perform the Two One-Sided Tests (TOST) with the specified margin\
@@ -2788,55 +2768,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-01T23:37:53Z'
-- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
-  attempts: 3
-  canonical: latency reduction p-value < 0.05
-  claim_id: c_90a7d996
-  context: 'SC-004: Statistical significance of the latency reduction is measured
-    using bias-corrected methods, requiring a p-value < 0.05.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The statistical significance of the latency reduction requires a p-value
-    < 0.05.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-01T23:37:53Z'
-- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
-  attempts: 2
-  canonical: peak RAM usage <= 7 GB
-  claim_id: c_dd5388ac
-  context: "SC-005: Computational feasibility is measured against the CI runner constraints,\
-    \ ensuring peak RAM usage \u2264 7 GB and total runtime \u2264 6 hours."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Peak RAM usage must be \u2264 7 GB."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-01T23:37:54Z'
-- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
-  attempts: 2
-  canonical: total runtime <= 6 hours
-  claim_id: c_8209e574
-  context: "SC-005: Computational feasibility is measured against the CI runner constraints,\
-    \ ensuring peak RAM usage \u2264 7 GB and total runtime \u2264 6 hours."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Total runtime must be \u2264 6 hours."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-01T23:37:54Z'
 - artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
   attempts: 1
   canonical: counterfactual frame indices >= 5 percent of total frames
@@ -3154,3 +3085,1081 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-01T23:44:40Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: 20% latency reduction target
+  claim_id: c_b1400008
+  context: "Success Criteria SC-001 states that latency reduction is measured against\
+    \ the full flow-matching baseline, targeting a \u2265 20% decrease in inference\
+    \ time per frame."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The project targets a \u2265 20% decrease in inference time per frame\
+    \ against the full flow-matching baseline."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:37:30Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: 5% relative FID degradation limit
+  claim_id: c_0ebaf976
+  context: Success Criteria SC-002 specifies that perceptual quality degradation is
+    measured against the baseline FID score, ensuring the hybrid output FID satisfies
+    (FID_hybrid - FID_baseline) / FID_baseline <= 0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hybrid output FID must satisfy the condition (FID_hybrid - FID_baseline)
+    / FID_baseline <= 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:38:00Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: p-value < 0.05 for latency reduction
+  claim_id: c_17a404c4
+  context: Success Criteria SC-004 states that the statistical significance of the
+    latency reduction is measured using bias-corrected methods, requiring a p-value
+    < 0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Statistical significance of the latency reduction requires a p-value <
+    0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:38:01Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: 7 GB peak RAM usage limit
+  claim_id: c_9481fd23
+  context: "Success Criteria SC-005 requires that computational feasibility is measured\
+    \ against the CI runner constraints, ensuring peak RAM usage \u2264 7 GB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Peak RAM usage must be \u2264 7 GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:38:01Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: 6 hours total runtime limit
+  claim_id: c_1629a420
+  context: "Success Criteria SC-005 requires that computational feasibility is measured\
+    \ against the CI runner constraints, ensuring total runtime \u2264 6 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Total runtime must be \u2264 6 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:38:02Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Significant correlation for uncertainty calibration
+  claim_id: c_c9fe1c41
+  context: Success Criteria SC-006 states that uncertainty score calibration is measured
+    against the actual prediction error, requiring a significant correlation between
+    high uncertainty scores and high prediction errors.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Significant_correlation_for_uncertainty_calibration
+  kind: entity_fact
+  raw_text: Uncertainty score calibration requires a significant correlation between
+    high uncertainty scores and high prediction errors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:38:39Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Default sample size 1000
+  claim_id: c_e276a504
+  context: 'Task T014g logic states: ''Else, fall back to config.DEFAULT_SAMPLE_SIZE
+    (defined as 1000 in code/config.py).'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Default_sample_size_1000
+  kind: entity_fact
+  raw_text: The minimum required sample size is defined as 1000 in code/config.py.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:39:13Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: 5% counterfactual intervention threshold
+  claim_id: c_d0d5c025
+  context: "Task T047 logic states: 'Randomly select frame indices such that the count\
+    \ is \u2265 5% of the total frames in the test set.'"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Randomly selected frame indices for counterfactual intervention must\
+    \ be \u2265 5% of the total frames in the test set."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:39:13Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: TOST margin 0.05
+  claim_id: c_a3abf929
+  context: "Task T049 logic states: 'Perform the Two One-Sided Tests (TOST) with the\
+    \ specified margin (\u0394=0.05) on the FID differences between hybrid and baseline\
+    \ outputs.'"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The TOST Equivalence Test for quality uses a margin of \u0394=0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:39:30Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Random seed 42
+  claim_id: c_aa92f715
+  context: Task T007a implements a function set_seed(seed=42) that sets torch.manual_seed,
+    numpy.random.seed, and random.seed.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The seed is pinned to 42 for reproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:39:53Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Minimum 500 interruption and pause events
+  claim_id: c_ea2b47e7
+  context: 'Task T012b logic states: ''If interruption count < 500 OR pause count
+    < 500: Exit immediately with code 1...'''
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P2347: 544'
+      source_id: Q2956685
+      url: https://www.wikidata.org/wiki/Q2956685
+      value: '544'
+    filled: true
+  kind: magnitude
+  raw_text: Interruption and pause event counts must be at least 500 each to proceed.
+  resolved_value: '544'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T21:40:08Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: TOST p-value < 0.05 requirement
+  claim_id: c_37e23cc2
+  context: 'Task T045 verification states: ''Assert p-value < 0.05 and that the output
+    file contains the required fields...'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The TOST test requires a p-value < 0.05 to assert significance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:40:08Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Turn-taking label precision 0.7
+  claim_id: c_f8e9175d
+  context: 'Assumption section states: ''The semantic and prosodic signals derived
+    from the input audio/text are sufficient to distinguish ''low-information'' turns
+    from ''high-information'' interruptions with a precision of at least 0.7.'''
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Turn-taking_label_precision_0.7
+  kind: magnitude
+  raw_text: The assumption about turn-taking labels requires a precision of at least
+    0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:40:58Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: latency reduction target 20 percent
+  claim_id: c_4da51d6d
+  context: "SC-001: Latency reduction is measured against the full flow-matching baseline,\
+    \ targeting a \u2265 20% decrease in inference time per frame."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Targeting a \u2265 20% decrease in inference time per frame."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:42:31Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: FID degradation threshold 0.05
+  claim_id: c_37212219
+  context: 'SC-002: Perceptual quality degradation is measured against the baseline
+    FID score, ensuring the hybrid output FID satisfies (FID_hybrid - FID_baseline)
+    / FID_baseline <= 0.05 (relative ratio).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensuring the hybrid output FID satisfies (FID_hybrid - FID_baseline) /
+    FID_baseline <= 0.05 (relative ratio).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:42:57Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: statistical significance p-value threshold 0.05
+  claim_id: c_eaef77b3
+  context: 'SC-004: Statistical significance of the latency reduction is measured
+    using bias-corrected methods, requiring a p-value < 0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Requiring a p-value < 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:42:57Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: computational constraints peak RAM 7 GB runtime 6 hours
+  claim_id: c_c42cd3c9
+  context: "SC-005: Computational feasibility is measured against the CI runner constraints,\
+    \ ensuring peak RAM usage \u2264 7 GB and total runtime \u2264 6 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensuring peak RAM usage \u2264 7 GB and total runtime \u2264 6 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:42:58Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: counterfactual intervention sample size 5 percent
+  claim_id: c_4b8a6843
+  context: "T047 [US3] Critical Data Generation (Counterfactual Indices): Select frame\
+    \ indices for the randomized counterfactual intervention. Logic: Randomly select\
+    \ frame indices such that the count is \u2265 5% of the total frames in the test\
+    \ set."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Randomly select frame indices such that the count is \u2265 5% of the\
+    \ total frames in the test set."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:42:58Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: theoretical defaults derivation citation Cohen 1988
+  claim_id: c_a943aa32
+  context: 'T015b [US1] Generate Theoretical Defaults: Logic: If empirical data is
+    missing, derive variance and effect_size from domain knowledge or prior literature
+    (e.g., citing Cohen (1988) or similar).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The derivation MUST include a citation and a brief rationale, e.g., citing
+    Cohen (1988) or similar.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:43:30Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: minimum event count threshold 500
+  claim_id: c_19f6f455
+  context: 'T012b [US1] Validate Thresholds & Event Count (Streaming): Logic: Read
+    the raw source logs... If interruption count < 500 OR pause count < 500: Exit
+    immediately with code 1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If interruption count < 500 OR pause count < 500: Exit immediately with
+    code 1.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:43:30Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: default sample size 1000
+  claim_id: c_2e184c82
+  context: 'T014g [US1] Determine Sample Size: Logic: If pre_extraction_sample_size.txt
+    exists, use that value as N. Else, fall back to config.DEFAULT_SAMPLE_SIZE (defined
+    as 1000 in code/config.py).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Default_sample_size_1000
+  kind: entity_fact
+  raw_text: Default sample size is defined as 1000 in code/config.py.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:43:56Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: TOST equivalence test margin 0.05
+  claim_id: c_63a2f82f
+  context: "T049 [US3] TOST Equivalence Test for Quality: Logic: Perform the Two One-Sided\
+    \ Tests (TOST) with the specified margin (\u0394=0.05) on the FID differences\
+    \ between hybrid and baseline outputs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform the Two One-Sided Tests (TOST) with the specified margin (\u0394\
+    =0.05)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:44:19Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: human ratings correlation threshold 0.8
+  claim_id: c_2826859f
+  context: 'T044 [US3] Validate Proxy MOS: If data exists: Compute Pearson correlation
+    between proxy MOS predictions and human MOS scores. Assert that the correlation
+    r >= 0.8 (SC-007).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert that if data exists, the correlation r >= 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:45:22Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: FID stability correlation threshold 0.7
+  claim_id: c_a7a6f81e
+  context: 'T043 [US3] FID Stability Correlation: Verification: Assert that state.yaml
+    is updated with key state.validation_status set to ''passed'' if r >= 0.7 and
+    ''failed'' otherwise.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert that state.yaml is updated with key state.validation_status set
+    to 'passed' if r >= 0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:45:36Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: latency bias analysis p-value threshold 0.05
+  claim_id: c_955a0294
+  context: 'T045 [US3] Implement analyze_latency_bias Module: Output: Write results
+    to data/metrics/latency_bias_analysis.json containing the propensity-score corrected
+    p-value and confidence intervals... Verification: Assert p-value < 0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert p-value < 0.05 for the propensity-score corrected analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:45:37Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: minimum sample size power analysis
+  claim_id: c_a2a7b7da
+  context: 'T053 [P] Implement Sample Size Reduction Module: Implement code/tasks/reduce_sample_size.py
+    that calculates a deferred reduction amount based on the current sample size,
+    the minimum required size from power analysis (MIN_SAMPLE_SIZE defined in code/config.py)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Minimum_sample_size_power_analysis
+  kind: entity_fact
+  raw_text: The minimum required size from power analysis is defined as MIN_SAMPLE_SIZE
+    in code/config.py.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:46:07Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: memory budget 7 GB
+  claim_id: c_6439c6ad
+  context: "T053 [P] Implement Sample Size Reduction Module: ...and the memory budget\
+    \ (\u2264 7 GB)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Memory budget is \u2264 7 GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:46:07Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: latency reduction baseline full flow-matching
+  claim_id: c_f53872a1
+  context: "SC-001: Latency reduction is measured against the full flow-matching baseline,\
+    \ targeting a \u2265 20% decrease in inference time per frame."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Latency_reduction_baseline_full_flow-matching
+  kind: entity_fact
+  raw_text: Latency reduction is measured against the full flow-matching baseline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:46:59Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: quality degradation baseline FID
+  claim_id: c_f58257c2
+  context: 'SC-002: Perceptual quality degradation is measured against the baseline
+    FID score, ensuring the hybrid output FID satisfies (FID_hybrid - FID_baseline)
+    / FID_baseline <= 0.05 (relative ratio).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Quality_degradation_baseline_FID
+  kind: entity_fact
+  raw_text: Perceptual quality degradation is measured against the baseline FID score.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:47:33Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: dataset source Wan-Streamer VoxCeleb2
+  claim_id: c_2e9eaef1
+  context: 'T009 Implement Data Source Check: ...set state.dataset.source to either
+    ''wan-streamer'' or ''voxceleb2''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_source_Wan-Streamer_VoxCeleb2
+  kind: entity_fact
+  raw_text: The dataset source is either Wan-Streamer or VoxCeleb2.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:47:55Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: minimum 500 interruption events and 500 pause events required
+  claim_id: c_db8fbae2
+  context: 'If interruption count < 500 OR pause count < 500: Exit immediately with
+    code 1 and log the specific error message ''Power Limitation: Insufficient Events''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_500_interruption_events_and_500_pause_events_require
+  kind: magnitude
+  raw_text: The total number of interruption events must be at least 500 and the total
+    number of pause events must be at least 500 to proceed.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:49:35Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: 7 GB memory budget for training
+  claim_id: c_5474a4e6
+  context: "Implement code/models/trainer.py containing a CPU\u2011optimized training\
+    \ loop that respects the 7 GB RAM budget..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory budget for the training loop is 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:49:53Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: default sample size is 1000
+  claim_id: c_ce2ea92f
+  context: Else, fall back to config.DEFAULT_SAMPLE_SIZE (defined as 1000 in code/config.py).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Default_sample_size_is_1000
+  kind: entity_fact
+  raw_text: The default sample size is defined as 1000.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:50:15Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: counterfactual intervention selects at least 5% of total frames
+  claim_id: c_1e86facf
+  context: "Randomly select frame indices such that the count is \u2265 5% of the\
+    \ total frames in the test set."
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Counterfactual_intervention_selects_at_least_5%25_of_total_fra
+  kind: magnitude
+  raw_text: The randomized counterfactual intervention must select frame indices such
+    that the count is at least 5% of the total frames in the test set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-02T21:50:47Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: TOST margin is 0.05
+  claim_id: c_fa57acc7
+  context: "Perform the Two One-Sided Tests (TOST) with the specified margin (\u0394\
+    =0.05) on the FID differences between hybrid and baseline outputs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Two One-Sided Tests (TOST) must use a margin (\u0394) of 0.05 on\
+    \ the FID differences."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:51:07Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: target 20% latency reduction per frame
+  claim_id: c_58d8be64
+  context: "Latency reduction is measured against the full flow-matching baseline,\
+    \ targeting a \u2265 20% decrease in inference time per frame."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_20%25_latency_reduction_per_frame
+  kind: magnitude
+  raw_text: The latency reduction is targeted to be at least a 20% decrease in inference
+    time per frame compared to the full flow-matching baseline.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:51:38Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: FID degradation relative ratio must be <= 0.05
+  claim_id: c_1a4c8fd4
+  context: Perceptual quality degradation is measured against the baseline FID score,
+    ensuring the hybrid output FID satisfies (FID_hybrid - FID_baseline) / FID_baseline
+    <= 0.05 (relative ratio).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hybrid output FID must satisfy a relative ratio of (FID_hybrid - FID_baseline)
+    / FID_baseline <= 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:52:02Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: estimator prediction correlation with FID stability must be >= 0.7
+  claim_id: c_76ff94be
+  context: "Estimator prediction accuracy is measured against the actual latent delta\
+    \ magnitude in the validation set... and a correlation (r \u2265 0.7) with FID\
+    \ stability."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Estimator_prediction_correlation_with_FID_stability_must_be
+  kind: magnitude
+  raw_text: The estimator prediction accuracy requires a correlation (r) of at least
+    0.7 with FID stability.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:53:07Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: latency reduction p-value must be < 0.05
+  claim_id: c_bbac77c1
+  context: Statistical significance of the latency reduction is measured using bias-corrected
+    methods, requiring a p-value < 0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical significance of the latency reduction requires a p-value
+    < 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:53:08Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: peak RAM <= 7 GB and runtime <= 6 hours
+  claim_id: c_89f4a29e
+  context: "Computational feasibility is measured against the CI runner constraints,\
+    \ ensuring peak RAM usage \u2264 7 GB and total runtime \u2264 6 hours."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/peak_RAM_%3C=_7_GB_and_runtime_%3C=_6_hours
+  kind: magnitude
+  raw_text: The peak RAM usage must be less than or equal to 7 GB and total runtime
+    must be less than or equal to 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:53:36Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: proxy MOS correlation with human ratings must be >= 0.8
+  claim_id: c_592e3a1b
+  context: "Proxy MOS validity is measured against human ratings (if available), requiring\
+    \ a correlation (r \u2265 0.8)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/proxy_MOS_correlation_with_human_ratings_must_be_%3E=_0.8
+  kind: magnitude
+  raw_text: The proxy MOS validity requires a correlation (r) of at least 0.8 with
+    human ratings if available.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:54:41Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: frame complexity variance must be > 0
+  claim_id: c_4f6ae3c7
+  context: 'Verification: Assert frame_complexity column exists, is non-null, and
+    has a valid distribution (variance > 0).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/frame_complexity_variance_must_be_%3E_0
+  kind: magnitude
+  raw_text: The variance of the audio energy values must be greater than 0 to be considered
+    a valid distribution.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:55:45Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: MIN_SAMPLE_SIZE defined in code/config.py
+  claim_id: c_102f31c5
+  context: 'T053: Implement Sample Size Reduction Module that calculates a deferred
+    reduction amount based on the current sample size, the minimum required size from
+    power analysis (MIN_SAMPLE_SIZE defined in code/config.py), and the memory budget.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MIN_SAMPLE_SIZE_defined_in_code/config.py
+  kind: entity_fact
+  raw_text: The minimum required size from power analysis (MIN_SAMPLE_SIZE) is defined
+    in code/config.py.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:57:52Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: memory budget 7 GB for sample size reduction
+  claim_id: c_c85040b4
+  context: "T053: Implement code/tasks/reduce_sample_size.py that calculates a deferred\
+    \ reduction amount based on the current sample size, the minimum required size\
+    \ from power analysis (MIN_SAMPLE_SIZE defined in code/config.py), and the memory\
+    \ budget (\u2264 7 GB)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory budget for the sample size reduction module is 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:58:13Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: minimum interruption event count 500
+  claim_id: c_70359722
+  context: 'T012b: If interruption count < 500 OR pause count < 500: Exit immediately
+    with code 1 and log the specific error message ''Power Limitation: Insufficient
+    Events''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum event count for interruption events is 500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:58:32Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: minimum pause event count 500
+  claim_id: c_4d30647e
+  context: 'T012b: If interruption count < 500 OR pause count < 500: Exit immediately
+    with code 1 and log the specific error message ''Power Limitation: Insufficient
+    Events''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum event count for pause events is 500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:58:49Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: default sample size 1000 in code/config.py
+  claim_id: c_66ec902c
+  context: 'T014g: Else, fall back to config.DEFAULT_SAMPLE_SIZE (defined as 1000
+    in code/config.py).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Default_sample_size_1000_in_code/config.py
+  kind: entity_fact
+  raw_text: The default sample size (DEFAULT_SAMPLE_SIZE) is defined as 1000 in code/config.py.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:58:52Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: random state 42 for stratified sampling
+  claim_id: c_a740746c
+  context: 'T014b: Implement code/data/preprocess.py function stratified_sample(df,
+    size) that performs stratified sampling based on turn_label using sklearn.model_selection.StratifiedShuffleSplit
+    with random_state=42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random state for stratified sampling is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:59:14Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: latent delta magnitude threshold 0.5 for high priority
+  claim_id: c_1c05095b
+  context: 'T014e: Extend code/data/preprocess.py with assign_priority(df) that adds
+    a boolean column high_priority set to True if latent_delta_magnitude > 0.5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold for high priority events based on latent delta magnitude
+    is 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T21:59:50Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: uncertainty threshold 0.8 for high priority
+  claim_id: c_7ca0764c
+  context: 'T014e: Extend code/data/preprocess.py with assign_priority(df) that adds
+    a boolean column high_priority set to True if ... uncertainty > 0.8.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold for high priority events based on uncertainty is 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T22:00:19Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: counterfactual frame indices count >= 5% of total frames
+  claim_id: c_7e861008
+  context: "T047: Select frame indices for the randomized counterfactual intervention.\
+    \ Logic: Randomly select frame indices such that the count is \u2265 5% of the\
+    \ total frames in the test set."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/counterfactual_frame_indices_count_%3E=_5%25_of_total_frames
+  kind: magnitude
+  raw_text: The random selection count for frame indices in counterfactual intervention
+    is at least 5% of the total frames.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T22:00:46Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: TOST margin 0.05 for quality equivalence
+  claim_id: c_4bdca6cc
+  context: "T049: Perform the Two One-Sided Tests (TOST) with the specified margin\
+    \ (\u0394=0.05) on the FID differences between hybrid and baseline outputs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The margin (\u0394) for the Two One-Sided Tests (TOST) equivalence test\
+    \ is 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T22:01:00Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: proxy MOS human correlation >= 0.8
+  claim_id: c_636832a6
+  context: 'T044: If data exists: Compute Pearson correlation between proxy MOS predictions
+    and human MOS scores. Assert that the correlation r >= 0.8 (SC-007).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/proxy_MOS_human_correlation_%3E=_0.8
+  kind: magnitude
+  raw_text: The required correlation (r) between proxy MOS predictions and human MOS
+    scores is at least 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T22:02:05Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: delta magnitude FID stability correlation >= 0.7
+  claim_id: c_f72322b9
+  context: 'T043: Assert that state.yaml is updated with key state.validation_status
+    set to ''passed'' if r >= 0.7 and ''failed'' otherwise.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/delta_magnitude_FID_stability_correlation_%3E=_0.7
+  kind: magnitude
+  raw_text: The required correlation (r) between predicted delta magnitude and FID
+    stability is at least 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T22:03:09Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 3
+  canonical: peak RAM usage <= 7 GB
+  claim_id: c_dd5388ac
+  context: "SC-005: Computational feasibility is measured against the CI runner constraints,\
+    \ ensuring peak RAM usage \u2264 7 GB and total runtime \u2264 6 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Peak RAM usage must be \u2264 7 GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T22:03:10Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 3
+  canonical: total runtime <= 6 hours
+  claim_id: c_8209e574
+  context: "SC-005: Computational feasibility is measured against the CI runner constraints,\
+    \ ensuring peak RAM usage \u2264 7 GB and total runtime \u2264 6 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Total runtime must be \u2264 6 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T22:03:11Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: latency reduction >= 20% decrease
+  claim_id: c_65cc9715
+  context: "SC-001: Latency reduction is measured against the full flow-matching baseline,\
+    \ targeting a \u2265 20% decrease in inference time per frame."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/latency_reduction_%3E=_20%25_decrease
+  kind: entity_fact
+  raw_text: "The target latency reduction is a \u2265 20% decrease in inference time\
+    \ per frame."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T22:03:34Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: FID relative ratio <= 0.05
+  claim_id: c_1b48c7da
+  context: 'SC-002: Perceptual quality degradation is measured against the baseline
+    FID score, ensuring the hybrid output FID satisfies (FID_hybrid - FID_baseline)
+    / FID_baseline <= 0.05 (relative ratio).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The acceptable relative ratio for perceptual quality degradation is (FID_hybrid
+    - FID_baseline) / FID_baseline <= 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T22:03:55Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 4
+  canonical: latency reduction p-value < 0.05
+  claim_id: c_90a7d996
+  context: 'SC-004: Statistical significance of the latency reduction is measured
+    using bias-corrected methods, requiring a p-value < 0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical significance of the latency reduction requires a p-value
+    < 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T22:03:55Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 2
+  canonical: turn-taking label precision >= 0.7
+  claim_id: c_0da48ba2
+  context: 'Assumption about turn-taking labels: The semantic and prosodic signals
+    derived from the input audio/text are sufficient to distinguish ''low-information''
+    turns from ''high-information'' interruptions with a precision of at least 0.7.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/turn-taking_label_precision_%3E=_0.7
+  kind: magnitude
+  raw_text: The precision of distinguishing low-information turns from high-information
+    interruptions is assumed to be at least 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T22:04:25Z'
