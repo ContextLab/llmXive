@@ -43,3 +43,12 @@ T036:
     \ The test file is fully written (imports, fixtures, and test functions) and satisfies\
     \ the task of adding the contract test. The absence of the JSON data file does\
     \ not affect the requirement, which only mandated adding the test."
+T053:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, configuration file, or documentation showing a stratified sampling
+    strategy for the `codeparrot/github-code` dataset is provided. The claim lacks
+    any artifact that demonstrates functions are sampled proportionally across file
+    types or repository categories, so the requirement is not satisfied. The implementer
+    must supply the sampling implementation (e.g., updated T007 pipeline code) and
+    evidence (e.g., a CSV or log) confirming the proportional distribution.

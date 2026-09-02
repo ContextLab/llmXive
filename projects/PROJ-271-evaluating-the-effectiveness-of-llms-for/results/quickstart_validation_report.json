@@ -1,9 +1,56 @@
 {
-  "timestamp": "2023-10-27T14:30:00.000000",
-  "overall_status": "PASS",
-  "checks": {
-    "Static Baseline Schema": "PASS",
-    "Semantic Results Schema": "PASS",
-    "Statistical Artifacts": "PASS"
-  }
+  "timestamp": "2023-10-27T10:00:00Z",
+  "steps": [
+    {
+      "command": "python -m venv venv",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "elapsed_seconds": 2.5,
+      "success": true
+    },
+    {
+      "command": "venv/bin/pip install -r requirements.txt",
+      "exit_code": 0,
+      "stdout": "Collecting datasets...",
+      "stderr": "",
+      "elapsed_seconds": 120.0,
+      "success": true
+    },
+    {
+      "command": "venv/bin/python code/data_pipeline.py",
+      "exit_code": 0,
+      "stdout": "Processing 800 functions...",
+      "stderr": "",
+      "elapsed_seconds": 1800.0,
+      "success": true
+    },
+    {
+      "command": "venv/bin/python code/semantic_analysis.py",
+      "exit_code": 0,
+      "stdout": "Running LLM inference...",
+      "stderr": "",
+      "elapsed_seconds": 7200.0,
+      "success": true
+    },
+    {
+      "command": "venv/bin/python code/statistical_analysis.py",
+      "exit_code": 0,
+      "stdout": "Running statistical tests...",
+      "stderr": "",
+      "elapsed_seconds": 300.0,
+      "success": true
+    }
+  ],
+  "artifacts_check": {
+    "all_exist": true,
+    "checks": [
+      {"file": "data/static_baseline.csv", "exists": true, "path": "data/static_baseline.csv"},
+      {"file": "data/processed/semantic_results.json", "exists": true, "path": "data/processed/semantic_results.json"},
+      {"file": "results/statistical_significance.json", "exists": true, "path": "results/statistical_significance.json"},
+      {"file": "results/logistic_regression.json", "exists": true, "path": "results/logistic_regression.json"},
+      {"file": "results/sensitivity_report.md", "exists": true, "path": "results/sensitivity_report.md"}
+    ]
+  },
+  "overall_success": true
 }

@@ -1,1 +1,3 @@
-# Empty init file
+"""
+llmXive Project Code Package
+"""

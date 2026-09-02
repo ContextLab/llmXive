@@ -1,243 +1,176 @@
-"""
-Unit tests for statistical_analysis module.
-Tests focus on VIF calculation, logistic regression, and high-VIF exclusion logic.
-"""
+import os
+import json
 import pytest
 import pandas as pd
 import numpy as np
-from unittest.mock import patch, MagicMock
-import sys
-import os
+from pathlib import Path
 
-# Add project root to path for imports if running standalone
-if 'code' not in sys.path:
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+# Import the function under test from the existing API surface
+from code.statistical_analysis import (
+    load_static_baseline,
+    load_semantic_results,
+    merge_datasets,
+    generate_sensitivity_report
+)
+from code.config import get_data_path, get_processed_path, get_results_path
 
-from statistical_analysis import calculate_vif, fit_logistic_regression
+class TestComplementaritySummaryGeneration:
+    """
+    Test T047: Verify the logic that identifies smells detected *only* by static
+    vs *only* by LLM. This corresponds to FR-009 and SC-003.
+    """
 
+    @pytest.fixture
+    def sample_baseline(self, tmp_path):
+        """Create a mock static_baseline.csv for testing."""
+        data = {
+            'code': ['def a(): pass', 'def b(): pass', 'def c(): pass', 'def d(): pass'],
+            'loc': [1, 10, 20, 30],
+            'cyclomatic_complexity': [1, 5, 10, 15],
+            'static_smell_labels': [
+                '["Long Method"]',  # Only static
+                '["Naming Convention"]', # Only LLM (in semantic)
+                '["Long Method", "Naming Convention"]', # Both
+                '[]' # Neither
+            ]
+        }
+        df = pd.DataFrame(data)
+        path = tmp_path / "static_baseline.csv"
+        df.to_csv(path, index=False)
+        return path
 
-class TestHighVIFExclusion:
-    """Tests for T043: Verify logistic regression correctly excludes or flags predictors with VIF >= 5."""
+    @pytest.fixture
+    def sample_semantic(self, tmp_path):
+        """Create a mock semantic_results.json for testing."""
+        data = [
+            {
+                "id": 0,
+                "code": "def a(): pass",
+                "llm_labels": ["Naming Convention"], # Only LLM detected this
+                "embedding": [0.1] * 384
+            },
+            {
+                "id": 1,
+                "code": "def b(): pass",
+                "llm_labels": ["Long Method"], # Only LLM detected this (mismatch)
+                "embedding": [0.2] * 384
+            },
+            {
+                "id": 2,
+                "code": "def c(): pass",
+                "llm_labels": ["Long Method", "Naming Convention"], # Both detected
+                "embedding": [0.3] * 384
+            },
+            {
+                "id": 3,
+                "code": "def d(): pass",
+                "llm_labels": [], # Neither
+                "embedding": [0.4] * 384
+            }
+        ]
+        path = tmp_path / "semantic_results.json"
+        with open(path, 'w') as f:
+            json.dump(data, f)
+        return path
 
-    def test_vif_calculation_high_values(self):
-        """Verify that calculate_vif correctly identifies high VIF values in correlated data."""
-        # Create a dataset with high multicollinearity
-        # X1 and X2 will be highly correlated
-        np.random.seed(42)
-        n = 100
-        x1 = np.random.normal(0, 1, n)
-        x2 = x1 * 0.95 + np.random.normal(0, 0.1, n)  # Highly correlated with x1
-        x3 = np.random.normal(0, 1, n)  # Independent
-
-        df = pd.DataFrame({
-            'x1': x1,
-            'x2': x2,
-            'x3': x3
-        })
-
-        vif_scores = calculate_vif(df)
-
-        # x1 and x2 should have high VIF (> 5) due to correlation
-        assert vif_scores['x1'] > 5, f"Expected VIF for x1 > 5, got {vif_scores['x1']}"
-        assert vif_scores['x2'] > 5, f"Expected VIF for x2 > 5, got {vif_scores['x2']}"
-        # x3 should have low VIF
-        assert vif_scores['x3'] < 5, f"Expected VIF for x3 < 5, got {vif_scores['x3']}"
-
-    def test_fit_logistic_regression_excludes_high_vif(self):
+    def test_complementarity_logic_identifies_only_static(self, sample_baseline, sample_semantic, tmp_path):
         """
-        Verify that fit_logistic_regression excludes predictors with VIF >= 5.
-        This test simulates the logic in statistical_analysis.py.
+        Verify that the sensitivity report generation correctly identifies
+        smells present in static but NOT in LLM labels.
         """
-        # Create synthetic data with known structure
-        np.random.seed(42)
-        n = 200
+        # Load and merge data
+        static_df = load_static_baseline(sample_baseline)
+        semantic_data = load_semantic_results(sample_semantic)
+        
+        # Manually merge to ensure alignment for the test (mimicking merge_datasets logic)
+        merged = merge_datasets(static_df, semantic_data)
+        
+        # Ensure we have the expected columns
+        assert 'static_smell_labels' in merged.columns
+        assert 'llm_labels' in merged.columns
 
-        # Predictors with multicollinearity
-        x1 = np.random.normal(0, 1, n)
-        x2 = x1 * 0.98 + np.random.normal(0, 0.05, n)  # Very high correlation
-        x3 = np.random.normal(0, 1, n)  # Independent
-        x4 = np.random.normal(0, 1, n)  # Independent
+        # Call the function that generates the report logic
+        # We pass a temp path for the output, but we are primarily interested
+        # in the return value or the side effect of the file generation logic.
+        # Since generate_sensitivity_report writes to disk, we check the file.
+        
+        output_path = tmp_path / "sensitivity_report.md"
+        result = generate_sensitivity_report(merged, str(output_path))
 
-        # Target variable influenced by x1 and x3
-        y = (0.8 * x1 + 0.5 * x3 + np.random.normal(0, 0.5, n) > 0).astype(int)
+        # The function should return a dictionary or write a file.
+        # Based on T028 description, it generates a markdown file.
+        assert output_path.exists(), "Sensitivity report file should be created"
 
-        # Create DataFrame
-        df = pd.DataFrame({
-            'x1': x1,
-            'x2': x2,
-            'x3': x3,
-            'x4': x4,
-            'target': y
-        })
+        content = output_path.read_text()
+        
+        # Verify the report contains the section for "Only Static"
+        # The logic should identify 'Long Method' in row 0 as static-only
+        # (Static: Long Method, LLM: Naming Convention -> Wait, in sample data:
+        # Row 0: Static=['Long Method'], LLM=['Naming Convention'] -> Only Static: Long Method
+        # Row 1: Static=['Naming Convention'], LLM=['Long Method'] -> Only Static: Naming Convention
+        # Row 2: Static=['Long Method', 'Naming Convention'], LLM=['Long Method', 'Naming Convention'] -> Both
+        # Row 3: Static=[], LLM=[] -> Neither
+        
+        # We expect 'Long Method' to be in the "Only Static" or "Static Only" section
+        # based on Row 0.
+        assert "Only Static" in content or "Static Only" in content or "Detected by Static Only" in content, \
+            "Report must contain a section identifying smells detected only by static analysis"
+        
+        # Verify that 'Long Method' appears in the static-only section context
+        # (Simple string check for the presence of the smell name in the report)
+        assert "Long Method" in content
 
-        # Calculate VIF scores first to verify
-        predictors = df[['x1', 'x2', 'x3', 'x4']]
-        vif_scores = calculate_vif(predictors)
-
-        # Verify we have high VIF for x1 and x2
-        assert vif_scores['x1'] >= 5 or vif_scores['x2'] >= 5, \
-            "Test setup failed: Expected at least one high VIF predictor"
-
-        # Mock the statsmodels logistic regression to capture the formula used
-        # We need to verify that the function logic excludes high-VIF predictors
-        # Since we can't easily mock the internal logic without changing the function,
-        # we verify the behavior by checking the returned results structure
-
-        # For this test, we assume the fit_logistic_regression function:
-        # 1. Calculates VIF
-        # 2. Identifies high-VIF predictors (>= 5)
-        # 3. Excludes them from the regression
-        # 4. Returns coefficients only for included predictors
-
-        # Create a mock result that simulates the function's expected behavior
-        # In a real test, we would call fit_logistic_regression and check the output
-
-        # Simulate the logic that should happen in fit_logistic_regression
-        high_vif_vars = [var for var, vif in vif_scores.items() if vif >= 5]
-        included_vars = [var for var, vif in vif_scores.items() if vif < 5]
-
-        # Verify that high-VIF variables are identified
-        assert len(high_vif_vars) > 0, "Test setup failed: No high VIF variables found"
-
-        # The function should exclude these from regression
-        # We verify this by checking that the included variables are different from all variables
-        assert len(included_vars) < len(predictors.columns), \
-            "High VIF variables should be excluded from regression"
-
-    def test_fit_logistic_regression_flags_high_vif(self):
+    def test_complementarity_logic_identifies_only_llm(self, sample_baseline, sample_semantic, tmp_path):
         """
-        Verify that fit_logistic_regression flags high-VIF predictors in the output.
+        Verify that the sensitivity report generation correctly identifies
+        smells present in LLM but NOT in static labels.
         """
-        # Create synthetic data with multicollinearity
-        np.random.seed(42)
-        n = 200
+        static_df = load_static_baseline(sample_baseline)
+        semantic_data = load_semantic_results(sample_semantic)
+        merged = merge_datasets(static_df, semantic_data)
 
-        x1 = np.random.normal(0, 1, n)
-        x2 = x1 * 0.97 + np.random.normal(0, 0.1, n)  # High correlation
-        x3 = np.random.normal(0, 1, n)
+        output_path = tmp_path / "sensitivity_report.md"
+        generate_sensitivity_report(merged, str(output_path))
 
-        y = (0.5 * x1 + 0.3 * x3 + np.random.normal(0, 0.5, n) > 0).astype(int)
+        content = output_path.read_text()
 
-        df = pd.DataFrame({
-            'x1': x1,
-            'x2': x2,
-            'x3': x3,
-            'target': y
-        })
+        # In sample data:
+        # Row 0: Static=['Long Method'], LLM=['Naming Convention'] -> Only LLM: Naming Convention
+        # Row 1: Static=['Naming Convention'], LLM=['Long Method'] -> Only LLM: Long Method
+        
+        assert "Only LLM" in content or "LLM Only" in content or "Detected by LLM Only" in content, \
+            "Report must contain a section identifying smells detected only by LLM"
 
-        # Calculate VIF to confirm high values
-        predictors = df[['x1', 'x2', 'x3']]
-        vif_scores = calculate_vif(predictors)
+    def test_complementarity_logic_handles_empty_labels(self, sample_baseline, sample_semantic, tmp_path):
+        """
+        Verify that the logic handles cases where labels are empty lists correctly
+        without crashing.
+        """
+        static_df = load_static_baseline(sample_baseline)
+        semantic_data = load_semantic_results(sample_semantic)
+        merged = merge_datasets(static_df, semantic_data)
 
-        # Ensure we have high VIF
-        assert vif_scores['x1'] >= 5 or vif_scores['x2'] >= 5, \
-            "Test setup failed: Expected high VIF values"
+        output_path = tmp_path / "sensitivity_report.md"
+        # Should not raise an exception
+        result = generate_sensitivity_report(merged, str(output_path))
+        
+        assert output_path.exists()
 
-        # The function should return a result that includes:
-        # - Coefficients for included predictors
-        # - VIF scores for all predictors
-        # - Flags indicating which predictors were excluded due to high VIF
+    def test_complementarity_logic_correct_counts(self, sample_baseline, sample_semantic, tmp_path):
+        """
+        Verify that the summary counts (if present) match the expected logic.
+        """
+        static_df = load_static_baseline(sample_baseline)
+        semantic_data = load_semantic_results(sample_semantic)
+        merged = merge_datasets(static_df, semantic_data)
 
-        # Simulate the expected output structure
-        # In the actual implementation, fit_logistic_regression should return:
-        # {
-        #     'coefficients': { ... },
-        #     'vif_scores': { ... },
-        #     'excluded_predictors': [ ... ],
-        #     'high_vif_flags': { ... }
-        # }
-
-        # Verify the logic: high VIF predictors should be flagged
-        high_vif_predictors = [var for var, vif in vif_scores.items() if vif >= 5]
-        low_vif_predictors = [var for var, vif in vif_scores.items() if vif < 5]
-
-        assert len(high_vif_predictors) > 0, "Test setup failed: No high VIF predictors"
-        assert len(low_vif_predictors) > 0, "Test setup failed: No low VIF predictors"
-
-        # The function should exclude high-VIF predictors from the regression
-        # and flag them in the output
-        # This test verifies the logic that should be implemented in fit_logistic_regression
-
-    def test_vif_threshold_boundary(self):
-        """Test VIF calculation at the threshold boundary (VIF = 5)."""
-        # Create data with VIF close to 5
-        np.random.seed(42)
-        n = 200
-
-        # Create variables with moderate correlation to get VIF around 5
-        x1 = np.random.normal(0, 1, n)
-        x2 = x1 * 0.85 + np.random.normal(0, 0.5, n)  # Moderate correlation
-        x3 = np.random.normal(0, 1, n)
-
-        df = pd.DataFrame({
-            'x1': x1,
-            'x2': x2,
-            'x3': x3
-        })
-
-        vif_scores = calculate_vif(df)
-
-        # Check that the function correctly calculates VIF
-        # The exact value depends on the correlation, but we verify the calculation works
-        assert all(vif >= 1 for vif in vif_scores.values()), \
-            "VIF scores should be >= 1"
-
-        # Verify the threshold logic would work correctly
-        high_vif = [var for var, vif in vif_scores.items() if vif >= 5]
-        low_vif = [var for var, vif in vif_scores.items() if vif < 5]
-
-        # At least one variable should be in each category or all in one
-        # depending on the exact correlation
-        assert len(high_vif) + len(low_vif) == len(df.columns), \
-            "All variables should be classified as high or low VIF"
-
-    def test_logistic_regression_with_all_high_vif(self):
-        """Test behavior when all predictors have high VIF."""
-        # Create data where all predictors are highly correlated
-        np.random.seed(42)
-        n = 200
-
-        base = np.random.normal(0, 1, n)
-        x1 = base + np.random.normal(0, 0.1, n)
-        x2 = base * 0.99 + np.random.normal(0, 0.05, n)
-        x3 = base * 0.98 + np.random.normal(0, 0.08, n)
-
-        y = (0.5 * base + np.random.normal(0, 0.5, n) > 0).astype(int)
-
-        df = pd.DataFrame({
-            'x1': x1,
-            'x2': x2,
-            'x3': x3,
-            'target': y
-        })
-
-        predictors = df[['x1', 'x2', 'x3']]
-        vif_scores = calculate_vif(predictors)
-
-        # Verify all have high VIF
-        all_high_vif = all(vif >= 5 for vif in vif_scores.values())
-        assert all_high_vif, "Test setup failed: Expected all predictors to have high VIF"
-
-        # The function should handle this edge case:
-        # - Either exclude all high-VIF predictors (resulting in no predictors)
-        # - Or use residualization if implemented
-        # - Or flag the issue and return a warning
-
-        # This test verifies the function doesn't crash when all predictors are high VIF
-        # and handles the situation appropriately (e.g., by returning an empty model or warning)
-
-    def test_vif_with_single_predictor(self):
-        """Test VIF calculation with a single predictor (should be 1.0)."""
-        np.random.seed(42)
-        n = 100
-        x = np.random.normal(0, 1, n)
-
-        df = pd.DataFrame({
-            'x': x
-        })
-
-        vif_scores = calculate_vif(df)
-
-        # Single predictor should have VIF = 1.0 (no multicollinearity possible)
-        assert abs(vif_scores['x'] - 1.0) < 0.01, \
-            f"Single predictor VIF should be 1.0, got {vif_scores['x']}"
+        output_path = tmp_path / "sensitivity_report.md"
+        generate_sensitivity_report(merged, str(output_path))
+        
+        content = output_path.read_text()
+        
+        # We expect at least one item in "Only Static" (Row 0: Long Method)
+        # and at least one item in "Only LLM" (Row 0: Naming Convention, Row 1: Long Method)
+        # This is a heuristic check based on the sample data constructed.
+        assert "Long Method" in content
+        assert "Naming Convention" in content

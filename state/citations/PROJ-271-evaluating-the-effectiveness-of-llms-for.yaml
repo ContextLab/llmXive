@@ -1,11 +1,1 @@
-- artifact_hash: 13a7acfc02db946a3a4b3782b5af3d41a994bcc908418b3923109b83d215cb17
-  artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.1234/example
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.1234/example
-  verified_at: '2026-09-01T13:51:33.862796Z'
+[]

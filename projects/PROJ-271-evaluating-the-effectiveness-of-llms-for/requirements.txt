@@ -8,6 +8,6 @@ scikit-learn
 statsmodels
 numpy
 psutil
-pytest
-flake8
+autoflake
 black
+flake8

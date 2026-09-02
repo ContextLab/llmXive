@@ -1,9 +1,44 @@
-Analyze the following Python code snippet for code smells.
-Return a JSON list of smell categories detected.
-Available categories: NamingConvention, LongMethod, ComplexCondition, DuplicateCode, DeepNesting, TooManyArguments, TooManyLocals, DeadCode.
+You are an expert code analysis assistant. Your task is to detect code smells in the provided Python function.
 
-Code:
+Analyze the code below and identify any code smells from the following categories:
+- Long Method
+- Complex Conditional
+- Unused Parameter
+- Unused Variable
+- Naming Convention
+- Magic Number
+- Duplicate Code
+- Deep Nesting
+- Large Class
+- Feature Envy
+- Data Clumps
+- Primitive Obsession
+- Switch Statements
+- Parallel Inheritance Hierarchies
+- Lazy Class
+- Speculative Generality
+- Temporary Field
+- God Class
+- Long Parameter List
+- Refused Bequest
+- Middle Man
+- Insufficient Modularization
+- Broken Modularization
+- Hub-and-Spoke
+- Poltergeists
+- Inappropriate Intimacy
+- Cyclic-Dependent Modularization
+
+INSTRUCTIONS:
+1. Analyze the provided Python function carefully.
+2. Identify ALL applicable code smells from the list above.
+3. Output ONLY a JSON array containing the names of the detected smells as strings.
+4. Do NOT include any markdown formatting (no ```json or ```).
+5. Do NOT include any explanatory text, comments, or additional content.
+6. If no smells are detected, output an empty JSON array: []
+7. Ensure the output is valid JSON that can be directly parsed.
+
+CODE TO ANALYZE:
 {code}
 
-Output:
-["Smell1", "Smell2"]
+OUTPUT (JSON ARRAY ONLY):
