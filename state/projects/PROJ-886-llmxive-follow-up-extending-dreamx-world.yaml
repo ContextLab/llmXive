@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T17:36:20.484048Z'
-current_stage: flesh_out_complete
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-886-llmxive-follow-up-extending-dreamx-world
-last_run_id: ccc2f5fc-1066-46bc-9a98-2ac895fc9326
+last_run_id: 5af89d39-0917-495b-a090-eb28e7c223c9
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-886-llmxive-follow-up-extending-dreamx-world/specs/001-llmxive-follow-up-extending-dreamx-world
 title: 'llmXive follow-up: extending "DreamX-World 1.0: A General-Purpose Interactive
   World Model"'
-updated_at: '2026-07-30T21:37:22.315382Z'
+updated_at: '2026-09-02T22:53:55.924867Z'

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.01164",
+  "judged_at": "2026-09-02T22:11:46Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"dreamx-world 1.0: a general-purpose interactive world model\" computer science",
+  "rationale": "This paper is a canonical survey on \"interactive world modeling,\" which directly addresses the core mechanism and domain of the user's question regarding the \"DreamX-World 1.0\" follow-up. It satisfies criteria (d) as a foundational reference for the field and (f) by providing the essential literature review context (benchmarks, challenges, trends) that any researcher extending a specific world model paper would need to cite.",
+  "relevant": true
+}

@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-30T21:36:46Z",
+  "fetched_at": "2026-09-02T22:11:52Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,104 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive World Model\"",
       "target_n": 5
     },
-    "duration_seconds": 159.727,
-    "ended_at": "2026-07-30T21:36:46Z",
+    "duration_seconds": 44.011,
+    "ended_at": "2026-09-02T22:11:52Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "interactive world models for large language models"
+          "general-purpose interactive world models"
         ],
         [
           2,
-          "general-purpose embodied AI simulation"
+          "DreamX-World architecture extensions"
         ],
         [
           3,
-          "dynamic environment modeling with LLMs"
+          "generative world models for interactive agents"
         ],
         [
           4,
-          "procedural world generation using transformer models"
+          "large language models for world simulation"
         ],
         [
           5,
-          "LLM-driven interactive narrative engines"
+          "interactive environment modeling with transformers"
         ],
         [
           6,
-          "real-time simulation of virtual worlds via language models"
+          "video prediction in interactive environments"
         ],
         [
           7,
-          "multimodal world models for agent planning"
+          "model-based reinforcement learning with generative priors"
         ],
         [
           8,
-          "generative world models for robotics simulation"
+          "foundation models for embodied AI simulation"
         ],
         [
           9,
-          "language-based interactive environment synthesis"
+          "scalable interactive world representations"
         ],
         [
           10,
-          "DreamX architecture extensions for world modeling"
+          "neural world models for planning and control"
         ],
         [
           11,
-          "scalable interactive simulation using foundation models"
+          "generative video models for agent interaction"
         ],
         [
           12,
-          "LLM agents in procedurally generated environments"
+          "unified world models for multi-modal agents"
         ],
         [
           13,
-          "cognitive world models for autonomous agents"
+          "learning dynamics in interactive simulation environments"
         ],
         [
           14,
-          "generative AI for interactive 3D world creation"
+          "transformer-based world model architectures"
         ],
         [
           15,
-          "language-guided world state evolution"
+          "generalizable interactive simulation frameworks"
         ],
         [
           16,
-          "neural world models for interactive storytelling"
+          "autoregressive world model generation"
         ],
         [
           17,
-          "LLM-based physics and logic simulation"
+          "latent dynamics learning for interactive tasks"
         ],
         [
           18,
-          "adaptive world models for human-AI interaction"
+          "multimodal world model pretraining"
         ],
         [
           19,
-          "foundation model architectures for dynamic environments"
+          "next-token prediction for interactive environments"
         ],
         [
           20,
-          "sim-to-real transfer using generative world models"
+          "simulation-based reasoning with large language models"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "interactive world models for large language models": 5,
+        "general-purpose interactive world models": 5,
         "llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive World Model\" computer science": 0
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "generative world model interactive environment synthesis",
-      "DreamX-World 1.0 interactive RL agent simulation",
-      "video prediction policy learning embodied AI",
-      "model-based reinforcement learning planning horizon evaluation",
-      "data contamination world model training leakage"
+      "generative world model interactive simulation",
+      "DreamX-World 1.0 general purpose agent",
+      "model-based reinforcement learning dynamics",
+      "world model planning evaluation benchmark",
+      "self-supervised visual prediction environment"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -115,51 +115,30 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "exhausted",
+    "outcome": "success_after_expansion",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2511.22904"
+        "2510.20668"
       ]
     },
     "per_query_hit_count": {
-      "DreamX-World 1.0 interactive RL agent simulation": 3,
-      "data contamination world model training leakage": 3,
-      "generative world model interactive environment synthesis": 3,
+      "DreamX-World 1.0 general purpose agent": 3,
+      "generative world model interactive simulation": 3,
       "llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive World Model\" computer science": 3,
-      "model-based reinforcement learning planning horizon evaluation": 3,
-      "video prediction policy learning embodied AI": 3
+      "model-based reinforcement learning dynamics": 3,
+      "self-supervised visual prediction environment": 3,
+      "world model planning evaluation benchmark": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 4,
-      "rejections": [
-        {
-          "primary_pointer": "2501.05032",
-          "rationale": "The paper focuses on general techniques for improving conversational coherence and emotional intelligence in LLMs, which is a distinct construct from the user's specific question about extending a \"General-Purpose Interactive World Model\" (a system for simulating dynamic environments and physical interactions). It fails the \"off-domain entirely\" rejection rule because it addresses human-like dialogue rather than the mechanics of world modeling, planning, or interactive simulation required by the",
-          "title": "Enhancing Human-Like Responses in Large Language Models"
-        },
-        {
-          "primary_pointer": "2402.14679",
-          "rationale": "The paper investigates LLM personality consistency and self-knowledge, which is a distinct construct from the user's question regarding \"World Models\" (interactive environment simulators) and the specific \"DreamX-World 1.0\" architecture. While both involve LLMs, the candidate paper does not measure the same mechanism (world simulation vs. personality traits), share the same variables, or provide a foundational methodology for the specific domain of interactive world models.",
-          "title": "Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality"
-        },
-        {
-          "primary_pointer": "2405.11357",
-          "rationale": "The paper investigates a specific limitation of LLMs regarding character-level understanding, which is a distinct construct from the user's question about extending a specific interactive world model (\"DreamX-World 1.0\"). While both involve LLMs, the candidate paper does not address the mechanism, variables, or empirical setting of interactive world models, nor does it provide a foundational method or baseline for that specific domain, failing to meet any of the inclusion criteria (a-f).",
-          "title": "Large Language Models Lack Understanding of Character Composition of Words"
-        },
-        {
-          "primary_pointer": "2403.09676",
-          "rationale": "The paper focuses on AI deception, safety governance, and behavioral categorization, which is a distinct construct from the user's question regarding \"DreamX-World 1.0,\" a specific interactive world model architecture. There is no overlap in the mechanism (world modeling vs. deception), variables, or empirical domain, and the paper does not serve as a foundational reference for the specific world model system mentioned.",
-          "title": "Unmasking the Shadows of AI: Investigating Deceptive Capabilities in Large Language Models"
-        }
-      ]
+      "rejected_count": 0,
+      "rejections": []
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-30T21:34:07Z",
+    "started_at": "2026-09-02T22:11:08Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"dreamx-world 1.0: a general-purpose interactive world model\" computer science",
       "raw": "llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive World Model\" computer science"
@@ -178,7 +157,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-07-30T21:36:36Z",
+        "failed_at": "2026-09-02T22:11:38Z",
         "reason": "query_irrelevant"
       },
       {
@@ -197,7 +176,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-07-30T21:36:36Z",
+        "failed_at": "2026-09-02T22:11:38Z",
         "reason": "query_irrelevant"
       },
       {
@@ -215,28 +194,7 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-07-30T21:36:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Evaluating robot control policies is difficult: real-world testing is costly, and handcrafted simulators require manual effort to improve in realism and generality. We propose a world-model-based policy evaluation environment (WorldGym), an autoregressive, action-conditioned video generation model which serves as a proxy to real world environments. Policies are evaluated via Monte Carlo rollouts in the world model, with a vision-language model providing rewards. We evaluate a set of VLA-based real-robot policies in the world model using only initial frames from real robots, and show that policy success rates within the world model highly correlate with real-world success rates. Moreoever, we show that WorldGym is able to preserve relative policy rankings across different policy versions, sizes, and training checkpoints. Due to requiring only a single start frame as input, the world model further enables efficient evaluation of robot policies' generalization ability on novel tasks and environments. We find that modern VLA-based robot policies still struggle to distinguish object shapes and can become distracted by adversarial facades of objects. While generating highly realistic object interaction remains challenging, WorldGym faithfully emulates robot motions and offers a practical starting point for safe and reproducible policy evaluation before deployment.",
-          "claimed_authors": [
-            "Julian Quevedo",
-            "Ansh Kumar Sharma",
-            "Yixiang Sun",
-            "Varad Suryavanshi",
-            "Percy Liang",
-            "Sherry Yang"
-          ],
-          "claimed_title": "WorldGym: World Model as An Environment for Policy Evaluation",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2506.00613"
-        },
-        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='WorldGym: World Model as An Environment for Policy Evaluation')",
-        "failed_at": "2026-07-30T21:36:36Z",
+        "failed_at": "2026-09-02T22:11:38Z",
         "reason": "query_irrelevant"
       },
       {
@@ -261,133 +219,105 @@
           "primary_pointer": "2606.01164"
         },
         "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Towards Interactive Video World Modeling: Frontiers, Challenges, Benchmarks, and Future Trends')",
-        "failed_at": "2026-07-30T21:36:36Z",
+        "failed_at": "2026-09-02T22:11:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This paper reviews the formulation of the Feynman-Vernon model of linear dissipative systems for a standard Brownian particle moving in an external potential $V(x,t)$ and introduces the formulation of a generalized oscillator model of a Brownian particle coupled to a thermal environment moving with a given velocity $v_{env}$. Diffusion processes in a moving environment are of interest e.g. in the study of the motion of vortices in superfluids. The starting point of the paper is the formulation of the oscillator model that takes into account space and time invariance of a thermal environment [M. Patriarca, Statistical correlations in the oscillator model of quantum Brownian motion, Il Nuovo Cimento B, 111(1), 61-72 (1996), doi: 10.1007/BF02726201, arXiv:1801.02429], which has the property of being finite and consistent with the classical limit. The Langevin equation and the influence functional for a Brownian particle in a moving environment are derived.",
+          "claimed_abstract": "Video world models can generate realistic futures from a single instruction, but they often fail to track the same physical points consistently across time. As a result, the generated videos appear plausible, yet lack the physical grounding required for reliable action execution, such as robot manipulation. We present GEM-4D, a geometry-grounded video world model that resolves this limitation by injecting dense 4D correspondence supervision distilled from a pretrained geometry foundation model into the video generative backbone during training. This supervision enables the model to jointly capture appearance and geometric structure while retaining a single-stream architecture with no additional inference cost. We further introduce an inverse dynamics module that converts correspondence-consistent video rollouts into executable robot trajectories, enabling direct deployment in both real-world and simulated manipulation. GEM-4D achieves state-of-the-art performance on both video prediction and geometric consistency across both simulation and realistic scenarios and improves real-world manipulation success from 61% to 81%. Additional results are available at https://gem-4d.github.io/.",
           "claimed_authors": [
-            "Marco Patriarca"
+            "Kaichen Zhou",
+            "Yuzhen Chen",
+            "Fangneng Zhan",
+            "Hang Hua",
+            "Grace Chen",
+            "Xinhai Chang",
+            "Ao Qu",
+            "Yilun Du",
+            "Zhuang Liu",
+            "Paul Pu Liang",
+            "Mengyu Wang"
           ],
-          "claimed_title": "Feynman-Vernon model of a moving thermal environment",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1803.10300"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Feynman-Vernon model of a moving thermal environment')",
-        "failed_at": "2026-07-30T21:36:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This article proposes a methodology to model and simulate complex systems, based on IRM4MLS, a generic agent-based meta-model able to deal with multi-level systems. This methodology permits the engineering of dynamic multi-level agent-based models, to represent complex systems over several scales and domains of interest. Its goal is to simulate a phenomenon using dynamically the lightest representation to save computer resources without loss of information. This methodology is based on two mechanisms: (1) the activation or deactivation of agents representing different domain parts of the same phenomenon and (2) the aggregation or disaggregation of agents representing the same phenomenon at different scales.",
-          "claimed_authors": [
-            "Jean-Baptiste Soyez",
-            "Gildas Morvan",
-            "Daniel Dupont",
-            "Rochdi Merzouki"
-          ],
-          "claimed_title": "A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2013,
-          "primary_pointer": "1311.5108"
-        },
-        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations')",
-        "failed_at": "2026-07-30T21:36:37Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Systematic exploration of Agent-Based Models (ABMs) is challenged by the curse of dimensionality and their inherent stochasticity. We present a multi-stage pipeline integrating the systematic design of experiments with machine learning surrogates. Using a predator-prey case study, our methodology proceeds in two steps. First, an automated model-based screening identifies dominant variables, assesses outcome variability, and segments the parameter space. Second, we train Machine Learning models to map the remaining nonlinear interaction effects. This approach automates the discovery of unstable regions where system outcomes are highly dependent on nonlinear interactions between many variables. Thus, this work provides modelers with a rigorous, hands-off framework for sensitivity analysis and policy testing, even when dealing with high-dimensional stochastic simulators.",
-          "claimed_authors": [
-            "Paul Saves",
-            "Matthieu Mastio",
-            "Nicolas Verstaevel",
-            "Benoit Gaudou"
-          ],
-          "claimed_title": "From Model-Based Screening to Data-Driven Surrogates: A Multi-Stage Workflow for Exploring Stochastic Agent-Based Models",
+          "claimed_title": "GEM-4D: Geometry-Enhanced Video World Models for Robot Manipulation",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2604.03350"
+          "primary_pointer": "2605.22882"
         },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='From Model-Based Screening to Data-Driven Surrogates: A Multi-Stage Workflow for Exploring Stochastic Agent-Based Models')",
-        "failed_at": "2026-07-30T21:36:37Z",
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='GEM-4D: Geometry-Enhanced Video World Models for Robot Manipulation')",
+        "failed_at": "2026-09-02T22:11:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Embodied Artificial Intelligence (Embodied AI) is crucial for achieving Artificial General Intelligence (AGI) and serves as a foundation for various applications (e.g., intelligent mechatronics systems, smart manufacturing) that bridge cyberspace and the physical world. Recently, the emergence of Multi-modal Large Models (MLMs) and World Models (WMs) have attracted significant attention due to their remarkable perception, interaction, and reasoning capabilities, making them a promising architecture for embodied agents. In this survey, we give a comprehensive exploration of the latest advancements in Embodied AI. Our analysis firstly navigates through the forefront of representative works of embodied robots and simulators, to fully understand the research focuses and their limitations. Then, we analyze four main research targets: 1) embodied perception, 2) embodied interaction, 3) embodied agent, and 4) sim-to-real adaptation, covering state-of-the-art methods, essential paradigms, and comprehensive datasets. Additionally, we explore the complexities of MLMs in virtual and real embodied agents, highlighting their significance in facilitating interactions in digital and physical environments. Finally, we summarize the challenges and limitations of embodied AI and discuss potential future directions. We hope this survey will serve as a foundational reference for the research community. The associated project can be found at https://github.com/HCPLab-SYSU/Embodied_AI_Paper_List.",
+          "claimed_abstract": "Planning with partial observation is a central challenge in embodied AI. A majority of prior works have tackled this challenge by developing agents that physically explore their environment to update their beliefs about the world state. In contrast, humans can $\\textit{imagine}$ unseen parts of the world through a mental exploration and $\\textit{revise}$ their beliefs with imagined observations. Such updated beliefs can allow them to make more informed decisions, without necessitating the physical exploration of the world at all times. To achieve this human-like ability, we introduce the $\\textit{Generative World Explorer (Genex)}$, an egocentric world exploration framework that allows an agent to mentally explore a large-scale 3D world (e.g., urban scenes) and acquire imagined observations to update its belief. This updated belief will then help the agent to make a more informed decision at the current step. To train $\\textit{Genex}$, we create a synthetic urban scene dataset, Genex-DB. Our experimental results demonstrate that (1) $\\textit{Genex}$ can generate high-quality and consistent observations during long-horizon exploration of a large virtual physical world and (2) the beliefs updated with the generated observations can inform an existing decision-making model (e.g., an LLM agent) to make better plans.",
           "claimed_authors": [
-            "Yang Liu",
-            "Weixing Chen",
-            "Yongjie Bai",
-            "Xiaodan Liang",
-            "Guanbin Li",
-            "Wen Gao",
-            "Liang Lin"
+            "Taiming Lu",
+            "Tianmin Shu",
+            "Alan Yuille",
+            "Daniel Khashabi",
+            "Jieneng Chen"
           ],
-          "claimed_title": "Aligning Cyber Space with Physical World: A Comprehensive Survey on Embodied AI",
+          "claimed_title": "Generative World Explorer",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2407.06886"
+          "primary_pointer": "2411.11844"
         },
-        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Aligning Cyber Space with Physical World: A Comprehensive Survey on Embodied AI')",
-        "failed_at": "2026-07-30T21:36:37Z",
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Generative World Explorer')",
+        "failed_at": "2026-09-02T22:11:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Due to their inherent flexibility and autonomous operation, unmanned aerial vehicles (UAVs) have been widely used in Internet of Medical Things (IoMT) to provide real-time biomedical edge computing service for wireless body area network (WBAN) users. In this paper, considering the time-varying task criticality characteristics of diverse WBAN users and the dual mobility between WBAN users and UAV, we investigate the dynamic task offloading and UAV flight trajectory optimization problem to minimize the weighted average task completion time of all the WBAN users, under the constraint of UAV energy consumption. To tackle the problem, an embodied AI-enhanced IoMT edge computing framework is established. Specifically, we propose a novel hierarchical multi-scale Transformer-based user trajectory prediction model based on the users' historical trajectory traces captured by the embodied AI agent (i.e., UAV). Afterwards, a prediction-enhanced deep reinforcement learning (DRL) algorithm that integrates predicted users' mobility information is designed for intelligently optimizing UAV flight trajectory and task offloading decisions. Real-word movement traces and simulation results demonstrate the superiority of the proposed methods in comparison with the existing benchmarks.",
+          "claimed_abstract": "AI agents are rapidly expanding in both capability and population: they now write code, operate computers across platforms, manage cloud infrastructure, and make purchasing decisions, while open-source frameworks such as OpenClaw are putting personal agents in the hands of millions and embodied agents are spreading across smartphones, vehicles, and robots. As the internet prepares to host billions of such entities, it is shifting toward what we call Open Agentic Web, a decentralized digital ecosystem in which agents from different users, organizations, and runtimes can discover one another, negotiate task boundaries, and delegate work across open technical and social surfaces at scale. Yet most of today's agents remain isolated tools or closed-ecosystem orchestrators rather than socially integrated participants in open networks. We argue that the next generation of agents must become Agentic Citizens, defined by three requirements: Agentic-Web-Native Collaboration, participation in open collaboration networks rather than only closed internal orchestration; Agent Identity and Personhood, continuity as a social entity rather than a resettable function call; and Lifelong Evolution, improvement across task performance, communication, and collaboration over time. We present Synergy, a general-purpose agent architecture and runtime harness for persistent, collaborative, and evolving agents on Open Agentic Web, grounding collaboration in session-native orchestration, repository-backed workspaces, and social communication; identity in typed memory, notes, agenda, skills, and persistent social relationships; and evolution in an experience-centered learning mechanism that proactively recalls rewarded trajectories at inference time.",
           "claimed_authors": [
-            "Siqi Mu",
-            "Shuo Wen",
-            "Yang Lu",
-            "Ruihong Jiang",
-            "Bo Ai"
+            "Xiaohang Nie",
+            "Zihan Guo",
+            "Kezhuo Yang",
+            "Zhichong Zheng",
+            "Bochen Ge",
+            "Shuai Pan",
+            "Zeyi Chen",
+            "Youling Xiang",
+            "Yu Zhang",
+            "Weiwen Liu",
+            "Yuanjian Zhou",
+            "Weinan Zhang"
           ],
-          "claimed_title": "Embodied AI-Enhanced IoMT Edge Computing: UAV Trajectory Optimization and Task Offloading with Mobility Prediction",
+          "claimed_title": "Synergy: A Next-Generation General-Purpose Agent for Open Agentic Web",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2512.20902"
+          "claimed_year": 2026,
+          "primary_pointer": "2603.28428"
         },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Embodied AI-Enhanced IoMT Edge Computing: UAV Trajectory Optimization and Task Offloading with Mobility Prediction')",
-        "failed_at": "2026-07-30T21:36:37Z",
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Synergy: A Next-Generation General-Purpose Agent for Open Agentic Web')",
+        "failed_at": "2026-09-02T22:11:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Omnidirectional vision, using 360-degree vision to understand the environment, has become increasingly critical across domains like robotics, industrial inspection, and environmental monitoring. Compared to traditional pinhole vision, omnidirectional vision provides holistic environmental awareness, significantly enhancing the completeness of scene perception and the reliability of decision-making. However, foundational research in this area has historically lagged behind traditional pinhole vision. This talk presents an emerging trend in the embodied AI era: the rapid development of omnidirectional vision, driven by growing industrial demand and academic interest. We highlight recent breakthroughs in omnidirectional generation, omnidirectional perception, omnidirectional understanding, and related datasets. Drawing on insights from both academia and industry, we propose an ideal panoramic system architecture in the embodied AI era, PANORAMA, which consists of four key subsystems. Moreover, we offer in-depth opinions related to emerging trends and cross-community impacts at the intersection of panoramic vision and embodied AI, along with the future roadmap and open challenges. This overview synthesizes state-of-the-art advancements and outlines challenges and opportunities for future research in building robust, general-purpose omnidirectional AI systems in the embodied AI era.",
+          "claimed_abstract": "We present \\textbf{DreamX-Phi 1.0}, an action-conditioned video world model for robotic manipulation that, given an observed frame, a language instruction, and a prescribed action sequence comprising end-effector poses and gripper states, predicts the resulting future observations. Yet realism alone does not guarantee faithfulness: a convincing rollout can still move the wrong arm or lose the manipulated object. To ensure the prediction respects each arm's commanded path, we inject per-arm $\\mathrm{SE}(3)$ transformations into attention via \\textbf{PRoPE-style geometric encoding}, preserving arm identity and rigid-motion structure. Action control alone does not fully constrain scene geometry or the evolution of small manipulated objects. We therefore add a lightweight \\textbf{depth branch} for scene-level geometry and use \\textbf{SAM3 masks} with a frozen \\textbf{V-JEPA teacher} to maintain object consistency throughout grasping. We further distill the multi-step generator into a few-step student via distribution-matching distillation for efficient deployment. At the time of writing, \\model{} achieves first place on Track~1 and second place on Track~2 of the WorldArena~2.0 Challenge. Our model and code will be publicly available.",
           "claimed_authors": [
-            "Xu Zheng",
-            "Chenfei Liao",
-            "Ziqiao Weng",
-            "Kaiyu Lei",
-            "Zihao Dongfang",
-            "Haocong He",
-            "Yuanhuiyi Lyu",
-            "Lutao Jiang",
-            "Lu Qi",
-            "Li Chen",
-            "Danda Pani Paudel",
-            "Kailun Yang",
-            "Linfeng Zhang",
-            "Luc Van Gool",
-            "Xuming Hu"
+            " DreamX Team",
+            "Rui Chen",
+            "Xiangxiang Chu",
+            "Geng Li",
+            "Jifan Li",
+            "Qingfeng Shi",
+            "Datao Tang",
+            "Jing Tang",
+            "Jun Wang",
+            "Pengfei Zhang"
           ],
-          "claimed_title": "PANORAMA: The Rise of Omnidirectional Vision in the Embodied AI Era",
+          "claimed_title": "DreamX-Phi 1.0: Action-Conditioned Video World Model for Robotic Manipulation",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2509.12989"
+          "claimed_year": 2026,
+          "primary_pointer": "2608.13489"
         },
-        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='PANORAMA: The Rise of Omnidirectional Vision in the Embodied AI Era')",
-        "failed_at": "2026-07-30T21:36:37Z",
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='DreamX-Phi 1.0: Action-Conditioned Video World Model for Robotic Manipulation')",
+        "failed_at": "2026-09-02T22:11:38Z",
         "reason": "query_irrelevant"
       },
       {
@@ -409,27 +339,7 @@
           "primary_pointer": "2607.18488"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='The Open Ant: A Robot Platform for Reinforcement Learning Research')",
-        "failed_at": "2026-07-30T21:36:37Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This paper investigates a new approach to model-based reinforcement learning using background planning: mixing (approximate) dynamic programming updates and model-free updates, similar to the Dyna architecture. Background planning with learned models is often worse than model-free alternatives, such as Double DQN, even though the former uses significantly more memory and computation. The fundamental problem is that learned models can be inaccurate and often generate invalid states, especially when iterated many steps. In this paper, we avoid this limitation by constraining background planning to a set of (abstract) subgoals and learning only local, subgoal-conditioned models. This goal-space planning (GSP) approach is more computationally efficient, naturally incorporates temporal abstraction for faster long-horizon planning and avoids learning the transition dynamics entirely. We show that our GSP algorithm can propagate value from an abstract space in a manner that helps a variety of base learners learn significantly faster in different domains.",
-          "claimed_authors": [
-            "Kevin Roice",
-            "Parham Mohammad Panahi",
-            "Scott M. Jordan",
-            "Adam White",
-            "Martha White"
-          ],
-          "claimed_title": "A New View on Planning in Online Reinforcement Learning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2406.01562"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='A New View on Planning in Online Reinforcement Learning')",
-        "failed_at": "2026-07-30T21:36:37Z",
+        "failed_at": "2026-09-02T22:11:38Z",
         "reason": "query_irrelevant"
       },
       {
@@ -447,74 +357,144 @@
           "primary_pointer": "2602.12375"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning')",
-        "failed_at": "2026-07-30T21:36:37Z",
+        "failed_at": "2026-09-02T22:11:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We present a data model describing the structure of spectrophotometric datasets with spectral and temporal coordinates and associated metadata. This data model may be used to represent spectra, time series data, segments of SED (Spectral Energy Distributions) and other spectral or temporal associations.",
+          "claimed_abstract": "In this paper we study how to learn stochastic, multimodal transition dynamics in reinforcement learning (RL) tasks. We focus on evaluating transition function estimation, while we defer planning over this model to future work. Stochasticity is a fundamental property of many task environments. However, discriminative function approximators have difficulty estimating multimodal stochasticity. In contrast, deep generative models do capture complex high-dimensional outcome distributions. First we discuss why, amongst such models, conditional variational inference (VI) is theoretically most appealing for model-based RL. Subsequently, we compare different VI models on their ability to learn complex stochasticity on simulated functions, as well as on a typical RL gridworld with multimodal dynamics. Results show VI successfully predicts multimodal outcomes, but also robustly ignores these for deterministic parts of the transition dynamics. In summary, we show a robust method to learn multimodal transitions using function approximation, which is a key preliminary for model-based RL in stochastic domains.",
           "claimed_authors": [
-            "Jonathan McDowell",
-            "Doug Tody",
-            "Tamas Budavari",
-            "Markus Dolensky",
-            "Inga Kamp",
-            "Kelly McCusker",
-            "Pavlos Protopapas",
-            "Arnold Rots",
-            "Randy Thompson",
-            "Frank Valdes",
-            "Petr Skoda",
-            "Bruno Rino",
-            "Sebastien Derriere",
-            "Jesus Salgado",
-            "Omar Laurino",
-            "the IVOA Data Access Layer",
-            "Data Model Working Groups"
+            "Thomas M. Moerland",
+            "Joost Broekens",
+            "Catholijn M. Jonker"
           ],
-          "claimed_title": "IVOA Recommendation: Spectrum Data Model 1.1",
+          "claimed_title": "Learning Multimodal Transition Dynamics for Model-Based Reinforcement Learning",
           "claimed_venue": "arXiv",
-          "claimed_year": 2012,
-          "primary_pointer": "1204.3055"
+          "claimed_year": 2017,
+          "primary_pointer": "1705.00470"
         },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='IVOA Recommendation: Spectrum Data Model 1.1')",
-        "failed_at": "2026-07-30T21:36:37Z",
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Learning Multimodal Transition Dynamics for Model-Based Reinforcement Learning')",
+        "failed_at": "2026-09-02T22:11:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_abstract": "Video generation models are increasingly used as world simulators for tasks like driving and robotic manipulation. What matters in these settings is not whether a single video looks right, but whether the model's output changes when its input changes. We test this by giving a model two prompts describing the same scene with one physical detail varied, and checking whether the two videos diverge the way physics predicts. The wording difference between the prompts is small by design, since only one variable is changed, but the correct physical difference is not. A model that misses this can still produce two videos that each look plausible individually, and existing benchmarks score videos one at a time and cannot detect this failure. We introduce What-If World, 319 such prompt pairs built on real frames from nuScenes and DROID, organized by a taxonomy of six physical variables shared across driving and manipulation. Each pair is scored with APEO, a four-part rubric checking whether each video follows its prompt (Adherence), is physically consistent (Physics), preserves the shared scene (Environment), and ends in the correct difference (Outcome). Across nine state-of-the-art models, no system exceeds 52% on the paired score, and open-source models cluster near 28%. Every model tested fails on a large fraction of causal interventions, indicating substantial room before these models can reliably support action-conditioned simulation or model-based planning. Where models do score well, performance appears to track the visual prominence of the intervention rather than the tractability of its underlying physics. Some visually subtle interventions score as low as 14.2%, while visually pronounced ones reach 40.4%.",
           "claimed_authors": [
-            "Deepesh Data",
-            "Linqi Song",
-            "Suhas Diggavi"
+            "Kunlin Cai",
+            "Rui Song",
+            "Jinghuai Zhang",
+            "Kaiyuan Zhang",
+            "Pranav Bodapati",
+            "Alicia Yu",
+            "Fnu Suya",
+            "Mohammad Rostami",
+            "Jiaqi Ma",
+            "Yuan Tian"
           ],
-          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_title": "What-If World: A Causal Benchmark for General World Models in Embodied Scenarios",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.27589"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='What-If World: A Causal Benchmark for General World Models in Embodied Scenarios')",
+        "failed_at": "2026-09-02T22:11:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evaluating robot control policies is difficult: real-world testing is costly, and handcrafted simulators require manual effort to improve in realism and generality. We propose a world-model-based policy evaluation environment (WorldGym), an autoregressive, action-conditioned video generation model which serves as a proxy to real world environments. Policies are evaluated via Monte Carlo rollouts in the world model, with a vision-language model providing rewards. We evaluate a set of VLA-based real-robot policies in the world model using only initial frames from real robots, and show that policy success rates within the world model highly correlate with real-world success rates. Moreoever, we show that WorldGym is able to preserve relative policy rankings across different policy versions, sizes, and training checkpoints. Due to requiring only a single start frame as input, the world model further enables efficient evaluation of robot policies' generalization ability on novel tasks and environments. We find that modern VLA-based robot policies still struggle to distinguish object shapes and can become distracted by adversarial facades of objects. While generating highly realistic object interaction remains challenging, WorldGym faithfully emulates robot motions and offers a practical starting point for safe and reproducible policy evaluation before deployment.",
+          "claimed_authors": [
+            "Julian Quevedo",
+            "Ansh Kumar Sharma",
+            "Yixiang Sun",
+            "Varad Suryavanshi",
+            "Percy Liang",
+            "Sherry Yang"
+          ],
+          "claimed_title": "WorldGym: World Model as An Environment for Policy Evaluation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.00613"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='WorldGym: World Model as An Environment for Policy Evaluation')",
+        "failed_at": "2026-09-02T22:11:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Real world applications as in industry and robotics need modelling rich and diverse automated planning problems. Their resolution usually requires coordinated and concurrent action execution. In several cases, these problems are naturally decomposed in a hierarchical way and expressed by a Hierarchical Task Network (HTN) formalism.\n  HDDL, a hierarchical extension of the Planning Domain Definition Language (PDDL), unlike PDDL 2.1 does not allow to represent planning problems with numerical and temporal constraints, which are essential for real world applications. We propose to fill the gap between HDDL and these operational needs and to extend HDDL by taking inspiration from PDDL 2.1 in order to express numerical and temporal expressions. This paper opens discussions on the semantics and the syntax needed for a future HDDL 2.1 extension.",
+          "claimed_authors": [
+            "Damien Pellier",
+            "Alexandre Albore",
+            "Humbert Fiorino",
+            "Rafael Bailon-Ruiz"
+          ],
+          "claimed_title": "HDDL 2.1: Towards Defining a Formalism and a Semantics for Temporal HTN Planning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.07353"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='HDDL 2.1: Towards Defining a Formalism and a Semantics for Temporal HTN Planning')",
+        "failed_at": "2026-09-02T22:11:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Self-supervised methods, wherein an agent learns representations solely by observing the results of its actions, become crucial in environments which do not provide a dense reward signal or have labels. In most cases, such methods are used for pretraining or auxiliary tasks for \"downstream\" tasks, such as control, exploration, or imitation learning. However, it is not clear which method's representations best capture meaningful features of the environment, and which are best suited for which types of environments. We present a small-scale study of self-supervised methods on two visual environments: Flappy Bird and Sonic The Hedgehog. In particular, we quantitatively evaluate the representations learned from these tasks in two contexts: a) the extent to which the representations capture true state information of the agent and b) how generalizable these representations are to novel situations, like new levels and textures. Lastly, we evaluate these self-supervised features by visualizing which parts of the environment they focus on. Our results show that the utility of the representations is highly dependent on the visuals and dynamics of the environment.",
+          "claimed_authors": [
+            "Evan Racah",
+            "Christopher Pal"
+          ],
+          "claimed_title": "Supervise Thyself: Examining Self-Supervised Representations in Interactive Environments",
           "claimed_venue": "arXiv",
           "claimed_year": 2019,
-          "primary_pointer": "1907.02664"
+          "primary_pointer": "1906.11951"
         },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
-        "failed_at": "2026-07-30T21:36:37Z",
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Supervise Thyself: Examining Self-Supervised Representations in Interactive Environments')",
+        "failed_at": "2026-09-02T22:11:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_abstract": "Unsupervised visual representation learning remains a largely unsolved problem in computer vision research. Among a big body of recently proposed approaches for unsupervised learning of visual representations, a class of self-supervised techniques achieves superior performance on many challenging benchmarks. A large number of the pretext tasks for self-supervised learning have been studied, but other important aspects, such as the choice of convolutional neural networks (CNN), has not received equal attention. Therefore, we revisit numerous previously proposed self-supervised models, conduct a thorough large scale study and, as a result, uncover multiple crucial insights. We challenge a number of common practices in selfsupervised visual representation learning and observe that standard recipes for CNN design do not always translate to self-supervised representation learning. As part of our study, we drastically boost the performance of previously proposed techniques and outperform previously published state-of-the-art results by a large margin.",
           "claimed_authors": [
-            "Deepesh Data",
-            "Suhas Diggavi"
+            "Alexander Kolesnikov",
+            "Xiaohua Zhai",
+            "Lucas Beyer"
           ],
-          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_title": "Revisiting Self-Supervised Visual Representation Learning",
           "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2005.07866"
+          "claimed_year": 2019,
+          "primary_pointer": "1901.09005"
         },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
-        "failed_at": "2026-07-30T21:36:37Z",
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Revisiting Self-Supervised Visual Representation Learning')",
+        "failed_at": "2026-09-02T22:11:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Masked autoencoder (MAE) has drawn attention as a representative self-supervised approach for masked image modeling with vision transformers. However, even though MAE shows better generalization capability than fully supervised training from scratch, the reason why has not been explored. In another line of work, the Reconstruction Consistent Masked Auto Encoder (RC-MAE), has been proposed which adopts a self-distillation scheme in the form of an exponential moving average (EMA) teacher into MAE, and it has been shown that the EMA-teacher performs a conditional gradient correction during optimization. To further investigate the reason for better generalization of the self-supervised ViT when trained by MAE (MAE-ViT) and the effect of the gradient correction of RC-MAE from the perspective of optimization, we visualize the loss landscapes of the self-supervised vision transformer by both MAE and RC-MAE and compare them with the supervised ViT (Sup-ViT). Unlike previous loss landscape visualizations of neural networks based on classification task loss, we visualize the loss landscape of ViT by computing pre-training task loss. Through the lens of loss landscapes, we find two interesting observations: (1) MAE-ViT has a smoother and wider overall loss curvature than Sup-ViT. (2) The EMA-teacher allows MAE to widen the region of convexity in both pretraining and linear probing, leading to quicker convergence. To the best of our knowledge, this work is the first to investigate the self-supervised ViT through the lens of the loss landscape.",
+          "claimed_authors": [
+            "Youngwan Lee",
+            "Jeffrey Ryan Willette",
+            "Jonghee Kim",
+            "Sung Ju Hwang"
+          ],
+          "claimed_title": "Visualizing the loss landscape of Self-supervised Vision Transformer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.18042"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"DreamX-World 1.0: A General-Purpose Interactive Wo', candidate_title='Visualizing the loss landscape of Self-supervised Vision Transformer')",
+        "failed_at": "2026-09-02T22:11:38Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -563,33 +543,127 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-30T21:36:36Z"
+          "verified_at": "2026-09-02T22:11:38Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Anh Nguyen",
-            "Stefan Lee"
+            "Jiuming Liu",
+            "Chaojun Ni",
+            "Mengmeng Liu",
+            "Chensheng Peng",
+            "Fangjinhua Wang",
+            "Sitian Shen",
+            "Marc Pollefeys",
+            "Masayoshi Tomizuka",
+            "Ayush Tewari",
+            "Per Ola Kristensson"
           ],
-          "title": "Language-conditioned world model improves policy generalization by reading environmental descriptions",
+          "title": "Towards Interactive Video World Modeling: Frontiers, Challenges, Benchmarks, and Future Trends",
           "venue": "arXiv",
-          "year": 2025
+          "year": 2026
         },
-        "primary_pointer": "2511.22904",
-        "summary": "To interact effectively with humans in the real world, it is important for agents to understand language that describes the dynamics of the environment--that is, how the environment behaves--rather than just task instructions specifying \"what to do\". Understanding this dynamics-descriptive language is important for human-agent interaction and agent behavior. Recent work address this problem using a model-based approach: language is incorporated into a world model, which is then used to learn a behavior policy. However, these existing methods either do not demonstrate policy generalization to unseen games or rely on limiting assumptions. For instance, assuming that the latency induced by inference-time planning is tolerable for the target task or expert demonstrations are available. Expanding on this line of research, we focus on improving policy generalization from a language-conditioned world model while dropping these assumptions. We propose a model-based reinforcement learning approach, where a language-conditioned world model is trained through interaction with the environment, and a policy is learned from this model--without planning or expert demonstrations. Our method proposes Language-aware Encoder for Dreamer World Model (LED-WM) built on top of DreamerV3. LED-WM features an observation encoder that uses an attention mechanism to explicitly ground language descriptions to entities in the observation. We show that policies trained with LED-WM generalize more effectively to unseen games described by novel dynamics and language compared to other baselines in several settings in two environments: MESSENGER and MESSENGER-WM.To highlight how the policy can leverage the trained world model before real-world deployment, we demonstrate the policy can be improved through fine-tuning on synthetic test trajectories generated by the world model.",
+        "primary_pointer": "2606.01164",
+        "summary": "With rapid development of large language models and diffusion-based content generation, world modeling has attracted increasing research attention, benefiting various downstream domains such as game engines, embodied AI, autonomous driving, etc. Through explicitly incorporating user actions into world state transition, recent literature empowers world modeling with interactivity in an action-conditioned video or 3D generation paradigm, further enhancing controllability over world evolutions and facilitating users to freely traverse, manipulate, navigate, and personalize the state evolution. In this paper, we aim to systematically review recent research trends, technical developments, evaluation benchmarks, and also propose future potential directions in interactive world modeling. Specifically, we first summarize recent efforts and trends in terms of application scenarios, world state evolution, and scene modality. Afterwards, we delve into three crucial technical challenges, including action-conditioned controllability, long-horizon interactions and memory, and action-following responsiveness for real-time interactivity. Furthermore, we also thoroughly compare existing benchmarks and metrics in four specific application fields: open-world exploration, game engine, autonomous driving, and robotics. Finally, we discuss several promising future directions in achieving next-generation interactive world modeling. The corresponding repository is publicly available at: https://github.com/liujiuming123/Awesome-Interactive-World-Model.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2511.22904",
+          "final_url": "https://arxiv.org/abs/2606.01164",
           "http_status": 200,
-          "pdf_sample_score": 0.3662,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-02T22:11:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shogo Ohmae",
+            "Keiko Ohmae"
+          ],
+          "title": "The brain-AI convergence: Predictive and generative world models for general-purpose computation",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.02419",
+        "summary": "Recent advances in general-purpose AI systems with attention-based transformers offer a potential window into how the neocortex and cerebellum, despite their relatively uniform circuit architectures, give rise to diverse functions and, ultimately, to human intelligence. This Perspective provides a cross-domain comparison between the brain and AI that goes beyond the traditional focus on visual processing, adopting the emerging perspecive of world-model-based computation. Here, we identify shared computational mechanisms in the attention-based neocortex and the non-attentional cerebellum: both predict future world events from past inputs and construct internal world models through prediction-error learning. These predictive world models are repurposed for seemingly distinct functions -- understanding in sensory processing and generation in motor processing -- enabling the brain to achieve multi-domain capabilities and human-like adaptive intelligence. Notably, attention-based AI has independently converged on a similar learning paradigm and world-model-based computation. We conclude that these shared mechanisms in both biological and artificial systems constitute a core computational foundation for realizing diverse functions including high-level intelligence, despite their relatively uniform circuit structures. Our theoretical insights bridge neuroscience and AI, advancing our understanding of the computational essence of intelligence.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2512.02419",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-02T22:11:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yifei Yuan",
+            "Anders Søgaard"
+          ],
+          "title": "Revisiting the Othello World Model Hypothesis",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2503.04421",
+        "summary": "Li et al. (2023) used the Othello board game as a test case for the ability of GPT-2 to induce world models, and were followed up by Nanda et al. (2023b). We briefly discuss the original experiments, expanding them to include more language models with more comprehensive probing. Specifically, we analyze sequences of Othello board states and train the model to predict the next move based on previous moves. We evaluate seven language models (GPT-2, T5, Bart, Flan-T5, Mistral, LLaMA-2, and Qwen2.5) on the Othello task and conclude that these models not only learn to play Othello, but also induce the Othello board layout. We find that all models achieve up to 99% accuracy in unsupervised grounding and exhibit high similarity in the board features they learned. This provides considerably stronger evidence for the Othello World Model Hypothesis than previous works.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2503.04421",
+          "http_status": 200,
+          "pdf_sample_score": null,
           "query_relevance_score": 0.4,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-30T21:36:43Z"
+          "verified_at": "2026-09-02T22:11:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jinbin Bai",
+            "Yu Lei",
+            "Hecong Wu",
+            "Yuchen Zhu",
+            "Shufan Li",
+            "Yi Xin",
+            "Xiangtai Li",
+            "Molei Tao",
+            "Aditya Grover",
+            "Ming-Hsuan Yang"
+          ],
+          "title": "From Masks to Worlds: A Hitchhiker's Guide to World Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.20668",
+        "summary": "This is not a typical survey of world models; it is a guide for those who want to build worlds. We do not aim to catalog every paper that has ever mentioned a ``world model\". Instead, we follow one clear road: from early masked models that unified representation learning across modalities, to unified architectures that share a single paradigm, then to interactive generative models that close the action-perception loop, and finally to memory-augmented systems that sustain consistent worlds over time. We bypass loosely related branches to focus on the core: the generative heart, the interactive loop, and the memory system. We show that this is the most promising path towards true world models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.20668",
+          "http_status": 200,
+          "pdf_sample_score": 0.1656,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-02T22:11:44Z"
         }
       }
     ]

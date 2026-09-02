@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MetricRecord"
+type: "object"
+description: "Single trajectory evaluation result (Runtime Contract)"
+properties:
+  trajectory_id:
+    type: "string"
+    description: "Unique ID for the trajectory"
+  model_variant:
+    type: "string"
+    enum:
+      - "baseline"
+      - "dreamx_lite"
+    description: "Which model variant generated the video"
+  mae_position:
+    type: "number"
+    nullable: true
+    description: "Mean Absolute Error for position (normalized units, after Procrustes alignment). Null if failed."
+  mae_rotation:
+    type: "number"
+    nullable: true
+    description: "Mean Absolute Error for rotation (degrees, after Procrustes alignment). Null if failed."
+  sfm_status:
+    type: "string"
+    enum:
+      - "success"
+      - "failure"
+      - "censored"
+    description: "Status of the SfM recovery (censored if SfM failed but Depth Consistency is available)"
+  sfm_failure_reason:
+    type: "string"
+    nullable: true
+    description: "Reason for SfM failure if status is failure or censored."
+  depth_consistency_score:
+    type: "number"
+    description: "Depth consistency score (fallback metric for censored cases)"
+  scale_drift:
+    type: "number"
+    description: "Ratio of mean depth (recovered) to mean depth (ground-truth) after alignment."
+  generation_time_seconds:
+    type: "number"
+    description: "Time taken to generate the video rollout."
+  sfm_time_seconds:
+    type: "number"
+    description: "Time taken for SfM recovery."
+  info_sufficiency_ratio:
+    type: "number"
+    nullable: true
+    description: "Ratio of DreamX-Lite success rate to Baseline success rate (SC-005). Null per-trajectory, computed at aggregate level."
+required:
+  - trajectory_id
+  - model_variant
+  - mae_position
+  - mae_rotation
+  - sfm_status
+  - sfm_failure_reason
+  - depth_consistency_score
+  - scale_drift
+  - generation_time_seconds
+  - sfm_time_seconds
+additionalProperties: false

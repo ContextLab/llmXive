@@ -1,0 +1,79 @@
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+description: "Single trajectory evaluation result (SSoT)"
+properties:
+  trajectory_id:
+    type: string
+    description: "Unique identifier for the trajectory (e.g., 'traj_001')."
+  model_variant:
+    type: string
+    enum: ["baseline", "dreamx-lite"]
+    description: "The model variant used for generation."
+  camera_prompt:
+    type: string
+    description: "The text prompt used to guide the camera."
+  ground_truth_extrinsics:
+    type: array
+    description: "List of 4x4 matrices (flattened) for ground-truth poses."
+    items:
+      type: array
+      items:
+        type: number
+      minItems: 16
+      maxItems: 16
+  recovered_extrinsics:
+    type: array
+    description: "List of 4x4 matrices (flattened) recovered by SfM (after Procrustes alignment)."
+    items:
+      type: array
+      items:
+        type: number
+      minItems: 16
+      maxItems: 16
+  convergence:
+    type: boolean
+    description: "True if SfM converged, False otherwise."
+  sfm_failure_reason:
+    type: string
+    nullable: true
+    description: "Reason for SfM failure if convergence is false (e.g., 'insufficient features')."
+  sfm_status:
+    type: string
+    enum: ["success", "failure", "censored"]
+    description: "Status of the SfM recovery (censored if SfM failed but Depth Consistency is available)"
+  mae_position:
+    type: number
+    nullable: true
+    description: "Mean Absolute Error for position (normalized units, after Procrustes alignment). Null if failed."
+  mae_rotation:
+    type: number
+    nullable: true
+    description: "Mean Absolute Error for rotation (degrees, after Procrustes alignment). Null if failed."
+  scale_drift:
+    type: number
+    description: "Ratio of mean depth (recovered) to mean depth (ground-truth) after alignment."
+  depth_consistency_score:
+    type: number
+    description: "Depth consistency score (fallback metric for censored cases)"
+  generation_time_seconds:
+    type: number
+    description: "Time taken to generate the video rollout."
+  sfm_time_seconds:
+    type: number
+    description: "Time taken for SfM recovery."
+  info_sufficiency_ratio:
+    type: number
+    nullable: true
+    description: "Ratio of DreamX-Lite success rate to Baseline success rate (SC-005). Null per-trajectory, computed at aggregate level."
+required:
+  - trajectory_id
+  - model_variant
+  - camera_prompt
+  - convergence
+  - sfm_status
+  - sfm_failure_reason
+  - mae_position
+  - mae_rotation
+  - scale_drift
+  - depth_consistency_score
+additionalProperties: false

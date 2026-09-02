@@ -1,0 +1,8 @@
+status: none
+intent: Habitat Sim synthetic dataset download python package dataset
+required_fields:
+- camera_extrinsics_4x4
+- dynamic_video_sequence
+cache_key: c214b46b5547498fe7de5ce47fd6a75f672b7e84b119f6d520672505be408d7e
+searched_at: '2026-09-02T22:37:49.924418+00:00'
+retry_count: 1

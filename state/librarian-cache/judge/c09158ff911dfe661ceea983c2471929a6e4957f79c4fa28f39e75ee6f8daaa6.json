@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.02419",
+  "judged_at": "2026-09-02T22:11:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"dreamx-world 1.0: a general-purpose interactive world model\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) by providing the foundational theoretical framework and canonical evidence for \"world models\" as a general-purpose computational mechanism, which is the core subject of the user's question regarding the \"DreamX-World\" model. Even though it focuses on the brain-AI convergence rather than the specific \"llmXive\" follow-up, it establishes the essential prior work on the mechanism (predictive world models) that any literature review on this topic must cite.",
+  "relevant": true
+}
