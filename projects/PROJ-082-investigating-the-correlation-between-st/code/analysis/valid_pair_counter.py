@@ -14,7 +14,7 @@ import logging
 import math
 import sys
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 # Configure logging for this module
 logging.basicConfig(

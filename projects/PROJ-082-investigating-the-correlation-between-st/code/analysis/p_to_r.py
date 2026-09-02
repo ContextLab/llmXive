@@ -1,9 +1,6 @@
 """
-Task T040: p-value to r Conversion using Fisher's Z transformation.
-
-Implements conversion of t-statistics and p-values to correlation coefficients (r).
-For p-values, converts to t-statistic first (handling one/two-tailed), then to r.
-Raises DataConversionError for ambiguous or invalid inputs.
+p-value to r conversion module for meta-analysis.
+Implements Fisher's Z conversion logic for converting p-values and t-statistics to correlation coefficients.
 """
 import csv
 import json
@@ -11,343 +8,271 @@ import logging
 import math
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Optional, Dict, Any, List, Tuple
+from scipy import stats
 
-import numpy as np
-from scipy.stats import t
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Import shared utilities from existing API surface
+from utils.config import get_project_root, ensure_directory
+from utils.logger import get_logger
 
 class DataConversionError(Exception):
-    """Custom exception for data conversion errors."""
+    """Raised when data conversion is ambiguous or impossible."""
     pass
 
 def get_project_root() -> Path:
-    """Get the project root directory."""
+    """Return the project root directory."""
     return Path(__file__).resolve().parent.parent.parent
 
 def p_to_t(p_value: float, df: int, two_tailed: bool = True) -> float:
     """
     Convert a p-value to a t-statistic.
-
+    
     Args:
         p_value: The p-value (0 < p < 1)
         df: Degrees of freedom
-        two_tailed: If True, p is for a two-tailed test; if False, one-tailed.
-
+        two_tailed: If True, treat as two-tailed test; if False, one-tailed
+        
     Returns:
-        The corresponding t-statistic.
-
+        The corresponding t-statistic
+        
     Raises:
-        DataConversionError: If p_value is out of valid range or df is invalid.
+        DataConversionError: If p-value is out of valid range or ambiguous
     """
     if not (0 < p_value < 1):
-        raise DataConversionError(f"Invalid p-value: {p_value}. Must be in (0, 1).")
-    if df <= 0:
-        raise DataConversionError(f"Invalid degrees of freedom: {df}. Must be > 0.")
-
+        raise DataConversionError(f"Invalid p-value: {p_value}. Must be 0 < p < 1")
+        
     if two_tailed:
-        # For two-tailed, the cumulative probability for the upper tail is 1 - p/2
-        # t.ppf expects cumulative probability from the left
-        prob = 1 - (p_value / 2)
+        # For two-tailed, the p-value is split between both tails
+        # We need the t-value such that P(|T| > |t|) = p_value
+        # So P(T > |t|) = p_value / 2
+        tail_prob = p_value / 2.0
     else:
-        # For one-tailed, we assume the p-value corresponds to the upper tail
-        # If the effect is negative, the caller should handle the sign
-        prob = 1 - p_value
-
-    try:
-        t_stat = t.ppf(prob, df)
-    except Exception as e:
-        raise DataConversionError(f"Failed to compute t-statistic from p={p_value}, df={df}: {e}")
-
+        # For one-tailed, P(T > t) = p_value
+        tail_prob = p_value
+        
+    # Use ppf (percent point function) to get t from probability
+    # ppf(1 - tail_prob) gives the t-value for the upper tail
+    t_stat = stats.t.ppf(1 - tail_prob, df)
+    
     return t_stat
 
 def t_to_r(t_stat: float, df: int) -> float:
     """
-    Convert a t-statistic to a correlation coefficient (r).
-
+    Convert a t-statistic to a correlation coefficient r.
+    
     Formula: r = sqrt(t^2 / (t^2 + df))
-    The sign of r is the same as the sign of t.
-
+    Sign is preserved based on t_stat.
+    
     Args:
-        t_stat: The t-statistic.
-        df: Degrees of freedom.
-
+        t_stat: The t-statistic
+        df: Degrees of freedom
+        
     Returns:
-        The correlation coefficient r.
-
-    Raises:
-        DataConversionError: If df is invalid.
+        The correlation coefficient r (-1 <= r <= 1)
     """
     if df <= 0:
-        raise DataConversionError(f"Invalid degrees of freedom: {df}. Must be > 0.")
-
+        raise DataConversionError(f"Invalid degrees of freedom: {df}. Must be > 0")
+        
     t_squared = t_stat ** 2
-    denominator = t_squared + df
-
-    if denominator == 0:
-        raise DataConversionError("Division by zero in t-to-r conversion.")
-
-    r = math.sqrt(t_squared / denominator)
-
-    # Preserve the sign of the t-statistic
+    r_squared = t_squared / (t_squared + df)
+    
+    # Ensure we don't get r > 1 due to floating point errors
+    r_squared = min(1.0, max(0.0, r_squared))
+    r = math.sqrt(r_squared)
+    
+    # Preserve sign
     if t_stat < 0:
         r = -r
-
+        
     return r
 
 def convert_p_to_r(p_value: float, df: int, two_tailed: bool = True) -> float:
     """
-    Convert a p-value to a correlation coefficient (r).
-
-    Steps:
-    1. Convert p-value to t-statistic.
-    2. Convert t-statistic to r.
-
+    Convert a p-value to a correlation coefficient r.
+    
     Args:
-        p_value: The p-value.
-        df: Degrees of freedom.
-        two_tailed: Whether the p-value is from a two-tailed test.
-
+        p_value: The p-value
+        df: Degrees of freedom
+        two_tailed: Whether the p-value is from a two-tailed test
+        
     Returns:
-        The correlation coefficient r.
+        The correlation coefficient r
     """
     t_stat = p_to_t(p_value, df, two_tailed)
-    return t_to_r(t_stat, df)
+    r = t_to_r(t_stat, df)
+    return r
 
 def convert_t_to_r(t_stat: float, df: int) -> float:
     """
-    Convert a t-statistic to a correlation coefficient (r).
-
+    Convert a t-statistic to a correlation coefficient r.
+    
     Args:
-        t_stat: The t-statistic.
-        df: Degrees of freedom.
-
+        t_stat: The t-statistic
+        df: Degrees of freedom
+        
     Returns:
-        The correlation coefficient r.
+        The correlation coefficient r
     """
     return t_to_r(t_stat, df)
 
-def process_row(row: Dict[str, str]) -> Tuple[Optional[float], str]:
+def process_row(row: Dict[str, Any], logger: logging.Logger) -> Tuple[Optional[float], str]:
     """
-    Process a single study row to extract r if possible.
-
-    Priority:
-    1. If 'r' is already present and valid, return it with method 'existing'.
-    2. If 't' and 'df' are present, convert t to r.
-    3. If 'p' and 'df' are present, convert p to t then to r.
-    4. If 'n' is present, calculate df = n - 2 (for correlation).
-
-    Returns:
-        Tuple of (r_value, conversion_method).
-        If conversion fails or impossible, returns (None, 'error' or 'missing').
-    """
-    # Check if r is already present
-    if 'r' in row and row['r'] and row['r'].strip():
-        try:
-            r_val = float(row['r'])
-            if -1 <= r_val <= 1:
-                return r_val, 'existing'
-            else:
-                logger.warning(f"Invalid r value {r_val} in row: {row.get('author', 'unknown')}")
-                return None, 'invalid_existing'
-        except ValueError:
-            logger.warning(f"Could not parse r value: {row['r']}")
-            return None, 'parse_error'
-
-    # Determine df
-    df = None
-    if 'df' in row and row['df'] and row['df'].strip():
-        try:
-            df = int(float(row['df']))
-        except ValueError:
-            logger.warning(f"Could not parse df value: {row['df']}")
-            return None, 'parse_error'
-    elif 'n' in row and row['n'] and row['n'].strip():
-        try:
-            n = int(float(row['n']))
-            # For Pearson correlation, df = n - 2
-            df = n - 2
-        except ValueError:
-            logger.warning(f"Could not parse n value: {row['n']}")
-            return None, 'parse_error'
-
-    if df is None or df <= 0:
-        # Cannot proceed without df
-        return None, 'missing_df'
-
-    # Try t-statistic first
-    if 't' in row and row['t'] and row['t'].strip():
-        try:
-            t_val = float(row['t'])
-            r_val = convert_t_to_r(t_val, df)
-            return r_val, 'from_t'
-        except ValueError:
-            logger.warning(f"Could not parse t value: {row['t']}")
-            return None, 'parse_error'
-        except DataConversionError as e:
-            logger.warning(f"t-to-r conversion failed: {e}")
-            return None, 'conversion_error'
-
-    # Try p-value
-    if 'p' in row and row['p'] and row['p'].strip():
-        try:
-            p_val = float(row['p'])
-            # Assume two-tailed by default unless specified
-            two_tailed = True
-            if 'two_tailed' in row:
-                two_tailed = row['two_tailed'].lower() in ['true', '1', 'yes', 't']
-
-            r_val = convert_p_to_r(p_val, df, two_tailed)
-            return r_val, 'from_p'
-        except ValueError:
-            logger.warning(f"Could not parse p value: {row['p']}")
-            return None, 'parse_error'
-        except DataConversionError as e:
-            logger.warning(f"p-to-r conversion failed: {e}")
-            return None, 'conversion_error'
-
-    return None, 'missing_stats'
-
-def run_p_to_r_conversion(
-    input_path: Path,
-    output_path: Path,
-    log_path: Optional[Path] = None
-) -> Dict[str, Any]:
-    """
-    Main function to run p-value to r conversion on a CSV file.
-
+    Process a single row to extract r value from p-value or t-statistic if r is missing.
+    
     Args:
-        input_path: Path to input CSV file.
-        output_path: Path to output CSV file.
-        log_path: Optional path to log file.
-
+        row: A dictionary representing a study record
+        logger: Logger instance
+        
     Returns:
-        Dictionary with conversion statistics.
+        Tuple of (r_value, conversion_method)
+        If r is already present, returns (r, "original")
+        If conversion successful, returns (r, "p_to_r" or "t_to_r")
+        If conversion fails, returns (None, "failed")
     """
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-
-    stats = {
-        'total_rows': 0,
-        'converted_from_t': 0,
-        'converted_from_p': 0,
-        'existing_r': 0,
-        'errors': 0,
-        'missing_stats': 0,
-        'missing_df': 0,
-        'parse_errors': 0
-    }
-
-    rows_out = []
-    headers = []
-    log_entries = []
-
-    try:
-        with open(input_path, 'r', newline='', encoding='utf-8') as infile:
-            reader = csv.DictReader(infile)
-            headers = reader.fieldnames or []
-
-            # Ensure output headers include r and conversion_method
-            if 'r' not in headers:
-                headers.append('r')
-            if 'conversion_method' not in headers:
-                headers.append('conversion_method')
-
-            for row in reader:
-                stats['total_rows'] += 1
-                r_val, method = process_row(row)
-
-                # Update row
-                if r_val is not None:
-                    row['r'] = f"{r_val:.6f}"
-                    row['conversion_method'] = method
-                    if method == 'from_t':
-                        stats['converted_from_t'] += 1
-                    elif method == 'from_p':
-                        stats['converted_from_p'] += 1
-                    elif method == 'existing':
-                        stats['existing_r'] += 1
-                else:
-                    row['r'] = ''
-                    row['conversion_method'] = method
-                    if method == 'missing_stats':
-                        stats['missing_stats'] += 1
-                    elif method == 'missing_df':
-                        stats['missing_df'] += 1
-                    elif method == 'parse_error':
-                        stats['parse_errors'] += 1
-                    else:
-                        stats['errors'] += 1
-
-                    log_entries.append({
-                        'row_idx': stats['total_rows'],
-                        'author': row.get('author', 'unknown'),
-                        'year': row.get('year', 'unknown'),
-                        'method': method,
-                        'reason': f"Could not convert: {row}"
-                    })
-
-                rows_out.append(row)
-
-    except Exception as e:
-        logger.error(f"Error reading input file: {e}")
-        raise
-
-    # Write output
-    try:
-        with open(output_path, 'w', newline='', encoding='utf-8') as outfile:
-            writer = csv.DictWriter(outfile, fieldnames=headers)
-            writer.writeheader()
-            writer.writerows(rows_out)
-        logger.info(f"Successfully wrote {len(rows_out)} rows to {output_path}")
-    except Exception as e:
-        logger.error(f"Error writing output file: {e}")
-        raise
-
-    # Write log if requested
-    if log_path and log_entries:
+    # Check if r is already present and valid
+    r_val = row.get('r')
+    if r_val is not None and r_val != '' and r_val != 'NA' and r_val != 'NaN':
         try:
-            with open(log_path, 'w', newline='', encoding='utf-8') as log_file:
-                if log_entries:
-                    writer = csv.DictWriter(log_file, fieldnames=log_entries[0].keys())
-                    writer.writeheader()
-                    writer.writerows(log_entries)
-            logger.info(f"Logged {len(log_entries)} conversion failures to {log_path}")
-        except Exception as e:
-            logger.error(f"Error writing log file: {e}")
+            r_float = float(r_val)
+            if -1.0 <= r_float <= 1.0:
+                return r_float, "original"
+        except (ValueError, TypeError):
+            pass
+    
+    # Try to convert from t-statistic
+    t_val = row.get('t')
+    if t_val is not None and t_val != '' and t_val != 'NA' and t_val != 'NaN':
+        df_val = row.get('df')
+        if df_val is not None and df_val != '' and df_val != 'NA' and df_val != 'NaN':
+            try:
+                t_float = float(t_val)
+                df_float = int(float(df_val))
+                if df_float > 0:
+                    r = convert_t_to_r(t_float, df_float)
+                    logger.info(f"Converted t={t_float}, df={df_float} to r={r:.4f}")
+                    return r, "t_to_r"
+            except (ValueError, TypeError, DataConversionError) as e:
+                logger.warning(f"Failed t-to-r conversion: {e}")
+    
+    # Try to convert from p-value
+    p_val = row.get('p')
+    if p_val is not None and p_val != '' and p_val != 'NA' and p_val != 'NaN':
+        df_val = row.get('df')
+        two_tailed_str = row.get('two_tailed', 'True')
+        
+        if df_val is not None and df_val != '' and df_val != 'NA' and df_val != 'NaN':
+            try:
+                p_float = float(p_val)
+                df_float = int(float(df_val))
+                two_tailed = two_tailed_str.lower() in ['true', '1', 'yes', 't']
+                
+                if 0 < p_float < 1 and df_float > 0:
+                    r = convert_p_to_r(p_float, df_float, two_tailed)
+                    logger.info(f"Converted p={p_float}, df={df_float}, two_tailed={two_tailed} to r={r:.4f}")
+                    return r, "p_to_r"
+            except (ValueError, TypeError, DataConversionError) as e:
+                logger.warning(f"Failed p-to-r conversion: {e}")
+    
+    # No valid conversion possible
+    return None, "failed"
 
-    return stats
+def run_p_to_r_conversion(input_path: str, output_path: str) -> Dict[str, int]:
+    """
+    Read studies CSV, convert p-values/t-stats to r where missing, and write updated CSV.
+    
+    Args:
+        input_path: Path to input CSV
+        output_path: Path to output CSV
+        
+    Returns:
+        Dictionary with conversion statistics
+    """
+    project_root = get_project_root()
+    logger = get_logger("p_to_r")
+    
+    input_file = project_root / input_path
+    output_file = project_root / output_path
+    
+    ensure_directory(output_file.parent)
+    
+    if not input_file.exists():
+        raise FileNotFoundError(f"Input file not found: {input_file}")
+    
+    stats_dict = {
+        'total_rows': 0,
+        'original_r': 0,
+        'converted_t': 0,
+        'converted_p': 0,
+        'failed': 0
+    }
+    
+    rows = []
+    
+    with open(input_file, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        fieldnames = reader.fieldnames
+        
+        # Add new columns if not present
+        if 'r' not in fieldnames:
+            fieldnames = list(fieldnames) + ['r']
+        if 'conversion_method' not in fieldnames:
+            fieldnames = list(fieldnames) + ['conversion_method']
+        
+        for row in reader:
+            stats_dict['total_rows'] += 1
+            
+            r_val, method = process_row(row, logger)
+            
+            row['conversion_method'] = method
+            if r_val is not None:
+                row['r'] = f"{r_val:.6f}"
+            else:
+                row['r'] = ''
+            
+            if method == 'original':
+                stats_dict['original_r'] += 1
+            elif method == 't_to_r':
+                stats_dict['converted_t'] += 1
+            elif method == 'p_to_r':
+                stats_dict['converted_p'] += 1
+            else:
+                stats_dict['failed'] += 1
+            
+            rows.append(row)
+    
+    with open(output_file, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+    
+    logger.info(f"Conversion complete. Written to {output_file}")
+    logger.info(f"Stats: {stats_dict}")
+    
+    return stats_dict
 
 def main():
-    """CLI entry point for p-to-r conversion."""
+    """Main entry point for the p-to-r conversion script."""
     import argparse
-
-    parser = argparse.ArgumentParser(description='Convert p-values and t-statistics to correlation coefficients (r).')
-    parser.add_argument('--input', type=str, required=True, help='Path to input CSV file.')
-    parser.add_argument('--output', type=str, required=True, help='Path to output CSV file.')
-    parser.add_argument('--log', type=str, default=None, help='Path to log file for conversion errors.')
-
+    
+    parser = argparse.ArgumentParser(description='Convert p-values and t-statistics to correlation coefficients')
+    parser.add_argument('--input', type=str, default='data/processed/extracted_studies.csv',
+                      help='Input CSV file path')
+    parser.add_argument('--output', type=str, default='data/processed/extracted_studies.csv',
+                      help='Output CSV file path')
     args = parser.parse_args()
-
-    input_path = Path(args.input)
-    output_path = Path(args.output)
-    log_path = Path(args.log) if args.log else None
-
-    logger.info(f"Starting p-to-r conversion: {input_path} -> {output_path}")
-
+    
     try:
-        stats = run_p_to_r_conversion(input_path, output_path, log_path)
-        logger.info(f"Conversion complete. Stats: {json.dumps(stats, indent=2)}")
-        return 0
+        stats = run_p_to_r_conversion(args.input, args.output)
+        print(f"Conversion completed successfully.")
+        print(f"Total rows: {stats['total_rows']}")
+        print(f"Original r: {stats['original_r']}")
+        print(f"Converted from t: {stats['converted_t']}")
+        print(f"Converted from p: {stats['converted_p']}")
+        print(f"Failed conversions: {stats['failed']}")
+        sys.exit(0)
     except Exception as e:
-        logger.error(f"Conversion failed: {e}")
-        return 1
+        logging.error(f"Conversion failed: {e}")
+        sys.exit(1)
 
 if __name__ == '__main__':
-    sys.exit(main())
+    main()

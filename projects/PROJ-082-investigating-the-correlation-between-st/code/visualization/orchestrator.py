@@ -5,7 +5,7 @@ Orchestrates the generation of visualization artifacts after a successful
 quantitative meta-analysis.
 
 Workflow:
-1. Check `data/processed/meta_status.json` for status == "completed".
+1. Check `data/derived/meta_status.json` for status == "completed".
 2. If completed, invoke T024 (Forest Plot), T025 (Funnel Plot), T026 (Correlation Plot).
 3. Write `data/derived/visualization_status.json` with results.
 """
@@ -13,6 +13,7 @@ import json
 import logging
 import subprocess
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
@@ -21,27 +22,33 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from utils.config import get_project_root, ensure_directory, get_output_path
+from utils.config import get_project_root, ensure_directory
 
 logger = logging.getLogger(__name__)
 
-META_STATUS_PATH = "data/processed/meta_status.json"
+# Corrected paths based on task dependencies and data model
+META_STATUS_PATH = "data/derived/meta_status.json"
 VISUALIZATION_STATUS_PATH = "data/derived/visualization_status.json"
 RESULTS_PATH = "data/derived/results.json"
 
-# Scripts to invoke
+# Scripts to invoke (T024, T025, T026)
+# Note: T024 (Forest Plot) is T024, T025 (Funnel) is T025, T026 (Correlation) is T026
 SCRIPTS = [
-    ("code/visualization/plots_forest.py", "forest_plot.png"),
-    ("code/visualization/plots_funnel.py", "funnel_plot.png"),
-    ("code/visualization/plots_correlation.py", "correlation_summary.png"),
+    ("code/visualization/plots_forest.py", "data/derived/forest_plot.png"),
+    ("code/visualization/plots_funnel.py", "data/derived/funnel_plot.png"),
+    ("code/visualization/plots_correlation.py", "data/derived/correlation_summary.png"),
 ]
 
 def load_json(path: str) -> Optional[Dict[str, Any]]:
     full_path = get_project_root() / path
     if not full_path.exists():
         return None
-    with open(full_path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+    try:
+        with open(full_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse JSON {path}: {e}")
+        return None
 
 def save_json(path: str, data: Dict[str, Any]) -> None:
     full_path = get_project_root() / path
@@ -91,6 +98,8 @@ def run_visualization_orchestrator() -> Dict[str, Any]:
     }
 
     # 1. Check Meta-Analysis Status
+    # The task description says meta_status.json, but T014 writes to data/derived/meta_status.json
+    # based on the gatekeeper logic flow.
     meta_status = load_json(META_STATUS_PATH)
     if not meta_status:
         logger.warning(f"{META_STATUS_PATH} not found. Skipping visualization.")
@@ -133,11 +142,8 @@ def run_visualization_orchestrator() -> Dict[str, Any]:
     else:
         status["reason"] = "All visualizations generated successfully"
 
-    status["timestamp"] = subprocess.run(
-        ["date", "-Iseconds"],
-        capture_output=True,
-        text=True
-    ).stdout.strip() if sys.platform != "win32" else "N/A"
+    # Use ISO format timestamp
+    status["timestamp"] = datetime.now().isoformat()
 
     # 3. Save Status
     save_json(VISUALIZATION_STATUS_PATH, status)

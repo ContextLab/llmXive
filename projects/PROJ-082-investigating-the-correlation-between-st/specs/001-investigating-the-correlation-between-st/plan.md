@@ -21,7 +21,7 @@ The implementation will use Python, `pandas`, `statsmodels`, `scipy`, and `matpl
 **Project Type**: Data analysis pipeline / CLI tool.  
 **Performance Goals**: Complete full pipeline (including mock data generation and analysis) within 15 minutes. Memory usage < 6 GB.  
 **Constraints**: Must run without GPU; must handle N < 10 gracefully by skipping quantitative steps; must not fabricate data if real sources are unavailable (must use mock data for testing only, with clear flags).  
-**Scale/Scope**: Processing of up to ~100 synthetic or extracted study records.
+**Scale/Scope**: Processing of a representative set of synthetic or extracted study records.
 
 > **Dataset Strategy Note**: The spec relies on literature extraction. No single "dataset" exists. The "data" will be generated via:
 > 1. **Mock Data**: A synthetic CSV (`mock_studies.csv`) for testing the pipeline logic (T000-gen-all). **Default config ensures N=15 and 5+ distinct tracts.**

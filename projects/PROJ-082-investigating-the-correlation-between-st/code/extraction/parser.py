@@ -1,277 +1,367 @@
 """
 Parser module for extracting and merging study data.
-Parses CSV/JSON inputs for r, n, tract and merges with qualitative data.
+
+This module parses CSV/JSON inputs for r, n, tract and merges with qualitative
+data from T012. It generates data/processed/extracted_studies.csv with columns
+including narrative_pool and qualitative_desc. It also logs exclusions to
+data/logs/exclusion_log.csv.
 """
 import csv
 import json
-import re
 import logging
 import os
+import re
+import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from utils.config import get_project_root
-from utils.logger import get_logger
+# Import from utils.config as per API surface
+from utils.config import get_project_root, ensure_directory
 
-# Initialize logger
-logger = get_logger(__name__)
+# Configure logger
+logger = logging.getLogger(__name__)
 
-def get_project_root() -> Path:
-    """Get the project root directory."""
-    return Path(__file__).resolve().parent.parent.parent
-
-def load_tract_lexicon() -> List[str]:
-    """Load the tract lexicon from the config file."""
-    lexicon_path = get_project_root() / "code" / "config" / "tract_lexicon.yaml"
-    if not lexicon_path.exists():
-        logger.warning(f"Tract lexicon not found at {lexicon_path}")
-        return []
-    
-    import yaml
-    with open(lexicon_path, 'r') as f:
-        data = yaml.safe_load(f)
-        return data.get('tracts', [])
-
-def log_exclusion(row: Dict[str, Any], reason: str, exclusion_log_path: Path) -> None:
-    """Log an excluded row to the exclusion log."""
-    file_exists = exclusion_log_path.exists()
-    
-    with open(exclusion_log_path, 'a', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=['author', 'year', 'tract', 'reason'])
-        if not file_exists:
-            writer.writeheader()
-        writer.writerow({
-            'author': row.get('author', ''),
-            'year': row.get('year', ''),
-            'tract': row.get('tract', ''),
-            'reason': reason
-        })
-
-def parse_row(row: Dict[str, Any], tract_lexicon: List[str], qualitative_data: Dict[str, Any]) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
+def load_tract_lexicon(lexicon_path: Optional[str] = None) -> List[str]:
     """
-    Parse a single row from the input data.
-    Returns a tuple of (parsed_row, exclusion_reason).
-    If exclusion_reason is not None, the row should be excluded.
+    Load the tract lexicon from YAML or default path.
+    
+    Args:
+        lexicon_path: Path to lexicon file. If None, uses default path.
+        
+    Returns:
+        List of tract names.
     """
-    parsed = {}
-    
-    # Extract basic fields
-    author = row.get('author', '').strip()
-    year_str = row.get('year', '').strip()
-    tract_raw = row.get('tract', '').strip()
-    r_raw = row.get('r', '').strip()
-    n_raw = row.get('n', '').strip()
-    qualitative_desc = row.get('qualitative_desc', '').strip()
-    narrative_pool = row.get('narrative_pool', False)
-    
-    # Validate author and year
-    if not author:
-        return None, "Missing author"
+    if lexicon_path is None:
+        project_root = get_project_root()
+        lexicon_path = project_root / "code" / "config" / "tract_lexicon.yaml"
     
     try:
-        year = int(year_str) if year_str else None
-        if year is None:
-            return None, "Missing or invalid year"
-    except ValueError:
-        return None, "Invalid year format"
-    
-    # Validate tract
-    if not tract_raw:
-        return None, "Missing tract"
-    
-    # Normalize tract name
-    tract_normalized = tract_raw.lower()
-    if tract_normalized not in [t.lower() for t in tract_lexicon]:
-        # Check if it's close to any tract in the lexicon
-        match = False
-        for lex_tract in tract_lexicon:
-            if lex_tract.lower() in tract_normalized or tract_normalized in lex_tract.lower():
-                match = True
-                break
-        if not match:
-            return None, f"Tract '{tract_raw}' not found in lexicon"
-    
-    parsed['author'] = author
-    parsed['year'] = year
-    parsed['tract'] = tract_raw
-    
-    # Process r and n
-    r_val = None
-    n_val = None
-    
-    if r_raw:
-        try:
-            r_val = float(r_raw)
-            if not (-1.0 <= r_val <= 1.0):
-                return None, f"r value {r_val} out of range [-1, 1]"
-        except ValueError:
-            return None, f"Invalid r value: {r_raw}"
-    
-    if n_raw:
-        try:
-            n_val = int(n_raw)
-            if n_val <= 0:
-                return None, f"n value {n_val} must be positive"
-        except ValueError:
-            return None, f"Invalid n value: {n_raw}"
-    
-    parsed['r'] = r_val
-    parsed['n'] = n_val
-    
-    # Check for qualitative data
-    if r_val is None and n_val is None:
-        # Look for qualitative data in the qualitative_data dict
-        key = f"{author}_{year}"
-        if key in qualitative_data:
-            parsed['qualitative_desc'] = qualitative_data[key].get('description', '')
-            parsed['narrative_pool'] = True
-        else:
-            # Try to find a matching tract-based entry
-            for q_key, q_val in qualitative_data.items():
-                if q_val.get('tract', '').lower() == tract_normalized:
-                    parsed['qualitative_desc'] = q_val.get('description', '')
-                    parsed['narrative_pool'] = True
-                    break
+        import yaml
+        with open(lexicon_path, 'r') as f:
+            data = yaml.safe_load(f)
+            # The lexicon structure depends on how generate_lexicon.py writes it.
+            # Based on T007c, it likely contains a list of tracts.
+            if isinstance(data, list):
+                return data
+            elif isinstance(data, dict) and 'tracts' in data:
+                return data['tracts']
             else:
-                # No qualitative data found, exclude
-                return None, "Missing both r/n and qualitative description"
-    else:
-        parsed['qualitative_desc'] = qualitative_desc if qualitative_desc else ""
-        parsed['narrative_pool'] = bool(narrative_pool) if isinstance(narrative_pool, bool) else False
-    
-    return parsed, None
+                # Fallback: try to extract keys if it's a dict of tracts
+                return list(data.keys())
+    except FileNotFoundError:
+        logger.warning(f"Lexicon file not found at {lexicon_path}. Using empty list.")
+        return []
+    except Exception as e:
+        logger.error(f"Error loading lexicon: {e}")
+        return []
 
-def parse_csv_file(input_path: Path, tract_lexicon: List[str], qualitative_data: Dict[str, Any], exclusion_log_path: Path) -> List[Dict[str, Any]]:
-    """Parse a CSV input file."""
-    parsed_rows = []
+def load_qualitative_data(qualitative_path: Optional[str] = None) -> Dict[str, Dict[str, Any]]:
+    """
+    Load qualitative data from JSON.
     
-    with open(input_path, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            parsed, reason = parse_row(row, tract_lexicon, qualitative_data)
-            if parsed is not None:
-                parsed_rows.append(parsed)
-            else:
-                log_exclusion(row, reason, exclusion_log_path)
-                logger.info(f"Excluded row: {row.get('author', 'Unknown')} - {reason}")
-    
-    return parsed_rows
-
-def parse_json_file(input_path: Path, tract_lexicon: List[str], qualitative_data: Dict[str, Any], exclusion_log_path: Path) -> List[Dict[str, Any]]:
-    """Parse a JSON input file."""
-    parsed_rows = []
-    
-    with open(input_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
+    Args:
+        qualitative_path: Path to qualitative data JSON. If None, uses default path.
         
-    # Handle both list of dicts and dict with 'studies' key
-    studies = data if isinstance(data, list) else data.get('studies', [])
+    Returns:
+        Dictionary mapping study identifiers to qualitative data.
+    """
+    if qualitative_path is None:
+        project_root = get_project_root()
+        qualitative_path = project_root / "data" / "processed" / "qualitative_data.json"
     
-    for row in studies:
-        parsed, reason = parse_row(row, tract_lexicon, qualitative_data)
-        if parsed is not None:
-            parsed_rows.append(parsed)
-        else:
-            log_exclusion(row, reason, exclusion_log_path)
-            logger.info(f"Excluded row: {row.get('author', 'Unknown')} - {reason}")
-    
-    return parsed_rows
-
-def load_qualitative_data(qualitative_data_path: Path) -> Dict[str, Any]:
-    """Load qualitative data from a JSON file."""
-    if not qualitative_data_path.exists():
-        logger.warning(f"Qualitative data file not found at {qualitative_data_path}")
+    try:
+        with open(qualitative_path, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        logger.warning(f"Qualitative data file not found at {qualitative_path}. Returning empty dict.")
         return {}
-    
-    with open(qualitative_data_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    
-    # Convert list to dict for easier lookup
-    result = {}
-    if isinstance(data, list):
-        for item in data:
-            key = f"{item.get('author', '')}_{item.get('year', '')}"
-            result[key] = item
-    elif isinstance(data, dict):
-        result = data
-    
-    return result
+    except json.JSONDecodeError as e:
+        logger.error(f"Error decoding qualitative data JSON: {e}")
+        return {}
+    except Exception as e:
+        logger.error(f"Error loading qualitative data: {e}")
+        return {}
 
-def save_extracted_studies(parsed_rows: List[Dict[str, Any]], output_path: Path) -> None:
-    """Save parsed rows to a CSV file."""
-    if not parsed_rows:
-        logger.warning("No rows to save")
-        # Create an empty file with headers
-        with open(output_path, 'w', newline='', encoding='utf-8') as f:
-            fieldnames = ['author', 'year', 'tract', 'r', 'n', 'qualitative_desc', 'narrative_pool']
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-        return
+def parse_row(row: Dict[str, str], lexicon: List[str], qualitative_data: Dict[str, Dict[str, Any]], study_id: str) -> Tuple[Dict[str, Any], Optional[str]]:
+    """
+    Parse a single row from the input CSV.
+    
+    Args:
+        row: Dictionary representing a CSV row.
+        lexicon: List of tract names.
+        qualitative_data: Dictionary of qualitative data.
+        study_id: Unique identifier for the study (e.g., author_year).
+        
+    Returns:
+        Tuple of (parsed_record, exclusion_reason).
+    """
+    parsed = {}
+    exclusion_reason = None
+
+    # Extract basic fields
+    parsed['author'] = row.get('author', '').strip()
+    parsed['year'] = row.get('year', '').strip()
+    parsed['tract'] = row.get('tract', '').strip()
+    
+    # Parse r and n, handling missing values
+    r_str = row.get('r', '').strip()
+    n_str = row.get('n', '').strip()
+    
+    parsed['r'] = None
+    parsed['n'] = None
+    
+    if r_str:
+        try:
+            parsed['r'] = float(r_str)
+        except ValueError:
+            logger.warning(f"Invalid r value '{r_str}' for study {study_id}. Setting to None.")
+            parsed['r'] = None
+            
+    if n_str:
+        try:
+            parsed['n'] = int(n_str)
+        except ValueError:
+            logger.warning(f"Invalid n value '{n_str}' for study {study_id}. Setting to None.")
+            parsed['n'] = None
+
+    # Determine if qualitative extraction is needed
+    # "This logic MUST ONLY be applied to studies that lack both r and n values."
+    if parsed['r'] is None and parsed['n'] is None:
+        parsed['narrative_pool'] = True
+        # Look up qualitative description
+        qual_entry = qualitative_data.get(study_id, {})
+        parsed['qualitative_desc'] = qual_entry.get('description', '')
+        parsed['extraction_method'] = qual_entry.get('method', 'unknown')
+        
+        # If no qualitative data found, mark for exclusion
+        if not parsed['qualitative_desc']:
+            exclusion_reason = "Missing both r and n, and no qualitative description found"
+    else:
+        parsed['narrative_pool'] = False
+        parsed['qualitative_desc'] = ''
+        parsed['extraction_method'] = 'quantitative'
+
+    # Validate tract name against lexicon (optional, for logging)
+    if parsed['tract'] and lexicon:
+        tract_lower = parsed['tract'].lower()
+        found = any(tract.lower() in tract_lower or tract_lower in tract.lower() for tract in lexicon)
+        if not found:
+            logger.warning(f"Tract '{parsed['tract']}' not found in lexicon for study {study_id}.")
+
+    return parsed, exclusion_reason
+
+def parse_csv_file(input_path: Path, lexicon: List[str], qualitative_data: Dict[str, Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """
+    Parse a CSV file and extract study records.
+    
+    Args:
+        input_path: Path to input CSV file.
+        lexicon: List of tract names.
+        qualitative_data: Dictionary of qualitative data.
+        
+    Returns:
+        Tuple of (parsed_records, excluded_records).
+    """
+    parsed_records = []
+    excluded_records = []
+
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+
+    with open(input_path, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for idx, row in enumerate(reader):
+            # Create a unique study ID
+            study_id = f"{row.get('author', 'unknown')}_{row.get('year', 'unknown')}"
+            
+            parsed, exclusion_reason = parse_row(row, lexicon, qualitative_data, study_id)
+            
+            if exclusion_reason:
+                excluded_records.append({
+                    'study_id': study_id,
+                    'row_index': idx + 1,  # 1-based index
+                    'reason': exclusion_reason,
+                    'raw_data': row
+                })
+            else:
+                parsed_records.append(parsed)
+
+    return parsed_records, excluded_records
+
+def parse_json_file(input_path: Path, lexicon: List[str], qualitative_data: Dict[str, Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """
+    Parse a JSON file and extract study records.
+    
+    Args:
+        input_path: Path to input JSON file.
+        lexicon: List of tract names.
+        qualitative_data: Dictionary of qualitative data.
+        
+    Returns:
+        Tuple of (parsed_records, excluded_records).
+    """
+    parsed_records = []
+    excluded_records = []
+
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+
+    try:
+        with open(input_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in {input_path}: {e}")
+        return [], []
+
+    if isinstance(data, list):
+        records = data
+    elif isinstance(data, dict) and 'studies' in data:
+        records = data['studies']
+    else:
+        logger.warning(f"Unexpected JSON structure in {input_path}. Assuming root is list of studies.")
+        records = [data] if isinstance(data, dict) else []
+
+    for idx, row in enumerate(records):
+        study_id = f"{row.get('author', 'unknown')}_{row.get('year', 'unknown')}"
+        parsed, exclusion_reason = parse_row(row, lexicon, qualitative_data, study_id)
+        
+        if exclusion_reason:
+            excluded_records.append({
+                'study_id': study_id,
+                'row_index': idx + 1,
+                'reason': exclusion_reason,
+                'raw_data': row
+            })
+        else:
+            parsed_records.append(parsed)
+
+    return parsed_records, excluded_records
+
+def save_extracted_studies(records: List[Dict[str, Any]], output_path: Path) -> None:
+    """
+    Save extracted studies to a CSV file.
+    
+    Args:
+        records: List of parsed study records.
+        output_path: Path to output CSV file.
+    """
+    ensure_directory(output_path)
+    
+    fieldnames = [
+        'author', 'year', 'tract', 'r', 'n', 
+        'narrative_pool', 'qualitative_desc', 'extraction_method'
+    ]
     
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        fieldnames = ['author', 'year', 'tract', 'r', 'n', 'qualitative_desc', 'narrative_pool']
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        for row in parsed_rows:
-            writer.writerow(row)
+        for record in records:
+            writer.writerow(record)
     
-    logger.info(f"Saved {len(parsed_rows)} rows to {output_path}")
+    logger.info(f"Saved {len(records)} records to {output_path}")
 
-def parse_input(input_path: Path, output_path: Path, exclusion_log_path: Path) -> None:
-    """Main function to parse input and write extracted studies."""
-    # Load tract lexicon
-    tract_lexicon = load_tract_lexicon()
-    if not tract_lexicon:
-        logger.error("Tract lexicon is empty, cannot proceed")
+def log_exclusion(excluded_records: List[Dict[str, Any]], log_path: Path) -> None:
+    """
+    Log excluded records to a CSV file.
+    
+    Args:
+        excluded_records: List of excluded study records.
+        log_path: Path to log CSV file.
+    """
+    ensure_directory(log_path)
+    
+    if not excluded_records:
+        # Write an empty file with headers if no exclusions
+        with open(log_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=['study_id', 'row_index', 'reason', 'raw_data'])
+            writer.writeheader()
+        logger.info(f"No exclusions. Created empty log at {log_path}")
         return
+
+    fieldnames = ['study_id', 'row_index', 'reason', 'raw_data']
     
-    # Load qualitative data
-    qualitative_data_path = get_project_root() / "data" / "processed" / "qualitative_data.json"
-    qualitative_data = load_qualitative_data(qualitative_data_path)
+    with open(log_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for record in excluded_records:
+            # Convert raw_data dict to JSON string for CSV
+            record['raw_data'] = json.dumps(record['raw_data'])
+            writer.writerow(record)
     
-    # Determine input format and parse
-    parsed_rows = []
-    if input_path.suffix.lower() == '.csv':
-        parsed_rows = parse_csv_file(input_path, tract_lexicon, qualitative_data, exclusion_log_path)
-    elif input_path.suffix.lower() == '.json':
-        parsed_rows = parse_json_file(input_path, tract_lexicon, qualitative_data, exclusion_log_path)
+    logger.info(f"Logged {len(excluded_records)} exclusions to {log_path}")
+
+def parse_input(input_path: str, output_csv_path: str, exclusion_log_path: str) -> Dict[str, int]:
+    """
+    Main entry point for parsing input data.
+    
+    Args:
+        input_path: Path to input CSV or JSON file.
+        output_csv_path: Path to output extracted studies CSV.
+        exclusion_log_path: Path to exclusion log CSV.
+        
+    Returns:
+        Dictionary with counts of processed and excluded records.
+    """
+    project_root = get_project_root()
+    input_path_obj = Path(input_path)
+    output_path_obj = Path(output_csv_path)
+    log_path_obj = Path(exclusion_log_path)
+
+    # Load dependencies
+    lexicon = load_tract_lexicon()
+    qualitative_data = load_qualitative_data()
+
+    logger.info(f"Starting parsing from {input_path_obj}")
+    logger.info(f"Loaded {len(lexicon)} tracts from lexicon")
+    logger.info(f"Loaded {len(qualitative_data)} qualitative entries")
+
+    # Determine file type and parse
+    if input_path_obj.suffix.lower() == '.csv':
+        records, excluded = parse_csv_file(input_path_obj, lexicon, qualitative_data)
+    elif input_path_obj.suffix.lower() == '.json':
+        records, excluded = parse_json_file(input_path_obj, lexicon, qualitative_data)
     else:
-        logger.error(f"Unsupported input file format: {input_path.suffix}")
-        return
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Save extracted studies
-    save_extracted_studies(parsed_rows, output_path)
+        raise ValueError(f"Unsupported file format: {input_path_obj.suffix}")
 
-def main() -> None:
-    """Entry point for the parser script."""
+    # Save outputs
+    save_extracted_studies(records, output_path_obj)
+    log_exclusion(excluded, log_path_obj)
+
+    return {
+        'processed': len(records),
+        'excluded': len(excluded)
+    }
+
+def main() -> int:
+    """
+    Command-line entry point for the parser script.
+    
+    Returns:
+        Exit code (0 for success, 1 for failure).
+    """
     import argparse
-    
-    parser = argparse.ArgumentParser(description='Parse study data and extract relevant fields.')
-    parser.add_argument('--input', type=str, required=True, help='Path to input CSV or JSON file')
-    parser.add_argument('--output', type=str, required=True, help='Path to output CSV file')
-    parser.add_argument('--exclusion-log', type=str, default=None, help='Path to exclusion log CSV file')
-    
+
+    parser = argparse.ArgumentParser(description='Parse and merge study data.')
+    parser.add_argument('--input', type=str, required=True, help='Path to input CSV or JSON file.')
+    parser.add_argument('--output', type=str, default='data/processed/extracted_studies.csv', help='Path to output CSV file.')
+    parser.add_argument('--log', type=str, default='data/logs/exclusion_log.csv', help='Path to exclusion log CSV file.')
+    parser.add_argument('--verbose', action='store_true', help='Enable verbose logging.')
+
     args = parser.parse_args()
-    
-    input_path = Path(args.input)
-    output_path = Path(args.output)
-    
-    if args.exclusion_log:
-        exclusion_log_path = Path(args.exclusion_log)
+
+    if args.verbose:
+        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     else:
-        # Default exclusion log path
-        exclusion_log_path = get_project_root() / "data" / "logs" / "exclusion_log.csv"
-    
-    # Ensure log directory exists
-    exclusion_log_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Run parsing
-    parse_input(input_path, output_path, exclusion_log_path)
-    
-    logger.info("Parsing complete")
+        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+    try:
+        results = parse_input(args.input, args.output, args.log)
+        logger.info(f"Parsing complete. Processed: {results['processed']}, Excluded: {results['excluded']}")
+        return 0
+    except Exception as e:
+        logger.error(f"Error during parsing: {e}", exc_info=True)
+        return 1
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())

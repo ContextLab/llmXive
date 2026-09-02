@@ -1,14 +1,10 @@
 """
-Meta-Analysis Implementation (Task T014).
-
-Implements Random-Effects model (DerSimonian-Laird).
-Outputs: data/processed/meta_status.json, data/derived/results.json (partial)
-
-Logic:
-- Read N from study_count.json.
-- If N < 10, skip and write status "skipped".
-- If N >= 10, run model.
+Meta-Analysis Implementation
+Runs DerSimonian-Laird Random-Effects model with fallback to Fixed-Effects.
+Handles gate logic and Hartung-Knapp adjustment flags.
 """
+
+import csv
 import json
 import math
 import sys
@@ -16,157 +12,304 @@ import warnings
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-def get_project_root() -> Path:
-    current = Path(__file__).resolve()
-    for parent in current.parents:
-        if parent.name == "code":
-            return parent.parent
-    return current.parent
+# --- Utility Functions (Standardized with project API surface) ---
 
-def load_json(path: Path) -> Optional[Dict]:
+def get_project_root() -> Path:
+    """Returns the root directory of the project (parent of 'code')."""
+    current = Path(__file__).resolve()
+    # Navigate up from code/analysis to project root
+    return current.parent.parent.parent
+
+def load_json(path: Path) -> Dict[str, Any]:
+    """Load a JSON file."""
     if not path.exists():
-        return None
-    with open(path) as f:
+        raise FileNotFoundError(f"JSON file not found: {path}")
+    with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def save_json(path: Path, data: Dict) -> None:
+def save_json(data: Dict[str, Any], path: Path) -> None:
+    """Save a dictionary to a JSON file."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, 'w') as f:
+    with open(path, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2)
 
-def load_effect_sizes_and_se(path: Path) -> List[Tuple[float, float]]:
-    """Load (r, se) pairs from extracted_studies.csv."""
-    if not path.exists():
-        return []
-    results = []
-    import csv
-    with open(path, 'r') as f:
+def load_effect_sizes_and_se(input_path: Path) -> List[Dict[str, Any]]:
+    """
+    Load extracted studies and filter for valid r and n.
+    Returns list of dicts with 'r', 'se', 'author', 'year'.
+    """
+    studies = []
+    if not input_path.exists():
+        return studies
+
+    with open(input_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
             r_val = row.get('r')
-            se_val = row.get('se') # Assuming se is calculated or present
-            # If se is not present, we might need to calculate it from n
-            # For simplicity, we assume it's present or use a placeholder
-            if r_val and se_val:
-                try:
-                    r = float(r_val)
-                    se = float(se_val)
-                    results.append((r, se))
-                except ValueError:
-                    pass
-    return results
+            n_val = row.get('n')
+            
+            # Check for valid numeric data
+            if r_val is None or n_val is None or r_val == '' or n_val == '':
+                continue
+            
+            try:
+                r = float(r_val)
+                n = int(n_val)
+                if n <= 0:
+                    continue
+                
+                # Fisher's Z transformation for meta-analysis stability
+                # z = 0.5 * ln((1+r)/(1-r))
+                # SE_z = 1 / sqrt(N - 3)
+                # We perform meta-analysis on Z, then back-transform if needed,
+                # but standard practice often reports pooled Z or back-transformed r.
+                # Here we compute Z and SE_Z for the model.
+                
+                if abs(r) >= 1.0:
+                    # Clamp to avoid log(0) or complex numbers if r is exactly 1 or -1
+                    # Though strictly r should be < 1.
+                    r = math.copysign(0.9999, r)
+                    
+                z = 0.5 * math.log((1 + r) / (1 - r))
+                se_z = 1.0 / math.sqrt(n - 3)
+                
+                studies.append({
+                    'author': row.get('author', 'Unknown'),
+                    'year': row.get('year', 0),
+                    'z': z,
+                    'se': se_z,
+                    'r': r, # Keep original r for reference
+                    'n': n
+                })
+            except (ValueError, ZeroDivisionError):
+                continue
+                
+    return studies
 
-def run_random_effects_model(data: List[Tuple[float, float]]) -> Dict[str, Any]:
+# --- Meta-Analysis Models ---
+
+def run_fixed_effects_model(studies: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
-    Run DerSimonian-Laird random effects model.
-    Returns pooled effect, CI, and heterogeneity stats.
+    Run Inverse-Variance Fixed Effects Model.
+    Returns pooled effect (Z), SE, and CI.
     """
-    if not data:
-        return {"status": "failed", "reason": "No data"}
+    if not studies:
+        return {'pooled_z': 0, 'se': 0, 'ci_lower': 0, 'ci_upper': 0, 'k': 0}
 
-    r_vals = [d[0] for d in data]
-    se_vals = [d[1] for d in data]
-    w_i = [1.0 / (se ** 2) for se in se_vals]
+    sum_wz = 0.0
+    sum_w = 0.0
+    sum_wz2 = 0.0
+    sum_w2 = 0.0
+
+    for s in studies:
+        w = 1.0 / (s['se'] ** 2)
+        sum_w += w
+        sum_wz += w * s['z']
+        sum_wz2 += w * (s['z'] ** 2)
+        sum_w2 += w * w
+
+    pooled_z = sum_wz / sum_w
+    se_pooled = math.sqrt(1.0 / sum_w)
     
-    # Fixed effect estimate
-    sum_w = sum(w_i)
-    sum_wr = sum(w * r for w, r in zip(w_i, r_vals))
-    mu_fe = sum_wr / sum_w
-
-    # Q statistic
-    q = sum(w * (r - mu_fe) ** 2 for w, r in zip(w_i, r_vals))
-    k = len(data)
-    df = k - 1
-    
-    # Tau^2 (DerSimonian-Laird)
-    c = sum(w_i) - (sum(w ** 2 for w in w_i) / sum_w)
-    tau_sq = max(0, (q - df) / c) if c > 0 else 0
-
-    # Random effects weights
-    w_star = [1.0 / (se ** 2 + tau_sq) for se in se_vals]
-    sum_w_star = sum(w_star)
-    sum_w_star_r = sum(w * r for w, r in zip(w_star, r_vals))
-    mu_re = sum_w_star_r / sum_w_star
-
-    # SE of pooled
-    se_re = math.sqrt(1.0 / sum_w_star)
-
     # 95% CI
-    z = 1.96
-    ci_lower = mu_re - z * se_re
-    ci_upper = mu_re + z * se_re
-
-    # I^2
-    i_sq = max(0, (q - df) / q) if q > 0 else 0
+    z_crit = 1.96
+    ci_lower = pooled_z - z_crit * se_pooled
+    ci_upper = pooled_z + z_crit * se_pooled
 
     return {
-        "status": "completed",
-        "pooled_effect": mu_re,
-        "se": se_re,
-        "ci_lower": ci_lower,
-        "ci_upper": ci_upper,
-        "tau_sq": tau_sq,
-        "q": q,
-        "i_squared": i_sq,
-        "k": k
+        'pooled_z': pooled_z,
+        'se': se_pooled,
+        'ci_lower': ci_lower,
+        'ci_upper': ci_upper,
+        'k': len(studies),
+        'model_type': 'fixed_effects'
     }
 
-def save_results(results: Dict, path: Path) -> None:
-    save_json(path, results)
+def run_random_effects_model(studies: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Run DerSimonian-Laird Random-Effects Model.
+    Calculates Q, Tau^2, and re-weights.
+    """
+    if not studies:
+        return {'pooled_z': 0, 'se': 0, 'ci_lower': 0, 'ci_upper': 0, 'k': 0, 'tau2': 0}
 
-def ensure_dir(path: Path) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-def run_meta_analysis() -> int:
-    import logging
-    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
-    logger = logging.getLogger("meta_analysis")
-    project_root = get_project_root()
-
-    study_count_path = project_root / "data" / "processed" / "study_count.json"
-    extracted_path = project_root / "data" / "processed" / "extracted_studies.csv"
-    meta_status_path = project_root / "data" / "processed" / "meta_status.json"
-    results_path = project_root / "data" / "derived" / "results.json"
-
-    study_count = load_json(study_count_path)
-    if not study_count:
-        logger.error("study_count.json missing")
-        return 1
-
-    N = study_count.get("N", 0)
+    # 1. Calculate Q (Heterogeneity)
+    # Q = sum(w_i * (z_i - pooled_z_FE)^2)
+    # First, get FE pooled Z
+    fe_result = run_fixed_effects_model(studies)
+    pooled_z_fe = fe_result['pooled_z']
     
-    if N < 10:
-        logger.info(f"N={N} < 10. Skipping meta-analysis.")
-        status = {
+    q = 0.0
+    for s in studies:
+        w = 1.0 / (s['se'] ** 2)
+        q += w * ((s['z'] - pooled_z_fe) ** 2)
+
+    k = len(studies)
+    df = k - 1
+    
+    # 2. Calculate C (for Tau^2)
+    sum_w = sum(1.0 / (s['se'] ** 2) for s in studies)
+    sum_w2 = sum((1.0 / (s['se'] ** 2)) ** 2 for s in studies)
+    c = sum_w - (sum_w2 / sum_w)
+    
+    # 3. Calculate Tau^2 (DerSimonian-Laird)
+    tau2 = max(0, (q - df) / c) if c > 0 else 0
+
+    # 4. Calculate new weights and pooled effect
+    sum_w_prime = 0.0
+    sum_wz_prime = 0.0
+    
+    for s in studies:
+        w_prime = 1.0 / ((s['se'] ** 2) + tau2)
+        sum_w_prime += w_prime
+        sum_wz_prime += w_prime * s['z']
+    
+    if sum_w_prime == 0:
+        # Fallback to FE if weights collapse
+        return run_fixed_effects_model(studies)
+
+    pooled_z = sum_wz_prime / sum_w_prime
+    se_pooled = math.sqrt(1.0 / sum_w_prime)
+    
+    z_crit = 1.96
+    ci_lower = pooled_z - z_crit * se_pooled
+    ci_upper = pooled_z + z_crit * se_pooled
+
+    return {
+        'pooled_z': pooled_z,
+        'se': se_pooled,
+        'ci_lower': ci_lower,
+        'ci_upper': ci_upper,
+        'k': k,
+        'tau2': tau2,
+        'q': q,
+        'model_type': 'random_effects_dls'
+    }
+
+def run_meta_analysis(
+    studies_path: Path, 
+    gate_path: Path, 
+    study_count_path: Path,
+    output_status_path: Path,
+    output_results_path: Path
+) -> Dict[str, Any]:
+    """
+    Orchestrates the meta-analysis based on gate results.
+    """
+    # 1. Check Gate
+    try:
+        gate_data = load_json(gate_path)
+    except FileNotFoundError:
+        # If gate file missing, assume narrative required for safety
+        status_data = {
             "status": "skipped",
-            "reason": "Insufficient studies (N < 10)",
-            "N": N
+            "reason": "Gate file missing. Assuming narrative path."
         }
-        save_json(meta_status_path, status)
-        return 0
+        save_json(status_data, output_status_path)
+        return status_data
 
-    logger.info(f"N={N} >= 10. Running meta-analysis.")
-    data = load_effect_sizes_and_se(extracted_path)
+    if gate_data.get('status') != 'quantitative_ok':
+        status_data = {
+            "status": "skipped",
+            "reason": gate_data.get('reason', 'Insufficient studies')
+        }
+        save_json(status_data, output_status_path)
+        return status_data
+
+    # 2. Load Data
+    studies = load_effect_sizes_and_se(studies_path)
     
-    if not data:
-        logger.warning("No valid effect sizes found.")
-        status = {"status": "skipped", "reason": "No valid data"}
-        save_json(meta_status_path, status)
-        return 0
+    if len(studies) < 2:
+        status_data = {
+            "status": "skipped",
+            "reason": "Less than 2 valid studies for meta-analysis."
+        }
+        save_json(status_data, output_status_path)
+        return status_data
 
-    results = run_random_effects_model(data)
-    save_json(meta_status_path, results)
+    # 3. Run Model
+    # Try Random Effects first
+    result = None
+    model_status = "random_effects"
     
-    # Update main results.json with meta-analysis findings
-    main_results = load_json(results_path) or {}
-    main_results.update(results)
-    save_json(results_path, main_results)
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            result = run_random_effects_model(studies)
+        if result['tau2'] == 0 and len(studies) > 2:
+            # If tau2 is 0, it's essentially fixed effects, but we keep RE label
+            pass
+    except Exception as e:
+        # Fallback to Fixed Effects on convergence failure
+        model_status = "fixed_effects_fallback"
+        result = run_fixed_effects_model(studies)
+
+    # 4. Check Hartung-Knapp Condition
+    # Read study count N
+    try:
+        count_data = load_json(study_count_path)
+        N = count_data.get('N', 0)
+    except (FileNotFoundError, KeyError):
+        N = 0
+
+    hk_adjustment_needed = False
+    if 10 <= N < 20:
+        hk_adjustment_needed = True
+
+    # 5. Prepare Output
+    # Back-transform Z to r for interpretability
+    pooled_r = math.tanh(result['pooled_z'])
+    ci_lower_r = math.tanh(result['ci_lower'])
+    ci_upper_r = math.tanh(result['ci_upper'])
+
+    final_results = {
+        "pooled_effect_r": round(pooled_r, 4),
+        "ci_lower_r": round(ci_lower_r, 4),
+        "ci_upper_r": round(ci_upper_r, 4),
+        "k": result['k'],
+        "model_type": result['model_type'],
+        "hk_adjustment_needed": hk_adjustment_needed,
+        "status": "completed"
+    }
+
+    if model_status == "random_effects_dls":
+        final_results['tau2'] = round(result['tau2'], 6)
+        final_results['q'] = round(result['q'], 4)
+
+    # 6. Write Files
+    save_json({
+        "status": "completed",
+        "model": model_status
+    }, output_status_path)
     
-    logger.info("Meta-analysis completed.")
-    return 0
+    save_json(final_results, output_results_path)
 
-def main() -> int:
-    return run_meta_analysis()
+    return final_results
 
-if __name__ == "__main__":
-    sys.exit(main())
+def main():
+    """Entry point for the meta-analysis script."""
+    project_root = get_project_root()
+    
+    studies_path = project_root / 'data' / 'processed' / 'extracted_studies.csv'
+    gate_path = project_root / 'data' / 'derived' / 'gate_result.json'
+    study_count_path = project_root / 'data' / 'processed' / 'study_count.json'
+    
+    status_out = project_root / 'data' / 'derived' / 'meta_status.json'
+    results_out = project_root / 'data' / 'derived' / 'meta_results.json'
+
+    try:
+        result = run_meta_analysis(
+            studies_path, 
+            gate_path, 
+            study_count_path,
+            status_out,
+            results_out
+        )
+        print(f"Meta-analysis completed. Status: {result.get('status')}")
+        sys.exit(0)
+    except Exception as e:
+        print(f"Error running meta-analysis: {e}", file=sys.stderr)
+        sys.exit(1)
+
+if __name__ == '__main__':
+    main()

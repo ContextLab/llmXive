@@ -24,36 +24,40 @@ T007c:
     absence means the requirement is not satisfied.
 T008c:
   c: true
-  h: 79244be024988f910d827f8e0099eaee77738fe1576c66011e346863aa65ff48
-  r: "The `code/analysis/tract_counter.py` script exists, is non\u2011empty, and correctly\
-    \ implements reading `data/processed/extracted_studies.csv`, counting distinct\
-    \ `tract_name` values, writing `data/derived/tract_count.json` as `{\"k\": count}`,\
-    \ and handling a missing input file by writing `{\"k\": 0}` with a warning. No\
-    \ further artifacts are required for the implementation task."
-T009:
-  c: false
-  h: c37ffdb325a41094c96a6b5b31da187c46df27d744abd0641d30c1217a060cb9
-  r: "The provided `code/data/data_source_adapter.py` contains a recursive `get_project_root`\
-    \ implementation that will cause a runtime error, and the file is truncated before\
-    \ handling the mock\u2011data fallback path. Moreover, the required `data/raw/studies.csv`\
-    \ does not exist, so there is no evidence that the adapter actually creates it.\
-    \ The implementation therefore does not satisfy the task\u2019s requirements."
+  h: cb29c31c14ab50180ec7110075b222b31a047e8855269f27383eabcec2c0081c
+  r: "The repository contains a non\u2011empty `code/analysis/tract_counter.py` that\
+    \ defines all required functions, reads the expected CSV path, extracts unique\
+    \ tract names, counts them, writes `data/derived/tract_count.json` with the `{\"\
+    k\": \u2026}` format, and includes logic to log a warning and write `{\"k\": 0}`\
+    \ when the input file is missing. The missing CSV and JSON files are acceptable\
+    \ because they are generated at runtime, not required as pre\u2011existing artifacts."
+T013:
+  c: true
+  h: d29b425c7f06f2122bffd0fc5c93e828c5e8ddbb57650b1d56621ccb687632e3
+  r: "The repository contains a non\u2011empty `code/extraction/parser.py` (13\u202F\
+    KB) with functions for loading tract lexicons, loading qualitative JSON, and parsing\
+    \ rows\u2014matching the described purpose of parsing CSV/JSON inputs, merging\
+    \ qualitative data, and (presumably) writing the required `extracted_studies.csv`\
+    \ and exclusion log. No placeholder or stub markers are present. The required\
+    \ script artifact is present, satisfying the task."
 T014:
   c: false
-  h: 10e53249fdba4fcd788feb873398447bff21129c0569de6402fe56501360c92d
-  r: "The `meta_analysis.py` file is truncated (e.g., incomplete `run_random_effects_model`\
-    \ definition, missing `import csv`, and no visible logic that actually reads the\
-    \ study count at runtime). Moreover, the required `data/processed/study_count.json`\
-    \ file does not exist, so the gate\u2011logic cannot be satisfied. The implementation\
-    \ therefore does not meet the task\u2019s specifications."
+  h: 2882556c73ab11924cb04de9468134ebe58ebb06fd9d6ea7f800a3a0f60e3a8e
+  r: "The provided `code/analysis/meta_analysis.py` is present but the visible portion\
+    \ stops before any gate\u2011logic handling, model execution, convergence fallback,\
+    \ or HK\u2011adjustment flag logic is shown. Moreover, the required output files\
+    \ `data/derived/meta_status.json` and `data/derived/meta_results.json` are absent,\
+    \ so we cannot verify that the script fulfills the specified behavior. The implementer\
+    \ must ensure the script contains the full logic described and that running it\
+    \ produces the expected JSON outputs."
 T014a:
   c: true
-  h: 2ce17ddaefcc9299b78a82e3e3c089be8df49d4f6787a2042a8ec6cfe4967df4
-  r: 'The repository contains a fully implemented `code/analysis/study_counter.py`
-    that reads `extracted_studies.csv`, counts unique (author, year) pairs, and writes
-    the result as `{"N": <count>}` to `data/processed/study_count.json`, handling
-    missing or empty input by outputting `{"N": 0}`. No placeholder or missing functionality
-    is evident.'
+  h: 734f3bcadec55965ad65bb650eaf1a613be05622d786ba5a6bc872222897ee8f
+  r: "The `code/analysis/study_counter.py` script is present, non\u2011empty, and\
+    \ correctly implements loading `extracted_studies.csv`, counting unique (author,\
+    \ year) pairs, handling missing/empty input by returning 0, and writing the result\
+    \ as `{\"N\": <count>}` to `data/processed/study_count.json`. No further artifacts\
+    \ are required for this implementation task."
 T015b:
   c: false
   h: 9104a56c3eac9b5881de5439d244ee1ad3444c27d7793bac124227c74bf06fda
@@ -62,22 +66,12 @@ T015b:
     \ and invoke the generation functions). Moreover, the required output file `data/derived/narrative_content.md`\
     \ does not exist. The task\u2019s core requirement\u2014producing the markdown\
     \ file based on the JSON inputs\u2014is therefore not satisfied."
-T017:
-  c: false
-  h: 09ca9db3388a6976450728826029282ed06ac37c06bf83d91593fef69b519330
-  r: "The provided `code/analysis/bias.py` is truncated (e.g., missing `csv` import,\
-    \ the body of `load_effect_sizes_and_se`, the regression computation, and the\
-    \ code that writes results to `data/derived/results.json`). Moreover, the required\
-    \ output file `data/derived/results.json` does not exist. The task\u2019s functional\
-    \ requirements are therefore not satisfied."
 T018:
   c: false
-  h: 4d26a9011cae94b627e4875d08c1c11fc643b0c062cab66bae5a1938db9f3772
-  r: The repository contains `code/analysis/heterogeneity.py`, but the file is truncated
-    before the `calculate_i_squared` implementation and there is no code shown that
-    writes an `i_squared` value (rounded to two decimals) to `data/derived/results.json`.
-    Moreover, `data/derived/results.json` is missing entirely. The required output
-    artifact is absent, so the task is not fulfilled.
+  h: 460ace76f74991b85d11838a7494f916421c0eecaa9b7cfc7c84c40fbacf4d5e
+  r: "The provided `code/analysis/heterogeneity.py` is incomplete (truncated line,\
+    \ no full I\xB2 calculation or JSON\u2011write logic with two\u2011decimal formatting)\
+    \ and the required `data/derived/heterogeneity_results.json` file does not exist."
 T024:
   c: false
   h: f2339a19b723cf660555f5bfa1856c1ea34da4b1fa3c9fbe746f51e93068c5a9
@@ -93,3 +87,11 @@ T040:
     \ by the script uses different column names (`p_value`, `result_r`, `status`)\
     \ instead of the exact `original_p`, `converted_r`, `conversion_status` specified.\
     \ Consequently the logging artifact does not meet the task\u2019s specification."
+T057:
+  c: false
+  h: f0bc175194a9f89f339be4e7869ea82cd684fb1f8423420aabe24bf263e70031
+  r: "The provided `gatekeeper.py` is truncated (ends mid\u2011statement) and does\
+    \ not contain the full logic to apply the N\u202F\u2265\u202F10 / N\u202F<\u202F\
+    10 rule or to write `gate_result.json`. Moreover, the required output file `data/derived/gate_result.json`\
+    \ is absent. The script must be completed so it reads the two JSON inputs, decides\
+    \ the status, and writes the correct JSON file."

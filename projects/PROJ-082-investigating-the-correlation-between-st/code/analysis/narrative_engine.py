@@ -32,22 +32,24 @@ def load_json(path: Path) -> Optional[Dict]:
         logging.warning(f"Failed to load JSON from {path}: {e}")
         return None
 
-def should_generate_narrative(real_data_status: Optional[Dict], meta_status: Optional[Dict]) -> bool:
+def should_generate_narrative(gate_result: Optional[Dict], meta_status: Optional[Dict]) -> bool:
     """
     Determine if narrative synthesis is required based on data mode or meta-analysis status.
     Returns True if:
-      - real_data_status['mode'] == 'narrative'
-      - meta_status['status'] == 'skipped'
+      - gate_result['status'] == 'narrative_required' (from T057)
+      - meta_status['status'] == 'skipped' (from T014)
     """
-    if not real_data_status:
-        return False
+    # Check Gatekeeper result (T057)
+    if gate_result:
+        if gate_result.get("status") == "narrative_required":
+            logging.info("Gatekeeper indicates narrative mode required.")
+            return True
     
-    mode = real_data_status.get("mode", "")
-    if mode == "narrative":
-        return True
-    
-    if meta_status and meta_status.get("status") == "skipped":
-        return True
+    # Check Meta-Analysis status (T014)
+    if meta_status:
+        if meta_status.get("status") == "skipped":
+            logging.info("Meta-analysis status indicates skipped.")
+            return True
     
     return False
 
@@ -89,13 +91,17 @@ def main() -> int:
     project_root = get_project_root()
 
     # Load inputs
-    real_data_status = load_json(project_root / "data" / "processed" / "real_data_status.json")
-    meta_status = load_json(project_root / "data" / "processed" / "meta_status.json")
+    # T057: Gatekeeper result
+    gate_result = load_json(project_root / "data" / "derived" / "gate_result.json")
+    # T014: Meta-analysis status
+    meta_status = load_json(project_root / "data" / "derived" / "meta_status.json")
+    # T014a: Study count
     study_count_data = load_json(project_root / "data" / "processed" / "study_count.json")
+    # T015a: Narrative themes
     themes = load_json(project_root / "data" / "derived" / "narrative_themes.json")
 
     # Check if we should proceed
-    if not should_generate_narrative(real_data_status, meta_status):
+    if not should_generate_narrative(gate_result, meta_status):
         logger.info("Conditions for narrative synthesis not met. Skipping generation.")
         return 0
 
