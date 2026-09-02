@@ -20,7 +20,7 @@ properties:
         description: "95% Confidence Interval Upper Bound for Spearman (Static)."
       p_value:
         type: "number"
-        description: "P-value from the permutation test (Example-level)."
+        description: "P-value from the example-level permutation test."
       baseline_random_correlation:
         type: "number"
         description: "Correlation against random baseline."

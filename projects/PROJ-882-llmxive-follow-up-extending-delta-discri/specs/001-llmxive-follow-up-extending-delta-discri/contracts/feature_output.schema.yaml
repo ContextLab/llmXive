@@ -15,13 +15,16 @@ properties:
       ngram_range:
         type: "array"
         description: "Range of n-grams used (e.g., [1, 3])."
+      reference_dataset:
+        type: "string"
+        description: "Name of the reference dataset used for semantic similarity (e.g., 'OpenMathInstruct-1')."
   features:
     type: "array"
     items:
       type: "object"
       properties:
         example_id:
-          type: "integer"
+          type: "string"
           description: "Unique identifier for the example."
         token_index:
           type: "integer"

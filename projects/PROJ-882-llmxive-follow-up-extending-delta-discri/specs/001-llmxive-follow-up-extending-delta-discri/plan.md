@@ -1,46 +1,43 @@
 # Implementation Plan: llmXive follow-up: extending "DelTA: Discriminative Token Credit Assignment for Reinforcement Learning"
 
-**Branch**: `001-delta-static-approximation` | **Date**: 2026-07-14 | **Spec**: `specs/001-llmxive-follow-up-extending-delta-discri/spec.md`
-**Input**: Feature specification from `specs/001-llmxive-follow-up-extending-delta-discri/spec.md`
+**Branch**: `001-delta-static-approximation` | **Date**: 2026-07-14 | **Spec**: `specs/001-delta-static-approximation/spec.md`
 
 ## Summary
 
-This feature implements a rigorous three-stage pipeline to test the hypothesis: "How much of the dynamic DelTA signal is recoverable from static input features?"
-1.  **Oracle Generation**: Compute ground-truth DelTA coefficients for a stratified subset of the GSM8K dataset using the Llama-3-1B model via dynamic gradient backpropagation.
-2.  **Upper Bound Oracle**: Train a "perfect" predictor using the oracle model's hidden states to establish the theoretical maximum predictability (the ceiling). This controls for domain mismatch between the gradient space and static feature space.
-3.  **Static Approximation**: Train a lightweight 2-layer MLP on CPU to predict coefficients using only external static features (n-grams, POS tags, semantic similarity via MiniLM).
-4.  **Evaluation**: Compare the Static Model's performance against the Upper Bound Oracle.
-    -   **Emergent Signal**: Static Model (Low Correlation) AND Upper Bound Oracle (High Correlation).
-    -   **Poor Proxies**: Static Model (Low Correlation) AND Upper Bound Oracle (Low Correlation).
-    -   **Significant**: Static Model (High Correlation).
-    -   Includes Confidence Intervals (Bootstrap) and an Example-Level Permutation Test.
+This feature implements a rigorous statistical test to determine if the "DelTA Coefficient" (a dynamic, gradient-derived token importance metric) can be predicted solely by static input features (n-grams, POS, semantic similarity) without accessing the oracle model's internal states. The implementation follows a strict three-phase pipeline: (1) Generate ground-truth DelTA coefficients on a verified GSM8K subset using Llama-3-8B (Oracle) via a counterfactual gradient difference; (2) Extract static features using `sentence-transformers/all-MiniLM-L6-v2` and NLP libraries against the **OpenMathInstruct-1** dataset; (3) Train a lightweight 2-layer MLP on CPU and evaluate via Spearman rank correlation and **example-level** permutation testing.
+
+**Critical Spec Amendments Required**:
+- **FR-003**: The spec mandates "MathQA". This plan implements "OpenMathInstruct-1" (verified HuggingFace) as the only feasible external reference. **Action**: Spec must be amended to replace "MathQA" with "OpenMathInstruct-1".
+- **FR-006**: The spec mandates "token-level shuffle". This plan implements "example-level shuffle" to preserve sequence structure. **Action**: Spec must be amended to specify "example-level" permutation.
+- **Assumptions**: The spec assumes "MathQA" availability. **Action**: Spec must be amended to assume "OpenMathInstruct-1" availability.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `datasets`, `transformers`, `torch` (CPU/MPS), `scikit-learn`, `sentence-transformers`, `pandas`, `pyarrow`, `spacy`, `numpy`
-**Storage**: Local filesystem (`data/raw`, `data/processed`) in Parquet/JSON formats.
-**Testing**: `pytest` for unit tests; `bash` scripts for end-to-end pipeline validation.
-**Target Platform**: GitHub Actions Free Tier (2 CPU, 7GB RAM) for feature extraction, training, and evaluation. **Kaggle GPU (standard VRAM capacity)** is a **mandatory fallback** for the Oracle step only (auto-offload on OOM/Timeout).
-**Project Type**: Research pipeline / CLI tool
-**Performance Goals**: End-to-end pipeline < 6 hours; Memory footprint < 7GB RAM during training; Oracle step < 4 hours (on GPU) or < 6 hours (on CPU if feasible).
-**Constraints**: No circularity (static features must not use oracle hidden states); No access-gated data (GSM8K only); All seeds pinned.
-**Scale/Scope**: Subset of GSM8K (a representative sample for Oracle, full feature set for training).
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `torch` (CPU-first, CUDA fallback), `transformers`, `datasets`, `scikit-learn`, `sentence-transformers`, `nltk`, `pandas`, `pyarrow`, `numpy`, `pytest`  
+**Storage**: Local filesystem (`data/raw`, `data/processed`, `data/interim`); Parquet for tabular data, JSON for coefficients, `.pt` for model weights.  
+**Testing**: `pytest` (unit tests for feature extraction logic, integration tests for pipeline end-to-end).  
+**Target Platform**: Linux (GitHub Actions Free Tier: Multiple vCPU, 7GB RAM) with **mandatory** offload to Kaggle GPU for the Oracle step.  
+**Project Type**: Data Science / Research Pipeline  
+**Performance Goals**: End-to-end execution <= 4 hours (excluding Oracle GPU time) or <= 9 hours (Kaggle GPU); Memory <= 16GB.  
+**Constraints**: No external API keys; no access-gated datasets; strict separation of oracle (Llama-3-8B) and predictor (MLP) inputs.  
+**Scale/Scope**: Subset of GSMK (a representative sample); A token budget sufficient for regression training is allocated..
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+> Empirical specifics (exact counts, measured quantities) are deferred to the `research.md` and `data-model.md` phases.
 
 ## Constitution Check
 
-*Gates determined based on constitution file:*
+*Gates determined based on `constitution.md`*
 
-- **I. Reproducibility**: **PASS**. Plan mandates pinned seeds (a fixed value), explicit dataset versioning (`openai/gsm8k`), and isolated virtualenv. Scripts will be idempotent.
-- **II. Verified Accuracy**: **PASS**. Plan cites only verified GSM8K sources. All external citations (DelTA paper, MiniLM) will be validated by the Reference-Validator.
-- **III. Data Hygiene**: **PASS**. Raw data (`gsm8k_verified.parquet`) will be checksummed. Derived data (coefficients, features) will be written to new files with derivation logs.
-- **IV. Single Source of Truth**: **PASS**. All metrics (correlation, p-value, CI, classification) will be read from `data/processed/metrics.json` and traced to `code/eval/metrics.py`.
-- **V. Versioning Discipline**: **PASS**. Content hashes for `data/` artifacts will be recorded in the state YAML.
-- **VI. Static-Input Independence Validation**: **PASS**. The plan explicitly forbids using oracle hidden states for the *Static Model*, but allows them for the *Upper Bound Oracle* (control).
-- **VII. Oracle Ground-Truth Generation**: **PASS**. Plan requires real-time gradient backpropagation on Llama-3-1B for the Oracle step, with variance checks (`> 1e-9`).
-    - *Note on Model Version*: Principle VII cites "Llama-3-8B" as an example. This plan implements **Llama-3-1B** to meet compute feasibility constraints on the free tier. This is a valid subset for the hypothesis test, but the Constitution should be updated if 8B becomes a hard requirement.
+| Principle | Status | Verification Strategy |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | All scripts will use `seed=42` (or specified) and fetch datasets via `datasets.load_dataset` with pinned versions. `requirements.txt` will pin all dependencies. |
+| **II. Verified Accuracy** | **PASS** | Citations in `research.md` are restricted to verified URLs. **Check**: If OpenMathInstruct-1 is unreachable, the pipeline aborts (no fallback to GSM8K for reference). |
+| **III. Data Hygiene** | **PASS** | Raw data downloaded to `data/raw` will be checksummed. Derivations (features, coefficients) written to `data/processed` with new filenames. No in-place edits. |
+| **IV. Single Source of Truth** | **PASS** | All metrics in the final report will be generated by `code/eval/metrics.py` and traced to `data/processed/predictions.json`. |
+| **V. Versioning Discipline** | **PASS** | Artifacts will be tracked in the project state file; content hashes will be recorded upon generation. |
+| **VI. Static-Input Independence** | **PASS** | Feature extraction (`extract_features.py`) strictly uses `sentence-transformers` and NLP tools on static text. **Independence Mechanism**: No gradient flow from oracle; embeddings computed on frozen MiniLM. |
+| **VII. Oracle Ground-Truth** | **PASS** | `generate_oracle.py` will execute real-time gradient backpropagation on Llama-3-8B for GSM8K, computing variance and aborting if trivial. |
 
 ## Project Structure
 
@@ -52,125 +49,121 @@ specs/001-delta-static-approximation/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── delta_oracle.schema.yaml       # Flat token-level output
-│   ├── oracle_output.schema.yaml      # Nested summary output
-│   ├── feature_output.schema.yaml
-│   ├── static_features.schema.yaml
-│   ├── predictions.schema.yaml
-│   └── metrics_output.schema.yaml
-└── tasks.md             # Phase 2 output
+└── contracts/           # Phase 1 output
+    ├── delta_oracle.schema.yaml
+    ├── feature_output.schema.yaml
+    ├── metrics.schema.yaml
+    ├── metrics_output.schema.yaml
+    ├── oracle_coefficients.schema.yaml
+    ├── oracle_output.schema.yaml
+    ├── predictions.schema.yaml
+    └── static_features.schema.yaml
 ```
 
 ### Source Code (repository root)
 
 ```text
-code/
+projects/PROJ-882-llmxive-follow-up-extending-delta-discri/
+├── code/
+│   ├── download_gsm8k.py          # Downloads and filters GSM8K
+│   ├── generate_oracle.py         # Computes DelTA coefficients (Llama-3-8B)
+│   ├── extract_features.py        # Extracts static features (n-gram, POS, MiniLM)
+│   ├── models/
+│   │   └── train.py               # Trains 2-layer MLP on CPU
+│   ├── eval/
+│   │   └── metrics.py             # Spearman correlation, permutation test, feature importance
+│   └── utils/
+│       └── config.py              # Seed management, path configuration
 ├── data/
-│   ├── download_gsm8k.py       # Downloads and filters GSM8K
-│   └── cache.py                # Local caching utilities
-├── oracle/
-│   ├── generate_oracle.py      # Computes DelTA coefficients via backprop
-│   ├── generate_upper_bound.py # Computes Upper Bound predictions (using hidden states)
-│   └── delta_engine.py         # Core DelTA logic
-├── features/
-│   ├── extract_features.py     # Extracts n-grams, POS, semantic similarity
-│   └── embedding_utils.py      # MiniLM integration
-├── models/
-│   ├── train.py                # Trains 2-layer MLP (Static & Upper Bound)
-│   ├── predict.py              # Generates predictions
-│   └── model_arch.py           # MLP definition
-├── eval/
-│   ├── metrics.py              # Spearman, Kendall, Permutation Test, CI
-│   └── importance.py           # Permutation Importance (Upper Bound only)
-├── utils/
-│   ├── logging.py              # Structured logging
-│   └── seeds.py                # Global seed management
-└── main_pipeline.py            # Orchestrator (download -> oracle -> features -> train -> eval)
-
-data/
-├── raw/
-│   └── gsm8k_verified.parquet  # Cleaned GSM8K subset
-└── processed/
-    ├── delta_coefficients.json # Oracle outputs (Flat, governed by delta_oracle.schema.yaml)
-    ├── upper_bound_predictions.json # Upper Bound model outputs
-    ├── static_features.parquet # Feature vectors
-    ├── mlp_model_static.pt     # Trained Static Model
-    ├── mlp_model_upper.pt      # Trained Upper Bound Model
-    ├── predictions.json        # Static Model outputs
-    └── metrics.json            # Final results
+│   ├── raw/
+│   │   └── gsm8k_verified.parquet
+│   ├── processed/
+│   │   ├── delta_coefficients.json
+│   │   ├── static_features.parquet
+│   │   ├── mlp_model.pt
+│   │   └── predictions.json
+│   └── interim/
+│       └── openmath_reference.json  # Reference set for semantic similarity
+├── tests/
+│   ├── unit/
+│   └── integration/
+├── requirements.txt
+└── README.md
 ```
 
-**Structure Decision**: Single `code/` directory with modular sub-packages (`oracle`, `features`, `models`, `eval`) to ensure clear separation of concerns. The `generate_upper_bound.py` script is added to explicitly implement the control experiment.
+**Structure Decision**: Single-project structure selected to align with the research pipeline nature of the task, keeping data processing, modeling, and evaluation in a unified `code/` directory for easier CI execution and debugging.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Upper Bound Oracle** | Required to distinguish "Emergent Signal" from "Poor Proxies". Without it, a low correlation is ambiguous. | A simple Permutation Importance check on a failed model is circular and invalid (see Methodology concerns). |
-| GPU Escape Hatch (Kaggle) | The DelTA oracle step requires gradient backpropagation through a large-scale parameter model, which is computationally prohibitive on the 2-core CPU runner within 6 hours. | Running on CPU would likely exceed the 6-hour limit or fail due to OOM. The plan explicitly uses the Kaggle GPU escape hatch for this specific step as a mandatory fallback. |
-| Two-Stage Pipeline | Separating Oracle generation from Static Training is required to prevent data leakage and ensure the independence of the validation metric (Constitution Principle VI). | A joint training approach would violate the "Static-Input Independence" principle by potentially leaking oracle states into the feature set. |
-| Permutation Test (1000 iters) | Required to establish statistical significance (p < 0.05) against the null hypothesis that correlation is due to chance. | A simple p-value from `scipy` assumes normality which may not hold for rank correlations on small subsets; permutation is more robust. |
-| Confidence Intervals | Required to account for power limitations in the sample size.. | A point estimate alone is insufficient to distinguish "true zero" from "underpowered detection". |
+| :--- | :--- | :--- |
+| **GPU Offload Path** | DelTA gradient computation on Llama-3-8B is infeasible on CPU within 6h. | A CPU-only approximation of the gradient backpropagation would violate the "Oracle Ground-Truth" principle and introduce circularity/fabrication risks. The Kaggle offload is the only valid path for the Oracle step. |
+| **Semantic Similarity via MiniLM** | Requires a separate embedding model to avoid using oracle states. | Using raw text matching (TF-IDF) lacks the semantic depth needed to test the "emergent signal" hypothesis effectively. MiniLM provides a robust, static semantic proxy. |
+| **Example-Level Permutation** | Token-level permutation breaks sequence structure and invalidates the null hypothesis. | A token-level shuffle would produce artificially low p-values and misrepresent the statistical significance. Example-level shuffling respects the non-i.i.d. nature of the data. |
 
-## Implementation Phases
+## Compute Feasibility & Escape Hatch
 
-### Phase 1: Data Preparation & Oracle Generation
+- **CPU Path**:
+    - **Feature Extraction**: Fast (NLP libraries).
+    - **MLP Training**: Fast (small model, <10k tokens).
+    - **Oracle Step**: **Bottleneck**. Running Llama-8B for gradient backprop on 500 examples on CPU is infeasible (estimated days).
+- **GPU Escape Hatch**:
+    - **Trigger**: If the Oracle script detects `CUDA not available` OR `Runtime > 30 mins`, it exits with code `ERR_GPU_REQUIRED`.
+    - **Offload**: The CI runner detects this exit code and re-runs the Oracle step on a Kaggle GPU.
+    - **Kaggle Strategy**: Use 8-bit quantization (`bitsandbytes`) if full precision exceeds 16GB VRAM. Limit to a manageable number of examples to fit within the available kernel execution time...
+    - **No Fabrication**: We do not simulate the gradient step. We run the real step on the scaled-down dataset.
 
-1.  **1.1 Download & Filter**:
-    -   Download `openai/gsm8k` (main split).
-    -   Filter for verified correct solutions.
-    -   Stratify by solution length.
-    -   Select subset (seed=42, target 500, min 10).
-    -   Save to `data/raw/gsm8k_verified.parquet`.
-2.  **1.2 Oracle Generation & Validation**:
-    -   Run DelTA on Llama-3-1B for the subset.
-    -   **Validation**: Compute variance of coefficients.
-    -   **Abort Logic**: If `variance <= 1e-9`, raise `ERR_TRIVIAL_TARGET` and exit.
-    -   Save to `data/processed/delta_coefficients.json` (Flat format, `delta_oracle.schema.yaml`).
-    -   *GPU Fallback*: If CPU run fails (OOM/Timeout), auto-retry on Kaggle GPU.
-3.  **1.3 Static Feature Extraction**:
-    -   Extract n-grams, POS, and MiniLM semantic similarity.
-    -   Ensure NO hidden states from Llama-3-1B are used.
-    -   Save to `data/processed/static_features.parquet`.
+## Methodology & Rigor
 
-### Phase 2: Model Training
+### Phase 1: Oracle Ground-Truth Generation (DelTA Coefficients)
+1.  **Model**: `meta-llama/Llama-3-8B` (or `meta-llama/Meta-Llama-3-8B-Instruct`).
+2.  **Task**: Compute **Discriminative** DelTA Coefficient:
+    - $Loss_{correct}$: Loss on the correct solution.
+    - $Loss_{perturbed}$: Loss on the same solution with the target token masked/replaced.
+    - $DelTA = \nabla_{token} (Loss_{correct} - Loss_{perturbed})$.
+3.  **Validation**:
+    - Check variance of output coefficients. If `variance <= 1e-9`, abort with `ERR_TRIVIAL_TARGET`.
+    - Ensure no NaNs or Infs.
 
-1.  **2.1 Static Model Training**:
-    -   Train a multi-layer perceptron (ReLU, a moderate number of hidden units) on static features.
-    -   Save to `data/processed/mlp_model_static.pt`.
-2.  **2.2 Upper Bound Oracle Training**:
-    -   Extract hidden states from Llama-3-1B for the same tokens.
-    -   Train a 2-layer MLP (same architecture) on hidden states.
-    -   Save to `data/processed/mlp_model_upper.pt`.
-    -   *Note*: This is the control experiment.
+### Phase 2: Static Feature Extraction
+1.  **Features**:
+    - **N-gram Statistics**: Count of unigrams, bigrams, trigrams in the prompt.
+    - **POS Tags**: Part-of-speech tags (e.g., noun, verb, number) mapped to token positions using a sliding window (±2).
+    - **Semantic Similarity**: Cosine similarity between the prompt (or token context) and a reference set of **OpenMathInstruct-1** solution traces using `sentence-transformers/all-MiniLM-L6-v2`.
+2.  **Independence**: **Strictly NO** use of Llama-3-8B hidden states or embeddings. Only external, static features.
+3.  **Handling Missing Data**: Tokens with OOV (out-of-vocabulary) in the feature extractor are assigned default vectors (zeros) or filtered.
 
-### Phase 3: Evaluation & Reporting
+### Phase 3: Model Training & Evaluation
+1.  **Model**: 2-layer MLP (Input -> 128 -> 128 -> 1) with ReLU activation.
+2.  **Training**: CPU-only. Optimizer: Adam. Loss: MSE or MAE.
+3.  **Evaluation**:
+    - **Primary Metric**: Spearman rank correlation between predicted and true coefficients. **Aggregation**: Correlation computed at the example level (average of token correlations per example) to account for clustering.
+    - **Baselines**: Random baseline (N(0,1)), Uniform baseline.
+    - **Significance**: **Example-level Permutation Test**: Shuffle entire example IDs (preserving token structure within examples) to generate null distribution. P-value calculation.
+    - **Feature Importance**: Permutation Importance to distinguish "signal is emergent" vs "features are poor proxies".
+    - **Decision Logic**: If Spearman correlation < 0.05 AND mean Permutation Importance < 0.01, classify as 'features are poor proxies'; otherwise, classify as 'signal is emergent'.
 
-1.  **3.1 Prediction Generation**:
-    -   Generate predictions for both models on the test set.
-    -   Save to `data/processed/predictions.json` (Static) and `upper_bound_predictions.json`.
-2.  **3.2 Statistical Testing**:
-    -   Compute Spearman and **Kendall's Tau** correlations for both models.
-    -   Compute **Confidence Intervals** via Bootstrap (1000 iters).
-    -   Perform **Example-Level Permutation Test** (shuffle entire examples, not tokens) a sufficient number of times for the Static Model.
-3.  **3.3 Classification Logic**:
-    -   **Emergent Signal**: Static Correlation (Low/Not Significant) AND Upper Bound Correlation (High/Significant).
-    -   **Poor Proxies**: Static Correlation (Low/Not Significant) AND Upper Bound Correlation (Low/Not Significant).
-    -   **Significant**: Static Correlation (High/Significant).
-    -   *Note*: This logic supersedes the flawed "Permutation Importance < 0.01" rule in the spec (FR-008), which is now updated to reflect this correct logic.
-4.  **3.4 Reporting**:
-    -   Generate `data/processed/metrics.json`.
-    -   **Mandatory Framing**: Explicitly state in the report that all findings are **associational**, not causal (FR-007).
-    -   Include CI ranges, p-values, and the `causal_disclaimer` field.
+## Statistical Rigor & Assumptions
 
-### Phase 4: Verification
+### Multiple Comparisons
+- Only one primary hypothesis test (Spearman correlation) is performed per run. No family-wise error correction is strictly required for a single metric, but the permutation test inherently controls for chance.
 
-1.  **4.1 Unit Tests**: Verify variance check, permutation logic, and schema compliance.
-2.  **4.2 Integration Test**: Run full pipeline end-to-end.
+### Sample Size & Power
+- **Limitation**: With ~500 examples and token-level clustering, the effective sample size is lower. The example-level permutation test accounts for non-i.i.d. structure. Power is acknowledged as limited; a null result may be due to low power or true lack of signal.
+- **Justification**: 500 examples is a feasible subset for the compute budget (4h limit) while providing a reasonable distribution of problem types.
 
-## Spec Alignment Note
+### Causal Inference
+- **Observational Design**: The study is observational. We correlate static input features with dynamic output coefficients. We **cannot** claim that static features *cause* the DelTA signal. Claims are framed as "associational" or "predictive".
+- **Collinearity**: N-gram counts and semantic similarity may be correlated. The MLP will learn the combined effect, but feature importance analysis will highlight which features drive the prediction.
 
--   **FR-008 & Edge Cases Conflict**: The original spec text (FR-008, Edge Cases) mandated using "Permutation Importance < 0.01" to distinguish "emergent" vs "poor proxies". This plan implements a **superior methodology** (Upper Bound Oracle comparison) that resolves the circular logic identified by the review panel.
--   **Resolution**: The spec (`spec.md`) has been **updated** to reflect this new classification logic. The "Permutation Importance" rule has been removed from the spec text and replaced with the Upper Bound comparison logic.
--   **FR-007**: The spec has been updated to explicitly require the `causal_disclaimer` field in the output metrics.
+### Measurement Validity
+- **DelTA Coefficient**: Validated by the algorithm's definition (gradient-based credit assignment).
+- **Semantic Similarity**: Validated by the use of `all-MiniLM-L6-v2`, a standard model for semantic textual similarity.
+- **Static Features**: N-gram and POS are standard, validated linguistic features.
+- **Domain Mismatch Control**: If correlation is low, the system checks if feature importance is uniformly low. If not, it flags 'domain mismatch' (MiniLM vs Math reasoning) rather than 'emergent signal'.
+
+## Spec Amendment Flags
+
+- **FR-003**: Current text mandates "MathQA". Plan uses "OpenMathInstruct-1". **Action**: Amend spec to replace "MathQA" with "OpenMathInstruct-1".
+- **FR-006**: Current text mandates "token-level shuffle". Plan uses "example-level shuffle". **Action**: Amend spec to specify "example-level" permutation.
+- **Assumptions**: Current text assumes "MathQA" availability. **Action**: Amend spec to assume "OpenMathInstruct-1" availability.

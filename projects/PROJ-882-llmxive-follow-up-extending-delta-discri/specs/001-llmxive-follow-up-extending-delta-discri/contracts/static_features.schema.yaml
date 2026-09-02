@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Static Feature Vector"
-description: "Schema for the static input features used to predict DelTA coefficients."
+title: "Static Features Schema"
+description: "Schema for static input features extracted for each token."
 type: "object"
 properties:
   example_id:
@@ -8,36 +8,31 @@ properties:
     description: "Unique identifier for the GSM8K example."
   token_id:
     type: "integer"
-    description: "Token index."
-  ngram_1_count:
-    type: "number"
-    description: "Normalized count of 1-gram features in the sliding window."
-  ngram_2_count:
-    type: "number"
-    description: "Normalized count of 2-gram features in the sliding window."
-  ngram_3_count:
-    type: "number"
-    description: "Normalized count of 3-gram features in the sliding window."
-  pos_tag:
-    type: "string"
-    description: "Part-of-speech tag."
-  semantic_similarity:
-    type: "number"
-    description: "Cosine similarity to reference GSM8K patterns (computed via MiniLM)."
-    minimum: -1.0
-    maximum: 1.0
-  feature_vector:
+    description: "Position of the token in the sequence."
+  ngram_features:
     type: "array"
-    description: "Dense vector representation for model input."
     items:
       type: "number"
+    description: "Vector of n-gram statistics (counts)."
+  pos_features:
+    type: "array"
+    items:
+      type: "integer"
+    description: "Part-of-speech tag representation."
+  semantic_similarity:
+    type: "number"
+    description: "Cosine similarity to OpenMathInstruct-1 reference patterns."
+  context_window:
+    type: "string"
+    description: "Text of the ±2 token context window."
+  delta_coefficient:
+    type: "number"
+    description: "Target variable (copied from oracle) for regression."
 required:
   - example_id
   - token_id
-  - ngram_1_count
-  - ngram_2_count
-  - ngram_3_count
-  - pos_tag
+  - ngram_features
+  - pos_features
   - semantic_similarity
-  - feature_vector
-additionalProperties: false
+  - context_window
+  - delta_coefficient

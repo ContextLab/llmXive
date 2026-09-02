@@ -1,24 +1,10 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: 'import datasets
-
-
-  ds = datasets.load_dataset("openai/gsm8k", "main", split="train")
-
-  print(f"RECORDS={len(ds)}")
-
-  print("FIELDS=" + ",".join(ds.column_names))'
-record_count: 7473
-sample_fields:
-- question
-- answer
-field_coverage: 0.5
+status: none
+intent: GSM8K dataset pip install via huggingface datasets python package dataset
 required_fields:
 - question
 - answer
-- solution
-- correct
-intent: download GSM8K dataset python package huggingface datasets library python
-  package dataset
-cache_key: d3a52c6dfc4561d2b7fbbebac78939de2d443e12e2d0eacc6397dacfdc023640
+- type
+- id
+cache_key: b112904159e02cc961b8802d0d20f30e9a1bce25f4897123fc3df1e3b046e473
+searched_at: '2026-09-02T20:46:48.177345+00:00'
+retry_count: 1

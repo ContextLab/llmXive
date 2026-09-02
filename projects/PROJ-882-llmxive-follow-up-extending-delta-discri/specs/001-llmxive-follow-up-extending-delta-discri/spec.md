@@ -9,7 +9,7 @@
 
 ### User Story 1 - Generate Ground-Truth DelTA Coefficients (Priority: P1)
 
-As a researcher, I need to run the DelTA algorithm on a subset of the GSM8K dataset using a small LLM (e.g., Llama-3-1B) to generate ground-truth DelTA Coefficients for each token position, so that I have a reliable target variable for training the static approximation model.
+As a researcher, I need to run the DelTA algorithm on a subset of the GSM8K dataset using a small LLM (e.g., Llama-3-8B) to generate ground-truth DelTA Coefficients for each token position, so that I have a reliable target variable for training the static approximation model.
 
 **Why this priority**: Without the ground-truth "oracle" DelTA Coefficients derived from dynamic gradient backpropagation, the core hypothesis (that static features can predict these coefficients) cannot be tested. This is the foundational data generation step.
 
@@ -17,14 +17,14 @@ As a researcher, I need to run the DelTA algorithm on a subset of the GSM8K data
 
 **Acceptance Scenarios**:
 
-1. **Given** the GSM8K dataset is filtered for verified correct solutions, **When** the DelTA algorithm runs on a subset of at least 500 examples (seed=42, stratified by solution length) using Llama-1B, **Then** the system outputs a JSON file where every token in every prompt has an associated DelTA Coefficient. If fewer than 500 examples are found, the system proceeds with the maximum feasible subset (minimum 10) and logs a warning.
-2. **Given** the DelTA oracle step completes, **When** the output is inspected, **Then** the distribution of DelTA Coefficients shows variance (variance > 1e-9) and contains no infinite values.
+1. **Given** the GSM8K dataset is filtered for verified correct solutions, **When** the DelTA algorithm runs on a subset of at least 500 examples (seed=42, stratified by solution length) using Llama-8B, **Then** the system outputs a JSON file where every token in every prompt has an associated DelTA Coefficient. If fewer than 500 valid examples are found but >= 10, the system proceeds with the available count and logs a warning. If an insufficient number of valid examples are found, the system MUST abort with error code 'ERR_INSUFFICIENT_DATA'.
+2. **Given** the DelTA oracle step completes, **When** the output is inspected, **Then** the distribution of DelTA Coefficients shows variance (variance > 1e-9) and contains no infinite values. If variance <= 1e-9, the system MUST abort with error code 'ERR_TRIVIAL_TARGET'.
 
 ---
 
 ### User Story 2 - Train Static Predictor Model (Priority: P2)
 
-As a researcher, I need to train a lightweight regression model (2-layer MLP with ReLU activation) on CPU using only external static input features (n-grams, POS tags, semantic similarity to GSM8K patterns) to predict the DelTA Coefficients, so that I can evaluate if the discriminative signal is encoded in the input semantics without circularity.
+As a researcher, I need to train a lightweight regression model (Multi-layer perceptron with ReLU activation) on CPU using only external static input features (n-grams, POS tags, semantic similarity to mathematical reasoning patterns) to predict the DelTA Coefficients, so that I can evaluate if the discriminative signal is encoded in the input semantics without circularity.
 
 **Why this priority**: This is the core experimental step that tests the hypothesis. It must be executable on CPU-only hardware to meet the project's compute feasibility constraints and must avoid using the oracle model's internal hidden states to ensure independent validation.
 
@@ -48,7 +48,7 @@ As a researcher, I need to compute the Spearman rank correlation between the pre
 **Acceptance Scenarios**:
 
 1. **Given** the predicted and true DelTA Coefficients for the test set, **When** the evaluation script runs, **Then** it outputs a Spearman rank correlation score and compares it against a random baseline (N(0,1), seed=42).
-2. **Given** the correlation score, **When** the permutation test is executed (shuffling entire examples a sufficient number of times), **Then** the system reports a p-value indicating whether the observed correlation is statistically significant (p < 0.05).
+2. **Given** the correlation score, **When** the permutation test is executed (shuffling token-level target coefficients within each example a sufficient number of times), **Then** the system reports a p-value indicating whether the observed correlation is statistically significant (p < 0.05).
 3. **Given** a null result (correlation near zero), **When** the feature importance is analyzed using Permutation Importance, **Then** the system reports whether the null result is due to 'signal is emergent' (features are strong but correlation low) or 'features are poor proxies' (features are weak).
 
 ---
@@ -65,18 +65,18 @@ As a researcher, I need to compute the Spearman rank correlation between the pre
 ### Functional Requirements
 
 - **FR-001**: System MUST download the GSM8K dataset from HuggingFace and filter for solution traces with verified correctness labels to create a clean benchmark set (See US-1).
-- **FR-002**: System MUST run the DelTA algorithm on a subset of at least 500 examples (selected with random seed=42, stratified by solution length) using Llama-3-1B to compute ground-truth DelTA Coefficients for every token position. If fewer than 500 valid examples are found after filtering, the pipeline MUST proceed with the maximum feasible subset (minimum 10 examples) and log a warning. If a insufficient number of examples are found, the pipeline MUST fail with an explicit error (See US-1).
-- **FR-003**: System MUST extract external static input features for every token, including local n-gram statistics, part-of-speech tags, and semantic similarity scores to known reasoning patterns. Semantic similarity MUST be calculated using cosine similarity on the embeddings generated by the frozen model `sentence-transformers/all-MiniLM-L6-v2` applied to a reference set of [deferred] stratified GSM8K solution traces. For n-gram and POS features, the system MUST map sentence-level aggregates to individual token positions using a centered sliding window of ±2 tokens. System MUST NOT use contextual embeddings from the oracle model (Llama-1B) used to generate the DelTA Coefficients to prevent circularity (See US-2).
-- **FR-004**: System MUST train a multi-layer MLP with ReLU activation, multiple hidden layers, and 128 hidden units per layer using only the extracted static features on a CPU-only environment to predict the DelTA Coefficients (See US-2).
+- **FR-002**: System MUST run the DelTA algorithm on a subset of at least 500 examples (selected with random seed=42, stratified by solution length) using Llama-3-8B to compute ground-truth DelTA Coefficients for every token position. If fewer than 500 but >= 10 valid examples are found, the pipeline MUST proceed with the maximum feasible subset and log a warning. If an insufficient number of valid examples are found, the pipeline MUST fail with explicit error code 'ERR_INSUFFICIENT_DATA'. If the variance of the resulting DelTA Coefficients is <= 1e-9, the pipeline MUST abort with explicit error code 'ERR_TRIVIAL_TARGET'. (See US-1).
+- **FR-003**: System MUST extract external static input features for every token, including local n-gram statistics, part-of-speech tags, and semantic similarity scores to known reasoning patterns. Semantic similarity MUST be calculated using cosine similarity on the embeddings generated by the frozen model `sentence-transformers/all-MiniLM-L-v2` applied to a reference set of **MathQA dataset** solution traces (distinct from GSM8K) to ensure independence from the oracle target distribution. For n-gram and POS features, the system MUST map sentence-level aggregates to individual token positions using a centered sliding window of ±2 tokens. System MUST NOT use contextual embeddings from the oracle model (Llama-3-8B) used to generate the DelTA Coefficients to prevent circularity. Justification for MiniLM: It serves as a static proxy to test if general semantic structure predicts the signal; if deemed too close to the oracle domain, the system MUST fallback to raw n-gram counts and character-level entropy. (See US-2).
+- **FR-004**: System MUST train a multi-layer MLP with ReLU activation, a **small number of hidden layers**, and **128 hidden units per layer** using only the extracted static features on a CPU-only environment to predict the DelTA Coefficients (See US-2).
 - **FR-005**: System MUST evaluate the model on a held-out test set by computing the Spearman rank correlation between predicted scores and true DelTA Coefficients, comparing against a random baseline (uniform weights from N(0,1), seed=42) and a uniform-weight baseline (See US-3).
-- **FR-006**: System MUST perform a permutation test by shuffling entire GSMK examples (not individual tokens) 1000 times to establish statistical significance and ensure the correlation is not due to chance, accounting for token clustering within examples (See US-3).
+- **FR-006**: System MUST perform a permutation test by shuffling **token-level target coefficients within each example** (preserving example IDs) repeatedly over a sufficient number of iterations to ensure robust statistical significance. to establish statistical significance and ensure the correlation is not due to chance, accounting for token clustering within examples. This breaks the specific token-level signal while respecting non-i.i.d. structure (See US-3).
 - **FR-007**: System MUST frame all findings as associational (correlational) rather than causal, as the design is observational without random assignment of inputs to outcomes (See US-3).
-- **FR-008**: System MUST report feature importance scores using Permutation Importance for the trained model to distinguish between 'signal is emergent' and 'features are poor proxies' in the event of a null correlation (See US-3).
+- **FR-008**: System MUST report feature importance scores using Permutation Importance for the trained model to distinguish between 'signal is emergent' and 'features are poor proxies' in the event of a null correlation. **Decision Logic**: If Spearman correlation < 0.05 AND mean Permutation Importance < 0.01, classify as 'features are poor proxies'; otherwise, classify as 'signal is emergent' (See US-3).
 
 ### Key Entities
 
 - **DelTA Coefficient**: A continuous scalar value representing the discriminative weight of a specific token position derived from dynamic gradient backpropagation (Oracle).
-- **Static Feature Vector**: A fixed-length vector representing the input context of a token, composed of n-gram statistics, POS tags, and semantic similarity scores to a reference set of GSM8K solution traces. Semantic similarity is computed using `sentence-transformers/all-MiniLM-L6-v2`. Explicitly excludes the oracle model's hidden states.
+- **Static Feature Vector**: A fixed-length vector representing the input context of a token, composed of n-gram statistics, POS tags, and semantic similarity scores to a reference set of MathQA solution traces. Semantic similarity is computed using `sentence-transformers/all-MiniLM-L6-v2`. Explicitly excludes the oracle model's hidden states.
 - **Prediction Model**: A lightweight regression model (2-layer MLP with 128 hidden units) trained to map Static Feature Vectors to DelTA Coefficients.
 
 ## Success Criteria
@@ -89,18 +89,18 @@ As a researcher, I need to compute the Spearman rank correlation between the pre
 
 - **SC-001**: The Spearman rank correlation between predicted and true DelTA Coefficients is measured against the random baseline (N(0,1), seed=42) and uniform baseline to determine signal strength. If the correlation is near zero, the result must be classified as 'signal is emergent' or 'features are poor proxies' based on FR-008 (See FR-005, US-3).
 - **SC-002**: The statistical significance of the correlation is measured against the null distribution generated by the permutation test (p-value < 0.05) to rule out chance (See FR-006, US-3).
-- **SC-003**: The total execution time of the end-to-end pipeline (data download, oracle generation, feature extraction, training, evaluation) is measured against the specified time limit to ensure compute feasibility. (See FR-004, US-2).
-- **SC-004**: The memory footprint of the training process is measured against the available RAM limit to ensure no out-of-memory errors occur. (See FR-004, US-2).
+- **SC-003**: The total execution time of the end-to-end pipeline (data download, oracle generation, feature extraction, training, evaluation) is measured against the specified time limit **<= 4 hours** to ensure compute feasibility. (See FR-004, US-2).
+- **SC-004**: The memory footprint of the training process is measured against the available RAM limit **<= 16GB** to ensure no out-of-memory errors occur. (See FR-004, US-2).
 - **SC-005**: The variance of the DelTA Coefficients in the ground-truth set is measured against a threshold of > 1e-9 to ensure the target variable is non-trivial and suitable for regression. If variance <= 1e-9, the pipeline MUST abort with error code 'ERR_TRIVIAL_TARGET' (See FR-002, US-1).
 
 ## Assumptions
 
 - The GSM8K dataset contains sufficient solution traces with verified correctness labels to create a clean benchmark set of at least 10 examples (preferably 500) without needing complex filtering logic.
-- The LlamaB model can be loaded and run for inference and gradient backpropagation on a CPU-only GitHub Actions runner or a 16GB VRAM Kaggle runner within the specified time limit for the DelTA oracle step.
-- The "external static features" (n-grams, POS tags, semantic similarity to a representative set of GSM8K traces using MiniLM) are computationally tractable to extract for every token in the subset without exceeding the disk or RAM limits.
-- The DelTA algorithm, when run on Llama-3-1B, produces stable DelTA Coefficients without requiring GPU acceleration or 8-bit/4-bit quantization libraries that mandate CUDA.
+- The Llama-3-8B model can be loaded and run for inference and gradient backpropagation on a CPU-only GitHub Actions runner or a Substantial VRAM Kaggle runner within the specified time limit for the DelTA oracle step.
+- The "external static features" (n-grams, POS tags, semantic similarity to a representative set of MathQA traces using MiniLM) are computationally tractable to extract for every token in the subset without exceeding the disk or RAM limits.
+- The DelTA algorithm, when run on Llama-3-8B, produces stable DelTA Coefficients without requiring GPU acceleration or 8-bit/4-bit quantization libraries that mandate CUDA.
 - The relationship between external static features (derived from a general semantic space) and DelTA Coefficients is learnable enough to be captured by a shallow MLP without requiring deep neural network architectures.
 - The observed correlation (if any) is purely associational; the study design does not support causal claims about input semantics *causing* the discriminative signal, only that they are predictive of it.
 - The HuggingFace API and dataset mirrors are accessible from the GitHub Actions runner without rate-limiting issues that would halt the pipeline.
-- A representative subset of GSM8K solution traces will serve as a seed set for 'known reasoning patterns' for semantic similarity calculations using the MiniLM model.
+- A representative subset of MathQA solution traces will serve as a seed set for 'known reasoning patterns' for semantic similarity calculations using the MiniLM model.
 - The use of a separate embedding model (MiniLM) for semantic similarity is valid for testing the hypothesis of 'emergent vs. static' signal, as it measures general semantic structure rather than model-specific internal states.

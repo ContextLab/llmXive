@@ -1,22 +1,22 @@
-- artifact_hash: dfb4e542f52ae5165e128b3507c92cd32f7b716d01ac1d916074608d362628d6
+- artifact_hash: 86f4a5d825a0005b958ae8e581ea7746ca9a9e1acdfce7b7786ba81e86481f3a
   artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: "openai/gsm8k \xB7 Datasets at Hugging Face"
+  fetched_title: test-00000-of-00001.parquet
   kind: url
-  value: https://huggingface.co/datasets/openai/gsm8k`
+  value: https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet`
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/openai/gsm8k
-  verified_at: '2026-08-24T22:07:38.604298Z'
-- artifact_hash: dfb4e542f52ae5165e128b3507c92cd32f7b716d01ac1d916074608d362628d6
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/625552d2b339bb03abe3432d/ad526cbfe3eb75568603d62295066ebd2491137403f012186c30f9416839141d?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&user_id=public&Expires=1788386336&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI1NTUyZDJiMzM5YmIwM2FiZTM0MzJkL2FkNTI2Y2JmZTNlYjc1NTY4NjAzZDYyMjk1MDY2ZWJkMjQ5MTEzNzQwM2YwMTIxODZjMzBmOTQxNjgzOTE0MWRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODgzODYzMzZ9fX1dfQ__&Signature=MEUCIQColt811Ke7BhsrNyia0SrGAP-JFakFytLFGjZcAFC7XQIgCMbS3r1SCqhybQUk29uZ7hVsFTHtraX0NJCBWik9Nus_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-09-02T20:58:56.615906Z'
+- artifact_hash: 86f4a5d825a0005b958ae8e581ea7746ca9a9e1acdfce7b7786ba81e86481f3a
   artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: "sentence-transformers/all-MiniLM-L6-v2 \xB7 Hugging Face"
+  fetched_title: null
   kind: url
-  value: https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2`
+  value: https://huggingface.co/datasets/TIGER-Lab/OpenMathInstruct-1`
   verification_status: pending
-  verified_against_url: https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
-  verified_at: '2026-08-24T22:07:38.604298Z'
+  verified_against_url: https://huggingface.co/datasets/TIGER-Lab/OpenMathInstruct-1
+  verified_at: '2026-09-02T20:58:56.615906Z'

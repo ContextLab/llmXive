@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Metrics Schema"
+description: "Schema for evaluation results including correlation and permutation test."
+type: "object"
+properties:
+  spearman_correlation:
+    type: "number"
+    description: "Spearman rank correlation between predicted and true coefficients"
+  p_value:
+    type: "number"
+    description: "P-value from the example-level permutation test"
+  baseline_random:
+    type: "number"
+    description: "Correlation against random baseline N(0,1)"
+  baseline_uniform:
+    type: "number"
+    description: "Correlation against uniform baseline"
+  feature_importance_classification:
+    type: "string"
+    enum:
+      - "emergent"
+      - "poor_proxies"
+      - "significant"
+    description: "Classification based on permutation importance scores"
+  permutation_importance_scores:
+    type: "array"
+    items:
+      type: "number"
+    description: "Permutation importance scores for each feature group"
+  is_significant:
+    type: "boolean"
+    description: "True if p_value < 0.05"
+required:
+  - "spearman_correlation"
+  - "p_value"
+  - "baseline_random"
+  - "baseline_uniform"
+  - "feature_importance_classification"
+  - "is_significant"

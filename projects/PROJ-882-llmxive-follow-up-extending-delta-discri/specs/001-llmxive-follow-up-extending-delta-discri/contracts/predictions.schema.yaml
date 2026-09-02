@@ -1,30 +1,57 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Predictions (Static)"
-description: "Schema for the output of the static predictor model."
+title: "Predictions and Metrics Schema"
+description: "Schema for model predictions and evaluation metrics."
 type: "object"
 properties:
-  example_id:
-    type: "string"
-    description: "Unique identifier for the GSM8K example."
   predictions:
     type: "array"
     description: "List of token-level predictions."
     items:
       type: "object"
       properties:
+        example_id:
+          type: "string"
         token_id:
           type: "integer"
-        predicted_delta:
+        true_coefficient:
           type: "number"
-          description: "Predicted DelTA coefficient."
-        true_delta:
+        predicted_coefficient:
           type: "number"
-          description: "Ground truth DelTA coefficient for comparison."
       required:
+        - example_id
         - token_id
-        - predicted_delta
-        - true_delta
+        - true_coefficient
+        - predicted_coefficient
+  metrics:
+    type: "object"
+    properties:
+      spearman_correlation:
+        type: "number"
+        description: "Spearman rank correlation score."
+      p_value:
+        type: "number"
+        description: "P-value from example-level permutation test."
+      feature_importance:
+        type: "object"
+        description: "Map of feature names to importance scores."
+        additionalProperties:
+          type: "number"
+      classification:
+        type: "string"
+        enum:
+          - "signal is emergent"
+          - "features are poor proxies"
+        description: "Classification of the null result."
+      random_baseline_spearman:
+        type: "number"
+      uniform_baseline_spearman:
+        type: "number"
+    required:
+      - spearman_correlation
+      - p_value
+      - classification
+      - random_baseline_spearman
+      - uniform_baseline_spearman
 required:
-  - example_id
   - predictions
-additionalProperties: false
+  - metrics
