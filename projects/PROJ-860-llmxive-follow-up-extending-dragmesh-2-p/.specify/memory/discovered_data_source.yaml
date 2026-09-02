@@ -1,15 +1,12 @@
 status: none
-intent: DragMesh-2 dataset HuggingFace Datasets download python package dataset
+intent: download DragMesh-2 dataset from Hugging Face python package dataset
 required_fields:
 - object_id
-- mesh_vertices
-- mesh_faces
-- articulation_joints
+- mesh_filepath
+- joint_names
 - joint_limits
-- trajectory_positions
-- trajectory_velocities
-- timestamp
-- friction_coefficient
-cache_key: 163f9d9f5ab85e63b502485b6d68142021d5975e2da3a5cb01c1953c02b03155
-searched_at: '2026-08-28T03:12:50.632565+00:00'
+- trajectory_time_series
+- initial_friction_range
+cache_key: 3253c05d22228e77ac7898197f8d5887c67317ac4323ddcc9aa0d689a97c242a
+searched_at: '2026-09-02T11:42:09.903191+00:00'
 retry_count: 1
