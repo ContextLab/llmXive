@@ -1,186 +1,182 @@
+import pytest
+import pandas as pd
 import json
 import os
-import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+import tempfile
+import sys
 
-import pytest
+# Add the project root to the path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from data.preprocess import (
     filter_cities,
     build_vocabulary,
     apply_vocabulary_filter,
     stratify_routes,
-    save_processed_data,
-    validate_output,
+    TARGET_CITIES
 )
-from config import get_env_config
-
 
 @pytest.fixture
-def sample_data():
-    """Sample dataset for testing."""
+def sample_dataset():
+    """Create a sample dataset for testing."""
     return [
         {
-            "route_id": "r1",
+            "route_id": "route_1",
             "city": "Beijing",
-            "stations": ["A", "B", "C", "D", "E"],
+            "stations": ["A", "B", "C", "D", "E"]
         },
         {
-            "route_id": "r2",
+            "route_id": "route_2",
             "city": "Shanghai",
-            "stations": ["F", "G", "H"],
+            "stations": ["F", "G", "H"]
         },
         {
-            "route_id": "r3",
+            "route_id": "route_3",
             "city": "Guangzhou",
-            "stations": ["I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X"],
+            "stations": ["I", "J", "K", "L"]
         },
         {
-            "route_id": "r4",
+            "route_id": "route_4",
             "city": "Shenzhen",
-            "stations": ["Y"] * 35,  # Long route
+            "stations": ["M", "N", "O", "P", "Q", "R"]
         },
         {
-            "route_id": "r5",
+            "route_id": "route_5",
             "city": "Chengdu",  # Not in target cities
-            "stations": ["Z"],
+            "stations": ["S", "T", "U"]
         },
+        {
+            "route_id": "route_6",
+            "city": "Beijing",
+            "stations": ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "BB", "CC", "DD", "EE", "FF", "GG", "HH", "II", "JJ", "KK", "LL", "MM", "NN", "OO", "PP", "QQ", "RR", "SS", "TT", "UU", "VV", "WW", "XX", "YY", "ZZ"]
+        }
     ]
 
-
 class TestFilterCities:
-    def test_filter_cities_basic(self, sample_data):
-        """Test basic city filtering."""
-        filtered = filter_cities(sample_data, ["Beijing", "Shanghai"])
-        assert len(filtered) == 2
-        cities = [r["city"] for r in filtered]
-        assert all(c in ["Beijing", "Shanghai"] for c in cities)
+    def test_filter_cities_returns_only_target_cities(self, sample_dataset):
+        """Test that filter_cities returns only routes from target cities."""
+        result = filter_cities(sample_dataset, TARGET_CITIES)
+        
+        cities_in_result = {route['city'] for route in result}
+        assert cities_in_result == set(TARGET_CITIES)
+        
+        # Check that Chengdu is excluded
+        assert len(result) == 5  # 6 total - 1 Chengdu
 
-    def test_filter_cities_empty_result(self, sample_data):
-        """Test filtering with no matching cities."""
-        filtered = filter_cities(sample_data, ["Chengdu"])
-        assert len(filtered) == 1
+    def test_filter_cities_custom_cities(self, sample_dataset):
+        """Test filtering with a custom list of cities."""
+        custom_cities = ["Beijing", "Shanghai"]
+        result = filter_cities(sample_dataset, custom_cities)
+        
+        cities_in_result = {route['city'] for route in result}
+        assert cities_in_result == set(custom_cities)
+        assert len(result) == 3  # Beijing (2) + Shanghai (1)
 
-    def test_filter_cities_no_match(self, sample_data):
-        """Test filtering with no matching cities at all."""
-        filtered = filter_cities(sample_data, ["NonExistent"])
-        assert len(filtered) == 0
+    def test_filter_cities_no_matches_raises_error(self, sample_dataset):
+        """Test that filtering with non-existent cities raises ValueError."""
+        with pytest.raises(ValueError, match="No routes found"):
+            filter_cities(sample_dataset, ["NonExistentCity"])
 
-    def test_filter_cities_all_match(self, sample_data):
-        """Test filtering with all cities matching."""
-        filtered = filter_cities(sample_data, ["Beijing", "Shanghai", "Guangzhou", "Shenzhen"])
-        assert len(filtered) == 4
-
+    def test_filter_cities_preserves_route_data(self, sample_dataset):
+        """Test that route data is preserved after filtering."""
+        result = filter_cities(sample_dataset, TARGET_CITIES)
+        
+        # Check that original data is preserved
+        beijing_routes = [r for r in result if r['city'] == 'Beijing']
+        assert len(beijing_routes) == 2
+        assert beijing_routes[0]['route_id'] == 'route_1'
+        assert beijing_routes[0]['stations'] == ["A", "B", "C", "D", "E"]
 
 class TestBuildVocabulary:
-    def test_build_vocabulary_basic(self, sample_data):
-        """Test basic vocabulary building."""
-        vocab = build_vocabulary(sample_data)
-        assert "<UNKNOWN>" in vocab
-        assert len(vocab) > 1
+    def test_build_vocabulary_includes_all_stations(self, sample_dataset):
+        """Test that vocabulary includes all unique stations."""
+        vocab = build_vocabulary(sample_dataset)
+        
+        all_stations = set()
+        for route in sample_dataset:
+            all_stations.update(route['stations'])
+        
+        # Check that all stations are in vocabulary
+        for station in all_stations:
+            assert station in vocab
+        
+        # Check that <UNKNOWN> token is included
+        assert '<UNKNOWN>' in vocab
 
-    def test_build_vocabulary_top_n(self, sample_data):
+    def test_build_vocabulary_top_n(self, sample_dataset):
         """Test vocabulary building with top_n limit."""
-        vocab = build_vocabulary(sample_data, top_n=3)
-        assert len(vocab) == 4  # 3 stations + <UNKNOWN>
+        vocab = build_vocabulary(sample_dataset, top_n=5)
+        
+        # Should have 5 stations + 1 <UNKNOWN>
+        assert len(vocab) == 6
+        assert '<UNKNOWN>' in vocab
 
-    def test_build_vocabulary_empty_data(self):
-        """Test vocabulary building with empty data."""
-        vocab = build_vocabulary([])
-        assert "<UNKNOWN>" in vocab
-        assert len(vocab) == 1
-
+    def test_build_vocabulary_ids_are_unique(self, sample_dataset):
+        """Test that vocabulary IDs are unique."""
+        vocab = build_vocabulary(sample_dataset)
+        
+        ids = list(vocab.values())
+        assert len(ids) == len(set(ids))
 
 class TestApplyVocabularyFilter:
-    def test_apply_vocabulary_filter_basic(self, sample_data):
-        """Test basic vocabulary filtering."""
-        vocab = build_vocabulary(sample_data, top_n=3)
-        filtered = apply_vocabulary_filter(sample_data, vocab)
+    def test_apply_vocabulary_filter_converts_stations(self, sample_dataset):
+        """Test that stations are converted to IDs."""
+        vocab = build_vocabulary(sample_dataset)
+        result = apply_vocabulary_filter(sample_dataset, vocab)
         
-        # Check that unknown tokens are present
-        has_unknown = False
-        for record in filtered:
-            stations = record.get("stations", [])
-            if "<UNKNOWN>" in stations:
-                has_unknown = True
-                break
-        
-        assert has_unknown
+        for route in result:
+            assert 'station_ids' in route
+            assert isinstance(route['station_ids'], list)
+            # All IDs should be integers
+            for station_id in route['station_ids']:
+                assert isinstance(station_id, int)
 
-    def test_apply_vocabulary_filter_no_unknown(self, sample_data):
-        """Test vocabulary filtering with full vocabulary."""
-        vocab = build_vocabulary(sample_data)  # No top_n limit
-        filtered = apply_vocabulary_filter(sample_data, vocab)
+    def test_apply_vocabulary_filter_handles_unknown(self, sample_dataset):
+        """Test that unknown stations are replaced with <UNKNOWN> token."""
+        # Create a route with an unknown station
+        dataset_with_unknown = sample_dataset + [{
+            "route_id": "route_unknown",
+            "city": "Beijing",
+            "stations": ["UnknownStation123"]
+        }]
         
-        # No unknown tokens should be present
-        for record in filtered:
-            stations = record.get("stations", [])
-            assert "<UNKNOWN>" not in stations
-
+        vocab = build_vocabulary(sample_dataset)  # Build vocab without the unknown station
+        result = apply_vocabulary_filter(dataset_with_unknown, vocab)
+        
+        unknown_route = next(r for r in result if r['route_id'] == 'route_unknown')
+        unknown_id = vocab['<UNKNOWN>']
+        
+        # All stations in the unknown route should be mapped to <UNKNOWN>
+        for station_id in unknown_route['station_ids']:
+            assert station_id == unknown_id
 
 class TestStratifyRoutes:
-    def test_stratify_routes_basic(self, sample_data):
-        """Test basic route stratification."""
-        short, medium, long = stratify_routes(sample_data)
+    def test_stratify_routes_correct_categories(self, sample_dataset):
+        """Test that routes are correctly categorized by length."""
+        df = stratify_routes(sample_dataset)
         
-        assert len(short) == 2  # r1 (5), r2 (3)
-        assert len(medium) == 1  # r3 (16)
-        assert len(long) == 1  # r4 (35)
-
-    def test_stratify_routes_empty(self):
-        """Test stratification with empty data."""
-        short, medium, long = stratify_routes([])
-        assert len(short) == 0
-        assert len(medium) == 0
-        assert len(long) == 0
-
-
-class TestSaveProcessedData:
-    def test_save_processed_data_jsonl(self, sample_data):
-        """Test saving data in JSONL format."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test.jsonl"
-            save_processed_data(sample_data, str(output_path), file_format="jsonl")
+        # Check categories
+        for _, row in df.iterrows():
+            length = row['route_length']
+            category = row['length_category']
             
-            assert output_path.exists()
-            assert output_path.stat().st_size > 0
-            
-            with open(output_path, "r") as f:
-                lines = f.readlines()
-            assert len(lines) == len(sample_data)
+            if length < 15:
+                assert category == 'short'
+            elif length <= 30:
+                assert category == 'medium'
+            else:
+                assert category == 'long'
 
-    def test_save_processed_data_json(self, sample_data):
-        """Test saving data in JSON format."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test.json"
-            save_processed_data(sample_data, str(output_path), file_format="json")
-            
-            assert output_path.exists()
-            assert output_path.stat().st_size > 0
-            
-            with open(output_path, "r") as f:
-                data = json.load(f)
-            assert len(data) == len(sample_data)
+    def test_stratify_routes_returns_dataframe(self, sample_dataset):
+        """Test that stratify_routes returns a DataFrame."""
+        result = stratify_routes(sample_dataset)
+        assert isinstance(result, pd.DataFrame)
 
-
-class TestValidateOutput:
-    def test_validate_output_exists_and_nonempty(self):
-        """Test validation of existing non-empty file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test.jsonl"
-            output_path.write_text('{"test": "data"}\n')
-            
-            assert validate_output(str(output_path)) is True
-
-    def test_validate_output_not_exists(self):
-        """Test validation of non-existent file."""
-        assert validate_output("/nonexistent/path/file.jsonl") is False
-
-    def test_validate_output_empty(self):
-        """Test validation of empty file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test.jsonl"
-            output_path.write_text("")
-            
-            assert validate_output(str(output_path)) is False
+    def test_stratify_routes_contains_required_columns(self, sample_dataset):
+        """Test that the DataFrame contains required columns."""
+        df = stratify_routes(sample_dataset)
+        
+        required_columns = ['route_id', 'city', 'stations', 'route_length', 'length_category']
+        for col in required_columns:
+            assert col in df.columns

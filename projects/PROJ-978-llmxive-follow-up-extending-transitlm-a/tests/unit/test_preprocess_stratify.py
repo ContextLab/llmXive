@@ -1,96 +1,122 @@
+import pytest
+import pandas as pd
 import os
 import json
 import tempfile
-import pytest
-import pandas as pd
 from pathlib import Path
-
-# Import the function to test
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from code.data.preprocess import stratify_routes
 
-@pytest.fixture
-def sample_routes():
-    """Generate a sample dataset for testing."""
-    return [
-        {"route_id": "r1", "city": "Beijing", "stops": ["A", "B", "C"]},  # Short (3)
-        {"route_id": "r2", "city": "Shanghai", "stops": ["D"] * 10},      # Short (10)
-        {"route_id": "r3", "city": "Guangzhou", "stops": ["E"] * 15},     # Medium (15)
-        {"route_id": "r4", "city": "Shenzhen", "stops": ["F"] * 25},     # Medium (25)
-        {"route_id": "r5", "city": "Beijing", "stops": ["G"] * 31},      # Long (31)
-        {"route_id": "r6", "city": "Shanghai", "stops": ["H"] * 50},     # Long (50)
-        {"route_id": "r7", "city": "Beijing", "stops": ["I"] * 14},      # Short (14)
-        {"route_id": "r8", "city": "Shanghai", "stops": ["J"] * 30},     # Medium (30)
-    ]
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-def test_stratify_routes_creates_parquet(sample_routes, tmp_path):
-    """Test that stratify_routes creates a valid Parquet file."""
-    output_path = tmp_path / "stratified_routes.parquet"
-    stratify_routes(sample_routes, str(output_path))
-    
-    assert output_path.exists(), "Output Parquet file was not created."
-    assert output_path.stat().st_size > 0, "Output Parquet file is empty."
+from data.preprocess import stratify_routes
 
-def test_stratify_routes_correct_categories(sample_routes, tmp_path):
-    """Test that routes are assigned to correct categories."""
-    output_path = tmp_path / "stratified_routes.parquet"
-    stratify_routes(sample_routes, str(output_path))
+class TestStratifyRoutes:
     
-    df = pd.read_parquet(output_path)
+    def test_stratify_routes_creates_parquet(self, tmp_path):
+        """Test that stratify_routes creates a valid parquet file."""
+        # Create sample data
+        sample_data = [
+            {"route_id": "1", "route_stops": ["A", "B", "C", "D", "E"] * 5},  # 25 stops -> medium
+            {"route_id": "2", "route_stops": ["A", "B", "C"] * 3},  # 9 stops -> short
+            {"route_id": "3", "route_stops": ["A", "B", "C", "D", "E"] * 10},  # 50 stops -> long
+            {"route_id": "4", "route_stops": ["A", "B", "C", "D", "E"] * 2},  # 10 stops -> short
+            {"route_id": "5", "route_stops": ["A", "B", "C", "D", "E"] * 4},  # 20 stops -> medium
+            {"route_id": "6", "route_stops": ["A", "B", "C", "D", "E"] * 8},  # 40 stops -> long
+            {"route_id": "7", "route_stops": ["A", "B", "C", "D", "E"] * 2},  # 10 stops -> short
+            {"route_id": "8", "route_stops": ["A", "B", "C", "D", "E"] * 4},  # 20 stops -> medium
+            {"route_id": "9", "route_stops": ["A", "B", "C", "D", "E"] * 8},  # 40 stops -> long
+            {"route_id": "10", "route_stops": ["A", "B", "C", "D", "E"] * 2},  # 10 stops -> short
+            {"route_id": "11", "route_stops": ["A", "B", "C", "D", "E"] * 4},  # 20 stops -> medium
+            {"route_id": "12", "route_stops": ["A", "B", "C", "D", "E"] * 8},  # 40 stops -> long
+        ]
+        
+        output_path = tmp_path / "stratified_routes.parquet"
+        
+        # Run stratification
+        df = stratify_routes(sample_data, str(output_path))
+        
+        # Verify file exists
+        assert output_path.exists(), "Output parquet file was not created"
+        
+        # Verify row count
+        assert len(df) == 12, f"Expected 12 rows, got {len(df)}"
+        
+        # Verify categories
+        assert 'category' in df.columns, "Category column missing"
+        assert 'stop_count' in df.columns, "Stop count column missing"
+        
+        # Verify category distribution
+        categories = df['category'].value_counts()
+        assert 'short' in categories.index, "Short category missing"
+        assert 'medium' in categories.index, "Medium category missing"
+        assert 'long' in categories.index, "Long category missing"
+        
+        # Verify specific assignments
+        short_routes = df[df['category'] == 'short']
+        medium_routes = df[df['category'] == 'medium']
+        long_routes = df[df['category'] == 'long']
+        
+        assert all(short_routes['stop_count'] < 15), "Short routes should have <15 stops"
+        assert all((medium_routes['stop_count'] >= 15) & (medium_routes['stop_count'] <= 30)), \
+            "Medium routes should have 15-30 stops"
+        assert all(long_routes['stop_count'] > 30), "Long routes should have >30 stops"
     
-    # Check counts
-    short_count = len(df[df["category"] == "short"])
-    medium_count = len(df[df["category"] == "medium"])
-    long_count = len(df[df["category"] == "long"])
+    def test_stratify_routes_empty_data(self, tmp_path):
+        """Test that stratify_routes raises error for empty data."""
+        output_path = tmp_path / "stratified_routes.parquet"
+        
+        with pytest.raises(AssertionError, match="Stratified dataset is empty"):
+            stratify_routes([], str(output_path))
     
-    # Expected: 
-    # Short: r1 (3), r2 (10), r7 (14) -> 3
-    # Medium: r3 (15), r4 (25), r8 (30) -> 3
-    # Long: r5 (31), r6 (50) -> 2
-    assert short_count == 3, f"Expected 3 short routes, got {short_count}"
-    assert medium_count == 3, f"Expected 3 medium routes, got {medium_count}"
-    assert long_count == 2, f"Expected 2 long routes, got {long_count}"
-
-def test_stratify_routes_empty_input():
-    """Test that empty input raises ValueError."""
-    with tempfile.NamedTemporaryFile(suffix=".parquet", delete=False) as tmp:
-        tmp_path = tmp.name
+    def test_stratify_routes_balanced_categories(self, tmp_path):
+        """Test that stratify_routes validates category balance."""
+        # Create data that is intentionally unbalanced
+        # 10 short, 1 medium, 1 long
+        sample_data = []
+        for i in range(10):
+            sample_data.append({"route_id": f"short_{i}", "route_stops": ["A", "B"]})  # 2 stops
+        sample_data.append({"route_id": "medium_1", "route_stops": ["A", "B"] * 10})  # 20 stops
+        sample_data.append({"route_id": "long_1", "route_stops": ["A", "B"] * 20})  # 40 stops
+        
+        output_path = tmp_path / "stratified_routes.parquet"
+        
+        with pytest.raises(AssertionError, match="Categories are not balanced"):
+            stratify_routes(sample_data, str(output_path))
     
-    with pytest.raises(ValueError, match="Input data is empty"):
-        stratify_routes([], tmp_path)
+    def test_stratify_routes_thresholds(self, tmp_path):
+        """Test boundary conditions for stratification thresholds."""
+        # Create routes at exact boundaries
+        sample_data = [
+            {"route_id": "1", "route_stops": ["A"] * 14},  # 14 -> short
+            {"route_id": "2", "route_stops": ["A"] * 15},  # 15 -> medium
+            {"route_id": "3", "route_stops": ["A"] * 30},  # 30 -> medium
+            {"route_id": "4", "route_stops": ["A"] * 31},  # 31 -> long
+        ]
+        
+        output_path = tmp_path / "stratified_routes.parquet"
+        df = stratify_routes(sample_data, str(output_path))
+        
+        assert df.iloc[0]['category'] == 'short', "14 stops should be short"
+        assert df.iloc[1]['category'] == 'medium', "15 stops should be medium"
+        assert df.iloc[2]['category'] == 'medium', "30 stops should be medium"
+        assert df.iloc[3]['category'] == 'long', "31 stops should be long"
     
-    # Cleanup
-    if os.path.exists(tmp_path):
-        os.remove(tmp_path)
-
-def test_stratify_routes_metadata(sample_routes, tmp_path):
-    """Test that metadata (length, route_id) is preserved."""
-    output_path = tmp_path / "stratified_routes.parquet"
-    stratify_routes(sample_routes, str(output_path))
-    
-    df = pd.read_parquet(output_path)
-    
-    # Check that required columns exist
-    assert "route_id" in df.columns
-    assert "length" in df.columns
-    assert "category" in df.columns
-    assert "stops" in df.columns
-    assert "city" in df.columns
-
-def test_stratify_routes_length_calculation(sample_routes, tmp_path):
-    """Test that 'length' column matches actual stop count."""
-    output_path = tmp_path / "stratified_routes.parquet"
-    stratify_routes(sample_routes, str(output_path))
-    
-    df = pd.read_parquet(output_path)
-    
-    for _, row in df.iterrows():
-        assert row["length"] == len(row["stops"]), f"Length mismatch for {row['route_id']}"
-        # Verify category logic
-        if row["length"] < 15:
-            assert row["category"] == "short"
-        elif row["length"] <= 30:
-            assert row["category"] == "medium"
-        else:
-            assert row["category"] == "long"
+    def test_stratify_routes_output_format(self, tmp_path):
+        """Test that the output parquet file can be loaded correctly."""
+        sample_data = [
+            {"route_id": "1", "route_stops": ["A", "B", "C", "D", "E"] * 5},
+            {"route_id": "2", "route_stops": ["A", "B", "C"] * 3},
+            {"route_id": "3", "route_stops": ["A", "B", "C", "D", "E"] * 10},
+        ]
+        
+        output_path = tmp_path / "stratified_routes.parquet"
+        stratify_routes(sample_data, str(output_path))
+        
+        # Load back and verify
+        loaded_df = pd.read_parquet(output_path)
+        assert len(loaded_df) == 3
+        assert 'category' in loaded_df.columns
+        assert 'stop_count' in loaded_df.columns
+        assert 'route_id' in loaded_df.columns
+        assert 'route_stops' in loaded_df.columns

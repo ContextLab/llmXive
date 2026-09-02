@@ -1,68 +1,92 @@
 """
-Setup script to verify linting and formatting configuration.
-This script ensures that ruff and black are properly configured
-and can be run on the project.
+Setup script to verify and initialize linting (Ruff) and formatting (Black) tools.
+This script checks for the existence of configuration files and provides
+installation instructions if they are missing.
 """
-
 import os
 import sys
 from pathlib import Path
 
-
 def check_file_exists(filepath: str) -> bool:
     """Check if a file exists in the project root."""
     path = Path(filepath)
-    if not path.exists():
-        print(f"ERROR: Configuration file not found: {filepath}")
-        return False
-    print(f"OK: Found {filepath}")
-    return True
+    exists = path.exists()
+    status = "✓" if exists else "✗"
+    print(f"{status} {filepath}: {'Found' if exists else 'Missing'}")
+    return exists
 
-
-def check_config_content(filepath: str) -> bool:
-    """Basic check to ensure config file has content."""
+def check_config_content(filepath: str, required_keys: list[str]) -> bool:
+    """Check if a configuration file contains required keys."""
     path = Path(filepath)
-    if not path.stat().st_size > 0:
-        print(f"ERROR: Configuration file is empty: {filepath}")
+    if not path.exists():
         return False
-    print(f"OK: {filepath} has content")
-    return True
 
+    try:
+        content = path.read_text()
+        missing_keys = [key for key in required_keys if key not in content]
+        if missing_keys:
+            print(f"  ⚠ Missing keys in {filepath}: {missing_keys}")
+            return False
+        return True
+    except Exception as e:
+        print(f"  ✗ Error reading {filepath}: {e}")
+        return False
 
 def main():
-    """Main entry point for setup verification."""
-    project_root = Path(__file__).resolve().parent.parent
+    """Main entry point for linting setup verification."""
+    print("=== Linting & Formatting Setup Verification ===\n")
 
-    # Check for pyproject.toml
-    pyproject_path = project_root / "pyproject.toml"
-    if not check_file_exists(str(pyproject_path)):
-        return 1
+    # Check configuration files
+    files_to_check = [
+        "pyproject.toml",
+        ".pre-commit-config.yaml",
+    ]
 
-    if not check_config_content(str(pyproject_path)):
-        return 1
+    all_found = True
+    for f in files_to_check:
+        if not check_file_exists(f):
+            all_found = False
 
-    # Check for .ruff.toml (optional but recommended)
-    ruff_toml_path = project_root / ".ruff.toml"
-    # We don't strictly require .ruff.toml if pyproject.toml exists,
-    # but we check for it if present.
-    if ruff_toml_path.exists():
-        if not check_config_content(str(ruff_toml_path)):
-            return 1
+    # Validate pyproject.toml content
+    if Path("pyproject.toml").exists():
+        print("\nValidating pyproject.toml content:")
+        has_black = check_config_content(
+            "pyproject.toml",
+            ["[tool.black]", "line-length", "target-version"]
+        )
+        has_ruff = check_config_content(
+            "pyproject.toml",
+            ["[tool.ruff]", "select", "ignore"]
+        )
 
-    # Check for .pre-commit-config.yaml
-    pre_commit_path = project_root / ".pre-commit-config.yaml"
-    if not check_file_exists(str(pre_commit_path)):
-        print("WARNING: .pre-commit-config.yaml not found. Pre-commit hooks not configured.")
+        if not (has_black and has_ruff):
+            all_found = False
+            print("  ⚠ pyproject.toml is missing Black or Ruff configuration sections.")
+
+    # Validate pre-commit config
+    if Path(".pre-commit-config.yaml").exists():
+        print("\nValidating .pre-commit-config.yaml content:")
+        has_precommit = check_config_content(
+            ".pre-commit-config.yaml",
+            ["black", "ruff"]
+        )
+        if not has_precommit:
+            all_found = False
+            print("  ⚠ .pre-commit-config.yaml is missing Black or Ruff hooks.")
+
+    print("\n" + "=" * 40)
+    if all_found:
+        print("✓ All linting and formatting configurations are present and valid.")
+        print("\nNext steps:")
+        print("  1. Install pre-commit: pip install pre-commit")
+        print("  2. Install hooks: pre-commit install")
+        print("  3. Run pre-commit: pre-commit run --all-files")
+        return 0
     else:
-        if not check_config_content(str(pre_commit_path)):
-            return 1
-
-    print("\nLinting and formatting configuration verified successfully.")
-    print("To run linter: ruff check .")
-    print("To run formatter: black .")
-    print("To install pre-commit hooks: pre-commit install")
-    return 0
-
+        print("✗ Some configurations are missing or invalid.")
+        print("\nPlease ensure 'pyproject.toml' and '.pre-commit-config.yaml' are created.")
+        print("Refer to the project documentation for configuration templates.")
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

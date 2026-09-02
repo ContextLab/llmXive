@@ -90,4 +90,4 @@ projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/code/
 | Dual Statistical Method (KM + Point-wise Chi-Squared) | KM models cumulative decay; Point-wise Chi-squared identifies the specific threshold (15% margin) required by the spec. | Using only KM cannot identify a specific length threshold; using only Chi-squared ignores the cumulative nature of route failure. |
 | Fixed Lookup Strategy | Required by Constitution Principle VII. | A trained probabilistic model violates the "fixed lookup" constraint and introduces unnecessary complexity. |
 | Valid Path Space Generation | Required to address the "uniqueness" tautology. | Comparing against a single ground truth path conflates "error" with "alternative valid path". |
-| Sampled Dataset | Required to fit the 6-hour CI window with a CPU baseline. | Running the full dataset with a CPU baseline is infeasible; sampling is a necessary trade-off for reproducibility. |
+| Sampled Dataset | Required to fit the specified CI window with a CPU baseline. | Running the full dataset with a CPU baseline is infeasible; sampling is a necessary trade-off for reproducibility. |

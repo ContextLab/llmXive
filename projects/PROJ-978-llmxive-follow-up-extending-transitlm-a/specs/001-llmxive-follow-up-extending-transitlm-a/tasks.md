@@ -58,9 +58,9 @@
 - [ ] T004 [P] Implement `data/download.py` to fetch TransitLM SFT dataset from Hugging Face (`load_dataset` with `streaming=True`), apply SHA256 checksum verification, and save to `data/raw/`. Output: `data/raw/transitlm_ground_truth.json`.
 - [ ] T006a [P] [US1] Implement `data/preprocess.py` function `filter_cities` to filter the dataset for four Chinese cities. **Deliverable**: `data/processed/city_filtered_routes.jsonl`.
 - [ ] T006b [P] [US1] Implement `data/preprocess.py` function `apply_vocabulary_restriction` to apply top-N station vocabulary restriction (with `<UNKNOWN>` token handling) on the filtered routes. **Deliverable**: `data/processed/vocab_restricted_routes.jsonl`.
-- [ ] T006c [P] [US1] Implement `data/preprocess.py` function `stratify_routes` to stratify routes into short (<15), medium (15-30), and long (>30) categories. **Deliverable**: `data/processed/stratified_routes.parquet`. **Verification**: Assert `row_count > 0` and categories are balanced.
-- [ ] T016 [US1] [FR-006] Implement logic in `data/preprocess.py` to handle `<UNKNOWN>` tokens: exclude them from station validity metrics unless ground truth matches. **Dependency**: Must run immediately after T006 data generation. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [ ] T007 [US1] [FR-008] Implement `data/graph_utils.py` to build the local adjacency graph from T004 output and validate it against `data/raw/transitlm_ground_truth.json` for edge overlap ≥95% using the **Jaccard Index** algorithm. **Deliverable**: `data/processed/graph_validation_report.json` containing `{"jaccard_index": float, "status": "PASS|FAIL"}`. **Dependency**: T004. **CRITICAL**: If Jaccard Index < 0.95, this task MUST fail, abort Phase 3, and log the error. **Note**: This task is parallel-safe with T006a-c but BLOCKS T015b.
+- [ ] T006c [P] [US1] Implement `data/preprocess.py` function `stratify_routes` to stratify routes into short (<15), medium (15-30), and long (>30) categories. **Deliverable**: `data/processed/stratified_routes.parquet`. **Verification**: Assert `row_count > 0` and categories are balanced (within 10% of the mean category count).
+- [ ] T016 [US1] [FR-006] Implement logic in `data/preprocess.py` to handle `<UNKNOWN>` tokens: exclude them from station validity metrics unless ground truth matches. **Dependency**: Must run immediately after T006c data generation. <!-- FAILED: unspecified -->
+- [ ] T007 [US1] [FR-008] Implement `data/graph_utils.py` to build the local adjacency graph from T004 output and validate it against `data/raw/transitlm_ground_truth.json` for **edge overlap percentage** (defined as `|A ∩ B| / |A|` where A is ground truth edges) ≥95%. **Deliverable**: `data/processed/graph_validation_report.json` containing `{"edge_overlap_percentage": float, "status": "PASS|FAIL"}` AND `data/processed/adjacency_graph.pkl` (the validated graph object). **Dependency**: T004. **CRITICAL**: If edge overlap percentage < 0.95, this task MUST fail, abort Phase 3, and log the error. **Note**: This task is NOT parallel with T006a-c; it requires the output of T004 and must complete before T015b. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [ ] T009 [P] Implement `config.py` for environment configuration, random seeds, and city mapping constants.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel (only if T006 validation passed)
@@ -77,19 +77,18 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for `data/preprocess.py` output schema in `tests/contract/test_preprocess_schema.py`
+- [ ] T010 [P] [US1] Contract test for `data/preprocess.py` output schema in `tests/contract/test_preprocess_schema.py` <!-- FAILED: unspecified -->
 - [X] T011 [P] [US1] Integration test for stratified route validity scoring in `tests/integration/test_stratified_validity.py`
 
 ### Implementation for User Story 1
 
+- [ ] T015a [US1] [FR-009] Implement `data/graph_utils.py` function `prepare_route_sequences` to load the stratified routes from T006 (`data/processed/stratified_routes.parquet`) and prepare the route sequences. **Dependency**: T006. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T015b [US1] [FR-009] Implement `data/graph_utils.py` function `compute_route_topological_complexity` to compute an independent measure of topological complexity for each route: **path-level betweenness centrality calculated on the full adjacency graph (global context) restricted to the nodes present in the specific route**. **Deliverable**: `data/analysis/route_complexity_metrics.json`. **Dependency**: T015a, T007 (requires `data/processed/adjacency_graph.pkl`).
 - [ ] T012a [P] [US1] [FR-002] Implement `data/graph_utils.py` function `build_adjacency_index` to construct a retrieval index of top-N neighbors for each station. **Deliverable**: `data/processed/adjacency_index.pkl`. **Note**: This is the retrieval component, not the model.
-- [ ] T012b [US1] [FR-002] Implement `models/lightweight.py` function `train_encoder` to train a **DistilBERT-base encoder** (CPU-only) on the stratified routes to predict the next station using the adjacency index as input. **Constraint**: Must NOT be a simple lookup table; must learn transition probabilities via a neural encoder. **Deliverable**: `data/processed/lightweight_encoder.pt`.
-- [ ] T012c [US1] [FR-002] Implement `models/lightweight.py` function `predict_next_station` to load the trained encoder and perform inference. **Deliverable**: `models/lightweight.py` with working inference logic.
-- [ ] T013 [P] [US1] Implement `models/baseline.py` to load the CPU-quantized baseline LLM (Qwen or similar) and run inference on the stratified test set.
-- [ ] T015a [US1] [FR-009] Implement `data/graph_utils.py` function `prepare_route_sequences` to load the stratified routes from T006 (`data/processed/stratified_routes.parquet`) and prepare the route sequences. **Dependency**: T006.
-- [ ] T015b [US1] [FR-009] Implement `data/graph_utils.py` function `compute_route_topological_complexity` to compute an independent measure of topological complexity for each route: **path-level betweenness centrality calculated on the subgraph induced by the route's nodes**. **Deliverable**: `data/analysis/route_complexity_metrics.json`. **Dependency**: T015a.
-- [ ] T014 [US1] Implement `analysis/evaluation.py` to: (1) Compute route validity for each category; (2) Perform point-wise Chi-squared scans on **connectivity** (Constitution Principle VI) to identify the inflection point where the lightweight model's validity drops **≥15% (absolute drop)** AND the difference is **statistically significant (p < 0.05)**; (3) Flag predictions as "high risk" based on this inflection point; (4) **Consume** `data/analysis/route_complexity_metrics.json` from T015b. **Deliverable**: `data/analysis/raw_inflection_data.json` (containing raw p-values and validity drops per length). **Dependency**: T015b.
-- [ ] T017 [US1] [FR-002] Implement logging in `analysis/evaluation.py` for model predictions. **Requirement**: Logs MUST be written in **JSON format** to `logs/evaluation.log` at **INFO level**. Each log entry MUST contain the fields: `route_id`, `predicted_station`, `validity_score`, `risk_flag`. **Verification**: A parser must be able to read the log and reconstruct the evaluation metrics. **Dependency**: T012c.
+- [X] T012b [US1] [FR-002] Implement `models/lightweight.py` function `predict_next_station` to perform **deterministic, frequency-based lookup** of the next station using the adjacency index built in T012a. **Constraint**: Must implement the fixed lookup strategy mandated by Constitution Principle VII. **Tie-breaking**: If multiple neighbors have the same frequency, select the one with the lowest station ID. **Deliverable**: `models/lightweight.py` with working inference logic.
+- [ ] T013 [P] [US1] Implement `models/baseline.py` to load the CPU-quantized baseline LLM (Qwen or similar) and run inference on the stratified test set. <!-- FAILED: unspecified -->
+- [ ] T014 [US1] Implement `analysis/evaluation.py` to: (1) Compute route validity for each individual route length L (point-wise scan) by iterating L from 1 to max; (2) Identify the **shortest route length L** (inflection point) where the lightweight model's validity drops **≥15% (absolute drop)** AND the difference is **statistically significant (p < 0.05)**; (3) Flag predictions as "high risk" based on this inflection point; (4) **Optionally** aggregate results per stratified category (short/medium/long) for summary visualization only; (5) **Consume** `data/analysis/route_complexity_metrics.json` from T015b. **Deliverable**: `data/analysis/raw_inflection_data.json` (containing raw p-values, validity drops per length, the exact inflection point L, and stratified summaries). **Dependency**: T015b, T012b. <!-- FAILED: unspecified -->
+- [ ] T017 [US1] [FR-002] Implement logging and reporting in `analysis/evaluation.py`. **Requirement**: Logs MUST be written in **JSON format** to `logs/evaluation.log` at **INFO level** to satisfy US-1 Independent Test requirement. Each log entry MUST contain the fields: `route_id`, `predicted_station`, `validity_score`, `risk_flag`. **Additionally**, generate the **performance comparison report** artifact required by the Independent Test. **Input**: `data/analysis/raw_inflection_data.json` from T014. **Deliverable**: `data/analysis/performance_report.json` containing route validity percentages per category, the identified inflection point, and risk flag summaries. **Dependency**: T014 (must run evaluation first to generate data for logging/reporting). <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,17 +102,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for statistical output schema in `tests/contract/test_statistical_schema.py`
-- [ ] T019 [P] [US2] Integration test for survival analysis and log-rank test in `tests/integration/test_survival_analysis.py`
+- [X] T018 [P] [US2] Contract test for statistical output schema in `tests/contract/test_statistical_schema.py`
+- [X] T019 [P] [US2] Integration test for survival analysis and log-rank test in `tests/integration/test_survival_analysis.py`
 
 ### Implementation for User Story 2
 
 - [ ] T020 [P] [US2] [FR-004] Implement `analysis/survival.py` to execute Kaplan-Meier survival analysis on route validity decay across route lengths. **Deliverable**: `data/analysis/survival_data.json` (raw curve data). **Dependency**: T014.
 - [ ] T021 [US2] [FR-004] Implement `analysis/survival.py` to perform log-rank test comparing lightweight model and baseline survival curves. **Dependency**: T020.
 - [ ] T022 [US2] [FR-004] Implement `analysis/survival.py` to handle censored data (routes truncated or reaching max hops) correctly (US-2,Scenario 1). **Dependency**: T021.
+- [ ] T024 [US2] Add diagnostic checks for proportional hazards assumptions in `analysis/survival.py` using **Schoenfeld residuals** and implement a **Mann-Whitney U test on median survival lengths** as the non-parametric fallback if assumptions are violated (Edge Case).
 - [ ] T023a [US2] [FR-007] Implement `analysis/statistics.py` to consume `data/analysis/raw_inflection_data.json` from T014 and apply **Bonferroni correction** for multiple comparisons. **Requirement**: Must identify the final inflection point where validity gap ≥15% AND adjusted p-value < 0.05. **Deliverable**: `data/analysis/final_inflection_report.json`. **Dependency**: T014.
--[ ] T023b [US2] [FR-007] Implement `analysis/statistics.py` to report the adjusted p-values and compare them to the {{claim:c_f4def496}} (Wikipedia: Binomial proportion confidence interval, https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval). **Dependency**: T023a.
-- [ ] T024 [US2] Add diagnostic checks for proportional hazards assumptions in `analysis/survival.py` and implement non-parametric fallback if violated (Edge Case).
+- [ ] T023b [US2] [FR-007] Implement `analysis/statistics.py` to report the adjusted p-values and compare them to the nominal alpha level (standard significance threshold) to determine significance. **Dependency**: T023a.
 - [ ] T025a [US2] [FR-004] Generate `data/analysis/survival_curves.pdf` from `data/analysis/survival_data.json`. **Verification**: PDF file exists, contains two curves (lightweight vs. baseline), and includes a legend and log-rank p-value annotation. **Dependency**: T020.
 - [ ] T025b [US2] Generate `data/analysis/statistical_report.json` with p-values, confidence intervals, and the identified inflection point. **Dependency**: T023a, T025a.
 
@@ -134,7 +133,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T028 [P] [US3] Implement `analysis/profiling.py` to measure peak memory usage and inference latency on the lightweight model (FR-005). **Dependency**: T012c.
+- [ ] T028 [P] [US3] Implement `analysis/profiling.py` to measure peak memory usage and inference latency on the lightweight model (FR-005). **Dependency**: T012b.
 - [ ] T029 [US3] Implement `analysis/profiling.py` to enforce and log a constrained time limit (s) and RAM limit (GB) for the lightweight model (US-3, Scenario 1).
 - [ ] T030a [US3] [Plan] [SC-003] Implement `analysis/profiling.py` to wrap the baseline LLM inference (T013) in a **`signal.alarm` timeout** and a **try/except block for OOM errors**. **Logic**: If T013 fails to load or run, catch the exception and set `baseline_status` to 'timeout' or 'inconclusive' WITHOUT crashing the pipeline. **Dependency**: T013.
 - [ ] T030b [US3] [Plan] [SC-003] Update `data/analysis/profiling_report.json` to include the `baseline_status` field (values: 'success', 'timeout', 'inconclusive'). **Dependency**: T030a.
@@ -203,10 +202,14 @@
 Task: "Contract test for `data/preprocess.py` output schema in `tests/contract/test_preprocess_schema.py`"
 Task: "Integration test for stratified route validity scoring in `tests/integration/test_stratified_validity.py`"
 
-# Launch all models for User Story 1 together:
+# Launch all data prep for User Story 1 together:
+Task: "Implement `data/graph_utils.py` function `prepare_route_sequences` (T015a)"
+Task: "Implement `data/graph_utils.py` function `compute_route_topological_complexity` (T015b)"
+
+# Launch model logic and logging:
 Task: "Implement `data/graph_utils.py` function `build_adjacency_index` (T012a)"
-Task: "Implement `models/lightweight.py` function `train_encoder` (T012b)"
-Task: "Implement `models/lightweight.py` function `predict_next_station` (T012c)"
+# Note: T012b depends on T012a, cannot run in parallel.
+Task: "Implement `models/lightweight.py` function `predict_next_station` (T012b)"
 ```
 
 ---

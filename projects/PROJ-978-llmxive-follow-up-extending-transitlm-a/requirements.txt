@@ -8,4 +8,4 @@ pytest
 torch
 ruff
 black
-pyarrow
+pyyaml

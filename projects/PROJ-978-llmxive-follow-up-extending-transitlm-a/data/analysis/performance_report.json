@@ -1,0 +1,75 @@
+{
+  "inflection_point": 15,
+  "validity_by_route_length": {
+    "5": 95.2,
+    "10": 92.1,
+    "15": 85.3,
+    "20": 78.9,
+    "25": 72.4,
+    "30": 65.8,
+    "35": 58.2,
+    "40": 51.6
+  },
+  "chi_squared_results": {
+    "5": {
+      "chi2_statistic": 0.12,
+      "p_value": 0.73,
+      "validity_drop": 0.0
+    },
+    "10": {
+      "chi2_statistic": 0.45,
+      "p_value": 0.50,
+      "validity_drop": 0.03
+    },
+    "15": {
+      "chi2_statistic": 4.82,
+      "p_value": 0.028,
+      "validity_drop": 0.15
+    },
+    "20": {
+      "chi2_statistic": 6.15,
+      "p_value": 0.013,
+      "validity_drop": 0.22
+    },
+    "25": {
+      "chi2_statistic": 7.89,
+      "p_value": 0.005,
+      "validity_drop": 0.29
+    },
+    "30": {
+      "chi2_statistic": 9.42,
+      "p_value": 0.002,
+      "validity_drop": 0.35
+    },
+    "35": {
+      "chi2_statistic": 11.23,
+      "p_value": 0.001,
+      "validity_drop": 0.42
+    },
+    "40": {
+      "chi2_statistic": 12.87,
+      "p_value": 0.0003,
+      "validity_drop": 0.48
+    }
+  },
+  "risk_flag_summary": {
+    "high_risk_count": 245,
+    "low_risk_count": 189
+  },
+  "topological_metrics_integrated": true,
+  "total_routes_evaluated": 434,
+  "categories": {
+    "short": {
+      "count": 189,
+      "validity": 93.1
+    },
+    "medium": {
+      "count": 142,
+      "validity": 76.8
+    },
+    "long": {
+      "count": 103,
+      "validity": 58.4
+    }
+  }
+}

@@ -1,23 +1,36 @@
+"""
+Data download module for TransitLM dataset.
+Handles fetching, streaming, checksum verification, and saving of the raw dataset.
+"""
+
 import hashlib
 import json
 import os
 import sys
+import time
 from pathlib import Path
 from typing import Optional, Dict, Any, List
+
+# Ensure parent directory is in path for imports if run directly
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
 try:
     from datasets import load_dataset
 except ImportError:
-    raise ImportError("The 'datasets' package is required. Install it via: pip install datasets")
+    print("Error: 'datasets' library is required. Install via: pip install datasets")
+    sys.exit(1)
+
+from config import Config, get_env_config
 
 
-def compute_sha256(file_path: str) -> str:
+def compute_sha256(file_path: Path) -> str:
     """
-    Compute the SHA256 hash of a file.
-    
+    Computes the SHA256 hash of a file.
+
     Args:
         file_path: Path to the file to hash.
-        
+
     Returns:
         Hexadecimal string of the SHA256 hash.
     """
@@ -28,119 +41,132 @@ def compute_sha256(file_path: str) -> str:
     return sha256_hash.hexdigest()
 
 
-def download_transitlm(
-    output_dir: str = "data/raw",
-    dataset_name: str = "llmXive/transitlm-sft",
-    split: str = "train",
-    streaming: bool = True,
-    expected_sha256: Optional[str] = None
-) -> str:
+def download_transitlm(output_dir: Optional[Path] = None, expected_sha256: Optional[str] = None) -> Path:
     """
-    Download the TransitLM SFT dataset from Hugging Face.
-    
-    This function:
-    1. Streams the dataset from Hugging Face (to avoid loading into memory).
-    2. Converts the dataset to a list of dictionaries.
-    3. Saves the data to a JSON file.
-    4. Computes and verifies the SHA256 checksum if expected_sha256 is provided.
-    
+    Downloads the TransitLM SFT dataset from Hugging Face using streaming.
+    Applies SHA256 checksum verification if expected_sha256 is provided.
+    Saves the dataset to a single JSON file.
+
     Args:
-        output_dir: Directory to save the downloaded file.
-        dataset_name: Hugging Face dataset name.
-        split: Dataset split to download (default: "train").
-        streaming: Whether to stream the dataset (default: True).
-        expected_sha256: Expected SHA256 hash for verification.
-        
+        output_dir: Directory to save the output. Defaults to data/raw/.
+        expected_sha256: Expected SHA256 hash for verification. If None, skips verification.
+
     Returns:
-        Path to the downloaded file.
-        
+        Path to the saved JSON file.
+
     Raises:
-        RuntimeError: If SHA256 verification fails.
-        Exception: If dataset download fails.
+        ValueError: If the dataset download fails or checksum verification fails.
+        RuntimeError: If the real data source cannot be accessed.
     """
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-    
-    output_file = output_path / "transitlm_ground_truth.json"
-    
-    print(f"Downloading dataset: {dataset_name} (split: {split})...")
-    print("Using streaming=True to handle large datasets efficiently.")
-    
+    config = get_env_config()
+    if output_dir is None:
+        output_dir = Path(config.data_raw_dir)
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    output_file = output_dir / "transitlm_ground_truth.json"
+
+    # If file exists and we are not forcing a re-download, we could check hash,
+    # but per task requirements, we fetch and verify.
+    # We will attempt to fetch the dataset.
+
+    print(f"Starting download of TransitLM dataset to {output_file}...")
+    print("Using streaming=True to handle large dataset efficiently.")
+
+    dataset_id = "TransitLM/TransitLM-SFT" # Standard HF ID format, adjusting if specific subset needed
+
     try:
-        # Load dataset with streaming
-        dataset = load_dataset(dataset_name, split=split, streaming=streaming)
+        # Load dataset with streaming to avoid downloading full GBs into memory first
+        # We assume the dataset is a single config or we take the default split
+        dataset = load_dataset(dataset_id, split="train", streaming=True)
+
+        # Collect all data into a list of dicts for JSON serialization
+        # Note: Streaming iterates, so we must materialize to write to a single JSON file
+        # If the dataset is too large to fit in RAM, we should write line-by-line (JSONL)
+        # However, the task specifies output: data/raw/transitlm_ground_truth.json
+        # Standard JSON requires a list structure. If the dataset is huge, JSONL is safer.
+        # Given the task explicitly asks for .json, we will attempt to write a JSON array.
+        # If memory is a concern, we could switch to JSONL, but strict adherence to "transitlm_ground_truth.json"
+        # suggests a standard JSON structure. Let's try to write it as a JSON array.
         
-        # Convert to list of dicts and save
-        print("Converting dataset to JSON...")
-        data_list = []
+        # To prevent OOM on very large datasets, we will write incrementally if possible,
+        # but standard json.dump requires an iterable.
+        # We will iterate and write to a temporary file or handle chunking if needed.
+        # For robustness with "real" large data, we will write as JSONL but name it .json if that's the spec,
+        # OR better: write a valid JSON array by managing the file stream.
         
-        # If streaming, iterate directly; otherwise, convert to list
-        if streaming:
-            for item in dataset:
-                data_list.append(item)
-        else:
-            data_list = list(dataset)
+        # Strategy: Write opening bracket, then iterate and write objects with commas, then closing bracket.
         
-        # Write to JSON file
-        print(f"Writing {len(data_list)} records to {output_file}...")
+        print(f"Fetching data from {dataset_id}...")
+        
         with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(data_list, f, indent=2, ensure_ascii=False)
-        
-        print(f"Dataset saved to: {output_file}")
-        
-        # Verify SHA256 if expected hash is provided
-        if expected_sha256:
-            print("Verifying SHA256 checksum...")
-            actual_sha256 = compute_sha256(str(output_file))
+            f.write("[\n")
+            first = True
+            count = 0
             
-            if actual_sha256 != expected_sha256:
-                raise RuntimeError(
-                    f"SHA256 verification failed!\n"
-                    f"Expected: {expected_sha256}\n"
-                    f"Actual:   {actual_sha256}"
-                )
-            print(f"SHA256 verification passed: {actual_sha256}")
-        
-        return str(output_file)
-        
+            # Iterate through the streaming dataset
+            for item in dataset:
+                if not first:
+                    f.write(",\n")
+                else:
+                    first = False
+                
+                # Ensure the item is serializable (handle potential numpy types if any)
+                # Convert to standard python types if necessary
+                json.dump(item, f, ensure_ascii=False)
+                count += 1
+                
+                if count % 10000 == 0:
+                    print(f"Processed {count} records...")
+
+            f.write("\n]")
+            print(f"Download complete. Total records: {count}")
+
     except Exception as e:
-        print(f"Error downloading dataset: {e}", file=sys.stderr)
-        raise
+        # Fail loudly as per constraints
+        raise RuntimeError(f"Failed to download or process real dataset from Hugging Face: {e}")
+
+    # Verify checksum if provided
+    if expected_sha256:
+        print(f"Verifying SHA256 checksum for {output_file}...")
+        actual_sha256 = compute_sha256(output_file)
+        if actual_sha256 != expected_sha256:
+            raise ValueError(
+                f"SHA256 checksum mismatch!\n"
+                f"Expected: {expected_sha256}\n"
+                f"Actual:   {actual_sha256}"
+            )
+        print("Checksum verification passed.")
+    else:
+        print("Checksum verification skipped (no expected hash provided).")
+
+    return output_file
 
 
 def main():
-    """Main entry point for dataset download."""
-    # Default configuration
-    output_dir = "data/raw"
-    dataset_name = "llmXive/transitlm-sft"
-    split = "train"
-    streaming = True
-    expected_sha256 = None  # Set this if you have a known hash
+    """
+    Main entry point for the download script.
+    """
+    print("Running data/download.py")
     
-    # Allow override via command line arguments
-    if len(sys.argv) > 1:
-        output_dir = sys.argv[1]
-    if len(sys.argv) > 2:
-        dataset_name = sys.argv[2]
-    if len(sys.argv) > 3:
-        split = sys.argv[3]
-    if len(sys.argv) > 4:
-        streaming = sys.argv[4].lower() == 'true'
-    if len(sys.argv) > 5:
-        expected_sha256 = sys.argv[5]
+    # Define expected hash if known, otherwise None
+    # Since we don't have the hash pre-known in the prompt, we proceed without it
+    # or allow the user to set it via env/config if needed.
+    # For now, we assume no pre-known hash and just download.
     
     try:
-        output_file = download_transitlm(
-            output_dir=output_dir,
-            dataset_name=dataset_name,
-            split=split,
-            streaming=streaming,
-            expected_sha256=expected_sha256
-        )
-        print(f"Download completed successfully: {output_file}")
-        sys.exit(0)
+        output_path = download_transitlm(expected_sha256=None)
+        print(f"Successfully downloaded and saved to: {output_path}")
+        
+        # Basic sanity check
+        if output_path.exists():
+            size = output_path.stat().st_size
+            print(f"File size: {size / (1024*1024):.2f} MB")
+        else:
+            raise RuntimeError("Output file was not created.")
+            
     except Exception as e:
-        print(f"Download failed: {e}", file=sys.stderr)
+        print(f"ERROR: {e}")
         sys.exit(1)
 
 
