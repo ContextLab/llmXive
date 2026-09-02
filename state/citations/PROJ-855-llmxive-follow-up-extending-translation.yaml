@@ -21,3 +21,14 @@
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2201.00978
   verified_at: '2026-08-16T10:15:22.151874Z'
+- artifact_hash: a925edbcff20f434325da12d5f6d4cefab6e4c94ce09c139430dfa0439943756
+  artifact_path: projects/PROJ-855-llmxive-follow-up-extending-translation/specs/001-llmxive-follow-up-extending-translation/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '2201.00978'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-09-02T06:18:43.616820Z'
