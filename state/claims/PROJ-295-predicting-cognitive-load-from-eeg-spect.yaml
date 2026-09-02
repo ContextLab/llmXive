@@ -2616,3 +2616,328 @@
   source_type: external
   status: verified
   updated_at: '2026-08-29T18:40:31Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: HALT execution if epoch retention rate is less than 70%
+  claim_id: c_9a948ba5
+  context: T017 [US1] Implement code/data/preprocess_epoch.py to segment data into
+    epochs aligned with behavioral events, exclude subjects with > 50% rejected epochs,
+    calculate epoch retention rate, and HALT execution if < 70%.
+  evidence:
+    candidates:
+    - - ''
+      - 70.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/HALT_execution_if_epoch_retention_rate_is_less_than_70%25
+  kind: magnitude
+  raw_text: Implement code/data/preprocess_epoch.py to segment data into epochs aligned
+    with behavioral events, exclude subjects with > 50% rejected epochs, calculate
+    epoch retention rate, and HALT execution if < 70%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-02T17:30:38Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Chunked loading logic for memory safety during PSD computation
+  claim_id: c_62c23059
+  context: T021 [US2] Implement code/features/extract.py to compute PSD using Welch's
+    method (FR-003) with built-in chunked loading logic to ensure memory safety during
+    PSD computation on the full dataset (SC-002).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Chunked_loading_logic_for_memory_safety_during_PSD_computati
+  kind: entity_fact
+  raw_text: Implement code/features/extract.py to compute PSD using Welch's method
+    with built-in chunked loading logic to ensure memory safety during PSD computation
+    on the full dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T17:31:01Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Division-by-zero handled using EPSILON value of 1e-9
+  claim_id: c_7650399c
+  context: The module must extract mean power for theta and alpha bands per channel,
+    handle division-by-zero using EPSILON = 1e-9 defined as a global constant in code/features/extract.py
+    (Edge Case) when calculating ratios, and flag epochs with > 5% missing sensor
+    data for exclusion.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Handle division-by-zero using EPSILON = 1e-9 defined as a global constant
+    in code/features/extract.py when calculating ratios.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T17:31:27Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Flag epochs with more than 5% missing sensor data
+  claim_id: c_a579fa71
+  context: The module must extract mean power for theta and alpha bands per channel,
+    handle division-by-zero using EPSILON = 1e-9 defined as a global constant in code/features/extract.py
+    (Edge Case) when calculating ratios, and flag epochs with > 5% missing sensor
+    data for exclusion.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_epochs_with_more_than_5%25_missing_sensor_data
+  kind: magnitude
+  raw_text: Flag epochs with > 5% missing sensor data for exclusion.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T17:32:02Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Exclude epochs with more than 5% missing sensor data
+  claim_id: c_989703da
+  context: Implement code/features/labels.py to derive continuous cognitive load score
+    from gaze variance per epoch (FR-004), normalize labels via min-max scaling per
+    subject (FR-004), and identify and exclude epochs with > 5% missing sensor data
+    (FR-003).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_epochs_with_more_than_5%25_missing_sensor_data
+  kind: magnitude
+  raw_text: Identify and exclude epochs with > 5% missing sensor data.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T17:32:36Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Reduce cyclomatic complexity of loader.py to less than 10
+  claim_id: c_40654c76
+  context: T032 [P] [Polish] Refactor code/data/loader.py to reduce cyclomatic complexity
+    < 10 measured using ruff and improve readability.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reduce_cyclomatic_complexity_of_loader.py_to_less_than_10
+  kind: magnitude
+  raw_text: Refactor code/data/loader.py to reduce cyclomatic complexity < 10 measured
+    using ruff.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T17:33:09Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Reduce peak memory usage of preprocess_ica.py by at least 10%
+  claim_id: c_da8e5304
+  context: T033 [P] [Polish] Optimize code/data/preprocess_ica.py to reduce peak memory
+    usage by at least 10% measured using memory_profiler while maintaining accuracy.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reduce_peak_memory_usage_of_preprocess_ica.py_by_at_least_10
+  kind: magnitude
+  raw_text: Optimize code/data/preprocess_ica.py to reduce peak memory usage by at
+    least 10% measured using memory_profiler while maintaining accuracy.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T17:33:53Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Memory peak less than 6.5GB for chunked loading
+  claim_id: c_907c1bf4
+  context: T012 [P] [US1] Unit test for chunked loading logic in tests/unit/test_loader.py
+    (verify memory peak < 6.5GB).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_peak_less_than_6.5GB_for_chunked_loading
+  kind: magnitude
+  raw_text: Ensure memory peak < 6.5GB for chunked loading logic.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T17:34:20Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Epoch retention greater than 70% for preprocessing pipeline
+  claim_id: c_4f6f844f
+  context: T014 [P] [US1] Integration test for full preprocessing pipeline in tests/integration/test_preprocess.py
+    (verify ICA removal and epoch retention > 70%).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Epoch_retention_greater_than_70%25_for_preprocessing_pipeline
+  kind: magnitude
+  raw_text: Verify epoch retention > 70% for full preprocessing pipeline.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T17:34:55Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Missing value flagging threshold greater than 5%
+  claim_id: c_62693a2b
+  context: T020 [P] [US2] Unit test for missing value flagging in tests/unit/test_validity.py
+    (verify > 5% threshold).
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Missing_value_flagging_threshold_greater_than_5%25
+  kind: magnitude
+  raw_text: Verify > 5% threshold for missing value flagging.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-02T17:35:20Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Power analysis uses alpha of 0.05 and power of 0.8
+  claim_id: c_996d2367
+  context: "T001 [P] [US1] Implement code/data/power_analysis.py to calculate minimum\
+    \ N required for R\xB2=0.2 with n_channels * 2 predictors derived from results/verification_report.json\
+    \ (T000 output). Use alpha=0.05, power=0.8."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: Use alpha=0.05, power=0.8 for power analysis.
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T17:35:35Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Trigger chunked loading when memory usage exceeds 5.5 GB
+  claim_id: c_871d4859
+  context: "T008 [P] [US1] Implement code/data/loader.py with chunked loading logic\
+    \ (by epoch_id) to ensure memory safety (\u2264 6.5 GB). Logic must be triggered\
+    \ when estimated memory usage > 5.5 GB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Trigger chunked loading logic when estimated memory usage > 5.5 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T17:35:35Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Peak memory usage stays within 6.5 GB limits
+  claim_id: c_debbbd51
+  context: "T002 [P] [US1] Implement code/data/memory_check.py to verify chunked loading\
+    \ logic with a representative sample of the actual dataset (a subset of subjects\
+    \ from ds000246), ensuring peak memory usage stays within acceptable operational\
+    \ limits (\u2264 6.5 GB)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure peak memory usage stays within acceptable operational limits (\u2264\
+    \ 6.5 GB)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T17:35:36Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Butterworth bandpass filter low-frequency cutoff to 45 Hz and notch filter
+    50/60 Hz
+  claim_id: c_d92c3d58
+  context: T015 [US1] Implement code/data/preprocess_filter.py to apply a Butterworth
+    bandpass filter (low-frequency cutoff to 45 Hz) and a notch filter (50/60 Hz)
+    as defined in pipeline_config.yaml.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply a Butterworth bandpass filter (low-frequency cutoff to 45 Hz) and
+    a notch filter (50/60 Hz).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T17:35:56Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Filter parameters 1 to 45 Hz and 250 Hz read from pipeline_config.yaml
+  claim_id: c_f2fe5f7f
+  context: "Read filter parameters (1\u201345 Hz, 250 Hz) from pipeline_config.yaml."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Read filter parameters (1\u201345 Hz, 250 Hz) from pipeline_config.yaml."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T17:36:25Z'
+- artifact_path: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect/tasks.md
+  attempts: 1
+  canonical: Window sizes list contains at least 3 integers
+  claim_id: c_52caea50
+  context: T011b [P] [Polish] Implement code/data/generate_config_defaults.py to generate
+    and validate the window_sizes list in pipeline_config.yaml. Must ensure window_sizes
+    key exists with a list of at least 3 integers (e.g., [5, 10, 20]).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Window_sizes_list_contains_at_least_3_integers
+  kind: magnitude
+  raw_text: Ensure window_sizes key exists with a list of at least 3 integers (e.g.,
+    [5, 10, 20]).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T17:37:30Z'

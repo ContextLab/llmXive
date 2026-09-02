@@ -1,3 +1,13 @@
+T030:
+  c: false
+  h: 602f7ca57d702b103053352d415dd4983ab5febe5faf3f62c0b5cc07e913eb93
+  r: "The provided `code/main.py` does not define the required `--data-dir` and `--output-dir`\
+    \ CLI arguments, never imports or calls the `check_and_halt()` function from T042,\
+    \ and lacks any logic to load the T028, T038, T041, and T042 result files, merge\
+    \ them, compare the R\xB2 to the `r2_threshold` in `pipeline_config.yaml`, or\
+    \ exit with an error when the threshold is not met. Consequently, running the\
+    \ script does not produce the required `results/model_metrics.json` file (which\
+    \ is missing)."
 T036:
   c: false
   h: c250853258aa1e08189c04deaf7fbe5686df6d82a1e9e11a6102617eb3b22482
