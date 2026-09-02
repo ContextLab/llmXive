@@ -1231,3 +1231,95 @@
   source_type: external
   status: verified
   updated_at: '2026-09-01T17:57:31Z'
+- artifact_path: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio/tasks.md
+  attempts: 1
+  canonical: Define JSON mapping for breast_cancer, ionosphere, heart_disease to UCI
+    URLs and checksums
+  claim_id: c_4394c933
+  context: 'Create `code/verified_datasets.json`: Define a JSON object mapping dataset
+    names (breast_cancer, ionosphere, heart_disease) to their canonical UCI URLs and
+    expected cryptographic checksums.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Define_JSON_mapping_for_breast_cancer,_ionosphere,_heart_dis
+  kind: entity_fact
+  raw_text: The document defines a JSON object mapping dataset names (breast_cancer,
+    ionosphere, heart_disease) to their canonical UCI URLs and expected cryptographic
+    checksums.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T23:17:12Z'
+- artifact_path: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio/tasks.md
+  attempts: 1
+  canonical: Validation script verifies runtime within 6-hour limit
+  claim_id: c_56a376b2
+  context: Implement a validation script in `code/validation.py` to run a sample configuration
+    (1 dataset, 1 size) and verify the runtime is within the 6-hour limit (SC-004).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation script verifies the runtime is within the 6-hour limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T23:18:05Z'
+- artifact_path: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio/tasks.md
+  attempts: 1
+  canonical: Validation script verifies memory usage under 7 GB
+  claim_id: c_7a7a1bb3
+  context: Implement a validation script in `code/validation.py` to run a sample configuration
+    and verify memory usage (process memory RSS) remains under 7 GB (SC-005).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation script verifies memory usage (process memory RSS) remains
+    under 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T23:18:54Z'
+- artifact_path: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio/tasks.md
+  attempts: 1
+  canonical: Mean shift applied with Cohen's d equals 0.5
+  claim_id: c_7004b2ae
+  context: Create helper functions for (1) label permutation (shuffle all labels using
+    pinned seed) for Type I error and (2) mean shift (Cohen's d = 0.5) applied to
+    the first numeric feature for Type II error.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ground truth experimental conditions apply a mean shift with Cohen's
+    d = 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T23:20:54Z'
+- artifact_path: projects/PROJ-269-assessing-the-impact-of-data-augmentatio/specs/001-assessing-the-impact-of-data-augmentatio/tasks.md
+  attempts: 1
+  canonical: Flag configurations where Type I error exceeds 0.10
+  claim_id: c_122db93c
+  context: 'Implement threshold identification logic: Flag configurations where Type
+    I error > 0.10 AND compare against baseline error rate to quantify impact (FR-005).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_configurations_where_Type_I_error_exceeds_0.10
+  kind: magnitude
+  raw_text: The threshold identification logic flags configurations where Type I error
+    is greater than 0.10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T23:21:51Z'

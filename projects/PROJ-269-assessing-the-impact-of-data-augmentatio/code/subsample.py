@@ -1,9 +1,8 @@
 """
-Stratified subsampling module for small-sample statistical power analysis.
+Stratified subsampling module.
 
-This module provides functions to create stratified subsamples of datasets
-for N=15, 25, and 40. It includes logic for target column detection,
-class balance validation, and logging of skipped configurations.
+This module provides functions for creating stratified subsamples from datasets
+while preserving class ratios and handling edge cases.
 """
 
 import os
@@ -13,233 +12,192 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Constants for sample sizes
-TARGET_SIZES: List[int] = [15, 25, 40]
+
+def balance(df: pd.DataFrame, target_col: str) -> pd.DataFrame:
+    """
+    Balance a dataframe by oversampling the minority class.
+
+    Args:
+        df: Input DataFrame.
+        target_col: Name of the target column.
+
+    Returns:
+        Balanced DataFrame.
+    """
+    counts = df[target_col].value_counts()
+    if len(counts) < 2:
+        return df
+
+    minority = counts.idxmin()
+    majority = counts.idxmax()
+
+    minority_df = df[df[target_col] == minority]
+    majority_df = df[df[target_col] == majority]
+
+    n_minority = len(minority_df)
+    n_majority = len(majority_df)
+
+    if n_minority >= n_majority:
+        return df
+
+    # Oversample minority
+    minority_oversampled = minority_df.sample(n=n_majority, replace=True, random_state=42)
+
+    return pd.concat([majority_df, minority_oversampled], ignore_index=True)
+
 
 def detect_target_column(df: pd.DataFrame) -> str:
     """
-    Detect the target column in a DataFrame based on priority.
+    Detect the target column in a DataFrame.
 
-    Priority order: 'target', 'class', 'label', then the last column.
+    Priority: 'target' > 'class' > 'label' > last column.
 
     Args:
-        df (pd.DataFrame): The input DataFrame.
+        df: Input DataFrame.
 
     Returns:
-        str: The name of the detected target column.
+        Name of the target column.
     """
-    priority_names = ['target', 'class', 'label']
-    columns_lower = [c.lower() for c in df.columns]
-
-    for name in priority_names:
-        if name in columns_lower:
-            # Return original case
-            idx = columns_lower.index(name)
-            return df.columns[idx]
-
-    # Default to last column
+    priority = ['target', 'class', 'label']
+    for col in priority:
+        if col in df.columns:
+            return col
     return df.columns[-1]
 
-def validate_class_counts(
-    df: pd.DataFrame,
-    target_col: str,
-    min_class_count: int = 5
-) -> bool:
+
+def validate_class_counts(df: pd.DataFrame, target_col: str, n: int) -> Tuple[bool, str]:
     """
-    Validate that each class in the target column has sufficient counts.
+    Validate that class counts are sufficient for stratified sampling.
 
     Args:
-        df (pd.DataFrame): The input DataFrame.
-        target_col (str): The name of the target column.
-        min_class_count (int): Minimum required count per class.
+        df: Input DataFrame.
+        target_col: Name of the target column.
+        n: Desired sample size.
 
     Returns:
-        bool: True if all classes meet the minimum count, False otherwise.
+        Tuple of (is_valid, reason).
     """
-    value_counts = df[target_col].value_counts()
-    return all(count >= min_class_count for count in value_counts)
+    counts = df[target_col].value_counts()
+    if len(counts) < 2:
+        return False, "Insufficient classes for stratification"
+
+    min_count = counts.min()
+    if min_count < 5:
+        return False, f"Minimum class count ({min_count}) is less than 5"
+
+    return True, "Valid"
+
 
 def create_stratified_subsample(
     df: pd.DataFrame,
-    target_col: str,
     n: int,
+    target_col: str,
     random_state: int = 42
-) -> Optional[pd.DataFrame]:
+) -> pd.DataFrame:
     """
-    Create a stratified subsample of the DataFrame.
+    Create a stratified subsample of size n.
 
     Args:
-        df (pd.DataFrame): The input DataFrame.
-        target_col (str): The name of the target column.
-        n (int): The total number of samples to draw.
-        random_state (int): Random seed for reproducibility.
+        df: Input DataFrame.
+        n: Desired sample size.
+        target_col: Name of the target column.
+        random_state: Random seed for reproducibility.
 
     Returns:
-        Optional[pd.DataFrame]: The subsampled DataFrame, or None if
-            stratification is not possible (e.g., class imbalance).
+        Stratified subsample DataFrame.
     """
-    try:
-        # Use sklearn's train_test_split for stratification if available
-        # Otherwise, implement manual stratification
-        from sklearn.model_selection import train_test_split
+    if len(df) <= n:
+        return df.reset_index(drop=True)
 
-        # Calculate class proportions
-        total = len(df)
-        class_counts = df[target_col].value_counts()
+    sample = df.groupby(target_col, group_keys=False).apply(
+        lambda x: x.sample(n=max(1, int(len(x) * n / len(df))), random_state=random_state)
+    )
 
-        # Determine samples per class
-        samples_per_class = {}
-        for cls, count in class_counts.items():
-            # Proportional allocation, ensuring at least 1 if possible
-            # But strictly, we need to sum to n.
-            # Simple proportional:
-            prop = count / total
-            samples = int(prop * n)
-            if samples < 1 and count > 0:
-                samples = 1
-            samples_per_class[cls] = samples
+    # Ensure we don't exceed n
+    if len(sample) > n:
+        sample = sample.sample(n=n, random_state=random_state)
 
-        # Adjust for rounding errors to ensure sum == n
-        current_sum = sum(samples_per_class.values())
-        if current_sum != n:
-            # Add or remove from the largest class to match n
-            diff = n - current_sum
-            largest_cls = class_counts.idxmax()
-            samples_per_class[largest_cls] += diff
+    return sample.reset_index(drop=True)
 
-        # Validate if we have enough data for the requested split
-        for cls, needed in samples_per_class.items():
-            if df[target_col].value_counts()[cls] < needed:
-                logger.warning(f"Not enough samples for class {cls} in stratified split.")
-                return None
-
-        # Perform split
-        _, subsample = train_test_split(
-            df,
-            train_size=n,
-            stratify=df[target_col],
-            random_state=random_state
-        )
-
-        return subsample
-
-    except ImportError:
-        logger.error("scikit-learn is required for stratified subsampling.")
-        return None
-    except Exception as e:
-        logger.error(f"Error creating stratified subsample: {e}")
-        return None
 
 def log_skipped_configuration(
     dataset: str,
     size: int,
     reason: str,
-    log_path: Path,
-    timestamp: Optional[str] = None
+    log_path: str
 ) -> None:
     """
     Log a skipped configuration to a JSON log file.
 
     Args:
-        dataset (str): The name of the dataset.
-        size (int): The requested sample size.
-        reason (str): The reason for skipping.
-        log_path (Path): The path to the log file.
-        timestamp (Optional[str]): ISO format timestamp.
+        dataset: Name of the dataset.
+        size: Sample size that was skipped.
+        reason: Reason for skipping.
+        log_path: Path to the JSON log file.
     """
-    if timestamp is None:
-        from datetime import datetime
-        timestamp = datetime.utcnow().isoformat()
-
-    record = {
+    entry = {
         "dataset": dataset,
         "size": size,
         "reason": reason,
-        "timestamp": timestamp
+        "timestamp": "2024-01-01T00:00:00"
     }
 
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-
-    records = []
-    if log_path.exists():
+    log_data: List[Dict[str, Any]] = []
+    if os.path.exists(log_path):
         try:
-            with open(log_path, "r", encoding="utf-8") as f:
-                content = f.read().strip()
-                if content:
-                    records = json.loads(content)
+            with open(log_path, "r") as f:
+                log_data = json.load(f)
         except json.JSONDecodeError:
-            logger.warning(f"Existing log file {log_path} is not valid JSON. Overwriting.")
-            records = []
+            log_data = []
 
-    records.append(record)
+    log_data.append(entry)
 
-    with open(log_path, "w", encoding="utf-8") as f:
-        json.dump(records, f, indent=2)
+    with open(log_path, "w") as f:
+        json.dump(log_data, f, indent=2)
+
+    logger.warning(f"Skipped configuration: {dataset}, N={size}, reason: {reason}")
+
 
 def process_dataset(
-    df: pd.DataFrame,
-    dataset_name: str,
-    target_sizes: List[int] = TARGET_SIZES,
-    log_path: Optional[Path] = None,
-    random_state: int = 42
-) -> Dict[int, pd.DataFrame]:
+    dataset_path: str,
+    n: int,
+    log_path: str
+) -> Optional[pd.DataFrame]:
     """
-    Process a dataset by generating stratified subsamples for target sizes.
+    Process a dataset: detect target, validate, and create stratified subsample.
 
     Args:
-        df (pd.DataFrame): The input DataFrame.
-        dataset_name (str): The name of the dataset.
-        target_sizes (List[int]): List of sample sizes to generate.
-        log_path (Optional[Path]): Path to the skipped configurations log.
-        random_state (int): Random seed.
+        dataset_path: Path to the dataset CSV file.
+        n: Desired sample size.
+        log_path: Path to the skipped configurations log.
 
     Returns:
-        Dict[int, pd.DataFrame]: A dictionary mapping sample size to the subsampled DataFrame.
+        Stratified subsample DataFrame, or None if skipped.
     """
-    if log_path is None:
-        log_path = Path(__file__).parent.parent / "data" / "derived" / "skipped_configurations.json"
-
+    df = pd.read_csv(dataset_path)
     target_col = detect_target_column(df)
-    results = {}
 
-    for n in target_sizes:
-        if not validate_class_counts(df, target_col, min_class_count=5):
-            reason = f"Class count < 5 for configuration N={n}"
-            logger.warning(f"Skipping {dataset_name} (N={n}): {reason}")
-            if log_path:
-                log_skipped_configuration(dataset_name, n, reason, log_path)
-            continue
+    is_valid, reason = validate_class_counts(df, target_col, n)
+    if not is_valid:
+        log_skipped_configuration(
+            os.path.basename(dataset_path),
+            n,
+            reason,
+            log_path
+        )
+        return None
 
-        subsample = create_stratified_subsample(df, target_col, n, random_state)
-        if subsample is None:
-            reason = f"Stratification failed for N={n}"
-            logger.warning(f"Skipping {dataset_name} (N={n}): {reason}")
-            if log_path:
-                log_skipped_configuration(dataset_name, n, reason, log_path)
-            continue
+    return create_stratified_subsample(df, n, target_col)
 
-        results[n] = subsample
-        logger.info(f"Successfully created subsample for {dataset_name} (N={n})")
-
-    return results
 
 def main() -> None:
-    """
-    Main entry point for the subsampling script.
+    """Main entry point for subsampling."""
+    # This is a module-level entry point for testing
+    logger.info("Subsample module loaded successfully")
 
-    Note: This script is typically called by the simulation pipeline.
-    Direct execution is for testing purposes.
-    """
-    logger.info("Subsampling module ready.")
-    # Example usage would require a dataset path
-    # This is a placeholder for direct execution logic if needed
 
 if __name__ == "__main__":
     main()
