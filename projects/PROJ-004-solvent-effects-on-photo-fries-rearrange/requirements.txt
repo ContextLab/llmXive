@@ -7,5 +7,4 @@ pymatgen
 matplotlib
 seaborn
 pymc
-pytest
-pytest-cov
+statsmodels

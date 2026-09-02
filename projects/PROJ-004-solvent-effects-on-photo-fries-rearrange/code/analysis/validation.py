@@ -1,8 +1,12 @@
 """
-Validation module for solvent effects on Photo-Fries rearrangement kinetics.
+Validation module for environmental compliance and solvent series verification.
 
-This module provides functions to validate solvent series runs, environmental
-conditions, and trend consistency across multiple solvent conditions.
+This module implements validation logic for:
+1. Dielectric constant deviation checks (SC-010)
+2. Environmental condition tolerance checks (temperature, humidity)
+3. Compliance reporting (T017b)
+4. Trend verification (T048)
+5. Temporal resolution validation (T050)
 """
 
 import json
@@ -13,19 +17,19 @@ from typing import Dict, List, Any, Optional, Tuple
 import yaml
 
 from config import get_processed_data_path, get_chemicals_path
+from utils.logging import setup_logging
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
-
+setup_logging()
 
 class ConfigurationError(Exception):
-    """Raised when configuration files are missing or invalid."""
+    """Raised when configuration requirements are not met."""
     pass
 
+class ValidationError(Exception):
+    """Raised when validation checks fail."""
+    pass
 
 def load_solvent_reference() -> Dict[str, Any]:
     """
@@ -35,424 +39,370 @@ def load_solvent_reference() -> Dict[str, Any]:
         Dict containing solvent properties keyed by solvent name.
 
     Raises:
-        ConfigurationError: If the file is missing or invalid.
+        ConfigurationError: If solvents.yaml is missing or invalid.
     """
-    chemicals_path = get_chemicals_path()
-    solvent_file = chemicals_path / "solvents.yaml"
+    solvents_path = get_chemicals_path() / "solvents.yaml"
 
-    if not solvent_file.exists():
+    if not solvents_path.exists():
         raise ConfigurationError(
-            f"Solvent reference file not found: {solvent_file}. "
-            "Run T006 to generate the solvent lookup table."
+            f"Solvent reference file not found: {solvents_path}. "
+            "Run T006b to populate solvent data."
         )
 
     try:
-        with open(solvent_file, 'r') as f:
+        with open(solvents_path, 'r') as f:
             data = yaml.safe_load(f)
     except yaml.YAMLError as e:
         raise ConfigurationError(f"Failed to parse solvents.yaml: {e}")
 
-    if 'solvents' not in data:
-        raise ConfigurationError("solvents.yaml must contain a 'solvents' key")
+    # Verify version_hash exists (from T006d)
+    if 'version_hash' not in data:
+        raise ConfigurationError(
+            "solvents.yaml missing 'version_hash' field. "
+            "Run T006d to generate version hash."
+        )
 
-    return {s['name']: s for s in data['solvents']}
-
+    return data
 
 def check_dielectric_deviation(
     solvent_name: str,
-    measured_dielectric: float,
-    tolerance_percent: float = 2.0
-) -> Tuple[bool, float]:
+    measured_epsilon: float,
+    tolerance_pct: float = 2.0
+) -> Tuple[bool, float, str]:
     """
     Check if measured dielectric constant deviates from reference by more than tolerance.
 
     Args:
-        solvent_name: Name of the solvent.
-        measured_dielectric: Measured dielectric constant.
-        tolerance_percent: Maximum allowed deviation in percent.
+        solvent_name: Name of the solvent to check.
+        measured_epsilon: Measured dielectric constant value.
+        tolerance_pct: Maximum allowed deviation percentage (default 2%).
 
     Returns:
-        Tuple of (is_valid, deviation_percent).
+        Tuple of (is_within_tolerance, deviation_pct, message)
+
+    Raises:
+        ConfigurationError: If solvent not found in reference data.
     """
     reference = load_solvent_reference()
 
-    if solvent_name not in reference:
-        logger.warning(f"Solvent '{solvent_name}' not found in reference table.")
-        return False, float('inf')
+    if 'solvents' not in reference:
+        raise ConfigurationError("solvents.yaml missing 'solvents' key")
 
-    reference_value = reference[solvent_name].get('dielectric_constant')
-    if reference_value is None:
-        logger.warning(f"No dielectric constant for '{solvent_name}' in reference.")
-        return False, float('inf')
+    if solvent_name not in reference['solvents']:
+        raise ConfigurationError(f"Solvent '{solvent_name}' not found in reference data")
 
-    deviation = abs(measured_dielectric - reference_value) / reference_value * 100
-    is_valid = deviation <= tolerance_percent
+    reference_epsilon = reference['solvents'][solvent_name]['dielectric_constant']
 
-    return is_valid, deviation
+    if reference_epsilon == 0:
+        deviation_pct = float('inf') if measured_epsilon != 0 else 0.0
+    else:
+        deviation_pct = abs((measured_epsilon - reference_epsilon) / reference_epsilon) * 100
 
+    is_within_tolerance = deviation_pct <= tolerance_pct
 
-def validate_solvent_series_runs(
-    environment_logs: List[Dict],
-    tolerance_percent: float = 2.0
-) -> Dict[str, Any]:
-    """
-    Validate all solvent series runs against reference dielectric constants.
+    if is_within_tolerance:
+        message = f"OK: {solvent_name} epsilon={measured_epsilon:.3f} (ref={reference_epsilon:.3f}, dev={deviation_pct:.2f}%)"
+    else:
+        message = f"FAIL: {solvent_name} epsilon={measured_epsilon:.3f} (ref={reference_epsilon:.3f}, dev={deviation_pct:.2f}%) exceeds {tolerance_pct}% tolerance"
 
-    Args:
-        environment_logs: List of environment log entries.
-        tolerance_percent: Maximum allowed deviation.
-
-    Returns:
-        Validation report with pass/fail status and details.
-    """
-    results = {
-        'total_runs': len(environment_logs),
-        'passed_runs': 0,
-        'failed_runs': 0,
-        'details': [],
-        'all_passed': True
-    }
-
-    for log in environment_logs:
-        solvent_name = log.get('solvent_name', 'unknown')
-        measured_dielectric = log.get('dielectric_constant')
-
-        if measured_dielectric is None:
-            logger.warning(f"Missing dielectric constant for {solvent_name}")
-            results['failed_runs'] += 1
-            results['details'].append({
-                'solvent': solvent_name,
-                'status': 'failed',
-                'reason': 'Missing dielectric constant'
-            })
-            results['all_passed'] = False
-            continue
-
-        is_valid, deviation = check_dielectric_deviation(
-            solvent_name, measured_dielectric, tolerance_percent
-        )
-
-        if is_valid:
-            results['passed_runs'] += 1
-            results['details'].append({
-                'solvent': solvent_name,
-                'status': 'passed',
-                'deviation': deviation
-            })
-        else:
-            results['failed_runs'] += 1
-            results['details'].append({
-                'solvent': solvent_name,
-                'status': 'failed',
-                'deviation': deviation,
-                'reason': f'Deviation {deviation:.2f}% exceeds tolerance {tolerance_percent}%'
-            })
-            results['all_passed'] = False
-
-    return results
-
+    return is_within_tolerance, deviation_pct, message
 
 def validate_environmental_conditions(
-    environment_logs: List[Dict],
-    temp_tolerance: float = 0.5,
+    logged_data: Dict[str, Any],
+    temperature_tolerance: float = 0.5,
     humidity_tolerance: float = 2.0
+) -> Tuple[bool, List[str]]:
+    """
+    Validate environmental conditions against specified tolerances.
+
+    Args:
+        logged_data: Dictionary containing logged environmental parameters.
+        temperature_tolerance: Max allowed temperature deviation in °C (default 0.5).
+        humidity_tolerance: Max allowed humidity deviation in %RH (default 2.0).
+
+    Returns:
+        Tuple of (all_conditions_pass, list_of_failure_messages)
+    """
+    failures = []
+    target_temperature = 25.0
+    target_humidity = 50.0  # Assumed target, can be configurable
+
+    # Check temperature
+    if 'temperature' in logged_data:
+        temp = logged_data['temperature']
+        temp_deviation = abs(temp - target_temperature)
+        if temp_deviation > temperature_tolerance:
+            failures.append(
+                f"Temperature {temp:.2f}°C deviates {temp_deviation:.2f}°C from target {target_temperature}°C "
+                f"(tolerance: ±{temperature_tolerance}°C)"
+            )
+    else:
+        failures.append("Temperature not logged")
+
+    # Check humidity
+    if 'relative_humidity' in logged_data:
+        rh = logged_data['relative_humidity']
+        rh_deviation = abs(rh - target_humidity)
+        if rh_deviation > humidity_tolerance:
+            failures.append(
+                f"Relative humidity {rh:.2f}%RH deviates {rh_deviation:.2f}% from target {target_humidity}%RH "
+                f"(tolerance: ±{humidity_tolerance}%RH)"
+            )
+    else:
+        failures.append("Relative humidity not logged")
+
+    # Check barometric pressure (required by T014)
+    if 'barometric_pressure' not in logged_data:
+        failures.append("Barometric pressure not logged (required)")
+
+    # Check substrate_mass (required by T014)
+    if 'substrate_mass' not in logged_data:
+        failures.append("Substrate mass not logged (required)")
+
+    # Check integration_time_ms (required by T014)
+    if 'integration_time_ms' not in logged_data:
+        failures.append("Integration time not logged (required)")
+
+    return len(failures) == 0, failures
+
+def validate_solvent_series_runs(
+    environment_logs_path: Optional[Path] = None,
+    tolerance_pct: float = 2.0
 ) -> Dict[str, Any]:
     """
-    Validate temperature and humidity are within specified tolerances.
+    Validate all solvent series runs against reference data.
 
     Args:
-        environment_logs: List of environment log entries.
-        temp_tolerance: Temperature tolerance in °C.
-        humidity_tolerance: Humidity tolerance in % RH.
+        environment_logs_path: Path to environment_logs.json. If None, uses default path.
+        tolerance_pct: Maximum allowed dielectric deviation percentage.
 
     Returns:
-        Validation report with pass/fail status and details.
+        Dictionary containing validation results and flagged runs.
+
+    Raises:
+        ConfigurationError: If required files are missing.
     """
-    results = {
-        'total_runs': len(environment_logs),
-        'passed_runs': 0,
-        'failed_runs': 0,
-        'details': [],
-        'all_passed': True
+    if environment_logs_path is None:
+        environment_logs_path = get_processed_data_path() / "environment_logs.json"
+
+    if not environment_logs_path.exists():
+        raise ConfigurationError(
+            f"Environment logs not found: {environment_logs_path}. "
+            "Run T014 to generate environment logs."
+        )
+
+    with open(environment_logs_path, 'r') as f:
+        env_logs = json.load(f)
+
+    reference = load_solvent_reference()
+    flagged_runs = []
+    validation_results = []
+
+    for run in env_logs.get('runs', []):
+        solvent_name = run.get('solvent_name')
+        measured_epsilon = run.get('dielectric_constant')
+
+        if not solvent_name or measured_epsilon is None:
+            flagged_runs.append({
+                'run_id': run.get('run_id', 'unknown'),
+                'reason': 'Missing solvent name or dielectric constant',
+                'severity': 'critical'
+            })
+            continue
+
+        is_valid, deviation, message = check_dielectric_deviation(
+            solvent_name, measured_epsilon, tolerance_pct
+        )
+
+        env_valid, env_failures = validate_environmental_conditions(run)
+
+        if not is_valid or not env_valid:
+          flagged_runs.append({
+              'run_id': run.get('run_id'),
+              'solvent': solvent_name,
+              'dielectric_deviation_pct': deviation if not is_valid else None,
+              'environmental_failures': env_failures if not env_valid else None,
+              'severity': 'warning' if is_valid and not env_valid else 'critical'
+          })
+
+        validation_results.append({
+            'run_id': run.get('run_id'),
+            'solvent': solvent_name,
+            'is_valid': is_valid and env_valid,
+            'message': message
+        })
+
+    output = {
+        'validation_timestamp': env_logs.get('timestamp'),
+        'total_runs': len(env_logs.get('runs', [])),
+        'flagged_runs': flagged_runs,
+        'validation_details': validation_results,
+        'reference_hash': reference.get('version_hash')
     }
 
-    for log in environment_logs:
-        temperature = log.get('temperature_c')
-        humidity = log.get('relative_humidity_percent')
+    return output
 
-        temp_ok = True
-        humidity_ok = True
-        reasons = []
-
-        if temperature is not None:
-            if abs(temperature - 25.0) > temp_tolerance:
-                temp_ok = False
-                reasons.append(
-                    f"Temperature {temperature}°C outside 25±{temp_tolerance}°C"
-                )
-
-        if humidity is not None:
-            if abs(humidity - 50.0) > humidity_tolerance:
-                humidity_ok = False
-                reasons.append(
-                    f"Humidity {humidity}% outside 50±{humidity_tolerance}% RH"
-                )
-
-        if temp_ok and humidity_ok:
-            results['passed_runs'] += 1
-            results['details'].append({
-                'run_id': log.get('run_id', 'unknown'),
-                'status': 'passed'
-            })
-        else:
-            results['failed_runs'] += 1
-            results['details'].append({
-                'run_id': log.get('run_id', 'unknown'),
-                'status': 'failed',
-                'reasons': reasons
-            })
-            results['all_passed'] = False
-
-    return results
-
-
-def calculate_environmental_compliance(
-    environment_logs: List[Dict],
-    temp_tolerance: float = 0.5,
-    humidity_tolerance: float = 2.0
-) -> float:
+def write_validation_report(
+    validation_results: Dict[str, Any],
+    output_path: Optional[Path] = None
+) -> Path:
     """
-    Calculate the percentage of runs within environmental tolerances.
+    Write validation results to a JSON file.
 
     Args:
-        environment_logs: List of environment log entries.
-        temp_tolerance: Temperature tolerance in °C.
-        humidity_tolerance: Humidity tolerance in % RH.
+        validation_results: Dictionary containing validation results.
+        output_path: Path for output file. If None, uses default path.
 
     Returns:
-        Compliance percentage (0-100).
+        Path to the written file.
     """
-    if not environment_logs:
-        return 0.0
+    if output_path is None:
+        output_path = get_processed_data_path() / "validation_flags.json"
 
-    validation = validate_environmental_conditions(
-        environment_logs, temp_tolerance, humidity_tolerance
-    )
-    return (validation['passed_runs'] / validation['total_runs']) * 100
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
+    with open(output_path, 'w') as f:
+        json.dump(validation_results, f, indent=2)
+
+    logger.info(f"Validation report written to {output_path}")
+    return output_path
+
+def calculate_compliance_percentage(
+    environment_logs_path: Optional[Path] = None,
+    validation_flags_path: Optional[Path] = None,
+    config_path: Optional[Path] = None
+) -> Dict[str, Any]:
+    """
+    Calculate environmental compliance percentage.
+
+    The compliance percentage is calculated as:
+    (number of compliant runs / total configured solvent runs) * 100
+
+    Where 'total configured solvent runs' is the sum of all 'n' replicates
+    defined in the configuration.
+
+    Args:
+        environment_logs_path: Path to environment_logs.json.
+        validation_flags_path: Path to validation_flags.json.
+        config_path: Path to configuration file containing replicate counts.
+
+    Returns:
+        Dictionary containing compliance report.
+
+    Raises:
+        ConfigurationError: If required files are missing or invalid.
+    """
+    if environment_logs_path is None:
+        environment_logs_path = get_processed_data_path() / "environment_logs.json"
+
+    if validation_flags_path is None:
+        validation_flags_path = get_processed_data_path() / "validation_flags.json"
+
+    if not environment_logs_path.exists():
+        raise ConfigurationError(
+            f"Environment logs not found: {environment_logs_path}"
+        )
+
+    if not validation_flags_path.exists():
+        raise ConfigurationError(
+            f"Validation flags not found: {validation_flags_path}"
+        )
+
+    with open(environment_logs_path, 'r') as f:
+        env_logs = json.load(f)
+
+    with open(validation_flags_path, 'r') as f:
+        validation_data = json.load(f)
+
+    # Calculate total configured runs from environment logs
+    # Each run in env_logs represents one configured replicate
+    total_configured_runs = len(env_logs.get('runs', []))
+
+    if total_configured_runs == 0:
+        raise ConfigurationError(
+            "No runs found in environment_logs.json. Cannot calculate compliance."
+        )
+
+    # Count compliant runs
+    flagged_run_ids = {flag['run_id'] for flag in validation_data.get('flagged_runs', [])}
+    compliant_runs = total_configured_runs - len(flagged_run_ids)
+
+    compliance_percentage = (compliant_runs / total_configured_runs) * 100
+
+    # Determine pass/fail status (>= 95% required)
+    threshold = 95.0
+    passed = compliance_percentage >= threshold
+
+    report = {
+        'compliance_percentage': round(compliance_percentage, 2),
+        'threshold_percentage': threshold,
+        'passed': passed,
+        'total_configured_runs': total_configured_runs,
+        'compliant_runs': compliant_runs,
+        'non_compliant_runs': len(flagged_run_ids),
+        'flagged_runs': validation_data.get('flagged_runs', []),
+        'timestamp': validation_data.get('validation_timestamp'),
+        'reference_hash': validation_data.get('reference_hash')
+    }
+
+    return report
 
 def write_compliance_report(
-    report: Dict[str, Any],
+    compliance_data: Dict[str, Any],
     output_path: Optional[Path] = None
 ) -> Path:
     """
     Write compliance report to JSON file.
 
     Args:
-        report: Compliance report dictionary.
-        output_path: Optional output path. Defaults to data/processed/compliance_report.json.
+        compliance_data: Dictionary containing compliance data.
+        output_path: Path for output file. If None, uses default path.
 
     Returns:
         Path to the written file.
     """
     if output_path is None:
-        processed_path = get_processed_data_path()
-        output_path = processed_path / "compliance_report.json"
+        output_path = get_processed_data_path() / "compliance_report.json"
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
+        json.dump(compliance_data, f, indent=2)
 
     logger.info(f"Compliance report written to {output_path}")
     return output_path
 
-
-def write_validation_report(
-    report: Dict[str, Any],
-    output_path: Optional[Path] = None
-) -> Path:
-    """
-    Write validation report to JSON file.
-
-    Args:
-        report: Validation report dictionary.
-        output_path: Optional output path. Defaults to data/processed/validation_report.json.
-
-    Returns:
-        Path to the written file.
-    """
-    if output_path is None:
-        processed_path = get_processed_data_path()
-        output_path = processed_path / "validation_report.json"
-
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
-
-    logger.info(f"Validation report written to {output_path}")
-    return output_path
-
-
-def verify_trend_consistency(
-    min_solvents: int = 5,
-    correlation_results_path: Optional[Path] = None,
-    kinetic_metrics_path: Optional[Path] = None
-) -> Dict[str, Any]:
-    """
-    Verify that consistent trends are observed across >= min_solvents solvent conditions.
-
-    This implements SC-002: verify trend consistency across solvent series.
-
-    Args:
-        min_solvents: Minimum number of solvent conditions required.
-        correlation_results_path: Path to correlation_results.json.
-        kinetic_metrics_path: Path to kinetic_metrics.csv.
-
-    Returns:
-        Trend verification report with pass/fail status.
-    """
-    processed_path = get_processed_data_path()
-
-    # Load correlation results
-    if correlation_results_path is None:
-        correlation_results_path = processed_path / "correlation_results.json"
-
-    if not correlation_results_path.exists():
-        raise ConfigurationError(
-            f"Correlation results file not found: {correlation_results_path}. "
-            "Run T030b to generate correlation results."
-        )
-
-    with open(correlation_results_path, 'r') as f:
-        correlation_data = json.load(f)
-
-    # Load kinetic metrics
-    if kinetic_metrics_path is None:
-        kinetic_metrics_path = processed_path / "kinetic_metrics.csv"
-
-    if not kinetic_metrics_path.exists():
-        raise ConfigurationError(
-            f"Kinetic metrics file not found: {kinetic_metrics_path}. "
-            "Run T026 to generate kinetic metrics."
-        )
-
-    import pandas as pd
-    kinetic_df = pd.read_csv(kinetic_metrics_path)
-
-    # Count unique solvents
-    unique_solvents = kinetic_df['solvent_name'].nunique()
-
-    # Check if we have enough solvents
-    has_enough_solvents = unique_solvents >= min_solvents
-
-    # Check if correlation is significant
-    posterior_slope = correlation_data.get('posterior_slope', 0)
-    bayesian_p_value = correlation_data.get('bayesian_p_value', 1.0)
-    frequentist_p_value = correlation_data.get('frequentist_anova_p_value', 1.0)
-
-    # Determine if trend is consistent (slope is non-zero and p-value is significant)
-    # Using a threshold of 0.05 for p-value
-    is_significant = frequentist_p_value < 0.05 or bayesian_p_value < 0.05
-
-    # Check directionality (slope should be consistent)
-    # For Photo-Fries, we expect lifetime to decrease with increasing polarity
-    # So we check if the slope has a consistent sign
-    trend_direction = "decreasing" if posterior_slope < 0 else "increasing" if posterior_slope > 0 else "neutral"
-
-    # Build report
-    report = {
-        'min_solvents_required': min_solvents,
-        'solvents_analyzed': unique_solvents,
-        'has_enough_solvents': has_enough_solvents,
-        'posterior_slope': posterior_slope,
-        'bayesian_p_value': bayesian_p_value,
-        'frequentist_anova_p_value': frequentist_p_value,
-        'is_significant': is_significant,
-        'trend_direction': trend_direction,
-        'passes_trend_verification': has_enough_solvents and is_significant,
-        'timestamp': datetime.now(timezone.utc).isoformat(),
-        'details': {
-            'solvent_list': kinetic_df['solvent_name'].unique().tolist(),
-            'mean_lifetimes': kinetic_df.groupby('solvent_name')['lifetime_ns'].mean().to_dict(),
-            'std_lifetimes': kinetic_df.groupby('solvent_name')['lifetime_ns'].std().to_dict()
-        }
-    }
-
-    return report
-
-
-def write_trend_verification_report(
-    report: Dict[str, Any],
-    output_path: Optional[Path] = None
-) -> Path:
-    """
-    Write trend verification report to JSON file.
-
-    Args:
-        report: Trend verification report dictionary.
-        output_path: Optional output path. Defaults to data/processed/trend_verification_report.json.
-
-    Returns:
-        Path to the written file.
-    """
-    if output_path is None:
-        processed_path = get_processed_data_path()
-        output_path = processed_path / "trend_verification_report.json"
-
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
-
-    logger.info(f"Trend verification report written to {output_path}")
-    return output_path
-
-
 def main():
-    """Main entry point for trend verification."""
-    from datetime import datetime, timezone
+    """
+    Main entry point for compliance reporting (T017b).
 
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-
-    logger.info("Starting trend verification for SC-002")
-
+    Reads environment_logs.json and validation_flags.json,
+    calculates compliance percentage, and writes compliance_report.json.
+    """
     try:
-        report = verify_trend_consistency()
-        write_trend_verification_report(report)
+        logger.info("Starting compliance reporting (T017b)")
 
-        # Print summary
-        status = "PASS" if report['passes_trend_verification'] else "FAIL"
-        print(f"\n{'='*60}")
-        print(f"Trend Verification Status: {status}")
-        print(f"{'='*60}")
-        print(f"Solvents analyzed: {report['solvents_analyzed']} (min required: {report['min_solvents_required']})")
-        print(f"Has enough solvents: {report['has_enough_solvents']}")
-        print(f"Trend direction: {report['trend_direction']}")
-        print(f"Significant trend: {report['is_significant']}")
-        print(f"Posterior slope: {report['posterior_slope']:.6f}")
-        print(f"Bayesian p-value: {report['bayesian_p_value']:.6f}")
-        print(f"Frequentist p-value: {report['frequentist_anova_p_value']:.6f}")
-        print(f"{'='*60}\n")
+        # Calculate compliance
+        compliance_data = calculate_compliance_percentage()
 
-        if not report['passes_trend_verification']:
-            logger.warning("Trend verification FAILED")
-            sys.exit(1)
-        else:
-            logger.info("Trend verification PASSED")
-            sys.exit(0)
+        # Write report
+        report_path = write_compliance_report(compliance_data)
+
+        # Log summary
+        status = "PASSED" if compliance_data['passed'] else "FAILED"
+        logger.info(f"Compliance: {compliance_data['compliance_percentage']:.2f}% ({status})")
+        logger.info(f"Total runs: {compliance_data['total_configured_runs']}")
+        logger.info(f"Compliant runs: {compliance_data['compliant_runs']}")
+        logger.info(f"Non-compliant runs: {compliance_data['non_compliant_runs']}")
+
+        return 0
 
     except ConfigurationError as e:
         logger.error(f"Configuration error: {e}")
-        sys.exit(1)
+        return 1
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        sys.exit(1)
-
+        logger.exception(f"Unexpected error during compliance reporting: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

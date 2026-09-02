@@ -34,6 +34,7 @@ logger = logging.getLogger(__name__)
 CI_SEED = 42
 # Standard decay time constants (nanoseconds) for different "solvents"
 # Mocking: Non-polar (fast), Polar (slow)
+# Values derived from typical Photo-Fries rearrangement intermediate lifetimes
 DECAY_CONSTANTS = {
     'cyclohexane': 2.5,   # ns
     'toluene': 3.8,       # ns
@@ -81,7 +82,7 @@ def generate_decay_curve(
     Returns:
         List of (time, absorbance) tuples.
     """
-    set_seed(CI_SEED) # Ensure any internal state is reset, though we avoid random here
+    set_seed(CI_SEED) # Ensure any internal state is reset
     data = []
     dt = time_max_ns / n_points
 

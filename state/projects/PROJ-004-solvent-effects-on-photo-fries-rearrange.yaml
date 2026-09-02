@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-29T02:44:28.710016Z'
-current_stage: tasked
+current_stage: in_progress
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-004-solvent-effects-on-photo-fries-rearrange
-last_run_id: 9b25adac-6c69-4407-aaf7-b897a82510eb
+last_run_id: 3a92704f-f7ba-4156-8c18-46f0a6c39048
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange
 title: Solvent Effects on Photo-Fries Rearrangement Kinetics
-updated_at: '2026-09-01T21:06:14.046137Z'
+updated_at: '2026-09-02T19:48:24.547697Z'

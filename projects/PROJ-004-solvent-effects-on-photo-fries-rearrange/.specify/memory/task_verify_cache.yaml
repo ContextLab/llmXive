@@ -1,3 +1,44 @@
+T014:
+  c: false
+  h: 1ca66a29815eb8baade047096b7e3668734b48863e82b5f03b4f0e359f0c0724
+  r: "The provided `code/analysis/environment.py` is incomplete (the snippet ends\
+    \ before any code that writes a JSON log, and no function to create `environment_logs.json`\
+    \ is shown). Moreover, the required output file `data/processed/environment_logs.json`\
+    \ does not exist. The task\u2019s core requirement\u2014logging all fields to\
+    \ that JSON file and raising `ConfigurationError` if barometric pressure is missing\u2014\
+    is therefore not satisfied."
+T015:
+  c: false
+  h: 99c1b7f5cda65162a5fa348803d09e71fbeac6e30f81915d90137c4d7e9130e5
+  r: The `generate_synthetic.py` script exists but is truncated and does not show
+    a complete implementation that writes `data/raw/synthetic_traces.csv`. Moreover,
+    the required CSV file is missing from the repository. The task is therefore not
+    fully satisfied.
+T015b:
+  c: true
+  h: c88346e8b887770fcfa0d0c79444c4284b763ee846555f7470860340b3a985e7
+  r: "The repository contains `code/data/ingest.py` (4616\u202Fbytes) which defines\
+    \ `ingest_real_transient_absorption_data`. It checks the existence of the provided\
+    \ path, prints exactly \u201CCRITICAL: Real data file missing. Aborting.\u201D\
+    \ and calls `sys.exit(1)` when `use_real_data` (derived from `USE_REAL_DATA`)\
+    \ is true and the file is absent. The script also returns the DataFrame when the\
+    \ file exists and does nothing when the flag is false, satisfying all stated constraints."
+T017a:
+  c: false
+  h: 98732c2a03ffacae7e57af518c0d164201cb5258b808e85ba1a526474a05e45c
+  r: The `validation.py` script checks for a `version_hash` field that is absent in
+    `data/chemicals/solvents.yaml`, so it would raise a `ConfigurationError`. Moreover,
+    the required output file `data/processed/validation_flags.json` does not exist,
+    and the provided code snippet is truncated before showing any temperature/humidity
+    validation logic. These missing/incorrect elements prevent the task from being
+    fulfilled.
+T017b:
+  c: false
+  h: 264a129d3aa0f568dc9c00c802f5e54472025c60a369d31a24105a1397cb840c
+  r: The required input files `data/processed/environment_logs.json` and `data/processed/validation_flags.json`
+    are absent, and the provided `code/analysis/validation.py` is truncated and contains
+    no implementation that reads those files or writes `data/processed/compliance_report.json`.
+    Consequently the compliance percentage is never calculated or reported.
 T021:
   c: false
   h: c4e526b805d68afd4f2f59fa47a20e04401abec8e34e76d4c83ddf05f96d549f
@@ -6,14 +47,6 @@ T021:
     handling of the required input file. Moreover, the required data file `data/processed/calibrated_traces.csv`
     is absent, and no synthetic equivalent is provided. The task therefore lacks the
     necessary input artifact and a complete implementation.
-T029c:
-  c: false
-  h: 32eb5b06d0c8973370db69ae5c20cf194d94ff89e8942e0db72e243de43729a1
-  r: "The required output file `data/compute/solvent_solvation.csv` does not exist,\
-    \ and the provided `solvent_models.py` contains only a partial, simulated implementation\
-    \ that does not demonstrably combine real results from T029a and T029b. The artifact\
-    \ is incomplete and does not satisfy the task\u2019s requirement to produce the\
-    \ combined CSV."
 T035:
   c: true
   h: 886eabc2e4e0256c8c5c64aa93460da6849f071ac5116646ac5855232079c62b
@@ -30,3 +63,12 @@ T048:
     \ solvent reference loading and dielectric checks; it does not implement the trend\u2011\
     verification logic that reads the correlation and kinetic files and writes the\
     \ report. The task therefore remains unfinished."
+T059:
+  c: false
+  h: d00572512e24690b41ccf73857878e95ee4bc2ca532361bf27b47279a828b1fa
+  r: "The repository contains `code/analysis/power.py`, but the script does not produce\
+    \ the required `data/processed/study_power_analysis.json` (the file is missing).\
+    \ Consequently the unified power analysis is not documented as specified, and\
+    \ the task\u2019s output artifact is absent. The next implementer must add code\
+    \ that runs the analysis and writes the JSON file with effect sizes for US\u2011\
+    2 and US\u20113, explicitly noting the low\u2011N limitation."

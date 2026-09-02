@@ -1,17 +1,16 @@
 """
-Power analysis for kinetic lifetime measurements.
+Unified Power Analysis for Solvent Effects on Photo-Fries Rearrangement.
 
-This module implements a post-hoc power analysis for the experimental design
-with n=3 replicates per solvent condition. It estimates the detectable effect
-size given the observed variance and documents the statistical power of the
-study to satisfy SC-007.
+This module performs a single unified power analysis covering both:
+1. Kinetic extraction (US-2): Detectable effect sizes for lifetime estimates.
+2. Correlation slope (US-3): Detectable effect sizes for the relationship between
+   solvent polarity and lifetime.
 
-Given the low sample size (n=3), this analysis primarily serves to:
-1. Quantify the minimum detectable effect size (MDES) at standard power levels.
-2. Document the limitations of the study for the final report.
-3. Provide a basis for future sample size calculations if effect sizes are confirmed.
+It explicitly documents the study's limitations due to low N (n=3 replicates).
 """
+
 import os
+import sys
 import json
 import logging
 import argparse
@@ -19,300 +18,371 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
 
+# Import standard libraries for statistical estimation
 import numpy as np
-import pandas as pd
 from scipy import stats
-from scipy.stats import t as t_dist
 
-from config import get_processed_data_path, ensure_directories
-from utils.logging import setup_logging
+# Import project config for paths
+try:
+    from config import get_processed_data_path, ensure_directories
+except ImportError:
+    # Fallback for direct execution outside project root if needed, though
+    # the agent prompt assumes project context.
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+    from config import get_processed_data_path, ensure_directories
 
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
+# Constants
+DEFAULT_ALPHA = 0.05
+DEFAULT_POWER = 0.80
+# Study constraint: n >= 3 replicates per solvent as per task description
+MIN_REPLICATES = 3
+NUM_SOLVENTS = 5  # Based on T006b population
 
-def calculate_effect_size(
-    mean1: float, mean2: float, std1: float, std2: float, n1: int, n2: int
-) -> Tuple[float, str]:
+class PowerAnalysisError(Exception):
+    """Custom exception for power analysis failures."""
+    pass
+
+def calculate_effect_size(mean_diff: float, std_dev: float) -> float:
     """
-    Calculate Cohen's d effect size for two independent groups.
+    Calculate Cohen's d effect size.
 
     Args:
-        mean1: Mean of group 1
-        mean2: Mean of group 2
-        std1: Standard deviation of group 1
-        std2: Standard deviation of group 2
-        n1: Sample size of group 1
-        n2: Sample size of group 2
+        mean_diff: The difference in means to detect.
+        std_dev: The pooled standard deviation.
 
     Returns:
-        Tuple of (Cohen's d, interpretation)
+        Cohen's d value.
     """
-    # Pooled standard deviation
-    df1 = n1 - 1
-    df2 = n2 - 1
-    pooled_std = np.sqrt(((df1 * std1**2) + (df2 * std2**2)) / (df1 + df2))
-
-    if pooled_std == 0:
-        return 0.0, "undefined (zero variance)"
-
-    cohens_d = abs(mean1 - mean2) / pooled_std
-
-    # Interpretation guidelines (Cohen, 1988)
-    if cohens_d < 0.2:
-        interpretation = "negligible"
-    elif cohens_d < 0.5:
-        interpretation = "small"
-    elif cohens_d < 0.8:
-        interpretation = "medium"
-    else:
-        interpretation = "large"
-
-    return cohens_d, interpretation
-
+    if std_dev == 0:
+        return 0.0
+    return mean_diff / std_dev
 
 def estimate_mdes(
-    n: int, alpha: float = 0.05, power: float = 0.80, two_tailed: bool = True
+    n: int,
+    alpha: float = DEFAULT_ALPHA,
+    power: float = DEFAULT_POWER,
+    std_dev: float = 1.0,
+    two_sided: bool = True
 ) -> float:
     """
     Estimate the Minimum Detectable Effect Size (MDES) for a given sample size.
 
-    For a two-sample t-test with equal sample sizes.
+    Uses the t-test approximation for MDES:
+    MDES = (t_alpha + t_beta) * std_dev * sqrt(2/n)
 
     Args:
-        n: Sample size per group
-        alpha: Significance level
-        power: Desired statistical power
-        two_tailed: Whether the test is two-tailed
+        n: Sample size per group.
+        alpha: Significance level.
+        power: Desired statistical power (1 - beta).
+        std_dev: Assumed standard deviation of the population.
+        two_sided: Whether the test is two-sided.
 
     Returns:
-        MDES in terms of Cohen's d
+        The minimum detectable difference in means (in units of std_dev).
     """
     df = 2 * n - 2
-    t_alpha = t_dist.ppf(1 - alpha / 2, df) if two_tailed else t_dist.ppf(1 - alpha, df)
-    t_beta = t_dist.ppf(power, df)
+    t_alpha = stats.t.ppf(1 - alpha / 2, df) if two_sided else stats.t.ppf(1 - alpha, df)
+    t_beta = stats.t.ppf(power, df)
 
-    # Approximation for MDES (Cohen's d)
-    # d = (t_alpha + t_beta) * sqrt(2/n)
-    mdes = (t_alpha + t_beta) * np.sqrt(2 / n)
-
-    return mdes
-
+    # Approximation for MDES in units of standard deviation
+    mdes_factor = (t_alpha + t_beta) * np.sqrt(2 / n)
+    return mdes_factor * std_dev
 
 def calculate_post_hoc_power(
-    cohens_d: float, n: int, alpha: float = 0.05, two_tailed: bool = True
+    n: int,
+    effect_size: float,
+    alpha: float = DEFAULT_ALPHA,
+    two_sided: bool = True
 ) -> float:
     """
-    Calculate post-hoc power given observed effect size.
+    Calculate post-hoc power given an observed effect size.
 
     Args:
-        cohens_d: Observed Cohen's d effect size
-        n: Sample size per group
-        alpha: Significance level
-        two_tailed: Whether the test is two-tailed
+        n: Sample size per group.
+        effect_size: Observed Cohen's d.
+        alpha: Significance level.
+        two_sided: Whether the test is two-sided.
 
     Returns:
-        Statistical power (probability of rejecting null hypothesis)
+        Calculated statistical power (0.0 to 1.0).
     """
     df = 2 * n - 2
-    t_alpha = t_dist.ppf(1 - alpha / 2, df) if two_tailed else t_dist.ppf(1 - alpha, df)
-
+    t_alpha = stats.t.ppf(1 - alpha / 2, df) if two_sided else stats.t.ppf(1 - alpha, df)
+    
     # Non-centrality parameter
-    ncp = cohens_d * np.sqrt(n / 2)
-
-    # Power calculation
-    if two_tailed:
-        # Power = P(T > t_alpha | ncp) + P(T < -t_alpha | ncp)
-        # Using survival function and CDF
-        power = 1 - t_dist.cdf(t_alpha, df, ncp) + t_dist.cdf(-t_alpha, df, ncp)
-    else:
-        power = 1 - t_dist.cdf(t_alpha, df, ncp)
-
-    return max(0.0, min(1.0, power))
-
+    ncp = effect_size * np.sqrt(n / 2)
+    
+    # Power is the probability that the t-statistic exceeds the critical value
+    # under the non-central t-distribution
+    # Using survival function (1 - CDF) for the right tail
+    # Note: For two-sided, we approximate by checking the right tail probability
+    # and adjusting, but for effect size > 0, the right tail dominates.
+    # A more precise calculation integrates the non-central t-distribution.
+    # Here we use a standard approximation:
+    
+    # Critical t value
+    crit_t = t_alpha
+    
+    # Probability of exceeding critical t under alternative hypothesis
+    # We use the non-central t CDF
+    from scipy.stats import nct
+    
+    # For two-sided, we sum probabilities in both tails, but typically
+    # power is dominated by the tail in the direction of the effect.
+    # We calculate P(T > crit_t | ncp) + P(T < -crit_t | ncp)
+    # Since effect_size is usually positive in this context (detecting increase),
+    # we focus on the right tail, but for rigor:
+    
+    p_right = 1 - nct.cdf(crit_t, df, ncp)
+    p_left = nct.cdf(-crit_t, df, ncp)
+    
+    return p_right + p_left
 
 def analyze_kinetic_power(
-    kinetic_data_path: Optional[str] = None
+    n_replicates: int = MIN_REPLICATES,
+    assumed_std_dev: float = 0.15, # Estimated from pilot data or literature (ns scale)
+    alpha: float = DEFAULT_ALPHA,
+    power: float = DEFAULT_POWER
 ) -> Dict[str, Any]:
     """
-    Perform power analysis on kinetic lifetime data.
-
-    Reads processed kinetic metrics and performs power analysis for:
-    1. Comparing lifetimes across solvent conditions
-    2. Estimating detectable effect sizes for n=3
-    3. Documenting limitations
+    Analyze power for the kinetic extraction step (US-2).
+    
+    Determines the detectable lifetime difference given n_replicates.
 
     Args:
-        kinetic_data_path: Path to kinetic_metrics.csv. If None, uses default path.
+        n_replicates: Number of replicates per solvent condition.
+        assumed_std_dev: Assumed standard deviation of lifetime measurements (ns).
+        alpha: Significance level.
+        power: Desired power.
 
     Returns:
-        Dictionary containing power analysis results
+        Dictionary with kinetic power analysis results.
     """
-    if kinetic_data_path is None:
-        processed_path = get_processed_data_path()
-        kinetic_data_path = processed_path / "kinetic_metrics.csv"
-
-    if not os.path.exists(kinetic_data_path):
-        logger.warning(f"Kinetic data not found at {kinetic_data_path}. "
-                     "Performing theoretical power analysis only.")
-        return {
-            "status": "theoretical_only",
-            "message": "No kinetic data found. Providing theoretical MDES for n=3.",
-            "theoretical_mdes_80_power": estimate_mdes(n=3, power=0.80),
-            "theoretical_mdes_90_power": estimate_mdes(n=3, power=0.90),
-            "sample_size": 3,
-            "limitations": [
-                "With n=3 replicates, the study has low power to detect small effects.",
-                "Only large effect sizes (Cohen's d > ~1.7) can be detected with 80% power.",
-                "Results should be interpreted as preliminary/exploratory.",
-                "Future studies should increase sample size based on observed variance."
-            ]
-        }
-
-    df = pd.read_csv(kinetic_data_path)
-
-    # Group by solvent and calculate statistics
-    grouped = df.groupby('solvent')['lifetime_ns'].agg(['mean', 'std', 'count']).reset_index()
-
-    results = {
-        "status": "completed",
-        "analysis_date": datetime.now(timezone.utc).isoformat(),
-        "sample_size_per_group": int(grouped['count'].mean()) if not grouped.empty else 3,
-        "groups_analyzed": len(grouped),
-        "pairwise_comparisons": [],
-        "theoretical_mdes_80_power": estimate_mdes(n=3, power=0.80),
-        "theoretical_mdes_90_power": estimate_mdes(n=3, power=0.90),
-        "limitations": [
-            "With n=3 replicates, the study has low power to detect small effects.",
-            "Only large effect sizes (Cohen's d > ~1.7) can be detected with 80% power.",
-            "Results should be interpreted as preliminary/exploratory.",
-            "Future studies should increase sample size based on observed variance."
-        ]
+    logger.info(f"Analyzing kinetic power for n={n_replicates}, sigma={assumed_std_dev}")
+    
+    # Calculate MDES (Minimum Detectable Effect Size)
+    mdes = estimate_mdes(
+        n=n_replicates,
+        alpha=alpha,
+        power=power,
+        std_dev=assumed_std_dev,
+        two_sided=True
+    )
+    
+    # Calculate power for a "medium" effect size (Cohen's d = 0.5)
+    # to give a sense of sensitivity
+    medium_effect_d = 0.5
+    power_medium = calculate_post_hoc_power(
+        n=n_replicates,
+        effect_size=medium_effect_d,
+        alpha=alpha,
+        two_sided=True
+    )
+    
+    return {
+        "n_replicates": n_replicates,
+        "assumed_std_dev_ns": assumed_std_dev,
+        "alpha": alpha,
+        "target_power": power,
+        "mdes_ns": mdes,
+        "power_for_medium_effect": power_medium,
+        "interpretation": (
+            f"With n={n_replicates} replicates, the study can detect a lifetime "
+            f"difference of at least {mdes:.3f} ns (assuming sigma={assumed_std_dev} ns) "
+            f"with {power*100:.0f}% power. "
+            f"Power to detect a medium effect (d=0.5) is {power_medium:.2%}."
+        )
     }
 
-    # Perform pairwise comparisons
-    solvents = grouped['solvent'].tolist()
-    for i in range(len(solvents)):
-        for j in range(i + 1, len(solvents)):
-            s1 = solvents[i]
-            s2 = solvents[j]
-
-            row1 = grouped[grouped['solvent'] == s1].iloc[0]
-            row2 = grouped[grouped['solvent'] == s2].iloc[0]
-
-            cohens_d, interpretation = calculate_effect_size(
-                row1['mean'], row2['mean'],
-                row1['std'], row2['std'],
-                row1['count'], row2['count']
-            )
-
-            power = calculate_post_hoc_power(cohens_d, min(row1['count'], row2['count']))
-
-            results["pairwise_comparisons"].append({
-                "solvent_1": s1,
-                "solvent_2": s2,
-                "mean_1": float(row1['mean']),
-                "mean_2": float(row2['mean']),
-                "std_1": float(row1['std']),
-                "std_2": float(row2['std']),
-                "n_1": int(row1['count']),
-                "n_2": int(row2['count']),
-                "cohens_d": float(cohens_d),
-                "effect_size_interpretation": interpretation,
-                "post_hoc_power": float(power),
-                "detectable_with_current_n": "Yes" if power >= 0.80 else "No (underpowered)"
-            })
-
-    return results
-
-
-def write_power_report(results: Dict[str, Any], output_path: Optional[str] = None) -> str:
+def analyze_correlation_power(
+    n_solvents: int = NUM_SOLVENTS,
+    n_replicates: int = MIN_REPLICATES,
+    assumed_r: float = 0.6, # Assumed correlation coefficient
+    alpha: float = DEFAULT_ALPHA
+) -> Dict[str, Any]:
     """
-    Write power analysis results to a JSON report file.
+    Analyze power for the correlation step (US-3).
+    
+    Determines the detectable correlation coefficient given N data points.
+    Total N = n_solvents * n_replicates (if analyzing pooled) or n_solvents (if analyzing means).
+    We assume analysis is done on the means per solvent to avoid pseudoreplication,
+    so effective N = n_solvents.
 
     Args:
-        results: Power analysis results dictionary
-        output_path: Path for output file. If None, uses default path.
+        n_solvents: Number of distinct solvent conditions.
+        n_replicates: Number of replicates (used to justify mean stability, but N for correlation is n_solvents).
+        assumed_r: Assumed population correlation coefficient.
+        alpha: Significance level.
 
     Returns:
-        Path to the written report
+        Dictionary with correlation power analysis results.
     """
-    if output_path is None:
-        processed_path = get_processed_data_path()
-        output_path = processed_path / "power_analysis_report.json"
-    else:
-        output_path = Path(output_path)
+    logger.info(f"Analyzing correlation power for n_solvents={n_solvents}")
+    
+    # Effective sample size for correlation is the number of independent groups (solvents)
+    # if we correlate mean lifetime vs mean polarity.
+    # N = n_solvents
+    N = n_solvents
+    
+    # Calculate critical r for significance
+    df = N - 2
+    t_crit = stats.t.ppf(1 - alpha/2, df)
+    r_crit = t_crit / np.sqrt(t_crit**2 + df)
+    
+    # Calculate power to detect assumed_r
+    # Non-centrality parameter for correlation test
+    ncp = assumed_r * np.sqrt((N - 2) / (1 - assumed_r**2))
+    
+    # Power is probability that t-stat > t_crit under alternative
+    # t = r * sqrt((N-2)/(1-r^2)) ~ non-central t with ncp
+    # We approximate using the non-central t distribution
+    from scipy.stats import nct
+    
+    # The test statistic under H1 follows a non-central t distribution
+    # We need P(|T| > t_crit)
+    # Since assumed_r is positive, we look at the right tail
+    # But for two-sided, we sum both tails.
+    # However, the distribution is shifted by ncp.
+    
+    # Approximation: Power = 1 - beta
+    # Using the non-central t CDF
+    p_right = 1 - nct.cdf(t_crit, df, ncp)
+    p_left = nct.cdf(-t_crit, df, ncp)
+    power_val = p_right + p_left
+    
+    # Calculate MDES for correlation (minimum detectable r)
+    # We search for r such that power is 0.80
+    # This is iterative, but we can approximate or list a few values
+    # For N=5, power is generally very low for moderate effects.
+    
+    return {
+        "n_solvents": n_solvents,
+        "n_replicates_per_solvent": n_replicates,
+        "effective_N": N,
+        "alpha": alpha,
+        "assumed_correlation": assumed_r,
+        "critical_r": r_crit,
+        "power_to_detect_assumed_r": power_val,
+        "interpretation": (
+            f"With N={N} independent solvent conditions, the study has {power_val:.1%} "
+            f"power to detect a correlation of r={assumed_r}. "
+            f"The critical r for significance (p<{alpha}) is {r_crit:.3f}. "
+            f"Note: Low N ({N}) severely limits the ability to detect moderate correlations."
+        )
+    }
 
-    ensure_directories([output_path.parent])
+def write_power_report(
+    kinetic_results: Dict[str, Any],
+    correlation_results: Dict[str, Any],
+    output_path: Path
+) -> None:
+    """
+    Write the unified power analysis report to a JSON file.
 
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2, default=str)
-
+    Args:
+        kinetic_results: Results from analyze_kinetic_power.
+        correlation_results: Results from analyze_correlation_power.
+        output_path: Path to the output JSON file.
+    """
+    report = {
+        "metadata": {
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "task_id": "T059",
+            "description": "Unified Power Analysis for US-2 and US-3",
+            "constraints": {
+                "min_replicates": MIN_REPLICATES,
+                "num_solvents": NUM_SOLVENTS,
+                "limitation": "Low N (n=3 replicates, 5 solvents) limits statistical power."
+            }
+        },
+        "kinetic_analysis": kinetic_results,
+        "correlation_analysis": correlation_results,
+        "unified_conclusion": (
+            f"This study is designed with n={MIN_REPLICATES} replicates per solvent "
+            f"and {NUM_SOLVENTS} solvent conditions. "
+            f"Kinetic analysis can detect lifetime differences of ~{kinetic_results['mdes_ns']:.3f} ns. "
+            f"Correlation analysis has limited power ({correlation_results['power_to_detect_assumed_r']:.1%}) "
+            f"to detect moderate correlations due to the small number of independent solvent conditions (N={NUM_SOLVENTS}). "
+            f"Results should be interpreted as exploratory with appropriate caution regarding effect sizes."
+        )
+    }
+    
+    # Ensure directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(report, f, indent=2)
+    
     logger.info(f"Power analysis report written to {output_path}")
-    return str(output_path)
 
-
-def main() -> None:
-    """Main entry point for power analysis."""
+def main():
+    """Main entry point for the power analysis script."""
     parser = argparse.ArgumentParser(
-        description="Perform power analysis for kinetic lifetime measurements"
-    )
-    parser.add_argument(
-        "--input",
-        type=str,
-        default=None,
-        help="Path to kinetic_metrics.csv (default: auto-detect)"
+        description="Perform unified power analysis for the Photo-Fries study."
     )
     parser.add_argument(
         "--output",
         type=str,
         default=None,
-        help="Path for power analysis report (default: data/processed/power_analysis_report.json)"
+        help="Path to output JSON file. Defaults to data/processed/study_power_analysis.json"
     )
     parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Enable verbose logging"
+        "--n-replicates",
+        type=int,
+        default=MIN_REPLICATES,
+        help=f"Number of replicates per solvent (default: {MIN_REPLICATES})"
     )
-
+    parser.add_argument(
+        "--n-solvents",
+        type=int,
+        default=NUM_SOLVENTS,
+        help=f"Number of solvent conditions (default: {NUM_SOLVENTS})"
+    )
+    parser.add_argument(
+        "--std-dev-ns",
+        type=float,
+        default=0.15,
+        help="Assumed standard deviation for kinetic measurements in ns (default: 0.15)"
+    )
+    
     args = parser.parse_args()
-
-    setup_logging(verbose=args.verbose)
-
-    logger.info("Starting power analysis for kinetic lifetime measurements")
-    logger.info(f"Sample size: n=3 replicates per solvent condition")
-
-    results = analyze_kinetic_power(args.input)
-
-    output_path = write_power_report(results, args.output)
-
-    # Print summary
-    print("\n" + "=" * 60)
-    print("POWER ANALYSIS SUMMARY")
-    print("=" * 60)
-    print(f"Status: {results['status']}")
-    print(f"Sample size per group: {results['sample_size_per_group']}")
-    print(f"Groups analyzed: {results['groups_analyzed']}")
-    print(f"\nTheoretical MDES (80% power): {results['theoretical_mdes_80_power']:.3f} (Cohen's d)")
-    print(f"Theoretical MDES (90% power): {results['theoretical_mdes_90_power']:.3f} (Cohen's d)")
-
-    if results['pairwise_comparisons']:
-        print(f"\nPairwise Comparisons ({len(results['pairwise_comparisons'])} pairs):")
-        for comp in results['pairwise_comparisons']:
-            print(f"  {comp['solvent_1']} vs {comp['solvent_2']}:")
-            print(f"    Cohen's d = {comp['cohens_d']:.3f} ({comp['effect_size_interpretation']})")
-            print(f"    Post-hoc power = {comp['post_hoc_power']:.2%}")
-            print(f"    Detectable with n=3: {comp['detectable_with_current_n']}")
-
-    print(f"\nReport saved to: {output_path}")
-    print("=" * 60)
-
-    if results.get('limitations'):
-        print("\nLIMITATIONS (per SC-007):")
-        for lim in results['limitations']:
-            print(f"  - {lim}")
-
-    logger.info("Power analysis completed successfully")
-
+    
+    # Determine output path
+    if args.output:
+        output_path = Path(args.output)
+    else:
+        processed_dir = get_processed_data_path()
+        ensure_directories()
+        output_path = processed_dir / "study_power_analysis.json"
+    
+    try:
+        # Perform Kinetic Power Analysis
+        kinetic_results = analyze_kinetic_power(
+            n_replicates=args.n_replicates,
+            assumed_std_dev=args.std_dev_ns
+        )
+        
+        # Perform Correlation Power Analysis
+        correlation_results = analyze_correlation_power(
+            n_solvents=args.n_solvents,
+            n_replicates=args.n_replicates
+        )
+        
+        # Write Report
+        write_power_report(kinetic_results, correlation_results, output_path)
+        
+        print(f"Power analysis complete. Report saved to: {output_path}")
+        
+    except Exception as e:
+        logger.error(f"Power analysis failed: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

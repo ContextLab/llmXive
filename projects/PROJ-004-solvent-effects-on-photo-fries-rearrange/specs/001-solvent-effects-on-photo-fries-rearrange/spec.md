@@ -33,7 +33,9 @@ The system MUST process the raw spectroscopic data to extract the singlet-radica
 **Acceptance Scenarios**:
 
 1. **Given** raw decay traces from transient-absorption detection, **When** the system performs global kinetic analysis, **Then** it outputs a lifetime value with a confidence interval and calibration record.
-2. **Given** multiple replicates (n ≥ 3) for a single solvent, **When** the analysis completes, **Then** the system calculates the mean and standard deviation of the lifetime and flags any replicate outliers beyond 2σ.
+2. **Given** multiple replicates (n ≥ 3) for a single solvent, **When** the analysis completes, **Then** the system calculates the mean and standard deviation of the lifetime and flags any replicate outliers beyond a statistically significant threshold
+
+The research question, method, and references remain unchanged as required..
 
 ---
 

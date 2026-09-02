@@ -64,10 +64,12 @@
 - [X] T009 [P] Implement `code/config.py` to enforce CPU-only execution constraints and define file paths for `data/raw/`, `data/compute/`, `data/processed/`.
 - [X] T010 [P] Create `tests/unit/test_loaders.py` to verify solvent property loading against versioned lookup table.
 
-- [ ] T015b [US1] **Real Data Ingestion (Blocking)**: Implement `code/data/ingest.py` to ingest real transient-absorption data from a user-provided file path (e.g., `data/raw/real_traces.csv`). **Constraint**: If `USE_REAL_DATA=true` and the file is missing, the script MUST print `CRITICAL: Real data file missing. Aborting.` and exit with code `sys.exit(1)`. If `USE_REAL_DATA` is false or unset, it must proceed to T015. It is the primary data source for the research phase.
+- [X] T015b [US1] **Real Data Ingestion (Blocking)**: Implement `code/data/ingest.py` to ingest real transient-absorption data from a user-provided file path (e.g., `data/raw/real_traces.csv`). **Constraint**: If `USE_REAL_DATA=true` and the file is missing, the script MUST print `CRITICAL: Real data file missing. Aborting.` and exit with code `sys.exit(1)`. If `USE_REAL_DATA` is false or unset, it must proceed to T015. It is the primary data source for the research phase.
 - [ ] T015 [P] [US1] **CI-Placeholder Data Generation**: Implement `code/data/generate_synthetic.py` to generate deterministic synthetic transient-absorption traces (mocking laser flash photolysis) as a **fallback ONLY** for CI logic testing. **Constraint**: This task MUST NOT be used as the primary research data source. It runs only if T015b is explicitly bypassed or disabled. Output to `data/raw/synthetic_traces.csv`.
-- [ ] T015c [US1] **Real Instrument Interface**: Implement `code/hardware/interface.py` to provide the API contract for 'capturing' transient-absorption data. **Constraint**: The function `capture_trace(serial_port, timeout)` MUST attempt to initialize a `serial.Serial` connection. If the connection fails (e.g., port not found), it MUST raise a `HardwareNotConnectedError` with the message `Hardware interface not available. Ensure serial port is connected or set USE_REAL_DATA=false for CI mode.` It must NOT silently return synthetic data unless `USE_REAL_DATA=false` and no hardware is detected, in which case it returns synthetic data from T015. This task satisfies FR-002 by defining the real interface, even if hardware is unavailable in CI.
-- [ ] T015d [P] **Hardware Integration Gap Documentation**: Create `docs/hardware_integration_status.md` to explicitly document that the 'capture' capability is deferred to future hardware integration, and the current implementation relies on file ingestion or synthetic generation.
+- [X] T015c [US1] **Real Instrument Interface**: Implement `code/hardware/interface.py` to provide the API contract for 'capturing' transient-absorption data. **Constraint**: The function `capture_trace(serial_port, timeout)` MUST attempt to initialize a `serial.Serial` connection. If the connection fails (e.g., port not found), it MUST raise a `HardwareNotConnectedError` with the message `Hardware interface not available. Ensure serial port is connected or set USE_REAL_DATA=false for CI mode.` It must NOT silently return synthetic data unless `USE_REAL_DATA=false` and no hardware is detected, in which case it returns synthetic data from T015. This task satisfies FR-002 by defining the real interface, even if hardware is unavailable in CI.
+- [X] T015d [P] **Hardware Integration Gap Documentation**: Create `docs/hardware_integration_status.md` to explicitly document that the 'capture' capability is deferred to future hardware integration, and the current implementation relies on file ingestion or synthetic generation.
+
+**Note on Data Streams**: T006/T008 handle static chemical metadata (solvents.yaml) and do not depend on T015b/T015 (experimental traces). T015b/T015 are **Blocking** for US1/US2 execution because analysis requires trace data, but they do not block the initialization of the chemical loader (T008).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -82,12 +84,12 @@
 ### Tests for User Story 1 (OPTIONAL)
 
 - [X] T011 [P] [US1] Unit test for `code/data/loaders.py` validating dielectric constant lookup in `tests/unit/test_solvent_validation.py`
-- [ ] T012 [US1] Integration test for environmental logging in `tests/integration/test_env_logging.py` (depends on T014 completion)
+- [X] T012 [US1] Integration test for environmental logging in `tests/integration/test_env_logging.py` (depends on T014 completion)
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement `code/analysis/environment.py` to log temperature, humidity, barometric pressure, **substrate_mass**, and **integration_time_ms** for each run. **Constraint**: Must output to `data/processed/environment_logs.json` with all fields required by FR-007 (addressing SC-004, FR-007).
-- [ ] T013 [US1] Implement `code/main.py` CLI entry point to configure solvent series (multiple solvents, ε range low to moderate). **Dependency**: Depends on T014's *module implementation* (the code exists to be called), NOT on the existence of the output file. T013 invokes T014's functions to generate the log file.
+- [ ] T014 [US1] Implement `code/analysis/environment.py` to log temperature, humidity, **barometric pressure**, **substrate_mass**, and **integration_time_ms** for each run. **Constraint**: Must output to `data/processed/environment_logs.json` with all fields required by FR-007 (addressing SC-004, FR-007). **Explicitly mandate**: The script MUST capture `barometric_pressure` (hPa) from the environment or config and include it in the JSON output. If missing, raise a `ConfigurationError`.
+- [X] T013 [US1] Implement `code/main.py` CLI entry point to configure solvent series (multiple solvents, ε range low to moderate). **Constraint**: The CLI MUST explicitly validate that at least 5 distinct solvent conditions are provided and that the dielectric constants span the range ε ≈ low to ε ≈ 33. If constraints are not met, the CLI MUST exit with an error before proceeding. **Dependency**: Depends on T014's *module implementation* (the code exists to be called), NOT on the existence of the output file. T013 invokes T014's functions to generate the log file.
 - [ ] T017a [US1] **Environmental Validation**: Implement `code/analysis/validation.py` to: 1) flag runs where logged dielectric constants deviate >2% from `solvents.yaml` (addressing SC-010), 2) detect and flag runs where temperature or humidity exceeds tolerance (addressing Edge Cases in spec). Output list of flagged runs to `data/processed/validation_flags.json`. **Constraint**: This task MUST first verify `data/chemicals/solvents.yaml` exists and contains a valid `version_hash` (from T006d); if missing, it MUST raise a `ConfigurationError`.
 - [ ] T017b [US1] **Compliance Reporting**: Implement `code/analysis/validation.py` to calculate the environmental compliance percentage (≥95% of runs within tolerance) by reading `data/processed/environment_logs.json` and `data/processed/validation_flags.json`, then write the result to `data/processed/compliance_report.json`. **Constraint**: The denominator for compliance percentage is 'total configured solvent runs' (sum of all `n` replicates defined in configuration).
 
@@ -109,10 +111,10 @@
 ### Implementation for User Story 2
 
 - [X] T016 [US2] Implement `code/analysis/calibration.py` to apply instrument calibration factors and log detector response/wavelength stability per `FR-004`
+- [ ] T059 [US2/US3] **Unified Power Analysis**: Implement `code/analysis/power.py` to perform and document a **single unified power analysis** for the entire study (covering both kinetic extraction and correlation steps) with n ≥ 3 replicates per solvent. **Constraint**: Output must be a single artifact `data/processed/study_power_analysis.json` that documents detectable effect sizes for both the kinetic fit (US-2) and the correlation slope (US-3), explicitly stating the study's limitations due to low N. **Dependency**: **MUST run BEFORE T021 and T026** to define the required sample size (n≥3) before data generation or fitting begins.
 - [ ] T021 [US2] **Joint Non-Linear Mixed-Effects (NLME) Modeling**: Implement `code/analysis/kinetic_fit.py` to define and fit a **Joint Non-Linear Mixed-Effects (NLME)** model for global kinetic analysis. **Constraint**: Use `pymc` or `statsmodels` to define fixed effects (decay rates) and random effects (inter-replicate and inter-solvent variance). Do NOT use standard `scipy.optimize.curve_fit` for the primary analysis. The model must propagate uncertainty from the kinetic fit into the final lifetime estimate. Output must include the posterior distribution of the lifetime parameter.
 - [X] T022 [US2] Implement `code/analysis/kinetic_fit.py` to calculate mean lifetime and standard deviation for n ≥ 3 replicates per solvent
 - [X] T023 [US2] Implement `code/analysis/kinetic_fit.py` to flag outliers beyond a statistically significant threshold. (addressing US-2 acceptance scenario)
-- [X] T024 [US2] Implement `code/analysis/power.py` to document power analysis for n=3 and estimate detectable effect size (addressing SC-007)
 - [X] T025 [US2] Implement `code/analysis/kinetic_fit.py` to perform threshold sensitivity analysis on lifetime discrepancy cutoffs across a range of values and report false-positive/negative rates (addressing SC-008)
 - [X] T026 [US2] Create `data/processed/kinetic_metrics.csv` containing extracted lifetimes, CIs, and replicate statistics
 
@@ -135,12 +137,11 @@
 
 - [ ] T029 [US3] **Solvent Model Partitioning & DFT Fetching**: Implement `code/data/compute/solvent_models.py` to: 1) fetch or compute DFT solvation data for a list of N solvents, 2) partition the list into ≤80% implicit (SMD/PCM) and ≥20% explicit (QM/MM) models based on `alpha` from `code/config.py`, and 3) write the combined results to `data/compute/solvent_solvation.csv`. **Constraint**: This task is sequential: fetch -> partition -> write. It MUST NOT be marked as parallel [P].
 - [X] T030a [US3] **Bayesian Correlation**: Implement `code/analysis/correlation.py` to perform **Bayesian Hierarchical Modeling (BHM)** to correlate lifetime with Solvation Energy and Dielectric Constant. **Constraint**: Do NOT use standard ANOVA or Linear Regression as the primary model. Use a PCA-derived "Solvent Polarity Index" as the primary predictor to avoid tautology. Output posterior distributions for slope and intercept. **Dependency**: This task must complete before T030b.
-- [X] T030b [US3] **Statistical Reporting**: Implement `code/analysis/correlation.py` to report **Posterior Probability of Effect** (derived from Bayesian posterior, e.g., P(slope > 0)) as the **primary p-value equivalent** satisfying SC-003. Additionally, calculate a **secondary frequentist ANOVA p-value** (via `scipy.stats.f_oneway`) strictly labeled as "Diagnostic ANOVA" to satisfy SC-003's explicit p-value requirement without claiming causality. Calculate **Bayesian R²** and **credible intervals (CI)**. Explicitly frame all findings as associational and exploratory due to low N (n=3). **Output**: Must write `data/processed/correlation_results.json` with keys: `posterior_slope`, `bayesian_p_value`, `diagnostic_anova_p_value`, `bayes_factor`, `bayesian_r2`, `credible_intervals`. (Addressing SC-001, SC-003, SC-006). **Dependency**: This task must complete after T030a.
+- [X] T030b [US3] **Statistical Reporting**: Implement `code/analysis/correlation.py` to report **Posterior Probability of Effect** (derived from Bayesian posterior, e.g., P(slope > 0)) as the **primary p-value equivalent** satisfying SC-003. Additionally, calculate **Bayesian R²** and **credible intervals (CI)**. Explicitly frame all findings as associational and exploratory due to low N (n=3). [UNRESOLVED-CLAIM: c_fc3c42d7 — status=not_enough_info] **Output**: Must write `data/processed/correlation_results.json` with keys: `posterior_slope`, `bayesian_p_value`, `bayes_factor`, `bayesian_r2`, `credible_intervals`. **(Note: Frequentist ANOVA is explicitly excluded to comply with Plan's prohibition on univariate models).** (Addressing SC-001, SC-003, SC-006). **Dependency**: This task must complete after T030a.
 - [X] T031 [US3] Implement `code/analysis/correlation.py` to perform VIF analysis to distinguish dielectric vs. solvation effects (addressing SC-009 and Rosalind Franklin review)
 - [X] T032 [US3] Implement `code/analysis/correlation.py` to apply multiple-comparison correction (e.g., Bonferroni) and report family-wise error rate
 - [X] T033 [US3] Implement `code/analysis/correlation.py` to frame all findings as associational (not causal) in output metadata
-- [X] T049 [US3] **Correlation Power Analysis**: Implement `code/analysis/power.py` to perform and document a specific power analysis for the *correlation* step (US-3) using n=3 replicates, estimating the detectable effect size for the regression slope. Output to `data/processed/correlation_power_analysis.json` (addressing SC-007).
-- [X] T034 [US3] Generate `paper/figures/regression_plot.png` and **copy** `data/processed/correlation_results.json` from T030b (do not regenerate) with **Bayesian R²**, **95% Credible Intervals**, **p-values**, and VIF scores; ensure all findings are explicitly framed as associational (addressing SC-006). **Dependency**: This task depends on completion of T030b AND T031 (to ensure VIF scores are available).
+- [X] T034 [US3] Generate `paper/figures/regression_plot.png` and **copy** `data/processed/correlation_results.json` from Tb (do not regenerate) with **Bayesian R²**, **95% Credible Intervals**, **p-values**, and VIF scores; ensure all findings are explicitly framed as associational (addressing SC-006). **Dependency**: This task depends on completion of T030b AND T031 (to ensure VIF scores are available).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -172,7 +173,7 @@
 
 - [X] T053 [P] **Sample Quantity Tracking**: Implement `code/analysis/sample_tracker.py` to record exact quantities of all materials used per trial (solvent volume, substrate mass, integration time). This task must validate that all quantities are recorded to appropriate significant figures and generate a material balance report for each run (addressing Marie Curie's requirement for "weight of material" recording).
 - [X] T054 [P] **Error Propagation Analysis**: Implement `code/analysis/error_propagation.py` to calculate and report error margins for all derived quantities (lifetimes, correlation coefficients) by propagating uncertainties from raw measurements through the entire analysis pipeline. Output must include standard deviations and confidence intervals for every reported metric (addressing Marie Curie's concern for stated error margins).
-- [ ] T055 [P] **Ground-State Characterization**: Implement `code/analysis/ground_state.py` to perform and log ground-state structural characterization (UV-Vis spectra, baseline stability) before photo-irradiation for each solvent condition. **Constraint**: If real data is unavailable, generate simulated UV-Vis spectra for the substrate in each solvent using a predefined absorption model. Log parameters: wavelength range (UV-visible), absorbance baseline, and peak positions. Output to `data/processed/ground_state_spectra.csv`. This task establishes the structural baseline required to distinguish solvent effects from instrumental artifacts (addressing Rosalind Franklin's request for ground-state characterization).
+- [ ] T055 [P] **Ground-State Characterization**: Implement `code/analysis/ground_state.py` to perform and log ground-state structural characterization (UV-Vis spectra, baseline stability) before photo-irradiation for each solvent condition. **Constraint**: If real data is unavailable, generate simulated UV-Vis spectra for the substrate in each solvent using a **Lorentzian absorption model** with defined parameters: peak wavelength (λ_max) from spec assumptions, FWHM = 20 nm, and baseline noise = 0.005 AU. Log parameters: wavelength range (UV-visible), absorbance baseline, and peak positions. Output to `data/processed/ground_state_spectra.csv`. This task establishes the structural baseline required to distinguish solvent effects from instrumental artifacts (addressing Rosalind Franklin's request for ground-state characterization).
 - [X] T056 [P] **Analytical Method Specification**: Implement `code/analysis/method_spec.py` to generate a comprehensive methods specification document that explicitly defines: 1) The solvent polarity scale used (dielectric constant, ET(30), or PCA index), 2) The analytical method for product quantification (HPLC-UV with specified detection thresholds), 3) The temporal resolution of kinetic measurements, and 4) The calibration standards used. Output to `docs/methodology.md` (addressing Rosalind Franklin's methodological requirements).
 - [X] T057 [P] **Replicate Statistics Dashboard**: Implement `code/analysis/replicate_dashboard.py` to generate a visual and tabular summary of replicate statistics across all solvent conditions, including mean, standard deviation, coefficient of variation, and outlier flags. This task must clearly display the number of independent runs performed per condition (addressing Marie Curie's concern for reporting replicate counts).
 - [X] T058 [P] **Detection Threshold Validation**: Implement `code/analysis/detection_threshold.py` to validate that all measured intermediate lifetimes exceed the instrument's detection limit by a statistically significant margin. This task must calculate the signal-to-noise ratio for each measurement and flag any results that fall below the detection threshold (addressing Marie Curie's concern for detection limits).
@@ -214,6 +215,12 @@
 - Different user stories can be worked on in parallel by different team members
 - **Note**: T012 (Integration test for US1) depends on T014 completion and cannot run in parallel with it.
 - All Phase 7 tasks marked [P] can run in parallel once Phases 1-6 are complete, as they represent independent enhancements to the analysis pipeline.
+
+### Critical Execution Order for Phase 4
+
+- **T059 (Unified Power Analysis) MUST complete BEFORE T021 and T026**: T059 defines the sample size (n≥3) required for the study. It must run before any data generation or fitting occurs to ensure the experimental design is powered correctly. The previous dependency direction (T059 after T026) was corrected.
+- **T021 (NLME) and T022-T023 (Replicate/Outlier) are sequential**: T021 produces the primary fit, T022/T023 process the results.
+- **T026 (Metrics Creation) depends on T021**: T026 aggregates the output of the kinetic fit.
 
 ### Critical Execution Order for Phase 5
 
@@ -300,22 +307,22 @@ With multiple developers:
  - T015b (Real Data), T015 (Synthetic Fallback) ensure data integrity and null hypothesis testing without violating reproducibility.
  - **T029 now implements the full dynamic partitioning logic for implicit/explicit solvent models as required by FR-005, replacing the fragmented T029a-d tasks.**
  - T042 restricted to HPLC with UV detection only; NMR explicitly excluded.
- - **Statistical Note**: All statistical tasks (T030a, T030b) strictly follow the Plan's Bayesian Hierarchical Modeling approach. T030b now reports the Bayesian posterior probability as the primary p-value equivalent and includes the frequentist ANOVA only as a secondary diagnostic to satisfy SC-003 without contradicting the Plan.
+ - **Statistical Note**: All statistical tasks (T030a, T030b) strictly follow the Plan's Bayesian Hierarchical Modeling approach. T030b now reports the Bayesian posterior probability as the primary p-value equivalent and **explicitly excludes** frequentist ANOVA to comply with the Plan's prohibition on univariate models.
  - **New Review Addressing (Phase 7)**:
  - T051 explicitly addresses Marie Curie's concern for instrument calibration protocol and detection limits by implementing a comprehensive calibration system.
  - T041 (merged T052) addresses Rosalind Franklin's concern for hydration state control by implementing active monitoring and pausing on deviation.
  - T053 addresses Marie Curie's requirement for recording exact quantities of materials per trial.
  - T054 addresses Marie Curie's concern for error margins by implementing error propagation analysis.
- - T055 addresses Rosalind Franklin's request for ground-state structural characterization with explicit simulation fallback.
+ - T055 addresses Rosalind Franklin's request for ground-state structural characterization with explicit simulation fallback (Lorentzian model).
  - T056 addresses Rosalind Franklin's methodological requirements by generating a comprehensive methods specification.
  - T057 addresses Marie Curie's concern for reporting replicate counts and statistics.
  - T058 addresses Marie Curie's concern for detection thresholds by validating measurements against instrument limits.
- - **T038 has been removed** as it contradicts the Constitution's automated governance model for checksumming.
+ - **T038 has been removed because it contradicts Constitution Principle V (Versioning Discipline) which mandates automated governance for checksumming, preventing manual intervention.**
  - **T017a, T017b have been split** from T017 to separate validation from reporting.
  - **T006 has been split** into T006a, T006b, T006c, T006d to ensure atomic execution of schema, population, validation, and hash generation.
  - **T015b now includes specific exit code and error message** to ensure deterministic CI failure.
- - **T014 now includes substrate_mass and integration_time_ms** to satisfy FR-007.
- - **T049 adds power analysis for US-3** to satisfy SC-007 for the correlation step.
+ - **T014 now includes substrate_mass, integration_time_ms, and barometric_pressure** to satisfy FR-007 and FR-003.
+ - **T049 adds power analysis for US-3** to satisfy SC-007 for the correlation step. (Note: T049 has been merged into T059).
  - **T050 adds temporal resolution validation** to satisfy FR-002.
  - **T048 adds trend verification** to satisfy SC-002.
  - **T051 moved to Phase 6** to resolve dependency with T045.
@@ -331,8 +338,8 @@ With multiple developers:
  - **T012 dependency on T014 clarified**.
  - **T013 and T014 reordered** to reflect logical flow (Implementation before CLI).
  - **T048 updated with concrete verification logic**.
- - **T055 updated with concrete logging and fallback logic**.
- - **T030b updated to clarify ANOVA role**.
+ - **T055 updated with concrete logging and fallback logic** (Lorentzian model).
+ - **T030b updated to clarify ANOVA role** (Explicitly excluded).
  - **T029 [P] tag removed** to reflect sequential execution.
  - **T015c 'FAILED' status removed** and replaced with concrete implementation.
  - **T015b exit code specified**.
@@ -371,29 +378,8 @@ With multiple developers:
  - **T013/T014 reordered**.
  - **T051 moved**.
  - **T029 consolidated**.
- - **T015b updated**.
- - **T017 split**.
- - **T006 split**.
- - **T021 updated**.
- - **T015c updated**.
- - **T030b updated**.
- - **T006d added**.
- - **T048 updated**.
- - **T012 updated**.
- - **T013/T014 reordered**.
- - **T051 moved**.
- - **T029 consolidated**.
- - **T015b updated**.
- - **T017 split**.
- - **T006 split**.
- - **T021 updated**.
- - **T015c updated**.
- - **T030b updated**.
- - **T006d added**.
- - **T048 updated**.
- - **T012 updated**.
- - **T013/T014 reordered**.
- - **T051 moved**.
- - **T029 consolidated**.
  - **T048 now explicitly implements trend verification logic** to satisfy SC-002 and remove the 'FAILED' status.
- - **T030b now explicitly distinguishes Bayesian primary vs Frequentist diagnostic** to satisfy SC-003 without violating the Plan's statistical rigor.
+ - **T030b now explicitly distinguishes Bayesian primary vs Frequentist diagnostic** (Frequentist excluded) to satisfy SC-003 without violating the Plan's statistical rigor.
+ - **T059 consolidates power analysis** to satisfy SC-007 with a unified artifact.
+ - **T013 now explicitly enforces FR-001 constraints** at the CLI level.
+ - **T055 now explicitly defines the Lorentzian model** for simulation.
