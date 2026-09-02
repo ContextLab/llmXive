@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Experiment Result"
+description: "Schema for aggregated metrics per seed."
+type: "object"
+properties:
+  seed:
+    type: "integer"
+    description: "Random seed used for this run."
+  regime:
+    type: "string"
+    enum:
+      - "uniform"
+      - "dopd"
+      - "randomized_weight"
+    description: "Training regime used."
+  accuracy_unmasked:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Accuracy when privileged signal is available."
+  accuracy_masked:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Accuracy when privileged signal is removed."
+  performance_drop:
+    type: "number"
+    description: "Normalized drop in accuracy."
+  convergence_steps:
+    type: "integer"
+    minimum: 0
+    description: "Steps to reach stable policy."
+  mean_entropy:
+    type: "number"
+    description: "Average policy entropy during training."
+required:
+  - "seed"
+  - "regime"
+  - "accuracy_unmasked"
+  - "accuracy_masked"
+  - "performance_drop"
+  - "convergence_steps"
+  - "mean_entropy"
+additionalProperties: false

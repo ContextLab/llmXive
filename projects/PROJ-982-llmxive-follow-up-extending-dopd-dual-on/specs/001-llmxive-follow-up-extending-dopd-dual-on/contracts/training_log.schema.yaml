@@ -11,6 +11,7 @@ properties:
     enum:
       - "uniform"
       - "dopd"
+      - "randomized_weight"
     description: "Training regime used."
   step:
     type: "integer"

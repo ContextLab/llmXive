@@ -89,13 +89,13 @@ Examples of foundational tasks (adjust based on your project):
 
 - [X] T012 [P] [US1] Implement `code/data_acquisition/github_scraper.py` to fetch PR metadata and file content for repos ≥1,000 stars (FR-001)
 - [X] T014 [US1] Implement `code/data_acquisition/classifier_runner.py` using CPU-tractable CodeBERT to classify code snippets as "LLM-like" or "Human" (for secondary diagnostic purposes only, not primary generation).
-- [ ] T014b [US1] **MANDATORY GENERATION**: Implement `code/data_acquisition/synthetic_generator.py` to generate synthetic code snippets using a CPU-tractable LLM (CodeLlama) with a -second timeout per snippet (FR-002). **CRITICAL**: If generation fails or exceeds time limit, the task MUST generate `spec_amendment_request.md` detailing the failure and HALT the pipeline. Do NOT silently fall back to classification. Output: `data/processed/generated_snippets.parquet`.
+- [ ] T014b [US1] **MANDATORY GENERATION**: Implement `code/data_acquisition/synthetic_generator.py` to generate synthetic code snippets using a CPU-tractable LLM (CodeLlama) with a -second timeout per snippet (FR-002). **CRITICAL**: If generation fails or exceeds time limit, the task MUST generate `spec_amendment_request.md` detailing the failure and HALT the pipeline. Do NOT silently fall back to classification. Output: `data/processed/generated_snippets.parquet`. <!-- FAILED: unspecified -->
 - [X] T015 [US1] Implement `code/feature_extraction/complexity.py` to calculate LOC and Cyclomatic Complexity via `radon` (FR-003, FR-009)
 - [X] T016 [US1] Implement `code/feature_extraction/timestamps.py` to extract review duration (PR open to first comment/merge) (FR-003)
 - [X] T017 [US1] Implement `code/feature_extraction/style_features.py` to compute style metrics required for classification (FR-009)
 - [ ] T017b [US1] [P] **DIAGNOSTIC ONLY**: Implement `code/feature_extraction/semantic_similarity.py` to compute semantic similarity scores for every code snippet using CodeBERT embeddings (FR-009). **NOTE**: These scores are for a Secondary Diagnostic Report only and are explicitly EXCLUDED from matching covariates per Plan. Output: `data/processed/diagnostic_scores.parquet`.
-- [~] T018 [US1] Add error handling for `radon` failures (skip file, log warning, exclude from dataset) (Edge Case)
-- [~] T019 [US1] Add validation to ensure generated snippets (from T014b) are syntactically valid (≥95% success rate check) (SC-007). **Dependency**: T019 depends on T014b output.
+- [ ] T018 [US1] Add error handling for `radon` failures (skip file, log warning, exclude from dataset) (Edge Case)
+- [ ] T019 [US1] Add validation to ensure generated snippets (from T014b) are syntactically valid (≥95% success rate check) (SC-007). **Dependency**: T019 depends on T014b output.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -109,18 +109,18 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T020 [P] [US2] Contract test for matching algorithm balance check in `tests/contract/test_matching.py`
+- [ ] T020 [P] [US2] Contract test for matching algorithm balance check in `tests/contract/test_matching.py`
 - [X] T021 [P] [US2] Integration test for statistical test selection (t-test vs Mann-Whitney) in `tests/integration/test_statistical_test.py`
 
 ### Implementation for User Story 2
 
-- [~] T022 [P] [US2] Implement `code/analysis/matching.py` for propensity score matching using covariates: file size, complexity, activity. **Note**: Semantic similarity scores (from T017b) are computed but EXCLUDED from matching covariates per Plan (to avoid collider bias). **Dependency**: Requires `data/processed/diagnostic_scores.parquet` from T017b to document the exclusion. (FR-004)
+- [ ] T022 [P] [US2] Implement `code/analysis/matching.py` for propensity score matching using covariates: file size, complexity, activity. **Note**: Semantic similarity scores (from T017b) are computed but EXCLUDED from matching covariates per Plan (to avoid collider bias). **Dependency**: Requires `data/processed/diagnostic_scores.parquet` from T017b to document the exclusion. (FR-004)
 - [ ] T022b [US2] Implement logic to generate `data/processed/deviation_report.md` documenting the formal exclusion of semantic similarity from matching covariates (deviation from FR-004/FR-009 intent) per Plan's scientific reasoning. (FR-004 deviation)
 - [X] T023a [US2] Implement retry logic in `code/analysis/matching.py`: if Standardized Mean Difference (SMD) > 0.1, adjust propensity score model (add interaction terms) and retry up to 3 times.
-- [~] T023b [US2] Implement failure handling in `code/analysis/matching.py`: if SMD > 0.1 after 3 retries, generate `data/processed/matching_failure_report.json` containing SMD values and retry count, and halt analysis. (FR-004)
+- [ ] T023b [US2] Implement failure handling in `code/analysis/matching.py`: if SMD > 0.1 after 3 retries, generate `data/processed/matching_failure_report.json` containing SMD values and retry count, and halt analysis. (FR-004)
 - [X] T024 [US2] Implement `code/analysis/statistical_test.py` to run Shapiro-Wilk, select t-test or Mann-Whitney U, and output p-value/Cohen's d (FR-005)
 - [X] T025 [US2] Implement `code/analysis/matching.py` to generate "Covariate Balance Report" listing SMD for all covariates (FR-010) <!-- FAILED: unspecified -->
-- [~] T026 [US2] Add logic to flag result as "statistically significant" only if p < 0.05 (SC-002)
+- [ ] T026 [US2] Add logic to flag result as "statistically significant" only if p < 0.05 (SC-002)
 - [~] T034 [US2/US4] Implement matching logic for the Prompt-Based cohort (from T033) using the same covariates as US2. **Dependency**: Requires matching infrastructure from T022/T025. (FR-008 adjusted)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -135,15 +135,15 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Contract test for sensitivity analysis stratification in `tests/contract/test_sensitivity.py`
-- [ ] T028 [P] [US3] Integration test for visualization generation in `tests/integration/test_visualization.py`
+- [X] T027 [P] [US3] Contract test for sensitivity analysis stratification in `tests/contract/test_sensitivity.py`
+- [X] T028 [P] [US3] Integration test for visualization generation in `tests/integration/test_visualization.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Implement `code/analysis/sensitivity.py` to repeat statistical test across Multiple subsets stratified by star-count quartiles (FR-006)
-- [ ] T030 [US3] Implement `code/analysis/sensitivity.py` to check if p < 0.05 in ≥ 80% of subsets. **Output**: `data/processed/sensitivity_summary.json` with a "consistent" boolean flag. (SC-005)
-- [ ] T031 [US3] Implement `code/analysis/visualization.py` to generate box plots and CDF curves comparing review-time distributions (FR-007)
-- [ ] T032 [US3] Implement report generation (PDF/HTML) containing p-value, effect size, and visualizations (US-3)
+- [X] T029 [P] [US3] Implement `code/analysis/sensitivity.py` to repeat statistical test across Multiple subsets stratified by star-count quartiles (FR-006)
+- [~] T030 [US3] Implement `code/analysis/sensitivity.py` to check if p < 0.05 in ≥ 80% of subsets. **Output**: `data/processed/sensitivity_summary.json` with a "consistent" boolean flag. (SC-005)
+- [X] T031 [US3] Implement `code/analysis/visualization.py` to generate box plots and CDF curves comparing review-time distributions (FR-007)
+- [~] T032 [US3] Implement report generation (PDF/HTML) containing p-value, effect size, and visualizations (US-3)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -157,7 +157,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 4
 
-- [ ] T033 [US4] **MANDATORY GENERATION**: Implement `code/data_acquisition/prompt_cohort_generator.py` to generate a "Prompt-Based" cohort of LLM code using natural language prompts derived from commit messages, without access to the original file content (FR-008). **CRITICAL**: If generation fails, the task MUST generate `spec_amendment_request.md` detailing the failure and HALT the pipeline. Do NOT fall back to filtering. Output: `data/processed/prompt_based_cohort.parquet`.
+- [~] T033 [US4] **MANDATORY GENERATION**: Implement `code/data_acquisition/prompt_cohort_generator.py` to generate a "Prompt-Based" cohort of LLM code using natural language prompts derived from commit messages, without access to the original file content (FR-008). **CRITICAL**: If generation fails, the task MUST generate `spec_amendment_request.md` detailing the failure and HALT the pipeline. Do NOT fall back to filtering. Output: `data/processed/prompt_based_cohort.parquet`.
 - [ ] T035 [US4] Add validation to ensure prompt-based cohort snippets (from T033) are syntactically valid (FR-008 adjusted)
 
 **Checkpoint**: Prompt-based cohort validation complete

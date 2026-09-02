@@ -1,106 +1,86 @@
-"""
-Script to install and configure linting (ruff) and formatting (black) tools.
-This script updates requirements.txt and generates configuration files.
-"""
 import subprocess
 import sys
 from pathlib import Path
-
-# Ensure we are running from the project root or handle relative paths correctly
-# Assuming the script is run as `python code/setup_linting.py` from root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+import os
 
 def install_tools():
-    """Install ruff and black if not already installed."""
+    """Install ruff and black if not present."""
     print("Installing linting and formatting tools...")
-    tools = ["ruff", "black"]
-    for tool in tools:
-        try:
-            subprocess.check_call([sys.executable, "-m", "pip", "install", tool])
-            print(f"Successfully installed {tool}")
-        except subprocess.CalledProcessError as e:
-            print(f"Failed to install {tool}: {e}")
-            sys.exit(1)
-    print("All tools installed successfully.")
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "ruff", "black", "--quiet"])
+        print("Tools installed successfully.")
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to install tools: {e}")
+        sys.exit(1)
 
-def create_ruff_config():
+def create_ruff_config(project_root: Path):
     """Create a .ruff.toml configuration file."""
-    config_path = PROJECT_ROOT / ".ruff.toml"
-    content = """
-# Ruff configuration
+    config_content = """[lint]
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
     "F",  # Pyflakes
     "I",  # isort
-    "C",  # flake8-comprehensions
     "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
     "UP", # pyupgrade
 ]
 ignore = [
     "E501", # line too long (handled by black)
     "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
 ]
 
-# Allow autofix for all enabled rules (when `--fix` is provided)
-fixable = ["ALL"]
-unfixable = []
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]
 
-# Exclude a few files
-extend-exclude = ["__pycache__", "*.egg-info", ".git", "venv", "data"]
-
+[format]
 # Same as Black.
 line-length = 88
-target-version = "py311"
-
-[per-file-ignores]
-# Allow imports in __init__.py
-"__init__.py" = ["F401"]
+indent-style = "space"
 """
+    config_path = project_root / ".ruff.toml"
     with open(config_path, "w") as f:
-        f.write(content.strip() + "\n")
-    print(f"Created {config_path}")
+        f.write(config_content)
+    print(f"Created ruff config at {config_path}")
 
-def create_black_config():
-    """Create a pyproject.toml section for Black if not present, or a standalone config."""
-    # We will add to pyproject.toml if it exists, otherwise create it with just black config
-    pyproject_path = PROJECT_ROOT / "pyproject.toml"
+def create_black_config(project_root: Path):
+    """Create a pyproject.toml configuration for Black if not exists, or update it."""
+    pyproject_path = project_root / "pyproject.toml"
     
     black_section = """
 [tool.black]
 line-length = 88
 target-version = ['py311']
 include = '\\.pyi?$'
-extend-exclude = '''
-/(
-    \\.__pycache__
-    | \\.git
-    | \\.mypy_cache
-    | \\.venv
-    | data
-)/
-'''
 """
     
     if pyproject_path.exists():
-        # Append to existing file
-        with open(pyproject_path, "a") as f:
-            f.write("\n" + black_section.strip() + "\n")
+        content = pyproject_path.read_text()
+        if "[tool.black]" not in content:
+            with open(pyproject_path, "a") as f:
+                f.write(black_section)
+            print(f"Updated pyproject.toml with Black config at {pyproject_path}")
+        else:
+            print("Black config already exists in pyproject.toml")
     else:
-        # Create new file with just black config (and maybe a minimal header)
         with open(pyproject_path, "w") as f:
-            f.write("[build-system]\nrequires = [\"setuptools>=42\", \"wheel\"]\nbuild-backend = \"setuptools.build_meta\"\n\n")
-            f.write(black_section.strip() + "\n")
-    
-    print(f"Updated/Created {pyproject_path} with Black configuration")
+            f.write(black_section)
+        print(f"Created pyproject.toml with Black config at {pyproject_path}")
 
 def main():
-    """Main entry point."""
+    """Main entry point for linting setup."""
+    # Determine project root (assume script is in code/ directory)
+    script_path = Path(__file__).resolve()
+    project_root = script_path.parent.parent
+    
+    print(f"Setting up linting in project root: {project_root}")
+    
     install_tools()
-    create_ruff_config()
-    create_black_config()
+    create_ruff_config(project_root)
+    create_black_config(project_root)
+    
     print("Linting and formatting configuration complete.")
+    print("You can now run: ruff check . && black .")
 
 if __name__ == "__main__":
     main()

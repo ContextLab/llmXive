@@ -1,3 +1,2 @@
-# This directory is for processed/generated data.
-# Do not commit large files here.
-# Add .gitkeep to ensure directory is tracked.
+# This file ensures the data/processed directory is tracked by git.
+# Place processed data files here.

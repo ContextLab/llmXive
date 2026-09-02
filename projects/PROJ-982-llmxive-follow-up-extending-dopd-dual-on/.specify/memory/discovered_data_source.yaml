@@ -1,48 +1,50 @@
 status: verified
 kind: pypi_package
-ref: minigrid
-access_python: "import gymnasium as gym\nimport minigrid\nimport numpy as np\n\n#\
-  \ create a simple MiniGrid environment that follows the Gymnasium API\nenv = gym.make('MiniGrid-Empty-5x5-v0')\n\
-  obs, info = env.reset(seed=42)\n\nrecords = []\nstate_id = 0\nwhile True:\n    #\
-  \ sample a random action\n    action = env.action_space.sample()\n    next_obs,\
-  \ reward, terminated, truncated, info = env.step(action)\n    done = terminated\
-  \ or truncated\n\n    # privileged full state (grid encoding) \u2013 this is the\
-  \ hidden information\n    full_state = None\n    if hasattr(env.unwrapped, 'grid')\
-  \ and hasattr(env.unwrapped.grid, 'encode'):\n        full_state = env.unwrapped.grid.encode()\n\
-  \n    # example privileged variable (agent direction) if present in info\n    privileged_variable\
-  \ = info.get('direction')\n\n    record = {\n        'state_id': state_id,\n   \
-  \     'full_state': full_state,\n        'student_observation': obs,\n        'teacher_observation':\
-  \ full_state,\n        'privileged_variable': privileged_variable,\n        'action':\
-  \ action,\n        'reward': reward,\n        'next_state': next_obs,\n        'done':\
-  \ done,\n        'seed': env.unwrapped._seed if hasattr(env.unwrapped, '_seed')\
-  \ else None,\n    }\n    records.append(record)\n    if done:\n        break\n \
-  \   obs = next_obs\n    state_id += 1\n\nprint(f\"RECORDS={len(records)}\")\nprint(\"\
-  FIELDS=state_id,full_state,student_observation,teacher_observation,privileged_variable,action,reward,next_state,done,seed\"\
+ref: gym-minigrid
+access_python: "import gym\nfrom gym_minigrid import register_minigrid_envs\n\n# Register\
+  \ all MiniGrid environments\nregister_minigrid_envs()\n\n# Create the environment\
+  \ without gym wrappers that trigger numpy.bool8 checks\nenv = gym.make(\"MiniGrid-Empty-5x5-v0\"\
+  ).unwrapped\n\nseed = 123\nreset_result = env.reset(seed=seed)\nobs = reset_result[0]\
+  \ if isinstance(reset_result, tuple) else reset_result\n\nrecords = []\nstate_id\
+  \ = 0\n\nwhile len(records) < 20:\n    # Full privileged state (grid encoding)\n\
+  \    full_state = env.grid.encode()\n    # Agent's partial observation\n    student_obs\
+  \ = obs\n    # Action space size\n    action_space = env.action_space.n\n    # Sample\
+  \ random action\n    action = env.action_space.sample()\n    # Step the environment\n\
+  \    step_result = env.step(action)\n    if len(step_result) == 5:  # gymnasium\
+  \ API\n        next_obs, reward, terminated, truncated, info = step_result\n   \
+  \     done = terminated or truncated\n    else:  # classic gym API\n        next_obs,\
+  \ reward, done, info = step_result\n        terminated = done\n        truncated\
+  \ = False\n    # Record transition details\n    records.append({\n        \"full_state_vector\"\
+  : full_state,\n        \"student_observation\": student_obs,\n        \"privileged_variable\"\
+  : full_state,\n        \"action_space\": action_space,\n        \"reward\": reward,\n\
+  \        \"next_state_vector\": next_obs,\n        \"transition_function\": f\"\
+  action_{action}\",\n        \"state_id\": state_id,\n        \"seed\": seed,\n \
+  \   })\n    obs = next_obs\n    state_id += 1\n    if terminated or truncated:\n\
+  \        reset_result = env.reset(seed=seed)\n        obs = reset_result[0] if isinstance(reset_result,\
+  \ tuple) else reset_result\n\nprint(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=full_state_vector,student_observation,privileged_variable,action_space,reward,next_state_vector,transition_function,state_id,seed\"\
   )"
-record_count: 98
+record_count: 20
 sample_fields:
-- state_id
-- full_state
+- full_state_vector
 - student_observation
-- teacher_observation
 - privileged_variable
-- action
+- action_space
 - reward
-- next_state
-- done
+- next_state_vector
+- transition_function
+- state_id
 - seed
 field_coverage: 1.0
 required_fields:
-- state_id
-- full_state
+- full_state_vector
 - student_observation
-- teacher_observation
 - privileged_variable
-- action
+- action_space
 - reward
-- next_state
-- done
+- next_state_vector
+- transition_function
+- state_id
 - seed
-intent: MiniGrid gymnasium hidden privileged state gridworld environment python package
+intent: gym-minigrid hidden privileged state gridworld environment python package
   dataset
-cache_key: 797d2fc271103b5d9c5985b40bb66556944ee51a9176a3645dfbb15deab80199
+cache_key: 639b7dc6e5ae244e087c86b99df7a3c5af276d63e75d7df268af27e6bec03f56

@@ -1,58 +1,64 @@
-# Data Model: 001-dopd-discrete-mdp
+# Data Model: llmXive follow-up: extending "DOPD: Dual On-policy Distillation"
 
-## 1. Overview
+## Overview
 
-This document defines the data structures used for simulation, training, and analysis. All data is stored in `data/` directory. Raw logs are JSON/CSV; processed metrics are Parquet.
+This document defines the data structures for the discrete MDP simulation, training logs, and statistical analysis results. All data is generated procedurally; no external datasets are used.
 
-## 2. Entity Definitions
+## Entity Definitions
 
-### 2.1 Simulation Trajectory (Raw)
-A single step in the MDP environment.
+### 1. MDP Transition Record
+Represents a single step in the environment.
+- **`state_id`**: Integer, unique identifier for the step.
+- **`seed`**: Integer, the random seed for this episode.
+- **`full_state_vector`**: List of integers (grid encoding).
+- **`student_observation`**: List of integers (observable grid only).
+- **`privileged_variable`**: Integer or String (hidden state $H$, e.g., "safe_door_A").
+- **`action_space`**: Integer (size of action space).
+- **`reward`**: Float (immediate reward).
+- **`next_state_vector`**: List of integers.
+- **`transition_function`**: String (e.g., "action_2").
+- **`teacher_action`**: Integer (optimal action given $H$).
+- **`student_action`**: Integer (action taken by Student).
+- **`teacher_advantage_gap`**: Float (computed by Teacher).
+- **`distillation_weight`**: Float (lambda passed to Student).
 
-- **`state_id`**: Integer. Unique identifier for the step within an episode.
-- **`full_state`**: String (serialized). The complete state `(O, H)`.
-- **`student_observation`**: String (serialized). The projection `O` only.
-- **`teacher_observation`**: String (serialized). Same as `full_state`.
-- **`privileged_variable`**: String/Int. The specific hidden variable `H`.
-- **`action`**: Integer. Action taken (0-3 for grid movement).
-- **`reward`**: Float. Immediate reward.
-- **`next_state`**: String (serialized). Resulting state.
-- **`done`**: Boolean. Episode termination flag.
-- **`seed`**: Integer. Random seed for the episode.
-- **`regime`**: String. "uniform" or "dopd".
-- **`teacher_advantage`**: Float. Calculated advantage gap for DOPD.
-- **`distillation_weight`**: Float. Weight `w` used in DOPD (1.0 for Uniform).
-
-### 2.2 Training Log (Processed)
-Aggregated metrics per episode/seed.
-
+### 2. Training Log Entry
+Recorded at every training step.
+- **`step`**: Integer.
 - **`seed`**: Integer.
-- **`regime`**: String.
-- **`final_q_table_size`**: Integer.
-- **`convergence_step`**: Integer. Step where policy stabilized.
-- **`action_entropy_mean`**: Float. Average entropy during training.
-- **`accuracy_unmasked`**: Float. Accuracy on test set with `H` visible (if applicable).
-- **`accuracy_masked`**: Float. Accuracy on test set with `H` hidden.
-- **`drop`**: Float. `(accuracy_unmasked - accuracy_masked) / R_max`.
+- **`regime`**: Enum (`uniform`, `dopd`, `randomized_weight`).
+- **`advantage_gap`**: Float (calculated $Q_{teacher} - V_{baseline}$).
+- **`weight_lambda`**: Float (dynamic weight used).
+- **`loss`**: Float (distillation loss).
+- **`student_entropy`**: Float (policy entropy).
+- **`action`**: Integer.
 
-### 2.3 Statistical Results
-Final analysis output.
+### 3. Experiment Result (Per Seed)
+Aggregated metrics for one seed.
+- **`seed`**: Integer.
+- **`regime`**: Enum.
+- **`accuracy_unmasked`**: Float (0.0 to 1.0).
+- **`accuracy_masked`**: Float (0.0 to 1.0).
+- **`performance_drop`**: Float.
+- **`convergence_steps`**: Integer (steps to reach stable policy).
+- **`mean_entropy`**: Float.
 
-- **`regime_uniform_mean_drop`**: Float.
-- **`regime_dopd_mean_drop`**: Float.
-- **`p_value`**: Float. Result of Mann-Whitney U test.
-- **`effect_size`**: Float. (e.g., Cohen's d or rank-biserial correlation).
-- **`is_significant`**: Boolean. `p_value < 0.05`.
-- **`conclusion`**: String. "DOPD mitigates illusion" or "Exploratory/No Effect".
+## File Formats
 
-## 3. File Formats
+### Raw Data
+- **Location**: `data/raw/transitions_seed_{seed}.json`
+- **Format**: JSON Lines (one record per line) for streaming efficiency.
 
-- **Raw Logs**: `data/raw/{seed}_{regime}.csv` (One row per step).
-- **Aggregated Logs**: `data/processed/training_summary.parquet`.
-- **Statistical Report**: `data/processed/stats_report.json`.
+### Processed Data
+- **Location**: `data/processed/results_{regime}.csv`
+- **Format**: CSV with headers: `seed, regime, accuracy_unmasked, accuracy_masked, performance_drop, convergence_steps`.
 
-## 4. Constraints
+### Statistical Report
+- **Location**: `data/processed/statistical_summary.json`
+- **Format**: JSON containing p-value, effect size, and exploratory status.
 
-- **Grid Size**: Max 5x5 (enforced in `env/privilege_mdp.py`).
-- **Seeds**: Must be integers in range [0, 2^32-1].
-- **Precision**: Floats stored as `float64`.
+## Constraints
+
+- **Grid Size**: Max 10x10 (enforced in `privileged_grid.py`).
+- **Seeds**: Training seeds (0-49), Evaluation seeds (50-99), Baseline seeds (1000-1099) must be distinct sets.
+- **Data Hygiene**: Raw data files are never modified; analysis scripts read from them and write to `processed/`.

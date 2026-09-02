@@ -35,7 +35,7 @@ properties:
     description: "Random seed for the episode."
   regime:
     type: "string"
-    enum: ["uniform", "dopd"]
+    enum: ["uniform", "dopd", "randomized_weight"]
     description: "Training regime used."
   teacher_advantage:
     type: "number"

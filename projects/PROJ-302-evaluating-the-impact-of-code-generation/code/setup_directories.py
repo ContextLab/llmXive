@@ -1,54 +1,48 @@
-"""
-Directory creation utilities for the llmXive project.
-This module handles the creation of the required project structure.
-"""
 import os
 from pathlib import Path
 
 def create_directories():
     """
-    Creates the necessary directory structure for the project.
-    
-    Creates:
+    Create the required subdirectories for the project structure.
+    Specifically creates:
     - code/data_acquisition/
     - code/feature_extraction/
     - code/analysis/
     - code/utils/
     
-    Returns:
-        list: A list of created directory paths as strings.
+    These directories are required for organizing the pipeline modules.
     """
-    project_root = Path(__file__).resolve().parent.parent
-    base_code_dir = project_root / "code"
+    base_path = Path(__file__).parent.parent
     
-    required_dirs = [
-        "data_acquisition",
-        "feature_extraction",
-        "analysis",
-        "utils"
+    # Define the directories to create relative to the project root
+    directories = [
+        "code/data_acquisition",
+        "code/feature_extraction",
+        "code/analysis",
+        "code/utils"
     ]
     
     created_dirs = []
-    
-    for dir_name in required_dirs:
-        dir_path = base_code_dir / dir_name
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(dir_path))
-            print(f"Created directory: {dir_path}")
+    for dir_path in directories:
+        full_path = base_path / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            created_dirs.append(str(full_path))
+            print(f"Created directory: {full_path}")
         else:
-            print(f"Directory already exists: {dir_path}")
-    
-    # Create __init__.py files in each new directory to make them Python packages
-    for dir_name in required_dirs:
-        dir_path = base_code_dir / dir_name
-        init_file = dir_path / "__init__.py"
-        if not init_file.exists():
-            init_file.touch()
-            print(f"Created package init: {init_file}")
+            print(f"Directory already exists: {full_path}")
     
     return created_dirs
 
+def main():
+    """Main entry point for directory creation."""
+    print("Starting directory creation for T001d...")
+    created = create_directories()
+    if created:
+        print(f"Successfully created {len(created)} directories.")
+    else:
+        print("All required directories already exist.")
+    print("T001d task complete.")
+
 if __name__ == "__main__":
-    create_directories()
-    print("Directory setup complete.")
+    main()

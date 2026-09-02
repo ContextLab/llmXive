@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MDP Transition Record"
+description: "Schema for a single step in the discrete MDP simulation."
+type: "object"
+properties:
+  state_id:
+    type: "integer"
+    description: "Unique identifier for the step."
+  seed:
+    type: "integer"
+    description: "Random seed for this episode."
+  full_state_vector:
+    type: "array"
+    items:
+      type: "integer"
+    description: "Complete grid encoding (Teacher view)."
+  student_observation:
+    type: "array"
+    items:
+      type: "integer"
+    description: "Observable grid only (Student view)."
+  privileged_variable:
+    type: ["integer", "string"]
+    description: "Hidden state H (e.g., 'safe_door_A')."
+  action_space:
+    type: "integer"
+    description: "Size of the action space."
+  reward:
+    type: "number"
+    description: "Immediate reward received."
+  next_state_vector:
+    type: "array"
+    items:
+      type: "integer"
+    description: "State after action."
+  transition_function:
+    type: "string"
+    description: "String representation of the action taken."
+  teacher_action:
+    type: "integer"
+    description: "Optimal action taken by the Teacher."
+  student_action:
+    type: "integer"
+    description: "Action taken by the Student."
+  teacher_advantage_gap:
+    type: "number"
+    description: "Advantage gap computed by Teacher."
+  distillation_weight:
+    type: "number"
+    description: "Weight passed to Student."
+required:
+  - "state_id"
+  - "seed"
+  - "full_state_vector"
+  - "student_observation"
+  - "privileged_variable"
+  - "action_space"
+  - "reward"
+  - "next_state_vector"
+  - "teacher_action"
+  - "student_action"
+  - "teacher_advantage_gap"
+  - "distillation_weight"
+additionalProperties: false

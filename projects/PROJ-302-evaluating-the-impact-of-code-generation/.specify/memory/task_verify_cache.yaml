@@ -41,3 +41,50 @@ T017b:
     \ similarity scores and writes them to `data/processed/diagnostic_scores.parquet`.\
     \ Moreover, the required parquet file is absent from the filesystem. The task\u2019\
     s primary output is therefore missing."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., modified script, added try/except around radon calls, log
+    output, or updated dataset generation code) was presented to demonstrate that
+    radon failures are now caught, logged, and excluded. Without such evidence the
+    requirement is not satisfied.
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No validation code, test results, or report showing that generated snippets\
+    \ from T014b are checked for syntactic correctness and achieve a \u226595\u202F\
+    % success rate is present. The required artifact (e.g., a script or log/report\
+    \ demonstrating the validation and success\u2011rate metric) is missing."
+T020:
+  c: false
+  h: 68ceeefc6ca4c87c8cc83992ded01b284f65eb259dfe34fcfe833464951a33b1
+  r: The required artifact `tests/contract/test_matching.py` does not exist in the
+    repository, so the contract test for the matching algorithm balance check is missing.
+    The task cannot be considered completed until this file is created with appropriate
+    test content.
+T022:
+  c: false
+  h: a9d16fe8c6d680ffd3811a2d700a59f71fc06b5baedf62020d8ad768684a6729
+  r: The required `data/processed/diagnostic_scores.parquet` file is absent, so the
+    implementation cannot document the exclusion of semantic similarity scores as
+    mandated. Additionally, the matching script does not explicitly show that only
+    file size, complexity, and activity are used (and semantic similarity is excluded).
+    These missing artifacts prevent the task from being fully satisfied.
+T023b:
+  c: false
+  h: 08b473019ca5b5fd06f6dc20c037ee636272309d8d57676db303dd2e1fdbe07c
+  r: "The `matching.py` file does not contain any logic that retries matching, checks\
+    \ the SMD after each attempt, writes a `data/processed/matching_failure_report.json`\
+    \ with SMD values and retry count, or halts execution. Moreover, the required\
+    \ `matching_failure_report.json` file is absent. The task\u2019s failure\u2011\
+    handling feature is therefore not implemented."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or test output was provided that shows the implementation of\
+    \ the \u201Cstatistically significant\u201D flagging logic (i.e., checking p\u202F\
+    <\u202F0.05) described in User Story\u202F2. Without an artifact containing the\
+    \ added logic and evidence that it runs correctly, the requirement is not satisfied.\
+    \ The next implementer must supply the relevant source file(s) and a demonstration\
+    \ (e.g., unit test or example run) confirming the flag is set only when p\u202F\
+    <\u202F0.05."
