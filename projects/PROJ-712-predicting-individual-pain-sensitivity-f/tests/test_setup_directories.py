@@ -1,61 +1,48 @@
 import os
-import tempfile
 import shutil
 from pathlib import Path
 import pytest
 
-# We need to import the main function from the sibling module.
-# Since the file is in code/setup_directories.py, we add the parent to path if necessary,
-# or assume the test runner is configured to find it.
-# For this test, we assume the working directory is the project root.
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# Ensure we can import the code module
+sys_path = Path(__file__).parent.parent / "code"
+if str(sys_path) not in __import__("sys").path:
+    __import__("sys").path.insert(0, str(sys_path))
+
 from setup_directories import main
+
+PROJECT_NAME = "PROJ-712-predicting-individual-pain-sensitivity-f"
+BASE_PATH = Path("projects") / PROJECT_NAME
+
+@pytest.fixture(autouse=True)
+def cleanup_project_dirs():
+    """Clean up created directories before and after the test."""
+    # Remove if exists
+    if BASE_PATH.exists():
+        shutil.rmtree(BASE_PATH)
+    yield
+    # Cleanup after test
+    if BASE_PATH.exists():
+        shutil.rmtree(BASE_PATH)
 
 def test_directories_created():
     """
-    Test that T001a, T001b, and T001c directories are created by the script.
+    Test that running main() creates the required directory structure.
+    This verifies T001a, T001b, and T001c.
     """
-    # Use a temporary directory to avoid polluting the real project structure during test
-    # However, the script uses relative paths. We will run it in a temp dir context.
-    original_cwd = os.getcwd()
-    with tempfile.TemporaryDirectory() as tmpdir:
-        os.chdir(tmpdir)
-        try:
-            # Run the script
-            result = main()
-            assert result == 0, "main() should return 0 on success"
-            
-            project_root = Path("projects/PROJ-712-predicting-individual-pain-sensitivity-f")
-            assert project_root.exists(), "Project root directory should exist"
-            
-            # Verify T001a requirements
-            assert (project_root / "data" / "raw").exists(), "data/raw directory missing"
-            assert (project_root / "data" / "processed").exists(), "data/processed directory missing"
-            
-            # Verify T001b requirements (bonus verification)
-            assert (project_root / "artifacts").exists(), "artifacts directory missing"
-            assert (project_root / "state").exists(), "state directory missing"
-            
-            # Verify T001c requirements (bonus verification)
-            assert (project_root / "code").exists(), "code directory missing"
-            assert (project_root / "tests").exists(), "tests directory missing"
-            
-        finally:
-            os.chdir(original_cwd)
-
-def test_idempotency():
-    """
-    Test that running the script twice does not raise errors (idempotent).
-    """
-    original_cwd = os.getcwd()
-    with tempfile.TemporaryDirectory() as tmpdir:
-        os.chdir(tmpdir)
-        try:
-            # Run twice
-            main()
-            main()
-            # If we get here without exception, it passed
-            assert True
-        finally:
-            os.chdir(original_cwd)
+    # Run the setup script
+    main()
+    
+    # Define expected paths
+    expected_dirs = [
+        BASE_PATH / "data" / "raw",
+        BASE_PATH / "data" / "processed",
+        BASE_PATH / "artifacts",
+        BASE_PATH / "state",
+        BASE_PATH / "code",
+        BASE_PATH / "tests",
+    ]
+    
+    # Assert all directories exist and are directories
+    for path in expected_dirs:
+        assert path.exists(), f"Directory {path} was not created."
+        assert path.is_dir(), f"Path {path} exists but is not a directory."

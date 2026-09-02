@@ -737,3 +737,132 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-23T01:30:34Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Pipeline output must be CSV with fixed features and heat-pain labels,
+    no NaN values
+  claim_id: c_1f4ef652
+  context: 'Independent Test: The pipeline can be executed end-to-end on a sample
+    of participants; the output must be a CSV file containing a fixed set of features
+    per participant and heat-pain threshold labels, with no NaN values.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_output_must_be_CSV_with_fixed_features_and_heat-pai
+  kind: entity_fact
+  raw_text: The pipeline can be executed end-to-end on a sample of participants; the
+    output must be a CSV file containing a fixed set of features per participant and
+    heat-pain threshold labels, with no NaN values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T00:59:10Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Pipeline output must have 30 columns and 0 NaN values on 5 dummy participants
+  claim_id: c_09beb40b
+  context: Write integration test test_full_preprocessing_pipeline in tests/integration/test_pipeline.py
+    that asserts len(output_df.columns) == 30 and output_df.isna().sum().sum() ==
+    0 after running the pipeline on 5 dummy participants.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assert len(output_df.columns) == 30 and output_df.isna().sum().sum() ==
+    0 after running the pipeline on 5 dummy participants.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T00:59:33Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Feature matrix must contain exactly 30 columns
+  claim_id: c_7b4820b9
+  context: 'Implement `code/main.py` step to aggregate features into `data/processed/feature_matrix.csv`
+    with EXACTLY 30 columns. Add explicit assertion: `assert len(df.columns) == 30
+    ` before saving to prevent silent data corruption.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/main.py` step to aggregate features into `data/processed/feature_matrix.csv`
+    with EXACTLY 30 columns.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T00:59:50Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Elastic Net model uses alpha 0.5 with nested 5-fold cross-validation
+  claim_id: c_0da54099
+  context: "Implement `code/modeling.py` function for Elastic Net (\u03B1=0.5) with\
+    \ nested 5-fold cross-validation"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement Elastic Net (\u03B1=0.5) with nested 5-fold cross-validation"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T01:00:59Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling uses at least 200 iterations for Pearson r confidence
+    interval
+  claim_id: c_717d9b6a
+  context: "Implement bootstrap resampling (\u2265200 iterations) to calculate a confidence\
+    \ interval for Pearson r"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_uses_at_least_200_iterations_for_Pearso
+  kind: magnitude
+  raw_text: "Implement bootstrap resampling (\u2265200 iterations) to calculate a\
+    \ confidence interval for Pearson r"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T01:09:21Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Cohen's d calculated as effect size for median-split sensitivity analysis
+  claim_id: c_241e3d23
+  context: 'Implementation detail: Split participants based on predicted values (not
+    raw labels) to create pseudo-groups; calculate Cohen''s d as the effect size.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cohen's_d_calculated_as_effect_size_for_median-split_sensiti
+  kind: entity_fact
+  raw_text: calculate Cohen's d as the effect size.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T01:12:34Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Final feature matrix must have 30 columns and no NaNs
+  claim_id: c_4b730332
+  context: 'Final validation: Ensure `data/processed/feature_matrix.csv` has exactly
+    30 columns, no NaNs, and `artifacts/` contains all required reports.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure `data/processed/feature_matrix.csv` has exactly 30 columns, no
+    NaNs, and `artifacts/` contains all required reports.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T01:12:40Z'

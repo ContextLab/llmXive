@@ -71,7 +71,7 @@
 
 **Goal**: Ingest OpenNeuro ds003392, preprocess EEG (re-reference, filter, ICA), and extract microstate features per participant.
 
-**Independent Test**: The pipeline can be executed end-to-end on a sample of participants; the output must be a CSV file containing a fixed set of features per participant and heat-pain threshold labels, with no NaN values. [UNRESOLVED-CLAIM: c_956576f2 — status=not_enough_info]
+**Independent Test**: The pipeline can be executed end-to-end on a sample of participants; the output must be a CSV file containing a fixed set of features per participant and heat-pain threshold labels, with no NaN values. [UNRESOLVED-CLAIM: c_1f4ef652 — status=not_enough_info]
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -87,7 +87,7 @@
 - [ ] T014 [US1] Implement participant exclusion logic in `code/preprocessing.py`: exclude if < 4 minutes valid data remains, log warning
 - [ ] T015 [US1] Implement microstate segmentation in `code/preprocessing.py` to extract canonical maps (A, B, C, D)
 - [ ] T016 [US1] Implement feature extraction in `code/preprocessing.py`: calculate mean durations, occurrence rates, transition probabilities, and spectral power features with defined bands: delta (low-frequency range), theta, alpha, beta, low-gamma, and high-gamma.
-- [ ] T017 [US1] Implement `code/main.py` step to aggregate features into `data/processed/feature_matrix.csv` with EXACTLY 30 columns. Add explicit assertion: `assert len(df.columns) == 30 ` before saving to prevent silent data corruption.
+- [ ] T017 [US1] Implement `code/main.py` step to aggregate features into `data/processed/feature_matrix.csv` with EXACTLY 30 columns. [UNRESOLVED-CLAIM: c_7b4820b9 — status=not_enough_info] Add explicit assertion: `assert len(df.columns) == 30 ` before saving to prevent silent data corruption.
 - [ ] T018 [US1] Add validation in `code/preprocessing.py` to ensure heat-pain threshold labels are present and consistent units (°C)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -98,7 +98,7 @@
 
 **Goal**: Train Elastic Net with nested 5-fold CV, perform a permutation test *within* the nested loop as per FR-004, and report Pearson r with bootstrap CI.
 
-**Independent Test**: Running the training script produces a cross-validated Pearson r, a bootstrap confidence interval, and an empirical p-value from the nested permutation test. [UNRESOLVED-CLAIM: c_08c8eb37 — status=not_enough_info]
+**Independent Test**: Running the training script produces a cross-validated Pearson r, a bootstrap confidence interval, and an empirical p-value from the nested permutation test.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -109,8 +109,8 @@
 
 - [ ] T021 [US2] Implement `code/modeling.py` function for Elastic Net (α=0.5) with nested 5-fold cross-validation
 - [ ] T022 [US2] Implement **nested** permutation test in `code/modeling.py`: shuffle labels **independently within each outer fold iteration** ([deferred] iterations total) to generate null distribution, ensuring valid null hypothesis per FR-004. Use random seed = `global_seed + fold_index` for reproducibility.
-- [ ] T023 [US2] Implement bootstrap resampling (≥200 iterations) to calculate a confidence interval for Pearson r [UNRESOLVED-CLAIM: c_a10026ed — status=not_enough_info]
-- [ ] T024 [US2] Implement calculation of empirical p-value comparing observed r against null distribution from nested permutations [UNRESOLVED-CLAIM: c_7a7c0da1 — status=not_enough_info]
+- [ ] T023 [US2] Implement bootstrap resampling (≥200 iterations) to calculate a confidence interval for Pearson r [UNRESOLVED-CLAIM: c_717d9b6a — status=not_enough_info]
+- [ ] T024 [US2] Implement calculation of empirical p-value comparing observed r against null distribution from nested permutations
 - [ ] T025 [US2] Implement convergence check in `code/modeling.py`: if Elastic Net fails to converge, increase `max_iter` to [deferred]; if still failing, raise explicit error
 - [ ] T026 [US2] Implement `code/main.py` step to train model, generate `artifacts/model_result.json` (r, p-value, MAE, CI), log execution time, and verify total time < 6 hours (GitHub Actions free-tier limit per SC-005).
 
@@ -134,7 +134,7 @@
 - [ ] T029 [US3] Implement `code/diagnostics.py` function to calculate **permutation importance scores** for all 30 features (shuffling each feature individually)
 - [ ] T030 [US3] Implement FDR correction in `code/diagnostics.py`: apply Benjamini-Hochberg to the **p-values derived from permutation importance** (T029). *Note: Spec FR-005 requests coefficient p-values, but Elastic Netcoefficients lack valid p-values; permutation importance p-values are the statistically correct alternative.*
 - [ ] T031 [US3] Implement VIF calculation in `code/diagnostics.py` using `statsmodels`; {{claim:c_2decf651}} (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917) but do NOT exclude them or re-run the model
-- [ ] T032 [US3] Implement median-split sensitivity analysis in `code/diagnostics.py`: {{claim:c_1fe6ad0a}}. *Implementation detail: Split participants based on predicted values (not raw labels) to create pseudo-groups; calculate Cohen's d as the effect size.*
+- [ ] T032 [US3] Implement median-split sensitivity analysis in `code/diagnostics.py`: {{claim:c_1fe6ad0a}}. *Implementation detail: Split participants based on predicted values (not raw labels) to create pseudo-groups; calculate Cohen's d as the effect size. [UNRESOLVED-CLAIM: c_241e3d23 — status=not_enough_info]*
 - [ ] T033 [US3] Implement regularization sensitivity analysis in `code/diagnostics.py`: sweep α (from a lower bound to the upper limit of the parameter space) and report R-squared stability
 - [ ] T034 [US3] Generate `artifacts/diagnostics_report.md` containing FDR table, VIF flags, and sensitivity analysis plots/tables
 - [ ] T035 [US3] Update `code/main.py` to orchestrate diagnostics, record all artifact hashes, and verify total execution time < 6 hours.
@@ -156,7 +156,7 @@
 - [ ] T038b [P] Implement caching for feature extraction to optimize runtime
 - [ ] T039 [P] Additional unit tests in `tests/unit/`
 - [ ] T040 Run `scripts/pre-run-validation.sh` to verify citations and project state
-- [ ] T041 Final validation: Ensure `data/processed/feature_matrix.csv` has exactly 30 columns, no NaNs, and `artifacts/` contains all required reports.
+- [ ] T041 Final validation: Ensure `data/processed/feature_matrix.csv` has exactly 30 columns, no NaNs, and `artifacts/` contains all required reports. [UNRESOLVED-CLAIM: c_4b730332 — status=not_enough_info]
 
 ---
 

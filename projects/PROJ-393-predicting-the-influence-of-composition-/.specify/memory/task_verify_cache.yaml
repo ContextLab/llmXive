@@ -23,7 +23,9 @@ T028b:
     : 50}` JSON. These issues prevent the task\u2019s specifications from being satisfied."
 T072:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `state/projects/PROJ-393...yaml` file (or any updated YAML) was provided,
-    and there is no evidence that artifact hashes were added. Without the required
-    YAML artifact, the verification task is not satisfied.
+  h: 9818ba6b2bc615d09b0add639da73bb715ba489a0944e6fb673dd2d9eb780412
+  r: The required `data/raw/elemental_properties.csv` file is absent, so the descriptor
+    calculator cannot look up element properties. Moreover, while the code logs warnings
+    for missing elements, it does not implement logic to skip or exclude the entire
+    composition entry from analysis as the task specifies. Both the missing data file
+    and the incomplete exclusion behavior need to be addressed.

@@ -4,40 +4,45 @@ from pathlib import Path
 
 def main():
     """
-    Creates the required directory structure for the project.
-    Specifically targets code/ and tests/ directories as per T001c.
-    Also ensures data/raw, data/processed, artifacts, and state exist
-    to satisfy T001a and T001b which were previously rejected.
+    Creates the required directory structure for project PROJ-712.
+    
+    Creates:
+    - projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/raw/
+    - projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/processed/
+    - projects/PROJ-712-predicting-individual-pain-sensitivity-f/artifacts/
+    - projects/PROJ-712-predicting-individual-pain-sensitivity-f/state/
+    - projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/
+    - projects/PROJ-712-predicting-individual-pain-sensitivity-f/tests/
+    
+    This script ensures the directory tree exists on disk before other
+    pipeline stages attempt to write data or artifacts.
     """
-    # Determine the project root based on the script location or a fixed relative path
-    # Since the task asks for paths relative to the project root, we assume the script
-    # is run from the project root or we define the root explicitly.
-    # Given the constraint "Stay inside the project tree", we use relative paths.
+    # Define the project root relative to the current working directory
+    project_root = Path("projects/PROJ-712-predicting-individual-pain-sensitivity-f")
     
-    project_root = Path(".")
-    
-    # Directories required for T001c
-    dirs_to_create = [
-        project_root / "code",
-        project_root / "tests",
-        # Re-creating T001a and T001b directories to ensure full state compliance
+    # Define the directories to create based on T001a, T001b, T001c
+    directories = [
         project_root / "data" / "raw",
         project_root / "data" / "processed",
         project_root / "artifacts",
         project_root / "state",
+        project_root / "code",
+        project_root / "tests",
     ]
-
+    
     created_count = 0
-    for dir_path in dirs_to_create:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {dir_path}")
-
-    print(f"Setup complete. {created_count} new directories created.")
-    return 0
+    for directory in directories:
+        # Create the directory and any necessary parents
+        directory.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {directory}")
+        created_count += 1
+    
+    print(f"Successfully created {created_count} directories.")
+    
+    # Verify existence for robustness
+    all_exist = all(d.exists() and d.is_dir() for d in directories)
+    if not all_exist:
+        raise RuntimeError("Failed to create all required directories.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

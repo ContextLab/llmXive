@@ -1,3 +1,6 @@
+"""
+Helper functions for the Visual Aesthetics study.
+"""
 import hashlib
 import uuid
 import os
@@ -6,58 +9,62 @@ from datetime import datetime
 from typing import Optional, Dict, Any, List, Tuple
 from pathlib import Path
 
-# Constants
-USER_AGENT_MAX_LENGTH = 255
-SUBMISSIONS_FILENAME = "submissions.csv"
-CONSENT_LOG_FILENAME = "consent_log.csv"
-DUPLICATE_AUDIT_FILENAME = "duplicate_audit.csv"
-
 
 def get_project_root() -> Path:
-    """Return the absolute path to the project root."""
-    # Assuming the code structure is code/utils/helpers.py, project root is 3 levels up
-    return Path(__file__).resolve().parent.parent.parent
+    """Return the project root directory."""
+    # Assuming this file is at code/utils/helpers.py
+    return Path(__file__).resolve().parents[2]
 
 
-def ensure_data_dirs() -> None:
-    """Ensure raw and processed data directories exist."""
-    root = get_project_root()
-    (root / "data" / "raw").mkdir(parents=True, exist_ok=True)
-    (root / "data" / "processed").mkdir(parents=True, exist_ok=True)
+def ensure_data_dirs(project_root: Optional[Path] = None) -> None:
+    """Ensure required data directories exist."""
+    if project_root is None:
+        project_root = get_project_root()
+    (project_root / "data" / "raw").mkdir(parents=True, exist_ok=True)
+    (project_root / "data" / "processed").mkdir(parents=True, exist_ok=True)
+    (project_root / "data" / "consent").mkdir(parents=True, exist_ok=True)
 
 
-def get_submissions_csv_path() -> Path:
-    """Return the full path to the submissions CSV file."""
-    return get_project_root() / "data" / "raw" / SUBMISSIONS_FILENAME
+def get_submissions_csv_path(project_root: Optional[Path] = None) -> Path:
+    """Return the path to data/raw/submissions.csv."""
+    if project_root is None:
+        project_root = get_project_root()
+    return project_root / "data" / "raw" / "submissions.csv"
 
 
-def get_consent_log_path() -> Path:
-    """Return the full path to the consent log CSV file."""
-    return get_project_root() / "data" / "raw" / CONSENT_LOG_FILENAME
+def get_consent_log_path(project_root: Optional[Path] = None) -> Path:
+    """Return the path to data/raw/consent_log.csv."""
+    if project_root is None:
+        project_root = get_project_root()
+    return project_root / "data" / "raw" / "consent_log.csv"
 
 
-def get_duplicate_audit_path() -> Path:
-    """Return the full path to the duplicate audit CSV file."""
-    return get_project_root() / "data" / "raw" / DUPLICATE_AUDIT_FILENAME
+def get_duplicate_audit_path(project_root: Optional[Path] = None) -> Path:
+    """Return the path to data/raw/duplicate_audit.csv."""
+    if project_root is None:
+        project_root = get_project_root()
+    return project_root / "data" / "raw" / "duplicate_audit.csv"
 
 
 def generate_user_id() -> str:
-    """Generate a unique UUID v4 for a participant."""
+    """Generate a unique participant ID (UUID v4)."""
     return str(uuid.uuid4())
 
 
 def hash_ip(ip_address: str) -> str:
     """
     Hash an IP address using SHA-256.
-    Returns the hex digest.
+    Returns a truncated hex string for privacy.
     """
     if not ip_address:
         return ""
-    return hashlib.sha256(ip_address.encode('utf-8')).hexdigest()
+    sha256_hash = hashlib.sha256(ip_address.encode('utf-8')).hexdigest()
+    # Return first 16 chars for brevity, still unique enough for collision detection
+    return sha256_hash[:16]
 
 
 def format_timestamp(dt: Optional[datetime] = None) -> str:
-    """Format a datetime object to ISO 8601 string."""
+    """Format a datetime object as ISO 8601 string."""
     if dt is None:
         dt = datetime.now()
     return dt.isoformat()
@@ -66,86 +73,101 @@ def format_timestamp(dt: Optional[datetime] = None) -> str:
 def log_consent_decision(
     user_id: str,
     decision: str,
+    ip_hash: str,
     irb_protocol_id: str,
     timestamp: Optional[datetime] = None
 ) -> None:
     """
-    Log a consent decision to the consent log CSV.
-    decision: 'agreed' or 'withdrawn'
+    Log a consent decision to data/raw/consent_log.csv.
+
+    Args:
+        user_id: The participant's unique ID.
+        decision: 'Agree' or 'Disagree'.
+        ip_hash: Hashed IP address.
+        irb_protocol_id: The IRB protocol ID.
+        timestamp: Optional timestamp (defaults to now).
     """
+    if timestamp is None:
+        timestamp = datetime.now()
+
     ensure_data_dirs()
     path = get_consent_log_path()
-    fieldnames = ['timestamp', 'user_id', 'decision', 'irb_protocol_id']
 
     file_exists = path.exists()
 
-    with open(path, mode='a', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+    with open(path, 'a', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=[
+            'timestamp', 'user_id', 'decision', 'hashed_ip', 'irb_protocol_id'
+        ])
         if not file_exists:
             writer.writeheader()
-
         writer.writerow({
             'timestamp': format_timestamp(timestamp),
             'user_id': user_id,
             'decision': decision,
+            'hashed_ip': ip_hash,
             'irb_protocol_id': irb_protocol_id
         })
 
 
-def validate_rating_count(count: int, minimum: int = 8) -> bool:
-    """Check if the number of ratings meets the minimum requirement."""
-    return count >= minimum
+def validate_rating_count(count: int, min_required: int = 8) -> bool:
+    """Check if the rating count meets the minimum requirement."""
+    return count >= min_required
 
 
-def calculate_safe_truncation_length(current_length: int, max_length: int = USER_AGENT_MAX_LENGTH) -> int:
-    """Calculate the safe length to truncate a string, ensuring it doesn't exceed max_length."""
-    return min(current_length, max_length)
+def calculate_safe_truncation_length(max_length: int = 255) -> int:
+    """Return the safe truncation length for metadata fields."""
+    return max_length
 
 
-def truncate_user_agent(user_agent: str) -> str:
-    """Truncate user_agent string to USER_AGENT_MAX_LENGTH characters."""
+def truncate_user_agent(user_agent: str, max_length: int = 255) -> str:
+    """Truncate user agent string to max_length."""
     if not user_agent:
         return ""
-    return user_agent[:USER_AGENT_MAX_LENGTH]
+    return user_agent[:max_length]
 
 
 def get_current_csv_size(path: Path) -> int:
-    """Get the current size of a CSV file in bytes."""
+    """Return the size of the CSV file in bytes, or 0 if it doesn't exist."""
     if path.exists():
         return path.stat().st_size
     return 0
 
 
 def check_duplicate_ip(
-    submissions_path: Path,
-    target_ip_hash: str
-) -> Tuple[bool, List[Dict[str, Any]]]:
+    ip_hash: str,
+    submissions_path: Optional[Path] = None
+) -> bool:
     """
-    Check if a hashed IP already exists in the submissions CSV.
-    Returns (is_duplicate, list_of_matching_rows).
-    """
-    if not submissions_path.exists():
-        return False, []
+    Check if an IP hash already exists in the submissions CSV.
+    Note: This is a simple linear check. For large datasets, a DB or
+    in-memory index is preferred.
 
-    duplicates = []
-    with open(submissions_path, mode='r', newline='', encoding='utf-8') as f:
+    Args:
+        ip_hash: The hashed IP to check.
+        submissions_path: Optional path to submissions CSV.
+
+    Returns:
+        True if duplicate found, False otherwise.
+    """
+    if submissions_path is None:
+        submissions_path = get_submissions_csv_path()
+
+    if not submissions_path.exists():
+        return False
+
+    with open(submissions_path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            if row.get('hashed_ip') == target_ip_hash:
-                duplicates.append(row)
+            if row.get('hashed_ip') == ip_hash:
+                return True
+    return False
 
-    return len(duplicates) > 0, duplicates
 
-
-def get_education_code(education_label: str) -> int:
+def get_education_code(education: str) -> int:
     """
-    Convert education label to an integer code.
-    Mapping:
-      High School -> 1
-      Bachelor's -> 2
-      Master's -> 3
-      PhD -> 4
-    Returns 0 if label is unknown.
+    Convert education string to integer code.
+    Mapping: High School=1, Bachelor's=2, Master's=3, PhD=4
     """
     mapping = {
         "High School": 1,
@@ -153,7 +175,7 @@ def get_education_code(education_label: str) -> int:
         "Master's": 3,
         "PhD": 4
     }
-    return mapping.get(education_label, 0)
+    return mapping.get(education, 0)
 
 
 def prepare_submission_row(
@@ -161,48 +183,50 @@ def prepare_submission_row(
     stimulus_id: str,
     credibility: int,
     professionalism: int,
-    timestamp: str,
+    timestamp: datetime,
     hashed_ip: str,
     age: int,
     education_code: int,
-    duplicate_flag: bool,
-    session_status: str,
-    submission_status: str
+    duplicate_flag: bool = False,
+    session_status: str = "complete",
+    submission_status: str = "submitted",
+    user_agent: str = ""
 ) -> Dict[str, Any]:
-    """
-    Prepare a dictionary row for the submissions CSV.
-    """
+    """Prepare a dictionary row for submission."""
     return {
-        "participant_id": participant_id,
-        "stimulus_id": stimulus_id,
-        "credibility": credibility,
-        "professionalism": professionalism,
-        "timestamp": timestamp,
-        "hashed_ip": hashed_ip,
-        "age": age,
-        "education": education_code,
-        "duplicate_flag": duplicate_flag,
-        "session_status": session_status,
-        "submission_status": submission_status
+        'participant_id': participant_id,
+        'stimulus_id': stimulus_id,
+        'credibility': credibility,
+        'professionalism': professionalism,
+        'timestamp': format_timestamp(timestamp),
+        'hashed_ip': hashed_ip,
+        'age': age,
+        'education': education_code,
+        'duplicate_flag': str(duplicate_flag).lower(),
+        'session_status': session_status,
+        'submission_status': submission_status,
+        'user_agent': truncate_user_agent(user_agent)
     }
 
 
-def append_to_submissions_csv(row: Dict[str, Any]) -> None:
-    """
-    Append a single row to the submissions CSV.
-    Creates the file and header if it doesn't exist.
-    """
-    ensure_data_dirs()
-    path = get_submissions_csv_path()
-    fieldnames = [
-        "participant_id", "stimulus_id", "credibility", "professionalism",
-        "timestamp", "hashed_ip", "age", "education",
-        "duplicate_flag", "session_status", "submission_status"
-    ]
+def append_to_submissions_csv(
+    row: Dict[str, Any],
+    path: Optional[Path] = None
+) -> None:
+    """Append a row to the submissions CSV."""
+    if path is None:
+        path = get_submissions_csv_path()
 
+    ensure_data_dirs()
     file_exists = path.exists()
 
-    with open(path, mode='a', newline='', encoding='utf-8') as f:
+    fieldnames = [
+        'participant_id', 'stimulus_id', 'credibility', 'professionalism',
+        'timestamp', 'hashed_ip', 'age', 'education', 'duplicate_flag',
+        'session_status', 'submission_status', 'user_agent'
+    ]
+
+    with open(path, 'a', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         if not file_exists:
             writer.writeheader()
@@ -214,19 +238,21 @@ def save_submission(
     stimulus_id: str,
     credibility: int,
     professionalism: int,
-    timestamp: str,
     hashed_ip: str,
     age: int,
-    education_label: str,
-    duplicate_flag: bool,
-    session_status: str,
-    submission_status: str
+    education: str,
+    timestamp: Optional[datetime] = None,
+    user_agent: str = "",
+    path: Optional[Path] = None
 ) -> None:
     """
-    High-level function to save a single submission to the CSV.
-    Converts education label to code and truncates user agent if needed (handled by caller).
+    Convenience function to save a single submission row.
+    Calculates education code and prepares the row.
     """
-    education_code = get_education_code(education_label)
+    if timestamp is None:
+        timestamp = datetime.now()
+
+    education_code = get_education_code(education)
     row = prepare_submission_row(
         participant_id=participant_id,
         stimulus_id=stimulus_id,
@@ -236,8 +262,6 @@ def save_submission(
         hashed_ip=hashed_ip,
         age=age,
         education_code=education_code,
-        duplicate_flag=duplicate_flag,
-        session_status=session_status,
-        submission_status=submission_status
+        user_agent=user_agent
     )
-    append_to_submissions_csv(row)
+    append_to_submissions_csv(row, path)

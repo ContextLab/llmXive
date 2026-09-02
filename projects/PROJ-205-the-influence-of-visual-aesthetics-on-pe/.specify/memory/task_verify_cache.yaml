@@ -46,12 +46,12 @@ T020:
     \ verified."
 T022h:
   c: false
-  h: 24a064868cc3b7036d0f7d7261e9dbe3ee51ae54b3e4ac07b6c50d5722a62f81
-  r: "The repository lacks `data/raw/submissions.csv` and `data/raw/duplicate_audit.csv`,\
-    \ and the provided `code/survey/app.py` excerpt shows no logic that reads `submissions.csv`,\
-    \ identifies duplicate `hashed_ip` rows, or writes them to `duplicate_audit.csv`.\
-    \ Consequently, the required post\u2011hoc duplicate detection feature is not\
-    \ implemented."
+  h: fa56617e2c3affab1be2ebf4bb662b4bda5573b5e04158557b07f91e6c418594
+  r: "The repository lacks the required `data/raw/submissions.csv` and `data/raw/duplicate_audit.csv`\
+    \ files, and the provided `app.py` snippet is incomplete (truncated) with no concrete\
+    \ implementation that reads the CSV, detects duplicate `hashed_ip` values, and\
+    \ writes them to `duplicate_audit.csv`. The task\u2019s core output is therefore\
+    \ missing."
 T028d:
   c: false
   h: 4714a00e470bdbf559100bace7f3084bceb9efc7f229b2830dc070b1611d0ca9

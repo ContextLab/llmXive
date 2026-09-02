@@ -113,7 +113,7 @@
 
 **Goal**: Execute a mixed-effects regression testing the three-way interaction between source fixation duration, headline valence, and cognitive reflection scores.
 
-- [X] T020a **Synthetic Data Generator**: Implement `code/utils/synthetic_data_generator.py` to generate a synthetic dataset for coefficient recovery testing. **Parameters**: Generate `n` participants and `m` headlines. True three-way interaction coefficient = 0.5. Random intercepts ~ N(μ, σ²). Noise sigma = 1.0. Outcome = linear combination of predictors + interaction + noise. **Output**: `data/synthetic/ground_truth.csv` containing all columns and the known true coefficients for validation. **Dependency**: None (can run in parallel).
+- [X] T020a **Synthetic Data Generator**: Implement `code/utils/synthetic_data_generator.py` to generate a synthetic dataset for coefficient recovery testing. **Parameters**: Generate `n` participants and `m` headlines. True three-way interaction coefficient = 0.5. [UNRESOLVED-CLAIM: c_af46442d — status=not_enough_info] Random intercepts ~ N(μ, σ²). Noise sigma = 1.0. [UNRESOLVED-CLAIM: c_7b50d654 — status=not_enough_info] Outcome = linear combination of predictors + interaction + noise. **Output**: `data/synthetic/ground_truth.csv` containing all columns and the known true coefficients for validation. **Dependency**: None (can run in parallel).
 
 - [X] T023 **Data Merge & Outlier Capping**: Merge `data/derived/preprocessed_gaze.csv` (T018), `data/derived/empirical_outcomes.csv` (T004b), and `data/derived/valence_scores.csv` (T021) on `participant_id` and `headline_id`.
  1. Validate schemas; raise `DataMissingError` if required columns are absent.
@@ -177,7 +177,7 @@
 
 - [X] T046 **Code Cleanup and Refactoring**: Refactor `code/utils/fixation_detection.py` and `code/utils/roi_mapping.py` to reduce cyclomatic complexity to < 10. Run `ruff --max-complexity=10` to verify. **Output**: Refactored files and `output/refactoring_report.txt` confirming complexity metrics. **Dependency**: T018, T015.
 
-- [ ] T047 **Performance Optimization**: Vectorize data merge in T023 and cache intermediate results in T018. Verify runtime < 300 minutes and memory < 7 GB on the reference dataset. **Output**: Optimized scripts and `output/performance_metrics.json`. **Dependency**: T023, T018.
+- [ ] T047 **Performance Optimization**: Vectorize data merge in T023 and cache intermediate results in T018. Verify runtime < 300 minutes and memory < 7 GB on the reference dataset. [UNRESOLVED-CLAIM: c_6e895ce9 — status=not_enough_info] **Output**: Optimized scripts and `output/performance_metrics.json`. **Dependency**: T023, T018.
 
 - [X] T048 [P] **Additional Unit Tests**: Implement unit tests for `code/utils/fixation_detection.py` (edge cases: a defined time threshold, 0ms duration) and `code/utils/valence_calculation.py` (lexicon switch logic). **Output**: `tests/unit/test_fixation_detection.py` and `tests/unit/test_valence_calculation.py`. **Dependency**: T006, T021.
 

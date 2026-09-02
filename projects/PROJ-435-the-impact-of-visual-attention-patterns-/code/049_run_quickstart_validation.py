@@ -4,21 +4,20 @@ import json
 import hashlib
 import subprocess
 import logging
+import yaml
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional
 
-# Import project utilities to ensure consistency with the rest of the pipeline
-# We assume utils.logging_init is available as per T008b
-try:
-    from utils.logging_init import setup_global_logger, get_project_root
-except ImportError:
-    # Fallback if logging_init isn't fully set up in this specific run context,
-    # though T008b should have completed.
-    import logging
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
-    def get_project_root():
-        return Path(__file__).parent.parent
+def get_project_root() -> Path:
+    """Return the project root directory."""
+    current = Path(__file__).resolve()
+    # Traverse up to find the root (usually 3 levels up from code/049...)
+    # Assuming structure: code/049_run_quickstart_validation.py
+    # We look for a file like 'tasks.md' or 'config.yaml' at root
+    for parent in current.parents:
+        if (parent / 'tasks.md').exists() and (parent / 'code').is_dir():
+            return parent
+    raise FileNotFoundError("Could not determine project root")
 
 def compute_file_hash(file_path: Path) -> str:
     """Compute SHA-256 hash of a file."""
@@ -29,149 +28,126 @@ def compute_file_hash(file_path: Path) -> str:
                 sha256_hash.update(byte_block)
         return sha256_hash.hexdigest()
     except FileNotFoundError:
-        raise FileNotFoundError(f"File not found for hashing: {file_path}")
+        return ""
 
-def run_script(script_path: Path, args: Optional[List[str]] = None) -> Tuple[bool, str, str]:
-    """
-    Execute a script and capture stdout/stderr.
-    Returns (success, stdout, stderr).
-    """
+def run_script(script_path: Path, args: List[str] = None) -> Dict[str, Any]:
+    """Run a Python script and capture output."""
     cmd = [sys.executable, str(script_path)]
     if args:
         cmd.extend(args)
     
+    logging.info(f"Running: {' '.join(cmd)}")
     try:
         result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
-            timeout=300, # 5 minute timeout per script
-            cwd=str(script_path.parent)
+            timeout=300, # 5 minutes timeout
+            cwd=script_path.parent
         )
-        return result.returncode == 0, result.stdout, result.stderr
+        return {
+            "success": result.returncode == 0,
+            "stdout": result.stdout,
+            "stderr": result.stderr,
+            "returncode": result.returncode
+        }
     except subprocess.TimeoutExpired:
-        return False, "", f"Script timed out: {script_path}"
+        return {
+            "success": False,
+            "stdout": "",
+            "stderr": "Timeout expired",
+            "returncode": -1
+        }
     except Exception as e:
-        return False, "", str(e)
+        return {
+            "success": False,
+            "stdout": "",
+            "stderr": str(e),
+            "returncode": -1
+        }
 
-def validate_artifact(artifact_path: Path, expected_hash: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Validate an artifact exists and optionally matches a hash.
-    """
-    result = {
-        "path": str(artifact_path),
-        "exists": artifact_path.exists(),
-        "valid": False,
-        "hash": None,
-        "message": ""
+def validate_artifact(expected_path: Path, description: str) -> Dict[str, Any]:
+    """Check if an artifact exists and is non-empty."""
+    if not expected_path.exists():
+        return {
+            "valid": False,
+            "reason": f"File not found: {expected_path}",
+            "path": str(expected_path)
+        }
+    
+    size = expected_path.stat().st_size
+    if size == 0:
+        return {
+            "valid": False,
+            "reason": f"File is empty: {expected_path}",
+            "path": str(expected_path)
+        }
+    
+    return {
+        "valid": True,
+        "size_bytes": size,
+        "hash": compute_file_hash(expected_path),
+        "path": str(expected_path)
     }
-    
-    if not result["exists"]:
-        result["message"] = "Artifact does not exist"
-        return result
-    
-    try:
-        current_hash = compute_file_hash(artifact_path)
-        result["hash"] = current_hash
-        
-        if expected_hash:
-            if current_hash == expected_hash:
-                result["valid"] = True
-                result["message"] = "Hash matches"
-            else:
-                result["valid"] = False
-                result["message"] = f"Hash mismatch. Expected: {expected_hash}, Got: {current_hash}"
-        else:
-            result["valid"] = True
-            result["message"] = "Artifact exists (no hash provided for verification)"
-    except Exception as e:
-        result["message"] = f"Error validating artifact: {str(e)}"
-    
-    return result
 
 def parse_quickstart_commands(quickstart_path: Path) -> List[Dict[str, Any]]:
-    """
-    Parse quickstart.md to extract commands to run and artifacts to check.
-    This is a simplified parser assuming standard markdown code blocks for commands.
-    """
-    commands = []
+    """Parse quickstart.md to extract expected scripts and outputs."""
     if not quickstart_path.exists():
-        return commands
+        # If quickstart doesn't exist, use a default set based on task descriptions
+        logging.warning("quickstart.md not found. Using default validation set.")
+        return [
+            {"script": "code/01_ingest_and_preprocess.py", "outputs": ["data/raw/eye_tracking_raw.parquet", "data/derived/preprocessed_gaze.csv"]},
+            {"script": "code/03_data_merge.py", "outputs": ["data/derived/merged_dataset_full.csv"]},
+            {"script": "code/05_regression_analysis.py", "outputs": ["data/derived/regression_results.csv"]},
+            {"script": "code/07_generate_causal_framing.py", "outputs": ["output/causal_framing_statement.txt"]}
+        ]
+
+    commands = []
+    with open(quickstart_path, 'r') as f:
+        content = f.read()
     
-    content = quickstart_path.read_text()
+    # Simple heuristic: look for python code blocks or explicit file paths
+    # This is a simplified parser; a robust one would parse Markdown properly
     lines = content.split('\n')
-    
-    current_command = None
-    current_artifact_check = None
-    
-    in_code_block = False
+    current_script = None
     
     for line in lines:
-        stripped = line.strip()
-        
-        if stripped.startswith("```bash") or stripped.startswith("```sh"):
-            in_code_block = True
-            current_command = []
-            continue
-        elif stripped.startswith("```"):
-            in_code_block = False
-            if current_command:
-                commands.append({
-                    "type": "run",
-                    "command": "\n".join(current_command),
-                    "description": "Quickstart command"
-                })
-                current_command = None
-            continue
-        
-        if in_code_block and current_command is not None:
-            current_command.append(stripped)
-        
-        # Look for artifact checks in comments or specific markdown patterns
-        if "data/derived/" in stripped or "output/" in stripped or "state/" in stripped:
-            if "verify" in stripped.lower() or "check" in stripped.lower() or "exists" in stripped.lower():
-                # Extract path
-                parts = stripped.split()
-                for part in parts:
-                    if part.startswith(("data/", "output/", "state/")):
-                        commands.append({
-                            "type": "check",
-                            "path": part.strip("()\"'`"),
-                            "description": "Artifact check"
-                        })
-                        break
-    
-    # If no explicit commands found, try to infer from common pipeline steps
-    if not commands:
-        # Fallback: check for standard pipeline scripts
-        standard_scripts = [
-            "01_extract_empirical_outcome.py",
-            "02_preprocess_gaze.py",
-            "03_data_merge.py",
-            "05_regression_analysis.py",
-            "07_generate_causal_framing.py"
-        ]
-        for script_name in standard_scripts:
-            script_path = get_project_root() / "code" / script_name
-            if script_path.exists():
-                commands.append({
-                    "type": "run",
-                    "command": f"python code/{script_name}",
-                    "description": f"Run {script_name}"
-                })
-    
-    return commands
+        line = line.strip()
+        if line.startswith("python code/") and ".py" in line:
+            # Extract script path
+            parts = line.split()
+            for part in parts:
+                if part.startswith("code/") and part.endswith(".py"):
+                    current_script = part
+                    commands.append({"script": current_script, "outputs": []})
+                    break
+        elif current_script and (line.startswith("data/") or line.startswith("output/") or line.startswith("state/")):
+            # Assume this line mentions an output file
+            # Clean up markdown formatting if any
+            clean_line = line.replace("`", "").replace("*", "").strip()
+            if clean_line.endswith(".csv") or clean_line.endswith(".json") or clean_line.endswith(".txt") or clean_line.endswith(".parquet"):
+                commands[-1]["outputs"].append(clean_line)
 
-def validate_artifacts_exist(artifacts: List[str]) -> List[Dict[str, Any]]:
-    """Check if a list of artifact paths exist."""
+    return commands if commands else []
+
+def validate_artifacts_exist(project_root: Path, artifacts: List[str]) -> List[Dict[str, Any]]:
+    """Validate that a list of artifacts exist."""
     results = []
-    for artifact_path in artifacts:
-        full_path = get_project_root() / artifact_path
-        res = validate_artifact(full_path)
-        results.append(res)
+    for artifact in artifacts:
+        full_path = project_root / artifact
+        results.append(validate_artifact(full_path, artifact))
     return results
 
 def main():
+    """Main entry point for quickstart validation."""
+    setup_logger = logging.getLogger("quickstart_validation")
+    if not setup_logger.handlers:
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        setup_logger.addHandler(handler)
+        setup_logger.setLevel(logging.INFO)
+    
     project_root = get_project_root()
     quickstart_path = project_root / "quickstart.md"
     output_path = project_root / "output" / "quickstart_validation_report.json"
@@ -179,105 +155,93 @@ def main():
     # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    logger = logging.getLogger(__name__)
-    logger.info(f"Starting Quickstart Validation for project: {project_root}")
-    
-    validation_report = {
+    validation_results = {
+        "timestamp": subprocess.check_output(["date", "-Iseconds"]).decode().strip(),
         "project_root": str(project_root),
         "quickstart_path": str(quickstart_path),
-        "timestamp": None, # Will be set by caller or runtime
-        "status": "unknown",
-        "commands_run": [],
-        "artifacts_checked": [],
-        "errors": []
+        "steps": [],
+        "summary": {
+            "total_steps": 0,
+            "passed": 0,
+            "failed": 0,
+            "errors": []
+        }
     }
     
-    if not quickstart_path.exists():
-        error_msg = "quickstart.md not found. Cannot validate."
-        logger.error(error_msg)
-        validation_report["status"] = "failed"
-        validation_report["errors"].append(error_msg)
-    else:
-        try:
-            # 1. Parse commands
-            commands = parse_quickstart_commands(quickstart_path)
-            logger.info(f"Parsed {len(commands)} validation steps from quickstart.md")
-            
-            if not commands:
-                logger.warning("No commands found in quickstart.md. Running standard pipeline checks.")
-                # Fallback to checking key artifacts if no commands found
-                key_artifacts = [
-                    "data/derived/empirical_outcomes.csv",
-                    "data/derived/preprocessed_gaze.csv",
-                    "data/derived/merged_dataset_full.csv",
-                    "data/derived/regression_results.csv",
-                    "output/causal_framing_statement.txt",
-                    "state/data_hashes.json"
-                ]
-                validation_report["artifacts_checked"] = validate_artifacts_exist(key_artifacts)
-                all_exist = all(a["valid"] for a in validation_report["artifacts_checked"])
-                validation_report["status"] = "passed" if all_exist else "failed"
-                if not all_exist:
-                    validation_report["errors"].append("Key artifacts missing.")
-            else:
-                # 2. Execute commands and check artifacts
-                for step in commands:
-                    step_result = {"type": step["type"], "details": step.get("description", ""), "success": False}
-                    
-                    if step["type"] == "run":
-                        cmd_str = step["command"]
-                        logger.info(f"Executing: {cmd_str}")
-                        # Parse the command to get script path and args
-                        parts = cmd_str.split()
-                        if parts[0] == "python":
-                            script_name = parts[1]
-                            args = parts[2:]
-                            script_path = project_root / "code" / script_name
-                            
-                            if not script_path.exists():
-                                step_result["success"] = False
-                                step_result["error"] = f"Script not found: {script_path}"
-                                validation_report["errors"].append(step_result["error"])
-                            else:
-                                success, stdout, stderr = run_script(script_path, args)
-                                step_result["success"] = success
-                                step_result["stdout"] = stdout[:500] # Truncate for log
-                                step_result["stderr"] = stderr[:500]
-                                if not success:
-                                    error_msg = f"Script failed: {script_name}. Error: {stderr}"
-                                    validation_report["errors"].append(error_msg)
-                                    logger.error(error_msg)
-                    elif step["type"] == "check":
-                        artifact_path = step["path"]
-                        full_path = project_root / artifact_path
-                        res = validate_artifact(full_path)
-                        step_result["success"] = res["valid"]
-                        step_result["artifact_result"] = res
-                        if not res["valid"]:
-                            validation_report["errors"].append(f"Artifact missing or invalid: {artifact_path}")
-                    
-                    validation_report["commands_run"].append(step_result)
-                
-                # Determine overall status
-                all_success = all(r["success"] for r in validation_report["commands_run"])
-                validation_report["status"] = "passed" if all_success else "failed"
+    # Parse quickstart or use defaults
+    steps = parse_quickstart_commands(quickstart_path)
+    validation_results["summary"]["total_steps"] = len(steps)
+    
+    logging.info(f"Validating {len(steps)} steps from quickstart.")
+    
+    for i, step in enumerate(steps):
+        step_result = {
+            "step_index": i,
+            "script": step["script"],
+            "status": "pending",
+            "execution": None,
+            "artifacts": []
+        }
         
-        except Exception as e:
-            error_msg = f"Validation process failed unexpectedly: {str(e)}"
-            logger.error(error_msg, exc_info=True)
-            validation_report["status"] = "failed"
-            validation_report["errors"].append(error_msg)
+        script_path = project_root / step["script"]
+        
+        # 1. Check if script exists
+        if not script_path.exists():
+            step_result["status"] = "failed"
+            step_result["error"] = f"Script not found: {script_path}"
+            validation_results["summary"]["failed"] += 1
+            validation_results["summary"]["errors"].append(step_result["error"])
+            validation_results["steps"].append(step_result)
+            logging.error(f"Step {i}: Script not found: {script_path}")
+            continue
+        
+        # 2. Run the script
+        logging.info(f"Step {i}: Running {step['script']}...")
+        exec_result = run_script(script_path)
+        step_result["execution"] = exec_result
+        
+        if not exec_result["success"]:
+            step_result["status"] = "failed"
+            step_result["error"] = f"Script failed with code {exec_result['returncode']}: {exec_result['stderr']}"
+            validation_results["summary"]["failed"] += 1
+            validation_results["summary"]["errors"].append(step_result["error"])
+            logging.error(f"Step {i} failed: {step_result['error']}")
+        else:
+            # 3. Validate outputs
+            step_result["status"] = "passed" # Tentative
+            artifacts_valid = True
+            
+            for output_file in step.get("outputs", []):
+                artifact_res = validate_artifact(project_root / output_file, output_file)
+                step_result["artifacts"].append(artifact_res)
+                if not artifact_res["valid"]:
+                    artifacts_valid = False
+            
+            if artifacts_valid:
+                validation_results["summary"]["passed"] += 1
+                logging.info(f"Step {i}: Passed. All artifacts valid.")
+            else:
+                step_result["status"] = "failed"
+                validation_results["summary"]["failed"] += 1
+                missing = [a["path"] for a in step_result["artifacts"] if not a["valid"]]
+                step_result["error"] = f"Missing or empty artifacts: {missing}"
+                validation_results["summary"]["errors"].append(step_result["error"])
+                logging.error(f"Step {i} failed: {step_result['error']}")
+        
+        validation_results["steps"].append(step_result)
     
     # Write report
     with open(output_path, 'w') as f:
-        json.dump(validation_report, f, indent=2)
+        json.dump(validation_results, f, indent=2)
     
-    logger.info(f"Validation report written to: {output_path}")
-    print(f"Quickstart Validation Complete. Status: {validation_report['status']}")
-    print(f"Report saved to: {output_path}")
+    logging.info(f"Validation complete. Report written to {output_path}")
+    print(json.dumps(validation_results["summary"], indent=2))
     
-    # Return exit code based on status
-    sys.exit(0 if validation_report['status'] == 'passed' else 1)
+    # Exit with error if any step failed
+    if validation_results["summary"]["failed"] > 0:
+        sys.exit(1)
+    
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

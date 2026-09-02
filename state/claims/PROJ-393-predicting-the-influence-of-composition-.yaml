@@ -6504,3 +6504,537 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-16T12:47:52Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 0
+  canonical: Bootstrap resample count set to 1000
+  claim_id: c_27880fbd
+  context: "T042 Implement bootstrap_validation.py to compute a confidence interval\
+    \ for R\xB2."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: As an example, assume we are interested in the average (or mean) height
+        of people worldwide.  We cannot measure all the people in the global population,
+        so instead, we sample only a tiny part of it, and measure that.  Assume the
+        sample is of size N; that is, we measure the heights of N individuals.  From
+        that single sample, only one estimate of the mean can be obtained.  In order
+        to reason about the population, we need some sense of the variability of the
+        mean that we have computed. The simplest bootstrap method involves taking
+        the original data set of heights, and, using a computer, sampling from it
+        to form a new sample (called a 'resample' or bootstrap sample) that is also
+        of size N.  The bootstrap sample is taken from the original by using sampling
+        with replacement (e.g. we might 'resample' 5 times from [1,2,3,4,5] and get
+        [2,5,4,4,1]), so, assuming N is sufficiently large, for all practical purposes
+        there is virtually zero probability that it will be identical to the original
+        "real" sample.  This process is repeated a large number of times (typically
+        1,000 or 10,000 times), and for each of these bootstrap samples, we compute
+        its mean (each of these is called a "bootstrap estimate").  We now can create
+        a histogram of bootstrap means.  This histogram provides an estimate of the
+        shape of the distribution of the sample mean from which we can answer questions
+        about how much the mean varies across samples.  (The method here, described
+        for the mean, can be applied to almost any other statistic or estimator.)
+      source_id: Bootstrapping (statistics)
+      url: https://en.wikipedia.org/wiki/Bootstrapping_(statistics)
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: Set n_resamples=1000 explicitly.
+  resolved_value: '1000'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T01:13:38Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: elemental_properties.csv contains Pyykko 1988 values for Mn, Co, Fe,
+    Ga, Al, Ni, Cu, Sn, In, Ti, V, Zn, Si, Ge, Sb, Pb, Mg, Cr, Nb, Ta
+  claim_id: c_20a0626a
+  context: T006 Create data/raw/elemental_properties.csv with fixed periodic table
+    data for all elements likely found in Heusler alloys.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The file MUST contain the following exact rows (values are representative
+    of Pyykko and standard data).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T01:13:43Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Linux resource.getrusage reports memory in KB
+  claim_id: c_1ae5de94
+  context: T004b Implement resource limit check logic in .github/workflows/ci.yml.
+  evidence:
+    entailment_evidence: getrusage reports memory in KB
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Linux_resource.getrusage_reports_memory_in_KB
+  kind: entity_fact
+  raw_text: 'If platform_name == ''Linux'': # Linux reports in KB'
+  resolved_value: Linux resource.getrusage reports memory in KB
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T01:13:46Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: macOS resource.getrusage reports memory in Bytes
+  claim_id: c_6ca9ee5b
+  context: T004b Implement resource limit check logic in .github/workflows/ci.yml.
+  evidence:
+    entailment_evidence: getrusage reports memory in Bytes
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/MacOS_resource.getrusage_reports_memory_in_Bytes
+  kind: entity_fact
+  raw_text: 'elif platform_name == ''Darwin'': # macOS reports in Bytes'
+  resolved_value: macOS resource.getrusage reports memory in Bytes
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T01:13:49Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Memory limit threshold set to 7 GB
+  claim_id: c_397c61d3
+  context: T004b Implement resource limit check logic in .github/workflows/ci.yml.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'limit_bytes = 7 * 1024 * 1024 * 1024 # 7GB in Bytes'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T01:16:56Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: CI timeout set to 360 minutes
+  claim_id: c_9b726e5f
+  context: T004a Configure GitHub Actions workflow structure for CPU-only CI.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'timeout-minutes: 360'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T01:17:00Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: CI job runs on ubuntu-latest with arXiv reference 2604.27148
+  claim_id: c_63d1f9b3
+  context: T004a Configure GitHub Actions workflow structure for CPU-only CI.
+  evidence:
+    entailment_evidence: CI job runs on ubuntu-latest with arXiv reference 2604.27148
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/CI_job_runs_on_ubuntu-latest_with_arXiv_reference_2604.27148
+  kind: magnitude
+  raw_text: 'runs-on: ubuntu-latest (2604.27148, https://arxiv.org/abs/2604.27148)'
+  resolved_value: CI job runs on ubuntu-latest with arXiv reference 2604.27148
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T01:17:03Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Test execution references arXiv 2305.13486
+  claim_id: c_567bf33c
+  context: T004a Configure GitHub Actions workflow structure for CPU-only CI.
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: python -m pytest (2305.13486, https://arxiv.org/abs/2305.13486) code/tests/
+    -v --tb=short
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T01:17:06Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Citation validation uses Jaccard similarity with threshold >= 0.7
+  claim_id: c_d7ee1fb4
+  context: T005b Implement citation_validator.py to verify fetched citations against
+    primary sources.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Jaccard similarity on tokenized titles (lowercase, split by non-alphanumeric).
+    similarity = len(set(tokens) & set(tokens)) / len(set(tokens) | set(tokens)).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T01:17:08Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Manual curated template requires atomic fractions summing to 1.0
+  claim_id: c_b51e0544
+  context: T057 Create data/raw/manual_curated_template.csv with exact schema.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Manual_curated_template_requires_atomic_fractions_summing_to
+  kind: magnitude
+  raw_text: The file MUST contain a header row and at least one example row with valid
+    atomic fractions summing to a normalized total.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T01:17:18Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Imputation switches from mean to listwise deletion at 15% missing rate
+  claim_id: c_8d668180
+  context: T015 Integration test for imputation logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'if missing_rate > 0.15: assert listwise_deletion else: assert mean_imputation'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T01:17:20Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Data scarcity warning triggered when N < 50
+  claim_id: c_f772d031
+  context: T028b-2 Scarcity Check - Write Flag.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'if N < 50, write data/.scarcity_warning with content {"n": N, "threshold":
+    50}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T01:17:28Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Bootstrapping requires at least 1000 resamples
+  claim_id: c_83a39e3f
+  context: T059 Bootstrapping Resample Count Verification.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrapping_requires_at_least_1000_resamples
+  kind: magnitude
+  raw_text: If n_resamples < 1000, raise a ValueError with the message "Bootstrapping
+    requires at least 1000 resamples for robust CI estimation."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T01:17:35Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: F-test significance threshold set to 0.05
+  claim_id: c_74abcbdd
+  context: T038 Unit test for F-test calculator.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Check p-value < 0.05 for significant results.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T01:17:37Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Outlier detection uses Isolation Forest method
+  claim_id: c_3a75b0e2
+  context: T051 Run outlier detection and sensitivity analysis.
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Run outlier detection (Isolation Forest (2409.13466, https://arxiv.org/abs/2409.13466))
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T01:17:40Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: "Descriptor robustness check uses \xB15% perturbation"
+  claim_id: c_7e879c92
+  context: T064 Descriptor Robustness Check.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perturb each descriptor by \xB15% and re-run the model training to observe\
+    \ stability in R\xB2."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T01:17:41Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 0
+  canonical: scarcity warning flag written if N less than 50
+  claim_id: c_c4a6e4eb
+  context: 'T028b-2 [US1] Scarcity Check - Write Flag: If N < 50, write data/.scarcity_warning
+    with content {''n'': N, ''threshold'': 50}. Schema: JSON with keys n (int) and
+    threshold (int).'
+  evidence:
+    entailment_evidence: Scarcity warning triggered when data count is less than 50
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Scarcity_warning_triggered_when_data_count_is_less_than_50
+  kind: magnitude
+  raw_text: 'If N < 50, write data/.scarcity_warning with content {''n'': N, ''threshold'':
+    50}.'
+  resolved_value: Scarcity warning triggered when data count is less than 50
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T01:19:51Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 0
+  canonical: bootstrapping resample count set to 1000
+  claim_id: c_b89971f1
+  context: "T042 [US3] Implement code/src/validation/bootstrap_validation.py to compute\
+    \ a confidence interval for R\xB2 with a sufficient number of resamples (SC-002).\
+    \ Logic: Perform a sufficient number of bootstrap resamples to ensure robust statistical\
+    \ inference. Set n_resamples=1000 explicitly."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: As an example, assume we are interested in the average (or mean) height
+        of people worldwide.  We cannot measure all the people in the global population,
+        so instead, we sample only a tiny part of it, and measure that.  Assume the
+        sample is of size N; that is, we measure the heights of N individuals.  From
+        that single sample, only one estimate of the mean can be obtained.  In order
+        to reason about the population, we need some sense of the variability of the
+        mean that we have computed. The simplest bootstrap method involves taking
+        the original data set of heights, and, using a computer, sampling from it
+        to form a new sample (called a 'resample' or bootstrap sample) that is also
+        of size N.  The bootstrap sample is taken from the original by using sampling
+        with replacement (e.g. we might 'resample' 5 times from [1,2,3,4,5] and get
+        [2,5,4,4,1]), so, assuming N is sufficiently large, for all practical purposes
+        there is virtually zero probability that it will be identical to the original
+        "real" sample.  This process is repeated a large number of times (typically
+        1,000 or 10,000 times), and for each of these bootstrap samples, we compute
+        its mean (each of these is called a "bootstrap estimate").  We now can create
+        a histogram of bootstrap means.  This histogram provides an estimate of the
+        shape of the distribution of the sample mean from which we can answer questions
+        about how much the mean varies across samples.  (The method here, described
+        for the mean, can be applied to almost any other statistic or estimator.)
+      source_id: Bootstrapping (statistics)
+      url: https://en.wikipedia.org/wiki/Bootstrapping_(statistics)
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: Set n_resamples=1000 explicitly.
+  resolved_value: '1000'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T01:19:55Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: manual curated template requires valid atomic fractions summing to normalized
+    total
+  claim_id: c_3cfb0dda
+  context: 'T057 [US1] Manual Data Curation Template: Create data/raw/manual_curated_template.csv
+    with the exact schema defined in specs/001-predict-heusler-hysteresis/contracts/alloy_entry.schema.yaml
+    to serve as the fallback input for T018.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Manual_curated_template_requires_valid_atomic_fractions_summ
+  kind: magnitude
+  raw_text: The file MUST contain a header row and at least one example row with valid
+    atomic fractions summing to a normalized total.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T01:20:03Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: elemental properties CSV contains verified Pyykko values
+  claim_id: c_3710f51d
+  context: 'T006 [P] Create data/raw/elemental_properties.csv with fixed periodic
+    table data for all elements likely found in Heusler alloys including columns:
+    element, electronegativity, atomic_radii, valence_electrons, source_reference.
+    Source: Pyykko and standard references. Content: The file MUST contain the following
+    exact rows (values are representative of Pyykko and standard data).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Elemental_properties_CSV_contains_verified_Pyykko_values
+  kind: entity_fact
+  raw_text: The provided CSV block contains the verified Pyykko values to be used.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T01:25:56Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: imputation logic switches from mean imputation to listwise deletion at
+    15 percent missing rate
+  claim_id: c_40c0646f
+  context: 'T015 [US1] Integration test for imputation logic. Test Logic: Implement
+    a function test_imputation_logic_switches_at_15_percent that calls the imputation
+    logic with a missing rate of 0.14 and asserts mean_imputation is used, then calls
+    with 0.16 and asserts listwise_deletion is used. Assertion: if missing_rate >
+    0.15: assert listwise_deletion else: assert mean_imputation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'if missing_rate > 0.15: assert listwise_deletion else: assert mean_imputation'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T01:25:58Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: critical warning logged if N equals zero
+  claim_id: c_1702e50a
+  context: 'T028b-3 [US1] Scarcity Check - Trigger Warning: If N < 50, call function
+    check_and_warn() in code/src/validation/scarcity_warning.py. If N = 0, log a CRITICAL
+    warning and proceed (do not halt).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If N = 0, log a CRITICAL warning and proceed (do not halt).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T01:27:19Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: Plan's MICE is valid but not required for this project
+  claim_id: c_f01420a3
+  context: 'T024b [US1] Imputation Strategy Rationale: Create docs/reports/imputation_strategy_rationale.md.
+    Content: Must explicitly state: ''Spec FR-002 defines the required imputation
+    strategy for this project (Mean Imputation/Listwise Deletion) based on the small
+    N context (N<50). The Plan''s MICE is a valid general method but not required
+    here. This decision aligns with the ''Exploratory'' nature of the study and avoids
+    the complexity of MICE for small N.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plan's_MICE_is_valid_but_not_required_for_this_project
+  kind: entity_fact
+  raw_text: The Plan's MICE is a valid general method but not required here.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T01:27:56Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: bootstrapping requires at least 1000 resamples
+  claim_id: c_2b697f76
+  context: 'T059 [P] [US3] Bootstrapping Resample Count Verification: Implement code/src/validation/bootstrap_validation.py
+    (T042) to include a runtime check that n_resamples is set to at least 1000. Logic:
+    If n_resamples < 1000, raise a ValueError with the message ''Bootstrapping requires
+    at least 1000 resamples for robust CI estimation.'''
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrapping_requires_at_least_1000_resamples
+  kind: magnitude
+  raw_text: Bootstrapping requires at least 1000 resamples for robust CI estimation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T01:28:41Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: F-test validates statistical fit not physical mechanism
+  claim_id: c_4cce82ac
+  context: 'T047 [US3] Generate docs/reports/statistical_limitations.md with mandatory
+    disclaimer: ''F-test validates statistical fit, not physical mechanism'' (FR-009).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/F-test_validates_statistical_fit_not_physical_mechanism
+  kind: entity_fact
+  raw_text: F-test validates statistical fit, not physical mechanism.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T01:29:42Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: hysteresis heavily influenced by microstructure not just composition
+  claim_id: c_7c8ba0c1
+  context: 'T048 [US3] Generate docs/reports/microstructure_note.md logging synthesis
+    methods and noting microstructure influence (FR-010). Content: Must include a
+    table of synthesis methods found and the note: ''Hysteresis is heavily influenced
+    by microstructure, not just composition.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hysteresis_heavily_influenced_by_microstructure_not_just_com
+  kind: entity_fact
+  raw_text: Hysteresis is heavily influenced by microstructure, not just composition.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T01:30:33Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  attempts: 1
+  canonical: ANOVA or variance partitioning used to determine variance attributable
+    to microstructure vs composition
+  claim_id: c_1a548509
+  context: 'T065 [US3] Confounding Variable Quantification: Implement code/src/validation/confounder_quantification.py
+    to calculate the variance explained by synthesis_method vs. composition. Logic:
+    Use ANOVA or variance partitioning to determine how much of the hysteresis variance
+    is attributable to microstructure (synthesis) vs. composition.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ANOVA_or_variance_partitioning_used_to_determine_variance_at
+  kind: entity_fact
+  raw_text: Use ANOVA or variance partitioning to determine how much of the hysteresis
+    variance is attributable to microstructure (synthesis) vs. composition.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T01:31:13Z'

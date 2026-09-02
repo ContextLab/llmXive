@@ -38,7 +38,7 @@ name: CPU-Only CI
 on: [push, pull_request]
 jobs:
  test:
- runs-on: ubuntu-latest (2604.27148, https://arxiv.org/abs/2604.27148) [UNRESOLVED-CLAIM: c_642bd9a4 — status=refuted]
+ {{claim:c_63d1f9b3}}
  timeout-minutes:
  container: python:3.11-slim
  steps:
@@ -47,13 +47,13 @@ jobs:
  run: pip install -r code/requirements.txt
  - name: Run Tests
  run: |
- python -m pytest (2305.13486, https://arxiv.org/abs/2305.13486) code/tests/ -v --tb=short [UNRESOLVED-CLAIM: c_d40c3b05 — status=not_enough_info]
+ python -m pytest (2305.13486, https://arxiv.org/abs/2305.13486) code/tests/ -v --tb=short
  - name: Resource Check
  run: |
  free -h
  df -h
  ```
- **Constraint**: Must enforce ≤7GB RAM and ≤360 minutes (6h) timeout. [UNRESOLVED-CLAIM: c_8fa92832 — status=not_enough_info] The resource check steps are implemented in T004b.
+ **Constraint**: Must enforce ≤7GB RAM and ≤360 minutes (6h) timeout. The resource check steps are implemented in T004b.
 - [X] T004b [P] Implement resource limit check logic in `.github/workflows/ci.yml`. **Deliverable**: Add a 'Pre-Check Resource Limits' step to the CI workflow defined in T004a with the following exact logic:
  ```yaml
  - name: Pre-Check Resource Limits
@@ -76,7 +76,7 @@ else:
  # Windows or others: assume Bytes or handle gracefully
  rss_bytes = rss
 
-limit_bytes = 7 * 1024 * 1024 * 1024 # 7GB in Bytes [UNRESOLVED-CLAIM: c_2a0a65f3 — status=not_enough_info]
+limit_bytes = 7 * 1024 * 1024 * 1024 # 7GB in Bytes
 
 print(f'Memory usage: {rss_bytes / (1024*1024):.2f} MB (Platform: {platform_name})')
 if rss_bytes > limit_bytes:
@@ -87,7 +87,7 @@ else:
 "
  ```
  **Constraint**: Must fail the build if memory exceeds a predefined threshold. Must handle platform-specific units correctly.
-- [X] T057 [US1] **Manual Data Curation Template**: Create `data/raw/manual_curated_template.csv` with the exact schema defined in `specs/001-predict-heusler-hysteresis/contracts/alloy_entry.schema.yaml` to serve as the fallback input for T018. **Prerequisite for T018**. **Exact Data**: The file MUST contain a header row and at least one example row with valid atomic fractions summing to a normalized total.
+- [X] T057 [US1] **Manual Data Curation Template**: Create `data/raw/manual_curated_template.csv` with the exact schema defined in `specs/001-predict-heusler-hysteresis/contracts/alloy_entry.schema.yaml` to serve as the fallback input for T018. **Prerequisite for T018**. **Exact Data**: The file MUST contain a header row and at least one example row with valid atomic fractions summing to a normalized total. [UNRESOLVED-CLAIM: c_3cfb0dda — status=not_enough_info]
  ```csv
 composition,coercivity_oe,saturation_magnetization_emu_g,source_type,synthesis_method
 {"Co": 0.5, "Mn": 0.25, "Ga": 0.25},150,120,Manual,Arc Melting
@@ -109,7 +109,7 @@ composition,coercivity_oe,saturation_magnetization_emu_g,source_type,synthesis_m
 - [X] T005a [P] Implement `code/src/utils/citation_fetcher.py` to extract all citations from `research.md` and fetch their metadata (title, DOI, URL) (Constitution Principle II, Plan Phase 0.2).
 - [X] T005b [P] Implement `code/src/utils/citation_validator.py` to verify fetched citations against primary sources (DOI/URL) with title-overlap check ≥ 0.7. **Algorithm**: Use Jaccard similarity on tokenized titles (lowercase, split by non-alphanumeric). `similarity = len(set(tokens) & set(tokens)) / len(set(tokens) | set(tokens))`.
 - [X] T005c [P] Implement `code/src/utils/citation_gate.py` to block pipeline progression if any citation in T005b is unreachable or mismatched; includes explicit error handling and logging. **This task acts as a hard GATE; Phase 3 cannot start until T005c passes.**
-- [X] T006 [P] Create `data/raw/elemental_properties.csv` with fixed periodic table data for all elements likely found in Heusler alloys (Mn, Co, Fe, Ga, Al, Ni, Cu, Sn, In, Ti, V, Zn, Si, Ge, Sb, Pb, Mg, Cr, Nb, Ta) including columns: `element`, `electronegativity`, `atomic_radii`, `valence_electrons`, `source_reference`. **Source**: Pyykko and standard references. **Content**: The file MUST contain the following exact rows (values are representative of Pyykko and standard data). [UNRESOLVED-CLAIM: c_68cc710b — status=not_enough_info] **Note**: This task is self-contained and executable. The provided CSV block contains the verified Pyykko values to be used.
+- [X] T006 [P] Create `data/raw/elemental_properties.csv` with fixed periodic table data for all elements likely found in Heusler alloys (Mn, Co, Fe, Ga, Al, Ni, Cu, Sn, In, Ti, V, Zn, Si, Ge, Sb, Pb, Mg, Cr, Nb, Ta) including columns: `element`, `electronegativity`, `atomic_radii`, `valence_electrons`, `source_reference`. **Source**: Pyykko and standard references. **Content**: The file MUST contain the following exact rows (values are representative of Pyykko and standard data). **Note**: This task is self-contained and executable. The provided CSV block contains the verified Pyykko values to be used. [UNRESOLVED-CLAIM: c_3710f51d — status=not_enough_info]
  ```csv
 element,electronegativity,atomic_radii,valence_electrons,source_reference
 Mn,1.55,127,7,Pyykko 1988
@@ -209,7 +209,7 @@ properties:
  ```
 - [X] T011 Implement `code/src/utils/schema_validator.py` to validate processed data against canonical schemas.
 - [X] T061 [US1] **Plan Amendment (Completed Prerequisite)**: Update `specs/001-predict-heusler-hysteresis/plan.md` to replace "Multiple Imputation by Chained Equations (MICE)" with "Mean Imputation/Listwise Deletion" in Phase 1.2 and Technical Context. **Note**: This task is marked as a prerequisite for T024/T015. The Plan has been amended to align with Spec FR-002.
-- [X] T024b [US1] **Imputation Strategy Rationale**: Create `docs/reports/imputation_strategy_rationale.md`. **Content**: Must explicitly state: "Spec FR-002 defines the required imputation strategy for this project (Mean Imputation/Listwise Deletion) based on the small N context (N<50). The Plan's MICE is a valid general method but not required here. This decision aligns with the 'Exploratory' nature of the study and avoids the complexity of MICE for small N. [UNRESOLVED-CLAIM: c_929f2b65 — status=not_enough_info] " **Dependency**: Must run immediately after T061 (Plan Amendment) is completed. **Placement**: This task is moved to Phase 2 to ensure it is available before US1 implementation.
+- [X] T024b [US1] **Imputation Strategy Rationale**: Create `docs/reports/imputation_strategy_rationale.md`. **Content**: Must explicitly state: "Spec FR-002 defines the required imputation strategy for this project (Mean Imputation/Listwise Deletion) based on the small N context (N<50). The Plan's MICE is a valid general method but not required here. [UNRESOLVED-CLAIM: c_f01420a3 — status=not_enough_info] This decision aligns with the 'Exploratory' nature of the study and avoids the complexity of MICE for small N. " **Dependency**: Must run immediately after T061 (Plan Amendment) is completed. **Placement**: This task is moved to Phase 2 to ensure it is available before US1 implementation.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -226,7 +226,7 @@ properties:
 - [X] T012 [US1] Unit test for composition parser in `code/tests/unit/test_composition_parser.py` (tests "Co2MnGa" -> atomic fractions).
 - [X] T013 [US1] Unit test for unit normalizer in `code/tests/unit/test_unit_normalizer.py` (tests Oe/emu/g conversion).
 - [X] T014 [US1] Integration test for DFT filter in `code/tests/integration/test_dft_filter.py` (ensures DFT targets are excluded).
-- [X] T015 [US1] Integration test for imputation logic in `code/tests/integration/test_imputation_logic.py`. **Test Logic**: Implement a function `test_imputation_logic_switches_at_15_percent` that calls the imputation logic with a missing rate of 0.14 and asserts `mean_imputation` is used, then calls with 0.16 and asserts `listwise_deletion` is used. **Assertion**: `if missing_rate > 0.15: assert listwise_deletion else: assert mean_imputation `. **Note**: This test validates Spec FR-002. **Implementation Logic**: The implementation MUST follow Spec FR-002 (Mean Imputation/Listwise Deletion), ignoring the Plan's MICE mention. **Execution Order**: Code (T024a-T024c) -> Test (T015).
+- [X] T015 [US1] Integration test for imputation logic in `code/tests/integration/test_imputation_logic.py`. **Test Logic**: Implement a function `test_imputation_logic_switches_at_15_percent` that calls the imputation logic with a missing rate of 0.14 and asserts `mean_imputation` is used, then calls with 0.16 and asserts `listwise_deletion` is used. **Assertion**: `if missing_rate > 0.15: assert listwise_deletion else: assert mean_imputation [UNRESOLVED-CLAIM: c_40c0646f — status=not_enough_info] `. **Note**: This test validates Spec FR-002. **Implementation Logic**: The implementation MUST follow Spec FR-002 (Mean Imputation/Listwise Deletion), ignoring the Plan's MICE mention. **Execution Order**: Code (T024a-T024c) -> Test (T015).
 
 ### Implementation for User Story 1 (Executed after tests)
 
@@ -237,7 +237,7 @@ properties:
 - [X] T020 [US1] Implement `code/src/preprocessing/unit_normalizer.py` to standardize coercivity (Oe) and saturation magnetization (emu/g).
 - [X] T021 [US1] Implement `code/src/preprocessing/dft_filter.py` to exclude entries where `source_type` contains 'DFT', 'Calculated', or 'Simulation', OR `target_source` == 'Materials Project'. **Explicitly LOG/FLAG excluded entries before removal.**
 - [X] T024 [US1] Implement `code/src/preprocessing/imputation_orchestrator.py` to handle missing data per Spec FR-002: calculate missing rate per column as `null_count / total_rows`; if >15%, perform listwise deletion of rows; if ≤15%, perform mean imputation (column-wise mean of non-null values). **Note**: Spec FR-002 mandates Mean/Listwise. The Plan (Phase 1.2) mentions MICE, but Spec FR-002 takes precedence. **This task explicitly excludes MICE.** **Documentation**: This task implements the Spec override of the Plan's MICE requirement. **Rationale**: See T024b.
-- [X] T024b [US1] **Imputation Strategy Rationale**: Create `docs/reports/imputation_strategy_rationale.md`. **Content**: Must explicitly state: "Spec FR-002 defines the required imputation strategy for this project (Mean Imputation/Listwise Deletion) based on the small N context (N<50). The Plan's MICE is a valid general method but not required here. This decision aligns with the 'Exploratory' nature of the study and avoids the complexity of MICE for small N. [UNRESOLVED-CLAIM: c_929f2b65 — status=not_enough_info] " **This task closes the coverage gap for the Plan's MICE requirement and must be completed alongside T024.** **Dependency**: T061 (Plan Amendment - Complete). **Note**: T061 is marked COMPLETE.
+- [X] T024b [US1] **Imputation Strategy Rationale**: Create `docs/reports/imputation_strategy_rationale.md`. **Content**: Must explicitly state: "Spec FR-002 defines the required imputation strategy for this project (Mean Imputation/Listwise Deletion) based on the small N context (N<50). The Plan's MICE is a valid general method but not required here. [UNRESOLVED-CLAIM: c_f01420a3 — status=not_enough_info] This decision aligns with the 'Exploratory' nature of the study and avoids the complexity of MICE for small N. " **This task closes the coverage gap for the Plan's MICE requirement and must be completed alongside T024.** **Dependency**: T061 (Plan Amendment - Complete). **Note**: T061 is marked COMPLETE.
 - [X] T025 [US1] Implement `code/src/preprocessing/validator.py` to check for elements not in periodic table and log warnings.
 - [X] T026 [US1] Create `code/src/ingestion/ingest_pipeline.py` to orchestrate fetching, parsing, and saving to `data/raw/` with checksums.
 - [X] T027 [US1] **Re-Generate Preprocessed Data**: Create `code/src/preprocessing/preprocess_pipeline.py` to standardize, impute (via Orchestrator T024), filter, and save to `data/processed/alloys_raw.csv`. **Guarantee**: This task MUST produce `data/processed/alloys_raw.csv` even if the dataset is empty or small. **Logic**: 1. Load raw data from T016, T017, T018. 2. Standardize composition. 3. Normalize units. 4. Apply DFT filter. 5. Apply imputation logic. 6. Save to `data/processed/alloys_raw.csv`. **Error Handling**: If input is empty, create an empty CSV with headers and log a warning. **Dependency**: T016, T017, T018. **Note**: This task is marked [X] (complete) to address the rejection of previous artifacts.
@@ -303,14 +303,14 @@ properties:
 
 ### Implementation for User Story 3
 
-- [X] T059 [P] [US3] **Bootstrapping Resample Count Verification**: Implement `code/src/validation/bootstrap_validation.py` (T042) to include a runtime check that `n_resamples` is set to at least 1000. **Logic**: If `n_resamples < 1000`, raise a `ValueError` with the message "Bootstrapping requires at least 1000 resamples for robust CI estimation. " **Rationale**: Ensures SC-002 (95% CI via 1000 resamples) is strictly enforced and not accidentally reduced during debugging. **Dependency**: None (Independent check).
+- [X] T059 [P] [US3] **Bootstrapping Resample Count Verification**: Implement `code/src/validation/bootstrap_validation.py` (T042) to include a runtime check that `n_resamples` is set to at least 1000. **Logic**: If `n_resamples < 1000`, raise a `ValueError` with the message "Bootstrapping requires at least 1000 resamples for robust CI estimation. [UNRESOLVED-CLAIM: c_2b697f76 — status=not_enough_info] " **Rationale**: Ensures SC-002 (95% CI via 1000 resamples) is strictly enforced and not accidentally reduced during debugging. **Dependency**: None (Independent check).
 - [X] T041 [P] [US3] Implement `code/src/validation/null_model_comparison.py` to perform F-test against mean prediction (SC-001).
 - [X] T042 [US3] Implement `code/src/validation/bootstrap_validation.py` to compute a confidence interval for R² with **a sufficient number of resamples** (SC-002). **Logic**: Perform a sufficient number of bootstrap resamples to ensure robust statistical inference. Set `n_resamples=1000` explicitly. **Dependency**: T059.
 - [X] T043 [US3] Implement `code/src/validation/pdp_generator.py` to generate Partial Dependence Plots for top features (SC-003).
 - [X] T044 [US3] Implement `code/src/validation/stratified_analysis.py` to group by `synthesis_method` and run models within strata (addressing microstructure confounders).
 - [X] T045 [US3] Implement `code/src/validation/stratified_reporter.py` to report stratified results as **PRIMARY INTERPRETATION** if global SC-006 is not met, but still report global SC-006 as the 'Benchmark'. **Clarifies hierarchy: Global is Benchmark, Stratified is Interpretation.**
 - [X] T047 [US3] Generate `docs/reports/statistical_limitations.md` with mandatory disclaimer: "F-test validates statistical fit, not physical mechanism " (FR-009). **Content**: Must include the exact disclaimer text and a note on microstructural confounders.
-- [X] T048 [US3] Generate `docs/reports/microstructure_note.md` logging synthesis methods and noting microstructure influence (FR-010). **Content**: Must include a table of synthesis methods found and the note: "Hysteresis is heavily influenced by microstructure, not just composition. "
+- [X] T048 [US3] Generate `docs/reports/microstructure_note.md` logging synthesis methods and noting microstructure influence (FR-010). **Content**: Must include a table of synthesis methods found and the note: "Hysteresis is heavily influenced by microstructure, not just composition. [UNRESOLVED-CLAIM: c_7c8ba0c1 — status=not_enough_info] "
 - [X] T050 [US3] Generate `docs/reports/final_report.md` combining all metrics, plots, and disclaimers. **Content**: Must include sections:
  1. Executive Summary.
  2. Dataset Completeness (from T028).
@@ -350,8 +350,8 @@ properties:
 - [X] T070 [US1] **Fix Data Fetcher Robustness (FR-001)**: Update `code/src/ingestion/nist_fetcher.py` and `code/src/ingestion/journal_supplement_parser.py` to implement **streaming** or **chunked downloading** for large datasets if available, and add explicit **timeout handling** and **retry logic** (with exponential backoff) for network requests. **Rationale**: Prevents CI timeouts on large or slow-to-fetch datasets and ensures robustness against transient network failures.
 - [X] T071 [US1] **Implement Strict "Fail Loudly" Data Loader (Correction)**: Modify `code/src/ingestion/manual_curator.py` and `code/src/ingestion/ingest_pipeline.py` to **remove any fallback logic** that substitutes synthetic data if the real fetch fails. If `manual_curated.csv` is missing or empty, and no other source is available, the pipeline MUST **log a warning and proceed** (do NOT halt). **Rationale**: Ensures the pipeline handles data scarcity gracefully as per Spec Assumptions, preventing a hard stop that violates the spec's tolerance for N<50. **Note**: This task corrects the previous requirement for a hard halt to align with Spec Edge Cases.
 - [ ] T072 [US2] **Add Explicit Element Missing Handling in Descriptor Calc (Correction)**: Update `code/src/features/descriptor_calculator.py` to **log a WARNING** and **exclude the entry from analysis** if an element in the composition is not found in `data/raw/elemental_properties.csv`, rather than raising a `ValueError`. **Rationale**: Ensures data integrity by following Spec Edge Cases (graceful degradation) and aligns with T058 behavior. **Note**: This task corrects the previous requirement for a hard failure to match T058 and Spec Edge Cases.
-- [ ] T073 [US3] **Enhance Stratified Analysis Robustness**: Update `code/src/validation/stratified_analysis.py` to **skip strata with insufficient samples** and log a warning, rather than attempting to train a model on insufficient data which would cause errors or unreliable results. **Rationale**: Prevents statistical artifacts from small sample sizes within strata, ensuring the stratified analysis remains scientifically valid.
-- [ ] T074 [US1] **Update Manual Curation Guide with Specific Instructions**: Revise `code/src/ingestion/manual_curation_guide.md` to include **explicit instructions** on how to handle ambiguous data points (e.g., "not measurable", "zero", "variable thickness") and **specific examples** of valid CSV entries based on the schema. **Rationale**: Reduces human error in manual curation, ensuring consistency and accuracy in the manually curated dataset.
+- [X] T073 [US3] **Enhance Stratified Analysis Robustness**: Update `code/src/validation/stratified_analysis.py` to **skip strata with insufficient samples** and log a warning, rather than attempting to train a model on insufficient data which would cause errors or unreliable results. **Rationale**: Prevents statistical artifacts from small sample sizes within strata, ensuring the stratified analysis remains scientifically valid.
+- [X] T074 [US1] **Update Manual Curation Guide with Specific Instructions**: Revise `code/src/ingestion/manual_curation_guide.md` to include **explicit instructions** on how to handle ambiguous data points (e.g., "not measurable", "zero", "variable thickness") and **specific examples** of valid CSV entries based on the schema. **Rationale**: Reduces human error in manual curation, ensuring consistency and accuracy in the manually curated dataset.
 - [ ] T075 [US3] **Add Sensitivity Analysis for Imputation Threshold**: Implement `code/src/validation/imputation_sensitivity.py` to run the pipeline with different imputation thresholds (e.g., varying percentages) and compare the resulting model metrics. **Rationale**: Validates the robustness of the chosen 15% threshold and provides insight into how sensitive the results are to missing data handling.
 
 ---
@@ -487,7 +487,7 @@ With multiple developers:
 
 - [X] T063 [US1] **Enhanced Manual Curation Workflow**: Implement `code/src/ingestion/manual_curation_guide.md` and a corresponding `code/tests/unit/test_manual_curation_validation.py`. **Logic**: Create a step-by-step guide for researchers to manually extract data from PDFs into `manual_curated.csv`, including a validation script that checks the CSV format against the schema before ingestion. **Rationale**: Since automated fetchers (T016, T017) often fail for niche materials data, the manual path is critical. This task ensures the manual path is robust, documented, and validated, preventing the pipeline from relying on unverified manual data. **Dependency**: T018, T010.
 - [X] T064 [US2] **Descriptor Robustness Check**: Implement `code/src/features/descriptor_robustness.py` to perform a sensitivity analysis on the 5 descriptors. **Logic**: Perturb each descriptor by ±5% and re-run the model training (T035) to observe stability in R². **Rationale**: With small datasets (N<50), model performance is highly sensitive to feature noise. This task quantifies that sensitivity and adds a "Descriptor Stability" section to the final report. **Dependency**: T031, T035. **Traceability**: Required for FR-009 (Statistical Limitations) to ensure model stability is assessed.
-- [X] T065 [US3] **Confounding Variable Quantification**: Implement `code/src/validation/confounder_quantification.py` to calculate the variance explained by `synthesis_method` vs. `composition`. **Logic**: Use ANOVA or variance partitioning to determine how much of the hysteresis variance is attributable to microstructure (synthesis) vs. composition. **Rationale**: Directly addresses FR-009 and FR-010 by providing a quantitative measure of the "microstructural confounder" rather than just a qualitative note. **Dependency**: T044, T050. **Traceability**: Required for FR-010 (Microstructure Context) to quantify the confounder.
+- [X] T065 [US3] **Confounding Variable Quantification**: Implement `code/src/validation/confounder_quantification.py` to calculate the variance explained by `synthesis_method` vs. `composition`. **Logic**: Use ANOVA or variance partitioning to determine how much of the hysteresis variance is attributable to microstructure (synthesis) vs. composition. [UNRESOLVED-CLAIM: c_1a548509 — status=not_enough_info] **Rationale**: Directly addresses FR-009 and FR-010 by providing a quantitative measure of the "microstructural confounder" rather than just a qualitative note. **Dependency**: T044, T050. **Traceability**: Required for FR-010 (Microstructure Context) to quantify the confounder.
 
 ---
 

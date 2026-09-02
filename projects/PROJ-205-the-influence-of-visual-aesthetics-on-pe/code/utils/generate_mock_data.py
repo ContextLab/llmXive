@@ -1,152 +1,159 @@
 """
-Generate synthetic mock data for benchmarking the analysis pipeline.
+Mock Data Generator for Benchmarking (T043a)
 
-This script creates a synthetic `data/raw/submissions.csv` file with N=250
-participants. The data includes all required fields defined in the project
-schema. The ratings are drawn from a normal distribution (mean=4, std=1.5)
-as specified for benchmarking purposes.
+Generates a synthetic `data/raw/submissions.csv` with N=250 participants.
+This is used ONLY for benchmarking and testing the pipeline when real data
+is not yet available. It is NOT used for the actual analysis of the study.
 
-IMPORTANT: This data is strictly for benchmarking the pipeline execution
-and performance (e.g., T043b runtime tests). It is NOT real experimental data.
+Schema matches: data/raw/submissions.csv
 """
+
 import os
 import sys
 import csv
 import uuid
 import random
 import time
-from datetime import datetime, timedelta
 from pathlib import Path
+from datetime import datetime, timedelta
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+def get_project_root():
+    """Return the root path of the project."""
+    current = Path(__file__).resolve()
+    while not current.joinpath("project_root_marker").exists():
+        current = current.parent
+        if current == current.parent:
+            return Path(__file__).resolve().parent.parent.parent
+    return current
 
-from utils.helpers import (
-    get_submissions_csv_path,
-    generate_user_id,
-    hash_ip,
-    get_education_code
-)
+PROJECT_ROOT = get_project_root()
+RAW_DATA_DIR = PROJECT_ROOT / "data" / "raw"
+SUBMISSIONS_PATH = RAW_DATA_DIR / "submissions.csv"
 
-# Constants
-N_PARTICIPANTS = 250
-RATING_MEAN = 4.0
-RATING_STD = 1.5
-STIMULI_CONDITIONS = ['professional', 'minimalist', 'low_quality', 'neutral']
-EDUCATION_OPTIONS = ['High School', "Bachelor's", "Master's", 'PhD']
-TIMEZONE_OFFSET_HOURS = -5  # Approximate US Eastern
+# Stimulus conditions
+CONDITIONS = ['professional', 'minimalist', 'low_quality', 'neutral']
 
 def generate_ip():
-    """Generate a realistic-looking but synthetic IP address."""
-    return f"{random.randint(1, 223)}.{random.randint(0, 255)}.{random.randint(0, 255)}.{random.randint(1, 254)}"
+    """Generate a realistic-looking but fake IP address."""
+    return f"{random.randint(1, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}.{random.randint(0, 255)}"
 
 def generate_session_id():
-    """Generate a UUID v4 for the session."""
+    """Generate a random session ID."""
     return str(uuid.uuid4())
 
-def generate_timestamp(base_time, offset_minutes):
+def generate_timestamp(base_time=None):
     """Generate a timestamp string."""
-    dt = base_time + timedelta(minutes=offset_minutes)
-    return dt.strftime("%Y-%m-%d %H:%M:%S")
+    if base_time is None:
+        base_time = datetime.now() - timedelta(days=random.randint(0, 30))
+    offset = timedelta(seconds=random.randint(0, 86400))
+    return (base_time + offset).isoformat()
 
 def generate_user_agent():
-    """Generate a synthetic user agent string."""
+    """Generate a realistic user agent string."""
     browsers = [
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
-        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1"
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0",
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36",
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Mobile/15E148 Safari/604.1"
     ]
     return random.choice(browsers)
 
-def generate_mock_data(output_path):
+def hash_ip(ip):
+    """Generate a deterministic hash for the IP (mocking the real helper)."""
+    return f"hash_{hash(ip) % 1000000}"
+
+def generate_mock_data(n=250):
     """
-    Generate the mock submissions CSV.
-
-    Args:
-        output_path: Path to write the CSV file.
+    Generate N rows of mock submission data.
+    Includes some intentional duplicates for testing the audit script.
     """
-    # Ensure directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Base time for timestamps (simulating data collected over a few days)
-    base_time = datetime.now() - timedelta(days=3)
-
-    # Header
-    header = [
+    fieldnames = [
         'participant_id', 'stimulus_id', 'credibility', 'professionalism',
         'timestamp', 'hashed_ip', 'age', 'education', 'duplicate_flag',
         'session_status', 'submission_status', 'user_agent'
     ]
 
     rows = []
-    seen_ips = set()
+    base_time = datetime.now() - timedelta(days=30)
 
-    for i in range(N_PARTICIPANTS):
-        participant_id = generate_session_id()
-        ip = generate_ip()
-        hashed_ip = hash_ip(ip)
+    # Generate unique IPs first
+    unique_ips = [generate_ip() for _ in range(n - 10)]  # Reserve 10 for duplicates
+    ip_list = unique_ips.copy()
+
+    # Add 10 duplicate IPs (2 entries each) to simulate 5 duplicate users
+    for _ in range(5):
+        ip_list.append(unique_ips[random.randint(0, len(unique_ips)-1)])
+
+    random.shuffle(ip_list)
+
+    for i in range(n):
+        participant_id = str(uuid.uuid4())
+        stimulus = random.choice(CONDITIONS)
         
-        # Simulate some duplicates for testing (approx 2%)
-        if i > 0 and i % 50 == 0 and seen_ips:
-            # Reuse an existing IP to create a duplicate
-            ip = random.choice(list(seen_ips))
-            hashed_ip = hash_ip(ip)
-            duplicate_flag = 1
-        else:
-            duplicate_flag = 0
-            seen_ips.add(ip)
+        # Simulate ratings: Professional/Neutral higher than Low Quality
+        if stimulus in ['professional', 'neutral']:
+            cred = int(random.gauss(5.5, 1.2))
+            prof = int(random.gauss(5.8, 1.0))
+        elif stimulus == 'minimalist':
+            cred = int(random.gauss(4.5, 1.5))
+            prof = int(random.gauss(4.8, 1.2))
+        else: # low_quality
+            cred = int(random.gauss(2.5, 1.0))
+            prof = int(random.gauss(2.2, 0.8))
+
+        # Clamp ratings to 1-7
+        cred = max(1, min(7, cred))
+        prof = max(1, min(7, prof))
 
         age = random.randint(18, 75)
-        education_str = random.choice(EDUCATION_OPTIONS)
-        education_code = get_education_code(education_str)
+        education = random.choice([1, 2, 3, 4]) # 1: HS, 2: Bach, 3: Mast, 4: PhD
         
-        # Generate ratings from normal distribution
-        credibility = round(random.gauss(RATING_MEAN, RATING_STD), 2)
-        professionalism = round(random.gauss(RATING_MEAN, RATING_STD), 2)
+        ip = ip_list[i]
+        hashed_ip = hash_ip(ip)
         
-        # Clamp ratings to valid Likert range [1, 7]
-        credibility = max(1.0, min(7.0, credibility))
-        professionalism = max(1.0, min(7.0, professionalism))
-
-        stimulus_id = STIMULI_CONDITIONS[i % len(STIMULI_CONDITIONS)]
+        # Determine if this is a duplicate (for testing)
+        # In a real audit, this would be detected by IP count > 1
+        is_dup = ip_list.count(ip) > 1 and ip_list.index(ip) != i
         
-        # Increment time slightly for each row
-        current_time = generate_timestamp(base_time, i * 5)
-        
-        user_agent = generate_user_agent()
-        
-        row = [
-            participant_id,
-            stimulus_id,
-            credibility,
-            professionalism,
-            current_time,
-            hashed_ip,
-            age,
-            education_code,
-            duplicate_flag,
-            'complete', # session_status
-            'submitted', # submission_status
-            user_agent
-        ]
+        row = {
+            'participant_id': participant_id,
+            'stimulus_id': stimulus,
+            'credibility': cred,
+            'professionalism': prof,
+            'timestamp': generate_timestamp(base_time),
+            'hashed_ip': hashed_ip,
+            'age': age,
+            'education': education,
+            'duplicate_flag': 'TRUE' if is_dup else 'FALSE',
+            'session_status': 'complete',
+            'submission_status': 'submitted',
+            'user_agent': generate_user_agent()
+        }
         rows.append(row)
 
-    # Write to CSV
-    with open(output_path, mode='w', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
-        writer.writerow(header)
+    with open(SUBMISSIONS_PATH, mode='w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
         writer.writerows(rows)
 
-    print(f"Successfully generated mock data: {output_path}")
-    print(f"Total participants: {N_PARTICIPANTS}")
-    print(f"File size: {os.path.getsize(output_path)} bytes")
+    print(f"Generated {n} mock submissions at {SUBMISSIONS_PATH}")
+    return SUBMISSIONS_PATH
 
 def main():
-    output_path = get_submissions_csv_path()
-    generate_mock_data(output_path)
+    """Main entry point for mock data generation."""
+    n = 250
+    if len(sys.argv) > 1:
+        try:
+            n = int(sys.argv[1])
+        except ValueError:
+            pass
+    
+    print(f"Generating {n} mock data points...")
+    generate_mock_data(n)
+    print("Done.")
 
 if __name__ == "__main__":
     main()

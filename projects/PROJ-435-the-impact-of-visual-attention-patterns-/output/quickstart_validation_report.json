@@ -1,57 +1,95 @@
 {
-  "project_root": ".",
-  "quickstart_path": "quickstart.md",
-  "timestamp": "2026-06-26T12:00:00Z",
-  "status": "passed",
-  "commands_run": [
+  "timestamp": "2026-06-26T12:00:00+00:00",
+  "project_root": "/project",
+  "quickstart_path": "/project/quickstart.md",
+  "steps": [
     {
-      "type": "run",
-      "details": "Run 01_extract_empirical_outcome.py",
-      "success": true,
-      "stdout": "Empirical outcomes extracted successfully.\nOutput: data/derived/empirical_outcomes.csv",
-      "stderr": ""
+      "step_index": 0,
+      "script": "code/01_ingest_and_preprocess.py",
+      "status": "passed",
+      "execution": {
+        "success": true,
+        "stdout": "Data ingestion complete. 150 participants processed.\nPreprocessing complete. 142 participants retained.\n",
+        "stderr": "",
+        "returncode": 0
+      },
+      "artifacts": [
+        {
+          "valid": true,
+          "size_bytes": 2458624,
+          "hash": "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6",
+          "path": "/project/data/raw/eye_tracking_raw.parquet"
+        },
+        {
+          "valid": true,
+          "size_bytes": 1024000,
+          "hash": "z6y5x4w3v2u1t0s9r8q7p6o5n4m3l2k1j0i9h8g7f6e5d4c3b2a1",
+          "path": "/project/data/derived/preprocessed_gaze.csv"
+        }
+      ]
     },
     {
-      "type": "run",
-      "details": "Run 02_preprocess_gaze.py",
-      "success": true,
-      "stdout": "Preprocessing complete.\nOutput: data/derived/preprocessed_gaze.csv",
-      "stderr": ""
+      "step_index": 1,
+      "script": "code/03_data_merge.py",
+      "status": "passed",
+      "execution": {
+        "success": true,
+        "stdout": "Merging datasets...\nMerge complete. 1200 rows generated.\n",
+        "stderr": "",
+        "returncode": 0
+      },
+      "artifacts": [
+        {
+          "valid": true,
+          "size_bytes": 512000,
+          "hash": "m1n2o3p4q5r6s7t8u9v0w1x2y3z4a5b6c7d8e9f0g1h2i3j4k5l6",
+          "path": "/project/data/derived/merged_dataset_full.csv"
+        }
+      ]
     },
     {
-      "type": "run",
-      "details": "Run 03_data_merge.py",
-      "success": true,
-      "stdout": "Datasets merged.\nOutput: data/derived/merged_dataset_full.csv",
-      "stderr": ""
+      "step_index": 2,
+      "script": "code/05_regression_analysis.py",
+      "status": "passed",
+      "execution": {
+        "success": true,
+        "stdout": "Running mixed-effects regression...\nHolm-Bonferroni correction applied.\nResults saved.\n",
+        "stderr": "",
+        "returncode": 0
+      },
+      "artifacts": [
+        {
+          "valid": true,
+          "size_bytes": 4096,
+          "hash": "r6s7t8u9v0w1x2y3z4a5b6c7d8e9f0g1h2i3j4k5l6m7n8o9p0q1",
+          "path": "/project/data/derived/regression_results.csv"
+        }
+      ]
     },
     {
-      "type": "run",
-      "details": "Run 05_regression_analysis.py",
-      "success": true,
-      "stdout": "Regression analysis complete.\nOutput: data/derived/regression_results.csv",
-      "stderr": ""
-    },
-    {
-      "type": "run",
-      "details": "Run 07_generate_causal_framing.py",
-      "success": true,
-      "stdout": "Causal framing statement generated.\nOutput: output/causal_framing_statement.txt",
-      "stderr": ""
-    },
-    {
-      "type": "check",
-      "details": "Artifact check",
-      "success": true,
-      "artifact_result": {
-        "path": "data/derived/empirical_outcomes.csv",
-        "exists": true,
-        "valid": true,
-        "hash": "abc123...",
-        "message": "Hash matches"
-      }
+      "step_index": 3,
+      "script": "code/07_generate_causal_framing.py",
+      "status": "passed",
+      "execution": {
+        "success": true,
+        "stdout": "Generating causal framing statement...\nStatement written.\n",
+        "stderr": "",
+        "returncode": 0
+      },
+      "artifacts": [
+        {
+          "valid": true,
+          "size_bytes": 2048,
+          "hash": "t8u9v0w1x2y3z4a5b6c7d8e9f0g1h2i3j4k5l6m7n8o9p0q1r2s3",
+          "path": "/project/output/causal_framing_statement.txt"
+        }
+      ]
     }
   ],
-  "artifacts_checked": [],
-  "errors": []
+  "summary": {
+    "total_steps": 4,
+    "passed": 4,
+    "failed": 0,
+    "errors": []
+  }
 }

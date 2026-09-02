@@ -32,6 +32,9 @@ def calculate_average_electronegativity(composition: Dict[str, float]) -> float:
         val = get_element_property(elem, 'electronegativity')
         if val is not None:
             total += val * frac
+        else:
+            # Log warning if element is missing
+            logger.warning(f"Element {elem} not found in periodic table properties. Skipping contribution.")
     return total
 
 def calculate_valence_electron_concentration(composition: Dict[str, float]) -> float:
@@ -40,20 +43,28 @@ def calculate_valence_electron_concentration(composition: Dict[str, float]) -> f
         val = get_element_property(elem, 'valence_electrons')
         if val is not None:
             total += val * frac
+        else:
+            logger.warning(f"Element {elem} not found in periodic table properties. Skipping contribution.")
     return total
 
 def calculate_atomic_radii_variance(composition: Dict[str, float]) -> float:
     radii = []
     weights = []
+    missing_elements = []
     for elem, frac in composition.items():
         val = get_element_property(elem, 'atomic_radii')
         if val is not None:
             radii.append(val)
             weights.append(frac)
+        else:
+            missing_elements.append(elem)
+    
+    if missing_elements:
+        logger.warning(f"Missing atomic radii for elements: {missing_elements}. Calculation may be inaccurate.")
     
     if not radii:
-        return 0.0
-    
+        return np.nan
+  
     mean_radius = np.average(radii, weights=weights)
     variance = np.average((np.array(radii) - mean_radius)**2, weights=weights)
     return variance
@@ -87,6 +98,12 @@ def compute_descriptors_row(row: pd.Series) -> Dict[str, float]:
     if not comp:
         return {}
     
+    # Check for missing elements BEFORE calculation
+    missing = [e for e in comp.keys() if get_element_property(e, 'electronegativity') is None]
+    if missing:
+        logger.warning(f"Row contains unknown elements: {missing}. Skipping descriptor calculation for this row.")
+        return None # Signal to drop this row
+    
     return {
         'avg_electronegativity': calculate_average_electronegativity(comp),
         'vec': calculate_valence_electron_concentration(comp),
@@ -101,8 +118,23 @@ def calculate_all_descriptors(df: pd.DataFrame) -> pd.DataFrame:
         return pd.DataFrame()
     
     descriptors = df.apply(compute_descriptors_row, axis=1)
+    
+    # Filter out None values (rows with missing elements)
+    valid_indices = [i for i, d in enumerate(descriptors) if d is not None]
+    valid_descriptors = [descriptors[i] for i in valid_indices]
+    
+    if not valid_descriptors:
+        logger.warning("No valid rows found after filtering missing elements.")
+        return pd.DataFrame()
+    
     # Convert list of dicts to DataFrame
-    desc_df = pd.DataFrame(descriptors.tolist())
+    desc_df = pd.DataFrame(valid_descriptors)
+    
+    # Log summary
+    dropped_count = len(df) - len(valid_descriptors)
+    if dropped_count > 0:
+        logger.warning(f"Dropped {dropped_count} rows due to missing element properties.")
+    
     return desc_df
 
 def calculate_all_descriptors_wrapper(df: pd.DataFrame) -> pd.DataFrame:

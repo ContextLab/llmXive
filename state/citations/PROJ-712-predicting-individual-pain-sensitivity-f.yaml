@@ -1,4 +1,4 @@
-- artifact_hash: 572f2f5379a483052170501077c5c999d645b5895110543988d2cf4a62d2b88f
+- artifact_hash: 91d50bb9c22973c841d046735bdc33a37842b76c2611fd4d87945732407cb9f5
   artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://www.wikidata.org/wiki/Q113106917
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q113106917
-  verified_at: '2026-07-23T01:30:34.679523Z'
+  verified_at: '2026-09-02T01:12:40.737820Z'

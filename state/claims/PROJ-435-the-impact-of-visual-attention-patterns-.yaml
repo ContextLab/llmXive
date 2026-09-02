@@ -1152,3 +1152,338 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-30T03:53:47Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: True three-way interaction coefficient is 0.5 in synthetic data generator
+  claim_id: c_1e106703
+  context: "Parameters: Generate n participants and m headlines. True three-way interaction\
+    \ coefficient = 0.5. Random intercepts ~ N(\u03BC, \u03C3\xB2)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: True three-way interaction coefficient = 0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T00:48:42Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: Noise sigma is 1.0 in synthetic data generator
+  claim_id: c_e1ba72dc
+  context: "Random intercepts ~ N(\u03BC, \u03C3\xB2). Noise sigma = 1.0. Outcome\
+    \ = linear combination of predictors + interaction + noise."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Noise sigma = 1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T00:48:56Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: Random seed is pinned to 42 in code/config.yaml
+  claim_id: c_62418c82
+  context: All random seeds are pinned in code/config.yaml (seed = 42) and reset before
+    each robustness iteration.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All random seeds are pinned in code/config.yaml with seed = 42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T00:49:25Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: Participants with 20% or more data loss are filtered
+  claim_id: c_49202636
+  context: "Implement code/02_preprocess_gaze.py to ingest raw data, apply fixation\
+    \ detection (T006), filter participants with \u2265 20% data loss, map gaze points\
+    \ to ROIs..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Filter participants with \u2265 20% data loss"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T00:49:25Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: Runtime must be under 300 minutes and memory under 7 GB on reference
+    dataset
+  claim_id: c_fac12eba
+  context: Vectorize data merge in T023 and cache intermediate results in T018. Verify
+    runtime < 300 minutes and memory < 7 GB on the reference dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that runtime is < 300 minutes and memory < 7 GB on the reference
+    dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T00:49:25Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: Memory usage must be under 7 GB on reference dataset
+  claim_id: c_26f84736
+  context: Vectorize data merge in T023 and cache intermediate results in T018. Verify
+    runtime < 300 minutes and memory < 7 GB on the reference dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that runtime is < 300 minutes and memory < 7 GB on the reference
+    dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T00:49:25Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: Cognitive reflection scores capped at 1st and 99th percentiles globally
+  claim_id: c_739fdb9a
+  context: Cap cognitive_reflection_score at extreme percentiles (1st and 99th) globally
+    across the entire dataset to handle outliers as per Spec Edge Cases.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cognitive_reflection_scores_capped_at_1st_and_99th_percentil
+  kind: entity_fact
+  raw_text: Cap cognitive_reflection_score at extreme percentiles (1st and 99th) globally
+    across the entire dataset
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T00:50:04Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: Cognitive reflection scores capped at 99th percentile globally
+  claim_id: c_84263248
+  context: Cap cognitive_reflection_score at extreme percentiles (1st and 99th) globally
+    across the entire dataset to handle outliers as per Spec Edge Cases.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cognitive_reflection_scores_capped_at_99th_percentile_global
+  kind: entity_fact
+  raw_text: Cap cognitive_reflection_score at extreme percentiles (1st and 99th) globally
+    across the entire dataset
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T00:50:06Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: Switch to VADER lexicon if average NRC lexical coverage is below 50%
+  claim_id: c_0da9da46
+  context: Using data/derived/empirical_outcomes.csv (from T004b), compute NRC lexical
+    coverage. If average coverage < 50%, switch to VADER for all headlines and add
+    a new column lexicon_used.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Switch to VADER for all headlines if average NRC lexical coverage < 50%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T00:50:06Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: Cyclomatic complexity reduced to less than 10
+  claim_id: c_21f14e46
+  context: Refactor code/utils/fixation_detection.py and code/utils/roi_mapping.py
+    to reduce cyclomatic complexity to < 10. Run ruff --max-complexity=10 to verify.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cyclomatic_complexity_reduced_to_less_than_10
+  kind: magnitude
+  raw_text: Cyclomatic complexity reduced to < 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T00:50:17Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: Holm-Bonferroni correction applied to all fixed effects in mixed-effects
+    regression
+  claim_id: c_d93b6b9f
+  context: 'Apply Holm-Bonferroni correction to ALL fixed effects tested in the model
+    (including primary effects: fixation_duration, valence, crt, and their interactions;
+    AND control variables: headline_length, total_fixation_duration) to strictly satisfy
+    FR-007''s requirement to control family-wise error rate for all tested hypotheses.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Holm-Bonferroni_correction_applied_to_all_fixed_effects_in_m
+  kind: entity_fact
+  raw_text: Holm-Bonferroni correction applied to ALL fixed effects tested in the
+    model
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T00:50:29Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: true three-way interaction coefficient is 0.5 for synthetic data
+  claim_id: c_af46442d
+  context: "Generate n participants and m headlines. True three-way interaction coefficient\
+    \ = 0.5. Random intercepts ~ N(\u03BC, \u03C3\xB2)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: True three-way interaction coefficient = 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T00:51:38Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: noise sigma is 1.0 for synthetic data generation
+  claim_id: c_7b50d654
+  context: "Random intercepts ~ N(\u03BC, \u03C3\xB2). Noise sigma = 1.0. Outcome\
+    \ = linear combination of predictors + interaction + noise."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Noise sigma = 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T00:51:39Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: random seed is pinned to 42 in code/config.yaml
+  claim_id: c_80bbf7a8
+  context: All random seeds are pinned in code/config.yaml (seed = 42) and reset before
+    each robustness iteration.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All random seeds are pinned in code/config.yaml (seed = 42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T00:51:39Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: pipeline runtime is under 300 minutes and memory under 7 GB on reference
+    dataset
+  claim_id: c_6e895ce9
+  context: 'Verify runtime < 300 minutes and memory < 7 GB on the reference dataset.
+    Output: Optimized scripts and output/performance_metrics.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify runtime < 300 minutes and memory < 7 GB on the reference dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T00:51:39Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: holm-bonferroni correction applied to all fixed effects in regression
+    model
+  claim_id: c_a2c19d9e
+  context: 'Apply Holm-Bonferroni correction to ALL fixed effects tested in the model
+    (including primary effects: fixation_duration, valence, crt, and their interactions;
+    AND control variables: headline_length, total_fixation_duration) to strictly satisfy
+    FR-007''s requirement to control family-wise error rate for all tested hypotheses.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Holm-bonferroni_correction_applied_to_all_fixed_effects_in_r
+  kind: entity_fact
+  raw_text: Holm-Bonferroni correction is applied to ALL fixed effects tested in the
+    model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T00:51:41Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: filter participants with 20 percent or more data loss
+  claim_id: c_76d6df19
+  context: "Implement code/02_preprocess_gaze.py to ingest raw data, apply fixation\
+    \ detection (T006), filter participants with \u2265 20% data loss, map gaze points\
+    \ to ROIs..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Filter participants with \u2265 20% data loss."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T00:51:41Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: switch to VADER lexicon if NRC average coverage is below 50 percent
+  claim_id: c_4be4ef58
+  context: Using data/derived/empirical_outcomes.csv (from T004b), compute NRC lexical
+    coverage. If average coverage < 50%, switch to VADER for all headlines and add
+    a new column lexicon_used...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Switch to VADER for all headlines if average NRC lexical coverage < 50%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T00:51:42Z'
+- artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/tasks.md
+  attempts: 1
+  canonical: cap cognitive reflection score at 1st and 99th percentiles globally
+  claim_id: c_34144562
+  context: Cap cognitive_reflection_score at extreme percentiles (1st and 99th) globally
+    across the entire dataset to handle outliers as per Spec Edge Cases.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cap_cognitive_reflection_score_at_1st_and_99th_percentiles_g
+  kind: entity_fact
+  raw_text: Cap cognitive_reflection_score at extreme percentiles (1st and 99th) globally
+    across the entire dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T00:51:44Z'
