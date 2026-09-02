@@ -1,0 +1,6 @@
+# C20 Coefficient Replacement (SLR-derived)
+# The C20 coefficient represents the zonal harmonic of degree 2.
+# Replacing the GRACE-derived C20 with the more accurate SLR-derived value.
+c20_value: -484.16932e-6
+# Note: The exact application of this correction requires the full Stokes coefficient set.
+# This value is provided for reference and potential scaling adjustments.

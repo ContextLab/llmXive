@@ -6913,3 +6913,478 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-30T02:51:49Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: analysis assumes static non-rotating frame for monthly aggregation
+  claim_id: c_d6bf6ddd
+  context: "The analysis assumes a static, non\u2011rotating frame for the duration\
+    \ of the monthly aggregation, acknowledging the coordinate\u2011artifact nature\
+    \ of 'static' anomalies in a dynamic field."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_assumes_static_non-rotating_frame_for_monthly_aggre
+  kind: entity_fact
+  raw_text: "The analysis assumes a static, non\u2011rotating frame for the duration\
+    \ of the monthly aggregation."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T15:28:18Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: GRACE-FO gravitational potential perturbation measured at 500 km altitude
+  claim_id: c_d3b24a96
+  context: "The `anomaly_value` represents the perturbation in the gravitational potential\
+    \ at the GRACE\u2011FO satellite altitude (\u2248 500 km), NOT the geoid height\
+    \ at the Earth's surface."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The perturbation in gravitational potential is measured at the GRACE\u2011\
+    FO satellite altitude (\u2248 500 km)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T15:29:08Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Target region defined as West Coast NA 35N-50N 120W-125W
+  claim_id: c_b5452bd9
+  context: "filters to the Target region (West Coast NA: 35\xB0N\u201150\xB0N, 120\xB0\
+    W\u2011125\xB0W), saves raw files under data/raw/grace-fo/target/ and records\
+    \ SHA\u2011256 checksums."
+  evidence:
+    entailment_evidence: Target region defined as West Coast NA 35N-50N 120W-125W
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Target_region_defined_as_West_Coast_NA_35N-50N_120W-125W
+  kind: entity_fact
+  raw_text: "The Target region is defined as the West Coast NA: 35\xB0N\u201150\xB0\
+    N, 120\xB0W\u2011125\xB0W."
+  resolved_value: Target region defined as West Coast NA 35N-50N 120W-125W
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T15:29:12Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Control region defined as East Coast NA 35N-50N 70W-75W
+  claim_id: c_97b8a26c
+  context: "filters to the Control region (East Coast NA: 35\xB0N\u201150\xB0N, 70\xB0\
+    W\u201175\xB0W, an area with minimal AR activity), saves raw files under data/raw/grace-fo/control/\
+    \ and records SHA\u2011256 checksums."
+  evidence:
+    entailment_evidence: Control region defined as East Coast NA 35N-50N 70W-75W
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Control_region_defined_as_East_Coast_NA_35N-50N_70W-75W
+  kind: entity_fact
+  raw_text: "The Control region is defined as the East Coast NA: 35\xB0N\u201150\xB0\
+    N, 70\xB0W\u201175\xB0W."
+  resolved_value: Control region defined as East Coast NA 35N-50N 70W-75W
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T15:29:16Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: GRACE-FO preprocessing applies degree-1 correction using Swenson Wahr
+    2006 coefficients
+  claim_id: c_b64e428e
+  context: "applies degree\u20111 correction using Swenson & Wahr (2006) coefficients\
+    \ (read from a local coeffs/degree1.yaml file), replaces the C20 coefficient with\
+    \ the latest SLR\u2011derived value."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "GRACE\u2011FO preprocessing applies degree\u20111 correction using Swenson\
+    \ & Wahr (2006) coefficients."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T15:29:35Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: GRACE-FO preprocessing performs Gaussian smoothing with 300 km sigma
+  claim_id: c_f2b915e2
+  context: performs Gaussian smoothing with a 300 km sigma via a convolution on the
+    spherical grid (using scipy.ndimage.gaussian_filter on the gridded data), aggregates
+    to monthly means.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "GRACE\u2011FO preprocessing performs Gaussian smoothing with a 300 km\
+    \ sigma."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T15:30:14Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling 1000 iterations seed 42
+  claim_id: c_3bae2f4b
+  context: performs bootstrap (1000 iterations, seed 42) to obtain 95% CI, calculates
+    Newey-West robust standard errors to adjust p-values for autocorrelation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling is performed for 1000 iterations with seed 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T15:30:40Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: correlation analysis uses lags -3 to 3
+  claim_id: c_d8dbed4b
+  context: for each lag in a symmetric range of negative to positive integer lags,
+    computes Pearson r and raw p-value, ... lags = [-3, -2, -1, 0, 1, 2, 3].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis uses a symmetric range of negative to positive integer lags
+    from -3 to 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T15:31:03Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: signal-to-noise ratio compared against 3 sigma noise floor threshold
+  claim_id: c_8fa239a3
+  context: "calculates a signal\u2011to\u2011noise ratio as r / mean(uncertainty),\
+    \ compares SNR against the 3\u03C3 noise floor threshold (where \u03C3 is the\
+    \ mean uncertainty of the GRACE-FO data)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The signal-to-noise ratio is compared against the 3\u03C3 noise floor\
+    \ threshold."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T15:31:23Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps thresholds 0.0 to 1.0 in 0.1 steps
+  claim_id: c_f882bef2
+  context: performs a continuous sweep of thresholds from 0.0 to 1.0 in 0.1 steps
+    to satisfy FR-006, highlights the specific subset {0.4, 0.5, 0.6} as required
+    by SC-003.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis performs a continuous sweep of thresholds from
+    0.0 to 1.0 in 0.1 steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T15:31:50Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis highlights thresholds 0.4 0.5 0.6
+  claim_id: c_dba57ee1
+  context: highlights the specific subset {0.4, 0.5, 0.6} as required by SC-003, for
+    each threshold computes (a) count of correlations exceeding the threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis highlights the specific threshold subset {0.4,
+    0.5, 0.6}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T15:32:17Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: runtime report constraint is 6 hours or less
+  claim_id: c_b873c141
+  context: "LIMIT_SECONDS = 6 * 3600, status = 'PASS' if est <= LIMIT_SECONDS else\
+    \ 'FAIL', Constraint (\u2264 6 h): {status}."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Runtime_report_constraint_is_6_hours_or_less
+  kind: entity_fact
+  raw_text: The runtime report constraint is an estimated full runtime of 6 hours
+    or less.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T15:32:45Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 0
+  canonical: target region defined as West Coast NA 35N-50N 120W-125W
+  claim_id: c_62e45a8f
+  context: "filters to the Target region (West Coast NA: 35\xB0N\u201150\xB0N, 120\xB0\
+    W\u2011125\xB0W)"
+  evidence:
+    entailment_evidence: Target region defined as West Coast NA 35N-50N 120W-125W
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Target_region_defined_as_West_Coast_NA_35N-50N_120W-125W
+  kind: entity_fact
+  raw_text: "The Target region is defined as West Coast NA: 35\xB0N\u201150\xB0N,\
+    \ 120\xB0W\u2011125\xB0W"
+  resolved_value: Target region defined as West Coast NA 35N-50N 120W-125W
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T15:35:16Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 0
+  canonical: control region defined as East Coast NA 35N-50N 70W-75W
+  claim_id: c_d105684c
+  context: "filters to the Control region (East Coast NA: 35\xB0N\u201150\xB0N, 70\xB0\
+    W\u201175\xB0W, an area with minimal AR activity)"
+  evidence:
+    entailment_evidence: Control region defined as East Coast NA 35N-50N 70W-75W
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Control_region_defined_as_East_Coast_NA_35N-50N_70W-75W
+  kind: entity_fact
+  raw_text: "The Control region is defined as East Coast NA: 35\xB0N\u201150\xB0N,\
+    \ 70\xB0W\u201175\xB0W"
+  resolved_value: Control region defined as East Coast NA 35N-50N 70W-75W
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T15:35:17Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 2
+  canonical: citation verification script checks HTML title overlap >= 0.7
+  claim_id: c_da05d27e
+  context: "The script performs an HTTP HEAD request for each URL and checks that\
+    \ the fetched HTML title overlaps \u2265 0.7 with the expected title (stored in\
+    \ the YAML). It exits with a non\u2011zero code on any failure, ensuring Constitution\
+    \ Principle II is satisfied before data ingestion."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The script performs an HTTP HEAD request for each URL and checks that\
+    \ the fetched HTML title overlaps \u2265 0.7 with the expected title."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T15:35:29Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: analysis assumes static non-rotating frame for monthly aggregation acknowledging
+    coordinate artifacts
+  claim_id: c_2f8ecc25
+  context: "The analysis assumes a static, non\u2011rotating frame for the duration\
+    \ of the monthly aggregation, acknowledging the coordinate\u2011artifact nature\
+    \ of 'static' anomalies in a dynamic field."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_assumes_static_non-rotating_frame_for_monthly_aggre
+  kind: entity_fact
+  raw_text: "The analysis assumes a static, non\u2011rotating frame for the duration\
+    \ of the monthly aggregation, acknowledging the coordinate\u2011artifact nature\
+    \ of 'static' anomalies in a dynamic field."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T15:35:50Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: anomaly value represents perturbation in gravitational potential at GRACE-FO
+    satellite altitude approx 500 km
+  claim_id: c_3707b96c
+  context: "The `anomaly_value` represents the perturbation in the gravitational potential\
+    \ at the GRACE\u2011FO satellite altitude (\u2248 500 km), NOT the geoid height\
+    \ at the Earth's surface."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The `anomaly_value` represents the perturbation in the gravitational\
+    \ potential at the GRACE\u2011FO satellite altitude (\u2248 500 km)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T15:36:11Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: applies degree-1 correction using Swenson and Wahr 2006 coefficients
+  claim_id: c_43a1c52c
+  context: "applies degree\u20111 correction using Swenson & Wahr (2006) coefficients\
+    \ (read from a local coeffs/degree1.yaml file)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The script applies degree\u20111 correction using Swenson & Wahr (2006)\
+    \ coefficients"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T15:36:30Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: replaces C20 coefficient with latest SLR-derived value
+  claim_id: c_681bcc6d
+  context: "replaces the C20 coefficient with the latest SLR\u2011derived value (read\
+    \ from coeffs/c20.yaml)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Replaces_C20_coefficient_with_latest_SLR-derived_value
+  kind: magnitude
+  raw_text: "The script replaces the C20 coefficient with the latest SLR\u2011derived\
+    \ value"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T15:37:53Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: performs Gaussian smoothing with 300 km sigma via convolution on spherical
+    grid
+  claim_id: c_3502ad6d
+  context: performs Gaussian smoothing with a 300 km sigma via a convolution on the
+    spherical grid (using scipy.ndimage.gaussian_filter on the gridded data)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script performs Gaussian smoothing with a 300 km sigma via a convolution
+    on the spherical grid
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T15:38:17Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling uses 1000 iterations with seed 42
+  claim_id: c_8889e8a9
+  context: performs bootstrap (1000 iterations, seed 42) to obtain 95% CI
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script performs bootstrap resampling with 1000 iterations and seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T15:38:41Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: computes Pearson r and raw p-value for each lag in symmetric range
+  claim_id: c_d6f67eb7
+  context: for each lag in a symmetric range of negative to positive integer lags,
+    computes Pearson r and raw p-value
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Computes_Pearson_r_and_raw_p-value_for_each_lag_in_symmetric
+  kind: entity_fact
+  raw_text: The analysis computes Pearson r and raw p-value for each lag in a symmetric
+    range of negative to positive integer lags
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T15:40:00Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: applies FDR correction to all raw p-values
+  claim_id: c_7d37fcb0
+  context: applies FDR correction (statsmodels.stats.multitest.multipletests) to all
+    raw p-values
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Applies_FDR_correction_to_all_raw_p-values
+  kind: entity_fact
+  raw_text: The script applies FDR correction to all raw p-values
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T15:40:25Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: signal-to-noise ratio calculated as r divided by mean uncertainty
+  claim_id: c_d407567b
+  context: "calculates a signal\u2011to\u2011noise ratio as r / mean(uncertainty)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Signal-to-noise_ratio_calculated_as_r_divided_by_mean_uncert
+  kind: entity_fact
+  raw_text: The signal-to-noise ratio is calculated as r / mean(uncertainty)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T15:41:36Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: compares SNR against 3-sigma noise floor threshold
+  claim_id: c_c900599b
+  context: "compares SNR against the 3\u03C3 noise floor threshold (where \u03C3 is\
+    \ the mean uncertainty of the GRACE-FO data)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The script compares SNR against the 3\u03C3 noise floor threshold"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T15:41:57Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis performs continuous sweep of thresholds from 0.0
+    to 1.0 in 0.1 steps
+  claim_id: c_1abd4675
+  context: performs a continuous sweep of thresholds from 0.0 to 1.0 in 0.1 steps
+    to satisfy FR-006
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis performs a continuous sweep of thresholds from
+    0.0 to 1.0 in 0.1 steps
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T15:41:59Z'

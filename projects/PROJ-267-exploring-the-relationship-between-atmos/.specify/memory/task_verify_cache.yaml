@@ -11,15 +11,45 @@ T012:
   r: The required YAML file `projects/PROJ-267-exploring-the-relationship-between-atmos/state/projects/PROJ-267-exploring-the-relationship-between-atmos.yaml`
     does not exist, so the project metadata and `artifact_hashes` map have not been
     created. The task therefore remains unfinished.
-T020:
+T017a:
   c: false
-  h: 511f8877fdcb33f79f0c85d9694375faed630a0063a56fee7507cdbbf414a20e
-  r: "The provided `03_correlation_analysis.py` ends abruptly (truncated after `def\
-    \ b`) and does not contain implementations for lag\u2011window analysis, bootstrap\
-    \ resampling, FDR correction, Newey\u2011West errors, SNR calculation, or CSV\
-    \ output with `region_type` and `significance_flag`. Additionally, the required\
-    \ `data/processed/correlation_results.csv` file is absent. These missing components\
-    \ mean the task\u2019s specifications are not met."
+  h: 4cdea079a07319e090f02b9c3b76faf43d97b220f7b1cb6cf85cb6e7b4132845
+  r: "The provided `code/02_preprocessing_grace.py` stops mid\u2011implementation\
+    \ (the `apply_degree_1_correction` function is only a stub and the rest of the\
+    \ required steps\u2014C20 replacement, Gaussian smoothing, monthly aggregation,\
+    \ and writing the processed CSVs\u2014are not present). Moreover, the expected\
+    \ output files `data/processed/grace_preprocessed_target.csv` and `...control.csv`\
+    \ are absent. The script therefore does not fulfill the full preprocessing requirements."
+T017b:
+  c: false
+  h: e47b7c999fa5572157192f599c3a7525b3514c086123baef774af930d45c645f
+  r: "The provided `02_preprocessing_noaa.py` is truncated and does not show the implementation\
+    \ of monthly aggregation, missing\u2011month warnings, zero\u2011intensity dropping,\
+    \ or the final write\u2011out to `data/processed/noaa_preprocessed_target.csv`\
+    \ and `...control.csv`. Moreover, the expected processed CSV files are absent\
+    \ from the repository. The required functionality is therefore not demonstrably\
+    \ present."
+T017c:
+  c: false
+  h: 0fb166fa57bf0eab933c6e53633fbea4015ca11c4609dcce7c9ada691aad6df9
+  r: The provided `02_preprocessing_merge.py` reads only two generic processed CSVs
+    (not the required target/control files), never adds a `region` column, and does
+    not perform jsonschema validation. Moreover, the expected output `data/processed/merged_monthly.csv`
+    and the schema file `contracts/dataset.schema.yaml` are absent. The script therefore
+    does not satisfy the task specifications.
+T018:
+  c: false
+  h: d765aac01dedead4cf6467b993c671c3ea1b48f737143938e748f3eda118d057
+  r: The provided `test_dataset_schema.py` exists, but it references `contracts/dataset.schema.yaml`,
+    which is missing from the repository, so the test cannot actually load and validate
+    the schema as required. The missing schema file must be added for the contract
+    test to be functional.
+T023:
+  c: false
+  h: 9af5be030ff161cd3b4612f09fee574403bfaa9e6d61bb0823bb82f4c15a9d05
+  r: "The provided test file exists, but the required schema file `contracts/output.schema.yaml`\
+    \ is missing, so the test cannot actually validate `correlation_results.csv` as\
+    \ specified. Without the schema, the contract test is non\u2011functional."
 T040:
   c: false
   h: 65d2d027664fec275bd5d4562dec4adf81bd160b66824d7ada657ed61bfda9e3

@@ -1,26 +1,10 @@
-"""
-NOAA AR Data Preprocessing Script (T017b)
-
-This script aggregates NOAA Atmospheric River catalog data into monthly means
-of Integrated Water Vapor Transport (IWVT). It handles missing months by logging
-warnings and skipping them, and excludes months with zero AR events from the
-final output to prevent bias in correlation calculations.
-
-Dependencies:
-    - pandas
-    - numpy
-    - logging
-    - pathlib
-    - json
-"""
-
 import os
 import sys
 import logging
 import json
 from pathlib import Path
 import pandas as pd
-import numpy as np
+import glob
 
 # Configure logging
 logging.basicConfig(
@@ -32,201 +16,205 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Project paths
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-RAW_DATA_DIR = PROJECT_ROOT / "data" / "raw" / "noaa-ar"
-PROCESSED_DATA_DIR = PROJECT_ROOT / "data" / "processed"
-OUTPUT_FILE = PROCESSED_DATA_DIR / "noaa_monthly_aggregated.csv"
+# Paths relative to project root
+PROJECT_ROOT = Path(__file__).parent.parent
+RAW_TARGET_DIR = PROJECT_ROOT / "data" / "raw" / "noaa-ar" / "target"
+RAW_CONTROL_DIR = PROJECT_ROOT / "data" / "raw" / "noaa-ar" / "control"
+PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 
-# Region filter parameters (West Coast NA)
-# Latitude: 35°N - 50°N
-# Longitude: 120°W - 125°W (stored as negative in most datasets, or 235°E - 240°E)
-LAT_MIN, LAT_MAX = 35.0, 50.0
-LON_MIN, LON_MAX = -125.0, -120.0  # Adjust if source uses 0-360
-
-def load_noaa_raw_data(input_dir: Path) -> pd.DataFrame:
+def load_noaa_raw_data(region: str) -> pd.DataFrame:
     """
-    Loads raw NOAA AR catalog data from the specified directory.
-    Expects CSV files containing AR event data with columns like:
-    'date', 'lat', 'lon', 'iwvt' (Integrated Water Vapor Transport), etc.
+    Loads raw NOAA AR catalog CSV files for a specific region.
+    Expects files in data/raw/noaa-ar/<region>/*.csv
     """
-    if not input_dir.exists():
-        raise FileNotFoundError(f"Raw NOAA data directory not found: {input_dir}")
+    if region == "target":
+        base_dir = RAW_TARGET_DIR
+    elif region == "control":
+        base_dir = RAW_CONTROL_DIR
+    else:
+        raise ValueError(f"Invalid region: {region}. Must be 'target' or 'control'.")
 
-    csv_files = list(input_dir.glob("*.csv"))
+    if not base_dir.exists():
+        raise FileNotFoundError(f"Raw data directory not found: {base_dir}")
+
+    csv_files = glob.glob(str(base_dir / "*.csv"))
     if not csv_files:
-        raise FileNotFoundError(f"No CSV files found in {input_dir}")
+        raise FileNotFoundError(f"No CSV files found in {base_dir}")
 
-    logger.info(f"Loading {len(csv_files)} CSV files from {input_dir}")
+    logger.info(f"Loading {len(csv_files)} CSV files from {base_dir}...")
     dfs = []
-    for file_path in csv_files:
-        try:
-            df = pd.read_csv(file_path)
-            dfs.append(df)
-            logger.debug(f"Loaded {file_path.name}: {len(df)} rows")
-        except Exception as e:
-            logger.error(f"Failed to load {file_path}: {e}")
-            raise
+    for f in csv_files:
+        df = pd.read_csv(f)
+        dfs.append(df)
 
-    combined_df = pd.concat(dfs, ignore_index=True)
-    logger.info(f"Total raw rows loaded: {len(combined_df)}")
-    return combined_df
+    combined = pd.concat(dfs, ignore_index=True)
+    
+    # Ensure date column is parsed if it exists
+    date_cols = [c for c in combined.columns if 'date' in c.lower() or 'time' in c.lower()]
+    if date_cols:
+        # Prefer 'date' or 'datetime' if available
+        target_col = next((c for c in date_cols if c.lower() in ['date', 'datetime']), date_cols[0])
+        combined[target_col] = pd.to_datetime(combined[target_col], errors='coerce')
+        combined['date'] = combined[target_col].dt.to_period('M').dt.to_timestamp()
+    else:
+        # Fallback: assume first column is date-like or create a placeholder if data is missing
+        # In a real scenario, the ingestion script ensures this column exists
+        if not combined.empty:
+            logger.warning("No date column detected. Attempting to infer or failing if data is empty.")
+            # If ingestion worked, there should be a date. If not, we fail loudly.
+            raise ValueError("No date column found in raw NOAA data. Ensure ingestion scripts ran correctly.")
+        
+    return combined
 
-def filter_region(df: pd.DataFrame) -> pd.DataFrame:
+def filter_region(df: pd.DataFrame, region: str) -> pd.DataFrame:
     """
-    Filters the dataframe to the West Coast NA region.
-    Handles potential coordinate system differences (e.g., 0-360 vs -180-180).
+    Filters the dataframe to ensure it matches the requested region.
+    Assumes the ingestion script already filtered, but we double-check if a region column exists.
     """
-    logger.info("Filtering data to West Coast NA region (35°N-50°N, 120°W-125°W)")
-
-    # Normalize longitude to -180 to 180 if necessary
-    # If LON_MIN/LON_MAX are negative, assume data might be 0-360
-    if LON_MIN < 0 and 'lon' in df.columns:
-        # Check if values are > 180 (indicating 0-360 system)
-        if df['lon'].max() > 180:
-            logger.info("Detected 0-360 longitude system, converting to -180 to 180")
-            df = df.copy()
-            df['lon'] = df['lon'].apply(lambda x: x - 360 if x > 180 else x)
-
-    # Apply filters
-    mask = (
-        (df['lat'] >= LAT_MIN) &
-        (df['lat'] <= LAT_MAX) &
-        (df['lon'] >= LON_MIN) &
-        (df['lon'] <= LON_MAX)
-    )
-
-    filtered_df = df[mask].copy()
-    logger.info(f"Filtered rows: {len(filtered_df)} ({len(df) - len(filtered_df)} removed)")
-    return filtered_df
+    if 'region' in df.columns:
+        df = df[df['region'] == region]
+    return df
 
 def aggregate_monthly_ar(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Aggregates AR data to monthly mean IWVT.
-    
-    Steps:
-    1. Ensure 'date' is datetime.
-    2. Extract 'year' and 'month'.
-    3. Group by year/month.
-    4. Calculate mean IWVT.
-    5. Count events per month.
-    6. Filter out months with zero events (handled by count > 0 naturally, 
-       but we explicitly exclude rows where count is 0 if they exist).
+    Aggregates Integrated Water Vapor Transport (IWVT) to monthly means.
+    Expects a 'date' column (datetime) and an 'iwvt' or similar intensity column.
     """
-    logger.info("Aggregating to monthly resolution")
+    if df.empty:
+        return df
 
-    if 'date' not in df.columns:
-        raise ValueError("Input dataframe must contain a 'date' column.")
+    # Identify intensity column
+    intensity_cols = [c for c in df.columns if 'iwvt' in c.lower() or 'intensity' in c.lower() or 'transport' in c.lower()]
+    if not intensity_cols:
+        raise ValueError("Could not find an Integrated Water Vapor Transport (IWVT) intensity column in the data.")
     
-    if 'iwvt' not in df.columns:
-        # Try common aliases
-        if 'integrated_water_vapor_transport' in df.columns:
-            df = df.rename(columns={'integrated_water_vapor_transport': 'iwvt'})
-        else:
-            raise ValueError("Input dataframe must contain an 'iwvt' or 'integrated_water_vapor_transport' column.")
+    intensity_col = intensity_cols[0]
+    logger.info(f"Aggregating column '{intensity_col}' to monthly means.")
 
-    df['date'] = pd.to_datetime(df['date'])
-    df['year_month'] = df['date'].dt.to_period('M')
-    df['year'] = df['date'].dt.year
-    df['month'] = df['date'].dt.month
+    # Ensure date is datetime
+    if not pd.api.types.is_datetime64_any_dtype(df['date']):
+        df['date'] = pd.to_datetime(df['date'])
 
-    # Aggregate
-    monthly_stats = df.groupby(['year', 'month', 'year_month']).agg(
-        ar_intensity_mean=('iwvt', 'mean'),
-        ar_intensity_std=('iwvt', 'std'),
-        event_count=('iwvt', 'count')
-    ).reset_index()
-
-    # Ensure event_count is integer
-    monthly_stats['event_count'] = monthly_stats['event_count'].astype(int)
-
-    # Exclude months with zero AR events (though groupby naturally only includes existing months)
-    # If the dataset has gaps where no events occurred, they won't be in the dataframe.
-    # This step ensures we don't accidentally include rows with count=0 if they were injected.
-    monthly_stats = monthly_stats[monthly_stats['event_count'] > 0].copy()
-
-    logger.info(f"Aggregated to {len(monthly_stats)} months with AR events")
-    return monthly_stats
-
-def handle_missing_months(monthly_df: pd.DataFrame, start_year: int = 2018, end_year: int = 2024) -> pd.DataFrame:
-    """
-    Identifies missing months in the sequence.
-    Logs warnings for missing months but does not fill them with NaN to avoid
-    biasing the correlation calculation (as per task requirements).
-    Returns the dataframe as is, but logs the gaps.
-    """
-    logger.info("Checking for missing months in the time series")
+    # Extract year-month for grouping
+    df['month'] = df['date'].dt.to_period('M')
     
-    # Create a full range of expected months
-    date_range = pd.date_range(
-        start=f'{start_year}-01-01',
-        end=f'{end_year}-12-01',
-        freq='MS'
-    )
+    # Group by month and aggregate
+    # We take the mean of the intensity. If multiple events per month, we average them.
+    # The spec says "aggregates Integrated Water Vapor Transport to monthly means"
+    monthly_df = df.groupby('month').agg({
+        intensity_col: 'mean',
+        'date': 'first' # Keep the first date of the month as the representative date
+    }).reset_index()
+
+    # Rename columns to match data model
+    monthly_df = monthly_df.rename(columns={intensity_col: 'ar_intensity'})
     
-    expected_months = date_range.to_period('M')
-    actual_months = monthly_df['year_month'].astype(str)
+    # Ensure 'date' is the first day of the month for consistency
+    monthly_df['date'] = monthly_df['date'].dt.to_period('M').dt.to_timestamp()
     
-    missing = []
-    for month in expected_months:
-        if str(month) not in actual_months:
-            missing.append(str(month))
-    
-    if missing:
-        logger.warning(f"Found {len(missing)} missing months: {missing[:10]}{'...' if len(missing) > 10 else ''}")
-    else:
-        logger.info("No missing months detected in the range.")
-    
-    # Return original dataframe (missing months are simply excluded from correlation)
+    # Drop the temporary month column
+    monthly_df = monthly_df.drop(columns=['month'])
+
     return monthly_df
 
-def save_processed_data(df: pd.DataFrame, output_path: Path):
+def handle_missing_months(df: pd.DataFrame, start_date=None, end_date=None) -> pd.DataFrame:
     """
-    Saves the processed dataframe to CSV.
+    Logs warnings for missing months within the range of the data.
+    Does not fill them, just reports.
     """
+    if df.empty:
+        return df
+
+    if start_date is None:
+        start_date = df['date'].min()
+    if end_date is None:
+        end_date = df['date'].max()
+
+    # Generate full date range
+    full_range = pd.date_range(start=start_date, end=end_date, freq='MS')
+    existing_dates = set(df['date'].dt.to_period('M'))
+    
+    missing = []
+    for dt in full_range:
+        if dt.to_period('M') not in existing_dates:
+            missing.append(dt)
+
+    if missing:
+        logger.warning(f"Found {len(missing)} missing months: {[str(m) for m in missing]}")
+    else:
+        logger.info("No missing months detected in the date range.")
+
+    return df
+
+def exclude_zero_ar_months(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Drops months where total AR intensity equals zero.
+    """
+    initial_count = len(df)
+    if 'ar_intensity' not in df.columns:
+        logger.warning("No 'ar_intensity' column found. Skipping zero-intensity filter.")
+        return df
+
+    df = df[df['ar_intensity'] != 0]
+    dropped = initial_count - len(df)
+    if dropped > 0:
+        logger.info(f"Dropped {dropped} months where AR intensity was zero.")
+    else:
+        logger.info("No months with zero AR intensity found.")
+    
+    return df
+
+def save_processed_data(df: pd.DataFrame, region: str) -> str:
+    """
+    Saves the processed dataframe to data/processed/noaa_preprocessed_<region>.csv
+    """
+    if df.empty:
+        logger.warning(f"Processed data for {region} is empty. Saving empty file.")
+    
+    output_path = PROCESSED_DIR / f"noaa_preprocessed_{region}.csv"
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Format date column for output
-    df_out = df.copy()
-    df_out['date'] = df_out['year_month'].dt.to_timestamp().dt.strftime('%Y-%m-%d')
-    df_out = df_out.drop(columns=['year', 'month', 'year_month'])
-    
-    # Reorder columns
-    cols = ['date', 'ar_intensity_mean', 'ar_intensity_std', 'event_count']
-    df_out = df_out[cols]
-    
-    df_out.to_csv(output_path, index=False)
-    logger.info(f"Saved processed data to {output_path}")
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved processed data for {region} to {output_path}")
+    return str(output_path)
 
 def main():
-    """
-    Main execution flow for T017b.
-    """
-    try:
-        # 1. Load Raw Data
-        raw_df = load_noaa_raw_data(RAW_DATA_DIR)
-        
-        # 2. Filter Region
-        filtered_df = filter_region(raw_df)
-        
-        if filtered_df.empty:
-            logger.error("No data found in the target region. Exiting.")
-            sys.exit(1)
-        
-        # 3. Aggregate Monthly
-        monthly_df = aggregate_monthly_ar(filtered_df)
-        
-        # 4. Handle Missing Months (Logging only)
-        final_df = handle_missing_months(monthly_df)
-        
-        # 5. Save Output
-        save_processed_data(final_df, OUTPUT_FILE)
-        
-        logger.info("T017b completed successfully.")
-        
-    except Exception as e:
-        logger.error(f"Execution failed: {e}", exc_info=True)
-        sys.exit(1)
+    logger.info("=== NOAA AR Preprocessing Pipeline Start ===")
+    
+    regions = ["target", "control"]
+    
+    for region in regions:
+        logger.info(f"Processing {region} region...")
+        try:
+            # 1. Load raw data
+            df = load_noaa_raw_data(region)
+            logger.info(f"Loaded {len(df)} rows for {region}.")
+            
+            # 2. Filter region (safety check)
+            df = filter_region(df, region)
+            
+            if df.empty:
+                logger.warning(f"No data found for {region} after filtering. Creating empty output.")
+                save_processed_data(pd.DataFrame(columns=['date', 'ar_intensity']), region)
+                continue
+
+            # 3. Aggregate to monthly means
+            monthly_df = aggregate_monthly_ar(df)
+            
+            # 4. Log missing months
+            monthly_df = handle_missing_months(monthly_df)
+            
+            # 5. Drop zero intensity months
+            monthly_df = exclude_zero_ar_months(monthly_df)
+            
+            # 6. Save
+            save_processed_data(monthly_df, region)
+            
+        except Exception as e:
+            logger.critical(f"Failed to process {region}: {e}")
+            raise
+
+    logger.info("=== NOAA AR Preprocessing Complete ===")
 
 if __name__ == "__main__":
     main()

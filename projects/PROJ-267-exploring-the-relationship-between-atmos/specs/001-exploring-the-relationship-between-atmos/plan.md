@@ -9,7 +9,7 @@ This feature implements statistical correlation analysis between Atmospheric Riv
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python  
 **Primary Dependencies**: pandas, numpy, scipy, statsmodels, requests, matplotlib, seaborn, pyyaml  
 **Storage**: Local files under `data/` (CSV, PNG outputs); no database required  
 **Testing**: pytest with contract validation against `contracts/` schemas  
@@ -100,7 +100,7 @@ projects/PROJ-267-exploring-the-relationship-between-atmos/
 | FR-001 | Ingest GRACE-FO Level-2 mascon (≥90% completeness) | Phase 0 | `01_data_ingestion.py`; Gravity Anomaly entity |
 | FR-002 | Ingest NOAA AR catalog; aggregate to monthly | Phase 0 | `01_data_ingestion.py`; AR Event entity |
 | FR-003 | GRACE-FO preprocessing (degree-1, C20, Spatial smoothing at a defined scale) | Phase 1 | `02_preprocessing.py`; Gravity Anomaly entity |
-| FR-004 | Pearson correlation across lags -3; bootstrap % CI; signal vs noise floor (≥3σ) | Phase 2 | `03_correlation_analysis.py`; Correlation Result entity |
+| FR-004 | Pearson correlation across lags; bootstrap % CI; signal vs noise floor (≥3σ) | Phase 2 | `03_correlation_analysis.py`; Correlation Result entity |
 | FR-005 | Multiple-comparison correction (Bonferroni/FDR) | Phase 2 | `03_correlation_analysis.py`; Correlation Result entity |
 | FR-006 | Sensitivity analysis (thresholds across a range of values) | Phase 3 | `05_sensitivity_report.py` |
 | FR-007 | No causal language in outputs | Phase 4 | Output validation checks |

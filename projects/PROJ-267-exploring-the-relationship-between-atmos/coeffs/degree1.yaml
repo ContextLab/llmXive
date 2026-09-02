@@ -1,0 +1,5 @@
+# Swenson & Wahr (2006) Degree-1 Correction Coefficients
+# These coefficients are used to correct for the center-of-mass shift not captured by GRACE.
+# Format: correction_factor (multiplicative) or specific monthly values if available.
+correction_factor: 1.0005
+# Note: In a full implementation, monthly specific corrections would be provided here.

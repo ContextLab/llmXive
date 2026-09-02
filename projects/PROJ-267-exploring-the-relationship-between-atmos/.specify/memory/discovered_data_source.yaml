@@ -1,19 +1,18 @@
 status: none
-intent: download GRACE-FO Level-2 Mascon dataset and NOAA CPC Atmospheric River Catalog
+intent: download GRACE-FO Level-2 mascon dataset and NOAA CPC Atmospheric River catalog
   python package dataset
 required_fields:
-- time_month
-- latitude
-- longitude
+- year_month
+- latitude_center
+- longitude_center
 - geoid_height_anomaly_m
-- geoid_height_uncertainty
-- ar_event_id
-- ar_peak_iwv_transport
+- geoid_anomaly_uncertainty_m
+- ar_peak_iwv_transport_kg_m_s
+- ar_intensity_metric
 - ar_lat_min
 - ar_lat_max
 - ar_lon_min
 - ar_lon_max
-- ar_intensity_metric
-cache_key: 52383bb2f1f7f4fb8573e1461da099b920618edb0a15838bfcacdd6bb119a1df
-searched_at: '2026-08-24T08:57:57.595298+00:00'
+cache_key: 4d05aea07013a5782026cab32fc87f962e56ce7c089653a83a99e4baa0dcc305
+searched_at: '2026-09-02T15:26:09.936437+00:00'
 retry_count: 1
