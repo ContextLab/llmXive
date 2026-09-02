@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T15:02:55.695387Z'
-current_stage: tasked
+current_stage: planned
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-363-predicting-the-impact-of-additive-manufa
-last_run_id: 3f6c88b0-283f-4427-a8d7-23dee2d7de72
+last_run_id: 015b1d4c-d804-4630-84c6-cbeaf94bfc6d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-363-predicting-the-impact-of-additive-manufa/specs/001-predicting-the-impact-of-additive-manufa
 title: Predicting the Impact of Additive Manufacturing Parameters on the Porosity
   of 316L Stainless Steel
-updated_at: '2026-08-31T15:52:06.030785Z'
+updated_at: '2026-09-02T01:39:06.715339Z'

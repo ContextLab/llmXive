@@ -28,7 +28,7 @@ def cleaned_data():
     # Verify no NaN values exist (as per US1 requirements)
     if df.isnull().any().any():
         pytest.fail("Dataset contains null values, which violates US1 requirements (median imputation should have resolved this).")
-        
+            
     return df
 
 

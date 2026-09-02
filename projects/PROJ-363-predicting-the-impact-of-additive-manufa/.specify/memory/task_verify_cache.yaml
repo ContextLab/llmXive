@@ -19,14 +19,6 @@ T003:
     so the requirement to configure ruff/flake8 and black is not satisfied. The implementer
     must add the appropriate configuration files and ensure they are committed to
     the repository.
-T013:
-  c: false
-  h: 3707f95c95501483f45429889e8324c825ef983b3ddc83d9159e97300ed2a66d
-  r: "The repository contains `code/download_data.py`, but the file is truncated and\
-    \ does not show any SHA\u2011256 checksum computation or writing of results to\
-    \ a `state.yaml`. Moreover, the required `state.yaml` file is missing entirely,\
-    \ so the script cannot update it as specified. The implementer must add the checksum\
-    \ logic and create/update `state.yaml` after a successful download."
 T017:
   c: false
   h: 0032f126bfd12fe6438d05060c2aa706f87198071979e3c71fc9ff49665e5267

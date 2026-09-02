@@ -1,18 +1,76 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: 316L LPBF Porosity Dataset Schema
-description: Schema for the 316L Stainless Steel Laser Powder Bed Fusion dataset.
-type: object
-properties:
-  columns:
-    type: array
-    items:
-      type: string
-    contains:
-      - "laser_power"
-      - "scan_speed"
-      - "hatch_spacing"
-      - "layer_thickness"
-      - "porosity"
-      - "energy_density"
-required:
-  - columns
+# Dataset Schema for 316L Stainless Steel LPBF Porosity Prediction
+# Generated for PROJ-363
+# Validates the output of T018 (preprocess.py)
+
+required_columns:
+  - laser_power
+  - scan_speed
+  - hatch_spacing
+  - layer_thickness
+  - porosity
+  - energy_density
+
+column_definitions:
+  laser_power:
+    type: numeric
+    description: Laser power in Watts
+    unit: W
+  scan_speed:
+    type: numeric
+    description: Scan speed in mm/s
+    unit: mm/s
+  hatch_spacing:
+    type: numeric
+    description: Hatch spacing in mm
+    unit: mm
+  layer_thickness:
+    type: numeric
+    description: Layer thickness in mm
+    unit: mm
+  energy_density:
+    type: numeric
+    description: Volumetric Energy Density in J/mm^3
+    unit: J/mm^3
+    derived: true
+    formula: P / (v * h * t)
+  porosity:
+    type: numeric
+    description: Measured porosity percentage
+    unit: %
+
+constraints:
+  value_ranges:
+    laser_power:
+      min: 0
+      max: 1000
+    scan_speed:
+      min: 0
+      max: 2000
+    hatch_spacing:
+      min: 0
+      max: 1.0
+    layer_thickness:
+      min: 0
+      max: 0.2
+    energy_density:
+      min: 0
+      max: 500
+    porosity:
+      min: 0
+      max: 100
+  
+  porosity_variance:
+    min_variance: 1e-6
+    description: "Porosity must have non-zero variance to avoid degenerate dataset"
+
+metadata:
+  source: "Zenodo/OpenML 316L LPBF Dataset"
+  target: "porosity"
+  features:
+    - laser_power
+    - scan_speed
+    - hatch_spacing
+    - layer_thickness
+    - energy_density
+  data_type: "regression"
+  unit_system: "SI (adapted)"
