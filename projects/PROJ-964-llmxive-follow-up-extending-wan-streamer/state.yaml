@@ -1,34 +1,28 @@
-# Project State File - PROJ-964-llmxive-follow-up-extending-wan-streamer
-# Auto-generated and updated by validate_logs.py (T009) and other tasks.
-# Constitution Principle III: Reproducibility via artifact tracking.
-
-project_id: PROJ-964-llmxive-follow-up-extending-wan-streamer
-version: "0.1.0"
-created_at: "2023-10-27T10:00:00Z"
-last_updated: "2023-10-27T10:00:00Z"
-
+artifacts:
+  figures: {}
+  metrics: {}
+  models: {}
+config:
+  data_source: pending
+  seed: 42
+created_at: '2023-10-27T10:00:00Z'
 datasets:
   voxceleb2:
-    path: "data/raw/voxceleb2" # Placeholder, will be updated by validate_logs.py
-    checksum: "pending" # Will be updated by validate_logs.py
-    revision: "main"
-    fetched_at: "pending"
-
-artifacts:
-  models: {}
-  metrics: {}
-  figures: {}
-
-config:
-  seed: 42
-  data_source: "pending" # Will be updated by validate_logs.py
-
+    checksum: pending
+    fetched_at: pending
+    path: data/raw/voxceleb2
+    revision: main
 execution_log:
-  - timestamp: "2023-10-27T10:00:00Z"
-    task: "T001"
-    status: "completed"
-    details: "Project root created"
-  - timestamp: "2023-10-27T10:00:00Z"
-    task: "T009"
-    status: "pending"
-    details: "Waiting for log validation or dataset fetch"
+- details: Project root created
+  status: completed
+  task: T001
+  timestamp: '2023-10-27T10:00:00Z'
+- details: Waiting for log validation or dataset fetch
+  status: pending
+  task: T009
+  timestamp: '2023-10-27T10:00:00Z'
+last_updated: '2023-10-27T10:00:00Z'
+mos_validation: skipped
+mos_validation_reason: no_human_data (status file missing)
+project_id: PROJ-964-llmxive-follow-up-extending-wan-streamer
+version: 0.1.0

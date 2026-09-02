@@ -20,13 +20,6 @@ T012:
   r: "The required integration test file `tests/integration/test_data_extraction.py`\
     \ does not exist in the repository, so the artifact is missing and the task\u2019\
     s deliverable is not provided."
-T013:
-  c: false
-  h: 6a6ba42b038ed4e726490e06977b8d014f4e0f7578206154307e1af6414fb55b
-  r: "The required output file `data/processed/raw_extract.parquet` does not exist,\
-    \ and the script\u2019s configured output path (`data/processed/latents_raw.parquet`)\
-    \ does not match the task\u2019s specified filename. Consequently the verification\
-    \ step cannot succeed and the task\u2019s core requirement is unmet."
 T014b:
   c: false
   h: cf5695c9f56272fbd1dedf1f0f49d60672ed0b659d44048cbcc3490ac5bdee38
@@ -35,6 +28,14 @@ T014b:
     \ Moreover, the provided `code/data/preprocess.py` is truncated and shows no implementation\
     \ of the stratified sampling logic or fallback to `config.DEFAULT_SAMPLE_SIZE`.\
     \ The task\u2019s core functionality and output are therefore not present."
+T014f:
+  c: false
+  h: a5de59793bc7e7e9c63e4e187920ae47127f7aa0d8be7b224ec2c34d5bc79e51
+  r: "The script `code/data/log_event_counts.py` is present but truncated (ends with\
+    \ \u201Cexce\u201D and is not a complete, runnable file). Moreover, the required\
+    \ input `data/processed/filtered.parquet` and the expected output `data/logs/event_counts.log`\
+    \ are both missing, so the script cannot be executed to produce the required log\
+    \ file. The task\u2019s verification conditions are therefore not met."
 T019b:
   c: false
   h: 03afd4018e2c9081b5ddbdcbc5c2054ed63b2fb8ebe3357961556d17470f453c

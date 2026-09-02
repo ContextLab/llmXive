@@ -44,3 +44,6 @@
 {"at": "2026-09-01T12:28:49.916690+00:00", "from_stage": "clarified", "last_run_id": "5d0a5ef8-280a-4c5c-be2f-0ae5a813d7ec", "to_stage": "planned"}
 {"at": "2026-09-01T12:36:10.146334+00:00", "from_stage": "planned", "last_run_id": "73a1a691-a14b-4d0a-8fec-cf6eb5ace115", "to_stage": "tasked"}
 {"at": "2026-09-01T12:54:01.118870+00:00", "from_stage": "tasked", "last_run_id": "56b6817a-475b-4072-88f2-aaa32ae8850a", "to_stage": "analyzed"}
+{"at": "2026-09-01T23:08:20.726688+00:00", "from_stage": "analyzed", "last_run_id": "8d2cb511-70f8-45eb-ab3c-e61791e416e1", "to_stage": "in_progress"}
+{"at": "2026-09-01T23:44:42.529881+00:00", "from_stage": "in_progress", "last_run_id": "d3fc1580-fd6d-421f-998b-f00d5e81e24e", "to_stage": "planned"}
+{"at": "2026-09-02T00:03:16.381121+00:00", "from_stage": "planned", "last_run_id": "0bda5117-bd9f-426d-a954-04cebc807060", "to_stage": "tasked"}

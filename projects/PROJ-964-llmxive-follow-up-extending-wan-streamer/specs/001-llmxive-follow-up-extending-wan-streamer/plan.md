@@ -157,7 +157,7 @@ tests/
 
 The research question is: What sample size is needed to detect a meaningful change in model performance?
 The method is: Power analysis based on expected effect sizes.
-References: Cohen (1988); Faul et al. (2009). with [deferred] power (e.g., 0.8) BEFORE data extraction.
+References: Cohen (); Faul et al. (). with [deferred] power (e.g., 0.8) BEFORE data extraction.
     *   **Fail-Fast**: If the available sample (after sampling) is < required N, the system logs "Power Limitation: Insufficient Sample" and exits with a non-zero code. **It does not proceed with an underpowered sample.**
 *   **Causal Inference**:
     *   **Observational**: Propensity-score matching (FR-005) controls for covariates (e.g., speaker identity, frame complexity) to validate latency reduction.
