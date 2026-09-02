@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Molecular Graph Schema"
+type: "object"
+properties:
+  graph_id:
+    type: "string"
+    description: "Unique ID for the graph object"
+  num_nodes:
+    type: "integer"
+    description: "Total number of atoms"
+  num_edges:
+    type: "integer"
+    description: "Total number of edges (covalent + non-covalent)"
+  node_features:
+    type: "array"
+    description: "Feature vector for each node [atomic_number, charge, hybridization, hydrophobicity]"
+    items:
+      type: "array"
+      items:
+        type: "number"
+      minItems: 4
+      maxItems: 4
+  edge_index:
+    type: "array"
+    description: "List of [source, target] pairs"
+    items:
+      type: "array"
+      items:
+        type: "integer"
+      minItems: 2
+      maxItems: 2
+  edge_features:
+    type: "array"
+    description: "Feature vector for each edge [distance, type_encoded]"
+    items:
+      type: "array"
+      items:
+        type: "number"
+  global_labels:
+    type: "object"
+    properties:
+      pKd:
+        type: "number"
+      resolution:
+        type: "number"
+      water_flagged:
+        type: "boolean"
+        description: "True if water-mediated interaction detected"
+    required: ["pKd", "resolution", "water_flagged"]
+required: ["graph_id", "num_nodes", "num_edges", "node_features", "edge_index", "global_labels"]
+additionalProperties: false

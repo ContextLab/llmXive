@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PDBbind Dataset Schema"
+type: "object"
+properties:
+  complex_id:
+    type: "string"
+    description: "Unique identifier for the protein-ligand complex (e.g., 1abc_A)"
+  pKd:
+    type: "number"
+    description: "Experimental binding affinity in pKd units"
+  resolution:
+    type: "number"
+    description: "Crystallographic resolution in Angstroms"
+  ligand_smiles:
+    type: "string"
+    description: "SMILES string of the ligand"
+  protein_pdb_code:
+    type: "string"
+    description: "PDB code for the protein structure"
+  atoms:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        index:
+          type: "integer"
+        element:
+          type: "string"
+        x:
+          type: "number"
+        y:
+          type: "number"
+        z:
+          type: "number"
+        charge:
+          type: "number"
+      required: ["index", "element", "x", "y", "z"]
+  edges:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        source:
+          type: "integer"
+        target:
+          type: "integer"
+        type:
+          type: "string"
+          enum: ["covalent", "non-covalent", "water-mediated"]
+        distance:
+          type: "number"
+      required: ["source", "target", "type", "distance"]
+required: ["complex_id", "pKd", "resolution", "atoms", "edges"]
+additionalProperties: false

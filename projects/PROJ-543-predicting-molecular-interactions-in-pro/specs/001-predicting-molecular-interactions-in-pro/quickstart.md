@@ -4,121 +4,93 @@
 
 - Python 3.11+
 - Git
-- Access to a GitHub Actions runner or local machine with sufficient RAM for the proposed method.
+- (Optional) Kaggle CLI for GPU offload (if CPU training is too slow).
 
 ## Installation
 
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/your-org/your-repo.git
-   cd your-repo
-   ```
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-543-predicting-molecular-interactions-in-pro
+    ```
 
-2. **Initialize Git & Create .gitignore**:
-   ```bash
-   git init
-   echo "*.pyc" > .gitignore
-   echo "__pycache__/" >> .gitignore
-   echo "data/raw/*" >> .gitignore
-   echo "data/processed/*" >> .gitignore
-   echo "data/results/*" >> .gitignore
-   echo "*.pt" >> .gitignore
-   echo "*.pkl" >> .gitignore
-   echo ".venv/" >> .gitignore
-   ```
+2.  **Initialize Git repository and create .gitignore**:
+    ```bash
+    git init
+    echo "data/raw/*" > .gitignore
+    echo "data/processed/*" >> .gitignore
+    echo "data/results/*" >> .gitignore
+    echo "__pycache__/" >> .gitignore
+    echo "*.pyc" >> .gitignore
+    echo "venv/" >> .gitignore
+    ```
 
-3. **Set Up Virtual Environment**:
-   ```bash
-   python -m venv code/.venv
-   source code/.venv/bin/activate  # On Windows: code\.venv\Scripts\activate
-   ```
+3.  **Create and activate the virtual environment**:
+    ```bash
+    python -m venv code/venv
+    source code/venv/bin/activate  # Linux/Mac
+    # or: code\venv\Scripts\activate  # Windows
+    ```
 
-4. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-   Dependencies include: `torch`, `torch_geometric`, `rdkit`, `datasets`, `scikit-learn`, `pandas`, `pyyaml`, `biopython`, `numpy`, `scipy`, `requests`, `flake8`, `black`.
+4.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Note: `requirements.txt` pins versions for `torch`, `torch_geometric`, `rdkit`, `black`, `flake8`, etc.*
 
-5. **Configure Linting**:
-   Create `pyproject.toml` with Black and Flake8 settings:
-   ```toml
-   [tool.black]
-   line-length = 88
-   target-version = ['py311']
+5.  **Configure linting**:
+    Create `pyproject.toml` with Black settings and `setup.cfg` for flake8 as per `requirements.txt`.
 
-   [tool.flake8]
-   max-line-length = 88
-   ignore = E203, W503
-   ```
+6.  **Initialize the data directory structure**:
+    ```bash
+    mkdir -p data/raw data/processed data/results data/reference
+    ```
 
-6. **Verify Installation**:
-   ```bash
-   python -c "import torch; import rdkit; print('Dependencies OK')"
-   ```
+7.  **Create placeholder pharmacophore reference**:
+    ```bash
+    echo "[]" > data/reference/pharmacophores.json
+    ```
 
-## Data Preparation
+## Running the Pipeline
 
-1. **Download Dataset**:
-   The script `code/data/ingest.py` will automatically download the PDBbind v2020 refined set from Hugging Face.
-   ```bash
-   python code/data/ingest.py --download
-   ```
-
-2. **Construct Graphs**:
-   Run the ingestion script to build molecular graphs.
-   ```bash
-   python code/data/ingest.py --build-graphs
-   ```
-
-3. **Run Sensitivity Analysis** (Optional):
-   ```bash
-   python code/data/sensitivity.py
-   ```
-
-## Training
-
-1. **Train the GNN**:
-   ```bash
-   python code/train/trainer.py --epochs 50 --timeout 4h
-   ```
-   - The script will automatically stop after 4 hours or 50 epochs.
-   - If the run exceeds memory limits, it will attempt to offload to a Kaggle GPU (if configured).
-
-2. **Monitor Training**:
-   Check `data/results/training_log.json` for loss curves and convergence status.
-
-## Interpretation & Validation
-
-1. **Generate Feature Importance**:
-   ```bash
-   python code/interpret/attribution.py
-   ```
-
-2. **Cluster Motifs**:
-   ```bash
-   python code/interpret/clustering.py --min-cluster-size 5
-   ```
-
-3. **Validate Motifs**:
-   ```bash
-   python code/interpret/validation.py --permutations 1000
-   ```
-
-4. **View Results**:
-   - Motif clusters: `data/results/motifs.json`
-   - Statistical validation: `data/results/statistical_validation.json`
-   - Memory profile: `data/results/memory_profile.json`
-   - Inference benchmark: `data/results/inference_benchmark.json`
-
-## Testing
-
-Run the full test suite:
+### 1. Data Ingestion & Graph Construction
+Download the PDBbind dataset and construct graphs (with 5.0 Å cutoff).
 ```bash
-pytest tests/ -v --cov=code
+python code/main.py --mode ingest --resolution-cutoff 2.0
 ```
+- This will download data to `data/raw/`, filter complexes with resolution > 2.0 Å, and save graphs to `data/processed/`.
+- Output: `data/results/sensitivity_analysis.json` (edge count vs. cutoff).
+
+### 2. Model Training
+Train the 3-layer GNN.
+```bash
+python code/main.py --mode train --epochs 50
+```
+- **CPU Mode**: Runs on default CPU.
+- **GPU Mode**: If `CUDA_VISIBLE_DEVICES` is set, it runs on GPU. The pipeline automatically detects if the job exceeds 4 hours on CPU and suggests offloading.
+
+### 3. Interpretability & Validation
+Generate importance maps, cluster motifs, and validate against pharmacophores.
+```bash
+python code/main.py --mode interpret --test-split 0.1
+```
+- Output: `data/results/interpret/motif_clusters.json` with FDR-corrected p-values and `data/results/metrics.json` with SC-001/SC-003 metrics.
+
+## Verification
+
+Run the unit tests to ensure the environment is set up correctly:
+```bash
+pytest tests/unit/
+```
+
+Run the integration test on a small subset (10 complexes):
+```bash
+python code/main.py --mode full-pipeline --subset 10
+```
+- This verifies the end-to-end flow: Ingest -> Train -> Interpret -> Report.
 
 ## Troubleshooting
 
-- **Memory Error**: Ensure `streaming=True` is used in `ingest.py`. Reduce batch size if training fails.
-- **CUDA Error**: If the run requires a GPU, ensure the Kaggle GPU escape hatch is configured. The pipeline will automatically retry on Kaggle if the CPU run fails.
-- **Missing Data**: Verify the Hugging Face dataset is accessible. Check network connectivity.
+- **Memory Error**: Reduce `--batch-size` in `config.py` or enable `streaming=True` in the ingest script.
+- **CUDA Error**: If running on GitHub Actions, the job will automatically offload to Kaggle if a CUDA device is requested but not found locally.
+- **Missing PDB Data**: If a complex ID is missing from the Hugging Face source, the script will skip it and log a warning.

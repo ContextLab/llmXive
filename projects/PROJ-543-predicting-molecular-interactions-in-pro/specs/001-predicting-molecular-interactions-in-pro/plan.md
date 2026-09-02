@@ -1,52 +1,53 @@
 # Implementation Plan: Predicting Molecular Interactions in Protein-Ligand Complexes Using Graph Neural Networks
 
-**Branch**: `001-gene-regulation` | **Date**: 2026-07-26 | **Spec**: `specs/001-gene-regulation/spec.md`
-**Input**: Feature specification from `/specs/001-gene-regulation/spec.md`
+**Branch**: `001-predicting-molecular-interactions-in-pro` | **Date**: 2026-07-26 | **Spec**: `specs/001-predicting-molecular-interactions-in-pro/spec.md`
+**Input**: Feature specification from `/specs/001-predicting-molecular-interactions-in-pro/spec.md`
 
 ## Summary
 
-This feature implements a Graph Neural Network (GNN) pipeline to predict protein-ligand binding affinity (pKd) from 3D structural data (PDBbind v2020). The system constructs heterogeneous graphs encoding steric constraints via distance-based edges, trains a message-passing network, and applies Integrated Gradients to identify and statistically validate recurring molecular motifs against known pharmacophores. The implementation strictly adheres to CPU-first feasibility on GitHub Actions free-tier runners, with a defined escape hatch to Kaggle GPUs for any CUDA-dependent operations, and ensures full reproducibility via pinned dependencies and checksummed data.
+This project implements a Graph Neural Network (GNN) pipeline to predict protein-ligand binding affinity (pKd) from 3D structural data (PDBbind v2020 refined set). The approach constructs heterogeneous graphs where nodes are atoms and edges represent both covalent bonds and non-covalent interactions within a defined cutoff to explicitly encode steric constraints. A multi-layer message-passing GNN is trained on a CPU-first basis (scaled to fit GitHub Actions limits) to predict pKd. Post-hoc interpretability is achieved via Integrated Gradients to identify high-importance substructures, which are clustered (DBSCAN) and statistically validated against a known pharmacophore set using Benjamini-Hochberg FDR correction (alpha=0.01) and a two-sample t-test comparing high/low affinity groups.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `torch` (CPU-first), `torch_geometric` (CPU-wheel), `rdkit`, `datasets`, `scikit-learn`, `pandas`, `pyyaml`, `biopython`, `numpy`, `scipy`, `requests`  
-**Storage**: Local filesystem (`data/raw`, `data/processed`, `data/results`); PDBbind v2020 streamed from Hugging Face  
-**Testing**: `pytest` with `pytest-cov`  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM, ~14 GB disk)  
-**Project Type**: Computational chemistry / Machine Learning pipeline  
-**Performance Goals**: Inference < 5s/complex on CPU; Training convergence within 4 hours or 50 epochs; Spearman correlation > 0.6  
-**Constraints**: Memory footprint < 7 GB RAM; No local GPU; Strict adherence to FR-002 (128 hidden units) and FR-007 (4h timeout)  
-**Scale/Scope**: PDBbind v2020 refined set (a large collection of complexes); Sampled or streamed processing to fit CI limits  
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `torch`, `torch_geometric`, `rdkit`, `datasets`, `scikit-learn`, `pandas`, `pyyaml`, `biopython`, `black`, `flake8`
+**Storage**: Local filesystem (`data/raw/`, `data/processed/`, `data/results/`) for intermediate graph files and models.
+**Testing**: `pytest` (unit tests for graph construction, integration tests for pipeline flow).
+**Target Platform**: GitHub Actions Free Tier (2 CPU, ~7 GB RAM) with automatic offload to Kaggle GPU for training if CUDA is detected.
+**Project Type**: Scientific computing pipeline / CLI tool.
+**Performance Goals**: Inference < 5s per complex on CPU; Training < 4 hours; Memory < 7 GB.
+**Constraints**: No local GPU on CI; strict 4-hour runtime limit; data must be streamed or sampled to fit RAM.
+**Scale/Scope**: [deferred] complexes in PDBbind refined set; analysis focused on a high-resolution subset (<= 2.0 Å) to ensure steric fidelity.
 
-> **Note on Data Fit**: The plan relies on the verified Hugging Face parquet source for PDBbind. The dataset contains spatial coordinates and pKd values. However, the "refined" set explicitly excludes water molecules by definition. FR-009 addresses this by implementing a heuristic to flag potential water-mediated interactions based on distance to oxygen atoms (< 3.5 Å). This heuristic is validated against a separate, small "Gold Standard" subset of raw PDB files (downloaded via FTP) to ensure construct validity, as the main processed dataset lacks the necessary water data for direct validation.
+> **Note on Dataset Fit**: The spec requires explicit water-mediated interaction flags (FR-009). The verified PDBbind parquet source contains explicit water molecules in some entries. The pipeline will flag complexes where waters are within 3.5 Å of the ligand interface. If the specific "hydration state" variable is missing in the raw parquet, the heuristic based on distance will be applied as per the Assumptions section.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-1.  **Reproducibility (Principle I)**: The plan mandates pinned `requirements.txt` and random seeds in `code/`. Data is fetched from a canonical Hugging Face URL (`jglaser/pdbbind_complexes`) and checksummed.
-2.  **Verified Accuracy (Principle II)**: All citations (e.g., Benjamini-Hochberg) will be validated against the primary sources (arXiv:1906.01701) before review.
-3.  **Data Hygiene (Principle III)**: Raw data is preserved in `data/raw/` with checksums. Derivations (graphs, sensitivity analysis) are written to new files in `data/processed/` and `data/results/`.
-4.  **Single Source of Truth (Principle IV)**: All metrics (Spearman correlation, motif counts) trace to `data/results/` artifacts generated by `code/`.
-5.  **Versioning (Principle V)**: Artifacts carry content hashes; state updates on change.
-6.  **Molecular Graph Fidelity (Principle VI)**: Graph construction strictly follows RDKit-based edge definitions (covalent + non-covalent < 5.0 Å) to ensure valid Integrated Gradients.
-7.  **Statistical Validation (Principle VII)**: Motif significance requires p < 0.01 (per Constitution Principle VII) for final claim validity, and p < 0.05 for initial motif identification (SC-003). Two-sample t-tests (Ta) are explicitly included as mandated by Principle VII.
+1.  **Reproducibility**: All random seeds (numpy, torch, python) are pinned in `code/utils/seeds.py`. The `requirements.txt` pins exact versions. The `data/` directory contains checksums (`sha256sum`) for all raw and processed artifacts, recorded in `state/projects/PROJ-543...yaml`.
+2.  **Verified Accuracy**: Citations in `research.md` refer only to the verified dataset URLs provided in the prompt or the specific arXiv paper for FDR (1906.01701).
+3.  **Data Hygiene**: Raw data is downloaded to `data/raw/` and never modified. Processed graphs are written to `data/processed/` with new filenames. No PII is present in PDBbind (structural biology data).
+4.  **Single Source of Truth**: All statistics in the final report are derived from `data/results/` JSON artifacts generated by the code.
+5.  **Versioning**: All artifacts in `data/` and `code/` carry content hashes in `state/projects/PROJ-543...yaml`.
+6.  **Molecular Graph Fidelity**: Graph construction strictly follows the RDKit-based edge definition (covalent + distance-based non-covalent). The plan explicitly validates edge counts and node features against the constitution's methodology sketch before training.
+7.  **Statistical Validation**: The plan includes a permutation test (1,000 iterations, shuffling attribution scores) and Benjamini-Hochberg FDR correction (alpha=0.01) for motif enrichment, AND a two-sample t-test comparing high-affinity (pKd > 8) and low-affinity (pKd < 6) complexes, satisfying Constitution Principle VII.
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-gene-regulation/
+specs/001-predicting-molecular-interactions-in-pro/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── dataset_schema.schema.yaml
-│   └── output_schema.schema.yaml
-└── tasks.md             # Phase 2 output
+└── contracts/           # Phase 1 output
+    ├── dataset.schema.yaml
+    ├── graph.schema.yaml
+    ├── result.schema.yaml
+    └── output_schema.schema.yaml
 ```
 
 ### Source Code (repository root)
@@ -55,92 +56,71 @@ specs/001-gene-regulation/
 projects/PROJ-543-predicting-molecular-interactions-in-pro/
 ├── code/
 │   ├── __init__.py
-│   ├── config.py                # Hyperparameters (128 hidden units, cutoff 5.0)
+│   ├── utils/
+│   │   ├── seeds.py          # Seed management
+│   │   └── config.py         # Hyperparameters
 │   ├── data/
-│   │   ├── __init__.py
-│   │   ├── ingest.py            # PDBbind download & graph construction (FR-001)
-│   │   ├── water_detector.py    # Water-mediated interaction flagging utility (FR-009)
-│   │   ├── sensitivity.py       # 3D sensitivity analysis (T016)
-│   │   └── qsar_baseline.py     # Random Forest baseline (T024)
+│   │   ├── ingest.py         # PDBbind download & filtering (T013, T020)
+│   │   └── graph_builder.py  # Graph construction (FR-001)
 │   ├── models/
-│   │   ├── __init__.py
-│   │   └── gnn.py               # 3-layer MPNN (FR-002)
-│   ├── train/
-│   │   ├── __init__.py
-│   │   └── trainer.py           # Training loop with early stopping (US-2)
+│   │   ├── gnn.py            # 3-layer MP-GNN (FR-002)
+│   │   └── trainer.py        # Training loop with early stopping (FR-007)
 │   ├── interpret/
-│   │   ├── __init__.py
-│   │   ├── attribution.py       # Integrated Gradients (FR-003)
-│   │   ├── clustering.py        # DBSCAN motif extraction (FR-004)
-│   │   └── validation.py        # Permutation test, t-test, mixed-effects (FR-005, FR-008)
-│   └── utils/
-│       ├── __init__.py
-│       └── metrics.py           # Spearman, FDR correction (FR-006)
+│   │   ├── attribution.py    # Integrated Gradients (FR-003)
+│   │   ├── clustering.py     # DBSCAN (FR-004)
+│   │   └── validation.py     # Pharmacophore matching & stats (FR-005, FR-006, FR-008)
+│   └── main.py               # Pipeline orchestrator
 ├── data/
-│   ├── raw/                     # Downloaded parquet (checksummed)
-│   ├── processed/               # Graph objects (.pt or .pkl)
-│   ├── reference/               # pharmacophores.json (T038a)
-│   └── results/                 # Sensitivity analysis, motif clusters, metrics
+│   ├── raw/                  # Downloaded PDBbind files
+│   ├── processed/            # Pre-constructed graphs (.pt or .json)
+│   └── results/              # Model weights, logs, sensitivity analysis, motif reports
 ├── tests/
-│   ├── unit/
-│   ├── integration/
-│   └── contract/
-├── specs/001-gene-regulation/   # Documentation
-├── requirements.txt             # Pinned dependencies
-└── .gitignore
+│   ├── unit/                 # Unit tests for graph builder, seed pinning
+│   └── integration/          # End-to-end pipeline test on 10 complexes
+├── specs/001-predicting-molecular-interactions-in-pro/
+└── requirements.txt
 ```
 
-**Structure Decision**: Single project structure selected to minimize overhead for CI execution. `code/` is modularized by function (data, model, train, interpret) to align with User Stories 1-3. `data/` is strictly separated into raw (immutable), processed (derived), and results (analysis output) to satisfy Constitution Principle III. `water_detector.py` is a utility module called by `ingest.py` during graph construction.
+**Structure Decision**: A modular CLI structure is selected to separate data ingestion, model training, and interpretability. This allows the data pipeline to be run independently (streaming) and the training to be offloaded to GPU if needed, while keeping the interpretability steps CPU-tractable on the full test set.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| GPU Escape Hatch | Some GNN operations (e.g., large batch inference) may exceed CPU memory/time limits. | CPU-only fallback is insufficient for full dataset training within 6h; Kaggle GPU provides necessary VRAM without violating CI constraints. |
-| Sensitivity Analysis | 3D edge construction is sensitive to cutoff distance; must validate robustness. | Skipping analysis risks invalid graph topology, violating Constitution Principle VI. |
-| Permutation Test | Simple t-tests are insufficient for motif enrichment due to multiple comparisons. | FR-006 and Principle VII require FDR correction and robust null distribution generation. |
-| Ablation Study | Edge distances are definitionally derived from coordinates; must distinguish learning geometry from memorizing coordinates. | Without ablation, the model's ability to learn "steric constraints" is tautological (scientific soundness concern). |
+| **Heterogeneous Graph Construction** | The spec requires explicit encoding of 3D steric constraints and non-covalent interactions which standard molecular graphs (bond-only) miss. | A standard bond-only graph would fail FR-001 and the reviewer's concern about steric constraints, leading to poor predictive power. |
+| **Permutation Test + FDR + T-Test** | FR-006, FR-008, and Constitution Principle VII require rigorous statistical validation of motifs to avoid false positives and ensure discrimination between affinity groups. | A simple t-test without FDR correction or permutation null distributions would inflate Type I errors, violating the statistical rigor requirement. |
+| **GPU Offload Strategy** | Training a 3-layer GNN on 10k+ graphs may exceed 4 hours on CPU. | Running on CPU only risks timeout. The plan uses a "CPU-first" approach but includes a `device="cuda"` fallback that triggers the Kaggle offload, ensuring the *real* computation runs without fabrication. |
 
-## Tasks
+## Task List
 
-### Phase 0: Setup & Data Strategy
+### Foundational Phase
+- [ ] T001a: Initialize Git repository and create `.gitignore` for Python/data artifacts.
+- [ ] T001b: Create project directory structure (`code/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/`, `specs/`).
+- [ ] T002a: Create Python 3.11 virtual environment under `code/venv`.
+- [ ] T002b: Install dependencies (`torch`, `torch_geometric`, `rdkit`, etc.) in virtual environment.
+- [ ] T003: Configure linting (Black, flake8) and create `pyproject.toml`/`setup.cfg`.
+- [ ] T004: Validate `dataset.schema.yaml` as a single, valid YAML document.
+- [ ] T005: Validate `graph.schema.yaml` as a single, valid YAML document.
+- [ ] T009: Create `data/raw/`, `data/processed/`, `data/results/` directories.
+- [ ] T016: Implement 3D sensitivity analysis (vary cutoffs, compute variance, write `sensitivity_analysis.json`).
+- [ ] T018: Validate `result.schema.yaml` as a single, valid YAML document.
+- [ ] T038a: Create placeholder `data/reference/pharmacophores.json` for independent validation set.
 
-- [ ] **T001**: Initialize Git repository and create `.gitignore` for Python/data artifacts.
-- [ ] **T002**: Create Python 3.11 virtual environment in `code/.venv`.
-- [ ] **T003**: Install dependencies from `requirements.txt` (torch, rdkit, etc.) and configure linting (flake8/black).
-- [ ] **T004**: Create `data/raw/`, `data/processed/`, `data/results/` directories.
-- [ ] **T005**: Download and checksum PDBbind v2020 refined set from Hugging Face.
-- [ ] **T006**: Download "Gold Standard" subset of raw PDB files (for water heuristic validation) via FTP.
+### Data & Graph Construction
+- [ ] T013: Ingest PDBbind v2020 refined set (streaming, with fallback to PDB download if needed).
+- [ ] T020: Filter complexes with resolution > 2.5 Å (Dependency: T013).
+- [ ] T014: Construct molecular graphs with 5.0 Å cutoff and `water_flagged` attribute (Dependency: T020).
+- [ ] T015: Implement water-mediated interaction flagging heuristic (distance < 3.5 Å to oxygen) (Dependency: T014).
 
-### Phase 1: Data Ingestion & Graph Construction (US-1)
+### Model Training
+- [ ] T021: Train 3-layer GNN (CPU-first, with GPU offload if needed).
+- [ ] T022: Evaluate model on test set (MSE, RMSE, percentage within ±1.0 unit).
+- [ ] T025: Calculate and report SC-001 metric (percentage within ±1.0 unit) in `metrics.json`.
 
-- [ ] **T014**: Implement `code/data/ingest.py` to parse 3D coordinates and construct heterogeneous graphs (FR-001).
-- [ ] **T015**: Implement `code/data/water_detector.py` to flag water-mediated interactions (distance < 3.5 Å to oxygen) (FR-009).
-- [ ] **T015b**: Validate `water_detector.py` heuristic against the "Gold Standard" subset (T006) to estimate false-positive/negative rates.
-- [ ] **T016**: Implement `code/data/sensitivity.py` to vary cutoff (,, [qualitative range]) and compute edge/node variance (T016a).
-- [ ] **T016b**: Analyze model performance variance across cutoffs and generate `data/results/sensitivity_analysis.json`.
-- [ ] **T017**: Implement memory instrumentation to record total RAM usage during graph construction (T017a).
-- [ ] **T017b**: Generate `data/results/memory_profile.json` with total memory footprint of loaded dataset and graph construction overhead.
-- [ ] **T018**: Validate all processed graphs against `contracts/dataset_schema.schema.yaml` and save to `data/processed/`.
-- [ ] **T019**: Implement inference benchmarking to measure time per complex and generate `data/results/inference_benchmark.json`.
-- [ ] **T020**: Implement high-resolution filter (resolution < 2.5 Å) as part of ingestion pipeline (US-1).
-
-### Phase 2: Model Training & Baselines (US-2)
-
-- [ ] **T023**: Implement a multi-layer MPNN with a configurable number of hidden units. (FR-002).
-- [ ] **T023b**: Implement ablation study to train model without explicit distance features (to test geometry learning vs. coordinate memorization).
-- [ ] **T024**: Implement Random Forest QSAR baseline model (T024) for SC-001 comparison.
-- [ ] **T025**: Train GNN on training split with early stopping (max reasonable epoch limit, time-bound timeout).
-- [ ] **T026**: Evaluate GNN and baseline on test split; record Spearman correlation and Top% Recall.
-
-### Phase 3: Interpretability & Validation (US-3)
-
-- [ ] **T030**: Apply Integrated Gradients to generate atom-level feature importance (FR-003).
-- [ ] **T031**: Cluster high-importance substructures using DBSCAN (min_cluster_size=5) (FR-004).
-- [ ] **T035a**: Implement two-sample t-test comparing importance scores of atoms in clusters from high-affinity (pKd > 8) vs. low-affinity (pKd < 6) complexes (Constitution Principle VII).
-- [ ] **T035b**: Implement permutation test with a sufficient number of iterations shuffling motif labels across complexes to generate null distribution (FR-008).
-- [ ] **T035c**: Implement mixed-effects model to stratify null distribution by scaffold identity (T036b).
-- [ ] **T038a**: Fetch pharmacophore definitions from ChEMBL API and save to `data/reference/pharmacophores.json`.
-- [ ] **T038b**: Implement MM-GBSA calculation for novel scaffolds where pharmacophore match fails (FR-005).
-- [ ] **T039**: Apply Benjamini-Hochberg FDR correction (alpha=0.05) to p-values (FR-006).
-- [ ] **T040**: Generate final report with motif clusters, statistical significance, and validation results.
+### Interpretability & Validation
+- [ ] T026: Apply Integrated Gradients to generate feature importance scores.
+- [ ] T027: Cluster high-importance substructures using DBSCAN.
+- [ ] T028: Perform permutation test (shuffling scores) and FDR correction (alpha=0.01).
+- [ ] T029: Perform two-sample t-test comparing high/low affinity groups (Constitution Principle VII).
+- [ ] T030: Cross-reference clusters with independent pharmacophore set (RMSD < 1.5 Å).
+- [ ] T031: Calculate and report SC-003 metric (fraction of motifs overlapping) in `motif_clusters.json`.

@@ -1,18 +1,18 @@
 status: none
-intent: download PDBbind 2020 refined set and BindingDB subset as python package dataset
+intent: PDBbind v2020 refined full PDB raw structures python package dataset
 required_fields:
 - atom_index
-- element
+- atom_type
 - x
 - y
 - z
-- partial_charge
-- hydrophobicity
 - residue_name
 - chain_id
-- binding_affinity
+- residue_number
+- ligand_id
+- binding_affinity_pKd
 - resolution
-- water_flag
-cache_key: d75f4d29c5997755c4d4627b6cce549666152c4c5416af4deb0eb7258a0ecf1a
-searched_at: '2026-08-22T09:16:40.961906+00:00'
+- formal_charge
+cache_key: 44bd2a8a9cff974453064506ca023aa7c890465a642820e589ac8166f3dfc542
+searched_at: '2026-09-02T03:12:17.332085+00:00'
 retry_count: 1

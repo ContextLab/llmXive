@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-09-02T03:40:49.346314+00:00'
+issue_number: 1334
+project_id: PROJ-543-predicting-molecular-interactions-in-pro

@@ -1,81 +1,72 @@
 # Research: Predicting Molecular Interactions in Protein-Ligand Complexes Using Graph Neural Networks
 
-## Executive Summary
-
-This research validates the feasibility of predicting protein-ligand binding affinity (pKd) using a Graph Neural Network (GNN) trained on the PDBbind v2020 refined set. The approach encodes 3D steric constraints as distance-based edges in a heterogeneous graph, trains a 3-layer message-passing network, and applies Integrated Gradients to identify recurring molecular motifs. The study confirms that the dataset contains the necessary variables (3D coordinates, pKd) and that the method is computationally feasible on CPU-first infrastructure with a GPU escape hatch for scaling. **Claims are explicitly framed as associational.** No causal inference is made; the study identifies correlations between substructure motifs and binding affinity, validated by statistical enrichment tests.
-
 ## Dataset Strategy
+
+The project relies on the **PDBbind v2020 refined set** (or the closest verified proxy). This dataset provides 3D structural coordinates (PDB files) and experimental binding affinities (pKd/pKi) for protein-ligand complexes.
 
 ### Verified Datasets
 
-The project relies exclusively on the following verified, open-source datasets:
+| Dataset | Source URL | Access Method | Variables Available | Suitability |
+|:--- |:--- |:--- |:---:--- |
+| **PDBbind Complexes (Parquet)** | ` | `datasets.load_dataset("jglaser/pdbbind_complexes")` | 3D coordinates, atom types, pKd/pKi, resolution | **Primary**: Directly provides the necessary 3D coordinates and affinity labels. |
+| **PDBbind Full (CSV)** | ` | `pandas.read_csv` | Metadata, affinity, links to PDB | **Supplementary**: Used for indexing if the parquet source lacks specific metadata. |
+| **PDBbind Affinities** | ` | `datasets.load_dataset` | Processed affinities | **Backup**: If the primary source is unavailable. |
 
-| Dataset Name | Source URL | Format | Variables | Access Method |
-|--------------|------------|--------|-----------|---------------|
-| PDBbind v2020 Refined | https://huggingface.co/datasets/jglaser/pdbbind_complexes/resolve/main/data/pdbbind.parquet | Parquet | 3D coordinates (x, y, z), atom types, pKd, resolution | `datasets.load_dataset(..., streaming=True)` |
-| PDBbind Full (Reference) | https://huggingface.co/datasets/HUBioDataLab/pdbbind_full/resolve/main/pdbbind_full.csv | CSV | Full set metadata | `datasets.load_dataset(...)` |
-| PDBbind Processed | https://huggingface.co/datasets/DaInternet12/pdbbind_affinities/resolve/main/pdbbind_processed.parquet | Parquet | Affinity metadata only | `datasets.load_dataset(...)` |
-| Gold Standard Subset (Raw PDB) | ftp://ftp.wwpdb.org/pub/pdb/data/structures/divided/pdb/ | PDB | Raw crystallographic coordinates including waters | FTP download (manual subset) |
-
-**Primary Source**: `jglaser/pdbbind_complexes` (Parquet) is selected as the primary source for its structured format and verified availability. It contains the necessary 3D coordinates and pKd values required by FR-001 and FR-002.
+**Selection Rationale**: The `jglaser/pdbbind_complexes` parquet source is selected as the primary because it is verified to contain pre-processed structural data required for graph construction. If this specific file lacks explicit 3D coordinates for a specific entry, the pipeline will fallback to downloading the raw PDB files via the `biopython` `PDBList` or `rcsb` API. This fallback is budgeted for in the feasibility analysis to ensure the total runtime remains within limits.
 
 **Data Availability & Feasibility**:
-- **Downloadability**: The dataset is hosted on Hugging Face and accessible via the `datasets` library without authentication or credentials, satisfying the CI runner's unattended execution requirement.
-- **Variable Fit**: The dataset contains 3D atomic coordinates (essential for steric edge construction) and experimental pKd values (target variable). No critical variables are missing.
-- **Water Limitations**: The "refined" set in PDBbind (and most processed subsets like the Hugging Face parquet source) **explicitly excludes water molecules** by definition to focus on the protein-ligand interaction core. The plan's reliance on a heuristic to flag water-mediated interactions (FR-009) is validated against a separate, small "Gold Standard" subset of raw PDB files (downloaded via FTP) that *do* contain explicit waters. This validates the heuristic's construct validity without requiring the main dataset to contain the missing data.
-- **Memory Management**: The full dataset ([deferred] complexes) will be processed via streaming (`streaming=True`) to avoid loading all graphs into RAM simultaneously. Graphs are constructed on-the-fly and saved to disk in `data/processed/`.
+- **Open Access**: The Hugging Face sources are directly downloadable via programmatic API, satisfying the "no registration" constraint.
+- **Size Management**: The full PDBbind refined set consists of a large collection of complexes. The raw PDB files are small (a few megabytes each). The total raw data size is manageable (< 50 GB), but the *processed* graph data (with 3D edges) will be larger.
+- **Streaming Plan**: The `code/data/ingest.py` will use `datasets.load_dataset(..., streaming=True)` to iterate through complexes. Graphs will be constructed one-by-one and saved to `data/processed/` immediately, preventing RAM overflow.
+- **Filtering**: Per FR-001 and T020, complexes with resolution > 2.5 Å will be filtered *before* graph construction to save compute. This is implemented as a pre-filter in the ingestion loop.
 
-## Methodological Rigor
+**Missing Variable Check**:
+- The spec requires "explicit water-mediated interactions" (FR-009). The PDBbind refined set *does* contain explicit water molecules in the PDB files. The ingestion script will parse these. If the parquet source aggregates or removes waters, the code will fallback to downloading the raw PDB for complexes where water analysis is critical, or use the distance heuristic on the ligand-protein interface as a proxy.
+- **Variable Fit**: The dataset contains `pKd` (outcome), `3D coordinates` (predictors), and `resolution` (covariate/filter). This is a perfect fit for the study. No synthetic data is needed.
 
-### Graph Construction (FR-001)
+## Methodology & Statistical Rigor
 
-- **Node Features**: Atom type, formal charge, hydrophobicity (derived via RDKit).
-- **Edge Construction**: 
-  - Covalent bonds: Detected via RDKit bond orders.
-  - Non-covalent edges: Created for atom pairs within a 5.0 Å cutoff (steric constraint).
-  - **3D Sensitivity**: A sensitivity analysis (Phase 1.3) will vary the cutoff (4.0, 5.0, 6.0 Å) to quantify edge count variance and model performance variance, addressing the "hard threshold" concern.
-- **Missing Hydrogens**: Hydrogens are inferred using RDKit's `AddHs` based on standard valency. Complexes with unresolved valency are flagged for exclusion.
-- **Ablation Study**: An ablation study (T023b) will train the model without explicit distance features to distinguish between learning geometry and memorizing coordinates, addressing the "definitional redundancy" concern.
+### 1. Graph Construction (FR-001)
+- **Nodes**: Atoms with features: atomic number, formal charge, hybridization, hydrophobicity (calculated via RDKit).
+- **Edges**:
+ - *Covalent*: RDKit bond detection.
+ - *Non-covalent*: Euclidean distance < 5.0 Å between any protein atom and ligand atom.
+- **Steric Constraints**: The 5.0 Å cutoff explicitly encodes the steric environment, addressing the reviewer's concern about 3D physics.
+- **Water Flagging**: A heuristic (distance < 3.5 Å to oxygen atoms) is used to flag water-mediated interactions (FR-009).
 
-### GNN Training (FR-002)
+### 2. Model Training (FR-002, FR-007)
+- **Architecture**: A multi-layer Message Passing Neural Network (MPNN) with 128 hidden units.
+- **Loss**: Mean Squared Error (MSE) on pKd.
+- **Hardware Strategy**:
+ - **CPU-First**: Training runs on CPU with `batch_size` tuned to fit available RAM.
+ - **GPU Escape Hatch**: If the model definition includes `device="cuda"`, the execution runner will detect the CUDA requirement and offload to Kaggle (16 GB VRAM). The plan uses a **scaled-down** approach: training on the full dataset but with fewer epochs (e.g., -30) or a smaller batch size if GPU memory is tight, to fit within the Kaggle kernel.
+- **Early Stopping**: Triggered if validation loss does not improve for a specified number of epochs (FR-007).
 
-- **Architecture**: 3-layer Message Passing Neural Network (MPNN) with exactly 128 hidden units.
-- **Loss Function**: Mean Squared Error (MSE) on pKd.
-- **Optimization**: Adam optimizer with early stopping (patience=10 epochs) to prevent overfitting.
-- **Hardware**: CPU-first (PyTorch CPU). If training fails to converge within 4 hours or exceeds RAM, the pipeline triggers the Kaggle GPU escape hatch (scaled-down batch size, 8-bit quantization if necessary).
-- **Convergence Criteria**: Spearman correlation > 0.6 on validation set OR max 50 epochs. MSE < 2.0 is reported but not the primary success metric due to its logarithmic scale implications.
-
-### Interpretability & Validation (FR-003 - FR-006)
-
-- **Attribution**: Integrated Gradients applied to the trained model to generate atom-level feature importance scores.
-- **Clustering**: DBSCAN (min_cluster_size=5) on high-importance substructures to identify recurring motifs.
+### 3. Interpretability & Validation (FR-003 - FR-006, FR-008, Constitution Principle VII)
+- **Attribution**: Integrated Gradients (IG) applied to the trained model to generate atom-level importance scores.
+- **Clustering**: DBSCAN (eps=0.5, min_samples=5) on the coordinates of high-importance atoms (top [deferred] by score) to find recurring motifs.
 - **Statistical Validation**:
-  - **Two-Sample T-Test (T035a)**: Compares importance scores of atoms in clusters from high-affinity (pKd > 8) vs. low-affinity (pKd < 6) complexes, as mandated by Constitution Principle VII.
-  - **Permutation Test (T035b)**: 1,000 iterations shuffling **motif labels across complexes** (not coordinates) to generate a null distribution for motif enrichment. This preserves 3D structure while testing if the specific motif-affinity association is stronger than random assignment.
-  - **Mixed-Effects Model (T035c/T036b)**: Stratifies the null distribution by scaffold identity to control for the confounding effect of common structural scaffolds.
-  - **FDR Correction**: Benjamini-Hochberg procedure (alpha=0.05) applied to p-values from motif enrichment tests (FR-006).
-  - **Pharmacophore Matching**: Clusters queried against a reference pharmacophore set (ChEMBL) using the Kabsch algorithm (RMSD < 1.5 Å).
-  - **MM-GBSA Fallback (T038b)**: For novel scaffolds where no pharmacophore match is found, MM-GBSA is calculated as a secondary validation, acknowledging its approximate nature and lack of independence from experimental pKd.
-- **Causal Claims**: Claims are framed as **associational**. No causal inference is made without randomization; the study identifies correlations between substructure motifs and binding affinity.
+ - **Null Distribution**: Generate a set of permutations by **shuffling the attribution scores** across the fixed atomic positions of the test set. This preserves the molecular graph topology and steric constraints, testing whether the observed clustering of high-importance atoms is statistically distinct from a random assignment of importance.
+ - **Significance**: Compare observed cluster overlaps against the null distribution.
+ - **Multiple Testing**: Apply Benjamini-Hochberg FDR correction (alpha=0.01) to the p-values of motif enrichment (FR-006, Constitution Principle VII).
+ - **High/Low Affinity Discrimination**: Perform a **two-sample t-test** comparing the frequency of motif presence in high-affinity (pKd > 8) vs. low-affinity (pKd < 6) complexes. This ensures the motifs discriminate between affinity levels, satisfying Constitution Principle VII.
+ - **Pharmacophore Matching**: Cross-reference clusters against an **independent** pharmacophore set (derived from a source not heavily represented in PDBbind v2020) using RMSD < 1.5 Å (FR-005). This mitigates the tautology risk of validating against the same data the model was trained on.
 
-### Statistical Rigor Checklist
+### 4. Power & Sample Size
+- **Limitation**: The study is observational (PDBbind is a collection of crystal structures, not a randomized trial).
+- **Acknowledgement**: Claims will be framed as "associational" or "predictive" rather than causal. The GNN+IG approach identifies correlations between substructures and binding affinity, not causal mechanisms.
+- **Power**: With [deferred] complexes (after filtering), the sample size is sufficient for GNN training. The permutation test (sufficient iterations) and t-test provide robust significance estimation for the motifs.
 
-- **Multiple Comparisons**: Benjamini-Hochberg FDR correction (alpha=0.05) applied to all motif enrichment tests.
-- **Sample Size/Power**: The PDBbind v2020 refined set provides sufficient power for an 80/10/10 split. Power limitations are acknowledged if the effective sample size drops due to filtering (e.g., resolution > 2.5 Å).
-- **Collinearity**: Edge features (distance) are **definitionally derived** from node coordinates (Euclidean distance). The ablation study (T023b) is included to test if the model learns geometry beyond coordinate memorization.
-- **Measurement Validity**: pKd values are experimental measurements from the PDBbind set. Pharmacophore definitions are sourced from established databases (ChEMBL). Water-flagging heuristic is validated against a Gold Standard subset.
+## Decision Rationale: CPU vs. GPU
+- **Decision**: The plan is **CPU-first** for data ingestion and graph construction (these are not GPU-intensive). The GNN training is **GPU-optional** (via offload) because a 3-layer GNN on 10k graphs may take > 4 hours on CPU.
+- **Rationale**: Running on CPU ensures the pipeline works on the free tier. The "GPU escape hatch" allows the *real* training to complete within the time limit if the CPU run is too slow. We do **not** fabricate a CPU approximation (e.g., a tiny synthetic model) because the spec requires a "3-layer message-passing GNN" on the real dataset. The offload ensures the real computation happens.
 
-## Compute Feasibility
-
-- **CPU-First**: The GNN architecture (a multi-layer configuration) is designed to fit within ~7 GB RAM on a CPU. Graph construction and inference are lightweight enough for the GitHub Actions free tier.
-- **GPU Escape Hatch**: If the training loop exceeds a reasonable duration or memory limits, the pipeline automatically re-runs on a Kaggle GPU (16 GB VRAM) with a scaled-down batch size or 8-bit quantization. This ensures real computation without fabrication.
-- **Streaming**: Data is streamed to avoid loading the full dataset into memory, ensuring the pipeline runs within the 14 GB disk and 7 GB RAM limits.
-
-## Decision/Rationale
-
-- **Why PDBbind?** It is the only verified, open-source dataset containing 3D coordinates and pKd values for protein-ligand complexes, directly addressing the study's variables.
-- **Why GNN?** GNNs are the state-of-the-art for 3D molecular property prediction, capable of learning steric constraints via distance-based edges.
-- **Why CPU-First?** To ensure reproducibility on free-tier CI runners. The GPU escape hatch is a fallback, not the primary design, to prevent fabrication of results on inaccessible hardware.
-- **Why Benjamini-Hochberg?** Standard practice for controlling Type I errors in multiple hypothesis testing (motif enrichment), as mandated by FR-006 and Principle VII.
-- **Why T-Test?** Required by Constitution Principle VII for motif validation.
-- **Why Mixed-Effects Model?** To control for scaffold frequency confounding in motif enrichment analysis.
+## Risk Mitigation
+- **Risk**: PDBbind refined set lacks specific hydration data.
+ - **Mitigation**: Use distance heuristic (3.5 Å) to flag water-mediated interactions (FR-009).
+- **Risk**: Model overfitting on small subsets.
+ - **Mitigation**: Strict train/val/test split with a dominant training proportion and early stopping.
+- **Risk**: Graph construction memory overflow.
+ - **Mitigation**: Stream data, process one complex at a time, and write to disk immediately.
+- **Risk**: Tautology in pharmacophore validation.
+ - **Mitigation**: Use an independent pharmacophore set for validation.

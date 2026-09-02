@@ -2,105 +2,72 @@
 
 ## Overview
 
-This document defines the data structures, schemas, and relationships used throughout the project. It ensures consistency between data ingestion, model training, and result reporting, adhering to the Constitution's Data Hygiene and Versioning principles.
+This document defines the data structures used throughout the pipeline, from raw ingestion to model output and interpretability results. All data is versioned and checksummed.
 
-## Key Entities
+## Core Entities
 
-### MolecularGraph
+### 1. MolecularGraph (Internal Representation)
+A heterogeneous graph representing a protein-ligand complex.
+- **Nodes**:
+  - `atom_type`: Integer (mapped from element symbol, e.g., C=6, N=7, O=8).
+  - `charge`: Float (formal charge).
+  - `hybridization`: Integer (SP, SP2, SP3, etc.).
+  - `hydrophobicity`: Float (calculated logP contribution).
+  - `coordinates`: List[float, float, float] (3D x, y, z).
+  - `is_ligand`: Boolean (True if part of the ligand, False if protein).
+- **Edges**:
+  - `edge_type`: String ("covalent", "non-covalent", "water-mediated").
+  - `distance`: Float (Euclidean distance in Å).
+  - `source_node`: Integer (index).
+  - `target_node`: Integer (index).
+- **Global Properties**:
+  - `complex_id`: String (PDB ID + chain).
+  - `pKd`: Float (experimental binding affinity).
+  - `resolution`: Float (Å).
+  - `water_flagged`: Boolean (True if water-mediated interaction detected via heuristic).
 
-Represents a single protein-ligand complex.
+### 2. FeatureImportanceMap
+Output of Integrated Gradients.
+- `complex_id`: String.
+- `atom_importance`: List[float] (score for each atom).
+- `interaction_importance`: List[float] (score for each edge, if computed).
+- `baseline`: String (e.g., "zero", "mean").
 
-- **Attributes**:
-  - `id`: Unique identifier (PDB ID + chain).
-  - `nodes`: List of atom nodes.
-    - `atom_type`: String (e.g., "C", "N", "O", "H").
-    - `charge`: Float (formal charge).
-    - `hydrophobicity`: Float (derived from atom type).
-    - `coordinates`: List of 3 floats [x, y, z].
-  - `edges`: List of edge connections.
-    - `source`: Integer (node index).
-    - `target`: Integer (node index).
-    - `bond_type`: String (covalent, non-covalent).
-    - `distance`: Float (Å).
-  - `global_properties`:
-    - `pKd`: Float (target variable).
-    - `resolution`: Float (Å).
-    - `water_flagged`: Boolean (true if water-mediated interaction detected).
-
-### SubstructureCluster
-
-Represents a group of high-importance substructures identified via clustering.
-
-- **Attributes**:
-  - `cluster_id`: Integer.
-  - `centroid_coordinates`: List of 3 floats.
-  - `member_count`: Integer.
-  - `pharmacophore_id`: String (matched reference ID, or null).
-  - `rmsd`: Float (overlap with pharmacophore).
-  - `p_value`: Float (statistical significance).
-  - `fdr_corrected_p`: Float (Benjamini-Hochberg adjusted).
-
-### FeatureImportanceMap
-
-Maps atom indices to their attribution scores.
-
-- **Attributes**:
-  - `atom_index`: Integer.
-  - `score`: Float (Integrated Gradients score).
-  - `interaction_type`: String (covalent, non-covalent).
-
-### MemoryProfile
-
-Records memory usage during data processing.
-
-- **Attributes**:
-  - `timestamp`: String (ISO 8601).
-  - `peak_memory_mb`: Float (peak RAM usage).
-  - `dataset_size_mb`: Float (size of raw dataset).
-  - `graph_construction_overhead_mb`: Float (additional memory during graph building).
-  - `total_memory_mb`: Float (sum of dataset and overhead).
-
-### InferenceBenchmark
-
-Records inference time per complex.
-
-- **Attributes**:
-  - `complex_id`: String.
-  - `inference_time_ms`: Float.
-  `hardware`: String (e.g., "CPU").
+### 3. SubstructureCluster
+Output of DBSCAN clustering.
+- `cluster_id`: Integer.
+- `centroid`: List[float, float, float].
+- `member_count`: Integer.
+- `member_complex_ids`: List[String].
+- `pharmacophore_match`: String (ID of matched pharmacophore, or "None").
+- `rmsd`: Float (RMSD to matched pharmacophore).
+- `p_value`: Float (raw p-value from permutation test).
+- `fdr_q_value`: Float (Benjamini-Hochberg corrected).
+- `is_significant`: Boolean (True if fdr_q_value < 0.01).
 
 ## Data Flow
 
-1. **Ingestion**: Raw PDBbind data (`data/raw/pdbbind.parquet`) is streamed and converted to `MolecularGraph` objects.
-2. **Processing**: Graphs are saved to `data/processed/` in a serialized format (e.g., `.pt` or `.pkl`).
-3. **Training**: Graphs are loaded into the GNN; predictions are stored in `data/results/predictions.csv`.
-4. **Interpretation**: Feature importance scores are generated and clustered; results stored in `data/results/motifs.json`.
-5. **Validation**: Statistical tests are run; results stored in `data/results/statistical_validation.json`.
-6. **Benchmarking**: Memory and inference metrics are stored in `data/results/memory_profile.json` and `data/results/inference_benchmark.json`.
+1.  **Raw Data**: `data/raw/pdbbind.parquet` (Downloaded from Hugging Face).
+2.  **Processed Graphs**: `data/processed/graphs/` (Directory containing one `.pt` or `.json` file per complex).
+    - Filenames: `{complex_id}_graph.json`.
+3.  **Model Artifacts**: `data/results/model/`
+    - `best_model.pt` (PyTorch state dict).
+    - `training_log.json` (Epoch, loss, val_loss).
+4.  **Interpretability Results**: `data/results/interpret/`
+    - `importance_maps.json` (Aggregated importance scores).
+    - `motif_clusters.json` (Cluster definitions and statistics).
+    - `sensitivity_analysis.json` (Edge count variance vs. cutoff distance).
+    - `metrics.json` (SC-001, SC-003 metrics).
 
-## File Structure
+## Data Hygiene & Versioning
 
-```text
-data/
-├── raw/
-│   └── pdbbind.parquet          # Original dataset (checksummed)
-├── processed/
-│   ├── graph_001.pt             # Serialized MolecularGraph
-│   ├── graph_002.pt
-│   └── ...
-├── reference/
-│   └── pharmacophores.json      # Reference pharmacophore definitions (T038a)
-└── results/
-    ├── predictions.csv          # Model predictions vs. actual pKd
-    ├── sensitivity_analysis.json # 3D edge sensitivity results
-    ├── motifs.json              # Clustered substructures
-    ├── statistical_validation.json # Permutation test and FDR results
-    ├── memory_profile.json      # Memory usage metrics
-    └── inference_benchmark.json # Inference time metrics
-```
+- **Checksums**: Every file in `data/raw/` and `data/processed/` is checksummed (SHA-256) and recorded in `state/projects/...yaml`.
+- **Immutability**: Raw data is never modified. All transformations (graph construction, filtering) produce new files in `data/processed/`.
+- **PII**: None expected in PDBbind structural data.
 
-## Data Hygiene
+## Schema Definitions
 
-- **Checksums**: All files in `data/raw/` and `data/processed/` are checksummed (SHA-256) and recorded in the project state file.
-- **Immutability**: Raw data is never modified. Derivations are written to new files.
-- **Versioning**: Each artifact carries a content hash; state updates on change.
+The project uses the following schemas (detailed in `contracts/`):
+- `dataset.schema.yaml`: Validates the raw/processed input data.
+- `graph.schema.yaml`: Validates the internal graph structure.
+- `result.schema.yaml`: Validates the final model and motif results.

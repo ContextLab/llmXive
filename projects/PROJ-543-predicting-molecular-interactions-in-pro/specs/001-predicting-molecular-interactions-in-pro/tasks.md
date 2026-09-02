@@ -97,7 +97,7 @@
 - [ ] T016b [US1] **Sensitivity Report Update**: Ensure the artifact from T016a is referenced in the final report (T045) to validate model robustness.
 - [ ] T017 [US1] Implement memory instrumentation in `code/utils/io.py` to log total footprint, ensuring compliance with SC-005 (7 GB limit)
 - [ ] T018 [US1] **Final Save & Validate**: Save processed graph files to `data/processed/` and validate against `contracts/dataset_schema.schema.yaml`. **MUST**: Verify that sensitivity analysis (T016a) is complete before saving final graphs. **Depends on**: T016a.
-- [ ] T047 [US1] Implement validation logic in `code/data/ingest.py` to verify that all generated graphs preserve the original D coordinates from the PDB file by checking that edge distances match the input PDB coordinates within a tolerance of 0.01 Å, raising an error if deviations exceed this threshold (addressing Rosalind Franklin review on steric constraints).
+- [ ] T047 [US1] Implement validation logic in `code/data/ingest.py` to verify that all generated graphs preserve the original 3D coordinates from the PDB file by checking that edge distances match the input PDB coordinates within a tolerance of 0.01 Å, raising an error if deviations exceed this threshold (addressing Rosalind Franklin review on steric constraints).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
