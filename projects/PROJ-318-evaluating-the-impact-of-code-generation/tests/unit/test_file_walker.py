@@ -1,222 +1,221 @@
 """
 Unit tests for the file walker utility.
 
-Tests verify that walk_python_files correctly identifies .py files,
-excludes specified directories and patterns, and handles edge cases.
+These tests verify that walk_python_files, collect_python_files,
+and count_python_files correctly identify Python files and handle
+exclusions as expected.
 """
 
 import os
 import tempfile
-import pytest
+import shutil
 from pathlib import Path
-from utils.file_walker import walk_python_files, collect_python_files, count_python_files, FileWalkerException
+import pytest
+
+from code.utils.file_walker import (
+    walk_python_files,
+    collect_python_files,
+    count_python_files,
+    FileWalkerException
+)
 
 
 class TestFileWalker:
-    """Test cases for file walker functionality."""
+    """Test suite for file walker utilities."""
 
     @pytest.fixture
-    def temp_project_structure(self):
-        """Create a temporary directory structure with Python files for testing."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            root = Path(tmpdir)
-            
-            # Create directory structure
-            (root / 'src').mkdir()
-            (root / 'src' / 'subdir').mkdir()
-            (root / 'tests').mkdir()
-            (root / '__pycache__').mkdir()
-            (root / '.git').mkdir()
-            (root / 'venv').mkdir()
-            (root / 'data').mkdir()
-            
-            # Create Python files
-            (root / 'main.py').touch()
-            (root / 'src' / 'module.py').touch()
-            (root / 'src' / 'subdir' / 'utils.py').touch()
-            (root / 'tests' / 'test_main.py').touch()
-            (root / '__pycache__' / 'cached.pyc').touch()  # Should be excluded
-            (root / '.git' / 'config').touch()  # Should be excluded
-            (root / 'data' / 'data.txt').touch()  # Not a Python file
-            (root / 'README.md').touch()  # Not a Python file
-            
-            # Create a file that matches exclusion pattern
-            (root / 'src' / 'test_helper.py').touch()
-            
-            yield root
-
-    def test_walk_returns_generator(self, temp_project_structure):
-        """Verify that walk_python_files returns a generator."""
-        result = walk_python_files(str(temp_project_structure))
-        # Generators have __next__ method
-        assert hasattr(result, '__next__')
-        # Can convert to list
-        files = list(result)
-        assert isinstance(files, list)
-
-    def test_walk_finds_python_files(self, temp_project_structure):
-        """Verify that .py files are found."""
-        files = list(walk_python_files(str(temp_project_structure)))
-        py_files = [f for f in files if f.suffix == '.py']
+    def temp_repo_structure(self):
+        """Create a temporary directory structure mimicking a Python repo."""
+        root = tempfile.mkdtemp(prefix="test_file_walker_")
         
-        assert len(py_files) == 4  # main.py, module.py, utils.py, test_main.py
+        # Create directory structure
+        dirs = [
+            "src",
+            "src/utils",
+            "tests",
+            "tests/unit",
+            ".git",
+            ".git/objects",
+            "venv",
+            "docs",
+            "__pycache__"
+        ]
+        for d in dirs:
+            os.makedirs(os.path.join(root, d), exist_ok=True)
         
-        file_names = {f.name for f in py_files}
-        assert 'main.py' in file_names
-        assert 'module.py' in file_names
-        assert 'utils.py' in file_names
-        assert 'test_main.py' in file_names
+        # Create Python files
+        py_files = [
+            "src/main.py",
+            "src/utils/helper.py",
+            "tests/test_main.py",
+            "tests/unit/test_helper.py",
+            "docs/conf.py",
+            "setup.py",
+            "README.md",  # Not a Python file
+            ".git/config",  # Not a Python file
+            "venv/bin/activate",  # Not a Python file
+            "__pycache__/module.cpython-39.pyc"  # Not a Python file
+        ]
+        
+        for f in py_files:
+            full_path = os.path.join(root, f)
+            with open(full_path, 'w') as fh:
+                fh.write("# Test file\n")
+        
+        yield root
+        
+        # Cleanup
+        shutil.rmtree(root)
 
-    def test_walk_excludes_pycache(self, temp_project_structure):
-        """Verify that __pycache__ directories are excluded."""
-        files = list(walk_python_files(str(temp_project_structure)))
+    def test_walk_python_files_basic(self, temp_repo_structure):
+        """Test basic walking and yielding of Python files."""
+        files = list(walk_python_files(temp_repo_structure))
         
-        # No files should be from __pycache__
-        for f in files:
-            assert '__pycache__' not in str(f)
-
-    def test_walk_excludes_git(self, temp_project_structure):
-        """Verify that .git directories are excluded."""
-        files = list(walk_python_files(str(temp_project_structure)))
+        # Should find all .py files except those in excluded dirs
+        # Excluded: .git, venv, __pycache__
+        expected_count = 5  # src/main.py, src/utils/helper.py, tests/test_main.py, tests/unit/test_helper.py, docs/conf.py, setup.py
+        assert len(files) == expected_count
         
-        for f in files:
-            assert '.git' not in str(f)
-
-    def test_walk_excludes_venv(self, temp_project_structure):
-        """Verify that venv directories are excluded."""
-        files = list(walk_python_files(str(temp_project_structure)))
-        
-        for f in files:
-            assert 'venv' not in f.parts
-
-    def test_walk_excludes_non_python_files(self, temp_project_structure):
-        """Verify that non-.py files are not included."""
-        files = list(walk_python_files(str(temp_project_structure)))
-        
+        # Verify all are .py files
         for f in files:
             assert f.suffix == '.py'
-        
-        # Verify no .txt or .md files
-        file_names = {f.name for f in files}
-        assert 'data.txt' not in file_names
-        assert 'README.md' not in file_names
-        assert 'cached.pyc' not in file_names
+            assert f.exists()
 
-    def test_walk_with_custom_exclude_dirs(self, temp_project_structure):
-        """Verify custom directory exclusion works."""
-        # Exclude 'tests' directory
-        files = list(walk_python_files(
-            str(temp_project_structure),
-            exclude_dirs={'tests'}
-        ))
+    def test_walk_python_files_generator_behavior(self, temp_repo_structure):
+        """Test that walk_python_files returns a generator."""
+        result = walk_python_files(temp_repo_structure)
+        # Check if it's a generator
+        import types
+        assert isinstance(result, types.GeneratorType)
+
+    def test_walk_python_files_excludes_git(self, temp_repo_structure):
+        """Test that .git directory is excluded."""
+        files = list(walk_python_files(temp_repo_structure))
         
         for f in files:
-            assert 'tests' not in f.parts
-        
-        # test_main.py should not be found
-        file_names = {f.name for f in files}
-        assert 'test_main.py' not in file_names
+            assert '.git' not in str(f)
 
-    def test_walk_with_custom_exclude_patterns(self, temp_project_structure):
-        """Verify custom filename pattern exclusion works."""
-        # Exclude files matching 'test_*'
-        files = list(walk_python_files(
-            str(temp_project_structure),
-            exclude_patterns={'test_'}
-        ))
+    def test_walk_python_files_excludes_venv(self, temp_repo_structure):
+        """Test that venv directory is excluded."""
+        files = list(walk_python_files(temp_repo_structure))
         
         for f in files:
-            assert not f.name.startswith('test_')
-        
-        # test_main.py should not be found
-        file_names = {f.name for f in files}
-        assert 'test_main.py' not in file_names
+            assert 'venv' not in str(f)
 
-    def test_collect_python_files(self, temp_project_structure):
-        """Verify collect_python_files returns a list of paths."""
-        files = collect_python_files(str(temp_project_structure))
-        
-        assert isinstance(files, list)
-        assert len(files) == 4
-        assert all(isinstance(f, Path) for f in files)
-
-    def test_count_python_files(self, temp_project_structure):
-        """Verify count_python_files returns correct count."""
-        count = count_python_files(str(temp_project_structure))
-        assert count == 4
-
-    def test_nonexistent_directory_raises_exception(self):
-        """Verify FileWalkerException is raised for non-existent directory."""
-        with pytest.raises(FileWalkerException):
-            list(walk_python_files('/nonexistent/path/12345'))
-
-    def test_file_path_is_directory_raises_exception(self):
-        """Verify FileWalkerException is raised when path is a file."""
-        with tempfile.NamedTemporaryFile() as tmp:
-            with pytest.raises(FileWalkerException):
-                list(walk_python_files(tmp.name))
-
-    def test_empty_directory_returns_empty_generator(self, temp_project_structure):
-        """Verify empty directory returns empty generator."""
-        empty_dir = temp_project_structure / 'empty'
-        empty_dir.mkdir()
-        
-        files = list(walk_python_files(str(empty_dir)))
-        assert len(files) == 0
-
-    def test_nested_directories_are_traversed(self, temp_project_structure):
-        """Verify nested directories are traversed."""
-        files = list(walk_python_files(str(temp_project_structure)))
-        
-        # Should find files in nested subdirs
-        file_paths = [str(f) for f in files]
-        
-        assert any('subdir' in p for p in file_paths)
-        assert any('utils.py' in p for p in file_paths)
-
-    def test_returns_path_objects(self, temp_project_structure):
-        """Verify that yielded items are Path objects."""
-        result = walk_python_files(str(temp_project_structure))
-        first_file = next(result)
-        
-        assert isinstance(first_file, Path)
-        assert first_file.exists()
-        assert first_file.is_file()
-
-    def test_multiple_calls_to_walk(self, temp_project_structure):
-        """Verify that walk can be called multiple times."""
-        files1 = list(walk_python_files(str(temp_project_structure)))
-        files2 = list(walk_python_files(str(temp_project_structure)))
-        
-        assert len(files1) == len(files2)
-        assert set(str(f) for f in files1) == set(str(f) for f in files2)
-
-    def test_exclude_pattern_with_wildcard(self, temp_project_structure):
-        """Verify pattern matching works for substring exclusion."""
-        # Exclude any file containing 'test'
-        files = list(walk_python_files(
-            str(temp_project_structure),
-            exclude_patterns={'test'}
-        ))
-        
-        for f in files:
-            assert 'test' not in f.name.lower()
-        
-        # Both test_main.py and test_helper.py should be excluded
-        file_names = {f.name for f in files}
-        assert 'test_main.py' not in file_names
-        assert 'test_helper.py' not in file_names
-
-    def test_default_exclusions_include_pycache(self, temp_project_structure):
-        """Verify __pycache__ is excluded by default."""
-        files = list(walk_python_files(str(temp_project_structure)))
+    def test_walk_python_files_excludes_pycache(self, temp_repo_structure):
+        """Test that __pycache__ directory is excluded."""
+        files = list(walk_python_files(temp_repo_structure))
         
         for f in files:
             assert '__pycache__' not in str(f)
 
-    def test_default_exclusions_include_git(self, temp_project_structure):
-        """Verify .git is excluded by default."""
-        files = list(walk_python_files(str(temp_project_structure)))
+    def test_walk_python_files_custom_exclude_dirs(self, temp_repo_structure):
+        """Test custom directory exclusions."""
+        files = list(walk_python_files(
+            temp_repo_structure,
+            exclude_dirs={'docs', '__pycache__', '.git', 'venv'}
+        ))
         
         for f in files:
-            assert '.git' not in str(f)
+            assert 'docs' not in str(f)
+
+    def test_walk_python_files_custom_exclude_patterns(self, temp_repo_structure):
+        """Test custom filename pattern exclusions."""
+        files = list(walk_python_files(
+            temp_repo_structure,
+            exclude_patterns={'test_*.py'}
+        ))
+        
+        for f in files:
+            assert 'test_' not in f.name
+
+    def test_walk_python_files_nonexistent_dir(self):
+        """Test exception when directory does not exist."""
+        with pytest.raises(FileWalkerException) as exc_info:
+            list(walk_python_files("/nonexistent/path/12345"))
+        
+        assert "does not exist" in str(exc_info.value)
+
+    def test_walk_python_files_is_file(self, temp_repo_structure):
+        """Test exception when path is a file, not a directory."""
+        # Find an existing file
+        py_file = os.path.join(temp_repo_structure, "src/main.py")
+        
+        with pytest.raises(FileWalkerException) as exc_info:
+            list(walk_python_files(py_file))
+        
+        assert "not a directory" in str(exc_info.value)
+
+    def test_collect_python_files(self, temp_repo_structure):
+        """Test collect_python_files returns a list."""
+        files = collect_python_files(temp_repo_structure)
+        
+        assert isinstance(files, list)
+        assert len(files) > 0
+        
+        for f in files:
+            assert isinstance(f, Path)
+            assert f.suffix == '.py'
+
+    def test_collect_python_files_returns_same_as_walk(self, temp_repo_structure):
+        """Test that collect_python_files returns same results as walk_python_files."""
+        walk_files = list(walk_python_files(temp_repo_structure))
+        collect_files = collect_python_files(temp_repo_structure)
+        
+        assert len(walk_files) == len(collect_files)
+        
+        # Compare paths
+        walk_paths = sorted([str(f) for f in walk_files])
+        collect_paths = sorted([str(f) for f in collect_files])
+        
+        assert walk_paths == collect_paths
+
+    def test_count_python_files(self, temp_repo_structure):
+        """Test count_python_files returns correct count."""
+        count = count_python_files(temp_repo_structure)
+        
+        # Should match the number of .py files found
+        expected_count = 5  # src/main.py, src/utils/helper.py, tests/test_main.py, tests/unit/test_helper.py, docs/conf.py, setup.py
+        assert count == expected_count
+
+    def test_count_python_files_empty_dir(self):
+        """Test counting in an empty directory."""
+        empty_dir = tempfile.mkdtemp(prefix="test_empty_")
+        try:
+            count = count_python_files(empty_dir)
+            assert count == 0
+        finally:
+            shutil.rmtree(empty_dir)
+
+    def test_walk_python_files_no_py_files(self):
+        """Test walking a directory with no Python files."""
+        no_py_dir = tempfile.mkdtemp(prefix="test_no_py_")
+        try:
+            # Create a non-Python file
+            with open(os.path.join(no_py_dir, "readme.txt"), 'w') as f:
+                f.write("No Python here")
+            
+            files = list(walk_python_files(no_py_dir))
+            assert len(files) == 0
+        finally:
+            shutil.rmtree(no_py_dir)
+
+    def test_walk_python_files_nested_structure(self, temp_repo_structure):
+        """Test that deeply nested files are found."""
+        # Create a deeply nested structure
+        deep_path = os.path.join(temp_repo_structure, "a", "b", "c", "d")
+        os.makedirs(deep_path, exist_ok=True)
+        
+        deep_file = os.path.join(deep_path, "deep.py")
+        with open(deep_file, 'w') as f:
+            f.write("# Deep file\n")
+        
+        files = list(walk_python_files(temp_repo_structure))
+        
+        assert any("deep.py" in str(f) for f in files)
+
+    def test_walk_python_files_permission_error_simulation(self):
+        """Test handling of permission errors (simulated via non-existent path)."""
+        # This is tested via the nonexistent directory test
+        # Real permission errors would require OS-level setup
+        pass

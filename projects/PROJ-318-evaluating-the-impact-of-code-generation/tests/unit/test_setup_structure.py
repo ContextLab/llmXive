@@ -1,82 +1,114 @@
 import os
 import tempfile
-import pytest
+import shutil
 from pathlib import Path
-import sys
+import pytest
 
-# Add the code directory to the path so we can import setup_structure
+# We need to add the code directory to the path to import setup_structure
+import sys
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from setup_structure import create_directories, create_gitkeep_files, verify_structure, REQUIRED_DIRS
+from setup_structure import create_directories, create_gitkeep_files, verify_structure
 
-@pytest.fixture
-def temp_project_root():
-    """Create a temporary directory to act as the project root for testing."""
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        yield Path(tmp_dir)
+class TestSetupStructure:
+    def setup_method(self):
+        """Create a temporary directory for testing."""
+        self.test_dir = tempfile.mkdtemp()
+        self.original_dir = os.getcwd()
+        os.chdir(self.test_dir)
 
-def test_create_directories_creates_all_required(temp_project_root):
-    """Test that create_directories creates all required directories."""
-    created = create_directories(temp_project_root)
-    
-    assert len(created) == len(REQUIRED_DIRS), f"Expected {len(REQUIRED_DIRS)} directories, created {len(created)}"
-    
-    for dir_name in REQUIRED_DIRS:
-        target_path = temp_project_root / dir_name
-        assert target_path.exists(), f"Directory {target_path} was not created"
-        assert target_path.is_dir(), f"{target_path} exists but is not a directory"
+    def teardown_method(self):
+        """Clean up the temporary directory."""
+        os.chdir(self.original_dir)
+        shutil.rmtree(self.test_dir)
 
-def test_create_directories_ignores_existing(temp_project_root):
-    """Test that create_directories does not fail if directories already exist."""
-    # Pre-create one directory
-    pre_created = temp_project_root / REQUIRED_DIRS[0]
-    pre_created.mkdir()
-    
-    created = create_directories(temp_project_root)
-    
-    # Should only return the ones that were actually created in this call
-    # or we can just check that no exception was raised and all exist
-    for dir_name in REQUIRED_DIRS:
-        target_path = temp_project_root / dir_name
-        assert target_path.exists()
+    def test_create_directories(self):
+        """Test that all required directories are created."""
+        created = create_directories()
+        assert len(created) == 9, f"Expected 9 directories, got {len(created)}"
+        
+        # Verify each directory exists
+        required_dirs = [
+            "code",
+            "code/utils",
+            "data/raw",
+            "data/raw/repos",
+            "data/processed",
+            "tests/unit",
+            "tests/integration",
+            "state",
+            "logs"
+        ]
+        
+        for dir_path in required_dirs:
+            full_path = Path(self.test_dir) / dir_path
+            assert full_path.exists(), f"Directory {full_path} was not created"
+            assert full_path.is_dir(), f"Path {full_path} is not a directory"
 
-def test_create_gitkeep_files(temp_project_root):
-    """Test that create_gitkeep_files creates .gitkeep in all directories."""
-    # First create the directories
-    create_directories(temp_project_root)
-    
-    created_files = create_gitkeep_files(temp_project_root)
-    
-    assert len(created_files) == len(REQUIRED_DIRS), f"Expected {len(REQUIRED_DIRS)} .gitkeep files, created {len(created_files)}"
-    
-    for dir_name in REQUIRED_DIRS:
-        target_path = temp_project_root / dir_name / ".gitkeep"
-        assert target_path.exists(), f".gitkeep file not created in {target_path.parent}"
-        assert target_path.is_file(), f"{target_path} is not a file"
+    def test_create_gitkeep_files(self):
+        """Test that .gitkeep files are created in all directories."""
+        # First create directories
+        create_directories()
+        
+        # Then create gitkeep files
+        created = create_gitkeep_files()
+        assert len(created) == 9, f"Expected 9 .gitkeep files, got {len(created)}"
+        
+        # Verify each .gitkeep exists
+        required_dirs = [
+            "code",
+            "code/utils",
+            "data/raw",
+            "data/raw/repos",
+            "data/processed",
+            "tests/unit",
+            "tests/integration",
+            "state",
+            "logs"
+        ]
+        
+        for dir_path in required_dirs:
+            full_path = Path(self.test_dir) / dir_path / ".gitkeep"
+            assert full_path.exists(), f".gitkeep file {full_path} was not created"
+            assert full_path.is_file(), f"Path {full_path} is not a file"
 
-def test_verify_structure_success(temp_project_root):
-    """Test verify_structure returns True when structure is complete."""
-    create_directories(temp_project_root)
-    create_gitkeep_files(temp_project_root)
-    
-    assert verify_structure(temp_project_root) is True
+    def test_verify_structure_success(self):
+        """Test verify_structure returns True when structure is complete."""
+        create_directories()
+        create_gitkeep_files()
+        assert verify_structure() is True
 
-def test_verify_structure_missing_dir(temp_project_root):
-    """Test verify_structure returns False when a directory is missing."""
-    create_directories(temp_project_root)
-    create_gitkeep_files(temp_project_root)
-    
-    # Remove one directory
-    (temp_project_root / REQUIRED_DIRS[0]).rmdir()
-    
-    assert verify_structure(temp_project_root) is False
+    def test_verify_structure_missing_directory(self):
+        """Test verify_structure returns False when a directory is missing."""
+        create_directories()
+        create_gitkeep_files()
+        
+        # Remove a directory
+        (Path(self.test_dir) / "code").rmdir()
+        
+        assert verify_structure() is False
 
-def test_verify_structure_missing_gitkeep(temp_project_root):
-    """Test verify_structure returns False when a .gitkeep is missing."""
-    create_directories(temp_project_root)
-    create_gitkeep_files(temp_project_root)
-    
-    # Remove one .gitkeep
-    (temp_project_root / REQUIRED_DIRS[0] / ".gitkeep").unlink()
-    
-    assert verify_structure(temp_project_root) is False
+    def test_verify_structure_missing_gitkeep(self):
+        """Test verify_structure returns False when a .gitkeep is missing."""
+        create_directories()
+        create_gitkeep_files()
+        
+        # Remove a .gitkeep file
+        (Path(self.test_dir) / "code" / ".gitkeep").unlink()
+        
+        assert verify_structure() is False
+
+    def test_create_directories_idempotent(self):
+        """Test that running create_directories multiple times doesn't fail."""
+        created1 = create_directories()
+        created2 = create_directories()
+        # Should create 0 on second run since they already exist
+        assert len(created2) == 0
+
+    def test_create_gitkeep_files_idempotent(self):
+        """Test that running create_gitkeep_files multiple times doesn't fail."""
+        create_directories()
+        created1 = create_gitkeep_files()
+        created2 = create_gitkeep_files()
+        # Should create 0 on second run since they already exist
+        assert len(created2) == 0

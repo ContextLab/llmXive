@@ -1,165 +1,120 @@
 """
-Data models for method signatures and docstring pairs.
-Provides serialization/deserialization and checksum utilities.
+Data models and serialization utilities for the extraction pipeline.
 """
 import json
 import hashlib
 from dataclasses import dataclass, field, asdict
 from typing import Optional, List, Dict, Any
 from pathlib import Path
-
-
-class SerializationException(Exception):
-    """Raised when serialization or deserialization fails."""
-    pass
-
+from utils.exceptions import SerializationException
 
 @dataclass
 class MethodSignature:
-    """
-    Represents a parsed method signature from source code.
-    """
-    method_name: str
-    class_name: Optional[str] = None
-    parameters: List[str] = field(default_factory=list)
-    return_annotation: Optional[str] = None
-    source_file: Optional[str] = None
+    """Represents a method signature extracted from AST."""
+    name: str
+    signature: str
+    params: List[str] = field(default_factory=list)
+    file_path: str = ""
     line_number: Optional[int] = None
-    source_code: Optional[str] = None
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for JSON serialization."""
-        return asdict(self)
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "MethodSignature":
-        """Create instance from dictionary."""
-        return cls(**data)
-
 
 @dataclass
 class DocstringPair:
-    """
-    Represents a pair of human-written and generated docstrings
-    for a specific method signature.
-    """
-    method_signature: MethodSignature
+    """Pairs a method signature with its human-written and generated docstrings."""
+    method_name: str
+    signature: str
+    file_path: str
+    ast_params: List[str] = field(default_factory=list)
     human_docstring: Optional[str] = None
     generated_docstring: Optional[str] = None
-    parameter_coverage_score: Optional[float] = None
+    coverage_score: Optional[float] = None
     semantic_similarity: Optional[float] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    needs_review: bool = False
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for JSON serialization."""
-        result = {}
-        result["method_signature"] = self.method_signature.to_dict()
-        result["human_docstring"] = self.human_docstring
-        result["generated_docstring"] = self.generated_docstring
-        result["parameter_coverage_score"] = self.parameter_coverage_score
-        result["semantic_similarity"] = self.semantic_similarity
-        result["metadata"] = self.metadata
-        return result
+        """Convert to dictionary for serialization."""
+        return {
+            'method_name': self.method_name,
+            'signature': self.signature,
+            'file_path': self.file_path,
+            'ast_params': self.ast_params,
+            'human_docstring': self.human_docstring,
+            'generated_docstring': self.generated_docstring,
+            'coverage_score': self.coverage_score,
+            'semantic_similarity': self.semantic_similarity,
+            'needs_review': self.needs_review
+        }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "DocstringPair":
+    def from_dict(cls, data: Dict[str, Any]) -> 'DocstringPair':
         """Create instance from dictionary."""
-        sig_data = data.get("method_signature", {})
-        if isinstance(sig_data, dict):
-            method_sig = MethodSignature.from_dict(sig_data)
-        else:
-            raise SerializationException("method_signature must be a dictionary")
-
         return cls(
-            method_signature=method_sig,
-            human_docstring=data.get("human_docstring"),
-            generated_docstring=data.get("generated_docstring"),
-            parameter_coverage_score=data.get("parameter_coverage_score"),
-            semantic_similarity=data.get("semantic_similarity"),
-            metadata=data.get("metadata", {})
+            method_name=data.get('method_name', ''),
+            signature=data.get('signature', ''),
+            file_path=data.get('file_path', ''),
+            ast_params=data.get('ast_params', []),
+            human_docstring=data.get('human_docstring'),
+            generated_docstring=data.get('generated_docstring'),
+            coverage_score=data.get('coverage_score'),
+            semantic_similarity=data.get('semantic_similarity'),
+            needs_review=data.get('needs_review', False)
         )
 
-
-def serialize_pairs_to_json(pairs: List[DocstringPair], output_path: str) -> None:
+def serialize_pairs_to_json(pairs: List[DocstringPair], output_path: Path) -> None:
     """
     Serialize a list of DocstringPair objects to a JSON file.
-
+    
     Args:
-        pairs: List of DocstringPair objects to serialize.
-        output_path: Path to the output JSON file.
-
+        pairs: List of DocstringPair objects
+        output_path: Path to output JSON file
+        
     Raises:
-        SerializationException: If serialization fails.
+        SerializationException: If serialization fails
     """
     try:
-        path = Path(output_path)
-        path.parent.mkdir(parents=True, exist_ok=True)
-
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
         data = [pair.to_dict() for pair in pairs]
-
-        with open(path, "w", encoding="utf-8") as f:
+        
+        with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
-
+        
     except Exception as e:
         raise SerializationException(f"Failed to serialize pairs to {output_path}: {e}")
 
-
-def deserialize_pairs_from_json(input_path: str) -> List[DocstringPair]:
+def deserialize_pairs_from_json(input_path: Path) -> List[DocstringPair]:
     """
-    Deserialize a list of DocstringPair objects from a JSON file.
-
+    Deserialize a JSON file to a list of DocstringPair objects.
+    
     Args:
-        input_path: Path to the input JSON file.
-
+        input_path: Path to input JSON file
+        
     Returns:
-        List of DocstringPair objects.
-
+        List of DocstringPair objects
+        
     Raises:
-        SerializationException: If deserialization fails or file is invalid.
+        SerializationException: If deserialization fails
     """
     try:
-        path = Path(input_path)
-        if not path.exists():
-            raise SerializationException(f"File not found: {input_path}")
-
-        with open(path, "r", encoding="utf-8") as f:
+        with open(input_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
-
-        if not isinstance(data, list):
-            raise SerializationException("JSON root must be a list of pairs")
-
-        pairs = []
-        for i, item in enumerate(data):
-            if not isinstance(item, dict):
-                raise SerializationException(f"Item at index {i} is not a dictionary")
-            pairs.append(DocstringPair.from_dict(item))
-
-        return pairs
-
-    except json.JSONDecodeError as e:
-        raise SerializationException(f"Invalid JSON in {input_path}: {e}")
+        
+        return [DocstringPair.from_dict(item) for item in data]
+        
     except Exception as e:
         raise SerializationException(f"Failed to deserialize pairs from {input_path}: {e}")
 
-
-def compute_checksum(file_path: str) -> str:
+def compute_checksum(file_path: Path) -> str:
     """
     Compute SHA-256 checksum of a file.
-
+    
     Args:
-        file_path: Path to the file.
-
+        file_path: Path to file
+        
     Returns:
-        Hexadecimal string of the SHA-256 hash.
-
-    Raises:
-        SerializationException: If file cannot be read.
+        Hexadecimal SHA-256 hash string
     """
-    try:
-        sha256_hash = hashlib.sha256()
-        with open(file_path, "rb") as f:
-            for chunk in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(chunk)
-        return sha256_hash.hexdigest()
-    except Exception as e:
-        raise SerializationException(f"Failed to compute checksum for {file_path}: {e}")
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()

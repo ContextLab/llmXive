@@ -1,232 +1,278 @@
 """
-Docstring generation script for User Story 2.
+Docstring Generation Pipeline (User Story 2).
 
-Iterates over extracted method JSONs in data/raw/repos/, generates docstrings
-using the configured model (with quantization fallback), and writes intermediate
-results to data/processed/generation_batch_{repo_id}.json.
+Loads the Salesforce/codegen-350M-mono model with strict 4-bit quantization (fallback to 8-bit/full),
+iterates over extracted method data, generates docstrings, and handles memory constraints.
 """
+
 import json
 import logging
 import os
 import sys
 import time
+import traceback
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from transformers import BitsAndBytesConfig
-
-# Import project utilities
-from utils.model_loader import load_model, ModelLoadException
-from utils.monitor import check_memory_limit, log_memory_snapshot, MemoryLimitException
-from utils.exceptions import GenerationException
-from config import get_config
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('logs/generation.log')
-    ]
+# Project imports
+from config import (
+    get_config,
+    set_global_seed,
+    get_device_and_dtype,
+    get_quantization_config,
+    get_max_memory_mb,
+    configure_logging
 )
-logger = logging.getLogger(__name__)
+from utils.model_loader import load_model, ModelLoadException
+from utils.monitor import (
+    setup_logger,
+    get_memory_usage_mb,
+    check_memory_limit,
+    log_memory_snapshot,
+    MemoryLimitException as MonitorMemoryLimitException
+)
+from utils.exceptions import MemoryLimitException
+from utils.coverage import calculate_parameter_coverage
 
 # Constants
-RAM_LIMIT_MB = 7000  # 7 GB
-FIXED_TEMPERATURE = 0.1  # Fixed low temperature as per task description
-MAX_NEW_TOKENS = 256
+MAX_RETRIES_ON_MEMORY = 2
+CHUNK_SIZE_DECREMENT = 250  # Reduce chunk size by this amount on memory error
 
-def load_method_data(json_path: Path) -> List[Dict[str, Any]]:
-    """
-    Load method data from a JSON file.
+def load_method_data(input_path: Path) -> List[Dict[str, Any]]:
+    """Load method data from a JSON file."""
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    Args:
-        json_path: Path to the JSON file containing extracted methods.
-        
-    Returns:
-        List of method dictionaries.
-        
-    Raises:
-        GenerationException: If file cannot be read or parsed.
-    """
-    try:
-        with open(json_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        if not isinstance(data, list):
-            raise GenerationException(f"Expected list of methods in {json_path}, got {type(data)}")
-        return data
-    except json.JSONDecodeError as e:
-        raise GenerationException(f"Failed to parse JSON in {json_path}: {e}")
-    except FileNotFoundError:
-        raise GenerationException(f"File not found: {json_path}")
-    except Exception as e:
-        raise GenerationException(f"Unexpected error loading {json_path}: {e}")
+    with open(input_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    if not isinstance(data, list):
+        raise ValueError(f"Expected list in {input_path}, got {type(data)}")
+    
+    return data
 
 def generate_docstring_batch(
     methods: List[Dict[str, Any]],
-    model: AutoModelForCausalLM,
-    tokenizer: AutoTokenizer,
-    batch_size: int = 4
+    model: Any,
+    tokenizer: Any,
+    batch_size: int = 10,
+    temperature: float = 0.1
 ) -> List[Dict[str, Any]]:
     """
     Generate docstrings for a batch of methods.
     
     Args:
-        methods: List of method dictionaries with 'code' and 'ast_params'.
+        methods: List of method dictionaries containing 'signature' and 'ast_params'.
         model: Loaded transformer model.
         tokenizer: Loaded tokenizer.
-        batch_size: Number of methods to process in parallel.
-        
+        batch_size: Number of methods to process in one go (for batching if needed).
+        temperature: Generation temperature (fixed low value).
+    
     Returns:
-        List of updated method dictionaries with 'generated_docstring' added.
+        List of updated method dictionaries with 'generated_docstring'.
     """
     results = []
     
-    # Prepare prompts
-    prompts = []
-    for method in methods:
-        code = method.get('code', '')
-        if not code:
-            logger.warning("Skipping method with empty code")
-            results.append({**method, 'generated_docstring': None, 'generation_error': 'Empty code'})
-            continue
+    for i in range(0, len(methods), batch_size):
+        batch = methods[i : i + batch_size]
+        batch_results = []
         
-        # Simple prompt template
-        prompt = f"""Write a Google-style docstring for the following Python function.
-        Include a summary and parameter descriptions.
-        
-        Function:
-        ```python
-        {code}
-        ```
-        
-        Docstring:
-        """
-        prompts.append(prompt)
-    
-    # Process in batches
-    for i in range(0, len(prompts), batch_size):
-        batch_prompts = prompts[i:i+batch_size]
-        batch_methods = methods[i:i+batch_size]
-        
-        # Check memory before processing batch
-        try:
-            check_memory_limit(RAM_LIMIT_MB)
-        except MemoryLimitException:
-            logger.error(f"Memory limit exceeded during batch processing at index {i}")
-            raise
-        
-        try:
-            # Tokenize
-            inputs = tokenizer(batch_prompts, return_tensors="pt", padding=True, truncation=True)
-            inputs = {k: v.to(model.device) for k, v in inputs.items()}
-            
-            # Generate
-            with torch.no_grad():
-                outputs = model.generate(
-                    **inputs,
-                    max_new_tokens=MAX_NEW_TOKENS,
-                    temperature=FIXED_TEMPERATURE,
-                    do_sample=True,
-                    pad_token_id=tokenizer.eos_token_id
-                )
-            
-            # Decode and store results
-            for j, (method, output_ids) in enumerate(zip(batch_methods, outputs)):
-                generated_text = tokenizer.decode(output_ids, skip_special_tokens=True)
-                # Extract just the generated part (after the last "Docstring:")
-                if "Docstring:" in generated_text:
-                    docstring_part = generated_text.split("Docstring:")[-1].strip()
-                else:
-                    docstring_part = generated_text.strip()
+        for method in batch:
+            try:
+                # Construct prompt
+                signature = method.get('signature', '')
+                if not signature:
+                    batch_results.append({
+                        **method,
+                        'generated_docstring': '',
+                        'generation_error': 'Missing signature'
+                    })
+                    continue
                 
-                results.append({
+                prompt = f"Generate a docstring for the following Python function:\n\n{signature}\n\nDocstring:"
+                
+                # Tokenize
+                inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+                
+                # Generate
+                with torch.no_grad():
+                    outputs = model.generate(
+                        **inputs,
+                        max_new_tokens=128,
+                        temperature=temperature,
+                        do_sample=True if temperature > 0 else False,
+                        pad_token_id=tokenizer.eos_token_id
+                    )
+                
+                # Decode
+                generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+                # Remove prompt from result
+                docstring = generated_text[len(prompt):].strip()
+                
+                batch_results.append({
                     **method,
-                    'generated_docstring': docstring_part
+                    'generated_docstring': docstring,
+                    'generation_error': None
                 })
                 
-        except Exception as e:
-            logger.error(f"Error generating for batch starting at {i}: {e}")
-            # Mark remaining methods in this batch as failed
-            for method in batch_methods:
-                results.append({
+            except Exception as e:
+                logging.warning(f"Generation error for method {method.get('name', 'unknown')}: {e}")
+                batch_results.append({
                     **method,
-                    'generated_docstring': None,
+                    'generated_docstring': '',
                     'generation_error': str(e)
                 })
+        
+        results.extend(batch_results)
+        
+        # Check memory after each batch
+        current_mem = get_memory_usage_mb()
+        max_mem_limit = get_max_memory_mb()
+        
+        if current_mem > max_mem_limit:
+            raise MonitorMemoryLimitException(
+                f"Memory limit exceeded: {current_mem:.2f}MB > {max_mem_limit}MB"
+            )
+        
+        log_memory_snapshot("generate_docstring_batch")
     
     return results
 
 def save_results(results: List[Dict[str, Any]], output_path: Path) -> None:
-    """
-    Save generation results to a JSON file.
-    
-    Args:
-        results: List of method dictionaries with generated docstrings.
-        output_path: Path to save the JSON file.
-    """
+    """Save generation results to a JSON file."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(results, f, indent=2, ensure_ascii=False)
-    logger.info(f"Saved {len(results)} results to {output_path}")
+    logging.info(f"Saved results to {output_path}")
+
+def process_repo_with_fallback(
+    repo_id: str,
+    input_path: Path,
+    output_path: Path,
+    model: Any,
+    tokenizer: Any,
+    config: Dict[str, Any]
+) -> bool:
+    """
+    Process a single repository's methods with memory fallback logic.
+    
+    Returns:
+        True if processing succeeded, False if it failed permanently.
+    """
+    methods = load_method_data(input_path)
+    total_methods = len(methods)
+    logging.info(f"Processing {repo_id}: {total_methods} methods")
+    
+    # Initial chunk size (max 1000 as per spec, but we start with a reasonable batch)
+    current_chunk_size = min(500, total_methods)
+    retry_count = 0
+    
+    while retry_count <= MAX_RETRIES_ON_MEMORY:
+        try:
+            logging.info(f"Processing {repo_id} in chunks of {current_chunk_size} (Attempt {retry_count + 1})")
+            
+            all_results = []
+            for i in range(0, total_methods, current_chunk_size):
+                chunk = methods[i : i + current_chunk_size]
+                logging.info(f"Processing chunk {i//current_chunk_size + 1}: {len(chunk)} methods")
+                
+                # Generate docstrings for this chunk
+                chunk_results = generate_docstring_batch(
+                    chunk, 
+                    model, 
+                    tokenizer, 
+                    temperature=config.get('temperature', 0.1)
+                )
+                all_results.extend(chunk_results)
+                
+                # Check memory after chunk
+                check_memory_limit()
+            
+            # Success! Save results
+            save_results(all_results, output_path)
+            return True
+            
+        except MonitorMemoryLimitException as e:
+            logging.warning(f"Memory limit hit: {e}")
+            retry_count += 1
+            
+            if retry_count > MAX_RETRIES_ON_MEMORY:
+                logging.error(f"Failed to process {repo_id} after {MAX_RETRIES_ON_MEMORY} retries due to memory limits.")
+                # Log the specific entry to monitor.log as required
+                monitor_logger = setup_logger("monitor")
+                monitor_logger.error(f"RAM_LIMIT_EXCEEDED: {repo_id} failed after retries. Error: {str(e)}")
+                return False
+            
+            # Reduce chunk size and retry
+            new_chunk_size = max(50, current_chunk_size - CHUNK_SIZE_DECREMENT)
+            if new_chunk_size >= current_chunk_size:
+                new_chunk_size = max(1, current_chunk_size // 2) # Ensure progress
+            current_chunk_size = new_chunk_size
+            logging.info(f"Retrying {repo_id} with smaller chunk size: {current_chunk_size}")
+            
+        except Exception as e:
+            logging.error(f"Unexpected error processing {repo_id}: {e}")
+            traceback.print_exc()
+            return False
 
 def main():
-    """Main entry point for docstring generation."""
-    logger.info("Starting docstring generation pipeline")
+    """Main entry point for the generation pipeline."""
+    # Setup logging
+    configure_logging()
+    logger = logging.getLogger(__name__)
     
+    # Load config
     config = get_config()
-    input_dir = Path(config.get('input_dir', 'data/raw/repos'))
-    output_dir = Path(config.get('output_dir', 'data/processed'))
+    set_global_seed(config.seed)
     
-    # Find all JSON files in input directory
-    json_files = sorted(input_dir.glob("*.json"))
+    # Load model
+    logger.info("Loading model with quantization config...")
+    try:
+        model, tokenizer = load_model(
+            model_name=config.model_name,
+            quantization_config=get_quantization_config(),
+            device_map="auto"
+        )
+        logger.info("Model loaded successfully.")
+    except ModelLoadException as e:
+        logger.error(f"Failed to load model: {e}")
+        sys.exit(1)
     
-    if not json_files:
-        logger.warning(f"No JSON files found in {input_dir}")
-        return
+    # Find input files
+    input_dir = Path("data/raw/repos")
+    if not input_dir.exists():
+        logger.error(f"Input directory not found: {input_dir}")
+        sys.exit(1)
     
-    logger.info(f"Found {len(json_files)} repository JSON files to process")
+    input_files = sorted(input_dir.glob("*.json"))
+    if not input_files:
+        logger.warning(f"No input files found in {input_dir}")
+        sys.exit(0)
     
-    # Load model with quantization fallback
-    model, tokenizer = load_model()
-    logger.info("Model loaded successfully")
+    logger.info(f"Found {len(input_files)} input files to process.")
     
-    # Process each repository file
-    for json_file in json_files:
-        try:
-            logger.info(f"Processing {json_file.name}")
-            
-            # Load data
-            methods = load_method_data(json_file)
-            logger.info(f"Loaded {len(methods)} methods from {json_file.name}")
-            
-            # Generate docstrings
-            results = generate_docstring_batch(methods, model, tokenizer)
-            
-            # Determine output filename
-            repo_id = json_file.stem.replace('methods_', '')
-            output_filename = f"generation_batch_{repo_id}.json"
-            output_path = output_dir / output_filename
-            
-            # Save results
-            save_results(results, output_path)
-            
-            logger.info(f"Completed processing {json_file.name}")
-            
-        except MemoryLimitException:
-            logger.critical(f"Memory limit exceeded while processing {json_file.name}. Aborting pipeline.")
-            sys.exit(1)
-        except GenerationException as e:
-            logger.error(f"Failed to process {json_file.name}: {e}")
-            continue
-        except Exception as e:
-            logger.exception(f"Unexpected error processing {json_file.name}: {e}")
-            continue
+    # Process each repository
+    success_count = 0
+    for input_file in input_files:
+        repo_id = input_file.stem
+        output_file = Path(f"data/processed/generation_batch_{repo_id}.json")
+        
+        logger.info(f"Processing {repo_id}...")
+        success = process_repo_with_fallback(
+            repo_id=repo_id,
+            input_path=input_file,
+            output_path=output_file,
+            model=model,
+            tokenizer=tokenizer,
+            config=config
+        )
+        
+        if success:
+            success_count += 1
+        else:
+            logger.error(f"Failed to complete {repo_id}")
     
-    logger.info("Docstring generation pipeline completed")
+    logger.info(f"Generation pipeline complete. Success: {success_count}/{len(input_files)}")
 
 if __name__ == "__main__":
     main()

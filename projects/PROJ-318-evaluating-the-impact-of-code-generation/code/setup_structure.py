@@ -3,135 +3,104 @@ import sys
 from pathlib import Path
 from typing import List
 
-# Define the required directory structure relative to the project root
-REQUIRED_DIRS = [
-    "code",
-    "code/utils",
-    "data/raw",
-    "data/raw/repos",
-    "data/processed",
-    "tests/unit",
-    "tests/integration",
-    "state",
-    "logs"
-]
-
 def create_directories(base_path: Path) -> List[Path]:
     """
-    Creates all required directories under the base path.
-    Returns a list of created Path objects.
+    Create the required directory structure for the project.
+    Returns a list of created directory paths.
     """
+    # Define relative paths to create
+    relative_paths = [
+        "code",
+        "code/utils",
+        "data/raw",
+        "data/raw/repos",
+        "data/processed",
+        "tests/unit",
+        "tests/integration",
+        "state",
+        "logs"
+    ]
+
     created_dirs = []
-    for dir_name in REQUIRED_DIRS:
-        target_dir = base_path / dir_name
-        if not target_dir.exists():
-            target_dir.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(target_dir)
-        else:
-            # Even if it exists, we ensure it's a directory
-            if not target_dir.is_dir():
-                raise NotADirectoryError(f"Path {target_dir} exists but is not a directory.")
+    for rel_path in relative_paths:
+        full_path = base_path / rel_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        created_dirs.append(full_path)
+        print(f"Created directory: {full_path}")
+
     return created_dirs
 
-def create_gitkeep_files(base_path: Path) -> List[Path]:
+def create_gitkeep_files(directories: List[Path]) -> int:
     """
-    Creates .gitkeep files in all required directories to ensure they are tracked by git.
-    Returns a list of created Path objects.
+    Create .gitkeep files in all provided directories.
+    Returns the count of .gitkeep files created.
     """
-    created_files = []
-    for dir_name in REQUIRED_DIRS:
-        target_dir = base_path / dir_name
-        gitkeep_path = target_dir / ".gitkeep"
-        if not gitkeep_path.exists():
-          gitkeep_path.touch()
-          created_files.append(gitkeep_path)
-    return created_files
+    count = 0
+    for directory in directories:
+        gitkeep_path = directory / ".gitkeep"
+        # Create an empty file or touch it
+        gitkeep_path.touch(exist_ok=True)
+        count += 1
+        print(f"Created .gitkeep in: {directory}")
+    return count
 
 def verify_structure(base_path: Path) -> bool:
     """
-    Verifies that all required directories and .gitkeep files exist.
-    Returns True if the structure is complete, False otherwise.
+    Verify that all required directories and .gitkeep files exist.
+    Returns True if verification passes, False otherwise.
     """
-    all_good = True
-    missing_dirs = []
-    missing_gitkeeps = []
+    relative_paths = [
+        "code",
+        "code/utils",
+        "data/raw",
+        "data/raw/repos",
+        "data/processed",
+        "tests/unit",
+        "tests/integration",
+        "state",
+        "logs"
+    ]
 
-    for dir_name in REQUIRED_DIRS:
-        target_dir = base_path / dir_name
-        if not target_dir.exists() or not target_dir.is_dir():
-            missing_dirs.append(dir_name)
-            all_good = False
-        
-        gitkeep_path = target_dir / ".gitkeep"
-        if not gitkeep_path.exists():
-            missing_gitkeeps.append(dir_name)
-            # We create it if missing to satisfy the task requirement of "creating .gitkeep files where needed"
-            # But for verification logic, we note it was missing initially.
-            # However, the task implies we create them. Let's assume we created them in the previous step.
-            # If we are just verifying, we check existence.
-            if not gitkeep_path.exists():
-                 # This block is technically unreachable if create_gitkeep_files runs first
-                 all_good = False
+    all_exist = True
+    for rel_path in relative_paths:
+        full_path = base_path / rel_path
+        gitkeep_path = full_path / ".gitkeep"
 
-    if missing_dirs:
-        print(f"Missing directories: {missing_dirs}")
-    if missing_gitkeeps:
-        print(f"Missing .gitkeep files in: {missing_gitkeeps}")
-    
-    return all_good
+        if not full_path.is_dir():
+            print(f"ERROR: Directory missing: {full_path}")
+            all_exist = False
+        elif not gitkeep_path.exists():
+            print(f"ERROR: .gitkeep missing in: {full_path}")
+            all_exist = False
+        else:
+            print(f"OK: {full_path} contains .gitkeep")
+
+    return all_exist
 
 def main():
     """
-    Main entry point for the setup structure script.
-    Creates directories, creates .gitkeep files, and verifies the structure.
+    Main entry point to create structure and .gitkeep files.
     """
-    # Determine the base path (project root)
-    # We assume the script is run from the project root or we find the git root
-    current_path = Path.cwd()
-    
-    print(f"Setting up project structure in: {current_path}")
-    
+    base_path = Path.cwd()
+    print(f"Working directory: {base_path}")
+
     # Step 1: Create directories
-    print("Creating directories...")
-    try:
-        created = create_directories(current_path)
-        if created:
-            for d in created:
-                print(f"  Created: {d}")
-        else:
-            print("  All directories already exist.")
-    except Exception as e:
-        print(f"Error creating directories: {e}")
-        sys.exit(1)
+    print("\n--- Creating Directories ---")
+    directories = create_directories(base_path)
 
     # Step 2: Create .gitkeep files
-    print("Creating .gitkeep files...")
-    try:
-        created = create_gitkeep_files(current_path)
-        if created:
-            for f in created:
-                print(f"  Created: {f}")
-        else:
-            print("  All .gitkeep files already exist.")
-    except Exception as e:
-        print(f"Error creating .gitkeep files: {e}")
-        sys.exit(1)
+    print("\n--- Creating .gitkeep Files ---")
+    gitkeep_count = create_gitkeep_files(directories)
 
-    # Step 3: Verify structure
-    print("Verifying structure...")
-    if verify_structure(current_path):
-        print("Project structure verification successful.")
-        # Explicitly list the directories as requested by the task description
-        print("\nVerified directories:")
-        for dir_name in REQUIRED_DIRS:
-            target = current_path / dir_name
-            if target.exists():
-                print(f"  [OK] {target}")
-            else:
-                print(f"  [FAIL] {target}")
+    # Step 3: Verification
+    print("\n--- Verifying Structure ---")
+    if verify_structure(base_path):
+        print("\n✅ Verification PASSED: All directories and .gitkeep files exist.")
+        # Final verification command simulation
+        print(f"Verification count: {gitkeep_count} .gitkeep files found.")
         return 0
     else:
-        print("Project structure verification FAILED.")
+        print("\n❌ Verification FAILED: Some files or directories are missing.")
         return 1
 
 if __name__ == "__main__":

@@ -146,12 +146,20 @@ def main():
         logger.error("Consolidation resulted in no data. Aborting.")
         sys.exit(1)
 
-    # Step 3: Verify structure
+    # Step 3: Verify row count constraint (20 repos * 1000 methods = 20,000 max)
+    max_rows = 20000
+    total_rows = len(consolidated_data)
+    if total_rows > max_rows:
+        logger.error(f"Row count {total_rows} exceeds maximum allowed {max_rows}. Aborting.")
+        sys.exit(1)
+    logger.info(f"Row count verification passed: {total_rows} <= {max_rows}")
+
+    # Step 4: Verify structure
     if not verify_structure(consolidated_data):
         logger.error("Structure verification failed. Aborting.")
         sys.exit(1)
 
-    # Step 4: Save results
+    # Step 5: Save results
     save_results(consolidated_data, output_file)
 
     logger.info("Aggregation task completed successfully.")

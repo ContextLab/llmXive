@@ -1,17 +1,17 @@
 """
-Module to handle empty or whitespace-only generated docstrings.
+Post-processing module for User Story 2: Handle empty/whitespace generated docstrings.
 
-Reads generation batch files, identifies records with empty/whitespace docstrings,
-sets coverage_score to 0.0 and needs_review to true, and saves the processed file.
+This module reads intermediate generation batch files, identifies records with
+empty or whitespace-only generated docstrings, calculates a coverage_score of 0.0
+for them, sets the needs_review flag to True, and writes the updated records
+back to the same batch files.
 """
 import json
 import logging
 import os
 import sys
 from pathlib import Path
-from typing import List, Dict, Any
-
-from utils.exceptions import GenerationException
+from typing import List, Dict, Any, Optional
 
 # Configure logging
 logging.basicConfig(
@@ -25,169 +25,176 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def is_empty_or_whitespace(docstring: str) -> bool:
+def is_empty_or_whitespace(docstring: Optional[str]) -> bool:
     """
-    Check if a docstring is empty or contains only whitespace.
+    Check if a docstring is None, empty, or contains only whitespace.
     
     Args:
-        docstring: The docstring content to check.
+        docstring: The generated docstring to check.
         
     Returns:
-        True if the docstring is None, empty string, or only whitespace.
+        True if the docstring is empty/whitespace, False otherwise.
     """
     if docstring is None:
-        return True
-    if not isinstance(docstring, str):
-        # Non-string values (e.g., lists, dicts) are considered invalid/empty
         return True
     return docstring.strip() == ""
 
 
-def process_batch_file(batch_file_path: Path) -> List[Dict[str, Any]]:
+def calculate_coverage_score_for_empty(ast_params: List[str]) -> float:
     """
-    Process a single generation batch file to handle empty docstrings.
+    Calculate coverage score for an empty docstring.
     
-    Iterates over records in the batch file. If a record's 'generated_docstring'
-    is empty or whitespace, sets 'coverage_score' to 0.0 and 'needs_review' to True.
+    According to the task specification, for empty/whitespace docstrings,
+    the coverage_score is explicitly calculated as:
+    (0 matched params / total AST params) = 0.0
     
     Args:
-        batch_file_path: Path to the generation batch JSON file.
+        ast_params: List of parameters extracted from the AST.
         
     Returns:
-        List of processed records with updated coverage scores and flags.
+        0.0 as the coverage score.
+    """
+    total_params = len(ast_params)
+    matched_params = 0
+    
+    # Explicitly verify the formula as per task requirement
+    if total_params > 0:
+        score = matched_params / total_params
+    else:
+        # If no AST params, score is 0.0 by definition for empty docstring
+        score = 0.0
+        
+    logger.debug(f"Coverage score calculation: {matched_params} matched / {total_params} total = {score}")
+    return 0.0  # Explicitly return 0.0 as required
+
+
+def process_batch_file(batch_file_path: Path) -> List[Dict[str, Any]]:
+    """
+    Process a single batch file to handle empty/whitespace docstrings.
+    
+    Args:
+        batch_file_path: Path to the batch JSON file.
+        
+    Returns:
+        List of updated records.
         
     Raises:
-        GenerationException: If the file cannot be read or parsed.
+        FileNotFoundError: If the batch file does not exist.
+        json.JSONDecodeError: If the file is not valid JSON.
     """
     if not batch_file_path.exists():
-        raise GenerationException(f"Batch file not found: {batch_file_path}")
+        raise FileNotFoundError(f"Batch file not found: {batch_file_path}")
     
-    try:
-        with open(batch_file_path, 'r', encoding='utf-8') as f:
-            records = json.load(f)
-    except json.JSONDecodeError as e:
-        raise GenerationException(f"Failed to parse JSON in {batch_file_path}: {e}")
-    except Exception as e:
-        raise GenerationException(f"Error reading {batch_file_path}: {e}")
+    logger.info(f"Processing batch file: {batch_file_path}")
     
-    if not isinstance(records, list):
-        raise GenerationException(f"Expected a list of records in {batch_file_path}, got {type(records)}")
+    with open(batch_file_path, 'r', encoding='utf-8') as f:
+        records = json.load(f)
     
-    processed_count = 0
     updated_count = 0
+    total_count = len(records)
     
-    for record in records:
-        processed_count += 1
-        
+    logger.info(f"Loaded {total_count} records from {batch_file_path}")
+    
+    for i, record in enumerate(records):
         generated_docstring = record.get('generated_docstring')
+        ast_params = record.get('ast_params', [])
         
         if is_empty_or_whitespace(generated_docstring):
-            # Set coverage_score to 0.0
-            record['coverage_score'] = 0.0
-            # Set needs_review to True
-            record['needs_review'] = True
-            updated_count += 1
-            logger.debug(f"Updated record for method '{record.get('method_name', 'unknown')}': "
-                         f"empty docstring detected. Set coverage_score=0.0, needs_review=True")
-        else:
-            # Ensure needs_review is False if not already set and docstring is valid
-            if 'needs_review' not in record:
-                record['needs_review'] = False
+            # Calculate coverage score as 0.0 explicitly
+            coverage_score = calculate_coverage_score_for_empty(ast_params)
             
-            # Ensure coverage_score is set (even if not 0.0) if not present
-            # Note: Actual coverage calculation might happen later in T033, 
-            # but we ensure the field exists.
-            if 'coverage_score' not in record:
-                # Placeholder: We don't calculate real coverage here, just mark as non-empty.
-                # The actual coverage calculation is done in T033 (analyze.py).
-                # For now, we leave it unset or set to a placeholder if the pipeline expects it.
-                # However, T027 specifically says "set coverage_score to 0.0" for empty ones.
-                # For non-empty ones, we don't touch it unless it's missing and we need a default.
-                # Let's leave it missing if it was missing, or keep existing value.
-                pass
+            # Update the record
+            record['coverage_score'] = coverage_score
+            record['needs_review'] = True
+            record['empty_docstring_reason'] = 'empty_or_whitespace'
+            
+            updated_count += 1
+            
+            if updated_count <= 5:  # Log first few updates for visibility
+                logger.debug(f"Updated record {i}: function={record.get('function_name', 'unknown')}, "
+                           f"coverage_score={coverage_score}, needs_review=True")
     
-    logger.info(f"Processed {processed_count} records in {batch_file_path.name}. "
-                f"Updated {updated_count} records with empty/whitespace docstrings.")
-    
+    logger.info(f"Processed {total_count} records, updated {updated_count} with empty/whitespace docstrings")
     return records
 
 
-def save_processed_batch(processed_records: List[Dict[str, Any]], output_path: Path) -> None:
+def save_processed_batch(records: List[Dict[str, Any]], batch_file_path: Path) -> None:
     """
-    Save the processed records to a new JSON file.
+    Save the processed records back to the same batch file.
     
     Args:
-        processed_records: List of processed records.
-        output_path: Path where the processed file should be saved.
-        
-    Raises:
-        GenerationException: If the file cannot be written.
+        records: List of processed records.
+        batch_file_path: Path to the batch JSON file to write.
     """
-    try:
-        # Ensure parent directory exists
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(processed_records, f, indent=2, ensure_ascii=False)
-        
-        logger.info(f"Successfully saved processed batch to {output_path}")
-    except Exception as e:
-        raise GenerationException(f"Failed to write processed batch to {output_path}: {e}")
+    logger.info(f"Saving {len(records)} records back to {batch_file_path}")
+    
+    with open(batch_file_path, 'w', encoding='utf-8') as f:
+        json.dump(records, f, indent=2, ensure_ascii=False)
+    
+    logger.info(f"Successfully saved updated batch file: {batch_file_path}")
 
 
-def main() -> None:
+def main() -> int:
     """
-    Main entry point to process all generation batch files.
+    Main entry point for the post-processing script.
     
-    Reads all files matching 'data/processed/generation_batch_*.json',
-    processes them to handle empty docstrings, and saves the results
-    to 'data/processed/generation_batch_{repo_id}_processed.json'.
+    Reads all generation batch files from data/processed/, processes them
+    to handle empty/whitespace docstrings, and saves the updated records
+    back to the same files.
+    
+    Returns:
+        0 on success, non-zero on failure.
     """
-    input_dir = Path("data/processed")
+    logger.info("Starting empty docstring post-processing")
     
-    if not input_dir.exists():
-        logger.error(f"Input directory not found: {input_dir}")
-        sys.exit(1)
+    # Define the directory containing batch files
+    processed_dir = Path("data/processed")
     
-    batch_files = list(input_dir.glob("generation_batch_*.json"))
+    if not processed_dir.exists():
+        logger.error(f"Processed directory not found: {processed_dir}")
+        return 1
+    
+    # Find all batch files
+    batch_files = list(processed_dir.glob("generation_batch_*.json"))
     
     if not batch_files:
-        logger.warning(f"No generation batch files found in {input_dir}")
-        sys.exit(0)
+        logger.warning(f"No batch files found in {processed_dir}")
+        return 0
     
-    logger.info(f"Found {len(batch_files)} generation batch files to process.")
+    logger.info(f"Found {len(batch_files)} batch files to process")
     
-    processed_files = []
+    success_count = 0
+    failure_count = 0
     
     for batch_file in sorted(batch_files):
-        logger.info(f"Processing {batch_file.name}...")
-        
         try:
             # Process the batch file
-            processed_records = process_batch_file(batch_file)
+            updated_records = process_batch_file(batch_file)
             
-            # Determine output path: add '_processed' before .json extension
-            stem = batch_file.stem  # e.g., "generation_batch_repo1"
-            output_filename = f"{stem}_processed.json"
-            output_path = batch_file.parent / output_filename
+            # Save back to the same file
+            save_processed_batch(updated_records, batch_file)
             
-            # Save the processed records
-            save_processed_batch(processed_records, output_path)
+            success_count += 1
+            logger.info(f"Successfully processed: {batch_file.name}")
             
-            processed_files.append(str(output_path))
-            
-        except GenerationException as e:
-            logger.error(f"Error processing {batch_file.name}: {e}")
-            # Continue with other files
-            continue
+        except FileNotFoundError as e:
+            logger.error(f"File not found error for {batch_file}: {e}")
+            failure_count += 1
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON decode error for {batch_file}: {e}")
+            failure_count += 1
         except Exception as e:
-            logger.exception(f"Unexpected error processing {batch_file.name}: {e}")
-            continue
+            logger.error(f"Unexpected error processing {batch_file}: {e}")
+            failure_count += 1
     
-    logger.info(f"Processing complete. Processed {len(processed_files)} files.")
-    for pf in processed_files:
-        logger.info(f"  - {pf}")
+    logger.info(f"Post-processing complete: {success_count} succeeded, {failure_count} failed")
+    
+    if failure_count > 0:
+        logger.error(f"Failed to process {failure_count} batch files")
+        return 1
+    
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

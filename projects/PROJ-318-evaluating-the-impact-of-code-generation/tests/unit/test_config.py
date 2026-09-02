@@ -1,64 +1,115 @@
 """
-Unit tests for the configuration and environment management module.
+Unit tests for code/config.py (T002: Seed Pinning and Configuration).
 """
-import pytest
-import torch
 import os
+import random
+import numpy as np
+import pytest
 from unittest.mock import patch, MagicMock
 
 # Import the module under test
-from code.utils.config import (
-    get_device_and_dtype, 
-    validate_model_path, 
-    get_quantization_config,
-    RAM_LIMIT_GB
+from code.config import (
+    Config, 
+    ConfigException, 
+    get_config, 
+    set_global_seed, 
+    GLOBAL_SEED,
+    _config_instance
 )
 
-class TestGetDeviceAndDtype:
-    def test_cuda_available(self):
-        """Test that CUDA device is returned when available."""
-        with patch('torch.cuda.is_available', return_value=True):
-            device, dtype = get_device_and_dtype()
-            assert device.type == 'cuda'
-            assert dtype == torch.float16
+@pytest.fixture(autouse=True)
+def reset_config_singleton():
+    """Reset the config singleton before each test to ensure isolation."""
+    # Clear the singleton
+    import code.config
+    code.config._config_instance = None
+    yield
+    # Cleanup after test
+    code.config._config_instance = None
 
-    def test_cuda_unavailable_cpu_fallback(self):
-        """Test that CPU device and float32 are returned when CUDA is unavailable."""
-        with patch('torch.cuda.is_available', return_value=False):
-            device, dtype = get_device_and_dtype()
-            assert device.type == 'cpu'
-            assert dtype == torch.float32
+def test_config_defaults():
+    """Test that Config loads with correct default values."""
+    cfg = Config()
+    assert cfg.model_path == "Salesforce/codegen-350M-mono"
+    assert cfg.quantization_bits == 4
+    assert cfg.rate_limit_retries == 3
+    assert cfg.rate_limit_backoff == 5.0
+    assert cfg.max_memory_mb == 7000
+    assert cfg.device == "cpu"
+    assert cfg.seed == 42
 
-class TestValidateModelPath:
-    def test_valid_path(self):
-        """Test validation of a standard HuggingFace path."""
-        assert validate_model_path("Salesforce/codegen-350M-mono") is True
+def test_config_env_override():
+    """Test that Config respects environment variable overrides."""
+    with patch.dict(os.environ, {
+        "CODEGEN_MODEL_PATH": "custom/model",
+        "QUANTIZATION_BITS": "8",
+        "RATE_LIMIT_RETRIES": "5",
+        "MAX_MEMORY_MB": "10000",
+        "DEVICE": "cuda",
+        "RANDOM_SEED": "123"
+    }):
+        cfg = Config()
+        assert cfg.model_path == "custom/model"
+        assert cfg.quantization_bits == 8
+        assert cfg.rate_limit_retries == 5
+        assert cfg.max_memory_mb == 10000
+        assert cfg.device == "cuda"
+        assert cfg.seed == 123
 
-    def test_empty_path_raises(self):
-        """Test that an empty path raises ValueError."""
-        with pytest.raises(ValueError):
-            validate_model_path("")
+def test_config_invalid_quantization_bits():
+    """Test that Config raises an exception for invalid quantization bits."""
+    with patch.dict(os.environ, {"QUANTIZATION_BITS": "7"}):
+        with pytest.raises(ConfigException, match="Quantization bits must be 4, 8, 16, or 32"):
+            Config()
 
-    def test_none_path_raises(self):
-        """Test that a None path raises ValueError."""
-        with pytest.raises(ValueError):
-            validate_model_path(None)
+def test_config_invalid_device():
+    """Test that Config raises an exception for invalid device."""
+    with patch.dict(os.environ, {"DEVICE": "invalid_device"}):
+        with pytest.raises(ConfigException, match="Invalid device"):
+            Config()
 
-    def test_invalid_type_raises(self):
-        """Test that non-string path raises ValueError."""
-        with pytest.raises(ValueError):
-            validate_model_path(123)
+def test_seed_reproducibility():
+    """Test that set_global_seed produces deterministic results."""
+    # Set seed and generate data
+    set_global_seed(42)
+    result_1 = {
+        'random': random.random(),
+        'numpy': np.random.rand(5).tolist(),
+    }
+    
+    # Reset seed and generate data again
+    set_global_seed(42)
+    result_2 = {
+        'random': random.random(),
+        'numpy': np.random.rand(5).tolist(),
+    }
+    
+    # Results should be identical
+    assert result_1 == result_2
 
-class TestGetQuantizationConfig:
-    def test_cuda_available_returns_config(self):
-        """Test that quantization config is returned when CUDA is available."""
-        with patch('torch.cuda.is_available', return_value=True):
-            config = get_quantization_config()
-            assert config is not None
-            assert config["load_in_4bit"] is True
+def test_seed_different_values():
+    """Test that different seeds produce different results."""
+    set_global_seed(42)
+    result_1 = random.random()
+    
+    set_global_seed(123)
+    result_2 = random.random()
+    
+    # Results should be different (with very high probability)
+    assert result_1 != result_2
 
-    def test_cuda_unavailable_returns_none(self):
-        """Test that None is returned when CUDA is unavailable."""
-        with patch('torch.cuda.is_available', return_value=False):
-            config = get_quantization_config()
-            assert config is None
+def test_config_singleton():
+    """Test that get_config returns the same instance."""
+    cfg1 = get_config()
+    cfg2 = get_config()
+    assert cfg1 is cfg2
+
+def test_config_to_dict():
+    """Test that to_dict returns a correct dictionary representation."""
+    cfg = Config()
+    d = cfg.to_dict()
+    assert "model_path" in d
+    assert "quantization_bits" in d
+    assert "seed" in d
+    assert d["model_path"] == cfg.model_path
+    assert d["seed"] == cfg.seed

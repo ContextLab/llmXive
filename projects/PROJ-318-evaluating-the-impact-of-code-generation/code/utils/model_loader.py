@@ -1,5 +1,5 @@
 """
-Model loading utility with support for 4-bit quantization and strict abort on deviation.
+Model loading utility with support for 4-bit, 8-bit, and full precision quantization with strict fallback logic.
 Implements Constitution Principle VII: Strict adherence to specified model configuration.
 """
 import logging
@@ -9,7 +9,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers import BitsAndBytesConfig
 import traceback
 
-from code.utils.config import get_device_and_dtype, get_quantization_config, MODEL_PATH, logger
+from code.config import get_device_and_dtype, get_quantization_config, get_max_memory_mb, logger
 
 # Constitution Principle VII: Exact model path requirement
 CONSTITUTION_MODEL_PATH = "Salesforce/codegen-350M-mono"
@@ -23,27 +23,26 @@ class ModelDeviationException(ModelLoadException):
     pass
 
 def load_model(
-    model_path: str = MODEL_PATH,
+    model_path: str = CONSTITUTION_MODEL_PATH,
     use_4bit: bool = True
 ) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
     """
-    Loads the specified model with 4-bit quantization if possible.
-    
-    Implements the strict abort strategy:
-    1. Verify the model_path matches Constitution Principle VII exactly.
-    2. Attempt 4-bit quantization on GPU (if available).
-    3. If 4-bit fails or GPU unavailable, abort (do not fallback to synthetic or incorrect model).
+    Loads the specified model with a strict quantization fallback strategy:
+    1. Attempt 4-bit quantization.
+    2. If 4-bit fails, attempt 8-bit quantization.
+    3. If 8-bit fails, attempt full precision.
+    4. Abort only if all strategies fail.
     
     Args:
         model_path: Path to the model on HuggingFace Hub.
-        use_4bit: Flag to attempt 4-bit quantization.
+        use_4bit: Flag to attempt 4-bit quantization first.
         
     Returns:
         Tuple[AutoModelForCausalLM, AutoTokenizer]: The loaded model and tokenizer.
         
     Raises:
         ModelDeviationException: If the model_path does not match Constitution Principle VII.
-        ModelLoadException: If the model cannot be loaded or 4-bit quantization fails.
+        ModelLoadException: If the model cannot be loaded with any quantization strategy.
     """
     # Constitution Principle VII Verification
     if model_path != CONSTITUTION_MODEL_PATH:
@@ -55,17 +54,21 @@ def load_model(
     logger.info(f"Attempting to load model: {model_path} (Constitution Principle VII verified)")
     
     device, dtype = get_device_and_dtype()
-    logger.info(f"Target device: {device}, dtype: {dtype}")
+    max_memory_mb = get_max_memory_mb()
+    logger.info(f"Target device: {device}, dtype: {dtype}, max_memory_mb: {max_memory_mb}")
 
-    try:
-        tokenizer = AutoTokenizer.from_pretrained(model_path)
-        
-        # Ensure tokenizer has a pad token for generation
-        if tokenizer.pad_token is None:
-            tokenizer.pad_token = tokenizer.eos_token
+    tokenizer = None
+    model = None
+    last_exception = None
 
-        if device.type == "cuda" and use_4bit:
-            logger.info("Loading with 4-bit quantization on GPU.")
+    # Strategy 1: 4-bit Quantization
+    if use_4bit and device.type == "cuda":
+        logger.info("Attempt 1: Loading with 4-bit quantization on GPU.")
+        try:
+            tokenizer = AutoTokenizer.from_pretrained(model_path)
+            if tokenizer.pad_token is None:
+                tokenizer.pad_token = tokenizer.eos_token
+
             bnb_config = BitsAndBytesConfig(
                 load_in_4bit=True,
                 bnb_4bit_use_double_quant=True,
@@ -79,38 +82,66 @@ def load_model(
                 device_map="auto",
                 torch_dtype=dtype
             )
-        else:
-            # Strict abort logic: If we are not on CUDA or 4-bit is disabled,
-            # we must abort if the task requires 4-bit on GPU specifically.
-            if use_4bit and device.type != "cuda":
-                raise ModelLoadException(
-                    "4-bit quantization requested but GPU not available. "
-                    "Strict abort triggered per Constitution Principle VII constraints."
-                )
             
-            logger.warning("Falling back to standard loading (CPU or 8-bit/Full Precision) - Deviation from 4-bit target.")
+            # Verify quantization is active
+            if hasattr(model, "hf_device_map") and len(model.hf_device_map) > 0:
+                logger.info("4-bit quantization verified: Model loaded on devices.")
+            else:
+                logger.warning("Model loaded but device_map check inconclusive.")
+            
+            logger.info("SUCCESS: Model loaded with 4-bit quantization.")
+            return model, tokenizer
+
+        except Exception as e:
+            last_exception = e
+            logger.warning(f"4-bit quantization failed: {e}. Retrying with 8-bit.")
+
+    # Strategy 2: 8-bit Quantization
+    if device.type == "cuda":
+        logger.info("Attempt 2: Loading with 8-bit quantization on GPU.")
+        try:
+            if tokenizer is None:
+                tokenizer = AutoTokenizer.from_pretrained(model_path)
+                if tokenizer.pad_token is None:
+                    tokenizer.pad_token = tokenizer.eos_token
+
             model = AutoModelForCausalLM.from_pretrained(
                 model_path,
-                torch_dtype=dtype,
-                device_map="auto" if device.type == "cuda" else None,
-                load_in_8bit=(device.type == "cuda" and not use_4bit)
+                load_in_8bit=True,
+                device_map="auto",
+                torch_dtype=dtype
             )
+            logger.info("SUCCESS: Model loaded with 8-bit quantization.")
+            return model, tokenizer
 
-        # Verify model integrity
-        if model is None:
-            raise ModelLoadException("Model failed to load (returned None).")
+        except Exception as e:
+            last_exception = e
+            logger.warning(f"8-bit quantization failed: {e}. Retrying with full precision.")
 
-        # Verify model name matches expectation (internal check)
-        if model.config._name_or_path != CONSTITUTION_MODEL_PATH:
-            logger.warning(f"Loaded model config name '{model.config._name_or_path}' differs from expected '{CONSTITUTION_MODEL_PATH}'.")
+    # Strategy 3: Full Precision
+    logger.info("Attempt 3: Loading with full precision.")
+    try:
+        if tokenizer is None:
+            tokenizer = AutoTokenizer.from_pretrained(model_path)
+            if tokenizer.pad_token is None:
+                tokenizer.pad_token = tokenizer.eos_token
 
-        logger.info(f"Model loaded successfully on {device}.")
+        model = AutoModelForCausalLM.from_pretrained(
+            model_path,
+            torch_dtype=dtype,
+            device_map="auto" if device.type == "cuda" else None
+        )
+        logger.info("SUCCESS: Model loaded with full precision.")
         return model, tokenizer
 
-    except ModelDeviationException:
-        # Re-raise deviation exceptions immediately
-        raise
     except Exception as e:
-        logger.error(f"Failed to load model: {e}")
-        logger.error(traceback.format_exc())
-        raise ModelLoadException(f"Model loading failed for {model_path}: {str(e)}")
+        last_exception = e
+        logger.error(f"Full precision loading failed: {e}")
+
+    # All strategies failed
+    error_msg = (
+        f"Failed to load model '{model_path}' with any quantization strategy (4-bit, 8-bit, full). "
+        f"Last error: {str(last_exception)}"
+    )
+    logger.error(error_msg)
+    raise ModelLoadException(error_msg)
