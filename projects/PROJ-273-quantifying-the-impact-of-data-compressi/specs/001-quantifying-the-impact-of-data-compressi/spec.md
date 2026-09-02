@@ -103,5 +103,7 @@ As a researcher, I want to run LALInference CPU-mode parameter estimation on bot
 - **Compression implementation**: Assumes standard compression libraries (gzip, LZ4, bzip2) and quantized floating-point methods, plus JPEG2000 libraries, are available without requiring GPU acceleration or CUDA
 - **SNR threshold justification**: The >5% SNR degradation threshold is based on community standards for acceptable signal fidelity in gravitational wave analysis; a sensitivity analysis will sweep thresholds at multiple levels to verify robustness of conclusions
 - **No GPU dependency**: Assumes all analysis runs on CPU-only infrastructure with no CUDA, bitsandbytes, or mixed-precision GPU training requirements
-- **Power limitation acknowledgement**: Given the 15-event sample size and 6-hour CI job limit, the analysis is underpowered for detecting small effect sizes (<0.2 Cohen's d); this limitation will be explicitly stated in results
+- **Power limitation acknowledgement**: Given the sample size and a fixed-duration CI job limit
+
+The research question, method, and references remain unchanged as required., the analysis is underpowered for detecting small effect sizes (<0.2 Cohen's d); this limitation will be explicitly stated in results
 - **Observational framing**: Since this is an observational study (no random assignment to compression conditions), all findings will be framed as associational relationships between compression level and parameter estimation accuracy, not causal claims

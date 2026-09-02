@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-273-quantifying-the-impact-of-data-compressi",
+  "tasks": [
+    {
+      "task_key": "T020",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: src/data/main.py",
+      "first_seen": "2026-09-02T08:11:17.062778+00:00",
+      "last_seen": "2026-09-02T08:11:17.062778+00:00"
+    }
+  ],
+  "updated_at": "2026-09-02T08:11:17.062778+00:00"
+}

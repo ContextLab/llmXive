@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project quantifies the impact of lossless and lossy data compression on the accuracy of gravitational wave (GW) signal reconstruction and parameter estimation for Compact Binary Coalescence (CBC) events. Due to the computational infeasibility of running full LALInference MCMC convergence on free-tier CI (2-core/7GB/6h), the methodology has been revised to a **Feasibility Pilot**. The approach involves: (1) Generating synthetic CBC signals with known ground truth using `LALSimulation` injected into real GW noise; (2) Establishing a `Bias_Original` baseline from a pre-converged external run; (3) Applying compression (Lossless: gzip, LZ4, bzip2; Lossy: Quantization, Wavelet Thresholding, and **JPEG2000 via 1D-to-2D folding**) on CI; (4) Running a "Fast PE" approximation (e.g., `Bilby` with `Dynesty`, reduced iterations) to measure relative bias degradation (`Delta_Bias`). The primary metric is `Delta_Bias` (Posterior Mean - True Value), independent of SNR.
+This project quantifies the impact of lossless and lossy data compression on the accuracy of gravitational wave (GW) signal reconstruction and parameter estimation for Compact Binary Coalescence (CBC) events. Due to the computational infeasibility of running full LALInference MCMC convergence on free-tier CI (-core/7GB/6h), the methodology has been revised to a **Feasibility Pilot**. The approach involves: (1) Generating synthetic CBC signals with known ground truth using `LALSimulation` injected into real GW noise; (2) Establishing a `Bias_Original` baseline from a pre-converged external run; (3) Applying compression (Lossless: gzip, LZ4, bzip2; Lossy: Quantization, Wavelet Thresholding, and **JPEG2000 via 1D-to-2D folding**) on CI; (4) Running a "Fast PE" approximation (e.g., `Bilby` with `Dynesty`, reduced iterations) to measure relative bias degradation (`Delta_Bias`). The primary metric is `Delta_Bias` (Posterior Mean - True Value), independent of SNR.
 
 ## Technical Context
 
@@ -13,7 +13,7 @@ This project quantifies the impact of lossless and lossy data compression on the
 **Primary Dependencies**: `numpy`, `scipy`, `pandas`, `h5py`, `lalsimulation`, `bilby`, `dynesty`, `gwosc`, `lz4`, `pywavelets`, `astropy`, `pillow` (for JPEG2000 folding)
 **Storage**: Local filesystem; raw data in `data/raw/`, processed in `data/interim/`
 **Testing**: `pytest` (unit tests for compression logic; integration tests for pipeline flow)
-**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7GB RAM, no GPU)
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, moderate RAM, no GPU)
 **Project Type**: Scientific Research Pipeline / CLI
 **Performance Goals**: Full pipeline execution ≤ 6 hours; single event "Fast PE" ≤ 2 hours; memory usage < 6 GB.
 **Constraints**: No GPU/CUDA; no full LALInference MCMC on CI (infeasible); use of external baseline for `Bias_Original`; synthetic injections required for ground truth.

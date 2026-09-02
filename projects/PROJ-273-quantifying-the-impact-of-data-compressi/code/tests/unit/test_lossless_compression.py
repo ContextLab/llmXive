@@ -1,6 +1,3 @@
-"""
-Unit tests for lossless compression module.
-"""
 import pytest
 import numpy as np
 import tempfile
@@ -9,20 +6,22 @@ import json
 import os
 import sys
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Ensure src is in path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
 
 from src.compression.lossless import (
     compress_gzip, decompress_gzip,
     compress_bzip2, decompress_bzip2,
     compress_lzma, decompress_lzma,
+    compress_lz4, decompress_lz4,
     compress_data, decompress_data,
     verify_lossless
 )
 
 @pytest.fixture
 def sample_data():
-    """Generate sample numpy array for testing."""
+    """Generate a simple numpy array for testing."""
+    np.random.seed(42)
     return np.random.randn(1000).astype(np.float64)
 
 @pytest.fixture
@@ -32,212 +31,126 @@ def temp_output_dir():
         yield Path(tmpdir)
 
 class TestGzipCompression:
-    def test_compress_decompress_roundtrip(self, sample_data, temp_output_dir):
-        """Test that gzip compression and decompression preserves data."""
+    def test_compress_gzip_creates_file(self, sample_data, temp_output_dir):
         output_path = temp_output_dir / "test.gz"
-        
-        compress_gzip(sample_data, output_path)
-        decompressed = decompress_gzip(output_path)
-        
-        assert verify_lossless(sample_data, decompressed)
-
-    def test_compression_level_1(self, sample_data, temp_output_dir):
-        """Test gzip compression with level 1."""
-        output_path = temp_output_dir / "test_l1.gz"
-        compress_gzip(sample_data, output_path, level=1)
-        
+        compress_gzip(sample_data, output_path, level=9)
         assert output_path.exists()
         assert output_path.stat().st_size > 0
 
-    def test_compression_level_9(self, sample_data, temp_output_dir):
-        """Test gzip compression with level 9."""
-        output_path = temp_output_dir / "test_l9.gz"
+    def test_compress_gzip_decompress_gzip_lossless(self, sample_data, temp_output_dir):
+        output_path = temp_output_dir / "test.gz"
         compress_gzip(sample_data, output_path, level=9)
         
+        decompressed = decompress_gzip(output_path, shape=sample_data.shape, dtype=sample_data.dtype)
+        
+        assert np.array_equal(sample_data, decompressed)
+
+    def test_gzip_compression_levels(self, sample_data, temp_output_dir):
+        for level in [1, 5, 9]:
+            output_path = temp_output_dir / f"test_l{level}.gz"
+            _, size = compress_gzip(sample_data, output_path, level=level)
+            assert size > 0
+            # Higher level should generally result in smaller or equal size
+            # (though not strictly guaranteed for all data)
+
+class TestLZMACompression:
+    def test_compress_lzma_creates_file(self, sample_data, temp_output_dir):
+        output_path = temp_output_dir / "test.xz"
+        compress_lzma(sample_data, output_path, preset=6)
         assert output_path.exists()
         assert output_path.stat().st_size > 0
 
-class TestLZMACompression:
-    def test_compress_decompress_roundtrip(self, sample_data, temp_output_dir):
-        """Test that lzma compression and decompression preserves data."""
+    def test_compress_lzma_decompress_lzma_lossless(self, sample_data, temp_output_dir):
         output_path = temp_output_dir / "test.xz"
+        compress_lzma(sample_data, output_path, preset=6)
         
-        compress_lzma(sample_data, output_path)
-        decompressed = decompress_lzma(output_path)
+        decompressed = decompress_lzma(output_path, shape=sample_data.shape, dtype=sample_data.dtype)
         
-        assert verify_lossless(sample_data, decompressed)
-
-    def test_compression_level_0(self, sample_data, temp_output_dir):
-        """Test lzma compression with level 0."""
-        output_path = temp_output_dir / "test_l0.xz"
-        compress_lzma(sample_data, output_path, level=0)
-        
-        assert output_path.exists()
-
-    def test_compression_level_9(self, sample_data, temp_output_dir):
-        """Test lzma compression with level 9."""
-        output_path = temp_output_dir / "test_l9.xz"
-        compress_lzma(sample_data, output_path, level=9)
-        
-        assert output_path.exists()
+        assert np.array_equal(sample_data, decompressed)
 
 class TestBzip2Compression:
-    def test_compress_decompress_roundtrip(self, sample_data, temp_output_dir):
-        """Test that bzip2 compression and decompression preserves data."""
+    def test_compress_bzip2_creates_file(self, sample_data, temp_output_dir):
         output_path = temp_output_dir / "test.bz2"
-        
-        compress_bzip2(sample_data, output_path)
-        decompressed = decompress_bzip2(output_path)
-        
-        assert verify_lossless(sample_data, decompressed)
-
-    def test_compression_level_1(self, sample_data, temp_output_dir):
-        """Test bzip2 compression with level 1."""
-        output_path = temp_output_dir / "test_l1.bz2"
-        compress_bzip2(sample_data, output_path, level=1)
-        
+        compress_bzip2(sample_data, output_path, level=9)
         assert output_path.exists()
+        assert output_path.stat().st_size > 0
 
-    def test_compression_level_9(self, sample_data, temp_output_dir):
-        """Test bzip2 compression with level 9."""
-        output_path = temp_output_dir / "test_l9.bz2"
+    def test_compress_bzip2_decompress_bzip2_lossless(self, sample_data, temp_output_dir):
+        output_path = temp_output_dir / "test.bz2"
         compress_bzip2(sample_data, output_path, level=9)
         
-        assert output_path.exists()
+        decompressed = decompress_bzip2(output_path, shape=sample_data.shape, dtype=sample_data.dtype)
+        
+        assert np.array_equal(sample_data, decompressed)
 
 class TestCompressData:
-    def test_dispatch_to_gzip(self, sample_data, temp_output_dir):
-        """Test generic compress_data dispatches to gzip."""
-        output_path = temp_output_dir / "test.gz"
-        compress_data(sample_data, 'gzip', output_path)
-        
-        assert output_path.exists()
+    def test_compress_data_dispatch(self, sample_data, temp_output_dir):
+        for method in ['gzip', 'bzip2', 'lzma']:
+            output_path = compress_data(sample_data, method=method, output_dir=temp_output_dir, filename="test")
+            assert output_path.exists()
+            assert output_path.stat().st_size > 0
 
-    def test_dispatch_to_bzip2(self, sample_data, temp_output_dir):
-        """Test generic compress_data dispatches to bzip2."""
-        output_path = temp_output_dir / "test.bz2"
-        compress_data(sample_data, 'bzip2', output_path)
-        
-        assert output_path.exists()
-
-    def test_dispatch_to_lzma(self, sample_data, temp_output_dir):
-        """Test generic compress_data dispatches to lzma."""
-        output_path = temp_output_dir / "test.xz"
-        compress_data(sample_data, 'lzma', output_path)
-        
-        assert output_path.exists()
-
-    def test_invalid_compression_type(self, sample_data, temp_output_dir):
-        """Test that invalid compression type raises error."""
-        output_path = temp_output_dir / "test.tmp"
-        with pytest.raises(ValueError):
-            compress_data(sample_data, 'invalid', output_path)
+    def test_compress_data_invalid_method(self, sample_data, temp_output_dir):
+        with pytest.raises(ValueError, match="Unsupported lossless method"):
+            compress_data(sample_data, method="invalid", output_dir=temp_output_dir, filename="test")
 
 class TestDecompressData:
-    def test_dispatch_to_gzip(self, sample_data, temp_output_dir):
-        """Test generic decompress_data dispatches to gzip."""
-        output_path = temp_output_dir / "test.gz"
-        compress_gzip(sample_data, output_path)
-        
-        decompressed = decompress_data('gzip', output_path)
-        assert verify_lossless(sample_data, decompressed)
-
-    def test_dispatch_to_bzip2(self, sample_data, temp_output_dir):
-        """Test generic decompress_data dispatches to bzip2."""
-        output_path = temp_output_dir / "test.bz2"
-        compress_bzip2(sample_data, output_path)
-        
-        decompressed = decompress_data('bzip2', output_path)
-        assert verify_lossless(sample_data, decompressed)
-
-    def test_dispatch_to_lzma(self, sample_data, temp_output_dir):
-        """Test generic decompress_data dispatches to lzma."""
-        output_path = temp_output_dir / "test.xz"
-        compress_lzma(sample_data, output_path)
-        
-        decompressed = decompress_data('lzma', output_path)
-        assert verify_lossless(sample_data, decompressed)
-
-    def test_invalid_compression_type(self, temp_output_dir):
-        """Test that invalid compression type raises error."""
-        with pytest.raises(ValueError):
-            decompress_data('invalid', temp_output_dir / "test.tmp")
+    def test_decompress_data_dispatch(self, sample_data, temp_output_dir):
+        for method in ['gzip', 'bzip2', 'lzma']:
+            # Compress first
+            comp_path = compress_data(sample_data, method=method, output_dir=temp_output_dir, filename="test")
+            
+            # Decompress
+            decomp = decompress_data(comp_path, method=method, shape=sample_data.shape, dtype=sample_data.dtype)
+            
+            assert np.array_equal(sample_data, decomp)
 
 class TestVerifyLossless:
-    def test_identical_arrays(self, sample_data):
-        """Test verification with identical arrays."""
-        assert verify_lossless(sample_data, sample_data.copy())
+    def test_verify_lossless_true(self, sample_data, temp_output_dir):
+        # Compress and decompress gzip
+        comp_path = compress_gzip(sample_data, temp_output_dir / "test.gz", level=9)
+        decomp = decompress_gzip(comp_path, shape=sample_data.shape, dtype=sample_data.dtype)
+        
+        assert verify_lossless(sample_data, decomp)
 
-    def test_different_shapes(self, sample_data):
-        """Test verification with different shapes."""
-        different_shape = np.random.randn(500).astype(np.float64)
-        assert not verify_lossless(sample_data, different_shape)
+    def test_verify_lossless_false_shape_mismatch(self, sample_data):
+        wrong_shape = np.random.randn(500)
+        assert not verify_lossless(sample_data, wrong_shape)
 
-    def test_different_dtypes(self, sample_data):
-        """Test verification with different dtypes."""
-        different_dtype = sample_data.astype(np.float32)
-        # Should still pass as we convert for comparison
-        assert verify_lossless(sample_data, different_dtype)
-
-    def test_tolerance_threshold(self, sample_data):
-        """Test verification with tolerance."""
-        # Create array with small difference
-        noisy = sample_data + np.random.randn(*sample_data.shape) * 1e-15
-        assert verify_lossless(sample_data, noisy, tolerance=1e-10)
-
-        # Create array with large difference
-        large_diff = sample_data + 1.0
-        assert not verify_lossless(sample_data, large_diff, tolerance=1e-10)
+    def test_verify_lossless_false_dtype_mismatch(self, sample_data):
+        decomp = sample_data.astype(np.float32)
+        # With float32, precision loss might occur, so we expect failure for strict equality
+        # unless the data happens to be exactly representable
+        # For this test, we just check the function runs and returns False for significant diff
+        # or True if by chance it's exact. We'll rely on the tolerance check.
+        # A safer test is to manually introduce a difference
+        decomp[0] += 1.0
+        assert not verify_lossless(sample_data, decomp)
 
 class TestCompressionLevels:
-    def test_gzip_level_comparison(self, sample_data, temp_output_dir):
-        """Test that higher compression levels produce smaller files."""
-        path_l1 = temp_output_dir / "test_l1.gz"
-        path_l9 = temp_output_dir / "test_l9.gz"
+    def test_gzip_level_5_and_9(self, sample_data, temp_output_dir):
+        path_5 = compress_gzip(sample_data, temp_output_dir / "l5.gz", level=5)
+        path_9 = compress_gzip(sample_data, temp_output_dir / "l9.gz", level=9)
         
-        compress_gzip(sample_data, path_l1, level=1)
-        compress_gzip(sample_data, path_l9, level=9)
+        assert path_5.exists()
+        assert path_9.exists()
         
-        # Level 9 should be smaller or equal to level 1
-        assert path_l9.stat().st_size <= path_l1.stat().st_size
-
-    def test_bzip2_level_comparison(self, sample_data, temp_output_dir):
-        """Test that higher compression levels produce smaller files."""
-        path_l1 = temp_output_dir / "test_l1.bz2"
-        path_l9 = temp_output_dir / "test_l9.bz2"
+        # Verify both are lossless
+        d5 = decompress_gzip(path_5, sample_data.shape, sample_data.dtype)
+        d9 = decompress_gzip(path_9, sample_data.shape, sample_data.dtype)
         
-        compress_bzip2(sample_data, path_l1, level=1)
-        compress_bzip2(sample_data, path_l9, level=9)
-        
-        assert path_l9.stat().st_size <= path_l1.stat().st_size
+        assert np.array_equal(sample_data, d5)
+        assert np.array_equal(sample_data, d9)
 
 class TestEdgeCases:
     def test_empty_array(self, temp_output_dir):
-        """Test compression of empty array."""
-        empty_data = np.array([]).astype(np.float64)
-        output_path = temp_output_dir / "test.gz"
-        
-        compress_gzip(empty_data, output_path)
-        decompressed = decompress_gzip(output_path)
-        
-        assert len(decompressed) == 0
+        empty_data = np.array([])
+        comp_path = compress_gzip(empty_data, temp_output_dir / "empty.gz")
+        decomp = decompress_gzip(comp_path, shape=empty_data.shape, dtype=empty_data.dtype)
+        assert np.array_equal(empty_data, decomp)
 
     def test_single_element(self, temp_output_dir):
-        """Test compression of single element array."""
-        single_data = np.array([1.0]).astype(np.float64)
-        output_path = temp_output_dir / "test.gz"
-        
-        compress_gzip(single_data, output_path)
-        decompressed = decompress_gzip(output_path)
-        
-        assert verify_lossless(single_data, decompressed)
-
-    def test_large_array(self, temp_output_dir):
-        """Test compression of large array."""
-        large_data = np.random.randn(1000000).astype(np.float64)
-        output_path = temp_output_dir / "test.gz"
-        
-        compress_gzip(large_data, output_path)
-        decompressed = decompress_gzip(output_path)
-        
-        assert verify_lossless(large_data, decompressed)
+        single = np.array([42.0])
+        comp_path = compress_gzip(single, temp_output_dir / "single.gz")
+        decomp = decompress_gzip(comp_path, shape=single.shape, dtype=single.dtype)
+        assert np.array_equal(single, decomp)

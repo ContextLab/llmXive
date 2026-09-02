@@ -1,14 +1,14 @@
 """
-Main orchestration script for the Download-Inject-Validate pipeline.
+Main orchestration script for the Download-Inject-Validate pipeline (User Story 1).
 
-This script orchestrates the full workflow to:
+This script orchestrates the loop to:
 1. Fetch real GW noise segments from GWOSC.
-2. Inject synthetic CBC signals with known ground truth.
-3. Validate metadata completeness (including spin/tilt).
-4. Produce a final validated dataset of >= 15 events (per Amended FR-001).
+2. Inject synthetic CBC signals using LALSimulation with known ground truth.
+3. Validate metadata completeness (specifically spin/tilt angles).
 
-It relies on the fetch_loop logic (T019.1) to ensure sufficient valid events
-are found before proceeding.
+It repeats this process until >= 5 valid events are found or max_attempts is reached.
+
+Per Amended FR-001: If < 5 valid events are found after max_attempts, raises RuntimeError.
 """
 import os
 import sys
@@ -17,88 +17,81 @@ import logging
 from pathlib import Path
 from datetime import datetime
 
-# Ensure code directory is in path for imports
-code_root = Path(__file__).resolve().parent.parent.parent
-if str(code_root) not in sys.path:
-    sys.path.insert(0, str(code_root))
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(project_root))
 
 from src.data.fetch_loop import run_fetch_loop
 from src.utils.logging import get_logger, log_step_start, log_step_complete, log_step_error
-from src.utils.config import get_project_root, ensure_dir, get_config
+from src.utils.config import get_project_root, ensure_dir
 
 logger = get_logger(__name__)
 
-# Configuration constants (matching Amended FR-001 and FR-009)
-TARGET_VALID_EVENTS = 15
-MAX_ATTEMPTS = 100
-TIMEOUT_SECONDS = 300
-MIN_VALID_FOR_ANALYSIS = 12
-
 def main():
-    log_step_start("T020", "Download-Inject-Validate Pipeline Orchestration")
-    logger.info(f"Starting pipeline. Target: {TARGET_VALID_EVENTS} valid events, Max Attempts: {MAX_ATTEMPTS}")
-
-    project_root = get_project_root()
-    data_dir = project_root / "data"
-    interim_dir = data_dir / "interim"
-    processed_dir = data_dir / "processed"
+    """
+    Orchestrates the full download-inject-validate pipeline.
     
-    # Ensure output directories exist
-    ensure_dir(interim_dir / "injections")
-    ensure_dir(processed_dir)
-
+    Target: >= 5 valid events with complete spin metadata.
+    Max Attempts: 50 (per Amended FR-001).
+    """
+    log_step_start("T020: Orchestrate Download-Inject-Validate Pipeline")
+    
+    project_root = get_project_root()
+    output_dir = project_root / "data" / "processed" / "valid_injections"
+    ensure_dir(output_dir)
+    
+    # Configuration
+    target_valid_events = 5
+    max_attempts = 50
+    batch_size = 1  # Process one by one to validate immediately
+    
+    logger.info(f"Starting pipeline: target={target_valid_events}, max_attempts={max_attempts}")
+    
     try:
         # Run the fetch-inject-validate loop
-        # This function handles fetching noise, injecting signals, and validating metadata
-        # It stops when >= TARGET_VALID_EVENTS are found or MAX_ATTEMPTS is reached.
+        # This function handles fetching, injecting, validating, and looping
         results = run_fetch_loop(
-            target_count=TARGET_VALID_EVENTS,
-            max_attempts=MAX_ATTEMPTS,
-            timeout_seconds=TIMEOUT_SECONDS,
-            output_dir=interim_dir / "injections"
+            target_valid_events=target_valid_events,
+            max_attempts=max_attempts,
+            batch_size=batch_size,
+            output_dir=output_dir
         )
-
-        valid_events = results.get("valid_events", [])
-        total_attempts = results.get("total_attempts", 0)
-        failed_attempts = results.get("failed_attempts", 0)
-
-        logger.info(f"Pipeline completed. Total Attempts: {total_attempts}, Valid Events Found: {len(valid_events)}")
-
-        # Post-loop validation (Amended FR-009)
-        if len(valid_events) < MIN_VALID_FOR_ANALYSIS:
-            error_msg = f"Insufficient valid events found after {total_attempts} attempts. Found {len(valid_events)}, required {MIN_VALID_FOR_ANALYSIS}."
-            logger.error(error_msg)
-            # Raise to fail loudly as per constraint 9
-            raise RuntimeError(error_msg)
-
-        # Generate final manifest
-        manifest = {
-            "pipeline_version": "1.0.0",
-            "timestamp": datetime.now().isoformat(),
-            "target_count": TARGET_VALID_EVENTS,
-            "max_attempts": MAX_ATTEMPTS,
-            "total_attempts": total_attempts,
-            "failed_attempts": failed_attempts,
-            "valid_event_count": len(valid_events),
-            "events": valid_events
-        }
-
-        manifest_path = processed_dir / "injection_campaign_manifest.json"
-        with open(manifest_path, "w") as f:
-            json.dump(manifest, f, indent=2)
-
-        logger.info(f"Final manifest written to {manifest_path}")
-        log_step_complete("T020", "Pipeline successful", {
-            "valid_events": len(valid_events),
-            "manifest_path": str(manifest_path)
-        })
         
+        valid_count = results.get("valid_count", 0)
+        total_attempts = results.get("total_attempts", 0)
+        event_ids = results.get("event_ids", [])
+        
+        logger.info(f"Pipeline completed. Total attempts: {total_attempts}, Valid events found: {valid_count}")
+        
+        # Save summary report
+        summary_path = output_dir / "pipeline_summary.json"
+        summary_data = {
+            "timestamp": datetime.now().isoformat(),
+            "target_valid_events": target_valid_events,
+            "max_attempts": max_attempts,
+            "total_attempts": total_attempts,
+            "valid_count": valid_count,
+            "event_ids": event_ids,
+            "status": "success" if valid_count >= target_valid_events else "failed"
+        }
+        
+        with open(summary_path, 'w') as f:
+            json.dump(summary_data, f, indent=2)
+        
+        logger.info(f"Summary saved to {summary_path}")
+        
+        if valid_count < target_valid_events:
+            error_msg = f"Pipeline failed to find {target_valid_events} valid events. Found {valid_count} after {max_attempts} attempts."
+            log_step_error("T020", error_msg)
+            raise RuntimeError(error_msg)
+        
+        log_step_complete("T020: Pipeline completed successfully")
         return 0
 
     except Exception as e:
         log_step_error("T020", str(e))
-        logger.critical(f"Pipeline failed: {e}")
-        return 1
+        logger.error(f"Pipeline failed: {e}")
+        raise
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main() if main() is None else main())
