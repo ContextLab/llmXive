@@ -9,3 +9,6 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T017b** — declared artifact(s) missing/empty/invalid: data/processed/roi_timecourses.csv
 - **T017c** — declared artifact(s) missing/empty/invalid: data/processed/roi_timecourses.csv, schema.yaml
 - **T019** — The required output file `data/text/rocstories_sample.jsonl` is missing, so the corpus was not downloaded and sampled as specified. No evidence of a valid JSONL file with `story` and `id` fields is present.
+- **T019a** — declared artifact(s) missing/empty/invalid: data/text/rocstories_sample.jsonl, data/text/rocstories_sample_boundaries.jsonl
+- **T021a** — declared artifact(s) missing/empty/invalid: data/text/rocstories_sample_boundaries.jsonl, data/processed/event_averages_tmp.csv
+- **T021b** — The required artifact `data/processed/event_averages.csv` does not exist, so the task’s output is missing entirely. Without the CSV file (with the specified columns and schema validation), the requirement is not satisfied.

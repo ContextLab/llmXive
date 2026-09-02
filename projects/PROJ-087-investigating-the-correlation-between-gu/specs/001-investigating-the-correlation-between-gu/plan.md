@@ -1,47 +1,53 @@
 # Implementation Plan: Investigating the Correlation Between Gut Microbiome Composition and Sleep Quality
 
-**Branch**: `001-gene-regulation` | **Date**: 2026-06-26 | **Spec**: `specs/001-gene-regulation/spec.md`
-**Input**: Feature specification from `specs/001-gene-regulation/spec.md`
-**Status**: **BLOCKED** (Data Availability Gap)
+**Branch**: `001-gene-regulation` | **Date**: 2026-06-26 | **Spec**: `specs/001-investigating-the-correlation-between-gu/spec.md`
+**Input**: Feature specification from `specs/001-investigating-the-correlation-between-gu/spec.md`
 
 ## Summary
 
-This plan implements a statistical pipeline to investigate the correlation between gut microbiome alpha-diversity indices and sleep quality metrics. **CRITICAL STATUS**: The project is currently **BLOCKED** because the provided "# Verified datasets" block contains NO dataset that includes both 16S rRNA OTU data AND sleep quality metrics (efficiency, duration). The American Gut Project (AGP) is assumed in the spec, but no verified URL for AGP with sleep metadata exists in the provided list.
+This project implements a **Feasibility Verification** pipeline to determine if the correlation between gut microbiome alpha-diversity and sleep quality can be investigated using public datasets.
 
-The pipeline is designed to **fail fast** if a valid source is not found, preventing any attempt to run on mismatched or missing data. The implementation includes a mandatory "Data Feasibility Check" that must pass before any analysis code is executed.
+**CRITICAL STATUS**: The project is **TERMINATED** for this revision. The `# Verified datasets` block provided for this revision contains **NO** verified URL for the American Gut Project (AGP) with the specific required variables (`antibiotic_use_last_3m`, `sleep_efficiency`, `sleep_duration_hours`).
+
+The **ONLY** valid deliverable for this revision is a **Feasibility Report** (JSON and Markdown) that documents this termination. No statistical analysis (Spearman, BH correction, alpha-diversity) will be performed. The research question is currently unanswerable with available resources.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `scikit-bio`, `scipy`, `matplotlib`, `seaborn`, `requests`  
-**Storage**: Local CSV/Parquet files (no external DB)  
-**Testing**: `pytest`  
-**Target Platform**: Linux (GitHub Actions `ubuntu-latest`)  
-**Project Type**: Data analysis pipeline  
-**Performance Goals**: Complete analysis within 6 hours, memory usage < 7 GB (if data were available)  
-**Constraints**: No GPU, no heavy LLM inference, **must halt if data source is missing**  
-**Scale/Scope**: Public dataset processing (currently unfeasible due to missing data)
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `pandas`, `numpy`, `pyyaml` (for feasibility check only)
+**Storage**: Local filesystem (`data/`, `outputs/`)
+**Testing**: `pytest` (unit tests for feasibility check logic, schema validation)
+**Target Platform**: GitHub Actions `ubuntu-latest` (2 vCPUs, ~7 GB RAM)
+**Project Type**: Feasibility Verification / CLI
+**Performance Goals**: Complete feasibility check within 1 hour; memory usage < 1 GB.
+**Constraints**:
+- Must not fabricate data.
+- Must halt gracefully if no verified URL exists in `plan.md`.
+- Must generate a valid "Feasibility Report" if the dataset is unavailable.
+- All statistical tests are **DEFERRED** until a verified dataset is found.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+> **Dataset Feasibility Note**: The `# Verified datasets` block provided for this revision contains URLs for generic OTU tables, BMI datasets, and CPU-only benchmarks, but **NO** verified URL for the American Gut Project (AGP) with the specific sleep metadata required by FR-001/FR-002. Therefore, the "Happy Path" is unreachable. The implementation must execute the "Feasibility Termination" path as the primary deliverable.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- **I. Reproducibility**: The plan mandates pinned dependencies (`requirements.txt`), random seed setting, and fetching from canonical sources (if available).
-- **II. Verified Accuracy**: **FAILED**. The required dataset (AGP with sleep metadata) is NOT in the "# Verified datasets" block. The plan explicitly halts due to this failure.
-- **III. Data Hygiene**: The plan includes checksumming of downloaded files and strict separation of raw vs. derived data.
-- **IV. Single Source of Truth**: All statistics in the final report will be generated programmatically from the `data/` artifacts, ensuring traceability.
-- **V. Versioning Discipline**: The plan includes content hashing for output artifacts to detect staleness.
-- **VI. Statistical Rigor**: The plan explicitly includes Benjamini-Hochberg correction for multiple comparisons and uses non-parametric Spearman correlation as required.
-- **VII. Cross-Source Metadata Harmonization**: The plan defines a strict exclusion rule for samples lacking compatible sleep metadata, avoiding imputation.
+| Principle | Status | Reference |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **COMPLIANT** | Feasibility Report will be deterministic based on `plan.md` content hash. Random seeds pinned. |
+| **II. Verified Accuracy** | **BLOCKED** | No citations to unverified datasets. The project is halted because the required data is unverified/missing. |
+| **III. Data Hygiene** | **COMPLIANT** | No raw data modified. Feasibility Report is a new file with `status: blocked` metadata. Checksums will be recorded for this artifact. |
+| **IV. Single Source of Truth** | **COMPLIANT** | Final report (Feasibility Report) will trace back to the `plan.md` feasibility check failure. |
+| **V. Versioning Discipline** | **COMPLIANT** | Feasibility Report will carry content hash derived from `plan.md` content hash. `state/` YAML will be updated. |
+| **VI. Statistical Rigor** | **BLOCKED** | The project is halted. No statistical tests are performed. The report will explicitly state "Analysis not performed due to data unavailability." |
+| **VII. Cross-Source Metadata** | **COMPLIANT** | No merging will occur in the blocked state. The plan explicitly rejects imputation. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-gene-regulation/
+specs/001-investigating-the-correlation-between-gu/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
@@ -53,81 +59,105 @@ specs/001-gene-regulation/
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-087-investigating-the-correlation-between-gu/code/
-├── data/
-│   ├── raw/             # Downloaded raw files
-│   └── processed/       # Cleaned analysis-ready files
-├── src/
-│   ├── ingestion.py     # Data download and filtering (with feasibility check)
-│   ├── diversity.py     # Alpha-diversity computation (with rarefaction)
-│   ├── correlation.py   # Statistical tests
-│   ├── viz.py           # Plot generation
-│   └── main.py          # Pipeline orchestrator
-├── tests/
-│   ├── test_ingestion.py
-│   ├── test_correlation.py
-│   └── test_viz.py
-├── requirements.txt
-└── README.md
+src/
+├── feasibility.py       # Feasibility check logic (FR-001, FR-002)
+└── utils.py             # Helpers, schema validation, Feasibility Report generation
+
+tests/
+├── unit/
+│   └── test_feasibility.py
+└── contract/
+    └── test_schemas.py
+
+data/
+├── raw/                 # (Empty in blocked state, or placeholder)
+└── processed/
+    └── feasibility_report.json         # (Feasibility Report: status, reason, timestamp)
+
+outputs/
+└── reports/
+    └── feasibility_report.md           # (Feasibility Report: human-readable)
 ```
 
-**Structure Decision**: Selected a modular single-project structure (`src/`, `data/`, `tests/`) suitable for a data analysis pipeline. This keeps the codebase simple and focused on the specific statistical workflow without unnecessary abstraction layers.
+**Structure Decision**: Single-project structure selected. The `src/` directory contains the feasibility check module. The `data/processed/` directory will contain the "Feasibility Report" as the primary output for this revision, ensuring the pipeline produces a valid, reproducible result (the report of unavailability) rather than crashing.
 
 ## Complexity Tracking
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
+| Design Decision | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Data Availability Block | The required dataset (OTU + Sleep) is not in the verified list. | No alternative dataset in the verified list contains both modalities. |
-| Spec Assumption Gap | The spec assumes AGP has sleep metrics, but this is unverified. | The plan cannot proceed without a verified source. |
+| **Feasibility Termination Handling** | The `# Verified datasets` block lacks the required AGP URL. | A "happy path" implementation is impossible without fabricating data, which violates the Constitution (Principle III & VI) and the "No Fabrication" rule. |
+| **Feasibility Report as Primary Deliverable** | Must support both real data processing and blocked reporting. | A single path that crashes or returns empty results fails the "Graceful Failure" requirement (Edge Cases). |
+| **Blocked State as Termination** | The research question cannot be answered without the specific dataset. | Attempting to "simulate" a result with generic data is fabrication and invalidates the research. |
 
-## Phase Execution Order
+## Task List
 
-1. **Phase 0: Research & Data Strategy** (`research.md`)
-   - Identify and verify data sources (American Gut Project).
-   - **CRITICAL**: Confirm variable availability (sleep metrics, OTU counts) in verified sources.
-   - **BLOCKING CHECK**: If no verified source contains both OTU and sleep data, the pipeline halts.
+### Phase 0: Feasibility Verification (Blocked State)
 
-2. **Phase 1: Data Model & Contracts** (`data-model.md`, `quickstart.md`, `contracts/`)
-   - Define input/output schemas.
-   - Set up project structure and dependencies.
-   - Create validation contracts.
+- [ ] **T001** — **Execute Feasibility Script** [FR-001, FR-002]
+  - **Action**: Run `python src/feasibility.py`. This script reads `plan.md` and checks the `# Verified datasets` block for an AGP URL.
+  - **Outcome**: If no verified URL is found, the script exits with code 0 (success) and generates a `feasibility_report.json` with `status: blocked`.
+  - **Verification**: Assert `src/feasibility.py` exists and runs without error. Assert output indicates "no verified URL found".
 
-3. **Phase 2: Implementation** (Code generation by Implementer)
-   - **Step 0: Data Feasibility Check**: Verify source existence and column presence.
-   - Ingestion script (download, filter).
-   - Diversity computation (with rarefaction).
-   - Correlation analysis with FDR correction.
-   - Visualization generation.
+- [ ] **T002** — **Generate Blocked Diversity Report** [FR-003]
+  - **Action**: Generate a "Feasibility Report" entry stating that alpha-diversity computation was not performed due to data unavailability.
+  - **Verification**: Assert `data/processed/feasibility_report.json` contains a `diversity_computation_status` field with value `blocked`.
 
-4. **Phase 3: Testing & Validation**
-   - Run unit tests on synthetic data.
-   - Validate end-to-end pipeline on GitHub Actions.
-   - Verify reproducibility (hash comparison).
+- [ ] **T003** — **Generate Blocked Correlation Report** [FR-004, FR-005]
+  - **Action**: Generate a "Feasibility Report" entry stating that correlation analysis was not performed due to data unavailability.
+  - **Verification**: Assert `data/processed/feasibility_report.json` contains a `correlation_analysis_status` field with value `blocked`.
 
-## Risk Mitigation
+- [ ] **T004** — **Generate Blocked Visualization Report** [FR-006]
+  - **Action**: Generate a "Feasibility Report" entry stating that visualization was not performed due to data unavailability.
+  - **Verification**: Assert `data/processed/feasibility_report.json` contains a `visualization_status` field with value `blocked`.
 
-- **Dataset Unavailability**: The ingestion script will implement exponential backoff with a limited number of retries and fail gracefully with a clear error message if the source is unreachable. **If the source is not in the verified list, the pipeline halts immediately.**
-- **Memory Constraints**: The pipeline will process data in chunks if the dataset exceeds available RAM, ensuring the memory limit is not breached.
-- **No Significant Results**: The report generation will explicitly state "No significant associations found" if no correlations survive FDR correction, preventing silent failures.
-- **Collinearity**: The plan acknowledges that diversity indices are correlated and reports them descriptively without claiming independent causal effects.
-- **Sequencing Depth**: The plan includes a rarefaction/normalization step to prevent sequencing depth artifacts from biasing diversity indices.
+- [ ] **T005** — **Report Exclusion Rates as Unmeasurable** [SC-001]
+  - **Action**: Generate a "Feasibility Report" entry stating that exclusion rates are unmeasurable due to data unavailability.
+  - **Verification**: Assert `data/processed/feasibility_report.json` contains an `exclusion_rates_status` field with value `unmeasurable`.
 
-## Success Criteria Alignment
+- [ ] **T006** — **Report Correlation Strength and FDR as Unmeasurable** [SC-002, SC-003]
+  - **Action**: Generate a "Feasibility Report" entry stating that correlation strength and FDR are unmeasurable due to data unavailability.
+  - **Verification**: Assert `data/processed/feasibility_report.json` contains a `correlation_metrics_status` field with value `unmeasurable`.
 
-- **SC-001**: Exclusion rates will be logged and reported against the initial sample size. **If no dataset is found, SC-001 is marked as 'Unmeasurable'.**
-- **SC-002**: Correlation strength and significance will be measured against the biological benchmark (|r| > 0.3). **If no dataset is found, SC-002 is marked as 'Blocked'.**
-- **SC-003**: FDR control will be verified by checking adjusted p-values.
-- **SC-004**: Resource usage will be monitored and reported to ensure compliance with GitHub Actions limits.
-- **SC-005**: Reproducibility will be validated via SHA-256 hash comparison of outputs on clean runs.
+- [ ] **T007** — **Verify Blocked Artifact Structure for Reproducibility** [SC-005]
+  - **Action**: Verify the structure of `data/processed/feasibility_report.json` and `outputs/reports/feasibility_report.md`. State that SHA-256 hash comparison is not applicable for blocked artifacts (hash is derived from `plan.md` content).
+  - **Verification**: Assert `data/processed/feasibility_report.json` and `outputs/reports/feasibility_report.md` exist and contain expected fields.
 
-## Functional Requirements (Conditional)
+- [ ] **T008** — **Generate Final Feasibility Report**
+  - **Action**: Compile all blocked status reports into a single human-readable `outputs/reports/feasibility_report.md`.
+  - **Verification**: Assert `outputs/reports/feasibility_report.md` exists and contains a summary of all blocked tasks.
 
-- **FR-001**: System MUST attempt to download and parse pre-processed 16S rRNA OTU count tables and metadata from the American Gut Project public repository **IF a verified URL is found in the '# Verified datasets' block**. If no verified URL exists, the system MUST halt with a clear error message. (See US-1).
-- **FR-002**: System MUST filter samples to exclude those where the `antibiotic_use_last_3m` field is true and those lacking valid `sleep_efficiency` or `sleep_duration_hours`. **If these columns are missing from the source, the system MUST halt with a clear error message.** (See US-1).
-- **FR-003**: System MUST compute alpha-diversity indices (Shannon, Simpson, Observed OTUs) using `scikit-bio` or `vegan` on the filtered count tables, **including a rarefaction step to normalize sequencing depth**, ensuring the computation completes within 6 hours on a 2-core runner. (See US-2).
-- **FR-004**: System MUST perform Spearman rank correlation tests between each alpha-diversity index and sleep variables. Additionally, the system MUST flag any correlation with |r| > 0.3 as a "moderate correlation" for reporting purposes, while noting that Spearman detects only monotonic trends. (See US-2).
-- **FR-005**: System MUST apply Benjamini-Hochberg correction to p-values to control for false discovery rate across the set of alpha-diversity vs. sleep metric comparisons. (See US-2).
-- **FR-006**: System MUST generate scatterplots with regression lines and boxplots by sleep quality quartile for significant findings. (See US-3).
-- **FR-007**: System MUST execute the entire analysis pipeline within 7 GB RAM and 6 hours on a GitHub Actions ubuntu-latest runner (2 vCPUs). (See US-2).
+### Phase 1: Data Model (Blocked State)
+
+- [ ] **T009** — **Define Feasibility Report Schema**
+  - **Action**: Define the schema for `data/processed/feasibility_report.json` with fields for status, reason, timestamp, and measurement status.
+  - **Verification**: Assert `contracts/feasibility_report.schema.yaml` exists and is valid YAML.
+
+### Phase 2: Research (Blocked State)
+
+- [ ] **T010** — **Document Data Unavailability**
+  - **Action**: Document the absence of a verified AGP URL in `research.md`.
+  - **Verification**: Assert `research.md` contains a section documenting the data unavailability.
+
+### Phase 3: Quickstart (Blocked State)
+
+- [ ] **T011** — **Document Feasibility Report Generation**
+  - **Action**: Document the process for generating the Feasibility Report in `quickstart.md`.
+  - **Verification**: Assert `quickstart.md` contains a section documenting the Feasibility Report generation.
+
+### Phase 4: Contracts (Blocked State)
+
+- [ ] **T012** — **Define Feasibility Report Contract**
+  - **Action**: Define the contract for `data/processed/feasibility_report.json` with fields for status, reason, timestamp, and measurement status.
+  - **Verification**: Assert `contracts/feasibility_report.schema.yaml` exists and is valid YAML.
+
+## Future Work (Conditional on Data Availability)
+
+*If a verified AGP URL is found in a future revision, the following tasks will be enabled:*
+
+- **T013** — Download AGP data [FR-001]
+- **T014** — Filter samples [FR-002]
+- **T020a** — Compute alpha-diversity [FR-003]
+- **T021** — Perform Spearman correlation [FR-004]
+- **T022** — Apply BH correction [FR-005]
+- **T027** — Generate visualizations [FR-006]
+- **T035** — Verify reproducibility [SC-005]

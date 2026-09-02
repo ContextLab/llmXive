@@ -1,9 +1,9 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Cognitive Decline Dataset Schema
-description: >
-  JSON Schema for the cleaned and processed ADReSS dataset.
-  Defines the structure for participant records including ID, cognitive status label,
-  and cleaned text transcript.
+title: ADReSS Cleaned Dataset Schema
+description: >-
+  Schema for the intermediate cleaned dataset derived from the ADReSS Challenge.
+  Contains participant metadata, cognitive status labels, and preprocessed text.
+  Used as input for feature extraction (User Story 2).
 type: object
 required:
   - participant_id
@@ -12,18 +12,18 @@ required:
 properties:
   participant_id:
     type: string
-    description: >
-      Unique identifier for the participant.
-      Format typically follows ADReSS naming conventions (e.g., P001, P002).
-    pattern: '^P\\d{3}$'
+    description: >-
+      Unique identifier for the participant. 
+      Derived from the original filename (e.g., "p001", "c001").
+    pattern: "^[pc]\\d{3,}$"
     examples:
-      - "P001"
-      - "P123"
+      - "p001"
+      - "c042"
   label:
     type: string
-    description: >
-      Cognitive status label derived from the dataset metadata.
-      Valid values are restricted to the expected classes.
+    description: >-
+      Cognitive status classification.
+      Must be one of the validated classes.
     enum:
       - Control
       - MCI
@@ -34,11 +34,13 @@ properties:
       - "AD"
   text:
     type: string
-    description: >
-      The cleaned, normalized text transcript of the participant's speech.
-      Non-verbal annotations (<laughter>, <pause>) have been removed.
-      UTF-8 normalized.
+    description: >-
+      The cleaned transcript text.
+      - Non-verbal annotations (e.g., <laughter>, <pause>) removed.
+      - Normalized to UTF-8.
+      - Whitespace normalized (single spaces between words).
+      - Minimum length enforced (>= 50 words).
     minLength: 50
     examples:
-      - "The patient described a scene from the cookie jar picture..."
+      - "The patient described the picture by saying that the man is fishing..."
 additionalProperties: false

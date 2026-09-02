@@ -1,38 +1,46 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Correlation Results Schema"
-description: "Schema for the statistical correlation output (correlation_results.csv)"
+description: "Schema for the statistical correlation results between diversity and sleep metrics."
 type: "object"
 properties:
-  metric_pair:
+  diversity_metric:
     type: "string"
-    description: "Identifier for the pair of variables tested (e.g., 'shannon_sleep_efficiency')"
-  r:
+    description: "Name of the diversity metric (e.g., 'shannon', 'simpson')."
+  sleep_metric:
+    type: "string"
+    description: "Name of the sleep metric (e.g., 'efficiency', 'duration')."
+  r_value:
     type: "number"
-    description: "Spearman correlation coefficient"
-    minimum: -1
-    maximum: 1
+    description: "Spearman correlation coefficient."
+    nullable: true
   p_value:
     type: "number"
-    description: "Unadjusted p-value"
-    minimum: 0
-    maximum: 1
-  p_adjusted:
+    description: "Raw p-value."
+    nullable: true
+  q_value:
     type: "number"
-    description: "Benjamini-Hochberg adjusted p-value"
-    minimum: 0
-    maximum: 1
-  n:
-    type: "integer"
-    description: "Number of samples used in the test"
-    minimum: 1
-  method:
+    description: "Benjamini-Hochberg adjusted p-value."
+    nullable: true
+  is_significant:
+    type: "boolean"
+    description: "True if q_value < 0.05."
+    nullable: true
+  is_moderate:
+    type: "boolean"
+    description: "True if |r| > 0.3."
+    nullable: true
+  status:
     type: "string"
-    description: "Statistical method used (e.g., 'spearman')"
+    description: "Status of the row. 'blocked' if the analysis could not be performed."
+    enum:
+      - "valid"
+      - "blocked"
+  hash:
+    type: "string"
+    description: "SHA-256 hash of the artifact for self-verification. For blocked artifacts, derived from plan.md content hash."
+    nullable: true
 required:
-  - metric_pair
-  - r
-  - p_value
-  - p_adjusted
-  - n
-  - method
-additionalProperties: true
+  - "diversity_metric"
+  - "sleep_metric"
+  - "status"
+additionalProperties: false

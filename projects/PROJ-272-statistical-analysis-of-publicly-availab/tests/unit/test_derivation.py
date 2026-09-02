@@ -1,76 +1,74 @@
 import os
-import json
 import tempfile
-from pathlib import Path
 import pandas as pd
 import pytest
+from pathlib import Path
+import yaml
 
-# We need to mock the get_path and ensure_dirs from config/utils if running in isolation
-# but for the unit test of the logic, we can test the functions directly if we pass dataframes.
-# However, the functions rely on file I/O. We will test the core logic functions.
+from derivation import load_interim_data, generate_derivation_log, finalize_dataset
 
-from code.derivation import finalize_dataset, generate_derivation_log
-
-def test_finalize_dataset_deduplication():
-    """Test that duplicate participant IDs are removed."""
+def test_generate_derivation_log():
+    """Test that derivation log contains required metadata."""
     data = {
-        'participant_id': ['P1', 'P1', 'P2', 'P3'],
-        'label': ['Control', 'AD', 'MCI', 'Control'],
-        'text': ['word word', 'word word', 'word word', 'word word']
+        "participant_id": ["P1", "P2"],
+        "text": ["Hello world", "Test string"],
+        "label": ["Control", "AD"]
+    }
+    df = pd.DataFrame(data)
+    input_file = Path("dummy.csv")
+    
+    log = generate_derivation_log(df, input_file)
+    
+    assert "timestamp" in log
+    assert log["input_rows"] == 2
+    assert log["input_columns"] == ["participant_id", "text", "label"]
+    assert "steps_applied" in log
+    assert len(log["steps_applied"]) == 4
+    assert "final_stats" in log
+
+def test_finalize_dataset_writes_files(tmp_path):
+    """Test that finalize_dataset writes CSV and YAML."""
+    data = {
+        "participant_id": ["P1"],
+        "text": ["Sample text"],
+        "label": ["Control"]
     }
     df = pd.DataFrame(data)
     
-    result = finalize_dataset(df)
+    # Mock config to use tmp_path
+    import config
+    original_get_path = config.get_path
     
-    assert len(result) == 3
-    assert result['participant_id'].nunique() == 3
-    assert 'P1' in result['participant_id'].values
+    def mock_get_path(base, sub):
+        if base == "data" and sub == "interim":
+            return tmp_path
+        if base == "data" and sub == "raw":
+            return tmp_path / "raw"
+        return Path(tmp_path)
     
-    # Check sorting
-    assert result['participant_id'].is_monotonic_increasing or result['participant_id'].is_monotonic_decreasing
-    # Actually, sort_values ensures it's sorted.
-    assert list(result['participant_id']) == ['P1', 'P2', 'P3']
-
-def test_finalize_dataset_type_casting():
-    """Test that columns are cast to string."""
-    data = {
-        'participant_id': [123, 456],
-        'label': ['Control', 1],
-        'text': ['hello', 'world']
-    }
-    df = pd.DataFrame(data)
+    config.get_path = mock_get_path
     
-    result = finalize_dataset(df)
-    
-    assert result['participant_id'].dtype == 'object' # pandas string representation
-    assert result['label'].dtype == 'object'
-
-def test_generate_derivation_log_creates_file():
-    """Test that the derivation log is written correctly."""
-    data = {
-        'participant_id': ['P1'],
-        'label': ['Control'],
-        'text': ['test text']
-    }
-    df = pd.DataFrame(data)
-    
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / "test.csv"
-        log_path = Path(tmpdir) / "derivation_log.json"
+    try:
+        log_entry = {
+            "timestamp": "2023-01-01",
+            "source_file": "test.csv",
+            "input_rows": 1,
+            "steps_applied": ["test"]
+        }
         
-        # Mock the output path for the log function to use the tmpdir
-        # The function generates a log path based on output_path
-        # We need to call the function with a valid output_path
+        csv_path, log_path = finalize_dataset(df, log_entry)
         
-        # Since the function writes to disk, we check if the file exists
-        log_data = generate_derivation_log(df, output_path)
+        assert csv_path.exists()
+        assert log_path.exists()
         
-        assert os.path.exists(log_path)
+        # Verify CSV content
+        loaded_df = pd.read_csv(csv_path)
+        assert len(loaded_df) == 1
+        assert loaded_df["label"].iloc[0] == "Control"
         
-        with open(log_path, 'r') as f:
-            saved_log = json.load(f)
-        
-        assert saved_log['record_counts']['input'] == 1
-        assert saved_log['record_counts']['output'] == 1
-        assert 'T016' in str(saved_log['steps_applied'])
-        assert saved_log['data_quality_checks']['null_labels'] == 0
+        # Verify Log content
+        with open(log_path, "r") as f:
+            loaded_log = yaml.safe_load(f)
+        assert loaded_log["input_rows"] == 1
+    finally:
+        config.get_path = original_get_path

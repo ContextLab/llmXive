@@ -20,7 +20,7 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/datasets/pruiu/ADReSS-IS2020_emb
   verified_at: '2026-07-08T15:57:00.504940Z'
-- artifact_hash: caffdd051c6a508802cbd0fee1349d6f1c6f7245a6468a0c57334c0e49093c5b
+- artifact_hash: 6854c4800cb60d1baa78549d87b8517e5324a8721d7395aabc64af5365ea4c10
   artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://en.wikipedia.org/wiki/Dhurandhar
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Dhurandhar
-  verified_at: '2026-08-01T15:42:52.868911Z'
+  verified_at: '2026-09-02T04:23:22.010712Z'

@@ -1,96 +1,130 @@
-"""
-Unit tests for checksums.py (Task T012e).
-"""
 import json
 import os
 import tempfile
 import hashlib
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-
 import pytest
 
-# We need to mock get_path and ensure_dirs to avoid dependency on full project config
-# during unit testing, or ensure the test environment has them.
-# For this test, we will patch the config/utils imports.
+from checksums import compute_sha256, record_checksums
 
-@pytest.fixture
-def temp_raw_dir():
-    """Create a temporary directory with dummy files for testing."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
+class TestComputeSha256:
+    def test_compute_sha256_valid_file(self, tmp_path):
+        # Create a temporary file with known content
+        test_content = b"Hello, World!"
+        test_file = tmp_path / "test.txt"
+        test_file.write_bytes(test_content)
         
-        # Create dummy files
-        file1 = tmp_path / "test_file1.zip"
-        file1.write_bytes(b"dummy content 1")
+        # Compute hash
+        computed_hash = compute_sha256(str(test_file))
         
-        file2 = tmp_path / "test_file2.tar.gz"
-        file2.write_bytes(b"dummy content 2")
-        
-        yield tmp_path
+        # Verify against known hash
+        expected_hash = hashlib.sha256(test_content).hexdigest()
+        assert computed_hash == expected_hash
 
-def test_compute_sha256(temp_raw_dir):
-    """Test that compute_sha256 returns the correct hash for a file."""
-    from checksums import compute_sha256
-    
-    filepath = temp_raw_dir / "test_file1.zip"
-    expected_hash = hashlib.sha256(b"dummy content 1").hexdigest()
-    
-    result = compute_sha256(filepath)
-    assert result == expected_hash
-
-def test_compute_sha256_missing_file():
-    """Test that compute_sha256 raises FileNotFoundError for missing file."""
-    from checksums import compute_sha256
-    
-    with tempfile.TemporaryDirectory() as tmpdir:
-        missing_path = Path(tmpdir) / "nonexistent.zip"
-        
+    def test_compute_sha256_file_not_found(self):
         with pytest.raises(FileNotFoundError):
-            compute_sha256(missing_path)
+            compute_sha256("/nonexistent/file.txt")
 
-@patch('checksums.get_path')
-@patch('checksums.ensure_dirs')
-def test_record_checksums(mock_ensure_dirs, mock_get_path, temp_raw_dir):
-    """Test that record_checksums writes the correct JSON structure."""
-    from checksums import record_checksums
-    
-    mock_get_path.return_value = temp_raw_dir
-    
-    filenames = ["test_file1.zip", "test_file2.tar.gz"]
-    record_checksums(temp_raw_dir, filenames)
-    
-    output_path = temp_raw_dir / "checksums.json"
-    assert output_path.exists()
-    
-    with open(output_path, "r") as f:
-        data = json.load(f)
-    
-    assert len(data) == 2
-    # Check structure
-    for entry in data:
-        assert "filename" in entry
-        assert "sha256" in entry
-        assert len(entry["sha256"]) == 64 # SHA-256 hex length
+    def test_compute_sha256_large_file(self, tmp_path):
+        # Create a larger file to test chunking
+        test_content = b"x" * (10 * 1024 * 1024) # 10MB
+        test_file = tmp_path / "large.txt"
+        test_file.write_bytes(test_content)
+        
+        computed_hash = compute_sha256(str(test_file))
+        expected_hash = hashlib.sha256(test_content).hexdigest()
+        assert computed_hash == expected_hash
 
-@patch('checksums.get_path')
-@patch('checksums.ensure_dirs')
-def test_main_no_files(mock_ensure_dirs, mock_get_path):
-    """Test main() behavior when no archive files are found."""
-    from checksums import main
-    
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
-        # Create a non-archive file
-        (tmp_path / "readme.txt").write_text("hello")
+class TestRecordChecksums:
+    def test_record_single_file(self, tmp_path):
+        test_content = b"Test content for checksum"
+        test_file = tmp_path / "test.txt"
+        test_file.write_bytes(test_content)
         
-        mock_get_path.return_value = tmp_path
+        output_file = tmp_path / "checksums.json"
         
-        main()
+        result = record_checksums([str(test_file)], str(output_file))
         
-        # Should create an empty checksums.json
-        output_path = tmp_path / "checksums.json"
-        assert output_path.exists()
-        with open(output_path, "r") as f:
-            data = json.load(f)
-        assert data == []
+        assert len(result) == 1
+        assert "test.txt" in result
+        assert result["test.txt"]["sha256"] == hashlib.sha256(test_content).hexdigest()
+        assert result["test.txt"]["filename"] == "test.txt"
+        
+        # Verify file was written
+        assert output_file.exists()
+        with open(output_file, "r") as f:
+            saved_data = json.load(f)
+        assert saved_data == result
+
+    def test_record_multiple_files(self, tmp_path):
+        files = []
+        for i in range(3):
+            content = f"Content {i}".encode()
+            f = tmp_path / f"file{i}.txt"
+            f.write_bytes(content)
+            files.append(str(f))
+            
+        output_file = tmp_path / "checksums.json"
+        result = record_checksums(files, str(output_file))
+        
+        assert len(result) == 3
+        for i in range(3):
+            fname = f"file{i}.txt"
+            assert fname in result
+            expected = hashlib.sha256(f"Content {i}".encode()).hexdigest()
+            assert result[fname]["sha256"] == expected
+
+    def test_record_missing_file_skipped(self, tmp_path):
+        test_content = b"Valid content"
+        test_file = tmp_path / "valid.txt"
+        test_file.write_bytes(test_content)
+        
+        output_file = tmp_path / "checksums.json"
+        
+        # Should not raise, just log warning
+        result = record_checksums([str(test_file), "/nonexistent.txt"], str(output_file))
+        
+        assert len(result) == 1
+        assert "valid.txt" in result
+
+    def test_record_overwrite(self, tmp_path):
+        # Create initial file
+        content1 = b"First content"
+        f1 = tmp_path / "file1.txt"
+        f1.write_bytes(content1)
+        
+        output_file = tmp_path / "checksums.json"
+        record_checksums([str(f1)], str(output_file))
+        
+        # Create second file and overwrite
+        content2 = b"Second content"
+        f2 = tmp_path / "file2.txt"
+        f2.write_bytes(content2)
+        
+        # Overwrite mode
+        result = record_checksums([str(f2)], str(output_file), overwrite=True)
+        
+        assert len(result) == 1
+        assert "file2.txt" in result
+        assert "file1.txt" not in result
+
+    def test_record_append(self, tmp_path):
+        # Create initial file
+        content1 = b"First content"
+        f1 = tmp_path / "file1.txt"
+        f1.write_bytes(content1)
+        
+        output_file = tmp_path / "checksums.json"
+        record_checksums([str(f1)], str(output_file))
+        
+        # Create second file and append
+        content2 = b"Second content"
+        f2 = tmp_path / "file2.txt"
+        f2.write_bytes(content2)
+        
+        # Append mode (default)
+        result = record_checksums([str(f2)], str(output_file), overwrite=False)
+        
+        assert len(result) == 2
+        assert "file1.txt" in result
+        assert "file2.txt" in result

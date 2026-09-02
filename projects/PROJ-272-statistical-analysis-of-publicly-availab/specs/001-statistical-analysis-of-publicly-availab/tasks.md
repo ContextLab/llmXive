@@ -74,25 +74,25 @@
 ### Implementation for User Story 1
 
 - [X] T012 [FR-001] [US1] Implement data download utility in `code/ingestion.py` to fetch ADReSS raw files from canonical GitHub URL; Compute SHA-256 hash upon download and log it (Depends on T004)
-- [X] T012a [FR-001] [US1] Implement scope validation in `code/ingestion.py`: Validate that the configuration explicitly excludes DementiaBank and that no attempt is made to fetch it unless ADReSS fails [UNRESOLVED-CLAIM: c_459a4712 — status=not_enough_info]; Log a warning if DementiaBank is detected in config (Depends on T004)
-- [X] T012b [FR-001] [US1] Implement fallback logic in `code/ingestion.py`: If ADReSS download fails, attempt to fetch DementiaBank from verified source (if available); Log strict warning that DementiaBank source is unverified and data is treated as fallback only (Depends on T012)
-- [ ] T012c [FR-001] [US1] Document Spec Amendment in `data/ingestion_amendment.log`: Record that FR-001 is satisfied by ADReSS-only ingestion due to verified-source constraints; Log that DementiaBank is excluded as primary source (Depends on T012a)
-- [X] T012d [US1] Validate dataset size in `code/ingestion.py`: Check if ADReSS dataset contains ≥ 500 participants per group [UNRESOLVED-CLAIM: c_6d48df60 — status=not_enough_info]; Fail pipeline with specific error if threshold not met (Depends on T012)
-- [ ] T012e [US1] Record computed SHA-256 checksum in `data/raw/checksums.json` with filename and hash (Depends on T012)
+- [X] T012a [FR-001] [US1] Implement scope validation in `code/ingestion.py`: Validate that the configuration explicitly excludes DementiaBank and that no attempt is made to fetch it unless ADReSS fails; Log a warning if DementiaBank is detected in config (Depends on T004)
+- [X] T012b [FR-001] [US1] Implement fallback logic in `code/ingestion.py`: If ADReSS download fails, attempt to fetch DementiaBank from verified source (if available) [UNRESOLVED-CLAIM: c_2f8656a1 — status=not_enough_info]; Log strict warning that DementiaBank source is unverified and data is treated as fallback only (Depends on T012)
+- [X] T012c [FR-001] [US1] Document Spec Amendment in `data/ingestion_amendment.log`: Record that FR-001 is satisfied by ADReSS-only ingestion due to verified-source constraints; Log that DementiaBank is excluded as primary source (Depends on T012a)
+- [X] T012d [US1] Validate dataset size in `code/ingestion.py`: Check if ADReSS dataset contains ≥ 500 participants per group [UNRESOLVED-CLAIM: c_cea44339 — status=not_enough_info]; Fail pipeline with specific error if threshold not met (Depends on T012)
+- [X] T012e [US1] Record computed SHA-256 checksum in `data/raw/checksums.json` with filename and hash (Depends on T012)
 - [X] T013 [US1] Implement text cleaning pipeline in `code/ingestion.py`: remove non-verbal annotations, normalize to UTF-8 (Depends on T012)
 - [X] T014 [US1] Implement record filtering in `code/ingestion.py`: exclude transcripts < 50 words and missing labels (Depends on T013)
 - [X] T015 [US1] Implement metadata extraction in `code/ingestion.py` to parse cognitive status (Control, MCI, AD) from ADReSS headers and generate specific reason codes for excluded records (Depends on T013)
-- [ ] T016 [US1] Create intermediate cleaned dataset in `data/interim/cleaned_adress.csv` with derivation log (Depends on T014, T015)
+- [X] T016 [US1] Create intermediate cleaned dataset in `data/interim/cleaned_adress.csv` with derivation log (Depends on T014, T015)
 - [ ] T017 [US1] Add logging for excluded records with specific reason codes, ensuring the logging logic parses the cognitive status metadata extraction result (Depends on T015)
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests AFTER implementation to ensure code exists to test**
 
-- [ ] T009 [P] [US1] Unit test for text cleaning (remove `<laughter>`, `<pause>`) in `tests/unit/test_ingestion.py` (Depends on T013)
-- [ ] T010 [P] [US1] Unit test for UTF-8 normalization and exclusion logic in `tests/unit/test_ingestion.py` (Depends on T013, T014)
-- [ ] T011 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_schemas.py` (Depends on T008, T016)
-- [ ] T047 [US1] Integration test: Run full ingestion pipeline on a sample subset of transcripts and verify output contains a corresponding number of records with valid labels and cleaned text in `tests/integration/test_us1_sample.py` (Depends on T016)
+- [X] T009 [P] [US1] Unit test for text cleaning (remove `<laughter>`, `<pause>`) in `tests/unit/test_ingestion.py` (Depends on T013)
+- [X] T010 [P] [US1] Unit test for UTF-8 normalization and exclusion logic in `tests/unit/test_ingestion.py` (Depends on T013, T014)
+- [X] T011 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_schemas.py` (Depends on T008, T016)
+- [ ] T047 [US1] Integration test: Run full ingestion pipeline on a sample subset of transcripts and verify output contains a corresponding number of records with valid labels and cleaned text in `tests/integration/test_us1_sample.py` (Depends on T016) <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,8 +106,8 @@
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement lexical feature extraction (TTR, MTLD, Noun/Verb ratio) in `code/features.py` (Depends on T016)
-- [ ] T023 [US2] Implement syntactic feature extraction (Mean Clause Length, T-unit Count) using spaCy in `code/features.py` (Depends on T016)
+- [X] T022 [US2] Implement lexical feature extraction (TTR, MTLD, Noun/Verb ratio) in `code/features.py` (Depends on T016)
+- [X] T023 [US2] Implement syntactic feature extraction (Mean Clause Length, T-unit Count) using spaCy in `code/features.py` (Depends on T016)
 - [ ] T024 [US2] Implement semantic feature extraction (Sentence Embedding Cosine Similarity) using `all-MiniLM-L6-v2` in `code/features.py` (CPU-only); Save embeddings to `data/processed/embeddings.npy` with shape [N, 384], dtype float32 (Depends on T016)
 - [ ] T025 [US2] Save processed feature matrix to `data/processed/features.csv` with metadata (Depends on T022, T023, T024)
 - [ ] T026 [US2] Implement statistical testing module in `code/stats.py`: Mann-Whitney U for Control vs AD and Control vs MCI (Depends on T025)
@@ -139,7 +139,7 @@
 - [ ] T035 [US3] Implement Random Forest training and evaluation in `code/modeling.py` (Preliminary Sanity Check) (Depends on T033)
 - [ ] T036 [US3] Report preliminary metrics (AUC, Accuracy, F1) for both classifiers on held-out test set (Depends on T034, T035)
 - [ ] T037 [US3] Implement a nested k-fold cross-validation loop in `code/modeling.py` for primary validation (Depends on T025)
-- [ ] T038 [US3] Ensure nested CV uses CPU-only models and respects memory constraints (< 7 GB) [UNRESOLVED-CLAIM: c_5eb4b1a4 — status=not_enough_info] (Depends on T037)
+- [ ] T038 [US3] Ensure nested CV uses CPU-only models and respects memory constraints (< 7 GB) (Depends on T037)
 - [ ] T039 [US3] Calculate mean AUC and standard deviation across outer folds; save results to `data/results/cv_metrics.json` (Depends on T037)
 - [ ] T040 [US3] Generate final results report in `data/results/model_performance.json` (Depends on T036, T039)
 

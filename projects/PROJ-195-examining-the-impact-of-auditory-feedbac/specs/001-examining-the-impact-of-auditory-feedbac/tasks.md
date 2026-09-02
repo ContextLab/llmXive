@@ -56,9 +56,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Implement `code/download.py` to fetch OpenNeuro `ds000246` subset (handling disk limits) and verify SHA256 checksums. (Corrected dataset source; removed [P] to enforce sequential execution for T012/T013)
+- [X] T004 Implement `code/download.py` to fetch OpenNeuro `ds000246` subset (handling disk limits) and verify SHA256 checksums. [UNRESOLVED-CLAIM: c_ca9cfd5d — status=not_enough_info] (Corrected dataset source; removed [P] to enforce sequential execution for T012/T013)
 - [X] T005 [P] Create `stats_config.yaml` defining GLM parameters, FDR threshold (q<0.05), and ROI definitions
-- [X] T006 [P] Create `roi_masks/auditory_cortex.nii.gz` using the Harvard-Oxford Cortical Structural Atlas in standard MNI template space (specific source for determinism).
+- [X] T006 [P] Create `roi_masks/auditory_cortex.nii.gz` using the Harvard-Oxford Cortical Structural Atlas in standard MNI template space (specific source for determinism). [UNRESOLVED-CLAIM: c_1152c92e — status=not_enough_info]
 - [X] T007 Implement `code/utils.py` for BIDS path helpers, QC logging, and motion threshold checks (>2mm exclusion logic) (Prerequisite for T009)
 - [ ] T008 Setup Docker configuration for `fmriprep` with appropriate memory and process limits to ensure efficient resource utilization. (Prerequisite for T009)
 - [X] T008b [P] Specify Docker image tag: Create `docker-compose.yml` or script to pull `nipreps/fmriprep` with a version tag corresponding to a stable release. (Specific tag for determinism) (Prerequisite for T009)
@@ -87,9 +87,9 @@
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement dataset filtering logic in `code/download.py` to ensure total size < 14GB (subset if necessary) (Depends on T004; Corrected dataset source ds000246)
+- [X] T012 [US1] Implement dataset filtering logic in `code/download.py` to ensure total size < 14GB (subset if necessary) [UNRESOLVED-CLAIM: c_25115c09 — status=not_enough_info] (Depends on T004; Corrected dataset source ds000246)
 - [X] T013 [US1] Implement event label validation in `code/utils.py` to halt with exit code 1 and log "ERROR: Missing required event labels" if 'normal', 'delayed', or 'pitch-shifted' are missing (Depends on T004, T007; Hard stop constraint)
-- [X] T014 [US1] Implement motion QC extraction in `code/preprocess.py` to parse fmriprep logs and flag subjects >2mm displacement
+- [X] T014 [US1] Implement motion QC extraction in `code/preprocess.py` to parse fmriprep logs and flag subjects >2mm displacement [UNRESOLVED-CLAIM: c_9b631ec9 — status=not_enough_info]
 - [X] T015 [US1] Implement subject exclusion logic to generate `data/processed/valid_subjects.txt` for downstream steps
 - [ ] T016 [US1] Add logging for preprocessing deviations to `preprocessing.log` (Constitution Principle VI)
 
@@ -110,11 +110,11 @@
 
 ### Implementation for User Story 2
 
-- [X] T019 [US2] Implement First-Level GLM in `code/glm_first_level.py` using nilearn, defining 'perturbed' as union of 'delayed' and 'pitch-shifted' (Removed [P] to enforce sequential execution for T020)
+- [X] T019 [US2] Implement First-Level GLM in `code/glm_first_level.py` using nilearn, defining 'perturbed' as union of 'delayed' and 'pitch-shifted' [UNRESOLVED-CLAIM: c_9f2f63f2 — status=not_enough_info] (Removed [P] to enforce sequential execution for T020)
 - [ ] T020 [US2] Implement contrast map generation and saving for each valid subject to `data/processed/` (Depends on T019)
-- [ ] T021 [US2] Implement Group-Level analysis in `code/glm_group.py` performing a **one-sample t-test against zero** (Corrected from spec's paired-sample to scientifically valid method per plan)
-- [ ] T022 [US2] Apply Voxel-wise FDR correction (q < 0.05) and extract significant clusters [UNRESOLVED-CLAIM: c_01160bea — status=not_enough_info] (Depends on T021)
-- [ ] T023 [US2] Calculate and save Cohen's d effect sizes and confidence intervals for identified clusters
+- [ ] T021 [US2] Implement Group-Level analysis in `code/glm_group.py` performing a **one-sample t-test against zero** [UNRESOLVED-CLAIM: c_0dd84409 — status=not_enough_info] (Corrected from spec's paired-sample to scientifically valid method per plan)
+- [ ] T022 [US2] Apply Voxel-wise FDR correction (q < 0.05) and extract significant clusters [UNRESOLVED-CLAIM: c_11f351a2 — status=not_enough_info] (Depends on T021)
+- [ ] T023 [US2] Calculate and save Cohen's d effect sizes and confidence intervals for identified clusters [UNRESOLVED-CLAIM: c_640e4b1a — status=not_enough_info]
 - [ ] T024 [US2] Handle edge case: if no clusters survive FDR, calculate global t-statistic p-value, save uncorrected map (thresholded at p < 0.001 uncorrected) to `data/processed/uncorrected_map.nii.gz`, and log "NULL RESULT: No clusters survived FDR" (Depends on T022; Includes global p-value logic for SC-002)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -137,7 +137,7 @@
 - [ ] T027 [P] [US3] Implement behavioral metric extraction in `code/behavior.py` (trial-wise RTs or block-level slope if missing) (Depends on T015)
 - [ ] T028 [US3] Implement global learning rate proxy calculation (slope of RT over ALL trials) ensuring independence from condition labels
 - [ ] T029 [US3] Implement ROI extraction in `code/correlation.py` to get mean beta from `auditory_cortex.nii.gz` for each subject (Depends on T006, T020; Removed [P] to enforce sequential execution for T030)
-- [ ] T030 [US3] Calculate Pearson correlation between auditory cortex activation and learning rate proxy; save results to `data/processed/correlation_results.csv` (Depends on T028, T029; Removed [P] to enforce sequential execution for T032)
+- [ ] T030 [US3] Calculate Pearson correlation between auditory cortex activation and learning rate proxy [UNRESOLVED-CLAIM: c_3a1183bd — status=not_enough_info]; save results to `data/processed/correlation_results.csv` (Depends on T028, T029; Removed [P] to enforce sequential execution for T032)
 - [ ] T031 [US3] Implement visualization scripts in `code/viz.py` to generate thresholded statistical maps and scatter plots
 - [ ] T032 [US3] Generate final report summary table with cluster coordinates and behavioral correlations to `docs/report_summary.csv` (Depends on T023, T030)
 

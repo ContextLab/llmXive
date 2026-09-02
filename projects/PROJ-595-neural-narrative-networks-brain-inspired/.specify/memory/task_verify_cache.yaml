@@ -21,12 +21,12 @@ T018:
   r: "No evidence of `utils/checksums.py` being executed or of a state file being\
     \ updated is provided; the required artifact (updated state file with checksum\
     \ entries) is missing, so the task\u2019s requirement is not demonstrably satisfied."
-T019:
+T021b:
   c: false
-  h: d43586a850d43b9f27008f95dfb186ced91d43524ea2c24d38e8b8447eb54c24
-  r: The required output file `data/text/rocstories_sample.jsonl` is missing, so the
-    corpus was not downloaded and sampled as specified. No evidence of a valid JSONL
-    file with `story` and `id` fields is present.
+  h: be14ddd5beaee80107da55061f4a513f2ffe753aa794f7b3c3ebc8c5314b8a77
+  r: "The required artifact `data/processed/event_averages.csv` does not exist, so\
+    \ the task\u2019s output is missing entirely. Without the CSV file (with the specified\
+    \ columns and schema validation), the requirement is not satisfied."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

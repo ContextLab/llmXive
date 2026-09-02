@@ -6,254 +6,206 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 import numpy as np
 
-# Add project root to path if running as script
-if __name__ == "__main__":
-    project_root = Path(__file__).resolve().parent.parent
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
-
 from config import get_config
 from utils.logging_config import get_logger, info, error, warning, log_error
-from utils.schema_validation import validate_neural_data
 
 logger = get_logger(__name__)
 
 def load_roi_timecourses() -> Dict[str, np.ndarray]:
     """
-    Load combined ROI timecourses from data/processed/roi_timecourses.csv.
-    Returns a dictionary mapping ROI names to 2D arrays (subject, timepoint).
+    Loads the combined ROI timecourses from data/processed/roi_timecourses.csv.
+    Returns a dictionary keyed by (subject_id, roi) with numpy arrays of signals.
     """
     csv_path = Path("data/processed/roi_timecourses.csv")
     if not csv_path.exists():
-        raise FileNotFoundError(f"Required input file missing: {csv_path}")
+        log_error("E001", f"Missing required file: {csv_path}")
+        raise FileNotFoundError(f"Missing required file: {csv_path}")
 
-    # Load using pandas for easier grouping, then convert to dict
-    import pandas as pd
-    df = pd.read_csv(csv_path)
-    
-    # Verify required columns
-    required_cols = ['subject_id', 'roi', 'timepoint', 'signal']
-    if not all(col in df.columns for col in required_cols):
-        raise ValueError(f"CSV missing required columns. Found: {df.columns.tolist()}")
-
-    roi_data = {}
-    # Group by ROI and subject
-    for roi in df['roi'].unique():
-        roi_df = df[df['roi'] == roi]
-        subjects = roi_df['subject_id'].unique()
-        
-        # Assume timepoints are 0..T-1 for each subject
-        # We'll stack them into a 2D array: (n_subjects, n_timepoints)
-        subject_list = sorted(subjects)
-        if len(subject_list) == 0:
-            continue
+    data = {}
+    with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            sub_id = row['subject_id']
+            roi = row['roi']
+            timepoint = int(row['timepoint'])
+            signal = float(row['signal'])
             
-        # Determine max timepoints (assume uniform)
-        max_tp = roi_df['timepoint'].max() + 1
-        
-        matrix = np.zeros((len(subject_list), max_tp))
-        for i, subj in enumerate(subject_list):
-            subj_data = roi_df[roi_df['subject_id'] == subj].sort_values('timepoint')
-            signals = subj_data['signal'].values
-            if len(signals) > 0:
-                matrix[i, :len(signals)] = signals
-        
-        roi_data[roi] = matrix
-        logger.info(f"Loaded ROI '{roi}' with shape {matrix.shape}")
+            key = (sub_id, roi)
+            if key not in data:
+                data[key] = {}
+            data[key][timepoint] = signal
 
-    return roi_data
+    # Convert to numpy arrays, ensuring contiguous timepoints starting from 0
+    result = {}
+    for key, time_dict in data.items():
+        if not time_dict:
+            continue
+        max_tp = max(time_dict.keys())
+        arr = np.zeros(max_tp + 1)
+        for tp, val in time_dict.items():
+            arr[tp] = val
+        result[key] = arr
+    
+    return result
 
-def load_events_metadata() -> Dict[str, List[Dict]]:
+def load_events_metadata() -> List[Dict[str, Any]]:
     """
-    Load events metadata from data/text/rocstories_sample.jsonl.
-    Returns a dictionary mapping subject_id (story_id) to list of event dicts.
+    Loads event boundaries from data/text/rocstories_sample_boundaries.jsonl.
+    Returns a list of dicts with 'story_id', 'event_id', 'start_timepoint', 'end_timepoint'.
     """
-    jsonl_path = Path("data/text/rocstories_sample.jsonl")
+    jsonl_path = Path("data/text/rocstories_sample_boundaries.jsonl")
     if not jsonl_path.exists():
-        raise FileNotFoundError(f"Required input file missing: {jsonl_path}")
+        log_error("E001", f"Missing required file: {jsonl_path}")
+        raise FileNotFoundError(f"Missing required file: {jsonl_path}")
 
-    events_by_subject = {}
+    events = []
     with open(jsonl_path, 'r', encoding='utf-8') as f:
-        for line_num, line in enumerate(f, 1):
+        for line in f:
             line = line.strip()
             if not line:
                 continue
             try:
                 record = json.loads(line)
-                # Assume 'id' or 'story_id' field exists
-                subj_id = record.get('id') or record.get('story_id') or record.get('subject_id')
-                if not subj_id:
-                    logger.warning(f"Line {line_num}: No subject_id found, skipping")
+                # Expected fields: story_id, event_id, start_timepoint, end_timepoint
+                if 'story_id' not in record or 'event_id' not in record:
+                    warning(f"Skipping malformed event record missing story_id or event_id")
                     continue
-                
-                # Extract events - assume 'events' field is a list of dicts
-                events = record.get('events', [])
-                if not events:
-                    # Fallback: treat the whole story as one event if 'story' field exists
-                    story = record.get('story', '')
-                    if story:
-                        events = [{'text': story, 'index': 0, 'type': 'story'}]
-                
-                events_by_subject[str(subj_id)] = events
+                if 'start_timepoint' not in record or 'end_timepoint' not in record:
+                    warning(f"Skipping event record missing timepoint bounds for {record.get('story_id')}")
+                    continue
+                events.append(record)
             except json.JSONDecodeError as e:
-                logger.error(f"Line {line_num}: JSON decode error - {e}")
-                raise
-
-    logger.info(f"Loaded events for {len(events_by_subject)} subjects")
-    return events_by_subject
+                warning(f"Skipping invalid JSON line in events file: {e}")
+    
+    if not events:
+        log_error("E002", "No valid event boundaries found in metadata file.")
+        raise ValueError("No valid event boundaries found in metadata file.")
+        
+    return events
 
 def compute_event_averages(
-    roi_data: Dict[str, np.ndarray],
-    events_metadata: Dict[str, List[Dict]],
-    time_resolution: float = 2.0  # TR in seconds, default for many fMRI studies
-) -> Dict[str, Dict[str, Dict[str, np.ndarray]]]:
+    timecourses: Dict[Tuple[str, str], np.ndarray],
+    events: List[Dict[str, Any]]
+) -> List[Dict[str, Any]]:
     """
-    Compute mean BOLD signal per event using direct index mapping.
+    Computes mean BOLD signal per event for each subject and ROI.
     
-    Mapping logic:
-    - Each event in the story has an index (0, 1, 2, ...)
-    - We map event index to fMRI timepoints assuming a fixed event duration
-    - For simplicity, we assume each event corresponds to ~4 seconds (2 TRs)
-      This is a heuristic; in a full implementation, this would use precise timestamps.
+    Aggregation method: 'mean' (averaging timepoints within event boundaries).
     
-    Returns nested dict: {subject_id: {roi_name: {event_idx: mean_signal}}}
+    Returns a list of dicts: 
+    [
+      {"subject_id": "...", "event_id": "...", "roi": "...", "mean_signal": float},
+      ...
+    ]
     """
+    results = []
     config = get_config()
-    random_seed = config.get('random_seed', 42)
-    np.random.seed(random_seed)
+    logger.info(f"Computing event averages. Aggregation method: 'mean'.")
+    
+    # Map story_id to events for faster lookup
+    events_by_story = {}
+    for ev in events:
+        sid = ev['story_id']
+        if sid not in events_by_story:
+            events_by_story[sid] = []
+        events_by_story[sid].append(ev)
 
-    results = {}
-    event_duration_tr = 2  # Assume 2 TRs per event (4 seconds at TR=2s)
-
-    for subj_id, events in events_metadata.items():
-        if subj_id not in roi_data:
-            logger.warning(f"Subject {subj_id} has events but no ROI timecourses. Skipping.")
+    # Iterate over all timecourse keys (subject_id, roi)
+    for (sub_id, roi), signal_arr in timecourses.items():
+        # Find events associated with this subject (assuming story_id matches subject_id or mapping exists)
+        # In this pipeline, story_id in events usually corresponds to the subject_id in fMRI data
+        # based on the T019a/T021a flow.
+        subject_events = events_by_story.get(sub_id, [])
+        
+        if not subject_events:
+            warning(f"No events found for subject {sub_id}. Skipping.")
             continue
-        
-        subj_timecourses = roi_data[subj_id]
-        n_timepoints = subj_timecourses.shape[1]
-        
-        results[subj_id] = {}
-        
-        for roi_name, roi_signals in roi_data.items():
-            # If this subject exists in this ROI
-            if subj_id in roi_data[roi_name]:
-                # Find the row index for this subject in the ROI matrix
-                # This assumes subject IDs are sorted and consistent across ROIs
-                # In a real implementation, we'd use a mapping table
-                subj_idx = None
-                # Reconstruct subject list order from the first ROI we loaded
-                # For now, we assume the order is preserved and IDs match
-                # A more robust approach would store subject order explicitly
-                try:
-                    # We need to find the index of this subject in the ROI matrix
-                    # Since we loaded from CSV, we don't have the original order
-                    # We'll assume the CSV was sorted by subject_id
-                    # This is a limitation; a real system would store metadata
-                    import pandas as pd
-                    csv_path = Path("data/processed/roi_timecourses.csv")
-                    df = pd.read_csv(csv_path)
-                    unique_subjects = df['subject_id'].unique()
-                    if subj_id in unique_subjects:
-                        subj_idx = list(unique_subjects).index(subj_id)
-                    else:
-                        logger.warning(f"Subject {subj_id} not found in ROI {roi_name}")
-                        continue
-                except Exception as e:
-                    logger.error(f"Error finding subject index for {subj_id} in {roi_name}: {e}")
-                    continue
-                
-                subj_signal = roi_signals[subj_idx, :]
-                
-                # Compute event averages
-                event_averages = {}
-                for event in events:
-                    event_idx = event.get('index', 0)
-                    if event_idx is None:
-                        continue
-                    
-                    # Map event index to timepoint range
-                    start_tp = int(event_idx * event_duration_tr)
-                    end_tp = int((event_idx + 1) * event_duration_tr)
-                    
-                    if start_tp >= n_timepoints:
-                        # Event extends beyond available data
-                        continue
-                    
-                    end_tp = min(end_tp, n_timepoints)
-                    
-                    if start_tp < end_tp:
-                        mean_signal = np.mean(subj_signal[start_tp:end_tp])
-                        event_averages[event_idx] = float(mean_signal)
-                
-                if event_averages:
-                    results[subj_id][roi_name] = event_averages
+
+        for ev in subject_events:
+            start_tp = int(ev['start_timepoint'])
+            end_tp = int(ev['end_timepoint'])
+            event_id = ev['event_id']
+            
+            # Ensure bounds are within signal array
+            if start_tp >= len(signal_arr):
+                warning(f"Event {event_id} for {sub_id} starts beyond signal length. Skipping.")
+                continue
+            
+            end_idx = min(end_tp + 1, len(signal_arr)) # inclusive start, exclusive end for slicing
+            if start_tp >= end_idx:
+                warning(f"Event {event_id} for {sub_id} has invalid bounds ({start_tp} >= {end_idx}). Skipping.")
+                continue
+            
+            segment = signal_arr[start_tp:end_idx]
+            if segment.size == 0:
+                warning(f"Event {event_id} for {sub_id} has empty segment. Skipping.")
+                continue
+            
+            mean_val = float(np.mean(segment))
+            
+            results.append({
+                "subject_id": sub_id,
+                "event_id": event_id,
+                "roi": roi,
+                "mean_signal": mean_val
+            })
     
     return results
 
-def save_event_averages(
-    event_averages: Dict[str, Dict[str, Dict[str, float]]],
-    output_path: str = "data/processed/mean_bold_intermediate.npy"
-):
+def save_event_averages(averages: List[Dict[str, Any]], output_path: str):
     """
-    Save the computed event averages as a NumPy array.
-    
-    The array is structured as a dictionary saved with np.save,
-    containing the nested structure: {subj_id: {roi: {event_idx: mean}}}
+    Saves the computed event averages to a CSV file.
     """
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Convert to a format suitable for np.save
-    # We'll save the entire dictionary structure
-    np.save(output_file, event_averages, allow_pickle=True)
-    logger.info(f"Saved event averages to {output_file}")
+    if not averages:
+        warning("No averages to save.")
+        return
 
-    # Also log summary stats
-    total_subjects = len(event_averages)
-    total_events = sum(
-        sum(len(roi_events) for roi_events in subj_rois.values())
-        for subj_rois in event_averages.values()
-    )
-    logger.info(f"Summary: {total_subjects} subjects, {total_events} event-ROI averages computed")
+    fieldnames = ["subject_id", "event_id", "roi", "mean_signal"]
+    with open(path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(averages)
+    
+    info(f"Saved event averages to {output_path} ({len(averages)} rows).")
 
 def main():
     """
-    Main entry point for computing mean BOLD per event.
+    Main entry point for T021a: Compute mean BOLD per event.
+    Requires T017c (roi_timecourses.csv) and T019a (rocstories_sample_boundaries.jsonl).
+    Output: data/processed/event_averages_tmp.csv
     """
-    logger.info("Starting T021: Compute mean BOLD per event")
+    info("Starting T021a: Compute mean BOLD per event.")
     
     try:
-        # Load inputs
-        logger.info("Loading ROI timecourses...")
-        roi_data = load_roi_timecourses()
+        # Load dependencies
+        timecourses = load_roi_timecourses()
+        events = load_events_metadata()
         
-        logger.info("Loading events metadata...")
-        events_metadata = load_events_metadata()
+        if not timecourses:
+            log_error("E002", "No timecourses loaded. Cannot compute averages.")
+            sys.exit(1)
         
         # Compute averages
-        logger.info("Computing event averages...")
-        event_averages = compute_event_averages(roi_data, events_metadata)
+        averages = compute_event_averages(timecourses, events)
         
-        # Save results
-        logger.info("Saving results...")
-        save_event_averages(event_averages, "data/processed/mean_bold_intermediate.npy")
+        # Save intermediate results
+        output_path = "data/processed/event_averages_tmp.csv"
+        save_event_averages(averages, output_path)
         
-        logger.info("T021 completed successfully")
-        return 0
+        info("T021a completed successfully.")
         
     except FileNotFoundError as e:
         log_error("E001", str(e))
-        logger.error(f"Input file missing: {e}")
-        return 1
+        sys.exit(1)
     except ValueError as e:
         log_error("E002", str(e))
-        logger.error(f"Data validation error: {e}")
-        return 1
+        sys.exit(1)
     except Exception as e:
-        log_error("E999", str(e))
-        logger.error(f"Unexpected error: {e}")
+        log_error("E003", f"Unexpected error in T021a: {e}")
         raise
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

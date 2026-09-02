@@ -26,3 +26,10 @@ T017:
     of logging for excluded records with specific reason codes, nor any evidence that
     the logging parses the cognitive status metadata extraction result. The required
     artifact (implemented logging logic) is missing.
+T024:
+  c: false
+  h: 287c66c7106060155a0e4551a8de3525eb5121124d7e9e223ca65a084ca96635
+  r: The required `data/processed/embeddings.npy` file is absent, and the provided
+    `code/features.py` excerpt does not contain any implementation that computes sentence
+    embeddings with `all-MiniLM-L6-v2` or saves them to that path. Consequently, the
+    semantic feature extraction and storage requirement is not satisfied.

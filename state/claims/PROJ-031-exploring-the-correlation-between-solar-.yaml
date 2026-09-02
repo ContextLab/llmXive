@@ -4064,3 +4064,168 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-28T23:29:47Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: GOES X-ray flare lists downloaded covering 2010-2023
+  claim_id: c_80eff2a2
+  context: "T011 [US1] Implemented code/ingest.py to download GOES X-ray flare lists\
+    \ from ftp://ftp.swpc.noaa.gov/pub/lists/goes/xray/ covering \u226510 years of\
+    \ historical data (2010-2023)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implemented code/ingest.py to download GOES X-ray flare lists from ftp://ftp.swpc.noaa.gov/pub/lists/goes/xray/\
+    \ covering \u226510 years of historical data (2010-2023)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T03:58:29Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Download window enforced from 2010-01-01 to 2023-12-31
+  claim_id: c_071f1fa2
+  context: T011 [US1] ... Explicitly enforced a download window spanning 2010-01-01
+    to 2023-12-31.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly enforced a download window spanning 2010-01-01 to 2023-12-31.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T03:58:58Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: DataInsufficiencyError triggered if max date is less than 2023-12-30
+  claim_id: c_f56edf59
+  context: 'T011b [US1] ... Verification logic: max(date) < 2023-12-30 triggers DataInsufficiencyError
+    (missing >1 day).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/DataInsufficiencyError_triggered_if_max_date_is_less_than_20
+  kind: magnitude
+  raw_text: 'Verification logic: max(date) < 2023-12-30 triggers DataInsufficiencyError
+    (missing >1 day).'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T03:59:36Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Solar events matched to Dst minima within 3-day window
+  claim_id: c_9fdefa4e
+  context: "T014 [US1] Implemented code/align.py to identify Dst minima (storms) independently,\
+    \ then match preceding solar events within \u22643-day window"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implemented logic to identify Dst minima (storms) independently, then\
+    \ match preceding solar events within \u22643-day window."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T03:59:36Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Distinct minima separated by 24 hours of recovery included
+  claim_id: c_9002d33f
+  context: "T016b [US1] ... Filtering Rule: Only include distinct minima separated\
+    \ by \u226524 hours of recovery..."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Distinct_minima_separated_by_24_hours_of_recovery_included
+  kind: entity_fact
+  raw_text: "Filtering Rule: Only include distinct minima separated by \u226524 hours\
+    \ of recovery, where 'recovery' is defined as Dst returning to > nT."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T04:00:14Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Piecewise model testing triggered if linear regression R squared is less
+    than 0.1
+  claim_id: c_f7644d19
+  context: "T026 [US2] ... Trigger: ONLY if linear regression R\xB2 < 0.1."
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: "Trigger: ONLY if linear regression R\xB2 < 0.1."
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T04:00:15Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Time-series split isolated Train set up to 2020 and Test set 2021-2023
+  claim_id: c_30b61c14
+  context: T068 [US3] Implemented the strict time-series split logic in code/analysis.py
+    to isolate Train (-2020) and Test (2021-2023) sets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implemented the strict time-series split logic in code/analysis.py to
+    isolate Train (-2020) and Test (2021-2023) sets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T04:01:02Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Severe storm threshold defined as Dst less than or equal to -100 nT
+  claim_id: c_96b38f91
+  context: "T033 [US3] ... Explicitly cited the NOAA SWPC definition document ...\
+    \ for the 'severe storm' threshold (Dst \u2264 -100 nT)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Severe_storm_threshold_defined_as_Dst_less_than_or_equal_to
+  kind: magnitude
+  raw_text: "Explicitly cited the NOAA SWPC definition document ... for the 'severe\
+    \ storm' threshold (Dst \u2264 -100 nT)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T04:06:15Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps CME speed cutoffs at 900, 1000, and 1100
+    km/s
+  claim_id: c_5b4d497d
+  context: T084 [US3] ... ensure the sensitivity analysis sweeps CME speed cutoffs
+    specifically at 900, 1000, and 1100 km/s with a step size of 100 km/s.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure the sensitivity analysis sweeps CME speed cutoffs specifically
+    at 900, 1000, and 1100 km/s with a step size of 100 km/s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T04:08:37Z'

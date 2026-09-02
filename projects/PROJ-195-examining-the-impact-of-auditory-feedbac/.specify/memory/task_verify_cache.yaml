@@ -1,18 +1,3 @@
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No Docker configuration file, script, or documentation for `fmriprep` memory\
-    \ and process limits is present in the provided evidence. The task required a\
-    \ concrete artifact (e.g., a Dockerfile, docker\u2011compose.yml, or command\u2011\
-    line options) that sets appropriate resource limits, but none was supplied."
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The submission provides no code, configuration, or `preprocessing.log` file showing
-    that logging of preprocessing deviations was added. Without any artifact demonstrating
-    the new logging behavior, the task requirement is not satisfied. The implementer
-    must add the logging implementation and supply the resulting log (or code changes)
-    as evidence.
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

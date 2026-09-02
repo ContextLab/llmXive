@@ -352,3 +352,196 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-18T21:23:27Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: fetch OpenNeuro ds000246 subset and verify SHA256 checksums
+  claim_id: c_ca9cfd5d
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T004 Implement `code/download.py`
+    to fetch OpenNeuro `ds000246` subset (handling disk limits) and verify SHA256
+    checksums.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_OpenNeuro_ds000246_subset_and_verify_SHA256_checksums
+  kind: entity_fact
+  raw_text: Implement `code/download.py` to fetch OpenNeuro `ds000246` subset (handling
+    disk limits) and verify SHA256 checksums.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T03:49:11Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: create auditory cortex ROI using Harvard-Oxford Cortical Structural Atlas
+    in MNI space
+  claim_id: c_1152c92e
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T006 [P] Create `roi_masks/auditory_cortex.nii.gz`
+    using the Harvard-Oxford Cortical Structural Atlas in standard MNI template space
+    (specific source for determinism).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Create_auditory_cortex_ROI_using_Harvard-Oxford_Cortical_Str
+  kind: entity_fact
+  raw_text: Create `roi_masks/auditory_cortex.nii.gz` using the Harvard-Oxford Cortical
+    Structural Atlas in standard MNI template space (specific source for determinism).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T03:50:31Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: validate event labels normal, delayed, and pitch-shifted
+  claim_id: c_affe1bc0
+  context: 'Phase 3: User Story 1 - T013 [US1] Implement event label validation in
+    `code/utils.py` to halt with exit code 1 and log ''ERROR: Missing required event
+    labels'' if ''normal'', ''delayed'', or ''pitch-shifted'' are missing'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement event label validation in `code/utils.py` to halt with exit
+    code 1 and log ''ERROR: Missing required event labels'' if ''normal'', ''delayed'',
+    or ''pitch-shifted'' are missing'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T03:51:16Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: flag subjects with motion displacement greater than 2mm
+  claim_id: c_9b631ec9
+  context: 'Phase 3: User Story 1 - T014 [US1] Implement motion QC extraction in `code/preprocess.py`
+    to parse fmriprep logs and flag subjects >2mm displacement'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_subjects_with_motion_displacement_greater_than_2mm
+  kind: magnitude
+  raw_text: Implement motion QC extraction in `code/preprocess.py` to parse fmriprep
+    logs and flag subjects >2mm displacement
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T03:52:05Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: ensure dataset size less than 14GB
+  claim_id: c_25115c09
+  context: 'Phase 3: User Story 1 - T012 [US1] Implement dataset filtering logic in
+    `code/download.py` to ensure total size < 14GB (subset if necessary)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_dataset_size_less_than_14GB
+  kind: magnitude
+  raw_text: Implement dataset filtering logic in `code/download.py` to ensure total
+    size < 14GB (subset if necessary)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T03:52:46Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: define perturbed condition as union of delayed and pitch-shifted events
+  claim_id: c_9f2f63f2
+  context: 'Phase 4: User Story 2 - T019 [US2] Implement First-Level GLM in `code/glm_first_level.py`
+    using nilearn, defining ''perturbed'' as union of ''delayed'' and ''pitch-shifted'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Define_perturbed_condition_as_union_of_delayed_and_pitch-shi
+  kind: entity_fact
+  raw_text: Implement First-Level GLM in `code/glm_first_level.py` using nilearn,
+    defining 'perturbed' as union of 'delayed' and 'pitch-shifted'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T03:53:18Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: perform group-level one-sample t-test against zero
+  claim_id: c_0dd84409
+  context: 'Phase 4: User Story 2 - T021 [US2] Implement Group-Level analysis in `code/glm_group.py`
+    performing a **one-sample t-test against zero**'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_group-level_one-sample_t-test_against_zero
+  kind: entity_fact
+  raw_text: Implement Group-Level analysis in `code/glm_group.py` performing a **one-sample
+    t-test against zero**
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T03:53:56Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: apply voxel-wise FDR correction with q less than 0.05
+  claim_id: c_11f351a2
+  context: 'Phase 4: User Story 2 - T022 [US2] Apply Voxel-wise FDR correction (q
+    < 0.05) and extract significant clusters'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Apply_voxel-wise_FDR_correction_with_q_less_than_0.05
+  kind: magnitude
+  raw_text: Apply Voxel-wise FDR correction (q < 0.05) and extract significant clusters
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T03:54:23Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: calculate Cohen's d effect sizes for identified clusters
+  claim_id: c_640e4b1a
+  context: 'Phase 4: User Story 2 - T023 [US2] Calculate and save Cohen''s d effect
+    sizes and confidence intervals for identified clusters'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_Cohen%27s_d_effect_sizes_for_identified_clusters
+  kind: entity_fact
+  raw_text: Calculate and save Cohen's d effect sizes and confidence intervals for
+    identified clusters
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T03:56:34Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: calculate Pearson correlation between auditory cortex activation and
+    learning rate proxy
+  claim_id: c_3a1183bd
+  context: 'Phase 5: User Story 3 - T030 [US3] Calculate Pearson correlation between
+    auditory cortex activation and learning rate proxy; save results to `data/processed/correlation_results.csv`'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_Pearson_correlation_between_auditory_cortex_activa
+  kind: entity_fact
+  raw_text: Calculate Pearson correlation between auditory cortex activation and learning
+    rate proxy
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T03:57:42Z'

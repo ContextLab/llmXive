@@ -1,40 +1,50 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Linguistic Feature Matrix Schema
-description: >
-  JSON Schema for the extracted linguistic feature matrix used in statistical analysis.
-  Includes lexical, syntactic, and semantic features derived from the cleaned text.
+description: >-
+  Schema for the processed feature matrix containing lexical, syntactic, 
+  and semantic features extracted from the cleaned transcripts.
+  Used as input for statistical testing and modeling (User Story 2 & 3).
 type: object
 required:
   - participant_id
   - label
-  - features
+  - lexical_features
+  - syntactic_features
+  - semantic_features
 properties:
   participant_id:
     type: string
-    description: Unique identifier matching the source dataset.
-    pattern: '^P\\d{3}$'
+    description: >-
+      Unique identifier matching the source dataset.
+    pattern: "^[pc]\\d{3,}$"
   label:
     type: string
-    description: Cognitive status label.
+    description: >-
+      Cognitive status classification.
     enum:
       - Control
       - MCI
       - AD
-  features:
+  lexical_features:
     type: object
-    description: >
-      Dictionary of computed linguistic features.
-      All numeric values are floats.
+    description: >-
+      Vocabulary richness and complexity metrics.
+    required:
+      - ttr
+      - mtld
+      - noun_ratio
+      - verb_ratio
     properties:
-      # Lexical Features
       ttr:
         type: number
-        description: Type-Token Ratio (lexical diversity).
+        description: Type-Token Ratio (vocabulary diversity).
         minimum: 0.0
         maximum: 1.0
       mtld:
         type: number
-        description: Measure of Textual Lexical Diversity.
+        description: >-
+          Measure of Textual Lexical Diversity (MTLD).
+          Higher values indicate greater lexical diversity.
         minimum: 0.0
       noun_ratio:
         type: number
@@ -46,33 +56,42 @@ properties:
         description: Ratio of verbs to total words.
         minimum: 0.0
         maximum: 1.0
-      # Syntactic Features
+  syntactic_features:
+    type: object
+    description: >-
+      Structural complexity metrics derived from spaCy parsing.
+    required:
+      - mean_clause_length
+      - t_unit_count
+      - avg_sentence_length
+    properties:
       mean_clause_length:
         type: number
         description: Average number of words per clause.
         minimum: 0.0
       t_unit_count:
         type: integer
-        description: Count of T-units in the transcript.
+        description: Total number of T-units in the transcript.
         minimum: 0
-      # Semantic Features
-      embedding_mean_similarity:
+      avg_sentence_length:
         type: number
-        description: Mean cosine similarity of sentence embeddings (semantic coherence).
+        description: Average number of words per sentence.
+        minimum: 0.0
+  semantic_features:
+    type: object
+    description: >-
+      Semantic coherence metrics based on sentence embeddings.
+    required:
+      - cosine_similarity_mean
+      - cosine_similarity_std
+    properties:
+      cosine_similarity_mean:
+        type: number
+        description: Mean cosine similarity between consecutive sentence embeddings.
         minimum: -1.0
         maximum: 1.0
-      embedding_std_similarity:
+      cosine_similarity_std:
         type: number
-        description: Standard deviation of sentence embedding similarities.
+        description: Standard deviation of cosine similarities.
         minimum: 0.0
-    required:
-      - ttr
-      - mtld
-      - noun_ratio
-      - verb_ratio
-      - mean_clause_length
-      - t_unit_count
-      - embedding_mean_similarity
-      - embedding_std_similarity
-    additionalProperties: false
 additionalProperties: false
