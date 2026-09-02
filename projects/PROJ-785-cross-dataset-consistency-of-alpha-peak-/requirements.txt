@@ -1,0 +1,15 @@
+mne
+scikit-learn
+statsmodels
+pandas
+numpy
+pybids
+openneuro-py
+matplotlib
+seaborn
+scipy
+pytest
+pytest-cov
+black
+isort
+flake8

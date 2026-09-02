@@ -1,0 +1,49 @@
+{
+    "datasets": {
+        "openneuro_ids": [
+            "ds003865",
+            "ds003392",
+            "ds003775"
+        ],
+        "min_subjects": 20,
+        "download_root": "data/raw/openneuro"
+    },
+    "processing": {
+        "pipeline_a": {
+            "bandpass_low": 1.0,
+            "bandpass_high": 45.0,
+            "notch_frequencies": [50, 60],
+            "reference": "car",
+            "ica": {
+                "enabled": true,
+                "correlation_threshold": 0.8,
+                "variance_threshold": 0.15
+            }
+        },
+        "pipeline_b": {
+            "bandpass_low": 0.5,
+            "bandpass_high": 40.0,
+            "notch_frequencies": [50, 60],
+            "reference": "mastoid",
+            "ica": {
+                "enabled": false
+            }
+        },
+        "common": {
+            "sampling_rate_min": 250,
+            "power_line_frequency": null,
+            "random_seed": 42
+        }
+    },
+    "analysis": {
+        "alpha_band": {
+            "low": 8.0,
+            "high": 13.0
+        },
+        "sensitivity_sweep": {
+            "step": 0.5,
+            "range": 0.5
+        },
+        "consistency_threshold_hz": 0.5
+    }
+}

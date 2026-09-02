@@ -1,0 +1,492 @@
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: flat spectrum power threshold 1e-6 across 8-13 Hz triggers Indeterminate
+    flag
+  claim_id: c_7ca82c98
+  context: 'Unit test for ''Indeterminate'' flag in tests/unit/test_apf_estimator.py:
+    Test that a flat spectrum (power < 1e-6 across 8-13 Hz) triggers the ''Indeterminate''
+    flag.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test that a flat spectrum (power < 1e-6 across 8-13 Hz) triggers the 'Indeterminate'
+    flag.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:23:59Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: peak at 7.5 Hz triggers Out-of-Band flag
+  claim_id: c_faed7be8
+  context: 'Unit test for ''Out-of-Band'' flag in tests/unit/test_apf_estimator.py:
+    Test that a peak at 7.5 Hz triggers the ''Out-of-Band'' flag with expected string
+    value.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test that a peak at 7.5 Hz triggers the 'Out-of-Band' flag with expected
+    string value.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:24:23Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: synthetic signal 10.0 Hz at 256 Hz sampling rate error within 0.5 Hz
+  claim_id: c_629eaa2a
+  context: "Integration test for synthetic ground truth calibration: Write test that\
+    \ calls a stub for T023 (initially failing). Test must explicitly execute the\
+    \ synthetic signal generator (T023) with parameters (10.0 Hz sine wave, 256 Hz\
+    \ sampling rate) and verify the error is within \xB10.5 Hz."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify the error is within \xB10.5 Hz when executing the synthetic signal\
+    \ generator with parameters (10.0 Hz sine wave, 256 Hz sampling rate)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:24:54Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: simulated variance components dataset 0.4 pipeline 0.1 residual 0.5 recovery
+    within 5%
+  claim_id: c_7a1e29f4
+  context: "Integration test for Mixed\u2011Effects model recovery on simulated data\
+    \ in tests/integration/test_model_recovery.py: Simulate data with dataset=0.4,\
+    \ pipeline=0.1, residual=0.5 and verify recovery within 5% margin of error."
+  evidence:
+    asserted: '0.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Simulate data with dataset=0.4, pipeline=0.1, residual=0.5 and verify
+    recovery within 5% margin of error.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T09:24:54Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: bootstrapping confidence interval test input N=50
+  claim_id: c_3a6cc0f3
+  context: 'Unit test for Bootstrapping confidence interval calculation in tests/unit/test_analysis.py:
+    Test with input N=50, assert CI width and coverage probability.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test with input N=50, assert CI width and coverage probability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:25:16Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: simulate 1000 datasets variances dataset 0.4 pipeline 0.1 residual 0.5
+  claim_id: c_76086fc0
+  context: "Implement simulation\u2011based power analysis in code/analysis.py: Simulate\
+    \ 1000 datasets with known variances (dataset=0.4, pipeline=0.1, residual=0.5)\
+    \ to estimate theoretical power."
+  evidence:
+    asserted: '1000.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Simulate 1000 datasets with known variances (dataset=0.4, pipeline=0.1,
+    residual=0.5) to estimate theoretical power.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T09:25:16Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: minimum sample size estimation stop when power 0.80
+  claim_id: c_a0233796
+  context: "Implement minimum sample size estimation in code/analysis.py: Iteratively\
+    \ vary N from a small initial value to a large upper bound in steps of 5, compute\
+    \ power for each N, stop when power \u2265 0.80, and report the minimum N required."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Stop when power \u2265 0.80, and report the minimum N required."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:25:16Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: subject count threshold 20 per dataset
+  claim_id: c_48dff42b
+  context: 'Implement subject count validation logic in code/validators.py: Count
+    subjects per dataset and enforce >= 20 threshold; raise DataIntegrityError if
+    violated.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Count subjects per dataset and enforce >= 20 threshold; raise DataIntegrityError
+    if violated.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:26:04Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: 7.5 Hz peak triggers Out-of-Band flag string
+  claim_id: c_7d40a1bb
+  context: 'Unit test for ''Out-of-Band'' peak edge case in tests/unit/test_edge_cases.py:
+    Test 7.5 Hz peak with expected flag string.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test that a peak at 7.5 Hz triggers the 'Out-of-Band' flag with expected
+    flag string.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:26:05Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: verify file structure sub-01/eeg/sub-01_task-rest_eeg.fif exists
+  claim_id: c_f306a0a9
+  context: 'Integration test for OpenNeuro download in tests/integration/test_download.py:
+    Mock API for ds003775, verify file structure sub-01/eeg/sub-01_task-rest_eeg.fif
+    exists, and assert file count matches expected subject count.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify file structure sub-01/eeg/sub-01_task-rest_eeg.fif exists, and
+    assert file count matches expected subject count.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:26:30Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: APF consistency synthetic signal 10.0 Hz within 0.5 Hz
+  claim_id: c_0004ae19
+  context: "Independent Test: The system can be tested by running the APF estimation\
+    \ on a synthetic EEG signal with a known, injected alpha peak (e.g., 10.0 Hz)\
+    \ and verifying that both methods return a value within \xB10.5 Hz of the ground\
+    \ truth."
+  evidence:
+    asserted: '10.0'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: "Verify consistency by running APF estimation on a synthetic EEG signal\
+    \ with a known, injected alpha peak (e.g., 10.0 Hz) and verifying that both methods\
+    \ return a value within \xB10.5 Hz of the ground truth."
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T09:26:30Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis alpha band sweep 0.5 Hz change mean APF threshold
+    0.2 Hz
+  claim_id: c_a7e85008
+  context: "Implement sensitivity analysis loop in code/apf_estimator.py: Sweep alpha\
+    \ band bounds by \xB10.5 Hz (e.g., 7.5\u201112.5, 8.0\u201113.0, 8.5\u201113.5),\
+    \ calculate the change in mean APF, compare against the \u2264 0.2 Hz threshold,\
+    \ and output a Pass/Fail status as required by SC\u2011005."
+  evidence:
+    asserted: '0.5'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: "Sweep alpha band bounds by \xB10.5 Hz (e.g., 7.5\u201112.5, 8.0\u2011\
+    13.0, 8.5\u201113.5), calculate the change in mean APF, compare against the \u2264\
+    \ 0.2 Hz threshold."
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T09:26:30Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: minimum sample size estimation steps of 5
+  claim_id: c_da3a7c4a
+  context: "Implement minimum sample size estimation in code/analysis.py: Iteratively\
+    \ vary N from a small initial value to a large upper bound in steps of 5, compute\
+    \ power for each N, stop when power \u2265 0.80, and report the minimum N required."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Iteratively vary N from a small initial value to a large upper bound in
+    steps of 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:26:50Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 0
+  canonical: Simulated variance components recovery within 5% margin of error (dataset=0.4,
+    pipeline=0.1, residual=0.5)
+  claim_id: c_544fc5ae
+  context: "Integration test for Mixed\u2011Effects model recovery on simulated data\
+    \ in tests/integration/test_model_recovery.py: Simulate data with dataset=0.4,\
+    \ pipeline=0.1, residual=0.5 and verify recovery within 5% margin of error."
+  evidence:
+    asserted: '0.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Simulate data with dataset=0.4, pipeline=0.1, residual=0.5 and verify
+    recovery within 5% margin of error.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T09:27:35Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 0
+  canonical: Mixed-effects model simulation with dataset=0.4, pipeline=0.1, residual=0.5
+    must recover values within 5% margin
+  claim_id: c_c236bbf4
+  context: 'Integration test for Mixed-Effects model recovery on simulated data in
+    tests/integration/test_model_recovery.py: Simulate data with dataset=0.4, pipeline=0.1,
+    residual=0.5 and verify recovery within 5% margin of error.'
+  evidence:
+    asserted: '0.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Simulate data with dataset=0.4, pipeline=0.1, residual=0.5 and verify
+    recovery within 5% margin of error.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T09:33:24Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: Output files for both pipelines must exist in BIDS format with no NaN
+    values in signal channels
+  claim_id: c_545944f9
+  context: 'Independent Test: The system can be tested by executing the download and
+    preprocessing scripts on a single dataset and verifying that output files exist
+    for BOTH pipelines in the expected BIDS-compliant derivative format with no NaN
+    values in the signal channels.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_files_for_both_pipelines_must_exist_in_BIDS_format_wi
+  kind: entity_fact
+  raw_text: The system can be tested by executing the download and preprocessing scripts
+    on a single dataset and verifying that output files exist for BOTH pipelines in
+    the expected BIDS-compliant derivative format with no NaN values in the signal
+    channels.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:34:03Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: Bootstrapping confidence interval test with input N=50
+  claim_id: c_e796310f
+  context: 'Unit test for Bootstrapping confidence interval calculation in tests/unit/test_analysis.py:
+    Test with input N=50, assert CI width and coverage probability.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test with input N=50, assert CI width and coverage probability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:34:03Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: Calculate achieved power using observed variance components and real
+    data sample size
+  claim_id: c_b0f83411
+  context: 'Calculate achieved power for real dataset in code/analysis.py: Compute
+    power based on observed variance components and sample size of the real data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_achieved_power_using_observed_variance_components
+  kind: entity_fact
+  raw_text: Compute power based on observed variance components and sample size of
+    the real data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:34:47Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: Minimum sample size estimation with step size 5 and power threshold 0.80
+  claim_id: c_a73d22ae
+  context: "Implement minimum sample size estimation in code/analysis.py: Iteratively\
+    \ vary N from a small initial value to a large upper bound in steps of 5, compute\
+    \ power for each N, stop when power \u2265 0.80, and report the minimum N required."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Iteratively vary N from a small initial value to a large upper bound\
+    \ in steps of 5, compute power for each N, stop when power \u2265 0.80, and report\
+    \ the minimum N required."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:35:41Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 0
+  canonical: Simulated mixed-effects model recovery with variance components dataset=0.4,
+    pipeline=0.1, residual=0.5 within 5% margin of error
+  claim_id: c_245f43bd
+  context: "Integration test for Mixed\u2011Effects model recovery on simulated data\
+    \ in `tests/integration/test_model_recovery.py`: Simulate data with `dataset=0.4,\
+    \ pipeline=0.1, residual=0.5` and verify recovery within 5% margin of error."
+  evidence:
+    asserted: '0.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Simulate data with dataset=0.4, pipeline=0.1, residual=0.5 and verify
+    recovery within 5% margin of error.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T09:41:11Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 0
+  canonical: 'Simulate mixed-effects model variance components: dataset 0.4, pipeline
+    0.1, residual 0.5 with 5% recovery margin'
+  claim_id: c_27bceddf
+  context: "Integration test for Mixed\u2011Effects model recovery on simulated data\
+    \ in `tests/integration/test_model_recovery.py`"
+  evidence:
+    asserted: '0.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Simulate data with `dataset=0.4, pipeline=0.1, residual=0.5` and verify
+    recovery within 5% margin of error.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T09:42:04Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: Unit test bootstrapping confidence interval calculation with input N=50
+  claim_id: c_d49c9be7
+  context: Unit test for Bootstrapping confidence interval calculation in `tests/unit/test_analysis.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test with input N=50, assert CI width and coverage probability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:42:05Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: Minimum sample size estimation stops when statistical power is greater
+    than or equal to 0.80
+  claim_id: c_6964acbc
+  context: Implement minimum sample size estimation in `code/analysis.py`
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_sample_size_estimation_stops_when_statistical_power
+  kind: magnitude
+  raw_text: "Stop when power \u2265 0.80, and report the minimum N required."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:43:00Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: Unit test for bootstrapping confidence interval calculation uses input
+    N=50
+  claim_id: c_268cd93e
+  context: 'Phase 5: User Story 3 - Variance Decomposition and Reporting. Tests for
+    User Story 3. T032 [US3] Unit test for Bootstrapping confidence interval calculation
+    in `tests/unit/test_analysis.py`: Test with input N=50, assert CI width and coverage
+    probability.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test with input N=50, assert CI width and coverage probability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:47:08Z'

@@ -16,7 +16,7 @@ This project implements a reproducible pipeline to quantify the consistency of A
 **Project Type**: Scientific Data Analysis Pipeline / CLI Tool.  
 **Performance Goals**: Complete full analysis (3 datasets, 2 pipelines, 2 methods) within 6 hours per job; RAM usage < 6 GB (streaming/sequential processing).  
 **Constraints**: No GPU required for standard Welch PSD or FastICA on < 50 subjects; Must handle missing BIDS metadata gracefully; Must stream large datasets if > 1GB to avoid OOM.  
-**Scale/Scope**: A selection of OpenNeuro datasets (ds003775) with approximately 60-100 subjects total.
+**Scale/Scope**: A selection of OpenNeuro datasets with -100 subjects total.
 
 ## Constitution Check
 
@@ -116,7 +116,7 @@ state/
 
 ### Phase 4: Sensitivity & Power Analysis
 1.  **Sensitivity**: Iterate alpha band bounds (Lower:, 8.0, 8.5; Upper:, 13.0, 13.5). Calculate delta mean APF for each. Output 'Sensitivity Table'.
-2.  **Power**: Simulate 1000 datasets with known variance components (dataset=0.4, pipeline=0.1, residual=0.5). Fit model. Calculate % of simulations where pipeline variance is significant. Report achieved power.
+2.  **Power**: Simulate multiple datasets with known variance components (dataset=0.4, pipeline=0.1, residual=0.5). Fit model. Calculate % of simulations where pipeline variance is significant. Report achieved power.
 
 ### Phase 5: Reporting
 1.  **Validation**: Check SC-002 (Consistency % ≤ 0.5Hz) and SC-003 (Power ≥ 0.80). Output Pass/Fail status.

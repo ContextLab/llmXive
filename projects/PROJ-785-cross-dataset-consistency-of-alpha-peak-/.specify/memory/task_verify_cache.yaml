@@ -1,0 +1,25 @@
+T008:
+  c: false
+  h: c0098863a59208c9ff53e4cb2a2a47ed72c5ad84f72b659c02f123104798b06d
+  r: "The required artifact `tests/integration/test_download.py` is missing entirely,\
+    \ so no integration test exists to mock the API, verify the file structure, or\
+    \ assert the subject count. The task\u2019s deliverable is absent."
+T009:
+  c: false
+  h: f84b42433044067770ce704081c01625d8115d91d35b6f20472542fd1ede078e
+  r: "The required unit\u2011test file `tests/unit/test_preprocessing.py` is missing,\
+    \ so no test code exists to verify `apply_bandpass` or `reject_ica_components`\
+    \ with synthetic data. Without this artifact the task is not satisfied."
+T010:
+  c: false
+  h: f84b42433044067770ce704081c01625d8115d91d35b6f20472542fd1ede078e
+  r: "The required unit\u2011test file `tests/unit/test_preprocessing.py` is missing,\
+    \ so no test code exists to verify `apply_bandpass` and `apply_mastoid_reference`\
+    \ with synthetic data. Without this artifact, the task is not satisfied."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation was presented showing that logging\
+    \ of the artifact rejection status (including the \u201CNone Detected\u201D case)\
+    \ was added nor that this information is written to the metadata. Without such\
+    \ artifacts, the task requirement is not satisfied."
