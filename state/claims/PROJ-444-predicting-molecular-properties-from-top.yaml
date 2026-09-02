@@ -195,3 +195,93 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-07T15:29:28Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: a priori power analysis requires N greater than or equal to 128
+  claim_id: c_2f7eb250
+  context: Implement code/01_data_ingestion.py to fetch MoleculeNet ESOL, validate
+    smiles/logP columns against schema, perform a priori power analysis (N>=128),
+    enforce min scaffolds check, and ensure random seed pinning (fixed value)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/A_priori_power_analysis_requires_N_greater_than_or_equal_to
+  kind: magnitude
+  raw_text: perform a priori power analysis (N>=128)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:31:23Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Linear Regression alpha is 1.0 and Random Forest has 100 trees with max
+    depth 10
+  claim_id: c_eefb4584
+  context: 'Implement code/04_model_training.py: Train Linear Regression (alpha=1.0)
+    and Random Forest (100 trees, max_depth=10) on 3 feature sets (FR-003)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Linear Regression (alpha=1.0) and Random Forest (100 trees, max_depth=10)
+    on 3 feature sets
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:31:55Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: predictors with VIF greater than 5 are flagged
+  claim_id: c_33a678c5
+  context: 'Implement code/06_diagnostics.py: Calculate VIF; flag predictors > 5 (FR-007)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Predictors_with_VIF_greater_than_5_are_flagged
+  kind: magnitude
+  raw_text: flag predictors > 5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:32:34Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: cyclomatic complexity reduced to less than 10
+  claim_id: c_2a7479e8
+  context: 'Code cleanup: Refactor code/utils/graph_builder.py to reduce cyclomatic
+    complexity to < 10'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cyclomatic_complexity_reduced_to_less_than_10
+  kind: magnitude
+  raw_text: reduce cyclomatic complexity to < 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:33:03Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: total runtime optimized to be less than 5.4 hours
+  claim_id: c_8fe7eb79
+  context: 'Performance optimization: Profile code/02_tda_computation.py and optimize
+    memory usage to ensure total runtime < 5.4h (SC-004)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_runtime_optimized_to_be_less_than_5.4_hours
+  kind: magnitude
+  raw_text: optimize memory usage to ensure total runtime < 5.4h
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:33:38Z'

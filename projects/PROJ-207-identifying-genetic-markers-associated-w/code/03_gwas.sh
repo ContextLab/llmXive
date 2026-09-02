@@ -1,91 +1,95 @@
 #!/bin/bash
 # T017: Execute PLINK logistic regression for GWAS
 # Output: data/interim/gwas_raw.tsv
-# Note: FDR correction is handled by T020 (fdr_correction.py)
+#
+# Prerequisites:
+#   - T015: VCF to PLINK conversion (produces .bed, .bim, .fam)
+#   - T016: Phenotype preprocessing (produces covariates)
+#   - T046: Mandatory covariates defined (geographic region, sampling year, Varroa count)
+#
+# This script executes PLINK logistic regression with mandatory covariates.
+# It does NOT include FDR logic (handled by T020).
 
 set -euo pipefail
 
 # Configuration
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PROJECT_ROOT="$( dirname "$SCRIPT_DIR" )"
-CODE_DIR="$PROJECT_ROOT/code"
-DATA_DIR="$PROJECT_ROOT/data"
-INTERIM_DIR="$DATA_DIR/interim"
-PROCESSED_DIR="$DATA_DIR/processed"
+PLINK_BIN="${PLINK_BIN:-plink}"
+INPUT_PREFIX="${INPUT_PREFIX:-data/interim/harmonized}"
+COVARIATE_FILE="${COVARIATE_FILE:-data/interim/covariates.tsv}"
+OUTPUT_FILE="${OUTPUT_FILE:-data/interim/gwas_raw.tsv}"
+LOG_FILE="${LOG_FILE:-data/interim/gwas_run.log}"
 
-# Ensure output directory exists
-mkdir -p "$INTERIM_DIR"
-
-# Define input files based on previous pipeline steps (T015, T016, T064)
-# T015: VCF to PLINK conversion -> data/interim/genotype
-# T016: Preprocess phenotype -> data/interim/phenotypes_cleaned
-# T064: Collinearity diagnostics -> data/interim/covariates.csv (or similar)
-
-# Check for required input files
-BED_FILE="$INTERIM_DIR/genotype.bed"
-BIM_FILE="$INTERIM_DIR/genotype.bim"
-FAM_FILE="$INTERIM_DIR/genotype.fam"
-PHENO_FILE="$INTERIM_DIR/phenotypes_cleaned.pheno"
-COV_FILE="$INTERIM_DIR/covariates.csv"
-
-if [[ ! -f "$BED_FILE" ]] || [[ ! -f "$BIM_FILE" ]] || [[ ! -f "$FAM_FILE" ]]; then
-    echo "ERROR: PLINK binary files not found in $INTERIM_DIR. Did T015 (vcf_to_plink) run successfully?"
+# Validate inputs exist
+if [[ ! -f "${INPUT_PREFIX}.bed" ]]; then
+    echo "ERROR: Input PLINK files not found. Expected ${INPUT_PREFIX}.bed"
+    echo "Run T015 (vcf_to_plink) and T016 (preprocess_phenotype) first."
     exit 1
 fi
 
-if [[ ! -f "$PHENO_FILE" ]]; then
-    echo "ERROR: Phenotype file not found at $PHENO_FILE. Did T016 (preprocess_phenotype) run successfully?"
+if [[ ! -f "${COVARIATE_FILE}" ]]; then
+    echo "ERROR: Covariate file not found: ${COVARIATE_FILE}"
+    echo "Run T016 (preprocess_phenotype) first to generate covariates."
     exit 1
 fi
 
-if [[ ! -f "$COV_FILE" ]]; then
-    echo "WARNING: Covariate file not found at $COV_FILE. Running GWAS without covariates. (T064 may not have run)"
-    COV_FLAG=""
-else
-    COV_FLAG="--covar $COV_FILE"
-fi
+echo "Starting PLINK logistic regression at $(date)"
+echo "Input prefix: ${INPUT_PREFIX}"
+echo "Covariate file: ${COVARIATE_FILE}"
+echo "Output file: ${OUTPUT_FILE}"
 
-OUTPUT_PREFIX="$INTERIM_DIR/gwas_raw"
-LOG_FILE="$INTERIM_DIR/gwas_execution.log"
+# Execute PLINK logistic regression with mandatory covariates
+# --logistic: Perform logistic regression
+# --covar: Include covariates (geographic region, sampling year, Varroa count)
+# --covar-name: Explicitly name the mandatory covariates
+# --out: Output prefix
+# --threads: Use multiple threads if available
+# --allow-no-sex: Allow samples without sex information
+# --hide-covar: Hide covariate coefficients in output (cleaner raw stats)
 
-echo "Starting PLINK logistic regression at $(date)" | tee "$LOG_FILE"
-echo "Input Bed: $BED_FILE" | tee -a "$LOG_FILE"
-echo "Input Phenotype: $PHENO_FILE" | tee -a "$LOG_FILE"
-if [[ -n "$COV_FLAG" ]]; then
-    echo "Input Covariates: $COV_FILE" | tee -a "$LOG_FILE"
-fi
+${PLINK_BIN} \
+    --bfile "${INPUT_PREFIX}" \
+    --logistic \
+    --covar "${COVARIATE_FILE}" \
+    --covar-name REGION YEAR VARROA_COUNT \
+    --out "${OUTPUT_FILE%.*}" \
+    --threads 4 \
+    --allow-no-sex \
+    --hide-covar \
+    2>&1 | tee "${LOG_FILE}"
 
-# Execute PLINK 2.0 logistic regression
-# Using --logistic hide-covar to get standard output
-# --covar-name can be used if specific columns are needed, but default is all
-# Assuming phenotype column 1 is the target (CCD status)
-
-plink2 \
-    --bfile "$INTERIM_DIR/genotype" \
-    --pheno "$PHENO_FILE" \
-    --pheno-name CCD_Status \
-    --covar "$COV_FILE" \
-    --logistic hide-covar \
-    --out "$OUTPUT_PREFIX" \
-    2>&1 | tee -a "$LOG_FILE"
-
-# Verify output
-EXPECTED_OUTPUT="$OUTPUT_PREFIX.logistic"
-if [[ -f "$EXPECTED_OUTPUT" ]]; then
-    # PLINK outputs .logistic file. We need to rename/move to gwas_raw.tsv as per spec.
-    # The spec asks for `data/interim/gwas_raw.tsv`.
-    mv "$EXPECTED_OUTPUT" "$INTERIM_DIR/gwas_raw.tsv"
-    echo "Successfully wrote raw association statistics to $INTERIM_DIR/gwas_raw.tsv" | tee -a "$LOG_FILE"
-    
-    # Verify file is not empty
-    if [[ ! -s "$INTERIM_DIR/gwas_raw.tsv" ]]; then
-        echo "ERROR: Output file $INTERIM_DIR/gwas_raw.tsv is empty." | tee -a "$LOG_FILE"
+# Verify output was created
+if [[ ! -f "${OUTPUT_FILE}" ]]; then
+    # PLINK might output with different extension depending on version
+    # Check for .assoc.logistic which is common output
+    if [[ -f "${OUTPUT_FILE%.*}.assoc.logistic" ]]; then
+        mv "${OUTPUT_FILE%.*}.assoc.logistic" "${OUTPUT_FILE}"
+        echo "Renamed output file to ${OUTPUT_FILE}"
+    else
+        echo "ERROR: PLINK did not produce expected output file: ${OUTPUT_FILE}"
+        echo "Check log file for errors: ${LOG_FILE}"
         exit 1
     fi
-else
-    echo "ERROR: PLINK did not produce the expected output file." | tee -a "$LOG_FILE"
-    ls -la "$INTERIM_DIR" | tee -a "$LOG_FILE"
+fi
+
+# Validate output contains expected columns
+if ! head -1 "${OUTPUT_FILE}" | grep -q "CHR\|SNP\|P"; then
+    echo "ERROR: Output file ${OUTPUT_FILE} does not contain expected GWAS columns (CHR, SNP, P)"
+    echo "File content preview:"
+    head -5 "${OUTPUT_FILE}"
     exit 1
 fi
 
-echo "GWAS execution completed successfully at $(date)" | tee -a "$LOG_FILE"
+# Count results
+RESULT_COUNT=$(tail -n +2 "${OUTPUT_FILE}" | wc -l)
+echo "SUCCESS: GWAS completed. Found ${RESULT_COUNT} SNPs tested."
+echo "Output written to: ${OUTPUT_FILE}"
+echo "Log written to: ${LOG_FILE}"
+echo "Completed at $(date)"
+
+# Verify the file is non-empty and has data
+if [[ ${RESULT_COUNT} -eq 0 ]]; then
+    echo "WARNING: No SNPs were tested. Check input data and filtering."
+    exit 0  # Not a fatal error, but worth noting
+fi
+
+exit 0

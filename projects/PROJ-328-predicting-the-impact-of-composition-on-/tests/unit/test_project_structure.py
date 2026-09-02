@@ -1,143 +1,53 @@
 import os
-from pathlib import Path
+import sys
 import pytest
+from pathlib import Path
 
-PROJECT_NAME = "PROJ-328-predicting-the-impact-of-composition-on-"
-BASE_PATH = Path("projects") / PROJECT_NAME
+# Add code to path if running from tests/
+code_path = Path(__file__).parent.parent.parent / "code"
+if str(code_path) not in sys.path:
+    sys.path.insert(0, str(code_path))
 
-def test_project_root_exists():
-    """Verify the project root directory exists."""
-    assert BASE_PATH.exists(), f"Project root {BASE_PATH} does not exist"
-    assert BASE_PATH.is_dir(), f"{BASE_PATH} is not a directory"
+from setup_project_structure import DIRECTORIES, setup_directories, verify_directory_structure
 
-def test_data_directory_exists():
-    """Verify the data directory structure exists."""
-    data_dir = BASE_PATH / "data"
-    assert data_dir.exists(), f"Data directory {data_dir} does not exist"
-    assert data_dir.is_dir(), f"{data_dir} is not a directory"
-
-def test_data_raw_directory_exists():
-    """Verify the raw data subdirectory exists."""
-    raw_dir = BASE_PATH / "data" / "raw"
-    assert raw_dir.exists(), f"Raw data directory {raw_dir} does not exist"
-    assert raw_dir.is_dir(), f"{raw_dir} is not a directory"
-
-def test_data_processed_directory_exists():
-    """Verify the processed data subdirectory exists."""
-    processed_dir = BASE_PATH / "data" / "processed"
-    assert processed_dir.exists(), f"Processed data directory {processed_dir} does not exist"
-    assert processed_dir.is_dir(), f"{processed_dir} is not a directory"
-
-def test_data_outputs_directory_exists():
-    """Verify the outputs data subdirectory exists."""
-    outputs_dir = BASE_PATH / "data" / "outputs"
-    assert outputs_dir.exists(), f"Outputs data directory {outputs_dir} does not exist"
-    assert outputs_dir.is_dir(), f"{outputs_dir} is not a directory"
-
-def test_data_config_directory_exists():
-    """Verify the config data subdirectory exists."""
-    config_dir = BASE_PATH / "data" / "config"
-    assert config_dir.exists(), f"Config data directory {config_dir} does not exist"
-    assert config_dir.is_dir(), f"{config_dir} is not a directory"
-
-def test_code_directory_exists():
-    """Verify the code directory exists."""
-    code_dir = BASE_PATH / "code"
-    assert code_dir.exists(), f"Code directory {code_dir} does not exist"
-    assert code_dir.is_dir(), f"{code_dir} is not a directory"
-
-def test_code_ingestion_directory_exists():
-    """Verify the ingestion code subdirectory exists."""
-    ingestion_dir = BASE_PATH / "code" / "ingestion"
-    assert ingestion_dir.exists(), f"Ingestion code directory {ingestion_dir} does not exist"
-    assert ingestion_dir.is_dir(), f"{ingestion_dir} is not a directory"
-
-def test_code_features_directory_exists():
-    """Verify the features code subdirectory exists."""
-    features_dir = BASE_PATH / "code" / "features"
-    assert features_dir.exists(), f"Features code directory {features_dir} does not exist"
-    assert features_dir.is_dir(), f"{features_dir} is not a directory"
-
-def test_code_models_directory_exists():
-    """Verify the models code subdirectory exists."""
-    models_code_dir = BASE_PATH / "code" / "models"
-    assert models_code_dir.exists(), f"Models code directory {models_code_dir} does not exist"
-    assert models_code_dir.is_dir(), f"{models_code_dir} is not a directory"
-
-def test_code_evaluation_directory_exists():
-    """Verify the evaluation code subdirectory exists."""
-    eval_dir = BASE_PATH / "code" / "evaluation"
-    assert eval_dir.exists(), f"Evaluation code directory {eval_dir} does not exist"
-    assert eval_dir.is_dir(), f"{eval_dir} is not a directory"
-
-def test_code_visualization_directory_exists():
-    """Verify the visualization code subdirectory exists."""
-    viz_dir = BASE_PATH / "code" / "visualization"
-    assert viz_dir.exists(), f"Visualization code directory {viz_dir} does not exist"
-    assert viz_dir.is_dir(), f"{viz_dir} is not a directory"
-
-def test_code_utils_directory_exists():
-    """Verify the utils code subdirectory exists."""
-    utils_dir = BASE_PATH / "code" / "utils"
-    assert utils_dir.exists(), f"Utils code directory {utils_dir} does not exist"
-    assert utils_dir.is_dir(), f"{utils_dir} is not a directory"
-
-def test_tests_directory_exists():
-    """Verify the tests directory exists."""
-    tests_dir = BASE_PATH / "tests"
-    assert tests_dir.exists(), f"Tests directory {tests_dir} does not exist"
-    assert tests_dir.is_dir(), f"{tests_dir} is not a directory"
-
-def test_tests_contract_directory_exists():
-    """Verify the contract tests subdirectory exists."""
-    contract_dir = BASE_PATH / "tests" / "contract"
-    assert contract_dir.exists(), f"Contract tests directory {contract_dir} does not exist"
-    assert contract_dir.is_dir(), f"{contract_dir} is not a directory"
-
-def test_tests_integration_directory_exists():
-    """Verify the integration tests subdirectory exists."""
-    integration_dir = BASE_PATH / "tests" / "integration"
-    assert integration_dir.exists(), f"Integration tests directory {integration_dir} does not exist"
-    assert integration_dir.is_dir(), f"{integration_dir} is not a directory"
-
-def test_tests_unit_directory_exists():
-    """Verify the unit tests subdirectory exists."""
-    unit_dir = BASE_PATH / "tests" / "unit"
-    assert unit_dir.exists(), f"Unit tests directory {unit_dir} does not exist"
-    assert unit_dir.is_dir(), f"{unit_dir} is not a directory"
-
-def test_models_directory_exists():
-    """Verify the models output directory exists."""
-    models_dir = BASE_PATH / "models"
-    assert models_dir.exists(), f"Models directory {models_dir} does not exist"
-    assert models_dir.is_dir(), f"{models_dir} is not a directory"
-
-def test_all_required_directories_exist():
-    """Verify all required directories exist."""
-    required_dirs = [
-        BASE_PATH / "data",
-        BASE_PATH / "data" / "raw",
-        BASE_PATH / "data" / "processed",
-        BASE_PATH / "data" / "outputs",
-        BASE_PATH / "data" / "config",
-        BASE_PATH / "code",
-        BASE_PATH / "code" / "ingestion",
-        BASE_PATH / "code" / "features",
-        BASE_PATH / "code" / "models",
-        BASE_PATH / "code" / "evaluation",
-        BASE_PATH / "code" / "visualization",
-        BASE_PATH / "code" / "utils",
-        BASE_PATH / "tests",
-        BASE_PATH / "tests" / "contract",
-        BASE_PATH / "tests" / "integration",
-        BASE_PATH / "tests" / "unit",
-        BASE_PATH / "models",
-    ]
+class TestProjectStructure:
     
-    missing = []
-    for dir_path in required_dirs:
-        if not dir_path.exists() or not dir_path.is_dir():
-            missing.append(str(dir_path))
-    
-    if missing:
-        pytest.fail(f"The following required directories are missing:\n  - " + "\n  - ".join(missing))
+    def test_directories_defined(self):
+        """Ensure the list of required directories is populated."""
+        assert len(DIRECTORIES) > 0
+        assert "data/raw" in DIRECTORIES
+        assert "code/ingestion" in DIRECTORIES
+        assert "tests/contract" in DIRECTORIES
+
+    def test_setup_creates_directories(self, tmp_path):
+        """Test that setup_directories actually creates the folders."""
+        # tmp_path is a unique temporary directory provided by pytest
+        created = setup_directories(tmp_path)
+        
+        assert len(created) > 0
+        
+        # Verify each created path actually exists on disk
+        for path_str in created:
+            full_path = Path(path_str)
+            assert full_path.exists(), f"Directory {path_str} was reported created but does not exist."
+            assert full_path.is_dir(), f"Path {path_str} exists but is not a directory."
+
+    def test_verify_passes_after_setup(self, tmp_path):
+        """Test that verify_directory_structure returns success after setup."""
+        setup_directories(tmp_path)
+        result = verify_directory_structure(tmp_path)
+        
+        assert result["success"] is True
+        assert len(result["missing"]) == 0
+        assert result["verified_count"] == result["checked_count"]
+
+    def test_verify_fails_on_missing(self, tmp_path):
+        """Test that verify_directory_structure detects missing directories."""
+        # Do NOT run setup, just verify on empty tmp_path
+        result = verify_directory_structure(tmp_path)
+        
+        assert result["success"] is False
+        assert len(result["missing"]) > 0
+        # Ensure we are checking the specific expected paths
+        assert "data/raw" in result["missing"]
+        assert "code/ingestion" in result["missing"]

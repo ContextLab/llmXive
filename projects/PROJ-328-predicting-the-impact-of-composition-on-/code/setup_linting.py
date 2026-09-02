@@ -1,19 +1,19 @@
+"""Setup and validation of linting configurations."""
 import os
 import sys
 import subprocess
 import tomli
 from pathlib import Path
 
-def check_file_exists(filepath):
-    """Check if a file exists at the given path."""
-    return Path(filepath).exists()
+def check_file_exists(filepath: Path) -> bool:
+    """Check if a file exists."""
+    return filepath.exists()
 
-def validate_black_config(project_root):
-    """Validate black configuration in pyproject.toml."""
+def validate_black_config(project_root: Path) -> bool:
+    """Validate Black configuration in pyproject.toml."""
     pyproject_path = project_root / "pyproject.toml"
-    
-    if not pyproject_path.exists():
-        print("ERROR: pyproject.toml not found")
+    if not check_file_exists(pyproject_path):
+        print(f"Error: {pyproject_path} not found.")
         return False
 
     try:
@@ -21,45 +21,60 @@ def validate_black_config(project_root):
             config = tomli.load(f)
         
         if "tool" not in config or "black" not in config["tool"]:
-            print("WARNING: black configuration not found in pyproject.toml")
+            print("Warning: [tool.black] section not found in pyproject.toml.")
             return False
-
+        
+        # Basic validation: ensure max-line-length is reasonable
         black_config = config["tool"]["black"]
-        print(f"Black configuration: {black_config}")
+        max_line_length = black_config.get("line-length", 88)
+        if not isinstance(max_line_length, int) or max_line_length < 80 or max_line_length > 120:
+            print(f"Warning: line-length {max_line_length} is outside recommended range [80, 120].")
+            return False
+        
+        print("Black configuration is valid.")
         return True
     except Exception as e:
-        print(f"ERROR: Failed to parse pyproject.toml: {e}")
+        print(f"Error validating Black config: {e}")
         return False
 
-def validate_flake8_config(project_root):
-    """Validate flake8 configuration in .flake8 or setup.cfg."""
-    flake8_config_path = project_root / ".flake8"
-    setup_cfg_path = project_root / "setup.cfg"
+def validate_flake8_config(project_root: Path) -> bool:
+    """Validate Flake8 configuration in .flake8."""
+    flake8_path = project_root / ".flake8"
+    if not check_file_exists(flake8_path):
+        print(f"Error: {flake8_path} not found.")
+        return False
 
-    if flake8_config_path.exists():
-        print("Found .flake8 configuration")
+    try:
+        # Run flake8 --show-source to check if it can parse the config
+        result = subprocess.run(
+            ["flake8", "--config", str(flake8_path), "--help"],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+        if result.returncode != 0:
+            print(f"Error running flake8 with config: {result.stderr}")
+            return False
+        
+        print("Flake8 configuration is valid.")
         return True
-    elif setup_cfg_path.exists():
-        print("Found setup.cfg configuration")
-        return True
-    else:
-        print("WARNING: No flake8 configuration found")
+    except Exception as e:
+        print(f"Error validating Flake8 config: {e}")
         return False
 
 def main():
-    """Main entry point for linting configuration validation."""
+    """Main entry point for linting setup validation."""
     project_root = Path(__file__).resolve().parent.parent
+    print(f"Validating linting configuration at: {project_root}")
 
-    print("Validating linting configuration...")
-    
     black_valid = validate_black_config(project_root)
     flake8_valid = validate_flake8_config(project_root)
 
     if black_valid and flake8_valid:
-        print("Linting configuration is valid")
+        print("All linting configurations are valid.")
         return 0
     else:
-        print("Linting configuration validation failed")
+        print("Some linting configurations are invalid.")
         return 1
 
 if __name__ == "__main__":

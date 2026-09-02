@@ -413,3 +413,236 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-14T09:17:35Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Aggregate 100 unique solder alloy compositions with Vickers hardness
+  claim_id: c_f19b2d3f
+  context: "Goal: Aggregate \u2265100 unique solder alloy compositions with Vickers\
+    \ hardness from open sources into a unified dataset with validation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Aggregate \u2265100 unique solder alloy compositions with Vickers hardness\
+    \ from open sources into a unified dataset with validation."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:57:27Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: 1 GPa equals 10.197 HV
+  claim_id: c_b4eaa2ac
+  context: "Standardize hardness to HV units: CRITICAL: Use explicit conversion factors:\
+    \ 1 GPa = 10.197 HV, 1 kgf/mm\xB2 = 9.807 HV."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1 GPa = 10.197 HV
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:58:04Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: 1 kgf per square millimeter equals 9.807 HV
+  claim_id: c_05f6cf79
+  context: "Standardize hardness to HV units: CRITICAL: Use explicit conversion factors:\
+    \ 1 GPa = 10.197 HV, 1 kgf/mm\xB2 = 9.807 HV."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "1 kgf/mm\xB2 = 9.807 HV"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:58:33Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Filter for room-temperature measurements within tolerance
+  claim_id: c_e0f19563
+  context: 'Filter for room-temperature measurements only: verify column measurement_temp_c
+    exists; filter where abs(measurement_temp_c - config.ROOM_TEMP_THRESHOLD_C) <=
+    config.ROOM_TEMP_TOLERANCE_C.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Filter_for_room-temperature_measurements_within_tolerance
+  kind: entity_fact
+  raw_text: 'Filter for room-temperature measurements only: verify column measurement_temp_c
+    exists; filter where abs(measurement_temp_c - config.ROOM_TEMP_THRESHOLD_C) <=
+    config.ROOM_TEMP_TOLERANCE_C.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:59:44Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Flag records within double tolerance for manual review
+  claim_id: c_dcdca8c0
+  context: 'Manual Review Flagging: Identify records where abs(measurement_temp_c
+    - config.ROOM_TEMP_THRESHOLD_C) > config.ROOM_TEMP_TOLERANCE_C but <= 2 * config.ROOM_TEMP_TOLERANCE_C
+    and write them to data/processed/manual_review_queue.csv.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Identify records where abs(measurement_temp_c - config.ROOM_TEMP_THRESHOLD_C)
+    > config.ROOM_TEMP_TOLERANCE_C but <= 2 * config.ROOM_TEMP_TOLERANCE_C and write
+    them to data/processed/manual_review_queue.csv.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T10:00:27Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Mark record invalid if elemental composition sum is less than 95.0
+  claim_id: c_ae2bd3f0
+  context: 'Validate Elemental Composition: Iterate every record, sum elemental composition
+    values. If sum < 95.0, mark record as invalid and log to data/processed/validation_logs/filtered_records.csv
+    with reason code COMPOSITION_SUM_LOW.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mark_record_invalid_if_elemental_composition_sum_is_less_tha
+  kind: magnitude
+  raw_text: If sum < 95.0, mark record as invalid and log to data/processed/validation_logs/filtered_records.csv
+    with reason code COMPOSITION_SUM_LOW.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T10:01:03Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Verify no cleaned records have composition sum below 95 percent
+  claim_id: c_4e8d619b
+  context: 'Enforce Threshold: Confirm no records in cleaned.csv have composition
+    sum <95%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Confirm no records in cleaned.csv have composition sum <95%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T10:01:04Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Flag power limitation if sample size is between 50 and 100
+  claim_id: c_f6e3c37e
+  context: 'Threshold Check: If total N < 50, log a severe warning and proceed with
+    a reduced N flag (do NOT halt). If 50 <= N < 100, proceed but flag for power limitation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If 50 <= N < 100, proceed but flag for power limitation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T10:02:03Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Flag predictors with Variance Inflation Factor greater than or equal
+    to 5
+  claim_id: c_61f0a52c
+  context: "Implement VIF calculation in code/features/collinearity.py to flag predictors\
+    \ with VIF \u2265 5 (requires output from T023b)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_predictors_with_Variance_Inflation_Factor_greater_than
+  kind: magnitude
+  raw_text: "Flag predictors with VIF \u2265 5."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T10:02:32Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Implement XGBoost training with grid search of 10 combinations or fewer
+  claim_id: c_57d68296
+  context: "Implement XGBoost training with grid search (\u226410 combinations) in\
+    \ code/models/xgboost_trainer.py. CRITICAL: This script MUST import and use the\
+    \ configuration from code/models/config_cpu.py to enforce CPU-only execution."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement XGBoost training with grid search (\u226410 combinations) in\
+    \ code/models/xgboost_trainer.py."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T10:02:32Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Generate dynamic R squared threshold range with 20 steps
+  claim_id: c_0aebeb99
+  context: "Instead of hardcoded values, generate a dynamic range (e.g., np.linspace(min_r2,\
+    \ max_r2, num=20)) based on the observed R\xB2 distribution to perform a true\
+    \ sweep. Output to data/config/sensitivity_thresholds.yaml."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate a dynamic range (e.g., np.linspace(min_r2, max_r2, num=20))\
+    \ based on the observed R\xB2 distribution to perform a true sweep."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T10:07:44Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Calculate fraction of bootstrap R squared samples exceeding threshold
+  claim_id: c_865b972d
+  context: "For each threshold T in data/config/sensitivity_thresholds.yaml, calculate\
+    \ fraction = (count of bootstrap R\xB2 > T) / total_bootstrap_samples. Generate\
+    \ output to data/processed/sensitivity_analysis.yaml and data/outputs/sensitivity_plot.png."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_fraction_of_bootstrap_R_squared_samples_exceeding
+  kind: entity_fact
+  raw_text: "For each threshold T, calculate fraction = (count of bootstrap R\xB2\
+    \ > T) / total_bootstrap_samples."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T10:08:07Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Ensure runtime is less than 6 hours on free-tier
+  claim_id: c_8a998dad
+  context: Performance optimization to ensure <6h runtime on free-tier
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_runtime_is_less_than_6_hours_on_free-tier
+  kind: magnitude
+  raw_text: Ensure <6h runtime on free-tier.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T10:08:20Z'

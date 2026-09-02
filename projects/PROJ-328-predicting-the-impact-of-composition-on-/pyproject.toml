@@ -3,9 +3,10 @@ requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-solder-hardness"
+name = "solder-hardness-pipeline"
 version = "0.1.0"
-description = "Predicting the Impact of Composition on the Vickers Hardness of Solder Alloys"
+description = "Predicting the impact of composition on the Vickers hardness of solder alloys"
+readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "pandas",
@@ -18,16 +19,13 @@ dependencies = [
     "requests",
     "compositional==0.2.0",
     "pdfplumber",
-    "mendeleev",
-    "statsmodels",
-]
-
-[project.optional-dependencies]
-dev = [
     "pytest",
     "flake8",
     "black",
-    "isort",
+    "mendeleev",
+    "statsmodels",
+    "tomli",
+    "configparser"
 ]
 
 [tool.black]
@@ -37,29 +35,20 @@ include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
 
-[tool.isort]
-profile = "black"
-line_length = 88
-skip_gitignore = true
-
 [tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = "test_*.py"
-python_classes = "Test*"
-python_functions = "test_*"
+testpaths = ["code/tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
 addopts = "-v --tb=short"
-
-[tool.setuptools.packages.find]
-where = ["code"]
-include = ["*"]

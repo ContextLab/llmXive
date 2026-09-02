@@ -1,18 +1,11 @@
 T017:
-  c: false
-  h: aa7028a9a8ff2dddfe265b197a6d54b585bc57ec4539869ee6c4fc607b109ddc
-  r: The repository contains `code/03_gwas.sh`, but the script is truncated (ends
-    abruptly) and does not reliably enforce the mandatory covariates nor guarantee
-    creation of `data/interim/gwas_raw.tsv` (the file is missing). Consequently the
-    required output artifact is absent and the script does not fully meet the task
-    specification.
-T022:
-  c: false
-  h: 69330a2fa359aba893bd9dcae227c3467c049ea12d9f03651b9f33493c3cfcaf
-  r: The `code/04_apply_fdr.sh` script exists, but the required output file `data/processed/gwas_results_fdr.tsv`
-    is missing, so the final artifact the task demanded was not produced. The next
-    implementer must run the script (or otherwise generate) to create the `gwas_results_fdr.tsv`
-    file with the merged results.
+  c: true
+  h: b8dd413a92037ea0c6fa8f10839527bd5ab205089be3931571dcc6fd598fd75e
+  r: "The `code/03_gwas.sh` script exists, is non\u2011empty, and contains a full\
+    \ PLINK logistic\u2011regression command that uses the mandatory covariates and\
+    \ writes results to `data/interim/gwas_raw.tsv` (renaming the PLINK output if\
+    \ needed). No placeholder or missing logic is present. The absence of the output\
+    \ file is expected until the script is run."
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,3 +1,1 @@
-"""
-Root package for the Solder Hardness Prediction Pipeline code.
-"""
+"""Root package for the solder hardness prediction pipeline."""

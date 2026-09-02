@@ -3781,25 +3781,6 @@
   updated_at: '2026-08-30T23:41:48Z'
 - artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
   attempts: 1
-  canonical: Reservoir sampling of 5000 rows with seed 42 for datasets exceeding 14GB
-  claim_id: c_59dc7c5f
-  context: 'Large Dataset Handling: If the dataset exceeds 14GB (GitHub Actions disk
-    limit), implement reservoir sampling with a fixed seed of 42 to extract a representative
-    subset of N=5000 rows.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: If the dataset exceeds 14GB (GitHub Actions disk limit), implement reservoir
-    sampling with a fixed seed of 42 to extract a representative subset of N=5000
-    rows.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-30T23:42:36Z'
-- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
-  attempts: 1
   canonical: dwgsim command with error rate 0.001, read length 150, insert size mean
     350 std 50, N 10, seed 42
   claim_id: c_c2534d60
@@ -4466,3 +4447,276 @@
   source_type: external
   status: verified
   updated_at: '2026-08-30T23:53:14Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 2
+  canonical: Reservoir sampling of 5000 rows with seed 42 for datasets exceeding 14GB
+  claim_id: c_59dc7c5f
+  context: 'Large Dataset Handling: If the dataset exceeds 14GB (GitHub Actions disk
+    limit), implement reservoir sampling with a fixed seed of 42 to extract a representative
+    subset of N=5000 rows.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the dataset exceeds 14GB (GitHub Actions disk limit), implement reservoir
+    sampling with a fixed seed of 42 to extract a representative subset of N=5000
+    rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:37:38Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis halts if sample size is less than 80
+  claim_id: c_aa333d97
+  context: 'MUST: ... 2. If n < 80: HALT with error code ERR_SAMPLE_SIZE_INSUFFICIENT.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_if_sample_size_is_less_than_80
+  kind: magnitude
+  raw_text: 'If n < 80: HALT with error code ERR_SAMPLE_SIZE_INSUFFICIENT.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:39:28Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis halts if calculated power is less than 20%
+  claim_id: c_114dc851
+  context: 'CRITICAL: If Power < 20% (Power={power}). Pipeline halted.'
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 20.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_if_calculated_power_is_less_than_20%25
+  kind: magnitude
+  raw_text: If Power < 20% (Power={power}). Pipeline halted.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-02T09:40:11Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Report power for detecting effect size OR >= 2.5 at alpha 0.05
+  claim_id: c_1dabb5b7
+  context: 'If Power >= 20%: Report the calculated power for detecting large effect
+    sizes (OR >= 2.5) at alpha=0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Report the calculated power for detecting large effect sizes (OR >= 2.5)
+    at alpha=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:41:22Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: dwgsim command with seed 42, error rate 0.001, read length 150, insert
+    size mean 350 and std 50, 10 reads
+  claim_id: c_7d18c01e
+  context: 'Use dwgsim with a fixed random seed to ensure reproducibility. Command
+    Example: dwgsim -e 0.001 -l 150 -1 350 -2 50 -N 10 -s 42 data/interim/synthetic.vcf
+    data/interim/synthetic_R1.fq data/interim/synthetic_R2.fq. (Insert size distribution:
+    Normal(mean=350, std=50)).'
+  evidence:
+    asserted: '0.001'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: 'Use dwgsim with a fixed random seed to ensure reproducibility. Command
+    Example: dwgsim -e 0.001 -l 150 -1 350 -2 50 -N 10 -s 42 data/interim/synthetic.vcf
+    data/interim/synthetic_R1.fq data/interim/synthetic_R2.fq.'
+  resolved_value: '2.718'
+  resolver: approximate
+  source_hash: c42126af63d6f3e1733df60489fbce5dbbc11ecc37f9424cad0a8c9026806d71
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T09:41:23Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Use Ensembl Bees API version for SNP to gene mapping
+  claim_id: c_8ee0d37c
+  context: 'Implementation: 1. Use Ensembl Bees API version.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_Ensembl_Bees_API_version_for_SNP_to_gene_mapping
+  kind: entity_fact
+  raw_text: Use Ensembl Bees API version.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:42:21Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis halts if sample size n is less than 80
+  claim_id: c_151a31c7
+  context: 'T005 [P] Implement code/utils/power_analysis.py for FR-012. MUST: 1. Calculate
+    power using non-central chi-squared distribution. 2. If n < 80: HALT with error
+    code ERR_SAMPLE_SIZE_INSUFFICIENT.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halts_if_sample_size_n_is_less_than_80
+  kind: magnitude
+  raw_text: 'If n < 80: HALT with error code ERR_SAMPLE_SIZE_INSUFFICIENT.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:43:51Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis pipeline halts if calculated power is less than 20%
+  claim_id: c_2a4de415
+  context: '4. **CRITICAL**: If Power < 20% (Power={power}). Pipeline halted. 5. If
+    Power >= 20%: Report the calculated power for detecting large effect sizes (OR
+    >= 2.5) at alpha=0.05.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_pipeline_halts_if_calculated_power_is_less_th
+  kind: magnitude
+  raw_text: 'If Power < 20%: Pipeline halted.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:43:54Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Power analysis reports power for effect sizes with odds ratio greater
+    than or equal to 2.5 at alpha 0.05
+  claim_id: c_47e2c840
+  context: '5. If Power >= 20%: Report the calculated power for detecting large effect
+    sizes (OR >= 2.5) at alpha=0.05.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_reports_power_for_effect_sizes_with_odds_rati
+  kind: magnitude
+  raw_text: Report the calculated power for detecting large effect sizes (OR >= 2.5)
+    at alpha=0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:43:57Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 3
+  canonical: Dataset reservoir sampling triggered at 14GB to extract 5000 rows with
+    seed 42
+  claim_id: c_6ddd37c5
+  context: '5. **Large Dataset Handling**: If the dataset exceeds 14GB (GitHub Actions
+    disk limit), implement **reservoir sampling** with a **fixed seed of 42** to extract
+    a representative subset of N=5000 rows.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the dataset exceeds 14GB (GitHub Actions disk limit), implement reservoir
+    sampling with a fixed seed of 42 to extract a representative subset of N=5000
+    rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:43:59Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: Synthetic FASTQ generation uses dwgsim with error rate 0.001, read length
+    150, insert size mean 350, insert size std 50, and 10 reads
+  claim_id: c_4f6e89c2
+  context: '- **Command Example**: `dwgsim -e 0.001 -l 150 -1 350 -2 50 -N 10 -s 42
+    data/interim/synthetic.vcf data/interim/synthetic_R1.fq data/interim/synthetic_R2.fq`.
+    (Insert size distribution: Normal(mean=350, std=50)).'
+  evidence:
+    asserted: '0.001'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: 'Command Example: dwgsim -e 0.001 -l 150 -1 350 -2 50 -N 10 -s 42 data/interim/synthetic.vcf
+    data/interim/synthetic_R1.fq data/interim/synthetic_R2.fq. (Insert size distribution:
+    Normal(mean=350, std=50)).'
+  resolved_value: '2.718'
+  resolver: approximate
+  source_hash: c42126af63d6f3e1733df60489fbce5dbbc11ecc37f9424cad0a8c9026806d71
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T09:44:00Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: GWAS raw results must be sorted by p-value ascending and formatted to
+    10 decimal places
+  claim_id: c_1131fa56
+  context: '- **Input**: `data/interim/gwas_raw.tsv`. MUST be sorted by p-value in
+    **ascending order**. P-values must be formatted to **10 decimal places**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST be sorted by p-value in ascending order. P-values must be formatted
+    to 10 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:44:45Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: LASSO model uses random state 42 for reproducibility
+  claim_id: c_099b625d
+  context: 3. Use `random_state=42` for reproducibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use random_state=42 for reproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:45:11Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: CCD diagnosis validation requires live bee population to be less than
+    10% of peak season
+  claim_id: c_85981f3d
+  context: 3. Live bee population < 10% relative to peak season.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CCD_diagnosis_validation_requires_live_bee_population_to_be
+  kind: magnitude
+  raw_text: Live bee population < 10% relative to peak season.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:45:45Z'

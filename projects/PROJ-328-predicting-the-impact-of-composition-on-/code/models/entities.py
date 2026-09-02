@@ -1,275 +1,295 @@
 """
 Data models and entities for the solder hardness prediction pipeline.
 
-Defines core data structures:
-- SolderComposition: Represents a single solder alloy composition with elemental percentages.
-- CompositionalDescriptor: Represents derived physical/chemical descriptors for an alloy.
+This module defines the core data structures for representing solder compositions
+and their derived compositional descriptors.
 """
+
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Any, Tuple
 from decimal import Decimal
 import json
 import math
 import logging
-import pandas as pd
-from pathlib import Path
 
-from utils.error_handlers import CompositionSumError, DataValidationError
-from utils.logging_config import get_logger
+from utils.error_handlers import DataValidationError, CompositionSumError
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
-@dataclass(frozen=True)
+@dataclass
 class SolderComposition:
     """
-    Immutable data class representing a solder alloy composition.
-
+    Represents a single solder alloy composition with its measured properties.
+    
     Attributes:
-        alloy_id: Unique identifier for the alloy record.
-        source: Original data source (e.g., 'Materials Project', 'NIST', 'Literature').
-        elements: Dictionary mapping element symbol to weight percentage.
-        hardness_hv: Vickers hardness value in HV units.
-        measurement_temp_c: Temperature at which hardness was measured (°C).
-        notes: Optional free-text notes or metadata.
+        elemental_breakdown: Dictionary mapping element symbols to their 
+                             percentage composition (e.g., {'Sn': 96.5, 'Ag': 3.0, 'Cu': 0.5})
+        hardness_hv: Vickers hardness measurement in HV units.
+        alloy_family: Classification of the alloy family (e.g., 'SAC', 'SnPb', 'SnAg').
+        source_citation: Reference to the original data source.
+        measurement_temp_c: Optional temperature at which hardness was measured.
+        notes: Optional additional notes about the measurement or composition.
     """
-    alloy_id: str
-    source: str
-    elements: Dict[str, float]
+    elemental_breakdown: Dict[str, float]
     hardness_hv: float
-    measurement_temp_c: float
+    alloy_family: str
+    source_citation: str
+    measurement_temp_c: Optional[float] = None
     notes: Optional[str] = None
-
+    
     def __post_init__(self):
-        """Validate composition data after initialization."""
-        if not self.elements:
-            raise DataValidationError(f"Elements dictionary cannot be empty for alloy {self.alloy_id}")
-
-        total_composition = sum(self.elements.values())
-        if total_composition < 95.0 or total_composition > 105.0:
-            raise CompositionSumError(
-                f"Composition sum for {self.alloy_id} is {total_composition:.2f}%, "
-                f"outside valid range [95%, 105%]."
+        """Validate the composition after initialization."""
+        self._validate_composition_sum()
+        self._validate_hardness()
+        self._validate_elements()
+    
+    def _validate_composition_sum(self) -> None:
+        """
+        Validate that the elemental composition sums to approximately 100%.
+        
+        Raises:
+            CompositionSumError: If the sum deviates significantly from 100%.
+        """
+        total = sum(self.elemental_breakdown.values())
+        # Allow for small floating point errors and rounding
+        if not (99.0 <= total <= 101.0):
+            logger.warning(
+                f"Composition sum for {self.source_citation} is {total:.2f}%, "
+                f"which is outside the expected range [99, 101]."
             )
-
+            # We allow it to proceed but log a warning, as some data sources
+            # might have minor inconsistencies.
+    
+    def _validate_hardness(self) -> None:
+        """Validate that hardness value is positive."""
         if self.hardness_hv <= 0:
             raise DataValidationError(
-                f"Hardness value for {self.alloy_id} must be positive, got {self.hardness_hv}"
+                f"Hardness value must be positive. Got {self.hardness_hv} for "
+                f"composition from {self.source_citation}"
             )
-
-        if self.measurement_temp_c < -273.15:
-            raise DataValidationError(
-                f"Measurement temperature for {self.alloy_id} cannot be below absolute zero."
-            )
-
-    @property
-    def num_elements(self) -> int:
-        """Return the number of elements in the composition."""
-        return len(self.elements)
-
-    def get_element_list(self) -> List[str]:
-        """Return a sorted list of element symbols present in the composition."""
-        return sorted(self.elements.keys())
-
+    
+    def _validate_elements(self) -> None:
+        """Validate that all elements have positive composition values."""
+        for element, value in self.elemental_breakdown.items():
+            if value < 0:
+                raise DataValidationError(
+                    f"Element {element} has negative composition {value} "
+                    f"in composition from {self.source_citation}"
+                )
+            if value == 0:
+                logger.debug(
+                    f"Element {element} has zero composition in "
+                    f"composition from {self.source_citation}"
+                )
+    
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the composition to a dictionary for serialization."""
+        """Convert the composition to a dictionary representation."""
         return {
-            'alloy_id': self.alloy_id,
-            'source': self.source,
-            'elements': self.elements,
+            'elemental_breakdown': self.elemental_breakdown,
             'hardness_hv': self.hardness_hv,
+            'alloy_family': self.alloy_family,
+            'source_citation': self.source_citation,
             'measurement_temp_c': self.measurement_temp_c,
             'notes': self.notes
         }
-
-    def to_json(self) -> str:
-        """Serialize the composition to a JSON string."""
-        return json.dumps(self.to_dict(), indent=2)
-
+    
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'SolderComposition':
         """Create a SolderComposition instance from a dictionary."""
         return cls(
-            alloy_id=data['alloy_id'],
-            source=data['source'],
-            elements=data['elements'],
+            elemental_breakdown=data['elemental_breakdown'],
             hardness_hv=data['hardness_hv'],
-            measurement_temp_c=data['measurement_temp_c'],
+            alloy_family=data['alloy_family'],
+            source_citation=data['source_citation'],
+            measurement_temp_c=data.get('measurement_temp_c'),
             notes=data.get('notes')
         )
-
+    
+    def to_json(self) -> str:
+        """Serialize the composition to a JSON string."""
+        return json.dumps(self.to_dict(), indent=2)
+    
     @classmethod
-    def from_dataframe_row(cls, row: pd.Series, source: str = 'unknown') -> 'SolderComposition':
-        """
-        Create a SolderComposition from a pandas DataFrame row.
+    def from_json(cls, json_str: str) -> 'SolderComposition':
+        """Deserialize a SolderComposition from a JSON string."""
+        data = json.loads(json_str)
+        return cls.from_dict(data)
 
-        Expected row format:
-        - 'alloy_id': str
-        - 'hardness_hv': float
-        - 'measurement_temp_c': float
-        - Element columns (e.g., 'Sn', 'Ag', 'Cu') with float values
-        - Optional 'notes' column
-        """
-        if 'alloy_id' not in row.index:
-            raise DataValidationError("Row must contain 'alloy_id' column")
-        if 'hardness_hv' not in row.index:
-            raise DataValidationError("Row must contain 'hardness_hv' column")
-        if 'measurement_temp_c' not in row.index:
-            raise DataValidationError("Row must contain 'measurement_temp_c' column")
-
-        # Identify element columns (assumed to be uppercase letter sequences)
-        import re
-        element_pattern = re.compile(r'^[A-Z][a-z]?$')
-        elements = {}
-        for col in row.index:
-            if element_pattern.match(str(col)):
-                val = float(row[col])
-                if val > 0:
-                    elements[str(col)] = val
-
-        if not elements:
-            raise DataValidationError(f"No valid elemental composition found in row for {row['alloy_id']}")
-
-        notes = row.get('notes', None)
-
-        return cls(
-            alloy_id=str(row['alloy_id']),
-            source=source,
-            elements=elements,
-            hardness_hv=float(row['hardness_hv']),
-            measurement_temp_c=float(row['measurement_temp_c']),
-            notes=notes
-        )
-
-@dataclass(frozen=True)
+@dataclass
 class CompositionalDescriptor:
     """
-    Immutable data class representing derived descriptors for a solder alloy.
-
-    These descriptors are computed from the elemental composition and
-    physical properties of the constituent elements.
-
+    Represents derived physical descriptors for a solder composition.
+    
+    These descriptors capture the physical and chemical properties of the alloy
+    based on its elemental composition and standard elemental properties.
+    
     Attributes:
-        alloy_id: Reference to the source SolderComposition.
-        weighted_mean_atomic_mass: Weighted average of atomic masses.
-        electronegativity_variance: Variance of electronegativity values.
-        atomic_radius_variance: Variance of atomic radii.
-        weighted_avg_melting_point: Weighted average of melting points.
-        valence_electron_concentration: Average valence electron concentration.
-        clr_composition: Centered Log-Ratio transformed composition vector.
-        element_symbols: Ordered list of elements corresponding to CLR values.
+        weighted_mean_atomic_mass: Weighted average of atomic masses of constituent elements.
+        electronegativity_variance: Variance of electronegativity values weighted by composition.
+        atomic_radius_variance: Variance of atomic radii weighted by composition.
+        weighted_avg_melting_point: Weighted average melting point of constituent elements.
+        valence_electron_concentration: Average number of valence electrons per atom.
+        source_composition: Reference to the original SolderComposition these descriptors were derived from.
     """
-    alloy_id: str
     weighted_mean_atomic_mass: float
     electronegativity_variance: float
     atomic_radius_variance: float
     weighted_avg_melting_point: float
     valence_electron_concentration: float
-    clr_composition: Tuple[float, ...]
-    element_symbols: Tuple[str, ...]
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert the descriptor to a dictionary for serialization."""
+    source_composition: Optional[SolderComposition] = None
+    
+    def to_dict(self) -> Dict[str, float]:
+        """Convert the descriptor to a dictionary representation."""
         return {
-            'alloy_id': self.alloy_id,
             'weighted_mean_atomic_mass': self.weighted_mean_atomic_mass,
             'electronegativity_variance': self.electronegativity_variance,
             'atomic_radius_variance': self.atomic_radius_variance,
             'weighted_avg_melting_point': self.weighted_avg_melting_point,
-            'valence_electron_concentration': self.valence_electron_concentration,
-            'clr_composition': list(self.clr_composition),
-            'element_symbols': list(self.element_symbols)
+            'valence_electron_concentration': self.valence_electron_concentration
         }
-
-    def to_feature_vector(self) -> List[float]:
-        """
-        Return a flat feature vector combining CLR composition and physical descriptors.
-        Order: [clr_1, clr_2, ..., clr_n, mean_mass, var_en, var_radius, mean_mp, vec]
-        """
-        return list(self.clr_composition) + [
-            self.weighted_mean_atomic_mass,
-            self.electronegativity_variance,
-            self.atomic_radius_variance,
-            self.weighted_avg_melting_point,
-            self.valence_electron_concentration
-        ]
-
+    
     @classmethod
-    def from_composition(
-        cls,
-        composition: SolderComposition,
-        clr_values: Tuple[float, ...],
-        element_order: List[str],
-        mean_atomic_mass: float,
-        var_en: float,
-        var_radius: float,
-        mean_melting_point: float,
-        vec: float
-    ) -> 'CompositionalDescriptor':
-        """Factory method to create a descriptor from a composition and computed values."""
+    def from_dict(cls, data: Dict[str, float]) -> 'CompositionalDescriptor':
+        """Create a CompositionalDescriptor instance from a dictionary."""
         return cls(
-            alloy_id=composition.alloy_id,
-            weighted_mean_atomic_mass=mean_atomic_mass,
-            electronegativity_variance=var_en,
-            atomic_radius_variance=var_radius,
-            weighted_avg_melting_point=mean_melting_point,
-            valence_electron_concentration=vec,
-            clr_composition=clr_values,
-            element_symbols=tuple(element_order)
+            weighted_mean_atomic_mass=data['weighted_mean_atomic_mass'],
+            electronegativity_variance=data['electronegativity_variance'],
+            atomic_radius_variance=data['atomic_radius_variance'],
+            weighted_avg_melting_point=data['weighted_avg_melting_point'],
+            valence_electron_concentration=data['valence_electron_concentration']
         )
 
 def create_composition_from_dataframe_row(
-    row: pd.Series,
-    source: str = 'unknown'
+    row: Dict[str, Any], 
+    default_alloy_family: str = "Unknown"
 ) -> SolderComposition:
     """
-    Convenience wrapper to create a SolderComposition from a DataFrame row.
-
+    Create a SolderComposition instance from a pandas DataFrame row or dictionary.
+    
     Args:
-        row: A pandas Series representing a single alloy record.
-        source: The source identifier for this record.
-
+        row: Dictionary containing composition data. Expected keys:
+             - Elemental composition columns (e.g., 'Sn', 'Ag', 'Cu', etc.)
+             - 'hardness_hv': Vickers hardness value
+             - 'alloy_family': Optional alloy family classification
+             - 'source_citation': Data source reference
+             - 'measurement_temp_c': Optional measurement temperature
+        default_alloy_family: Default alloy family if not specified in row.
+        
     Returns:
-        A validated SolderComposition instance.
-
+        SolderComposition instance.
+        
     Raises:
         DataValidationError: If required fields are missing or invalid.
-        CompositionSumError: If elemental percentages do not sum to ~100%.
     """
-    return SolderComposition.from_dataframe_row(row, source)
+    # Extract elemental composition (non-numeric columns are metadata)
+    elemental_breakdown = {}
+    numeric_cols = [k for k, v in row.items() if isinstance(v, (int, float)) and k != 'hardness_hv' and k != 'measurement_temp_c']
+    
+    # Heuristic: Identify elemental columns (typically 1-2 letter element symbols)
+    # This is a simplified approach; a more robust version would use a periodic table lookup
+    for col in numeric_cols:
+        if len(col) <= 3 and col[0].isupper() and (len(col) == 1 or col[1].islower()):
+            if row[col] is not None and not math.isnan(row[col]):
+                elemental_breakdown[col] = float(row[col])
+    
+    if not elemental_breakdown:
+        raise DataValidationError("No valid elemental composition found in row")
+    
+    # Extract hardness
+    hardness = row.get('hardness_hv')
+    if hardness is None or (isinstance(hardness, float) and math.isnan(hardness)):
+        raise DataValidationError("Hardness value is missing or NaN")
+    
+    # Extract metadata
+    alloy_family = row.get('alloy_family', default_alloy_family)
+    source_citation = row.get('source_citation', 'Unknown')
+    measurement_temp = row.get('measurement_temp_c')
+    if isinstance(measurement_temp, float) and math.isnan(measurement_temp):
+        measurement_temp = None
+    
+    return SolderComposition(
+        elemental_breakdown=elemental_breakdown,
+        hardness_hv=float(hardness),
+        alloy_family=str(alloy_family),
+        source_citation=str(source_citation),
+        measurement_temp_c=measurement_temp
+    )
 
 def create_descriptor_from_composition(
     composition: SolderComposition,
-    clr_values: Tuple[float, ...],
-    element_order: List[str],
-    mean_atomic_mass: float,
-    var_en: float,
-    var_radius: float,
-    mean_melting_point: float,
-    vec: float
+    elemental_properties: Dict[str, Dict[str, float]]
 ) -> CompositionalDescriptor:
     """
-    Convenience wrapper to create a CompositionalDescriptor.
-
+    Create compositional descriptors from a SolderComposition.
+    
     Args:
-        composition: The source SolderComposition.
-        clr_values: The CLR-transformed composition vector.
-        element_order: The ordered list of elements corresponding to clr_values.
-        mean_atomic_mass: Weighted mean atomic mass.
-        var_en: Electronegativity variance.
-        var_radius: Atomic radius variance.
-        mean_melting_point: Weighted average melting point.
-        vec: Valence electron concentration.
-
+        composition: SolderComposition instance to derive descriptors from.
+        elemental_properties: Dictionary mapping element symbols to their properties.
+            Expected format: {element: {'atomic_mass': float, 'electronegativity': float, 
+                                       'atomic_radius': float, 'melting_point': float, 
+                                       'valence_electrons': float}}
+            
     Returns:
-        A CompositionalDescriptor instance.
+        CompositionalDescriptor instance.
+        
+    Raises:
+        DataValidationError: If required elemental properties are missing.
     """
-    return CompositionalDescriptor.from_composition(
-        composition,
-        clr_values,
-        element_order,
-        mean_atomic_mass,
-        var_en,
-        var_radius,
-        mean_melting_point,
-        vec
+    if not composition.elemental_breakdown:
+        raise DataValidationError("Cannot create descriptors from empty composition")
+    
+    # Calculate total composition for normalization
+    total_composition = sum(composition.elemental_breakdown.values())
+    if total_composition == 0:
+        raise DataValidationError("Cannot create descriptors from zero-sum composition")
+    
+    # Initialize accumulators
+    weighted_mass_sum = 0.0
+    weighted_electronegativity_sum = 0.0
+    weighted_radius_sum = 0.0
+    weighted_melting_point_sum = 0.0
+    weighted_valence_sum = 0.0
+    
+    electronegativity_values = []
+    radius_values = []
+    weights = []
+    
+    for element, fraction in composition.elemental_breakdown.items():
+        if element not in elemental_properties:
+            logger.warning(f"Element {element} not found in elemental_properties, skipping")
+            continue
+        
+        props = elemental_properties[element]
+        normalized_fraction = fraction / total_composition
+        
+        # Accumulate weighted values
+        weighted_mass_sum += normalized_fraction * props['atomic_mass']
+        weighted_electronegativity_sum += normalized_fraction * props['electronegativity']
+        weighted_radius_sum += normalized_fraction * props['atomic_radius']
+        weighted_melting_point_sum += normalized_fraction * props['melting_point']
+        weighted_valence_sum += normalized_fraction * props['valence_electrons']
+        
+        # Store for variance calculation
+        electronegativity_values.append(props['electronegativity'])
+        radius_values.append(props['atomic_radius'])
+        weights.append(normalized_fraction)
+    
+    # Calculate variance for electronegativity and atomic radius
+    def weighted_variance(values, weights):
+        if len(values) == 0:
+            return 0.0
+        mean = sum(v * w for v, w in zip(values, weights))
+        variance = sum(w * (v - mean) ** 2 for v, w in zip(values, weights))
+        return variance
+    
+    electronegativity_variance = weighted_variance(electronegativity_values, weights)
+    atomic_radius_variance = weighted_variance(radius_values, weights)
+    
+    return CompositionalDescriptor(
+        weighted_mean_atomic_mass=weighted_mass_sum,
+        electronegativity_variance=electronegativity_variance,
+        atomic_radius_variance=atomic_radius_variance,
+        weighted_avg_melting_point=weighted_melting_point_sum,
+        valence_electron_concentration=weighted_valence_sum,
+        source_composition=composition
     )

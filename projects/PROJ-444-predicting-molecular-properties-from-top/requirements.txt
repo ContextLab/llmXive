@@ -8,4 +8,8 @@ matplotlib
 seaborn
 pyyaml
 requests
-datasets
+networkx
+scipy
+pytest
+black
+ruff

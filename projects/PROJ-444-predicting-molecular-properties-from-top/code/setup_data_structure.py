@@ -1,104 +1,89 @@
+"""
+Task T004: Setup data directory structure and state tracking.
+
+Creates the required directory hierarchy:
+- data/raw/
+- data/processed/
+- data/logs/
+- state/
+
+Initializes the state tracking file (state/pipeline_state.json) if it does not exist.
+"""
 import os
 import json
 from pathlib import Path
+from typing import List
+
+# Project root relative to this script (assuming script is in code/)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+# Directories to ensure exist
+DIRECTORIES = [
+    "data/raw",
+    "data/processed",
+    "data/logs",
+    "state"
+]
+
+# Files to initialize if missing
+STATE_FILE = "state/pipeline_state.json"
 
 
-def ensure_directory(dir_path: str) -> Path:
-    """
-    Creates a directory if it does not exist.
-    Returns the Path object of the directory.
-    """
-    path = Path(dir_path)
-    path.mkdir(parents=True, exist_ok=True)
-    return path
+def ensure_directory(dir_path: Path) -> None:
+    """Ensure a directory exists, creating it if necessary."""
+    if not dir_path.exists():
+        dir_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {dir_path}")
+    else:
+        if not dir_path.is_dir():
+            raise RuntimeError(f"Path exists but is not a directory: {dir_path}")
 
 
-def initialize_file(file_path: str, initial_content: dict = None) -> Path:
-    """
-    Creates a file if it does not exist.
-    If initial_content is provided (dict), writes it as JSON.
-    Returns the Path object of the file.
-    """
-    path = Path(file_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    if not path.exists():
-        if initial_content is not None:
-            with open(path, 'w', encoding='utf-8') as f:
-                json.dump(initial_content, f, indent=2)
-        else:
-            path.touch()
-    
-    return path
+def initialize_file(file_path: Path, initial_content: dict) -> None:
+    """Initialize a JSON state file if it doesn't exist."""
+    if not file_path.exists():
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(initial_content, f, indent=2)
+        print(f"Initialized state file: {file_path}")
+    else:
+        # Validate existing file is valid JSON
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                json.load(f)
+        except json.JSONDecodeError:
+            raise RuntimeError(f"State file exists but is not valid JSON: {file_path}")
 
 
-def main():
-    """
-    Main entry point to setup the project data structure and state tracking.
-    Implements T004: Setup data/ directory structure and state tracking.
-    """
-    # Define project root relative to this script (assuming code/ is at root or similar)
-    # We assume the script runs from the project root or code/ is a subdirectory.
-    # Based on T001, the project root is projects/PROJ-444-...
-    # We will use relative paths from the current working directory.
+def main() -> None:
+    """Main entry point for T004."""
+    print(f"Setting up data structure for project at: {PROJECT_ROOT}")
     
-    base_dir = Path.cwd()
+    # Ensure all required directories exist
+    for dir_name in DIRECTORIES:
+        dir_path = PROJECT_ROOT / dir_name
+        ensure_directory(dir_path)
     
-    # 1. Create data/ directory structure
-    data_dir = base_dir / "data"
-    raw_dir = data_dir / "raw"
-    processed_dir = data_dir / "processed"
-    logs_dir = data_dir / "logs"
-    
-    ensure_directory(str(data_dir))
-    ensure_directory(str(raw_dir))
-    ensure_directory(str(processed_dir))
-    ensure_directory(str(logs_dir))
-    
-    print(f"Created data structure: {data_dir}, {raw_dir}, {processed_dir}, {logs_dir}")
-    
-    # 2. Create state/ directory for tracking
-    state_dir = base_dir / "state"
-    ensure_directory(str(state_dir))
-    
-    # 3. Initialize state tracking files
-    # state/pipeline_state.json - tracks current step, version, and status
-    state_file = state_dir / "pipeline_state.json"
-    initial_state = {
-        "pipeline_version": "1.0.0",
-        "last_step": "T004_setup_data",
-        "status": "initialized",
-        "timestamp": None,
-        "artifacts": {
-            "data_raw": None,
-            "data_processed": None,
-            "models": None
-        },
-        "config": {
-            "random_seed": 42,
-            "target_metric": "R2"
+    # Initialize state tracking file
+    state_path = PROJECT_ROOT / STATE_FILE
+    if not state_path.exists():
+        initial_state = {
+            "pipeline_version": "1.0.0",
+            "last_run": None,
+            "tasks_completed": [],
+            "data_sources": [],
+            "checksums": {},
+            "config": {
+                "random_seed": 42,
+                "splits": 5,
+                "model_params": {}
+            }
         }
-    }
-    initialize_file(str(state_file), initial_state)
+        initialize_file(state_path, initial_state)
+    else:
+        print(f"State file already exists: {state_path}")
     
-    # state/checkpoints.json - tracks completed tasks and their outputs
-    checkpoints_file = state_dir / "checkpoints.json"
-    initial_checkpoints = {
-        "completed_tasks": [],
-        "failed_tasks": [],
-        "last_checkpoint": None
-    }
-    initialize_file(str(checkpoints_file), initial_checkpoints)
-    
-    # 4. Initialize .gitkeep files to ensure directories are tracked in git
-    (data_dir / ".gitkeep").touch()
-    (raw_dir / ".gitkeep").touch()
-    (processed_dir / ".gitkeep").touch()
-    (logs_dir / ".gitkeep").touch()
-    (state_dir / ".gitkeep").touch()
-    
-    print(f"State tracking initialized at {state_dir}")
-    print("T004 Setup complete.")
+    print("Data structure setup complete.")
 
 
 if __name__ == "__main__":

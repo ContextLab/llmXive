@@ -1,38 +1,36 @@
 """
-Reference Validator Module for Solder Hardness Project.
+Reference Validator Module for Solder Hardness Prediction Pipeline.
 
-This module validates research sources identified in T008a.
-It checks for valid URLs, reachable domains, and proper citation format.
+This module provides functions to validate research sources, URLs, and citation formats.
+It ensures that all references in research_verified.md are legitimate and accessible.
 """
 import os
 import re
 import logging
+import requests
 from pathlib import Path
 from typing import List, Optional, Tuple
 from utils.error_handlers import SolderPipelineError
-from utils.logging_config import get_logger
 
 # Configure logger
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 class ConstitutionError(SolderPipelineError):
-    """Raised when research verification fails."""
+    """Raised when a citation or URL violates the constitution of valid references."""
     pass
 
-def validate_url(url: str) -> Tuple[bool, Optional[str]]:
+def validate_url(url: str, timeout: int = 10) -> Tuple[bool, Optional[str]]:
     """
-    Validate a URL string.
-    
+    Validate a URL by checking its format and attempting a HEAD request.
+
     Args:
-        url: The URL string to validate.
-        
+        url: The URL to validate.
+        timeout: Request timeout in seconds.
+
     Returns:
         Tuple of (is_valid, error_message).
     """
-    if not url or not isinstance(url, str):
-        return False, "URL is empty or not a string"
-    
-    # Basic URL pattern check
+    # Check URL format
     url_pattern = re.compile(
         r'^https?://'  # http:// or https://
         r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain...
@@ -40,189 +38,261 @@ def validate_url(url: str) -> Tuple[bool, Optional[str]]:
         r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
         r'(?::\d+)?'  # optional port
         r'(?:/?|[/?]\S+)$', re.IGNORECASE)
-    
+
     if not url_pattern.match(url):
         return False, f"Invalid URL format: {url}"
-    
-    # Check for known blocked or suspicious patterns
-    blocked_patterns = ['javascript:', 'data:', 'file:']
-    for pattern in blocked_patterns:
-        if pattern in url.lower():
-            return False, f"Blocked protocol detected: {pattern}"
-    
-    return True, None
 
-def validate_citation_format(line: str) -> Tuple[bool, Optional[str]]:
+    # Check if URL is accessible
+    try:
+        if url.endswith('.pdf'):
+            # For PDFs, we just check if we can get a 200 OK
+            response = requests.head(url, timeout=timeout, allow_redirects=True)
+        else:
+            response = requests.head(url, timeout=timeout, allow_redirects=True)
+            if response.status_code == 405:  # Method Not Allowed
+                # Some servers don't support HEAD, try GET
+                response = requests.get(url, timeout=timeout, allow_redirects=True)
+
+        if response.status_code >= 400:
+            return False, f"URL returned status code {response.status_code}: {url}"
+
+        return True, None
+    except requests.exceptions.RequestException as e:
+        return False, f"Failed to access URL {url}: {str(e)}"
+
+def validate_citation_format(citation: str) -> Tuple[bool, Optional[str]]:
     """
-    Validate that a line follows the expected citation format.
-    
-    Expected format: "[ID] Title - URL" or similar structured format.
-    
+    Validate the format of a citation string.
+
+    Expected format: "Author(s), Title, Journal/Source, Year, URL"
+    or for books: "Author(s), Title, Publisher, Year"
+
     Args:
-        line: The line to validate.
-        
+        citation: The citation string to validate.
+
     Returns:
         Tuple of (is_valid, error_message).
     """
-    if not line or not line.strip():
-        return False, "Empty citation line"
-    
-    # Check for basic structure: should contain a URL
-    if 'http' not in line:
-        return False, "Citation missing URL"
-    
-    # Check for title (text before the URL)
-    parts = line.split('http')
-    if len(parts) < 2 or not parts[0].strip():
-        return False, "Citation missing title"
-    
+    # Basic pattern for citation validation
+    # At minimum, should have some text and ideally a year
+    citation_pattern = re.compile(
+        r'.{10,}',  # At least 10 characters
+        re.IGNORECASE
+    )
+
+    if not citation_pattern.match(citation):
+        return False, "Citation is too short or malformed"
+
+    # Check for common citation elements
+    has_author = re.search(r'[A-Z][a-z]+,?\s+[A-Z]', citation)
+    has_year = re.search(r'\b(19|20)\d{2}\b', citation)
+    has_title = re.search(r'.{5,}', citation)
+
+    if not (has_author or has_title):
+        return False, "Citation missing author or title information"
+
+    if not has_year:
+        logger.warning(f"Citation may be missing year: {citation}")
+
     return True, None
 
 def validate_research_md(input_path: str, output_path: str) -> bool:
     """
-    Validate the research sources file and generate a verified version.
-    
-    This function:
-    1. Reads the candidate sources from the input file (T008a output).
-    2. Validates each URL and citation format.
-    3. Writes only valid entries to the output file (T008b output).
-    4. Returns True if verification passes, False otherwise.
-    
+    Validate research sources from a markdown file and generate a verified version.
+
     Args:
-        input_path: Path to the candidate sources file.
-        output_path: Path where the verified sources file will be written.
-        
+        input_path: Path to the draft research.md file.
+        output_path: Path to write the verified research_verified.md file.
+
     Returns:
-        True if verification is successful, False otherwise.
-        
+        True if validation was successful, False otherwise.
+
     Raises:
-        ConstitutionError: If verification fails completely.
+        ConstitutionError: If critical validation fails.
     """
     input_file = Path(input_path)
     output_file = Path(output_path)
-    
+
     if not input_file.exists():
         raise ConstitutionError(f"Input file not found: {input_path}")
-    
+
     # Ensure output directory exists
     output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    verified_entries = []
-    total_entries = 0
-    valid_entries = 0
-    errors = []
-    
-    logger.info(f"Starting verification of research sources from {input_path}")
-    
+
+    verified_sources = []
+    total_sources = 0
+    valid_sources = 0
+    invalid_sources = 0
+
+    logger.info(f"Validating research sources from {input_path}")
+
     try:
         with open(input_file, 'r', encoding='utf-8') as f:
             lines = f.readlines()
     except Exception as e:
         raise ConstitutionError(f"Failed to read input file: {str(e)}")
-    
-    for line_num, line in enumerate(lines, 1):
+
+    current_section = ""
+    current_citation = ""
+    current_url = ""
+
+    for line in lines:
         line = line.strip()
-        if not line or line.startswith('#'):
-            continue  # Skip comments and empty lines
-        
-        total_entries += 1
-        
-        # Extract URL from line (assuming format: "ID Title - URL" or similar)
-        url_match = re.search(r'(https?://[^\s]+)', line)
-        if not url_match:
-            errors.append(f"Line {line_num}: No URL found in '{line}'")
+
+        # Detect section headers
+        if line.startswith('#'):
+            if current_citation and current_url:
+                # Process the previous citation
+                is_valid_url, url_error = validate_url(current_url)
+                is_valid_citation, citation_error = validate_citation_format(current_citation)
+
+                if is_valid_url and is_valid_citation:
+                    verified_sources.append({
+                        'section': current_section,
+                        'citation': current_citation,
+                        'url': current_url,
+                        'status': 'verified'
+                    })
+                    valid_sources += 1
+                else:
+                    errors = []
+                    if not is_valid_url:
+                        errors.append(f"URL error: {url_error}")
+                    if not is_valid_citation:
+                        errors.append(f"Citation error: {citation_error}")
+                    logger.warning(f"Invalid source: {current_citation} | {current_url} | {'; '.join(errors)}")
+                    invalid_sources += 1
+
+                current_citation = ""
+                current_url = ""
+
+            current_section = line
             continue
-        
-        url = url_match.group(1)
-        
-        # Validate URL
-        is_valid_url, url_error = validate_url(url)
-        if not is_valid_url:
-            errors.append(f"Line {line_num}: {url_error} (URL: {url})")
-            continue
-        
-        # Validate citation format
-        is_valid_format, format_error = validate_citation_format(line)
-        if not is_valid_format:
-            errors.append(f"Line {line_num}: {format_error} (Line: {line})")
-            continue
-        
-        # Entry is valid
-        verified_entries.append(line)
-        valid_entries += 1
-        logger.debug(f"Validated entry {line_num}: {url}")
-    
-    # Write verified entries
+
+        # Parse citation and URL
+        if line.startswith('- [x]') or line.startswith('- [ ]'):
+            # This is a checklist item, likely a source
+            if current_citation and current_url:
+                # Process the previous citation first
+                is_valid_url, url_error = validate_url(current_url)
+                is_valid_citation, citation_error = validate_citation_format(current_citation)
+
+                if is_valid_url and is_valid_citation:
+                    verified_sources.append({
+                        'section': current_section,
+                        'citation': current_citation,
+                        'url': current_url,
+                        'status': 'verified'
+                    })
+                    valid_sources += 1
+                else:
+                    errors = []
+                    if not is_valid_url:
+                        errors.append(f"URL error: {url_error}")
+                    if not is_valid_citation:
+                        errors.append(f"Citation error: {citation_error}")
+                    logger.warning(f"Invalid source: {current_citation} | {current_url} | {'; '.join(errors)}")
+                    invalid_sources += 1
+
+                current_citation = ""
+                current_url = ""
+
+            # Extract citation and URL from the line
+            # Format: - [x] Citation text [URL]
+            match = re.match(r'- \[(x| )\]\s+(.+?)\s+\[(https?://[^\]]+)\]', line)
+            if match:
+                current_citation = match.group(2).strip()
+                current_url = match.group(3).strip()
+                total_sources += 1
+            elif re.match(r'- \[(x| )\]\s+(.+)', line):
+                # No URL found, just citation
+                current_citation = re.match(r'- \[(x| )\]\s+(.+)', line).group(2).strip()
+                current_url = ""
+                total_sources += 1
+
+    # Process the last citation if exists
+    if current_citation and current_url:
+        is_valid_url, url_error = validate_url(current_url)
+        is_valid_citation, citation_error = validate_citation_format(current_citation)
+
+        if is_valid_url and is_valid_citation:
+            verified_sources.append({
+                'section': current_section,
+                'citation': current_citation,
+                'url': current_url,
+                'status': 'verified'
+            })
+            valid_sources += 1
+        else:
+            errors = []
+            if not is_valid_url:
+                errors.append(f"URL error: {url_error}")
+            if not is_valid_citation:
+                errors.append(f"Citation error: {citation_error}")
+            logger.warning(f"Invalid source: {current_citation} | {current_url} | {'; '.join(errors)}")
+            invalid_sources += 1
+
+    # Write verified sources to output file
     try:
         with open(output_file, 'w', encoding='utf-8') as f:
-            f.write("# Verified Research Sources for Solder Hardness Project\n")
-            f.write("# Generated by Reference-Validator Agent (T008b)\n")
-            f.write("# Only valid URLs and properly formatted citations are included.\n")
-            f.write("#\n")
-            f.write(f"# Verification Summary:\n")
-            f.write(f"# - Total entries processed: {total_entries}\n")
-            f.write(f"# - Valid entries: {valid_entries}\n")
-            f.write(f"# - Invalid entries: {total_entries - valid_entries}\n")
-            f.write("#\n\n")
-            
-            for entry in verified_entries:
-                f.write(f"{entry}\n")
-        
-        logger.info(f"Successfully wrote {valid_entries} verified entries to {output_path}")
+            f.write("# Verified Research Sources\n\n")
+            f.write(f"Total sources reviewed: {total_sources}\n")
+            f.write(f"Verified sources: {valid_sources}\n")
+            f.write(f"Invalid sources: {invalid_sources}\n\n")
+            f.write("## Verification Details\n\n")
+
+            current_section = ""
+            for source in verified_sources:
+                if source['section'] != current_section:
+                    current_section = source['section']
+                    f.write(f"### {current_section}\n\n")
+
+                f.write(f"- [x] {source['citation']} [{source['url']}]\n")
+                f.write(f"  - Status: {source['status']}\n\n")
+
+        logger.info(f"Successfully wrote verified sources to {output_path}")
+        logger.info(f"Summary: {valid_sources}/{total_sources} sources verified")
+
+        # If no sources were verified, raise an error
+        if valid_sources == 0:
+            raise ConstitutionError("No valid research sources found. Verification failed.")
+
+        return True
+
     except Exception as e:
         raise ConstitutionError(f"Failed to write output file: {str(e)}")
-    
-    # Log errors if any
-    if errors:
-        logger.warning(f"Found {len(errors)} validation errors:")
-        for error in errors[:10]:  # Log first 10 errors
-            logger.warning(f"  - {error}")
-        if len(errors) > 10:
-            logger.warning(f"  ... and {len(errors) - 10} more errors")
-    
-    # Check if we have any valid entries
-    if valid_entries == 0:
-        raise ConstitutionError("No valid research sources found. Verification failed.")
-    
-    # Success
-    logger.info(f"Verification complete: {valid_entries}/{total_entries} sources verified.")
-    return True
 
 def main():
-    """
-    Main entry point for the reference validator.
-    
-    Reads from data/config/candidate_sources.txt (output of T008a)
-    and writes to specs/001-predict-solder-hardness/research_verified.md.
-    """
-    # Define paths
-    project_root = Path(__file__).parent.parent.parent
-    input_path = project_root / "data" / "config" / "candidate_sources.txt"
-    output_path = project_root / "specs" / "001-predict-solder-hardness" / "research_verified.md"
-    
-    # Allow override via environment variables for testing
-    if os.environ.get('RESEARCH_INPUT_PATH'):
-        input_path = Path(os.environ['RESEARCH_INPUT_PATH'])
-    if os.environ.get('RESEARCH_OUTPUT_PATH'):
-        output_path = Path(os.environ['RESEARCH_OUTPUT_PATH'])
-    
-    logger.info(f"Reference Validator starting...")
-    logger.info(f"Input: {input_path}")
-    logger.info(f"Output: {output_path}")
-    
+    """Main entry point for the reference validator."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Validate research sources and generate verified list.')
+    parser.add_argument('--input', type=str, default='data/config/candidate_sources.txt',
+                      help='Path to the draft research sources file')
+    parser.add_argument('--output', type=str, default='specs/001-predict-solder-hardness/research_verified.md',
+                      help='Path to write the verified research sources file')
+
+    args = parser.parse_args()
+
+    # Setup logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+
     try:
-        success = validate_research_md(str(input_path), str(output_path))
+        success = validate_research_md(args.input, args.output)
         if success:
-            logger.info("Verification completed successfully.")
+            logger.info("Research source validation completed successfully.")
             return 0
         else:
-            logger.error("Verification completed with errors.")
+            logger.error("Research source validation failed.")
             return 1
     except ConstitutionError as e:
-        logger.error(f"Verification failed: {str(e)}")
+        logger.error(f"Constitution error: {str(e)}")
         return 1
     except Exception as e:
-        logger.exception(f"Unexpected error during verification: {str(e)}")
+        logger.error(f"Unexpected error: {str(e)}")
         return 1
 
 if __name__ == "__main__":

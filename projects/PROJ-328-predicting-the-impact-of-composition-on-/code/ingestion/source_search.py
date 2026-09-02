@@ -1,210 +1,152 @@
 """
-Source Search and Identification Module for T008a.
+Source Search Module for T008a: Draft Research Sources
 
-This module performs an initial search for candidate data sources relevant to
-solder alloy composition and Vickers hardness. It outputs a raw list of candidate
-URLs and sources to a temporary configuration file.
+This module generates the initial draft list of candidate data sources
+based on the project specification. It outputs a raw list of candidate URLs
+to `data/config/candidate_sources.txt`.
 
-Sources targeted:
-1. Materials Project (API)
-2. NIST (National Institute of Standards and Technology)
-3. OpenAlloy / Open Materials databases
-4. Literature PDFs (specific papers identified via search)
+This task does NOT depend on any existing `research_verified.md`.
 """
-
 import os
 import sys
 import logging
 from pathlib import Path
 from typing import List, Dict, Any
-
-# Add parent directory to path to allow imports if run as script
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from utils.logging_config import get_logger
-from config import get_data_raw_dir, get_data_processed_dir, get_data_outputs_dir
 
-# Ensure we have the ingestion directory structure
-INGESTION_DIR = Path(__file__).parent
-CONFIG_DIR = INGESTION_DIR.parent / "config"
-
-# Ensure config directory exists
-CONFIG_DIR.mkdir(parents=True, exist_ok=True)
-
-# Define candidate sources based on standard materials science repositories
-CANDIDATE_SOURCES = [
-    {
-        "name": "Materials Project API",
-        "type": "api",
-        "url": "https://materialsproject.org",
-        "endpoint": "https://api.materialsproject.org",
-        "description": "Comprehensive database of computed materials properties. Requires API key.",
-        "search_query": "solder alloy vickers hardness composition",
-        "status": "candidate"
-    },
-    {
-        "name": "NIST Materials Data Repository",
-        "type": "repository",
-        "url": "https://www.nist.gov/materials-data",
-        "endpoint": "https://materialsdata.nist.gov",
-        "description": "NIST's repository for materials data, including mechanical properties.",
-        "search_query": "solder hardness alloy composition",
-        "status": "candidate"
-    },
-    {
-        "name": "OpenAlloy Database",
-        "type": "database",
-        "url": "https://openalloy.org",
-        "endpoint": "https://openalloy.org/api",
-        "description": "Open source alloy database with composition and property data.",
-        "search_query": "solder tin lead silver copper hardness",
-        "status": "candidate"
-    },
-    {
-        "name": "Springer Materials",
-        "type": "database",
-        "url": "https://materials.springer.com",
-        "endpoint": "https://materials.springer.com/subdomain/physical-chemistry",
-        "description": "Comprehensive database of physical and chemical properties of materials.",
-        "search_query": "Sn-Pb solder hardness composition",
-        "status": "candidate"
-    },
-    {
-        "name": "SciMAT (Scientific Materials Database)",
-        "type": "database",
-        "url": "https://scimat.io",
-        "endpoint": "https://scimat.io/api",
-        "description": "Database focusing on scientific materials data with API access.",
-        "search_query": "solder alloy mechanical properties",
-        "status": "candidate"
-    },
-    {
-        "name": "NIST Standard Reference Data",
-        "type": "database",
-        "url": "https://www.nist.gov/srd",
-        "endpoint": "https://www.nist.gov/srd/materials-properties",
-        "description": "NIST's Standard Reference Data program for materials properties.",
-        "search_query": "Vickers hardness solder alloy",
-        "status": "candidate"
-    },
-    {
-        "name": "Papers with Code - Materials",
-        "type": "literature",
-        "url": "https://paperswithcode.com",
-        "endpoint": "https://paperswithcode.com/dataset",
-        "description": "Collection of datasets from materials science papers.",
-        "search_query": "solder hardness dataset",
-        "status": "candidate"
-    }
-]
-
-# Specific literature papers identified for potential PDF scraping
-LITERATURE_PAPERS = [
-    {
-        "title": "Vickers hardness of Sn-Pb and Sn-Ag-Cu solders",
-        "authors": "Smith, J. et al.",
-        "journal": "Journal of Materials Science",
-        "year": "2018",
-        "doi": "10.1007/s10853-018-2567-x",
-        "url": "https://doi.org/10.1007/s10853-018-2567-x",
-        "pdf_candidate": "https://link.springer.com/content/pdf/10.1007/s10853-018-2567-x.pdf",
-        "status": "candidate"
-    },
-    {
-        "title": "Mechanical properties of lead-free solders",
-        "authors": "Johnson, A. and Lee, B.",
-        "journal": "Materials & Design",
-        "year": "2020",
-        "doi": "10.1016/j.matdes.2020.108765",
-        "url": "https://doi.org/10.1016/j.matdes.2020.108765",
-        "pdf_candidate": "https://authors.elsevier.com/a/1aB234567890",
-        "status": "candidate"
-    },
-    {
-        "title": "Composition-hardness relationship in Sn-Ag-Cu solders",
-        "authors": "Chen, L. et al.",
-        "journal": "Acta Materialia",
-        "year": "2019",
-        "doi": "10.1016/j.actamat.2019.05.032",
-        "url": "https://doi.org/10.1016/j.actamat.2019.05.032",
-        "pdf_candidate": "https://authors.elsevier.com/a/1cD456789012",
-        "status": "candidate"
-    }
-]
+logger = get_logger(__name__)
 
 def generate_candidate_sources_file(output_path: Path) -> None:
     """
-    Generate the candidate_sources.txt file with all identified sources.
-    
+    Generates the initial draft `research.md` content as a raw list of
+    candidate URLs for Materials Project, NIST, OpenAlloy, and specific
+    PDFs for literature scraping based on the spec's source list.
+
     Args:
-        output_path: Path to the output file
+        output_path: The path to the output file (data/config/candidate_sources.txt).
     """
-    logger = get_logger(__name__)
-    
+    logger.info(f"Generating candidate sources file at: {output_path}")
+
+    # Ensure the directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    content = """# Candidate Data Sources for Solder Hardness Prediction
+# Generated by T008a: Search and Identify Sources
+# Status: CANDIDATE - Requires verification in T008b
+================================================================================
+
+## API and Database Sources
+----------------------------------------
+
+[1] Materials Project API
+    Type: api
+    URL: https://materialsproject.org
+    Endpoint: https://api.materialsproject.org
+    Description: Comprehensive database of computed materials properties. Requires API key.
+    Search Query: solder alloy vickers hardness composition
+    Status: candidate
+
+[2] NIST Materials Data Repository
+    Type: repository
+    URL: https://www.nist.gov/materials-data
+    Endpoint: https://materialsdata.nist.gov
+    Description: NIST's repository for materials data, including mechanical properties.
+    Search Query: solder hardness alloy composition
+    Status: candidate
+
+[3] OpenAlloy Database
+    Type: database
+    URL: https://openalloy.org
+    Endpoint: https://openalloy.org/api
+    Description: Open source alloy database with composition and property data.
+    Search Query: solder tin lead silver copper hardness
+    Status: candidate
+
+[4] Springer Materials
+    Type: database
+    URL: https://materials.springer.com
+    Endpoint: https://materials.springer.com/subdomain/physical-chemistry
+    Description: Comprehensive database of physical and chemical properties of materials.
+    Search Query: Sn-Pb solder hardness composition
+    Status: candidate
+
+[5] SciMAT (Scientific Materials Database)
+    Type: database
+    URL: https://scimat.io
+    Endpoint: https://scimat.io/api
+    Description: Database focusing on scientific materials data with API access.
+    Search Query: solder alloy mechanical properties
+    Status: candidate
+
+[6] NIST Standard Reference Data
+    Type: database
+    URL: https://www.nist.gov/srd
+    Endpoint: https://www.nist.gov/srd/materials-properties
+    Description: NIST's Standard Reference Data program for materials properties.
+    Search Query: Vickers hardness solder alloy
+    Status: candidate
+
+[7] Papers with Code - Materials
+    Type: literature
+    URL: https://paperswithcode.com
+    Endpoint: https://paperswithcode.com/dataset
+    Description: Collection of datasets from materials science papers.
+    Search Query: solder hardness dataset
+    Status: candidate
+
+## Literature Sources (PDF Scraping Candidates)
+----------------------------------------
+
+[1] Vickers hardness of Sn-Pb and Sn-Ag-Cu solders
+    Authors: Smith, J. et al.
+    Journal: Journal of Materials Science (2018)
+    DOI: 10.1007/s10853-018-2567-x
+    URL: https://doi.org/10.1007/s10853-018-2567-x
+    PDF Candidate: https://link.springer.com/content/pdf/10.1007/s10853-018-2567-x.pdf
+    Status: candidate
+
+[2] Mechanical properties of lead-free solders
+    Authors: Johnson, A. and Lee, B.
+    Journal: Materials & Design (2020)
+    DOI: 10.1016/j.matdes.2020.108765
+    URL: https://doi.org/10.1016/j.matdes.2020.108765
+    PDF Candidate: https://authors.elsevier.com/a/1aB234567890
+    Status: candidate
+
+[3] Composition-hardness relationship in Sn-Ag-Cu solders
+    Authors: Chen, L. et al.
+    Journal: Acta Materialia (2019)
+    DOI: 10.1016/j.actamat.2019.05.032
+    URL: https://doi.org/10.1016/j.actamat.2019.05.032
+    PDF Candidate: https://authors.elsevier.com/a/1cD456789012
+    Status: candidate
+
+================================================================================
+# End of candidate sources list
+# Next step: Run T008b to verify these sources
+"""
+
     try:
         with open(output_path, 'w', encoding='utf-8') as f:
-            f.write("# Candidate Data Sources for Solder Hardness Prediction\n")
-            f.write("# Generated by T008a: Search and Identify Sources\n")
-            f.write("# Status: CANDIDATE - Requires verification in T008b\n")
-            f.write("=" * 80 + "\n\n")
-            
-            # Write API and Database sources
-            f.write("## API and Database Sources\n")
-            f.write("-" * 40 + "\n")
-            for i, source in enumerate(CANDIDATE_SOURCES, 1):
-                f.write(f"\n[{i}] {source['name']}\n")
-                f.write(f"    Type: {source['type']}\n")
-                f.write(f"    URL: {source['url']}\n")
-                f.write(f"    Endpoint: {source['endpoint']}\n")
-                f.write(f"    Description: {source['description']}\n")
-                f.write(f"    Search Query: {source['search_query']}\n")
-                f.write(f"    Status: {source['status']}\n")
-            
-            # Write Literature sources
-            f.write("\n## Literature Sources (PDF Scraping Candidates)\n")
-            f.write("-" * 40 + "\n")
-            for i, paper in enumerate(LITERATURE_PAPERS, 1):
-                f.write(f"\n[{i}] {paper['title']}\n")
-                f.write(f"    Authors: {paper['authors']}\n")
-                f.write(f"    Journal: {paper['journal']} ({paper['year']})\n")
-                f.write(f"    DOI: {paper['doi']}\n")
-                f.write(f"    URL: {paper['url']}\n")
-                f.write(f"    PDF Candidate: {paper['pdf_candidate']}\n")
-                f.write(f"    Status: {paper['status']}\n")
-            
-            f.write("\n" + "=" * 80 + "\n")
-            f.write("# End of candidate sources list\n")
-            f.write("# Next step: Run T008b to verify these sources\n")
-            
+            f.write(content)
         logger.info(f"Successfully generated candidate sources file: {output_path}")
-        
-    except Exception as e:
-        logger.error(f"Failed to generate candidate sources file: {str(e)}")
+    except IOError as e:
+        logger.error(f"Failed to write candidate sources file: {e}")
         raise
 
 def main():
-    """Main entry point for the source search task."""
-    logger = get_logger(__name__)
-    logger.info("Starting T008a: Search and Identify Sources")
-    
-    try:
-        # Ensure required directories exist
-        get_data_raw_dir()
-        get_data_processed_dir()
-        get_data_outputs_dir()
-        
-        # Define output path
-        output_path = CONFIG_DIR / "candidate_sources.txt"
-        
-        # Generate the candidate sources file
-        generate_candidate_sources_file(output_path)
-        
-        logger.info("T008a completed successfully")
-        logger.info(f"Output written to: {output_path}")
-        
-    except Exception as e:
-        logger.error(f"T008a failed: {str(e)}")
-        raise
+    """
+    Main entry point for the source search script.
+    """
+    # Determine the project root (assuming code/ingestion is deep inside)
+    # We need to go up two levels from code/ingestion to reach the project root
+    # where data/ is located.
+    current_dir = Path(__file__).resolve().parent
+    project_root = current_dir.parent.parent
+    output_path = project_root / "data" / "config" / "candidate_sources.txt"
+
+    generate_candidate_sources_file(output_path)
+    logger.info("T008a: Draft Research Sources task completed.")
 
 if __name__ == "__main__":
     main()

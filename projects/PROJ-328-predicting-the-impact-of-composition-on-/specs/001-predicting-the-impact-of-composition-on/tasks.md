@@ -58,13 +58,13 @@
 
 - [ ] T005a [P] Create scaffolding for `code/ingestion/` directory structure. **CRITICAL**: This task establishes the folder structure and placeholder files: `__init__.py`, `aggregator.py`, `cleaner.py`, `validator.py`. **Verify existence of all files.**
 - [X] T005b [P] Create scaffolding for `code/features/` directory structure. **CRITICAL**: Verify existence of `code/features/__init__.py`, `code/features/transformer.py`, `code/features/descriptor_engine.py`, `code/features/collinearity.py`.
-- [ ] T006 [P] Create `code/config.py` with configuration constants: `MAX_ELEMENTS`, `ROOM_TEMP_THRESHOLD_C`, `ROOM_TEMP_TOLERANCE_C`, `COMPOSITION_SUM_THRESHOLD`, `MIN_N_FOR_POWER`, `TARGET_N`. **CRITICAL**: Verify file creation and content.
-- [ ] T007 [P] Create base data models/entities in `code/models/entities.py`. **CRITICAL**: Define `SolderComposition` class with attributes: `elemental_breakdown` (dict), `hardness_hv` (float), `alloy_family` (str), `source_citation` (str). Define `CompositionalDescriptor` class with attributes: `weighted_mean_atomic_mass`, `electronegativity_variance`, `atomic_radius_variance`, `weighted_avg_melting_point`, `valence_electron_concentration`. **Verify file creation.** **Depends on T005a**.
-- [ ] T008a [P] **Draft Research Sources**: Generate the initial draft `research.md` by manually listing candidate URLs for Materials Project, NIST, OpenAlloy, and specific PDFs for literature scraping based on the spec's source list. Output a raw list of candidate URLs to `data/config/candidate_sources.txt`. **CRITICAL**: This task DOES NOT depend on any existing `research_verified.md`. It creates the initial draft from the spec. **Depends on T006**.
-- [ ] T008b [P] **Verify Research Sources**: Run the Reference-Validator Agent on the draft content from T008a. Generate `specs/001-predict-solder-hardness/research_verified.md` containing only verified citations and URLs. **CRITICAL**: This task MUST run after T008a. If verification fails, the pipeline halts. **Depends on T008a**.
+- [X] T006 [P] Create `code/config.py` with configuration constants: `MAX_ELEMENTS`, `ROOM_TEMP_THRESHOLD_C`, `ROOM_TEMP_TOLERANCE_C`, `COMPOSITION_SUM_THRESHOLD`, `MIN_N_FOR_POWER`, `TARGET_N`. **CRITICAL**: Verify file creation and content.
+- [X] T007 [P] Create base data models/entities in `code/models/entities.py`. **CRITICAL**: Define `SolderComposition` class with attributes: `elemental_breakdown` (dict), `hardness_hv` (float), `alloy_family` (str), `source_citation` (str). Define `CompositionalDescriptor` class with attributes: `weighted_mean_atomic_mass`, `electronegativity_variance`, `atomic_radius_variance`, `weighted_avg_melting_point`, `valence_electron_concentration`. **Verify file creation.** **Depends on T005a**.
+- [X] T008a [P] **Draft Research Sources**: Generate the initial draft `research.md` by manually listing candidate URLs for Materials Project, NIST, OpenAlloy, and specific PDFs for literature scraping based on the spec's source list. Output a raw list of candidate URLs to `data/config/candidate_sources.txt`. **CRITICAL**: This task DOES NOT depend on any existing `research_verified.md`. It creates the initial draft from the spec. **Depends on T006**.
+- [~] T008b [P] **Verify Research Sources**: Run the Reference-Validator Agent on the draft content from T008a. Generate `specs/001-predict-solder-hardness/research_verified.md` containing only verified citations and URLs. **CRITICAL**: This task MUST run after T008a. If verification fails, the pipeline halts. **Depends on T008a**.
 - [ ] T009a [P] Create scaffolding for `code/utils/` directory structure. **CRITICAL**: Verify existence of all files: `__init__.py`.
-- [ ] T009b [P] Create `code/utils/logger.py` with a `get_logger()` function that writes to `logs/pipeline.log` in JSON format. **CRITICAL**: This step depends on T009a. **Depends on T009a**.
-- [ ] T009c [P] **Populate `sources.yaml`**: Read the **verified** `research_verified.md` from T008b and populate `data/config/sources.yaml` with the specific, verified URLs and API endpoints. **CRITICAL**: This task MUST run after T008b. **Depends on T008b**.
+- [X] T009b [P] Create `code/utils/logger.py` with a `get_logger()` function that writes to `logs/pipeline.log` in JSON format. **CRITICAL**: This step depends on T009a. **Depends on T009a**.
+- [~] T009c [P] **Populate `sources.yaml`**: Read the **verified** `research_verified.md` from T008b and populate `data/config/sources.yaml` with the specific, verified URLs and API endpoints. **CRITICAL**: This task MUST run after T008b. **Depends on T008b**.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -72,7 +72,7 @@
 
 ## Phase 3: User Story 1 - Aggregate and validate solder hardness dataset (Priority: P1) 🎯 MVP
 
-**Goal**: Aggregate ≥100 unique solder alloy compositions with Vickers hardness from open sources into a unified dataset with validation.
+**Goal**: Aggregate ≥100 unique solder alloy compositions with Vickers hardness from open sources into a unified dataset with validation. [UNRESOLVED-CLAIM: c_f19b2d3f — status=not_enough_info]
 
 **Independent Test**: Execute ingestion pipeline on GitHub Actions free-tier runner and verify output dataset contains ≥100 unique compositions with non-null hardness values and complete elemental breakdowns. If 50 ≤ N < 100, verify warning is emitted.
 
@@ -85,7 +85,7 @@
 - [ ] T012e [US1] **Write Raw Data to Immutable Store**: Implement logic in `code/ingestion/aggregator.py` to write ALL fetched/scraped data (from T012a, T012b, T012c) to `data/raw/` as immutable files (e.g., `raw_mp.json`, `raw_lit.csv`, `raw_openalloy.json`) BEFORE any cleaning. **CRITICAL**: Generate SHA256 checksums for all raw files and append to `data/checksums.txt`. **Depends on T012a, T012b, T012c**.
 - [ ] T013 [US1] Implement data cleaning and filtering logic in `code/ingestion/cleaner.py` to:
  - Exclude alloys with >5 elements (read threshold from `code/config.py` `MAX_ELEMENTS`)
- - Standardize hardness to HV units: **CRITICAL**: Use explicit conversion factors: 1 GPa = 10.197 HV, 1 kgf/mm² = 9.807 HV.
+ - Standardize hardness to HV units: **CRITICAL**: Use explicit conversion factors: 1 GPa = 10.197 HV [UNRESOLVED-CLAIM: c_b4eaa2ac — status=not_enough_info], 1 kgf/mm² = 9.807 HV [UNRESOLVED-CLAIM: c_05f6cf79 — status=not_enough_info].
  - Filter for room-temperature measurements only: verify column `measurement_temp_c` exists; filter where `abs(measurement_temp_c - config.ROOM_TEMP_THRESHOLD_C) <= config.ROOM_TEMP_TOLERANCE_C`.
  - **Manual Review Flagging**: Identify records where `abs(measurement_temp_c - config.ROOM_TEMP_THRESHOLD_C) > config.ROOM_TEMP_TOLERANCE_C` but `<= 2 * config.ROOM_TEMP_TOLERANCE_C` and write them to `data/processed/manual_review_queue.csv`.
  - **Validate Elemental Composition**: Iterate every record, sum elemental composition values. If sum < 95.0, mark record as invalid and log to `data/processed/validation_logs/filtered_records.csv` with reason code `COMPOSITION_SUM_LOW`.
@@ -97,7 +97,7 @@
  2. **Calculate Composition Sums**: Explicitly calculate the sum of elemental columns for every record in the cleaned file to confirm no invalid records remain.
  3. **Enforce Threshold**: Confirm no records in `cleaned.csv` have composition sum <95%.
  4. **Count Non-Null Hardness**: Count records where `hardness_hv` is not null in `cleaned.csv`.
- 5. **Threshold Check**: If total N < 50, log a severe warning and proceed with a reduced N flag (do NOT halt). If 50 <= N < 100, proceed but flag for power limitation.
+ 5. **Threshold Check**: If total N < 50, log a severe warning and proceed with a reduced N flag (do NOT halt). If 50 <= N < 100, proceed but flag for power limitation. [UNRESOLVED-CLAIM: c_f6e3c37e — status=not_enough_info]
  6. **Write Status**: Explicitly write `threshold_status` ('N>=100', '50<=N<100', 'N<50'), `exact_N`, and `power_limitation_warning` (if applicable) to `data/processed/.ingestion_status.json`. **This file is the single source of truth for SC-004 metrics.** **CRITICAL**: If N < 50, ensure `power_limitation_warning` is set to 'N < 50'. **Depends on T013**.
 - [ ] T016b [US1] **Generate Validation Report Script**: Write a Python script `code/ingestion/generate_validation_report.py` that reads `data/processed/.ingestion_status.json` and generates `data/processed/validation_report.yaml`. **CRITICAL**:
  - **Input Schema**: `threshold_status` (str), `exact_N` (int), `power_limitation_warning` (str).

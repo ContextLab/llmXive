@@ -11,13 +11,6 @@ T003b:
   r: No artifact showing a `flake8` run on a sample file is present; there is no output,
     log, or report confirming that the linting configuration was verified, nor any
     sample file referenced. The required evidence to prove the task is therefore missing.
-T005a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The response contains only the task description and project specifications; there
-    is no evidence that a `code/ingestion/` directory exists nor that the required
-    files (`__init__.py`, `aggregator.py`, `cleaner.py`, `validator.py`) are present.
-    The implementer must provide the actual directory and file artifacts.
 T008a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -25,12 +18,6 @@ T008a:
     and for any listed URLs or citations to Materials Project, NIST, OpenAlloy, and
     the literature PDFs. No such markdown file or source listings were provided, so
     the critical prerequisite for data ingestion is missing.
-T009a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided showing that a `code/utils/` directory exists nor that\
-    \ it contains the required `__init__.py` and `logger.py` files; without these\
-    \ artifacts the task\u2019s requirement is not satisfied."
 T009c:
   c: false
   h: 6a2922d41fe084a93e61d8ca912a3371568066ce3ce8583746ea94f2fc4f54b7

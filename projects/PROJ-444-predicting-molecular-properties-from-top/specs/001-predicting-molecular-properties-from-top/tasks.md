@@ -40,7 +40,7 @@
 - [X] T005 [P] Implement `code/utils/graph_builder.py` for RDKit molecular graph construction with validity checks
 - [X] T006 [P] Implement `code/utils/persistence_utils.py` for shortest-path filtration and empty diagram handling
 - [ ] T007 Implement `code/00_checksum_verify.py` to compute SHA256 hashes of raw data and record them in `data/checksums.txt` (Constitution III)
-- [ ] T008 Implement `code/01_data_ingestion.py` to fetch MoleculeNet ESOL, validate `smiles`/`logP` columns against schema, perform a priori power analysis (N>=128), enforce min scaffolds check, and ensure random seed pinning (fixed value)
+- [X] T008 Implement `code/01_data_ingestion.py` to fetch MoleculeNet ESOL, validate `smiles`/`logP` columns against schema, perform a priori power analysis (N>=128), enforce min scaffolds check, and ensure random seed pinning (fixed value)
 - [ ] T010 [P] [US1] Contract test for `data/processed/tda_features.csv` schema in `tests/contract/test_tda_schema.py`
 - [X] T011 [P] [US1] Integration test for disconnected graph handling in `tests/integration/test_disconnected_graphs.py`
 
@@ -56,7 +56,7 @@
 
 ### Pre-Implementation Tests for User Story 1 (MUST FAIL BEFORE IMPLEMENTATION)
 
-- [ ] T010 [US1] Contract test for `data/processed/tda_features.csv` schema in `tests/contract/test_tda_schema.py`
+- [X] T010 [US1] Contract test for `data/processed/tda_features.csv` schema in `tests/contract/test_tda_schema.py`
 - [X] T011 [US1] Integration test for disconnected graph handling in `tests/integration/test_disconnected_graphs.py`
 
 ### Implementation for User Story 1
@@ -86,7 +86,7 @@ The research question, method, and references remain unchanged as per the planni
 The research question, method, and references remain unchanged as per the planning document requirements, with the specific fold count replaced by a qualitative description of the cross-validation strategy. (Bemis-Murcko) with **explicit ScaffoldSplitter(seed=42)** initialization (FR-004)
 - [X] T019 [US2] Implement `code/04_model_training.py`: Train Linear Regression (alpha=1.0) and Random Forest (100 trees, max_depth=10) on 3 feature sets (FR-003)
 - [X] T020 [US2] Implement `code/04_model_training.py`: Calculate R² and RMSE per fold; aggregate metrics
-- [~] T021 [US2] Add runtime GPU check (FR-008) using generic CUDA detection (checking `CUDA_VISIBLE_DEVICES` and library-specific GPU flags) to raise `SystemExit(1)` if any GPU acceleration is detected; do not rely on `torch`
+- [ ] T021 [US2] Add runtime GPU check (FR-008) using generic CUDA detection (checking `CUDA_VISIBLE_DEVICES` and library-specific GPU flags) to raise `SystemExit(1)` if any GPU acceleration is detected; do not rely on `torch`
 - [ ] T022 [US2] Generate `reports/metrics/model_performance.json` with all metrics and feature importance
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently

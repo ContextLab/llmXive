@@ -19,26 +19,33 @@ T004:
     was completed.
 T007:
   c: false
-  h: 6ebe05d857dea49b5b8d9e92c05fbca338d6c89b6478c0e350c60bd561c9bb30
-  r: "The repository contains a partially implemented `code/00_checksum_verify.py`\
-    \ (the file is truncated and lacks the logic that actually gathers raw files,\
-    \ computes their SHA256 hashes, and calls `write_checksums`). Moreover, the required\
-    \ output file `data/checksums.txt` does not exist. Both the script\u2019s core\
-    \ functionality and the expected checksum record are missing, so the task is not\
-    \ fulfilled."
+  h: b38530626c081ea92ec590164546cef76c78173068fcb379f55d34c03492f59c
+  r: "The repository contains a partially\u2011implemented `code/00_checksum_verify.py`\
+    \ (the file ends abruptly and never calls `write_checksums`), and the required\
+    \ output file `data/checksums.txt` is absent. Consequently the script does not\
+    \ actually compute and record SHA256 hashes of the raw data as the task specifies."
 T010:
   c: false
-  h: 4cbbdba383bb1b5ca8f9ca0c0cb29d60b0b8f9f8e0de20c6d19aa435bbb82337
-  r: "The `tests/contract/test_tda_schema.py` file is truncated (ends abruptly with\
-    \ a stray \u201Cd\u201D and lacks closing brackets/methods), making it syntactically\
-    \ invalid, and the required `data/processed/tda_features.csv` file does not exist.\
-    \ Both the test implementation and the target CSV are missing or incomplete."
+  h: e256dbae72d04eb13de3302bb174f0cc20d3b4d17033eefa0688c368494b181b
+  r: The `tests/contract/test_tda_schema.py` file is present but ends abruptly with
+    an incomplete `test_feature_vector_length` function (truncated line and missing
+    closing parentheses), making the test syntactically invalid. Consequently, the
+    contract test does not fully implement the required schema checks. The missing
+    or broken test code must be completed for the task to be considered done.
 T010#1:
+  c: true
+  h: e256dbae72d04eb13de3302bb174f0cc20d3b4d17033eefa0688c368494b181b
+  r: "The repository contains a non\u2011empty `tests/contract/test_tda_schema.py`\
+    \ (\u22484\u202FKB) that defines the expected columns, data types, and checks\
+    \ for nulls and feature vector length, fulfilling the contract\u2011test requirement.\
+    \ The missing `data/processed/tda_features.csv` is not part of the deliverable;\
+    \ the test itself handles its absence via a fixture and a separate existence assertion."
+T021:
   c: false
-  h: 4cbbdba383bb1b5ca8f9ca0c0cb29d60b0b8f9f8e0de20c6d19aa435bbb82337
-  r: The `tests/contract/test_tda_schema.py` file is present but is truncated and
-    contains a stray character (`d`) causing a syntax error, so the test suite cannot
-    run. Additionally, the required `data/processed/tda_features.csv` file is missing,
-    meaning the contract test cannot be exercised. The test implementation must be
-    completed (remove the stray character, add the missing test methods, and ensure
-    the file is syntactically valid) and the CSV file must be generated or provided.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or test file was provided that implements the requested runtime\
+    \ GPU check (inspection of `CUDA_VISIBLE_DEVICES` and library\u2011specific GPU\
+    \ flags, raising `SystemExit(1)` without using `torch`). Without such an artifact,\
+    \ we cannot confirm the feature was added. The implementer must supply the modified\
+    \ source file (or a minimal reproducible example) that performs the generic CUDA\
+    \ detection and exits when a GPU is detected."

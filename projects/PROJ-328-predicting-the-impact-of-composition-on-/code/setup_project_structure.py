@@ -4,118 +4,101 @@ import logging
 from pathlib import Path
 from utils.logging_config import get_logger
 
-def setup_directories():
-    """
-    Initialize the project directory structure as defined in T001.
-    Creates data/, code/, and tests/ with their respective subdirectories.
-    """
-    logger = get_logger(__name__)
-    project_root = Path(__file__).resolve().parent.parent
+# Define the required directory structure relative to the project root
+DIRECTORIES = [
+    # Data directories
+    "data/raw",
+    "data/processed",
+    "data/outputs",
+    "data/config",
+    "data/checksums", # implied by checksums.txt location
+    
+    # Code directories
+    "code/ingestion",
+    "code/features",
+    "code/models",
+    "code/evaluation",
+    "code/visualization",
+    "code/utils",
+    
+    # Test directories
+    "tests/contract",
+    "tests/integration",
+    "tests/unit", # Added for robustness based on task list
+    
+    # Misc project structure
+    "logs",
+    "docs",
+    "models"
+]
 
-    # Define directory structures
-    directories = [
-        # Data directories
-        "data/raw",
-        "data/processed",
-        "data/outputs",
-        "data/config",
-        "data/checksums",
-        
-        # Code directories
-        "code/ingestion",
-        "code/features",
-        "code/models",
-        "code/evaluation",
-        "code/visualization",
-        "code/utils",
-        
-        # Tests directories
-        "tests/contract",
-        "tests/integration",
-        "tests/unit",
-    ]
-
-    created_count = 0
-    for dir_path in directories:
-        full_path = project_root / dir_path
+def setup_directories(base_path: Path) -> list:
+    """
+    Creates the required directory structure if it does not exist.
+    Returns a list of created paths.
+    """
+    created = []
+    for dir_path in DIRECTORIES:
+        full_path = base_path / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {full_path}")
-            created_count += 1
+            created.append(str(full_path))
         else:
-            logger.debug(f"Directory already exists: {full_path}")
+            # Log if it already exists but we are verifying
+            pass
+    return created
 
-    logger.info(f"Directory setup complete. Created {created_count} new directories.")
-    return True
-
-def verify_directory_structure():
+def verify_directory_structure(base_path: Path) -> dict:
     """
-    Verify that all required directories exist.
-    Returns a dictionary with verification results.
+    Verifies that all required directories exist.
+    Returns a dictionary with 'success' (bool) and 'missing' (list).
     """
-    logger = get_logger(__name__)
-    project_root = Path(__file__).resolve().parent.parent
-
-    required_dirs = {
-        "data": ["raw", "processed", "outputs", "config", "checksums"],
-        "code": ["ingestion", "features", "models", "evaluation", "visualization", "utils"],
-        "tests": ["contract", "integration", "unit"],
+    missing = []
+    for dir_path in DIRECTORIES:
+        full_path = base_path / dir_path
+        if not full_path.exists():
+            missing.append(dir_path)
+    
+    return {
+        "success": len(missing) == 0,
+        "missing": missing,
+        "checked_count": len(DIRECTORIES),
+        "verified_count": len(DIRECTORIES) - len(missing)
     }
-
-    verification_results = {
-        "success": True,
-        "missing": [],
-        "existing": [],
-    }
-
-    for base_dir, sub_dirs in required_dirs.items():
-        base_path = project_root / base_dir
-        
-        # Check base directory
-        if not base_path.exists():
-            verification_results["success"] = False
-            verification_results["missing"].append(str(base_path))
-            logger.error(f"Missing base directory: {base_path}")
-            continue
-        
-        verification_results["existing"].append(str(base_path))
-        
-        # Check subdirectories
-        for sub_dir in sub_dirs:
-            sub_path = base_path / sub_dir
-            if not sub_path.exists():
-                verification_results["success"] = False
-                verification_results["missing"].append(str(sub_path))
-                logger.error(f"Missing subdirectory: {sub_path}")
-            else:
-                verification_results["existing"].append(str(sub_path))
-
-    return verification_results
 
 def main():
-    """
-    Main entry point for directory structure setup and verification.
-    """
     logger = get_logger(__name__)
-    logger.info("Starting project directory structure setup...")
-
-    # Setup directories
-    setup_success = setup_directories()
-    if not setup_success:
-        logger.error("Failed to setup directory structure")
-        return 1
-
-    # Verify structure
-    verification = verify_directory_structure()
+    logger.info("Starting project directory structure setup.")
+    
+    # Determine project root (assuming script is run from root or code/)
+    # We look for the 'data' directory or assume current working directory
+    current_dir = Path.cwd()
+    
+    # Heuristic: if we are in code/, go up one level. If data/ exists, we are likely at root.
+    if (current_dir / "data").exists() or (current_dir / "code").exists():
+        root_path = current_dir
+    else:
+        # Fallback: assume current dir is root
+        root_path = current_dir
+        
+    logger.info(f"Using project root: {root_path}")
+    
+    # Setup
+    created = setup_directories(root_path)
+    logger.info(f"Created {len(created)} directories.")
+    for p in created:
+        logger.info(f"  Created: {p}")
+        
+    # Verify
+    verification = verify_directory_structure(root_path)
     
     if verification["success"]:
-        logger.info("All required directories verified successfully.")
-        logger.info(f"Existing directories: {len(verification['existing'])}")
+        logger.info("Directory structure verification PASSED.")
+        logger.info(f"Checked {verification['checked_count']} directories.")
         return 0
     else:
-        logger.error(f"Verification failed. Missing directories: {len(verification['missing'])}")
-        for missing in verification["missing"]:
-            logger.error(f"  - {missing}")
+        logger.error("Directory structure verification FAILED.")
+        logger.error(f"Missing directories: {verification['missing']}")
         return 1
 
 if __name__ == "__main__":

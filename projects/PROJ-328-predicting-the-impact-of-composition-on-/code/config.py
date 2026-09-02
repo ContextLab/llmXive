@@ -1,112 +1,94 @@
-"""
-Project configuration management.
-"""
+"""Configuration constants for the pipeline."""
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 import logging
-
 from utils.error_handlers import ConfigurationError
 
-# Project root is parent of code/ directory
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# Project Root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+# Directories
+DATA_DIR = PROJECT_ROOT / "data"
+DATA_RAW_DIR = DATA_DIR / "raw"
+DATA_PROCESSED_DIR = DATA_DIR / "processed"
+DATA_OUTPUTS_DIR = DATA_DIR / "outputs"
+CODE_DIR = PROJECT_ROOT / "code"
+MODELS_DIR = PROJECT_ROOT / "models"
 
 class Config:
-    """Central configuration container."""
-    
-    def __init__(self):
-        # Directories
-        self.data_raw_dir = _PROJECT_ROOT / "data" / "raw"
-        self.data_processed_dir = _PROJECT_ROOT / "data" / "processed"
-        self.data_outputs_dir = _PROJECT_ROOT / "data" / "outputs"
-        self.models_dir = _PROJECT_ROOT / "models"
-        self.code_dir = _PROJECT_ROOT / "code"
-        
-        # Ingestion thresholds
-        self.composition_sum_threshold = 0.95
-        self.max_elements = 5
-        
-        # Validation thresholds
-        self.vif_threshold = 5.0
-        
-        # Model training
-        self.r2_sensitivity_thresholds = {"low": 0.4, "medium": 0.6, "high": 0.7}
-        self.min_samples_warning = 50
-        self.min_samples_target = 100
-        self.cv_folds = 5
-        self.bootstrap_iterations = 100
-        
-        # Logging
-        self.log_level = os.getenv("LOG_LEVEL", "INFO")
-        self.log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        
-        # Physical constants for conversion
-        self.GPA_TO_HV = 10.197
-        self.KGF_MM2_TO_HV = 9.807
-        self.ROOM_TEMP_THRESHOLD_C = 25.0
-        self.ROOM_TEMP_TOLERANCE_C = 5.0
-
-    def validate(self):
-        """Ensure critical paths exist."""
-        critical_dirs = [
-            self.data_raw_dir,
-            self.data_processed_dir,
-            self.data_outputs_dir,
-            self.models_dir
-        ]
-        for d in critical_dirs:
-            if not d.exists():
-                # Don't raise here, allow setup scripts to create them
-                pass
-
-_config_instance: Optional[Config] = None
+    """Configuration container."""
+    MAX_ELEMENTS = 5
+    ROOM_TEMP_THRESHOLD_C = 25.0
+    ROOM_TEMP_TOLERANCE_C = 5.0
+    COMPOSITION_SUM_THRESHOLD = 95.0
+    MIN_N_FOR_POWER = 50
+    TARGET_N = 100
+    VIF_THRESHOLD = 5.0
+    R2_SENSITIVITY_THRESHOLDS = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    MIN_SAMPLES_WARNING = 50
+    MIN_SAMPLES_TARGET = 100
+    CV_FOLDS = 5
+    BOOTSTRAP_ITERATIONS = 100
+    LOG_LEVEL = "INFO"
+    LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
 def get_config() -> Config:
-    """Retrieve the singleton config instance."""
-    global _config_instance
-    if _config_instance is None:
-        _config_instance = Config()
-    return _config_instance
+    """Get the configuration object."""
+    return Config()
 
-# Convenience getters
 def get_data_raw_dir() -> Path:
-    return get_config().data_raw_dir
+    """Get the raw data directory path."""
+    return DATA_RAW_DIR
 
 def get_data_processed_dir() -> Path:
-    return get_config().data_processed_dir
+    """Get the processed data directory path."""
+    return DATA_PROCESSED_DIR
 
 def get_data_outputs_dir() -> Path:
-    return get_config().data_outputs_dir
+    """Get the outputs directory path."""
+    return DATA_OUTPUTS_DIR
 
 def get_models_dir() -> Path:
-    return get_config().models_dir
+    """Get the models directory path."""
+    return MODELS_DIR
 
 def get_composition_sum_threshold() -> float:
-    return get_config().composition_sum_threshold
+    """Get the composition sum threshold."""
+    return Config.COMPOSITION_SUM_THRESHOLD
 
 def get_max_elements() -> int:
-    return get_config().max_elements
+    """Get the maximum number of elements allowed."""
+    return Config.MAX_ELEMENTS
 
 def get_vif_threshold() -> float:
-    return get_config().vif_threshold
+    """Get the VIF threshold."""
+    return Config.VIF_THRESHOLD
 
-def get_r2_sensitivity_thresholds() -> Dict[str, float]:
-    return get_config().r2_sensitivity_thresholds
+def get_r2_sensitivity_thresholds() -> List[float]:
+    """Get the R2 sensitivity thresholds."""
+    return Config.R2_SENSITIVITY_THRESHOLDS
 
 def get_min_samples_warning() -> int:
-    return get_config().min_samples_warning
+    """Get the minimum samples for warning."""
+    return Config.MIN_SAMPLES_WARNING
 
 def get_min_samples_target() -> int:
-    return get_config().min_samples_target
+    """Get the minimum samples for target."""
+    return Config.MIN_SAMPLES_TARGET
 
 def get_cv_folds() -> int:
-    return get_config().cv_folds
+    """Get the number of CV folds."""
+    return Config.CV_FOLDS
 
 def get_bootstrap_iterations() -> int:
-    return get_config().bootstrap_iterations
+    """Get the number of bootstrap iterations."""
+    return Config.BOOTSTRAP_ITERATIONS
 
 def get_log_level() -> str:
-    return get_config().log_level
+    """Get the log level."""
+    return Config.LOG_LEVEL
 
 def get_log_format() -> str:
-    return get_config().log_format
+    """Get the log format."""
+    return Config.LOG_FORMAT

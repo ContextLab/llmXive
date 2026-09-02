@@ -83,7 +83,7 @@ samtools
  2. If n < 80: HALT with error code `ERR_SAMPLE_SIZE_INSUFFICIENT`.
  3. If n >= 80: Calculate power.
  4. **CRITICAL**: If Power < 20% (Power={power}). Pipeline halted. "
- 5. If Power >= 20%: Report the calculated power for detecting large effect sizes (OR >= 2.5) at alpha=0.05.
+ 5. If Power >= 20%: Report the calculated power for detecting large effect sizes (OR >= 2.5) at alpha=0.05. [UNRESOLVED-CLAIM: c_47e2c840 — status=not_enough_info]
  6. Output: Write power value and status to `data/processed/power_analysis.txt`.
 - [X] T006 [P] Implement `code/utils/collinearity_diag.py` for FR-010 (VIF calculation, correlation matrix)
 - [X] T007 [P] Create base data schema validators for `Colony` and `SNP` entities: create `code/utils/validators/colony_schema.py` and `code/utils/validators/snp_schema.py` based on `specs/001-gene-regulation/contracts/dataset.schema.yaml` and `specs/001-gene-regulation/contracts/gwas_output.schema.yaml`
@@ -91,7 +91,7 @@ samtools
 - [X] T009 [P] Implement `code/00_generate_synthetic_data.py` to create deterministic synthetic VCF + Phenotypes for validation. MUST implement CCD diagnosis validation logic that explicitly checks: <!-- FAILED: unspecified -->
  1. Presence of dead adult bees in the hive.
  2. Absence of dead pupae.
- 3. Live bee population < 10% relative to peak season.
+ 3. Live bee population < 10% relative to peak season. [UNRESOLVED-CLAIM: c_85981f3d — status=not_enough_info]
  Logic MUST fail validation if any of these criteria are not met in the synthetic data generation process (FR-011).
 - [X] T013a [P] [Foundational] Install `dwgsim` in the environment.
  - **Implementation**: Add `dwgsim` to `code/environment.yml` or create a `setup.sh` script that runs: `conda config --add channels bioconda && conda install -c bioconda dwgsim`.
@@ -152,7 +152,7 @@ samtools
 - [X] T062 [US1] Implement `code/02_harmonize_phenotypes.py` to map CCD diagnosis codes to CCD Working Group criteria (FR-011).
 - [X] T063 [US1] Implement `code/03_filter_snps.py` to pre-filter SNPs to immune pathway (Candidate-Gene approach) (FR-003).
 - [X] T064 [US1] Implement `code/05_collinearity_diag.py` to perform collinearity diagnostics (FR-010).
-- [ ] T017 [US1] Create `code/03_gwas.sh` to execute PLINK logistic regression with mandatory covariates (from T046) and output raw association statistics (FR-004). Do NOT include FDR logic here; that is handled by T020. Output to `data/interim/gwas_raw.tsv`.
+- [X] T017 [US1] Create `code/03_gwas.sh` to execute PLINK logistic regression with mandatory covariates (from T046) and output raw association statistics (FR-004). Do NOT include FDR logic here; that is handled by T020. Output to `data/interim/gwas_raw.tsv`.
 - [X] T020 [P] [US1] Implement Benjamini-Hochberg FDR correction in `code/utils/fdr_correction.py` (FR-004).
  - **Input**: `data/interim/gwas_raw.tsv`. MUST be sorted by p-value in **ascending order**. P-values must be formatted to **10 decimal places**.
  - **Output**: `data/interim/gwas_fdr.tsv`.

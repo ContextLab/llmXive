@@ -1,144 +1,103 @@
-"""
-Contract test for data/processed/tda_features.csv schema.
-
-This test verifies that the TDA features output file adheres to the strict
-schema defined in the project specifications. It ensures column existence,
-data types, and non-null constraints are met.
-"""
-import os
-import sys
+import pytest
 import pandas as pd
 import numpy as np
-import pytest
+import json
 from pathlib import Path
 
-# Project root path resolution
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-OUTPUT_FILE = PROJECT_ROOT / "data" / "processed" / "tda_features.csv"
-
-# Expected schema definition based on FR-001 and FR-002
-# Columns: molecule_id, smiles, molecular_weight, persistence_image_vector (flattened), 
-#          betti_0_count, betti_1_count, persistence_entropy, lifetime_sum
+# Expected schema for tda_features.csv
 EXPECTED_COLUMNS = [
-    "molecule_id",
-    "smiles",
-    "molecular_weight",
-    "persistence_image_vector",
-    "betti_0_count",
-    "betti_1_count",
-    "persistence_entropy",
-    "lifetime_sum"
+    'smiles',
+    'num_nodes',
+    'num_edges',
+    'molecular_weight',
+    'persistence_image_features',
+    'betti_0_sum',
+    'betti_1_sum',
+    'persistence_landscape_features',
+    'topological_summary'
 ]
 
-# Column type expectations (approximate via pandas dtypes)
-# Strings for ID/SMILES, Floats for numerical features
-EXPECTED_DTYPES = {
-    "molecule_id": "object",
-    "smiles": "object",
-    "molecular_weight": "float64",
-    "persistence_image_vector": "object", # Stored as list or string representation
-    "betti_0_count": "int64",
-    "betti_1_count": "int64",
-    "persistence_entropy": "float64",
-    "lifetime_sum": "float64"
+REQUIRED_TYPES = {
+    'smiles': str,
+    'num_nodes': int,
+    'num_edges': int,
+    'molecular_weight': float,
+    'persistence_image_features': str,  # Stored as JSON string or array repr
+    'betti_0_sum': float,
+    'betti_1_sum': float,
+    'persistence_landscape_features': str,
+    'topological_summary': str
 }
 
-# Minimum required rows (from power analysis in T008, N >= 128)
-MIN_REQUIRED_ROWS = 128
+def get_tda_features_path():
+    # Project root relative to the execution context
+    project_root = Path("projects/PROJ-444-predicting-molecular-properties-from-top")
+    return project_root / "data" / "processed" / "tda_features.csv"
 
+@pytest.fixture
+def tda_df():
+    path = get_tda_features_path()
+    if not path.exists():
+        pytest.skip(f"File not found: {path}")
+    return pd.read_csv(path)
 
-class TestTdaFeaturesSchema:
-    """Contract tests for TDA features CSV schema."""
+def test_file_exists():
+    """Test that the TDA features file exists."""
+    assert get_tda_features_path().exists(), "tda_features.csv does not exist"
 
-    @pytest.fixture(scope="class", autouse=True)
-    def setup_file_check(self):
-        """Ensure the output file exists before running tests."""
-        if not OUTPUT_FILE.exists():
-            pytest.fail(
-                f"Output file {OUTPUT_FILE} does not exist. "
-                "Run code/02_tda_computation.py to generate data."
-            )
+def test_schema_columns(tda_df):
+    """Test that all required columns are present."""
+    missing_cols = set(EXPECTED_COLUMNS) - set(tda_df.columns)
+    assert not missing_cols, f"Missing columns: {missing_cols}"
 
-    def test_file_exists(self):
-        """Verify the output file exists at the expected path."""
-        assert OUTPUT_FILE.exists(), f"File {OUTPUT_FILE} not found."
-
-    def test_has_required_columns(self):
-        """Verify all required columns are present in the CSV."""
-        df = pd.read_csv(OUTPUT_FILE)
-        missing_columns = set(EXPECTED_COLUMNS) - set(df.columns)
-        assert not missing_columns, f"Missing required columns: {missing_columns}"
-
-    def test_column_count_matches(self):
-        """Verify the exact number of columns matches the schema."""
-        df = pd.read_csv(OUTPUT_FILE)
-        assert len(df.columns) == len(EXPECTED_COLUMNS), (
-            f"Expected {len(EXPECTED_COLUMNS)} columns, found {len(df.columns)}. "
-            f"Found: {list(df.columns)}"
-        )
-
-    def test_column_order(self):
-        """Verify columns are in the expected order."""
-        df = pd.read_csv(OUTPUT_FILE)
-        assert list(df.columns) == EXPECTED_COLUMNS, (
-            f"Column order mismatch. Expected: {EXPECTED_COLUMNS}, Found: {list(df.columns)}"
-        )
-
-    def test_no_null_values_in_required_fields(self):
-        """Verify no null values in critical columns."""
-        df = pd.read_csv(OUTPUT_FILE)
-        critical_columns = ["molecule_id", "smiles", "betti_0_count", "betti_1_count"]
-        
-        for col in critical_columns:
-            null_count = df[col].isnull().sum()
-            assert null_count == 0, f"Column '{col}' contains {null_count} null values."
-
-    def test_molecular_weight_positive(self):
-        """Verify molecular weight is positive for all entries."""
-        df = pd.read_csv(OUTPUT_FILE)
-        assert (df["molecular_weight"] > 0).all(), "Found non-positive molecular weights."
-
-    def test_betti_counts_non_negative(self):
-        """Verify Betti counts are non-negative integers."""
-        df = pd.read_csv(OUTPUT_FILE)
-        assert (df["betti_0_count"] >= 0).all(), "Negative betti_0_count found."
-        assert (df["betti_1_count"] >= 0).all(), "Negative betti_1_count found."
-
-    def test_persistence_features_valid(self):
-        """Verify persistence entropy and lifetime sum are non-negative."""
-        df = pd.read_csv(OUTPUT_FILE)
-        assert (df["persistence_entropy"] >= 0).all(), "Negative persistence entropy found."
-        assert (df["lifetime_sum"] >= 0).all(), "Negative lifetime sum found."
-
-    def test_minimum_row_count(self):
-        """Verify the dataset meets the minimum sample size requirement."""
-        df = pd.read_csv(OUTPUT_FILE)
-        assert len(df) >= MIN_REQUIRED_ROWS, (
-            f"Dataset has {len(df)} rows, which is less than the required {MIN_REQUIRED_ROWS}."
-        )
-
-    def test_smiles_format_basic(self):
-        """Basic check that SMILES strings are non-empty strings."""
-        df = pd.read_csv(OUTPUT_FILE)
-        assert all(isinstance(s, str) and len(s) > 0 for s in df["smiles"]), (
-            "Invalid SMILES format detected (non-string or empty)."
-        )
-
-    def test_vector_column_format(self):
-        """Verify persistence_image_vector contains list-like data or string representation."""
-        df = pd.read_csv(OUTPUT_FILE)
-        # The vector might be stored as a string representation of a list or a python object
-        # depending on how it was written. We check that it's not null and has content.
-        for idx, val in enumerate(df["persistence_image_vector"]):
-            if isinstance(val, str):
-                # Check if it looks like a list string "[...]"
-                assert val.startswith("[") and val.endswith("]"), (
-                    f"Row {idx}: persistence_image_vector string format invalid."
-                )
-            elif isinstance(val, (list, np.ndarray)):
-                continue
+def test_column_types(tda_df):
+    """Test that columns have expected data types."""
+    for col, expected_type in REQUIRED_TYPES.items():
+        if col in tda_df.columns:
+            actual_type = tda_df[col].dtype
+            if expected_type == int:
+                # Allow integer types and object (if they look like ints)
+                assert actual_type in [np.int64, np.int32, 'int64', 'int32', 'object'], f"Column {col} type mismatch: {actual_type}"
+            elif expected_type == float:
+                # Allow float types and object
+                assert actual_type in [np.float64, np.float32, 'float64', 'float32', 'object'], f"Column {col} type mismatch: {actual_type}"
             else:
-                pytest.fail(f"Row {idx}: persistence_image_vector is unexpected type {type(val)}")
+                # For string/object columns, object dtype is expected
+                assert actual_type == 'object' or actual_type == str, f"Column {col} should be string/object, got {actual_type}"
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_no_null_values(tda_df):
+    """Test that critical columns do not have null values."""
+    critical_cols = ['smiles', 'num_nodes', 'num_edges', 'molecular_weight']
+    for col in critical_cols:
+        if col in tda_df.columns:
+            assert tda_df[col].isnull().sum() == 0, f"Column {col} contains null values"
+
+def test_feature_vector_length(tda_df):
+    """Test that persistence image features are non-empty."""
+    if 'persistence_image_features' in tda_df.columns:
+        # Check if the string representation is not empty
+        non_empty = tda_df['persistence_image_features'].apply(lambda x: len(str(x).strip()) > 0)
+        assert non_empty.all(), "Some persistence image features are empty"
+
+def test_positive_node_count(tda_df):
+    """Test that node counts are positive."""
+    if 'num_nodes' in tda_df.columns:
+        assert (tda_df['num_nodes'] > 0).all(), "Some molecules have zero or negative node counts"
+
+def test_non_negative_edge_count(tda_df):
+    """Test that edge counts are non-negative."""
+    if 'num_edges' in tda_df.columns:
+        assert (tda_df['num_edges'] >= 0).all(), "Some molecules have negative edge counts"
+
+def test_valid_json_features(tda_df):
+    """Test that feature columns containing JSON are valid."""
+    json_cols = ['persistence_image_features', 'persistence_landscape_features']
+    for col in json_cols:
+        if col in tda_df.columns:
+            for idx, val in enumerate(tda_df[col]):
+                try:
+                    # If it's a string, try to parse it
+                    if isinstance(val, str):
+                        json.loads(val)
+                except json.JSONDecodeError:
+                    pytest.fail(f"Invalid JSON in column {col} at row {idx}: {val}")

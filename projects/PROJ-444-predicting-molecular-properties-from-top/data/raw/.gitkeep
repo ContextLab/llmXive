@@ -1,1 +1,1 @@
-# This directory stores raw downloaded data (if any).
+# This file ensures the raw data directory is tracked by git
