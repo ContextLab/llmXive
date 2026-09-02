@@ -1,4 +1,3 @@
-# llmXive test package
-import logging
-
-logger = logging.getLogger(__name__)
+"""
+Test package for llmXive automated science pipeline.
+"""

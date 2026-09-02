@@ -40,3 +40,16 @@ T010:
     \ schema file `specs/001-explore-network-structure-superconducting-qubit-coupling/contracts/raw_calibration.schema.yaml`\
     \ (or `schema.yaml`) is also missing, so no contract test or validation code is\
     \ present. The task\u2019s core artifact is absent."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of any files under `data/raw/` containing the raw JSON calibration
+    snapshots, nor any accompanying timestamps or checksum metadata, is provided.
+    The required artifact is missing, so the task is not satisfied.
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or documentation were provided showing that disconnected graphs\
+    \ are detected, that the spectral gap is set to\u202F0 for such graphs, or that\
+    \ path\u2011length metrics are computed only on connected components. Without\
+    \ these artifacts, the requirement cannot be verified."

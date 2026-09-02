@@ -1,8 +1,5 @@
 """
-Code package for llmXive project PROJ-163.
+Code package for llmXive automated science pipeline.
+Provides infrastructure for fetching, processing, and analyzing IBM Quantum data.
 """
-from .logger import setup_logger, logger
-from .config import load_config, setup_ibm_runtime, IBMQuantumConfig
-from .models import QubitDevice, GraphMetric, PerformanceMetric, CorrelationResult
-
 __version__ = "0.1.0"

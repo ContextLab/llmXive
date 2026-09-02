@@ -1,196 +1,163 @@
-"""
-Environment configuration management for IBM Quantum API access.
-
-This module handles loading, validating, and providing access to:
-- IBM Quantum API tokens
-- Default backend configurations
-- Rate-limiting parameters
-
-Environment variables used:
-- IBM_QUANTUM_TOKEN: The API token for IBM Quantum services
-- IBM_QUANTUM_INSTANCE: (Optional) The cloud instance ID for IBM Cloud
-- IBM_QUANTUM_URL: (Optional) Custom API URL for private clouds
-"""
 import os
 import logging
 from pathlib import Path
 from typing import Optional, Dict, Any
 from dataclasses import dataclass, field
-from qiskit_ibm_runtime import QiskitRuntimeService
-from qiskit_ibm_runtime.exceptions import IBMInputValueError, IBMRuntimeError
 
-# Configure logging for this module
+from qiskit_ibm_runtime import QiskitRuntimeService
+
 logger = logging.getLogger(__name__)
 
 @dataclass
 class IBMQuantumConfig:
-    """
-    Configuration container for IBM Quantum access.
-    
-    Attributes:
-        token: The API token for authentication.
-        instance: Optional cloud instance ID.
-        url: Optional custom API URL.
-        channel: The channel type ('ibm_quantum' or 'ibm_cloud').
-        timeout_seconds: Default timeout for API calls (default: 120).
-        max_retries: Maximum number of retry attempts (default: 3).
-        backoff_factor: Exponential backoff multiplier (default: 2).
-    """
-    token: str
+    """Configuration container for IBM Quantum Runtime settings."""
+    channel: str = "ibm_cloud"
+    token: Optional[str] = None
+    url: str = "https://auth.quantum-computing.ibm.com/api"
     instance: Optional[str] = None
-    url: Optional[str] = None
-    channel: str = "ibm_quantum"
-    timeout_seconds: int = 120
-    max_retries: int = 3
-    backoff_factor: int = 2
+    default_backend: Optional[str] = None
+    timeout: int = 120
 
     def __post_init__(self):
-        """Validate configuration after initialization."""
-        if not self.token or not self.token.strip():
-            raise ValueError("IBM Quantum token cannot be empty.")
-        if self.channel not in ("ibm_quantum", "ibm_cloud"):
-            raise ValueError(f"Invalid channel: {self.channel}. Must be 'ibm_quantum' or 'ibm_cloud'.")
+        if not self.token and not os.getenv("QISKIT_IBM_TOKEN"):
+            logger.warning(
+                "IBM Quantum token not found in config or QISKIT_IBM_TOKEN env var. "
+                "Authentication will fail unless a valid token is provided."
+            )
 
-def load_config() -> IBMQuantumConfig:
+    def get_token(self) -> Optional[str]:
+        """Retrieve token from config or environment."""
+        return self.token or os.getenv("QISKIT_IBM_TOKEN")
+
+    def get_url(self) -> str:
+        """Retrieve URL from config or environment."""
+        return self.url or os.getenv("QISKIT_IBM_URL", self.url)
+
+    def get_instance(self) -> Optional[str]:
+        """Retrieve instance (hub/group/project) from config or environment."""
+        return self.instance or os.getenv("QISKIT_IBM_INSTANCE")
+
+def load_config(config_path: Optional[Path] = None) -> IBMQuantumConfig:
     """
-    Load IBM Quantum configuration from environment variables.
+    Load IBM Quantum configuration from a YAML/JSON file or environment variables.
     
-    Reads the following environment variables:
-    - IBM_QUANTUM_TOKEN (Required)
-    - IBM_QUANTUM_INSTANCE (Optional)
-    - IBM_QUANTUM_URL (Optional)
-    - IBM_QUANTUM_CHANNEL (Optional, default: 'ibm_quantum')
-    - IBM_QUANTUM_TIMEOUT (Optional, default: 120)
+    Priority:
+    1. Explicit config file (if provided)
+    2. Environment variables (QISKIT_IBM_TOKEN, QISKIT_IBM_URL, etc.)
+    3. Default values
     
-    Returns:
-        IBMQuantumConfig: A validated configuration object.
+    Args:
+        config_path: Optional path to a configuration file (YAML or JSON).
         
-    Raises:
-        ValueError: If required environment variables are missing or invalid.
-        RuntimeError: If the token format is invalid.
+    Returns:
+        IBMQuantumConfig instance populated with settings.
     """
-    token = os.getenv("IBM_QUANTUM_TOKEN")
-    if not token:
-        raise RuntimeError(
-            "IBM Quantum token not found. Set the IBM_QUANTUM_TOKEN "
-            "environment variable. Example: export IBM_QUANTUM_TOKEN='your_token'"
-        )
+    token = os.getenv("QISKIT_IBM_TOKEN")
+    url = os.getenv("QISKIT_IBM_URL")
+    instance = os.getenv("QISKIT_IBM_INSTANCE")
+    default_backend = os.getenv("QISKIT_IBM_DEFAULT_BACKEND")
+    channel = os.getenv("QISKIT_IBM_CHANNEL", "ibm_cloud")
+    timeout = int(os.getenv("QISKIT_IBM_TIMEOUT", "120"))
 
-    token = token.strip()
-    # Basic validation: IBM Quantum tokens are typically 64-character hex strings
-    if len(token) < 32:
-        logger.warning("IBM Quantum token appears unusually short. Proceeding anyway.")
+    # If a config file is provided, attempt to load it (optional extension)
+    if config_path and config_path.exists():
+        try:
+            import json
+            import yaml
+            
+            with open(config_path, "r") as f:
+                if config_path.suffix in [".yaml", ".yml"]:
+                    file_config = yaml.safe_load(f)
+                elif config_path.suffix == ".json":
+                    file_config = json.load(f)
+                else:
+                    file_config = {}
+            
+            # Override env vars with file config if present
+            token = token or file_config.get("token")
+            url = url or file_config.get("url")
+            instance = instance or file_config.get("instance")
+            default_backend = default_backend or file_config.get("default_backend")
+            channel = channel or file_config.get("channel", "ibm_cloud")
+            timeout = timeout or file_config.get("timeout", 120)
+            
+            logger.info(f"Loaded configuration from {config_path}")
+        except Exception as e:
+            logger.warning(f"Failed to load config file {config_path}: {e}")
 
-    instance = os.getenv("IBM_QUANTUM_INSTANCE")
-    url = os.getenv("IBM_QUANTUM_URL")
-    channel = os.getenv("IBM_QUANTUM_CHANNEL", "ibm_quantum")
-    
-    try:
-        timeout_seconds = int(os.getenv("IBM_QUANTUM_TIMEOUT", "120"))
-        max_retries = int(os.getenv("IBM_QUANTUM_MAX_RETRIES", "3"))
-        backoff_factor = int(os.getenv("IBM_QUANTUM_BACKOFF_FACTOR", "2"))
-    except ValueError as e:
-        raise ValueError(f"Invalid numeric configuration value: {e}")
-
-    config = IBMQuantumConfig(
-        token=token,
-        instance=instance,
-        url=url,
+    return IBMQuantumConfig(
         channel=channel,
-        timeout_seconds=timeout_seconds,
-        max_retries=max_retries,
-        backoff_factor=backoff_factor
+        token=token,
+        url=url,
+        instance=instance,
+        default_backend=default_backend,
+        timeout=timeout
     )
-    
-    logger.info(
-        f"Loaded IBM Quantum config: channel={config.channel}, "
-        f"timeout={config.timeout_seconds}s, retries={config.max_retries}"
-    )
-    
-    return config
 
 def setup_ibm_runtime(config: Optional[IBMQuantumConfig] = None) -> QiskitRuntimeService:
     """
-    Initialize and return a QiskitRuntimeService instance using the provided config.
-    
-    This function authenticates with the IBM Quantum service using the configuration.
-    It handles authentication errors and logs the status of the connection.
+    Initialize and return the QiskitRuntimeService using the provided or loaded config.
     
     Args:
-        config: Optional IBMQuantumConfig instance. If None, loads from environment.
+        config: Optional pre-loaded config. If None, loads from environment/file.
         
     Returns:
-        QiskitRuntimeService: An authenticated service instance.
+        Authenticated QiskitRuntimeService instance.
         
     Raises:
-        RuntimeError: If authentication fails or configuration is invalid.
+        RuntimeError: If authentication fails or no valid token is found.
     """
     if config is None:
         config = load_config()
 
+    token = config.get_token()
+    if not token:
+        raise RuntimeError(
+            "IBM Quantum token is missing. Set QISKIT_IBM_TOKEN environment variable "
+            "or provide it in the configuration file."
+        )
+
     try:
-        # Authenticate with IBM Quantum
         service = QiskitRuntimeService(
             channel=config.channel,
-            token=config.token,
-            instance=config.instance,
-            url=config.url
+            token=token,
+            url=config.get_url(),
+            instance=config.get_instance()
         )
-        
-        # Verify the service is connected by listing backends (lightweight check)
-        try:
-            backend_count = len(service.backends())
-            logger.info(f"Successfully authenticated. Found {backend_count} backends.")
-        except Exception as e:
-            logger.warning(f"Service authenticated but could not list backends: {e}")
-        
+        logger.info("Successfully authenticated with IBM Quantum Runtime.")
         return service
-
-    except IBMInputValueError as e:
-        logger.error(f"Invalid IBM Quantum configuration: {e}")
-        raise RuntimeError(f"Configuration error: {e}") from e
-    except IBMRuntimeError as e:
-        logger.error(f"IBM Runtime error during authentication: {e}")
-        raise RuntimeError(f"Runtime error: {e}") from e
     except Exception as e:
-        logger.error(f"Unexpected error during IBM Quantum authentication: {e}")
-        raise RuntimeError(f"Authentication failed: {e}") from e
+        logger.error(f"Failed to authenticate with IBM Quantum Runtime: {e}")
+        raise RuntimeError(f"IBM Quantum Runtime authentication failed: {e}") from e
 
 def main():
-    """
-    Entry point for testing configuration loading and service setup.
+    """CLI entry point to test configuration loading and service connection."""
+    logging.basicConfig(level=logging.INFO)
     
-    This function attempts to load the configuration and authenticate with
-    the IBM Quantum service. It prints the status and available backends.
-    """
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-
+    logger.info("Testing IBM Quantum Configuration Management...")
+    
     try:
-        logger.info("Starting IBM Quantum configuration check...")
         config = load_config()
-        logger.info("Configuration loaded successfully.")
+        logger.info(f"Loaded Config: Channel={config.channel}, URL={config.get_url()}")
+        logger.info(f"Token present: {bool(config.get_token())}")
+        logger.info(f"Default Backend: {config.default_backend}")
         
-        logger.info("Initializing QiskitRuntimeService...")
-        service = setup_ibm_runtime(config)
-        
-        # List available backends
-        backends = service.backends()
-        logger.info(f"Available backends ({len(backends)}):")
-        for backend in backends:
-            logger.info(f"  - {backend.name}")
+        # Attempt to connect if token is present
+        if config.get_token():
+            service = setup_ibm_runtime(config)
+            backends = service.backends()
+            logger.info(f"Successfully connected. Found {len(backends)} backends.")
+            if config.default_backend:
+                logger.info(f"Default backend '{config.default_backend}' is available: "
+                            f"{service.backend(config.default_backend) is not None}")
+        else:
+            logger.warning("No token found. Skipping runtime connection test.")
             
-        print(f"\nSuccess! Connected to {len(backends)} backends.")
-        
     except RuntimeError as e:
-        logger.error(f"Failed to setup IBM Quantum service: {e}")
-        print(f"Error: {e}")
+        logger.error(f"Configuration/Connection Error: {e}")
         return 1
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        print(f"Unexpected error: {e}")
+        logger.exception(f"Unexpected error: {e}")
         return 1
         
     return 0

@@ -73,7 +73,7 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for API response schema parsing in `tests/test_fetcher.py` using `jsonschema` library to validate against `specs/001-explore-network-structure-superconducting-qubit-coupling/contracts/raw_calibration.schema.yaml`
+- [ ] T010 [P] [US1] Contract test for API response schema parsing in `tests/test_fetcher.py` using `jsonschema` library to validate against `specs/001-explore-network-structure-superconducting-qubit-coupling/contracts/raw_calibration.schema.yaml` <!-- FAILED: unspecified -->
 - [X] T011 [P] [US1] Integration test for live API fetch with rate-limit handling in `tests/test_integration_fetch.py`
 
 ### Implementation for User Story 1
@@ -84,7 +84,7 @@
 - [X] T014 [US1] Implement `validate_data_freshness` in `code/fetcher.py` to exclude devices with data > 30 days old, ensuring the 60-second timeout constraint is enforced.
 - [X] T015a [US1] Implement `extract_topology_data` in `code/fetcher.py` to extract `coupling_map` and qubit indices from raw JSON.
 - [X] T015b [US1] Implement `extract_performance_metrics` in `code/fetcher.py` to extract `T1`, `T2`, `gate_errors`, and `readout_errors` from raw JSON.
-- [~] T016 [US1] Save raw JSON snapshots to `data/raw/` with timestamps and checksums
+- [ ] T016 [US1] Save raw JSON snapshots to `data/raw/` with timestamps and checksums
 - [ ] T017 [US1] Generate structured CSV `data/processed/raw_calibration.csv` containing all valid device metrics
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -108,7 +108,7 @@
 - [X] T021 [US2] Implement `compute_shortest_path_metrics` in `code/graph_builder.py` (average shortest-path length, diameter) handling disconnected components
 - [X] T022 [US2] Implement `compute_clustering_and_assortativity` in `code/graph_builder.py` (global clustering coefficient, degree assortativity)
 - [X] T023 [US2] Implement `compute_edge_betweenness_and_spectral_gap` in `code/graph_builder.py` (edge betweenness distribution, spectral gap of Laplacian)
-- [~] T024 [US2] Handle disconnected graphs: set spectral gap to 0, compute path-length metrics only for connected components
+- [ ] T024 [US2] Handle disconnected graphs: set spectral gap to 0, compute path-length metrics only for connected components
 - [ ] T025 [US2] Generate structured CSV `data/processed/graph_metrics.csv` linking `device_id`, `metric_name`, `value`, `is_finite`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -124,17 +124,17 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T026 [P] [US3] Unit test for Spearman correlation and FDR correction in `tests/test_stats_engine.py`
-- [ ] T027 [P] [US3] Integration test for full pipeline with synthetic data in `tests/test_stats_engine.py`
+- [X] T027 [P] [US3] Integration test for full pipeline with synthetic data in `tests/test_stats_engine.py` <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Implement `load_and_merge_metrics` in `code/stats_engine.py` to join graph metrics and performance metrics by `device_id` ONLY, ignoring timestamps (cross-sectional logic per T008 spec retraction).
-- [ ] T029 [US3] Implement `compute_spearman_correlations` in `code/stats_engine.py` for all metric pairs using simultaneous data, handling missing values by exclusion, and explicitly documenting the deviation from original FR-003 temporal window.
-- [ ] T030 [US3] Implement `apply_benjamini_hochberg_fdr` in `code/stats_engine.py` to adjust p-values and flag significant results (`adj_p < 0.05`)
-- [ ] T031a [US3] Implement `robustness_check_lodo` in `code/stats_engine.py` to perform leave-one-device-out (LODO) analysis and verify stability of significant correlations (|Δρ| ≤ 0.1) across subsets.
-- [ ] T031b [US3] Implement `robustness_check_time_window` in `code/stats_engine.py` to retrieve performance metrics from a fixed 30-day historical window and compare correlation direction/magnitude with the full dataset (satisfying SC-004).
-- [ ] T032 [US3] Implement `sensitivity_analysis` in `code/stats_engine.py` sweeping a configurable set of p-value thresholds (derived from a constant) over conventional values
-- [ ] T033 [US3] Implement `power_analysis` in `code/stats_engine.py` to estimate Minimum Detectable Effect Size (MDES) given sample size (N), number of tests performed (multiple comparison burden), and report 95% CI if N < 30
+- [X] T028 [US3] Implement `load_and_merge_metrics` in `code/stats_engine.py` to join graph metrics and performance metrics by `device_id` ONLY, ignoring timestamps (cross-sectional logic per T008 spec retraction).
+- [X] T029 [US3] Implement `compute_spearman_correlations` in `code/stats_engine.py` for all metric pairs using simultaneous data, handling missing values by exclusion, and explicitly documenting the deviation from original FR-003 temporal window.
+- [X] T030 [US3] Implement `apply_benjamini_hochberg_fdr` in `code/stats_engine.py` to adjust p-values and flag significant results (`adj_p < 0.05`)
+- [X] T031a [US3] Implement `robustness_check_lodo` in `code/stats_engine.py` to perform leave-one-device-out (LODO) analysis and verify stability of significant correlations (|Δρ| ≤ 0.1) across subsets.
+- [X] T031b [US3] Implement `robustness_check_time_window` in `code/stats_engine.py` to retrieve performance metrics from a fixed 30-day historical window and compare correlation direction/magnitude with the full dataset (satisfying SC-004). <!-- FAILED: unspecified -->
+- [X] T032 [US3] Implement `sensitivity_analysis` in `code/stats_engine.py` sweeping a configurable set of p-value thresholds (derived from a constant) over conventional values
+- [X] T033 [US3] Implement `power_analysis` in `code/stats_engine.py` to estimate Minimum Detectable Effect Size (MDES) given sample size (N), number of tests performed (multiple comparison burden), and report 95% CI if N < 30
 - [ ] T034 [US3] Generate `data/processed/correlation_results.csv` with `metric_a`, `metric_b`, `spearman_rho`, `p_value`, `adj_p_value`, `is_significant`, `is_excluded`
 
 **Checkpoint**: All user stories should now be independently functional
@@ -145,8 +145,8 @@
 
 **Purpose**: Generate visualizations and final reports
 
-- [ ] T035 [US3] Implement `generate_scatter_plots` in `code/viz.py` for significant correlations
-- [ ] T036 [US3] Implement `generate_heatmap` in `code/viz.py` for the full correlation matrix
+- [X] T035 [US3] Implement `generate_scatter_plots` in `code/viz.py` for significant correlations
+- [X] T036 [US3] Implement `generate_heatmap` in `code/viz.py` for the full correlation matrix
 - [ ] T037 [US3] Generate final summary report artifact `docs/report.md` aggregating plots from T035/T036, including sections for: Methodology (referencing T008), Correlation Results, Robustness Checks (LODO and Time Window), and Power Analysis.
 - [ ] T038 [P] Run `code/hygiene.py` to update artifact hashes and state file
 - [ ] T039 [P] Validate `quickstart.md` and ensure all scripts run end-to-end
