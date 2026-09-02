@@ -12,3 +12,4 @@ seaborn==0.13.2
 networkx==3.3
 psutil==5.9.8
 flake8==7.1.0
+statsmodels  # auto-added: imported by run-book but missing from venv

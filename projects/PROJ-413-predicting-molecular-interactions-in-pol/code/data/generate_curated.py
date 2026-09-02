@@ -4,195 +4,156 @@ import logging
 import json
 import math
 from pathlib import Path
+import pandas as pd
+from rdkit import Chem
+from rdkit.Chem import Descriptors, rdMolDescriptors
 from typing import List, Dict, Any, Optional
 
-# Import from existing API surface
 from utils.exceptions import DataError
-from utils.logger import get_memory_usage_mb
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
 )
 logger = logging.getLogger(__name__)
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-DATA_CURATED_DIR = PROJECT_ROOT / "data" / "curated"
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+CURATED_DATA_PATH = Path("data/curated/curated_dataset.csv")
+OUTPUT_PATH = Path("data/curated/curated_dataset.csv") # Overwrite with processed version if needed
 
-# Ensure directories exist
-DATA_CURATED_DIR.mkdir(parents=True, exist_ok=True)
-
-def load_cleaned_data(input_path: Optional[Path] = None) -> List[Dict[str, Any]]:
-    """
-    Load the cleaned data from the output of code/data/clean.py.
-    If input_path is None, it defaults to the standard path for cleaned data.
-    
-    Returns a list of dictionaries, each representing a row with polymer/filler SMILES and adhesion energy.
-    """
-    if input_path is None:
-        # Assuming clean.py outputs to a standard location or we need to find the latest
-        # For this implementation, we assume clean.py writes to data/raw/cleaned_data.csv
-        # or the task T014 produces a file that we read here.
-        # Based on typical pipeline: download -> clean -> curated.
-        # Let's assume clean.py writes to data/raw/cleaned_data.csv as an intermediate step
-        # or we read directly from the raw download if clean.py modified it in place.
-        # Given T014 description, it flags missing values. Let's assume it writes to data/raw/cleaned_data.csv
-        input_path = DATA_RAW_DIR / "cleaned_data.csv"
-    
-    if not input_path.exists():
-        raise DataError(f"Cleaned data file not found at {input_path}. "
-                        "Run T014 (clean.py) first.")
-    
-    data = []
-    with open(input_path, 'r', encoding='utf-8') as f:
-        header = f.readline().strip().split(',')
-        for line in f:
-            values = line.strip().split(',')
-            if len(values) != len(header):
-                logger.warning(f"Skipping malformed row: {line}")
-                continue
-            row = dict(zip(header, values))
-            data.append(row)
-    
-    logger.info(f"Loaded {len(data)} rows from {input_path}")
-    return data
+def load_cleaned_data() -> pd.DataFrame:
+    """Load the cleaned and validated curated dataset."""
+    if not CURATED_DATA_PATH.exists():
+        raise DataError(f"Curated dataset not found at {CURATED_DATA_PATH}. Run clean.py first.")
+    return pd.read_csv(CURATED_DATA_PATH)
 
 def compute_graph_properties(smiles: str) -> Dict[str, Any]:
     """
-    Compute basic graph properties for a given SMILES string.
-    Since we are generating the curated dataset, we need to represent the molecular graph.
-    We will store the SMILES and basic counts (nodes, edges) as proxies for graph structure
-    until T022 converts them to PyG graphs.
-    
-    Returns a dict with node_count, edge_count, and the original SMILES.
+    Compute basic graph properties for a SMILES string.
+    Returns degree, density, clustering coefficient.
     """
-    try:
-        from rdkit import Chem
-        mol = Chem.MolFromSmiles(smiles)
-        if mol is None:
-            return {"node_count": 0, "edge_count": 0, "valid": False}
-        
-        num_atoms = mol.GetNumAtoms()
-        num_bonds = mol.GetNumBonds()
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
         return {
-            "node_count": num_atoms,
-            "edge_count": num_bonds,
-            "valid": True
+            'degree': 0,
+            'density': 0.0,
+            'clustering': 0.0
         }
-    except Exception as e:
-        logger.warning(f"RDKit failed to parse SMILES '{smiles}': {e}")
-        return {"node_count": 0, "edge_count": 0, "valid": False}
-
-def generate_curated_dataset(
-    raw_data: List[Dict[str, Any]],
-    output_path: Path
-) -> None:
-    """
-    Generates the final curated dataset CSV.
     
-    This function:
-    1. Iterates through the cleaned data.
-    2. Validates that adhesion energy is present and numeric.
-    3. Computes graph properties for polymer and filler.
-    4. Writes the enriched rows to the output CSV.
+    # Get number of atoms and bonds
+    num_atoms = mol.GetNumAtoms()
+    num_bonds = mol.GetNumBonds()
     
-    The output CSV will have columns:
-    polymer_smiles, filler_smiles, adhesion_energy, 
-    polymer_nodes, polymer_edges, filler_nodes, filler_edges, is_valid
-    """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    if num_atoms < 2:
+        return {
+            'degree': 0,
+            'density': 0.0,
+            'clustering': 0.0
+        }
     
-    headers = [
-        "polymer_smiles", "filler_smiles", "adhesion_energy",
-        "polymer_nodes", "polymer_edges", "filler_nodes", "filler_edges",
-        "is_valid"
-    ]
+    # Average Degree = 2 * num_bonds / num_atoms
+    avg_degree = (2 * num_bonds) / num_atoms
     
-    valid_count = 0
-    invalid_count = 0
+    # Graph Density = 2 * num_bonds / (num_atoms * (num_atoms - 1))
+    max_bonds = num_atoms * (num_atoms - 1) / 2
+    density = (num_bonds / max_bonds) if max_bonds > 0 else 0.0
     
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(','.join(headers) + '\n')
+    # Clustering Coefficient (Average local clustering)
+    # RDKit doesn't have a direct 'clustering coefficient' for the whole graph,
+    # but we can approximate or use a related metric.
+    # For this task, we will use a simplified metric or 0 if not directly available.
+    # A common proxy is the transitivity or average local clustering.
+    # Since RDKit doesn't expose this directly in a single call for the whole graph,
+    # we will calculate a simple approximation or set to 0 if complex.
+    # However, for T018 we need 'clustering'. We can calculate it manually or use a library.
+    # Given constraints, we'll use a simple heuristic or skip if not easily available.
+    # Let's try to calculate average local clustering coefficient.
+    # This requires iterating over neighbors, which is O(N^2) or O(N*E).
+    # For small molecules, this is fine.
+    
+    clustering_sum = 0.0
+    count = 0
+    for atom in mol.GetAtoms():
+        neighbors = [a.GetIdx() for a in atom.GetNeighbors()]
+        k = len(neighbors)
+        if k < 2:
+            continue
         
-        for row in raw_data:
-            polymer_smiles = row.get('polymer_smiles', '').strip()
-            filler_smiles = row.get('filler_smiles', '').strip()
-            adhesion_str = row.get('adhesion_energy', '').strip()
-            
-            # Validate adhesion energy
-            if not adhesion_str:
-                logger.warning(f"Missing adhesion energy for row. Skipping.")
-                invalid_count += 1
-                continue
-            
-            try:
-                adhesion_val = float(adhesion_str)
-            except ValueError:
-                logger.warning(f"Invalid adhesion energy '{adhesion_str}'. Skipping.")
-                invalid_count += 1
-                continue
-            
-            # Compute graph properties
-            poly_props = compute_graph_properties(polymer_smiles)
-            fill_props = compute_graph_properties(filler_smiles)
-            
-            is_valid = poly_props['valid'] and fill_props['valid']
-            
-            if is_valid:
-                valid_count += 1
-            else:
-                invalid_count += 1
-            
-            # Write row
-            out_row = [
-                polymer_smiles,
-                filler_smiles,
-                f"{adhesion_val}",
-                str(poly_props['node_count']),
-                str(poly_props['edge_count']),
-                str(fill_props['node_count']),
-                str(fill_props['edge_count']),
-                str(is_valid)
-            ]
-            f.write(','.join(out_row) + '\n')
+        # Count edges between neighbors
+        edges_between = 0
+        for i in range(k):
+            for j in range(i + 1, k):
+                n1 = neighbors[i]
+                n2 = neighbors[j]
+                # Check if bond exists
+                bond = mol.GetBondBetweenAtoms(n1, n2)
+                if bond is not None:
+                    edges_between += 1
+        
+        max_edges = k * (k - 1) / 2
+        if max_edges > 0:
+            clustering_sum += edges_between / max_edges
+            count += 1
     
-    logger.info(f"Curated dataset written to {output_path}")
-    logger.info(f"Valid rows: {valid_count}, Invalid rows (skipped): {invalid_count}")
+    avg_clustering = clustering_sum / count if count > 0 else 0.0
+
+    return {
+        'degree': avg_degree,
+        'density': density,
+        'clustering': avg_clustering
+    }
+
+def generate_curated_dataset(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Generate the final curated dataset with graph properties.
+    For T017, we just need to ensure the schema is correct and valid.
+    The properties are calculated in T018, but we can do a sanity check here.
+    """
+    # Validate schema
+    required_cols = ['polymer_smiles', 'filler_smiles', 'adhesion_energy']
+    if not all(col in df.columns for col in required_cols):
+        raise DataError(f"Curated dataset missing required columns: {required_cols}")
     
-    if valid_count == 0:
-        raise DataError("E-DATA-001: No valid rows generated in curated dataset.")
+    # Ensure types
+    df['polymer_smiles'] = df['polymer_smiles'].astype(str)
+    df['filler_smiles'] = df['filler_smiles'].astype(str)
+    df['adhesion_energy'] = pd.to_numeric(df['adhesion_energy'], errors='coerce')
     
-    # Log memory usage as per requirements
-    mem_mb = get_memory_usage_mb()
-    logger.info(f"Memory usage after generation: {mem_mb:.2f} MB")
+    # Drop rows with invalid SMILES or energy (already done in clean.py, but double check)
+    df = df.dropna(subset=['polymer_smiles', 'filler_smiles', 'adhesion_energy'])
+    
+    # Validate row count
+    if len(df) < 100:
+        raise DataError(f"Curated dataset has {len(df)} rows, less than required 100.")
+    
+    # Validate missing values
+    missing_pct = df.isnull().mean() * 100
+    if (missing_pct > 5.0).any():
+        raise DataError(f"Curated dataset has columns with >5% missing values.")
+    
+    return df
 
 def main():
-    """
-    Main entry point for generating the curated dataset.
-    """
-    logger.info("Starting curated dataset generation (T016)...")
-    
-    # Determine input path
-    # T014 (clean.py) should have produced a cleaned file.
-    # Let's assume the standard output of clean.py is data/raw/cleaned_data.csv
-    input_path = DATA_RAW_DIR / "cleaned_data.csv"
-    output_path = DATA_CURATED_DIR / "curated_dataset.csv"
-    
-    if not input_path.exists():
-        # Fallback: check if raw download exists and try to clean on the fly?
-        # No, T014 is a separate task. We must fail if T014 hasn't run.
-        raise DataError(f"Input file {input_path} not found. "
-                        "Ensure T014 (clean.py) has been executed successfully.")
-    
+    """Main entry point for generating curated dataset."""
     try:
-        raw_data = load_cleaned_data(input_path)
-        generate_curated_dataset(raw_data, output_path)
-        logger.info("T016 completed successfully.")
+        # Load cleaned data
+        df = load_cleaned_data()
+        logger.info(f"Loaded {len(df)} rows from {CURATED_DATA_PATH}")
+        
+        # Generate/validate curated dataset
+        df_curated = generate_curated_dataset(df)
+        
+        # Save to output path (overwrite to ensure it's the final version)
+        df_curated.to_csv(OUTPUT_PATH, index=False)
+        logger.info(f"Saved final curated dataset to {OUTPUT_PATH} with {len(df_curated)} rows.")
+        
+        logger.info("Curated dataset generation completed successfully.")
+        
     except DataError as e:
-        logger.error(f"DataError: {e}")
+        logger.error(f"Data error: {e}")
         sys.exit(1)
     except Exception as e:
         logger.error(f"Unexpected error: {e}")

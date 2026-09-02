@@ -6,6 +6,30 @@ T008:
     \ and memory usage (when `psutil` is available) and writes these metrics to `results/performance.json`\
     \ via its internal `_save` method. The absence of a pre\u2011existing `results/performance.json`\
     \ file is expected, as the logger creates it when invoked."
+T019:
+  c: false
+  h: 5503b2b35155fc643466b0d30c02b0ce7fc8150d3d1a205f08089169c82e36e3
+  r: "The required `data/curated/curated_dataset.csv` file does not exist, so its\
+    \ SHA256 cannot be computed. Moreover, `code/utils/hash_state.py` only defines\
+    \ generic hashing utilities and never calls `compute_sha256` on the specific `curated_dataset.csv`\
+    \ (or stores the result), so the task\u2019s requirement is not fulfilled."
+T024:
+  c: false
+  h: 3f9cba98a9cca15b7db31a90e8d631303aeb7541ca259532f695a2e34996b7ee
+  r: "The required input file `data/curated/curated_dataset.csv` and the output file\
+    \ `data/processed/graphs.pt` are both absent, so the conversion pipeline cannot\
+    \ have been executed. Moreover, the provided `graph_build.py` is incomplete (truncated)\
+    \ and does not clearly implement the specified atom\u2011type\u2011to\u2011integer\
+    \ and bond\u2011order\u2011to\u2011float mapping or produce a PyG `Data` object\
+    \ with only the topological features required. The task therefore remains unfinished."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `analysis/topology_audit.md` file was provided, nor any excerpt showing its
+    contents. Without the markdown file containing the required sections (Node Counts,
+    Edge Counts, Pruning Statistics, Physical Parameterization Summary), the claim
+    that the task is complete cannot be verified. The implementer must supply the
+    generated `analysis/topology_audit.md` with the specified information.
 T029:
   c: false
   h: 7fdae23b32a288b1cbd77b8f7b4f98b1ad1bea8b49af5601fcf34c7cfcfbc8d9

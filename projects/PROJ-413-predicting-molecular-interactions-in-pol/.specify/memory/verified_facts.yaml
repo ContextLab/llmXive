@@ -1,0 +1,11 @@
+'|attribution baseline gradient input integrated step use zero':
+  quote: of attributions and graphs show the relationship between sample locations
+    and IDG quality as 50, 250, and 600 steps are used
+  source_id: '2305.20052'
+  url: https://arxiv.org/abs/2305.20052
+  value: '50'
+'|collinearity factor greater identifying inflation set than threshold variance':
+  quote: arXiv:2306.06751v1 [stat.ME] 11 Jun 2023
+  source_id: '2306.06751'
+  url: https://arxiv.org/abs/2306.06751
+  value: '5'

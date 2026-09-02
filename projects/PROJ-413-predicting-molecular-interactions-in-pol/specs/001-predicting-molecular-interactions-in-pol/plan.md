@@ -42,7 +42,7 @@ projects/PROJ-413-predicting-molecular-interactions-in-pol/
 │   │   └── train.py         # Training loop, checkpointing, seed fixed
 │   ├── analysis/
 │   │   ├── perm_test.py     # **Full re-training** permutation test (100 iters, A representative sample size will be selected to ensure statistical validity and generalizability of the findings., 10 epochs)
-│   │   ├── attribution.py   # Gradient‑based Integrated Gradients on 100 test samples
+│   │   ├── attribution.py   # Gradient‑based Integrated Gradients on test samples
 │   │   └── collinearity.py  # VIF on handcrafted descriptors (degree, density, etc.)
 │   └── utils/
 │       ├── metrics.py
