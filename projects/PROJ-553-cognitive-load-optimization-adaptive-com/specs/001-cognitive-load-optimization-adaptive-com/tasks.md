@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this story belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -37,7 +37,7 @@
 - [X] T002 [P] Initialize Python 3.11 project with requirements.txt (scikit-learn, lightgbm, pandas, numpy, textstat, datasets, statsmodels, pytest, requests)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 - [X] T004 [P] Implement `code/load_data.py` to fetch public datasets (ASSISTments/OULAD via HuggingFace `datasets.load_dataset`) and verify presence of timestamped responses, error logs, hint requests, and interaction features. **MUST** perform an explicit schema check: if the dataset schema lacks 'response_timestamp' or 'answer_start_timestamp' (required for latency calculation), the task MUST raise a clear error: "Schema Missing: Required latency features not found. Cannot proceed." If the schema supports derived features like `retrieval_latency` or `error_pattern`, extract and store them; otherwise, proceed with available features only. **Depends on T001**
-- [ ] T007 [P] [US1] Generate Golden Set Template: Create `data/processed/golden_set_template.csv` with columns `interaction_id`, `expert_load_score` (empty), and a README file with instructions for domain experts to label at least 50 interactions. **Depends on T001**
+- [X] T007 [P] [US1] Generate Golden Set Template: Create `data/processed/golden_set_template.csv` with columns `interaction_id`, `expert_load_score` (empty), and a README file with instructions for domain experts to label at least 50 interactions. **Depends on T001**
 - [X] T007b [P] [US1] Create or Load Golden Set: Check for `data/processed/golden_set.csv`. If it exists and contains ≥50 rows with valid `expert_load_score` (0-100), load it. **If it does not exist or is empty**, generate a synthetic Golden Set using the defined heuristic proxy (latency, errors, hints) to create a set of labeled interactions with `expert_load_score` derived from the proxy formula, and save to `data/processed/golden_set.csv`. This task fulfills the 'create' requirement of FR-001 by ensuring a valid validation set exists without indefinite blocking. **Depends on T004, T007**
 - [X] T008 [P] [US1] Validate Golden Set: Check for `data/processed/golden_set.csv` (populated version from T007b). Verify it contains ≥50 rows with valid `expert_load_score` values (0-100). If missing or invalid, halt with error: "Validation Data Missing: Golden Set with ≥50 expert labels not found. Cannot proceed with model training." **Depends on T007b**
 - [X] T009 [P] [US1] Document Constitutional Conflict: Update `docs/README.md` and `docs/research.md` to explicitly state the reliance on the 'Golden Set' path for validation, flagging this for human review before research acceptance.
@@ -138,12 +138,12 @@
 
 ### Implementation for Review Address
 
-- [ ] T041 [Rev] Update `docs/research.md` and `README.md` to explicitly state the limitation: "Self-reported ease is not used as a primary metric due to the risk of the 'illusion of competence'. Primary metrics focus on behavioral proxies (latency, errors) validated against expert labels."
-- [ ] T042 [Rev] Update `code/analyze_results.py` report generation to explicitly frame "retrieval latency" and "error pattern" findings (if available from T004) as "ASSOCIATIONAL ONLY" indicators, ensuring no causal claims are made about "System 2 effort" (addressing FR-006).
-- [ ] T043 [Rev] Update `code/simulate_sessions.py` to ensure that the "Adaptive" condition does not automatically simplify text upon a single error, but rather uses the hysteresis thresholds to prevent premature simplification, preserving the "struggle" required for consolidation.
-- [ ] T044 [Rev] Update `docs/research.md` to include a dedicated section discussing the "Illusion of Competence" risk, explaining why the project avoids self-reported ease metrics and relies on the Golden Set + behavioral proxies instead.
-- [ ] T045 [Rev] Implement "Struggle Preservation" metric in `code/analyze_results.py`: Calculate the average number of errors before success per session for both Adaptive and Static conditions. The report MUST explicitly compare these metrics to verify that the Adaptive condition does not eliminate the "effortful work of consolidation" (System 2) as warned in the review. **Depends on T004, T036**
-- [ ] T046b [Rev] Add a validation step in `code/simulate_sessions.py` to calculate and report the "Average Errors Per Session" for both Adaptive and Static conditions as an associational metric. **Do not** make claims about statistical significance of reduction unless explicitly defined in the spec. **Depends on T045**
+- [X] T041 [Rev] Update `docs/research.md` and `README.md` to explicitly state the limitation: "Self-reported ease is not used as a primary metric due to the risk of the 'illusion of competence'. Primary metrics focus on behavioral proxies (latency, errors) validated against expert labels."
+- [X] T042 [Rev] Update `code/analyze_results.py` report generation to explicitly frame "retrieval latency" and "error pattern" findings (if available from T004) as "ASSOCIATIONAL ONLY" indicators, ensuring no causal claims are made about "System 2 effort" (addressing FR-006).
+- [X] T043 [Rev] Update `code/simulate_sessions.py` to ensure that the "Adaptive" condition does not automatically simplify text upon a single error, but rather uses the hysteresis thresholds to prevent premature simplification, preserving the "struggle" required for consolidation.
+- [X] T044 [Rev] Update `docs/research.md` to include a dedicated section discussing the "Illusion of Competence" risk, explaining why the project avoids self-reported ease metrics and relies on the Golden Set + behavioral proxies instead.
+- [X] T045 [Rev] Implement "Struggle Preservation" metric in `code/analyze_results.py`: Calculate the average number of errors before success per session for both Adaptive and Static conditions. The report MUST explicitly compare these metrics to verify that the Adaptive condition does not eliminate the "effortful work of consolidation" (System 2) as warned in the review. **Depends on T004, T036**
+- [X] T046b [Rev] Add a validation step in `code/simulate_sessions.py` to calculate and report the "Average Errors Per Session" for both Adaptive and Static conditions as an associational metric. **Do not** make claims about statistical significance of reduction unless explicitly defined in the spec. **Depends on T045**
 
 **Checkpoint**: All review concerns addressed
 
