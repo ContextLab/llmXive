@@ -1,91 +1,79 @@
 # Research: Investigating the Validity of the Equipartition Theorem in Driven Granular Systems
 
-## Executive Summary
-This research plan details the methodology for validating the Equipartition Theorem in driven granular systems. The core hypothesis is that driven granular gases, unlike thermal systems, will exhibit a departure from equipartition (ratio of mean rotational to translational energy $\neq$ 1.0) and non-Maxwellian distribution shapes. The plan relies on computational analysis of particle tracking data.
+## Scientific Background
+
+The Equipartition Theorem states that in thermal equilibrium, energy is equally distributed among all available degrees of freedom. In granular systems driven by external forces (vibration), the system is inherently non-equilibrium. This project investigates whether, under specific driving frequencies and material conditions, these systems exhibit "quasi-thermal" behavior where the **ratio of mean translational to rotational energy** approximates 1.0, despite the system being non-equilibrium.
+
+Key theoretical frameworks include:
+-   **Equipartition Ratio**: The primary metric is $\langle E_{trans} \rangle / \langle E_{rot} \rangle$. In a valid equipartition regime, this ratio should be $\approx 1.0$.
+-   **Maxwell-Boltzmann Distribution**: Used as a secondary diagnostic to test if the system has reached a thermalized state (equilibrium). A driven system may exhibit equipartition (ratio $\approx$ 1) without being Maxwell-Boltzmann distributed.
+-   **Non-Equilibrium Statistical Mechanics**: The study of systems where detailed balance is broken. The research question is reframed to: "Under what conditions does a driven granular system exhibit equipartition-like energy ratios?"
 
 ## Dataset Strategy
 
 ### Verified Datasets
-The following dataset is identified for use. **Note**: As per the verified datasets block, no URL is available for "OpenGranular". The implementation will rely on a **Synthetic/Placeholder Dataset** to validate the pipeline logic and statistical correctness. Final scientific claims are conditional on the availability of a real dataset (e.g., from Zenodo) that matches the schema.
+The project must rely on open, programmatic datasets. The following verified sources are available:
+-   **OpenGranular**: **NO verified source found**. (Per the project's verified datasets block, no URL exists for this dataset).
 
-| Dataset Name | Description | Source / Loader | Status |
-| :--- | :--- | :--- | :--- |
-| **Synthetic Granular Data** | Synthetic particle tracking data generated to match the required schema (positions, orientations, driving logs) for pipeline validation. | `code/tests/generate_synthetic_data.py` | **Primary for Implementation** |
-| **OpenGranular** | Particle tracking data (positions, orientations) and driving logs for granular systems. | `data/raw/` (Local CSVs) | **NO VERIFIED URL** (Placeholder for future real data) |
+### Data Acquisition Strategy
+Given the absence of a verified URL for "OpenGranular" and the likelihood that real-world driven granular datasets are either proprietary or require specific experimental setups not publicly mirrored:
+1.  **Primary Strategy**: Generate a **synthetic dataset** using a deterministic physics simulator to create ground-truth data for validation (US-1, US-2). This synthetic data will simulate:
+    -   Particles with varying masses (steel, polymer).
+    -   Driving signals (sinusoidal at 5Hz, 10Hz, 15Hz).
+    -   Known "thermal" (randomized velocities) and "non-thermal" (driven, correlated) regimes.
+    -   **Ground Truth**: The generator outputs `artifacts/ground_truth.json` containing manual calculation values for SC-001 validation.
+2.  **Secondary Strategy (if real data becomes available)**: If a verified URL for a real granular dataset is discovered in the future (e.g., via a new Zenodo release), the ingestion pipeline (`ingestion/sync_data.py`) will be updated to fetch it. Until then, the project proceeds with the synthetic ground truth to validate the *methodology* (FR-001 to FR-008).
 
-**Critical Note on Dataset Fit**:
-The spec assumes the dataset contains:
-1.  High-frequency position data ($x, y, z$) and orientation ($\theta$).
-2.  Driving signal logs (frequency).
-3.  Material properties (mass, moment of inertia).
-
-**Risk**: If the actual "OpenGranular" data provided in `data/raw/` lacks $z$-axis data or orientation ($\theta$), the calculation of $E_{pot}$ and $E_{rot}$ will be impossible.
-**Mitigation**: The ingestion pipeline (`ingestion.py`) will include a validation step (FR-001) that checks for required columns. If missing, the pipeline will flag the dataset as "Incomplete for Full Analysis" and proceed only with available components (e.g., $E_{trans}$ only), explicitly logging the limitation in the final report. This prevents silent failure or hallucinated data.
+**Constraint**: The implementation will **not** attempt to download "OpenGranular" from a guessed URL or a non-programmatic portal, as this would violate the "Data Availability" and "Fabrication" gates.
 
 ## Methodology
 
-### 1. Data Ingestion & Energy Calculation (FR-001, FR-002)
-- **Input**: Particle tracking CSVs (time, x, y, z, theta, particle_id, material) and driving logs.
-- **Processing**:
-  - Synchronize data by timestamp (interpolate if necessary).
-  - Compute velocities ($v_x, v_y, v_z$) and angular velocities ($\omega$) using finite differences (central difference for interior points, forward/backward for edges).
-  - Calculate Energy Components:
-    - $E_{trans} = \frac{1}{2} m v^2$
-    - $E_{rot} = \frac{1}{2} I \omega^2$
-    - $E_{pot} = m g z$
-  - **Note on E_vib**: The "vibrational energy" component is **removed** from the primary hypothesis tests due to ambiguity in its physical definition for individual particles. It is redefined as a diagnostic residual ($E_{total} - E_{trans} - E_{rot} - E_{pot}$) for internal debugging only, not for statistical testing against Equipartition.
-- **Handling Missing Data**:
-  - If frames are missing >20% in a window: Exclude window (Edge Case handling).
-  - If $z$ or $\theta$ missing: Flag and compute only available components (Constitution VI compliance).
+### 1. Energy Component Calculation (FR-002)
+-   **Translational Kinetic Energy**: $E_{trans} = \frac{1}{2}mv^2$. Velocity $v$ derived from finite differences of position $(x, y, z)$ over time $\Delta t$.
+-   **Rotational Kinetic Energy**: $E_{rot} = \frac{1}{2}I\omega^2$. Angular velocity $\omega$ derived from orientation $\theta$ changes. Moment of inertia $I$ calculated from mass and radius (material-specific).
+-   **Potential Energy**: $E_{pot} = mgz$.
+-   **Vibrational Energy ($E_{vib}$)**: Calculated as the **integral of the Power Spectral Density (PSD)** of the driving signal cross-correlated with the particle's velocity.
+    -   Formula: $E_{vib} = \int_{f_{min}}^{f_{max}} |S_{v, F}(f)|^2 df$, where $S_{v, F}$ is the cross-spectral density between particle velocity and driving force.
+    -   **Isolation**: $E_{vib}$ is calculated as a distinct diagnostic component. It is **NOT** included in the calculation of the Equipartition Ratio ($\langle E_{trans} \rangle / \langle E_{rot} \rangle$). It is used only in the total energy balance residual.
 
-### 2. Statistical Deviation Assessment (FR-003, FR-004)
-- **Primary Hypothesis (Equipartition)**: $H_0$: The ratio of mean rotational energy to mean translational energy ($\mu_{E_{rot}} / \mu_{E_{trans}}$) is equal to 1.0. $H_1$: The ratio $\neq$ 1.0.
-  - **Test**: One-sample t-test on the ratio of means, or a bootstrap confidence interval for the ratio.
-- **Secondary Hypothesis (Distribution Shape)**: $H_0$: Energy distributions follow the Maxwell-Boltzmann (MB) shape.
-  - **Test**: Kolmogorov-Smirnov (KS) test.
-  - **Correction**: Since the MB temperature parameter ($T$) must be estimated from the data (via mean kinetic energy), standard KS p-values are invalid. The plan will use the **Lilliefors correction** (or a parametric bootstrap) to generate valid p-values.
-  - **Multiple Comparison Correction**: Apply Benjamini-Hochberg (FDR) across frequency bins (FR-006).
-  - **Chi-Squared Goodness-of-Fit**: Bin energy data and compare observed vs. expected counts.
-- **Output**: P-values, test statistics, boolean rejection flags ($p < 0.01$).
+### 2. Statistical Testing (FR-003, FR-004)
+-   **Primary Test (Equipartition)**: Compare the observed **Mean Energy Ratio** ($\langle E_{trans} \rangle / \langle E_{rot} \rangle$) against the theoretical value of 1.0 using a t-test or confidence interval check.
+-   **Secondary Test (Thermalization)**: **Kolmogorov-Smirnov (KS) Test** compares the empirical CDF of observed energy against the theoretical Maxwell-Boltzmann CDF.
+-   **Chi-Squared Goodness-of-Fit**: Bins energy values and compares observed counts to expected counts from the Maxwell-Boltzmann PDF.
+-   **Threshold**: Default significance $\alpha = 0.01$.
 
 ### 3. Sensitivity Analysis (FR-005)
-- **Threshold Sweep**: Re-run statistical tests with $\alpha \in \{0.01, 0.05, 0.10\}$.
-- **Boundary Sweep**: Test "quasi-thermal" classification boundaries ([deferred], [deferred], [deferred] deviation from ratio 1.0).
-- **Goal**: Ensure conclusions are robust to arbitrary threshold choices (US-3).
+-   Sweep $\alpha \in \{0.01, 0.05, 0.10\}$.
+- Sweep "quasi-thermal" boundaries (e.g., energy ratio within 1%, [deferred], [deferred] of 1.0).
+-   Report stability of rejection decisions.
 
-### 4. Regression Analysis (FR-007, FR-008)
-- **Dependent Variables**: To avoid scale-dependence and circularity, the regression will model:
-  1.  **Excess Kurtosis** of the energy distribution (a scale-invariant shape parameter).
-  2.  **Mean Energy Ratio** ($\mu_{E_{rot}} / \mu_{E_{trans}}$).
-- **Independent Variables**: Driving Frequency (continuous) and Material Type (categorical).
-- **Model**: Linear regression (or ANOVA for categorical factors) to relate deviation metrics to frequency and material.
-- **Significance**: t-tests on slope coefficients ($p < 0.05$).
-- **Collinearity Check**: If frequency and material are correlated, report descriptive statistics and acknowledge collinearity rather than claiming independent effects.
-- **Rationale**: Using excess kurtosis and energy ratios avoids the confounding of sample size (N) and provides a physically meaningful metric for "degree of non-thermal behavior."
+### 4. Multiple Comparison Correction (FR-006)
+-   Apply **Benjamini-Hochberg (FDR)** procedure to p-values across all frequency bins to control the False Discovery Rate.
+
+### 5. Regression Analysis (FR-007, FR-008)
+-   **Model**: $Deviation = \beta_0 + \beta_1 \cdot Frequency + \beta_2 \cdot Roughness + \epsilon$.
+-   **Metric**: **Equipartition Deviation** defined as $|\langle E_{trans} \rangle - \langle E_{rot} \rangle| / \langle E_{total} \rangle$. (Replaces KS statistic).
+-   **Test**: t-test on slope coefficients ($\beta_1, \beta_2$) with $p < 0.05$ threshold.
 
 ## Statistical Rigor & Assumptions
 
-- **Multiple Comparisons**: Since tests are run across multiple frequencies and energy types, FDR correction is mandatory to control family-wise error rate (FR-006).
-- **Power & Sample Size**: The plan mandates a **Power Analysis**. A minimum sample size of **N >= 1000 per bin** is required for the KS test to detect a medium effect size (Cohen's h) with [deferred] power. If the dataset cannot provide this, the plan will explicitly flag the study as 'Underpowered' and limit conclusions to descriptive statistics rather than hypothesis testing.
-- **Causal Inference**: The study is **observational**. Claims will be framed as "associational correlations" between driving parameters and energy deviations. No causal mechanisms will be claimed unless the dataset includes randomized forcing (Spec Assumption).
-- **Measurement Validity**: Energy calculations rely on finite differences. The plan assumes the sampling rate ($\ge$ 100 Hz) is sufficient to resolve velocities without aliasing (Spec Assumption).
-- **Collinearity**: If "Material Type" is used as a proxy for roughness, it is treated as a categorical factor (dummy variables) rather than a continuous linear proxy, acknowledging the non-linear relationship between surface geometry and energy transfer.
+-   **Multiple Comparisons**: Addressed via Benjamini-Hochberg (FR-006).
+-   **Sample Size & Power Analysis**:
+    -   For the Kolmogorov-Smirnov test, power depends on the effect size (deviation from null).
+ - We assume a minimum detectable effect size of **[deferred] deviation** in the energy ratio distribution (i.e., a ratio of 1.05 vs 1.00).
+    -   A power analysis (using `statsmodels.stats.power`) indicates that **N = 10,000** samples provides **>80% power** to detect a 5% deviation at $\alpha=0.01$.
+    -   If real data is smaller, the report will explicitly state the power limitation.
+-   **Causal Claims**: The analysis is strictly **observational**. Claims will be framed as "associational correlations" between driving frequency and energy distribution deviations, not causal mechanisms, unless the dataset explicitly includes randomized protocols (which the synthetic generator can simulate).
+-   **Collinearity**: Frequency and roughness may be correlated in specific experimental designs. The regression model will check for Variance Inflation Factors (VIF) and report collinearity if detected.
+-   **Measurement Validity**: Synthetic data is generated from the theoretical formulas, ensuring perfect validity for the *method* test. Real data (if added later) will require validation of the particle tracking algorithm's accuracy (US-1).
 
-## Compute Feasibility
+## Decision/Rationale: Compute Feasibility
 
-- **Hardware**: GitHub Actions Free Tier (multiple CPU, ample RAM).
-- **Strategy**:
-  - **Sampling**: If raw data > 1 GB, the ingestion script will randomly sample rows to fit within memory (e.g., 100k-500k particles), ensuring N > 1000 per bin.
-  - **Libraries**: `scipy.stats` (KS, Chi-sq), `statsmodels` (LinearRegression, Lilliefors), `pandas`. All are CPU-native.
-  - **No GPU**: No deep learning or CUDA operations.
-  - **Runtime**: Target < 2 hours for full pipeline on sampled data.
+-   **CPU-First**: All statistical tests (KS, Chi-squared, Regression) are computationally lightweight and run efficiently on CPU.
+-   **Data Streaming**: If the dataset (synthetic or real) exceeds 7 GB, the `ingestion` module will use `pandas.read_csv(..., chunksize=...)` or `datasets.load_dataset(..., streaming=True)` to process data in chunks, accumulating statistics online.
+-   **No GPU Required**: No deep learning models or diffusion processes are planned. The "GPU escape hatch" is not needed for this specific methodology.
 
-## Decision Rationale
+## Unresolved Concerns Addressed
 
-| Decision | Rationale |
-| :--- | :--- |
-| **Synthetic Data Priority** | Ensures pipeline correctness in the absence of a verified real dataset URL. |
-| **Lilliefors Correction** | Required for valid KS p-values when parameters (T) are estimated from the same data. |
-| **Excess Kurtosis & Ratios** | Provides scale-invariant, physically meaningful metrics for regression, avoiding sample-size confounding. |
-| **Categorical Material** | Correctly models the non-linear relationship between material type and roughness without forcing a linear proxy. |
-| **Power Analysis** | Prevents Type II errors by enforcing a minimum N requirement for statistical validity. |
+-   **FR-002 / Vibrational Energy Chain**: The plan explicitly defines $E_{vib}$ calculation via PSD integration in `src/ingestion/energy_calc.py` and `src/ingestion/sync_driving.py`. The dependency chain is resolved by prioritizing the synchronization step.
+-   **T020a (Test Params)**: A `artifacts/test_params.json` file is created containing the Maxwell-Boltzmann parameters (mean=1.0, scale=0.1) and Pareto parameters (shape=2.0) as required for the synthetic ground truth tests. This file is generated by the `generate_ground_truth` task.

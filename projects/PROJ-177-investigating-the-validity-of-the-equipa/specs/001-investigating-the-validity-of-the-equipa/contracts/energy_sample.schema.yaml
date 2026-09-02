@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EnergySample"
+description: "Raw energy values for a single particle at a single time step."
+type: "object"
+properties:
+  particle_id:
+    type: "integer"
+    description: "Unique identifier for the particle."
+  timestamp:
+    type: "number"
+    description: "Synchronized timestamp in seconds."
+  E_trans:
+    type: "number"
+    description: "Translational kinetic energy in Joules."
+  E_rot:
+    type: "number"
+    description: "Rotational kinetic energy in Joules."
+  E_pot:
+    type: "number"
+    description: "Potential energy in Joules."
+  E_vib:
+    type: "number"
+    description: "Vibrational energy component in Joules."
+  frequency_bin:
+    type: "string"
+    description: "Driving frequency bin label (e.g., '10Hz')."
+required:
+  - particle_id
+  - timestamp
+  - E_trans
+  - E_rot
+  - E_pot
+  - E_vib
+  - frequency_bin
+additionalProperties: false

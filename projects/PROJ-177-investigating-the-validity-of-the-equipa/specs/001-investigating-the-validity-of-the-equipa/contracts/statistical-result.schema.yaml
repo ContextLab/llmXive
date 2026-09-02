@@ -10,6 +10,7 @@ properties:
       - "ANOVA"
       - "regression"
       - "KS-test"
+      - "ChiSquare"
     description: "Type of statistical test performed."
   bin_id:
     type: "string"
@@ -39,6 +40,24 @@ properties:
   effect_size:
     type: "number"
     description: "Effect size (e.g., Cohen's d for paired differences)."
+  # Regression specific fields for SC-005
+  slope:
+    type: "number"
+    description: "Slope coefficient for regression (if test_type is regression)."
+  intercept:
+    type: "number"
+    description: "Intercept coefficient for regression (if test_type is regression)."
+  r_squared:
+    type: "number"
+    description: "R-squared value for regression (if test_type is regression)."
+  slope_p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value for the slope coefficient (if test_type is regression)."
+  t_statistic:
+    type: "number"
+    description: "T-statistic for the slope coefficient (if test_type is regression)."
 required:
   - test_type
   - bin_id

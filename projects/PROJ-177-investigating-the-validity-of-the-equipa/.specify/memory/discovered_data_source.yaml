@@ -1,18 +1,15 @@
 status: none
-intent: OpenGranular particle tracking positions orientations timestamps Zenodo python
-  package dataset
+intent: OpenGranular particle tracking dataset Zenodo download python package dataset
 required_fields:
 - timestamp
 - particle_id
 - x
 - y
 - z
-- orientation_theta
-- material_type
-- mass
-- moment_of_inertia
+- theta
 - driving_signal_timestamp
 - driving_frequency
-cache_key: f0d7a442362ce8d397eda52cb6530e333b49344589329523241cea59b0b89321
-searched_at: '2026-08-06T13:53:16.248532+00:00'
+- material_type
+cache_key: eb620566b4579996c3d32d6350446c9468db3acea98f706c1099654664fcf19c
+searched_at: '2026-09-02T01:38:09.751421+00:00'
 retry_count: 1

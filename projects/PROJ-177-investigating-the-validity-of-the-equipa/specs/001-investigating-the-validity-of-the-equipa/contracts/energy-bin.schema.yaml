@@ -33,7 +33,7 @@ properties:
     description: "Standard deviation of the difference (E_trans - E_rot)."
   ratio_mean:
     type: "number"
-    description: "Ratio of mean translational to mean rotational energy."
+    description: "Ratio of mean translational to mean rotational energy (Primary Equipartition Metric)."
   t_statistic:
     type: "number"
     description: "t-statistic from the Paired t-test."
@@ -58,6 +58,27 @@ properties:
   is_significant:
     type: "boolean"
     description: "True if p_value_corrected < alpha (default 0.05)."
+  deviation_metric:
+    type: "number"
+    description: "Equipartition Deviation Metric: |<E_trans> - <E_rot>| / <E_total>."
+  # Regression specific fields for SC-005
+  slope:
+    type: "number"
+    description: "Slope coefficient for regression (if applicable)."
+  intercept:
+    type: "number"
+    description: "Intercept coefficient for regression (if applicable)."
+  r_squared:
+    type: "number"
+    description: "R-squared value for regression (if applicable)."
+  slope_p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value for the slope coefficient (for SC-005 verification)."
+  t_statistic_regression:
+    type: "number"
+    description: "T-statistic for the slope coefficient (for SC-005 verification)."
 required:
   - frequency_bin
   - material_type
@@ -71,4 +92,5 @@ required:
   - ks_statistic
   - ks_p_value
   - is_significant
+  - deviation_metric
 additionalProperties: false

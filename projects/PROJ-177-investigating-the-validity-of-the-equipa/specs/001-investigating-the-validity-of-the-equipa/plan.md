@@ -1,46 +1,44 @@
 # Implementation Plan: Investigating the Validity of the Equipartition Theorem in Driven Granular Systems
 
-**Branch**: `001-validity-equipartition-granular` | **Date**: 2026-07-03 | **Spec**: `specs/001-validity-equipartition-granular/spec.md`
+**Branch**: `001-validity-equipartition-granular` | **Date**: 2026-07-03 | **Spec**: `spec.md`
+**Input**: Feature specification from `specs/001-validity-equipartition-granular/spec.md`
 
 ## Summary
-This project implements a computational physics pipeline to test the validity of the Equipartition Theorem in driven granular systems. The system ingests particle tracking data (positions, orientations) and driving signal logs, computes specific energy components (translational, rotational, potential) per particle, and performs rigorous statistical hypothesis testing. The primary test compares the ratio of mean rotational to translational energy against the theoretical value of 1.0. Secondary tests check for Maxwell-Boltzmann distribution shape using the Lilliefors correction to account for parameter estimation. The analysis is stratified by driving frequency (fixed Hz bins) and material type. The pipeline includes sensitivity analyses, power calculations, and linear regression on scale-invariant metrics (excess kurtosis, energy ratios). The entire pipeline is designed to run on CPU-only CI (GitHub Actions) by sampling data where necessary and using `scipy`/`statsmodels` for statistical methods.
+
+This project implements a computational physics pipeline to test the validity of the Equipartition Theorem in driven granular systems. The system ingests particle tracking data (positions, orientations) and driving signal logs to compute translational, rotational, potential, and vibrational energy components. It then performs statistical hypothesis testing (Kolmogorov-Smirnov, Chi-squared) against the Maxwell-Boltzmann distribution (as a thermalization diagnostic) and regression analysis to relate **Equipartition Deviation** (ratio of mean energies) to driving frequency and material properties. The implementation prioritizes CPU-tractable methods using `pandas`, `scipy`, and `statsmodels` to ensure execution on GitHub Actions free-tier runners, with a fallback strategy for streaming large datasets.
 
 ## Technical Context
 
-**Language/Version**: Python 3.x
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `pyyaml`, `pytest`
+**Storage**: Local CSV/Parquet files; no external database required.
+**Testing**: `pytest` with parameterized tests for physics calculations and statistical robustness.
+**Target Platform**: Linux (GitHub Actions runner), CPU-first.
+**Project Type**: Computational research pipeline / CLI tool.
+**Performance Goals**: Process 100k+ frames within 6 hours on 2 CPU cores; memory usage < 7 GB via streaming or chunking.
+**Constraints**: No GPU available on primary runner; no access to gated datasets (must use open or synthetic substitutes); strict reproducibility (random seeds).
+**Scale/Scope**: Single granular system dataset analysis; multiple frequency bins and material types.
 
-The specific value to remove/generalize: '3.x'
-
-Rewritten passage:
-Python 3.x  
-**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `pyyaml`, `tqdm`, `pytest`  
-**Storage**: Local CSV/JSON files within `data/` and `artifacts/`; no external database.  
-**Testing**: `pytest` (unit tests for energy formulas, integration tests for pipeline flow).  
-**Target Platform**: Linux (GitHub Actions runner: Multiple CPU cores, sufficient RAM, no GPU).  
-**Project Type**: Computational Research Pipeline / CLI Tool.  
-**Performance Goals**: Process sampled dataset (≤1M rows) within 6 hours; memory usage < 6 GB.  
-**Constraints**: No GPU; no heavy deep learning; data must be sampled if raw size > 14 GB disk; all random seeds pinned.  
-**Scale/Scope**: Single dataset ingestion, multi-frequency analysis, regression modeling.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-*Gates determined based on `constitution.md`*
+*Gates determined based on constitution file `projects/PROJ-177-investigating-the-validity-of-the-equipa/.specify/memory/constitution.md`*
 
-| Principle | Status | Evidence/Plan Element |
+| Principle | Status | Implementation Action |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | `requirements.txt` will pin versions. `code/` will include `random.seed()` calls. Data fetching logic will be deterministic. |
-| **II. Verified Accuracy** | **PASS** | The **Reference-Validator Agent** will run as a blocking gate before any citation is accepted into the paper. `research.md` will cite only verified dataset URLs (or explicitly note synthetic data). |
-| **III. Data Hygiene** | **PASS** | A dedicated `checksum_raw_data.py` script will generate SHA-256 checksums for all files in `data/raw/` immediately upon ingestion. These hashes will be recorded in the `state/...yaml` map before any processing occurs. Derived files in `data/derived/` will also be checksummed. |
-| **IV. Single Source of Truth** | **PASS** | Figures/Stats in `paper/` will be generated directly from `artifacts/` outputs (JSON/CSV) via scripts, not hand-typed. |
-| **V. Versioning Discipline** | **PASS** | A `hash_artifacts.py` script will generate content hashes for all derived files and update the `state/...yaml` `artifact_hashes` map automatically after each pipeline run. |
-| **VI. Granular Energy Component Isolation** | **PASS** | `code/energy.py` will explicitly compute $E_{trans}$, $E_{rot}$, $E_{pot}$ separately. The `stats.py` module will consume the *separate* columns from `energy_samples.csv` directly for testing, ensuring no aggregation occurs prior to analysis. |
-| **VII. Frequency-Binned Statistical Validation** | **PASS** | `code/stats.py` will implement binning logic using **fixed frequency intervals** as mandated by the Constitution. Tests will be stratified by material type. |
+| **I. Reproducibility** | **PASS** | All scripts will pin `random_seed` in a config file. Data fetches will use deterministic hashes. |
+| **II. Verified Accuracy** | **PASS** | Citations in `research.md` will be validated against the primary source before inclusion. |
+| **III. Data Hygiene** | **PASS** | Raw data will be checksummed; derived data will be written to new files with versioned names. |
+| **IV. Single Source of Truth** | **PASS** | All figures/stats in the final report will be generated programmatically from `data/` artifacts. `energy_output.schema.yaml` is the SSoT for primary output. |
+| **V. Versioning Discipline** | **PASS** | Artifact hashes will be recorded in the project state YAML upon every code/data change. |
+| **VI. Granular Energy Component Isolation** | **PASS** | `code/` will implement distinct functions for $E_{trans}$, $E_{rot}$, $E_{pot}$, and $E_{vib}$. **$E_{vib}$ is calculated via PSD integration in `src/ingestion/energy_calc.py::compute_vibrational_energy` and is explicitly excluded from the equipartition ratio calculation** to prevent double-counting. |
+| **VII. Frequency-Binned Statistical Validation** | **PASS** | Statistical tests will be stratified by frequency bins (intervals as defined in `contracts/energy-bin.schema.yaml`) and material types as required. |
 
 ## Project Structure
 
 ### Documentation (this feature)
+
 ```text
 specs/001-validity-equipartition-granular/
 ├── plan.md              # This file
@@ -49,39 +47,65 @@ specs/001-validity-equipartition-granular/
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
 │   ├── dataset.schema.yaml
-│   └── energy_output.schema.yaml
-└── tasks.md             # Phase 2 output (generated later)
+│   ├── energy-bin.schema.yaml
+│   ├── energy_output.schema.yaml
+│   ├── energy_sample.schema.yaml
+│   └── statistical-result.schema.yaml
+└── tasks.md             # Phase 2 output (generated by /speckit-tasks)
 ```
 
 ### Source Code (repository root)
+
 ```text
-projects/001-validity-equipartition-granular/
-├── code/
-│   ├── __init__.py
-│   ├── config.py          # Load YAML configs (masses, frequencies)
-│   ├── ingestion.py       # FR-001, FR-002: CSV parsing, sync, energy calc
-│   ├── stats.py           # FR-003, FR-004, FR-006: KS (Lilliefors), Chi-sq, FDR
-│   ├── regression.py      # FR-007, FR-008: Linear regression on kurtosis/ratios
-│   ├── sensitivity.py     # FR-005: Threshold sweeps
-│   ├── checksum_raw_data.py # III: Checksum generation
-│   ├── hash_artifacts.py  # V: Hash generation and state update
-│   └── main.py            # Orchestration script
-├── data/
-│   ├── raw/               # Downloaded raw CSVs (checksummed)
-│   ├── derived/           # Computed energy dataframes
-│   └── config.yaml        # Material properties, frequency bins
-├── artifacts/             # Test results, plots, regression outputs
-├── tests/
-│   ├── test_energy.py     # Unit tests for formulas
-│   └── test_stats.py      # Unit tests for statistical logic
-├── requirements.txt       # Pinned dependencies
-└── README.md              # Project overview
+src/
+├── ingestion/
+│   ├── sync_data.py          # Aligns tracking CSVs with driving logs (FR-001)
+│   ├── sync_driving.py       # Ingests and interpolates driving signal logs (Dependency for E_vib)
+│   ├── energy_calc.py        # Computes E_trans, E_rot, E_pot, E_vib (FR-002)
+│   │   └── compute_vibrational_energy() # Specific function for PSD integration (FR-002)
+│   ├── generate_synthetic.py # Generates ground-truth synthetic data (US-1, US-2)
+│   └── preprocess.py         # Handles interpolation and missing frames (US-1)
+├── analysis/
+│   ├── hypothesis_test.py    # KS and Chi-squared tests (FR-003, FR-004)
+│   ├── sensitivity.py        # Threshold sweeps (FR-005)
+│   ├── correction.py         # Benjamini-Hochberg (FR-006)
+│   └── regression.py         # Linear regression of deviations (FR-007, FR-008)
+├── models/
+│   ├── entities.py           # Pydantic models for ParticleState, EnergySample, etc.
+│   └── config.py             # Configuration loader (seeds, paths, thresholds)
+├── utils/
+│   ├── stats_utils.py        # Maxwell-Boltzmann PDF generators, PSD calculators
+│   └── io_utils.py           # Checksumming, streaming loaders
+└── main.py                   # CLI entry point
+
+tests/
+├── unit/
+│   ├── test_energy_calc.py   # Synthetic test for physics formulas (US-1)
+│   ├── test_hypothesis.py    # Test KS/Chi-squared on known distributions (US-2)
+│   └── test_regression.py    # Test slope/intercept recovery (US-4)
+├── contract/
+│   └── test_schemas.py       # Validates output against contracts/
+└── integration/
+    └── test_pipeline.py      # End-to-end run on synthetic data
 ```
 
-**Structure Decision**: Single-project structure selected to minimize overhead. All logic is encapsulated in `code/` modules. Data is strictly separated into `raw` (immutable) and `derived` (computed). This aligns with Constitution Principle III (Data Hygiene) and Principle VI (Energy Isolation).
+**Structure Decision**: Selected a modular `src/` layout separating ingestion, analysis, and models to ensure testability of individual physics components (US-1) and statistical modules (US-2). This aligns with the "Granular Energy Component Isolation" principle.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **None** | The scope is well-defined by the spec. The statistical methods (Lilliefors, Regression on kurtosis) are standard and CPU-tractable. | N/A |
+| **Streaming Data Loader** | Datasets may exceed 7 GB RAM. | Loading full CSV into memory would crash the runner; streaming is required for feasibility. |
+| **Benjamini-Hochberg Correction** | Multiple frequency bins tested. | Without correction, family-wise error rate inflates, violating statistical rigor (FR-006). |
+| **Synthetic Data Generator** | No open verified dataset for *this specific* driven granular setup. | Cannot fabricate real data; must generate synthetic data with known ground truth for testing (US-1, US-2). |
+| **Power Analysis** | Required to justify sample size for statistical tests. | Arbitrary sample sizes risk Type II errors; power analysis ensures valid inference. |
+| **E_vib Isolation** | FR-002 requires E_vib but it must not contaminate equipartition ratio. | Including E_vib in the ratio would violate the physical definition of equipartition (translational vs rotational); it must be a separate diagnostic. |
+
+## Methodology Updates (Addressing Panel Concerns)
+
+1.  **Equipartition Metric**: The primary test for equipartition is now the **Ratio of Mean Energies** ($\langle E_{trans} \rangle / \langle E_{rot} \rangle$) rather than the shape of the distribution against Maxwell-Boltzmann. The KS test is retained as a secondary diagnostic for "thermalization" (equilibrium state).
+2.  **E_vib Calculation**: $E_{vib}$ is calculated via **Power Spectral Density (PSD) integration** of the driving signal cross-correlation, converting the similarity metric to Joules. It is **excluded** from the equipartition ratio calculation but included in the total energy balance residual.
+3.  **Regression Target**: The dependent variable for regression is now the **Equipartition Deviation Metric** ($|\langle E_{trans} \rangle - \langle E_{rot} \rangle| / \langle E_{total} \rangle$), not the KS statistic.
+4.  **Ground Truth**: A `generate_ground_truth` task and `artifacts/test_params.json` are explicitly defined to satisfy SC-001.
+5.  **Power Analysis**: A power analysis section is added to justify sample sizes.
+6.  **E_vib Implementation**: The plan explicitly defines `compute_vibrational_energy` in `src/ingestion/energy_calc.py` to satisfy FR-002.
