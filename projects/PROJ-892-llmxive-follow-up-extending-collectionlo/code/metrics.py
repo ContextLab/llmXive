@@ -4,231 +4,242 @@ from PIL import Image
 from typing import List, Dict, Tuple, Optional
 from pathlib import Path
 import logging
+from transformers import CLIPProcessor, CLIPModel
 import lpips
-from torchvision import transforms
 
-# Initialize LPIPS model once at module level to avoid repeated loading overhead
-_lpips_model = None
-_lpips_device = None
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-def _get_lpips_model(device: str = "cpu"):
-    """
-    Lazy initialization of the LPIPS model.
-    Uses 'alex' network which is standard for LPIPS.
-    """
-    global _lpips_model, _lpips_device
-    if _lpips_model is None or _lpips_device != device:
-        logging.info(f"Initializing LPIPS model on {device}...")
-        # lpips.LPIPS handles download of pretrained weights on first call
-        _lpips_model = lpips.LPIPS(net='alex').to(device)
-        _lpips_model.eval()
-        _lpips_device = device
-        logging.info("LPIPS model initialized.")
-    return _lpips_model
+# Global caches for heavy models to avoid reloading
+_CLIP_MODEL = None
+_CLIP_PROCESSOR = None
+_LPIPS_MODEL = None
 
-def extract_clip_image_embedding(image: Image.Image, clip_model, clip_preprocess) -> torch.Tensor:
+def _get_clip_models():
+    """Lazy load CLIP model and processor."""
+    global _CLIP_MODEL, _CLIP_PROCESSOR
+    if _CLIP_MODEL is None or _CLIP_PROCESSOR is None:
+        logger.info("Loading CLIP model (ViT-L/14)...")
+        # Using the standard OpenCLIP model often used in these pipelines
+        model_name = "openai/clip-vit-large-patch14"
+        _CLIP_MODEL = CLIPModel.from_pretrained(model_name)
+        _CLIP_PROCESSOR = CLIPProcessor.from_pretrained(model_name)
+        
+        # Move to CPU to prevent OOM on GPU-less runners, or GPU if available
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        _CLIP_MODEL.to(device)
+        _CLIP_MODEL.eval()
+    return _CLIP_MODEL, _CLIP_PROCESSOR
+
+def _get_lpips_model():
+    """Lazy load LPIPS model."""
+    global _LPIPS_MODEL
+    if _LPIPS_MODEL is None:
+        logger.info("Loading LPIPS model...")
+        # LPIPS uses a specific pretrained network (alex or vgg)
+        # 'net_type': 'alex' is standard and lighter
+        _LPIPS_MODEL = lpips.LPIPS(net='alex')
+        _LPIPS_MODEL.eval() # Ensure eval mode
+    return _LPIPS_MODEL
+
+def extract_clip_image_embedding(image_path: Path) -> np.ndarray:
     """
-    Extract CLIP image embedding.
+    Extract CLIP image embedding for a single image.
+    
+    Args:
+        image_path: Path to the image file.
+        
+    Returns:
+        numpy array of shape (1, embedding_dim).
     """
-    input_image = clip_preprocess(image).unsqueeze(0).to(clip_model.device)
+    model, processor = _get_clip_models()
+    device = next(model.parameters()).device
+    
+    if not image_path.exists():
+        raise FileNotFoundError(f"Image not found: {image_path}")
+        
+    image = Image.open(image_path).convert("RGB")
+    
+    inputs = processor(images=image, return_tensors="pt", padding=True)
+    inputs = {k: v.to(device) for k, v in inputs.items()}
+    
     with torch.no_grad():
-        embedding = clip_model.encode_image(input_image)
-        embedding = embedding / embedding.norm(dim=-1, keepdim=True)
-    return embedding
+        image_features = model.get_image_features(**inputs)
+        # Normalize the features (CLIP outputs are usually not normalized by default in all versions, 
+        # but cosine similarity requires unit vectors)
+        image_features = image_features / image_features.norm(p=2, dim=-1, keepdim=True)
+        
+    return image_features.cpu().numpy().squeeze(0)
 
-def extract_clip_text_embedding(text: str, clip_model, clip_preprocess) -> torch.Tensor:
+def extract_clip_text_embedding(texts: List[str]) -> np.ndarray:
     """
-    Extract CLIP text embedding.
+    Extract CLIP text embeddings for a list of texts.
+    
+    Args:
+        texts: List of prompt strings.
+        
+    Returns:
+        numpy array of shape (len(texts), embedding_dim).
     """
-    input_text = clip_preprocess(text).to(clip_model.device)
+    model, processor = _get_clip_models()
+    device = next(model.parameters()).device
+    
+    inputs = processor(text=texts, return_tensors="pt", padding=True, truncation=True)
+    inputs = {k: v.to(device) for k, v in inputs.items()}
+    
     with torch.no_grad():
-        embedding = clip_model.encode_text(input_text)
-        embedding = embedding / embedding.norm(dim=-1, keepdim=True)
-    return embedding
+        text_features = model.get_text_features(**inputs)
+        text_features = text_features / text_features.norm(p=2, dim=-1, keepdim=True)
+        
+    return text_features.cpu().numpy()
 
-def compute_cosine_similarity(emb1: torch.Tensor, emb2: torch.Tensor) -> float:
+def compute_cosine_similarity(vec_a: np.ndarray, vec_b: np.ndarray) -> float:
     """
-    Compute cosine similarity between two embeddings.
+    Compute cosine similarity between two vectors.
+    
+    Args:
+        vec_a: First vector (1D or 2D with batch dim 1).
+        vec_b: Second vector (1D or 2D with batch dim 1).
+        
+    Returns:
+        Cosine similarity score.
     """
-    if emb1.dim() == 1 and emb2.dim() == 1:
-        return float(torch.dot(emb1, emb2).item())
-    elif emb1.dim() == 2 and emb2.dim() == 2:
-        # Batch similarity (dot product of normalized vectors)
-        return float(torch.dot(emb1.flatten(), emb2.flatten()).item())
-    else:
-        raise ValueError("Embeddings must be 1D or 2D tensors.")
+    # Ensure 1D for simple dot product if inputs are single vectors
+    if vec_a.ndim == 1:
+        vec_a = vec_a.reshape(1, -1)
+    if vec_b.ndim == 1:
+        vec_b = vec_b.reshape(1, -1)
+        
+    # Dot product of normalized vectors is cosine similarity
+    # vec_a and vec_b should already be normalized by the extraction functions
+    similarity = np.dot(vec_a, vec_b.T)
+    return float(similarity[0, 0])
 
-def compute_image_text_similarity(image: Image.Image, text: str, clip_model, clip_preprocess) -> float:
+def compute_image_text_similarity(image_path: Path, text: str) -> float:
     """
-    Compute similarity between an image and a text prompt.
+    Compute cosine similarity between an image and a text prompt.
+    
+    Args:
+        image_path: Path to the image.
+        text: The prompt text.
+        
+    Returns:
+        Cosine similarity score.
     """
-    img_emb = extract_clip_image_embedding(image, clip_model, clip_preprocess)
-    txt_emb = extract_clip_text_embedding(text, clip_model, clip_preprocess)
+    img_emb = extract_clip_image_embedding(image_path)
+    txt_emb = extract_clip_text_embedding([text])[0]
     return compute_cosine_similarity(img_emb, txt_emb)
 
-def batch_compute_image_text_similarity(images: List[Image.Image], texts: List[str], clip_model, clip_preprocess) -> List[float]:
+def batch_compute_image_text_similarity(image_paths: List[Path], texts: List[str]) -> List[float]:
     """
-    Compute similarity for a batch of images and texts.
+    Compute similarities for a batch of images and texts.
+    Assumes 1:1 mapping.
     """
-    if len(images) != len(texts):
-        raise ValueError("Images and texts lists must be of equal length.")
-    
-    similarities = []
-    for img, txt in zip(images, texts):
-        sim = compute_image_text_similarity(img, txt, clip_model, clip_preprocess)
-        similarities.append(sim)
-    return similarities
-
-def compute_lpips_distance(image1: Image.Image, image2: Image.Image, device: str = "cpu") -> float:
-    """
-    Compute LPIPS distance between two PIL Images.
-    
-    FR-005: Computes the Learned Perceptual Image Patch Similarity (LPIPS)
-    distance between a generated FP16 image and its corresponding ReferenceImage.
-    
-    Args:
-        image1: The first image (e.g., generated baseline).
-        image2: The second image (e.g., reference).
-        device: Device to run the LPIPS model on (default: "cpu" for safety).
-    
-    Returns:
-        A float representing the LPIPS distance (0 = identical, higher = more different).
-    
-    Raises:
-        RuntimeError: If images cannot be converted to tensors properly.
-    """
-    if image1.mode != 'RGB':
-        image1 = image1.convert('RGB')
-    if image2.mode != 'RGB':
-        image2 = image2.convert('RGB')
-
-    # Ensure images are resized to a common resolution if necessary (LPIPS expects specific sizes usually, 
-    # but the model handles resizing internally or we can standardize to 256x256 or similar).
-    # Standard practice for LPIPS is to resize to 256x256 if not already, though the model is robust.
-    # We will resize to 256x256 to ensure consistency with typical evaluation pipelines.
-    target_size = (256, 256)
-    image1 = image1.resize(target_size, Image.LANCZOS)
-    image2 = image2.resize(target_size, Image.LANCZOS)
-
-    lpips_model = _get_lpips_model(device)
-
-    # Define transform: normalize to [-1, 1]
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
-    ])
-
-    try:
-        img1_tensor = transform(image1).unsqueeze(0).to(device)
-        img2_tensor = transform(image2).unsqueeze(0).to(device)
+    if len(image_paths) != len(texts):
+        raise ValueError("Number of images must match number of texts.")
         
-        with torch.no_grad():
-            # lpips_model returns a tensor of shape (1, 1, H, W) or (1, 1) depending on version
-            # We take the mean to get a single scalar score per image pair
-            score = lpips_model(img1_tensor, img2_tensor)
-            return float(score.mean().item())
-    except Exception as e:
-        logging.error(f"Error computing LPIPS distance: {e}")
-        raise
+    results = []
+    for img_path, txt in zip(image_paths, texts):
+        results.append(compute_image_text_similarity(img_path, txt))
+    return results
 
-def compute_cesr_score(target_embedding: torch.Tensor, reference_embeddings: List[torch.Tensor]) -> float:
+def compute_lpips_distance(img1_path: Path, img2_path: Path) -> float:
     """
-    Compute Cross-Effect Similarity Ratio (CESR).
-    
-    FR-011: Measures how much a generated image (target) resembles *other* effects
-    compared to its own effect (handled by excluding self in the caller).
+    Compute LPIPS distance between two images.
     
     Args:
-        target_embedding: The embedding of the target generated image.
-        reference_embeddings: List of embeddings from other effect references.
-    
+        img1_path: Path to first image.
+        img2_path: Path to second image.
+        
     Returns:
-        The average cosine similarity between target and the reference set.
+        LPIPS distance (scalar).
     """
-    if not reference_embeddings:
-        return 0.0
+    lpips_model = _get_lpips_model()
+    device = next(lpips_model.parameters()).device
     
-    similarities = []
-    for ref_emb in reference_embeddings:
-        sim = compute_cosine_similarity(target_embedding, ref_emb)
-        similarities.append(sim)
+    def load_and_preprocess(path: Path) -> torch.Tensor:
+        img = Image.open(path).convert("RGB")
+        # LPIPS expects tensors in range [-1, 1]
+        img_tensor = torch.from_numpy(np.array(img).astype(np.float32) / 127.5 - 1.0).permute(2, 0, 1).unsqueeze(0)
+        return img_tensor.to(device)
+        
+    img1 = load_and_preprocess(img1_path)
+    img2 = load_and_preprocess(img2_path)
     
-    return float(np.mean(similarities))
+    with torch.no_grad():
+        loss = lpips_model(img1, img2, normalize=False) # normalize=False as we pre-normalized
+        
+    return float(loss.item())
 
-def compute_lpips_matrix(image_paths: List[Path], device: str = "cpu") -> np.ndarray:
+def compute_lpips_distance_from_paths(image_paths: List[Path], reference_paths: List[Path]) -> List[float]:
     """
-    Compute a pairwise LPIPS distance matrix for a list of image paths.
+    Compute LPIPS distances for pairs of images.
     
     Args:
-        image_paths: List of paths to images.
-        device: Device for computation.
-    
-    Returns:
-        A square numpy array where [i, j] is the LPIPS distance between image i and j.
-    """
-    n = len(image_paths)
-    matrix = np.zeros((n, n))
-    
-    for i in range(n):
-        img_i = Image.open(image_paths[i])
-        for j in range(i + 1, n):
-            img_j = Image.open(image_paths[j])
-            dist = compute_lpips_distance(img_i, img_j, device)
-            matrix[i, j] = dist
-            matrix[j, i] = dist
-    
-    return matrix
-
-def compute_lpips_distance_from_paths(path1: str, path2: str, device: str = "cpu") -> float:
-    """
-    Compute LPIPS distance directly from file paths.
-    
-    Args:
-        path1: Path to first image.
-        path2: Path to second image.
-        device: Device for computation.
-    
-    Returns:
-        LPIPS distance as a float.
-    """
-    img1 = Image.open(path1)
-    img2 = Image.open(path2)
-    return compute_lpips_distance(img1, img2, device)
-
-def compute_lpips_batch(generated_images: List[Image.Image], reference_images: List[Image.Image], device: str = "cpu") -> List[float]:
-    """
-    Compute LPIPS distances for a batch of generated vs reference images.
-    
-    Args:
-        generated_images: List of generated images.
-        reference_images: List of corresponding reference images.
-        device: Device for computation.
-    
+        image_paths: List of generated image paths.
+        reference_paths: List of reference image paths.
+        
     Returns:
         List of LPIPS distances.
     """
-    if len(generated_images) != len(reference_images):
-        raise ValueError("Generated and reference image lists must be of equal length.")
-    
+    if len(image_paths) != len(reference_paths):
+        raise ValueError("Number of images must match number of references.")
+        
     distances = []
-    for gen, ref in zip(generated_images, reference_images):
-        dist = compute_lpips_distance(gen, ref, device)
-        distances.append(dist)
-    
+    for img, ref in zip(image_paths, reference_paths):
+        distances.append(compute_lpips_distance(img, ref))
     return distances
 
-def compute_lpips_distance_for_task(generated_image_path: str, reference_image_path: str, device: str = "cpu") -> float:
+def compute_cesr_score(embedding: np.ndarray, reference_embeddings: np.ndarray, distractor_embeddings: Optional[np.ndarray] = None) -> Dict[str, float]:
     """
-    Specific wrapper for T013 to compute LPIPS between a generated FP16 image
-    and its FP16 ReferenceImage.
+    Compute Cross-Effect Similarity Ratio (CESR).
     
     Args:
-        generated_image_path: Path to the generated image (from T011).
-        reference_image_path: Path to the reference image (from T011c).
-        device: Device for computation.
-    
+        embedding: The embedding of the generated image (1, dim).
+        reference_embeddings: Embeddings of 'other effect' references (N, dim).
+        distractor_embeddings: Optional embeddings of distractor references (M, dim).
+        
     Returns:
-        LPIPS distance.
+        Dictionary with 'cesr_raw', 'cesr_baseline', 'cesr_normalized'.
     """
-    logging.info(f"Computing LPIPS distance between:\n  Generated: {generated_image_path}\n  Reference: {reference_image_path}")
-    return compute_lpips_distance_from_paths(generated_image_path, reference_image_path, device)
+    if reference_embeddings is None or reference_embeddings.size == 0:
+        raise ValueError("Reference embeddings cannot be empty.")
+        
+    # Compute similarity to other effect references
+    # cosine similarity = dot(normalized_a, normalized_b)
+    # embeddings should be normalized
+    sims = np.dot(reference_embeddings, embedding.T).flatten()
+    cesr_raw = float(np.mean(sims))
+    
+    cesr_baseline = 0.0
+    if distractor_embeddings is not None and distractor_embeddings.size > 0:
+        distractor_sims = np.dot(distractor_embeddings, embedding.T).flatten()
+        cesr_baseline = float(np.mean(distractor_sims))
+        
+    cesr_normalized = cesr_raw - cesr_baseline
+    
+    return {
+        "cesr_raw": cesr_raw,
+        "cesr_baseline": cesr_baseline,
+        "cesr_normalized": cesr_normalized
+    }
+
+def compute_lpips_matrix(image_paths: List[Path]) -> np.ndarray:
+    """
+    Compute a pairwise LPIPS distance matrix for a list of images.
+    
+    Args:
+        image_paths: List of image paths.
+        
+    Returns:
+        Square numpy array of distances.
+    """
+    n = len(image_paths)
+    matrix = np.zeros((n, n))
+    for i in range(n):
+        for j in range(i + 1, n):
+            d = compute_lpips_distance(image_paths[i], image_paths[j])
+            matrix[i, j] = d
+            matrix[j, i] = d
+    return matrix

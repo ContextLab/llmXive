@@ -1,19 +1,12 @@
-T009a:
+T002:
   c: false
-  h: 30fa80467cb38b8776b5c372688e333259df968f2dff489cbbede5ddf22b38e2
-  r: "The required `data/models/adapter_fp16.safetensors` file is missing (size\u202F\
-    0) and the `artifacts.yaml` records a hash of an empty file instead of the SHA\u2011\
-    256 of `data/subspace_ranks.json`. Moreover, the provided `code/data_loader.py`\
-    \ snippet does not show the implementation of the LoRA extraction, SVD rank computation,\
-    \ JSON saving, and artifact registration required by the task. These core pieces\
-    \ are absent, so the task is not genuinely completed."
-T010b:
-  c: false
-  h: cc02866b1fd5e63db664482d33732aee41ea5f3a8da293f0d2926ab26bf09e3a
-  r: The repository lacks the required `data/models/adapter_fp16.safetensors` file,
-    and the shown portion of `code/data_loader.py` does not contain a concrete function
-    that loads the FP16 adapter and base model with `device_map='cpu'` and `torch_dtype=torch.float16`.
-    Both the artifact and the loading logic are missing, so the task is not satisfied.
+  h: 0fdb636da729aac63ee3668fba7732016cdb6ad05b2fe38e61f5ab5a5812543d
+  r: "The `data/models/collection_lora.safetensors` file is absent and `state/artifacts.yaml`\
+    \ lacks an entry for it (the only entry points to a zero\u2011byte placeholder).\
+    \ Moreover, the provided `code/data_loader.py` excerpt shows only download and\
+    \ utility helpers and does not contain any implementation of the required Weighted\
+    \ Linear Addition with Orthogonal Projection merging logic. The task\u2019s core\
+    \ functionality and resulting artifacts are therefore not present."
 T011:
   c: false
   h: 94b482a58e3d056405b3ac4384b6ff322b5e697d2a0d22cc30ba1c1ef12e1302
@@ -22,31 +15,76 @@ T011:
     \ show loading the FP16 adapter nor a complete implementation of the image\u2011\
     generation function (the code is truncated). Consequently the task\u2019s core\
     \ requirement is not satisfied."
-T014:
+T011e:
   c: false
-  h: 0c11daf40c76363cf478b4bc2f403478844261c7b7ef7057d7d9917a5e592b28
-  r: "The repository contains a `code/main.py` file, but it is truncated and never\
-    \ reaches the part where results are written to `data/results.csv` or images are\
-    \ saved to `data/generated/`. Moreover, the required `data/results.csv` file is\
-    \ absent. Consequently, the task\u2019s core deliverables\u2014producing the CSV\
-    \ with the specified schema and persisting generated images\u2014are not satisfied."
-T016:
+  h: e059c580c312c017a349fe50a2d6436562e26d5e50ba9e91166292a6f594eed5
+  r: "The repository lacks the required `data/references/other_effect_refs.json` file,\
+    \ and the provided `code/data_loader.py` does not contain a function that loads\
+    \ the T011d lookup table, builds the \u201Cother\u2011effect\u201D reference lists,\
+    \ and writes them to that JSON file. The implementation is therefore missing."
+T014a:
   c: false
-  h: e9b395355f3cff5201fa622080558e7e25ed2f9a949b8b4daea0c7db370f6dc4
-  r: "The provided `code/data_loader.py` contains generic download utilities but no\
-    \ implementation of zero\u2011shot post\u2011training quantization, directory\
-    \ creation, verification, or error handling as specified. Moreover, the required\
-    \ quantized adapter files `data/quantized/adapter_int8.safetensors` and `data/quantized/adapter_int4.safetensors`\
-    \ are absent. The task\u2019s core functionality and output artifacts are therefore\
-    \ missing."
+  h: b781ace81decd7f25f6f0987a757883609cfd945fc40e38424cb286e47a7b1e7
+  r: "The repository lacks the required `data/results.csv` file, and the provided\
+    \ `code/main.py` is truncated before the core generation and metric\u2011saving\
+    \ logic is shown, with no evidence that it creates the CSV with the specified\
+    \ schema or writes images to `data/generated/`. Consequently the task\u2019s essential\
+    \ outputs are missing."
+T016a:
+  c: false
+  h: aee601d0b5240054be2adcc2fc77ca092fd6ce03be20553df96a962e5dc35966
+  r: "The provided `code/data_loader.py` contains only generic download utilities\
+    \ and does not implement any static post\u2011training quantization of LoRA weights,\
+    \ nor does it reference the required `collection_lora.safetensors`. Moreover,\
+    \ the expected input file `data/models/collection_lora.safetensors` and the output\
+    \ files `data/quantized/adapter_int8.safetensors` and `adapter_int4.safetensors`\
+    \ are absent. The task\u2019s core functionality and artifacts are therefore missing."
+T016b:
+  c: false
+  h: e18eceea1252e06261593255edc5f1ad90342ce8b73c8434ac2110af67026522
+  r: "The `data/quantized/adapter_int8.safetensors` and `adapter_int4.safetensors`\
+    \ files are absent, and the provided `code/data_loader.py` does not contain any\
+    \ implementation that serializes quantized state dicts or preserves scale/zero\u2011\
+    point parameters. The required artifact and functionality are therefore missing."
+T020a:
+  c: false
+  h: b781ace81decd7f25f6f0987a757883609cfd945fc40e38424cb286e47a7b1e7
+  r: "The provided `code/main.py` is incomplete (truncated after \u201Cre\u201D) and\
+    \ does not contain the full quantized\u2011generation loop, delta calculations,\
+    \ or the DataFrame join with `subspace_ranks.json`. Moreover, the required output\
+    \ file `data/results.csv` is absent. Consequently the task\u2019s requirements\
+    \ are not satisfied."
 T023:
   c: false
-  h: d9465f644409560bf42e064caf576b3bb5ec20104361c1ac5b60d75a3cd5ae08
+  h: b2cb8ea65337802506cd2c807eaf91c01976e91b0792393cc0893ea7f4b0ec29
   r: "The repository lacks the required `data/results.csv` file, so the script cannot\
-    \ load the data, and the provided `statistical_analysis.py` does not contain any\
-    \ function that creates the specified DataFrame with columns `effect_id`, `similarity_score`,\
-    \ `quantization_level`, `seed` nor extracts an explicit \u2018Effect\u2019 grouping\
-    \ variable. Both the input data and the required output structure are missing."
+    \ load real data. Moreover, `code/statistical_analysis.py` aggregates `similarity_score`\
+    \ and `cesr_score` instead of a \u201Cmean_bleeding\u201D column, does not produce\
+    \ the exact output schema (`effect_id, mean_bleeding, quantization_level, subspace_rank`),\
+    \ and joins subspace ranks before aggregation rather than after. It also raises\
+    \ a FileNotFoundError instead of aborting gracefully with a \u201CNot Testable\u201D\
+    \ status. These issues mean the task\u2019s specifications are not met."
+T025a:
+  c: false
+  h: 0702b45a4a2e378041b40b220b62e705e088045a5fe062f74d66e1c0d0986b09
+  r: The `code/statistical_analysis.py` file is incomplete (the `aggregate_cesr_to_effect_level`
+    function is truncated and does not clearly compute a mean of a `CESR_normalized`
+    column), and the required `data/results.csv` file is missing, so the script cannot
+    perform the requested aggregation.
+T027a:
+  c: false
+  h: c841741852ca60010d7c3510ce21924c9fa3cde63aa86f52701afbe28786f559
+  r: "The repository lacks the required `data/analysis_results.json` file, and the\
+    \ provided `code/main.py` (truncated) contains generation\u2011related code but\
+    \ does not implement the analysis script execution or produce a JSON matching\
+    \ the specified schema. Consequently the task\u2019s core requirement is not satisfied."
+T031b:
+  c: false
+  h: 1ffd870706960d624f4126c9ab90ac93da9c69e1b84c777f21a40eb18549bb24
+  r: The provided `code/main.py` is truncated and contains no implementation that
+    records start/end timestamps or writes a `data/ci_report.json` file. Moreover,
+    the required `data/ci_report.json` file is absent from the repository. Both the
+    timing logic and the output artifact are missing, so the task is not satisfied.
 T034a:
   c: true
   h: c3be1272d452d3996291a631b353d7ef1fb1d8c07f640ae0acbb55490c1bbe60
@@ -56,3 +94,11 @@ T034a:
     :\"<now>\"}` to `state/ratification.yaml`, and raises a `ValueError` when the\
     \ terms are absent. The missing `state/ratification.yaml` is expected to be created\
     \ at runtime, not pre\u2011existing."
+T035:
+  c: false
+  h: adb85b186bd8daa76c1db81351af79a1eedef8746951658b54a4d07c316ce64f
+  r: "The provided `code/generator.py` only defines a baseline image generation function\
+    \ and does not implement a routine that creates 10 unrelated \u201CDistractor\
+    \ Reference\u201D images in `data/references/distractor_refs/`. Moreover, the\
+    \ required `data/references/distractor_embeddings.json` file is absent. The task\u2019\
+    s core outputs are therefore missing."
