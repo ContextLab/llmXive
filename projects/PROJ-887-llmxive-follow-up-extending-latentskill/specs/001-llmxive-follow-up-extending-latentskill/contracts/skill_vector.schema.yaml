@@ -1,25 +1,33 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-type: object
+title: "Skill Vector Index Schema"
+description: "Schema for data/processed/skill_index.npz metadata validation"
+type: "object"
 properties:
-  task_id:
-    type: string
-    description: "Unique identifier for the skill task"
-  task_description:
-    type: string
-    description: "Natural language description of the task"
-  vector_path:
-    type: string
-    description: "Relative path to the flattened vector in skill_index.npy"
-  normalization_method:
-    type: string
-    enum: ["L2"]
-    description: "Normalization applied to the vector"
-  original_weights_hash:
-    type: string
-    description: "SHA256 hash of the original A/B weight files"
+  vectors:
+    type: "array"
+    description: "Flattened, normalized LoRA vectors"
+    items:
+      type: "number"
+      format: "float32"
+    minItems: 1
+  task_ids:
+    type: "array"
+    description: "Unique identifiers for each skill"
+    items:
+      type: "string"
+    minItems: 1
+  descriptions:
+    type: "array"
+    description: "Original task text descriptions"
+    items:
+      type: "string"
+    minItems: 1
+  metadata:
+    type: "string"
+    description: "Serialized JSON string containing base model version, rank, etc."
 required:
-  - task_id
-  - task_description
-  - vector_path
-  - normalization_method
-  - original_weights_hash
+  - vectors
+  - task_ids
+  - descriptions
+  - metadata
+additionalProperties: false

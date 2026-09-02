@@ -19,14 +19,14 @@ This feature implements a machine learning pipeline to predict plant phenologica
 **Primary Dependencies**: `pandas`, `numpy`, `xarray`, `geopandas`, `xgboost`, `lightgbm`, `scikit-learn`, `requests`, `huggingface_hub`, `earthengine-api`  
 **Storage**: Local CSV/Parquet files in `data/` (checksummed), model artifacts in `artifacts/`  
 **Testing**: `pytest` (unit, integration, contract tests)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: multiple CPUs, ~7 GB RAM)  
 **Project Type**: Data Science Pipeline / CLI  
 **Performance Goals**: Complete data ingestion and model training for 10-15 sites within 6 hours; RMSE/R² metrics computed on held-out test sets.  
 **Constraints**: 
 - **No GPU usage**; no large LLM inference.
 - **Data subset** to fit ~7 GB RAM.
 - **Authentication**: Standard Google Earth Engine authentication (`earthengine authenticate`) is **required** for all API access, even for public data.
-- **Sample Size**: 10-15 sites (Exploratory study; wide confidence intervals expected).
+- **Sample Size**: A variable number of sites (Exploratory study; wide confidence intervals expected).
 - **Feature Selection**: GDD is derived at training time, not a raw input.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T17:39:24.090851Z'
-current_stage: planned
+current_stage: tasked
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-264-predicting-plant-phenology-from-satellit
-last_run_id: cb7071ac-76b6-4d12-a402-34f31bd81de2
+last_run_id: 67b8895a-7067-4dbf-8b71-5367afb0af70
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit
 title: Predicting Plant Phenology from Satellite Imagery and Climate Data
-updated_at: '2026-09-01T16:47:53.020262Z'
+updated_at: '2026-09-02T15:46:57.741982Z'

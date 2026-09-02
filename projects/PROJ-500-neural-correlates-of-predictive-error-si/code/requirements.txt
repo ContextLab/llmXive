@@ -1,23 +1,12 @@
-# Core data and scientific computing
-mne>=1.5.0
-pandas>=2.0.0
-numpy>=1.24.0
-scipy>=1.10.0
-
-# Statistical modeling
-statsmodels>=0.14.0
-scikit-learn>=1.3.0
-
-# Data handling and I/O
-pyyaml>=6.0
-requests>=2.31.0
-datasets>=2.14.0
-joblib>=1.3.0
-
-# Development and testing
-pytest>=7.4.0
-pytest-cov>=4.1.0
-
-# Code quality
-ruff>=0.1.0
-black>=23.0.0
+mne
+pandas
+numpy
+statsmodels
+scikit-learn
+pyyaml
+requests
+datasets
+joblib
+pytest
+ruff
+black

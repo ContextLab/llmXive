@@ -21,21 +21,6 @@ T018:
     is truncated and does not demonstrably perform motion correction, MNI152 normalization,
     AAL parcellation, or connectivity matrix computation. The essential output files
     are therefore not guaranteed to be produced.
-T019:
-  c: false
-  h: 15dce452c504bddce5f02982cb9c3d87863e53d009ee6f87ea9dc001718361f3
-  r: "The repository contains a partially shown `code/03_compute_graph_metrics.py`,\
-    \ but the file is truncated and does not demonstrate the required subject\u2011\
-    processing loop, the try/except handling with `sys.exit(1)`, or the CSV writing\
-    \ logic. Moreover, the required output `data/processed/graph_metrics.csv` is absent.\
-    \ Consequently the task\u2019s specifications are not fully satisfied."
-T023:
-  c: false
-  h: 1a5c7c66a56d6aab53b1ab8b87af17b9e8026da1b4ced305773c53af441287ec
-  r: The repository contains a `code/04_train_model.py` file, but it does not show
-    a `train_model(data, decline_threshold=3)` function and the required output artifacts
-    (`data/processed/model.pkl`, `cv_results.json`, `model_params.json`) are absent.
-    The task therefore is not fulfilled.
 T024:
   c: false
   h: 31d53fe7a6ba24cea67ea7fd9f057136d545030d078ab9b4fbdf0fe4b6af7d19
@@ -49,13 +34,6 @@ T029:
   r: "The provided `code/06_permutation_test.py` does not import the training logic\
     \ from `code/04_train_model.py` and the required output file `data/processed/permutation_results.json`\
     \ is missing, so the task\u2019s specifications are not satisfied."
-T041:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No test file containing `test_collinearity_filter` is present, and there is no
-    evidence of a failing unit test that generates a matrix with duplicate columns
-    and asserts the collinearity filter removes one. The required artifact is missing,
-    so the task is not satisfied.
 T042:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,39 +1,26 @@
-T005c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No repository directory, `.git` folder, or `.gitignore` file is present in the
-    provided evidence; thus the required artifact for initializing a Git repository
-    and configuring its ignore rules is missing.
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
-    \ settings, `.ruff.toml`, or a pre\u2011commit hook invoking ruff/black) are present\
-    \ in the provided artifact list, so the requirement to configure ruff and black\
-    \ is not satisfied. The implementer must add the appropriate configuration files\
-    \ and ensure they are non\u2011empty."
-T010:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., configuration files, validation scripts, or documentation)\
-    \ was provided that defines environment variable validation or error\u2011handling\
-    \ infrastructure. Consequently the requirement to set up such infrastructure is\
-    \ not demonstrated."
-T016:
-  c: false
-  h: 5b44add8c1bb59046f2e9d974faf5173ffb72abb798b9f5a36b77221816599f5
-  r: "The repository lacks the required output files (`data/excluded_subjects.csv`\
-    \ and `data/validation_report.json`). Moreover, `src/data/preprocess.py` is truncated\
-    \ (the `write_excluded_subjects_csv` function is incomplete and no code updates\
-    \ the JSON report), so the artifact\u2011rejection and underpowered\u2011subject\
-    \ flagging logic is not fully implemented."
 T020:
   c: false
-  h: f73f75f674e290d92cfea932ae85bd8d9b2fd709e0d78872d14ead69c89f1121
-  r: "The repository contains the integration test file, but the required output `data/interim_lagged_mmns.csv`\
-    \ does not exist, so the test cannot verify the correct schema or lagged\u2011\
-    alignment logic. The missing CSV (and any evidence that the test checks its contents)\
-    \ must be generated for the task to be considered complete."
+  h: 10c4d5147836ffb55e3060eb55568240d1499698fd08ea5ab1e68a60b1088964
+  r: "The repository contains a partially shown `tests/integration/test_alignment.py`,\
+    \ but the test does not demonstrate that it checks for the creation of `data/interim_lagged_mmns.csv`\
+    \ with the required columns or validates the lagged\u2011window logic. Moreover,\
+    \ the expected output file `data/interim_lagged_mmns.csv` is absent from the project.\
+    \ The task\u2019s verification criteria are therefore not met."
+T022:
+  c: false
+  h: 4de8da81d6e190177049327b3df2b81a532c3f4ab3ae7b6f9417cd62a281e7bb
+  r: The provided `src/data/align.py` does not show any implementation for detecting
+    missing behavioral logs or setting an `analysis_mode` field, and the file is truncated
+    before such logic could appear. Moreover, the required output file `data/validation_report.json`
+    is absent. Both the code change and the JSON report are missing, so the task is
+    not satisfied.
+T024:
+  c: false
+  h: 6c66442efc30184130275c50456905450927fd885619f56f7f7c34269f42fbcf
+  r: "The required output file `data/interim_lagged_mmns.csv` does not exist, and\
+    \ the provided `src/data/align.py` snippet shows only placeholder comments about\
+    \ MMN windows without any implementation of the lagged\u2011alignment calculation\
+    \ or CSV writing. The task\u2019s deliverable is therefore not satisfied."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -123,10 +123,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Implement MMN amplitude calculator (Standard) in `src/data/align.py` (mean difference wave –250ms at CP3, CP4, C3, C4) (FR-004)
+- [X] T021 [P] [US2] Implement MMN amplitude calculator (Standard) in `src/data/align.py` (mean difference wave –250ms at CP3, CP4, C3, C4) (FR-004)
 - [ ] T022 [US2] Implement **Pipeline Branching Logic** in `src/data/align.py`: Detect missing behavioral logs; set `analysis_mode` to "Stimulus-Driven" (using P=0.8 probability) or "Error-Signal" in `data/validation_report.json` (FR-011, FR-012)
-- [ ] T023 [US2] Implement behavioral binning logic in `src/data/align.py` (-trial blocks, stationarity check <10% trend) (FR-005) <!-- FAILED: unspecified -->
-- [ ] T024 [US2] Implement **Lagged Alignment** logic in `src/data/align.py`: Calculate MMN over a preceding -trial window (t-50 to t-10) and align to the subsequent multi-trial accuracy block (t to t+n). **Deliverable**: Write intermediate artifact to `data/interim_lagged_mmns.csv` with columns: `subject_id`, `block_id`, `mmn_amplitude`, `source_window_start_trial` (Plan Methodological Correction)
+- [X] T023 [US2] Implement behavioral binning logic in `src/data/align.py` (-trial blocks, stationarity check <10% trend) (FR-005) <!-- FAILED: unspecified -->
+- [ ] T024 [US2] Implement **Lagged Alignment** logic in `src/data/align.py`: Calculate MMN over a preceding -trial window (t-50 to t-10) and align to the subsequent multi-trial accuracy block (t to t+n). **Deliverable**: Write intermediate artifact to `data/interim_lagged_mmns.csv` with columns: `subject_id`, `block_id`, `mmn_amplitude`, `source_window_start_trial` (Plan Methodological Correction) <!-- ATOMIZE: requested -->
 - [ ] T025 [US2] Implement exclusion logic for blocks with <10 valid trials and NaN handling for excessive artifact rejection
 - [ ] T026 [US2] Finalize and Write Aligned Dataset: Merge `data/interim_lagged_mmns.csv` with behavioral blocks and `analysis_mode` flag; generate final `data/aligned_data.csv` (FR-011, FR-012)
 
@@ -147,7 +147,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement Gaussian LME fitting in `src/analysis/model.py` (`MMN_Amplitude ~ Accuracy + Learning_Phase + (1|Subject)`) consuming `data/aligned_data.csv` (Plan Correction, Spec FR-006 Updated)
+- [ ] T029 [US3] Implement Gaussian LME fitting in `src/analysis/model.py` (`MMN_Amplitude ~ Accuracy + Learning_Phase + (1|Subject)`) consuming `data/aligned_data.csv` (Plan Correction, Spec FR-006 Updated) <!-- FAILED: unspecified -->
 - [ ] T030 [US3] Implement multiple-comparison correction using **FDR (Benjamini-Hochberg)** for electrodes in `src/analysis/model.py` (FR-008)
 - [ ] T031 [US3] Implement permutation test (n=1000 shuffles) in `src/analysis/model.py` to validate significance. **Verification**: Include logic to check if n=1000 is sufficient for the dataset size (e.g., by checking p-value stability or variance), or adjust n accordingly (FR-007, SC-002)
 - [ ] T032 [US3] Implement sensitivity analysis in `src/analysis/robustness.py` (sweep time window ±10ms: 140–240ms, 160–260ms) (FR-010)

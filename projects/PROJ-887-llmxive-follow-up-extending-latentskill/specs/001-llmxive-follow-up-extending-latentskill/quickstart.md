@@ -2,87 +2,72 @@
 
 ## Prerequisites
 
-- **Python**: 3.11+
-- **System**: Linux (Ubuntu 22.04 recommended for CI compatibility)
-- **Memory**: 8 GB RAM (minimum 7 GB for GitHub Actions runner)
-- **Disk**: 15 GB free space
+*   Python 3.11+
+*   GB+ RAM (for CPU execution) or access to a free Kaggle GPU.
+*   Git.
 
 ## Installation
 
-1.  **Clone the repository**:
+1.  **Clone and Setup**:
     ```bash
     git clone <repo-url>
     cd projects/PROJ-887-llmxive-follow-up-extending-latentskill
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    pip install -r code/requirements.txt
     ```
 
-2.  **Create Virtual Environment**:
+2.  **Verify Dependencies**:
     ```bash
-    python -m venv .venv
-    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+    python -c "import torch, transformers, sentence_transformers; print('All deps OK')"
     ```
 
-3.  **Install Dependencies**:
+## Data Preparation
+
+1.  **Download Weights**:
+    *   The script `code/ingest/build_index.py` will automatically attempt to download the verified LoRA weights from the Hugging Face dataset repository (e.g., `peft/examples`).
+    *   If the download fails (e.g., no open source), the script will exit with a clear error message.
+    *   **Manual Override**: If you have local weights, place them in `data/raw/weights.npz`.
+
+2.  **Build Index**:
     ```bash
-    pip install -r requirements.txt
+    python code/main.py --step ingest
     ```
-    *Note: `requirements.txt` pins `torch` to CPU-only version to ensure compatibility with the free-tier runner.*
+    *   **Output**: `data/processed/skill_index.npz`.
+    *   **Verification**: Check `state/...yaml` for the checksum.
 
-4.  **Verify Data Availability**:
-    Ensure the "Verified datasets" block contains a valid URL for the LoRA weights. If not, the pipeline will halt.
+## Running the Evaluation
 
-## Running the Pipeline
+1.  **Execute Full Pipeline**:
+    ```bash
+    python code/main.py --step evaluate
+    ```
+    *   This runs the retrieval, synthesis, and evaluation loops.
+    *   **Note**: This step is computationally intensive. On CPU, it may take 2-4 hours (reduced scale: a small number of tasks, 3 runs).
+    *   **GPU Offload**: If the runner detects CUDA, it will automatically switch to GPU mode (if configured).
 
-The entire pipeline can be executed via the CLI:
+2.  **Generate Report**:
+    ```bash
+    python code/main.py --step report
+    ```
+    *   **Output**: `data/results/stats_report.json`.
 
-```bash
-python src/cli.py --run full
-```
+## Validation
 
-This command executes the following stages in order:
-1.  **Ingestion**: Downloads and verifies weights.
-2.  **Flattening**: Creates `skill_index.npy`.
-3.  **Retrieval**: Generates query embeddings and synthesizes adapters.
-4.  **Evaluation**: Runs tasks against the environment (simulated or real).
-5.  **Analysis**: Computes statistics and generates the report.
+1.  **Check Results**:
+    ```bash
+    cat data/results/stats_report.json | python -m json.tool
+    ```
+    *   Verify `linearity_validation.valid` is `true`.
+    *   Verify `comparisons` contain BH-corrected p-values.
 
-### Running Specific Stages
-
-- **Only Ingestion**:
-  ```bash
-  python src/cli.py --run ingestion
-  ```
-- **Only Evaluation** (requires pre-existing index):
-  ```bash
-  python src/cli.py --run evaluation --k 5
-  ```
-- **Statistical Analysis Only**:
-  ```bash
-  python src/cli.py --run analysis
-  ```
-
-## Testing
-
-Run the test suite to verify contract compliance and logic:
-
-```bash
-pytest tests/ -v --cov=src
-```
-
-### Contract Tests
-Ensure output files match the YAML schemas:
-```bash
-pytest tests/contract/test_schemas.py -v
-```
+2.  **Reproducibility Test**:
+    ```bash
+    python code/utils/seeds.py --verify
+    ```
+    *   Ensures all random seeds are pinned.
 
 ## Troubleshooting
 
-- **Memory Error**: If `RuntimeError: Out of memory` occurs, reduce the number of tasks or use `--streaming` flag (if implemented) to process weights in chunks.
-- **Missing Data**: If the pipeline halts with "Data Unavailable", check the "Verified datasets" block in `research.md`. No fallback URLs are permitted.
-- **Statistical Failure**: If Benjamini-Hochberg correction fails due to empty comparisons, verify that `N >= 5` runs were completed per task.
-
-## Expected Outputs
-
-After a successful run, the following files will be generated:
-- `data/processed/skill_index.npy`
-- `data/results/success_log.csv`
-- `data/results/stats_report.json` (Primary artifact for the paper)
+*   **OOM (Out of Memory)**: If the base model fails to load on CPU, reduce the `batch_size` in `config.py` or enable the GPU escape hatch (if available).
+*   **Missing Data**: If `data/raw/weights.npz` is missing, ensure the Hugging Face dataset is accessible. If not, the project cannot proceed (Constitution Principle III).

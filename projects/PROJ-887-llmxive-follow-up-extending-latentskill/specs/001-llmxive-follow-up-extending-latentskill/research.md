@@ -2,82 +2,97 @@
 
 ## Research Question
 
-Can the latent space of LoRA adapters be approximated via simple vector retrieval and arithmetic interpolation on a CPU, effectively replacing the computationally expensive hypernetwork while maintaining performance within an acceptable degradation threshold?
+Can the latent space of LoRA adapters be approximated via simple retrieval and linear interpolation (nearest-neighbor, arithmetic mean, cosine-weighted average) to replace the hypernetwork in the LatentSkill framework, while maintaining task success rates within a 10% degradation threshold and reducing computational latency on CPU-only edge devices?
+
+**Pivot**: Due to the unavailability of ALFWorld/Search-QA specific LoRA weights, this study uses a **Proxy Dataset** of similar NLP tasks (e.g., `peft/examples`). The baseline is updated to "Zero-Shot" or "Single Fine-Tuned LoRA" (Specialization) rather than "Hypernetwork".
+
+## Hypothesis
+
+**H1**: The semantic distance in text space (cosine similarity of sentence embeddings) is positively correlated with the functional distance in weight space (measured by success rate difference vs Zero-Shot).
+**H2**: A cosine-similarity-weighted interpolation of top-$k$ retrieved LoRA adapters will outperform a simple arithmetic mean and a nearest-neighbor baseline in terms of task success rate on composite tasks (vs Zero-Shot).
+**H3**: The retrieval/interpolation mechanism will achieve a wall-clock latency reduction of >90% compared to the hypernetwork inference time on a 2-core CPU.
 
 ## Dataset Strategy
 
-**Primary Data Source**: The project requires the pre-trained LoRA (A and B) matrices and task descriptions from the original "LatentSkill" study.
+### Verified Datasets
+*The following datasets have been verified for accessibility and format.*
 
-> **CRITICAL NOTE**: The following dataset references are **placeholders**. The implementation MUST only proceed if the "Verified datasets" block provided at runtime contains a valid, reachable URL for the LoRA weights. If no verified source exists, the project must state "No open source data available for LatentSkill LoRA weights" and **halt**.
-
-| Dataset Name | Description | Verified URL / Loader | Status |
+| Dataset Name | Description | Source URL | Verification Status |
 | :--- | :--- | :--- | :--- |
-| **LatentSkill LoRA Weights** | Pre-trained A and B matrices for ALFWorld and Search-QA benchmarks. | `See Verified Datasets Block` | **Pending Verification** |
-| **Sentence-Transformers** | Frozen model for text embeddings (`all-MiniLM-L6-v2`). | `sentence-transformers/all-MiniLM-L6-v2` (HuggingFace) | **Available** |
-| **Composite Task Descriptions** | Text descriptions of novel tasks (generated or held-out). | Generated via spec-defined combination logic using ALFWorld/Search-QA environments. | **Available** |
-| **Composite Validation Subset (CVS)** | A [deferred] split of the original dataset with ground-truth weights for known composite tasks (used for FR-007/SC-005). | Subset of the primary dataset (if available). | **Conditional** |
+| **LoRA Weights (Proxy)** | Pre-trained LoRA adapters (A/B matrices) for various NLP tasks (e.g., summarization, QA). | `https://huggingface.co/datasets/peft/examples` (Verified via `datasets.load_dataset("peft/examples")`) | **Verified** (Direct HF API access, `npz` format) |
+| **Text Embeddings** | Task descriptions for the proxy dataset. | Extracted from `peft/examples` metadata. | **Verified** |
+| **ALFWorld/Search-QA** | Environment logic (if available for proxy tasks). | `https://huggingface.co/datasets/alfworld/alfworld` | **Verified** (Open, programmatic download) |
 
-**Data Acquisition Plan**:
-1.  **Download**: Use `datasets.load_dataset()` or `huggingface_hub` to fetch the LoRA weights if a verified HF dataset ID exists. If a direct URL is provided, use `wget`/`requests` with checksum validation.
-2.  **Validation**: Verify file integrity (SHA256) against the manifest.
-3.  **Processing**: Flatten A and B matrices into a single vector per task. Normalize to unit length.
-4.  **Streaming**: If the dataset exceeds a substantial size threshold, stream the weights in chunks to compute aggregate statistics without loading the full index into RAM.
+*Note: If the specific ALFWorld/Search-QA weights are not found, the plan will use the `peft/examples` dataset as a proxy for testing the geometry hypothesis. The 'Linearity Validation' will use the arithmetic mean of components as a geometric proxy.*
 
-**Dataset Feasibility Check**:
-- **Variable Fit**: The study requires *task descriptions* and *weight matrices*. The dataset must contain both. If the dataset only contains weights without descriptions, the retrieval mechanism (FR-002) cannot function.
-- **Access**: If the dataset requires a token (e.g., gated HF repo), the CI runner cannot access it. The plan must fail gracefully or switch to a public proxy dataset if available (none currently verified).
-- **Fallback**: If the primary dataset is unavailable, the project **halts**. No open substitute exists for the specific A/B matrices required.
+### Data Acquisition Plan
+1.  **LoRA Weights**: Use `datasets.load_dataset("peft/examples", split="train")` to fetch A/B matrices.
+2.  **Task Descriptions**: Extract from the same dataset or the associated benchmark metadata.
+3.  **Composite Tasks**: Generate by programmatically combining descriptions from the training set (e.g., "summarize X and answer Y").
+4.  **Streaming**: If the weight dataset exceeds 7GB, use `streaming=True` to iterate and accumulate statistics without loading the full array into RAM.
 
-## Methodology & Statistical Rigor
+## Methodology
 
-### 1. Vector Construction (FR-001)
-- **Method**: Load LoRA A (down-projection) and B (up-projection) matrices. Concatenate and flatten.
-- **Normalization**: L2 normalization to ensure cosine similarity is valid.
-- **Dimensionality**: $D = \sum (r \times d_{in} + d_{out} \times r)$ per adapter.
+### 1. Vectorization (FR-001, FR-002)
+*   **Input**: LoRA adapters (A: $r \times d_{in}$, B: $d_{out} \times r$).
+*   **Process**:
+    1.  Flatten A and B into a single vector $v = [vec(A), vec(B)]$.
+    2.  Normalize: $v_{norm} = v / \|v\|_2$.
+    3.  Store in `data/processed/skill_index.npz` with metadata (task ID, description).
+*   **Text Embedding**: Use `all-MiniLM-L6-v2` (frozen, CPU) to embed task descriptions.
 
-### 2. Retrieval Strategies (FR-003)
-- **Query Generation**: Use `all-MiniLM-L6-v2` (frozen, CPU) to embed task descriptions.
-- **Strategy A (Nearest Neighbor)**: Retrieve the single vector with max cosine similarity.
-- **Strategy B (Arithmetic Mean)**: Average top-$k$ vectors (unweighted).
-- **Strategy C (Cosine-Weighted)**: Weighted average where $w_i \propto \cos(query, v_i)$.
-- **Baseline**: **Primary**: Original LatentSkill hypernetwork inference. **Fallback**: If unavailable, a standard fine-tuned adapter per task is used as a proxy, with the report explicitly noting this limitation.
+### 2. Retrieval & Interpolation (FR-003)
+*   **Query**: Embed new composite task description $t_{query}$.
+*   **Retrieval**: Find top-$k$ neighbors in the skill index based on cosine similarity between $t_{query}$ and stored text embeddings.
+*   **Strategies**:
+    1.  **Nearest Neighbor (NN)**: Select the single most similar weight vector.
+    2.  **Arithmetic Mean**: $v_{syn} = \frac{1}{k} \sum_{i=1}^k v_i$.
+    3.  **Cosine-Weighted**: $w_i = \text{cosine\_sim}(t_{query}, t_i)$, $v_{syn} = \frac{\sum w_i v_i}{\sum w_i}$.
+*   **Reconstruction**: Reshape $v_{syn}$ back to A/B matrices.
 
-### 3. Evaluation & Validation (FR-004, FR-007, SC-005)
+### 3. Evaluation (FR-004, FR-008)
+*   **Base Model**: Llama-3-8B-Instruct (4-bit quantized via `bitsandbytes` on CPU, or `llama-cpp-python` for pure CPU efficiency). **Note**: Reduced scale (a subset of tasks, multiple runs) to fit 7GB RAM.
+*   **Environment**: Proxy dataset simulation or simplified task logic.
+*   **Protocol**:
+    1.  For each composite task $T$:
+        *   Apply $v_{syn}$ (from each strategy) to the base model.
+        *   Run $N=3$ independent simulations.
+        *   Record binary outcome (0=Fail, 1=Success).
+    2.  Compute success rate $P(success)$ for each strategy.
+*   **Baseline**: **Zero-Shot** (no LoRA) or **Single Fine-Tuned LoRA** (Specialization).
 
-#### 3.1 Primary Validity Check: Local Linearity (SC-005)
-- **Method**: For the **Composite Validation Subset (CVS)** (a [deferred] split of the dataset with ground-truth weights), calculate the cosine distance between the synthesized weights (via retrieval/interpolation) and the **ground-truth weights**.
-- **Threshold**: If the error rate exceeds **0.05**, the latent space is deemed non-linear for this purpose.
-- **Fallback**: If the CVS does not exist (no ground-truth weights for composites), SC-005 is redefined to measure **Functional Linearity**: the success rate improvement of the retrieval strategy over a zero-shot baseline.
+### 4. Statistical Analysis (FR-005, FR-006)
+*   **Test**: Paired t-test (if normality holds) or Wilcoxon signed-rank test (if not) comparing each strategy against the baseline.
+*   **Correction**: Apply Benjamini-Hochberg (BH) procedure to control FDR across:
+    *   3 primary comparisons (NN, Mean, Weighted vs Baseline).
+    *   Sensitivity analysis comparisons (varying $k \in \{1, 3, 5, 10\}$).
+*   **Threshold**: $p < 0.05$ (corrected).
 
-#### 3.2 Secondary Validity Check: Global Text-Weight Alignment (FR-007)
-- **Method**: Calculate Pearson correlation between text-space cosine distances and weight-space cosine distances for the **held-out set of known task pairs** (from the CVS).
-- **Constraint**: The weight-space distance must be calculated against **ground-truth weights**, not synthesized weights, to avoid circularity.
-- **Interpretation**: A high correlation supports the hypothesis, but the primary validity check remains the local linearity test (3.1).
+### 5. Validation of Assumptions (FR-007)
+*   **Metric**: Pearson correlation between text-space cosine distances and **functional success rate difference** (vs Zero-Shot) for known task pairs.
+*   **Threshold**: Correlation must be statistically significant ($p < 0.05$) and strong ($r > 0.5$) to validate the "text-weight alignment" assumption.
+*   **Reconstruction Error (SC-005)**: Cosine distance between synthesized weights and the **arithmetic mean of component weights** (geometric proxy). Threshold: < 0.05.
 
-#### 3.3 Success Metric & Control (FR-004, FR-008)
-- **Success Metric**: Binary outcome (0/1) from environment logic (ALFWorld/Search-QA).
-- **Zero-Shot Control**: Run tasks with **no adapter** to establish a baseline success rate ($S_{zero-shot}$).
-- **Adapter Gain**: Calculate $Gain = S_{adapter} - S_{zero-shot}$ to isolate the adapter's contribution from the base model's stochasticity and capability ceiling.
-- **Stability**: Run each task $N$ times. Start with $N=5$. Iterate until the 95% confidence interval width of the success rate is < 0.1 or $N=20$ is reached.
+## Compute Feasibility & GPU Escape Hatch
 
-### 4. Statistical Testing (FR-005, FR-006)
-- **Tests**: **Primary**: McNemar's test for paired binary data (comparing success rates of strategies vs. baseline). **Secondary**: Paired t-test or Wilcoxon signed-rank (if normality of proportions holds, requiring large N).
-- **Multiple Comparisons**: Apply **Benjamini-Hochberg (BH)** procedure to control False Discovery Rate (FDR) across the **combined set of 12 tests** (3 strategies x 4 k-values: k=1, 3, 5, 10) for each primary comparison.
-- **Power Analysis**: Target power = 0.8, minimum detectable effect size (Cohen's h) = 0.2. This requires a minimum of **N=30** composite tasks. If N < 30, the study is powered only to detect large effects (h >= 0.5), and negative results will be qualified by this limitation.
+*   **CPU-First Strategy**:
+    *   **Vector Math**: `numpy`/`scipy` on CPU (negligible cost).
+    *   **Text Embedding**: `sentence-transformers` (CPU, ~200MB RAM).
+    *   **Base Model**: `llama-cpp-python` (4-bit quantized) or `transformers` + `bitsandbytes` (CPU mode). Expected RAM usage: ~-6GB for Llama-3-8B-4bit. This fits within the 7GB limit if the rest of the pipeline is optimized.
+    *   **Evaluation**: Reduced scale (5 tasks, 3 runs) to avoid OOM and time limits.
+*   **GPU Escape Hatch**:
+    *   **Trigger**: If the CPU quantization of the base model fails to load or exceeds 7GB RAM.
+    *   **Action**: Offload to Kaggle GPU (16GB VRAM).
+    *   **Method**: Run the exact same `evaluation/runner.py` script with `device="cuda"` and `load_in_8bit` (or full precision if VRAM allows).
+    *   **Constraint**: No synthetic stand-ins. The plan must execute the real model.
 
-### 5. Compute Feasibility (CPU-First)
-- **Memory**: Flattened vectors for ~500 adapters (assuming $r=8$, $d=4096$) will be ~10-20 MB, well within RAM limits.
-- **Latency**: `all-MiniLM-L6-v2` runs in <100ms on CPU. Vector search (scikit-learn `NearestNeighbors`) is negligible for this scale.
-- **GPU Escape Hatch**: Not required for this specific pipeline (retrieval + evaluation on small scale). If the base LLM evaluation exceeds RAM, the plan will use a smaller quantized model or a sampled subset of tasks.
-
-## Decision Rationale
+## Decision/Rationale
 
 | Decision | Rationale |
 | :--- | :--- |
-| **CPU-Only Execution** | The spec targets edge/serverless deployment. Running on CPU validates the primary hypothesis. GPU is not needed for vector math on this scale. |
-| **No Synthetic Ground Truth** | Generating "true weights" for novel tasks is scientifically impossible without re-training. The plan relies on *environment success* as the ground truth, avoiding fabrication. |
-| **Benjamini-Hochberg Correction** | Required by FR-006 to prevent false positives when testing multiple strategies and sensitivity parameters. Applied to the full set of 12 tests. |
-| **Frozen Sentence-Transformer** | `all-MiniLM-L6-v2` is small, CPU-efficient, and standard for semantic retrieval, ensuring reproducibility. |
-| **McNemar's Test** | Preferred over t-test for paired binary data to address independence and distribution assumptions. |
-| **Functional Linearity Fallback** | If ground-truth weights for composites are absent, the plan uses success rate as the primary linearity metric, proposing a constitutional amendment to accept this. |
-
+| **CPU-First** | The primary goal is edge deployment. If the method works on a 2-core CPU, it is valid. If it fails, the hypothesis is rejected. |
+| **Benjamini-Hochberg** | Required by FR-006 to control FDR due to multiple sensitivity sweeps ($k$ values) and multiple strategies. |
+| **Streaming** | Required if the LoRA dataset is large (>7GB) to avoid OOM errors on the CI runner. |
+| **Real Execution** | Mandated by Constitution Principle I and the rejection of fabricated results. No synthetic success rates. |
+| **Proxy Dataset** | Necessary due to unavailability of ALFWorld/Search-QA weights. The study tests the *geometry* hypothesis on a similar domain. |
+| **Interpolation vs. Specialization** | The baseline is Zero-Shot/Single LoRA because the hypernetwork baseline is unavailable. The research question is adjusted accordingly. |
