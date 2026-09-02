@@ -46,12 +46,12 @@
         "page": 64
       }
     ],
-    "audited_at": "2026-09-02T18:27:44.661400+00:00"
+    "audited_at": "2026-09-02T18:57:41.637090+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-670-arcane-do-role-playing-language-agents-s",
-  "updated_at": "2026-09-02T18:27:44.661417+00:00"
+  "updated_at": "2026-09-02T18:57:41.637105+00:00"
 }
