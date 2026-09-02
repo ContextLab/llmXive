@@ -1,66 +1,57 @@
 # Data Model: Investigating the Predictive Power of Machine Learning for Identifying Novel Phase-Change Materials
 
-## Overview
-
-This document defines the data structures, schemas, and relationships used in the project. It ensures that all data artifacts are consistent, reproducible, and traceable.
-
-## Entity Definitions
+## 1. Entity Definitions
 
 ### MaterialCompound
-- **Description**: Represents a chemical compound with attributes for elemental composition, crystal structure, melting point, and latent heat (if available).
-- **Attributes**:
-  - `material_id`: Unique identifier (string).
-  - `formula`: Chemical formula (string).
-  - `melting_point`: Melting point in Kelvin (float).
-  - `latent_heat`: Latent heat of fusion in J/g (float, may be null).
-  - `elements`: List of elemental symbols (list of strings).
-  - `crystal_structure`: Crystal system (string).
+Represents a single chemical compound in the dataset.
+- `material_id`: Unique string identifier (e.g., "mp-12345").
+- `formula`: Chemical formula string (e.g., "H2O").
+- `melting_point`: Float (K). Target variable.
+- `latent_heat`: Float (J/g) or Null. Target variable (if available).
+- `space_group`: String (e.g., "Fm-3m").
+- `crystal_system`: String (e.g., "cubic").
+- `elemental_descriptors`: Dict of computed properties (electronegativity, radius, etc.).
+- `graph_features`: Sparse matrix or list of edge/adjacency data.
+- `source`: String ("Materials Project", "NIST", "Literature").
 
 ### DescriptorSet
-- **Description**: A collection of computed features including elemental properties and structural representations.
-- **Attributes**:
-  - `material_id`: Reference to MaterialCompound (string).
-  - `elemental_descriptors`: Dictionary of computed elemental features (dict).
-  - `graph_descriptors`: Dictionary of computed graph features (dict).
-  - `collinearity_flags`: List of flags for definitionally dependent features (list of strings).
+A snapshot of computed features for a compound.
+- `compound_id`: FK to MaterialCompound.
+- `avg_electronegativity`: Float.
+- `avg_atomic_radius`: Float.
+- `bond_density`: Float. (Defined as (number of bonds) / (unit cell volume)).
+- `symmetry_score`: Float.
+- `collinearity_flag`: Boolean (True if VIF > 5).
 
 ### ModelResult
-- **Description**: Contains the trained model parameters, performance metrics, and derived rules or feature rankings.
-- **Attributes**:
-  - `model_type`: Type of model (string).
-  - `metrics`: Dictionary of performance metrics (dict).
-  - `feature_importance`: Ranked list of feature importances (list of dicts).
-  - `symbolic_formula`: Explicit mathematical formula (string, if applicable).
-  - `validation_results`: Results from external validation (dict).
+Output of a training run.
+- `model_id`: UUID.
+- `model_type`: String ("Random Forest", "PySR", "Gradient Boosting").
+- `r2_score`: Float.
+- `mae`: Float.
+- `feature_importance`: Dict (feature_name -> score).
+- `symbolic_formula`: String (if PySR) or Null.
+- `training_timestamp`: ISO 8601.
 
-## Data Flow
+### ValidationResult
+Output of external validation.
+- `validation_id`: UUID.
+- `dataset_source`: String ("Literature PCMs").
+- `rank_accuracy`: Float (0.0 - 1.0).
+- `false_positive_rate`: Float.
+- `rules_applied`: List of strings (derived formulas).
 
-1. **Raw Data**: Downloaded from `matbench` (or MP via API) and stored in `data/raw`.
-2. **Processed Data**: Feature-engineered data stored in `data/processed`.
-3. **Results**: Model outputs and metrics stored in `data/results`.
-4. **External Validation**: Literature PCMs stored in `data/external`.
+## 2. Data Flow
 
-## Schema Contracts
+1. **Ingestion**: `fetch_materials.py` -> `data/raw/mp_raw.jsonl`, `data/raw/nist_raw.jsonl`.
+2. **Preprocessing**: `compute_descriptors.py` -> `data/processed/features.parquet`.
+3. **Training**: `train_baselines.py`, `train_symbolic.py` -> `data/results/models/`.
+4. **Validation**: `validate_external.py` -> `data/results/validation_report.json`.
+5. **Reporting**: `generate_report.py` -> `docs/research_report.md`.
 
-### Dataset Schema
-- **File**: `contracts/dataset.schema.yaml`
-- **Description**: Validates the structure of the processed dataset.
+## 3. Constraints & Assumptions
 
-### Model Output Schema
-- **File**: `contracts/model_output.schema.yaml`
-- **Description**: Validates the structure of model outputs and metrics.
-
-### Validation Result Schema
-- **File**: `contracts/validation_result.schema.yaml`
-- **Description**: Validates the structure of validation results.
-
-## Data Hygiene
-
-- **Checksums**: All raw data files are checksummed and recorded in `state/`.
-- **Immutability**: Raw data is never modified; derivations are written to new files.
-- **Traceability**: Every result traces back to a specific row in `data/` and a block in `code/`.
-
-## Versioning
-
-- **Dataset Version**: Content hash of the processed dataset.
-- **Model Version**: Content hash of the trained model and its parameters.
+- **Memory**: All feature matrices must fit in 7 GB RAM. Streaming is used for large datasets.
+- **Null Handling**: Missing `latent_heat` is imputed only if NIST overlap > 500; otherwise, dropped or flagged.
+- **Collinearity**: If VIF > 5 between descriptors, one is excluded from symbolic regression to prevent spurious coefficients. Selection is based on physical interpretability.
+- **Reproducibility**: All random seeds are fixed (e.g., `seed=42`).

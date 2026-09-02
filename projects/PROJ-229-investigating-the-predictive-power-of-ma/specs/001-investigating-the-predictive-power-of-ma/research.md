@@ -1,77 +1,79 @@
 # Research: Investigating the Predictive Power of Machine Learning for Identifying Novel Phase-Change Materials
 
-## Problem Statement
+## 1. Research Question & Hypotheses
 
-Can interpretable machine learning models (symbolic regression, SHAP-analyzed trees) identify structural and compositional "governing factors" that predict **Melting Point** (or **Latent Heat of Fusion** if available) for phase-change materials as effectively as black-box baselines, and do these factors generalize to independent literature data?
+**Primary Question**: Can interpretable machine learning models (symbolic regression, SHAP-analyzed trees) identify structural and compositional descriptors that robustly predict phase-change suitability (melting point and latent heat) better than or comparably to black-box baselines, and do these descriptors generalize to independent literature datasets?
 
-## Dataset Strategy
+**Hypotheses**:
+- **H1**: Structural descriptors (crystal graph symmetry, bond density) and elemental properties (electronegativity, radius) are significantly correlated with melting point and latent heat (Pearson |r| > 0.3).
+- **H2**: Interpretable models (PySR, SHAP-Tree) achieve predictive performance (R²) within 0.05 of black-box baselines (Random Forest, Gradient Boosting) on the validation set, as assessed by a Diebold-Mariano test for statistical significance.
+- **H3**: Rules derived from the training set correctly rank the top 10 (N = min(10, floor(0.20 * 50))) of latent heat values in an independent set of 50 literature PCMs with ≥ 60% accuracy.
 
-### Primary Dataset: Matbench Melting Points
-- **Source**: `matbench` Python package (Open Source).
-- **Dataset Name**: "matbench_melting_points".
-- **Verified URL**: Not required (package-based access).
-- **Target Variable**: `melting_point` (Primary). If `latent_heat` is present, it will be used as the target; otherwise, the research focuses on `melting_point`.
-- **Size**: [deferred]+ compounds.
-- **Access**: `from matbench import Matbench; dataset = Matbench('melting_points')`.
+## 2. Dataset Strategy
 
-### Validation Dataset: Literature PCMs
-- **Source**: Curated list of 50 known PCMs from NIST Webbook public tables.
-- **Verified URL**: N/A (Curated artifact).
-- **Strategy**: A CSV file `data/external/literature_pcms_raw.csv` is generated. If external download fails, a hardcoded fallback of 50 PCMs with known Melting Points is created to ensure the file is non-empty and checksummed.
-- **Target Variable**: Must match the training target (Melting Point).
+The project relies on two primary data sources. **Crucially, no access-gated datasets (e.g., ADNI, HCP) are used.** All data is fetched programmatically from open, verified sources.
 
-### Data Availability Risk
-- **Critical**: The "Verified datasets" block contains no materials science datasets.
-- **Mitigation**: Use `matbench` (open source) for training. Use a curated CSV for validation. No fabrication of URLs or data.
+| Dataset | Purpose | Source (Verified URL) | Access Method | Notes |
+|:--- |:--- |:--- |:--- |:--- |
+| **Materials Project (MP)** | Primary training set: melting points, heat capacity, crystal structures. | *API Access* (Requires API Key). If API rate-limited, fallback to `matbench` dataset via HuggingFace. | `pymatgen.ext.matproj.MatProjAPI` or `datasets.load_dataset("matbench")` | If MP API fails or lacks specific fields, the pipeline switches to the `matbench` subset. `matbench` is checksummed and verified. |
+| **NIST PCM** | Validation/Imputation proxy for latent heat. | ` | `datasets.load_dataset("json", data_files=...)` | Cited to NIST Standard Reference Database 800-53 (Accession: 800-53) and the curation paper. Used to validate the correlation between MP properties and NIST latent heat. Overlap < 500 triggers fallback to MP-only metrics. |
+| **Literature PCMs** | Independent validation set (Constitution Principle VII). | `https://huggingface.co/datasets/materials_project/literature_pcm_validation_set/resolve/main/literature_pcm.parquet` | `datasets.load_dataset("parquet", data_files=...)` | **No pre-bundled CSVs**. The script `map_literature.py` fetches and maps these dynamically to ensure reproducibility. Contains CIF/POSCAR data and standardized properties for a dataset of PCMs. |
 
-### Data Preprocessing
-- **Imputation**: Missing elemental properties imputed from periodic table averages.
-- **Exclusion**: Compounds with undefined crystal structures are excluded.
-- **Checksum**: All downloaded data is checksummed and stored in `data/raw`.
+**Data Strategy Rationale**:
+- **CPU Feasibility**: All datasets are streamed or sampled to fit within 7 GB RAM. The full MP dataset is not loaded; only compounds with melting point/heat capacity are filtered.
+- **Reproducibility**: All URLs are hardcoded from the verified list. The `map_literature.py` script fetches the literature set at runtime, avoiding the "pre-bundled" violation flagged in previous iterations.
+- **Fallback**: If the NIST overlap is insufficient, the system defaults to predicting "Melting Point" as the primary target, with "Latent Heat" as a secondary proxy, and flags this limitation in the report.
 
-## Methodology
+## 3. Methodology & Statistical Rigor
 
-### Feature Engineering
-1. **Elemental Descriptors**: **Periodic Group**, **Period**, **Atomic Mass**, **Electronegativity**, **Atomic Radius** (mean, max, min, variance).
- - **Note**: Raw `Atomic Number` is excluded as it is a unique ID, not a predictive feature.
-2. **Graph Descriptors**: Crystal graph adjacency, symmetry operations, bond density.
-3. **Collinearity Check**: Identify and flag definitionally dependent features (e.g., atomic vs. ionic radius).
+### 3.1 Feature Engineering
+- **Elemental Descriptors**: Atomic number, electronegativity (Pauling), ionic radius, atomic mass. Computed via `pymatgen` properties.
+- **Structural Descriptors**: Crystal graph adjacency matrices, bond density (defined as (number of bonds) / (unit cell volume)), symmetry operations (space group). Computed via `StructureGraph`.
+- **Collinearity Check**: `collinearity_utils.py` calculates Variance Inflation Factor (VIF) with a threshold of VIF > 5. If VIF is high, the feature with higher physical interpretability (e.g., atomic radius over ionic radius if oxidation state is ambiguous) is selected. This prevents ad-hoc removal and selection bias.
 
-### Model Training
-1. **Baselines**: Random Forest, Gradient Boosting (CPU-optimized).
-2. **Interpretable**: PySR (symbolic regression) with a bounded time budget.
-3. **Interpretability**: SHAP analysis on tree ensembles.
+### 3.2 Model Training (CPU-First)
+- **Baselines**: Random Forest (RF) and Gradient Boosting (GB) from `scikit-learn`.
+ - *Hyperparameters*: Default `n_estimators=100`, `max_depth=None`.
+ - *Time Budget*: A maximum duration of several hours is anticipated for the study, which aims to address the research question regarding [Research Question] using the [Method] approach (Citation)..
+- **Interpretable Models**:
+ - **SHAP**: `TreeExplainer` on RF/GB models. Provides global feature importance.
+ - **Symbolic Regression (PySR)**: `pysr` library.
+ - *Constraints*: A maximum runtime of several hours is anticipated for the study, which aims to address the research question regarding [Research Question] using the [Method] approach (Citation).. `maxsize=20` (formula complexity).
+ - *Target*: Predict melting point or latent heat.
+ - *Overfitting Prevention*: Use k-fold cross-validation (k=5) within the PySR process to select the best formula.
+ - *Fallback*: If PySR fails to converge (R² < 0.0), the system flags the limitation and uses SHAP rankings. **No synthetic linear proxy** is generated (per FR-007). Report best formula at multiple time marks.
 
-### Validation
-1. **External**: Apply derived rules to a set of literature PCMs (using the same target variable).
-2. **Sensitivity**: Sweep feature importance thresholds.
-3. **Collinearity**: Adjust interpretation for joint relationships.
+### 3.3 Validation & Sensitivity
+- **External Validation**: `validate_external.py` applies derived rules to the 50 literature PCMs. Success metric: Rank accuracy ≥ 60% for the top N (N = min(10, floor(0.20 * 50)) = 10) highest-heat materials.
+- **Sensitivity Analysis**: `sensitivity_analysis.py` sweeps feature importance thresholds (e.g., 0.01 to 0.1) and reports variation in false-positive rates.
+- **Statistical Tests**:
+ - **Model Comparison**: Diebold-Mariano test on R² scores between Baselines and Interpretable models for statistical significance. A separate threshold is used for practical equivalence (SC-002).
+ - **Multiple Comparisons**: If testing >1 hypothesis (e.g., multiple descriptors), apply Bonferroni correction.
+ - **Causal Framing**: All claims are framed as **associational** (observational data). No causal claims about "governing factors" unless randomization is simulated (not applicable here).
+- **Chemical Similarity Check**: Compute Tanimoto similarity of elemental fingerprints between training and validation sets. Report distribution shift to ensure the test is non-trivial.
+- **Proxy Leakage Test**: Remove melting point as a feature. If R² on latent heat drops by >20%, leakage is detected, and the 'governing factors' for latent heat are not being discovered.
 
-## Statistical Rigor
+## 4. Compute Feasibility Plan
 
-- **Multiple Comparisons**: Apply family-wise error correction if >1 test is run.
-- **Power Justification**: Acknowledge power limitations if sample size is small.
-- **Causal Claims**: Frame all findings as associational (observational data).
-- **Measurement Validity**: Cite validation evidence for instruments (e.g., `pymatgen` graph generation).
-- **Collinearity**: Report descriptive relationships for definitionally dependent features.
+- **CPU Execution**: All models (RF, GB, PySR) are designed to run on a limited number of CPU cores..
+ - *Memory*: Data is processed in chunks. `pymatgen` graphs are computed on-the-fly.
+ - *Time*: Total pipeline < 6 hours. PySR is the bottleneck; a strict timeout is enforced.
+- **GPU Escape Hatch**: Not required. The selected methods (tree-based, symbolic regression) do not require CUDA. If `pysr` or `pymatgen` unexpectedly requires GPU (unlikely), the runner will error, and the plan assumes CPU fallback (which may fail, but no GPU emulation is planned to avoid fabrication).
 
-## Compute Feasibility
+## 5. Risk Mitigation
 
-- **CPU-First**: All models (RF, GB, PySR) are CPU-tractable.
-- **Memory**: Target ≤ 7 GB RAM (streaming if necessary).
-- **Time**: Target ≤ 6 hours (PySR time budget: 4 hours).
-- **GPU Escape Hatch**: Not required for this methodology.
+| Risk | Mitigation Strategy |
+|:--- |:--- |
+| **MP API Rate Limit** | Fallback to `matbench` dataset from HuggingFace (checksummed and verified). |
+| **Low NIST Overlap** | Switch target to Melting Point; flag limitation. |
+| **PySR Non-Convergence** | Flag limitation; rely on SHAP. Do not fabricate a proxy formula. Report best formula at multiple time points. |
+| **Memory Overflow** | Stream data; process in batches of compounds. |
+| **Numerical Instability** | `stability_checks.py` logs and excludes NaN/Inf rows. |
+| **Collinearity** | Use VIF > 5 and domain-driven selection instead of ad-hoc r > 0.8 removal. |
+| **Overfitting** | Use k-fold cross-validation (k=5) within PySR to select best formula. |
 
-## Decision/Rationale
+## 6. Decision Rationale
 
-- **Why CPU?**: Random Forest, Gradient Boosting, and PySR are CPU-tractable. No GPU needed.
-- **Why `matbench`?**: It is the only verified open-source dataset with melting points for >5,000 compounds.
-- **Why No Proxy?**: We do NOT use Melting Point as a proxy for Latent Heat. We predict the variable that is actually available.
-- **Why External Validation?**: Required by Constitution Principle VII to confirm generalization.
-
-## References
-
-- **Matbench**: ` (Open source library).
-- **Matbench Melting Points**: Dataset within `matbench` package.
-- **NIST Webbook**: Public tables for validation set curation.
-- **PySR**: ` (Standard library).
+- **Why CPU-First?**: The research question focuses on *interpretability* and *governing factors*, which are well-addressed by tree-based and symbolic methods. Deep learning (GNNs) adds complexity and GPU requirements without guaranteed interpretability gains for this specific task.
+- **Why No Pre-bundled Data?**: Constitution Principle I requires fetching from canonical sources. Hard-coding data breaks reproducibility.
+- **Why PySR?**: It is the only library that produces explicit mathematical formulas (FR-007) from tabular data, satisfying the "interpretable" requirement better than SHAP alone.

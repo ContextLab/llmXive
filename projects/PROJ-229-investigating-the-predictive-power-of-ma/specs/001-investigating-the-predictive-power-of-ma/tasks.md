@@ -44,9 +44,9 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001a [P] Create data directories: `data/raw`, `data/processed`, `data/results`, `data/external`.
-- [ ] T001b [P] Create code directories: `code/data`, `code/models`, `code/utils`.
+- [ ] T001b [P] Create code directories: `code/data`, `code/models`, `code/utils`, `code/validate`.
 - [ ] T001c [P] Create test directories: `tests/unit`, `tests/integration`, `tests/contract`.
-- [X] T002 Initialize Python project with `pymatgen`, `scikit-learn`, `pysr`, `shap`, `pandas`, `numpy`, `matplotlib`, `requests`, `pyyaml` dependencies. **Deliverable**: Create `requirements.txt` pinning all versions.
+- [X] T002 Initialize Python project with `pymatgen`, `scikit-learn`, `pysr`, `shap`, `pandas`, `numpy`, `matplotlib`, `requests`, `pyyaml`, `mp-api`, `datasets` dependencies. **Deliverable**: Create `requirements.txt` pinning all versions.
 - [ ] T003a [P] Configure linting in `pyproject.toml`: Add `[tool.black]` and `[tool.isort]` sections with standard project settings. **Deliverable**: `pyproject.toml` with valid configuration blocks.
 - [ ] T003b [P] Configure formatting in `.flake8`: Create file with max-line-length=88 and ignore settings for flake8. **Deliverable**: `.flake8` file with valid configuration.
 
@@ -58,17 +58,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Setup `config.yaml` for API keys, random seeds, time/memory constraints, and `top_n` (with a note: "Research Decision Required: This value must be finalized in the research phase before final validation").
+- [X] T004 Setup `config.yaml` for API keys, random seeds, time/memory constraints, and `top_n` (with a note: "Research Decision Required: This value must be finalized in the research phase before final validation. Default: null").
 - [ ] T005 [P] Implement basic logging infrastructure and error handling in `code/utils/`
-- [ ] T005a [US1] Implement `code/data/fetch_matbench.py`: Fetch the **Matbench Melting Points** dataset using the `matbench` Python package. **Constraint**: No fallback to synthetic data; if `matbench` fails to load, the script must raise a `FileNotFoundError` with a clear message. Save raw data to `data/raw/matbench_melting_points.json`. **Must run after T002**.
-- [ ] T005b [US1] Implement `code/data/target_consistency_check.py`: A script to load the data from `data/raw/matbench_melting_points.json`, calculate the Pearson correlation between `melting_point` and `latent_heat` (if available in the dataset), and write the decision (`target: latent_heat` or `target: melting_point`) and coefficient to `data/results/target_decision.json`. **Must run after T005a**.
-- [X] T006a [US1] Execute `code/data/target_consistency_check.py` to perform the Phase 0 Target Consistency Check. **Must run after T005b, T004, and T005. Verify that target_decision.json is successfully written and non-empty.** **Constraint**: If the script fails to write the artifact, the phase must be marked as failed; do not proceed.
-- [ ] T006b [US1] Define the JSON schema for `target_decision.json` in `contracts/target_decision.schema.yaml`. Keys: `target` (string), `coefficient` (float), `decision_rationale` (string), `target_override` (boolean, optional). **Must run before T006a**.
-- [ ] T006c [US1] Define the JSON schema for `fallback_decision.json` in `contracts/fallback_decision.schema.yaml`. Keys: `status` (string, enum: ["fallback_triggered"]), `reason` (string), `triggered_by` (string, task ID). **Must run before T013a**.
-- [ ] T007 [US1] Create `contracts/dataset.schema.yaml` in YAML format. Must define a *superset* schema including both `latent_heat` and `melting_point` columns to accommodate dynamic target selection. **Must run after T006b**.
-- [X] T007a [US1] Implement runtime validation logic in `code/utils/schema_validator.py`: A script that loads `data/results/target_decision.json` to determine the active target field name and validates the processed dataset against the static `dataset.schema.yaml`. **Logic**: The validator must explicitly check for the *presence* of the active target column and the *absence* (or null status) of the inactive one, enforcing the dynamic target constraint at runtime. **Must run after T007**.
-- [X] T008 Implement `code/utils/stability_checks.py` for NaN/Inf validation and memory monitoring
-- [X] T009 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py`. **Must run after T007**.
+- [X] T008 Implement `code/utils/stability_checks.py` for NaN/Inf validation and memory monitoring. **Constraint**: This file is dedicated ONLY to numerical stability (NaN/Inf checks per Constitution Principle VI) and memory monitoring. It must NOT contain sensitivity analysis logic.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -82,15 +74,25 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/data/compute_descriptors.py` to: (1) Generate elemental descriptors (atomic number, electronegativity, radius), (2) Generate crystal graph representations using `pymatgen`'s `StructureGraph`, (3) Handle missing structures, NaN/Inf values, and memory constraints. **Must run after T005a**.
-- [ ] T013 [US1] Implement `code/data/fetch_literature_pcm.py`: Fetch literature PCM data from a **verified public source** (e.g., NIST Webbook or a specific GitHub repository of curated PCMs). **Constraint**: No pre-bundled files or synthetic fallbacks. If the fetch fails, the script must raise a `FileNotFoundError` with a clear message indicating the missing canonical source. **If the fetch fails, generate a hardcoded fallback CSV at runtime with a set of 50 known PCMs and their Melting Points (from NIST Webbook public tables) to ensure the file is non-empty and checksummed.** Save raw data to `data/external/literature_pcms_raw.csv`. **Must run after T004**.
-- [ ] T013a [US1] Implement `code/data/map_literature_pcm.py`: Map literature PCMs to Materials Project IDs using `pymatgen`. **Must run after T013**.
+- [ ] T005a [US1] Implement `code/data/fetch_materials.py`: Fetch the **Materials Project** dataset using the `mp-api` library. **Constraint**: If `mp-api` fails (e.g., rate limit, auth error), attempt to fetch the verified `matbench` dataset. **CRITICAL**: If falling back to `matbench`, the script MUST verify that the dataset contains `material_id` or equivalent MP IDs required for downstream mapping (T013a). If MP IDs are missing in the fallback, raise a `FileNotFoundError` with a clear message indicating the incompatibility. **Do NOT** use synthetic data. Save raw data to `data/raw/materials_project_data.json`. **Must run after T002**.
+- [ ] T005b [US1] Implement `code/data/fetch_nist_data.py`: Fetch **NIST** latent heat data using `datasets.load_dataset('matbench/nist_melting_points')` (verified proxy) or the specific accession if available. **Constraint**: If the fetch fails or the dataset is empty, raise an error. Do NOT fall back to synthetic data. Save raw data to `data/raw/nist_data.json`. **Must run after T002**.
+- [ ] T005c [US1] Implement `code/data/target_consistency_check.py`: A script to load `data/raw/materials_project_data.json` and `data/raw/nist_data.json`, calculate the Pearson correlation between `melting_point` and `latent_heat`, and write the decision (`target: latent_heat` or `target: melting_point`) and coefficient to `data/results/target_decision.json`. **Constraint**: The script MUST output a `data/results/data_manifest.json` file listing the exact column names and types used in the decision process. **Must run after T005a and T005b**.
+- [ ] T006d [US1] Implement `code/utils/generate_manifest.py`: A script that reads `data/raw/materials_project_data.json` and `data/raw/nist_data.json` to generate `data/results/data_manifest.json`. This manifest MUST include column names, types, and sample counts for all datasets. **Purpose**: This task provides the automated mechanism to update schemas (T006b, T006c) to match real data structures, eliminating manual schema updates. **Must run after T005a and T005b**.
+- [ ] T006b [US1] Define the JSON schema for `target_decision.json` in `contracts/target_decision.schema.yaml`. Keys: `target` (string), `coefficient` (float), `decision_rationale` (string), `target_override` (boolean, optional). **Dependency**: This task MUST wait for T006d to generate the initial schema based on actual data. **Must run after T006d**.
+- [ ] T006c [US1] Define the JSON schema for `fallback_decision.json` in `contracts/fallback_decision.schema.yaml`. Keys: `status` (string, enum: ["fallback_triggered"]), `reason` (string), `triggered_by` (string, task ID). **Dependency**: This task MUST wait for T006d to generate the initial schema. **Must run after T006d**.
+- [ ] T007 [US1] Create `contracts/dataset.schema.yaml` in YAML format. Must define a *superset* schema including both `latent_heat` and `melting_point` columns to accommodate dynamic target selection. **Dependency**: This task MUST wait for T006d to generate the initial schema. **Must run after T006d**.
+- [X] T007a [US1] Implement runtime validation logic in `code/utils/schema_validator.py`: A script that loads `data/results/target_decision.json` to determine the active target field name and validates the processed dataset against the static `dataset.schema.yaml`. **Logic**: The validator must explicitly check for the *presence* of the active target column and the *absence* (or null status) of the inactive one, enforcing the dynamic target constraint at runtime. **Must run after T007**.
+- [X] T006a [US1] Execute `code/data/target_consistency_check.py` to perform the Phase 0 Target Consistency Check. **Must run after T005b, T004, and T005. Verify that target_decision.json is successfully written and non-empty.** **Constraint**: If the script fails to write the artifact, the phase must be marked as failed; do not proceed.
+- [ ] T012 [US1] Implement `code/data/compute_descriptors.py` to: (1) Generate elemental descriptors (atomic number, electronegativity, radius), (2) Generate crystal graph representations using `pymatgen.analysis.graphs.StructureGraph` with `CrystalNN` as the bond finder. **Output**: Save adjacency matrix and node features to `data/processed/graph_features.npy`. **Constraint**: Handle missing structures, NaN/Inf values, and memory constraints. **Logging**: Log specific atom indices causing NaN/Inf to `data/logs/stability_errors.log` and exclude rows with NaN/Inf in graph features. **Must run after T005a**.
+- [ ] T013 [US1] Implement `code/data/fetch_literature_pcm.py`: Fetch the **50 known PCMs** required by Constitution Principle VII from the verified HuggingFace dataset `matbench/literature_pcm_validation_set`. **Constraint**: No pre-bundled files or synthetic fallbacks. If the fetch fails or the dataset size is not exactly 50, raise a `FileNotFoundError` with a clear message indicating the missing canonical source. Save raw data to `data/external/literature_pcms_raw.csv`. **Must run after T004**.
+- [ ] T013a [US1] Implement `code/data/map_literature_pcm.py`: Map literature PCMs to Materials Project IDs using `pymatgen`. **Logic**: Read `data/results/target_decision.json` to determine the target variable for the mapping. **Dependency**: This task MUST verify that the active dataset (from T005a) contains valid MP IDs or a mapping table. If the active dataset is a fallback (Matbench) without MP IDs, this task MUST fail with a clear error message indicating the incompatibility. **Must run after T005b and T013**.
 - [ ] T014 [US1] Implement `code/utils/collinearity_utils.py` for Variance Inflation Factor (VIF) analysis to detect definitional dependencies (e.g., atomic radius vs. ionic radius).
 - [ ] T015 [US1] Create `code/main.py` entry point to orchestrate the full data pipeline (fetch -> feature engineering -> VIF check -> save processed CSV). **Must run after T014**.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T010 [US1] Integration test for data pipeline in `tests/integration/test_pipeline.py`. **Must run after T015** to ensure full pipeline implementation is complete.
+- [ ] T009 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py`. **Must run after T007**.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -104,10 +106,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T017a [US2] Implement `code/models/train_random_forest.py`: Train Random Forest model with fixed random seeds and memory constraints.
-- [ ] T017b [US2] Implement `code/models/train_gradient_boosting.py`: Train Gradient Boosting model with fixed random seeds and memory constraints.
-- [ ] T017c [US2] Implement `code/models/train_shap_analysis.py`: Perform SHAP analysis on the trained tree ensemble to generate ranked feature importances without GPU.
-- [ ] T019 [US2] Implement `code/models/train_symbolic.py` using PySR with: Strict time budget of a few hours, Regularized feature set (post-VIF from T014), Logic to output at least one explicit mathematical formula. **Constraint**: If PySR fails to converge to a formula with R² > 0.0, the script must flag the limitation in `data/results/symbolic_formulas.txt` and default to using SHAP results only; do NOT generate a synthetic or linear proxy formula.
+- [ ] T017a [US2] Implement `code/models/train_random_forest.py`: Train Random Forest model with fixed random seeds and memory constraints. **Output**: Save model to `data/models/rf_model.pkl`.
+- [ ] T017b [US2] Implement `code/models/train_gradient_boosting.py`: Train Gradient Boosting model with fixed random seeds and memory constraints. **Output**: Save model to `data/models/gb_model.pkl`.
+- [ ] T017c [US2] Implement `code/models/train_shap_analysis.py`: Perform SHAP analysis on the trained tree ensemble to generate ranked feature importances without GPU. **Output**: Save summary to `data/models/shap_summary.json`.
+- [ ] T019 [US2] Implement `code/models/train_symbolic.py` using PySR with: Strict time budget of a few hours, Regularized feature set (post-VIF from T014), Logic to output at least one explicit mathematical formula. **Output**: Save formulas to `data/models/symbolic_formulas.txt`. **Constraint**: If PySR fails to converge to a formula with R² > 0.0, the script must flag the limitation in `data/models/symbolic_formulas.txt` and default to using SHAP results only; do NOT generate a synthetic or linear proxy formula.
 - [ ] T020 [US2] Implement `code/models/evaluate.py` to compute R² scores, perform paired t-tests between baselines and interpretable models (SC-002), and log performance metrics. **Ensure the exact same test split indices are used for both model types**.
 - [ ] T021 [US2] Add logic to `code/models/evaluate.py` to flag limitations if PySR fails to converge (r < 0.0) and default to SHAP results.
 
@@ -127,13 +129,13 @@
 
 ### Implementation for User Story 3
 
-- [ ] T023a [US3] Implement `code/data/generate_validation_config.py`: Determine `top_n` for validation. **Logic**: Read `top_n` from `config.yaml`. If the value is a placeholder or missing, set `top_n` to `min(10, total_literature_pcms)` to ensure SC-003 testability. Write to `data/results/validation_config.json`. **Must run after T013a**.
-- [ ] T023 [US3] Implement external validation logic in `code/models/validate_external.py`:
+- [ ] T023a [US3] Implement `code/validate/generate_validation_config.py`: Determine `top_n` for validation. **Logic**: Read `top_n` from `config.yaml`. If the value is `null` or missing, raise a `ValueError` with the message: "Research Decision Required: Please populate 'top_n' in config.yaml before running validation. SC-003 requires a specific N value." **Do NOT** hardcode a default. Write to `data/results/validation_config.json`. **Must run after T013a**.
+- [ ] T023 [US3] Implement external validation logic in `code/validate/validate_external.py`:
  - Load literature PCMs (from `data/external/literature_pcms_mapped.csv`).
  - Read `data/results/target_decision.json` to determine the target variable.
  - Read `top_n` from `data/results/validation_config.json`.
  - Apply derived rules and calculate ranking accuracy.
-- [ ] T024 [US3] Implement sensitivity analysis in `code/utils/stability_checks.py`: Sweep feature importance thresholds across a range of values and report the variation in consistency rates.
+- [ ] T024 [US3] Implement sensitivity analysis in `code/validate/sensitivity_analysis.py`: Sweep feature importance thresholds from **0.05 to 0.5 in steps of 0.05** and report the variation in false-positive/false-negative rates. **Output**: Save report to `data/results/sensitivity_report.json`. **Must run after T023**. **Constraint**: This task MUST be implemented in a dedicated file (`code/validate/sensitivity_analysis.py`) and MUST NOT be conflated with numerical stability checks (T008).
 - [ ] T025 [US3] Add final collinearity diagnostic in `code/utils/collinearity_utils.py` to flag any remaining definitional dependencies and adjust interpretation to descriptive/associational.
 - [ ] T026a [US3] Generate correlation analysis report section in `research.md` summarizing SC-001.
 - [ ] T026b [US3] Generate model comparison report section in `research.md` summarizing SC-002.

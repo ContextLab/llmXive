@@ -1,60 +1,57 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Featurized Dataset Schema"
-description: "Schema for the processed dataset with elemental and graph-based descriptors."
-type: object
+title: "Dataset Schema"
+description: "Schema for the processed features dataset (features.parquet)"
+type: "object"
 properties:
   material_id:
-    type: string
-    description: "Unique identifier for the material."
+    type: "string"
+    description: "Unique identifier for the compound (e.g., mp-12345)"
   formula:
-    type: string
-    description: "Chemical formula of the material."
+    type: "string"
+    description: "Chemical formula"
   melting_point:
-    type: number
-    description: "Melting point in Kelvin."
+    type: "number"
+    description: "Melting point in Kelvin"
   latent_heat:
     type: ["number", "null"]
-    description: "Latent heat of fusion in J/g (may be null)."
+    description: "Latent heat in J/g. Can be null if not available."
+  space_group:
+    type: "string"
+    description: "Space group symbol"
+  crystal_system:
+    type: "string"
+    description: "Crystal system (e.g., cubic, hexagonal)"
   elemental_descriptors:
-    type: object
-    description: "Computed elemental features."
+    type: "object"
+    description: "Computed elemental properties"
     properties:
-      atomic_mass_mean:
-        type: number
-      electronegativity_mean:
-        type: number
-      radius_mean:
-        type: number
-      periodic_group_mean:
-        type: number
-      periodic_period_mean:
-        type: number
+      avg_electronegativity:
+        type: "number"
+      avg_atomic_radius:
+        type: "number"
+      atomic_mass:
+        type: "number"
     required:
-      - atomic_mass_mean
-      - electronegativity_mean
-      - radius_mean
-      - periodic_group_mean
-      - periodic_period_mean
-  graph_descriptors:
-    type: object
-    description: "Computed graph-based features."
-    properties:
-      bond_density:
-        type: number
-      symmetry_operations:
-        type: integer
-    required:
-      - bond_density
-      - symmetry_operations
-  collinearity_flags:
-    type: array
-    description: "Flags for definitionally dependent features."
+      - avg_electronegativity
+      - avg_atomic_radius
+  graph_features:
+    type: "array"
+    description: "Flattened graph adjacency or symmetry features"
     items:
-      type: string
+      type: "number"
+  source:
+    type: "string"
+    enum:
+      - "Materials Project"
+      - "NIST"
+      - "Literature"
+  collinearity_flag:
+    type: "boolean"
+    description: "True if any predictor has VIF > 5"
 required:
   - material_id
   - formula
   - melting_point
   - elemental_descriptors
-  - graph_descriptors
+  - source
 additionalProperties: false

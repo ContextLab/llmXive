@@ -1,19 +1,18 @@
 status: none
-intent: Materials Project melting point heat capacity dataset pip install python package
-  dataset
+intent: Materials Project API melt point heat capacity dataset matbench_melting_points
+  python package dataset
 required_fields:
-- mp_id
 - material_id
-- chemical_formula
+- formula
 - melting_point
 - heat_capacity
 - latent_heat
 - atomic_number
 - electronegativity
 - atomic_radius
-- elemental_composition
+- crystal_graph
 - spacegroup
-- crystal_structure_file
-cache_key: 890b21790d7e9866e2e8f6c1a1e2f373e3d2ca55ce82b1ae46ff54a797991edb
-searched_at: '2026-08-21T18:20:04.825931+00:00'
+- density
+cache_key: 3fdd3f7bb27dc9e5a9711fb10ce526812a5a245e5c9f4350b4737e52b67fbbb1
+searched_at: '2026-09-02T02:24:48.621617+00:00'
 retry_count: 1

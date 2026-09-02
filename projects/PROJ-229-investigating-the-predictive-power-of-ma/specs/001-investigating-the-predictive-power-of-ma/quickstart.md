@@ -4,96 +4,77 @@
 
 - Python 3.11+
 - `pip` or `conda`
-- Access to the `matbench` library (open source)
-- (Optional) Materials Project API credentials (not required for this plan)
+- Access to GitHub Actions (for CI) or a local Linux machine with 7 GB RAM.
+- (Optional) Materials Project API Key (set as `MP_API_KEY` env var).
 
 ## Installation
 
-1. **Clone the Repository**:
-   ```bash
-   git clone <repo-url>
-   cd <repo-dir>
-   ```
+1. **Clone the repository**:
+ ```bash
+ git clone
+ cd phase-change-predictive-power
+ ```
 
-2. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+2. **Create a virtual environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-3. **Verify Dependencies**:
-   ```bash
-   python -c "import pymatgen; import pysr; import matbench; print('All dependencies installed.')"
-   ```
+3. **Install dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
+ *Note: `requirements.txt` pins all versions for reproducibility.*
 
-## Data Retrieval
+## Running the Pipeline
 
-1. **Run Data Retrieval Script**:
-   ```bash
-   python code/data/fetch_matbench.py
-   ```
-   - This script will download the `matbench` dataset.
-   - It will also generate `data/external/literature_pcms_raw.csv` (with a fallback if external download fails).
+### Step 1: Fetch Data
+```bash
+python code/data/fetch_materials.py
+```
+This downloads the Materials Project subset and NIST data to `data/raw/`.
 
-2. **Verify Data**:
-   - Check `data/raw/` for downloaded files.
-   - Verify checksums in `state/`.
+### Step 2: Compute Descriptors
+```bash
+python code/data/compute_descriptors.py
+```
+Generates `data/processed/features.parquet`. Includes stability checks.
 
-## Feature Engineering
+### Step 3: Train Models
+```bash
+python code/models/train_baselines.py
+python code/models/train_symbolic.py
+```
+Outputs models and metrics to `data/results/`.
 
-1. **Run Feature Engineering Script**:
-   ```bash
-   python code/data/compute_features.py
-   ```
-   - This script computes elemental and graph-based descriptors.
-   - Output: `data/processed/featurized_data.csv`.
+### Step 4: Validate & Analyze
+```bash
+python code/validate/validate_external.py
+python code/validate/sensitivity_analysis.py
+```
+Generates the validation report and sensitivity analysis.
 
-## Model Training
+### Step 5: Generate Report
+```bash
+python code/main.py --generate-report
+```
+Creates `docs/research_report.md` with all findings.
 
-1. **Train Baseline Models**:
-   ```bash
-   python code/models/train_baseline.py
-   ```
-   - Output: `data/results/baseline_metrics.json`.
+## Testing
 
-2. **Train Symbolic Regression Model**:
-   ```bash
-   python code/models/train_symbolic.py
-   ```
-   - Output: `data/results/symbolic_formulas.txt`.
+Run the full test suite:
+```bash
+pytest tests/ -v --cov=code
+```
 
-3. **Run SHAP Analysis**:
-   ```bash
-   python code/models/evaluate.py
-   ```
-   - Output: `data/results/shap_analysis.json`.
-
-## Validation
-
-1. **Run External Validation**:
-   ```bash
-   python code/models/validate.py
-   ```
-   - Output: `data/results/validation_report.json`.
-
-2. **Run Sensitivity Analysis**:
-   ```bash
-   python code/models/sensitivity.py
-   ```
-   - Output: `data/results/sensitivity_analysis.csv`.
-
-## Results
-
-- **Metrics**: Check `data/results/` for all model metrics and reports.
-- **Plots**: Generated plots are stored in `data/results/plots/`.
+- **Contract Tests**: `tests/contract/` validates schemas against `contracts/`.
+- **Integration Tests**: `tests/integration/` runs the full pipeline end-to-end.
+- **Unit Tests**: `tests/unit/` checks individual functions.
 
 ## Troubleshooting
 
-- **Data Unavailable**: If `matbench` is unavailable, the script will log a fatal error. Check your internet connection and `matbench` installation.
-- **Memory Errors**: If memory errors occur, reduce the dataset size or enable streaming.
-- **Symbolic Regression Failure**: If PySR fails to converge, check the time budget and dataset size.
-
-## Next Steps
-
-- Review the `plan.md` for detailed implementation steps.
-- Check the `contracts/` directory for schema validation.
-- Run the test suite: `pytest tests/`.
+- **Memory Error**: Reduce the batch size in `compute_descriptors.py`.
+- **API Rate Limit**: The script automatically switches to the `matbench` HuggingFace dataset.
+- **PySR Timeout**: The script flags the limitation and falls back to SHAP analysis.
+- **Missing Data**: Check `data/external/literature_pcms_raw.csv` for fetch errors.

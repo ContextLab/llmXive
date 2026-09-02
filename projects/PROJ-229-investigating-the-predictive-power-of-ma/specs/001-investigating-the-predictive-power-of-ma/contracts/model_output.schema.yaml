@@ -1,51 +1,48 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Model Output Schema"
-description: "Schema for model outputs, including metrics and symbolic formulas."
-type: object
+description: "Schema for model training results (e.g., model_results.json)"
+type: "object"
 properties:
+  model_id:
+    type: "string"
+    format: "uuid"
+    description: "Unique ID for the model run"
   model_type:
-    type: string
-    description: "Type of model (e.g., 'RandomForest', 'PySR')."
-  metrics:
-    type: object
-    description: "Performance metrics."
-    properties:
-      r_squared:
-        type: number
-      mean_absolute_error:
-        type: number
-    required:
-      - r_squared
-      - mean_absolute_error
+    type: "string"
+    enum:
+      - "Random Forest"
+      - "Gradient Boosting"
+      - "PySR"
+    description: "Type of model trained"
+  r2_score:
+    type: "number"
+    description: "Coefficient of determination on validation set"
+  mae:
+    type: "number"
+    description: "Mean Absolute Error"
   feature_importance:
-    type: array
-    description: "Ranked list of feature importances."
-    items:
-      type: object
-      properties:
-        feature:
-          type: string
-        importance:
-          type: number
-      required:
-        - feature
-        - importance
+    type: "object"
+    description: "Map of feature name to importance score"
+    additionalProperties:
+      type: "number"
   symbolic_formula:
     type: ["string", "null"]
-    description: "Explicit mathematical formula (if applicable)."
-  validation_results:
-    type: object
-    description: "Results from external validation."
-    properties:
-      ranking_accuracy:
-        type: number
-      false_positive_rate:
-        type: number
-    required:
-      - ranking_accuracy
-      - false_positive_rate
+    description: "Explicit mathematical formula if model is PySR"
+  training_timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of training completion"
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "timeout"
+      - "error"
+    description: "Status of the training run"
 required:
+  - model_id
   - model_type
-  - metrics
-  - feature_importance
+  - r2_score
+  - training_timestamp
+  - status
 additionalProperties: false
