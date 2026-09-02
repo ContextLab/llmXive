@@ -1,55 +1,39 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Baseline Metrics Schema"
-type: "object"
-properties:
-  dataset_id:
-    type: "string"
-    description: "Unique identifier of the source dataset (e.g., HuggingFace repo name)."
-  predictor:
-    type: "string"
-    description: "Name of the independent variable column."
-  outcome:
-    type: "string"
-    description: "Name of the dependent variable column."
-  test_type:
-    type: "string"
-    enum: ["ttest", "ols"]
-    description: "Statistical test performed."
-  p_value:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Two‑sided p‑value (≥ 3‑decimal precision)."
-  ci_lower:
-    type: "number"
-    description: "Lower bound of 95 % confidence interval for the effect size."
-  ci_upper:
-    type: "number"
-    description: "Upper bound of 95 % confidence interval for the effect size."
-  effect_size:
-    type: "number"
-    description: "Cohen’s d (t‑test) or standardized β (OLS)."
-  bootstrap_iterations:
-    type: "integer"
-    minimum: a sufficiently large sample size
-    description: "Number of bootstrap resamples used."
-  delta_ci_low:
-    type: ["number", "null"]
-    description: "Bootstrap CI lower bound for delta vs. cleaned (optional)."
-  delta_ci_high:
-    type: ["number", "null"]
-    description: "Bootstrap CI upper bound for delta vs. cleaned (optional)."
-  assumption_passed:
-    type: "boolean"
-    description: "True if classical assumptions held; False if robust fallback used."
+type: object
 required:
   - dataset_id
-  - predictor
-  - outcome
   - test_type
   - p_value
+  - p_value_delta
   - ci_lower
   - ci_upper
   - effect_size
-  - bootstrap_iterations
-additionalProperties: false
+  - assumptions_met
+properties:
+  dataset_id:
+    type: string
+  test_type:
+    type: string
+    enum: ["t-test", "welch-t-test", "linear-regression"]
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Three‑decimal precision required."
+  p_value_delta:
+    type: number
+    const: 0.0
+    description: "Baseline delta is always at its reference level."
+  ci_lower:
+    type: number
+  ci_upper:
+    type: number
+  effect_size:
+    type: number
+  assumptions_met:
+    type: boolean
+  # Optional fields for future extensions (allowed but not required)
+  additional_info:
+    type: object
+    additionalProperties: true

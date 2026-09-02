@@ -1,0 +1,25 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Bootstrap Metrics Schema"
+type: "object"
+required:
+  - "dataset_id"
+  - "cleaning_variant"
+  - "bootstrap_ci_lower"
+  - "bootstrap_ci_upper"
+  - "iterations"
+properties:
+  dataset_id:
+    type: "string"
+  cleaning_variant:
+    type: "string"
+  bootstrap_ci_lower:
+    type: "number"
+    description: "Lower bound of bootstrap confidence interval for effect size."
+  bootstrap_ci_upper:
+    type: "number"
+    description: "Upper bound of bootstrap confidence interval at a conventional confidence level for effect size."
+  iterations:
+    type: "integer"
+    minimum: a sufficiently large sample size
+    description: "Number of bootstrap resamples used."
+additionalProperties: false

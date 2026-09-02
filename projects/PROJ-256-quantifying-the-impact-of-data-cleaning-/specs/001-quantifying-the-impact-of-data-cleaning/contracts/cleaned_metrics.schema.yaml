@@ -1,34 +1,76 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Cleaned Metrics Schema"
-type: "object"
-allOf:
-  - $ref: "baseline_metrics.schema.yaml"
-properties:
-  cleaning_variant:
-    type: "string"
-    enum: ["outlier", "impute_mean", "impute_median", "impute_knn", "recoding"]
-    description: "Which cleaning step produced this dataset."
-  outlier_k:
-    type: ["number", "null"]
-    description: "IQR multiplier used (only for outlier variant)."
-  rows_removed:
-    type: ["integer", "null"]
-    minimum: 0
-    description: "Number of rows removed by outlier detection."
-  missing_before:
-    type: ["integer", "null"]
-    minimum: 0
-    description: "Missing cell count before imputation."
-  missing_after:
-    type: ["integer", "null"]
-    minimum: 0
-    description: "Missing cell count after imputation (must be minimal)."
-  variance_reduction:
-    type: ["number", "null"]
-    description: "Percent reduction in outcome variance after cleaning."
-  assumption_passed:
-    type: "boolean"
-    description: "True if robust fallback not needed."
+type: object
 required:
-  - cleaning_variant
-additionalProperties: false
+  - dataset_id
+  - variant_id
+  - p_value
+  - p_value_delta
+  - direction
+  - ci_lower
+  - ci_upper
+  - ci_overlap
+  - effect_size_change
+  - assumptions_met
+  - fpr
+  - adjusted_p_value
+  - metadata
+properties:
+  dataset_id:
+    type: string
+  variant_id:
+    type: string
+    description: "Composite key encoding cleaning steps (e.g., 'outlier_k1.5_impute_mean_onehot')."
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+  p_value_delta:
+    type: number
+    description: "Baseline p‑value minus cleaned p‑value (3‑decimal)."
+  direction:
+    type: string
+    enum: ["increase", "decrease"]
+  ci_lower:
+    type: number
+  ci_upper:
+    type: number
+  ci_overlap:
+    type: number
+    minimum: 0
+    maximum: 1
+  effect_size_change:
+    type: number
+    description: "Absolute change in effect size compared to baseline."
+  assumptions_met:
+    type: boolean
+  fpr:
+    type: number
+    minimum: 0
+    maximum: 1
+  adjusted_p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+  metadata:
+    type: object
+    required:
+      - rows_removed
+      - missing_before
+      - missing_after
+      - variance_reduction
+    properties:
+      rows_removed:
+        type: integer
+        minimum: 0
+      missing_before:
+        type: number
+        minimum: 0
+        maximum: 1
+      missing_after:
+        type: number
+        minimum: 0
+        maximum: 1
+      variance_reduction:
+        type: number
+        description: "Proportion reduction in total variance (0‑1)."

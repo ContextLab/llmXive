@@ -1,57 +1,69 @@
 # Research: Quantifying the Impact of Data Cleaning
 
+## Overview
+This document details the research design, data strategy, statistical methods, and validation procedures that will be implemented in the pipeline described in `plan.md`. It follows the functional requirements (FR‑001 – FR‑022) and success criteria (SC‑001 – SC‑012) of the specification.
+
 ## Dataset Strategy
-| Role | Dataset | Loader | Verified URL(s) | Outcome column | Notes |
-|------|---------|--------|------------------|----------------|-------|
-| Primary statistical dataset 1 | **Stepkids** | `datasets.load_dataset("FPRT/Stepkids_dataset", split="train")` | https://huggingface.co/datasets/FPRT/Stepkids_dataset/resolve/main/Step_Kids_Thematic_Final.csv | `score` (numeric) | Multiple numeric predictors; suitable for t‑test & OLS. |
-| Primary statistical dataset 2 | **Wine Quality** | `datasets.load_dataset("zillow/wine_quality", split="train")` | https://huggingface.co/datasets/zillow/wine_quality/resolve/main/winequality-red.csv | `quality` (numeric) | Classic regression benchmark. |
-| Primary statistical dataset 3 | **Breast Cancer** | `datasets.load_dataset("uciml/breast_cancer", split="train")` | https://huggingface.co/datasets/uciml/breast_cancer/resolve/main/data.csv | `diagnosis` (binary 0/1) | Binary outcome for linear modeling. |
-| Primary statistical dataset 4 | **FPR JSONL** | `datasets.load_dataset("ariel/fp_run_colab", split="train")` | https://huggingface.co/datasets/ariel/fp_run_colab/resolve/main/eval_predictions.jsonl | `label` (numeric) | Used for permutation‑null FPR estimation. |
-| IQR method example | **GPT Prompts CSV** | `datasets.load_dataset("IQRA512/gpt_prompts", split="train")` | https://huggingface.co/datasets/IQRA512/gpt_prompts.csv/resolve/main/gpt_prompts.csv | `prompt_length` | Verifies IQR implementation on a pure numeric column. |
-| Large‑numeric test | **Medbot Parquet** | `datasets.load_dataset("iqrabatool/medbot-llama2-500", split="train")` | https://huggingface.co/datasets/iqrabatool/medbot-llama2-500/resolve/main/data/train-00000-of-00001.parquet | *numeric column* | Streaming test of outlier removal on a large numeric column. |
+Only **open, directly downloadable** datasets are used. The verified URLs provided by the project are:
 
-**Rationale** – All datasets are openly accessible via HuggingFace, have a clearly documented numeric (or binary) outcome column, and support the required two‑sample t‑tests and OLS regressions. This satisfies the functional requirements while adhering to the Constitution’s reproducibility and data‑hygiene principles.
+| Dataset (UCI) | URL | Outcome column (documented) | Size (rows) | Missingness (baseline) |
+|---------------|-----|-----------------------------|------------|------------------------|
+| Wine Quality | https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv | `quality` (continuous) | 1 599 | [deferred] |
+| Breast Cancer Wisconsin Diagnostic | https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data | `diagnosis` (binary) | 569 | [deferred] |
+| Heart Disease (Cleveland) | https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data | `target` (binary) | 303 | [deferred] |
+| Parkinsons Telemonitoring | | `total_UPDRS` (continuous) | 5 875 | [deferred] |
+| Diabetes (Progression) | | `progression` (continuous) | 442 | [deferred] |
+| German Credit Data | https://archive.ics.uci.edu/ml/machine-learning-databases/statlog/german/german.data | `credit_risk` (binary) | 1 000 | [deferred] |
+| Adult Income | https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data | `income` (binary) | 32 561 | [deferred] |
+| Student Performance | | `G3` (continuous) | 395 | [deferred] |
+| Car Evaluation | https://archive.ics.uci.edu/ml/machine-learning-databases/car/car.data | `class_value` (binary) | 1 728 | [deferred] |
+| Ionosphere | https://archive.ics.uci.edu/ml/machine-learning-databases/ionosphere/ionosphere.data | `target` (binary) | 351 | [deferred] |
+| **Synthetic Benchmark (null effect)** | https://huggingface.co/datasets/MoGP/f_prime_dataset/resolve/main/fpdataset.csv | `target` (continuous) | 1 200 | [deferred] |
+| **Synthetic Benchmark (d = 0.5)** | https://huggingface.co/datasets/MoGP/f_prime_dataset/resolve/main/fpdataset.csv | `target` (continuous) | 1 200 | [deferred] |
 
-## Decision / Rationale (Compute & Method Choice)
+These twelve datasets satisfy the requirement for at least one dataset per size bin:
+- **n < 50**: a 40‑row random sample from *Wine Quality*.
+- **50‑200**: a 150‑row random sample from *Heart Disease*.
+- **> 200**: the full *Adult Income* (32 561 rows) and other larger sets.
 
-| Component | CPU‑first | GPU‑escape‑hatch | Reasoning |
-|-----------|-----------|------------------|-----------|
-| Statistical tests (t‑test, OLS) | ✅ | — | Classical stats run instantly on CPU. |
-| K‑NN imputation | ✅ | — | `sklearn.impute.KNNImputer` is CPU‑native and scales linearly with rows. |
-| Bootstrap (≥ 1000 iterations) | ✅ (sampled) | — | Each iteration is cheap; total runtime < 2 h on 2 CPU cores. |
-| Permutation null (a substantial number of permutations × 2 thresholds × 4 datasets) | ✅ (streamed) | — | Streaming avoids loading all permutations; total ≈ several hours, within CI limits. |
-| Visualization (matplotlib/seaborn) | ✅ | — | Generates static PNGs; negligible compute. |
+If any bin is empty after sampling, additional open UCI datasets will be fetched from the same verified sources until coverage is achieved (FR‑015).
 
-No GPU‑only model is required; all steps are CPU‑tractable.
+### Missingness Injection for Sensitivity Analysis
+Four missingness levels will be created synthetically:
+1. **[deferred]** (original data)
+2. **[deferred]** MCAR – random cells set to `NaN`.
+3. **[deferred]** MCAR – random cells set to `NaN`.
+4. **[deferred]** MAR – missingness introduced conditional on a predictor (high values → missing).
 
-## Statistical Rigor
+The injection code resides in `code/sensitivity.py` and is deterministic (seeded).
 
-- **Multiple‑Comparison Correction** – For each dataset we apply **Holm‑Bonferroni** correction across **all** p‑values generated in a given analysis batch (predictors, cleaning variants, outlier thresholds, and permutation runs). Corrected p‑values are used for significance decisions and for FPR calculation.  
-- **Power Consideration** – With four datasets, we acknowledge limited power for modest effects; bootstrap confidence intervals and an explicit limitation discussion will be included.  
-- **Causal Claims** – All statements are framed as *associational* effects of cleaning procedures; no causal inference is claimed.  
-- **Measurement Validity** – Outcome columns (`score`, `quality`, `diagnosis`, `label`) are taken directly from the source datasets; citations to the HuggingFace URLs are provided.  
-- **Collinearity** – If predictors are highly correlated (|r| > 0.8) we will compute variance‑inflation factors (VIF) and note that independent effect estimates are not interpretable.  
-- **Assumption Checks** – Prior to each test we perform Shapiro‑Wilk (normality), Levene (homoscedasticity), and linearity diagnostics. Failures trigger Mann‑Whitney U (for t‑tests) or Huber‑robust regression (for OLS). Results are logged in `data/processed/assumption_checks.json`.
+## Statistical Methods
+| Analysis | Primary Method | Robust Alternative | Assumption Checks |
+|----------|----------------|-------------------|-------------------|
+| Two‑sample comparison (binary outcome) | Welch’s t‑test (if variances differ) or standard t‑test (if equal) | Welch’s t‑test always used for safety | Shapiro‑Wilk (α = 0.05), Levene (α = 0.05) |
+| Linear regression (continuous outcome) | OLS (`statsmodels.api.OLS`) | Huber‑regression (`statsmodels.robust.robust_linear_model.RLM`) | Shapiro‑Wilk on residuals, Levene on residuals, R² ≥ 0.7 for linearity |
+| Effect size | Cohen’s d (pooled SD) for t‑tests; standardized β for regressions | Same (robust) metrics are reported for the alternative models | – |
+| Multiple‑comparison correction | Holm‑Bonferroni across all cleaning‑variant p‑values per dataset (FR‑007) | – | – |
+| Permutation‑Based FPR | **Outcome permuted *after* cleaning**; outcome column excluded from any cleaning step. 1000 permutations (or 500 for >200 rows) under MCAR & MAR; Holm‑Bonferroni applied per permutation. | – | – |
+| Bootstrap variance | Non‑parametric bootstrap, 1000 iterations (`BOOTSTRAP_ITERATIONS`), resampling rows with replacement. | – | – |
+| Paired Δ‑metric test | Wilcoxon signed‑rank test on `p_value_delta` across datasets per cleaning operation (FR‑021) | – | – |
 
-## Research Hypotheses (Associative)
+All numeric metrics will be stored with at least three decimal places (SC‑002).
 
-- **H1 (Associative)**: Outlier removal is *associated* with reduced p‑values when genuine outliers are present.  
-- **H2 (Associative)**: Imputation and categorical recoding are *associated* with more stable effect‑size estimates (smaller variance across cleaning variants).
+## Power Analysis (FR‑016)
+A Wilcoxon‑signed‑rank power analysis is performed for each dataset using `statsmodels.stats.power.WilcoxonPower` (medium effect size, α = 0.05, desired power ≥ 0.8). The required sample size per dataset is computed; datasets that do not meet the threshold are flagged in `power_analysis.txt` and treated as a limitation rather than a fatal error. This aligns the power justification with the actual hypothesis test (Wilcoxon) rather than a two‑sample t‑test (SC‑010).
 
-These hypotheses are explicitly stated as associative, not causal.
+## Validation & Reproducibility
+- **Schema Validation**: After each major artifact creation, `code/validation.py` runs `jsonschema.validate` against the contracts in `contracts/`. Failures abort the pipeline (FR‑009, FR‑010, FR‑011, FR‑013, FR‑017, FR‑018).
+- **Citation Verification**: The script defined by Principle II (`scripts/verify_citations.py`) cross‑checks every external reference against the source URLs and enforces a title‑overlap ≥ 0.7. Outcome logged in `citation_verification.log`. (FR‑019)
+- **Checksum Recording**: SHA‑256 hashes of raw files are stored in `state/projects/PROJ-256-...yaml` as required by Principle III.
 
-## Workflow Overview (high‑level run‑book)
+## Decision / Rationale (CPU vs GPU)
+All statistical methods (t‑tests, regressions, permutation, bootstrap) have efficient CPU implementations in SciPy/Statsmodels. No deep‑learning models are required, so the entire pipeline will run on the GitHub Actions CPU runner. This satisfies the Compute Feasibility clause and avoids the need for a GPU escape hatch.
 
-1. `scripts/download_data.sh` → `code/data_loader.py` → `data/raw/` (checksum).  
-2. `code/main.py` orchestrates:  
-   - Baseline analysis **with assumption checks** → `data/processed/baseline_metrics.json`.  
-   - Cleaning pipelines (outlier removal, imputation, recoding) → intermediate cleaned files + metadata.  
-   - Re‑analysis **with assumption checks** → `data/processed/cleaned_metrics.json`.  
-   - Outlier‑threshold sweep (`k=1.5, 2.0`) → per‑threshold metrics added to cleaned JSON.  
-   - Permutation null generation → `data/processed/null_fpr_metrics.json`.  
-   - Bootstrap variance → added fields `delta_ci_low`, `delta_ci_high`.  
-   - Visualizations → `output/figures/forest_plot.png`, `output/figures/fpr_heatmap.png`.  
-3. `code/reporting.py` writes all JSON files with **≥ 3‑decimal precision** (as required by SC‑002).  
-4. `pytest -q tests/contract/` validates each JSON file against its schema.  
+## Open Issues & Mitigations
+- **Dataset Outcome Documentation**: The verified UCI datasets provide clear metadata files; we will parse their README to locate the outcome column. If any ambiguity remains, the dataset will be excluded (FR‑009).
+- **Missingness Levels**: The specification left the exact missingness percentages deferred; we have chosen [deferred], [deferred], [deferred], and [deferred] as a transparent, reproducible scheme. This choice is documented in `sensitivity_plan.md`.
 
-All steps are deterministic given the fixed random seed (`config.SEED = 42`).  
+---
+

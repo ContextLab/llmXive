@@ -1,66 +1,63 @@
 # Quickstart: Running the Data‑Cleaning Impact Pipeline
 
-These instructions assume a fresh GitHub Actions runner (or local Linux environment) with internet access.
+## Prerequisites
+- Python 3.11 installed (the CI runner provides it).
+- Git 2.40+ and internet access to download the open datasets.
+- No GPU required.
 
-## 1. Setup Environment
+## Step‑by‑Step
+
 ```bash
-# Clone the repository (already present in CI)
-git clone https://github.com/your-org/quantifying-data-cleaning.git
-cd quantifying-data-cleaning
+# 1️⃣ Clone the repository
+git clone
+cd quantify-cleaning-impact
 
-# Create a virtualenv and install pinned dependencies
-python -m venv .venv
-source .venv/bin/activate
-pip install -r code/requirements.txt
+# 2️⃣ Create a virtual environment and install dependencies
+python -m venv.venv
+source.venv/bin/activate
+pip install -r requirements.txt # pins all versions as listed in plan.md
+
+# 3️⃣ Run the full pipeline (this will download data, run analyses, and produce artefacts)
+python -m code.main
 ```
 
-## 2. Verify Dataset Checksums (optional but recommended)
+### What `code.main` does
+| Stage | Output file(s) | Brief description |
+|-------|----------------|-------------------|
+| Data download & checksum | `data/raw/*`, `state/projects/…yaml` | Retrieves verified datasets, records SHA‑256. |
+| Metadata generation | `data/processed/dataset_metadata.json` | Stores outcome column, size, missingness. |
+| Baseline analysis | `data/processed/baseline_metrics.json`, `data/processed/analysis_results.json` | t‑tests / regressions on raw data. |
+| Cleaning variants | `data/processed/cleaned_metrics.json`, `data/processed/null_fpr_metrics.json` | All outlier‑removal, imputation, recoding combos. |
+| Bootstrap CI | `data/processed/bootstrap_metrics.json` | 1000 resamples per variant. |
+| Permutation FPR | `data/processed/null_fpr_metrics.json` (adds FPR) | Outcome permuted **after** cleaning; outcome excluded from cleaning. |
+| Multiple‑comparison correction | `data/processed/cleaned_metrics.json` (adds `adjusted_p_value`) | Holm‑Bonferroni per dataset. |
+| Sensitivity analysis | `data/processed/sensitivity_metrics.json` | Factorial (cleaning × missingness) stratification. |
+| Power analysis | `power_analysis.txt` | Wilcoxon‑based per‑dataset power checks. |
+| Hypothesis testing | `data/processed/hypothesis_test_results.json` | Wilcoxon on Δ‑metrics. |
+| Final report & figures | `data/processed/comparison_report.json`, `output/figures/*.png` | Forest plot, CI heatmap, summary table. |
+| Validation | Console output `All schemas validated ✅` | Runs `code/validation.py` against contracts. |
+
+### Running a Subset (for debugging)
 ```bash
-python code/data_loader.py --verify-only
-# Exits with 0 if all SHA‑256 hashes match the values stored in
-# state/projects/PROJ-256-...yaml
+# Only download data
+python -m code.data_loader
+
+# Run baseline only
+python -m code.analysis --stage baseline
+
+# Run cleaning + bootstrap for a single dataset (example)
+python -m code.main --dataset-id wine_quality --stage cleaning_bootstrap
 ```
 
-## 3. Run the Full Pipeline
-```bash
-python src/main.py \
-  --seed 42 \
-  --bootstrap-iterations 1000 \
-  --outlier-ks 1.5 2.0 \
-  --permutations 1000
-```
-The script will:
-1. Download the **four** verified datasets (Stepkids, Wine Quality, Breast Cancer, FPR JSONL) and the two auxiliary numeric‑only datasets used for IQR verification.
-2. Perform baseline analyses **after assumption checks** (normality, homoscedasticity, linearity) and write results to `data/processed/baseline_metrics.json`.
-3. Apply each cleaning variant (outlier removal, imputation, recoding) and capture cleaning metadata (`rows_removed`, `missing_before`, `missing_after`, `variance_reduction`).
-4. Re‑run the same statistical tests on each cleaned variant, writing to `data/processed/cleaned_metrics.json`.
-5. Sweep outlier thresholds (`k=1.5, 2.0`) and compute false‑positive‑rate via permutation of the documented outcome column, storing results in `data/processed/null_fpr_metrics.json`.
-6. Produce bootstrap confidence intervals (≥ 1000 iterations) and add `delta_ci_low` / `delta_ci_high` to the JSON records.
-7. Generate static PNG figures (forest plot, heatmap) under `output/figures/`.
+### Re‑producibility Tips
+- All random seeds are defined in `code/config.py`. Changing the seed requires a full pipeline rerun to maintain hash consistency.
+- The pipeline logs every major step to `logs/pipeline.log`.
 
-## 4. Validate Outputs (Contract Tests)
-```bash
-pytest -q tests/contract/
-```
-All tests should pass, confirming that the JSON files conform to the schemas in `contracts/`.
+### Expected Runtime
+- Full run on the GitHub Actions free tier: **≈ 4 h 30 m**.
+- Memory peak: **≈ 5.5 GB** (during permutation FPR for the largest dataset).
 
-## 5. Inspect Results
-```bash
-# Pretty‑print JSON (requires jq)
-jq . data/processed/baseline_metrics.json | less
-jq . data/processed/cleaned_metrics.json | less
-jq . data/processed/null_fpr_metrics.json | less
+If the job exceeds the 6‑hour limit, the CI will automatically cancel; you can resume by re‑running the workflow (the pipeline is checkpointed after each stage).
 
-# View figures
-display output/figures/forest_plot.png
-display output/figures/fpr_heatmap.png
-```
+---
 
-## 6. Debug / Subset Run (for faster local testing)
-```bash
-python src/main.py --sample-datasets 1 --bootstrap-iterations 200 --permutations 200
-```
-This respects the same code paths but reduces compute; the contract tests will still verify schema compliance.
-
-## 7. No Fabricated Metrics
-The pipeline **must** generate all metric files (`baseline_metrics.json`, `cleaned_metrics.json`, `null_fpr_metrics.json`) from real computations on the downloaded datasets. If any required metric is missing, NaN, or hard‑coded, the run will abort with an error, ensuring that no fabricated results reach the final report.

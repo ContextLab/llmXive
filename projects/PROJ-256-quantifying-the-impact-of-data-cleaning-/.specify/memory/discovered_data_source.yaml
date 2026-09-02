@@ -1,12 +1,9 @@
 status: none
-intent: download UCI HAR and UCI Shopper datasets from OpenML Small Datasets python
-  package dataset
+intent: download UCI Machine Learning Repository WineQuality/BreastCancer/HeartDisease/Parinsons/Diabetes/GermanCredit/AdultIncome/StudentPerformance/CarEvaluation/Ionosphere
+  python package dataset
 required_fields:
-- customer_id
-- visit_duration
-- purchase_amount
-- timestamp
-- product_category
-cache_key: b63483f3d50f55db8362505b75492b3b10085c1f8250db5d9681ceb2493b3c4c
-searched_at: '2026-08-18T15:23:44.159806+00:00'
+- outcome
+- features
+cache_key: a123852c04f2382a1265fc8025e87eafe9ecf6119f224646b94d31bcfcac984a
+searched_at: '2026-09-02T13:40:08.072359+00:00'
 retry_count: 1

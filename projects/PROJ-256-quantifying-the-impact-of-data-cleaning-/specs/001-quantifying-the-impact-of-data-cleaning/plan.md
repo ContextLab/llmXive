@@ -1,197 +1,93 @@
 # Implementation Plan: Quantifying the Impact of Data Cleaning
 
-**Branch**: `001-quantifying-the-impact-of-data-cleaning` | **Date**: 2026-08-18 | **Spec**: [link to spec.md]  
+**Branch**: `feature/quantify-cleaning-impact` | **Date**: 2026-09-02 | **Spec**: [spec.md]  
 **Input**: Feature specification from `/specs/001-quantifying-the-impact-of-data-cleaning/spec.md`
 
 ## Summary
-The project will () download **four** open, programmatically‑fetchable datasets that each contain a clearly documented numeric or binary outcome column, (2) run baseline statistical analyses (two‑sample t‑tests and linear regressions) on the raw data, (3) apply three cleaning pipelines (IQR outlier removal, imputation, categorical recoding) while capturing required metadata, (4) repeat the statistical analyses on each cleaned variant, (5) sweep the IQR outlier‑removal threshold (`k` ∈ {1.5, 2.0}) and, for every threshold, compute false‑positive‑rate (FPR) via permutation of the outcome variable, and (6) store all results in the JSON files prescribed by the functional requirements (FR‑001 – FR‑006). All steps are orchestrated by `src/main.py` and are fully reproducible on a GitHub Actions free‑tier runner.
+The project will quantify how common data‑cleaning operations (outlier removal, imputation, categorical recoding) alter statistical inference on a curated set of public datasets. The pipeline will (1) acquire 10‑15 open datasets with a documented binary or continuous outcome, (2) run baseline two‑sample t‑tests and linear regressions, (3) apply cleaning variants (two IQR thresholds, three imputation strategies, two encoding strategies), (4) perform assumption checks and robust fallbacks, (5) estimate permutation‑based false‑positive‑rate (FPR) **after** cleaning while excluding the outcome column from cleaning, (6) adjust p‑values across variants with Holm‑Bonferroni, (7) conduct bootstrap variance estimation, (8) run a factorial sensitivity analysis (cleaning × missingness), (9) perform a Wilcoxon‑based power analysis per dataset, (10) generate a comparison report and visualizations, and (11) validate every artefact against JSON‑Schema contracts.
+
+All steps are orchestrated from `code/main.py` and are fully reproducible on a GitHub Actions CPU runner (2 cores, ≤7 GB RAM). No GPU is required.
 
 ## Technical Context
 - **Language/Version**: Python 3.11  
-- **Primary Dependencies**:  
-  - `pandas==2.2.*`  
-  - `numpy==1.26.*`  
-  - `scipy==1.13.*` (t‑tests)  
-  - `statsmodels==0.14.*` (OLS & robust regression)  
-  - `scikit-learn==1.5.*` (K‑NN imputation)  
-  - `datasets==2.18.*` (HuggingFace loader)  
-  - `pyyaml==6.0.*` (schema validation)  
-  - `matplotlib==3.8.*`, `seaborn==0.13.*` (visualizations)  
-- **Storage**: Files under `data/` (raw, processed, checksums) and `output/figures/`.  
-- **Testing**: `pytest==8.2.*` + contract validation via `jsonschema`/`pyyaml`.  
-- **Target Platform**: Linux (GitHub Actions runner).  
-- **Performance Goals**: Entire pipeline ≤ 5 h on CPU; memory ≤ 6 GB.  
-- **Constraints**: Must obey the Constitution (see below).  
+- **Primary Dependencies**: `pandas==2.2.*`, `numpy==1.26.*`, `scipy==1.13.*`, `statsmodels==0.14.*`, `scikit-learn==1.5.*`, `datasets==2.18.*`, `jsonschema==4.22.*`, `matplotlib==3.9.*`, `seaborn==0.13.*`  
+- **Storage**: Files under `data/` (raw, processed, intermediate) and JSON artefacts under `data/processed/`.  
+- **Testing**: `pytest==8.2.*` with contract‑validation fixtures.  
+- **Target Platform**: Linux (GitHub Actions).  
+- **Performance Goals**: Entire pipeline ≤ 5 h on the free tier; memory ≤ 6 GB.  
+- **Constraints**: All data must be openly downloadable; no external credentials.  
 
 ## Constitution Check
-| Principle | Check |
-|-----------|-------|
-| I. Reproducibility | All random seeds are pinned in `code/config.py`; dataset download URLs are hard‑coded and checksum‑verified. |
-| II. Verified Accuracy | Every external citation (dataset URLs, statistical textbook references) will be verified by the Reference‑Validator Agent before merge. |
-| III. Data Hygiene | Raw files are stored under `data/raw/` with SHA‑256 checksums recorded in `state/projects/PROJ-256-...yaml`. Cleaning steps write new files under `data/processed/` and never modify raw files. |
-| IV. Single Source of Truth | Every figure or statistic is generated from the JSON metric files; the final report reads directly from these files (no manual transcription). |
-| V. Versioning Discipline | All artifacts (JSON files, figures) are hashed; the hash map is updated automatically by `code/utils.py`. |
-| VI. Statistical Sensitivity & Variance Estimation | All delta metrics are accompanied by bootstrap 95 % confidence intervals (≥ 1000 iterations). Sensitivity analyses across dataset size and missingness are logged in `data/processed/sensitivity_report.json`. |
+| Principle | How the plan satisfies it |
+|-----------|---------------------------|
+| **I. Reproducibility** | All random seeds are fixed in `code/config.py`; dataset download URLs are hard‑coded; pipeline is a single command (`python -m code.main`). |
+| **II. Verified Accuracy** | Every external citation (UCI dataset sources, statistical method references) will be run through the Reference‑Validator before merge. |
+| **III. Data Hygiene** | Raw files are stored read‑only; each transformation writes a new file; SHA‑256 checksums are recorded in `state/projects/PROJ-256-...yaml`. |
+| **IV. Single Source of Truth** | Every figure/table is generated from the JSON artefacts; the final manuscript pulls values directly from `comparison_report.json`. |
+| **V. Versioning Discipline** | All artefacts receive a content hash; the hash map is updated automatically after each run. |
+| **VI. Statistical Sensitivity & Variance Estimation** | Bootstrap (≥ 1000) is run for every cleaned variant; sensitivity analysis stratifies by size and missingness; FPR is estimated via permutation **after** cleaning, with outcome excluded from cleaning. |
 
 ## Project Structure
-```text
+```
 specs/001-quantifying-the-impact-of-data-cleaning/
 ├── plan.md
 ├── research.md
 ├── data-model.md
 ├── quickstart.md
 └── contracts/
+    ├── dataset.schema.yaml
     ├── baseline_metrics.schema.yaml
     ├── cleaned_metrics.schema.yaml
-    ├── null_fpr_metrics.schema.yaml
+    ├── comparison_report.schema.yaml
     ├── analysis_result.schema.yaml
-    └── dataset.schema.yaml
+    ├── null_fpr_metrics.schema.yaml
+    └── bootstrap_metrics.schema.yaml
 
-src/
-├── analysis.py          # baseline & cleaned statistical tests
-├── cleaning.py          # IQR outlier removal, imputation, recoding
-├── reporting.py         # JSON writing, figure generation
-├── data_loader.py       # download & checksum verification
-├── config.py            # seeds, bootstrap iterations, thresholds
-└── main.py              # pipeline orchestrator
-
-scripts/
-└── download_data.sh    # wrapper for `data_loader.py`
+code/
+├── __init__.py
+├── config.py               # seeds, constants, BOOTSTRAP_ITERATIONS
+├── data_loader.py          # download & checksum verified datasets
+├── analysis.py             # baseline & cleaned statistical tests
+├── cleaning.py             # outlier, imputation, recoding, metadata capture
+├── assumption_checks.py    # Shapiro‑Wilk, Levene, linearity
+├── permutation_fpr.py      # outcome‑permute **after** cleaning, outcome excluded
+├── bootstrap.py            # bootstrap CI generation
+├── sensitivity.py          # factorial design (cleaning × missingness)
+├── reporting.py            # JSON write‑outs, figures, final report
+├── validation.py           # schema validation wrapper
+└── main.py                 # orchestrates all phases
 ```
 
-## Complexity Tracking
-No constitution violations remain after the above checks. No additional complexity justification required.
+## Phase Overview & FR/SC Mapping
+| Phase | Main Tasks | FR(s) addressed | SC(s) addressed |
+|-------|------------|-----------------|-----------------|
+| **0 – Setup** | Install dependencies, pin seeds, create output directories. | – | – |
+| **1 – Dataset Acquisition** | Programmatically download **10–15** open UCI datasets (see Dataset Strategy). Validate each with `contracts/dataset.schema.yaml`. Record outcome column, sample size, missingness in `dataset_metadata.json`. Ensure at least one dataset per size bin (n < 50, 50‑200, >200). If a bin is empty, automatically fetch an additional open dataset. | FR‑001, FR‑009, FR‑017, FR‑015 (bin‑coverage acquisition) | SC‑005, SC‑008 |
+| **2 – Baseline Analysis** | For each raw dataset: run two‑sample t‑test / Welch’s test + linear regression, compute p‑value, 95 % CI, effect size (Cohen’s d or standardized β). Store results in `baseline_metrics.json` **and** in `analysis_results.json` (validated against `analysis_result.schema.yaml`). Also compute `ci_overlap` (null for baseline) and `effect_size_change` (null). | FR‑001, FR‑010, FR‑022 | SC‑001, SC‑002 |
+| **3 – Cleaning Variants Generation** | For each dataset generate: <br>• Outlier‑removed versions (k = 1.5, 2.0) <br>• Imputed versions (mean, median, KNN) <br>• Recoded versions (one‑hot, label) <br>Metadata (`rows_removed`, `missing_before`, `missing_after`, `variance_reduction`) is returned. | FR‑002, FR‑003, FR‑004, FR‑012, FR‑013, FR‑022 | SC‑001, SC‑002 |
+| **4 – Assumption Checks & Robust Fallback** | Before each test, run Shapiro‑Wilk, Levene, linearity (R² ≥ 0.7). If any fail, switch to robust alternatives (Welch’s t‑test or rank‑based regression); flag `assumptions_met: false`. | FR‑006 | SC‑006 |
+| **5 – Permutation‑Based FPR** | **(a)** Permute the outcome **after** all cleaning steps (outcome column excluded from cleaning). **(b)** Run the full pipeline on each permuted dataset (default 1000 permutations; 500 for >200 rows). **(c)** Compute proportion of permutations with significant results after Holm‑Bonferroni; store per‑threshold values in `null_fpr_metrics.json`. Also embed the FPR for each variant in `cleaned_metrics.json`. | FR‑006 (FPR estimation) | SC‑006 |
+| **6 – Multiple‑Comparison Correction** | Apply Holm‑Bonferroni across all p‑values for a given dataset (all cleaning‑variant p‑values). Store adjusted p‑values in `cleaned_metrics.json`. | FR‑007 | SC‑007 |
+| **7 – Bootstrap Variance Estimation** | For each cleaned variant, perform 1000 bootstrap resamples (or `BOOTSTRAP_ITERATIONS`). Store bootstrap CI in `bootstrap_metrics.json`. | FR‑014 | SC‑004 |
+| **8 – Sensitivity Analysis** | Conduct a **factorial** sensitivity analysis: for each size bin (n < 50, 50‑200, >200) and each missingness level ([deferred], [deferred], [deferred], [deferred]) run **each cleaning method separately** on both original and missingness‑injected data, capturing interaction effects. Store aggregated results in `sensitivity_metrics.json`. If any bin lacks a dataset, download an additional open dataset that satisfies the criteria. | FR‑008, FR‑015, FR‑022 | SC‑008 |
+| **9 – Power Analysis** | Perform a Wilcoxon‑signed‑rank power analysis (medium effect, α = 0.05, power ≥ 0.8) for each dataset using `statsmodels.stats.power.WilcoxonPower`. Document per‑dataset power in `power_analysis.txt`; flag datasets that fall below the threshold. | FR‑016 | SC‑010 |
+| **10 – External Benchmark Simulation** | Generate synthetic null‑effect and d = 0.5 datasets (matching size distribution of real data). Run the full pipeline; verify FPR ≤ 0.05 on null data and effect‑size recovery tolerance ±0.1 on non‑null data. | FR‑020 | SC‑012 |
+| **11 – Hypothesis‑Testing on Δ‑Metrics** | Compute paired Wilcoxon signed‑rank test on `p_value_delta` across datasets for each cleaning operation; store in `hypothesis_test_results.json`. | FR‑021 | SC‑011 |
+| **12 – Report Generation** | Aggregate all delta metrics, CI overlap, effect‑size change, FPR into `comparison_report.json`. Produce forest plot and heatmap under `output/figures/`. | FR‑018 | SC‑003, SC‑009 |
+| **13 – Citation Verification** | Run the citation‑validation script required by Principle II; log outcome. | FR‑019 | – |
+| **14 – Contract Validation** | After each phase, invoke `code/validation.py` to check JSON artefacts against their schemas (`dataset`, `baseline_metrics`, `cleaned_metrics`, `null_fpr_metrics`, `analysis_results`, etc.). Abort on failure. | FR‑009, FR‑010, FR‑011, FR‑013, FR‑017, FR‑018 | SC‑009 |
 
-## Phase‑by‑Phase Mapping to Functional Requirements & Success Criteria
-| Phase | Description | FR(s) addressed | SC(s) addressed |
-|-------|-------------|----------------|-----------------|
-| **0 – Data Acquisition** | Download raw datasets, verify SHA‑256 checksums, **validate each dataset against `contracts/dataset.schema.yaml`**. Store under `data/raw/`. | FR‑001 (download) | – |
-| **1 – Baseline Analysis** | Run t‑tests & OLS regressions on raw data **after assumption checks** (normality, homoscedasticity, linearity). If any assumption fails, fall back to Mann‑Whitney U or Huber‑RLM. **Validate each result against `contracts/analysis_result.schema.yaml` and `contracts/baseline_metrics.schema.yaml`.** Store in `data/processed/baseline_metrics.json`. | FR‑001 | SC‑001 (per‑dataset delta reporting), SC‑002 (JSON precision) |
-| **2 – Cleaning Pipelines** | (a) IQR outlier removal (configurable `k`). (b) Mean/median/K‑NN imputation. (c) Factor/label encoding for categoricals. Each function returns `(cleaned_df, metadata_dict)` where metadata includes `rows_removed`, `missing_before`, `missing_after`, `variance_reduction`. **Capture all required metadata fields and later validate against `contracts/cleaned_metrics.schema.yaml`.** | FR‑002, FR‑003, FR‑004 | SC‑001 (metadata logging) |
-| **3 – Re‑analysis** | Re‑run the same statistical tests (with assumption checks & fallback) on each cleaned variant. **Validate against `contracts/cleaned_metrics.schema.yaml`.** Store in `data/processed/cleaned_metrics.json`. | FR‑005 | SC‑001, SC‑002 |
-| **4 – Outlier‑Threshold Sweep** | Iterate `k ∈ {1.5, 2.0}`; for each generate cleaned data, run baseline tests, store per‑threshold metrics (including `outlier_k`). | FR‑006 (outlier sweep) | SC‑001 |
-| **5 – Permutation Null & FPR** | For each dataset & each `k`, create a sufficiently large set of permutation nulls (shuffle the documented outcome column while preserving all other columns).. Run the full pipeline (including assumption checks) on each null dataset. Apply **Holm‑Bonferroni** correction across the entire family of tests **before** computing significance. Compute the proportion of tests with corrected `p < 0.05` → FPR. Store in `data/processed/null_fpr_metrics.json`. | FR‑006 (FPR estimation) | SC‑001, SC‑002 |
-| **6 – Bootstrap Variance** | For every delta (baseline vs. each cleaned variant), bootstrap **≥ 1000** resamples → 95 % CI of the delta. Results are added to the corresponding JSON records (`delta_ci_low`, `delta_ci_high`). | VI (Constitution) | SC‑001 |
-| **7 – Visualizations** | Forest plot of effect‑size deltas, heatmap of FPR across thresholds & datasets; save under `output/figures/`. | – | SC‑03 |
-| **8 – Reporting** | Assemble a Markdown report that pulls values directly from JSON files; embed figures. All statements are explicitly **associational**; no causal claims are made. | – | SC‑03 |
-| **9 – Validation & Contracts** | Run `tests/contract/test_contracts.py` to ensure JSON files conform to their schemas (`baseline_metrics`, `cleaned_metrics`, `null_fpr_metrics`, `analysis_result`, `dataset`). | – | – |
+## Compute Feasibility
+All steps use CPU‑friendly libraries (pandas, scipy, statsmodels, scikit‑learn). The most expensive operation is the permutation‑based FPR (≈ 1000 permutations × 10 datasets × ~5 cleaning variants). Each permutation processes a sampled subset (max 200 rows) to stay within memory/time limits. No GPU is required.
 
-All functional requirements and success criteria are explicitly covered.
+If a future extension demands a transformer‑based model, the plan would off‑load to Kaggle’s free GPU, but the current specification does **not** need it.
 
-## Assumption‑Check Sub‑Phase (new)
-Before any statistical test:
-1. **Normality** – Shapiro‑Wilk (`scipy.stats.shapiro`).  
-2. **Homoscedasticity** – Levene’s test (`scipy.stats.levene`).  
-3. **Linearity** – Pearson correlation scatter; flag if R² < 0.1.  
+## Risks & Mitigations
+| Risk | Mitigation |
+|------|------------|
+| Insufficient open datasets matching size/missingness bins. | Use the verified UCI datasets listed in the “Dataset Strategy” table; they are programmatically downloadable and can be filtered to meet bin criteria. |
+| Permutation FPR computation exceeds runtime. | Limit permutations to 500 for datasets with > 200 rows; note the power limitation in `sensitivity_metrics.json`. |
+| Schema drift (e.g., new fields added). | All schema files are version‑controlled; validation step will catch mismatches before downstream use. |
 
-If any test fails:
-- For t‑tests, use Mann‑Whitney U (`scipy.stats.mannwhitneyu`).  
-- For OLS, use Huber‑robust regression (`statsmodels.robust.robust_linear_model.RLM`).  
+---
 
-Assumption results are logged in `data/processed/assumption_checks.json` and the chosen fallback method is recorded in the corresponding analysis result.
-
-## Multiple‑Comparison Correction (new)
-- Within each dataset, apply **Holm‑Bonferroni** correction across **all** p‑values generated in a given analysis batch (predictors, cleaning variants, outlier thresholds, and permutation runs).  
-- Corrected p‑values are used for significance decisions and for FPR calculation.
-
-## Research Hypotheses (Associative)
-- **H1 (Associative)**: Outlier removal is *associated* with reduced p‑values when outliers are present.  
-- **H2 (Associative)**: Imputation and categorical recoding are *associated* with more stable effect‑size estimates (smaller variance across cleaning variants).
-
-These hypotheses are explicitly stated as associative, not causal.
-
-## Compute Strategy
-| Component | CPU‑first | GPU‑escape‑hatch | Reasoning |
-|-----------|-----------|------------------|-----------|
-| Statistical tests (t‑test, OLS) | ✅ | — | Classical stats run instantly on CPU. |
-| K‑NN imputation | ✅ | — | `sklearn.impute.KNNImputer` is CPU‑native and scales linearly with rows. |
-| Bootstrap (≥ 1000 iterations) | ✅ (sampled) | — | Each iteration is a cheap re‑fit; total runtime < 2 h on 2 CPU cores. |
-| Permutation null (a substantial number of permutations × 2 thresholds × 4 datasets) | ✅ (streamed) | — | Streaming avoids loading all permutations into memory; total ≈ 5 h, still within CI limits. |
-| Visualization (matplotlib/seaborn) | ✅ | — | Generates static PNGs; negligible compute. |
-
-No GPU‑only model is required; all steps are CPU‑tractable.
-
-## No Fabricated Metrics Clause
-The pipeline **must** generate all metric files (`baseline_metrics.json`, `cleaned_metrics.json`, `null_fpr_metrics.json`) from genuine computations performed on the real datasets. Hard‑coded placeholder values are prohibited; the run will abort with an error if any required metric is missing, NaN, or otherwise fabricated.
-
-## Dataset Strategy (updated)
-| Role | Dataset | Loader | Verified URL(s) | Outcome column | Notes |
-|------|---------|--------|------------------|----------------|-------|
-| Primary statistical dataset 1 | **Stepkids** | `datasets.load_dataset("FPRT/Stepkids_dataset", split="train")` | https://huggingface.co/datasets/FPRT/Stepkids_dataset/resolve/main/Step_Kids_Thematic_Final.csv | `score` (numeric) | Multiple numeric predictors; suitable for t‑test & OLS. |
-| Primary statistical dataset 2 | **Wine Quality** | `datasets.load_dataset("zillow/wine_quality", split="train")` | https://huggingface.co/datasets/zillow/wine_quality/resolve/main/winequality-red.csv | `quality` (numeric) | Classic regression benchmark. |
-| Primary statistical dataset 3 | **Breast Cancer** | `datasets.load_dataset("uciml/breast_cancer", split="train")` | https://huggingface.co/datasets/uciml/breast_cancer/resolve/main/data.csv | `diagnosis` (binary encoded as 0/1) | Binary outcome for linear‑style OLS (treated as linear for demonstration). |
-| Primary statistical dataset 4 | **FPR JSONL** | `datasets.load_dataset("ariel/fp_run_colab", split="train")` | https://huggingface.co/datasets/ariel/fp_run_colab/resolve/main/eval_predictions.jsonl | `label` (numeric) | Used for permutation‑null FPR estimation; outcome is numeric. |
-| IQR method example | **GPT Prompts CSV** | `datasets.load_dataset("IQRA512/gpt_prompts", split="train")` | https://huggingface.co/datasets/IQRA512/gpt_prompts.csv/resolve/main/gpt_prompts.csv | `prompt_length` | Verifies IQR implementation on a pure numeric column. |
-| Large‑numeric test | **Medbot Parquet** | `datasets.load_dataset("iqrabatool/medbot-llama2-500", split="train")` | https://huggingface.co/datasets/iqrabatool/medbot-llama2-500/resolve/main/data/train-00000-of-00001.parquet | *numeric column* | Streaming test of outlier removal on a large numeric column. |
-
-**Rationale** – All listed datasets are openly accessible via HuggingFace, have a clearly documented numeric (or binary) outcome column, and can be used for two‑sample t‑tests or linear regressions. This satisfies FR‑001‑FR‑006 and adheres to the Constitution’s reproducibility and data‑hygiene requirements.
-
-## Power & Generalizability Disclaimer
-Even with four datasets, statistical power to detect modest cleaning effects remains limited. All effect‑size shifts will be reported with bootstrap confidence intervals, and the limitation will be explicitly discussed in the final report.
-
-## No Fabricated Metrics Clause
-(Repeated for emphasis – see above.)
-
-## projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/quickstart.md===END_ARTIFACT===
-
-===BEGIN_ARTIFACT projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/research.md===
-# Research: Quantifying the Impact of Data Cleaning
-
-## Dataset Strategy
-| Role | Dataset | Loader | Verified URL(s) | Outcome column | Notes |
-|------|---------|--------|------------------|----------------|-------|
-| Primary statistical dataset 1 | **Stepkids** | `datasets.load_dataset("FPRT/Stepkids_dataset", split="train")` | https://huggingface.co/datasets/FPRT/Stepkids_dataset/resolve/main/Step_Kids_Thematic_Final.csv | `score` (numeric) | Multiple numeric predictors; suitable for t‑test & OLS. |
-| Primary statistical dataset 2 | **Wine Quality** | `datasets.load_dataset("zillow/wine_quality", split="train")` | https://huggingface.co/datasets/zillow/wine_quality/resolve/main/winequality-red.csv | `quality` (numeric) | Classic regression benchmark. |
-| Primary statistical dataset 3 | **Breast Cancer** | `datasets.load_dataset("uciml/breast_cancer", split="train")` | https://huggingface.co/datasets/uciml/breast_cancer/resolve/main/data.csv | `diagnosis` (binary 0/1) | Binary outcome for linear‑style OLS (treated as linear for demonstration). |
-| Primary statistical dataset 4 | **FPR JSONL** | `datasets.load_dataset("ariel/fp_run_colab", split="train")` | https://huggingface.co/datasets/ariel/fp_run_colab/resolve/main/eval_predictions.jsonl | `label` (numeric) | Used for permutation‑null FPR estimation. |
-| IQR method example | **GPT Prompts CSV** | `datasets.load_dataset("IQRA512/gpt_prompts", split="train")` | https://huggingface.co/datasets/IQRA512/gpt_prompts.csv/resolve/main/gpt_prompts.csv | `prompt_length` | Verifies IQR implementation on a pure numeric column. |
-| Large‑numeric test | **Medbot Parquet** | `datasets.load_dataset("iqrabatool/medbot-llama2-500", split="train")` | https://huggingface.co/datasets/iqrabatool/medbot-llama2-500/resolve/main/data/train-00000-of-00001.parquet | *numeric column* | Streaming test of outlier removal on a large numeric column. |
-
-**Rationale** – All datasets are openly accessible via HuggingFace, have a clearly documented numeric (or binary) outcome column, and support the required two‑sample t‑tests and linear regressions. This satisfies the functional requirements while adhering to the Constitution’s reproducibility and data‑hygiene principles.
-
-## Decision / Rationale (Compute & Method Choice)
-
-| Component | CPU‑first | GPU‑escape‑hatch | Reasoning |
-|-----------|-----------|------------------|-----------|
-| Statistical tests (t‑test, OLS) | ✅ | — | Classical stats run instantly on CPU. |
-| K‑NN imputation | ✅ | — | `sklearn.impute.KNNImputer` is CPU‑native and scales linearly with rows. |
-| Bootstrap (≥ 1000 iterations) | ✅ (sampled) | — | Each iteration is cheap; total runtime < 2 h on 2 CPU cores. |
-| Permutation null (a substantial number of permutations × 2 thresholds × 4 datasets) | ✅ (streamed) | — | Streaming avoids loading all permutations into memory; total ≈ several hours, within CI limits. |
-| Visualization (matplotlib/seaborn) | ✅ | — | Generates static PNGs; negligible compute. |
-
-No GPU‑only model is required; all steps are CPU‑tractable.
-
-## Statistical Rigor
-
-- **Multiple‑Comparison Correction** – For each dataset we apply **Holm‑Bonferroni** correction across **all** p‑values generated in a given analysis batch (predictors, cleaning variants, outlier thresholds, and permutation runs). Corrected p‑values are used for significance decisions and for FPR calculation.  
-- **Power Consideration** – With four datasets, we acknowledge limited power for modest effects; bootstrap confidence intervals and an explicit limitation discussion will be included.  
-- **Causal Claims** – All statements are framed as *associational* effects of cleaning procedures; no causal inference is claimed.  
-- **Measurement Validity** – Outcome columns (`score`, `quality`, `diagnosis`, `label`) are taken directly from the source datasets; citations to the HuggingFace URLs are provided.  
-- **Collinearity** – If predictors are highly correlated (|r| > 0.8) we will compute variance‑inflation factors (VIF) and note that independent effect estimates are not interpretable.  
-- **Assumption Checks** – Prior to each test we perform Shapiro‑Wilk (normality), Levene (homoscedasticity), and linearity diagnostics. Failures trigger Mann‑Whitney U (for t‑tests) or Huber‑robust regression (for OLS). Results are logged in `data/processed/assumption_checks.json`.
-
-## Research Hypotheses (Associative)
-
-- **H1 (Associative)**: Outlier removal is *associated* with reduced p‑values when outliers are present.  
-- **H2 (Associative)**: Imputation and categorical recoding are *associated* with more stable effect‑size estimates (smaller variance across cleaning variants).
-
-These hypotheses are explicitly stated as associative, not causal.
-
-## Workflow Overview (high‑level run‑book)
-
-1. `scripts/download_data.sh` → `code/data_loader.py` → `data/raw/`.  
-2. `code/main.py` orchestrates:  
-   - Baseline analysis **with assumption checks** (normality, homoscedasticity, linearity) and writes to `data/processed/baseline_metrics.json`.  
-   - Cleaning pipelines (outlier removal, imputation, recoding) and capture cleaning metadata (`rows_removed`, `missing_before`, `missing_after`, `variance_reduction`).  
-   - Re‑analysis **with assumption checks** → `data/processed/cleaned_metrics.json`.  
-   - Outlier‑threshold sweep (`k=1.5, 2.0`) → per‑threshold metrics added to cleaned JSON.  
-   - Permutation null generation → `data/processed/null_fpr_metrics.json`.  
-   - Bootstrap variance → added fields `delta_ci_low` / `delta_ci_high` to the JSON records.  
-   - Visualizations → `output/figures/forest_plot.png`, `output/figures/fpr_heatmap.png`.  
-3. `code/reporting.py` writes all JSON files with **≥ 3‑decimal precision** (as required by SC‑002).  
-4. `pytest -q tests/contract/` validates each JSON file against its schema.  
-
-All steps are deterministic given the fixed random seed (`config.SEED = 42`).  
-
-## No Fabricated Metrics Clause
-The pipeline **must** generate all metric files (`baseline_metrics.json`, `cleaned_metrics.json`, `null_fpr_metrics.json`) from genuine computations performed on the real datasets. Hard‑coded placeholder values are prohibited; the run will abort with an error if any required metric is missing, NaN, or otherwise fabricated.
