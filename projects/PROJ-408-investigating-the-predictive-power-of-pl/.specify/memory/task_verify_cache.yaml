@@ -1,21 +1,20 @@
-T019:
+T020a:
   c: false
-  h: 2b099a04eae4d181c1c870bb7f52b8e541b66e6dbbfcef41eff74f986dde818d
-  r: "The `code/stats_engine.py` file is truncated and does not contain a full Mantel\u2011\
-    test implementation, nor does it write the null\u2011distribution JSON or create\
-    \ the validation log. Both required output files (`data/processed/null_distribution.json`\
-    \ and `output/reports/validation_log.txt`) are missing. Consequently the task\u2019\
-    s deliverables are not satisfied."
+  h: 41e8a9334a4ceb430cd53300bc4de2302e4869f38fadb03fadc4cd96f58df0e0
+  r: "The provided `code/main.py` is truncated (ends mid\u2011statement) and does\
+    \ not show the full data\u2011loss calculation or the handling of partial exclusion\
+    \ as required. Moreover, the required `data/raw/species_list.txt` file is missing,\
+    \ so the script cannot read the total target species list as specified. Both the\
+    \ implementation and the necessary input file are absent."
 T020b:
   c: true
-  h: 633c74618c76cdaf2325e1d6dc2644e1fad4257010b770fca981176238cd6682
-  r: "The `code/report.py` defines `verify_sc003_retention` that computes the retention\
-    \ percentage, compares it to the configured threshold, and appends the required\
-    \ \u201CSC-003: Retention X% (PASS/FAIL)\u201D line to `output/reports/validation_log.txt`\
-    \ via `append_validation_log`. `code/main.py` calls this verification function\
-    \ after filtering species, satisfying the implementation requirement. The log\
-    \ file itself is created at runtime, so its current absence does not indicate\
-    \ an incomplete implementation."
+  h: cb06783dd96a0a4272ac850d7abb0b128edaf3ff1305d5de02f208126fd3366d
+  r: "The `code/report.py` file defines `verify_sc003_retention`, which computes the\
+    \ retention percentage, compares it to the configured threshold, and appends the\
+    \ required \u201CSC-003: Retention X% (PASS/FAIL)\u201D line to `output/reports/validation_log.txt`.\
+    \ The `code/main.py` imports this function (and the overall pipeline code is present),\
+    \ indicating the verification step is integrated into the pipeline. No placeholder\
+    \ or stub code is present for the SC\u2011003 logic."
 T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -25,3 +24,26 @@ T021:
     and record them as the primary source of truth is not satisfied. The next implementer
     must create the raw data files, generate their checksums, store them in `data/raw/`,
     and update the specified YAML file accordingly.
+T032:
+  c: false
+  h: 5282f0813c8f71bf5e6afd3af51c25b91adf2e16942723cb096440a073a64723
+  r: "The `output/reports/analysis_summary.txt` file does not exist, and the `generate_analysis_summary`\
+    \ function in `code/report.py` is truncated and does not contain logic to write\
+    \ the required headline r, p\u2011value, partial r, and ratio to that file. Consequently\
+    \ the deliverable specified in the task is missing."
+T039:
+  c: false
+  h: 2080aad4936b6aaee6c83614fdaab407c8b61ab87c2ee907fbc09ada7a3b8ce8
+  r: The `code/data_loader.py` contains a `_validate_species_mapping` function that
+    performs the required 1:1 checks, but the essential `data/raw/species_list.txt`
+    file is absent, so the validation cannot actually be run. Additionally, the snippet
+    does not show the function being called before any data fetches, leaving the integration
+    unverified. The missing species list file must be provided and the validation
+    invoked in the pipeline for the task to be complete.
+T042:
+  c: false
+  h: f9a57b11379b0b656e877352f1d1bb48f675ed2fe9e67be22071a81da002fa51
+  r: "The `scripts/audit_data.py` file exists but is truncated and relies on `data/raw/species_list.txt`,\
+    \ which is missing, so the script cannot run. Moreover, the required output `output/reports/retention_audit.txt`\
+    \ was not generated. The task\u2019s essential artifacts are absent, so the requirement\
+    \ is not satisfied."

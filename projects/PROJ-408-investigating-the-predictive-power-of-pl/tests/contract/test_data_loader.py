@@ -27,35 +27,44 @@ def test_data_loader_schema_matches():
     schema_path = Path(__file__).parent / "schemas" / "data_loader.yaml"
     schema = load_schema(schema_path)
     
-    # We cannot run the full fetch in a unit test without network, 
-    # but we can test the structure of the SpeciesData object if we mock or use a small sample.
-    # However, the task requires a contract test.
-    # Let's assume we have a small test species list.
-    test_species = ["Arabidopsis thaliana", "Oryza sativa"]
+    # We test the structure of the SpeciesData object against the schema definition.
+    # The schema expects:
+    # species_data: array of objects with species_id, marker_genes, metabolite_profile
     
-    # Since fetching real data might fail or take time, we check the structure of the returned object
-    # by calling the functions and checking if they return the expected types.
-    # In a real CI, this might be skipped or run against a mock server.
-    # Here we just verify the class structure matches the schema definition.
-    
-    # Check SpeciesData structure
+    # 1. Verify SpeciesData dataclass structure
     assert hasattr(SpeciesData, 'species_id')
     assert hasattr(SpeciesData, 'marker_genes')
     assert hasattr(SpeciesData, 'metabolite_profile')
     
-    # If we could fetch, we would check:
-    # data = fetch_marker_genes(test_species)
-    # assert isinstance(data, list)
-    # for item in data:
-    #     assert 'species_id' in item
-    #     ...
+    # 2. Verify types match schema expectations
+    # schema: marker_genes is object (dict), metabolite_profile is object (dict)
+    # species_id is string
     
-    # For now, we assert the schema exists and the class attributes match
+    # Create a mock instance to check types
+    mock_data = SpeciesData(
+        species_id="test_species",
+        marker_genes={"rbcL": "ATGC..."},
+        metabolite_profile={"C00001": True}
+    )
+    
+    assert isinstance(mock_data.species_id, str)
+    assert isinstance(mock_data.marker_genes, dict)
+    assert isinstance(mock_data.metabolite_profile, dict)
+    
+    # 3. Verify schema properties exist
     schema_props = schema['properties']['species_data']['items']['properties']
     assert 'species_id' in schema_props
     assert 'marker_genes' in schema_props
     assert 'metabolite_profile' in schema_props
     
-    # This is a structural check. A real contract test would validate an instance.
-    # Given the constraints, we verify the schema definition and the class alignment.
-    assert True # Placeholder for the actual validation logic if data were available
+    # 4. Verify nested types in schema
+    assert schema_props['marker_genes']['type'] == 'object'
+    assert schema_props['metabolite_profile']['type'] == 'object'
+    
+    # 5. Verify required fields
+    schema_required = schema['properties']['species_data']['items']['required']
+    assert 'species_id' in schema_required
+    assert 'marker_genes' in schema_required
+    assert 'metabolite_profile' in schema_required
+    
+    logger.info("Schema contract test passed: SpeciesData structure matches data_loader.yaml")

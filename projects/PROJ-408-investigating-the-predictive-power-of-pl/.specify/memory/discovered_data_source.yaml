@@ -1,6 +1,6 @@
 status: none
-intent: download plant KEGG secondary metabolite dataset with NCBI taxonomy and gene
-  sequences python package
+intent: plant phylogenetic and metabolite dataset NCBI taxonomy GenBank KEGG python
+  package dataset
 required_fields:
 - species_name
 - ncbi_taxonomy_id
@@ -9,9 +9,7 @@ required_fields:
 - rbcL_sequence
 - matK_sequence
 - metabolite_id
-- metabolite_name
-- kegg_pathway_id
-- presence_absence_flag
-cache_key: 6418695ae2b2e1172e63a5d245e30993ae60af8cb4e8a28a914560143407988a
-searched_at: '2026-08-25T17:20:13.156759+00:00'
+- metabolite_presence_binary
+cache_key: e0d75fe0963a4510525cdd872e1da4c59ed12853b64c05b5e5d11d92588f8da5
+searched_at: '2026-09-02T14:21:32.015517+00:00'
 retry_count: 1

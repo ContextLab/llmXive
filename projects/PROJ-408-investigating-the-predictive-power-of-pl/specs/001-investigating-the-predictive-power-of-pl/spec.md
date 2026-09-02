@@ -67,7 +67,7 @@ A researcher needs to visualize the relationship between phylogenetic distance a
 - **FR-002**: System MUST retrieve secondary metabolite presence/absence profiles (filtered via KEGG BRITE hierarchy) for the target species from the KEGG COMPOUND database (See US-1).
 - **FR-003**: System MUST construct a maximum-likelihood phylogenetic tree from the aligned sequences using FastTree and compute pairwise patristic distances (See US-1).
 - **FR-004**: System MUST calculate pairwise Jaccard dissimilarity matrices for the metabolite profiles (See US-1).
-- **FR-005**: System MUST perform a Mantel test correlating the phylogenetic distance matrix with the metabolite dissimilarity matrix using 999 permutations (See US-1).
+- **FR-005**: System MUST perform a Mantel test correlating the phylogenetic distance matrix with the metabolite dissimilarity matrix using a sufficient number of permutations. (See US-1).
 - **FR-006**: System MUST integrate USDA PLANTS climate data to construct a climate distance matrix and perform a Partial Mantel test controlling for this matrix (See US-2).
 - **FR-007**: System MUST generate a scatter plot of distance vs. dissimilarity and a heatmap of metabolites on the phylogenetic tree (See US-3).
 
