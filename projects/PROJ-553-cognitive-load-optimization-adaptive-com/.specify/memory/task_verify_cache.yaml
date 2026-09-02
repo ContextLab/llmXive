@@ -1,10 +1,3 @@
-T015:
-  c: false
-  h: 0ac7a49caf6eb48b8903c121b740b81cc3a6a074e7dc8d574ff2ce46e2b77674
-  r: "The required model artifact `data/processed/load_model.pkl` does not exist,\
-    \ and the provided `code/train_load_model.py` is truncated before any training,\
-    \ validation, size\u2011check, or saving logic is shown. Consequently the pipeline\
-    \ is not fully implemented nor does it produce the required output."
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

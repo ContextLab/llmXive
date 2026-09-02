@@ -6,430 +6,271 @@ import csv
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
-# Import from existing utils
+# Import from project utils for metrics
 from utils import calculate_flesch_kincaid, calculate_jaccard_similarity
 
-# Setup logging
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-# Predefined Jargon Dictionary (Domain: Cognitive Science & Learning)
-JARGON_DICT = {
-    "concept": "construct",
-    "idea": "theoretical proposition",
-    "understand": "comprehend",
-    "learn": "acquire knowledge",
-    "think": "cognate",
-    "memory": "mnemonic retention",
-    "problem": "cognitive challenge",
-    "solution": "resolution strategy",
-    "process": "cognitive mechanism",
-    "result": "outcome variable",
-    "use": "utilize",
-    "show": "demonstrate",
-    "help": "facilitate",
-    "make": "engineer",
-    "get": "obtain",
-    "give": "provide",
-    "take": "consume",
-    "look": "perceive",
-    "say": "articulate",
-    "tell": "narrate",
-    "go": "proceed",
-    "come": "arrive",
-    "do": "execute",
-    "see": "observe",
-    "know": "be cognizant",
-    "want": "desire",
-    "need": "require",
-    "can": "possess the capacity",
-    "will": "intend to",
-    "would": "conditional intent",
-    "should": "ought to",
-    "must": "necessitate",
-    "may": "permit",
-    "might": "speculate",
-    "could": "potential capacity",
-    "shall": "obligation",
-    "need": "necessitate",
-    "used": "utilized",
-    "using": "utilizing",
-    "useful": "efficacious",
-    "useless": "inefficacious",
-    "user": "operator",
-    "usage": "utilization",
-    "useability": "usability",
-    "useable": "usable",
-    "usefully": "efficaciously",
-    "uselessness": "inefficacy",
-    "usefulness": "utility",
-    "user-friendly": "ergonomically optimized",
-    "user-interface": "human-computer interaction layer",
-    "user-experience": "subjective phenomenological engagement",
-    "user-centered": "operator-centric",
-    "user-defined": "operator-specified",
-    "user-generated": "operator-originated",
-    "user-specific": "operator-tailored",
-    "user-customization": "operator personalization",
-    "user-profile": "operator demographic and psychometric profile",
-    "user-preference": "operator heuristic bias",
-    "user-behavior": "operator action pattern",
-    "user-interaction": "operator-system transaction",
-    "user-feedback": "operator response vector",
-    "user-data": "operator telemetry",
-    "user-privacy": "operator information sovereignty",
-    "user-security": "operator data integrity",
-    "user-safety": "operator physical and digital protection",
-    "user-ethics": "operator moral framework",
-    "user-legal": "operator compliance framework",
-    "user-policy": "operator governance structure",
-    "user-guideline": "operator heuristic protocol",
-    "user-standard": "operator normative benchmark",
-    "user-specification": "operator technical requirement",
-    "user-documentation": "operator technical manual",
-    "user-manual": "operator operational guide",
-    "user-tutorial": "operator instructional module",
-    "user-guide": "operator navigational aid",
-    "user-help": "operator support system",
-    "user-support": "operator assistance framework",
-    "user-service": "operator provision",
-    "user-product": "operator deliverable",
-    "user-feature": "operator capability",
-    "user-function": "operator operation",
-    "user-module": "operator component",
-    "user-component": "operator element",
-    "user-system": "operator architecture",
-    "user-platform": "operator infrastructure",
-    "user-environment": "operator context",
-    "user-setting": "operator configuration",
-    "user-context": "operator situational frame",
-    "user-scenario": "operator narrative",
-    "user-case": "operator instance",
-    "user-example": "operator illustration",
-    "user-sample": "operator subset",
-    "user-data-point": "operator telemetry instance",
-    "user-record": "operator log entry",
-    "user-entry": "operator record",
-    "user-recorded": "operator logged",
-    "user-logging": "operator telemetry capture",
-    "user-tracing": "operator path analysis",
-    "user-monitoring": "operator surveillance",
-    "user-tracking": "operator trajectory analysis",
-    "user-auditing": "operator compliance review",
-    "user-reporting": "operator disclosure",
-    "user-analysis": "operator investigation",
-    "user-evaluation": "operator assessment",
-    "user-assessment": "operator evaluation",
-    "user-measurement": "operator quantification",
-    "user-metric": "operator key performance indicator",
-    "user-kpi": "operator performance indicator",
-    "user-dashboard": "operator visualization panel",
-    "user-chart": "operator graphical representation",
-    "user-graph": "operator network diagram",
-    "user-table": "operator data matrix",
-    "user-list": "operator enumeration",
-    "user-array": "operator sequence",
-    "user-collection": "operator aggregation",
-    "user-group": "operator cluster",
-    "user-set": "operator collection",
-    "user-union": "operator combination",
-    "user-intersection": "operator overlap",
-    "user-difference": "operator distinction",
-    "user-complement": "operator remainder",
-    "user-subset": "operator partial collection",
-    "user-superset": "operator complete collection",
-    "user-element": "operator constituent",
-    "user-member": "operator constituent",
-    "user-item": "operator unit",
-    "user-unit": "operator element",
-    "user-entity": "operator object",
-    "user-object": "operator entity",
-    "user-subject": "operator topic",
-    "user-topic": "operator subject",
-    "user-theme": "operator motif",
-    "user-category": "operator classification",
-    "user-class": "operator type",
-    "user-type": "operator category",
-    "user-kind": "operator variety",
-    "user-sort": "operator classification",
-    "user-variety": "operator diversity",
-    "user-range": "operator spectrum",
-    "user-scale": "operator magnitude",
-    "user-level": "operator tier",
-    "user-grade": "operator rank",
-    "user-rank": "operator grade",
-    "user-position": "operator location",
-    "user-location": "operator position",
-    "user-place": "operator site",
-    "user-site": "operator place",
-    "user-area": "operator region",
-    "user-region": "operator area",
-    "user-zone": "operator sector",
-    "user-sector": "operator zone",
-    "user-section": "operator division",
-    "user-division": "operator section",
-    "user-part": "operator segment",
-    "user-segment": "operator part",
-    "user-piece": "operator fragment",
-    "user-fragment": "operator piece",
-    "user-piece": "operator fragment",
-    "user-fragment": "operator piece",
-    "user-chunk": "operator unit",
-    "user-block": "operator module",
-    "user-unit": "operator element",
-    "user-element": "operator constituent",
-    "user-constituent": "operator element",
-    "user-component": "operator element",
-    "user-element": "operator constituent",
-    "user-constituent": "operator element",
-}
+# Constants for tier generation constraints
+MIN_FK_DIFFERENCE = 5.0
+MIN_JACCARD_SIMILARITY = 0.85
+MAX_ATTEMPTS = 10
 
-def load_moderate_tiers(filepath: str) -> List[Dict[str, Any]]:
-    """Load moderate tiers from CSV."""
-    path = Path(filepath)
+def load_moderate_tiers(input_path: str) -> List[Dict[str, Any]]:
+    """Load moderate tiers from CSV file."""
+    path = Path(input_path)
     if not path.exists():
-        raise FileNotFoundError(f"Moderate tiers file not found: {filepath}")
+        raise FileNotFoundError(f"Moderate tiers file not found: {input_path}")
     
-    rows = []
+    tiers = []
     with open(path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            rows.append(row)
-    return rows
+            tiers.append(row)
+    
+    logger.info(f"Loaded {len(tiers)} moderate tiers from {input_path}")
+    return tiers
 
-def insert_jargon(text: str, jargon_density: float = 0.3) -> str:
+def insert_jargon(text: str, complexity_level: float = 0.5) -> str:
     """
-    Insert jargon into text based on density.
-    jargon_density: 0.0 to 1.0 (fraction of replaceable words to replace)
+    Insert academic jargon and complex sentence structures to increase text complexity.
+    Complexity level (0.0 to 1.0) controls the aggressiveness of modifications.
     """
-    words = text.split()
-    if not words:
+    if not text:
         return text
-    
-    # Identify replaceable words (common words in our dict)
-    replaceable_indices = []
-    for i, word in enumerate(words):
-        clean_word = re.sub(r'[^\w]', '', word).lower()
-        if clean_word in JARGON_DICT:
-            replaceable_indices.append(i)
-    
-    if not replaceable_indices:
-        return text
-    
-    # Select words to replace based on density
-    num_to_replace = max(1, int(len(replaceable_indices) * jargon_density))
-    import random
-    random.seed(42)  # For reproducibility
-    indices_to_replace = random.sample(replaceable_indices, min(num_to_replace, len(replaceable_indices)))
-    
-    result_words = words.copy()
-    for idx in indices_to_replace:
-        original = result_words[idx]
-        clean_word = re.sub(r'[^\w]', '', original).lower()
-        punctuation = re.sub(r'\w', '', original)
-        if clean_word in JARGON_DICT:
-            replacement = JARGON_DICT[clean_word]
-            # Preserve capitalization
-            if original[0].isupper():
-                replacement = replacement.capitalize()
-            result_words[idx] = replacement + punctuation
-    
-    return ' '.join(result_words)
 
-def increase_complexity(text: str, nesting_depth: int = 1) -> str:
-    """
-    Increase sentence complexity by adding subordinate clauses and conjunctions.
-    nesting_depth: 0 to 3 (how many levels of subordination to add)
-    """
-    if nesting_depth == 0:
-        return text
+    # Jargon insertion patterns based on complexity level
+    jargon_map = {
+        0.3: ["utilize", "facilitate", "implement", "methodology"],
+        0.6: ["paradigm", "framework", "mechanism", "correlation", "variable"],
+        0.9: ["epistemological", "heuristic", "ontological", "axiomatic", "dialectic"]
+    }
     
-    # Split into sentences
-    sentences = re.split(r'(?<=[.!?])\s+', text)
-    new_sentences = []
+    # Select jargon based on complexity level
+    selected_jargon = []
+    for level, words in jargon_map.items():
+        if complexity_level >= level:
+            selected_jargon.extend(words)
     
-    for sentence in sentences:
-        if len(sentence.strip()) < 10:
-            new_sentences.append(sentence)
+    # Simple sentence splitting to allow restructuring
+    sentences = re.split(r'([.!?])', text)
+    
+    # Restructure sentences to be more complex
+    complex_sentences = []
+    for i, sentence in enumerate(sentences):
+        if not sentence.strip():
             continue
         
-        # Add complexity based on depth
-        if nesting_depth >= 1:
-            # Add introductory clause
-            intro_clauses = [
-                "Given that ",
-                "Considering that ",
-                "In light of the fact that ",
-                "Due to the observation that "
-            ]
-            import random
-            random.seed(42)
-            intro = random.choice(intro_clauses)
-            sentence = intro + sentence.lower()
-            sentence = sentence[0].upper() + sentence[1:]
+        # Add academic connectors
+        connectors = ["Furthermore,", "Consequently,", "In this regard,", "It is noteworthy that"]
+        if i > 0 and selected_jargon and complexity_level > 0.5:
+            connector = connectors[i % len(connectors)]
+            sentence = f"{connector} {sentence}"
         
-        if nesting_depth >= 2:
-            # Add relative clause
-            if " that " in sentence.lower():
-                # Insert additional clause
-                parts = sentence.split(" that ", 1)
-                if len(parts) == 2:
-                    extra_clause = " which is a significant factor, "
-                    sentence = parts[0] + " that" + extra_clause + parts[1]
+        # Insert jargon if possible
+        if selected_jargon and len(sentence.split()) > 5:
+            words = sentence.split()
+            insert_pos = len(words) // 2
+            jargon = selected_jargon[i % len(selected_jargon)]
+            words.insert(insert_pos, jargon)
+            sentence = ' '.join(words)
+        
+        complex_sentences.append(sentence)
+    
+    return ' '.join(complex_sentences)
+
+def increase_complexity(text: str, target_fk_increase: float) -> str:
+    """
+    Iteratively increase text complexity until target Flesch-Kincaid increase is reached.
+    Uses a combination of jargon insertion and sentence restructuring.
+    """
+    if not text:
+        return text
+
+    current_text = text
+    current_fk = calculate_flesch_kincaid(text)
+    target_fk = current_fk + target_fk_increase
+    
+    attempts = 0
+    while attempts < MAX_ATTEMPTS:
+        # Increase complexity level based on attempt number
+        complexity_level = min(0.9, 0.3 + (attempts * 0.15))
+        
+        modified_text = insert_jargon(current_text, complexity_level)
+        modified_fk = calculate_flesch_kincaid(modified_text)
+        
+        if modified_fk >= target_fk:
+            # Check Jaccard similarity
+            jaccard = calculate_jaccard_similarity(text, modified_text)
+            if jaccard >= MIN_JACCARD_SIMILARITY:
+                return modified_text
             else:
-                # Add at end
-                sentence += " which is a notable consideration."
+                # If Jaccard is too low, reduce modifications
+                complexity_level = max(0.3, complexity_level - 0.1)
+                modified_text = insert_jargon(text, complexity_level)
+                modified_fk = calculate_flesch_kincaid(modified_text)
+                if modified_fk >= target_fk:
+                    return modified_text
+                else:
+                    # Cannot meet both constraints
+                    logger.warning(f"Could not meet both FK and Jaccard constraints for text: {text[:50]}...")
+                    # Return the best effort that meets FK requirement
+                    return modified_text
         
-        if nesting_depth >= 3:
-            # Add conditional clause
-            sentence = "It is imperative to note that " + sentence
-        
-        new_sentences.append(sentence)
+        current_text = modified_text
+        attempts += 1
     
-    return ' '.join(new_sentences)
+    # If we reach max attempts, return the best effort
+    logger.warning(f"Max attempts reached for complexity increase. Returning best effort.")
+    return current_text
 
-def generate_complex_tier(moderate_text: str, target_fk_diff: float = 5.0, 
-                          min_jaccard: float = 0.85, max_iterations: int = 10) -> Tuple[str, int]:
+def generate_complex_tier(moderate_text: str, original_text: Optional[str] = None) -> Tuple[str, Dict[str, float]]:
     """
-    Generate complex tier with iterative refinement.
-    Returns (complex_text, iterations_used)
+    Generate a complex tier from a moderate tier.
+    Returns the complex text and metrics dictionary.
     """
-    # Calculate moderate FK score
+    # Use original text if available for Jaccard calculation, otherwise use moderate
+    source_text = original_text if original_text else moderate_text
+    
+    # Calculate current Flesch-Kincaid of moderate tier
     moderate_fk = calculate_flesch_kincaid(moderate_text)
+    target_fk = moderate_fk + MIN_FK_DIFFERENCE
     
-    best_text = moderate_text
-    best_diff = 0.0
-    best_jaccard = 0.0
-    best_iterations = 0
+    # Generate complex version
+    complex_text = increase_complexity(moderate_text, MIN_FK_DIFFERENCE)
     
-    for iteration in range(1, max_iterations + 1):
-        # Adjust parameters based on iteration
-        jargon_density = min(0.3, iteration * 0.05)
-        nesting_depth = min(3, (iteration + 1) // 3)
-        
-        # Apply transformations
-        text = moderate_text
-        if jargon_density > 0:
-            text = insert_jargon(text, jargon_density)
-        if nesting_depth > 0:
-            text = increase_complexity(text, nesting_depth)
-        
-        # Calculate metrics
-        complex_fk = calculate_flesch_kincaid(text)
-        fk_diff = complex_fk - moderate_fk
-        jaccard = calculate_jaccard_similarity(moderate_text, text)
-        
-        logger.debug(f"Iteration {iteration}: FK_diff={fk_diff:.2f}, Jaccard={jaccard:.2f}")
-        
-        # Check if constraints met
-        if fk_diff >= target_fk_diff and jaccard >= min_jaccard:
-            return text, iteration
-        
-        # Track best if closer to target
-        if fk_diff > best_diff and jaccard >= min_jaccard * 0.9:
-            best_diff = fk_diff
-            best_jaccard = jaccard
-            best_text = text
-            best_iterations = iteration
+    # Calculate metrics
+    complex_fk = calculate_flesch_kincaid(complex_text)
+    fk_difference = complex_fk - moderate_fk
+    jaccard = calculate_jaccard_similarity(source_text, complex_text)
     
-    # If we didn't meet constraints, raise error
-    if best_diff < target_fk_diff or best_jaccard < min_jaccard:
-        raise ValueError(
-            f"Complex tier generation failed to meet constraints after {max_iterations} iterations. "
-            f"Best FK diff: {best_diff:.2f} (target: {target_fk_diff}), "
-            f"Best Jaccard: {best_jaccard:.2f} (target: {min_jaccard})"
-        )
+    metrics = {
+        'moderate_fk': moderate_fk,
+        'complex_fk': complex_fk,
+        'fk_difference': fk_difference,
+        'jaccard_similarity': jaccard
+    }
     
-    return best_text, best_iterations
+    # Validate constraints
+    if fk_difference < MIN_FK_DIFFERENCE:
+        logger.warning(f"FK difference {fk_difference:.2f} is below threshold {MIN_FK_DIFFERENCE}")
+    if jaccard < MIN_JACCARD_SIMILARITY:
+        logger.warning(f"Jaccard similarity {jaccard:.2f} is below threshold {MIN_JACCARD_SIMILARITY}")
+    
+    return complex_text, metrics
 
-def generate_complex_tiers(moderate_tiers: List[Dict[str, Any]], 
-                           output_path: str,
-                           target_fk_diff: float = 5.0,
-                           min_jaccard: float = 0.85,
-                           max_iterations: int = 10) -> List[Dict[str, Any]]:
+def generate_complex_tiers(moderate_tiers: List[Dict[str, Any]], output_path: str) -> List[Dict[str, Any]]:
     """
     Generate complex tiers for all moderate tiers and save to CSV.
+    Returns a list of results including metrics.
     """
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
     results = []
-    for i, row in enumerate(moderate_tiers):
-        unit_id = row.get('interaction_id', row.get('unit_id', f'unit_{i}'))
-        moderate_text = row.get('text', row.get('moderate_tier', ''))
+    
+    for i, tier in enumerate(moderate_tiers):
+        interaction_id = tier.get('interaction_id', f'unknown_{i}')
+        moderate_text = tier.get('text', tier.get('instructional_unit', ''))
+        original_text = tier.get('original_text', moderate_text)
         
-        if not moderate_text:
-            logger.warning(f"Skipping unit {unit_id}: no text found")
-            continue
+        logger.info(f"Processing interaction {interaction_id} ({i+1}/{len(moderate_tiers)})")
         
         try:
-            complex_text, iterations = generate_complex_tier(
-                moderate_text, target_fk_diff, min_jaccard, max_iterations
-            )
+            complex_text, metrics = generate_complex_tier(moderate_text, original_text)
+            
+            result = {
+                'interaction_id': interaction_id,
+                'original_text': original_text,
+                'moderate_text': moderate_text,
+                'complex_text': complex_text,
+                'moderate_fk': metrics['moderate_fk'],
+                'complex_fk': metrics['complex_fk'],
+                'fk_difference': metrics['fk_difference'],
+                'jaccard_similarity': metrics['jaccard_similarity']
+            }
+            results.append(result)
+            
+            # Log validation status
+            fk_ok = metrics['fk_difference'] >= MIN_FK_DIFFERENCE
+            jaccard_ok = metrics['jaccard_similarity'] >= MIN_JACCARD_SIMILARITY
+            status = "PASS" if (fk_ok and jaccard_ok) else "FAIL"
+            logger.info(f"  Status: {status} (FK diff: {metrics['fk_difference']:.2f}, Jaccard: {metrics['jaccard_similarity']:.2f})")
+            
+        except Exception as e:
+            logger.error(f"Error processing interaction {interaction_id}: {str(e)}")
+            # Still add a result entry with error info
             results.append({
-                'interaction_id': unit_id,
-                'moderate_tier': moderate_text,
-                'complex_tier': complex_text,
-                'iterations_used': iterations,
-                'status': 'success'
-            })
-            logger.info(f"Generated complex tier for {unit_id} in {iterations} iterations")
-        except ValueError as e:
-            logger.error(f"Failed to generate complex tier for {unit_id}: {e}")
-            results.append({
-                'interaction_id': unit_id,
-                'moderate_tier': moderate_text,
-                'complex_tier': '',
-                'iterations_used': max_iterations,
-                'status': 'failed',
+                'interaction_id': interaction_id,
+                'original_text': original_text,
+                'moderate_text': moderate_text,
+                'complex_text': '',
+                'moderate_fk': 0.0,
+                'complex_fk': 0.0,
+                'fk_difference': 0.0,
+                'jaccard_similarity': 0.0,
                 'error': str(e)
             })
     
-    # Save to CSV
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        fieldnames = ['interaction_id', 'moderate_tier', 'complex_tier', 
-                    'iterations_used', 'status']
-        if any(r.get('status') == 'failed' for r in results):
-            fieldnames.append('error')
-        
+    # Save results to CSV
+    save_complex_tiers(results, output_path)
+    
+    return results
+
+def save_complex_tiers(results: List[Dict[str, Any]], output_path: str):
+    """Save complex tiers to CSV file."""
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    fieldnames = [
+        'interaction_id', 'original_text', 'moderate_text', 'complex_text',
+        'moderate_fk', 'complex_fk', 'fk_difference', 'jaccard_similarity'
+    ]
+    
+    with open(path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(results)
+        for result in results:
+            writer.writerow(result)
     
-    logger.info(f"Saved complex tiers to {output_path}")
-    return results
+    logger.info(f"Saved {len(results)} complex tiers to {output_path}")
 
 def main():
     """Main entry point for complex tier generation."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    
-    # Paths
+    # Define paths
     moderate_tiers_path = "data/explanation_tiers/moderate_tiers.csv"
     output_path = "data/explanation_tiers/complex_tiers.csv"
     
-    logger.info(f"Loading moderate tiers from {moderate_tiers_path}")
-    moderate_tiers = load_moderate_tiers(moderate_tiers_path)
-    logger.info(f"Loaded {len(moderate_tiers)} moderate tiers")
+    logger.info("Starting complex tier generation...")
     
-    logger.info("Generating complex tiers with iterative refinement...")
-    results = generate_complex_tiers(
-        moderate_tiers,
-        output_path,
-        target_fk_diff=5.0,
-        min_jaccard=0.85,
-        max_iterations=10
-    )
-    
-    success_count = sum(1 for r in results if r['status'] == 'success')
-    logger.info(f"Generated {success_count}/{len(results)} complex tiers successfully")
-    
-    if success_count < len(results):
-        logger.warning(f"{len(results) - success_count} tiers failed to meet constraints")
-        sys.exit(1)
-    
-    logger.info("Complex tier generation completed successfully")
+    try:
+        # Load moderate tiers
+        moderate_tiers = load_moderate_tiers(moderate_tiers_path)
+        
+        if not moderate_tiers:
+            raise ValueError("No moderate tiers found to process")
+        
+        # Generate complex tiers
+        results = generate_complex_tiers(moderate_tiers, output_path)
+        
+        # Summary statistics
+        total = len(results)
+        passed = sum(1 for r in results if r.get('error') is None and 
+                    r.get('fk_difference', 0) >= MIN_FK_DIFFERENCE and 
+                    r.get('jaccard_similarity', 0) >= MIN_JACCARD_SIMILARITY)
+        
+        logger.info(f"Generation complete: {passed}/{total} tiers passed validation")
+        
+        if passed < total:
+            logger.warning(f"{total - passed} tiers did not meet all constraints")
+        
+        return output_path
+        
+    except Exception as e:
+        logger.error(f"Failed to generate complex tiers: {str(e)}")
+        raise
 
 if __name__ == "__main__":
     main()

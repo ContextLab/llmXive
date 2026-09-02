@@ -1,103 +1,126 @@
+import os
+import sys
 import pytest
 import pandas as pd
 from pathlib import Path
-import json
-from code.generate_tiers import (
-    load_sample_instructional_units,
-    preprocess_text_samples,
-    generate_simple_tier,
-    generate_moderate_tier,
+
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+from code.generate_complex_tier import (
+    load_moderate_tiers,
     generate_complex_tier,
-    validate_tier_progression,
-    validate_fidelity,
-    save_tiers_to_file
+    generate_complex_tiers,
+    save_complex_tiers,
+    MIN_FK_DIFFERENCE,
+    MIN_JACCARD_SIMILARITY
 )
 from code.utils import calculate_flesch_kincaid, calculate_jaccard_similarity
 
-def test_load_sample_instructional_units():
-    """Test that we can load instructional units from a CSV file."""
-    # Create a temporary test file
-    test_data = [
-        {"interaction_id": "1", "question_text": "What is 2+2?"},
-        {"interaction_id": "2", "question_text": "Explain the concept of gravity."}
-    ]
-    df = pd.DataFrame(test_data)
-    test_path = Path("data/processed/test_units.csv")
-    test_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(test_path, index=False)
-    
-    units = load_sample_instructional_units(test_path)
-    assert len(units) == 2
-    assert units[0]["id"] == "1"
-    assert "2+2" in units[0]["source_text"]
-    
-    # Cleanup
-    test_path.unlink()
+class TestComplexTierGeneration:
+    """Contract tests for complex tier generation."""
 
-def test_generate_tiers_returns_strings():
-    """Test that tier generation functions return non-empty strings."""
-    text = "This is a sample text for testing purposes."
-    
-    simple = generate_simple_tier(text)
-    moderate = generate_moderate_tier(text)
-    complex_tier = generate_complex_tier(text)
-    
-    assert isinstance(simple, str) and len(simple) > 0
-    assert isinstance(moderate, str) and len(moderate) > 0
-    assert isinstance(complex_tier, str) and len(complex_tier) > 0
+    def test_load_moderate_tiers(self, tmp_path):
+        """Test loading moderate tiers from CSV."""
+        # Create a test moderate tiers file
+        test_data = [
+            {'interaction_id': '1', 'text': 'This is a simple sentence.'},
+            {'interaction_id': '2', 'text': 'Another example text here.'}
+        ]
+        
+        input_file = tmp_path / "moderate_tiers.csv"
+        df = pd.DataFrame(test_data)
+        df.to_csv(input_file, index=False)
+        
+        # Load and verify
+        tiers = load_moderate_tiers(str(input_file))
+        assert len(tiers) == 2
+        assert tiers[0]['interaction_id'] == '1'
+        assert tiers[1]['text'] == 'Another example text here.'
 
-def test_validate_tier_progression():
-    """Test that tier progression validation works correctly."""
-    # Create texts with known FK scores (approximate)
-    simple = "The cat sat on the mat."
-    moderate = "The feline animal sat upon the woven floor covering."
-    complex_tier = "The substantial feline creature subsequently initiated the act of seating itself upon the intricately woven floor covering."
-    
-    # This should pass if FK scores show progression
-    result = validate_tier_progression(simple, moderate, complex_tier)
-    # Note: This might fail if the heuristic doesn't produce enough difference
-    # The test ensures the function runs without error
-    assert result is True or result is False
+    def test_generate_complex_tier_fk_increase(self):
+        """Test that complex tier has increased Flesch-Kincaid score."""
+        moderate_text = "The student solved the problem correctly."
+        
+        complex_text, metrics = generate_complex_tier(moderate_text)
+        
+        # Verify FK increase
+        assert metrics['fk_difference'] >= MIN_FK_DIFFERENCE, \
+            f"FK difference {metrics['fk_difference']:.2f} should be >= {MIN_FK_DIFFERENCE}"
+        assert metrics['complex_fk'] > metrics['moderate_fk']
 
-def test_validate_fidelity():
-    """Test that fidelity validation works correctly."""
-    source = "This is a test sentence."
-    tier = "This is a test sentence."
-    
-    result = validate_fidelity(source, tier)
-    assert result is True  # Identical text should pass
+    def test_generate_complex_tier_jaccard_similarity(self):
+        """Test that complex tier maintains high Jaccard similarity."""
+        moderate_text = "The algorithm efficiently processes the data structure."
+        
+        complex_text, metrics = generate_complex_tier(moderate_text)
+        
+        # Verify Jaccard similarity
+        assert metrics['jaccard_similarity'] >= MIN_JACCARD_SIMILARITY, \
+            f"Jaccard similarity {metrics['jaccard_similarity']:.2f} should be >= {MIN_JACCARD_SIMILARITY}"
 
-def test_save_tiers_to_file():
-    """Test that tiers can be saved to file."""
-    tiers_data = [
-        {
-            "id": "test_1",
-            "tier": "simple",
-            "text": "Simple text",
-            "source_text": "Original text",
-            "fk_score": 5.0,
-            "jaccard_similarity": 0.9,
-            "semantic_similarity": 0.95,
-            "metadata": {}
-        }
-    ]
-    
-    output_path = Path("data/explanation_tiers/test_output")
-    save_tiers_to_file(tiers_data, output_path)
-    
-    assert (output_path / "explanation_tiers.csv").exists()
-    assert (output_path / "explanation_tiers_metadata.json").exists()
-    
-    # Verify CSV content
-    df = pd.read_csv(output_path / "explanation_tiers.csv")
-    assert len(df) == 1
-    assert df.iloc[0]["tier"] == "simple"
-    
-    # Verify JSON content
-    with open(output_path / "explanation_tiers_metadata.json", 'r') as f:
-        data = json.load(f)
-    assert len(data) == 1
-    
-    # Cleanup
-    import shutil
-    shutil.rmtree(output_path)
+    def test_generate_complex_tiers_batch(self, tmp_path):
+        """Test generating complex tiers for multiple items."""
+        # Create test data
+        moderate_tiers = [
+            {'interaction_id': '1', 'text': 'Simple text one.'},
+            {'interaction_id': '2', 'text': 'Simple text two.'},
+            {'interaction_id': '3', 'text': 'Simple text three.'}
+        ]
+        
+        output_file = tmp_path / "complex_tiers.csv"
+        
+        # Generate complex tiers
+        results = generate_complex_tiers(moderate_tiers, str(output_file))
+        
+        # Verify output file exists and has correct structure
+        assert output_file.exists()
+        assert len(results) == 3
+        
+        # Verify each result has required fields
+        for result in results:
+            assert 'interaction_id' in result
+            assert 'complex_text' in result
+            assert 'complex_fk' in result
+            assert 'fk_difference' in result
+            assert 'jaccard_similarity' in result
+
+    def test_save_complex_tiers(self, tmp_path):
+        """Test saving complex tiers to CSV."""
+        results = [
+            {
+                'interaction_id': '1',
+                'original_text': 'Original',
+                'moderate_text': 'Moderate',
+                'complex_text': 'Complex',
+                'moderate_fk': 5.0,
+                'complex_fk': 10.0,
+                'fk_difference': 5.0,
+                'jaccard_similarity': 0.9
+            }
+        ]
+        
+        output_file = tmp_path / "complex_tiers.csv"
+        save_complex_tiers(results, str(output_file))
+        
+        # Verify file exists and can be read
+        assert output_file.exists()
+        df = pd.read_csv(output_file)
+        assert len(df) == 1
+        assert df['interaction_id'].iloc[0] == '1'
+        assert df['complex_text'].iloc[0] == 'Complex'
+
+    def test_complex_tier_constraints_validation(self):
+        """Test that generated tiers meet all constraints."""
+        moderate_text = "The learning process involves multiple cognitive stages."
+        
+        complex_text, metrics = generate_complex_tier(moderate_text)
+        
+        # Verify both constraints are met
+        assert metrics['fk_difference'] >= MIN_FK_DIFFERENCE
+        assert metrics['jaccard_similarity'] >= MIN_JACCARD_SIMILARITY
+        assert metrics['complex_fk'] > metrics['moderate_fk']
+        
+        # Verify Flesch-Kincaid calculation is correct
+        calculated_fk = calculate_flesch_kincaid(complex_text)
+        assert abs(calculated_fk - metrics['complex_fk']) < 0.01

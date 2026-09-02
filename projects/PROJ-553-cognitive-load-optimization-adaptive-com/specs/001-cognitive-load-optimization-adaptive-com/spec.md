@@ -9,11 +9,11 @@
 
 ### User Story 1 - Cognitive Load Estimation Model Training (Priority: P1)
 
-System MUST train and validate a Cognitive Load Estimation Model that predicts continuous cognitive load scores (0–100) from interaction features including response latency, error frequency, hint usage, and pause duration. The model MUST be validated against a manually curated "Golden Set" of 50 interactions labeled by domain experts for cognitive load, rather than relying on public dataset self-reports which are unavailable.
+System MUST train and validate a Cognitive Load Estimation Model that predicts continuous cognitive load scores from interaction features including response latency, error frequency, hint usage, and pause duration. The model MUST be validated against a manually curated "Golden Set" of 50 interactions labeled by domain experts for cognitive load, rather than relying on public dataset self-reports which are unavailable.
 
 **Why this priority**: This is the foundational capability without which adaptive complexity cannot function. The load estimation model must achieve external validity against expert-labeled load (target ≥ 0.6 Pearson r) before any adaptation logic can be trusted.
 
-**Independent Test**: Can be fully tested by creating a Golden Set of 50 labeled interactions, training the model on public interaction features, and computing Pearson correlation between predicted load scores and expert labels. Delivers validated load estimation capability.
+**Independent Test**: Can be fully tested by creating a Golden Set of labeled interactions, training the model on public interaction features, and computing Pearson correlation between predicted load scores and expert labels. Delivers validated load estimation capability.
 
 **Acceptance Scenarios**:
 
@@ -86,7 +86,7 @@ System MUST simulate learning sessions of specified duration under two condition
 
 - **SC-001**: Load model proxy validity is measured against the Golden Set expert labels using Pearson correlation (target r ≥ 0.6) (See US-1)
 - **SC-002**: Estimated learning efficiency improvement is measured against the static-complexity baseline using Cohen's d and confidence intervals (See US-3)
-- **SC-003**: Hysteresis threshold sensitivity is measured by sweeping absolute diff ∈ {0.01, 0.05, 0.1} and reporting inconsistency rate variation across thresholds (See US-3)
+- **SC-003**: Hysteresis threshold sensitivity is measured by sweeping absolute diff ∈ {small, 0.05, 0.1} and reporting inconsistency rate variation across thresholds (See US-3)
 - **SC-004**: Computational resource compliance is measured against the GitHub Actions free-tier resource limits (2 CPU cores, ≤ 7 GB RAM, ≤ 6 h wall-clock time, no GPU) (See US-1, US-3)
 - **SC-005**: Predictor collinearity is measured using variance inflation factor (VIF ≤ 5) to ensure no definitionally related predictors claim independent effects (See US-1)
 

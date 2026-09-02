@@ -4,10 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T003` (rejected 1x): The provided material only describes user stories for cognitive‑load modeling and contains no linting/formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.flake8`, `black` settings) or evidence that ruff, flake8, and black have been set up. Consequently the task “Configure linting (ruff/flake8) and formatting (black) tools” is not satisfied. The missing artifacts need to be added and verified.
-- `T023` (rejected 1x): The required output file `data/explanation_tiers/simple_tiers.csv` does not exist, so the implementation and iterative refinement loop cannot be verified. The missing CSV means the task’s core deliverable is absent.
-- `T024` (rejected 1x): declared artifact(s) missing/empty/invalid: data/explanation_tiers/complex_tiers.csv
-- `T025` (rejected 1x): No CSV or JSON files were presented in `data/explanation_tiers/`, nor any code showing that generated tiers and their metadata are being written to that directory. The required output files are missing, so the task is not satisfied.
+- `T015` (rejected 1x): The repository lacks the required `data/processed/load_model.pkl` file, and the provided `code/train_load_model.py` is truncated and does not show LightGBM training with `tree_method='hist'`/`device='cpu'`, reading `validation_source.txt`, computing Pearson r, or the conditional save/raise logic. These essential steps and the saved model artifact are missing.
 
 ## Required change
 
