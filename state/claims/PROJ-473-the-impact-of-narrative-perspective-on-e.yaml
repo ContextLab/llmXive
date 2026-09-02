@@ -3878,3 +3878,398 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-31T01:41:43Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: At least 50 valid stories extracted from Gutenberg corpus
+  claim_id: c_ce1653d1
+  context: 'T007 Logic: Use the gutenberg Python library... to search for and download
+    short stories by verified authors. Verification: Ensure at least 50 valid stories
+    are extracted and saved.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_50_valid_stories_extracted_from_Gutenberg_corpus
+  kind: magnitude
+  raw_text: Ensure at least 50 valid stories are extracted and saved.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:56:12Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: Subset of exactly 50 stories selected for gold-standard annotations
+  claim_id: c_dca50300
+  context: 'T007.1 Logic: Load the stories from data/raw/gutenberg_stories/. Select
+    a subset of exactly 50 stories (or all if >50, capped at 50).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select a subset of exactly 50 stories (or all if >50, capped at 50).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:56:42Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: First-person density scores correlate >= 0.85 with human labels
+  claim_id: c_716667ef
+  context: "T010 Validation test: Verification: Run the extraction pipeline on these\
+    \ stories and verify that the computed 'first-person density' scores correlate\
+    \ \u2265 0.85 with the human_label in the external gold standard file."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the computed 'first-person density' scores correlate \u2265\
+    \ 0.85 with the human_label in the external gold standard file."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:56:42Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: Exactly 100 story-text and moral judgement score pairs extracted
+  claim_id: c_acf2af77
+  context: 'T025.2 Logic: Use datasets.load_dataset(''moral-foundation'', split=''train'')...
+    Extract exactly 100 pairs (stratified by difficulty if available, otherwise random
+    sample) and save to data/raw/moral_judgement_local.csv.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extract exactly 100 pairs (stratified by difficulty if available, otherwise
+    random sample) and save to data/raw/moral_judgement_local.csv.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:57:07Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: Matching precision >= 0.9
+  claim_id: c_57b2a8db
+  context: "T025.3 Verification: Ensure false-positive rate \u2264 5% (precision \u2265\
+    \ 0.9)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure false-positive rate \u2264 5% (precision \u2265 0.9)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:57:08Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime <= 45 minutes and peak memory < 6 GB
+  claim_id: c_8c9b1d16
+  context: "T051.1 Verification: Ensure runtime \u2264 45 minutes and peak memory\
+    \ < 6 GB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify runtime \u2264 45 minutes and peak memory < 6 GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:57:09Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: 'Threshold values generated: 0.25, 0.30, 0.35, 0.40'
+  claim_id: c_eaae7d7c
+  context: 'T024 Logic: Generate a list of threshold values [0.25, 0.30, 0.35, 0.40].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a list of threshold values [0.25, 0.30, 0.35, 0.40].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:57:43Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: Synthetic data generated with seed 42, mean 4.0, std 1.5
+  claim_id: c_e2c65a1c
+  context: 'T009.6c Logic: For each story, generate empathy_score and moral_judgement_score
+    using a fixed random seed (42) and a normal distribution (mean=4.0, std=1.5) to
+    simulate variance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a fixed random seed (42) and a normal distribution (mean=4.0, std=1.5)
+    to simulate variance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:58:22Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor warning threshold > 5.0
+  claim_id: c_8e7b39af
+  context: 'T039 Logic: Calculate VIF for predictors. Warn if VIF > 5.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Warn if VIF > 5.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:58:23Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: spaCy version 3.7.2
+  claim_id: c_07297e2e
+  context: 'T002 Content: Create code/requirements.txt with the following pinned versions.
+    spaCy==3.7.2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: spaCy==3.7.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:58:50Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.4.0
+  claim_id: c_cfd33f0b
+  context: 'T002 Content: Create code/requirements.txt with the following pinned versions.
+    scikit-learn==1.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:59:10Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: pandas version 2.2.0
+  claim_id: c_7ec15132
+  context: 'T002 Content: Create code/requirements.txt with the following pinned versions.
+    pandas==2.2.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas==2.2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T09:59:51Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.8.2
+  claim_id: c_c71be5ce
+  context: 'T002 Content: Create code/requirements.txt with the following pinned versions.
+    matplotlib==3.8.2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: matplotlib==3.8.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T10:00:16Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.1
+  claim_id: c_e40deac0
+  context: 'T002 Content: Create code/requirements.txt with the following pinned versions.
+    statsmodels==0.14.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: statsmodels==0.14.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T10:01:00Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: langdetect version 1.0.9
+  claim_id: c_0a52ddcb
+  context: 'T002 Content: Create code/requirements.txt with the following pinned versions.
+    langdetect==1.0.9'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: langdetect==1.0.9
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T10:01:15Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_811c405b
+  context: 'T002 Content: Create code/requirements.txt with the following pinned versions.
+    pyyaml==6.0.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyyaml==6.0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T10:02:01Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: requests version 2.31.0
+  claim_id: c_672453c2
+  context: 'T002 Content: Create code/requirements.txt with the following pinned versions.
+    requests==2.31.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: requests==2.31.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T10:02:18Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: pytest version 7.4.3
+  claim_id: c_37c86f9a
+  context: 'T002 Content: Create code/requirements.txt with the following pinned versions.
+    pytest==7.4.3'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest==7.4.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T10:08:38Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: gutenberg library version 1.0.0
+  claim_id: c_52e2f615
+  context: 'T002 Content: Create code/requirements.txt with the following pinned versions.
+    gutenberg==1.0.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: gutenberg==1.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T10:08:53Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: datasets library version 2.14.0
+  claim_id: c_63ab85ad
+  context: 'T002 Content: Create code/requirements.txt with the following pinned versions.
+    datasets==2.14.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: datasets==2.14.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T10:09:10Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: osfclient version 0.0.5
+  claim_id: c_2d8e57de
+  context: 'T002 Content: Create code/requirements.txt with the following pinned versions.
+    osfclient==0.0.5'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: osfclient==0.0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T10:09:13Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: Black formatter line length set to 88
+  claim_id: c_a1f18b3d
+  context: 'T003 Configure linting: Create pyproject.toml with black (line-length=88)
+    and flake8 (max-line-length=88, ignore=E203,W503) settings.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: black (line-length=88)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T10:09:47Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: Flake8 max line length 88, ignoring E203 and W503
+  claim_id: c_eb7cc600
+  context: 'T003 Configure linting: Create pyproject.toml with black (line-length=88)
+    and flake8 (max-line-length=88, ignore=E203,W503) settings.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: flake8 (max-line-length=88, ignore=E203,W503)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T10:10:03Z'
+- artifact_path: projects/PROJ-473-the-impact-of-narrative-perspective-on-e/specs/001-the-impact-of-narrative-perspective-on-e/tasks.md
+  attempts: 1
+  canonical: Author list includes 12 specific authors for story extraction
+  claim_id: c_256650cc
+  context: 'T007 Logic: Use the gutenberg Python library... Author List: Start with
+    [''O. Henry'', ''Guy de Maupassant'', ''Anton Chekhov'', ''Jack London'', ''Mark
+    Twain'', ''Edgar Allan Poe'', ''H.G. Wells'', ''Arthur Conan Doyle'', ''Nathaniel
+    Hawthorne'', ''Kate Chopin'', ''H.P. Lovecraft'', ''Upton Sinclair''].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Start with ['O. Henry', 'Guy de Maupassant', 'Anton Chekhov', 'Jack London',
+    'Mark Twain', 'Edgar Allan Poe', 'H.G. Wells', 'Arthur Conan Doyle', 'Nathaniel
+    Hawthorne', 'Kate Chopin', 'H.P. Lovecraft', 'Upton Sinclair'].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T10:10:04Z'

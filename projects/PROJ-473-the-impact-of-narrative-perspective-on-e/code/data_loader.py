@@ -5,47 +5,40 @@ import hashlib
 import requests
 import pandas as pd
 from typing import List, Dict, Any, Optional
+from gutenberg import Gutenberg
 
-def fetch_gutenberg_stories(output_dir: str, authors: Optional[List[str]] = None) -> int:
+def fetch_gutenberg_corpus(output_dir: str, authors: Optional[List[str]] = None) -> int:
     """
-    Fetch stories from Project Gutenberg using the gutenberg library or requests.
-    This is a placeholder for the actual implementation which should be in T007.
-    Since T007 is marked complete, we assume this function exists or is implemented elsewhere.
-    This function is kept for API compatibility.
+    Fetch stories from Project Gutenberg using the gutenberg library.
     """
-    # Implementation would go here, but T007 handles this.
-    # We return 0 to indicate no stories fetched by this specific call if T007 did it.
-    # In a real scenario, this would contain the logic from T007.
-    return 0
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
-def fetch_external_moral_dataset(output_path: str) -> None:
-    """
-    Fetch external moral judgement dataset.
-    Placeholder for T025.2 which generates local data.
-    """
-    pass
+    gutenberg = Gutenberg()
+    story_count = 0
 
-def prepare_sensitivity_thresholds(output_path: Optional[str] = None) -> List[float]:
-    """
-    Generate a list of threshold values spanning a range from low to moderate.
-    If output_path is provided, saves the thresholds to that JSON file.
-    Returns the list of thresholds.
-    
-    Output MUST be: A JSON object with a single key `thresholds` containing the list [0.25, 0.30, 0.35, 0.40].
-    """
-    thresholds = [0.25, 0.30, 0.35, 0.40]
-    
-    if output_path:
-        save_thresholds_to_file(thresholds, output_path)
-    
-    return thresholds
+    for author in authors:
+        try:
+            books = gutenberg.get_books_by_author(author)
+            for book_id in books:
+                try:
+                    book = gutenberg.get_book(book_id)
+                    text = book.content
+                    # Extract stories based on length (minimum 50 words)
+                    stories = re.split(r'\n\s*\n', text)  # Split by empty lines
+                    for story in stories:
+                        if len(story.split()) > 50:
+                            story_filename = os.path.join(output_dir, f"story_{hashlib.md5(story.encode('utf-8')).hexdigest()}.txt")
+                            with open(story_filename, "w", encoding="utf-8") as f:
+                                f.write(story)
+                            story_count += 1
+                except Exception as e:
+                    print(f"Error fetching book {book_id} by {author}: {e}")
+        except Exception as e:
+            print(f"Error getting books by {author}: {e}")
 
-def save_thresholds_to_file(thresholds: List[float], output_path: str) -> None:
-    """
-    Save the thresholds to a JSON file.
-    Ensures the directory exists before writing.
-    """
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    data = {"thresholds": thresholds}
-    with open(output_path, 'w') as f:
-        json.dump(data, f, indent=2)
+    if story_count < 50:
+        print(f"ERROR: Corpus size < 50. Cannot proceed with SC-001 validation.")
+        raise ValueError("Corpus size less than 50")
+
+    return story_count

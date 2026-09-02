@@ -1,7 +1,7 @@
 {
   "project_id": "PROJ-473-the-impact-of-narrative-perspective-on-e",
   "ok": false,
-  "reason": "5 command(s) failed: python -m spacy download en_core_web_sm (rc=1); python code/main.py --config code/config.py (rc=1); python code/main.py --step extraction (rc=1); 9 declared deliverable(s) absent: data/artifacts/regression_plot.png; data/processed/aligned_dataset.csv; data/processed/aligned_reader_response.csv",
+  "reason": "5 command(s) failed: python -m spacy download en_core_web_sm (rc=1); python code/main.py --config code/config.py (rc=1); python code/main.py --step extraction (rc=1); 2 declared deliverable(s) absent: data/artifacts/regression_plot.png; data/raw/gold_standard_annotations.csv",
   "artifacts": [],
   "failures": [
     "python -m spacy download en_core_web_sm -> rc=1\n    Collecting https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz\n\n  ERROR: HTTP error 404 while getting https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz\nERROR: Could not install requirement https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz because of HTTP error 404 Client Error: Not Found for url: https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz for UR",
@@ -10,11 +10,11 @@
     "python code/main.py --step analysis -> rc=1\n    il.load_model(\n           ^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-473-the-impact-of-narrative-perspective-on-e/code/.venv/lib/python3.11/site-packages/spacy/util.py\", line 472, in load_model\n    raise IOError(Errors.E050.format(name=name))\nOSError: [E050] Can't find model 'en_core_web_sm'. It doesn't seem to be a Python package or a valid path to a data directory.\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/proje",
     "python -m pytest tests/contract/ -> rc=4\n    ============================= test session starts ==============================\nplatform linux -- Python 3.11.16, pytest-7.4.3, pluggy-1.6.0 -- /home/runner/work/llmXive/llmXive/projects/PROJ-473-the-impact-of-narrative-perspective-on-e/code/.venv/bin/python\ncachedir: .pytest_cache\nrootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-473-the-impact-of-narrative-perspective-on-e\nconfigfile: pyproject.toml\ncollecting ... collected 0 items\n\n============================ no tests ran in 0.00s =============================\n\nERROR: file or directory n"
   ],
-  "fix_rounds": 9,
+  "fix_rounds": 10,
   "model_tier": 0,
-  "total_attempts": 9,
+  "total_attempts": 10,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-08-22T05:45:14Z"
+  "updated_at": "2026-09-02T09:43:05Z"
 }

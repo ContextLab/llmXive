@@ -9,6 +9,7 @@ PRIMARY_MATCHING_THRESHOLD = 0.30
 def get_config():
     """
     Return configuration dictionary for paths, seeds, and hyperparameters.
+    Initializes directories and logging.
     """
     config = {
         'primary_matching_threshold': PRIMARY_MATCHING_THRESHOLD,
