@@ -13,12 +13,6 @@ T003:
     .isort.cfg) or integration scripts are present in the provided evidence, so the
     requirement to configure flake8/pylint and black/isort is not satisfied. The implementer
     must add the appropriate config files and ensure they are applied in the project.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `state_manager.py` file is present, nor any code that computes SHA\u2011\
-    256 hashes of derived artifacts or updates the YAML files under `state/`. The\
-    \ required artifact is missing, so the task is not satisfied."
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -42,14 +36,6 @@ T014:
     first ionization energy\u201D column, or write a CSV. Moreover, the required output\
     \ file `data/processed/descriptors.csv` is absent. Both the implementation and\
     \ the expected output artifact are missing."
-T016:
-  c: false
-  h: 5087a69ea27131bbeb21324d691474b3d0d5609938a2ae985a9e46873c2b323f
-  r: "The provided `code/utils/vif_calculator.py` is only partially shown (the `run_vif_diagnostic`\
-    \ function is truncated) and does not demonstrate that it writes a CSV report\
-    \ to `data/processed/vif_report.csv`. Moreover, the required `vif_report.csv`\
-    \ file is missing from the repository. The task\u2019s core output is therefore\
-    \ not present."
 T019:
   c: false
   h: 86c0f6d2a8a0c60b9a89c1b0ce5fc9bde3fc8a06cd99769c519f5a284e44e764

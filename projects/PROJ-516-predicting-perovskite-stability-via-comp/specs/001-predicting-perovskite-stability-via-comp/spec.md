@@ -29,13 +29,13 @@ As a data analyst, I want to implement three baseline regressors (Random Forest,
 
 **Why this priority**: This delivers the core predictive capability. The model performance determines whether compositional fingerprints carry sufficient signal for stability prediction.
 
-**Independent Test**: Can be fully tested by running cross-validation on a 50-entry subset and verifying that all three models complete within 30 minutes with R² values reported for each fold.
+**Independent Test**: Can be fully tested by running cross-validation on a representative subset and verifying that all three models complete within 30 minutes with R² values reported for each fold.
 
 **Acceptance Scenarios**:
 
 1. **Given** a preprocessed dataset with ≥200 entries and ≥10 compositional descriptors, **When** the model training pipeline runs with k-fold cross-validation, **Then** all three baseline regressors produce R², RMSE, and MAE metrics for each fold.
 2. **Given** grid search is configured with ≤10 hyperparameter combinations per model, **When** training completes, **Then** the best hyperparameters and corresponding cross-validation metrics are logged.
-3. **Given** the total compute budget is a fixed duration on a CPU-only runner, **When** model training and cross-validation execute, **Then** the pipeline completes within 4 hours ([deferred] of the 6-hour budget) with ≤10% of the budget consumed by hyperparameter search to ensure CI/CD efficiency.
+3. **Given** the total compute budget is a fixed duration on a CPU-only runner, **When** model training and cross-validation execute, **Then** the pipeline completes within 4 hours ([deferred] of the -hour budget) with ≤10% of the budget consumed by hyperparameter search to ensure CI/CD efficiency.
 
 ---
 
@@ -45,7 +45,7 @@ As a domain researcher, I want to extract SHAP values from the best-performing m
 
 **Why this priority**: This provides interpretability and external validation. While not strictly required for a working model, it is essential for scientific credibility and answering the research question about which compositional factors matter.
 
-**Independent Test**: Can be fully tested by running SHAP analysis on a 50-entry test set and verifying that the top 3 features by importance are reported with corresponding SHAP values and permutation-test p-values.
+**Independent Test**: Can be fully tested by running SHAP analysis on a representative test set and verifying that the top 3 features by importance are reported with corresponding SHAP values and permutation-test p-values.
 
 **Acceptance Scenarios**:
 
@@ -69,7 +69,7 @@ As a domain researcher, I want to extract SHAP values from the best-performing m
 - **FR-001**: System MUST download perovskite composition and thermal stability data from Materials Project and NREL, filtering for entries with experimentally measured decomposition temperatures (TGA onset) (See US-1)
 - **FR-002**: System MUST compute compositional descriptors including atomic fractions, weighted averages of elemental properties (ionic radius, electronegativity, first ionization energy, formation enthalpy), and variance metrics across A/B/X site elements. The target variable (T_d) MUST be sourced from independent experimental TGA data, distinct from calculated thermodynamic properties (See US-1)
 - **FR-003**: System MUST implement three baseline regressors (Random Forest, Gradient Boosting, Elastic Net) using scikit-learn with grid search limited to ≤10 hyperparameter combinations per model (See US-2)
-- **FR-004**: System MUST perform 5-fold cross-validation on training data, tracking RMSE, R², and MAE as primary metrics with stratification by perovskite family (See US-2)
+- **FR-004**: System MUST perform -fold cross-validation on training data, tracking RMSE, R², and MAE as primary metrics with stratification by perovskite family (See US-2)
 - **FR-005**: System MUST extract SHAP values from the best-performing model for interpretability and perform permutation importance testing with a sufficient number of permutations to assess feature significance at p < 0.05 (See US-3)
 - **FR-006**: System MUST test the final model on held-out experimental data from the literature containing compositions with elements or structural motifs NOT present in the training set to assess true out-of-distribution generalizability (See US-3)
 - **FR-007**: System MUST apply multiple-comparison correction (e.g., Bonferroni or Benjamini-Hochberg) when reporting feature importance significance to control family-wise error rate (See US-3)
@@ -105,6 +105,6 @@ As a domain researcher, I want to extract SHAP values from the best-performing m
 - The dataset size (≤500 entries after filtering) will fit within available system RAM and ~ GB disk constraints
 - Compositional descriptors (atomic fractions, elemental property averages) are not definitionally collinear with decomposition temperature; any observed relationships are empirical, not mechanical
 - No GPU, CUDA, or hardware accelerators are available or required for the analysis
-- Sensitivity analysis for any decision thresholds (e.g., feature importance cutoffs) will sweep over absolute differences ∈ {A range of significance thresholds, including 0.05 and 0.1, will be evaluated.} and report how false-positive/false-negative rates vary across the sweep
+- Sensitivity analysis for any decision thresholds (e.g., feature importance cutoffs) will sweep over absolute differences ∈ {A range of significance thresholds, including conventional levels, will be evaluated.} and report how false-positive/false-negative rates vary across the sweep
 - Related work citations from the idea Markdown are copied verbatim without fabrication or modification
 - The held-out test set stratification by perovskite family (lead-halide, tin-halide, double perovskites) ensures independent evaluation across compositionally distinct groups

@@ -31,7 +31,7 @@ This project implements a predictive pipeline to determine the thermal decomposi
 - **IV. Single Source of Truth**: The `data-model.md` defines the schema for derived data; the `contracts/` directory (specifically `contracts/descriptor.schema.yaml`) is the implementation of this SSoT, ensuring figures/stats trace back to specific rows.
 - **V. Versioning Discipline**: The plan includes a dedicated task to compute SHA-256 hashes for derived artifacts (`descriptors.csv`, `model_runs.json`) and write them to the `state/...yaml` file after generation.
 - **VI. Computational-Budget Discipline**: Grid search is explicitly capped at ≤10 combinations per model to ensure the 6-hour runtime limit is respected on free-tier runners.
-- **VII. Statistical-Rigor Requirement**: The plan includes VIF diagnostics (threshold 5, with feature removal/Elastic Net fallback), -permutation testing (p < 0.05, Benjamini-Hochberg correction), and stratified splits by perovskite family. Success criteria (R² ≥ 0.6, R² < 0.3) are explicitly mapped to permutation test results.
+- **VII. Statistical-Rigor Requirement**: The plan includes VIF diagnostics (with feature removal/Elastic Net fallback), -permutation testing (p < 0.05, Benjamini-Hochberg correction), and stratified splits by perovskite family. Success criteria (R² ≥ 0.6, R² < 0.3) are explicitly mapped to permutation test results.
 
 ## Project Structure
 

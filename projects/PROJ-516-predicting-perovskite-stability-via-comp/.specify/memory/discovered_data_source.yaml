@@ -1,0 +1,17 @@
+status: none
+intent: Materials Project perovskite decomposition temperature dataset NREL Pulse
+  Diagnostics thermal stability python package dataset
+required_fields:
+- formula
+- T_d
+- atomic_fraction_A
+- atomic_fraction_B
+- atomic_fraction_X
+- weighted_ionic_radius
+- weighted_electronegativity
+- weighted_formation_enthalpy
+- variance_ionic_radius
+- variance_electronegativity
+cache_key: 3c96b8024e4067f2995b7bd8c796fc9874f5b78ebdd230a62d37cdb86d1bedac
+searched_at: '2026-09-02T16:36:48.644217+00:00'
+retry_count: 1

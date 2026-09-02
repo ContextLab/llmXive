@@ -1,0 +1,456 @@
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: merged perovskite dataset row count is at least 200
+  claim_id: c_c60d8b33
+  context: 'Merge NREL and Materials Project data (MUST fetch both sources per FR-001):
+    concatenate DataFrames, drop duplicates based on formula and source, log count
+    of removed duplicates, and write final merged dataset to `data/raw/perovskites_merged.csv`.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Merged_perovskite_dataset_row_count_is_at_least_200
+  kind: magnitude
+  raw_text: Verify `data/raw/perovskites_merged.csv` exists with row count >= 200
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:39:35Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: instrument registry contains at least 5 common TGA models with precision
+    values
+  claim_id: c_4f3a1ccf
+  context: "Implement `code/utils/instrument_registry.py` to maintain a lookup table\
+    \ of known TGA instruments... with their standard precision specifications (\xB1\
+    \xB0C) if the source metadata does not explicitly state the precision."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Instrument_registry_contains_at_least_5_common_TGA_models_wi
+  kind: magnitude
+  raw_text: Verify `instrument_registry.py` contains at least 5 common TGA models
+    with documented precision values
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:40:01Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: grid search hyperparameter combinations per model is at most 10
+  claim_id: c_016d10bd
+  context: Implement grid search with a hard cap of <= 10 hyperparameter combinations
+    per model.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Grid_search_hyperparameter_combinations_per_model_is_at_most
+  kind: magnitude
+  raw_text: Verify `model_runs.json` shows <= 10 combinations per model
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:40:37Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: full pipeline runtime is at most 4 hours
+  claim_id: c_382485d1
+  context: Optimize identified bottlenecks to ensure full pipeline completes within
+    4 hours
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_runtime_is_at_most_4_hours
+  kind: magnitude
+  raw_text: Verify the pipeline completes within 4 hours
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:41:25Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: API retry total time fits within 6-hour budget
+  claim_id: c_a6dd5644
+  context: 'Implement `code/utils/data_fetcher.py` with retry logic: up to 3 retries
+    with exponential backoff (min, min, multiple min) for API unavailability. <!--
+    Verification: Verify retry logic implements exponential backoff and total retry
+    time fits within the 6-hour budget. -->'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify total retry time fits within the 6-hour budget
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:41:48Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: API fetch retry logic allows up to 3 retries
+  claim_id: c_e3c0c711
+  context: 'Implement `code/utils/data_fetcher.py` with retry logic: up to 3 retries
+    with exponential backoff (min, min, multiple min) for API unavailability.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: up to 3 retries with exponential backoff
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:42:08Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: missing temperature_precision defaults to 10 degrees Celsius
+  claim_id: c_91ef39dd
+  context: "Implement `code/utils/uncertainty_parser.py` to parse `temperature_precision`\
+    \ from source metadata; if missing, default to \xB110\xB0C and log a warning"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "default to \xB110\xB0C and log a warning if temperature_precision is\
+    \ missing"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:42:37Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: descriptors with VIF greater than 5 are flagged
+  claim_id: c_582d3d21
+  context: Implement logic to flag descriptors with VIF > 5 for review; log decision
+    rationale to `data/processed/vif_decision_log.csv`.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: flag descriptors with VIF > 5 for review
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T16:42:45Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: entries with 2 or more missing descriptor values are excluded
+  claim_id: c_3a79144c
+  context: Implement logic to exclude entries with >= 2 missing descriptor values
+    and log exclusion counts.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: exclude entries with >= 2 missing descriptor values
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:43:13Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: grid search limited to 10 hyperparameter combinations
+  claim_id: c_62018ed1
+  context: Unit test for grid search hyperparameter limit enforcement (<= 10 combos)
+    in `tests/unit/test_model_training.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: grid search hyperparameter limit enforcement (<= 10 combos)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:43:30Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: merged perovskite dataset contains at least 200 rows
+  claim_id: c_f0b6a489
+  context: Task T012c requires merging NREL and Materials Project data and writing
+    the final merged dataset to data/raw/perovskites_merged.csv.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Merged_perovskite_dataset_contains_at_least_200_rows
+  kind: magnitude
+  raw_text: Verify `data/raw/perovskites_merged.csv` exists with row count >= 200
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:43:41Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: instrument registry contains at least 5 TGA models with precision values
+  claim_id: c_f86fcdae
+  context: Task T047c requires implementing an instrument registry to maintain a lookup
+    table of known TGA instruments.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Instrument_registry_contains_at_least_5_TGA_models_with_prec
+  kind: magnitude
+  raw_text: Verify `instrument_registry.py` contains at least 5 common TGA models
+    with documented precision values
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:43:43Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Merged perovskite dataset contains at least 200 rows
+  claim_id: c_bfae88f5
+  context: 'T012c [US1] Merge NREL and Materials Project data (MUST fetch both sources
+    per FR-001): concatenate DataFrames, drop duplicates based on formula and source,
+    log count of removed duplicates, and write final merged dataset to `data/raw/perovskites_merged.csv`.
+    <!-- Verification: Verify `data/raw/perovskites_merged.csv` exists with row count
+    >= 200 and log specific duplicate count. -->'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Merged_perovskite_dataset_contains_at_least_200_rows
+  kind: magnitude
+  raw_text: Verify `data/raw/perovskites_merged.csv` exists with row count >= 200
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:44:24Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Instrument registry contains at least 5 TGA models with precision values
+  claim_id: c_62387480
+  context: "T047c [US1] Implement `code/utils/instrument_registry.py` to maintain\
+    \ a lookup table of known TGA instruments (e.g., 'TA Instruments Thermogravimetric\
+    \ Analyzer Research Question: How does the thermal decomposition behavior of the\
+    \ target material vary under controlled heating conditions? Method: Thermogravimetric\
+    \ analysis will be conducted to monitor mass changes as a function of temperature\
+    \ and time. References: [Insert DOI/arXiv/author-year here]', 'Mettler Toledo\
+    \ TGA/DSC +') with their standard precision specifications (\xB1\xB0C) if the\
+    \ source metadata does not explicitly state the precision. <!-- Verification:\
+    \ Verify `instrument_registry.py` contains at least 5 common TGA models with documented\
+    \ precision values. -->"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Instrument_registry_contains_at_least_5_TGA_models_with_prec
+  kind: magnitude
+  raw_text: Verify `instrument_registry.py` contains at least 5 common TGA models
+    with documented precision values
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:44:26Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Grid search limited to 10 hyperparameter combinations per model
+  claim_id: c_8d9594db
+  context: 'T022 [US2] Implement grid search with a hard cap of <= 10 hyperparameter
+    combinations per model. <!-- Verification: Verify `model_runs.json` shows <= 10
+    combinations per model and assert max iterations in logs. -->'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement grid search with a hard cap of <= 10 hyperparameter combinations
+    per model
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:44:40Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Unit test enforces grid search limit of 10 combinations
+  claim_id: c_157172b4
+  context: T018 [P] [US2] Unit test for grid search hyperparameter limit enforcement
+    (<= 10 combos) in `tests/unit/test_model_training.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement unit test for grid search hyperparameter limit enforcement (<=
+    10 combos)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:45:02Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime must complete within 4 hours
+  claim_id: c_d357674c
+  context: T019 [P] [US2] Integration test for full pipeline runtime (must complete
+    <= 4 hours) in `tests/integration/test_pipeline_runtime.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run integration test for full pipeline runtime (must complete <= 4 hours)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:45:30Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Pipeline optimization target is 4 hours
+  claim_id: c_7e02e03d
+  context: T037b [P] Optimize identified bottlenecks to ensure full pipeline completes
+    within 4 hours
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Optimize identified bottlenecks to ensure full pipeline completes within
+    4 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:45:52Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Exclude entries with 2 or more missing descriptor values
+  claim_id: c_7d5094df
+  context: 'T015a [US1] Implement logic to exclude entries with >= 2 missing descriptor
+    values and log exclusion counts. <!-- Verification: Log exclusion count to `data/processed/exclusion_log.csv`
+    and verify count matches expected threshold. -->'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement logic to exclude entries with >= 2 missing descriptor values
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:46:22Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Implement logic referencing Wikidata Q113106917
+  claim_id: c_6ab45e54
+  context: 'T016b [US1] Implement logic to {{claim:c_582d3d21}} (Wikidata Q113106917,
+    https://www.wikidata.org/wiki/Q113106917); log decision rationale to `data/processed/vif_decision_log.csv`.
+    <!-- Verification: Verify `vif_decision_log.csv` contains flagged descriptors
+    and rationale. -->'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: Q113107166
+    filled: true
+  kind: entity_fact
+  raw_text: Implement logic to {{claim:c_582d3d21}} (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917)
+  resolved_value: Q113107166
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-02T16:46:33Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Data fetcher implements 3 retries with exponential backoff
+  claim_id: c_611f3864
+  context: 'T006 Implement `code/utils/data_fetcher.py` with retry logic: up to 3
+    retries with exponential backoff (min, min, multiple min) for API unavailability.
+    <!-- Verification: Verify retry logic implements exponential backoff and total
+    retry time fits within the 6-hour budget. -->'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `code/utils/data_fetcher.py` with retry logic: up to 3 retries
+    with exponential backoff'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:46:55Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Runtime monitor compares against 6-hour budget
+  claim_id: c_03108177
+  context: 'T051 [P] Implement a runtime monitor in `code/main.py` that logs the elapsed
+    time for each phase and the total pipeline, comparing it against the 6-hour budget
+    and writing the result to `data/processed/runtime_report.json`. <!-- Verification:
+    Verify `data/processed/runtime_report.json` contains phase timings, total time,
+    and budget status (pass/fail against the defined time threshold). -->'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a runtime monitor that logs elapsed time comparing against the
+    6-hour budget
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:47:13Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Default temperature precision set to 10 degrees Celsius
+  claim_id: c_5244da4f
+  context: "T042 [P] Implement `code/utils/uncertainty_parser.py` to parse `temperature_precision`\
+    \ from source metadata; if missing, default to \xB110\xB0C and log a warning"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If missing, default `temperature_precision` to \xB110\xB0C and log a\
+    \ warning"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:47:13Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Fallback strategy assigns 10 degrees Celsius precision
+  claim_id: c_d2959ea0
+  context: "T047a [US1] Enhance `code/utils/data_fetcher.py` to extract and validate\
+    \ `instrument_model` and `manufacturer` fields from source metadata (NREL/Materials\
+    \ Project) during the initial fetch. If these fields are missing, log a WARNING\
+    \ and assign a default precision of \xB110\xB0C using the fallback strategy. Do\
+    \ NOT raise a `MissingInstrumentationError`. Log the formula to `data/raw/instrumentation_fallbacks.log`.\
+    \ <!-- Verification: Verify that `data/raw/instrumentation_fallbacks.log` exists\
+    \ and contains entries for any formula where instrumentation metadata was missing,\
+    \ and that the pipeline proceeds. --> <!-- Requires: T012a, T012b -->"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Assign a default precision of \xB110\xB0C using the fallback strategy\
+    \ if fields are missing"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T16:47:55Z'

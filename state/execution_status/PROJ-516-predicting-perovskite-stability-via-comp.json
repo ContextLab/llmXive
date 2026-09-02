@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-516-predicting-perovskite-stability-via-comp",
+  "ok": false,
+  "reason": "2 run-book script(s) missing (plan/impl path mismatch): python validation.py; python main.py; 3 command(s) failed: python code/data_ingestion.py (rc=1); python code/model_training.py (rc=1); python code/utils/state_manager.py (rc=1); 8 declared deliverable(s) absent: data/processed/descriptors.csv; data/processed/model_runs.json; data/processed/vif_report.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/data_ingestion.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-516-predicting-perovskite-stability-via-comp/code/data_ingestion.py\", line 12, in <module>\n    from utils.data_fetcher import fetch_with_retry, FetchError\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-516-predicting-perovskite-stability-via-comp/code/utils/__init__.py\", line 6, in <module>\n    from .formula_parser import FormulaParseError, parse_formula, validate_perovskite_formula, assign_perovskite_sites, compute_compositional_fingerprints, get_determ",
+    "python code/model_training.py -> rc=1\n    INFO:__main__:Loading data...\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-516-predicting-perovskite-stability-via-comp/code/model_training.py\", line 288, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-516-predicting-perovskite-stability-via-comp/code/model_training.py\", line 241, in main\n    df, X, y, y_strat = load_data()\n                        ^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-516-predicting-perovskite-stability-via-comp/code/model_traini",
+    "python validation.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-516-predicting-perovskite-stability-via-comp/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-516-predicting-perovskite-stability-via-comp/validation.py': [Errno 2] No such file or directory",
+    "python code/utils/state_manager.py -> rc=1\n    Usage: python -m code.utils.state_manager <update|verify> <file_path>",
+    "python main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-516-predicting-perovskite-stability-via-comp/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-516-predicting-perovskite-stability-via-comp/main.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-02T16:35:36Z"
+}
