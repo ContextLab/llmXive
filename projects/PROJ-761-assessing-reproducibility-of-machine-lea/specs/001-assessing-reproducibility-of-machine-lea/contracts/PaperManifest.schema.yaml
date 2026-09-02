@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PaperManifest"
+description: "Schema for the input manifest of target papers."
+type: "object"
+properties:
+  doi:
+    type: "string"
+    description: "Digital Object Identifier of the paper."
+  repo_url:
+    type: "string"
+    description: "URL to the code repository."
+  dataset_name:
+    type: "string"
+    description: "Name of the dataset used in the paper."
+  dataset_version:
+    type: "string"
+    description: "Version of the dataset (e.g., v1.0). Required for Constitution Principle VI."
+  dataset_url:
+    type: "string"
+    description: "Optional direct URL to the dataset if different from standard."
+  reported_metrics:
+    type: "object"
+    properties:
+      mae:
+        type: "number"
+      r2:
+        type: "number"
+      spearman_rho:
+        type: "number"
+    required: ["mae", "r2", "spearman_rho"]
+  hyperparameters:
+    type: "object"
+    description: "Key-value pairs of hyperparameters."
+  seed:
+    type: "integer"
+    description: "Random seed used in the original study (optional). Default fallback is 42."
+  replicates:
+    type: "integer"
+    description: "Number of experimental replicates reported."
+  conditions:
+    type: "string"
+    description: "Text description of experimental conditions (temperature, solvent, etc.)."
+  covariates_required:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of required covariates (e.g., temperature, solvent)."
+required: ["doi", "repo_url", "dataset_name", "dataset_version", "reported_metrics"]
+additionalProperties: false

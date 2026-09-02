@@ -1,78 +1,85 @@
 # Data Model: Assessing Reproducibility of Machine‑Learned Reaction Yield Models
 
-## 1. Overview
-This document defines the data structures used throughout the pipeline, ensuring traceability from the input manifest to the final statistical summary. All data is stored in JSON/YAML formats to facilitate validation against the contracts defined in `contracts/`.
+## Overview
 
-## 2. Entity Definitions
+This document defines the data structures used for input, processing, and output. All data interchange is governed by YAML schemas located in `contracts/` (project root). The system enforces strict versioning of datasets and reproducibility of results.
 
-### 2.1 PaperManifest
+## Entities
+
+### 1. PaperManifest
 Represents a single target publication to be audited.
--   **Source**: `data/manifest.yaml`
--   **Fields**:
-    -   `doi`: string (Unique identifier)
-    -   `repo_url`: string (URL to code repository)
-    -   `dataset_name`: string (e.g., "USPTO-Extract v1.0")
-    -   `dataset_version`: string (e.g., "v1.0")
-    -   `data_url`: string (Direct URL to the specific CSV/Parquet file or script to generate it. **Required** if the dataset is not fully available in a verified source).
-    -   `reported_metrics`: object
-        -   `mae`: float
-        -   `r2`: float
-        -   `spearman_rho`: float
-    -   `hyperparameters`: object (Key-value pairs of model settings)
-    -   `seed`: integer (Optional; default 42 if missing)
-    -   `covariates_required`: list of strings (e.g., ["temperature", "solvent"])
 
-### 2.2 ReproResult
-The output of the re-implementation phase for a single paper.
--   **Source**: `artifacts/reports/repro_results.json`
--   **Fields**:
-    -   `doi`: string
-    -   `reproduced_metrics`: object
-        -   `mae`: float
-        -   `r2`: float
-        -   `spearman_rho`: float
-    -   `deviations`: object
-        -   `mae`: float (|reproduced - reported|)
-        -   `r2`: float
-        -   `spearman_rho`: float
-    -   `deviation_index`: float (S ∈ [0,1], normalized absolute deviation as per FR-009. **Note**: This is a descriptive ranking metric, not a statistical test result).
-    -   `metric_std`: object (Standard deviation from seed sweep, used for meta-analysis weights)
-        -   `mae`: float
-        -   `r2`: float
-        -   `spearman_rho`: float
-    -   `flags`: list of strings (e.g., "missing_seed", "covariate_gap", "model_substituted", "data_unavailable")
-    -   `environment_hash`: string (Docker image hash)
-    -   `seed_used`: integer
+- **Fields**:
+  - `doi`: string (ISO format)
+  - `repo_url`: string (GitHub URL)
+  - `dataset_name`: string (e.g., "USPTO-Extract v1.0")
+  - `dataset_version`: string (Required. e.g., "v1.0". Satisfies Constitution Principle VI).
+  - `dataset_url`: string (Optional; verified URL if different from standard)
+  - `reported_metrics`: object
+    - `mae`: float
+    - `r2`: float
+    - `spearman_rho`: float
+  - `hyperparameters`: object (key-value pairs)
+  - `seed`: integer (optional; default = 42 if missing. Defined as fallback in spec).
+  - `replicates`: integer (Optional. Number of experimental replicates reported).
+  - `conditions`: string (Optional. Text description of temperature, solvent, etc.).
+  - `covariates_required`: list of strings (e.g., ["temperature", "solvent"])
 
-### 2.3 StatSummary
-Aggregated statistical analysis results.
--   **Source**: `artifacts/reports/stat_summary.json`
--   **Fields**:
-    -   `equivalence_test`: object (TOST results)
-        -   `mae`: { `t_statistic_lower`: float, `t_statistic_upper`: float, `p_value`: float, `p_corrected`: float, `tolerance_delta`: float }
-        -   `r2`: { ... }
-        -   `spearman_rho`: { ... }
-    -   `meta_analysis`: object (Fixed-Effects Meta-Analysis results)
-        -   `pooled_effect`: float (Mean deviation)
-        -   `confidence_interval`: list [lower, upper]
-        -   `heterogeneity_i2`: float
-        -   `weights`: object (List of weights used, derived from `metric_std`)
-    -   `bland_altman`: object (Summary stats for plotting)
-        -   `mae`: { `mean_diff`: float, `std_diff`: float, `limits_of_agreement`: list }
-        -   ...
-    -   `sensitivity_analysis`: object
-        -   `max_std_mae`: float
-        -   `max_std_r2`: float
-        -   `max_std_spearman_rho`: float
+### 2. ReproResult
+The primary output for a single paper's audit.
 
-## 3. Data Flow
-1.  **Ingest**: `PaperManifest` is read and validated (including `data_url`).
-2.  **Process**: For each manifest entry, `ReproResult` is generated (including `metric_std` from seed sweep).
-3.  **Aggregate**: All `ReproResult` objects are collected to compute `StatSummary` (using `metric_std` for inverse-variance weighting).
-4.  **Output**: `StatSummary` and individual `ReproResult` files are written to `artifacts/reports/`.
+- **Fields**:
+  - `doi`: string
+  - `reproduced_metrics`: object
+    - `mae`: float
+    - `r2`: float
+    - `spearman_rho`: float
+  - `reported_metrics`: object (copy of input)
+  - `absolute_deviations`: object
+    - `mae`: float
+    - `r2`: float
+    - `spearman_rho`: float
+  - `reproducibility_score`: float (0.0 to 1.0)
+  - `seed_used`: integer
+  - `flags`: list of strings (e.g., "missing_seed", "covariate_missing", "model_substituted", "sweep_incomplete")
+  - `sensitivity`: object
+    - `max_metric_std`: float (from seed sweep. Required for FR-010).
+  - `environment`: object (Python version, Docker hash, library versions)
+  - `model_substituted`: boolean (True if model was replaced due to GPU/param limits).
+  - `covariate_missing`: boolean (True if required covariates were not found).
 
-## 4. Constraints
--   All floating point metrics must be rounded to 4 decimal places for reporting.
--   `deviation_index` must be clamped to [0, 1].
--   If a metric cannot be computed (e.g., NaN), the result must be flagged, and the score set to 0.
--   `metric_std` is required for all papers included in the meta-analysis.
+### 3. StatSummary
+Aggregate statistical results across all papers.
+
+- **Fields**:
+  - `paired_ttest`: list of objects (one per metric)
+    - `metric`: string
+    - `t_statistic`: float
+    - `p_value_raw`: float
+    - `p_value_corrected`: float
+    - `significant`: boolean
+  - `tost_equivalence`: list of objects (one per metric)
+  - `bland_altman`: list of objects (one per metric)
+  - `mixed_effects`: object
+    - `fixed_effects`: dict (coefficients for ModelSubstitution, CovariateMissing)
+    - `variance_components`: dict (random intercept variance, residual variance)
+    - `r2_marginal`: float
+    - `r2_conditional`: float
+  - `heterogeneity`: object
+    - `i_squared`: float
+    - `pooled_effect_size`: float
+  - `failure_log`: list of strings (qualitative issues)
+
+## Data Flow
+
+1.  **Ingestion**: `code/ingest.py` reads `manifest.csv` and validates against `PaperManifest.schema.yaml`.
+2.  **Processing**: `code/model_runner.py` generates `ReproResult` for each paper.
+3.  **Aggregation**: `code/main.py` collects all `ReproResult` objects and triggers `code/stats.py`.
+4.  **Analysis**: `code/stats.py` computes meta-analysis and writes `StatSummary`.
+5.  **Reporting**: `code/guidelines.py` consumes `StatSummary` and failure logs to generate the checklist.
+
+## Schema Locations
+
+- `contracts/PaperManifest.schema.yaml`
+- `contracts/ReproResult.schema.yaml`
+- `contracts/StatSummary.schema.yaml`

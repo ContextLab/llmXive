@@ -1,72 +1,73 @@
 # Quickstart: Assessing Reproducibility of Machine‑Learned Reaction Yield Models
 
-## 1. Prerequisites
-- **Python**: 3.11+
-- **Docker**: Installed and running (required for reproducible environment).
-- **Git**: Installed.
-- **Hardware**: 2 CPU cores, 7GB RAM (minimum for CI runner).
+## Prerequisites
 
-## 2. Installation
+- Python 3.11+
+- Docker (for local environment validation)
+- Git
+- Access to a GitHub Actions runner (or local equivalent with 7 GB RAM)
 
-### Step 1: Clone and Setup
-```bash
-git clone
-cd PROJ-761-assessing-reproducibility
-```
+## Installation
 
-### Step 2: Build the Docker Environment
-The project requires a specific CPU-only environment to ensure reproducibility.
-```bash
-docker build -t repro-yield-audit:latest.
-```
-*Note: This Dockerfile pins Python 3.11, PyTorch 2.2 (CPU), scikit-learn 1.5, and RDKit.*
+1. **Clone the repository**:
+ ```bash
+ git clone
+ cd llmxive-reproducibility
+ ```
 
-### Step 3: Install Dependencies (Local Development)
-If running locally without Docker:
-```bash
-python -m venv venv
-source venv/bin/activate
-pip install -r code/requirements.txt
-```
+2. **Create a virtual environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-## 3. Running the Pipeline
+3. **Install dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
+ *Note: Ensure `ruff` and `black` are installed for linting.*
 
-### Option A: Run in Docker (Recommended)
-Execute the full pipeline inside the container:
-```bash
-docker run --rm -v $(pwd)/data:/app/data -v $(pwd)/artifacts:/app/artifacts repro-yield-audit:latest python code/main.py
-```
+4. **Verify environment**:
+ ```bash
+ ruff check.
+ black --check.
+ ```
 
-### Option B: Run Locally
+## Configuration
+
+1. **Create the manifest**:
+ Place your target papers in `data/manifest.csv` with columns: `doi,repo_url,dataset_name,reported_mae,reported_r2,reported_spearman,hyperparameters_json,seed`.
+
+2. **Verify datasets**:
+ Ensure the datasets listed in the manifest are accessible via the verified URLs in `research.md`. The system will attempt to download them automatically.
+
+## Running the Pipeline
+
+Execute the main pipeline:
+
 ```bash
 python code/main.py
 ```
 
-## 4. Input Configuration
-Edit `data/manifest.yaml` to add target papers. Example:
-```yaml
-- doi: ""
- repo_url: ""
- dataset_name: "USPTO-Extract"
- dataset_version: "v1.0"
- reported_metrics:
- mae: 0.15
- r2: 0.85
- spearman_rho: 0.75
- hyperparameters:
- n_estimators: 100
- max_depth: 10
- seed: 42
-```
+This command will:
+1. Ingest the manifest.
+2. Download/stream datasets.
+3. Run the model reproduction (with seed sweep).
+4. Perform statistical analysis.
+5. Generate reports.
 
-## 5. Output
-After completion, check `artifacts/reports/`:
-- `repro_results.json`: Per-paper metrics and scores.
-- `stat_summary.json`: Meta-analysis results.
-- `checklist.md`: Community guidelines.
-- `plots/`: Bland-Altman PNGs.
+## Expected Outputs
 
-## 6. Troubleshooting
-- **Dataset Missing**: If a dataset URL is not found, the system logs "Data Unavailable" and skips the paper.
-- **GPU Error**: Ensure `torch` is installed as the CPU wheel (`pip install torch --index-url).
-- **Memory Error**: Reduce dataset size or model complexity in the manifest.
+After completion, check the `artifacts/` directory:
+
+- `reports/repro_results.json`: Per-paper reproducibility scores and deviations.
+- `reports/stat_summary.json`: Meta-analysis results (t-tests, LME).
+- `reports/reproducibility_checklist.md`: The generated guideline checklist.
+- `plots/`: Bland-Altman plots.
+- `logs/environment.log`: Docker hash and library versions.
+
+## Troubleshooting
+
+- **Dataset Download Failed**: Check the `research.md` "Verified datasets" block. If the URL is unreachable, the system will log a `covariate_missing` or `data_unavailable` flag.
+- **Memory Error**: The system uses streaming by default. If an error occurs, verify that the dataset is not being loaded entirely into memory (check `code/ingest.py`).
+- **Model Substitution**: If a paper requires a GPU or >1M parameters, the system will substitute a baseline model and log the deviation. Check `artifacts/logs/failure_log.txt`.

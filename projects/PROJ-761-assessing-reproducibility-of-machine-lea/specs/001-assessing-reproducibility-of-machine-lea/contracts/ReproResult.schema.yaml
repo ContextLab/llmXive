@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ReproResult"
+description: "Schema for the reproducibility results of a single paper."
+type: "object"
+properties:
+  doi:
+    type: "string"
+  reproduced_metrics:
+    type: "object"
+    properties:
+      mae:
+        type: "number"
+      r2:
+        type: "number"
+      spearman_rho:
+        type: "number"
+    required: ["mae", "r2", "spearman_rho"]
+  reported_metrics:
+    type: "object"
+    properties:
+      mae:
+        type: "number"
+      r2:
+        type: "number"
+      spearman_rho:
+        type: "number"
+    required: ["mae", "r2", "spearman_rho"]
+  absolute_deviations:
+    type: "object"
+    properties:
+      mae:
+        type: "number"
+      r2:
+        type: "number"
+      spearman_rho:
+        type: "number"
+    required: ["mae", "r2", "spearman_rho"]
+  reproducibility_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+  seed_used:
+    type: "integer"
+  flags:
+    type: "array"
+    items:
+      type: "string"
+    description: "Flags such as 'missing_seed', 'covariate_missing', 'model_substituted', 'sweep_incomplete'."
+  sensitivity:
+    type: "object"
+    properties:
+      max_metric_std:
+        type: "number"
+        description: "Maximum standard deviation observed across seed sweep."
+  environment:
+    type: "object"
+    properties:
+      python_version:
+        type: "string"
+      docker_hash:
+        type: "string"
+      library_versions:
+        type: "object"
+  model_substituted:
+    type: "boolean"
+    description: "True if the original model was replaced by a baseline."
+  covariate_missing:
+    type: "boolean"
+    description: "True if required covariates were not found in the dataset."
+required: ["doi", "reproduced_metrics", "reported_metrics", "absolute_deviations", "reproducibility_score", "seed_used", "flags", "environment", "model_substituted", "covariate_missing"]
+additionalProperties: false

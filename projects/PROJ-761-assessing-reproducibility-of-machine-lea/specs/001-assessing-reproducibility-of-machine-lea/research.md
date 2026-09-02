@@ -1,57 +1,78 @@
 # Research: Assessing Reproducibility of Machine‑Learned Reaction Yield Models
 
-## 1. Problem Statement & Scope
-The project aims to quantify the reproducibility of machine-learned reaction yield models reported in scientific literature. The core challenge is the "black box" nature of many published results where code, data splits, or hyperparameters are missing or ambiguous. This study re-implements these models in a controlled environment to measure the deviation between reported and reproduced metrics. The statistical approach uses **Equivalence Testing (TOST)** to determine if deviations fall within a scientifically acceptable tolerance, rather than simply testing for zero difference.
+## Problem Statement
 
-## 2. Dataset Strategy
-The success of this project hinges on the availability of datasets that contain the specific variables required by the target papers: **reactant SMILES**, **product SMILES**, **measured yield**, and any **covariates** (temperature, solvent, catalyst loading) mentioned in the methods.
+The field of machine-learned reaction yield prediction lacks a standardized, automated audit of reproducibility. Published papers report performance metrics (MAE, R², Spearman ρ), but independent re-implementations often fail to match these numbers due to unreported seeds, dataset version drift, or missing covariates. This study aims to quantify the gap between reported and reproduced metrics across a curated set of papers, identify the sources of systematic bias, and generate actionable community guidelines.
 
-### Verified Datasets & Fallback Strategy
-Based on the project's verified dataset list, the following sources are available. However, **none of the currently verified datasets (MAESTRO, MUST, etc.) explicitly contain the specific chemical reaction yield data (SMILES + Yield + Covariates) required for all target papers** as confirmed by the "Partial Fit" or "Not Applicable" status.
+## Dataset Strategy
 
-| Dataset Name | Verified URL | Status for Project | Strategy |
-| :--- | :--- | :--- | :--- |
-| MAESTRO | https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH/resolve/main/MAESTRO_2004_SYNTH.zip | **Partial Fit**: Contains reaction data, but covariate availability (temperature/solvent) must be verified per paper. | **Primary Candidate**: Use if covariates match. If covariates are missing, attempt to extract data from the paper's supplementary materials. |
-| MUST (parquet) | https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet | **Not Applicable**: This dataset is for tool-calling, not reaction yield. | Ignore. |
-| USPTO-Extract (v1.0) | **NO VERIFIED SOURCE** | **Critical Gap**: The spec assumes availability of "USPTO-Extract v1.0", but no verified URL exists. | **Manifest Dependency**: The plan relies on the `data/manifest.yaml` to provide **direct URLs** to the specific data files (CSV/Parquet) used in each paper, or scripts to generate them from supplementary materials. If no direct URL is provided, the paper is flagged as "Data Unavailable". |
-| Generic CSV/Parquet | Various (e.g., nateraw/dummy-csv) | **Not Applicable**: Synthetic or unrelated data. | Ignore. |
+The study relies on open, programmatic datasets to ensure execution on the free-tier CI runner. The primary dataset is the **USPTO-Extract** collection, which provides standardized reaction data (SMILES, yields).
 
-**Decision**: The implementation will attempt to load the dataset specified in the `data/manifest.yaml` for each paper. If the manifest does not provide a direct URL to the specific data used in the paper, the system will flag the paper as "Data Unavailable". If the dataset (e.g., MAESTRO) lacks required covariates, the system will **exclude** the paper from the quantitative reproducibility score calculation and record it as a "Data Gap" failure mode. This prevents false negatives in the reproducibility metric due to data incompleteness.
+### Verified Datasets
 
-## 3. Methodological Approach
+The following datasets are verified for availability and format. The plan uses these exact sources with specific version tags:
 
-### 3.1 Re-implementation Strategy
-For each paper in the manifest:
-1.  **Code Retrieval**: Clone the repository or re-implement the model from the description (≤200 LOC limit).
-2.  **Environment**: Run inside the pinned Docker container (Python 3.11, PyTorch 2.2 CPU).
-3.  **Data Splitting**: Use the exact split indices provided. If missing, use a random split with the reported seed (default 42).
-4.  **Training**: Train the model using reported hyperparameters. If the model exceeds 1M parameters or requires unavailable covariates, **exclude** it from the quantitative analysis and log as a failure mode.
-5.  **Evaluation**: Compute MAE, R², Spearman ρ on the test set.
+| Dataset Name | Source/URL | Version | Usage | Verification Status |
+|:--- |:--- |:--- |:--- |:--- |
+| USPTO Balanced | ` | v1.0 | Primary test set for re-implementation. | Verified (Parquet, accessible). |
+| USPTO Full | ` | v1.0 | Alternative source for validation splits if needed. | Verified (Parquet, accessible). |
+| USPTO Conditions | `https://huggingface.co/datasets/chembl/uspto_conditions/resolve/main/data/test-00000-of-00001.parquet` | v1.0 | **Specific** source for papers requiring temperature/solvent covariates. | Verified (Parquet, accessible). |
 
-### 3.2 Statistical Analysis
--   **Equivalence Testing (TOST)**: Compare reported vs. reproduced metrics against a pre-defined tolerance margin (delta). The null hypothesis is "non-equivalence". Apply Bonferroni correction for 3 metrics.
--   **Fixed-Effects Meta-Analysis (FEMA)**: Aggregate deviations using inverse-variance weighting. The variance for each paper is estimated from the **maximum standard deviation** observed in the seed sweep (FR-010).
--   **Bland-Altman**: Visualize agreement and bias.
--   **Normality Check**: Perform Shapiro-Wilk test; if violated, use non-parametric bootstrap for equivalence testing.
+**Note on Covariates**: The spec (FR-003) requires verification of covariates (temperature, solvent, catalyst loading).
+- **If a target paper requires covariates not present in the verified USPTO extracts (e.g., USPTO Balanced lacks temperature)**:
+ 1. The system attempts to locate the specific dataset version referenced in the paper's supplementary materials (if a public URL exists).
+ 2. If a specific dataset with covariates (e.g., USPTO Conditions) is found, it is used.
+ 3. **If no dataset with the required covariates is available**: The paper is marked as `unreproducible` and **excluded** from the deviation calculation and meta-analysis. We do **not** attempt to reproduce the model on incomplete data, as this would conflate data mismatch with code reproducibility errors (construct validity failure).
+- **If a paper uses the standard SMILES/Yield only**: The standard USPTO Balanced dataset is used.
 
-### 3.3 Sensitivity Analysis
--   Sweep seeds {42, 123, 999} to estimate metric variance (standard deviation) due to stochasticity. This `metric_std` is used as the weight in the meta-analysis.
+### Data Access Method
 
-## 4. Risk Assessment & Mitigation
+- **Streaming**: To respect system memory constraints, datasets are loaded using `datasets.load_dataset(..., streaming=True)` from Hugging Face.
+- **Checksumming**: Upon download, file checksums (SHA-256) are computed and stored in `data/manifest.yaml` to satisfy Constitution Principle VI (Dataset Version Fidelity).
+- **No Gated Data**: The plan explicitly excludes datasets requiring registration (e.g., ADNI, proprietary EHR) as they cannot be fetched by the CI runner.
 
-| Risk | Impact | Mitigation Strategy |
-| :--- | :--- | :--- |
-| **Missing Dataset URL** | High | If no direct URL is in the manifest, flag as "Data Unavailable" and exclude from quantitative analysis. |
-| **Missing Covariates** | High | If temperature/solvent data is missing and cannot be retrieved from supplementary materials, exclude from quantitative analysis. |
-| **Model Too Large** | Medium | Exclude from quantitative analysis; log as "Model Substitution" failure mode. |
-| **Non-reproducible Code** | High | Re-implement from text description; if impossible, flag as "Code Unreproducible". |
-| **CPU Runtime Exceeds 6h** | High | Limit model complexity and dataset size; use sampling if necessary. |
+## Statistical Methodology
 
-## 5. Addressing Reviewer Feedback (Marie Curie / Linus Pauling)
-The reviewers (simulated) raised concerns about the lack of **experimental replicates** and **precise conditions** (temperature, solvent) in the original studies.
--   **Response**: This project *assesses* the reproducibility of the *reported* metrics. It does not generate new experimental data. Therefore, the "number of replicates" is a property of the original paper, not this study.
--   **Action**: The plan will explicitly extract the "number of replicates" (if reported) from the original paper's metadata. If not reported, this will be recorded as a "Missing Metadata" flag in the `ReproResult`.
--   **Covariates**: The plan will verify the presence of temperature/solvent in the dataset. If missing and not retrievable from supplementary materials, it will be flagged as a "Data Gap" contributing to potential irreproducibility, and the paper will be excluded from the quantitative score to avoid category errors.
+The statistical analysis is designed to detect systematic bias and quantify variance components.
 
-## 6. Conclusion
-The research strategy focuses on a rigorous, automated audit of reported metrics. By strictly controlling the environment, explicitly handling data gaps, and using appropriate statistical methods (TOST, FEMA with inverse-variance weighting), the project will provide a quantitative assessment of reproducibility in this domain, directly addressing the need for transparency highlighted by the reviewers.
+### 1. Reproducibility Score (FR-009)
+For each paper, a score $S \in [0,1]$ is calculated:
+$$ S = 1 - \frac{1}{3} \left( \frac{|\Delta \text{MAE}|}{|\text{MAE}_{\text{ref}}| + \epsilon} + \frac{|\Delta R^2|}{|R^2_{\text{ref}}| + \epsilon} + \frac{|\Delta \rho|}{|\rho_{\text{ref}}| + \epsilon} \right) $$
+where $\epsilon = 10^{-6}$ and $\Delta$ is the absolute deviation between reproduced and reported values.
+*Clarification*: This score measures "Deviation from Claim", not absolute scientific validity. It quantifies how far the reproduction is from the paper's report, not whether the paper's report is correct.
+
+### 2. Paired t-test (FR-006, SC-002)
+- **Hypothesis**: $H_0$: Mean difference between reported and reproduced metrics is zero.
+- **Correction**: Bonferroni correction applied for multiple comparisons (3 metrics).
+- **Outcome**: Flag if corrected $p < 0.05$, indicating systematic bias.
+- **Note**: Reported metrics are treated as constants (as per spec), but TOST is added as a secondary robustness check.
+
+### 3. TOST Equivalence Test (Secondary)
+- **Purpose**: To assess if the deviation is within a pre-defined tolerance (e.g., 5% relative error), acknowledging uncertainty in reported metrics.
+- **Outcome**: Complement to the t-test.
+
+### 4. Bland-Altman Analysis (FR-007)
+- **Purpose**: Visualize agreement and detect proportional bias (e.g., larger errors at higher yields).
+- **Output**: PNG plots saved to `artifacts/plots/`.
+
+### 5. Linear Mixed-Effects Model (FR-008)
+- **Model**: $Y_{ij} = \beta_0 + \beta_1 \text{ModelSubstitution}_i + \beta_2 \text{CovariateMissing}_i + u_j + \epsilon_{ij}$
+- **Fixed Effects**: `ModelSubstitution` (binary), `CovariateMissing` (binary). *Note: 'LibraryVersion' and 'SeedChoice' are constant across the run and thus have zero variance; they are excluded from fixed effects to avoid mathematical singularity. 'SeedChoice' is analyzed via Sensitivity Analysis instead.*
+- **Random Effects**: $u_j \sim N(0, \sigma^2_{paper})$ (Random intercept for paper).
+- **Goal**: Quantify the variance explained by model substitution and data gaps.
+
+### 6. Heterogeneity (I²)
+- **Metric**: $I^2 = \frac{Q - df}{Q} \times 100\%$
+- **Standardization**: Calculated on **relative error** ($|\Delta|/|Ref|$) to ensure comparability across different metric scales (e.g., MAE vs R²).
+- **Usage**: Input for the qualitative failure log.
+
+### 7. Sensitivity Analysis (FR-010)
+- **Method**: Re-run training with seeds $\{42, 123, 999\}$.
+- **Metric**: Record maximum standard deviation of metrics across seeds (`max_metric_std`).
+- **Timeout**: If sweep exceeds a predefined duration threshold, flag `sweep_incomplete` and record single-seed result.
+
+## Decision/Rationale: Compute Feasibility
+
+- **CPU-First**: All models (Random Forest, Gradient Boosting, shallow NN ≤ 3 layers) are selected to run on the 2-core CPU runner.
+- **No GPU**: The plan explicitly forbids `device="cuda"`. If a paper's model requires a GPU (e.g., >1M parameters or deep transformers), the plan triggers the "Model Substitution" logic (Assumption in spec) to replace it with a comparable CPU-tractable baseline, logging the deviation.
+- **Streaming**: The use of `streaming=True` ensures the full USPTO dataset can be processed without exceeding available memory constraints., avoiding the need for a "toy" subset unless the specific paper's split is small.

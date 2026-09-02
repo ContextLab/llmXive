@@ -95,11 +95,11 @@ A member of the synthetic‑chemistry community wants a concise checklist of bes
 
 ## Assumptions
 
-- The USPTO‑Extract dataset provides core reaction data (reactant/product SMILES, measured yield) but temperature, solvent, and catalyst loading covariates are NOT guaranteed. Per community practice in reaction‑yield prediction (see USPTO‑Extract documentation and [J. Chem. Inf. Model. 16, 3759–3771]), covariate availability is paper‑specific. The system attempts to retrieve covariates per paper entry in the manifest (FR‑003) and flags any study that requires these covariates but cannot retrieve them, recording this as a known limitation in the results log.
+- The USPTO‑Extract dataset provides core reaction data (reactant/product SMILES, measured yield) but temperature, solvent, and catalyst loading covariates are NOT guaranteed. Per community practice in reaction‑yield prediction (see USPTO‑Extract documentation and [J. Chem. Inf. Model., 3759–3771]), covariate availability is paper‑specific. The system attempts to retrieve covariates per paper entry in the manifest (FR‑003) and flags any study that requires these covariates but cannot retrieve them, recording this as a known limitation in the results log.
 - All target papers provide either (i) a public repository with runnable code or (ii) a complete textual description that can be faithfully re‑implemented in ≤ 200 LOC of Python.
 - Reported metrics are *associational* performance measures; the study will not claim causal inference about model superiority beyond reproducibility of reported numbers.
 - The free‑tier GitHub Actions runner (2 CPU cores, ≤ 7 GB RAM, ≤ 6 h wall‑time) is sufficient to train each model; models are limited to ≤ 1 M parameters or to classical ML algorithms (random forest, gradient boosting, shallow NN ≤ 3 layers).
 - Library version differences are limited to major releases (e.g., scikit‑learn 1.4 → 1.5) that do not alter core metric implementations.
-- The reproducibility score threshold of 0.8 for "high reproducibility" is a design choice for categorizing results; this threshold may be adjusted during implementation based on observed data distribution.
+- The reproducibility score threshold for "high reproducibility" is a design choice for categorizing results; this threshold may be adjusted during implementation based on observed data distribution.
 - No GPU‑accelerated operations (e.g., `torch.cuda`, `bitsandbytes`) will be required; all code must run on CPU.
 - The analysis will not attempt to retrain large transformer‑based models; if a paper's model exceeds the 1 M‑parameter limit, it will be replaced by a published baseline of comparable architecture (recorded as a deviation in the results).

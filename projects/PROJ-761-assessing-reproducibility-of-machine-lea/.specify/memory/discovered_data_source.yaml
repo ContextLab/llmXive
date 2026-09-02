@@ -1,0 +1,12 @@
+status: none
+intent: downloadable Papers with Code dataset API python package open source
+required_fields:
+- doi
+- repository_url
+- dataset_name
+- reported_mae
+- reported_r2
+- reported_spearman_rho
+cache_key: 7edf71804a6bc4cf0278cece7aa3b262583a7d751feb6576bdf6ae998890418f
+searched_at: '2026-09-02T23:27:56.754249+00:00'
+retry_count: 1

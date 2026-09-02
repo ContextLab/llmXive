@@ -1,0 +1,75 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatSummary"
+description: "Schema for the aggregate statistical analysis results."
+type: "object"
+properties:
+  paired_ttest:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        metric:
+          type: "string"
+        t_statistic:
+          type: "number"
+        p_value_raw:
+          type: "number"
+        p_value_corrected:
+          type: "number"
+        significant:
+          type: "boolean"
+      required: ["metric", "t_statistic", "p_value_raw", "p_value_corrected", "significant"]
+  tost_equivalence:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        metric:
+          type: "string"
+        p_value:
+          type: "number"
+        equivalent:
+          type: "boolean"
+      required: ["metric", "p_value", "equivalent"]
+  bland_altman:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        metric:
+          type: "string"
+        mean_difference:
+          type: "number"
+        limits_of_agreement:
+          type: "array"
+          items:
+            type: "number"
+          description: "Lower and upper limits."
+      required: ["metric", "mean_difference", "limits_of_agreement"]
+  mixed_effects:
+    type: "object"
+    properties:
+      fixed_effects:
+        type: "object"
+        description: "Coefficients for fixed effects (ModelSubstitution, CovariateMissing)."
+      variance_components:
+        type: "object"
+        description: "Variance for random intercepts and residuals."
+      r2_marginal:
+        type: "number"
+      r2_conditional:
+        type: "number"
+  heterogeneity:
+    type: "object"
+    properties:
+      i_squared:
+        type: "number"
+      pooled_effect_size:
+        type: "number"
+  failure_log:
+    type: "array"
+    items:
+      type: "string"
+    description: "Qualitative list of failure modes."
+required: ["paired_ttest", "tost_equivalence", "bland_altman", "mixed_effects", "heterogeneity", "failure_log"]
+additionalProperties: false
