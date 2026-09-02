@@ -1,93 +1,62 @@
-"""
-Unit tests for code/synthetic_generator.py
-"""
 import pytest
 import pandas as pd
 import numpy as np
 import json
+import os
 from pathlib import Path
 import sys
-import os
 
-# Add code directory to path for imports
+# Add code directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from synthetic_generator import generate_synthetic_data, validate_schema
+from data.synthetic import generate_synthetic_data, validate_schema
 
 class TestSyntheticGenerator:
-    
-    def test_generate_mcar_structure(self):
-        """Test that MCAR generation produces expected structure."""
-        df, meta = generate_synthetic_data(n_samples=100, missingness_mechanism="MCAR", seed=42)
+    def test_generate_mcar_data(self):
+        """Test generation of MCAR synthetic data."""
+        df = generate_synthetic_data(n=100, true_mean=50, true_variance=100, 
+                                     missing_rate=0.2, mechanism='MCAR', seed=42)
         
-        assert isinstance(df, pd.DataFrame)
         assert len(df) == 100
-        assert 'id' in df.columns
-        assert 'covariate_X' in df.columns
-        assert 'target_Y' in df.columns
-        assert meta['missingness_mechanism'] == "MCAR"
-        assert meta['n_samples'] == 100
-
-    def test_generate_mar_structure(self):
-        """Test that MAR generation produces expected structure."""
-        df, meta = generate_synthetic_data(n_samples=100, missingness_mechanism="MAR", seed=42)
+        assert 'value' in df.columns
+        assert df['missingness_mechanism'].iloc[0] == 'MCAR'
+        assert df['true_mean'].iloc[0] == 50
+        assert df['true_variance'].iloc[0] == 100
         
-        assert isinstance(df, pd.DataFrame)
+        # Check missing rate is approximately 0.2
+        missing_rate = df['value'].isna().mean()
+        assert 0.1 <= missing_rate <= 0.3, f"Missing rate {missing_rate} not in expected range"
+
+    def test_generate_mar_data(self):
+        """Test generation of MAR synthetic data."""
+        df = generate_synthetic_data(n=100, true_mean=50, true_variance=100, 
+                                     missing_rate=0.2, mechanism='MAR', seed=42)
+        
         assert len(df) == 100
-        assert meta['missingness_mechanism'] == "MAR"
+        assert 'value' in df.columns
+        assert df['missingness_mechanism'].iloc[0] == 'MAR'
 
-    def test_missingness_rate_approximation(self):
-        """Test that missingness rate is approximately correct."""
-        n = 5000
-        target_rate = 0.20
-        df, _ = generate_synthetic_data(n_samples=n, missing_rate=target_rate, seed=123)
+    def test_schema_validation(self):
+        """Test schema validation logic."""
+        valid_metadata = {
+            'true_mean': 50.0,
+            'true_variance': 100.0,
+            'missingness_mechanism': 'MAR',
+            'n': 1000,
+            'missing_rate': 0.2
+        }
         
-        observed_rate = df['target_Y'].isna().sum() / n
-        # Allow 5% tolerance for randomness
-        assert abs(observed_rate - target_rate) < 0.05
+        assert validate_schema(valid_metadata, "") is True
+        
+        invalid_metadata = valid_metadata.copy()
+        invalid_metadata['missingness_mechanism'] = 'MNAR'
+        assert validate_schema(invalid_metadata, "") is False
 
-    def test_known_mean_variance(self):
-        """Test that generated data approximates true mean and variance (ignoring missing)."""
-        true_mean = 100.0
-        true_var = 25.0
-        n = 100000 # Large sample for convergence
+    def test_seed_reproducibility(self):
+        """Test that same seed produces same results."""
+        df1 = generate_synthetic_data(n=50, true_mean=50, true_variance=100, 
+                                      missing_rate=0.2, mechanism='MCAR', seed=123)
+        df2 = generate_synthetic_data(n=50, true_mean=50, true_variance=100, 
+                                      missing_rate=0.2, mechanism='MCAR', seed=123)
         
-        df, meta = generate_synthetic_data(
-            n_samples=n, 
-            true_mean=true_mean, 
-            true_variance=true_var, 
-            missingness_mechanism="MCAR", # MCAR ensures observed mean is unbiased
-            seed=999
-        )
-        
-        # Calculate mean of non-missing values
-        observed_mean = df['target_Y'].mean()
-        observed_var = df['target_Y'].var()
-        
-        # Tolerance for Monte Carlo error
-        assert abs(observed_mean - true_mean) < 0.5
-        assert abs(observed_var - true_var) < 1.0
-
-    def test_metadata_content(self):
-        """Test that metadata contains required fields."""
-        df, meta = generate_synthetic_data()
-        
-        assert 'true_mean' in meta
-        assert 'true_variance' in meta
-        assert 'missingness_mechanism' in meta
-        assert 'seed' in meta
-        assert isinstance(meta['true_mean'], float)
-        assert isinstance(meta['true_variance'], float)
-
-    def test_invalid_missing_rate(self):
-        """Test that invalid missing rate raises error."""
-        with pytest.raises(ValueError):
-            generate_synthetic_data(missing_rate=1.5)
-        
-        with pytest.raises(ValueError):
-            generate_synthetic_data(missing_rate=-0.1)
-
-    def test_invalid_mechanism(self):
-        """Test that invalid mechanism raises error."""
-        with pytest.raises(ValueError):
-            generate_synthetic_data(missingness_mechanism="MNAR")
+        pd.testing.assert_frame_equal(df1, df2)

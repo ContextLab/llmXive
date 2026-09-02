@@ -5,100 +5,66 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 MANIFEST_PATH = Path("state/manifest.yaml")
 
-def compute_file_hash(file_path: Path) -> str:
+def compute_file_hash(file_path: str) -> str:
     """Compute SHA-256 hash of a file."""
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-    
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def find_artifacts(base_dir: Path = Path(".")) -> list[Path]:
-    """Find all data artifacts in the project."""
-    artifacts = []
-    for ext in ["*.csv", "*.json", "*.parquet", "*.yaml", "*.yml"]:
-        artifacts.extend(base_dir.rglob(ext))
-    return [p for p in artifacts if "cache" not in str(p) and "__pycache__" not in str(p)]
-
-def generate_manifest(artifacts: list[Path]) -> Dict[str, Any]:
-    """Generate a manifest dictionary from a list of artifacts."""
-    manifest = {
-        "artifact_hashes": {},
-        "status": "pending",
-        "last_updated": None
-    }
-    for path in artifacts:
-        try:
-            hash_val = compute_file_hash(path)
-            manifest["artifact_hashes"][str(path)] = hash_val
-        except Exception as e:
-            logger.warning(f"Could not compute hash for {path}: {e}")
-    return manifest
-
-def update_manifest(
-    artifact_path: str,
-    hash_value: Optional[str] = None,
-    status: Optional[str] = None,
-    force: bool = False
-):
-    """
-    Update the manifest.yaml file with a specific artifact's hash and status.
-    If hash_value is None, it is computed from the file.
-    """
-    path = Path(artifact_path)
+def find_artifacts(base_dir: str = "data") -> Dict[str, str]:
+    """Find all generated artifacts and compute their hashes."""
+    artifacts = {}
+    base = Path(base_dir)
+    if not base.exists():
+        return artifacts
     
-    # Load existing manifest or create new
+    for file_path in base.rglob("*"):
+        if file_path.is_file():
+            relative_path = str(file_path.relative_to(Path(".")))
+            artifacts[relative_path] = compute_file_hash(str(file_path))
+    return artifacts
+
+def load_manifest() -> Dict[str, Any]:
+    """Load existing manifest or return empty dict."""
     if MANIFEST_PATH.exists():
         with open(MANIFEST_PATH, 'r') as f:
-            manifest = yaml.safe_load(f) or {}
-    else:
-        manifest = {"artifact_hashes": {}, "status": "pending"}
+            return yaml.safe_load(f) or {}
+    return {}
 
-    # Ensure artifact_hashes exists
-    if "artifact_hashes" not in manifest:
-        manifest["artifact_hashes"] = {}
+def update_manifest(artifacts: Dict[str, str], manifest: Dict[str, Any]) -> Dict[str, Any]:
+    """Update manifest with new artifact hashes."""
+    manifest['artifact_hashes'] = artifacts
+    manifest['updated_at'] = str(Path().cwd().resolve()) # Simple timestamp placeholder
+    return manifest
 
-    # Compute hash if not provided
-    if hash_value is None:
-        if path.exists():
-            hash_value = compute_file_hash(path)
-        else:
-            if not force:
-                logger.warning(f"File not found for hash computation: {path}")
-                return
-
-    # Update entry
-    manifest["artifact_hashes"][str(path)] = hash_value
-    if status:
-        manifest["status"] = status
-    
-    # Ensure state directory exists
-    MANIFEST_PATH.parent.mkdir(parents=True, exist_ok=True)
-
-    # Write manifest
-    with open(MANIFEST_PATH, 'w') as f:
+def generate_manifest(output_path: str = "state/manifest.yaml"):
+    """Generate a new manifest file."""
+    artifacts = find_artifacts()
+    manifest = {'artifact_hashes': artifacts}
+    with open(output_path, 'w') as f:
         yaml.dump(manifest, f, default_flow_style=False)
-    
-    logger.info(f"Updated manifest for {path} with status {status}")
+    logger.info(f"Generated manifest at {output_path}")
 
 def main():
-    """CLI entry point to regenerate the full manifest."""
+    """Main entry point to update the manifest."""
+    ensure_dir = Path(MANIFEST_PATH).parent
+    ensure_dir.mkdir(parents=True, exist_ok=True)
+    
     artifacts = find_artifacts()
-    manifest = generate_manifest(artifacts)
+    manifest = load_manifest()
+    updated_manifest = update_manifest(artifacts, manifest)
     
-    MANIFEST_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(MANIFEST_PATH, 'w') as f:
-        yaml.dump(manifest, f, default_flow_style=False)
+        yaml.dump(updated_manifest, f, default_flow_style=False)
     
-    logger.info(f"Manifest updated at {MANIFEST_PATH} with {len(manifest['artifact_hashes'])} artifacts.")
+    logger.info(f"Manifest updated with {len(artifacts)} artifacts.")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

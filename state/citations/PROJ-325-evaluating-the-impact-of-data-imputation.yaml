@@ -9,14 +9,25 @@
   verification_status: pending
   verified_against_url: https://gss.norc.org/page-not-found.html
   verified_at: '2026-07-28T21:35:24.089321Z'
-- artifact_hash: e0f2826060541bd1b17dd5fb77a3428e5eca5268942497af22760feb516a4942
+- artifact_hash: 625354e7464df01557b1d350c1a2407ff43910673575d4968f741a04b5d076cc
   artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
+  fetched_title: schema#
+  kind: url
+  value: http://json-schema.org/draft-07/schema#
+  verification_status: pending
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-09-02T04:54:56.294465Z'
+- artifact_hash: 625354e7464df01557b1d350c1a2407ff43910673575d4968f741a04b5d076cc
+  artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
   fetched_title: Page Not Found
   kind: url
-  value: https://gss.norc.org/documents/stata/GSS2018.dta`
+  value: https://gss.norc.org/documents/data/2018/GSS2018_Codebook.pdf
   verification_status: pending
   verified_against_url: https://gss.norc.org/page-not-found.html
-  verified_at: '2026-08-30T21:45:58.483674Z'
+  verified_at: '2026-09-02T04:54:56.294465Z'

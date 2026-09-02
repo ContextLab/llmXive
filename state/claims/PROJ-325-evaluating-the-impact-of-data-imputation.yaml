@@ -508,3 +508,132 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-30T21:59:28Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: dataset subset limit of 50,000 rows
+  claim_id: c_5ce66618
+  context: "T041 [FR-001] Enforce Subset Limit: Update code/data/loader.py to explicitly\
+    \ enforce the subset limit of \u2264 50,000 rows as per Plan.md Technical Context."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system must enforce a subset limit of \u2264 50,000 rows to ensure\
+    \ the dataset fits within RAM limits without requiring streaming infrastructure."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T04:47:13Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: synthetic data generator default parameters n=1000 mean=50 variance=100
+    missing_rate=0.2
+  claim_id: c_152dabfb
+  context: 'T005 [FR-002b] Implement Synthetic Data Generator... Default values: n=1000,
+    true_mean=50, true_variance=100, missing_rate=0.2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic data generator uses default values of n=1000, true_mean=50,
+    true_variance=100, and missing_rate=0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T04:48:08Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: MICE 4 chains 500 burn-in 500 pooled 2000 total samples
+  claim_id: c_35d151ba
+  context: T025a [US2] MICE Chain Runner... Explicitly run 4 independent instances...
+    Explicitly discard the first 500 iterations of EACH chain before pooling the remaining
+    500 iterations per chain (total 2000 samples).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MICE implementation runs 4 independent chains, discarding the first
+    500 iterations of each chain before pooling the remaining 500 iterations per chain
+    for a total of 2000 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T04:48:35Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: MICE retry limit 3 times on R-hat >= 1.05
+  claim_id: c_cbe446e8
+  context: 'T026 [US2] [FR-002] Implement Retry Logic: On convergence failure (R-hat
+    >= 1.05), retry up to 3 times with a new seed (base_seed + 100*attempt).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MICE implementation retries up to 3 times with a new seed upon convergence
+    failure (R-hat >= 1.05).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T04:49:03Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: sensitivity sweep m values 5 10 20
+  claim_id: c_43e3a0c6
+  context: T033a [US3] [FR-005] Sweep Orchestrator... defines the parameter loop for
+    m over a set of representative values {5, 10, 20}.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps the parameter m over the values 5, 10,
+    and 20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T04:50:45Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: stability analysis variation in bias less than 5%
+  claim_id: c_b84906a8
+  context: T035 [US3] [FR-005] Stability Analysis... Verifies the condition variation
+    in bias < 5% as per SC-003.
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Stability_analysis_variation_in_bias_less_than_5%25
+  kind: magnitude
+  raw_text: The stability analysis condition requires that the variation in bias rates
+    across the sweep is less than 5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-02T04:51:43Z'
+- artifact_path: projects/PROJ-325-evaluating-the-impact-of-data-imputation/specs/001-evaluating-the-impact-of-data-imputation/tasks.md
+  attempts: 1
+  canonical: runtime limit 6 hours GitHub Actions free-tier
+  claim_id: c_18310640
+  context: "T046 [P] Runtime Monitoring: Implement a runtime monitoring script...\
+    \ that asserts runtime \u2264 6 hours (the standard time limit of the GitHub Actions\
+    \ free-tier runner as per SC-004)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The runtime monitoring script asserts a runtime limit of 6 hours, corresponding
+    to the standard time limit of the GitHub Actions free-tier runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T04:52:33Z'

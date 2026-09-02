@@ -1,11 +1,17 @@
-T005:
+T004:
   c: false
-  h: a56b0080cc59b68be99a5ea7244d0bcddfba441c1e4b3b8de8fa9335a5af8b3d
-  r: "The repository contains a partially\u2011implemented `code/data/synthetic.py`,\
-    \ but the required output files `data/processed/synthetic_mar_v1.csv` and `data/processed/synthetic_mar_v1_meta.json`\
-    \ are absent, and the referenced schema file `contracts/dataset.schema.yaml` (or\
-    \ `schema.yaml`) does not exist. Consequently the generator does not produce the\
-    \ mandated artifacts, so the task is not fulfilled."
+  h: e23ae965c62e2035b5f59d48e26feff59a356a17b6f3e9726842180ac4a1d1cf
+  r: The repository lacks a `fetch_survey_data()` implementation (only `fetch_and_validate`
+    exists) and does not read the URL from `config.py`. The abort logic does not record
+    missing columns in `state/manifest.yaml`, and the manifest shows a placeholder
+    hash with no errors. Consequently the required functionality and verification
+    steps are not satisfied.
+T005b:
+  c: false
+  h: 11963a4830107c6f7a42af21b334b78f780462c8aab65a560dea9d8244ae8fc2
+  r: The required files `data/processed/synthetic_mar_v1.csv` and `data/processed/synthetic_mar_v1_meta.json`
+    are missing, and `state/manifest.yaml` does not contain an entry for `synthetic_mar_v1.csv`.
+    Consequently the generator was not run and the manifest was not updated as required.
 T007:
   c: false
   h: 96491d4791e9f7209093734f7285318b4d0eae48350da0d42da199f73f1ba205
@@ -15,6 +21,14 @@ T007:
     \ script cannot update a non\u2011existent manifest. The task\u2019s core requirement\u2014\
     updating `state/manifest.yaml` with an `artifact_hashes` key\u2014is therefore\
     \ not fulfilled."
+T009c:
+  c: false
+  h: 9088db8c66705e858f64f77b523e77a0e39bf6dc1fe8e5735a71440bc4f6365c
+  r: "The repository contains a `design.py` with a jackknife function, but the required\
+    \ cleaned dataset (`data/processed/gss_2018_subset_clean.csv`) is absent, and\
+    \ the expected output file (`data/processed/jackknife_variance.json`) was not\
+    \ generated. Without the input data and resulting JSON, the task\u2019s requirement\
+    \ is not satisfied."
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

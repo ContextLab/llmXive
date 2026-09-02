@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-325-evaluating-the-impact-of-data-imputation",
+  "tasks": [
+    {
+      "task_key": "T005",
+      "reject_count": 1,
+      "last_reason": "The repository contains a partially shown `code/data/synthetic.py`, but the implementation is truncated and does not demonstrate writing the required CSV and JSON files, nor does it include the CLI (`--generate --validate-schema`) or schema validation against `contracts/dataset.schema.yaml`. Moreover, the expected output files `data/processed/synthetic_mar_v1.csv`, `data/processed/synthetic_mar_v1_meta.json`, and the schema file are absent. The task\u2019s core deliverables are therefore missing.",
+      "first_seen": "2026-09-02T04:55:04.534869+00:00",
+      "last_seen": "2026-09-02T04:55:04.534869+00:00"
+    }
+  ],
+  "updated_at": "2026-09-02T04:55:04.534869+00:00"
+}
