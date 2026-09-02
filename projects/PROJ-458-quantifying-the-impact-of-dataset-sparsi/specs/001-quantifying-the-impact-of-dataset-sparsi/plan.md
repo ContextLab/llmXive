@@ -14,7 +14,7 @@ This feature implements a computational pipeline to quantify how dataset sparsit
 4. **Fixed Test Set**: A [deferred] test set is partitioned from the *entire* raw pool *before* any training pool creation to ensure strict independence.
 5.  **Associational Reporting**: All findings are reported as associational evidence regarding data density and model reliability, avoiding causal claims.
 
-The approach involves ingesting data from the Materials Project API, engineering elemental composition descriptors, creating stratified subsamples at 7 defined levels ([deferred], [deferred], [deferred], [deferred], [deferred], [deferred], [deferred]), training models on CPU, and performing statistical analysis (LMM with Tukey post-hoc) to identify performance degradation thresholds.
+The approach involves ingesting data from the Materials Project API, engineering elemental composition descriptors, creating stratified subsamples at multiple defined levels ([deferred], [deferred], [deferred], [deferred], [deferred], [deferred], [deferred]), training models on CPU, and performing statistical analysis (LMM with Tukey post-hoc) to identify performance degradation thresholds.
 
 ## Technical Context
 
@@ -26,7 +26,7 @@ The approach involves ingesting data from the Materials Project API, engineering
 **Project Type**: Data science research pipeline  
 **Performance Goals**: Complete full pipeline (ingestion to LMM) within 6 hours on free-tier runner; model training per subset < 60 minutes.  
 **Constraints**: No GPU usage; memory usage < 7 GB; strict reproducibility via pinned seeds.  
-**Scale/Scope**: Target dataset >150,000 material entries; Multiple sparsity levels (5, 10, 20, 30, 40, 50, 100); Multiple random seeds per level (21 total runs).
+**Scale/Scope**: Target dataset >150,000 material entries; Multiple sparsity levels (, 20, 30, 40, 50, 100); Multiple random seeds per level (multiple total runs).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
