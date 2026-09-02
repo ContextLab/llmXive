@@ -1,59 +1,68 @@
 # Quickstart: Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection
 
 ## Prerequisites
-
 - Python 3.11+
 - `pip`
-- Access to the internet (for dataset download)
+- `git`
 
-## Installation
+## 1. Clone and Setup
+```bash
+git clone <repo-url>
+cd projects/PROJ-372-assessing-sensitivity-regression-coefficients
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+pre-commit install
+```
 
-1.  **Clone the repository** and navigate to the project directory.
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Dependencies include: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `datasets`.*
+## 2. Configuration
+Ensure `src/utils/config.py` contains:
+- `RANDOM_SEED`: 42 (or your chosen seed).
+- `TIERS`: [10, 25, 50, 75, 90].
+- `SUBSETS_PER_TIER`: 200.
+- `CONVERGENCE_THRESHOLD`: 0.05.
 
-## Running the Pipeline
+## 3. Running the Pipeline
+Execute the full pipeline:
+```bash
+python src/cli.py run
+```
+This will:
+1.  Download datasets from verified URLs.
+2.  Profile them for OLS violations (including severity classification).
+3.  Generate subsets and fit OLS models.
+4.  **Verify convergence** (halt if SE > 5%).
+5.  Run the **Stratified Group Comparison**.
+6.  **Generate stability curves** (Coefficient SD vs. Subset Size) and save to `artifacts/figures/`.
+7.  Output artifacts to `artifacts/`.
 
-The pipeline is executed via the CLI entry point.
+## 4. Verifying Results
+Check the convergence log:
+```bash
+cat artifacts/convergence/convergence.log
+```
+Inspect the stratified analysis results:
+```bash
+python -c "import json; print(json.dumps(json.load(open('artifacts/stratified_analysis/results.json')), indent=2))"
+```
+View stability curves (if generated):
+```bash
+ls artifacts/figures/
+```
 
-1.  **Run the full experiment**:
-    ```bash
-    python src/cli.py run --datasets 10 --subsets 200 --tiers 5
-    ```
-    This will:
-    - Download verified datasets.
-    - Profile them (Breusch-Pagan, Cook's, Condition Number).
-    - Run the resampling loop.
-    - Fit the meta-regression model.
-    - Save results to `data/` and `artifacts/`.
+## 5. Testing
+Run unit and integration tests:
+```bash
+pytest tests/unit -v
+pytest tests/integration -v
+```
+Run contract tests (schema validation):
+```bash
+pytest tests/contract -v
+```
 
-2.  **Run a specific step** (e.g., just profiling):
-    ```bash
-    python src/cli.py profile
-    ```
-
-3.  **Run tests**:
-    ```bash
-    pytest tests/
-    ```
-
-## Expected Output
-
-- `data/profiles.json`: Summary of dataset properties.
-- `data/stability_results.json`: Empirical SDs for all subsets.
-- `artifacts/meta_analysis.json`: Final interaction term results.
-- `logs/execution.log`: Detailed logs of skipped singular subsets and download checksums.
-
-## Troubleshooting
-
-- **Memory Error**: If you encounter `MemoryError`, ensure no other heavy processes are running. The code attempts to stream data, but large Parquet files may still require significant RAM.
-- **Singularity Warnings**: It is normal to see warnings about singular matrices for small subsets. The code handles these gracefully.
-- **Dataset Download Failures**: If a verified URL returns 404, the script will log the error and skip that dataset, continuing with the others.
+## 6. Troubleshooting
+- **OOM Error**: If memory exceeds 7GB, the script will automatically switch to streaming mode or sample a smaller subset (logged in `convergence.log`).
+- **Missing Dataset**: If a verified URL is unreachable, the script skips that dataset and logs an error.
+- **Convergence Failure**: If SE of SD > 5%, the script **HALTS** and logs a critical error. Do not proceed until the threshold is met or the dataset is replaced.
+- **Stratified Analysis**: If no datasets fall into a severity group, that group will be skipped in the comparison.

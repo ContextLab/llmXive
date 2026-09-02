@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AggregatedStability"
+description: "Schema for aggregated stability statistics per tier."
+type: "object"
+required:
+  - dataset_id
+  - tier_percentage
+  - coefficients_sd
+  - coefficients_se_sd
+  - convergence_met
+properties:
+  dataset_id:
+    type: "string"
+    description: "Unique identifier for the dataset."
+  tier_percentage:
+    type: "integer"
+    enum:
+      - 10
+      - 25
+      - 50
+      - 75
+      - 90
+    description: "Sample size tier percentage."
+  coefficients_sd:
+    type: "object"
+    additionalProperties:
+      type: "number"
+    description: "Empirical standard deviation of each coefficient across 200 iterations."
+  coefficients_se_sd:
+    type: "object"
+    additionalProperties:
+      type: "number"
+    description: "Standard Error of the SD for each coefficient."
+  convergence_met:
+    type: "boolean"
+    description: "True if SE of SD < 5% of SD for all coefficients."
+additionalProperties: false

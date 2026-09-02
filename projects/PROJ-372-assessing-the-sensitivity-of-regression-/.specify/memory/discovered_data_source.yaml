@@ -1,13 +1,5 @@
 status: none
-intent: UCI Machine Learning Repository numerical regression datasets HuggingFace
-  OLS test python package dataset
-required_fields:
-- numeric_feature_1
-- numeric_feature_2
-- numeric_feature_3
-- numeric_feature_4
-- numeric_feature_5
-- numeric_target
-cache_key: 98fc21f7fa7d34270153f46e86b623cf4220ca4b7d318f7dd49b172183890809
-searched_at: '2026-08-15T14:21:26.623152+00:00'
-retry_count: 1
+reason: no data intent found in planning artifacts
+cache_key: f1427091b73c02581a170f72904497ca1abbe691616d969f33eff9bd21087fe1
+searched_at: '2026-09-02T12:26:43.027937+00:00'
+retry_count: 3

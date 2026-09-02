@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StabilityResult"
+description: "Schema for the result of a single OLS fit on a dataset subset. This is the Level 1 unit for HLM."
+type: "object"
+required:
+  - dataset_id
+  - tier_percentage
+  - iteration
+  - subset_size
+  - coefficients
+  - r_squared
+  - runtime_ms
+properties:
+  dataset_id:
+    type: "string"
+    description: "Unique identifier for the dataset."
+  tier_percentage:
+    type: "integer"
+    enum:
+      - 10
+      - 25
+      - 50
+      - 75
+      - 90
+    description: "Sample size tier percentage."
+  iteration:
+    type: "integer"
+    minimum: 0
+    maximum: 199
+    description: "Iteration index (0-199)."
+  subset_size:
+    type: "integer"
+    minimum: 1
+    description: "Number of rows in the subset."
+  coefficients:
+    type: "object"
+    additionalProperties:
+      type: "number"
+    description: "Map of predictor names to coefficient values for this specific subset."
+  r_squared:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "R-squared value of the fit."
+  runtime_ms:
+    type: "integer"
+    minimum: 0
+    description: "Execution time in milliseconds."
+additionalProperties: false

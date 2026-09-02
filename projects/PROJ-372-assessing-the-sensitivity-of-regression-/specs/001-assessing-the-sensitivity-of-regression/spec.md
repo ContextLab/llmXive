@@ -17,12 +17,12 @@ As a researcher, I want to ingest verified numerical datasets and automatically 
 As a researcher, I want to generate random subsets of data across 5 specific sample size tiers and fit OLS models to each so that I can compute the empirical standard deviation of coefficients.
 - **Acceptance Criteria**:
  - System generates random subsets for each dataset.
- - **Sample Size Tiers**: The system uses the following 5 specific sample size tier percentages defined in the research design:
- - **Tier 1**: 10%
- - **Tier 2**: 25%
- - **Tier 3**: 50%
- - **Tier 4**: 75%
- - **Tier 5**: 90%
+ - **Sample Size Tiers**: The system uses the following specific sample size tier percentages defined in the research design:
+ - **Tier 1**: [deferred]
+ - **Tier 2**: [deferred]
+ - **Tier 3**: [deferred]
+ - **Tier 4**: [deferred]
+ - **Tier 5**: [deferred]
  - System fits OLS models to each subset.
  - System computes empirical standard deviation of coefficients across subsets per tier.
  - System verifies convergence (Standard Error of SD < 5%).

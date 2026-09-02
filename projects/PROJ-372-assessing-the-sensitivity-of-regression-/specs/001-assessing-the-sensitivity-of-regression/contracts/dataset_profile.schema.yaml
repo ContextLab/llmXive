@@ -1,57 +1,69 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "DatasetProfile"
-description: "Schema for the global profile of an input dataset including violation metrics."
+description: "Schema for the OLS assumption violation profile of a dataset."
 type: "object"
 required:
   - dataset_id
   - source_url
   - n_rows
-  - n_predictors
+  - n_cols
   - condition_number
   - bp_statistic
   - bp_p_value
   - max_cooks_distance
-  - violation_severity
-  - checksum
+  - severity_heteroscedasticity
+  - severity_outliers
+  - severity_multicollinearity
 properties:
   dataset_id:
     type: "string"
-    description: "Unique identifier for the dataset instance."
+    description: "Unique identifier for the dataset."
   source_url:
     type: "string"
     format: "uri"
-    description: "The verified URL from which the dataset was downloaded."
+    description: "Verified URL of the dataset source."
   n_rows:
     type: "integer"
     minimum: 1
-    description: "Total number of rows in the dataset."
-  n_predictors:
+    description: "Number of rows after cleaning."
+  n_cols:
     type: "integer"
     minimum: 1
-    description: "Number of numerical predictor columns."
+    description: "Number of numerical columns used."
   condition_number:
     type: "number"
-    description: "Condition number of the design matrix (measure of collinearity)."
+    description: "Condition Number of the design matrix."
   bp_statistic:
     type: "number"
-    description: "Breusch-Pagan test statistic for heteroscedasticity."
+    description: "Breusch-Pagan test statistic."
   bp_p_value:
     type: "number"
     minimum: 0
     maximum: 1
-    description: "P-value associated with the Breusch-Pagan statistic."
+    description: "Breusch-Pagan test p-value."
   max_cooks_distance:
     type: "number"
-    description: "Maximum Cook's Distance value across all observations (outlier metric)."
-  violation_severity:
+    minimum: 0
+    description: "Maximum Cook's Distance in the dataset."
+  severity_heteroscedasticity:
     type: "string"
     enum:
       - "Low"
       - "Medium"
       - "High"
-      - "Unknown"
-    description: "Categorical classification of violation severity based on BP p-value thresholds."
-  checksum:
+    description: "Severity classification for heteroscedasticity."
+  severity_outliers:
     type: "string"
-    pattern: "^[a-f0-9]{32}$"
-    description: "MD5 checksum of the raw downloaded file."
+    enum:
+      - "Low"
+      - "Medium"
+      - "High"
+    description: "Severity classification for outliers."
+  severity_multicollinearity:
+    type: "string"
+    enum:
+      - "Low"
+      - "Medium"
+      - "High"
+    description: "Severity classification for multicollinearity."
+additionalProperties: false
