@@ -15,14 +15,14 @@ This project implements a Zero-Shot Drift Detection system for the AgentDoG 1.5 
 **Testing**: `pytest` (unit, integration, contract)
 **Target Platform**: Linux (GitHub Actions free-tier runner)
 **Project Type**: Data processing pipeline / Security analytics library
-**Performance Goals**: Process 100k+ logs in < 30 mins (Scalability Phase); Peak RAM < 7GB
+**Performance Goals**: Process Large-scale logs in < 30 mins (Scalability Phase); Peak RAM < 7GB
 **Constraints**: No local GPU (CPU-first); No external credentials (open datasets only); Strict reproducibility (no synthetic timestamps)
-**Scale/Scope**: 100k+ logs (streamed), A small team of human annotators (simulated/external proxy), safety taxonomy
+**Scale/Scope**: k+ logs (streamed), A small team of human annotators (simulated/external proxy), safety taxonomy
 
 > **Dataset & Taxonomy Strategy**: 
 > 1. **Taxonomy**: Derived from the *AgentDoG 1.5* paper's defined safety categories (external source). This ensures the "known safety patterns" are independent of the test dataset, avoiding circularity.
 > 2. **Validation Dataset**: `AI45Research/ATBench` (verified). Used to validate if logs labeled as "novel" or "unknown" in this dataset have higher drift scores relative to the external taxonomy.
-> 3. **Scalability**: For the 100k+ benchmark, the pipeline will stream a larger, verified dataset (e.g., `AI45Research/AgentLogs` or a synthetic generator mimicking the distribution) to meet the performance goal.
+> 3. **Scalability**: For the large-scale benchmark, the pipeline will stream a larger, verified dataset (e.g., `AI45Research/AgentLogs` or a synthetic generator mimicking the distribution) to meet the performance goal.
 
 > **Batch Size**: 64 (verified source: `arxiv.org/abs/2410.21676`).
 

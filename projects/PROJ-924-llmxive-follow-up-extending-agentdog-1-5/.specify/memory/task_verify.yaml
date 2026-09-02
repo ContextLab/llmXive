@@ -5,6 +5,7 @@
   of the Flan-T5 baseline." **Action**: Modify `specs/PROJ-924/spec.md` text to reflect
   the new model and criteria. **DEPENDS ON**: T-000-RatifySpecAmendment.'
 : 1
+T010d: 1
 T011a: 1
 T011c: 1
 T018: 2

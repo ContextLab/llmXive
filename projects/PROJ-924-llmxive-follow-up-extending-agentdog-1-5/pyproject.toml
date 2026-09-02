@@ -1,7 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "agentdog-drift"
 version = "0.1.0"
-
-[tool.black]
-line-length = 88
-target-version = ['py311']
+dependencies = [
+  "sentence-transformers",
+  "scikit-learn",
+  "pandas",
+  "numpy",
+  "datasets",
+  "jsonschema",
+  "statsmodels",
+  "pytest",
+  "transformers",
+  "accelerate"
+]

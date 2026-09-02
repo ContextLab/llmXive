@@ -10,6 +10,12 @@
     \ the acceptance criteria were amended is not substantiated by any artifact. The\
     \ required modification to mention the `google/flan-t-small` model and the new\
     \ AUC\u2011ROC comparison clause is missing."
+T010d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No test execution output, logs, or proof that `pytest` was run and that `test_ruff_config_exists`
+    and `test_pyproject_config_exists` passed is present. The required artifact (evidence
+    of passing tests) is missing.
 T011a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

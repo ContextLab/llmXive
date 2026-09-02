@@ -1,96 +1,70 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)
-
-These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
-
-- `python -m code.data_loader --streaming --output data/raw/atbench.parquet`
-
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python -m code.data_loader --streaming --output data/raw/atbench.parquet`
-  - script usage: `data_loader.py [-h] [--test-taxonomy] [--test-advbench]`
-  - argparse error: `data_loader.py: error: unrecognized arguments: --streaming --output data/raw/atbench.parquet`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 5 command(s) failed: python -m code.data_loader --streaming --output data/raw/atbench.parquet (rc=2); python -m code.taxonomy_builder --source "agentdog_1_5_paper" --output data/processed/taxonomy_centroids.json (rc=1); python -m code.drift_scoring --input data/raw/atbench.parquet --taxonomy data/processed/taxonomy_centroids.json --output data/processed/drift_results.csv (rc=1); 3 declared deliverable(s) absent: data/processed/drift_scores.csv; data/processed/taxonomy_agentdog.json; data/processed/us01_final_stats.json
+**Summary**: 4 command(s) failed: python -m code.taxonomy_builder --source "agentdog_1_5_paper" --output data/processed/taxonomy_centroids.json (rc=1); python -m code.drift_scoring --input data/raw/atbench.parquet --taxonomy data/processed/taxonomy_centroids.json --output data/processed/drift_results.csv (rc=1); python -m code.validation --drift data/processed/drift_results.csv --ground_truth data/raw/atbench.parquet --annotations data/processed/gold_standard_proxy.csv --output data/processed/validation_report.json (rc=1); 1 declared deliverable(s) absent: data/raw/agent_logs.csv
 
 ## Failing / missing run-book commands
 
-- python -m code.data_loader --streaming --output data/raw/atbench.parquet -> rc=2
-    usage: data_loader.py [-h] [--test-taxonomy] [--test-advbench]
-data_loader.py: error: unrecognized arguments: --streaming --output data/raw/atbench.parquet
 - python -m code.taxonomy_builder --source "agentdog_1_5_paper" --output data/processed/taxonomy_centroids.json -> rc=1
     Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/taxonomy_builder.py", line 226, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/taxonomy_builder.py", line 130, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/taxonomy_builder.py", line 201, in main
-    ensure_directories([str(Path(args.output).parent)])
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/config.py", line 83, in ensure_directories
-    p.mkdir(parents=True, exist_ok=True)
-    ^^^^^^^
-AttributeError: 'str' object has no attribute 'mkdir'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/taxonomy_builder.py", line 118, in main
+    taxonomy = load_taxonomy(args.source)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/taxonomy_builder.py", line 38, in load_taxonomy
+    raise TaxonomyLoadError(f"Taxonomy file not found at {taxonomy_path}.")
+TaxonomyLoadError: Taxonomy file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/processed/taxonomy_agentdog.json.
 - python -m code.drift_scoring --input data/raw/atbench.parquet --taxonomy data/processed/taxonomy_centroids.json --output data/processed/drift_results.csv -> rc=1
-    Starting drift scoring pipeline...
-Loading taxonomy centroids...
+    Loading taxonomy centroids...
 
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/drift_scoring.py", line 273, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/drift_scoring.py", line 194, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/drift_scoring.py", line 235, in main
-    centroids = load_centroids()
-                ^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/drift_scoring.py", line 22, in load_centroids
-    centroid_path = str(get_path("data", "processed", "taxonomy_centroids.json"))
-                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: get_path() takes 1 positional argument but 3 were given
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/drift_scoring.py", line 164, in main
+    centroids = load_centroids(centroid_path)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/drift_scoring.py", line 27, in load_centroids
+    with open(centroid_path, 'r', encoding='utf-8') as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'data/processed/taxonomy_centroids.json'
 - python -m code.validation --drift data/processed/drift_results.csv --ground_truth data/raw/atbench.parquet --annotations data/processed/gold_standard_proxy.csv --output data/processed/validation_report.json -> rc=1
-    Starting US-01 validation...
-Running statistical tests...
-
-❌ Validation failed with error: get_path() takes 1 positional argument but 2 were given
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/validation.py", line 266, in main
-    results = run_us01_validation()
-              ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/validation.py", line 143, in run_us01_validation
-    merged_df, _ = load_ground_truth_for_validation()
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/validation.py", line 87, in load_ground_truth_for_validation
-    drift_scores_path = get_path("processed", "drift_scores.csv")
-                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: get_path() takes 1 positional argument but 2 were given
+    follow-up-extending-agentdog-1-5/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 300, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1645, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1904, in _make_engine
+    self.handles = get_handle(
+                   ^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/.venv/lib/python3.11/site-packages/pandas/io/common.py", line 930, in get_handle
+    handle = open(
+             ^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/processed/drift_scores.csv'
 - python -m code.validation --drift data/processed/drift_results.csv --ground_truth data/raw/atbench.parquet --annotations data/processed/human_annotations.csv --output data/processed/validation_report.json -> rc=1
-    Starting US-01 validation...
-Running statistical tests...
-
-❌ Validation failed with error: get_path() takes 1 positional argument but 2 were given
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/validation.py", line 266, in main
-    results = run_us01_validation()
-              ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/validation.py", line 143, in run_us01_validation
-    merged_df, _ = load_ground_truth_for_validation()
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/validation.py", line 87, in load_ground_truth_for_validation
-    drift_scores_path = get_path("processed", "drift_scores.csv")
-                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: get_path() takes 1 positional argument but 2 were given
+    follow-up-extending-agentdog-1-5/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 300, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1645, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1904, in _make_engine
+    self.handles = get_handle(
+                   ^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/.venv/lib/python3.11/site-packages/pandas/io/common.py", line 930, in get_handle
+    handle = open(
+             ^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/processed/drift_scores.csv'
 
 ## Declared deliverables still missing
 
-- data/processed/drift_scores.csv
-- data/processed/taxonomy_agentdog.json
-- data/processed/us01_final_stats.json
+- data/raw/agent_logs.csv
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -102,31 +76,31 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 ### `get_path` — defined in `code/config.py`; called 25 way(s):
 
-- code/main.py: centroid_path = get_path("centroid_file")
-- code/main.py: output_path = get_path("drift_scores_csv")
+- code/main.py: atbench_path = get_path("raw_data") / "ATBench_raw.parquet"
+- code/main.py: mapped_path = get_path("processed") / "ATBench_mapped.csv"
+- code/main.py: output_path = get_path("processed") / "taxonomy_centroids.json"
+- code/main.py: centroids_path = get_path("processed") / "taxonomy_centroids.json"
+- code/main.py: logs_path = get_path("raw_data") / "ATBench_raw.parquet"
+- code/main.py: output_path = get_path("processed") / "drift_scores.csv"
+- code/main.py: str(get_path("raw_data")),
+- code/main.py: str(get_path("processed")),
+- code/main.py: str(get_path("test"))
+- code/main.py: output_path = get_path("processed") / "us01_final_stats.json"
 - code/ensure_test_dir.py: base_path = path or get_path("data_test")
 - code/generate_static_test_fixture.py: output_path = get_path('data/test_static_logs.json')
 - code/utils.py: base_dir = get_path("specs")
 - code/ensure_specs_dir.py: project_root = get_path(base_path)
-- code/data_loader.py: output_path = get_path("raw_data") / "atbench.parquet"
-- code/data_loader.py: output_path = get_path("raw_data") / "hf4.parquet"
-- code/config.py: dir_path = get_path(name)
-- code/annotator_interface.py: export_stratified_bins(df, get_path("output_dir"))
-- code/annotator_interface.py: scores_path = get_path("output_dir") / "drift_scores.csv"
-- code/drift_scoring.py: centroid_path = str(get_path("data", "processed", "taxonomy_centroids.json"))
-- code/drift_scoring.py: output_path = str(get_path("data", "processed", "drift_scores.csv"))
-- code/drift_scoring.py: logs_path = get_path("data", "test", "test_static_logs.json")
-- code/drift_scoring.py: logs_path = get_path("data", "test", "real_ground_truth_fixture.json")
-- code/generate_test_fixture.py: data_path = get_path("data")
-- code/validation.py: drift_scores_path = get_path("processed", "drift_scores.csv")
-- code/validation.py: merged_annotations_path = get_path("processed", "merged_annotations.csv")
-- code/validation.py: ground_truth_fixture_path = get_path("test", "real_ground_truth_fixture.json")
-- code/validation.py: output_path = get_path("processed", "us01_final_stats.json")
-- code/generate_ground_truth_fixture.py: output_path = get_path("test", "real_ground_truth_fixture.json")
-- code/checksums_generator.py: project_root = get_path("project_root")
-- code/checksums_generator.py: relative_path = str(file_path.relative_to(get_path("project_root")))
-- code/checksums_generator.py: raw_dir = get_path("raw_data")
-- code/checksums_generator.py: output_file = get_path("checksums")
+- code/data_loader.py: relative_path = os.path.relpath(file_path, get_path("project_root"))
+- code/data_loader.py: output_path = str(get_path("raw_data") / "ATBench_raw.parquet")
+- code/data_loader.py: output_path = str(get_path("processed") / "ATBench_mapped.csv")
+- code/data_loader.py: output_path = str(get_path("raw_data") / "agent_logs.csv")
+- code/data_loader.py: output_path = str(get_path("processed") / "taxonomy_agentdog.json")
+- code/data_loader.py: output_path = str(get_path("raw_data") / "advbench.parquet")
+- code/data_loader.py: output_path = str(get_path("raw_data") / "hf4.parquet")
+- code/data_loader.py: input_path = args.output or str(get_path("raw_data") / "ATBench_raw.parquet")
+- code/config.py: - get_path("key") where key is in PATHS
+- code/config.py: - get_path("data", "processed") to build paths from components
+- code/config.py: - get_path("data", "processed", "file.csv") for nested paths
 
 Make `get_path` in `code/config.py` accept ALL of the above.
 
@@ -134,19 +108,9 @@ Make `get_path` in `code/config.py` accept ALL of the above.
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-- `data/processed/drift_scores.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/main.py` — NOT invoked by the run-book
-    - `code/utils.py` — NOT invoked by the run-book
-    - `code/annotator_interface.py` — NOT invoked by the run-book
-    - `code/drift_scoring.py` — NOT invoked by the run-book
-    - `code/validation.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/drift_scores.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/taxonomy_agentdog.json` is declared but was NOT written. Scripts referencing it:
-    - `code/config.py` — IS a run-book command
-  Make ONE of these WRITE `data/processed/taxonomy_agentdog.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/us01_final_stats.json` is declared but was NOT written. Scripts referencing it:
-    - `code/validation.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/us01_final_stats.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/agent_logs.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/data_loader.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/agent_logs.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 
 ## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
 
@@ -158,6 +122,16 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 - ACTUAL columns/keys the producer wrote: `(file not on disk this run)`
 - REQUIRED by the consumer(s): `[Path]`
-- PRODUCER(s) to edit: `code/drift_scoring.py`
-- CONSUMER(s) that read it: `code/drift_scoring.py`
+- PRODUCER(s) to edit: `code/drift_scoring.py`, `code/taxonomy_builder.py`
+- CONSUMER(s) that read it: `code/main.py`, `code/config.py`, `code/drift_scoring.py`, `code/taxonomy_builder.py`
   → Edit the producer so every required name [Path] is in `data/processed/taxonomy_centroids.json`'s header (renaming, not dropping, the columns it already writes); do not change the consumers (they already agree).
+
+### `home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/processed/taxonomy_agentdog.json`
+
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/data_loader.py`, `code/taxonomy_builder.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/processed/taxonomy_agentdog.json`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/data_loader.py`, `code/taxonomy_builder.py`.
+
+### `home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/processed/drift_scores.csv`
+
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/annotator_interface.py`, `code/drift_scoring.py`, `code/validation.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/processed/drift_scores.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/main.py`, `code/config.py`, `code/annotator_interface.py`, `code/drift_scoring.py`, `code/validation.py`.
