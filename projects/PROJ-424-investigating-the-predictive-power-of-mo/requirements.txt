@@ -1,0 +1,26 @@
+# Molecular Dynamics Diffusion Coefficient Prediction Pipeline
+# Python 3.11+ environment
+# Generated for task T002
+
+# Core Simulation & Analysis
+gromacs>=2023.0
+mdanalysis>=2.5.0
+
+# Data Processing & Numerics
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.10.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Machine Learning & Statistics
+scikit-learn>=1.2.0
+
+# Configuration & Serialization
+pyyaml>=6.0
+
+# Code Quality & Formatting
+ruff>=0.1.0
+black>=23.0.0

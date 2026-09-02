@@ -1,0 +1,61 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Diffusion Results
+description: |
+  Schema for storing diffusion coefficient results extracted from MD simulations.
+  Includes MSD linearity metrics, calculated diffusion coefficients, and scaling factors.
+  Referenced by T010 for data validation.
+type: object
+required:
+  - experiment_id
+  - solvent
+  - timescale_ns
+  - force_field
+  - msd_r_squared
+  - diffusion_coefficient
+  - scaled_diffusion_coefficient
+  - nist_reference
+  - mae
+  - timestamp
+properties:
+  experiment_id:
+    type: string
+    description: Unique identifier for the simulation run
+  solvent:
+    type: string
+    enum: [water, ethanol, acetone]
+    description: Solvent type simulated
+  timescale_ns:
+    type: number
+    minimum: 0
+    description: Simulation duration in nanoseconds
+  force_field:
+    type: string
+    description: Force field used (e.g., MARTINI)
+  msd_r_squared:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: R-squared value from linear regression of MSD vs time
+  diffusion_coefficient:
+    type: number
+    description: Raw diffusion coefficient calculated from MSD slope (Å²/ns)
+  scaled_diffusion_coefficient:
+    type: number
+    description: Diffusion coefficient after applying solvent-specific scaling factor
+  nist_reference:
+    type: number
+    description: Experimental diffusion coefficient from NIST (Å²/ns)
+  mae:
+    type: number
+    description: Mean Absolute Error between scaled simulation and NIST reference
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the result was generated
+  simulation_path:
+    type: string
+    description: Relative path to the simulation output files
+  log_path:
+    type: string
+    description: Relative path to the simulation log file
+additionalProperties: false

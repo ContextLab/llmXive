@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "investigating-md-diffusion-predictive-power"
+version = "0.1.0"
+description = "Investigating the predictive power of molecular dynamics for estimating diffusion coefficients"
+requires-python = ">=3.11"
+dependencies = [
+    "gromacs",
+    "mdanalysis",
+    "numpy",
+    "pandas",
+    "scipy",
+    "matplotlib",
+    "seaborn",
+    "scikit-learn",
+    "pyyaml",
+    "ruff",
+    "black"
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B006",  # mutable default arguments
+    "B008",  # function calls in default arguments
+]
+
+[tool.ruff.isort]
+known-first-party = ["config", "data_models", "simulation", "analysis", "reporting", "utils"]
+force-sort-within-sections = true
+lines-after-imports = 2
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

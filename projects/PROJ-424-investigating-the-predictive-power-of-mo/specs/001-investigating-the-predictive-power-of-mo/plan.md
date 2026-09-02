@@ -96,8 +96,8 @@ projects/PROJ-424-investigating-the-predictive-power-of-mo/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Coarse-grained (MARTINI) force field | Required by FR-007 to meet 6-hour runtime on 2-core CPU | All-atom simulations would exceed time/memory limits for 10 ns trajectories |
-| Solvent-specific Scaling Factors | Required to correct MARTINI's inherent ~4-5x overestimation of D | Direct comparison to experimental values would measure force field bias, not timescale convergence |
+| Coarse-grained (MARTINI) force field | Required by FR-007 to meet 6-hour runtime on 2-core CPU | All-atom simulations would exceed time/memory limits for long trajectories. |
+| Solvent-specific Scaling Factors | Required to correct MARTINI's inherent significant overestimation of D | Direct comparison to experimental values would measure force field bias, not timescale convergence |
 | Bootstrap resampling (1000 iters) | Required by FR-004 for 95% CI; fallback to 100 if time-constrained | Parametric CI assumptions invalid for non-normal error distributions |
 | Sensitivity analysis sweep | Required by US-2 to validate robustness of regression start time | Single-point estimation risks artifact dependence on arbitrary cutoff |
 

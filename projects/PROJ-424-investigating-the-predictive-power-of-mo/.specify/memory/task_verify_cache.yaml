@@ -1,0 +1,59 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listing or file tree was provided showing the required `code/`,
+    `data/raw/`, `data/processed/`, `data/interim/`, `tests/unit/`, and `tests/integration/`
+    folders under `projects/PROJ-424-investigating-the-predictive-power-of-mo/`. Without
+    concrete evidence of these directories, the task requirement is not satisfied.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting (ruff) or formatting (black) configuration files (e.g., `pyproject.toml`,
+    `.ruff.toml`, `.pre-commit-config.yaml`) or related setup scripts are present
+    in `projects/PROJ-424-investigating-the-predictive-power-of-mo/`. Without such
+    artifacts, the claim of having configured the tools cannot be verified.
+T004:
+  c: false
+  h: b7b382d2dc039d2c19f86e77fcfa54066e69fc9773532278f99b9a7af01f7629
+  r: The `.gitkeep` file is present, but the required `data/raw/manifest.json` file
+    does not exist, so the task of creating a manifest to track checksums is not fulfilled.
+    The missing manifest must be added for the task to be complete.
+T006a:
+  c: true
+  h: 46fbc91aae76b2678f73971e2a5b1ab39ee11ea005b9e77bc0e5968e3cb085af
+  r: "The repository contains a non\u2011empty `code/utils/data_fetcher.py` that checks\
+    \ for `data/raw/nist_refs.json`, raises a `DataValidationError` with a clear message\
+    \ directing the user to task\u202FT006b, and contains no network\u2011fetch logic.\
+    \ This matches the task specification."
+T008a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `spec.md` file (or excerpt showing FR\u2011008 with the R\xB2 threshold\
+    \ changed to\u202F0.95) is provided. The claim lacks the required artifact demonstrating\
+    \ the specification change, so the task is not satisfied."
+T008b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `spec.md` file was provided; the claim that SC-005 was edited to\
+    \ replace \u201Cbootstrap difference-of-means test (p \u2264 0.05)\u201D with\
+    \ \u201Cdescriptive trend analysis\u201D cannot be verified. The required artifact\
+    \ (the modified spec document) is missing."
+T008c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `spec.md` file was provided; without the actual document we cannot\
+    \ verify that SC\u2011003 now defines the sensitivity sweep parameters as low,\
+    \ medium, and high percentages and that the `[deferred]` tag was removed. The\
+    \ required artifact is missing."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No files or code snippets for `code/data_models/diffusion_results`, `bootstrap_stats`,
+    or `sensitivity_report` schemas were presented. The required schema definitions
+    are missing, so the task is not satisfied.
+T019:
+  c: false
+  h: dc2f7f8d3d0d4a83e8e217169816c617b99c3ec570d5f4f20474ed1e20104bb4
+  r: The required artifact `tests/unit/test_sensitivity.py` does not exist on disk,
+    so no unit test for the sensitivity sweep logic is provided. The task remains
+    undone until the file is created with appropriate test code.

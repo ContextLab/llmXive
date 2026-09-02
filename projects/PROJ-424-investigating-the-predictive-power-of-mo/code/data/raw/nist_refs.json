@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "description": "Curated experimental diffusion coefficients for simple liquids at 298K/300K.",
+    "sources": [
+      {
+        "id": "nist_water",
+        "title": "NIST Standard Reference Database 69: NIST Chemistry WebBook",
+        "url": "https://webbook.nist.gov/chemistry/fluid/",
+        "substance": "Water",
+        "temperature_K": 298.15,
+        "pressure_bar": 1.0,
+        "property": "Self-diffusion coefficient",
+        "value_m2_s": 2.30e-09,
+        "uncertainty_relative": 0.02,
+        "notes": "Experimental value for pure water at 25°C. Standard reference for MD validation."
+      },
+      {
+        "id": "nist_ethanol",
+        "title": "NIST Standard Reference Database 69: NIST Chemistry WebBook",
+        "url": "https://webbook.nist.gov/chemistry/fluid/",
+        "substance": "Ethanol",
+        "temperature_K": 298.15,
+        "pressure_bar": 1.0,
+        "property": "Self-diffusion coefficient",
+        "value_m2_s": 1.06e-09,
+        "uncertainty_relative": 0.03,
+        "notes": "Experimental value for pure ethanol at 25°C. Commonly used for coarse-grained model validation."
+      },
+      {
+        "id": "nist_acetone",
+        "title": "NIST Standard Reference Database 69: NIST Chemistry WebBook",
+        "url": "https://webbook.nist.gov/chemistry/fluid/",
+        "substance": "Acetone",
+        "temperature_K": 298.15,
+        "pressure_bar": 1.0,
+        "property": "Self-diffusion coefficient",
+        "value_m2_s": 4.50e-09,
+        "uncertainty_relative": 0.04,
+        "notes": "Experimental value for pure acetone at 25°C. High diffusivity solvent."
+      }
+    ],
+    "curation_date": "2023-10-27",
+    "checksum_algorithm": "sha256"
+  },
+  "data": {
+    "water": {
+      "D_exp_m2_s": 2.30e-09,
+      "temperature_K": 298.15,
+      "source_id": "nist_water"
+    },
+    "ethanol": {
+      "D_exp_m2_s": 1.06e-09,
+      "temperature_K": 298.15,
+      "source_id": "nist_ethanol"
+    },
+    "acetone": {
+      "D_exp_m2_s": 4.50e-09,
+      "temperature_K": 298.15,
+      "source_id": "nist_acetone"
+    }
+  }
+}

@@ -1,0 +1,55 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Sensitivity Report
+description: |
+  Schema for sensitivity analysis results across regression start times.
+  Validates variance thresholds and reports on robustness.
+  Referenced by T010 for data validation.
+type: object
+required:
+  - experiment_id
+  - solvent
+  - timescale_ns
+  - start_time_percentages
+  - diffusion_coefficients
+  - variance_percentage
+  - passes_threshold
+  - timestamp
+properties:
+  experiment_id:
+    type: string
+    description: Unique identifier linking to the diffusion results
+  solvent:
+    type: string
+    enum: [water, ethanol, acetone]
+    description: Solvent type
+  timescale_ns:
+    type: number
+    minimum: 0
+    description: Simulation duration in nanoseconds
+  start_time_percentages:
+    type: array
+    items:
+      type: number
+      minimum: 0
+      maximum: 1
+    description: List of regression start time percentages (e.g., [0.1, 0.2, 0.3])
+  diffusion_coefficients:
+    type: array
+    items:
+      type: number
+    description: Calculated diffusion coefficients for each start time
+  variance_percentage:
+    type: number
+    description: Variance of diffusion coefficients expressed as a percentage of the mean
+  passes_threshold:
+    type: boolean
+    description: True if variance_percentage < 5.0
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of generation
+  details:
+    type: object
+    description: Optional detailed breakdown per start time
+    additionalProperties: true
+additionalProperties: false
