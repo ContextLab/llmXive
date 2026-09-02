@@ -1,3 +1,1 @@
-"""
-Data ingestion, preprocessing, and streaming modules.
-"""
+"""Data processing modules."""

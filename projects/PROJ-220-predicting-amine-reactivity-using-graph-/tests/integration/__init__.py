@@ -1,3 +1,3 @@
 """
-Integration tests for end-to-end flows.
+Integration tests package
 """

@@ -1,3 +1,1 @@
-"""
-Model definitions, training loops, and interpretability tools.
-"""
+"""Model definitions and training modules."""

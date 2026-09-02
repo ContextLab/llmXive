@@ -1,3 +1,1 @@
-"""
-Test suite for PROJ-220.
-"""
+"""Test suite for llmXive Automated Science Pipeline."""

@@ -1,0 +1,17 @@
+# Black configuration for PROJ-220
+# Ensures consistent formatting across the codebase
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+(
+  __pycache__
+  | .git
+  | .mypy_cache
+  | build
+  | dist
+  | data/derived  # Generated data files
+)
+'''

@@ -67,10 +67,10 @@ The researcher must be able to apply interpretability methods (SHAP or attention
 
 - **FR-001**: The system MUST download reaction data from ChEMBL and PubChem APIs, filtering for primary/secondary amines and SN2 reactions with reported kinetic data (k or t1/2). The system MUST normalize all kinetic data to a standard state (e.g., standard temperature and pressure, 1M) using the Arrhenius or Eyring equation where temperature data is available. If activation energy (Ea) is missing, the system MUST use a reaction-class-specific average Ea (derived from the subset of records with Ea data) for normalization; if the class average is unavailable, the record MUST be flagged and excluded. (See US-1)
 - **FR-002**: The system MUST construct heterogeneous molecular graphs using RDKit, including node features (atom type, hybridization, Gasteiger partial charge, and pKa calculated via RDKit or fetched from ChEMBL) and edge features (bond order). (See US-1)
-- **FR-003**: The system MUST implement a multi-layer GNN (GraphSAGE or GAT) that trains on CPU without GPU acceleration, using a 70/15/15 scaffold-based split. The architecture MUST include a heterophily-aware aggregation mechanism (e.g., GAT with edge-type awareness) as the primary or fallback method. (See US-2)
+- **FR-003**: The system MUST implement a multi-layer GNN (GraphSAGE or GAT) that trains on CPU without GPU acceleration, using a scaffold-based split. The architecture MUST include a heterophily-aware aggregation mechanism (e.g., GAT with edge-type awareness) as the primary or fallback method. (See US-2)
 - **FR-004**: The system MUST train a baseline model using traditional descriptors (pKa, MW, steric parameters like Taft Es) for performance comparison against the GNN. (See US-2)
 - **FR-005**: The system MUST apply SHAP analysis to the GNN predictions to rank atomic features and subgraphs by their contribution to the predicted reaction rate. (See US-3)
-- **FR-006**: The system MUST perform a permutation test or a bootstrap-based 95% confidence interval on the absolute errors of the GNN vs. the baseline model to determine statistical significance, accounting for scaffold-induced correlation. (See US-2)
+- **FR-006**: The system MUST perform a permutation test or a bootstrap-based confidence interval on the absolute errors of the GNN vs. the baseline model to determine statistical significance, accounting for scaffold-induced correlation. (See US-2)
 - **FR-007**: The system MUST log all data exclusions (e.g., missing kinetic data, invalid SMILES, missing temperature for normalization, missing Ea with no class average) to a separate audit file for reproducibility. (See US-1)
 - **FR-008**: The system MUST enforce a maximum training time and a memory limit per job, triggering a graceful exit or sampling if exceeded. (See US-2)
 
@@ -98,13 +98,13 @@ The researcher must be able to apply interpretability methods (SHAP or attention
 
 ## Assumptions
 
-- The ChEMBL and PubChem REST APIs will remain accessible and rate-limited sufficiently to allow data download within the 6-hour window.
+- The ChEMBL and PubChem REST APIs will remain accessible and rate-limited sufficiently to allow data download within a feasible time window..
 - The RDKit library will be available in the GitHub Actions environment with pre-installed dependencies for Gasteiger partial charge and pKa calculation.
 - The "heterophily" in reaction graphs (differences between reactants and transition states) can be adequately modeled by a heterophily-aware GNN variant (e.g., GAT with edge-type awareness) without requiring specialized, GPU-accelerated architectures.
 - The experimental kinetic data (k or t1/2) in public databases contains sufficient temperature metadata to allow normalization to a standard state
 
 The research question is to determine the thermodynamic properties of the system. The method involves normalization to a standard state. References include [Citation]. using the Arrhenius or Eyring equation, or sufficient data exists to calculate a reliable reaction-class-specific average Ea.
 - The sample size of available SN reactions with kinetic data in public databases is sufficient for GNN training; If the retrieved count is insufficient, the system will rely on data augmentation or transfer learning strategies as a fallback., rather than halting.
-- The SHAP analysis on the GNN model will be computationally feasible on a 2-core CPU within the remaining time budget after model training.
+- The SHAP analysis on the GNN model will be computationally feasible on a standard CPU within the remaining time budget after model training.
 - The "primary and secondary amines" scope is well-defined by the SMILES patterns in the dataset, and no manual curation of reaction mechanisms is required beyond the automated filtering.
 - The independent descriptor vector (Hammett σ, Taft Es, etc.) used for validation is derived from established chemical literature and does not require real-time calculation during the validation step.

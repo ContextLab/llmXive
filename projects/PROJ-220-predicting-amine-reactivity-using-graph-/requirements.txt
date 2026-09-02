@@ -1,13 +1,6 @@
-rdkit
-numpy
-pandas
-scikit-learn
-torch
-torch-geometric
-datasets
-chembl-webresource-client
-mordred
-pytest
-shap
-black
-ruff
+# Core dependencies for descriptor calculation
+rdkit>=2023.3.1
+mordred>=1.2.0
+numpy>=1.24.0
+pandas>=2.0.0
+pytest>=7.4.0

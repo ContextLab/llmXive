@@ -1,2 +1,2 @@
-# Raw data files (downloaded from external sources) will be stored here.
-# This file ensures the directory is tracked by git.
+# This directory stores raw data downloaded from external sources (ChEMBL, PubChem)
+# Do not commit large binary files here.

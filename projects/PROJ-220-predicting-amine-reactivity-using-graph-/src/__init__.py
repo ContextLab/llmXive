@@ -1,4 +1,1 @@
-"""
-Predicting Amine Reactivity Package.
-"""
-__version__ = "0.1.0"
+"""llmXive Automated Science Pipeline: Predicting Amine Reactivity."""

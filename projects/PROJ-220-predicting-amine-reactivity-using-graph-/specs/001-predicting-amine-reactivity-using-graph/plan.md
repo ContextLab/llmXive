@@ -41,7 +41,7 @@ Before any data ingestion, the `validate_citations.py` script MUST run with the 
 1.  **URL Reachability**: Verify the dataset URL returns HTTP 200.
 2.  **Checksum Match**: Verify the downloaded file checksum matches the one recorded in `state/...yaml`.
 3.  **Title Overlap**: If a citation is present, verify the dataset title matches the cited source with overlap ≥ 0.7.
-4.  **Trigger**: This gate triggers automatically in the `data/ingestion.py` script before any `load_dataset` or API call. If validation fails, the pipeline exits with error code 1.
+4.  **Trigger**: This gate triggers automatically in the `data/ingestion.py` script before any `load_dataset` or API call. If validation fails, the pipeline exits with error code.
 
 ## Versioning Workflow
 

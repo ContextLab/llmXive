@@ -1,2 +1,1 @@
-# Derived data files (processed datasets, graphs) will be stored here.
-# This file ensures the directory is tracked by git.
+# This directory stores processed/derived datasets and model outputs

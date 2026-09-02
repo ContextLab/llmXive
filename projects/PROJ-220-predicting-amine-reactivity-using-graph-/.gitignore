@@ -20,11 +20,10 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environments
+# Virtual Environment
 venv/
-ENV/
 env/
-.venv
+ENV/
 
 # IDE
 .idea/
@@ -32,20 +31,21 @@ env/
 *.swp
 *.swo
 
-# Data (handled via .gitkeep in subdirs, but block root data if needed)
-# data/raw/ is tracked via .gitkeep, but large binary blobs should be ignored
-# if LFS is not used.
-*.csv
-*.json
-*.parquet
-*.pt
-*.pth
-*.pkl
+# Data (Large files)
+data/raw/*.csv
+data/raw/*.json
+data/raw/*.parquet
+data/derived/*.csv
+data/derived/*.json
+data/derived/*.pkl
+
+# Logs
+*.log
+logs/
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
-logs/
+# Jupyter
+.ipynb_checkpoints

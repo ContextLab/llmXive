@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "predicting-amine-reactivity"
+version = "0.1.0"
+description = "Predicting Amine Reactivity Using Graph Neural Networks and Public Databases"
+requires-python = ">=3.11"
+dependencies = [
+    "rdkit",
+    "torch",
+    "torch-geometric",
+    "scikit-learn",
+    "shap",
+    "pandas",
+    "datasets",
+    "chembl_webresource_client",
+    "mordred",
+    "pytest",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pytest",
+    "pytest-cov",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+include = '\.pyi?$'

@@ -1,0 +1,20 @@
+T013:
+  c: false
+  h: ce4b84710aaa0388d36bc2c91d64b49a65d193da9751d41e317f278d1c59b0f4
+  r: "The required integration test file `tests/integration/test_ingestion_flow.py`\
+    \ does not exist, so the artifact is missing and the task\u2019s deliverable is\
+    \ not provided."
+T018a:
+  c: false
+  h: aea0622c4f4ce89aa247ac8e48ca9a34cdcfa4ac2bb5958b729830085490e45c
+  r: The `src/data/ingestion.py` file contains only placeholder functions and generic
+    logging setup; it does not record normalization exclusions (missing Ea or temperature)
+    to any file. Moreover, the required `data/raw/audit_log.json` does not exist.
+    Both the logging behavior and the audit log artifact are missing.
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No dataset file, verification script, or log output was supplied; the claim\
+    \ provides only the specification text but no actual artifact showing that a dataset\
+    \ with complete SMILES, normalized kinetics, and calculated pKa fields exists.\
+    \ The required evidence to confirm the dataset\u2019s validity is missing."

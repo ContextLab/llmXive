@@ -1,2 +1,3 @@
-# This directory is a placeholder for the code module.
-# Actual implementation files will be added in subsequent tasks.
+# This directory contains project scripts and utilities.
+# The actual project source code resides in src/ as per project plan.
+# This file ensures the code/ directory is tracked in git.
