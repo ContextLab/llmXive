@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-1062-llmxive-follow-up-extending-weak-to-stro",
+  "tasks": [
+    {
+      "task_key": "T002",
+      "reject_count": 1,
+      "last_reason": "No project initialization files (e.g., `pyproject.toml`, `requirements.txt`, or `environment.yml`) or installation scripts are present, and there is no evidence that `torch` was installed with the required `--index-url` and version pinning. The required artifacts to prove the Python 3.11 project setup are missing.",
+      "first_seen": "2026-09-02T05:53:23.058764+00:00",
+      "last_seen": "2026-09-02T05:53:23.058764+00:00"
+    }
+  ],
+  "updated_at": "2026-09-02T05:53:23.058764+00:00"
+}

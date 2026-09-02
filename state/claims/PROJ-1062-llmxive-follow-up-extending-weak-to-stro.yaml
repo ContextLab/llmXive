@@ -4098,3 +4098,376 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-30T22:12:30Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: HuggingFaceTB/SmolLM2-1.7B model fits within 7GB RAM with int8 quantization
+    and CPU offloading
+  claim_id: c_0201c94f
+  context: Implement `src/models/moe_student.py` to load a verified **HuggingFaceTB/SmolLM2-1.7B**
+    student model from HuggingFace using int8 quantization and CPU offloading to fit
+    within 7GB RAM (See US1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: load a verified 'HuggingFaceTB/SmolLM2-1.7B' student model from HuggingFace
+    using int8 quantization and CPU offloading to fit within 7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:39:01Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: HuggingFaceTB/SmolLM2-1.7B parameter count is less than or equal to 2.0
+    billion
+  claim_id: c_6f230f72
+  context: '**Must include pre-load size verification** to confirm model ID, parameter
+    count <= 2.0B, and size < 7GB RAM before loading.'
+  evidence:
+    candidates:
+    - - ''
+      - 2.0
+    - - ''
+      - -1.7
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/HuggingFaceTB/SmolLM2-1.7B_parameter_count_is_less_than_or_e
+  kind: magnitude
+  raw_text: confirm model ID, parameter count <= 2.0B, and size < 7GB RAM before loading
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-02T05:40:44Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: state-spaces/mamba-1.3b-hf is a state-space model
+  claim_id: c_9b758401
+  context: Implement `src/models/ssm_student.py` to load the **state-spaces/mamba-1.3b-hf**
+    SSM student model in low-precision format with CPU offloading.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/State-spaces/mamba-1.3b-hf_is_a_state-space_model
+  kind: entity_fact
+  raw_text: load the 'state-spaces/mamba-1.3b-hf' SSM student model in low-precision
+    format with CPU offloading
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:41:18Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Sample size n=5 seeds used for experiment
+  claim_id: c_35709800
+  context: '**Statistical Note**: Sample size n=5 (seeds in a moderate range) is used
+    to fit -hour time limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sample size n=5 (seeds in a moderate range) is used to fit -hour time
+    limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:41:48Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Data integrity error raised if >5% of human_verified_label field is null
+    or non-boolean
+  claim_id: c_bd807253
+  context: '**If the field is present but contains nulls or non-boolean values for
+    >5% of the sample, raise a `DataIntegrityError` immediately.** (SC-006)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the field is present but contains nulls or non-boolean values for >5%
+    of the sample, raise a `DataIntegrityError` immediately
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:41:49Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Log-ratio reward distribution monitored for first 10 steps of SSM training
+  claim_id: c_2d9be229
+  context: Implement `src/core/signal_stability_checker.py` (SSM variant) to monitor
+    the log-ratio reward distribution during the first 10 steps of SSM training.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: monitor the log-ratio reward distribution during the first 10 steps of
+    SSM training
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:42:17Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Epsilon-adjustment triggered if reward signal standard deviation exceeds
+    3.0
+  claim_id: c_b26ede83
+  context: '**If the standard deviation of the reward signal exceeds 3.0 or mean approaches
+    -inf, trigger an automatic epsilon-adjustment and log the change.** (Edge Case:
+    Numerical Instability)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the standard deviation of the reward signal exceeds 3.0 or mean approaches
+    -inf, trigger an automatic epsilon-adjustment and log the change
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:43:16Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Statistical power calculated for experiment with n=5 seeds
+  claim_id: c_c250344e
+  context: Implement `src/core/power_analysis.py` to calculate the statistical power
+    of the planned experiment (n=5 seeds) given the observed effect size from a pilot
+    run.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: calculate the statistical power of the planned experiment (n=5 seeds)
+    given the observed effect size from a pilot run
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:43:57Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Low power warning appended if statistical power is less than 0.8
+  claim_id: c_71180a99
+  context: '**If power < 0.8, append a clear ''Low Power'' warning to the final statistical
+    report.** (US-3, SC-002)'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Low_power_warning_appended_if_statistical_power_is_less_than
+  kind: magnitude
+  raw_text: If power < 0.8, append a clear 'Low Power' warning to the final statistical
+    report
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:45:10Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Partial checkpoint saved every 5 minutes of training
+  claim_id: c_e2e7cde3
+  context: Enhance `src/core/time_budget_enforcer.py` to save a 'partial checkpoint'
+    every 5 minutes of training, not just at the end.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: save a 'partial checkpoint' every 5 minutes of training, not just at the
+    end
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:45:47Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Sample size limitation is n=5
+  claim_id: c_61d1d682
+  context: Update `docs/README.md` to include a 'Known Limitations' section explicitly
+    stating the CPU-only constraint, the sample size limitation (n=5), and the specific
+    MoE/SSM model variants used.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sample size limitation (n=5)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:46:37Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Fetch HuggingFaceH4/aime_2024 from HuggingFace Hub
+  claim_id: c_a0f31c91
+  context: Implement src/data/download_aime_verified.py to first fetch HuggingFaceH4/aime_2024
+    from the HuggingFace Hub.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_HuggingFaceH4/aime_2024_from_HuggingFace_Hub
+  kind: entity_fact
+  raw_text: The dataset HuggingFaceH4/aime_2024 is fetched from the HuggingFace Hub.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:48:16Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Use HuggingFaceTB/SmolLM2-1.7B as student model
+  claim_id: c_5e5bf9db
+  context: Implement src/models/moe_student.py to load a verified HuggingFaceTB/SmolLM2-1.7B
+    student model from HuggingFace.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The student model used is HuggingFaceTB/SmolLM2-1.7B.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:48:43Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Student model parameter count <= 2.0B
+  claim_id: c_d94dee22
+  context: Must include pre-load size verification to confirm model ID, parameter
+    count <= 2.0B, and size < 7GB RAM before loading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The student model parameters are limited to <= 2.0B.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:49:16Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Use state-spaces/mamba-1.3b-hf as SSM student model
+  claim_id: c_53e3185b
+  context: Implement src/models/ssm_student.py to load the state-spaces/mamba-1.3b-hf
+    SSM student model in low-precision format.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The SSM student model used is state-spaces/mamba-1.3b-hf.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:49:41Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Experiment sample size n=5 seeds
+  claim_id: c_1b9c0304
+  context: Implement src/core/power_analysis.py to calculate the statistical power
+    of the planned experiment (n=5 seeds) given the observed effect size from a pilot
+    run.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size for the experiment is n=5 seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:50:43Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Sample size limitation n=5
+  claim_id: c_3b1928bf
+  context: Update docs/README.md to include a 'Known Limitations' section explicitly
+    stating the CPU-only constraint, the sample size limitation (n=5), and the specific
+    MoE/SSM model variants used.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size limitation is n=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:50:44Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Validate held-out set against training set for N=200 sample
+  claim_id: c_7577f091
+  context: Implement validation logic in src/data/validate_split.py to confirm the
+    held-out set contains no problems with overlapping reasoning steps to the training
+    set, preventing data leakage in the small N=200 sample.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The held-out set contains no problems with overlapping reasoning steps
+    to the training set in the small N=200 sample.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:51:44Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Threshold for nulls/non-boolean human_verified_label is >5%
+  claim_id: c_b6e54e23
+  context: If the field is present but contains nulls or non-boolean values for >5%
+    of the sample, raise a DataIntegrityError immediately.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold for nulls or non-boolean values in human_verified_label
+    is >5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:51:45Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: SSM reward signal standard deviation threshold is 3.0
+  claim_id: c_ee816183
+  context: If the standard deviation of the reward signal exceeds 3.0 or mean approaches
+    -inf, trigger an automatic epsilon-adjustment and log the change.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The standard deviation threshold for reward signal stability in SSM training
+    is 3.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:52:33Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE student model size < 7GB RAM
+  claim_id: c_658ee9b2
+  context: Must include pre-load size verification to confirm model ID, parameter
+    count <= 2.0B, and size < 7GB RAM before loading.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MoE_student_model_size_%3C_7GB_RAM
+  kind: entity_fact
+  raw_text: The MoE student model size must be < 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:53:19Z'

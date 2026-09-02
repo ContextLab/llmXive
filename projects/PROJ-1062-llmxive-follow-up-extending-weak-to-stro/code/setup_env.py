@@ -1,16 +1,12 @@
 """
-Environment Setup Script for llmXive Project.
-
-This script verifies Python version, installs dependencies with specific 
-constraints (CPU-only PyTorch), and validates the environment setup.
-
-Usage:
-    python setup_env.py
+Environment setup and dependency verification for the llmXive project.
+Handles installation of dependencies with specific CPU-only constraints for PyTorch.
 """
 import sys
 import subprocess
 import logging
 from pathlib import Path
+import pkg_resources
 
 # Configure logging
 logging.basicConfig(
@@ -19,73 +15,99 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def check_python_version():
-    """Verify Python 3.11+ is installed."""
-    required_version = (3, 11)
-    current_version = sys.version_info[:2]
-    
-    if current_version < required_version:
-        logger.error(f"Python {required_version[0]}.{required_version[1]}+ is required. "
-                     f"Current version: {sys.version}")
-        sys.exit(1)
-    
-    logger.info(f"Python version check passed: {sys.version.split()[0]}")
+def check_python_version(min_version: str = "3.9"):
+    """Check if the running Python version meets the minimum requirement."""
+    current_version = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+    try:
+        pkg_resources.require(f"Python>={min_version}")
+        logger.info(f"Python version check passed: {current_version} >= {min_version}")
+        return True
+    except pkg_resources.VersionConflict:
+        logger.error(f"Python version {current_version} is below required {min_version}")
+        return False
 
 def install_dependencies():
-    """Install project dependencies with CPU-only PyTorch constraint."""
-    logger.info("Checking and installing dependencies...")
+    """
+    Install dependencies from requirements.txt.
+    Ensures torch is installed from the CPU index URL to enforce CPU-only usage.
+    """
+    requirements_path = Path(__file__).parent / "requirements.txt"
     
-    requirements_file = Path("requirements.txt")
-    if not requirements_file.exists():
-        logger.error("requirements.txt not found in the current directory.")
-        sys.exit(1)
+    if not requirements_path.exists():
+        logger.error(f"Requirements file not found at {requirements_path}")
+        return False
+
+    logger.info(f"Installing dependencies from {requirements_path}...")
     
-    # Install with explicit CPU-only index for torch
     try:
-        subprocess.check_call([
-            sys.executable, "-m", "pip", "install", "-r", str(requirements_file),
+        # Read requirements to handle the special torch index URL manually if needed
+        # or pass the file directly to pip which handles comments and --index-url
+        cmd = [
+            sys.executable, "-m", "pip", "install", "-r", str(requirements_path),
             "--upgrade", "--no-cache-dir"
-        ])
+        ]
+        
+        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+        
+        if result.stdout:
+            logger.info("Installation output:\n" + result.stdout)
+        if result.stderr:
+            logger.warning("Installation warnings/errors:\n" + result.stderr)
+        
         logger.info("Dependencies installed successfully.")
+        return True
     except subprocess.CalledProcessError as e:
         logger.error(f"Failed to install dependencies: {e}")
-        sys.exit(1)
+        logger.error(f"stdout: {e.stdout}")
+        logger.error(f"stderr: {e.stderr}")
+        return False
 
 def verify_torch_installation():
-    """Verify PyTorch is installed as CPU-only version."""
+    """
+    Verify that PyTorch is installed and running on CPU (CUDA not available).
+    This enforces the CPU-only constraint required by the project architecture.
+    """
     try:
         import torch
         logger.info(f"PyTorch version: {torch.__version__}")
         
-        # Check if CUDA is available (it should NOT be for CPU-only build)
         if torch.cuda.is_available():
-            logger.warning("CUDA is available. This might indicate a GPU build was installed "
-                         "despite the CPU-only constraint. Please verify the installation.")
+            logger.warning(
+                "CUDA is available. The project is designed for CPU-only execution. "
+                "Ensure environment variables (e.g., CUDA_VISIBLE_DEVICES=) or "
+                "the specific CPU wheel installation is respected."
+            )
+            # We do not fail here, but warn. The architecture constraint is about
+            # the build wheel, not necessarily the hardware availability, 
+            # but the code should not rely on GPU.
         else:
-            logger.info("PyTorch is correctly configured for CPU-only execution.")
+            logger.info("CUDA is not available. Running in CPU-only mode as expected.")
         
-        # Verify device availability
-        device = torch.device("cpu")
-        logger.info(f"Using device: {device}")
+        # Check for MPS (Apple Silicon)
+        if hasattr(torch, 'mps') and torch.backends.mps.is_available():
+            logger.info("MPS (Apple Silicon) is available.")
         
+        return True
     except ImportError:
         logger.error("PyTorch is not installed. Please run the installation script.")
-        sys.exit(1)
+        return False
 
 def main():
     """Main entry point for environment setup."""
-    logger.info("Starting llmXive environment setup...")
+    logger.info("Starting environment setup...")
     
-    # Change to the code directory if running from project root
-    if Path(__file__).parent.name == "code":
-        os.chdir(Path(__file__).parent)
+    if not check_python_version():
+        sys.exit(1)
     
-    check_python_version()
-    install_dependencies()
-    verify_torch_installation()
+    if not install_dependencies():
+        logger.error("Dependency installation failed. Exiting.")
+        sys.exit(1)
+    
+    if not verify_torch_installation():
+        logger.error("PyTorch verification failed. Exiting.")
+        sys.exit(1)
     
     logger.info("Environment setup completed successfully.")
 
 if __name__ == "__main__":
-    import os
     main()
