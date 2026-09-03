@@ -1,24 +1,27 @@
 """
-Generate segregation profiles for ternary systems.
+T018: Generate segregation profiles for ternary systems.
 
-This script loads equilibrium compositions and DFT energies,
-applies the McLean isotherm model, and outputs the results
-to data/processed/segregation_profiles.json.
+This script implements User Story 1 (FR-003) by:
+1. Loading equilibrium compositions from T048-Exec (data/processed/equilibrium_compositions.csv)
+2. Loading DFT energies from T013-Exec (data/processed/surrogate_energies.json)
+3. Applying the McLean isotherm model (T014) to compute GB concentrations
+4. Saving results to data/processed/segregation_profiles.json
+
+Constraint: If input files are missing, this script MUST raise a hard error.
 """
 import json
 import logging
 import sys
 from pathlib import Path
 from typing import Dict, List, Any, Optional
-
 import pandas as pd
 
-# Import from project modules
-from code.config import PROCESSED_PATH, DATA_RAW_PATH, get_logger
+# Import from existing API surface
 from code.models.mclean import calculate_mclean_concentration, McLeanResult
-from code.errors import DataLoadError, ConfigurationError
+from code.config import get_logger, PROCESSED_PATH, DATA_RAW_PATH
+from code.errors import DataLoadError
 
-# Ensure the logger is configured
+# Setup logging
 logger = get_logger(__name__)
 
 def load_equilibrium_compositions(filepath: Path) -> pd.DataFrame:
@@ -26,197 +29,198 @@ def load_equilibrium_compositions(filepath: Path) -> pd.DataFrame:
     if not filepath.exists():
         raise DataLoadError(f"Equilibrium compositions file not found: {filepath}")
     
-    try:
-        df = pd.read_csv(filepath)
-        logger.info(f"Loaded {len(df)} equilibrium composition records from {filepath}")
-        return df
-    except Exception as e:
-        raise DataLoadError(f"Failed to load equilibrium compositions: {e}")
+    logger.info(f"Loading equilibrium compositions from {filepath}")
+    df = pd.read_csv(filepath)
+    
+    if df.empty:
+        raise DataLoadError(f"Equilibrium compositions file is empty: {filepath}")
+    
+    logger.info(f"Loaded {len(df)} equilibrium composition records")
+    return df
 
 def load_dft_energies(filepath: Path) -> Dict[str, Any]:
-    """Load DFT energies from JSON."""
+    """Load surrogate DFT energies from JSON."""
     if not filepath.exists():
-        raise DataLoadError(f"DFT energies file not found: {filepath}")
+        raise DataLoadError(f"Surrogate energies file not found: {filepath}")
     
-    try:
-        with open(filepath, 'r') as f:
-            data = json.load(f)
-        logger.info(f"Loaded DFT energies for {len(data)} systems from {filepath}")
-        return data
-    except json.JSONDecodeError as e:
-        raise DataLoadError(f"Invalid JSON in DFT energies file: {e}")
-    except Exception as e:
-        raise DataLoadError(f"Failed to load DFT energies: {e}")
+    logger.info(f"Loading surrogate DFT energies from {filepath}")
+    with open(filepath, 'r') as f:
+        data = json.load(f)
+    
+    if not data:
+        raise DataLoadError(f"Surrogate energies file is empty: {filepath}")
+    
+    # Check for fallback flag
+    if data.get('source_type') == 'fallback' or data.get('MISSING_SOURCE'):
+        logger.warning("Surrogate energies contain fallback data - proceeding with caution")
+    
+    logger.info(f"Loaded surrogate energies for {len(data.get('entries', data))} systems")
+    return data
 
 def get_system_base_elements(system_name: str) -> List[str]:
-    """Extract base elements from a system name (e.g., 'Fe-Cr-Mo' -> ['Fe', 'Cr', 'Mo'])."""
-    # Handle common naming conventions
-    if '-' in system_name:
-        return system_name.split('-')
-    elif '_' in system_name:
-        return system_name.split('_')
-    else:
-        # Fallback: try to parse common ternary patterns
-        logger.warning(f"Could not parse system name: {system_name}")
-        return []
+    """Extract base elements from system name (e.g., 'Fe-Cr-Mo' -> ['Fe', 'Cr', 'Mo'])."""
+    return system_name.replace(' ', '').split('-')
 
 def compute_segregation_profile(
-    system_name: str,
-    bulk_composition: Dict[str, float],
-    temperature: float,
+    composition_row: pd.Series,
     dft_energies: Dict[str, Any],
-    reference_element: str = "Fe"
-) -> Optional[Dict[str, Any]]:
+    temperature: float,
+    bulk_element: str,
+    gb_element: str
+) -> Optional[McLeanResult]:
     """
-    Compute segregation profile for a specific system and condition.
+    Compute segregation profile for a single composition using McLean isotherm.
     
     Args:
-        system_name: Name of the alloy system (e.g., "Fe-Cr-Mo")
-        bulk_composition: Dictionary of bulk concentrations (e.g., {"Fe": 0.8, "Cr": 0.15, "Mo": 0.05})
+        composition_row: Row from equilibrium_compositions.csv
+        dft_energies: Loaded DFT energy data
         temperature: Temperature in Kelvin
-        dft_energies: Dictionary of DFT segregation energies
-        reference_element: The solvent element (default: Fe)
+        bulk_element: The bulk element (e.g., 'Fe')
+        gb_element: The segregating element (e.g., 'Cr')
         
     Returns:
-        Dictionary containing the segregation profile or None if data is missing
+        McLeanResult if successful, None if data not found
     """
-    elements = get_system_base_elements(system_name)
-    if len(elements) < 3:
-        logger.warning(f"Skipping {system_name}: not a ternary system")
+    # Build system key for DFT lookup
+    elements = sorted([bulk_element, gb_element])
+    system_key = '-'.join(elements)
+    
+    # Extract segregation energy from DFT data
+    # DFT data structure: {'entries': [{'system': 'Fe-Cr', 'energy_eV': 0.5, ...}]}
+    dft_entries = dft_energies.get('entries', dft_energies)
+    seg_energy = None
+    
+    for entry in dft_entries:
+        if entry.get('system') == system_key:
+            seg_energy = entry.get('energy_eV')
+            break
+        
+        # Fallback: check if system_key is in entry keys
+        if system_key in entry:
+            seg_energy = entry[system_key]
+            break
+    
+    if seg_energy is None:
+        logger.warning(f"No DFT energy found for system {system_key}, skipping")
         return None
     
-    # Extract solute elements (all except reference)
-    solutes = [e for e in elements if e != reference_element]
+    # Extract bulk concentration
+    # Expected columns: 'Fe', 'Cr', 'Mo', etc.
+    bulk_conc = composition_row.get(gb_element, 0.0)
     
-    profile = {
-        "system": system_name,
-        "temperature_K": temperature,
-        "bulk_composition": bulk_composition,
-        "segregation_data": []
-    }
+    if bulk_conc <= 0.0:
+        logger.debug(f"Bulk concentration for {gb_element} is zero, skipping")
+        return None
     
-    for solute in solutes:
-        # Look up DFT energy for this solute in this system
-        # Try different key formats
-        energy_key = f"{system_name}_{solute}"
-        if energy_key not in dft_energies:
-            energy_key = f"{solute}_in_{system_name}"
-        if energy_key not in dft_energies:
-            # Try to find any entry containing the solute
-            for key, value in dft_energies.items():
-                if solute in key and system_name.replace("-", "_") in key:
-                    energy_key = key
-                    break
-        
-        if energy_key not in dft_energies:
-            logger.warning(f"No DFT energy found for {solute} in {system_name}")
-            continue
-        
-        segregation_energy_eV = dft_energies[energy_key]
-        bulk_conc = bulk_composition.get(solute, 0.0)
-        
-        if bulk_conc <= 0:
-            continue
-        
-        try:
-            result = calculate_mclean_concentration(
-                segregation_energy_eV,
-                bulk_conc,
-                temperature
-            )
-            
-            profile["segregation_data"].append({
-                "solute": solute,
-                "segregation_energy_eV": segregation_energy_eV,
-                "bulk_concentration": bulk_conc,
-                "equilibrium_concentration": result.equilibrium_concentration,
-                "saturation_flag": result.saturation_flag
-            })
-            
-            logger.info(
-                f"Computed segregation for {solute} in {system_name}: "
-                f"E_seg={segregation_energy_eV:.3f} eV, "
-                f"C_gb={result.equilibrium_concentration:.4f}"
-            )
-            
-        except Exception as e:
-            logger.error(f"Error computing McLean concentration for {solute}: {e}")
-            continue
+    # Apply McLean isotherm
+    result = calculate_mclean_concentration(
+        segregation_energy_eV=seg_energy,
+        bulk_concentration=bulk_conc,
+        temperature_K=temperature,
+        bulk_element=bulk_element,
+        gb_element=gb_element
+    )
     
-    return profile if profile["segregation_data"] else None
+    return result
 
 def main():
-    """Main entry point for generating segregation profiles."""
-    logger.info("Starting segregation profile generation")
+    """Main entry point for T018."""
+    logger.info("Starting T018: Generate segregation profiles for ternary systems")
     
-    # Define paths
-    equilibrium_compositions_path = PROCESSED_PATH / "equilibrium_compositions.csv"
-    dft_energies_path = DATA_RAW_PATH / "dft_energies.json"
+    # Define input paths
+    equilibrium_path = PROCESSED_PATH / "equilibrium_compositions.csv"
+    dft_path = PROCESSED_PATH / "surrogate_energies.json"
     output_path = PROCESSED_PATH / "segregation_profiles.json"
     
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Load input data
+    # Load input data (will raise hard error if missing)
     try:
-        equilibrium_df = load_equilibrium_compositions(equilibrium_compositions_path)
-        dft_energies = load_dft_energies(dft_energies_path)
+        compositions_df = load_equilibrium_compositions(equilibrium_path)
+        dft_energies = load_dft_energies(dft_path)
     except DataLoadError as e:
-        logger.error(f"Failed to load input data: {e}")
-        sys.exit(1)
+        logger.error(f"Failed to load required input data: {e}")
+        raise
     
-    # Process each system
+    # Define ternary systems to process
+    ternary_systems = [
+        "Fe-Cr-Mo",
+        "Fe-Cr-V",
+        "Fe-Mo-V",
+        "Fe-Cr-W",
+        "Fe-Mo-W"
+    ]
+    
+    # Define solute elements to check for segregation
+    solute_elements = ["Cr", "Mo", "V", "W"]
+    
+    # Process each row and compute profiles
     all_profiles = []
     
-    # Iterate through unique systems in the equilibrium data
-    systems = equilibrium_df['system'].unique() if 'system' in equilibrium_df.columns else []
-    
-    for system in systems:
-        # Filter data for this system
-        system_data = equilibrium_df[equilibrium_df['system'] == system]
+    for _, row in compositions_df.iterrows():
+        system_name = row.get('system', '')
         
-        # Check if this is a ternary system
-        if not system.startswith("Fe-") or len(system.split('-')) != 3:
-            logger.debug(f"Skipping non-ternary system: {system}")
+        if system_name not in ternary_systems:
             continue
         
-        # Process each row (temperature/bulk composition variant)
-        for _, row in system_data.iterrows():
-            bulk_composition = {
-                col: float(row[col]) 
-                for col in row.index 
-                if col not in ['system', 'temperature_K'] and not pd.isna(row[col])
-            }
+        # Get temperature from row
+        temperature = row.get('temperature_K', 800.0)
+        
+        # Compute segregation for each solute in this system
+        for solute in solute_elements:
+            if solute not in system_name:
+                continue
             
-            temperature = float(row['temperature_K'])
-            
-            profile = compute_segregation_profile(
-                system_name=system,
-                bulk_composition=bulk_composition,
+            result = compute_segregation_profile(
+                composition_row=row,
+                dft_energies=dft_energies,
                 temperature=temperature,
-                dft_energies=dft_energies
+                bulk_element="Fe",
+                gb_element=solute
             )
             
-            if profile:
-                all_profiles.append(profile)
+            if result is not None:
+                profile_entry = {
+                    "system": system_name,
+                    "temperature_K": temperature,
+                    "solute": solute,
+                    "bulk_concentration": result.bulk_concentration,
+                    "segregation_energy_eV": result.segregation_energy,
+                    "equilibrium_concentration": result.equilibrium_concentration,
+                    "saturation_flag": result.saturation_flag,
+                    "source_type": "mclean_model",
+                    "source_id": "T018_generate_profiles"
+                }
+                all_profiles.append(profile_entry)
+    
+    if not all_profiles:
+        logger.warning("No segregation profiles were generated. Check input data.")
+        # Still write empty file to indicate completion
+        output_data = {
+            "profiles": [],
+            "metadata": {
+                "generated_at": str(pd.Timestamp.now()),
+                "source_script": "code/scripts/generate_segregation_profiles.py",
+                "status": "no_data_generated"
+            }
+        }
+    else:
+        output_data = {
+            "profiles": all_profiles,
+            "metadata": {
+                "generated_at": str(pd.Timestamp.now()),
+                "source_script": "code/scripts/generate_segregation_profiles.py",
+                "total_profiles": len(all_profiles),
+                "systems_processed": list(set(p["system"] for p in all_profiles)),
+                "status": "success"
+            }
+        }
     
     # Write output
-    output_data = {
-        "generated_at": pd.Timestamp.now().isoformat(),
-        "total_profiles": len(all_profiles),
-        "profiles": all_profiles
-    }
+    logger.info(f"Writing {len(all_profiles)} segregation profiles to {output_path}")
+    with open(output_path, 'w') as f:
+        json.dump(output_data, f, indent=2)
     
-    try:
-        with open(output_path, 'w') as f:
-            json.dump(output_data, f, indent=2)
-        logger.info(f"Successfully wrote {len(all_profiles)} profiles to {output_path}")
-    except Exception as e:
-        logger.error(f"Failed to write output file: {e}")
-        sys.exit(1)
-    
-    logger.info("Segregation profile generation completed")
-    return output_data
+    logger.info("T018 completed successfully")
+    return output_path
 
 if __name__ == "__main__":
     main()

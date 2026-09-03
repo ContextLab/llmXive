@@ -1,3 +1,7 @@
+"""
+Integration test for T025: Write cooperative effects analysis.
+Verifies that the script correctly aggregates results from T021c, T022-Exec, T023-Exec, and T021b.
+"""
 import json
 import os
 import tempfile
@@ -5,209 +9,129 @@ from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 import pytest
-import numpy as np
 
-# Adjust import paths for testing context
-sys_path_backup = list(__import__('sys').path)
-try:
-    project_root = Path(__file__).parent.parent.parent
-    __import__('sys').path.insert(0, str(project_root))
-    
-    from code.us2.write_cooperative_analysis import (
-        load_regression_results,
-        load_statistical_validation_report,
-        load_mse_reduction_results,
-        compile_cooperative_analysis,
-        main
-    )
-    from code.config import PROCESSED_PATH
-finally:
-    __import__('sys').path[:] = sys_path_backup
+# Mock paths to avoid dependency on actual project structure during test
+MOCK_PROCESSED_PATH = Path(tempfile.mkdtemp())
 
+@pytest.fixture(autouse=True)
+def setup_mock_paths(monkeypatch):
+    """Setup mock paths for testing."""
+    monkeypatch.setattr("code.config.PROCESSED_PATH", MOCK_PROCESSED_PATH)
+    yield
+    # Cleanup
+    if MOCK_PROCESSED_PATH.exists():
+        import shutil
+        shutil.rmtree(MOCK_PROCESSED_PATH, ignore_errors=True)
 
-@pytest.fixture
-def mock_regression_results():
-    return {
-        "systems": [
-            {
-                "system_name": "Fe-Cr-Mo",
-                "coefficients": {
-                    "Cr": 0.5,
-                    "Mo": 0.3,
-                    "Cr_Mo": 0.15,
-                    "Cr_V": 0.02,
-                    "Mo_V": 0.01
-                },
-                "p_values": {
-                    "Cr": 0.001,
-                    "Mo": 0.002,
-                    "Cr_Mo": 0.03,
-                    "Cr_V": 0.08,
-                    "Mo_V": 0.12
-                }
-            },
-            {
-                "system_name": "Fe-Cr-V",
-                "coefficients": {
-                    "Cr": 0.4,
-                    "V": 0.2,
-                    "Cr_V": 0.005,
-                    "Cr_Mo": 0.01
-                },
-                "p_values": {
-                    "Cr": 0.001,
-                    "V": 0.005,
-                    "Cr_V": 0.45,
-                    "Cr_Mo": 0.55
-                }
-            }
-        ]
-    }
+def create_mock_json_file(path: Path, data: dict):
+    """Helper to create mock JSON files."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(data, f)
 
-@pytest.fixture
-def mock_validation_report():
-    return {
-        "status": "Cooperative Effects Detected",
-        "interaction_significance": True,
-        "cv_stability": True
-    }
-
-@pytest.fixture
-def mock_mse_results():
-    return {
-        "systems": [
-            {
-                "system_name": "Fe-Cr-Mo",
-                "mse_reduction_percent": 15.5,
-                "threshold_met": True
-            },
-            {
-                "system_name": "Fe-Cr-V",
-                "mse_reduction_percent": 5.2,
-                "threshold_met": False
-            }
-        ]
-    }
-
-def test_compile_cooperative_analysis(mock_regression_results, mock_validation_report, mock_mse_results):
-    """Test the core compilation logic of T025."""
-    result = compile_cooperative_analysis(
-        mock_regression_results, 
-        mock_validation_report, 
-        mock_mse_results
-    )
-    
-    assert result["status"] == "complete"
-    assert result["summary"]["cooperative_effects_detected"] == "Cooperative Effects Detected"
-    assert result["summary"]["total_systems_analyzed"] == 2
-    
-    # Fe-Cr-Mo should have 1 significant term (Cr_Mo: p=0.03 < 0.05, coef=0.15 > 0.01)
-    # Fe-Cr-V should have 0 significant terms
-    assert result["summary"]["significant_interaction_terms"] == 1
-    
-    # Only Fe-Cr-Mo should be in the cooperative effects list
-    assert len(result["summary"]["systems_with_cooperative_effects"]) == 1
-    assert "Fe-Cr-Mo" in result["summary"]["systems_with_cooperative_effects"]
-    
-    # Check Fe-Cr-Mo details
-    fe_cr_mo = next(s for s in result["systems"] if s["system_name"] == "Fe-Cr-Mo")
-    assert fe_cr_mo["cooperative_effects_detected"] is True
-    assert fe_cr_mo["mse_reduction"] == 15.5
-    assert fe_cr_mo["mse_reduction_threshold_met"] is True
-    
-    # Check Cr_Mo term significance
-    cr_mo_term = next(t for t in fe_cr_mo["interaction_terms"] if t["term"] == "Cr_Mo")
-    assert cr_mo_term["significance"] == "significant"
-    assert cr_mo_term["coefficient_eV"] == 0.15
-    assert cr_mo_term["p_value"] == 0.03
-    
-    # Check Fe-Cr-V details
-    fe_cr_v = next(s for s in result["systems"] if s["system_name"] == "Fe-Cr-V")
-    assert fe_cr_v["cooperative_effects_detected"] is False
-    assert fe_cr_v["mse_reduction"] == 5.2
-    assert fe_cr_v["mse_reduction_threshold_met"] is False
-
-def test_compile_cooperative_analysis_no_significant_terms(mock_regression_results, mock_validation_report, mock_mse_results):
-    """Test behavior when no significant interaction terms exist."""
-    # Modify mock to have no significant terms
-    mock_regression_results["systems"][0]["p_values"]["Cr_Mo"] = 0.08
-    mock_regression_results["systems"][0]["coefficients"]["Cr_Mo"] = 0.005
-    
-    result = compile_cooperative_analysis(
-        mock_regression_results, 
-        mock_validation_report, 
-        mock_mse_results
-    )
-    
-    assert result["summary"]["significant_interaction_terms"] == 0
-    assert len(result["summary"]["systems_with_cooperative_effects"]) == 0
-
-@pytest.fixture
-def temp_processed_dir(tmp_path):
-    """Create a temporary directory structure mimicking PROCESSED_PATH."""
-    processed = tmp_path / "data" / "processed"
-    processed.mkdir(parents=True)
-    
+def test_t025_writes_correct_structure():
+    """Test that T025 writes the correct JSON structure when all inputs are present."""
     # Create mock input files
-    regression_data = {
-        "systems": [
-            {
-                "system_name": "Fe-Cr-Mo",
-                "coefficients": {"Cr": 0.5, "Mo": 0.3, "Cr_Mo": 0.15},
-                "p_values": {"Cr": 0.001, "Mo": 0.002, "Cr_Mo": 0.03}
-            }
-        ]
+    validation_data = {
+        "status": "Cooperative Effects Detected",
+        "cv_stability": {"passed": True},
+        "interaction_significance": {"passed": True}
     }
-    with open(processed / "regression_results.json", 'w') as f:
-        json.dump(regression_data, f)
-    
-    validation_data = {"status": "Cooperative Effects Detected"}
-    with open(processed / "statistical_validation_report.json", 'w') as f:
-        json.dump(validation_data, f)
-    
     mse_data = {
+        "overall_reduction_percent": 15.5,
+        "threshold_met": True,
         "systems": [
-            {"system_name": "Fe-Cr-Mo", "mse_reduction_percent": 12.0, "threshold_met": True}
+            {"system": "Fe-Cr-Mo", "reduction_percent": 12.3},
+            {"system": "Fe-Cr-V", "reduction_percent": 18.7}
         ]
     }
-    with open(processed / "mse_reduction_results.json", 'w') as f:
-        json.dump(mse_data, f)
-        
-    return processed
+    significance_data = {
+        "p_values": {
+            "Fe-Cr-Mo_Cr_Mo": 0.03,
+            "Fe-Cr-Mo_Cr_V": 0.12,
+            "Fe-Cr-V_Cr_V": 0.01
+        },
+        "systems": ["Fe-Cr-Mo", "Fe-Cr-V"]
+    }
+    regression_data = {
+        "coefficients": {
+            "Fe-Cr-Mo_Cr_Mo": 0.05,
+            "Fe-Cr-Mo_Cr_V": 0.02,
+            "Fe-Cr-V_Cr_V": 0.08
+        }
+    }
 
-@patch('code.us2.write_cooperative_analysis.PROCESSED_PATH')
-def test_main_success(mock_processed_path, temp_processed_dir, caplog):
-    """Test the main function execution with valid inputs."""
-    mock_processed_path.__truediv__ = lambda self, key: temp_processed_dir / key
-    mock_processed_path.__fspath__ = lambda self: str(temp_processed_dir)
-    
-    # Run main
-    main()
-    
-    # Verify output file was created
-    output_path = temp_processed_dir / "cooperative_effects_analysis.json"
-    assert output_path.exists()
-    
-    # Verify content
-    with open(output_path, 'r') as f:
+    create_mock_json_file(MOCK_PROCESSED_PATH / "statistical_validation_report.json", validation_data)
+    create_mock_json_file(MOCK_PROCESSED_PATH / "mse_comparison.json", mse_data)
+    create_mock_json_file(MOCK_PROCESSED_PATH / "significance_results.json", significance_data)
+    create_mock_json_file(MOCK_PROCESSED_PATH / "regression_results.json", regression_data)
+
+    # Import and run the main function
+    from code.us2.write_cooperative_effects_analysis import main, write_cooperative_analysis
+
+    success = write_cooperative_analysis()
+    assert success is True, "write_cooperative_analysis should return True"
+
+    # Verify output file exists and contains correct structure
+    output_path = MOCK_PROCESSED_PATH / "cooperative_effects_analysis.json"
+    assert output_path.exists(), "Output file should be created"
+
+    with open(output_path, 'r', encoding='utf-8') as f:
         result = json.load(f)
-    
-    assert result["status"] == "complete"
-    assert len(result["systems"]) == 1
 
-@patch('code.us2.write_cooperative_analysis.PROCESSED_PATH')
-def test_main_missing_file(mock_processed_path, tmp_path):
-    """Test that main raises error when input file is missing."""
-    processed = tmp_path / "data" / "processed"
-    processed.mkdir(parents=True)
-    
-    mock_processed_path.__truediv__ = lambda self, key: processed / key
-    mock_processed_path.__fspath__ = lambda self: str(processed)
-    
-    # Only create one input file
-    with open(processed / "regression_results.json", 'w') as f:
-        json.dump({"systems": []}, f)
-    
-    # Should raise FileNotFoundError for missing validation report
-    with pytest.raises(FileNotFoundError):
-        main()
+    # Validate structure
+    assert "summary" in result
+    assert "mse_reduction_stats" in result
+    assert "interaction_coefficients" in result
+    assert "p_values" in result
+    assert "significant_interactions" in result
+    assert "system_details" in result
+
+    # Validate specific values
+    assert result["summary"]["cooperative_effects_detected"] is True
+    assert result["mse_reduction_stats"]["overall_reduction_percent"] == 15.5
+    assert result["mse_reduction_stats"]["threshold_met"] is True
+    assert "Fe-Cr-Mo_Cr_Mo" in result["significant_interactions"]
+    assert "Fe-Cr-V_Cr_V" in result["significant_interactions"]
+    assert "Fe-Cr-Mo_Cr_V" not in result["significant_interactions"]  # p=0.12 > 0.05
+
+def test_t025_fails_on_missing_inputs():
+    """Test that T025 fails gracefully when required inputs are missing."""
+    # Create only some input files
+    create_mock_json_file(MOCK_PROCESSED_PATH / "statistical_validation_report.json", {"status": "No Effects"})
+    # Intentionally missing mse_comparison.json, significance_results.json, regression_results.json
+
+    from code.us2.write_cooperative_effects_analysis import write_cooperative_analysis
+
+    success = write_cooperative_analysis()
+    assert success is False, "write_cooperative_analysis should return False when inputs are missing"
+
+    # Verify no output file was created
+    output_path = MOCK_PROCESSED_PATH / "cooperative_effects_analysis.json"
+    assert not output_path.exists(), "Output file should not be created when inputs are missing"
+
+def test_t025_handles_empty_systems():
+    """Test that T025 handles cases with no systems analyzed."""
+    validation_data = {"status": "No Effects", "cv_stability": {"passed": False}}
+    mse_data = {"overall_reduction_percent": 0.0, "systems": []}
+    significance_data = {"p_values": {}, "systems": []}
+    regression_data = {"coefficients": {}}
+
+    create_mock_json_file(MOCK_PROCESSED_PATH / "statistical_validation_report.json", validation_data)
+    create_mock_json_file(MOCK_PROCESSED_PATH / "mse_comparison.json", mse_data)
+    create_mock_json_file(MOCK_PROCESSED_PATH / "significance_results.json", significance_data)
+    create_mock_json_file(MOCK_PROCESSED_PATH / "regression_results.json", regression_data)
+
+    from code.us2.write_cooperative_effects_analysis import write_cooperative_analysis
+
+    success = write_cooperative_analysis()
+    assert success is True
+
+    output_path = MOCK_PROCESSED_PATH / "cooperative_effects_analysis.json"
+    with open(output_path, 'r', encoding='utf-8') as f:
+        result = json.load(f)
+
+    assert result["summary"]["cooperative_effects_detected"] is False
+    assert result["mse_reduction_stats"]["overall_reduction_percent"] == 0.0
+    assert result["system_details"] == []
+    assert result["significant_interactions"] == []

@@ -2,8 +2,10 @@
 Task T013: Surrogate Service for Segregation Energy Calculation.
 
 This service computes literature-calibrated segregation energies.
-It MUST load REAL DFT energies from data/raw/dft_energies.json (or placeholders per T018a).
+It MUST load REAL DFT energies from data/raw/dft_energies.json.
 It MUST NOT implement or call any real DFT code.
+It MUST raise a hard error if the data file is missing.
+It MUST handle the fallback placeholder gracefully if the file exists but contains a 'MISSING_SOURCE' flag.
 """
 import json
 import logging
@@ -12,8 +14,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any
 
 from code.config import DATA_RAW_PATH, get_logger
-from code.errors import DataLoadError, ConfigurationError
-from code.models.mclean import McLeanResult
+from code.errors import DataLoadError, ConfigurationError, SurrogateModelError
 
 logger = get_logger(__name__)
 
@@ -24,45 +25,44 @@ class SurrogateService:
     
     def __init__(self):
         self._dft_data: Optional[Dict[str, Any]] = None
+        self._is_fallback: bool = False
         self._load_data()
 
     def _load_data(self) -> None:
         """
         Load pre-computed DFT energies from data/raw/dft_energies.json.
-        Handles placeholders per T018a.
+        Enforces strict presence checks per T013 requirements.
         """
         dft_file_path = DATA_RAW_PATH / "dft_energies.json"
-        placeholder_path = DATA_RAW_PATH / "dft_energies_no_data.json"
 
-        if dft_file_path.exists():
-            logger.info(f"Loading DFT energies from {dft_file_path}")
-            try:
-                with open(dft_file_path, 'r') as f:
-                    self._dft_data = json.load(f)
-            except json.JSONDecodeError as e:
-                logger.error(f"Failed to parse DFT energies JSON: {e}")
-                raise DataLoadError("Invalid DFT energies JSON format")
-            except Exception as e:
-                logger.error(f"Unexpected error loading DFT energies: {e}")
-                raise DataLoadError(f"Error loading DFT energies: {e}")
-        elif placeholder_path.exists():
-            logger.warning(f"Real DFT data not found. Loading placeholder from {placeholder_path}")
-            try:
-                with open(placeholder_path, 'r') as f:
-                    placeholder_data = json.load(f)
-                if placeholder_data.get("status") == "no_data":
-                    logger.warning(f"Placeholder indicates no data: {placeholder_data.get('reason')}")
-                    self._dft_data = None # Explicitly set to None to signal no data
-                else:
-                    self._dft_data = placeholder_data
-            except Exception as e:
-                logger.error(f"Failed to parse placeholder file: {e}")
-                raise DataLoadError("Invalid placeholder file")
+        if not dft_file_path.exists():
+            # Per T013: "If `data/raw/dft_energies.json` is missing, raise a hard error."
+            error_msg = f"Critical Error: Required DFT data file not found at {dft_file_path}. " \
+                        "The pipeline cannot proceed without real DFT energies or a valid fallback placeholder."
+            logger.error(error_msg)
+            raise FileNotFoundError(error_msg)
+
+        logger.info(f"Loading DFT energies from {dft_file_path}")
+        try:
+            with open(dft_file_path, 'r') as f:
+                self._dft_data = json.load(f)
+        except json.JSONDecodeError as e:
+            error_msg = f"Failed to parse DFT energies JSON: {e}"
+            logger.error(error_msg)
+            raise DataLoadError(error_msg)
+        except Exception as e:
+            error_msg = f"Unexpected error loading DFT energies: {e}"
+            logger.error(error_msg)
+            raise DataLoadError(error_msg)
+
+        # Check for fallback flag per T013-Exec requirements
+        if self._dft_data.get("MISSING_SOURCE", False):
+            logger.warning("Data missing: using fallback placeholder. DFT energies will be treated as unavailable.")
+            self._is_fallback = True
+            self._dft_data = None # Clear data to signal unavailability to callers
         else:
-            # Per T018a, we might not raise a hard error if the spec amendment is active,
-            # but for the core logic, we need data. If neither exists, we treat it as no data.
-            logger.warning(f"Neither DFT data nor placeholder found at {dft_file_path} or {placeholder_path}")
-            self._dft_data = None
+            logger.info("Real DFT data loaded successfully.")
+            self._is_fallback = False
 
     def get_segregation_energy(self, system: str, temperature: float) -> Optional[float]:
         """
@@ -73,21 +73,23 @@ class SurrogateService:
             temperature: Temperature in Kelvin.
         
         Returns:
-            Segregation energy in eV, or None if data is unavailable.
+            Segregation energy in eV, or None if data is unavailable (including fallback mode).
+        
+        Raises:
+            SurrogateModelError: If called in fallback mode and data is required.
         """
-        if self._dft_data is None:
-            logger.warning(f"No DFT data available for system {system}. Returning None.")
+        if self._is_fallback or self._dft_data is None:
+            logger.warning(f"Cannot retrieve energy for {system}: Data source is missing/fallback.")
             return None
 
         # Lookup logic:
-        # The JSON structure is expected to be:
+        # Expected structure:
         # {
         #   "systems": {
         #     "Fe-Cr": { "energies": { "500": 0.1, "600": 0.09, ... } },
         #     "Fe-Cr-Mo": { ... }
         #   }
         # }
-        # or a flat list. We adapt to the most common structure found in T045f-Fetch.
         
         systems_data = self._dft_data.get("systems", self._dft_data)
         
@@ -123,7 +125,7 @@ class SurrogateService:
 
     def get_all_energies(self, system: str) -> Dict[str, float]:
         """Get all available energies for a system."""
-        if self._dft_data is None:
+        if self._is_fallback or self._dft_data is None:
             return {}
         
         systems_data = self._dft_data.get("systems", self._dft_data)
@@ -133,12 +135,26 @@ class SurrogateService:
         return systems_data[system].get("energies", {})
 
 def main():
-    """Test entry point."""
-    service = SurrogateService()
-    test_systems = ["Fe-Cr-Mo", "Fe-Cr", "NonExistent"]
-    for sys_name in test_systems:
-        energy = service.get_segregation_energy(sys_name, 600.0)
-        print(f"{sys_name} @ 600K: {energy} eV")
+    """Test entry point for T013 verification."""
+    try:
+        service = SurrogateService()
+        test_systems = ["Fe-Cr-Mo", "Fe-Cr", "NonExistent"]
+        logger.info("Running T013 surrogate service verification...")
+        
+        for sys_name in test_systems:
+            energy = service.get_segregation_energy(sys_name, 600.0)
+            if energy is not None:
+                print(f"{sys_name} @ 600K: {energy} eV")
+            else:
+                print(f"{sys_name} @ 600K: No data available")
+        
+        logger.info("T013 verification complete.")
+    except FileNotFoundError as e:
+        logger.critical(f"T013 Failed: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.critical(f"T013 Unexpected Error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

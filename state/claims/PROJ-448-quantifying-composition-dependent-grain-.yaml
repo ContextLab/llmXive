@@ -1763,3 +1763,81 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-02T07:28:20Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/validation_report.md
+  attempts: 1
+  canonical: MSE reduction exceeding 10% for cooperative effects in tested systems
+  claim_id: c_4591cf09
+  context: Statistical analysis (T025) indicates non-linear interaction terms (e.g.,
+    Cr-Mo, Cr-V) contribute significantly to segregation energy, with MSE reduction
+    exceeding the 10% threshold in tested systems.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MSE reduction exceeding the 10% threshold in tested systems.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T16:29:48Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/validation_report.md
+  attempts: 1
+  canonical: No verified APT datasets found for specific binary grain boundary geometries
+    and compositions
+  claim_id: c_e069b787
+  context: 'Outcome: No verified APT datasets matching the specific grain boundary
+    geometries and compositions required for direct comparison were located.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_verified_APT_datasets_found_for_specific_binary_grain_bou
+  kind: entity_fact
+  raw_text: No verified APT datasets matching the specific grain boundary geometries
+    and compositions required for direct comparison were located.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T16:30:21Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/validation_report.md
+  attempts: 1
+  canonical: No public APT datasets exist for ternary Fe-Cr-Mo systems at required
+    resolution
+  claim_id: c_b2588939
+  context: 'Finding: As noted in the Experimental Gap Report (research/experimental_gap_report.md),
+    no public APT datasets exist for the specific ternary Fe-Cr-Mo (and other) systems
+    at the required resolution.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_public_APT_datasets_exist_for_ternary_Fe-Cr-Mo_systems_at
+  kind: entity_fact
+  raw_text: No public APT datasets exist for the specific ternary Fe-Cr-Mo (and other)
+    systems at the required resolution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T16:31:39Z'
+- artifact_path: projects/PROJ-448-quantifying-composition-dependent-grain-/research/validation_report.md
+  attempts: 1
+  canonical: No deviations greater than 0.1 eV observed between surrogate DFT energies
+    and CALPHAD predictions
+  claim_id: c_c54ef637
+  context: 'Result: No deviations > 0.1 eV were observed, confirming that the pre-computed
+    DFT data aligns with established thermodynamic trends for the binary subsystems.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/No_deviations_greater_than_0.1_eV_observed_between_surrogate
+  kind: magnitude
+  raw_text: No deviations > 0.1 eV were observed, confirming that the pre-computed
+    DFT data aligns with established thermodynamic trends for the binary subsystems.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T16:32:17Z'

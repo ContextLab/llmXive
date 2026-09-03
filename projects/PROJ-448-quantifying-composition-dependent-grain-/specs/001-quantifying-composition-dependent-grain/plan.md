@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a computational pipeline to quantify grain boundary (GB) segregation in BCC Fe-based alloys (Fe-Cr-Mo, Fe-Cr-V, Fe-Mo-V, Fe-Cr-W, Fe-Mo-W). The approach integrates three distinct computational layers: () extraction of equilibrium phase compositions from an open CALPHAD parameter set (derived from literature), (2) calculation of segregation energies using pre-computed DFT values from cited literature sources and the McLean isotherm model, and (3) statistical analysis of multicomponent cooperative effects via linear regression with interaction terms.
+This feature implements a computational pipeline to quantify grain boundary (GB) segregation in BCC Fe-based alloys (Fe-Cr-Mo, Fe-Cr-V, Fe-Mo-V, Fe-Cr-W, Fe-Mo-W). The approach integrates three distinct computational layers: () extraction of equilibrium phase compositions from an open CALPHAD parameter set (derived from literature), () calculation of segregation energies using pre-computed DFT values from cited literature sources and the McLean isotherm model, and (3) statistical analysis of multicomponent cooperative effects via linear regression with interaction terms.
 
 The pipeline addresses the scientific gap regarding non-linear cooperative segregation by comparing multicomponent regression models against additive binary baselines, validated through cross-validation. The implementation explicitly separates **Pipeline Validation** (using synthetic data with injected ground truth to verify the regression engine) from **Scientific Discovery** (using literature-parameterized data).
 

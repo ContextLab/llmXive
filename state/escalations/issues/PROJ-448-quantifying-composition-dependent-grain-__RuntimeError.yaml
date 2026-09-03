@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-09-03T17:07:43.374575+00:00'
+issue_number: 1342
+project_id: PROJ-448-quantifying-composition-dependent-grain-
