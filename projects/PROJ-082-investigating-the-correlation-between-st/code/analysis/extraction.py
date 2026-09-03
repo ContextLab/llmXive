@@ -1,10 +1,10 @@
 """
-Qualitative Extraction Module for US1.
-
-This module implements the narrative path extraction logic.
-It reads study data, identifies rows lacking quantitative metrics (r and n),
-applies NLP logic to extract qualitative descriptors, and saves the results.
+Qualitative Extraction (Narrative Path)
+Task T012: Read data/raw/studies.csv and extract qualitative descriptors for rows
+lacking both 'r' and 'n' using code/extraction/nlp_logic.py.
+Writes data/processed/qualitative_data.json.
 """
+
 import csv
 import json
 import logging
@@ -12,237 +12,186 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-# Import from project utils
-from utils.config import get_project_root
-from utils.logger import get_logger
-# Import from sibling extraction module
+# Import from existing API surface
 from extraction.nlp_logic import extract_tract_descriptors
-# Import from sibling analysis module (for lexicon/methodology loading if needed, 
-# though nlp_logic handles its own dependencies usually)
-from config.generate_lexicon import generate_lexicon as generate_lexicon_func
+from utils.config import get_project_root, ensure_directory
+from utils.logger import get_logger
 
+# Configure logger
 logger = get_logger(__name__)
 
-def load_lexicon() -> Dict[str, List[str]]:
+def load_lexicon() -> Dict[str, Any]:
     """
-    Load the tract lexicon from the configuration file.
-    Falls back to generating the default lexicon if the file is missing.
+    Load the tract lexicon from code/config/tract_lexicon.yaml.
+    Returns a dictionary with 'tracts' and 'verbs' keys.
     """
     project_root = get_project_root()
     lexicon_path = project_root / "code" / "config" / "tract_lexicon.yaml"
     
     if not lexicon_path.exists():
-        logger.warning(f"Lexicon file not found at {lexicon_path}. Generating default.")
-        # Ensure directory exists
-        lexicon_path.parent.mkdir(parents=True, exist_ok=True)
-        generate_lexicon_func(lexicon_path)
+        logger.error(f"Lexicon file not found: {lexicon_path}")
+        raise FileNotFoundError(f"Lexicon file not found: {lexicon_path}")
     
-    try:
-        import yaml
-        with open(lexicon_path, 'r', encoding='utf-8') as f:
-            data = yaml.safe_load(f)
-            # Ensure we return the expected structure
-            return data if isinstance(data, dict) else {"tracts": [], "verbs": []}
-    except Exception as e:
-        logger.error(f"Failed to load lexicon: {e}")
-        return {"tracts": [], "verbs": []}
+    import yaml
+    with open(lexicon_path, 'r', encoding='utf-8') as f:
+        return yaml.safe_load(f)
 
 def load_methodology() -> Dict[str, Any]:
     """
-    Load the narrative methodology configuration.
+    Load the narrative methodology from data/config/narrative_methodology.yaml.
+    Returns the configuration dictionary.
     """
     project_root = get_project_root()
     method_path = project_root / "data" / "config" / "narrative_methodology.yaml"
     
     if not method_path.exists():
-        logger.warning(f"Methodology file not found at {method_path}. Creating default structure.")
-        method_path.parent.mkdir(parents=True, exist_ok=True)
-        default_method = {
-            "keywords": ["music", "preference", "structural", "connectivity"],
-            "sentiment_rules": {
-                "positive": ["increased", "enhanced", "correlated"],
-                "negative": ["decreased", "reduced", "inhibited"]
-            },
-            "exclusion_criteria": ["unspecified", "unknown"]
-        }
-        try:
-            import yaml
-            with open(method_path, 'w', encoding='utf-8') as f:
-                yaml.dump(default_method, f)
-            return default_method
-        except Exception as e:
-            logger.error(f"Failed to write default methodology: {e}")
-            return {
-                "keywords": [],
-                "sentiment_rules": {"positive": [], "negative": []},
-                "exclusion_criteria": []
-            }
+        logger.error(f"Methodology file not found: {method_path}")
+        raise FileNotFoundError(f"Methodology file not found: {method_path}")
     
-    try:
-        import yaml
-        with open(method_path, 'r', encoding='utf-8') as f:
-            return yaml.safe_load(f)
-    except Exception as e:
-        logger.error(f"Failed to load methodology: {e}")
-        return {"keywords": [], "sentiment_rules": {}, "exclusion_criteria": []}
+    import yaml
+    with open(method_path, 'r', encoding='utf-8') as f:
+        return yaml.safe_load(f)
 
 def extract_qualitative_descriptors(
-    row: Dict[str, Any], 
-    lexicon: Dict[str, List[str]], 
+    studies: List[Dict[str, Any]],
+    lexicon: Dict[str, Any],
     scheme: Dict[str, Any]
-) -> Optional[str]:
+) -> List[Dict[str, Any]]:
     """
-    Extract qualitative descriptors for a single row using NLP logic.
+    Extract qualitative descriptors for studies lacking both 'r' and 'n'.
     
     Args:
-        row: A dictionary representing a study record.
-        lexicon: The tract lexicon containing tracts and verbs.
-        scheme: The methodology scheme for keywords and rules.
+        studies: List of study dictionaries from the input CSV.
+        lexicon: Tract lexicon dictionary.
+        scheme: Narrative methodology scheme dictionary.
         
     Returns:
-        A string description if extraction is successful, None otherwise.
+        List of dictionaries containing author, year, tract, and qualitative_desc.
     """
-    # We rely on the nlp_logic module which expects (text, lexicon, scheme)
-    # Since we don't have a 'text' column in the raw CSV usually, 
-    # we construct a context or pass the tract/author info if the logic supports it.
-    # However, the task says: "extract qualitative descriptors ... for rows lacking both r and n".
-    # The nlp_logic function signature is: extract_tract_descriptors(text, lexicon, scheme)
-    # If the input CSV lacks a 'text' column, we might need to synthesize a search string
-    # from available fields (e.g., author, tract) to search against a corpus, 
-    # OR the 'text' is expected to be in a specific column.
-    # Given the constraints, we assume the input CSV has a 'description' or 'notes' column 
-    # OR we construct a query based on the tract name to simulate finding a descriptor.
+    results = []
     
-    # For this implementation, we assume the input row might have a 'notes' or 'description' field.
-    # If not, we construct a placeholder search string based on the tract name.
-    text_content = row.get('description') or row.get('notes') or row.get('abstract')
+    for study in studies:
+        # Check if the study lacks both 'r' and 'n'
+        r_val = study.get('r')
+        n_val = study.get('n')
+        
+        # Treat None, empty string, or missing keys as missing
+        has_r = r_val is not None and r_val != '' and str(r_val).strip() != ''
+        has_n = n_val is not None and n_val != '' and str(n_val).strip() != ''
+        
+        if has_r or has_n:
+            # Skip studies that have quantitative data
+            continue
+        
+        # Extract qualitative description using NLP logic
+        # We assume the study has some text field or we construct a text from available fields
+        # For mock data, we might need to construct a placeholder text or use existing fields
+        # Let's check if there's a 'text' or 'description' field, otherwise construct one
+        text_to_analyze = study.get('text', study.get('description', ''))
+        
+        if not text_to_analyze:
+            # If no text field, we might need to construct one from available fields
+            # For now, let's skip if no text is available
+            logger.debug(f"Skipping study {study.get('author', 'Unknown')}: no text to analyze")
+            continue
+        
+        # Use the NLP logic to extract descriptors
+        descriptor = extract_tract_descriptors(text_to_analyze, lexicon, scheme)
+        
+        if descriptor:
+            result_entry = {
+                'author': study.get('author', ''),
+                'year': study.get('year', ''),
+                'tract': study.get('tract', ''),
+                'qualitative_desc': descriptor
+            }
+            results.append(result_entry)
+            logger.info(f"Extracted qualitative descriptor for {study.get('author', 'Unknown')}: {descriptor}")
+        else:
+            logger.debug(f"No descriptor extracted for {study.get('author', 'Unknown')}")
     
-    if not text_content:
-        # If no text is available, we cannot extract a descriptor from the text itself.
-        # However, the task implies we are extracting *from* the data. 
-        # If the data is purely tabular (author, tract, r, n), qualitative extraction 
-        # usually implies reading an external text corpus. 
-        # Since we don't have an external corpus in this scope, we will return None
-        # unless we can construct a meaningful descriptor from the tract name itself
-        # combined with the scheme's verbs (simulating a "found" descriptor).
-        # To satisfy the "extract" requirement without external text, we will check
-        # if the tract name exists in the row and use a default verb from the lexicon.
-        tract_name = row.get('tract', '')
-        if tract_name:
-            verbs = lexicon.get('verbs', [])
-            if verbs:
-                # Return a constructed descriptor based on the tract and a generic verb
-                # This simulates the extraction of a relationship found in a text we didn't see.
-                # In a real scenario, this would be the result of the NLP search.
-                return f"{tract_name} is associated with music preference"
-        return None
-
-    try:
-        # Call the NLP logic function
-        result = extract_tract_descriptors(text_content, lexicon, scheme)
-        return result
-    except Exception as e:
-        logger.error(f"Error extracting descriptors for row: {e}")
-        return None
+    return results
 
 def save_qualitative_data(data: List[Dict[str, Any]], output_path: Path) -> None:
     """
     Save the extracted qualitative data to a JSON file.
+    
+    Args:
+        data: List of extracted qualitative data dictionaries.
+        output_path: Path to the output JSON file.
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    ensure_directory(output_path)
     with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2)
+        json.dump(data, f, indent=2, ensure_ascii=False)
     logger.info(f"Saved qualitative data to {output_path}")
 
 def run_extraction(
-    input_path: Path, 
-    output_path: Path, 
-    lexicon: Optional[Dict[str, List[str]]] = None, 
-    scheme: Optional[Dict[str, Any]] = None
+    input_path: Optional[Path] = None,
+    output_path: Optional[Path] = None
 ) -> List[Dict[str, Any]]:
     """
-    Main execution function for qualitative extraction.
+    Main extraction workflow.
     
-    Reads the input CSV, identifies rows missing 'r' and 'n',
-    applies extraction logic, and saves results.
+    Args:
+        input_path: Path to input studies CSV. Defaults to data/raw/studies.csv.
+        output_path: Path to output JSON. Defaults to data/processed/qualitative_data.json.
+        
+    Returns:
+        List of extracted qualitative data dictionaries.
     """
-    if lexicon is None:
-        lexicon = load_lexicon()
-    if scheme is None:
-        scheme = load_methodology()
-
-    extracted_records = []
-
+    project_root = get_project_root()
+    
+    # Set default paths
+    if input_path is None:
+        input_path = project_root / "data" / "raw" / "studies.csv"
+    if output_path is None:
+        output_path = project_root / "data" / "processed" / "qualitative_data.json"
+    
+    # Validate input file exists
     if not input_path.exists():
         logger.error(f"Input file not found: {input_path}")
-        # Write empty result to avoid downstream crashes
-        save_qualitative_data([], output_path)
-        return extracted_records
-
-    try:
-        with open(input_path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row_num, row in enumerate(reader, start=2): # Start at 2 for header
-                # Check if both r and n are missing or empty
-                r_val = row.get('r')
-                n_val = row.get('n')
-                
-                # Determine if missing (None, empty string, or 'nan')
-                r_missing = r_val is None or r_val == '' or str(r_val).lower() == 'nan'
-                n_missing = n_val is None or n_val == '' or str(n_val).lower() == 'nan'
-
-                if r_missing and n_missing:
-                    # Row lacks quantitative data, perform qualitative extraction
-                    desc = extract_qualitative_descriptors(row, lexicon, scheme)
-                    if desc:
-                        record = {
-                            "author": row.get('author', 'Unknown'),
-                            "year": row.get('year', 'Unknown'),
-                            "tract": row.get('tract', 'Unknown'),
-                            "qualitative_desc": desc,
-                            "source_row": row_num
-                        }
-                        extracted_records.append(record)
-                        logger.debug(f"Extracted descriptor for row {row_num}: {desc[:50]}...")
-                    else:
-                        logger.debug(f"No descriptor extracted for row {row_num}")
-                else:
-                    logger.debug(f"Row {row_num} has quantitative data, skipping extraction")
-
-    except Exception as e:
-        logger.error(f"Error processing input file: {e}")
-        raise
-
-    save_qualitative_data(extracted_records, output_path)
-    return extracted_records
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
+    # Load dependencies
+    logger.info("Loading lexicon and methodology...")
+    lexicon = load_lexicon()
+    scheme = load_methodology()
+    
+    # Read input CSV
+    logger.info(f"Reading input file: {input_path}")
+    studies = []
+    with open(input_path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            studies.append(row)
+    
+    logger.info(f"Loaded {len(studies)} studies from {input_path}")
+    
+    # Extract qualitative descriptors
+    logger.info("Extracting qualitative descriptors...")
+    extracted_data = extract_qualitative_descriptors(studies, lexicon, scheme)
+    
+    logger.info(f"Extracted {len(extracted_data)} qualitative descriptors")
+    
+    # Save results
+    save_qualitative_data(extracted_data, output_path)
+    
+    return extracted_data
 
 def main() -> int:
     """
-    Entry point for the extraction script.
+    Main entry point for the extraction script.
+    
+    Returns:
+        Exit code (0 for success, 1 for failure).
     """
-    project_root = get_project_root()
-    # Default paths as per task specification
-    input_file = project_root / "data" / "raw" / "studies.csv"
-    output_file = project_root / "data" / "processed" / "qualitative_data.json"
-
-    # Allow CLI override for testing
-    if len(sys.argv) > 1:
-        input_file = Path(sys.argv[1])
-    if len(sys.argv) > 2:
-        output_file = Path(sys.argv[2])
-
-    logger.info(f"Starting qualitative extraction from {input_file}")
-    logger.info(f"Output will be written to {output_file}")
-
     try:
-        run_extraction(input_file, output_file)
-        logger.info("Extraction completed successfully.")
+        logger.info("Starting qualitative extraction (T012)...")
+        run_extraction()
+        logger.info("Qualitative extraction completed successfully.")
         return 0
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
-        return 1
     except Exception as e:
-        logger.error(f"Unexpected error during extraction: {e}")
+        logger.error(f"Qualitative extraction failed: {e}", exc_info=True)
         return 1
 
 if __name__ == "__main__":

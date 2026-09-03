@@ -109,6 +109,7 @@ def run_gatekeeper(study_count_path: Path, valid_pair_count_path: Path, output_p
         result = {
             "status": "narrative_required",
             "reason": "Insufficient valid studies",
+            "synthesis_mode": "narrative",
             "details": {
                 "N": n,
                 "N_valid": n_valid,
@@ -119,6 +120,7 @@ def run_gatekeeper(study_count_path: Path, valid_pair_count_path: Path, output_p
     else:
         result = {
             "status": "quantitative_ok",
+            "synthesis_mode": "quantitative",
             "details": {
                 "N": n,
                 "N_valid": n_valid,

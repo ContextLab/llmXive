@@ -1,8 +1,9 @@
 """
-Egger's Regression Test for Publication Bias.
+code/analysis/bias.py
 
-This module implements Egger's linear regression test to detect
-funnel plot asymmetry, a common indicator of publication bias in meta-analysis.
+Implements Egger's regression test for publication bias in meta-analysis.
+Reads meta-analysis results and study counts, performs the regression,
+and writes the results to data/derived/egger_test.json.
 """
 
 import json
@@ -17,254 +18,247 @@ from scipy import stats
 
 
 def get_project_root() -> Path:
-    """Return the project root directory."""
+    """Returns the project root directory (parent of 'code')."""
     return Path(__file__).resolve().parent.parent.parent
 
 
 def load_json(file_path: Path) -> Dict[str, Any]:
-    """Load a JSON file and return its contents as a dictionary."""
+    """Loads a JSON file and returns its contents."""
     if not file_path.exists():
-        raise FileNotFoundError(f"JSON file not found: {file_path}")
+        raise FileNotFoundError(f"Input file not found: {file_path}")
     with open(file_path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
 
 def save_json(data: Dict[str, Any], file_path: Path) -> None:
-    """Save a dictionary to a JSON file."""
+    """Saves a dictionary to a JSON file."""
     file_path.parent.mkdir(parents=True, exist_ok=True)
     with open(file_path, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2)
 
 
 def load_study_count_from_json(file_path: Path) -> int:
-    """Load the study count 'N' from study_count.json."""
-    data = load_json(file_path)
-    return int(data.get('N', 0))
-
-
-def load_effect_sizes_and_se(meta_results_path: Path) -> Tuple[List[float], List[float], int]:
     """
-    Load effect sizes (r) and standard errors (SE) from meta_results.json.
+    Loads the study count N from a JSON file.
+    Expects format: {"N": <int>} or {"count": <int>}.
+    """
+    data = load_json(file_path)
+    # Handle different possible keys used in the pipeline
+    if 'N' in data:
+        return int(data['N'])
+    elif 'count' in data:
+        return int(data['count'])
+    else:
+        raise ValueError(f"Could not find 'N' or 'count' in {file_path}")
 
-    Returns:
-        Tuple of (effect_sizes, standard_errors, N)
-        If meta analysis was skipped, returns empty lists and N=0.
+
+def load_effect_sizes_and_se(meta_results_path: Path) -> Tuple[List[float], List[float]]:
+    """
+    Extracts effect sizes (r) and standard errors (SE) from meta_results.json.
+    Expected structure in meta_results.json:
+    {
+      "studies": [
+        {"effect_size": r_val, "se": se_val, ...},
+        ...
+      ],
+      ...
+    }
+    Returns: (list of r, list of SE)
     """
     data = load_json(meta_results_path)
+    studies = data.get("studies", [])
 
-    if data.get('status') == 'skipped':
-        return [], 0, 0
+    if not studies:
+        # Fallback: check if 'results' key exists with studies inside
+        results = data.get("results", {})
+        studies = results.get("studies", [])
 
-    # Extract effect sizes and sample sizes
-    effect_sizes = []
-    sample_sizes = []
+    if not studies:
+        raise ValueError("No studies found in meta_results.json")
 
-    studies = data.get('studies', [])
+    r_values = []
+    se_values = []
+
     for study in studies:
-        r = study.get('r')
-        n = study.get('n')
-        if r is not None and n is not None and n > 0:
-            effect_sizes.append(float(r))
-            sample_sizes.append(int(n))
+        r_val = study.get("effect_size")
+        se_val = study.get("se")
 
-    if not effect_sizes:
-        return [], [], 0
+        if r_val is not None and se_val is not None:
+            # Filter out non-finite values to avoid math errors
+            if math.isfinite(r_val) and math.isfinite(se_val) and se_val > 0:
+                r_values.append(float(r_val))
+                se_values.append(float(se_val))
 
-    # Calculate standard error for Fisher's Z transformed r
-    # SE_z = 1 / sqrt(N - 3)
-    # However, Egger's test is often performed on the Z-transformed effect sizes
-    # to stabilize variance.
-    # We will compute Z and SE_z for the regression.
-    z_scores = []
-    se_z = []
-
-    for r, n in zip(effect_sizes, sample_sizes):
-        # Clamp r to (-0.999, 0.999) to avoid log(0) or division by zero
-        r_clamped = max(-0.999, min(0.999, r))
-        z = 0.5 * math.log((1 + r_clamped) / (1 - r_clamped))
-        se = 1.0 / math.sqrt(n - 3)
-        z_scores.append(z)
-        se_z.append(se)
-
-    return z_scores, se_z, len(effect_sizes)
+    return r_values, se_values
 
 
-def run_eggerr_regression(effect_sizes: List[float], standard_errors: List[float]) -> Dict[str, Any]:
+def run_eggerr_regression(r_values: List[float], se_values: List[float]) -> Dict[str, Any]:
     """
-    Perform Egger's linear regression test.
-
-    The regression model is:
-        Z / SE = alpha + beta * (1 / SE) + epsilon
-
-    Where:
-        Z is the effect size (Fisher's Z)
-        SE is the standard error of Z
-        alpha is the intercept (measure of asymmetry)
-        beta is the slope
-
-    H0: alpha = 0 (no asymmetry)
-    H1: alpha != 0 (asymmetry present)
-
-    Args:
-        effect_sizes: List of Fisher's Z transformed effect sizes.
-        standard_errors: List of standard errors corresponding to effect sizes.
-
-    Returns:
-        Dictionary containing regression results.
+    Performs Egger's regression test for publication bias.
+    Standard Normal Deviate (SND) = r / SE
+    Precision = 1 / SE
+    Regression: SND ~ Precision
+    Intercept significantly different from 0 indicates bias.
     """
-    if len(effect_sizes) < 3:
-        # Need at least 3 points for a meaningful regression
+    if len(r_values) < 3:
+        # Egger's test requires at least 3 studies for meaningful regression
         return {
-            'skipped': True,
-            'reason': 'Insufficient studies for regression (N < 3)'
+            "skipped": True,
+            "reason": "Insufficient studies (< 3) for Egger's regression",
+            "n_studies": len(r_values)
         }
 
-    X = np.array([1.0 / se for se in standard_errors])
-    y = np.array(effect_sizes)
+    # Calculate Standard Normal Deviate (SND) and Precision
+    snd = [r / se for r, se in zip(r_values, se_values)]
+    precision = [1.0 / se for se in se_values]
 
-    # Weighted least squares is often preferred, but standard OLS is the classic Egger's
-    # We will use OLS as per the original Egger et al. (1997) formulation.
-    # y = intercept + slope * X
-
+    # Perform linear regression: SND = beta0 + beta1 * Precision + error
+    # We use scipy.stats.linregress
     try:
-        # Fit linear regression: y = a + b*X
-        # scipy.stats.linregress returns slope, intercept, r_value, p_value, std_err
-        slope, intercept, r_value, p_value, std_err = stats.linregress(X, y)
-
-        # Calculate t-statistic for the intercept
-        # t = intercept / std_err_intercept
-        # The standard error of the intercept is not directly returned by linregress
-        # We need to calculate it manually or use a more robust solver.
-        # Using statsmodels is better, but to minimize dependencies we calculate manually.
-
-        n = len(X)
-        X_mean = np.mean(X)
-        y_mean = np.mean(y)
-
-        # Residual Sum of Squares (RSS)
-        y_pred = intercept + slope * X
-        rss = np.sum((y - y_pred) ** 2)
-
-        # Standard Error of the Estimate (s)
-        s = math.sqrt(rss / (n - 2))
-
-        # Standard Error of the Intercept
-        se_intercept = s * math.sqrt(1/n + (X_mean**2) / np.sum((X - X_mean)**2))
-
-        if se_intercept == 0:
-            t_stat_intercept = 0.0
-        else:
-            t_stat_intercept = intercept / se_intercept
-
-        # Two-tailed p-value for the intercept
-        df = n - 2
-        p_value_intercept = 2 * (1 - stats.t.cdf(abs(t_stat_intercept), df))
-
-        return {
-            'intercept': float(intercept),
-            'slope': float(slope),
-            't_statistic': float(t_stat_intercept),
-            'p_value': float(p_value_intercept),
-            'r_squared': float(r_value ** 2),
-            'n_studies': n,
-            'degrees_of_freedom': df,
-            'skipped': False
-        }
-
+        slope, intercept, r_value, p_value, std_err = stats.linregress(precision, snd)
     except Exception as e:
         return {
-            'skipped': True,
-            'reason': f'Regression failed: {str(e)}'
+            "skipped": True,
+            "reason": f"Regression failed: {str(e)}",
+            "n_studies": len(r_values)
         }
+
+    # Egger's test statistic is the intercept (beta0)
+    # Null hypothesis: intercept = 0 (no bias)
+    # We use the t-statistic and p-value from the regression
+    t_stat = intercept / std_err if std_err != 0 else 0.0
+    df = len(r_values) - 2
+    # Two-tailed p-value
+    p_val = 2 * (1 - stats.t.cdf(abs(t_stat), df))
+
+    return {
+        "skipped": False,
+        "n_studies": len(r_values),
+        "intercept": float(intercept),
+        "intercept_se": float(std_err),
+        "t_statistic": float(t_stat),
+        "p_value": float(p_val),
+        "slope": float(slope),
+        "r_squared": float(r_value ** 2),
+        "degrees_of_freedom": df,
+        "bias_detected": p_val < 0.05,
+        "interpretation": "Significant publication bias detected" if p_val < 0.05 else "No significant publication bias detected"
+    }
 
 
 def run_bias_assessment(meta_results_path: Path, study_count_path: Path) -> Dict[str, Any]:
     """
-    Orchestrate the Egger's regression test.
-
-    Args:
-        meta_results_path: Path to meta_results.json
-        study_count_path: Path to study_count.json
-
-    Returns:
-        Dictionary containing the full bias assessment results.
+    Orchestrates the bias assessment:
+    1. Loads study count N.
+    2. If N < 10, skips Egger's test.
+    3. Else, loads effect sizes and SEs, runs regression, returns results.
     """
-    # Check study count
     try:
-        N = load_study_count_from_json(study_count_path)
+        n_studies = load_study_count_from_json(study_count_path)
     except FileNotFoundError:
         return {
-            'skipped': True,
-            'reason': 'study_count.json not found'
+            "skipped": True,
+            "reason": "Study count file not found",
+            "file": str(study_count_path)
         }
-
-    if N < 10:
+    except ValueError as e:
         return {
-            'skipped': True,
-            'reason': 'N < 10',
-            'N': N
+            "skipped": True,
+            "reason": f"Invalid study count: {str(e)}",
+            "file": str(study_count_path)
         }
 
-    # Load effect sizes and SEs
+    # Gate logic: Skip if N < 10
+    if n_studies < 10:
+        return {
+            "skipped": True,
+            "reason": "N < 10",
+            "n_studies": n_studies
+        }
+
+    # Load effect sizes and standard errors
     try:
-        z_scores, se_z, effective_N = load_effect_sizes_and_se(meta_results_path)
+        r_values, se_values = load_effect_sizes_and_se(meta_results_path)
     except FileNotFoundError:
         return {
-            'skipped': True,
-            'reason': 'meta_results.json not found'
+            "skipped": True,
+            "reason": "Meta results file not found",
+            "file": str(meta_results_path)
         }
-
-    if effective_N < 3:
+    except ValueError as e:
         return {
-            'skipped': True,
-            'reason': f'Insufficient studies with valid data (N={effective_N})'
+            "skipped": True,
+            "reason": f"Error loading meta results: {str(e)}",
+            "file": str(meta_results_path)
         }
 
-    # Run regression
-    results = run_eggerr_regression(z_scores, se_z)
-    results['N'] = effective_N
+    if not r_values or not se_values:
+        return {
+            "skipped": True,
+            "reason": "No valid effect sizes or standard errors found",
+            "n_studies": n_studies
+        }
 
-    # Interpret results
-    if not results.get('skipped', False):
-        p_val = results['p_value']
-        if p_val < 0.05:
-            results['interpretation'] = 'Significant asymmetry detected (p < 0.05). Potential publication bias.'
-        else:
-            results['interpretation'] = 'No significant asymmetry detected (p >= 0.05). Evidence of publication bias is weak.'
+    # Run Egger's regression
+    results = run_eggerr_regression(r_values, se_values)
+    results["n_studies_checked"] = n_studies
+    results["meta_results_file"] = str(meta_results_path)
+    results["study_count_file"] = str(study_count_path)
 
     return results
 
 
 def save_results(results: Dict[str, Any], output_path: Path) -> None:
-    """Save results to the specified JSON file."""
+    """Saves the bias assessment results to a JSON file."""
     save_json(results, output_path)
 
 
 def main() -> int:
-    """Main entry point for the script."""
+    """
+    Main entry point for the Egger's bias test script.
+    Reads configuration from environment or defaults, runs the test,
+    and writes results to data/derived/egger_test.json.
+    """
     project_root = get_project_root()
-    meta_results_path = project_root / 'data' / 'derived' / 'meta_results.json'
-    study_count_path = project_root / 'data' / 'processed' / 'study_count.json'
-    output_path = project_root / 'data' / 'derived' / 'egger_test.json'
 
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Default paths
+    meta_results_path = project_root / "data" / "derived" / "meta_results.json"
+    study_count_path = project_root / "data" / "processed" / "study_count.json"
+    output_path = project_root / "data" / "derived" / "egger_test.json"
+
+    # Allow override via command line args (optional)
+    if len(sys.argv) > 1:
+        meta_results_path = Path(sys.argv[1])
+    if len(sys.argv) > 2:
+        study_count_path = Path(sys.argv[2])
+    if len(sys.argv) > 3:
+        output_path = Path(sys.argv[3])
+
+    print(f"Running Egger's bias test...")
+    print(f"  Meta results: {meta_results_path}")
+    print(f"  Study count: {study_count_path}")
+    print(f"  Output: {output_path}")
 
     try:
         results = run_bias_assessment(meta_results_path, study_count_path)
         save_results(results, output_path)
-        print(f"Egger's test results saved to {output_path}")
+        print(f"Results saved to {output_path}")
+        print(f"  Skipped: {results.get('skipped', False)}")
+        if not results.get('skipped', False):
+            print(f"  P-value: {results.get('p_value', 'N/A'):.4f}")
+            print(f"  Bias detected: {results.get('bias_detected', 'N/A')}")
         return 0
     except Exception as e:
-        print(f"Error running Egger's test: {e}", file=sys.stderr)
-        # Even on error, save a status file if possible, or exit with error code
+        print(f"Error during bias assessment: {str(e)}", file=sys.stderr)
+        # Write error result to output file for pipeline consistency
         error_result = {
-            'skipped': True,
-            'reason': f'Execution error: {str(e)}'
+            "skipped": True,
+            "reason": f"Runtime error: {str(e)}",
+            "n_studies": 0
         }
-        save_json(error_result, output_path)
+        save_results(error_result, output_path)
         return 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

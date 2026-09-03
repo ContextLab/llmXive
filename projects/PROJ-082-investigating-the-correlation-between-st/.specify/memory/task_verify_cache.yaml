@@ -31,6 +31,14 @@ T008c:
     k\": \u2026}` format, and includes logic to log a warning and write `{\"k\": 0}`\
     \ when the input file is missing. The missing CSV and JSON files are acceptable\
     \ because they are generated at runtime, not required as pre\u2011existing artifacts."
+T012:
+  c: false
+  h: 8d85cd0927903bdfffe5c73f6a52b69c6b171585ea40dabd094c157b2fd167ef
+  r: "The repository contains a partially\u2011written `code/analysis/extraction.py`,\
+    \ but the file is truncated and does not implement the full extraction\u2011to\u2011\
+    JSON workflow. Moreover, the required input `data/raw/studies.csv` and the expected\
+    \ output `data/processed/qualitative_data.json` are absent, so the script cannot\
+    \ be run or verified. The task\u2019s core requirements are therefore unmet."
 T013:
   c: true
   h: d29b425c7f06f2122bffd0fc5c93e828c5e8ddbb57650b1d56621ccb687632e3
@@ -40,16 +48,6 @@ T013:
     \ qualitative data, and (presumably) writing the required `extracted_studies.csv`\
     \ and exclusion log. No placeholder or stub markers are present. The required\
     \ script artifact is present, satisfying the task."
-T014:
-  c: false
-  h: 2882556c73ab11924cb04de9468134ebe58ebb06fd9d6ea7f800a3a0f60e3a8e
-  r: "The provided `code/analysis/meta_analysis.py` is present but the visible portion\
-    \ stops before any gate\u2011logic handling, model execution, convergence fallback,\
-    \ or HK\u2011adjustment flag logic is shown. Moreover, the required output files\
-    \ `data/derived/meta_status.json` and `data/derived/meta_results.json` are absent,\
-    \ so we cannot verify that the script fulfills the specified behavior. The implementer\
-    \ must ensure the script contains the full logic described and that running it\
-    \ produces the expected JSON outputs."
 T014a:
   c: true
   h: 734f3bcadec55965ad65bb650eaf1a613be05622d786ba5a6bc872222897ee8f
@@ -58,20 +56,33 @@ T014a:
     \ year) pairs, handling missing/empty input by returning 0, and writing the result\
     \ as `{\"N\": <count>}` to `data/processed/study_count.json`. No further artifacts\
     \ are required for this implementation task."
-T015b:
+T014b:
   c: false
-  h: 9104a56c3eac9b5881de5439d244ee1ad3444c27d7793bac124227c74bf06fda
-  r: "The provided `narrative_engine.py` is truncated (e.g., `path.parent.mkdi` typo\
-    \ and no logic to load `narrative_themes.json`, `study_count.json`, or `meta_status.json`\
-    \ and invoke the generation functions). Moreover, the required output file `data/derived/narrative_content.md`\
-    \ does not exist. The task\u2019s core requirement\u2014producing the markdown\
-    \ file based on the JSON inputs\u2014is therefore not satisfied."
-T018:
+  h: 0d27e1fed4bca5b12a3e96008416fb54891ee7516c7fb7a10b3f20f051e2c0f5
+  r: 'The required output file `data/processed/valid_pair_count.json` is missing,
+    and the provided `valid_pair_counter.py` is truncated before any code that writes
+    the JSON result. Without the JSON artifact containing `{"N_valid": <count>}`,
+    the task is not satisfied.'
+T017:
   c: false
-  h: 460ace76f74991b85d11838a7494f916421c0eecaa9b7cfc7c84c40fbacf4d5e
-  r: "The provided `code/analysis/heterogeneity.py` is incomplete (truncated line,\
-    \ no full I\xB2 calculation or JSON\u2011write logic with two\u2011decimal formatting)\
-    \ and the required `data/derived/heterogeneity_results.json` file does not exist."
+  h: 180986862d289b2861cac769636101e5a0df4805d7a5a58e2ce2a0db7f9a8396
+  r: "The provided `code/analysis/bias.py` is present but the visible portion does\
+    \ not show the required logic that checks `N < 10`, writes the skip JSON, or runs\
+    \ Egger\u2019s regression and writes the results to `data/derived/egger_test.json`.\
+    \ Moreover, the expected output file `data/derived/egger_test.json` is absent,\
+    \ indicating the script\u2019s core functionality is either missing or not executed.\
+    \ The implementer must add (or reveal) the main routine that performs the N\u2011\
+    check, writes the appropriate JSON, and ensures the script fully satisfies the\
+    \ task specification."
+T021:
+  c: false
+  h: d3eaacf82ab299ea1f7ad830d2492c7d2815bacf8dc248ac00889be3af7efe14
+  r: "The provided `code/analysis/correction.py` does not contain the required check\
+    \ that `k\u202F\u2265\u202F5` nor does it set or write a `bonferroni_applied`\
+    \ flag when `N\u202F<\u202F10`. Moreover, the expected output files `data/derived/bonferroni_status.json`\
+    \ and `data/derived/results.json` are absent, indicating the script either lacks\
+    \ the necessary write logic or has not been executed. The task therefore remains\
+    \ unfinished."
 T024:
   c: false
   h: f2339a19b723cf660555f5bfa1856c1ea34da4b1fa3c9fbe746f51e93068c5a9
@@ -87,11 +98,11 @@ T040:
     \ by the script uses different column names (`p_value`, `result_r`, `status`)\
     \ instead of the exact `original_p`, `converted_r`, `conversion_status` specified.\
     \ Consequently the logging artifact does not meet the task\u2019s specification."
-T057:
-  c: false
-  h: f0bc175194a9f89f339be4e7869ea82cd684fb1f8423420aabe24bf263e70031
-  r: "The provided `gatekeeper.py` is truncated (ends mid\u2011statement) and does\
-    \ not contain the full logic to apply the N\u202F\u2265\u202F10 / N\u202F<\u202F\
-    10 rule or to write `gate_result.json`. Moreover, the required output file `data/derived/gate_result.json`\
-    \ is absent. The script must be completed so it reads the two JSON inputs, decides\
-    \ the status, and writes the correct JSON file."
+T056:
+  c: true
+  h: 2383592858a51116c3c7415c2e47ab2a03bb4e13ab626a82b4d0914db845ae0e
+  r: The repository contains `code/data/loader.py` with a full implementation of `load_study_data`
+    that validates headers, handles missing `data/raw/studies.csv` by copying `mock_studies.csv`
+    (or the fallback) when `allow_fallback=True`, raises `FileNotFoundError` when
+    appropriate, and returns the loaded rows. The required script file exists and
+    meets the specified behavior.
