@@ -1,5 +1,6 @@
 """
 Logging utilities for the project.
+Provides JSON-formatted logging to both console and file.
 """
 import json
 import logging
@@ -12,6 +13,7 @@ from typing import Optional
 class JSONFormatter(logging.Formatter):
     """
     Custom formatter that outputs logs as JSON lines.
+    Ensures all log records are serializable JSON objects.
     """
     def format(self, record: logging.LogRecord) -> str:
         log_data = {
@@ -33,23 +35,30 @@ def get_logger(name: Optional[str] = None) -> logging.Logger:
     
     If no name is provided, uses the default project logger.
     Outputs to both console and a file in data/results/ if the directory exists.
+    
+    Args:
+        name: Optional name for the logger. Defaults to "llmXive".
+        
+    Returns:
+        A configured logging.Logger instance.
     """
     logger_name = name or "llmXive"
     logger = logging.getLogger(logger_name)
     
+    # Prevent adding duplicate handlers if logger already configured
     if logger.handlers:
         return logger
     
     logger.setLevel(logging.INFO)
     
-    # Console handler
+    # Console handler with standard formatting for readability
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(logging.INFO)
     console_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)
     
-    # File handler (optional, if data/results exists)
+    # File handler with JSON formatter, writing to data/results/
     log_dir = Path("data/results")
     log_dir.mkdir(parents=True, exist_ok=True)
     
@@ -65,5 +74,10 @@ def get_logger(name: Optional[str] = None) -> logging.Logger:
 def log_result(logger: logging.Logger, result: dict, message: str = "Result") -> None:
     """
     Helper to log a dictionary result as a JSON string.
+    
+    Args:
+        logger: The logger instance to use.
+        result: The dictionary to log.
+        message: Optional prefix message.
     """
     logger.info(f"{message}: {json.dumps(result)}")

@@ -1,146 +1,128 @@
+"""
+Unit tests for data ingestion module, specifically focusing on API rate limit handling.
+"""
+import time
 import unittest
 from unittest.mock import patch, MagicMock, call
-import time
-import requests
-from requests.exceptions import RequestException, HTTPError
-
-# Import the module under test.
-# Assuming data_ingestion.py is at code/data_ingestion.py relative to project root.
-# The test is at tests/unit/test_data_ingestion.py.
-# sys.path manipulation to allow importing 'code' as a package or direct module.
 import sys
 import os
-from pathlib import Path
 
-# Add the project root to the path so we can import 'code' modules if needed,
-# or specifically import the function we are testing if it's exposed.
-# Since the task asks to test 'api_backoff_retries_on_rate_limit', we assume
-# this function exists in code/data_ingestion.py.
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Add the code directory to the path to allow imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-try:
-    from code.data_ingestion import api_backoff_retries_on_rate_limit
-except ImportError:
-    # Fallback if the module structure is different or function not yet implemented.
-    # In a real TDD flow, this import would fail initially until implementation.
-    # For the purpose of this task, we define a mock function if missing to satisfy
-    # the test structure, but the task requires the test to be written for the REAL function.
-    # We will assume the implementation exists as per the "Implement the task for real" constraint
-    # which implies the function signature is known or standard.
-    # However, strictly following "Write tests FIRST, ensure they FAIL", we write the test
-    # against the expected interface.
-    
-    # Define a stub if import fails to allow the test file to be syntactically valid
-    # for the purpose of the "write test" task, but the actual execution would fail
-    # if the real function isn't there.
-    def api_backoff_retries_on_rate_limit(url, max_retries=3):
-        raise NotImplementedError("Implementation pending")
+from data_ingestion import exponential_backoff
 
-class TestApiBackoffRetries(unittest.TestCase):
-    """
-    Unit test for test_api_backoff_retries_on_rate_limit in code/data_ingestion.py.
-    
-    This test verifies that the function implements exponential backoff and
-    retries correctly when a 429 (Too Many Requests) status code is received.
-    """
 
-    @patch('code.data_ingestion.requests.get')
-    def test_api_backoff_retries_on_rate_limit(self, mock_get):
+class TestExponentialBackoff(unittest.TestCase):
+    """Tests for the exponential backoff mechanism in data ingestion."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        self.max_retries = 3
+        self.base_delay = 0.1  # Short delay for testing
+
+    @patch('data_ingestion.time.sleep')
+    def test_api_backoff_retries_on_rate_limit(self, mock_sleep):
         """
-        Test that the function retries on 429 status code with exponential backoff.
+        Test that exponential_backoff correctly retries on rate limit errors (429).
+        
+        Verifies:
+        1. The function retries up to max_retries times when 429 is returned.
+        2. The delay between retries follows exponential backoff (base * 2^attempt).
+        3. The function raises the final error after exhausting retries.
         """
-        # Arrange
-        test_url = "https://materialsproject.org/api/v1/materials"
-        max_retries = 3
-        
-        # Simulate a sequence of failures followed by a success.
-        # 429 on first call, 429 on second call, 200 on third call.
-        mock_response_429 = MagicMock()
-        mock_response_429.status_code = 429
-        mock_response_429.raise_for_status.side_effect = HTTPError(response=mock_response_429)
-        
-        mock_response_200 = MagicMock()
-        mock_response_200.status_code = 200
-        mock_response_200.json.return_value = {"data": "success"}
-        mock_response_200.raise_for_status.return_value = None
+        attempt_counter = 0
 
-        # Configure the mock to return these responses in order
-        mock_get.side_effect = [
-            mock_response_429,
-            mock_response_429,
-            mock_response_200
+        def failing_side_effect(*args, **kwargs):
+            nonlocal attempt_counter
+            attempt_counter += 1
+            if attempt_counter <= self.max_retries:
+                # Simulate a 429 Rate Limit error
+                error = Exception("429 Client Error: Too Many Requests")
+                error.response = MagicMock()
+                error.response.status_code = 429
+                raise error
+            return "Success"
+
+        mock_response_func = MagicMock(side_effect=failing_side_effect)
+
+        with self.assertRaises(Exception) as context:
+            exponential_backoff(
+                mock_response_func,
+                max_retries=self.max_retries,
+                base_delay=self.base_delay
+            )
+
+        # Verify the error was a 429
+        self.assertEqual(context.exception.response.status_code, 429)
+
+        # Verify the function was called max_retries + 1 times (initial + retries)
+        self.assertEqual(mock_response_func.call_count, self.max_retries + 1)
+
+        # Verify sleep was called with exponential delays: 0.1, 0.2, 0.4
+        expected_delays = [
+            self.base_delay * (2 ** 0),
+            self.base_delay * (2 ** 1),
+            self.base_delay * (2 ** 2)
         ]
+        # Extract the actual sleep calls
+        actual_delays = [call[0][0] for call in mock_sleep.call_args_list]
 
-        # Act
-        # We expect the function to retry. 
-        # Note: The actual sleep time is mocked or we just verify call count.
-        with patch('time.sleep') as mock_sleep:
-            result = api_backoff_retries_on_rate_limit(test_url, max_retries=max_retries)
+        self.assertEqual(actual_delays, expected_delays)
 
-        # Assert
-        # 1. requests.get should be called 3 times (2 failures + 1 success)
-        self.assertEqual(mock_get.call_count, 3)
-        
-        # 2. time.sleep should be called 2 times (after 1st failure, after 2nd failure)
-        # Exponential backoff: sleep(1), sleep(2), etc. (base 1s usually)
+    @patch('data_ingestion.time.sleep')
+    def test_backoff_stops_on_success(self, mock_sleep):
+        """
+        Test that backoff stops immediately if the function succeeds before max retries.
+        """
+        call_count = 0
+
+        def eventually_succeeds(*args, **kwargs):
+            nonlocal call_count
+            call_count += 1
+            if call_count < 3:
+                error = Exception("500 Server Error")
+                error.response = MagicMock()
+                error.response.status_code = 500
+                raise error
+            return "Success"
+
+        mock_response_func = MagicMock(side_effect=eventually_succeeds)
+
+        result = exponential_backoff(
+            mock_response_func,
+            max_retries=self.max_retries,
+            base_delay=self.base_delay
+        )
+
+        self.assertEqual(result, "Success")
+        # Should have retried twice (fail, fail, success)
+        self.assertEqual(mock_response_func.call_count, 3)
+        # Sleep should only have been called twice (after 1st and 2nd failure)
         self.assertEqual(mock_sleep.call_count, 2)
-        
-        # Verify sleep arguments roughly match exponential backoff (e.g., 1s, 2s)
-        # We don't assert exact seconds as implementation details vary, but we assert it was called.
-        mock_sleep.assert_any_call(1) 
-        mock_sleep.assert_any_call(2)
 
-        # 3. The result should be the successful response
-        self.assertEqual(result.json(), {"data": "success"})
-
-    @patch('code.data_ingestion.requests.get')
-    def test_api_backoff_raises_after_max_retries(self, mock_get):
+    @patch('data_ingestion.time.sleep')
+    def test_non_retryable_error_raises_immediately(self, mock_sleep):
         """
-        Test that the function raises an exception if max_retries are exhausted.
+        Test that non-429/5xx errors are raised immediately without retrying.
         """
-        # Arrange
-        test_url = "https://materialsproject.org/api/v1/materials"
-        max_retries = 2
-        
-        # Simulate persistent 429 errors
-        mock_response_429 = MagicMock()
-        mock_response_429.status_code = 429
-        mock_response_429.raise_for_status.side_effect = HTTPError(response=mock_response_429)
-        
-        mock_get.side_effect = [mock_response_429, mock_response_429]
+        def value_error(*args, **kwargs):
+            raise ValueError("Invalid input")
 
-        # Act & Assert
-        with patch('time.sleep'):
-            with self.assertRaises(HTTPError):
-                api_backoff_retries_on_rate_limit(test_url, max_retries=max_retries)
+        mock_response_func = MagicMock(side_effect=value_error)
 
-        # Verify requests.get was called exactly max_retries times
-        self.assertEqual(mock_get.call_count, max_retries)
+        with self.assertRaises(ValueError):
+            exponential_backoff(
+                mock_response_func,
+                max_retries=self.max_retries,
+                base_delay=self.base_delay
+            )
 
-    @patch('code.data_ingestion.requests.get')
-    def test_api_backoff_success_first_try(self, mock_get):
-        """
-        Test that the function returns immediately if the first request succeeds.
-        """
-        # Arrange
-        test_url = "https://materialsproject.org/api/v1/materials"
-        
-        mock_response_200 = MagicMock()
-        mock_response_200.status_code = 200
-        mock_response_200.json.return_value = {"data": "success"}
-        mock_response_200.raise_for_status.return_value = None
-        
-        mock_get.return_value = mock_response_200
+        # Should only be called once
+        self.assertEqual(mock_response_func.call_count, 1)
+        # Sleep should never be called
+        self.assertEqual(mock_sleep.call_count, 0)
 
-        # Act
-        with patch('time.sleep') as mock_sleep:
-            result = api_backoff_retries_on_rate_limit(test_url)
-
-        # Assert
-        self.assertEqual(mock_get.call_count, 1)
-        mock_sleep.assert_not_called()
-        self.assertEqual(result.json(), {"data": "success"})
 
 if __name__ == '__main__':
     unittest.main()

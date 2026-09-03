@@ -8,7 +8,7 @@ def load_env():
     Load environment variables from .env file.
     
     Raises:
-        ValueError: If MP_API_KEY is missing.
+        ValueError: If MP_API_KEY is missing or set to 'placeholder'.
     """
     # Find .env file in project root
     project_root = Path(__file__).resolve().parent.parent
@@ -17,12 +17,15 @@ def load_env():
     if env_path.exists():
         load_dotenv(env_path)
     else:
-        # Try current directory
+        # Try current directory as fallback
         load_dotenv()
 
     api_key = os.getenv("MP_API_KEY")
     if not api_key or api_key == "placeholder":
-        raise ValueError("MP_API_KEY is missing or not set in environment. Please set it in .env file.")
+        raise ValueError(
+            "MP_API_KEY is missing or not set in environment. "
+            "Please set it in .env file (copy from code/.env.example)."
+        )
     
     return {
         "mp_api_key": api_key,

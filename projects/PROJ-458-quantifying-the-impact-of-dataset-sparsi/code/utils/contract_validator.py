@@ -1,24 +1,31 @@
-"""Contract and schema validation utilities."""
+"""Contract and schema validation utilities.
+
+This module provides functions to validate data against JSON schemas and
+custom contract rules. It is a core utility for ensuring data integrity
+across the pipeline.
+"""
 import json
 import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
+
 from utils.logging import get_logger
 
 logger = get_logger("contract_validator")
 
+
 def validate_schema(data: Dict[str, Any], schema_path: str) -> bool:
     """
     Validate data against a JSON schema.
-    
+
     Args:
         data: The data to validate.
         schema_path: Path to the JSON schema file.
-    
+
     Returns:
         bool: True if data is valid against the schema, False otherwise.
             Errors are logged but not returned; this function returns a simple bool.
-    
+
     Raises:
         FileNotFoundError: If the schema file does not exist.
         json.JSONDecodeError: If the schema file contains invalid JSON.
@@ -30,12 +37,13 @@ def validate_schema(data: Dict[str, Any], schema_path: str) -> bool:
         logger.error("jsonschema library not found. Please install it.")
         raise ImportError("jsonschema library missing. Please install it via requirements.txt.")
 
-    try:
-        with open(schema_path, 'r') as f:
-            schema = json.load(f)
-    except FileNotFoundError:
+    if not os.path.exists(schema_path):
         logger.error(f"Schema file not found: {schema_path}")
-        raise
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+
+    try:
+        with open(schema_path, 'r', encoding='utf-8') as f:
+            schema = json.load(f)
     except json.JSONDecodeError as e:
         logger.error(f"Invalid JSON in schema file: {e}")
         raise
@@ -45,38 +53,43 @@ def validate_schema(data: Dict[str, Any], schema_path: str) -> bool:
         logger.debug(f"Data validated successfully against schema: {schema_path}")
         return True
     except jsonschema.ValidationError as e:
-        logger.error(f"Validation error: {e.message}")
+        logger.error(f"Validation error: {e.message} at path {e.absolute_path}")
         return False
     except Exception as e:
         logger.error(f"Unexpected error during validation: {e}")
         return False
 
+
 def validate_contract(data: Dict[str, Any], contract_rules: List[Dict[str, Any]]) -> Tuple[bool, List[str]]:
     """
     Validate data against a list of custom contract rules.
-    
+
     Rules are expected to be dicts like:
     {"field": "name", "type": "str", "required": True}
-    
+
     Args:
         data: The data to validate.
         contract_rules: List of rule definitions.
-    
+
     Returns:
         Tuple of (is_valid, list_of_errors).
     """
     errors = []
-    
+
     for rule in contract_rules:
         field = rule.get("field")
+        if not field:
+            errors.append("Invalid rule: missing 'field' key")
+            continue
+
         required = rule.get("required", False)
         expected_type = rule.get("type")
-        
+
         if field not in data:
             if required:
                 errors.append(f"Missing required field: {field}")
             continue
-        
+
         value = data[field]
         if expected_type:
             # Map string types to python types
@@ -86,10 +99,19 @@ def validate_contract(data: Dict[str, Any], contract_rules: List[Dict[str, Any]]
                 "float": float,
                 "bool": bool,
                 "list": list,
-                "dict": dict
+                "dict": dict,
+                "str_or_none": (str, type(None)),
+                "int_or_none": (int, type(None)),
+                "float_or_none": (float, type(None)),
             }
             target_type = type_map.get(expected_type)
-            if target_type and not isinstance(value, target_type):
-                errors.append(f"Field '{field}' has wrong type. Expected {expected_type}, got {type(value).__name__}")
-    
+            if target_type:
+                if isinstance(target_type, tuple):
+                    # Handle 'or_none' types
+                    if not isinstance(value, target_type):
+                        errors.append(f"Field '{field}' has wrong type. Expected {expected_type}, got {type(value).__name__}")
+                else:
+                    if not isinstance(value, target_type):
+                        errors.append(f"Field '{field}' has wrong type. Expected {expected_type}, got {type(value).__name__}")
+
     return len(errors) == 0, errors

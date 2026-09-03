@@ -1,13 +1,93 @@
-T021:
+T001:
   c: false
-  h: 126439b4527e5df5337f8feff43faa19a74e1a6ece6e8149db4476d63334f267
-  r: "The required artifact `data/metadata/test_set_metadata.json` does not exist,\
-    \ so no metadata (row count, checksum) has been logged, meaning the task\u2019\
-    s requirement is unmet. The implementer must create the JSON file with the appropriate\
-    \ metadata."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `project_structure.txt` file or directory listing was supplied, and there
+    is no evidence that the requested directories (`code/utils`, `data/raw`, etc.)
+    actually exist. The implementer must provide the `ls -R` output (or equivalent)
+    and the generated `project_structure.txt` containing the full directory tree.
+T003:
+  c: true
+  h: f3dd7622761f2990f26fb6f7e199b94d073e7332ca96f8732a1c8a72876f53ec
+  r: "The file `code/.pre-commit-config.yaml` exists, is non\u2011empty, and contains\
+    \ hook definitions for both ruff (including ruff\u2011format) and black, exactly\
+    \ as the task required. The missing `pre-commit-config.yaml` is unrelated to the\
+    \ specified artifact."
+T020:
+  c: false
+  h: 3d30c66100f7e1a0793e03e3bdd5c7eb82e9c9accdf2bedf3198ff518fde6ac4
+  r: "The script loads `data/processed/full_pool_final.csv` instead of the required\
+    \ `data/raw/raw_pool.csv`, performs a simple random shuffle rather than stratified\
+    \ sampling on formation_energy bins, and only saves `test_set.csv` (no `test_set_indices.csv`).\
+    \ Moreover, the raw pool file and the expected output files are missing. The implementation\
+    \ does not meet the task\u2019s specifications."
+T024:
+  c: false
+  h: fdd43d2657fb6351f0f864e0d8b6e0da14d82c5391e6b3f8d262bf86dde6741b
+  r: "The provided `code/data_ingestion.py` lacks the required assertion that the\
+    \ downloaded count meets the `RSS_SIZE` configuration and does not include logic\
+    \ to obtain a large list of material IDs (the source CSV is missing). Moreover,\
+    \ the expected output file `data/raw/raw_pool.csv` does not exist. These missing\
+    \ pieces mean the task\u2019s requirements are not satisfied."
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: The submission contains no evidence of any `data/metadata/sparsity_<level>_<seed>.json`
     files, nor any listing of their contents with the required keys (`seed`, `percentage`,
     `criteria`, `checksum`). Consequently the required metadata artifacts are missing.
+T054:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `spec.md` file or excerpt is provided showing that FR\u2011003\u2019\
+    s wording was changed from \u201Cfull dataset (150k)\u201D to \u201CRepresentative\
+    \ Stratified Sample (RSS) of [deferred] entries\u201D nor that the generic \u201C\
+    [deferred] levels\u201D were replaced with the explicit list of seven levels.\
+    \ Without the actual modified document, the requirement cannot be confirmed as\
+    \ satisfied."
+T055:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `spec.md` file is provided, and there is no evidence that FR\u2011\
+    006\u2019s description was edited to replace \u201CRepeated Measures ANOVA\u201D\
+    \ with \u201CLinear Mixed-Effects Modeling (LMM)\u201D. The required artifact\
+    \ (the modified specification document) is missing."
+T056:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No spec.md file or its contents were provided, so there is no evidence that\
+    \ the \u201CAssumptions\u201D section was edited to replace \u201Cno authentication\
+    \ barriers\u201D with \u201CRequires MP_API_KEY environment variable.\u201D The\
+    \ required artifact is missing, preventing verification that the task was completed."
+T057:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `spec.md` file was provided, and there is no evidence that FR\u2011\
+    007 was modified to explicitly mention the \u201Cslope variance <\u202F10%\u201D\
+    \ threshold. The required artifact (the revised specification) is missing."
+T058:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `spec.md` file or excerpt showing the updated US\u20113 Acceptance Scenario\u202F\
+    3 is provided; without the actual document containing the \u201Cslope variance\u202F\
+    <\u202F10%\u201D threshold, we cannot verify that the required change was made.\
+    \ The artifact is missing."
+T059:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No spec.md file or excerpt showing the change to SC-003 is provided; without\
+    \ the updated document we cannot confirm that \u201CRepeated Measures ANOVA\u201D\
+    \ was replaced with \u201CLinear Mixed-Effects Modeling (LMM)\u201D. The required\
+    \ artifact (the modified spec.md) is missing."
+T060a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `spec.md` file or excerpt showing the updated SC-001 section is provided;\
+    \ therefore we cannot confirm that \u201CPredictive Variance\u201D and \u201C\
+    Calibration Slope\u201D were added alongside RMSE and MAE as required. The necessary\
+    \ artifact (the modified specification document) is missing."
+T060b:
+  c: true
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided specification excerpt shows FR\u2011005 under Functional Requirements\
+    \ now reads \u201CModels shall be evaluated using RMSE, MAE, Predictive Variance,\
+    \ and **Calibration Slope**,\u201D which directly satisfies the task\u2019s requirement\
+    \ to mandate Calibration Slope as a success metric."
