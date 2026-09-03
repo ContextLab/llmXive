@@ -1,8 +1,9 @@
 import pytest
 import os
 import sys
+import json
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, mock_open
 
 # Add parent directory to path
 project_root = Path(__file__).resolve().parent.parent.parent
@@ -16,12 +17,12 @@ class TestAcquisition:
     @patch('code.data.acquisition.requests.get')
     def test_fetch_real_data_success(self, mock_get):
         """Test successful fetch of real data."""
+        # Generate 60 rows of mock data
+        rows = ["solute,host,activation_energy,temperature_range"]
+        for i in range(60):
+            rows.append(f"Solute{i},Host{str(i%10)},0.5,300-500")
         mock_response = MagicMock()
-        mock_response.text = """solute,host,activation_energy,temperature_range
-        Cu,Al,0.5,300-500
-        Zn,Cu,0.6,400-600
-        Ag,Ni,0.7,500-700
-        """ * 20  # 60 rows
+        mock_response.text = "\n".join(rows)
         mock_response.raise_for_status = MagicMock()
         mock_get.return_value = mock_response
 
@@ -32,15 +33,21 @@ class TestAcquisition:
     @patch('code.data.acquisition.requests.get')
     def test_fetch_real_data_insufficient(self, mock_get):
         """Test that insufficient data raises SystemExit."""
+        # Generate only 10 rows of mock data
+        rows = ["solute,host,activation_energy,temperature_range"]
+        for i in range(10):
+            rows.append(f"Solute{i},Host{str(i%10)},0.5,300-500")
+        
         mock_response = MagicMock()
-        mock_response.text = """solute,host,activation_energy,temperature_range
-        Cu,Al,0.5,300-500
-        """ * 10  # 10 rows
+        mock_response.text = "\n".join(rows)
         mock_response.raise_for_status = MagicMock()
         mock_get.return_value = mock_response
 
+        # We test acquire_and_save_diffusion_data which calls fetch and checks count
         with pytest.raises(SystemExit, match="Data Insufficiency: N < 50"):
-            acquire_and_save_diffusion_data()
+            # Mock the file writing to avoid actual disk writes in test
+            with patch('code.data.acquisition.open', mock_open()):
+                acquire_and_save_diffusion_data()
 
     @patch('code.data.acquisition.requests.get')
     def test_fetch_real_data_network_error(self, mock_get):
@@ -54,8 +61,10 @@ class TestAcquisition:
     def test_output_file_created(self):
         """Test that the output file is created with sufficient data."""
         # Mock a large dataset
-        mock_data = "solute,host,activation_energy,temperature_range\n"
-        mock_data += "Cu,Al,0.5,300-500\n" * 100
+        rows = ["solute,host,activation_energy,temperature_range"]
+        for i in range(100):
+            rows.append(f"Solute{i},Host{str(i%10)},0.5,300-500")
+        mock_data = "\n".join(rows)
         
         with patch('code.data.acquisition.requests.get') as mock_get:
             mock_response = MagicMock()

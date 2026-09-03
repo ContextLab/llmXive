@@ -1,0 +1,522 @@
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Data acquisition script fails if valid entries are fewer than 50
+  claim_id: c_0c9503c4
+  context: 'T008 Implement code/data/acquisition.py to fetch REAL diffusion data from
+    NIST/Materials Project/Literature sources. CRITICAL INSTRUCTIONS: ... If the fetched
+    dataset contains fewer than 50 valid entries, the script MUST raise a SystemExit
+    with the message ''Data Insufficiency: N < 50'' and halt execution immediately.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_acquisition_script_fails_if_valid_entries_are_fewer_tha
+  kind: magnitude
+  raw_text: 'If the fetched dataset contains fewer than 50 valid entries, the script
+    MUST raise a SystemExit with the message ''Data Insufficiency: N < 50'' and halt
+    execution immediately.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:30:06Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Mock dataset generation requires at least 100 rows
+  claim_id: c_6cc81adf
+  context: 'T012.1 [P] [US1] Implement code/data/mock_generator.py to generate a synthetic
+    mock dataset containing mixed crystal structures (FCC, BCC, HCP) and diffusion
+    modes for the Independent Test. Outputs: 1. Generate data/mock/mock_diffusion.csv
+    with at least 100 rows.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mock_dataset_generation_requires_at_least_100_rows
+  kind: magnitude
+  raw_text: Generate data/mock/mock_diffusion.csv with at least 100 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:30:42Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: 'Random Forest GridSearchCV parameters: 5-fold CV, max_depth 3-10, n_estimators
+    50-200'
+  claim_id: c_3a58ab89
+  context: "T021 [US2] Implement code/models/training.py to train Random Forest with\
+    \ GridSearchCV (5-fold cross-validation, cv=5 explicitly overriding default, max_depth\
+    \ range [3, 10], n_estimators range [50, 200]) maximizing R\xB2."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Random Forest with GridSearchCV using 5-fold cross-validation, max_depth
+    range [3, 10], and n_estimators range [50, 200].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:31:03Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: 'Gradient Boosting GridSearchCV parameters: 5-fold CV, max_depth 3-10,
+    n_estimators 50-200'
+  claim_id: c_d21c1686
+  context: T022 [US2] Implement code/models/training.py to train Gradient Boosting
+    with same GridSearch parameters (cv=5 explicitly set, max_depth range [3, 10],
+    n_estimators range [50, 200]).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Gradient Boosting with GridSearchCV using 5-fold cross-validation,
+    max_depth range [3, 10], and n_estimators range [50, 200].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:32:24Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Statistical validation requires 95% bootstrap CI and p-value less than
+    0.05
+  claim_id: c_a4f5acf7
+  context: T029 [US3] Implement code/validation/stats.py to compute 95% bootstrap
+    confidence interval for size_mismatch coefficient, verify p-value < 0.05 AND that
+    the 95% bootstrap confidence interval does not cross zero, and save the results
+    to reports/validation_report.json.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_validation_requires_95%25_bootstrap_CI_and_p-value
+  kind: magnitude
+  raw_text: Compute 95% bootstrap confidence interval for size_mismatch coefficient
+    and verify p-value < 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:33:36Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis threshold sweep from 0.45 eV to 0.55 eV in 0.01
+    eV steps
+  claim_id: c_c1bd2670
+  context: T032 [US3] Implement code/validation/sensitivity.py to sweep classification
+    threshold across the exact range 0.45 eV to 0.55 eV in 0.01 eV increments.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep classification threshold across the exact range 0.45 eV to 0.55
+    eV in 0.01 eV increments.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:33:58Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: GridSearchCV configured with n_jobs=-1 for parallel processing
+  claim_id: c_00ac0993
+  context: 'T038 Performance optimization: Refactor code/models/training.py to use
+    n_jobs=-1 (parallel processing) in GridSearchCV. Add runtime logging to reports/performance_log.json
+    to verify compliance with SC-004 (6-hour limit).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor code/models/training.py to use n_jobs=-1 for parallel processing
+    in GridSearchCV.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:34:17Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Total pipeline runtime must be under 6 hours
+  claim_id: c_a4651991
+  context: 'T038 Performance optimization: ... Metric: Measure total pipeline runtime
+    (Ingestion + Training + Validation) and log it to reports/performance_log.json.
+    Assert total_runtime < 6h.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_pipeline_runtime_must_be_under_6_hours
+  kind: magnitude
+  raw_text: Assert total pipeline runtime is less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:34:41Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Data acquisition script fails if valid entries are fewer than 50
+  claim_id: c_42a8c79a
+  context: 'T008 Implement code/data/acquisition.py to fetch REAL diffusion data from
+    NIST/Materials Project/Literature sources. CRITICAL INSTRUCTIONS: 3. If the fetched
+    dataset contains fewer than 50 valid entries...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_acquisition_script_fails_if_valid_entries_are_fewer_tha
+  kind: magnitude
+  raw_text: 'If the fetched dataset contains fewer than 50 valid entries, the script
+    MUST raise a SystemExit with the message ''Data Insufficiency: N < 50'' and halt
+    execution immediately.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:36:03Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Mock dataset generation requires at least 100 rows
+  claim_id: c_5ac4bbf6
+  context: 'T012.1 [P] [US1] Implement code/data/mock_generator.py to generate a synthetic
+    mock dataset... Outputs: 1. Generate data/mock/mock_diffusion.csv with at least
+    100 rows.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mock_dataset_generation_requires_at_least_100_rows
+  kind: magnitude
+  raw_text: Generate data/mock/mock_diffusion.csv with at least 100 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:36:04Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Curation log must record exclusion count as first line
+  claim_id: c_7ae88a88
+  context: 'T014 [US1] Implement code/data/curation.py to exclude rows with missing
+    solute concentration or missing atomic radii. Outputs: 1. Log exclusions to data/logs/exclusions.log
+    (CSV format with row_id, reason_code). Explicitly record the count of excluded
+    rows as the first line...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Explicitly record the count of excluded rows as the first line (e.g.,
+    # EXCLUSION_COUNT: 5).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:36:27Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Random Forest GridSearchCV configured with 5-fold CV, max_depth 3-10,
+    n_estimators 50-200
+  claim_id: c_6738699c
+  context: "T021 [US2] Implement code/models/training.py to train Random Forest with\
+    \ GridSearchCV (5-fold cross-validation, cv=5 explicitly overriding default, max_depth\
+    \ range [3, 10], n_estimators range [50, 200]) maximizing R\xB2."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train Random Forest with GridSearchCV (5-fold cross-validation, cv=5\
+    \ explicitly overriding default, max_depth range [3, 10], n_estimators range [50,\
+    \ 200]) maximizing R\xB2."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:36:43Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Gradient Boosting GridSearchCV configured with 5-fold CV, max_depth 3-10,
+    n_estimators 50-200
+  claim_id: c_4103a35b
+  context: T022 [US2] Implement code/models/training.py to train Gradient Boosting
+    with same GridSearch parameters (cv=5 explicitly set, max_depth range [3, 10],
+    n_estimators range [50, 200]).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Gradient Boosting with same GridSearch parameters (cv=5 explicitly
+    set, max_depth range [3, 10], n_estimators range [50, 200]).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:37:06Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Statistical validation requires p-value < 0.05 and non-zero crossing
+    95% CI
+  claim_id: c_eed00fbf
+  context: T029 [US3] Implement code/validation/stats.py to compute 95% bootstrap
+    confidence interval for size_mismatch coefficient, verify p-value < 0.05 AND that
+    the 95% bootstrap confidence interval does not cross zero...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute 95% bootstrap confidence interval for size_mismatch coefficient,
+    verify p-value < 0.05 AND that the 95% bootstrap confidence interval does not
+    cross zero.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:37:06Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Threshold sensitivity analysis sweeps 0.45 eV to 0.55 eV in 0.01 eV increments
+  claim_id: c_63e65b17
+  context: T032 [US3] Implement code/validation/sensitivity.py to sweep classification
+    threshold across the exact range 0.45 eV to 0.55 eV in 0.01 eV increments.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep classification threshold across the exact range 0.45 eV to 0.55
+    eV in 0.01 eV increments.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:37:06Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Threshold iteration sequence 0.45 to 0.55
+  claim_id: c_26f0a0a7
+  context: 'T032 [US3] Implement code/validation/sensitivity.py to sweep classification
+    threshold... Logic: 1. Iterate thresholds: 0.45, 0.46,..., 0.55.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Iterate thresholds: 0.45, 0.46,..., 0.55.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:37:39Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Total pipeline runtime must be less than 6 hours
+  claim_id: c_6c0e4b4e
+  context: 'T038 Performance optimization: Refactor code/models/training.py to use
+    n_jobs=-1 (parallel processing) in GridSearchCV. Add runtime logging to reports/performance_log.json
+    to verify compliance with SC-004 (6-hour limit). Metric: Measure total pipeline
+    runtime... Assert total_runtime < 6h.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_pipeline_runtime_must_be_less_than_6_hours
+  kind: magnitude
+  raw_text: Measure total pipeline runtime (Ingestion + Training + Validation) and
+    log it to reports/performance_log.json. Assert total_runtime < 6h.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:38:09Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Data acquisition fails if valid entries are fewer than 50
+  claim_id: c_e51e4b50
+  context: Phase 2, Task T008, CRITICAL INSTRUCTIONS point 3
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_acquisition_fails_if_valid_entries_are_fewer_than_50
+  kind: magnitude
+  raw_text: 'If the fetched dataset contains fewer than 50 valid entries, the script
+    MUST raise a SystemExit with the message ''Data Insufficiency: N < 50'' and halt
+    execution immediately.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:40:23Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Mock dataset generation requires at least 100 rows
+  claim_id: c_2cca1fbe
+  context: Phase 3, Task T012.1, Outputs point 1
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mock_dataset_generation_requires_at_least_100_rows
+  kind: magnitude
+  raw_text: Generate data/mock/mock_diffusion.csv with at least 100 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:40:25Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Exclusion log must record excluded row count as first line
+  claim_id: c_36789855
+  context: Phase 3, Task T014, Outputs point 1
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Explicitly record the count of excluded rows as the first line of the
+    exclusion log (e.g., ''# EXCLUSION_COUNT: 5'').'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:40:48Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Random Forest training uses 5-fold cross-validation
+  claim_id: c_7813e2c4
+  context: Phase 4, Task T021
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Random Forest with GridSearchCV using 5-fold cross-validation (cv=5
+    explicitly overriding default).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:41:26Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Random Forest max depth range is 3 to 10
+  claim_id: c_4f63445c
+  context: Phase 4, Task T021
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Max depth range for Random Forest GridSearch is [3, 10].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:41:51Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Random Forest n_estimators range is 50 to 200
+  claim_id: c_2514901b
+  context: Phase 4, Task T021
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Number of estimators range for Random Forest GridSearch is [50, 200].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:42:31Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Gradient Boosting max depth range is 3 to 10
+  claim_id: c_2c0049c8
+  context: Phase 4, Task T022
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Max depth range for Gradient Boosting GridSearch is [3, 10].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:43:00Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Gradient Boosting n_estimators range is 50 to 200
+  claim_id: c_6905f0bd
+  context: Phase 4, Task T022
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Number of estimators range for Gradient Boosting GridSearch is [50, 200].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:43:36Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Compute 95% bootstrap confidence interval for coefficient
+  claim_id: c_e61be80b
+  context: Phase 5, Task T029
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute 95% bootstrap confidence interval for size_mismatch coefficient.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:43:36Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Verify p-value is less than 0.05 for coefficient
+  claim_id: c_eda50208
+  context: Phase 5, Task T029
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_p-value_is_less_than_0.05_for_coefficient
+  kind: magnitude
+  raw_text: Verify p-value < 0.05 for the size_mismatch coefficient.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:44:17Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Threshold sensitivity sweep range is 0.45 eV to 0.55 eV in 0.01 eV steps
+  claim_id: c_c7c0dcc9
+  context: Phase 5, Task T032
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep classification threshold across the exact range 0.45 eV to 0.55
+    eV in 0.01 eV increments.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:44:17Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Total pipeline runtime must be less than 6 hours
+  claim_id: c_8e26948b
+  context: Phase 6, Task T038, Metric
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_pipeline_runtime_must_be_less_than_6_hours
+  kind: magnitude
+  raw_text: Assert total pipeline runtime is less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T23:44:20Z'
