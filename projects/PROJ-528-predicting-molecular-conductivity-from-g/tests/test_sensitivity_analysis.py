@@ -1,98 +1,150 @@
 import pytest
-import os
-import json
 import pandas as pd
 import numpy as np
-from scipy.stats import kruskal
-
-from code.sensitivity_analysis import run_sensitivity_analysis
-from code.config import SEED, DATA_PATH
+from code.analysis import filter_outliers, run_sensitivity_analysis
+from code.config import SEED
 
 @pytest.fixture
-def sample_descriptors(tmp_path):
-    """Create a sample descriptors CSV for testing"""
+def sample_data():
+    """Create sample data for testing."""
+    np.random.seed(SEED)
+    n_samples = 100
     data = {
-        'smiles': ['CCO', 'CCCO', 'CCCCO', 'c1ccccc1', 'c1ccccc1O', 
-                  'CC=CC', 'C=CC=C', 'CCCC', 'CCCCC', 'CCCCCC'] * 100,
-        'status': ['valid'] * 1000,
-        'degree_mean': np.random.uniform(1.5, 3.5, 1000),
-        'degree_std': np.random.uniform(0.1, 0.5, 1000),
-        'degree_max': np.random.uniform(3, 5, 1000),
-        'degree_min': np.random.uniform(1, 2, 1000),
-        'path_length_mean': np.random.uniform(2, 5, 1000),
-        'path_length_std': np.random.uniform(0.5, 1.5, 1000),
-        'path_length_max': np.random.uniform(5, 10, 1000),
-        'path_length_min': np.random.uniform(2, 4, 1000),
-        'aromaticity_index': np.random.uniform(0, 1, 1000),
-        'conjugation_length': np.random.uniform(0, 10, 1000),
-        'ring_count': np.random.randint(0, 3, 1000),
-        'bond_polarity': np.random.uniform(0, 2, 1000),
-        'resonance_energy': np.random.uniform(0, 50, 1000),
-        'conductivity': np.random.uniform(-5, 5, 1000)
+        'smiles': [f'mol_{i}' for i in range(n_samples)],
+        'degree_mean': np.random.normal(2.5, 0.5, n_samples),
+        'degree_std': np.random.normal(0.3, 0.1, n_samples),
+        'path_length_mean': np.random.normal(5.0, 1.0, n_samples),
+        'path_length_std': np.random.normal(1.2, 0.3, n_samples),
+        'aromaticity_index': np.random.choice([0, 1], n_samples),
+        'conjugation_length': np.random.exponential(2.0, n_samples),
+        'ring_count': np.random.poisson(1.5, n_samples),
+        'log_conductivity': np.random.normal(0.0, 1.0, n_samples)
     }
-    df = pd.DataFrame(data)
-    output_path = os.path.join(tmp_path, 'descriptors.csv')
-    df.to_csv(output_path, index=False)
-    return output_path
+    return pd.DataFrame(data)
 
-def test_run_sensitivity_analysis_creates_output(tmp_path, sample_descriptors):
-    """Test that sensitivity analysis creates the expected output file"""
-    output_path = os.path.join(tmp_path, 'sensitivity_analysis.json')
+@pytest.fixture
+def temp_data_file(sample_data, tmp_path):
+    """Create a temporary CSV file with sample data."""
+    file_path = tmp_path / "test_descriptors.csv"
+    sample_data.to_csv(file_path, index=False)
+    return str(file_path)
+
+@pytest.fixture
+def temp_output_file(tmp_path):
+    """Create a temporary output file path."""
+    return str(tmp_path / "test_sensitivity.json")
+
+def test_filter_outliers_basic(temp_data_file):
+    """Test basic outlier filtering functionality."""
+    df = pd.read_csv(temp_data_file)
     
+    # Test with 3.0 sigma threshold
+    filtered_df = filter_outliers(df, 'log_conductivity', 3.0)
+    
+    # Should have fewer rows than original
+    assert len(filtered_df) <= len(df)
+    
+    # All remaining rows should have z-scores within threshold
+    mean_val = df['log_conductivity'].mean()
+    std_val = df['log_conductivity'].std()
+    if std_val > 0:
+        z_scores = (filtered_df['log_conductivity'] - mean_val) / std_val
+        assert all(z_scores.abs() <= 3.0)
+
+def test_filter_outliers_strict_threshold(temp_data_file):
+    """Test that stricter threshold removes more outliers."""
+    df = pd.read_csv(temp_data_file)
+    
+    filtered_2_5 = filter_outliers(df, 'log_conductivity', 2.5)
+    filtered_3_5 = filter_outliers(df, 'log_conductivity', 3.5)
+    
+    # Stricter threshold should remove more data
+    assert len(filtered_2_5) <= len(filtered_3_5)
+
+def test_filter_outliers_invalid_column(temp_data_file):
+    """Test error handling for invalid column name."""
+    df = pd.read_csv(temp_data_file)
+    
+    with pytest.raises(ValueError):
+        filter_outliers(df, 'nonexistent_column', 3.0)
+
+def test_run_sensitivity_analysis(temp_data_file, temp_output_file):
+    """Test the full sensitivity analysis pipeline."""
     results = run_sensitivity_analysis(
-        thresholds=[1.0, 3.0],
-        input_path=sample_descriptors,
-        output_path=output_path
+        data_path=temp_data_file,
+        output_path=temp_output_file,
+        thresholds=[2.5, 3.0]
     )
     
-    assert os.path.exists(output_path)
-    assert 'thresholds_tested' in results
+    # Check results structure
+    assert 'thresholds' in results
     assert 'results' in results
+    assert 'kruskal_test' in results
+    
+    # Check that results match thresholds
     assert len(results['results']) == 2
     
-    for res in results['results']:
-        assert 'threshold' in res
-        assert 'r2' in res
-        assert 'kruskal_stat' in res or res['r2'] is None
-        assert 'kruskal_pval' in res or res['r2'] is None
-
-def test_sensitivity_analysis_with_extreme_thresholds(tmp_path, sample_descriptors):
-    """Test behavior with thresholds that remove most data"""
-    output_path = os.path.join(tmp_path, 'sensitivity_analysis.json')
+    # Check that each result has expected keys
+    for result in results['results']:
+        assert 'threshold' in result
+        assert 'sample_size' in result
+        assert 'rf_r2' in result or result.get('skipped', False)
+        assert 'gb_r2' in result or result.get('skipped', False)
     
-    # Use extreme thresholds
+    # Check that output file was created
+    import os
+    assert os.path.exists(temp_output_file)
+
+def test_run_sensitivity_analysis_kruskal_test(temp_data_file, temp_output_file):
+    """Test that Kruskal-Wallis test is performed correctly."""
+    # Create data with known variance differences
+    np.random.seed(SEED)
+    n_samples = 200
+    data = {
+        'smiles': [f'mol_{i}' for i in range(n_samples)],
+        'degree_mean': np.random.normal(2.5, 0.5, n_samples),
+        'degree_std': np.random.normal(0.3, 0.1, n_samples),
+        'path_length_mean': np.random.normal(5.0, 1.0, n_samples),
+        'path_length_std': np.random.normal(1.2, 0.3, n_samples),
+        'aromaticity_index': np.random.choice([0, 1], n_samples),
+        'conjugation_length': np.random.exponential(2.0, n_samples),
+        'ring_count': np.random.poisson(1.5, n_samples),
+        'log_conductivity': np.random.normal(0.0, 1.0, n_samples)
+    }
+    
+    df = pd.DataFrame(data)
+    temp_file = temp_data_file.replace('test_descriptors.csv', 'test_descriptors_large.csv')
+    df.to_csv(temp_file, index=False)
+    
     results = run_sensitivity_analysis(
-        thresholds=[0.1, 10.0],
-        input_path=sample_descriptors,
-        output_path=output_path
+        data_path=temp_file,
+        output_path=temp_output_file,
+        thresholds=[2.5, 3.0, 3.5]
     )
     
-    assert 'results' in results
-    # At least some results should be recorded
-    assert len(results['results']) > 0
-
-def test_kruskal_wallis_computation(tmp_path, sample_descriptors):
-    """Test that Kruskal-Wallis statistics are computed"""
-    output_path = os.path.join(tmp_path, 'sensitivity_analysis.json')
+    # Check Kruskal-Wallis results
+    assert 'kruskal_test' in results
+    assert 'rf' in results['kruskal_test']
+    assert 'gb' in results['kruskal_test']
     
-    results = run_sensitivity_analysis(
-        thresholds=[1.0, 2.0, 3.0],
-        input_path=sample_descriptors,
-        output_path=output_path
+    # Check that statistics are numeric
+    assert isinstance(results['kruskal_test']['rf']['statistic'], float)
+    assert isinstance(results['kruskal_test']['rf']['p_value'], float)
+    assert isinstance(results['kruskal_test']['gb']['statistic'], float)
+    assert isinstance(results['kruskal_test']['gb']['p_value'], float)
+
+def test_run_sensitivity_analysis_output_file(temp_data_file, temp_output_file):
+    """Test that output file is written correctly."""
+    run_sensitivity_analysis(
+        data_path=temp_data_file,
+        output_path=temp_output_file,
+        thresholds=[2.5, 3.0]
     )
     
-    # Check that Kruskal-Wallis results are present
-    for res in results['results']:
-        if res['r2'] is not None:
-            assert res['kruskal_stat'] is not None
-            assert res['kruskal_pval'] is not None
-            assert isinstance(res['kruskal_stat'], float)
-            assert isinstance(res['kruskal_pval'], float)
-
-def test_invalid_input_path_raises_error():
-    """Test that missing input file raises appropriate error"""
-    with pytest.raises(FileNotFoundError):
-        run_sensitivity_analysis(
-            input_path='/nonexistent/path.csv',
-            output_path='/tmp/test.json'
-        )
+    # Verify file exists and is valid JSON
+    import json
+    with open(temp_output_file, 'r') as f:
+        loaded_results = json.load(f)
+    
+    assert 'thresholds' in loaded_results
+    assert len(loaded_results['results']) == 2

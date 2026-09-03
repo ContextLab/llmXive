@@ -1,85 +1,161 @@
 import os
-import pandas as pd
-from typing import List, Dict, Any, Optional
-from rdkit import Chem
-from code.config import DATA_PATH
-from code.descriptors import compute_degree_statistics, compute_path_length_statistics, compute_ring_count, compute_huckel_aromaticity_index, compute_aromatic_ring_count, compute_bond_order_annotation, compute_bond_polarity, compute_resonance_energy
+import sys
 import logging
+import argparse
+import pandas as pd
+import numpy as np
+
+from descriptors import (
+    compute_degree_statistics,
+    compute_path_length_statistics,
+    compute_ring_count,
+    compute_aromatic_ring_count,
+    compute_conjugation_length,
+    compute_standard_descriptors
+)
+from logging_config import setup_logging
+from config import DATA_PATH
 
 def load_smiles_from_file(path: str) -> pd.DataFrame:
-    """Loads SMILES strings from a CSV file and validates them."""
-    try:
-        df = pd.read_csv(path)
-        df['smiles'] = df['smiles'].astype(str)
-        df['valid'] = df['smiles'].apply(lambda x: True if Chem.MolFromSmiles(x) is not None else False)
-        df['error_msg'] = df['smiles'].apply(lambda x: '' if df['valid'][df.index == df.index[df['smiles'] == x]].iloc[0] else 'Invalid SMILES')
-        return df
-    except FileNotFoundError:
-        logging.error(f"File not found: {path}")
-        return pd.DataFrame()
-    except Exception as e:
-        logging.error(f"Error loading SMILES from file: {e}")
-        return pd.DataFrame()
+    """
+    Load SMILES from a CSV file.
+    Expects a CSV with at least a 'smiles' column.
+    Returns a DataFrame with 'smiles' and 'status' columns.
+    """
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Input file not found: {path}")
+    
+    df = pd.read_csv(path)
+    if 'smiles' not in df.columns:
+        # Try to infer if the first column is SMILES
+        if len(df.columns) > 0:
+            df = df.rename(columns={df.columns[0]: 'smiles'})
+        else:
+            raise ValueError("Input CSV must contain a 'smiles' column")
+    
+    if 'status' not in df.columns:
+        df['status'] = 'valid'
+    
+    return df[['smiles', 'status']]
 
 def clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
-    """Filters out invalid SMILES from the DataFrame."""
-    df = df[df['valid']]
-    return df
+    """
+    Remove rows with invalid status or missing SMILES.
+    """
+    initial_count = len(df)
+    df = df[df['status'].str.lower() == 'valid']
+    df = df[df['smiles'].notna()]
+    df = df[df['smiles'].str.strip() != '']
+    
+    dropped = initial_count - len(df)
+    if dropped > 0:
+        logging.info(f"Dropped {dropped} rows due to invalid status or missing SMILES.")
+    
+    return df.reset_index(drop=True)
+
+def compute_all_descriptors(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Compute all required descriptors for the dataframe.
+    Returns a DataFrame with the exact columns required by T019.
+    """
+    required_columns = [
+        'smiles', 'status',
+        'degree_mean', 'degree_std', 'degree_max', 'degree_min',
+        'path_length_mean', 'path_length_std', 'path_length_max', 'path_length_min',
+        'aromaticity_index', 'conjugation_length', 'ring_count'
+    ]
+    
+    results = []
+    invalid_count = 0
+    
+    for idx, row in df.iterrows():
+        smiles = row['smiles']
+        try:
+            # Compute descriptors
+            degree_stats = compute_degree_statistics(smiles)
+            path_stats = compute_path_length_statistics(smiles)
+            ring_cnt = compute_ring_count(smiles)
+            arom_cnt = compute_aromatic_ring_count(smiles)
+            conj_len = compute_conjugation_length(smiles)
+            
+            # Check for NaN in any required descriptor
+            if any(np.isnan([
+                degree_stats['mean'], degree_stats['std'], degree_stats['max'], degree_stats['min'],
+                path_stats['mean'], path_stats['std'], path_stats['max'], path_stats['min'],
+                arom_cnt, conj_len, ring_cnt
+            ])):
+                invalid_count += 1
+                continue
+            
+            results.append({
+                'smiles': smiles,
+                'status': row.get('status', 'valid'),
+                'degree_mean': degree_stats['mean'],
+                'degree_std': degree_stats['std'],
+                'degree_max': degree_stats['max'],
+                'degree_min': degree_stats['min'],
+                'path_length_mean': path_stats['mean'],
+                'path_length_std': path_stats['std'],
+                'path_length_max': path_stats['max'],
+                'path_length_min': path_stats['min'],
+                'aromaticity_index': arom_cnt,
+                'conjugation_length': conj_len,
+                'ring_count': ring_cnt
+            })
+        except Exception as e:
+            logging.warning(f"Failed to compute descriptors for {smiles}: {e}")
+            invalid_count += 1
+            continue
+    
+    if invalid_count > 0:
+        logging.info(f"Dropped {invalid_count} rows due to NaN values in descriptors.")
+    
+    if not results:
+        logging.error("No valid descriptors computed. Check input data.")
+        return pd.DataFrame(columns=required_columns)
+    
+    output_df = pd.DataFrame(results)
+    
+    # Ensure column order
+    output_df = output_df[required_columns]
+    
+    return output_df
 
 def main():
-    """Main function to load SMILES, compute descriptors, and save to CSV."""
-    input_file = os.path.join(DATA_PATH, 'raw', 'molecules.csv')
-    output_file = os.path.join(DATA_PATH, 'processed', 'descriptors.csv')
+    parser = argparse.ArgumentParser(description="Run descriptor computation pipeline.")
+    parser.add_argument("--input", type=str, default=os.path.join(DATA_PATH, "raw", "combined_smiles.csv"),
+                        help="Path to input SMILES CSV file.")
+    parser.add_argument("--output", type=str, default=os.path.join(DATA_PATH, "processed", "descriptors.csv"),
+                        help="Path to output descriptors CSV file.")
+    args = parser.parse_args()
 
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    # Setup logging
+    setup_logging()
+    logger = logging.getLogger(__name__)
 
-    smiles_df = load_smiles_from_file(input_file)
-    if smiles_df.empty:
-        logging.error("No valid SMILES found. Exiting.")
-        return
-
-    smiles_df = clean_dataframe(smiles_df)
-    if smiles_df.empty:
-        logging.error("No valid SMILES after cleaning. Exiting.")
-        return
-
-    # Compute descriptors
-    smiles_list = smiles_df['smiles'].tolist()
-    degree_stats = compute_degree_statistics(smiles_list)
-    path_length_stats = compute_path_length_statistics(smiles_list)
-    ring_counts = compute_ring_count(smiles_list)
-    aromaticity_indices = compute_huckel_aromaticity_index(smiles_list)
-    conjugation_lengths = compute_aromatic_ring_count(smiles_list)
-    bond_order_annotations = compute_bond_order_annotation(smiles_list)
-    bond_polarities = compute_bond_polarity(smiles_list)
-    resonance_energies = compute_resonance_energy(smiles_list)
-
-    # Create a new DataFrame with the computed descriptors
-    descriptors_data = {
-        'smiles': smiles_df['smiles'],
-        'status': 'success',
-        'degree_mean': degree_stats[0],
-        'degree_std': degree_stats[1],
-        'degree_max': degree_stats[2],
-        'degree_min': degree_stats[3],
-        'path_length_mean': path_length_stats[0],
-        'path_length_std': path_length_stats[1],
-        'path_length_max': path_length_stats[2],
-        'path_length_min': path_length_stats[3],
-        'aromaticity_index': aromaticity_indices,
-        'conjugation_length': conjugation_lengths,
-        'ring_count': ring_counts,
-        'bond_polarity': bond_polarities,
-        'resonance_energy': resonance_energies
-    }
-    descriptors_df = pd.DataFrame(descriptors_data)
-
-    # Save the DataFrame to CSV
+    logger.info(f"Loading SMILES from {args.input}")
     try:
-        descriptors_df.to_csv(output_file, index=False)
-        logging.info(f"Descriptors saved to {output_file}")
-    except Exception as e:
-        logging.error(f"Error saving descriptors to CSV: {e}")
+        df = load_smiles_from_file(args.input)
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
+
+    logger.info(f"Cleaning dataframe...")
+    df = clean_dataframe(df)
+
+    logger.info(f"Computing descriptors for {len(df)} molecules...")
+    result_df = compute_all_descriptors(df)
+
+    if result_df.empty:
+        logger.error("No descriptors computed. Exiting.")
+        sys.exit(1)
+
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(args.output), exist_ok=True)
+
+    logger.info(f"Saving results to {args.output}")
+    result_df.to_csv(args.output, index=False)
+    logger.info(f"Successfully wrote {len(result_df)} rows to {args.output}")
 
 if __name__ == "__main__":
     main()

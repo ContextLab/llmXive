@@ -126,7 +126,7 @@ data/
 - Compute feature importance (FR-005).
 - Calculate feature-conductivity correlations.
 - **Benjamini-Hochberg Correction**: Apply FDR correction to p-values (FR-006).
-- Generate plots with 95% CI (FR-005).
+- Generate plots with % CI (FR-005).
 - Write final results to JSON (model_output_schema.yaml).
 
 ## Complexity Tracking

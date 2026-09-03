@@ -1,0 +1,11 @@
+status: none
+intent: Harvard Clean Energy Project SMILES conductivity dataset python package dataset
+required_fields:
+- smiles
+- conductivity
+- temperature
+- measurement_units
+- material_id
+cache_key: 43e1790fda35b42107b48127b2cda8765e790cb1c9523f151b66bba826485c08
+searched_at: '2026-09-03T21:32:13.155851+00:00'
+retry_count: 1
