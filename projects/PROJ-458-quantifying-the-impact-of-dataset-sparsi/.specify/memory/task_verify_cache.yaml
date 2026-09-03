@@ -34,22 +34,6 @@ T034:
   r: The submission contains no evidence of any `data/metadata/sparsity_<level>_<seed>.json`
     files, nor any listing of their contents with the required keys (`seed`, `percentage`,
     `criteria`, `checksum`). Consequently the required metadata artifacts are missing.
-T054:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `spec.md` file or excerpt is provided showing that FR\u2011003\u2019\
-    s wording was changed from \u201Cfull dataset (150k)\u201D to \u201CRepresentative\
-    \ Stratified Sample (RSS) of [deferred] entries\u201D nor that the generic \u201C\
-    [deferred] levels\u201D were replaced with the explicit list of seven levels.\
-    \ Without the actual modified document, the requirement cannot be confirmed as\
-    \ satisfied."
-T055:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `spec.md` file is provided, and there is no evidence that FR\u2011\
-    006\u2019s description was edited to replace \u201CRepeated Measures ANOVA\u201D\
-    \ with \u201CLinear Mixed-Effects Modeling (LMM)\u201D. The required artifact\
-    \ (the modified specification document) is missing."
 T056:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

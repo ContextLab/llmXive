@@ -1,3 +1,3 @@
 """
-llmXive research pipeline code modules.
+llmXive core code modules.
 """

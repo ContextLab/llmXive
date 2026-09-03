@@ -1,15 +1,13 @@
 status: none
-intent: source monitoring confidence trial dataset OpenNeuro ds003386 alternative
-  dataset python package dataset
+intent: source monitoring confidence dataset OpenNeuro ds003386 python package dataset
 required_fields:
 - participant_id
 - trial_id
 - stimulus_type
-- source_label
 - confidence_rating
-- response
-- accuracy
+- source_label
+- response_accuracy
 - reaction_time
-cache_key: b01317d8e277e0dcef65ff405650ec2dc1f4e35968151937a8ab2c7713bf3553
-searched_at: '2026-08-13T04:42:04.770739+00:00'
+cache_key: 16e08db8bc4496f4d023db635c7013c9a14c082f4909fa934bf793f74ece8b69
+searched_at: '2026-09-03T05:11:15.194789+00:00'
 retry_count: 1

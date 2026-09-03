@@ -2,35 +2,36 @@
 
 ### Phenomenon-vs-method check
 
-**Verdict**: concern
+**Verdict**: fail
 
-The question asks about the relationship between structural features of garden-path sentences and computational burden, which is a valid domain question. However, the second clause ("does a hierarchical error-minimization mechanism provide a more efficient... solution") frames the inquiry as a direct comparison of a specific implementation method against a baseline, rather than investigating the nature of the linguistic phenomenon itself. The core scientific question should be about *how* ambiguity is resolved in hierarchical systems, not whether *this specific architecture* works better than transformers.
+The research question is currently framed as a comparison of architectural performance ("Does hierarchical error signaling improve resolution...") rather than a substantive inquiry into the nature of linguistic ambiguity or cognitive processing. While it touches on the phenomenon of ambiguity, the core question is whether a specific implementation strategy (predictive coding) outperforms another (transformers), which is a method-evaluation question. The underlying scientific question ("What structural features of garden-path sentences necessitate iterative re-analysis in a hierarchical error-minimization framework?") is buried under the performance metric.
 
 ### Circularity check
 
 **Verdict**: pass
 
-The predictor (structural features of garden-path sentences) is derived from linguistic annotations and syntactic parsing of the input text. The predicted variable (resolution accuracy or error rate) is derived from the model's output compared to ground-truth labels. These are independent sources: the input structure is not mathematically derived from the model's output error signal, nor is the error signal a direct summary of the input structure.
+The predictor is the architecture's internal hierarchical error signals (derived from the model's forward pass and error propagation rules), and the predicted variable is the accuracy of syntactic disambiguation on a held-out test set (derived from the Garden Path Sentences corpus). These are independent: the model generates a prediction, and the external benchmark provides the ground truth for evaluation. There is no mechanical guarantee that the specific error signals will correlate with the benchmark labels.
 
 ### Triviality check
 
-**Verdict**: pass
+**Verdict**: concern
 
-A positive result (predictive coding resolves ambiguity better) would support the hypothesis that biological-like error minimization is crucial for handling linguistic complexity. A null result (no improvement or worse performance) would be highly informative, suggesting that static attention mechanisms are sufficient for these tasks or that the overhead of error propagation outweighs its benefits. Neither outcome is predetermined by current domain knowledge, as this is an architectural comparison not yet settled in literature.
+There is a risk that the outcome is predetermined by current domain knowledge: if the hypothesis is simply "dynamic error correction helps with ambiguity," a positive result is expected by theory but may lack novelty if the magnitude is small, while a null result might be dismissed as "implementation failure" rather than a theoretical refutation. However, if the null result is robust, it would be a significant finding suggesting that static attention mechanisms are sufficient for this specific task, which is informative. The concern lies in the narrowness of the expected 5-15% improvement window, which may not be publishable if it doesn't hold.
 
 ### Question-narrowing check
 
-**Verdict**: concern
+**Verdict**: fail
 
-The question explicitly names a specific architectural solution ("hierarchical error-minimization mechanism") and asks if it is "more efficient or robust" than "static context integration." This frames the research as a benchmarking exercise for a specific method rather than an investigation into the principles of ambiguity resolution. It risks reducing the project to "Does method A beat method B?" rather than "What are the necessary conditions for resolving syntactic ambiguity?"
+The question is currently narrowed by the specific implementation constraint of comparing a "predictive coding layer" against a "transformer." It asks *if* this specific method works better, rather than *how* the structural features of the sentences interact with the error-minimization mechanism. The phrasing "How does the presence of... influence..." is slightly better, but the context of the methodology (comparing against baselines) pulls the focus back to a benchmarking exercise rather than a domain investigation of linguistic structure.
 
 ### Overall verdict
 
 **Verdict**: validator_revise
 
-The core idea is sound, but the research question is currently framed as a method-evaluation benchmark rather than a substantive inquiry into the mechanism of ambiguity resolution. To fix this, the question should focus on the *properties* required to resolve garden-path sentences, using the predictive coding approach as the means to test those properties, not the subject of the question itself.
+The project fails the phenomenon-vs-method and question-narrowing checks because the research question is effectively a benchmark ("Does PC work better than Transformers on ambiguity?") rather than a scientific inquiry into the mechanisms of ambiguity resolution. To fix this, the question must be reframed to focus on the relationship between sentence structure and the necessity of iterative re-analysis within the error-minimization framework, treating the architecture as the tool to uncover this relationship rather than the object of study.
 
 [REVISED]
-How does the presence of hierarchical prediction-error signaling influence the resolution of syntactic ambiguity in garden-path sentences, and what specific structural features of these sentences determine the necessity for iterative re-analysis?
+What specific structural features of garden-path sentences necessitate iterative re-analysis in a hierarchical error-minimization framework, and how does the precision-weighting of prediction errors modulate the resolution of syntactic ambiguity compared to static attention mechanisms?
 [/REVISED]
-This reframing shifts the focus from "does method X work better?" to "what is the role of hierarchical error signaling in resolving ambiguity?", allowing the predictive coding implementation to serve as the experimental probe for the phenomenon rather than the object of study.
+
+This reframing shifts the focus from "does the method work?" to "what are the structural determinants of ambiguity resolution in this framework?", making the architecture a means to answer a deeper question about language processing rather than the question itself.

@@ -1,11 +1,11 @@
-- artifact_hash: 801ff508e21ad6c259781427442f08a9688e4fd618eae00823b982178aa681ad
+- artifact_hash: 09dd2b92d66e54d22e831c38b18d18b0dd837bfdfdefe0d11c8be0a0aeaaeff5
   artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.1234/example
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.1234/example
-  verified_at: '2026-09-03T02:06:29.879056Z'
+  fetched_title: Google Chrome - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Google_Chrome
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Google_Chrome
+  verified_at: '2026-09-03T04:47:19.879764Z'

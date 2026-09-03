@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-17T00:34:41.811207Z'
-current_stage: flesh_out_complete
+current_stage: flesh_out_in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-584-predictive-coding-llms-implementing-hier
-last_run_id: 0eb17141-d809-4f6c-855b-80fb89aa2e1a
+last_run_id: fcbf76b8-c71e-4025-8b77-02826e01cae0
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Predictive Coding LLMs: Implementing Hierarchical Error Minimization'
-updated_at: '2026-07-31T11:01:20.948813Z'
+updated_at: '2026-09-03T05:09:34.996122Z'

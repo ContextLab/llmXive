@@ -12,11 +12,11 @@
     "data/validation_report.json"
   ],
   "failures": [],
-  "fix_rounds": 11,
-  "model_tier": 1,
-  "total_attempts": 11,
+  "fix_rounds": 0,
+  "model_tier": 2,
+  "total_attempts": 12,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-08-13T04:41:10Z"
+  "updated_at": "2026-09-03T05:11:18Z"
 }

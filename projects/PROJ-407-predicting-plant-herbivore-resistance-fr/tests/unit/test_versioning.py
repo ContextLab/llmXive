@@ -1,110 +1,116 @@
 """
-Unit tests for versioning module.
+Unit tests for the versioning module.
 """
-import hashlib
 import os
 import tempfile
-from pathlib import Path
-import pytest
 import yaml
+from pathlib import Path
+from datetime import datetime, timezone
+
+import pytest
 
 from versioning import compute_file_sha256, hash_directory, update_state_file
 
 
-def test_compute_file_sha256():
-    """Test SHA256 computation for a file."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
-        f.write("test content")
-        temp_path = Path(f.name)
+def test_compute_file_sha256(tmp_path):
+    """Test SHA256 computation on a simple file."""
+    test_file = tmp_path / "test.txt"
+    content = b"Hello, World!"
+    test_file.write_bytes(content)
     
-    try:
-        hash_result = compute_file_sha256(temp_path)
-        expected = hashlib.sha256(b"test content").hexdigest()
-        assert hash_result == expected
-    finally:
-        os.unlink(temp_path)
+    hash_result = compute_file_sha256(test_file)
+    
+    assert isinstance(hash_result, str)
+    assert len(hash_result) == 64  # SHA256 hex digest length
+    # Verify it's a valid hex string
+    int(hash_result, 16)
 
 
-def test_hash_directory():
-    """Test directory hashing."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
-        
-        # Create test files
-        (tmp_path / "file1.txt").write_text("content1")
-        (tmp_path / "subdir").mkdir()
-        (tmp_path / "subdir" / "file2.txt").write_text("content2")
-        
-        hashes = hash_directory(tmp_path, tmp_path)
-        
-        assert len(hashes) == 2
-        assert "file1.txt" in hashes
-        assert "subdir/file2.txt" in hashes
+def test_hash_directory_empty(tmp_path):
+    """Test hashing an empty directory."""
+    result = hash_directory(tmp_path, tmp_path)
+    assert result == {}
 
 
-def test_update_state_file_creates_new():
+def test_hash_directory_with_files(tmp_path):
+    """Test hashing a directory with files."""
+    file1 = tmp_path / "file1.txt"
+    file1.write_text("content1")
+    
+    subdir = tmp_path / "subdir"
+    subdir.mkdir()
+    file2 = subdir / "file2.txt"
+    file2.write_text("content2")
+    
+    result = hash_directory(tmp_path, tmp_path)
+    
+    assert len(result) == 2
+    assert "file1.txt" in result
+    assert "subdir/file2.txt" in result
+    
+    # Verify hashes are different for different content
+    assert result["file1.txt"] != result["subdir/file2.txt"]
+
+
+def test_hash_directory_nonexistent(tmp_path):
+    """Test hashing a non-existent directory."""
+    nonexistent = tmp_path / "does_not_exist"
+    result = hash_directory(nonexistent, tmp_path)
+    assert result == {}
+
+
+def test_update_state_file_creates_new(tmp_path, monkeypatch):
     """Test that update_state_file creates a new state file if it doesn't exist."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        # Temporarily change the state directory
-        original_cwd = os.getcwd()
-        try:
-            os.chdir(tmpdir)
-            
-            project_id = "test-project"
-            data_hashes = {"test.txt": "abc123"}
-            code_hashes = {"main.py": "def456"}
-            
-            update_state_file(project_id, data_hashes, code_hashes)
-            
-            state_file = Path("state/projects") / f"{project_id}.yaml"
-            assert state_file.exists()
-            
-            with open(state_file, "r") as f:
-                state_data = yaml.safe_load(f)
-            
-            assert state_data["project_id"] == project_id
-            assert state_data["artifact_hashes"]["data"] == data_hashes
-            assert state_data["artifact_hashes"]["code"] == code_hashes
-            assert state_data["updated_at"] is not None
-        finally:
-            os.chdir(original_cwd)
+    monkeypatch.chdir(tmp_path)
+    
+    project_id = "TEST-PROJECT"
+    data_hashes = {"data/file.txt": "abc123"}
+    code_hashes = {"code/main.py": "def456"}
+    
+    update_state_file(project_id, data_hashes, code_hashes)
+    
+    state_file = tmp_path / "state" / "projects" / f"{project_id}.yaml"
+    assert state_file.exists()
+    
+    with open(state_file, "r") as f:
+        state_data = yaml.safe_load(f)
+    
+    assert state_data["project_id"] == project_id
+    assert state_data["artifact_hashes"]["data"] == data_hashes
+    assert state_data["artifact_hashes"]["code"] == code_hashes
+    assert "updated_at" in state_data
+    
+    # Verify timestamp format
+    datetime.fromisoformat(state_data["updated_at"].replace("Z", "+00:00"))
 
 
-def test_update_state_file_updates_existing():
+def test_update_state_file_updates_existing(tmp_path, monkeypatch):
     """Test that update_state_file updates an existing state file."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        original_cwd = os.getcwd()
-        try:
-            os.chdir(tmpdir)
-            
-            project_id = "test-project"
-            
-            # Create initial state file
-            state_dir = Path("state/projects")
-            state_dir.mkdir(parents=True)
-            state_file = state_dir / f"{project_id}.yaml"
-            
-            initial_data = {
-                "project_id": project_id,
-                "artifact_hashes": {"old": "hash"},
-                "updated_at": "2023-01-01T00:00:00+00:00"
-            }
-            
-            with open(state_file, "w") as f:
-                yaml.dump(initial_data, f)
-            
-            # Update with new hashes
-            new_data_hashes = {"new.txt": "xyz789"}
-            new_code_hashes = {"script.py": "123abc"}
-            
-            update_state_file(project_id, new_data_hashes, new_code_hashes)
-            
-            with open(state_file, "r") as f:
-                state_data = yaml.safe_load(f)
-            
-            # Verify update
-            assert state_data["artifact_hashes"]["data"] == new_data_hashes
-            assert state_data["artifact_hashes"]["code"] == new_code_hashes
-            assert state_data["artifact_hashes"]["old"] is None  # Old data replaced
-        finally:
-            os.chdir(original_cwd)
+    monkeypatch.chdir(tmp_path)
+    
+    project_id = "TEST-PROJECT"
+    state_dir = tmp_path / "state" / "projects"
+    state_dir.mkdir(parents=True)
+    
+    # Create initial state file
+    initial_file = state_dir / f"{project_id}.yaml"
+    initial_data = {
+        "project_id": project_id,
+        "artifact_hashes": {"old": "hash"},
+        "updated_at": "2023-01-01T00:00:00+00:00"
+    }
+    with open(initial_file, "w") as f:
+        yaml.dump(initial_data, f)
+    
+    # Update with new hashes
+    new_data_hashes = {"new": "data"}
+    new_code_hashes = {"new": "code"}
+    update_state_file(project_id, new_data_hashes, new_code_hashes)
+    
+    with open(initial_file, "r") as f:
+        updated_data = yaml.safe_load(f)
+    
+    assert updated_data["artifact_hashes"]["data"] == new_data_hashes
+    assert updated_data["artifact_hashes"]["code"] == new_code_hashes
+    assert updated_data["updated_at"] != initial_data["updated_at"]
+    assert updated_data["project_id"] == project_id

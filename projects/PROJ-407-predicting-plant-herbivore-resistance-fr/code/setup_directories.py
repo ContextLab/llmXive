@@ -1,65 +1,61 @@
-"""
-T006: Setup directory structure for the project.
-
-Creates the required directory tree under the project root:
-- code/
-- data/raw/
-- data/interim/
-- data/processed/
-- tests/
-"""
 import os
 from pathlib import Path
 import sys
 
 def ensure_directories():
     """
-    Create the standard project directory structure if it doesn't exist.
+    Create the required directory structure for the project.
+    This satisfies T006: Setup directory structure.
+    
+    Creates:
+    - code/
+    - data/raw/
+    - data/interim/
+    - data/processed/
+    - data/results/
+    - tests/unit/
+    - tests/integration/
+    - tests/contract/
     
     Returns:
-        bool: True if all directories were created or already exist.
+        bool: True if all directories were created successfully.
     """
-    # Define the root directory (project root)
-    root = Path(__file__).resolve().parent.parent
+    # Define the base project root relative to where this script is run.
+    # Assuming the script is run from the project root or the project root is the CWD.
+    # If running as a module, we might need to adjust, but for T006 we assume CWD is project root.
+    base_path = Path(".")
     
-    # Define relative paths to create
     directories = [
         "code",
         "data/raw",
         "data/interim",
         "data/processed",
-        "tests",
+        "data/results",
         "tests/unit",
         "tests/integration",
         "tests/contract",
-        "data/results",
-        "specs",
-        "contracts"
     ]
     
     created_count = 0
-    for dir_path in directories:
-        full_path = root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
+    for dir_name in directories:
+        target_path = base_path / dir_name
+        if not target_path.exists():
+            target_path.mkdir(parents=True, exist_ok=True)
             created_count += 1
-        elif not full_path.is_dir():
-            # Should not happen in normal operation, but good to catch
-            print(f"Warning: {full_path} exists but is not a directory")
-    
-    if created_count > 0:
-        print(f"Created {created_count} new directories.")
-    else:
-        print("All required directories already exist.")
+        # Note: We do not raise an error if it exists, as per idempotent design.
         
+    print(f"Directory structure setup complete. Created {created_count} new directories.")
     return True
 
 def main():
-    """Entry point for script execution."""
-    success = ensure_directories()
-    if not success:
-        sys.exit(1)
-    sys.exit(0)
+    """Entry point for the directory setup script."""
+    try:
+        ensure_directories()
+        print("T006: Directory structure verified and created.")
+        return 0
+    except Exception as e:
+        print(f"Error during directory setup: {e}", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

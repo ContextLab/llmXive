@@ -644,3 +644,256 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-03T01:47:08Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: sparsity levels influence model efficiency and accuracy
+  claim_id: c_9e6f8eb1
+  context: Create code/config.py with RSS_SIZE=30000 and 'The study investigates how
+    varying levels of sparsity influence model efficiency and accuracy. We employ
+    a systematic experimental design that tests a range of sparsity configurations,
+    including low, moderate, and high levels, to identify optimal trade-offs. (Smith
+    et al., 2023;).' and LOADERS config.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sparsity_levels_influence_model_efficiency_and_accuracy
+  kind: entity_fact
+  raw_text: The study investigates how varying levels of sparsity influence model
+    efficiency and accuracy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:37:44Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: download at least 30,000 entries
+  claim_id: c_91fb212a
+  context: 'Implement code/data_ingestion.py to download a substantial corpus of entries
+    via Materials Project API (using MP_API_KEY), with exponential backoff (limited
+    retry attempts). Requirement: Download at least 30,000 entries (FR-001) to provide
+    sufficient buffer for test set and filtering.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Google has been accused of using Manifest V3 to inhibit ad-blocking software
+        due to its vested interest in the online advertising market. Google cited
+        performance issues associated with WebRequest, as well as its use in malicious
+        extensions. In June 2019, it announced that it would increase the aforementioned
+        cap from 30,000 to 150,000 entries to help quell concerns about limitations
+        to filtering rules. In 2021, the Electronic Frontier Foundation (EFF) issued
+        a statement that Manifest V3 was "outright harmful to privacy efforts", as
+        it would greatly limit the functionality of ad blocking extensions.
+      source_id: Google Chrome
+      url: https://en.wikipedia.org/wiki/Google_Chrome
+      value: 150,000
+    filled: true
+  kind: magnitude
+  raw_text: Download at least 30,000 entries to provide sufficient buffer for test
+    set and filtering.
+  resolved_value: 150,000
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T04:38:11Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: 'implementation requires 7 sparsity levels: 1, 2, 5, 10, 25, 50, 100'
+  claim_id: c_f6692f45
+  context: 'Note: Plan lists 5 levels, but Spec and implementation require Multiple
+    levels (1, 2, 5, 10, 25, 50, 100). Plan requires kickback update.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Plan lists 5 levels, but Spec and implementation require Multiple levels
+    (1, 2, 5, 10, 25, 50, 100).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:38:48Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: 'Plan lists 5 sparsity levels: 20, 30, 40, 50, 100'
+  claim_id: c_bbcfe826
+  context: The Plan's 'Technical Context' lists sparsity levels as '20, 30, 40, 50,
+    100' (5 levels), while Task T032 implements 7 levels (1, 2, 5, 10, 25, 50, 100)
+    as per the Spec's intent.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Plan's 'Technical Context' lists sparsity levels as '20, 30, 40, 50,
+    100' (5 levels).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:39:29Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Representative Stratified Sample size is 30000 entries
+  claim_id: c_fb2f637e
+  context: Create code/config.py with RSS_SIZE=30000 and The study investigates how
+    varying levels of sparsity influence model efficiency and accuracy. We employ
+    a systematic experimental design that tests a range of sparsity configurations,
+    including low, moderate, and high levels, to identify optimal trade-offs. (Smith
+    et al., 2023;). and LOADERS config.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: RSS_SIZE=30000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:41:12Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.3.0 is required
+  claim_id: c_e420f5ac
+  context: Create code/requirements.txt with pinned versions for all dependencies
+    (pymatgen, matminer, scikit-learn==1.3.0, statsmodels, pandas==2.0.3, numpy, matplotlib,
+    requests).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.3.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:42:17Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: pandas version 2.0.3 is required
+  claim_id: c_0ad5d8fd
+  context: Create code/requirements.txt with pinned versions for all dependencies
+    (pymatgen, matminer, scikit-learn==1.3.0, statsmodels, pandas==2.0.3, numpy, matplotlib,
+    requests).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas==2.0.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:43:00Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Jensen-Shannon divergence threshold for stratification validation is
+    less than 0.05
+  claim_id: c_911d2029
+  context: Implement stratification validation in code/validate_stratification.py
+    using Jensen-Shannon divergence (threshold < 0.05) and KS-test (p > 0.05); block
+    training if thresholds exceeded (Plan Phase 1.3).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Jensen-Shannon_divergence_threshold_for_stratification_valid
+  kind: magnitude
+  raw_text: Jensen-Shannon divergence threshold < 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:44:08Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: slope variance between consecutive sparsity levels must be less than
+    10 percent
+  claim_id: c_b7674dde
+  context: Implement sensitivity analysis in code/statistical_analysis.py to verify
+    elbow point stability by checking that the slope variance between consecutive
+    sparsity levels is < 10%.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Slope_variance_between_consecutive_sparsity_levels_must_be_l
+  kind: magnitude
+  raw_text: slope variance between consecutive sparsity levels is < 10%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:44:57Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: drop rows with more than 50 percent missing values
+  claim_id: c_424d2068
+  context: Implement imputation logic in code/data_ingestion.py to mean-fill missing
+    numeric descriptors using statistics from the data/processed/descriptors_pool.csv
+    (training pool); drop rows with >50% missing values and log count to data/results/ingestion_log.json.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Drop_rows_with_more_than_50_percent_missing_values
+  kind: magnitude
+  raw_text: drop rows with >50% missing values
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:45:33Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Random Forest model uses 100 estimators
+  claim_id: c_3b080655
+  context: Implement code/model_training.py to train GPR (RBF kernel, normalize_y=True,
+    max_iter_predict=1000) and Random Forest models (n_estimators=100) on CPU only.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: n_estimators=100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:46:11Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: GPR model uses max_iter_predict of 1000
+  claim_id: c_8c4e0e5b
+  context: Implement code/model_training.py to train GPR (RBF kernel, normalize_y=True,
+    max_iter_predict=1000) and Random Forest models (n_estimators=100) on CPU only.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: max_iter_predict=1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:46:34Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Study on sparsity levels and model efficiency by Smith et al. in 2023
+  claim_id: c_a4c32878
+  context: Create code/config.py with RSS_SIZE=30000 and The study investigates how
+    varying levels of sparsity influence model efficiency and accuracy. We employ
+    a systematic experimental design that tests a range of sparsity configurations,
+    including low, moderate, and high levels, to identify optimal trade-offs. (Smith
+    et al., 2023;).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Smith et al., 2023
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:47:19Z'

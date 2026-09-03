@@ -1,39 +1,58 @@
 """
-Setup script for linting and formatting tools.
-Verifies ruff and black are installed and prints their versions.
+Script to verify and install linting and formatting tools (ruff, black).
 """
 import subprocess
 import sys
+import logging
 
-def check_tool(tool: str) -> bool:
-    """Check if a tool is installed and print version."""
+def check_tool(tool_name: str) -> bool:
+    """Check if a tool is installed and returns its version."""
     try:
         result = subprocess.run(
-            [sys.executable, "-m", tool, "--version"],
+            [sys.executable, "-m", tool_name, "--version"],
             capture_output=True,
             text=True,
-            check=True
+            check=True,
         )
-        print(f"{tool}: {result.stdout.strip()}")
+        logging.info(f"{tool_name} is installed: {result.stdout.strip()}")
         return True
     except subprocess.CalledProcessError:
-        print(f"Error: {tool} is not installed or not working correctly.")
+        logging.warning(f"{tool_name} is not installed or not working.")
         return False
-    except FileNotFoundError:
-        print(f"Error: {tool} command not found.")
+
+def install_tool(tool_name: str) -> bool:
+    """Install a tool using pip."""
+    logging.info(f"Installing {tool_name}...")
+    try:
+        subprocess.run(
+            [sys.executable, "-m", "pip", "install", tool_name],
+            check=True,
+        )
+        return True
+    except subprocess.CalledProcessError as e:
+        logging.error(f"Failed to install {tool_name}: {e}")
         return False
 
 def main():
-    print("Checking linting and formatting tools...")
-    ruff_ok = check_tool("ruff")
-    black_ok = check_tool("black")
+    """Main entry point for linting setup."""
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
-    if ruff_ok and black_ok:
-        print("\nTools ready. Run 'ruff check code/' and 'black code/' to lint/format.")
-        return 0
+    tools = ["ruff", "black"]
+    all_installed = True
+
+    for tool in tools:
+        if not check_tool(tool):
+            if install_tool(tool):
+                if not check_tool(tool):
+                    all_installed = False
+            else:
+                all_installed = False
+
+    if all_installed:
+        logging.info("All linting and formatting tools are ready.")
     else:
-        print("\nPlease install missing tools: pip install ruff black")
-        return 1
+        logging.error("Some tools could not be installed or verified.")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

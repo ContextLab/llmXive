@@ -36,3 +36,25 @@ T013:
     \ showing that the |r|\u202F<\u202F0.2 constraint was enforced or that a final\
     \ correlation coefficient was verified and recorded. The necessary artifact is\
     \ missing."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log files implementing the reflective masking loop (mask\
+    \ \u2192 predict \u2192 unmask \u2192 convergence check) are provided; the claim\
+    \ contains only a textual placeholder without any executable artifact. Consequently,\
+    \ the required implementation cannot be verified."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log file implementing a hard turn limit and marking exceeded\
+    \ runs as \u201Cfailure\u201D was provided; the evidence section contains no artifacts\
+    \ to verify that the required functionality exists. The task therefore remains\
+    \ unfulfilled."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides only high\u2011level feature specifications and user stories;\
+    \ there is no code, script, or documentation showing a batch\u2011processing or\
+    \ streaming implementation that limits RAM usage. No artifact (e.g., a Python\
+    \ module, pipeline config, or test results) exists to demonstrate the required\
+    \ logic, so the task is not satisfied."

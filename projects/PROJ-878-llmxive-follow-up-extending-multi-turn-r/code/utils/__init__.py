@@ -1,3 +1,3 @@
 """
-Utility functions for llmXive research pipeline.
+Utility modules for llmXive.
 """

@@ -1,37 +1,34 @@
-"""
-Script to initialize project directory structure for llmXive.
-Creates directories matching the plan.md structure.
-"""
 import os
 from pathlib import Path
 
-# Define the project root relative to this script's location (project root)
-# Since this script is in code/, we go up one level to get the project root
-project_root = Path(__file__).resolve().parent.parent
-
-# Directories to create based on tasks.md T001
-directories = [
-    "data/raw",
-    "data/processed",
-    "code/utils",
-    "tests",
-    "results/paper_figures"
-]
-
 def main():
-    print(f"Initializing project structure at: {project_root}")
-    created_count = 0
+    """
+    Create the project directory structure as defined in plan.md.
+    Directories: data/raw/, data/processed/, code/, code/utils/, tests/, results/paper_figures/
+    """
+    project_root = Path(".")
     
-    for dir_path in directories:
-        full_path = project_root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
+    # Define the required directories relative to the project root
+    directories = [
+        "data/raw",
+        "data/processed",
+        "code",
+        "code/utils",
+        "tests",
+        "results/paper_figures"
+    ]
+    
+    created_count = 0
+    for dir_name in directories:
+        dir_path = project_root / dir_name
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
             created_count += 1
         else:
-            print(f"Directory already exists: {full_path}")
+            print(f"Directory already exists: {dir_path}")
     
-    print(f"Project setup complete. Created {created_count} new directories.")
+    print(f"Project structure setup complete. {created_count} new directories created.")
 
 if __name__ == "__main__":
     main()

@@ -24,15 +24,17 @@ T006:
     \ The task remains unfinished until the directories are created and verified."
 T012:
   c: false
-  h: 646ba76935a26c326981efdded4b71eab77a90820ed66c98a7d136ca98cdc450
-  r: "The required `data/interim/ordinal_mapping.log` file does not exist, so the\
-    \ mapping dictionary is never logged as mandated. Consequently the task\u2019\
-    s core requirement (logging the exact mapping) is unmet."
+  h: 646eaa69e8b113a6d3b8a0c425309c1df6260b23356469c806d58801b878cd74
+  r: The `code/ingest.py` file is truncated and does not contain a complete implementation
+    that creates the required mapping dictionary or writes it to `data/interim/ordinal_mapping.log`.
+    Moreover, the `ordinal_mapping.log` file is absent from the repository. Both the
+    functional conversion and the required log output are missing.
 T020:
   c: false
-  h: 51c7e43f0db8ccb4f9f80cd65a7aed4b00c2d3b13de60f6740f454a614251012
-  r: "The required output file `data/processed/pca_reduced.csv` is absent, and the\
-    \ shown portion of `code/preprocess.py` does not contain the conditional PCA logic\
-    \ or any code that writes a reduced matrix to that path. The task\u2019s core\
-    \ requirement\u2014applying PCA when features exceed samples and saving the result\u2014\
-    is therefore not satisfied."
+  h: ea61818817e014347936ab3b8bd70c7975cbf995714b10758c51da526d912cb0
+  r: "The `code/preprocess.py` contains a PCA step and a save function, but the required\
+    \ output file `data/processed/pca_reduced.csv` is absent, so the artifact the\
+    \ task demands does not exist. Additionally, the PCA call uses `n_components=None`\
+    \ rather than explicitly selecting a subset of top\u2011variance components. The\
+    \ missing CSV file must be generated (and ideally the component selection clarified)\
+    \ to satisfy the task."

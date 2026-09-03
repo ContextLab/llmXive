@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-458-quantifying-the-impact-of-dataset-sparsi",
+  "tasks": [
+    {
+      "task_key": "T054",
+      "reject_count": 1,
+      "last_reason": "No updated `spec.md` file or excerpt is provided showing that FR\u2011003\u2019s wording was changed from \u201cfull dataset (150k)\u201d to \u201cRepresentative Stratified Sample (RSS) of [deferred] entries\u201d nor that the generic \u201c[deferred] levels\u201d were replaced with the explicit list of seven levels. Without the actual modified document, the requirement cannot be confirmed as satisfied.",
+      "first_seen": "2026-09-03T04:47:19.937181+00:00",
+      "last_seen": "2026-09-03T04:47:19.937181+00:00"
+    },
+    {
+      "task_key": "T055",
+      "reject_count": 1,
+      "last_reason": "No updated `spec.md` file is provided, and there is no evidence that FR\u2011006\u2019s description was edited to replace \u201cRepeated Measures ANOVA\u201d with \u201cLinear Mixed-Effects Modeling (LMM)\u201d. The required artifact (the modified specification document) is missing.",
+      "first_seen": "2026-09-03T04:47:19.938241+00:00",
+      "last_seen": "2026-09-03T04:47:19.938241+00:00"
+    }
+  ],
+  "updated_at": "2026-09-03T04:47:19.938241+00:00"
+}
