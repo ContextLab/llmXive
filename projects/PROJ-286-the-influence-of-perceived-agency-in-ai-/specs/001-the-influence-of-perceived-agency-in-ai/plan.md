@@ -111,7 +111,7 @@ projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/
 
 1.  **Condition Logic**: Implement `High Agency` (sliders active), `Low Agency` (sliders disabled), and `Control` (static display) in `simulation/task_generator.py`.
 2.  **Randomization**: Ensure participants are randomly assigned to conditions.
-3.  **Data Capture**: Record `Condition_ID`, `Adherence_Rate` (secondary behavioral metric, NOT a direct proxy for Trust), `Trust_Score` (derived mean of 12 items, **included in raw CSV for schema compliance**), `Attention_Score` (continuous, 0-100, derived from 5 attention questions), `Cognitive_Load_Score` (continuous, 1-7), and `Perceived_Agency_Score` (manipulation check).
+3.  **Data Capture**: Record `Condition_ID`, `Adherence_Rate` (secondary behavioral metric, NOT a direct proxy for Trust), `Trust_Score` (derived mean of multiple items, **included in raw CSV for schema compliance**), `Attention_Score` (continuous scale, derived from 5 attention questions), Cognitive_Load_Score (continuous, Likert-type scale), and `Perceived_Agency_Score` (manipulation check).
     *   **Note**: `Adherence_Rate` is captured as a secondary outcome. It is **not** assumed to be a direct proxy for Trust without empirical validation.
     *   **Attention Check**: The attention check consists of a series of **5 distinct questions**. `Attention_Score` is calculated as the percentage of correct answers (0, 20, 40, 60, 80, 100).
 4.  **Data Hygiene**: Write raw data to `data/raw/simulation_run_YYYYMMDD.csv` and generate a checksum.
@@ -138,7 +138,7 @@ projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/
     *   **Unified Correction Strategy**: To control the family-wise error rate for the entire set of inferences (2 planned contrasts + 3 pairwise comparisons = 5 tests), apply a **Holm-Bonferroni correction** to all 5 p-values. This prevents Type I error inflation that would occur from running separate corrections.
     *   **Decision Tree**: Report results for all 5 tests with the unified adjusted p-values.
 6.  **Effect Sizes**: Calculate Cohen's d for all significant pairwise comparisons (FR-004).
-7.  **Sensitivity Analysis**: Execute `code/analysis/sensitivity.py` sweeping the `Attention_Score` threshold (e.g., 70, 80, 90, 95) to verify result stability (FR-006). The `Attention_Score` is derived from the 5 attention questions, making the threshold sweep mathematically valid.
+7.  **Sensitivity Analysis**: Execute `code/analysis/sensitivity.py` sweeping the `Attention_Score` threshold across a range of increasing values to verify result stability (FR-006). The `Attention_Score` is derived from the 5 attention questions, making the threshold sweep mathematically valid.
 
 ### Phase 3: Reporting & Validation
 *Goal: Generate the final report and validate against contracts.*
