@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SymbolicState"
+description: "Discrete state representation for the Symbolic-Dojo planner."
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier for the task."
+  state_id:
+    type: "string"
+    description: "Unique identifier for this specific state node."
+  predicates:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of logical predicates true in this state (e.g., 'graspable', 'on_table')."
+  object_refs:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        object_id:
+          type: "string"
+        affordance:
+          type: "string"
+      required:
+        - object_id
+        - affordance
+    description: "Objects in the scene and their current affordances."
+  is_goal:
+    type: "boolean"
+    description: "True if this state satisfies the task goal."
+required:
+  - task_id
+  - state_id
+  - predicates
+  - object_refs
+  - is_goal
+additionalProperties: false

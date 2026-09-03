@@ -1,0 +1,15 @@
+status: none
+intent: download RoboDojo task specifications dataset pip install python package dataset
+required_fields:
+- task_id
+- task_name
+- semantic_embedding
+- object_affordances
+- initial_symbolic_state
+- goal_symbolic_state
+- symbolic_predicates
+- task_graph
+- metadata_timestamp
+cache_key: 2bf625897da3be0bfe31a09b869cffd004bd9d9a13f28095c7d6e02000f3563d
+searched_at: '2026-09-03T13:15:17.728372+00:00'
+retry_count: 1

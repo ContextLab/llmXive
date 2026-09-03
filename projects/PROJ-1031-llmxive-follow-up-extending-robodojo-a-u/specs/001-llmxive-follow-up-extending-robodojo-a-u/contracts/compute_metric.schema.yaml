@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ComputeMetric"
+description: "Performance metrics for a planning or execution task."
+type: "object"
+properties:
+  metric_id:
+    type: "string"
+    description: "Unique identifier for the metric record."
+  task_id:
+    type: "string"
+    description: "The task associated with this metric."
+  approach:
+    type: "string"
+    enum:
+      - "symbolic"
+      - "baseline"
+    description: "The method being measured."
+  wall_clock_time:
+    type: "number"
+    format: "float"
+    description: "Total wall-clock time in seconds."
+  cpu_cycles:
+    type: "integer"
+    description: "Estimated CPU cycles consumed."
+  cpu_memory_mb:
+    type: "number"
+    format: "float"
+    description: "Peak RAM usage in MB."
+  gpu_memory_mb:
+    type: "number"
+    format: "float"
+    default: 0.0
+    description: "GPU memory usage (0.0 for CPU-only symbolic planner)."
+required:
+  - metric_id
+  - task_id
+  - approach
+  - wall_clock_time
+  - cpu_cycles
+  - cpu_memory_mb
+additionalProperties: false

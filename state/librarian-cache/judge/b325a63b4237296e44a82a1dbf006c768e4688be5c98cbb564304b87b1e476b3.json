@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.11117",
+  "judged_at": "2026-09-03T13:09:49Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"robodojo: a unified sim-and-real benchmark for comprehensive evaluatio\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the same core mechanism (sim-to-real policy transfer) and domain (robotic manipulation benchmarks) referenced in the user's question about extending the \"RoboDojo\" benchmark. It provides the necessary canonical discussion on evaluation desiderata and visual-fidelity simulation that a literature review on this specific topic would require.",
+  "relevant": true
+}

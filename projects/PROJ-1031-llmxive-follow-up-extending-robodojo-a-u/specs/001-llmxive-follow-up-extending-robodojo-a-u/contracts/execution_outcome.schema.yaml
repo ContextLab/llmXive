@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ExecutionOutcome"
+description: "Record of a task execution in real-world or oracle environment."
+type: "object"
+properties:
+  outcome_id:
+    type: "string"
+    description: "Unique identifier for the execution record."
+  task_id:
+    type: "string"
+    description: "The task being executed."
+  approach:
+    type: "string"
+    enum:
+      - "symbolic"
+      - "baseline"
+      - "oracle"
+    description: "The method used for execution."
+  success:
+    type: "boolean"
+    description: "Whether the task was completed successfully."
+  failure_mode:
+    type: "string"
+    enum:
+      - "None"
+      - "Planner Infeasibility"
+      - "Controller Execution Failure"
+      - "Timeout"
+      - "Hardware Error"
+    description: "The specific reason for failure if success is false."
+  failure_step_index:
+    type: "integer"
+    description: "Index of the action step where failure occurred (-1 if success)."
+  wall_clock_time:
+    type: "number"
+    format: "float"
+    description: "Time taken in seconds."
+  cpu_memory_mb:
+    type: "number"
+    format: "float"
+    description: "Peak memory usage in MB."
+  ablation_variant:
+    type: "string"
+    enum:
+      - "full_affordance"
+      - "simplified_connectivity"
+    description: "Variant used for the ablation study (FR-008)."
+required:
+  - outcome_id
+  - task_id
+  - approach
+  - success
+  - failure_mode
+  - failure_step_index
+  - wall_clock_time
+  - cpu_memory_mb
+additionalProperties: false
