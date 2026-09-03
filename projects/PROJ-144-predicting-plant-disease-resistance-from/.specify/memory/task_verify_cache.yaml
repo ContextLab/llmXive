@@ -58,13 +58,6 @@ T021b:
     metrics, permutation test outputs, or figures) are present to demonstrate that
     model validation and permutation testing were performed. The claim lacks any tangible
     evidence that the required validation pipeline was implemented or executed.
-T025:
-  c: false
-  h: 581f8b61ae458695fd8af0e25bf9ae76856d2ca3da52cd2465573360ca11d659
-  r: "The repository lacks the required `code/modeling/interpret.py` file entirely,\
-    \ and the provided `tests/unit/test_modeling.py` contains no test exercising `map_metabolites_to_pathways`\
-    \ (or any other interpret module functionality). Consequently, the unit test for\
-    \ pathway\u2011mapping logic is missing."
 T026a:
   c: false
   h: 0da6c91943c033900633085feed0e4bb4e5a1c9ae7678890923c6aaab76acbe5

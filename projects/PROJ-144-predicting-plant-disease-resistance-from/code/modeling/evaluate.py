@@ -4,7 +4,9 @@ import json
 import pickle
 import numpy as np
 import pandas as pd
-from sklearn.metrics import confusion_matrix, roc_auc_score, precision_recall_curve
+from sklearn.metrics import confusion_matrix, roc_auc_score, precision_recall_curve, accuracy_score
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import StratifiedKFold
 from utils.constants import RESULTS_DIR, DATA_PROCESSED_DIR
 from utils.io import log_preprocessing_step
 
@@ -129,18 +131,138 @@ def sensitivity_analysis():
     return results
 
 def generate_learning_curve():
-    """Generates learning curve."""
-    return {"fractions": [], "accuracies": []}
+    """Generates learning curve and performs power analysis for small datasets (N < 50).
+    
+    If N < 50, performs learning curve analysis by training on subsamples.
+    Calculates the slope of the learning curve at the maximum sample size.
+    If the slope remains steep (indicating underfitting due to sample size),
+    flags the result with a 'power_limitation_warning' in the output JSON.
+    
+    Returns:
+        dict: Learning curve results including accuracies, fractions, and optional warning.
+    """
+    X, labels = load_processed_data()
+    
+    # Ensure binary_label column exists
+    if 'binary_label' not in labels.columns:
+        raise ValueError("labels.csv must contain a 'binary_label' column")
+        
+    y = labels['binary_label'].values
+    X_data = X.values
+    n_samples = len(y)
+    
+    output = {
+        "total_samples": n_samples,
+        "fractions": [],
+        "accuracies": [],
+        "power_limitation_warning": None
+    }
+    
+    # Only perform learning curve analysis if N < 50 (as per task spec)
+    if n_samples >= 50:
+        log_preprocessing_step("Learning curve analysis skipped: N >= 50")
+        output["note"] = "Learning curve analysis only performed for N < 50"
+        return output
+        
+    log_preprocessing_step(f"Performing learning curve analysis for small dataset (N={n_samples})")
+    
+    # Define fractions to test: [0.2, 0.4, 0.6, 0.8, 1.0]
+    fractions = [0.2, 0.4, 0.6, 0.8, 1.0]
+    # Filter fractions that result in at least 5 samples (minimum for meaningful training)
+    valid_fractions = []
+    for f in fractions:
+        n_train = int(n_samples * f)
+        if n_train >= 5:
+            valid_fractions.append(f)
+            
+    if len(valid_fractions) < 2:
+        output["warning"] = "Insufficient samples for learning curve analysis"
+        return output
+        
+    accuracies = []
+    
+    # Use StratifiedKFold for small datasets to ensure class balance
+    # For very small datasets, we might not be able to use multiple folds
+    n_splits = min(3, len(np.unique(y)))
+    if n_splits < 2:
+        output["warning"] = "Insufficient class balance for cross-validation"
+        return output
+        
+    cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
+    
+    for fraction in valid_fractions:
+        n_train = int(n_samples * fraction)
+        
+        # Create a training subset
+        indices = np.arange(n_samples)
+        np.random.seed(42)  # For reproducibility
+        np.random.shuffle(indices)
+        train_indices = indices[:n_train]
+        
+        X_train = X_data[train_indices]
+        y_train = y[train_indices]
+        
+        # Train model and evaluate using cross-validation on this subset
+        model = RandomForestClassifier(n_estimators=100, max_depth=5, random_state=42)
+        
+        # Use the same CV strategy for evaluation
+        cv_scores = []
+        for train_idx, val_idx in cv.split(X_train, y_train):
+            X_sub_train = X_train[train_idx]
+            y_sub_train = y_train[train_idx]
+            X_sub_val = X_train[val_idx]
+            y_sub_val = y_train[val_idx]
+            
+            model.fit(X_sub_train, y_sub_train)
+            y_pred = model.predict(X_sub_val)
+            acc = accuracy_score(y_sub_val, y_pred)
+            cv_scores.append(acc)
+            
+        mean_acc = np.mean(cv_scores)
+        accuracies.append(mean_acc)
+        
+        output["fractions"].append(fraction)
+        output["accuracies"].append(round(mean_acc, 4))
+        
+    # Calculate slope at maximum sample size
+    # Using linear regression on the last 2-3 points to estimate slope
+    if len(accuracies) >= 2:
+        x_vals = np.array(valid_fractions[-3:])  # Use last 3 points if available
+        y_vals = np.array(accuracies[-3:])
+        
+        # Simple linear regression
+        n = len(x_vals)
+        sum_x = np.sum(x_vals)
+        sum_y = np.sum(y_vals)
+        sum_xy = np.sum(x_vals * y_vals)
+        sum_x2 = np.sum(x_vals ** 2)
+        
+        slope = (n * sum_xy - sum_x * sum_y) / (n * sum_x2 - sum_x ** 2)
+        
+        output["slope_at_max"] = round(slope, 6)
+        
+        # If slope is steep (e.g., > 0.1), it indicates underfitting due to sample size
+        # A steep positive slope means accuracy is still increasing significantly
+        if slope > 0.1:
+            output["power_limitation_warning"] = (
+                "Learning curve slope remains steep at maximum sample size, indicating "
+                "underfitting due to limited data. Statistical significance claims should "
+                "be treated with caution. Consider collecting more data or using simpler models."
+            )
+            
+    log_preprocessing_step(f"Learning curve analysis complete. Output saved to {RESULTS_DIR}/learning_curve.json")
+    return output
 
 def compute_correlations():
     """Computes correlations."""
     return {}
 
 def main():
-    """Entry point for sensitivity analysis."""
-    log_preprocessing_step("Starting sensitivity analysis (T021d)")
+    """Entry point for sensitivity analysis and learning curve power analysis."""
+    log_preprocessing_step("Starting evaluation pipeline (T021d + T038)")
     
     try:
+        # First, perform sensitivity analysis
         sensitivity_results = sensitivity_analysis()
         
         output_path = os.path.join(RESULTS_DIR, "sensitivity_analysis.json")
@@ -148,10 +270,26 @@ def main():
             json.dump(sensitivity_results, f, indent=2)
             
         print(f"Sensitivity analysis complete. Results saved to {output_path}")
-        return sensitivity_results
+        
+        # Then, perform learning curve power analysis (T038)
+        learning_curve_results = generate_learning_curve()
+        
+        lc_output_path = os.path.join(RESULTS_DIR, "learning_curve.json")
+        with open(lc_output_path, 'w') as f:
+            json.dump(learning_curve_results, f, indent=2)
+            
+        print(f"Learning curve analysis complete. Results saved to {lc_output_path}")
+        
+        if learning_curve_results.get("power_limitation_warning"):
+            print(f"WARNING: {learning_curve_results['power_limitation_warning']}")
+            
+        return {
+            "sensitivity_analysis": sensitivity_results,
+            "learning_curve": learning_curve_results
+        }
         
     except Exception as e:
-        print(f"Error during sensitivity analysis: {str(e)}")
+        print(f"Error during evaluation: {str(e)}")
         raise
 
 if __name__ == "__main__":
