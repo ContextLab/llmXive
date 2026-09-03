@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+description: "Schema for the aggregated dataset used in statistical modeling."
+type: "object"
+properties:
+  repo_id:
+    type: "string"
+    description: "Unique identifier for the repository (owner/name)."
+  url:
+    type: "string"
+    format: "uri"
+    description: "GitHub repository URL."
+  primary_language:
+    type: "string"
+    description: "Primary programming language."
+  cve_count:
+    type: "integer"
+    minimum: 0
+    description: "Total number of CVEs matched to this repository."
+  author_count:
+    type: "integer"
+    minimum: 1
+    description: "Number of unique authors in the commit history (since 2015). Primary predictor (Breadth)."
+  kloc:
+    type: "number"
+    minimum: 0
+    description: "Thousands of Lines of Code."
+  log_kloc:
+    type: "number"
+    description: "Natural logarithm of kloc."
+  project_age:
+    type: "number"
+    description: "Age of the project in years."
+  release_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of GitHub releases."
+  entropy:
+    type: "number"
+    description: "Shannon entropy of author commit distribution (Secondary metric: Evenness)."
+  cve_density:
+    type: "number"
+    description: "Descriptive metric: CVE count / KLOC. Not used as a predictor."
+required:
+  - repo_id
+  - url
+  - primary_language
+  - cve_count
+  - author_count
+  - kloc
+  - log_kloc
+  - project_age
+  - release_count
+  - entropy
+  - cve_density

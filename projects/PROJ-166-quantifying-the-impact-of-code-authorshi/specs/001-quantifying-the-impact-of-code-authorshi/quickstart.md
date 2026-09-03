@@ -1,34 +1,31 @@
-# Quickstart: Quantifying the Association Between Code Authorship Diversity and Software Security
+# Quickstart: Quantifying the Impact of Code Authorship Diversity on Software Security
 
 ## Prerequisites
 
-- Python 3.11+
-- Git (command line)
-- `cloc` tool (installable via `sudo apt install cloc` or `brew install cloc`)
-- Standard RAM allocation (GitHub Actions Free Tier)
+*   Python 3.11+
+*   Git (command line)
+*   `cloc` (Line of Code counter) installed on the system path.
+*   14GB+ free disk space.
 
-The research question remains: [Research Question]
-The method remains: [Method]
-References: [References]
-- **Note**: This pipeline uses `git clone --shallow-since=2015-01-01` for each repository.
-
-## Setup
+## Installation
 
 1.  **Clone the Repository**:
     ```bash
-    git clone <repo-url>
+    git clone <project-repo-url>
     cd projects/PROJ-166-quantifying-the-impact-of-code-authorshi
     ```
 
-2.  **Install Dependencies**:
+2.  **Create Virtual Environment**:
+    ```bash
+    python3.11 -m venv venv
+    source venv/bin/activate
+    ```
+
+3.  **Install Dependencies**:
     ```bash
     pip install -r requirements.txt
     ```
-    *Note: `requirements.txt` pins versions for reproducibility (Constitution Principle I).*
-
-3.  **Prepare Data**:
-    Ensure `data/raw/` is empty. The pipeline will download the NVD feed automatically.
-    The pipeline will generate the target repository list via GitHub API using a fixed seed.
+    *Note: Ensure `cloc` is installed separately (e.g., `apt install cloc` or `brew install cloc`).*
 
 ## Running the Pipeline
 
@@ -38,31 +35,30 @@ Execute the main orchestration script:
 python code/main.py
 ```
 
-This script performs the following steps:
-1.  **Download**: Fetches ALL NVD/CVE JSON feeds (historical to present) from the official feed. **ABORTS** if the feed is unreachable. Merges and deduplicates by CVE ID.
-2.  **Generate Target List**: Creates a reproducible list of repositories via GitHub API (fixed seed, specific query).
-3.  **Extract**: Clones repositories (`--shallow-since=2015-01-01`), runs `git log` and `cloc`.
-4.  **Merge**: Joins metrics with CVE counts.
-5.  **Model**: Fits the GLM (with `log(kloc)` as predictor), calculates VIF, applies BH correction.
-6.  **Robustness**: Runs lagged variable analysis, interaction terms, Shannon entropy, and non-linearity checks.
+### What happens?
+1.  **Ingestion**: Downloads the NVD CVE feed (or specific yearly files) and the list of target repositories.
+2.  **Cloning**: Clones each repository with `--shallow-since=2015-01-01`.
+3.  **Metric Calculation**: Runs `cloc` and `git log` to calculate `kloc` and `unique_authors`.
+4.  **Matching**: Matches repositories to CVEs using substring URL matching.
+5.  **Modeling**: Fits the Negative Binomial GLM (and ZINB/Ridge fallbacks) and performs robustness checks.
+6.  **Correction**: Applies Benjamini-Hochberg correction to all p-values.
+7.  **Output**: Generates `data/processed/model_results.json` and `data/processed/report.md`.
 
-## Outputs
+## Verifying Results
 
-- `data/processed/repo_metrics.csv`: The primary analysis dataset.
-- `data/processed/model_results.json`: Statistical results (coefficients, p-values, power analysis).
-- `data/processed/robustness_results.json`: Lagged, interaction, entropy, and non-linearity analysis.
+1.  **Check Data Integrity**:
+    ```bash
+    sha256sum data/nvd/*.json > data/nvd/checksums.txt
+    # Verify against stored checksums
+    ```
+2.  **Inspect Output**:
+    Open `data/processed/model_results.json` to view coefficients, standard errors, and adjusted p-values.
+3.  **Validate Contracts**:
+    The output JSON is validated against `contracts/output.schema.yaml` automatically during the run.
 
-## Testing
+## Troubleshooting
 
-Run the unit and integration tests:
-
-```bash
-pytest tests/
-```
-
-**Key Tests**:
-- `test_dataset_construction`: Verifies that a seed repository collection produces non-null metrics.
-- `test_cve_zero_handling`: Ensures repos with no CVEs have `cve_count=0`.
-- `test_vif_calculation`: Confirms VIF is calculated and flags > 5.
-- `test_nvd_abort`: Verifies pipeline aborts if NVD feed is unreachable.
-- `test_lagged_analysis`: Verifies the lagged variable analysis runs without error.
+*   **Disk Full**: The pipeline cleans up cloned repos after processing. If the run is interrupted, manually delete `data/repos/`.
+*   **NVD Download Fail**: The script retries with exponential backoff. If it fails, check internet connectivity.
+*   **`cloc` Not Found**: Ensure `cloc` is installed and in your `PATH`.
+*   **Constitution Block**: If the pipeline aborts with "Constitution VI Amendment Required", ensure the Constitutional amendment to replace `--depth=1` with `--shallow-since` has been ratified in the repository.
