@@ -1,83 +1,69 @@
-# Quickstart: llmXive follow-up: extending "From Chatbot to Digital Colleague"
+# Quickstart: llmXive follow-up
 
 ## Prerequisites
 
 - Python 3.11+
-- `pip` (or `venv`/`poetry`)
-- Multiple CPU cores, 4 GB+ RAM (recommended for smooth execution)
+- `pip` or `venv`
+- Access to a standard Linux environment (GitHub Actions compatible)
 
 ## Installation
 
-1. **Clone and Navigate**:
-   ```bash
-   cd projects/PROJ-975-llmxive-follow-up-extending-from-chatbot
-   ```
+1.  **Clone the repository** (if not already done):
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-975-llmxive-follow-up-extending-from-chatbot
+    ```
 
-2. **Create Virtual Environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv .venv
+    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+    ```
 
-3. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-   *Note: `requirements.txt` pins `sentence-transformers` to a version compatible with CPU-only execution.*
+3.  **Install dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
+    *Note: `requirements.txt` pins `sentence-transformers`, `scikit-learn`, `pandas`, `numpy`, `pytest`, `jsonschema`.*
 
-## Data Generation
-
-Generate the synthetic dataset:
-
-```bash
-python code/generate_data.py --tasks 500 --skills 100 --overlap high --seed 42
-```
-
-**Output**:
-- `data/raw/tasks.json`
-- `data/raw/skills.json`
-
-Verify the data:
-```bash
-python -c "import json; print(len(json.load(open('data/raw/tasks.json'))))"
-# Expected:
-```
+4.  **Install pre-commit hooks** (optional but recommended):
+    ```bash
+    pre-commit install
+    ```
 
 ## Running the Experiment
 
-Execute the agent with the default configuration (all library sizes, with and without pruning):
-
+### 1. Generate Synthetic Data
+Run the data generation script to create the tasks and a set of skills.
 ```bash
-python code/agent.py --config code/config.py --output data/results/experiment_log.csv
+python code/generate_data.py
 ```
+*Output*: `data/raw/tasks.json`, `data/raw/skills.json`.
 
-**Output**:
-- `data/results/experiment_log.csv` containing metrics for all runs.
-
-## Analysis
-
-Run the statistical analysis to identify the tipping point and pruning effects:
-
+### 2. Run Baseline Experiments
+Execute the agent across a range of library sizes with and without pruning.
 ```bash
-python code/analyze.py --input data/results/experiment_log.csv --output data/results/analysis_report.json
+python code/run_baseline.py
 ```
+*Output*: `data/results/experiment_log.csv`, `data/results/experiment_log_baseline.csv`.
 
-**Output**:
-- `data/results/analysis_report.json` containing:
-  - Breakpoint ($x_0$) for the tipping point.
-  - P-values for pruning effectiveness.
-  - VIF scores for collinearity.
-
-## Validation
-
-Run the contract tests to ensure data integrity:
-
+### 3. Analyze Results
+Run the statistical analysis to find the tipping point and pruning effects.
 ```bash
-pytest tests/contract/
+python code/analyze.py
 ```
+*Output*: `data/results/tipping_point.json`, `data/results/pruning_analysis.json`.
+
+## Verification
+
+To verify the setup:
+```bash
+pytest tests/
+```
+Ensure all unit and contract tests pass.
 
 ## Troubleshooting
 
-- **Memory Error**: If you encounter `MemoryError`, reduce the `--tasks` count or ensure no other heavy processes are running. The default config is designed for < 2 GB RAM.
-- **Import Error**: Ensure you are using Python 3.11 and that the virtual environment is activated.
-- **Slow Execution**: This is expected if `sentence-transformers` is downloading the model for the first time. Subsequent runs will be cached.
+- **Memory Error**: If you encounter OOM errors, check that `sentence-transformers` is using the CPU version and that the dataset is not being loaded into memory multiple times.
+- **Missing Skills**: If the agent fails to find skills, verify the `embedding_vector` generation in `generate_data.py`.
+- **Reproducibility**: Ensure `PYTHONHASHSEED` is set if running in parallel, though the scripts use fixed seeds internally.

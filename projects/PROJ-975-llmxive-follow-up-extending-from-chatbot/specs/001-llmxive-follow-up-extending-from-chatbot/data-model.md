@@ -1,62 +1,52 @@
-# Data Model: llmXive follow-up: extending "From Chatbot to Digital Colleague"
+# Data Model: llmXive follow-up
 
 ## Overview
 
-This document defines the data structures used in the synthetic experiment. The data model is designed to be lightweight, JSON-native, and strictly typed to support contract testing.
+This document defines the schema and relationships for the synthetic dataset and experiment results. All data is stored in JSON (raw) and CSV/JSON (results) formats to ensure portability and ease of processing in the CI environment.
 
-## Entity Definitions
+## Entities
 
-### 1. Skill
-A Python function with an associated embedding vector and metadata.
+### 1. Task
+A synthetic multi-step problem requiring a sequence of skills to solve.
 
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| `skill_id` | string | Unique identifier (e.g., "skill_001") | Unique, non-empty |
-| `code_snippet` | string | The Python function code | Valid Python syntax |
-| `embedding` | list[float] | Vector representation | Length 384 (for MiniLM) |
-| `semantic_group` | string | Category for overlap control | Low, Medium, High |
-| `usage_count` | integer | Number of times used in experiment | >= 0 |
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `task_id` | `string` | Unique identifier (e.g., "task_001"). |
+| `description` | `string` | Natural language description of the problem. |
+| `ground_truth_skills` | `array[string]` | List of skill IDs required to solve the task (deterministic). |
+| `complexity` | `integer` | Number of steps (3-5). |
+| `embedding_vector` | `array[float]` | 384-dim vector (from `all-MiniLM-L6-v2`). |
 
-### 2. Task
-A synthetic multi-step problem requiring specific skills.
+### 2. Skill
+A Python function capability with metadata.
 
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| `task_id` | string | Unique identifier (e.g., "task_001") | Unique, non-empty |
-| `description` | string | Natural language description | Non-empty |
-| `ground_truth_path` | list[string] | Ordered list of skill_ids required | Length 3-5, all exist in library |
-| `complexity` | integer | Number of steps | 3, 4, or 5 |
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `skill_id` | `string` | Unique identifier (e.g., "skill_001"). |
+| `code_snippet` | `string` | The Python function source code. |
+| `embedding_vector` | `array[float]` | 384-dim vector. |
+| `usage_count` | `integer` | Runtime counter (reset per experiment run). |
+| `last_used_index` | `integer` | Index of the task where it was last used. |
 
 ### 3. ExperimentLog
-A record of a single task execution within a specific configuration.
+Record of a single agent execution.
 
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| `run_id` | string | Unique run identifier | Unique |
-| `task_id` | string | Reference to task | Exists in dataset |
-| `library_size` | integer | Size of active library | 10, 30, 50, or 100 |
-| `pruning_enabled` | boolean | Whether pruning was active | True/False |
-| `execution_success` | boolean | Did retrieved code run and match output? | True/False |
-| `retrieval_precision` | float | Jaccard similarity (retrieved vs ground truth) | 0.0 to 1.0 |
-| `retrieval_diversity` | float | Inverse variance of similarities | >= 0 |
-| `pruning_risk_count` | integer | Number of high-risk skills pruned | >= 0 |
-| `latency_ms` | float | Execution time | >= 0 |
-| `token_usage` | integer | Tokens consumed | >= 0 |
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `run_id` | `string` | Unique run identifier. |
+| `library_size` | `integer` | Size of the active skill library (10, 20, ..., 100). |
+| `overlap_level` | `string` | "low", "medium", or "high". |
+| `pruning_enabled` | `boolean` | Whether pruning heuristic was active. |
+| `task_id` | `string` | Reference to the task. |
+| `success` | `boolean` | Whether the task was solved correctly. |
+| `latency_ms` | `float` | Execution time. |
+| `token_count` | `integer` | Tokens used. |
+| `retrieval_precision` | `float` | Jaccard similarity (top-k vs ground truth). |
+| `retrieval_diversity` | `float` | Inverse variance of similarity scores (against query). |
+| `missing_skills` | `array[string]` | List of required skills not found (if failed). |
 
-## File Formats
+## Data Flow
 
-- **`data/raw/skills.json`**: Array of `Skill` objects.
-- **`data/raw/tasks.json`**: Array of `Task` objects.
-- **`data/results/experiment_log.csv`**: CSV representation of `ExperimentLog` (flattened for analysis).
-
-**Metric Mapping**:
-- `execution_success`: Primary outcome metric (Execution Fidelity).
-- `retrieval_precision`: Secondary diagnostic metric (Retrieval Fidelity).
-- `retrieval_diversity`: Diagnostic metric for noise collapse.
-- `pruning_risk_count`: Diagnostic metric for pruning intervention safety.
-
-## Relationships
-
-- **Task -> Skills**: Many-to-Many (via `ground_truth_path`).
-- **ExperimentLog -> Task**: Many-to-One.
-- **ExperimentLog -> Configuration**: Many-to-One (implied by `library_size` and `pruning_enabled`).
+1.  **Generation**: `generate_data.py` creates `tasks.json` and `skills.json` in `data/raw/`.
+2.  **Execution**: `run_baseline.py` loads raw data, runs agent, appends to `experiment_log.csv` in `data/results/`.
+3.  **Analysis**: `analyze.py` reads `experiment_log.csv`, computes aggregates, and writes `tipping_point.json` and `pruning_analysis.json`.

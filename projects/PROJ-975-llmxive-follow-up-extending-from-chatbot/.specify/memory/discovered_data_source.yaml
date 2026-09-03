@@ -1,0 +1,19 @@
+status: none
+intent: synthetic multi-step task and skill library synthetic tasks synthetic skills
+  experiment logs python package dataset
+required_fields:
+- task_id
+- task_description
+- ground_truth_path (list of skill_ids)
+- task_complexity
+- task_steps (list of actions)
+- skill_id
+- skill_name
+- skill_description
+- embedding_vector
+- semantic_overlap_score
+- experiment_log_id
+- associated_task_id
+cache_key: a8f382d8b75c7508c683bf833cc4b3ca11a57b185d5e98b3b295d419dc06b353
+searched_at: '2026-09-03T00:33:22.073971+00:00'
+retry_count: 1

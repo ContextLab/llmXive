@@ -1,59 +1,72 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Experiment Log Schema"
-description: "Schema for experiment execution logs"
+description: "Schema for individual experiment run records."
 type: "object"
-required:
-  - run_id
-  - task_id
-  - library_size
-  - pruning_enabled
-  - execution_success
-  - retrieval_precision
-  - retrieval_diversity
-  - pruning_risk_count
-  - latency_ms
-  - token_usage
 properties:
   run_id:
     type: "string"
-    description: "Unique run identifier"
-  task_id:
-    type: "string"
-    pattern: "^task_\\d{3}$"
-    description: "Reference to the task"
+    description: "Unique run identifier."
   library_size:
     type: "integer"
+    description: "Size of the active skill library."
     enum:
       - 10
+      - 20
       - 30
+      - 40
       - 50
+      - 60
+      - 70
+      - 80
+      - 90
       - 100
-    description: "Size of the active library"
+  overlap_level:
+    type: "string"
+    description: "Semantic overlap level."
+    enum:
+      - low
+      - medium
+      - high
   pruning_enabled:
     type: "boolean"
-    description: "Whether pruning was active"
-  execution_success:
+    description: "Whether pruning heuristic was active."
+  task_id:
+    type: "string"
+    description: "Reference to the task."
+  success:
     type: "boolean"
-    description: "Did retrieved code run and match expected output? (Primary Outcome)"
-  retrieval_precision:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Jaccard similarity between retrieved and ground truth"
-  retrieval_diversity:
-    type: "number"
-    minimum: 0.0
-    description: "Inverse variance of cosine similarities"
-  pruning_risk_count:
-    type: "integer"
-    minimum: 0
-    description: "Number of high-risk skills pruned (causal entanglement metric)"
+    description: "Whether the task was solved correctly."
   latency_ms:
     type: "number"
-    minimum: 0
-    description: "Execution time in milliseconds"
-  token_usage:
+    description: "Execution time in milliseconds."
+  token_count:
     type: "integer"
+    description: "Tokens used."
     minimum: 0
-    description: "Tokens consumed"
+  retrieval_precision:
+    type: "number"
+    description: "Jaccard similarity (top-k vs ground truth)."
+    minimum: 0.0
+    maximum: 1.0
+  retrieval_diversity:
+    type: "number"
+    description: "Inverse variance of similarity scores."
+    minimum: 0.0
+  missing_skills:
+    type: "array"
+    description: "List of required skills not found (if failed)."
+    items:
+      type: "string"
+required:
+  - run_id
+  - library_size
+  - overlap_level
+  - pruning_enabled
+  - task_id
+  - success
+  - latency_ms
+  - token_count
+  - retrieval_precision
+  - retrieval_diversity
+  - missing_skills
 additionalProperties: false
