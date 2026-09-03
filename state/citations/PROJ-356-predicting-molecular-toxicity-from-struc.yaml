@@ -9,7 +9,7 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/scikit-fingerprints/MoleculeNet_ToxCast/fcafd2b8a4922e2dd3649e8ec36670e3b10b9448/toxcast.csv?%2Fdatasets%2Fscikit-fingerprints%2FMoleculeNet_ToxCast%2Fresolve%2Fmain%2Ftoxcast.csv=&etag=%228586b2330cac3fa450c527cf54c7a540f511849f%22
   verified_at: '2026-07-08T04:22:08.525702Z'
-- artifact_hash: 28d457834ed2260376c1db088519679b99517cb4536a949e9cc21cc565304a41
+- artifact_hash: 4a80d86a163f5a09ec2c61de44f66985053e0b9b63d8d62f07e168bb8ce552dd
   artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,8 +19,8 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-08-31T16:44:01.074228Z'
-- artifact_hash: 28d457834ed2260376c1db088519679b99517cb4536a949e9cc21cc565304a41
+  verified_at: '2026-09-03T09:06:21.163609Z'
+- artifact_hash: 4a80d86a163f5a09ec2c61de44f66985053e0b9b63d8d62f07e168bb8ce552dd
   artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -30,15 +30,4 @@
   value: https://huggingface.co/datasets/toxcast/ames`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/toxcast/ames
-  verified_at: '2026-08-31T16:44:01.074228Z'
-- artifact_hash: 28d457834ed2260376c1db088519679b99517cb4536a949e9cc21cc565304a41
-  artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/tasks.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: Misuse of p-values - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/Misuse_of_p-values
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/Misuse_of_p-values
-  verified_at: '2026-08-31T16:44:01.074228Z'
+  verified_at: '2026-09-03T09:06:21.163609Z'

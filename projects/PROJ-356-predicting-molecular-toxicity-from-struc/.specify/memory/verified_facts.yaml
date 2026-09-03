@@ -1,6 +1,6 @@
-'|logistic model random regression state use':
-  quote: "All experiments use a stratified train\u2013test split with 80% training\
-    \ data and 20% test data, withrandom_state=42. In the"
-  source_id: '2605.07793'
-  url: https://arxiv.org/abs/2605.07793
-  value: '42'
+'|contain dataset known sample source':
+  quote: "We found a total of 108319 point sources that are considered to be reliable\
+    \ in the 70\xB5m maps,"
+  source_id: '1705.05693'
+  url: https://arxiv.org/abs/1705.05693
+  value: '108319'
