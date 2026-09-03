@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# Implementation
 """
 Versioning Module.
 Calculates SHA256 hashes for artifacts and updates state.
@@ -23,55 +22,50 @@ def get_file_size(file_path: Path) -> int:
     """Get file size in bytes."""
     return file_path.stat().st_size
 
-def version_artifact(file_path: Path, state_dir: Path) -> Dict[str, Any]:
-    """Version an artifact by calculating hash and size."""
-    if not file_path.exists():
-        raise FileNotFoundError(f"Artifact not found: {file_path}")
-    
-    artifact_hash = calculate_sha256(file_path)
-    size = get_file_size(file_path)
-    
-    version_info = {
-        "path": str(file_path),
-        "hash": artifact_hash,
-        "size": size
-    }
-    
+def version_artifact(file_path: Path, state_dir: Path):
+    """Version an artifact by adding its hash to the state."""
     state_dir.mkdir(parents=True, exist_ok=True)
-    state_file = state_dir / "version_state.json"
+    state_file = state_dir / "artifact_versions.json"
     
     if state_file.exists():
         with open(state_file, "r") as f:
             state = json.load(f)
     else:
-        state = {}
+        state = {"artifacts": {}}
     
-    state[file_path.name] = version_info
+    hash_val = calculate_sha256(file_path)
+    size = get_file_size(file_path)
+    
+    state["artifacts"][file_path.name] = {
+        "hash": hash_val,
+        "size": size,
+        "path": str(file_path)
+    }
     
     with open(state_file, "w") as f:
         json.dump(state, f, indent=2)
-        
-    return version_info
 
 def main():
     parser = argparse.ArgumentParser(description="Version artifacts")
-    parser.add_argument("--file", type=str, required=True, help="Path to artifact")
-    parser.add_argument("--state-dir", type=str, default="state", help="State directory")
+    parser.add_argument("--file", type=str, required=True, help="Path to file to version")
     args = parser.parse_args()
     
-    project_root = Path(__file__).parent.parent
-    file_path = Path(args.file)
-    if not file_path.is_absolute():
-        file_path = project_root / file_path
-        
-    state_dir = project_root / args.state_dir
+    project_root = Path(__file__).resolve().parent.parent
+    state_dir = project_root / "state"
     
     try:
-        info = version_artifact(file_path, state_dir)
-        print(f"Versioned {file_path}: {info}")
+        file_path = Path(args.file).resolve()
+        if not file_path.exists():
+            print(f"File not found: {file_path}")
+            return 1
+        
+        version_artifact(file_path, state_dir)
+        print(f"Versioned artifact: {file_path}")
     except Exception as e:
         print(f"Error versioning artifact: {e}")
-        sys.exit(1)
+        return 1
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

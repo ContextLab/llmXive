@@ -13,7 +13,7 @@
 
 **Why this priority**: Without clean, segmented data, no statistical analysis can be performed. This is the foundational step for the entire project.
 
-**Independent Test**: Can be fully tested by running the preprocessing script on a subset of the dataset and verifying that the output contains valid epoch objects with correct time windows (-200 to 500ms) and no NaN values in the signal channels.
+**Independent Test**: Can be fully tested by running the preprocessing script on a subset of the dataset and verifying that the output contains valid epoch objects with correct time windows (-200 to 500ms) and no NaN values in the signal channels (verified via `np.isnan(epochs.get_data()).any()` returning `False`). This is a hard stop condition; if NaNs are present, the pipeline must halt.
 
 **Acceptance Scenarios**:
 1. **Given** a valid OpenNeuro dataset ID, **When** the download and preprocessing script is executed, **Then** a MNE-Python `Epochs` object is created with a sampling rate matching the source and a time window of -200ms to 500ms.
@@ -51,7 +51,7 @@
 
 ### Edge Cases
 
-- What happens if the dataset metadata does not clearly distinguish between "simple" and "complex" auditory scenes? (Handled by requiring explicit metadata validation; if ambiguous, the script logs a `[NEEDS CLARIFICATION]` and halts).
+- What happens if the dataset metadata does not clearly distinguish between "simple" and "complex" auditory scenes? (Handled by requiring explicit metadata validation; if ambiguous, the system logs a warning and attempts a heuristic fallback; if fallback fails, it halts).
 - How does the system handle subjects with excessive artifacts (>50% rejected epochs)? (The system excludes these subjects from the final analysis and logs the exclusion count).
 - How does the system handle missing channels in the EEG cap? (The system interpolates missing channels using spherical splines before averaging, provided <10% are missing).
 
@@ -65,7 +65,8 @@
 - **FR-004**: System MUST compute MMN amplitude (mean voltage difference in 150–250ms window) and latency (peak difference time) for fronto-central electrodes for both conditions. (See US-2)
 - **FR-005**: System MUST perform paired t-tests comparing MMN metrics between conditions and apply FDR correction for multiple comparisons across electrodes. (See US-2)
 - **FR-006**: System MUST generate visualizations including ERP waveforms, scalp topography maps, and statistical significance plots. (See US-3)
-- **FR-007**: System MUST validate that the dataset contains all required variables (stimulus type, timing, channel locations) before processing; if a required variable is missing, it MUST halt and report `[NEEDS CLARIFICATION: does <dataset> contain <variable>?]`. (See US-1)
+- **FR-007**: System MUST validate that the dataset contains all required variables (`stimulus_type` distinguishing 'standard' vs. 'deviant' and `condition_label` distinguishing 'simple' vs. 'complex' scenes) in `events.tsv` or `participants.tsv`. If a required variable is missing, the system MUST halt and log the specific missing variable name. If `condition_label` is missing but `stimulus_type` is present, the system MUST attempt a heuristic fallback (e.g., mapping 'deviant' trials to 'complex' based on a predefined rule set) and log the number of events processed and the mapping rule used. (See US-1)
+- **FR-008**: System MUST verify that the dataset contains both 'simple' and 'complex' conditions. If the 'complex' condition is missing and cannot be synthesized via the heuristic in FR-007, the system MUST halt and report "Dataset lacks required 'complex' condition; research question untestable with current data." (See US-2)
 
 ### Key Entities
 
@@ -83,12 +84,13 @@
 
 - **SC-001**: MMN amplitude difference (deviant vs. standard) is measured against the baseline noise floor in the pre-stimulus period to ensure signal validity. (See FR-004)
 - **SC-002**: Statistical significance (p-value) of MMN differences between complexity conditions is measured against the FDR-corrected alpha threshold (0.05). (See FR-005)
-- **SC-003**: Effect size (Cohen's d) of the complexity effect is measured against the magnitude of the observed difference to quantify the practical significance. (See FR-005)
-- **SC-004**: Topographic consistency of the MMN across participants is measured against the standard fronto-central distribution pattern reported in literature. (See FR-006)
+- **SC-003**: Effect size (Cohen's d) of the complexity effect is measured against established benchmarks for MMN effect sizes in literature (e.g., d ≥ 0.5 for medium effect) to quantify practical significance. (See FR-005)
+- **SC-004**: Topographic consistency of the MMN across participants is measured against a canonical MMN topography template derived from OpenNeuro ds000246 standard oddball data using Pearson correlation coefficient (r ≥ 0.8). (See FR-005)
 
 ## Assumptions
 
-- The publicly available dataset (e.g., OpenNeuro ds000246) contains both simple oddball and complex auditory scene conditions with clear metadata labels.
+- The publicly available dataset (e.g., OpenNeuro ds000246) contains both simple oddball and complex auditory scene conditions, OR a suitable alternative dataset is identified that contains both conditions.
+- If the primary dataset lacks the 'complex' condition, a heuristic fallback (as defined in FR-007) is sufficient to approximate the condition, or the system halts gracefully as per FR-008.
 - The EEG data is recorded with a sufficient number of channels (≥32) to allow for accurate topographic mapping of the MMN component.
 - The analysis will be performed using MNE-Python on a CPU-only environment (GitHub Actions free tier) with ≤7 GB RAM and ≤6 hours runtime.
 - The MMN component will be observable in the 150–250ms time window for both conditions, consistent with established literature.

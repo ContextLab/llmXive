@@ -1,7 +1,6 @@
 #!/usr/bin/env python
-# Implementation
 """
-Main entry point for the llmXive DanceOPD follow-up pipeline.
+Main entry point for the DanceOPD extension pipeline.
 Orchestrates the execution of data fetching, streaming, teacher inference,
 tree training, and fidelity evaluation.
 """
@@ -10,17 +9,14 @@ import sys
 from pathlib import Path
 
 def main():
-    parser = argparse.ArgumentParser(description="llmXive DanceOPD Follow-up Pipeline")
-    parser.add_argument("--stage", type=str, default="all",
-                        choices=["all", "data", "train", "eval"],
-                        help="Pipeline stage to execute")
+    parser = argparse.ArgumentParser(description="DanceOPD Extension Pipeline")
+    parser.add_argument("--config", type=str, default="code/utils/config.yaml", help="Path to config file")
+    parser.add_argument("--stage", type=str, choices=["fetch", "stream", "teacher", "train", "evaluate", "all"], default="all", help="Pipeline stage to run")
     args = parser.parse_args()
 
-    print(f"Starting pipeline execution for stage: {args.stage}")
-    
+    print(f"Starting DanceOPD Extension Pipeline. Stage: {args.stage}")
     # Placeholder for orchestration logic
-    # In a full implementation, this would call specific stage functions
-    print("Pipeline execution complete.")
+    # In a full implementation, this would import and call specific task runners
     return 0
 
 if __name__ == "__main__":

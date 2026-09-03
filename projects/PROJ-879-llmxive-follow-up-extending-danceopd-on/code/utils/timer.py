@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# Implementation
 """
-Timer Utility.
-Implements a configurable timeout using signal module.
+Timer Module.
+Implements configurable timeout for long-running tasks.
 """
 import signal
 import time
@@ -14,51 +13,38 @@ class TimeoutError(Exception):
     pass
 
 def timeout_handler(signum, frame):
-    raise TimeoutError("Operation timed out")
+    raise TimeoutError("Function call timed out")
 
 def setup_timeout(seconds: int):
-    """Setup a timeout for the current process."""
+    """Set up a timeout signal."""
     signal.signal(signal.SIGALRM, timeout_handler)
     signal.alarm(seconds)
 
 def cancel_timeout():
-    """Cancel the active timeout."""
+    """Cancel the timeout signal."""
     signal.alarm(0)
 
-def check_timeout(timeout_path: Path) -> bool:
-    """Check if a timeout has occurred (for long running processes)."""
-    if timeout_path.exists():
-        with open(timeout_path, "r") as f:
-            data = json.load(f)
-            if data.get("timed_out"):
-                return True
+def check_timeout(start_time: float, timeout_seconds: int) -> bool:
+    """Check if timeout has been exceeded."""
+    if time.time() - start_time > timeout_seconds:
+        return True
     return False
 
-def save_timeout_status(timeout_path: Path, status: str = "partial"):
+def save_timeout_status(output_path: Path, status: str = "timeout"):
     """Save timeout status to a file."""
-    timeout_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(timeout_path, "w") as f:
-        json.dump({"timed_out": True, "status": status, "timestamp": time.time()}, f)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w") as f:
+        json.dump({"status": status, "timestamp": time.time()}, f)
 
 def main():
     import argparse
-    parser = argparse.ArgumentParser(description="Timer utility")
-    parser.add_argument("--seconds", type=int, default=60, help="Timeout duration")
-    parser.add_argument("--output", type=str, default="data/results/timeout_status.json", help="Output path")
+    parser = argparse.ArgumentParser(description="Test timer module")
+    parser.add_argument("--timeout", type=int, default=60, help="Timeout in seconds")
     args = parser.parse_args()
     
-    timeout_path = Path(args.output)
-    setup_timeout(args.seconds)
-    
-    try:
-        time.sleep(args.seconds + 1) # Simulate work that times out
-    except TimeoutError:
-        print("Timeout occurred.")
-        save_timeout_status(timeout_path)
-        sys.exit(0)
-    finally:
-        cancel_timeout()
+    print(f"Timer module loaded. Timeout set to {args.timeout}s")
+    return 0
 
 if __name__ == "__main__":
     import sys
-    main()
+    sys.exit(main())

@@ -1,61 +1,59 @@
 #!/usr/bin/env python
-# Implementation
 """
 Data Streaming Module.
-Reads from raw data files and streams samples into memory for processing.
+Reads from verified raw datasets and streams samples for processing.
 """
 import argparse
 import sys
 from pathlib import Path
 import pandas as pd
 
-def stream_data(project_root: Path) -> pd.DataFrame:
+def stream_data(project_root: Path, target_samples: int = 1200, seed: int = 42) -> pd.DataFrame:
     """
-    Stream data from raw parquet files.
-    Returns a combined DataFrame of samples.
+    Stream samples from raw data files into a unified DataFrame.
     """
-    raw_dir = project_root / "data" / "raw"
+    data_raw_dir = project_root / "data" / "raw"
     
-    imagenet_path = raw_dir / "imagenet_samples.parquet"
-    laion_path = raw_dir / "laion_samples.parquet"
+    imagenet_path = data_raw_dir / "imagenet_samples.parquet"
+    laion_path = data_raw_dir / "laion_samples.parquet"
     
-    samples = []
+    dfs = []
     
     if imagenet_path.exists():
         df_imagenet = pd.read_parquet(imagenet_path)
-        samples.append(df_imagenet)
-        print(f"Loaded {len(df_imagenet)} samples from ImageNet.")
-    else:
-        print(f"Warning: {imagenet_path} not found.")
-
+        dfs.append(df_imagenet)
+    
     if laion_path.exists():
         df_laion = pd.read_parquet(laion_path)
-        samples.append(df_laion)
-        print(f"Loaded {len(df_laion)} samples from LAION.")
-    else:
-        print(f"Warning: {laion_path} not found.")
-
-    if not samples:
-        raise FileNotFoundError("No raw data files found to stream.")
-
-    combined_df = pd.concat(samples, ignore_index=True)
+        dfs.append(df_laion)
     
-    # Save combined samples for next step
-    processed_dir = project_root / "data" / "processed"
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    output_path = processed_dir / "combined_samples.parquet"
-    combined_df.to_parquet(output_path)
-    print(f"Combined samples saved to {output_path}")
+    if not dfs:
+        raise FileNotFoundError("No source parquet files found in data/raw/")
+    
+    combined_df = pd.concat(dfs, ignore_index=True)
+    
+    # Sample if necessary
+    if len(combined_df) > target_samples:
+        combined_df = combined_df.sample(n=target_samples, random_state=seed)
     
     return combined_df
 
 def main():
-    project_root = Path(__file__).parent.parent
+    project_root = Path(__file__).resolve().parent.parent
+    output_dir = project_root / "data" / "raw"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    output_path = output_dir / "combined_samples.parquet"
+    
     try:
-        stream_data(project_root)
+        df = stream_data(project_root)
+        df.to_parquet(output_path, index=False)
+        print(f"Streamed {len(df)} samples to {output_path}")
     except Exception as e:
         print(f"Error streaming data: {e}")
-        sys.exit(1)
+        return 1
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

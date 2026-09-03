@@ -77,7 +77,7 @@
 
 **Goal**: Generate a synthetic dataset of `(prompt_embedding, noise_level, routing_label, velocity_vector)` tuples by running the pre‑trained DanceOPD teacher model on sampled ImageNet‑1K and LAION‑400M prompts.
 
-**Independent Test**: The system produces a CSV/Parquet file with ≥1,000 rows, valid expert identifiers, and consistent velocity vector dimensions. [UNRESOLVED-CLAIM: c_0f00b2e0 — status=not_enough_info]
+**Independent Test**: The system produces a CSV/Parquet file with ≥1,000 rows, valid expert identifiers, and consistent velocity vector dimensions. [UNRESOLVED-CLAIM: c_5482bd26 — status=not_enough_info]
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -91,7 +91,7 @@
  - **Validation**: Check for `data/raw/imagenet_samples.parquet` and `data/raw/laion_samples.parquet`. Compute SHA256 and compare against `data/raw/checksums.json`.
  - **Constraint**: If any file is missing or checksum mismatch, **exit with code 1** (fail loud). Do NOT attempt to download or stream during this 6-hour window. This enforces Constitution Principle III (Data Hygiene).
  - **Deliverable**: Validation report in `data/results/data_fetch_validation.json` with `status: verified` or `status: failed`.
-- [ ] T012b [US1] **Stream & Process Data**. Implement `code/00_data_stream.py` to read from `data/raw/` and stream samples into memory for processing.
+- [X] T012b [US1] **Stream & Process Data**. Implement `code/00_data_stream.py` to read from `data/raw/` and stream samples into memory for processing. <!-- FAILED: unspecified -->
  - **Dependency**: Depends on T012 completion (data verified) AND T012c completion (encoder initialized). **T012c (Phase 2) must complete before this task starts.**
  - **Sampling Strategy**: Use `seed=42`. **Target 1200 raw samples** from `data/raw/imagenet_samples.parquet` and `data/raw/laion_samples.parquet`.
  - **Feature Extraction**: For each sample, extract `prompt_embedding` (using the CLIP encoder from T012c) and `noise_level`. **Do NOT run teacher model here**.
@@ -158,7 +158,7 @@
 
 **Goal**: Execute CPU‑only inference using tree‑predicted routing, measure FID/CLIP for **all** samples, and perform statistical tests (bootstrap, paired t-test) to determine significance of fidelity degradation.
 
-**Independent Test**: The system calculates FID/CLIP for teacher vs. tree (depth=5) on the full dataset and outputs valid p-values. [UNRESOLVED-CLAIM: c_12d3f6c0 — status=not_enough_info]
+**Independent Test**: The system calculates FID/CLIP for teacher vs. tree (depth=5) on the full dataset and outputs valid p-values.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -190,7 +190,7 @@
 - [X] T030a [US3] **Compute FID and CLIP Scores**. Compute metrics for tree-generated images against teacher baseline images using metrics from `code/utils/metrics.py`.
  - **Input**: Results from T028a (both image sets).
  - **Deliverable**: Metrics saved in `data/results/fidelity_metrics.csv`.
-- [X] T030b [US3] **Run Pilot**. Execute a pilot run (N=50) to estimate variance for power calculation. [UNRESOLVED-CLAIM: c_c49520a9 — status=not_enough_info]
+- [X] T030b [US3] **Run Pilot**. Execute a pilot run (N=50) to estimate variance for power calculation. [UNRESOLVED-CLAIM: c_8bc3866a — status=not_enough_info]
  - **Dependency**: Depends on T030a.
  - **Deliverable**: Pilot variance estimate.
 - [ ] T030c [US3] **Calculate Power and Configure Sample Size**. Calculate required sample size based on pilot variance.
