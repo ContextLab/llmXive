@@ -28655,7 +28655,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-09-03T10:13:54.731345+00:00",
+  "generated_at": "2026-09-03T11:13:11.262134+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -29134,49 +29134,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-222-the-impact-of-predictive-coding-errors-o",
           "project_id": "PROJ-222-the-impact-of-predictive-coding-errors-o",
           "title": "The Impact of Predictive Coding Errors on Subjective Time Perception"
-        }
-      ],
-      "inputs": [
-        "`spec.md` with `[NEEDS CLARIFICATION]` markers"
-      ],
-      "key": "clarified",
-      "lane": "research",
-      "name": "Clarified",
-      "order": 3,
-      "outputs": [
-        "`spec.md` with a `## Clarifications` section, no open markers"
-      ]
-    },
-    {
-      "agents": [
-        "tasker"
-      ],
-      "description": "The implementation plan: architecture, data model, contracts, research notes (the agentic `/speckit-plan`).",
-      "example_artifacts": [
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig",
-          "project_id": "PROJ-786-multi-property-trade-offs-in-alloy-desig",
-          "title": "Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-375-predicting-the-influence-of-composition-",
-          "project_id": "PROJ-375-predicting-the-influence-of-composition-",
-          "title": "Predicting the Influence of Composition on the Thermal Expansion of Metallic Glasses"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-222-the-impact-of-predictive-coding-errors-o",
-          "project_id": "PROJ-222-the-impact-of-predictive-coding-errors-o",
-          "title": "The Impact of Predictive Coding Errors on Subjective Time Perception"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-166-quantifying-the-impact-of-code-authorshi",
-          "project_id": "PROJ-166-quantifying-the-impact-of-code-authorshi",
-          "title": "Quantifying the Impact of Code Authorship Diversity on Software Security"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot",
-          "project_id": "PROJ-975-llmxive-follow-up-extending-from-chatbot",
-          "title": "llmXive follow-up: extending \"From Chatbot to Digital Colleague: The Paradigm Shift Toward Persisten\""
         }
       ],
       "inputs": [
@@ -161347,6 +161304,102 @@
   ],
   "recent_activity": [
     {
+      "agent": "tasker",
+      "duration_s": 717.746583,
+      "ended_at": "2026-09-03T10:01:06.375047Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-144-predicting-plant-disease-resistance-from",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-09-03T09:49:08.628464Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 526.260929,
+      "ended_at": "2026-09-03T09:59:33.413192Z",
+      "failure_reason": "StagePanelEscalation: tasks panel engine failure: RuntimeError: LLMReviewer[coverage]: review frontmatter has neither `verdict:` nor `concerns:`/`action_items:` \u2014 a contentless/truncated review MUST N",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "failed",
+      "project_id": "PROJ-286-the-influence-of-perceived-agency-in-ai-",
+      "project_stage": "tasked",
+      "severity": "hard",
+      "started_at": "2026-09-03T09:50:47.152263Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 1558.787427,
+      "ended_at": "2026-09-03T09:50:47.109591Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-286-the-influence-of-perceived-agency-in-ai-",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-09-03T09:24:48.322164Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 1064.055047,
+      "ended_at": "2026-09-03T09:49:08.568507Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-144-predicting-plant-disease-resistance-from",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-09-03T09:31:24.513460Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 56.882921,
+      "ended_at": "2026-09-03T09:31:22.139047Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-144-predicting-plant-disease-resistance-from",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-09-03T09:30:25.256126Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 69.661469,
+      "ended_at": "2026-09-03T09:30:25.170816Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-144-predicting-plant-disease-resistance-from",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-09-03T09:29:15.509347Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 77.80031,
+      "ended_at": "2026-09-03T09:29:12.547913Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-144-predicting-plant-disease-resistance-from",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-09-03T09:27:54.747603Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 99.276253,
+      "ended_at": "2026-09-03T09:27:54.743745Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-144-predicting-plant-disease-resistance-from",
+      "project_stage": "analyzed",
+      "severity": "ok",
+      "started_at": "2026-09-03T09:26:15.467492Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 1.131556,
       "ended_at": "2026-09-03T10:13:34.308809Z",
@@ -167345,6 +167398,498 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-09-03T02:16:48.089039Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3.877121,
+      "ended_at": "2026-09-03T02:16:50.210759Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:16:46.333638Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 4.261698,
+      "ended_at": "2026-09-03T02:16:48.035541Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:16:43.773843Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 46.613455,
+      "ended_at": "2026-09-03T02:16:46.537751Z",
+      "failure_reason": "",
+      "model": "google.gemma-3-27b-it",
+      "outcome": "success",
+      "project_id": "PROJ-470-predicting-cognitive-fatigue-from-restin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:15:59.924296Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 22.957671,
+      "ended_at": "2026-09-03T02:16:46.049890Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-961-llmxive-follow-up-extending-videokr-towa",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:16:23.092219Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.704872,
+      "ended_at": "2026-09-03T02:16:43.498049Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:16:41.793177Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 13.333135,
+      "ended_at": "2026-09-03T02:16:41.597479Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:16:28.264344Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 26.787939,
+      "ended_at": "2026-09-03T02:16:27.958777Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:16:01.170838Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 2.918559,
+      "ended_at": "2026-09-03T02:16:25.117790Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:16:22.199231Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.155274,
+      "ended_at": "2026-09-03T02:16:22.139218Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:16:20.983944Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.563723,
+      "ended_at": "2026-09-03T02:16:20.923192Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:16:19.359469Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.491199,
+      "ended_at": "2026-09-03T02:16:19.297647Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:16:17.806448Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3.635578,
+      "ended_at": "2026-09-03T02:16:17.744989Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:16:14.109411Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 2.47963,
+      "ended_at": "2026-09-03T02:16:14.032775Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:16:11.553145Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.286502,
+      "ended_at": "2026-09-03T02:16:11.492286Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:16:10.205784Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 2.339858,
+      "ended_at": "2026-09-03T02:16:10.143596Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:16:07.803738Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.624829,
+      "ended_at": "2026-09-03T02:16:07.741968Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:16:06.117139Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 9.413584,
+      "ended_at": "2026-09-03T02:16:05.953227Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:15:56.539643Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 305.365296,
+      "ended_at": "2026-09-03T02:12:54.629170Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-943-llmxive-follow-up-extending-cosmos-3-omn",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:07:49.263874Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 51.672086,
+      "ended_at": "2026-09-03T02:07:49.261376Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-943-llmxive-follow-up-extending-cosmos-3-omn",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:06:57.589290Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 51.525425,
+      "ended_at": "2026-09-03T02:06:57.586828Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-943-llmxive-follow-up-extending-cosmos-3-omn",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:06:06.061403Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 617.048699,
+      "ended_at": "2026-09-03T02:06:52.602463Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-458-quantifying-the-impact-of-dataset-sparsi",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-03T01:56:35.553764Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 2.706675,
+      "ended_at": "2026-09-03T02:06:38.092885Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-986-llmxive-follow-up-extending-blockpilot-i",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:06:35.386210Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 323.837118,
+      "ended_at": "2026-09-03T02:06:35.323933Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-986-llmxive-follow-up-extending-blockpilot-i",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:01:11.486815Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 40.25128,
+      "ended_at": "2026-09-03T02:06:06.058945Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-943-llmxive-follow-up-extending-cosmos-3-omn",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:05:25.807665Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 25.396043,
+      "ended_at": "2026-09-03T02:05:25.805173Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-943-llmxive-follow-up-extending-cosmos-3-omn",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:05:00.409130Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 10.663135,
+      "ended_at": "2026-09-03T02:05:00.406630Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-943-llmxive-follow-up-extending-cosmos-3-omn",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:04:49.743495Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 9.89345,
+      "ended_at": "2026-09-03T02:04:49.741005Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-943-llmxive-follow-up-extending-cosmos-3-omn",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:04:39.847555Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 13.599212,
+      "ended_at": "2026-09-03T02:04:39.845087Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-943-llmxive-follow-up-extending-cosmos-3-omn",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:04:26.245875Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 24.921494,
+      "ended_at": "2026-09-03T02:04:26.243415Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-943-llmxive-follow-up-extending-cosmos-3-omn",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:04:01.321921Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 24.418725,
+      "ended_at": "2026-09-03T02:04:01.319446Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-943-llmxive-follow-up-extending-cosmos-3-omn",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:03:36.900721Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 24.75854,
+      "ended_at": "2026-09-03T02:03:36.898239Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-943-llmxive-follow-up-extending-cosmos-3-omn",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:03:12.139699Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 30.933854,
+      "ended_at": "2026-09-03T02:03:12.137202Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-943-llmxive-follow-up-extending-cosmos-3-omn",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:02:41.203348Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 10.246008,
+      "ended_at": "2026-09-03T02:02:41.200811Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-943-llmxive-follow-up-extending-cosmos-3-omn",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:02:30.954803Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 124.27917,
+      "ended_at": "2026-09-03T02:02:20.994054Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-373-predicting-rate-constants-of-sn1-reactio",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-09-03T02:00:16.714884Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 331.568327,
+      "ended_at": "2026-09-03T02:01:11.422569Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-986-llmxive-follow-up-extending-blockpilot-i",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-03T01:55:39.854242Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 37.657172,
+      "ended_at": "2026-09-03T02:00:16.712310Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-373-predicting-rate-constants-of-sn1-reactio",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-09-03T01:59:39.055138Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 32.182742,
+      "ended_at": "2026-09-03T01:59:39.052545Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-373-predicting-rate-constants-of-sn1-reactio",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-09-03T01:59:06.869803Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 5.968768,
+      "ended_at": "2026-09-03T01:59:06.867277Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-373-predicting-rate-constants-of-sn1-reactio",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-09-03T01:59:00.898509Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 44.469758,
+      "ended_at": "2026-09-03T01:59:00.895904Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-373-predicting-rate-constants-of-sn1-reactio",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-09-03T01:58:16.426146Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 34.050117,
+      "ended_at": "2026-09-03T01:58:16.423587Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-373-predicting-rate-constants-of-sn1-reactio",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-09-03T01:57:42.373470Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 54.533894,
+      "ended_at": "2026-09-03T01:57:42.370924Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-373-predicting-rate-constants-of-sn1-reactio",
+      "project_stage": "planned",
+      "severity": "ok",
+      "started_at": "2026-09-03T01:56:47.837030Z"
     }
   ],
   "reviewed_preprints": [
