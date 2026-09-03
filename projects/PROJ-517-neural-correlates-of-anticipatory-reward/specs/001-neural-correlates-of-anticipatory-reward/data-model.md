@@ -1,73 +1,60 @@
-# Data Model: Neural Correlates of Anticipatory Reward Processing
+# Data Model: Neural Correlates of Anticipatory Reward Processing in Vocal Learning
 
-## Entities
+## Overview
+This document defines the data structures for the ingestion, processing, and analysis pipeline. It ensures traceability from raw spike data to final statistical reports.
 
-### Trial
-- trial_id: str (unique identifier)
-- neuron_id: str (recorded neuron identifier)
-- cue_timestamps: List[float] (timestamps of cue presentations in seconds)
-- reward_timestamp: float (timestamp of reward delivery in seconds)
-- reward_magnitude: float (magnitude of reward, continuous variable)
-- spike_timestamps: List[float] (timestamps of detected spikes in seconds)
+## Input Schema (contracts/dataset.schema.yaml)
+*Refer to `contracts/dataset.schema.yaml` for the formal YAML definition.*
 
-### Neuron
-- neuron_id: str (unique identifier)
-- brain_region: str (e.g., "NAcc", "VTA")
-- spike_sorting_metadata: Dict (SNR, isolation_distance, etc.)
+### Fields
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `trial_id` | string | Unique identifier for each trial. | Non-empty, unique per session. |
+| `neuron_id` | string | Identifier for the recorded neuron. | Non-empty. |
+| `spike_timestamps` | list[float] | Array of spike times in milliseconds. | Sorted ascending. |
+| `reward_magnitude` | float | Magnitude of reward delivered. | >= 0. |
+| `cue_timestamps` | list[float] | Array of cue presentation times. | Sorted ascending. |
+| `spike_sorting_metadata` | object | SNR and isolation distance metrics. | `snr` >= 0, `isolation_distance` >= 0. |
+| `reward_timestamp` | float | Timestamp of reward delivery. | Reference point (t=0). |
+| `cue_timestamp` | float | Timestamp of cue presentation. | Must be < `reward_timestamp`. |
 
-### SpikeTrain
-- neuron_id: str (foreign key to Neuron)
-- trial_id: str (foreign key to Trial)
-- spike_timestamps: List[float] (spike times relative to trial start)
-- spike_count: int (number of spikes in analysis window)
+## Output Schema (contracts/output.schema.yaml)
+*Refer to `contracts/output.schema.yaml` for the formal YAML definition.*
 
-## Relationships
+### Unified DataFrame Columns
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `trial_id` | string | Original trial ID. |
+| `neuron_id` | string | Original neuron ID. |
+| `spike_count` | int | Count of spikes in [-500ms, 0ms] window. |
+| `reward_magnitude` | float | Normalized reward magnitude. |
+| `cue_delay_ms` | float | Time difference (cue to reward). |
+| `valid_spike_sorting` | bool | True if SNR and isolation distance meet thresholds. |
+| `flagged_short_delay` | bool | True if cue-reward delay < 500ms. |
+| `firing_rate` | float | Calculated firing rate (spikes/sec). |
+| `cv_score` | float | Cross-validation score. |
+| `mdes` | float | Minimum Detectable Effect Size. |
+| `ingestion_rows_total` | int | Total rows read. |
+| `ingestion_rows_valid` | int | Valid rows. |
+| `ingestion_rows_dropped` | int | Dropped rows. |
 
-- One Trial has one Neuron
-- One Trial has one SpikeTrain
-- One Neuron can have multiple Trials
-- One Neuron can have multiple SpikeTrains
+### Reports
+1.  **Validation Report (JSON)**: `data/processed/validation_report.json`
+    *   Contains ingestion metrics: `total_rows`, `valid_rows`, `dropped_rows`, `reasons`.
+2.  **Spike Sorting Report (Markdown)**: `data/processed/spike_sorting_validation_report.md`
+    *   Contains counts of neurons passing/failing SNR/isolation thresholds.
+3.  **Summary Statistics (Text)**: `data/processed/summary_report.txt`
+    *   Contains GLM coefficients, p-values, MDES, CV scores.
 
 ## Data Flow
 
-1. Raw Data (CSV/Neurodata) -> Ingestion Pipeline
-2. Ingestion -> Validation -> Unified DataFrame
-3. Unified DataFrame -> Statistical Modeling
-4. Model Results -> Visualization
-5. All Metrics -> Summary Report
+1.  **Raw Ingestion**: `data/raw/*.csv` -> `ingestion.py` -> `data/processed/unified_data.csv`.
+2.  **Validation**: `ingestion.py` checks `spike_sorting_metadata` -> `spike_sorting_validation_report.md`.
+3.  **Modeling**: `modeling.py` reads `unified_data.csv` -> `data/processed/model_results.json`.
+4.  **Visualization**: `visualization.py` reads `model_results.json` -> `data/figures/*.png`.
 
-## Data Quality Requirements
-
-- Minimum 30 trials per reward magnitude level
-- Cue-reward delay >= 500ms (flag if <500ms)
-- SNR > 3 for spike sorting acceptance
-- Isolation Distance > 20 for spike sorting acceptance
-- Handle zero-reward trials as valid
-- Filter silent neurons (0 spikes across all trials)
-
-## Output Data Structures
-
-### Unified DataFrame Columns
-- trial_id: str
-- neuron_id: str
-- spike_count: int
-- reward_magnitude: float
-- timestamp_relative_to_reward: float
-
-### Validation Report (JSON)
-- ingestion_rows_total: int
-- ingestion_rows_valid: int
-- ingestion_rows_dropped: int
-- validation_status: str (PASS/FAIL/WARN)
-- flags: List[str] (validation issues)
-
-### Model Results (JSON)
-- coefficient: float
-- p_value: float
-- model_family: str (Poisson/NegativeBinomial)
-- dispersion: float
-- mdes_80_power: float
-- cv_score_mean: float
-- cv_score_std: float
-- neuron_count: int
-- bonferroni_corrected_p: float
+## Constraints & Assumptions
+*   **Time Units**: All timestamps in milliseconds (ms).
+*   **Spike Sorting**: Metadata fields (`snr`, `isolation_distance`) are assumed to be present. If missing, `valid_spike_sorting` is set to `False` and the pipeline halts the causal claim.
+*   **Missing Data**: Rows with missing `spike_timestamps` or `reward_magnitude` are dropped.
+*   **Zero-Reward Trials**: Included in analysis but flagged if `reward_magnitude` is 0.

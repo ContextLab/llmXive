@@ -1,67 +1,50 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Neural Correlates Dataset Schema
-description: Schema for spike train and trial metadata data
-
+description: Schema for raw spike train and reward data ingestion.
 type: object
+properties:
+  trial_id:
+    type: string
+    description: Unique identifier for each trial.
+  neuron_id:
+    type: string
+    description: Identifier for the recorded neuron.
+  spike_timestamps:
+    type: array
+    items:
+      type: number
+    description: Array of spike times in milliseconds.
+  reward_magnitude:
+    type: number
+    description: Magnitude of reward delivered.
+  cue_timestamps:
+    type: array
+    items:
+      type: number
+    description: Array of cue presentation times.
+  reward_timestamp:
+    type: number
+    description: Timestamp of reward delivery (reference point).
+  cue_timestamp:
+    type: number
+    description: Timestamp of cue presentation.
+  spike_sorting_metadata:
+    type: object
+    description: SNR and isolation distance metrics.
+    properties:
+      snr:
+        type: number
+        description: Signal-to-Noise Ratio.
+      isolation_distance:
+        type: number
+        description: Isolation distance metric.
+    required:
+      - snr
+      - isolation_distance
 required:
   - trial_id
   - neuron_id
   - spike_timestamps
   - reward_magnitude
-  - cue_timestamps
+  - reward_timestamp
   - spike_sorting_metadata
-
-properties:
-  trial_id:
-    type: string
-    pattern: "^T[0-9]{4}$"
-    description: Unique trial identifier (e.g., T0001)
-
-  neuron_id:
-    type: string
-    pattern: "^N[0-9]{4}$"
-    description: Unique neuron identifier (e.g., N0001)
-
-  spike_timestamps:
-    type: array
-    items:
-      type: number
-    description: Array of spike timestamps in seconds relative to trial start
-
-  reward_magnitude:
-    type: number
-    minimum: 0
-    description: Magnitude of reward delivered (continuous variable)
-
-  cue_timestamps:
-    type: array
-    items:
-      type: number
-    description: Array of cue presentation timestamps in seconds
-
-  spike_sorting_metadata:
-    type: object
-    required:
-      - snr
-      - isolation_distance
-    properties:
-      snr:
-        type: number
-        minimum: 0
-        description: Signal-to-noise ratio of spike sorting
-      isolation_distance:
-        type: number
-        minimum: 0
-        description: Isolation distance metric for spike sorting
-
-additionalProperties: false
-
-examples:
-  - trial_id: "T0001"
-    neuron_id: "N0001"
-    spike_timestamps: [0.123, 0.456, 0.789]
-    reward_magnitude: 2.5
-    cue_timestamps: [-1.0]
-    spike_sorting_metadata:
-      snr: 5.2
-      isolation_distance: 25.3

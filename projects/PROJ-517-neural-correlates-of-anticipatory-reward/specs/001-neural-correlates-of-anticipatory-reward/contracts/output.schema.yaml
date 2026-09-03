@@ -1,90 +1,56 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Output Report Schema
-description: Schema for expected report structure and plot metadata
-
+title: Neural Correlates Output Schema
+description: Schema for the unified DataFrame and analysis results.
 type: object
-required:
-  - summary_statistics
-  - validation_metrics
-  - model_results
-  - plot_metadata
-
 properties:
-  summary_statistics:
-    type: object
-    properties:
-      total_trials:
-        type: integer
-      valid_trials:
-        type: integer
-      dropped_trials:
-        type: integer
-      reward_levels:
-        type: array
-        items:
-          type: object
-          properties:
-            magnitude:
-              type: number
-            trial_count:
-              type: integer
-
-  validation_metrics:
-    type: object
-    properties:
-      ingestion_rows_total:
-        type: integer
-      ingestion_rows_valid:
-        type: integer
-      ingestion_rows_dropped:
-        type: integer
-      validation_status:
-        type: string
-        enum: [PASS, FAIL, WARN]
-      flags:
-        type: array
-        items:
-          type: string
-
-  model_results:
-    type: object
-    properties:
-      coefficient:
-        type: number
-      p_value:
-        type: number
-      model_family:
-        type: string
-        enum: [Poisson, NegativeBinomial]
-      dispersion:
-        type: number
-      mdes_80_power:
-        type: number
-      cv_score_mean:
-        type: number
-      cv_score_std:
-        type: number
-      neuron_count:
-        type: integer
-      bonferroni_corrected_p:
-        type: number
-      permutation_p_value:
-        type: number
-
-  plot_metadata:
-    type: object
-    properties:
-      figure_path:
-        type: string
-      figure_type:
-        type: string
-        enum: [scatter_with_regression]
-      x_label:
-        type: string
-      y_label:
-        type: string
-      confidence_interval:
-        type: number
-        enum: [95]
-
-additionalProperties: true
+  trial_id:
+    type: string
+    description: Unique identifier for each trial.
+  neuron_id:
+    type: string
+    description: Identifier for the recorded neuron.
+  spike_count:
+    type: integer
+    description: Count of spikes in [-500ms, 0ms] window.
+  reward_magnitude:
+    type: number
+    description: Magnitude of reward delivered.
+  cue_delay_ms:
+    type: number
+    description: Time difference (cue to reward) in milliseconds.
+  valid_spike_sorting:
+    type: boolean
+    description: True if SNR and isolation distance meet thresholds.
+  flagged_short_delay:
+    type: boolean
+    description: True if cue-reward delay < 500ms.
+  firing_rate:
+    type: number
+    description: Calculated firing rate (spikes/sec).
+  cv_score:
+    type: number
+    description: Cross-validation score (R^2 or MSE).
+  mdes:
+    type: number
+    description: Minimum Detectable Effect Size.
+  ingestion_rows_total:
+    type: integer
+    description: Total rows read from input.
+  ingestion_rows_valid:
+    type: integer
+    description: Rows passing validation.
+  ingestion_rows_dropped:
+    type: integer
+    description: Rows dropped due to validation failure.
+required:
+  - trial_id
+  - neuron_id
+  - spike_count
+  - reward_magnitude
+  - valid_spike_sorting
+  - firing_rate
+  - cv_score
+  - mdes
+  - ingestion_rows_total
+  - ingestion_rows_valid
+  - ingestion_rows_dropped
