@@ -1,292 +1,216 @@
 """
-Imbalance handling module for bug prediction pipeline.
+Module: code/src/imbalance_handler.py
 
-This module detects projects with zero buggy files (class imbalance)
-and handles them gracefully by logging warnings and skipping them
-from further analysis.
+Purpose:
+Handle class imbalance in the bug prediction dataset.
+Specifically detects projects (or the aggregate dataset) where the count of buggy files (is_buggy=1) is zero.
+Logs warnings for such cases and filters them out gracefully to prevent model training failures.
+
+Dependencies:
+- pandas
+- logging
+- src.config (for memory limits)
 """
+
 import logging
 import pandas as pd
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
 from src.config import get_memory_limit_bytes
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-
 class ClassImbalanceError(Exception):
-    """Exception raised when a project has no buggy files."""
+    """
+    Custom exception raised when class imbalance is detected and cannot be handled gracefully,
+    or when the dataset becomes empty after filtering.
+    """
     pass
 
-
-def detect_class_imbalance(df: pd.DataFrame, 
-                           project_id_col: str = 'project_id',
-                           target_col: str = 'is_buggy') -> Dict[str, List[str]]:
+def detect_class_imbalance(df: pd.DataFrame, target_col: str = 'is_buggy') -> Dict[str, Any]:
     """
-    Detect projects with zero buggy files in the dataset.
+    Analyze the distribution of the target column to detect class imbalance.
     
     Args:
-        df: DataFrame containing feature data with project_id and target columns.
-        project_id_col: Name of the column containing project identifiers.
-        target_col: Name of the column containing the bug label (0 or 1).
-        
+        df (pd.DataFrame): The input dataframe containing the target column.
+        target_col (str): The name of the target column (default: 'is_buggy').
+    
     Returns:
-        Dictionary with two keys:
-            - 'zero_buggy': List of project IDs with zero buggy files
-            - 'all_buggy': List of project IDs where all files are buggy (edge case)
+        Dict[str, Any]: A dictionary containing:
+            - 'total_samples': Total number of rows.
+            - 'class_0_count': Count of negative class (0).
+            - 'class_1_count': Count of positive class (1).
+            - 'imbalance_ratio': Ratio of class 0 to class 1 (or infinity if class 1 is 0).
+            - 'has_zero_buggy': Boolean indicating if class 1 count is 0.
+            - 'warning': Warning message if imbalance is critical.
     """
-    if project_id_col not in df.columns:
-        raise ValueError(f"Column '{project_id_col}' not found in DataFrame")
     if target_col not in df.columns:
-        raise ValueError(f"Column '{target_col}' not found in DataFrame")
-        
-    zero_buggy_projects = []
-    all_buggy_projects = []
+        raise ValueError(f"Target column '{target_col}' not found in dataframe.")
     
-    # Group by project and check bug distribution
-    project_stats = df.groupby(project_id_col)[target_col].agg(['sum', 'count'])
+    total_samples = len(df)
+    class_1_count = df[target_col].sum()
+    class_0_count = total_samples - class_1_count
     
-    for project_id, stats in project_stats.iterrows():
-        buggy_count = int(stats['sum'])
-        total_count = int(stats['count'])
-        
-        if buggy_count == 0:
-            zero_buggy_projects.append(project_id)
-            logger.warning(
-                f"Project '{project_id}' has {total_count} files but ZERO buggy files. "
-                f"This project will be skipped from modeling to avoid class imbalance issues."
-            )
-        elif buggy_count == total_count:
-            all_buggy_projects.append(project_id)
-            logger.warning(
-                f"Project '{project_id}' has {total_count} files and ALL are buggy. "
-                f"This edge case may also cause modeling issues."
-            )
+    has_zero_buggy = (class_1_count == 0)
+    warning = None
+    
+    if has_zero_buggy:
+        warning = f"CRITICAL: No buggy files (class 1) found in dataset. {class_0_count} clean files present."
+    elif class_1_count < total_samples * 0.05:
+        # Warning if less than 5% are buggy
+        warning = f"WARNING: Severe class imbalance detected. Buggy files: {class_1_count} ({class_1_count/total_samples:.2%})."
+    
+    imbalance_ratio = class_0_count / class_1_count if class_1_count > 0 else float('inf')
     
     return {
-        'zero_buggy': zero_buggy_projects,
-        'all_buggy': all_buggy_projects
+        'total_samples': total_samples,
+        'class_0_count': int(class_0_count),
+        'class_1_count': int(class_1_count),
+        'imbalance_ratio': imbalance_ratio,
+        'has_zero_buggy': has_zero_buggy,
+        'warning': warning
     }
 
-
-def filter_imbalanced_projects(df: pd.DataFrame,
-                               project_id_col: str = 'project_id',
-                               target_col: str = 'is_buggy',
-                               min_buggy_ratio: float = 0.01,
-                               min_buggy_count: int = 1) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+def filter_imbalanced_projects(df: pd.DataFrame, project_col: str = 'project_id', target_col: str = 'is_buggy') -> Tuple[pd.DataFrame, List[str]]:
     """
-    Filter out projects with severe class imbalance.
+    Filter out projects that have zero buggy files.
+    
+    This function groups the data by project, checks if any project has 0 buggy files,
+    logs a warning for those projects, and returns a dataframe excluding them.
     
     Args:
-        df: Input DataFrame with project and target columns.
-        project_id_col: Column name for project identifiers.
-        target_col: Column name for bug labels.
-        min_buggy_ratio: Minimum ratio of buggy files to keep a project (default 0.01 = 1%).
-        min_buggy_count: Minimum absolute count of buggy files to keep a project.
-        
+        df (pd.DataFrame): The input dataframe.
+        project_col (str): The column name identifying the project (default: 'project_id').
+        target_col (str): The target column name (default: 'is_buggy').
+    
     Returns:
-        Tuple of (filtered_df, filter_stats) where filter_stats contains:
-            - 'removed_projects': List of removed project IDs
-            - 'removed_count': Number of rows removed
-            - 'zero_buggy': Projects removed due to zero buggy files
-            - 'low_buggy': Projects removed due to low buggy ratio/count
+        Tuple[pd.DataFrame, List[str]]:
+            - Filtered dataframe with zero-buggy projects removed.
+            - List of project IDs that were removed.
+    
+    Raises:
+        ClassImbalanceError: If the resulting dataframe is empty.
     """
-    if project_id_col not in df.columns:
-        raise ValueError(f"Column '{project_id_col}' not found in DataFrame")
-    if target_col not in df.columns:
-        raise ValueError(f"Column '{target_col}' not found in DataFrame")
+    if project_col not in df.columns:
+        # If no project column exists, treat the whole dataset as one group
+        logger.warning(f"Project column '{project_col}' not found. Treating entire dataset as one group.")
+        stats = detect_class_imbalance(df, target_col)
+        if stats['has_zero_buggy']:
+            logger.error(stats['warning'])
+            raise ClassImbalanceError("Dataset contains no buggy files and cannot be trained.")
+        return df, []
+    
+    removed_projects = []
+    
+    # Group by project and count buggy files
+    project_counts = df.groupby(project_col)[target_col].sum()
+    
+    # Identify projects with zero buggy files
+    zero_buggy_projects = project_counts[project_counts == 0].index.tolist()
+    
+    if zero_buggy_projects:
+        logger.warning(f"Detected {len(zero_buggy_projects)} projects with zero buggy files. Skipping them.")
+        for proj in zero_buggy_projects:
+            logger.warning(f"  - Skipping project: {proj}")
+        removed_projects = zero_buggy_projects
         
-    # Detect imbalanced projects
-    imbalance_info = detect_class_imbalance(df, project_id_col, target_col)
-    
-    zero_buggy = set(imbalance_info['zero_buggy'])
-    all_buggy = set(imbalance_info['all_buggy'])
-    
-    # Additional check for low buggy ratio
-    project_stats = df.groupby(project_id_col)[target_col].agg(['sum', 'count'])
-    low_buggy = set()
-    
-    for project_id, stats in project_stats.iterrows():
-        buggy_count = int(stats['sum'])
-        total_count = int(stats['count'])
+        # Filter the dataframe
+        filtered_df = df[~df[project_col].isin(removed_projects)]
         
-        if buggy_count > 0:  # Already handled zero case
-            ratio = buggy_count / total_count
-            if ratio < min_buggy_ratio or buggy_count < min_buggy_count:
-                low_buggy.add(project_id)
-                logger.warning(
-                    f"Project '{project_id}' has only {buggy_count}/{total_count} buggy files "
-                    f"(ratio={ratio:.4f}). This is below threshold and will be skipped."
-                )
+        if filtered_df.empty:
+            raise ClassImbalanceError(
+                f"After filtering {len(removed_projects)} zero-buggy projects, the dataset is empty. "
+                "Cannot proceed with modeling."
+            )
+        
+        logger.info(f"Filtered dataset shape: {filtered_df.shape}. Removed {len(removed_projects)} projects.")
+        return filtered_df, removed_projects
     
-    # Combine all projects to remove
-    projects_to_remove = zero_buggy | all_buggy | low_buggy
-    
-    if not projects_to_remove:
-        logger.info("No projects with class imbalance detected. Keeping all data.")
-        return df, {
-            'removed_projects': [],
-            'removed_count': 0,
-            'zero_buggy': [],
-            'all_buggy': [],
-            'low_buggy': []
-        }
-    
-    # Filter the DataFrame
-    filtered_df = df[~df[project_id_col].isin(projects_to_remove)]
-    removed_count = len(df) - len(filtered_df)
-    
-    logger.info(
-        f"Class imbalance handling complete. Removed {removed_count} rows "
-        f"from {len(projects_to_remove)} projects. "
-        f"Remaining: {len(filtered_df)} rows."
-    )
-    
-    return filtered_df, {
-        'removed_projects': list(projects_to_remove),
-        'removed_count': removed_count,
-        'zero_buggy': list(zero_buggy),
-        'all_buggy': list(all_buggy),
-        'low_buggy': list(low_buggy)
-    }
+    logger.info("No zero-buggy projects detected. Proceeding with full dataset.")
+    return df, []
 
-
-def save_imbalance_report(stats: Dict[str, Any], output_path: Path) -> None:
+def save_imbalance_report(stats: Dict[str, Any], removed_projects: List[str], output_path: Path) -> None:
     """
-    Save the class imbalance handling report to a JSON file.
+    Save the class imbalance analysis and filtering report to a file.
     
     Args:
-        stats: Dictionary containing imbalance statistics from filter_imbalanced_projects.
-        output_path: Path to save the JSON report.
+        stats (Dict[str, Any]): The statistics dictionary from detect_class_imbalance.
+        removed_projects (List[str]): List of project IDs that were removed.
+        output_path (Path): Path to the output file (e.g., 'data/results/imbalance_report.json').
     """
-    import json
+    report = {
+        'statistics': stats,
+        'removed_projects': removed_projects,
+        'num_removed_projects': len(removed_projects),
+        'status': 'success' if not stats['has_zero_buggy'] else 'critical_zero_buggy_detected'
+    }
+    
+    if stats['has_zero_buggy'] and not removed_projects:
+        # This case implies the whole dataset was checked and found empty of bugs, but no project filtering happened
+        report['status'] = 'critical_zero_buggy_detected'
     
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    report = {
-        'summary': {
-            'total_removed_projects': len(stats['removed_projects']),
-            'total_removed_rows': stats['removed_count'],
-            'projects_with_zero_buggy': len(stats['zero_buggy']),
-            'projects_with_all_buggy': len(stats['all_buggy']),
-            'projects_with_low_buggy_ratio': len(stats['low_buggy'])
-        },
-        'details': {
-            'zero_buggy_projects': stats['zero_buggy'],
-            'all_buggy_projects': stats['all_buggy'],
-            'low_buggy_ratio_projects': stats['low_buggy']
-        }
-    }
-    
     with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(report, f, indent=2)
-        
-    logger.info(f"Class imbalance report saved to {output_path}")
-
+        import json
+        json.dump(report, f, indent=2, default=str)
+    
+    logger.info(f"Imbalance report saved to {output_path}")
 
 def main() -> int:
     """
-    Main entry point for class imbalance handling.
-    
-    Reads the features.csv, detects and filters imbalanced projects,
-    saves the filtered dataset and a report.
+    Main entry point for the imbalance handler script.
+    Reads the processed features CSV, performs imbalance detection and filtering,
+    and saves the cleaned dataset and report.
     
     Returns:
-        0 on success, 1 on failure.
+        int: Exit code (0 for success, 1 for failure).
     """
-    import argparse
-    import sys
-    
-    parser = argparse.ArgumentParser(
-        description='Handle class imbalance in bug prediction dataset'
-    )
-    parser.add_argument(
-        '--input', '-i',
-        type=str,
-        default='code/data/processed/features.csv',
-        help='Path to input features CSV'
-    )
-    parser.add_argument(
-        '--output', '-o',
-        type=str,
-        default='code/data/processed/features_balanced.csv',
-        help='Path to output balanced features CSV'
-    )
-    parser.add_argument(
-        '--report', '-r',
-        type=str,
-        default='code/data/results/imbalance_report.json',
-        help='Path to save imbalance handling report'
-    )
-    parser.add_argument(
-        '--min-buggy-ratio',
-        type=float,
-        default=0.01,
-        help='Minimum ratio of buggy files to keep a project'
-    )
-    parser.add_argument(
-        '--min-buggy-count',
-        type=int,
-        default=1,
-        help='Minimum absolute count of buggy files to keep a project'
-    )
-    
-    args = parser.parse_args()
-    
     try:
-        # Load data
-        input_path = Path(args.input)
+        # Define paths relative to project root
+        # Assuming this script runs from code/ directory
+        project_root = Path(__file__).resolve().parent.parent
+        input_path = project_root / 'data' / 'processed' / 'features.csv'
+        output_path = project_root / 'data' / 'processed' / 'features_cleaned.csv'
+        report_path = project_root / 'data' / 'results' / 'imbalance_report.json'
+        
         if not input_path.exists():
             logger.error(f"Input file not found: {input_path}")
             return 1
         
-        logger.info(f"Loading data from {input_path}")
+        logger.info(f"Loading features from {input_path}...")
         df = pd.read_csv(input_path)
-        logger.info(f"Loaded {len(df)} rows with columns: {list(df.columns)}")
         
-        # Check required columns
-        required_cols = ['project_id', 'is_buggy']
-        for col in required_cols:
-            if col not in df.columns:
-                logger.error(f"Required column '{col}' not found in input data")
-                return 1
+        # Detect imbalance on the full dataset
+        stats = detect_class_imbalance(df)
         
-        # Handle imbalance
-        filtered_df, stats = filter_imbalanced_projects(
-            df,
-            project_id_col='project_id',
-            target_col='is_buggy',
-            min_buggy_ratio=args.min_buggy_ratio,
-            min_buggy_count=args.min_buggy_count
-        )
+        if stats['warning']:
+            logger.warning(stats['warning'])
         
-        # Save filtered data
-        output_path = Path(args.output)
+        # Filter out zero-buggy projects
+        # Assuming 'project_id' is in the dataframe; if not, it treats whole dataset as one group
+        filtered_df, removed_projects = filter_imbalanced_projects(df)
+        
+        # Save cleaned dataset
         filtered_df.to_csv(output_path, index=False)
-        logger.info(f"Saved filtered data to {output_path}")
+        logger.info(f"Cleaned dataset saved to {output_path}")
         
         # Save report
-        report_path = Path(args.report)
-        save_imbalance_report(stats, report_path)
-        
-        # Summary
-        logger.info("=" * 60)
-        logger.info("CLASS IMBALANCE HANDLING SUMMARY")
-        logger.info("=" * 60)
-        logger.info(f"Original rows: {len(df)}")
-        logger.info(f"Filtered rows: {len(filtered_df)}")
-        logger.info(f"Rows removed: {stats['removed_count']}")
-        logger.info(f"Projects with zero buggy files: {len(stats['zero_buggy'])}")
-        logger.info(f"Projects with all buggy files: {len(stats['all_buggy'])}")
-        logger.info(f"Projects with low buggy ratio: {len(stats['low_buggy'])}")
-        logger.info("=" * 60)
+        save_imbalance_report(stats, removed_projects, report_path)
         
         return 0
         
+    except ClassImbalanceError as e:
+        logger.error(f"Class Imbalance Error: {e}")
+        return 1
     except Exception as e:
-        logger.error(f"Error during class imbalance handling: {e}", exc_info=True)
+        logger.error(f"Unexpected error: {e}", exc_info=True)
         return 1
 
-
 if __name__ == '__main__':
+    import sys
     sys.exit(main())

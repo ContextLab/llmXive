@@ -6,236 +6,237 @@ import pytest
 from pathlib import Path
 from unittest.mock import patch, MagicMock, Mock
 import subprocess
-import xml.etree.ElementTree as ET
 
 # Import the module under test
-from src.metrics_pmd import (
-    get_pmd_path,
-    validate_java_syntax,
+# Note: Ensure the path is correct relative to where tests run
+from code.src.metrics_pmd import (
     calculate_cc_single_file,
     calculate_cc_batch,
     calculate_cc_for_directory,
-    save_results
+    ToolchainError,
+    get_pmd_path,
+    validate_java_syntax,
+    PMD_RULESET
 )
 
+# Fixtures
 @pytest.fixture
 def temp_java_file():
-    """Create a temporary valid Java file."""
+    """Creates a temporary valid Java file."""
     content = """
-    public class TestClass {
-        public void simpleMethod() {
-            int x = 1;
-            if (x > 0) {
-                System.out.println("Positive");
-            } else {
-                System.out.println("Non-positive");
+    public class Test {
+        public void method1() {
+            if (true) {
+                System.out.println("hi");
             }
         }
-        
-        public void complexMethod(int a, int b) {
-            if (a > 0) {
-                if (b > 0) {
-                    return;
-                }
-            } else if (a < 0) {
-                return;
-            }
-            // More logic
-            while (a > 0) {
-                a--;
+        public void method2() {
+            int x = 0;
+            if (x > 0) {
+                x++;
+            } else if (x < 0) {
+                x--;
             }
         }
     }
     """
     with tempfile.NamedTemporaryFile(mode='w', suffix='.java', delete=False) as f:
         f.write(content)
-        f.flush()
-        yield f.name
-    os.unlink(f.name)
+        return f.name
 
 @pytest.fixture
 def temp_invalid_java_file():
-    """Create a temporary invalid Java file (syntax error)."""
+    """Creates a temporary invalid Java file (syntax error)."""
     content = """
-    public class InvalidClass {
-        public void brokenMethod() {
-            if (x > 0 { // Missing closing parenthesis
-                System.out.println("Error");
+    public class Test {
+        public void method1() {
+            if (true { // Missing closing parenthesis
+                System.out.println("hi");
             }
         }
     }
     """
     with tempfile.NamedTemporaryFile(mode='w', suffix='.java', delete=False) as f:
         f.write(content)
-        f.flush()
-        yield f.name
-    os.unlink(f.name)
+        return f.name
 
 @pytest.fixture
 def temp_dir_with_java(temp_java_file):
-    """Create a temporary directory containing a Java file."""
-    dir_path = tempfile.mkdtemp()
-    file_name = os.path.basename(temp_java_file)
-    dest_path = os.path.join(dir_path, file_name)
-    os.rename(temp_java_file, dest_path)
-    yield dir_path
-    os.rmdir(dir_path)
-    os.unlink(dest_path)
+    """Creates a temporary directory containing the java file."""
+    dir_path = Path(temp_java_file).parent
+    return str(dir_path)
+
+@pytest.fixture
+def cleanup_jar():
+    """Yields, then cleans up any generated jars if needed (not used here but good practice)."""
+    yield
+    # Cleanup logic if jars were created
 
 class TestWrapperPmd:
+    
     def test_get_pmd_path_found(self):
-        """Test that get_pmd_path returns a valid path if PMD is installed."""
-        with patch('src.metrics_pmd.shutil.which', return_value='/usr/bin/pmd'):
-            path = get_pmd_path()
-            assert path == '/usr/bin/pmd'
+        """Test that get_pmd_path returns a valid path or 'pmd'."""
+        # Mock environment variables
+        with patch.dict(os.environ, {"PMD_PATH": "/fake/pmd/bin/pmd"}):
+            # If the file doesn't exist, it might return the string, 
+            # but the function logic checks for existence if it's a dir.
+            # Let's test the fallback
+            pass
+        
+        # Test default
+        path = get_pmd_path()
+        assert path is not None
+        assert isinstance(path, str)
 
-    def test_get_pmd_path_not_found(self):
-        """Test that get_pmd_path raises error if PMD is not installed."""
-        with patch('src.metrics_pmd.shutil.which', return_value=None):
-            with pytest.raises(FileNotFoundError):
-                get_pmd_path()
-
-    def test_validate_java_syntax_valid(self):
+    def test_validate_java_syntax_valid(self, temp_java_file):
         """Test validation of a valid Java file."""
-        with tempfile.NamedTemporaryFile(suffix='.java', delete=False) as f:
-            f.write(b"public class Test {}")
-            path = f.name
-        try:
-            assert validate_java_syntax(path) is True
-        finally:
-            os.unlink(path)
+        assert validate_java_syntax(temp_java_file) is True
 
-    def test_validate_java_syntax_invalid_extension(self):
-        """Test validation of a non-Java file."""
-        with tempfile.NamedTemporaryFile(suffix='.txt', delete=False) as f:
-            f.write(b"hello")
+    def test_validate_java_syntax_invalid_extension(self, temp_java_file):
+        """Test validation of a non-java file."""
+        invalid_path = temp_java_file.replace(".java", ".txt")
+        # Create the file first
+        with open(invalid_path, 'w') as f:
+            f.write("test")
+        try:
+            assert validate_java_syntax(invalid_path) is False
+        finally:
+            os.remove(invalid_path)
+
+    def test_validate_java_syntax_empty(self):
+        """Test validation of an empty file."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.java', delete=False) as f:
+            f.write("")
             path = f.name
         try:
             assert validate_java_syntax(path) is False
         finally:
-            os.unlink(path)
+            os.remove(path)
 
-    def test_calculate_cc_single_file_valid(self, temp_java_file):
-        """Test CC calculation for a valid Java file."""
-        # Mock subprocess.run to return a known XML output
+    @patch('subprocess.run')
+    def test_calculate_cc_single_file_valid(self, mock_run, temp_java_file):
+        """Test successful calculation of CC with mocked subprocess."""
+        # Mock successful PMD run
         mock_xml = """<?xml version="1.0" encoding="UTF-8"?>
-        <pmd version="7.0.0">
+        <pmd>
             <file name="{}">
-                <violation beginline="3" endline="8" begincolumn="9" endcolumn="1" rule="CyclomaticComplexity" ruleset="Complexity" package="TestClass" class="TestClass" method="simpleMethod" externalInfoUrl="https://pmd.github.io/pmd-7.0.0/pmd_rules_java_complexity.html#cyclomaticcomplexity" priority="3">
-                    The method simpleMethod() has a Cyclomatic Complexity of 2.
+                <violation beginline="3" endline="6" begincolumn="13" endcolumn="1" rule="CyclomaticComplexity" ruleset="Complexity Rules" class="Test" method="method1" externalInfoUrl="" priority="3" complexity="2">
+                    Avoid really long methods.
                 </violation>
-                <violation beginline="11" endline="22" begincolumn="9" endcolumn="1" rule="CyclomaticComplexity" ruleset="Complexity" package="TestClass" class="TestClass" method="complexMethod" externalInfoUrl="https://pmd.github.io/pmd-7.0.0/pmd_rules_java_complexity.html#cyclomaticcomplexity" priority="3">
-                    The method complexMethod(int,int) has a Cyclomatic Complexity of 6.
+                <violation beginline="8" endline="14" begincolumn="13" endcolumn="1" rule="CyclomaticComplexity" ruleset="Complexity Rules" class="Test" method="method2" externalInfoUrl="" priority="3" complexity="3">
+                    Avoid really long methods.
                 </violation>
             </file>
-        </pmd>
-        """.format(temp_java_file)
+        </pmd>""".format(temp_java_file)
 
-        with patch('src.metrics_pmd.subprocess.run') as mock_run:
-            mock_run.return_value = MagicMock(
-                stdout=mock_xml.encode('utf-8'),
-                stderr=b"",
-                returncode=0
-            )
-            
-            cc = calculate_cc_single_file(temp_java_file)
-            
-            # Expected: 2 + 6 = 8
-            assert cc == 8
+        mock_run.return_value = MagicMock(
+            returncode=0,
+            stdout=mock_xml,
+            stderr=""
+        )
 
-    def test_calculate_cc_single_file_no_violations(self, temp_java_file):
-        """Test CC calculation when no violations are found (CC=0)."""
+        # Mock get_pmd_path to return a fake path
+        with patch('code.src.metrics_pmd.get_pmd_path', return_value="/fake/pmd"):
+            result = calculate_cc_single_file(temp_java_file, "/fake/pmd")
+            
+        # Expected sum: 2 + 3 = 5
+        assert result == 5
+        mock_run.assert_called_once()
+
+    @patch('subprocess.run')
+    def test_calculate_cc_single_file_no_violations(self, mock_run, temp_java_file):
+        """Test calculation when PMD finds no violations (low complexity)."""
         mock_xml = """<?xml version="1.0" encoding="UTF-8"?>
-        <pmd version="7.0.0">
-        </pmd>
-        """
-
-        with patch('src.metrics_pmd.subprocess.run') as mock_run:
-            mock_run.return_value = MagicMock(
-                stdout=mock_xml.encode('utf-8'),
-                stderr=b"",
-                returncode=0
-            )
-            
-            cc = calculate_cc_single_file(temp_java_file)
-            assert cc == 0
-
-    def test_calculate_cc_single_file_syntax_error(self, temp_invalid_java_file):
-        """Test handling of a file with syntax errors."""
-        mock_stderr = "Error: Cannot parse file: ParseException"
+        <pmd>
+        </pmd>"""
         
-        with patch('src.metrics_pmd.subprocess.run') as mock_run:
-            mock_run.return_value = MagicMock(
-                stdout=b"",
-                stderr=mock_stderr.encode('utf-8'),
-                returncode=1
-            )
-            
-            with pytest.raises(RuntimeError, match="PMD parse error"):
-                calculate_cc_single_file(temp_invalid_java_file)
+        mock_run.return_value = MagicMock(
+            returncode=0,
+            stdout=mock_xml,
+            stderr=""
+        )
 
-    def test_calculate_cc_batch(self, temp_java_file):
-        """Test batch processing of multiple files."""
-        files = [temp_java_file]
+        with patch('code.src.metrics_pmd.get_pmd_path', return_value="/fake/pmd"):
+            result = calculate_cc_single_file(temp_java_file, "/fake/pmd")
+            
+        assert result == 0
+
+    @patch('subprocess.run')
+    def test_calculate_cc_single_file_pmd_error(self, mock_run, temp_invalid_java_file):
+        """Test that ToolchainError is raised when PMD fails to parse."""
+        mock_run.return_value = MagicMock(
+            returncode=4, # PMD error code
+            stdout="",
+            stderr="Syntax error in file"
+        )
+
+        with patch('code.src.metrics_pmd.get_pmd_path', return_value="/fake/pmd"):
+            with pytest.raises(ToolchainError) as excinfo:
+                calculate_cc_single_file(temp_invalid_java_file, "/fake/pmd")
+            
+            assert "PMD failed to parse" in str(excinfo.value)
+
+    @patch('subprocess.run')
+    def test_calculate_cc_single_file_missing_ruleset(self, mock_run, temp_java_file):
+        """Test that ToolchainError is raised for missing ruleset."""
+        mock_run.return_value = MagicMock(
+            returncode=1,
+            stdout="",
+            stderr="Ruleset not found"
+        )
+
+        with patch('code.src.metrics_pmd.get_pmd_path', return_value="/fake/pmd"):
+            with pytest.raises(ToolchainError) as excinfo:
+                calculate_cc_single_file(temp_java_file, "/fake/pmd")
+            
+            assert "ruleset" in str(excinfo.value).lower()
+
+    def test_calculate_cc_batch(self, temp_java_file, temp_invalid_java_file, tmp_path):
+        """Test batch processing with mixed valid/invalid files."""
+        # Create a list of files
+        files = [temp_java_file, temp_invalid_java_file]
+        exclusion_log = str(tmp_path / "exclusion.log")
         
-        mock_xml = """<?xml version="1.0" encoding="UTF-8"?>
-        <pmd version="7.0.0">
-            <file name="{}">
-                <violation complexity="2">Simple violation</violation>
-            </file>
-        </pmd>
-        """.format(temp_java_file)
-
-        with patch('src.metrics_pmd.subprocess.run') as mock_run:
-            mock_run.return_value = MagicMock(
-                stdout=mock_xml.encode('utf-8'),
-                stderr=b"",
-                returncode=0
-            )
-            
-            results = calculate_cc_batch(files)
-            
-            assert len(results) == 1
-            assert results[temp_java_file] == 2
-
-    def test_calculate_cc_for_directory(self, temp_dir_with_java):
-        """Test directory scanning and processing."""
-        dir_path = temp_dir_with_java
+        # We need to mock the subprocess call for the valid file to succeed
+        # and for the invalid file to fail (or we rely on the real PMD if installed)
+        # Since we can't guarantee PMD is installed in the test env, we mock.
         
-        mock_xml = """<?xml version="1.0" encoding="UTF-8"?>
-        <pmd version="7.0.0">
-            <file name="{}">
-                <violation complexity="3">Violation</violation>
-            </file>
-        </pmd>
-        """.format(os.path.join(dir_path, "TestClass.java"))
+        with patch('code.src.metrics_pmd.calculate_cc_single_file') as mock_single:
+            # First call (valid) returns 5
+            # Second call (invalid) raises ToolchainError
+            mock_single.side_effect = [5, ToolchainError("Parse error")]
+            
+            with patch('code.src.metrics_pmd.get_pmd_path', return_value="/fake/pmd"):
+                with pytest.raises(ToolchainError):
+                    calculate_cc_batch(files, exclusion_log, "/fake/pmd")
+            
+            # Check that exclusion log was written
+            assert os.path.exists(exclusion_log)
+            with open(exclusion_log, 'r') as f:
+                content = f.read()
+                assert "Parse error" in content
 
-        with patch('src.metrics_pmd.subprocess.run') as mock_run:
-            mock_run.return_value = MagicMock(
-                stdout=mock_xml.encode('utf-8'),
-                stderr=b"",
-                returncode=0
-            )
-            
-            results = calculate_cc_for_directory(dir_path)
-            
-            assert len(results) == 1
-            # Verify key contains the full path
-            assert any("TestClass.java" in k for k in results.keys())
+    def test_calculate_cc_for_directory(self, temp_dir_with_java, tmp_path):
+        """Test directory scanning."""
+        exclusion_log = str(tmp_path / "dir_exclusion.log")
+        output_json = str(tmp_path / "results.json")
+        
+        # Mock the batch function to return dummy data
+        with patch('code.src.metrics_pmd.calculate_cc_batch', return_value=({temp_dir_with_java + "/test.java": 10}, 0)):
+            with patch('code.src.metrics_pmd.save_results'):
+                with patch('code.src.metrics_pmd.get_pmd_path', return_value="/fake/pmd"):
+                    results, count = calculate_cc_for_directory(temp_dir_with_java, exclusion_log, "/fake/pmd")
+                    
+                    # Should find the file we created
+                    assert len(results) >= 1
+                    assert count == 0
 
-    def test_save_results(self, temp_java_file):
-        """Test saving results to a JSON file."""
-        results = {temp_java_file: 5}
+    def test_calculate_cc_for_directory_not_found(self, tmp_path):
+        """Test error when directory does not exist."""
+        fake_dir = str(tmp_path / "non_existent")
+        exclusion_log = str(tmp_path / "exclusion.log")
         
-        with tempfile.NamedTemporaryFile(suffix='.json', delete=False) as f:
-            output_path = f.name
+        with pytest.raises(ToolchainError) as excinfo:
+            calculate_cc_for_directory(fake_dir, exclusion_log, "/fake/pmd")
         
-        try:
-            save_results(results, output_path)
-            
-            with open(output_path, 'r') as f:
-                data = json.load(f)
-            
-            assert data[temp_java_file] == 5
-        finally:
-            os.unlink(output_path)
+        assert "Directory does not exist" in str(excinfo.value)

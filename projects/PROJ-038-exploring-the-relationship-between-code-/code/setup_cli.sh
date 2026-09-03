@@ -1,54 +1,67 @@
 #!/bin/bash
 # setup_cli.sh
-# Installs Defects4j CLI dependencies (OpenJDK 17) and PMD (v7.0.0)
-# to support Cyclomatic Complexity metric extraction.
-#
-# Requirements:
-# - Apt package manager (Debian/Ubuntu based)
-# - Root/sudo privileges
+# Installs system-level dependencies required for the Defects4J CLI and PMD static analysis tool.
+# This script must be run with sudo privileges.
 #
 # Prerequisites:
-# - T000a (External Governance Verification) must have passed.
-# - T001a (Directory Structure) must exist.
+# - A Debian/Ubuntu-based environment
+# - Internet access for package retrieval
+#
+# Dependencies installed:
+# - openjdk-17-jdk (Pinned to 17.0.9+1 for reproducibility)
+# - pmd-bin (Pinned to 7.0.0 for reproducibility)
+#
+# Verification:
+# - defects4j --version
+# - pmd --version
 
-set -e
+set -euo pipefail
 
-echo ">>> [T002c] Starting CLI Tool Setup (Defects4j & PMD)..."
+echo ">>> [T002c] Starting CLI tool installation (Defects4J & PMD)..."
 
 # Update package lists
 echo ">>> Updating apt package lists..."
-apt-get update
+sudo apt-get update
 
-# Install OpenJDK 17 (pinned version for reproducibility)
-# Defects4j requires Java 8+; 17 is selected for modern compatibility.
-echo ">>> Installing OpenJDK 17..."
-apt-get install -y openjdk-17-jdk=17.0.9+1
+# Install OpenJDK 17 (Pinned version)
+echo ">>> Installing OpenJDK 17 (pinned to 17.0.9+1)..."
+sudo apt-get install -y openjdk-17-jdk=17.0.9+1
 
 # Verify Java installation
-echo ">>> Verifying Java installation..."
-java -version
-
-# Install PMD (pinned to 7.0.0 as per spec)
-# Note: 'pmd-bin' is the package name in standard Debian/Ubuntu repos for PMD.
-# If the specific version 7.0.0 is not in the default repo, the install may fail.
-# The task requires exact versioning for reproducibility.
-echo ">>> Installing PMD 7.0.0..."
-apt-get install -y pmd-bin=7.0.0
-
-# Verification steps
-echo ">>> Verifying PMD installation..."
-if command -v pmd &> /dev/null; then
-    PMD_VERSION=$(pmd --version)
-    echo "PMD Version: $PMD_VERSION"
-else
-    echo "ERROR: PMD command not found after installation."
+if ! command -v java &> /dev/null; then
+    echo "ERROR: Java installation failed."
     exit 1
 fi
+echo ">>> Java version check:"
+java -version
 
-# Note: 'defects4j' CLI is typically installed via Perl CPAN or a specific script
-# after the Java environment is ready. This script ensures the *prerequisites*
-# (Java and PMD) are met as requested by the task description.
-# The Defects4j client itself is usually invoked via `defects4j` if the PATH is set,
-# or via the Perl script. We verify the environment is ready for it.
-echo ">>> Environment ready for Defects4j and PMD usage."
-echo ">>> [T002c] Setup complete."
+# Install PMD (Pinned version)
+# Note: pmd-bin is the package name in many Debian/Ubuntu repos for PMD 7.x
+echo ">>> Installing PMD (pinned to 7.0.0)..."
+sudo apt-get install -y pmd-bin=7.0.0
+
+# Verify PMD installation
+if ! command -v pmd &> /dev/null; then
+    echo "ERROR: PMD installation failed."
+    exit 1
+fi
+echo ">>> PMD version check:"
+pmd --version
+
+# Note: Defects4J CLI is typically installed via git clone and a setup script.
+# This task specifically requested the installation of the *tools* (JDK and PMD)
+# via apt. If 'defects4j' is not in PATH, it implies the Defects4J repository
+# itself needs to be cloned and sourced separately (often handled in T004b or T013).
+# However, we verify if it exists as requested.
+if command -v defects4j &> /dev/null; then
+    echo ">>> Defects4J CLI found:"
+    defects4j --version
+else
+    echo ">>> WARNING: 'defects4j' command not found in PATH."
+    echo ">>> This is expected if the Defects4J repository has not yet been cloned and sourced."
+    echo ">>> Ensure Defects4J is installed separately (e.g., via git clone https://github.com/rjust/defects4j.git) and sourced."
+fi
+
+echo ">>> [T002c] CLI tool installation complete."
+echo ">>> Please ensure Defects4J repository is cloned and sourced before running the pipeline."
+exit 0

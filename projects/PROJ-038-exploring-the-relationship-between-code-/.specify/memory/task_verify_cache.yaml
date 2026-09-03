@@ -1,10 +1,22 @@
-T001b:
+T000a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact (e.g., a created `venv` directory, activation script, or command
-    output) was provided to demonstrate that the Python virtual environment was actually
-    initialized and activated in a single bash session. Without such evidence, the
-    requirement cannot be confirmed.
+  r: The claim provides no evidence of the two required markdown files (`amendment_pr_description.md`
+    and `amendment_sync_impact_report.md`). Neither file is present, linked, nor its
+    contents shown, so the deliverables are missing. The task is not satisfied.
+T000b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `amendment_ratified.md` file is present in the provided evidence, so the required
+    validation step cannot be performed and the deliverable (exit code 0 on file existence)
+    is not demonstrated. The task remains pending human action and the marker file.
+T000c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `constitutions/FR-030.md` file (or its contents) is present to check for\
+    \ the new Principle\u202FVI text and version bump, and there is no script or exit\u2011\
+    code output demonstrating the grep\u2011based validation against `amendment_ratified.md`.\
+    \ The required artifact and verification result are missing."
 T001c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -12,13 +24,6 @@ T001c:
     `python --version`) is provided; the claim consists only of command descriptions
     without any evidence that the virtual environment was created or verified. The
     required tangible proof is missing.
-T014b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The evidence contains only the task description and project specifications;\
-    \ there is no Python wrapper script, no parsing logic, and no output files (e.g.,\
-    \ a generated CSV or logs) provided. Consequently, the required artifact\u2014\
-    the implemented Python wrapper for PMD CLI integration\u2014is missing."
 T014c:
   c: false
   h: cb223623742140d46e24e8a0db52db1fbdda1207d61046d59d72a88a2cb7c48f
@@ -28,11 +33,20 @@ T014c:
     \ not provided."
 T018:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or configuration implementing the required NaN\u2011validation\
-    \ step was provided, nor any logs, error class definition, or evidence that the\
-    \ step runs before T017. The artifact (validation logic and its integration) is\
-    \ missing, so the task\u2019s requirement is not satisfied."
+  h: 9b68d86f3f10a66f9cc2912b3093a6f730864b4193501402fbab33138cdd3ff5
+  r: The repository contains `code/src/ingest.py`, but the shown portion does not
+    include a `validate_features()` implementation, nor any logic for NaN checking,
+    row dropping, or logging to `exclusions.log`. Moreover, the required `code/data/processed/exclusions.log`
+    file is absent. Consequently, the primary deliverable and the core functionality
+    are missing.
+T021:
+  c: false
+  h: e57108e3253e169e3ad08fb2eaedc79be170361e695debde0efd84e3f59cbcf7
+  r: "The repository contains a partially implemented `analysis.py`, but it does not\
+    \ include logic to write the required `code/data/results/correlation_report.json`.\
+    \ Moreover, the JSON report file is absent from the project. The task\u2019s deliverable\u2014\
+    producing a JSON file with the specified correlation metrics\u2014is therefore\
+    \ not satisfied."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -41,11 +55,3 @@ T024:
     \ claim lacks any artifact (e.g., a Python function, notebook cell, or result\
     \ CSV) that computes and reports the mean and standard deviation, so the requirement\
     \ is not satisfied."
-T025:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "I examined the repository for any script, module, or documentation that detects\
-    \ projects with zero buggy files, logs a warning, and skips them gracefully as\
-    \ required by T025\u202F[US2]. No such code, configuration, or output logs were\
-    \ present; the only artifacts relate to metric extraction and correlation analysis.\
-    \ The task\u2019s specific handling of class\u2011imbalance is therefore missing."

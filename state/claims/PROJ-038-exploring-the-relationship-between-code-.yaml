@@ -687,3 +687,156 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-29T19:43:46Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/tasks.md
+  attempts: 1
+  canonical: Install openjdk-17-jdk version 17.0.9+1 and pmd-bin version 7.0.0
+  claim_id: c_4d6a8c01
+  context: Task T002c implements setup_cli.sh to install defects4j CLI tool and PMD
+    with exact system package versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Exact Command: apt-get update && apt-get install -y openjdk-17-jdk=17.0.9+1
+    pmd-bin=7.0.0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T17:43:33Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/tasks.md
+  attempts: 1
+  canonical: 'Pinned Python dependency versions: pandas 2.1.0, scikit-learn 1.3.0,
+    scipy 1.11.0, matplotlib 3.8.0, seaborn 0.13.0, tree-sitter 0.20.0, tree-sitter-java
+    0.20.0, pytest 7.4.0'
+  claim_id: c_3b2b8be2
+  context: Task T002a creates code/requirements.txt with specific pinned versions
+    for all required Python libraries.
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: pandas==2.1.0, scikit-learn==1.3.0, scipy==1.11.0, matplotlib==3.8.0,
+    seaborn==0.13.0, tree-sitter==0.20.0, tree-sitter-java==0.20.0, pytest==7.4.0
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T17:43:42Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/tasks.md
+  attempts: 1
+  canonical: Use javaparser-python version 3.x to compute Halstead Volume
+  claim_id: c_b866362a
+  context: Task T014c specifies using javaparser-python (v3.x) to parse Java AST for
+    metric extraction.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/src/metrics/halstead.py using javaparser-python (v3.x)
+    to compute Halstead Volume.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T17:43:56Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/tasks.md
+  attempts: 1
+  canonical: Repeated 5-Fold Cross-Validation with 10 repeats and seed 42
+  claim_id: c_a4598ba3
+  context: Task T023 specifies the cross-validation strategy for training baseline
+    models in User Story 2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Logistic Regression and Random Forest with Repeated 5-Fold Cross-Validation
+    (10 repeats, seed=42)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T17:44:34Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/tasks.md
+  attempts: 1
+  canonical: Aggregate feature importance across 50 folds (10 repeats times 5 folds)
+  claim_id: c_3f8591b5
+  context: Task T029 specifies aggregating feature importance weights from the Random
+    Forest model trained with 10 repeats of 5-fold CV.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate the mean importance across all 50 folds (10 repeats * 5 folds)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T17:44:53Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/tasks.md
+  attempts: 1
+  canonical: Pipeline fails if aggregate memory usage exceeds 7GB
+  claim_id: c_a3f3c1a8
+  context: Task T019 defines the global memory monitoring logic and failure threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Fail Condition: If logged aggregate memory > 7GB, raise MemoryLimitExceeded
+    and exit 1'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T17:44:54Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/tasks.md
+  attempts: 1
+  canonical: Pipeline execution timeout set to 6 hours
+  claim_id: c_c2cdc3de
+  context: Task T001e implements a time-limit enforcement wrapper for the entire pipeline.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: timeout 6h wrapper that executes the entire pipeline
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T17:45:36Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/tasks.md
+  attempts: 1
+  canonical: Statistical significance threshold alpha set to 0.05
+  claim_id: c_ce262870
+  context: Task T031 specifies the threshold for the Paired Permutation Test comparing
+    ROC-AUC distributions.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts:
+      - channel: wikipedia
+        source_id: Statistical significance
+        url: https://en.wikipedia.org/wiki/Statistical_significance
+        value: 5%
+      quote: A possible result of the experiment that we consider here is 5 heads.
+        Let outcomes be considered unlikely with respect to an assumed distribution
+        if their probability is lower than a significance threshold of 0.05.
+      source_id: Statistical hypothesis test
+      url: https://en.wikipedia.org/wiki/Statistical_hypothesis_test
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: 'Threshold: alpha=0.05'
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T17:45:48Z'

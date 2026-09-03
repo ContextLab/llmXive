@@ -1,0 +1,7 @@
+'|alpha threshold':
+  quote: A possible result of the experiment that we consider here is 5 heads. Let
+    outcomes be considered unlikely with respect to an assumed distribution if their
+    probability is lower than a significance threshold of 0.05.
+  source_id: Statistical hypothesis test
+  url: https://en.wikipedia.org/wiki/Statistical_hypothesis_test
+  value: '0.05'

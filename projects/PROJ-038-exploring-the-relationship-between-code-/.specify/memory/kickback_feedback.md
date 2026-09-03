@@ -4,8 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T000a` (rejected 1x): I looked for the required artifact `specs/001-code-complexity-bug-prediction/methodology_rationale.md` and its contents, but no such file or any excerpt of its text was provided. Without the actual markdown document documenting the conflict between Constitution Principle VI and the spec’s required methods, the task is not satisfied. The missing file must be created and populated with the described rationale.
-- `T001a` (rejected 1x): No evidence of the required `code/` directory hierarchy (e.g., `code/src`, `code/tests`, etc.) is provided; the claim cannot be verified without seeing the actual filesystem entries. The implementer must supply a listing or screenshot showing that the directories were created.
+- `T014b` (rejected 1x): The evidence contains only the task description and project specifications; there is no Python wrapper script, no parsing logic, and no output files (e.g., a generated CSV or logs) provided. Consequently, the required artifact—the implemented Python wrapper for PMD CLI integration—is missing.
+- `T025` (rejected 1x): I examined the repository for any script, module, or documentation that detects projects with zero buggy files, logs a warning, and skips them gracefully as required by T025 [US2]. No such code, configuration, or output logs were present; the only artifacts relate to metric extraction and correlation analysis. The task’s specific handling of class‑imbalance is therefore missing.
 
 ## Required change
 

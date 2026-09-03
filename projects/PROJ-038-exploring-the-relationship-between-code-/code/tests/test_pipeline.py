@@ -6,141 +6,166 @@ import shutil
 import pytest
 import pandas as pd
 from pathlib import Path
+from unittest.mock import patch, MagicMock
 
-# Ensure the code directory is in the path for imports
-CODE_ROOT = Path(__file__).parent.parent
-if str(CODE_ROOT) not in sys.path:
-    sys.path.insert(0, str(CODE_ROOT))
-
-from src.validate_metrics import validate_schema_and_metrics, DataIntegrityError
-from src.config import get_memory_limit_bytes
-
+# Import the validation logic from the ingest module as per API surface
+from src.ingest import validate_features
 
 class TestPipelineShape:
     """
     Integration test for T012a: test_pipeline_shape.
-    Verifies that the pipeline produces a features.csv with the correct shape and content.
+    Verifies that the pipeline produces a features.csv with the correct shape and content
+    as defined in User Story 1 (T017, T018).
     """
 
-    @pytest.fixture(autouse=True)
-    def setup(self, tmp_path):
-        """
-        Set up a temporary directory structure mimicking the project layout.
-        Creates a mock features.csv that satisfies T017 requirements.
-        """
-        self.tmp_path = tmp_path
-        self.data_dir = self.tmp_path / "data" / "processed"
-        self.data_dir.mkdir(parents=True, exist_ok=True)
-        self.features_path = self.data_dir / "features.csv"
+    @pytest.fixture
+    def temp_data_dir(self):
+        """Create a temporary directory structure mimicking the project data layout."""
+        temp_root = tempfile.mkdtemp()
+        processed_dir = os.path.join(temp_root, "data", "processed")
+        os.makedirs(processed_dir, exist_ok=True)
+        yield temp_root
+        shutil.rmtree(temp_root)
 
-        # Create a realistic mock dataset that passes T018 (no NaNs) and T017 schema
-        # Columns: file_path, cc, halstead, loc, is_buggy
-        mock_data = {
+    @pytest.fixture
+    def valid_features_csv(self, temp_data_dir):
+        """Generate a valid features.csv file that meets T017/T018 requirements."""
+        csv_path = os.path.join(temp_data_dir, "data", "processed", "features.csv")
+        
+        # Create a dataframe with the exact schema required:
+        # file_path, cc, halstead, loc, is_buggy
+        # Ensuring no NaN values in numeric columns (T018 requirement)
+        data = {
             "file_path": [
-                "projects/Lang/src/main/java/org/apache/commons/lang3/StringUtils.java",
-                "projects/Lang/src/main/java/org/apache/commons/lang3/ArrayUtils.java",
-                "projects/Time/src/main/java/org/joda/time/DateTime.java",
-                "projects/Math/src/main/java/org/apache/commons/math3/linear/RealMatrix.java",
-                "projects/Compress/src/main/java/org/apache/commons/compress/utils/IOUtils.java"
+                "/project/src/Main.java",
+                "/project/src/Utils.java",
+                "/project/src/Helper.java",
+                "/project/src/BuggyClass.java"
             ],
-            "cc": [12, 5, 24, 8, 3],
-            "halstead": [145.6, 42.1, 310.9, 88.4, 15.2],
-            "loc": [1250, 450, 2100, 890, 120],
-            "is_buggy": [1, 0, 1, 0, 1]
+            "cc": [5, 12, 3, 25],  # Cyclomatic Complexity (int)
+            "halstead": [100.5, 450.2, 30.1, 890.0],  # Halstead Volume (float)
+            "loc": [150, 400, 50, 900],  # Lines of Code (int)
+            "is_buggy": [0, 0, 0, 1]  # Binary label (int)
         }
-        
-        # Create the mock CSV
-        df = pd.DataFrame(mock_data)
-        df.to_csv(self.features_path, index=False)
-        
-        # Store the expected path relative to project root for verification
-        self.expected_path = self.features_path
+        df = pd.DataFrame(data)
+        df.to_csv(csv_path, index=False)
+        return csv_path
 
-    def test_pipeline_shape(self):
-        """
-        Verify features.csv shape and content as per T017 and T018.
-        
-        Requirements:
-        1. File exists at code/data/processed/features.csv
-        2. Columns: file_path, cc, halstead, loc, is_buggy
-        3. No null values in numeric columns (cc, halstead, loc)
-        4. is_buggy is binary (0 or 1)
-        5. Rows are valid Java files
-        """
-        # Check if file exists
-        assert self.expected_path.exists(), f"features.csv not found at {self.expected_path}"
-        
-        # Load the CSV
-        df = pd.read_csv(self.expected_path)
-        
-        # Check required columns
-        required_columns = {"file_path", "cc", "halstead", "loc", "is_buggy"}
-        assert set(df.columns) == required_columns, f"Columns mismatch. Expected {required_columns}, got {set(df.columns)}"
-        
-        # Check for null values in numeric columns (T018 requirement)
-        numeric_cols = ["cc", "halstead", "loc"]
-        for col in numeric_cols:
-            assert not df[col].isnull().any(), f"Found null values in column {col}"
-        
-        # Check that is_buggy is binary (0 or 1)
-        assert df["is_buggy"].isin([0, 1]).all(), "is_buggy column must contain only 0 or 1"
-        
-        # Check that file_path ends with .java (basic validation of row content)
-        assert df["file_path"].str.endswith(".java").all(), "All file paths must end with .java"
-        
-        # Check that we have at least some rows (non-empty dataset)
-        assert len(df) > 0, "Dataset must not be empty"
-        
-        # Check that numeric columns have reasonable positive values
-        assert (df["cc"] >= 0).all(), "Cyclomatic complexity must be non-negative"
-        assert (df["halstead"] >= 0).all(), "Halstead volume must be non-negative"
-        assert (df["loc"] > 0).all(), "LOC must be positive"
-        
-        # Validate schema using the project's validation logic (T007/T018)
-        try:
-            validate_schema_and_metrics(df)
-        except DataIntegrityError as e:
-            pytest.fail(f"Schema validation failed: {e}")
+    @pytest.fixture
+    def invalid_nan_csv(self, temp_data_dir):
+        """Generate a features.csv with NaN values to test T018 validation logic."""
+        csv_path = os.path.join(temp_data_dir, "data", "processed", "features.csv")
+        data = {
+            "file_path": ["/project/src/Bad.java"],
+            "cc": [5],
+            "halstead": [float('nan')],  # Invalid NaN
+            "loc": [100],
+            "is_buggy": [0]
+        }
+        df = pd.DataFrame(data)
+        df.to_csv(csv_path, index=False)
+        return csv_path
 
-    def test_integration_flow_with_validation(self):
-        """
-        Integration test ensuring the full flow from data generation to validation passes.
-        This simulates the pipeline execution end-to-end for the features.csv artifact.
-        """
-        # Re-load the data
-        df = pd.read_csv(self.expected_path)
-        
-        # Run the project's validation function (T018 logic)
-        # This should pass without raising DataIntegrityError
-        valid, error_msg = validate_schema_and_metrics(df)
-        
-        assert valid, f"Pipeline validation failed: {error_msg}"
-        
-        # Verify the checksum generation logic (T007) would work
-        # (We don't store the checksum here, just ensure the data is valid for it)
-        assert df["file_path"].notnull().all(), "file_path must not be null for checksum generation"
-        assert df["cc"].notnull().all(), "cc must not be null for checksum generation"
+    @pytest.fixture
+    def invalid_schema_csv(self, temp_data_dir):
+        """Generate a features.csv missing required columns."""
+        csv_path = os.path.join(temp_data_dir, "data", "processed", "features.csv")
+        data = {
+            "file_path": ["/project/src/Incomplete.java"],
+            "cc": [5],
+            # Missing halstead, loc, is_buggy
+        }
+        df = pd.DataFrame(data)
+        df.to_csv(csv_path, index=False)
+        return csv_path
 
-    def test_data_integrity_no_nan(self):
+    def test_pipeline_shape_correct_schema(self, valid_features_csv, temp_data_dir):
         """
-        Specific test for T018: Ensure no NaN values in metric columns.
+        Verify that features.csv has the correct columns and no NaNs in metric columns.
+        This validates the output of T017 and T018.
         """
-        df = pd.read_csv(self.expected_path)
+        # Run the validation logic
+        # Note: validate_features expects a path to the CSV
+        # We mock the log file path to avoid permission issues in temp dirs
+        with patch('src.ingest.LOGGER'):
+            result_df = validate_features(valid_features_csv)
         
-        # Explicitly check for NaN in numeric columns
-        for col in ["cc", "halstead", "loc"]:
-            nan_count = df[col].isnull().sum()
-            assert nan_count == 0, f"Column {col} contains {nan_count} NaN values"
+        # Assert shape
+        assert result_df is not None, "Validation should return the dataframe"
+        assert len(result_df) == 4, "Should have 4 rows (no rows dropped as no NaNs)"
+        assert len(result_df.columns) == 5, "Should have 5 columns"
+        
+        # Assert column names
+        expected_cols = ["file_path", "cc", "halstead", "loc", "is_buggy"]
+        assert list(result_df.columns) == expected_cols, f"Columns mismatch: {list(result_df.columns)}"
 
-    def test_bug_label_distribution(self):
+    def test_pipeline_shape_drops_nan_rows(self, invalid_nan_csv, temp_data_dir):
         """
-        Verify that the bug label distribution is reasonable (not all 0 or all 1).
+        Verify that rows with NaN in metric columns are dropped (T018 logic).
         """
-        df = pd.read_csv(self.expected_path)
+        with patch('src.ingest.LOGGER'):
+            result_df = validate_features(invalid_nan_csv)
         
-        unique_labels = df["is_buggy"].unique()
-        assert len(unique_labels) > 0, "is_buggy column must have values"
+        # The row with NaN should be dropped
+        assert result_df is not None
+        assert len(result_df) == 0, "Row with NaN should be dropped, resulting in empty dataframe"
+
+    def test_pipeline_shape_raises_on_empty(self, invalid_nan_csv, temp_data_dir):
+        """
+        Verify that if validation results in an empty dataset, a DataIntegrityError is raised (T018).
+        """
+        from src.ingest import DataIntegrityError
         
-        # In a real dataset, we expect a mix, but for a small mock, 
-        # we just ensure it's valid binary data.
-        assert set(unique_labels).issubset({0, 1}), "is_buggy must be binary"
+        with patch('src.ingest.LOGGER'):
+            with pytest.raises(DataIntegrityError, match="resulting dataset is empty"):
+                validate_features(invalid_nan_csv)
+
+    def test_pipeline_shape_validates_schema(self, invalid_schema_csv, temp_data_dir):
+        """
+        Verify that missing columns trigger a validation error.
+        """
+        from src.ingest import DataIntegrityError
+        
+        with patch('src.ingest.LOGGER'):
+            with pytest.raises((DataIntegrityError, ValueError), match="missing required columns"):
+                validate_features(invalid_schema_csv)
+
+    def test_pipeline_shape_content_values(self, valid_features_csv, temp_data_dir):
+        """
+        Verify that the content values are of the correct type and range.
+        """
+        with patch('src.ingest.LOGGER'):
+            result_df = validate_features(valid_features_csv)
+        
+        # Check types
+        assert result_df['cc'].dtype in [int, 'int64', 'int32'], "cc should be integer"
+        assert result_df['halstead'].dtype in [float, 'float64', 'float32'], "halstead should be float"
+        assert result_df['loc'].dtype in [int, 'int64', 'int32'], "loc should be integer"
+        assert result_df['is_buggy'].dtype in [int, 'int64', 'int32', bool], "is_buggy should be binary"
+        
+        # Check range of is_buggy
+        assert result_df['is_buggy'].isin([0, 1]).all(), "is_buggy must be 0 or 1"
+
+    def test_pipeline_shape_integration_with_mocked_ingest(self, valid_features_csv, temp_data_dir):
+        """
+        Integration test simulating the full pipeline flow:
+        1. Ingest generates raw data (mocked)
+        2. Metrics calculated (mocked)
+        3. Labeling applied (mocked)
+        4. Validation runs (actual)
+        5. Final shape verified.
+        """
+        # We assume the file exists as created by the fixture.
+        # In a real CI run, this would be the output of T017.
+        # Here we verify that T018 (validate_features) correctly processes the T017 output.
+        
+        expected_path = valid_features_csv
+        assert os.path.exists(expected_path), "Input CSV must exist for integration test"
+        
+        with patch('src.ingest.LOGGER'):
+            final_df = validate_features(expected_path)
+        
+        # Final assertion on the "Pipeline Shape"
+        assert final_df.shape[0] > 0, "Pipeline must produce at least one valid row"
+        assert final_df.shape[1] == 5, "Pipeline must produce exactly 5 columns"
+        assert 'is_buggy' in final_df.columns, "Pipeline must include the bug label"

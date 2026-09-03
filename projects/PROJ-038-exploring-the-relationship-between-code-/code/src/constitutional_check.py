@@ -1,57 +1,89 @@
 """
-Constitutional Compliance Check for llmXive Pipeline.
+Constitutional Check Module for llmXive Pipeline.
 
-This module verifies the existence of the required amendment artifact
-before allowing the pipeline to proceed.
+This module handles the verification of constitutional amendments
+required before proceeding with the research pipeline.
 """
 import os
 import sys
 from pathlib import Path
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
 
 class ConstitutionalBlockError(Exception):
-    """Raised when a required constitutional artifact is missing."""
+    """Raised when the constitutional amendment check fails."""
     pass
 
-def verify_amendment_artifact() -> bool:
+
+def verify_amendment_artifact(marker_path: Path) -> bool:
     """
-    Check if the amendment_ratified.md artifact exists.
-    
+    Verify the existence of the amendment ratification marker.
+
+    Args:
+        marker_path: Path to the amendment_ratified.md file.
+
     Returns:
-        bool: True if the file exists, False otherwise.
-        
+        True if the file exists and is non-empty.
+
     Raises:
-        ConstitutionalBlockError: If the file is missing, halts execution.
+        ConstitutionalBlockError: If the file is missing or empty.
     """
-    # Determine the project root relative to this file's location
-    # The file is at code/src/constitutional_check.py
-    # We need to check specs/001-code-complexity-bug-prediction/amendment_ratified.md
-    current_dir = Path(__file__).resolve().parent
-    project_root = current_dir.parent
-    amendment_path = project_root / "specs" / "001-code-complexity-bug-prediction" / "amendment_ratified.md"
-    
-    if not amendment_path.exists():
+    if not marker_path.exists():
+        logger.error(f"Amendment marker file not found: {marker_path}")
         raise ConstitutionalBlockError(
-            f"ConstitutionalBlockError: Required amendment artifact missing at {amendment_path}. "
-            "The pipeline cannot proceed without external governance ratification. "
-            "Please wait for the amendment to be ratified and the file to be created."
+            f"Constitutional Amendment Check Failed: "
+            f"Marker file '{marker_path}' does not exist. "
+            "Please ensure the PR has been merged and the marker file created by a human."
         )
-    
+
+    if marker_path.stat().st_size == 0:
+        logger.error(f"Amendment marker file is empty: {marker_path}")
+        raise ConstitutionalBlockError(
+            f"Constitutional Amendment Check Failed: "
+            f"Marker file '{marker_path}' is empty."
+        )
+
+    logger.info(f"Amendment marker verified: {marker_path}")
     return True
+
 
 def main() -> int:
     """
-    Main entry point for the constitutional check.
-    
+    Main entry point for the constitutional check task.
+
+    Checks for the existence of the amendment_ratified.md marker file.
+    Returns 0 on success, 1 on failure (blocking the pipeline).
+
     Returns:
-        int: Exit code 0 on success, 1 on failure.
+        int: Exit code (0 for success, 1 for failure).
     """
+    # Define the expected path relative to the project root
+    # Assuming the script is run from the project root or code/ directory
+    project_root = Path(__file__).resolve().parent.parent.parent
+    marker_path = project_root / "amendment_ratified.md"
+
+    # Also check relative to current working directory if not found in project root
+    if not marker_path.exists():
+        cwd_marker = Path.cwd() / "amendment_ratified.md"
+        if cwd_marker.exists():
+            marker_path = cwd_marker
+
     try:
-        verify_amendment_artifact()
-        print("SUCCESS: Amendment artifact verified. Pipeline can proceed.")
+        verify_amendment_artifact(marker_path)
+        logger.info("Constitutional amendment ratified. Pipeline can proceed.")
         return 0
     except ConstitutionalBlockError as e:
-        print(f"FAILURE: {e}", file=sys.stderr)
+        logger.error(str(e))
+        logger.error("Pipeline execution HALTED until human intervention resolves the constitutional conflict.")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -35,3 +35,14 @@
   verification_status: verified
   verified_against_url: https://github.com/rjust/defects4j
   verified_at: '2026-07-08T22:37:03.866410Z'
+- artifact_hash: 6603a101aafa8f38b8e111c638a885da4d34d57223587ce2e16c9dcb60e7ce86
+  artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "Create new page \xB7 javaparser/javaparser Wiki \xB7 GitHub"
+  kind: url
+  value: https://github.com/javaparser/javaparser/wiki/Token-Definitions
+  verification_status: pending
+  verified_against_url: https://github.com/javaparser/javaparser/wiki/Token-Definitions
+  verified_at: '2026-09-03T17:56:13.486450Z'

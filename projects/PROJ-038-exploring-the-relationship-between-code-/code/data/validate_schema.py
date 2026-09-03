@@ -4,131 +4,193 @@ import json
 import hashlib
 import pandas as pd
 from pathlib import Path
-from typing import Dict, Any, List, Tuple
-from src.config import get_memory_limit_bytes
+from typing import Dict, Any, Optional
 
-REQUIRED_COLUMNS = ['file_path', 'cc', 'halstead', 'loc', 'is_buggy']
-REQUIRED_TYPES = {
+# Define the expected schema for features.csv
+EXPECTED_COLUMNS = [
+    'file_path',
+    'cc',           # Cyclomatic Complexity (int)
+    'halstead',     # Halstead Volume (float)
+    'loc',          # Lines of Code (int)
+    'is_buggy'      # Binary label (0 or 1)
+]
+
+EXPECTED_DTYPES = {
     'file_path': 'object',
-    'cc': 'int64',
+    'cc': 'Int64',      # Nullable integer
     'halstead': 'float64',
-    'loc': 'int64',
-    'is_buggy': 'int64'
+    'loc': 'Int64',     # Nullable integer
+    'is_buggy': 'Int64' # Nullable integer (0/1)
 }
 
-def validate_schema(csv_path: str) -> Tuple[bool, List[str]]:
+class SchemaValidationError(Exception):
+    """Raised when the CSV schema does not match expectations."""
+    pass
+
+def validate_schema(csv_path: str, strict: bool = True) -> Dict[str, Any]:
     """
-    Validates that the CSV file at csv_path has the required schema.
-    Returns (is_valid, list_of_errors).
-    """
-    errors = []
-    path = Path(csv_path)
+    Validates that the CSV file at csv_path matches the expected schema.
     
+    Args:
+        csv_path: Path to the features.csv file.
+        strict: If True, raises SchemaValidationError on failure. 
+                If False, returns a report dict with 'valid': False.
+    
+    Returns:
+        A dictionary with validation results.
+    
+    Raises:
+        SchemaValidationError: If strict=True and validation fails.
+        FileNotFoundError: If the file does not exist.
+    """
+    path = Path(csv_path)
     if not path.exists():
-        errors.append(f"File not found: {csv_path}")
-        return False, errors
+        if strict:
+            raise FileNotFoundError(f"File not found: {csv_path}")
+        return {"valid": False, "error": "File not found", "path": str(path)}
 
     try:
         df = pd.read_csv(csv_path)
     except Exception as e:
-        errors.append(f"Failed to read CSV: {str(e)}")
-        return False, errors
+        if strict:
+            raise SchemaValidationError(f"Failed to read CSV: {e}")
+        return {"valid": False, "error": str(e), "path": str(path)}
+
+    issues = []
 
     # Check columns
-    missing_cols = set(REQUIRED_COLUMNS) - set(df.columns)
+    missing_cols = set(EXPECTED_COLUMNS) - set(df.columns)
+    extra_cols = set(df.columns) - set(EXPECTED_COLUMNS)
+    
     if missing_cols:
-        errors.append(f"Missing required columns: {missing_cols}")
-        return False, errors
-
-    extra_cols = set(df.columns) - set(REQUIRED_COLUMNS)
+        issues.append(f"Missing columns: {missing_cols}")
     if extra_cols:
-        errors.append(f"Unexpected columns found: {extra_cols}")
-        # We might decide to be strict or lenient here. For now, just warn.
+        issues.append(f"Extra columns found: {extra_cols}")
+    
+    # Check dtypes (basic check)
+    for col, expected_type in EXPECTED_DTYPES.items():
+        if col in df.columns:
+            if not pd.api.types.is_dtype_equal(df[col].dtype, expected_type):
+                # Allow minor variations (e.g. int64 vs Int64) if non-null
+                if not (expected_type.startswith('Int') and str(df[col].dtype) == 'int64'):
+                    issues.append(f"Column '{col}' has dtype {df[col].dtype}, expected {expected_type}")
 
-    # Check types
-    for col, expected_type in REQUIRED_TYPES.items():
-        actual_type = str(df[col].dtype)
-        if actual_type != expected_type:
-            errors.append(f"Column '{col}' has type '{actual_type}', expected '{expected_type}'")
+    # Check for empty file
+    if df.empty:
+        issues.append("DataFrame is empty")
 
-    # Check for NaN in numeric columns
-    numeric_cols = ['cc', 'halstead', 'loc', 'is_buggy']
-    for col in numeric_cols:
-        if df[col].isna().any():
-            count = df[col].isna().sum()
-            errors.append(f"Column '{col}' contains {count} NaN values")
+    is_valid = len(issues) == 0
 
-    return len(errors) == 0, errors
+    report = {
+        "valid": is_valid,
+        "path": str(path),
+        "row_count": len(df),
+        "column_count": len(df.columns),
+        "columns_found": list(df.columns),
+        "issues": issues
+    }
 
-def generate_checksum(csv_path: str, checksum_path: str) -> Dict[str, Any]:
+    if strict and not is_valid:
+        raise SchemaValidationError(f"Schema validation failed: {'; '.join(issues)}")
+
+    return report
+
+def generate_checksum(csv_path: str, output_json: str, algorithm: str = 'sha256') -> Dict[str, Any]:
     """
-    Generates a SHA256 checksum and metadata for the CSV file.
-    Writes the result to checksum_path.
-    Returns the checksum dictionary.
+    Generates a SHA-256 checksum and metadata for the CSV file and saves it to JSON.
+    
+    Args:
+        csv_path: Path to the features.csv file.
+        output_json: Path where the checksum JSON will be saved.
+        algorithm: Hash algorithm to use (default: sha256).
+    
+    Returns:
+        The checksum dictionary.
+    
+    Raises:
+        FileNotFoundError: If the CSV file does not exist.
     """
     path = Path(csv_path)
     if not path.exists():
-        raise FileNotFoundError(f"Cannot generate checksum for non-existent file: {csv_path}")
+        raise FileNotFoundError(f"File not found: {csv_path}")
 
-    sha256_hash = hashlib.sha256()
-    size_bytes = 0
-    
-    # Read in chunks to handle large files
-    with open(path, "rb") as f:
+    hasher = hashlib.new(algorithm)
+    size_bytes = path.stat().st_size
+
+    with open(path, 'rb') as f:
+        # Read in chunks to handle large files
         for chunk in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(chunk)
-            size_bytes += len(chunk)
-    
-    hex_dig = sha256_hash.hexdigest()
+            hasher.update(chunk)
+
+    checksum = hasher.hexdigest()
     
     checksum_data = {
         "file": path.name,
-        "sha256": hex_dig,
+        "sha256": checksum,
         "size_bytes": size_bytes,
         "timestamp": str(path.stat().st_mtime),
-        "algorithm": "sha256"
+        "algorithm": algorithm
     }
 
-    checksum_file = Path(checksum_path)
-    checksum_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(checksum_file, 'w') as f:
-        json.dump(checksum_data, f, indent=2)
-    
+    # Load existing checksums if present, then update
+    output_path = Path(output_json)
+    if output_path.exists():
+        try:
+            with open(output_path, 'r') as f:
+                all_checksums = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            all_checksums = {}
+    else:
+        all_checksums = {}
+
+    all_checksums[path.name] = checksum_data
+
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_path, 'w') as f:
+        json.dump(all_checksums, f, indent=2)
+
     return checksum_data
 
 def main():
     """
     Main entry point for schema validation and checksum generation.
     Expects the features.csv to be at code/data/processed/features.csv
-    Outputs checksum to code/data/checksums.json
+    and writes checksums to code/data/checksums.json.
     """
-    project_root = Path(__file__).resolve().parent.parent
-    csv_path = project_root / "data" / "processed" / "features.csv"
-    checksum_path = project_root / "data" / "checksums.json"
+    # Determine paths relative to project root
+    # Assuming script is run from project root or code/data/
+    base_dir = Path(__file__).resolve().parent.parent
+    processed_dir = base_dir / 'data' / 'processed'
+    features_csv = processed_dir / 'features.csv'
+    checksums_json = base_dir / 'data' / 'checksums.json'
 
-    if not csv_path.exists():
-        print(f"Error: {csv_path} does not exist. Run the feature generation pipeline first.")
+    if not features_csv.exists():
+        print(f"Error: {features_csv} not found. Please run the pipeline first.")
         sys.exit(1)
 
-    print(f"Validating schema for {csv_path}...")
-    is_valid, errors = validate_schema(str(csv_path))
-    
-    if not is_valid:
-        print("Schema validation FAILED:")
-        for err in errors:
-            print(f"  - {err}")
-        sys.exit(1)
-    
-    print("Schema validation PASSED.")
-    
-    print(f"Generating checksum for {csv_path}...")
     try:
-        checksum_data = generate_checksum(str(csv_path), str(checksum_path))
-        print(f"Checksum generated successfully: {checksum_data['sha256']}")
-        print(f"Output written to: {checksum_path}")
+        # Validate schema
+        print(f"Validating schema for {features_csv}...")
+        validation_report = validate_schema(str(features_csv), strict=True)
+        print(f"Schema validation passed. Rows: {validation_report['row_count']}")
+
+        # Generate checksum
+        print(f"Generating checksum for {features_csv}...")
+        checksum_data = generate_checksum(str(features_csv), str(checksums_json))
+        print(f"Checksum saved to {checksums_json}")
+        print(f"SHA256: {checksum_data['sha256']}")
+        print(f"Size: {checksum_data['size_bytes']} bytes")
+
+    except SchemaValidationError as e:
+        print(f"Schema Validation Failed: {e}")
+        sys.exit(1)
+    except FileNotFoundError as e:
+        print(f"File Error: {e}")
+        sys.exit(1)
     except Exception as e:
-        print(f"Error generating checksum: {e}")
+        print(f"Unexpected error: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
