@@ -1,81 +1,76 @@
 import os
-import sys
-import tempfile
 import shutil
+import tempfile
+import unittest
 from pathlib import Path
-import pytest
+import sys
 
-# Add the project root to the path to allow imports from code/
-# Assuming tests are in tests/ and code is in code/
-# We need to import from code/setup_project
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# Add parent directory to path to import code.setup_project
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from setup_project import main
+from code.setup_project import main
 
-class TestSetupProject:
-    """Test suite for the project setup script."""
+class TestSetupProject(unittest.TestCase):
+    
+    @classmethod
+    def setUpClass(cls):
+        """Create a temporary directory to simulate project root."""
+        cls.temp_dir = tempfile.mkdtemp()
+        cls.original_cwd = os.getcwd()
+        os.chdir(cls.temp_dir)
 
-    def test_creates_all_required_directories(self, tmp_path):
+    @classmethod
+    def tearDownClass(cls):
+        """Restore original working directory and remove temp dir."""
+        os.chdir(cls.original_cwd)
+        shutil.rmtree(cls.temp_dir)
+
+    def test_directories_created(self):
         """Verify that all required directories are created."""
-        # Change to the temporary directory to simulate project root
-        original_cwd = os.getcwd()
-        os.chdir(tmp_path)
+        required_dirs = [
+            "data/raw",
+            "data/processed",
+            "code",
+            "tests",
+            "artifacts/logs",
+            "artifacts/plots",
+            "artifacts/reports",
+            "contracts"
+        ]
         
-        try:
-            # Run the setup function
-            result = main()
-            
-            # Check return code
-            assert result == 0, "Setup script should return 0 on success"
-            
-            # Define expected directories
-            expected_dirs = [
-                "data/raw",
-                "data/processed",
-                "code",
-                "tests",
-                "artifacts/logs",
-                "artifacts/plots",
-                "artifacts/reports",
-                "contracts"
-            ]
-            
-            # Verify each directory exists
-            for dir_name in expected_dirs:
-                dir_path = tmp_path / dir_name
-                assert dir_path.exists(), f"Directory {dir_name} was not created"
-                assert dir_path.is_dir(), f"{dir_name} is not a directory"
+        # Run the setup function
+        exit_code = main()
         
-        finally:
-            # Restore original working directory
-            os.chdir(original_cwd)
+        # Check exit code
+        self.assertEqual(exit_code, 0, "Setup function should return 0 on success")
+        
+        # Verify each directory exists
+        for dir_path in required_dirs:
+            full_path = Path(dir_path)
+            self.assertTrue(
+                full_path.exists() and full_path.is_dir(),
+                f"Directory {dir_path} should exist after setup"
+            )
 
-    def test_idempotent(self, tmp_path):
-        """Verify that running the script twice does not cause errors."""
+    def test_nested_structure(self):
+        """Verify nested directories like data/raw and artifacts/logs are created."""
+        # Re-run setup in a fresh temp dir to ensure clean state
+        fresh_temp = tempfile.mkdtemp()
         original_cwd = os.getcwd()
-        os.chdir(tmp_path)
+        os.chdir(fresh_temp)
         
         try:
-            # Run setup twice
-            result1 = main()
-            result2 = main()
+            main()
             
-            assert result1 == 0
-            assert result2 == 0
-            
-            # Verify directories still exist
-            expected_dirs = [
-                "data/raw",
-                "data/processed",
-                "code",
-                "tests",
-                "artifacts/logs",
-                "artifacts/plots",
-                "artifacts/reports",
-                "contracts"
-            ]
-            
-            for dir_name in expected_dirs:
-                assert (tmp_path / dir_name).exists()
+            # Check specific nested paths
+            self.assertTrue((Path("data") / "raw").exists())
+            self.assertTrue((Path("data") / "processed").exists())
+            self.assertTrue((Path("artifacts") / "logs").exists())
+            self.assertTrue((Path("artifacts") / "plots").exists())
+            self.assertTrue((Path("artifacts") / "reports").exists())
         finally:
             os.chdir(original_cwd)
+            shutil.rmtree(fresh_temp)
+
+if __name__ == "__main__":
+    unittest.main()

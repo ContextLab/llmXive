@@ -2,119 +2,129 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://llmxive.org/schemas/StatSummary.schema.json",
   "title": "StatSummary",
-  "description": "Schema for the aggregated statistical summary of reproducibility results.",
+  "description": "Schema for the aggregated statistical analysis of reproducibility results.",
   "type": "object",
   "required": [
     "t_tests",
-    "bland_altman_files",
-    "generated_at"
+    "tost_results",
+    "mixed_effects_model",
+    "heterogeneity",
+    "bland_altman_files"
   ],
   "properties": {
     "t_tests": {
       "type": "object",
-      "description": "Results of paired t-tests.",
+      "description": "Results of paired t-tests for each metric.",
       "properties": {
         "mae": {
           "type": "object",
           "properties": {
             "statistic": { "type": "number" },
             "pvalue": { "type": "number" },
-            "pvalue_bonferroni": { "type": "number" }
-          }
+            "bonferroni_pvalue": { "type": "number" }
+          },
+          "required": ["statistic", "pvalue", "bonferroni_pvalue"]
         },
         "r2": {
           "type": "object",
           "properties": {
             "statistic": { "type": "number" },
             "pvalue": { "type": "number" },
-            "pvalue_bonferroni": { "type": "number" }
-          }
+            "bonferroni_pvalue": { "type": "number" }
+          },
+          "required": ["statistic", "pvalue", "bonferroni_pvalue"]
         },
-        "spearman_rho": {
+        "rho": {
           "type": "object",
           "properties": {
             "statistic": { "type": "number" },
             "pvalue": { "type": "number" },
-            "pvalue_bonferroni": { "type": "number" }
-          }
+            "bonferroni_pvalue": { "type": "number" }
+          },
+          "required": ["statistic", "pvalue", "bonferroni_pvalue"]
         }
-      }
+      },
+      "required": ["mae", "r2", "rho"]
     },
-    "tost": {
+    "tost_results": {
       "type": "object",
       "description": "Results of Two One-Sided Tests for equivalence.",
       "properties": {
         "mae": {
           "type": "object",
           "properties": {
-            "pvalue_lower": { "type": "number" },
-            "pvalue_upper": { "type": "number" },
+            "pvalue_low": { "type": "number" },
+            "pvalue_high": { "type": "number" },
             "equivalent": { "type": "boolean" }
           }
         },
         "r2": {
           "type": "object",
           "properties": {
-            "pvalue_lower": { "type": "number" },
-            "pvalue_upper": { "type": "number" },
+            "pvalue_low": { "type": "number" },
+            "pvalue_high": { "type": "number" },
+            "equivalent": { "type": "boolean" }
+          }
+        },
+        "rho": {
+          "type": "object",
+          "properties": {
+            "pvalue_low": { "type": "number" },
+            "pvalue_high": { "type": "number" },
             "equivalent": { "type": "boolean" }
           }
         }
       }
     },
-    "mixed_effects": {
+    "mixed_effects_model": {
       "type": "object",
-      "description": "Linear Mixed-Effects model results.",
+      "description": "Results of the Linear Mixed-Effects Model analysis.",
       "properties": {
-        "variance_components": {
-          "type": "object",
-          "description": "Variance components (e.g., paper intercept variance, residual variance)."
-        },
         "fixed_effects": {
           "type": "object",
-          "description": "Fixed effects estimates (if any)."
+          "description": "Fixed effects coefficients and statistics."
+        },
+        "random_effects": {
+          "type": "object",
+          "description": "Random effects variance components."
+        },
+        "variance_explained_fixed_effects": {
+          "type": "number",
+          "description": "R-squared of fixed effects (marginal R2)."
+        },
+        "convergence_warning": {
+          "type": "boolean",
+          "description": "True if the model failed to converge."
         }
-      }
+      },
+      "required": ["variance_explained_fixed_effects"]
     },
     "heterogeneity": {
       "type": "object",
-      "description": "Heterogeneity statistics (I-squared, pooled effect).",
+      "description": "Heterogeneity statistics.",
       "properties": {
-        "i2": {
+        "I2": {
           "type": "number",
           "description": "I-squared statistic."
         },
-        "i2_interpretation": {
-          "type": "string"
+        "pooled_effect_size": {
+          "type": "number",
+          "description": "Pooled effect size (mean deviation)."
         },
-        "pooled_effect": {
-          "type": "object",
-          "description": "Pooled effect size estimate."
+        "confidence_interval": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "95% Confidence Interval [lower, upper]."
         }
-      }
+      },
+      "required": ["I2", "pooled_effect_size", "confidence_interval"]
     },
     "bland_altman_files": {
       "type": "array",
-      "description": "List of generated Bland-Altman plot filenames.",
-      "items": {
-        "type": "string"
-      }
-    },
-    "failure_log_summary": {
-      "type": "array",
-      "description": "Summary of qualitative failure modes.",
-      "items": {
-        "type": "object",
-        "properties": {
-          "doi": { "type": "string" },
-          "reason": { "type": "string" }
-        }
-      }
-    },
-    "generated_at": {
-      "type": "string",
-      "format": "date-time",
-      "description": "Timestamp of summary generation."
+      "items": { "type": "string" },
+      "description": "List of filenames for generated Bland-Altman plots."
     }
   },
   "additionalProperties": false

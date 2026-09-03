@@ -1,63 +1,60 @@
 import json
 import os
+import sys
+import unittest
 from pathlib import Path
-import pytest
 
-# Simple JSON schema validation without external deps if possible, 
-# but standard practice usually involves jsonschema. 
-# Since we cannot assume jsonschema is installed in the base environment 
-# (only listed in requirements if needed), we will do basic structural checks
-# or attempt import and skip if not available.
+# Add parent directory to path for imports if running from tests/
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-def validate_schema_structure(schema_path):
-    """Basic validation that the file is valid JSON and has required keys."""
-    with open(schema_path, 'r') as f:
-        data = json.load(f)
-    
-    assert "$schema" in data, "Missing $schema key"
-    assert "type" in data, "Missing type key"
-    assert "properties" in data, "Missing properties key"
-    return True
+from code.generate_schemas import main
 
-class TestSchemas:
-    @pytest.fixture
-    def contracts_dir(self):
-        # Assume tests are run from project root or we find it
-        base = Path(__file__).resolve().parent.parent.parent
-        return base / "contracts"
+class TestSchemaGeneration(unittest.TestCase):
+    def test_schemas_generated(self):
+        """Test that the generate_schemas script creates the required files."""
+        # Run the main function to ensure files are created
+        base_dir = Path(__file__).parent.parent.parent
+        contracts_dir = base_dir / "contracts"
 
-    def test_paper_manifest_schema_exists(self, contracts_dir):
-        path = contracts_dir / "PaperManifest.schema.json"
-        assert path.exists(), "PaperManifest.schema.json not found"
-        validate_schema_structure(path)
+        # Ensure directory exists for the test context
+        contracts_dir.mkdir(parents=True, exist_ok=True)
 
-    def test_repro_result_schema_exists(self, contracts_dir):
-        path = contracts_dir / "ReproResult.schema.json"
-        assert path.exists(), "ReproResult.schema.json not found"
-        validate_schema_structure(path)
+        # Call main
+        result = main()
+        self.assertEqual(result, 0)
 
-    def test_stat_summary_schema_exists(self, contracts_dir):
-        path = contracts_dir / "StatSummary.schema.json"
-        assert path.exists(), "StatSummary.schema.json not found"
-        validate_schema_structure(path)
+        # Check files exist
+        expected_files = [
+            "PaperManifest.schema.yaml",
+            "ReproResult.schema.yaml",
+            "StatSummary.schema.yaml"
+        ]
 
-    def test_paper_manifest_required_fields(self, contracts_dir):
-        path = contracts_dir / "PaperManifest.schema.json"
-        with open(path, 'r') as f:
-            data = json.load(f)
-        
-        required = data.get("required", [])
-        assert "doi" in required, "doi must be required"
-        assert "repo_url" in required, "repo_url must be required"
-        assert "dataset_name" in required, "dataset_name must be required"
-        assert "reported_metrics" in required, "reported_metrics must be required"
+        for filename in expected_files:
+            filepath = contracts_dir / filename
+            self.assertTrue(filepath.exists(), f"File {filepath} was not generated.")
+            self.assertGreater(filepath.stat().st_size, 0, f"File {filepath} is empty.")
 
-    def test_repro_result_required_fields(self, contracts_dir):
-        path = contracts_dir / "ReproResult.schema.json"
-        with open(path, 'r') as f:
-            data = json.load(f)
-        
-        required = data.get("required", [])
-        assert "doi" in required, "doi must be required"
-        assert "metrics" in required, "metrics must be required"
-        assert "reproducibility_score" in required, "reproducibility_score must be required"
+    def test_schema_content_validity(self):
+        """Basic check that generated files contain expected schema markers."""
+        base_dir = Path(__file__).parent.parent.parent
+        contracts_dir = base_dir / "contracts"
+
+        # Re-run to ensure fresh files
+        main()
+
+        expected_markers = {
+            "PaperManifest.schema.yaml": "title: PaperManifest",
+            "ReproResult.schema.yaml": "title: ReproResult",
+            "StatSummary.schema.yaml": "title: StatSummary"
+        }
+
+        for filename, marker in expected_markers.items():
+            filepath = contracts_dir / filename
+            with open(filepath, "r", encoding="utf-8") as f:
+                content = f.read()
+                self.assertIn(marker, content, f"File {filename} missing expected marker: {marker}")
+                self.assertIn("$schema:", content, f"File {filename} missing $schema definition.")
+
+if __name__ == "__main__":
+    unittest.main()

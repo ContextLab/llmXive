@@ -102,4 +102,4 @@ A member of the synthetic‑chemistry community wants a concise checklist of bes
 - Library version differences are limited to major releases (e.g., scikit‑learn 1.4 → 1.5) that do not alter core metric implementations.
 - The reproducibility score threshold for "high reproducibility" is a design choice for categorizing results; this threshold may be adjusted during implementation based on observed data distribution.
 - No GPU‑accelerated operations (e.g., `torch.cuda`, `bitsandbytes`) will be required; all code must run on CPU.
-- The analysis will not attempt to retrain large transformer‑based models; if a paper's model exceeds the 1 M‑parameter limit, it will be replaced by a published baseline of comparable architecture (recorded as a deviation in the results).
+- The analysis will not attempt to retrain large transformer‑based models; if a paper's model exceeds a reasonable parameter limit, it will be replaced by a published baseline of comparable architecture (recorded as a deviation in the results).

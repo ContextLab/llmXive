@@ -2,77 +2,117 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://llmxive.org/schemas/PaperManifest.schema.json",
   "title": "PaperManifest",
-  "description": "Schema for validating paper metadata and dataset references for reproducibility studies.",
+  "description": "Schema for validating the input manifest of papers to reproduce.",
   "type": "object",
   "required": [
-    "doi",
-    "repo_url",
-    "dataset_name",
-    "reported_metrics"
+    "papers"
   ],
   "properties": {
-    "doi": {
-      "type": "string",
-      "description": "Digital Object Identifier of the paper.",
-      "pattern": "^10\\.\\d{4,9}/[-._;()/:A-Z0-9]+$"
-    },
-    "repo_url": {
-      "type": "string",
-      "format": "uri",
-      "description": "URL to the code repository."
-    },
-    "dataset_name": {
-      "type": "string",
-      "description": "Name or identifier of the dataset used."
-    },
-    "dataset_url": {
-      "type": "string",
-      "format": "uri",
-      "description": "Optional direct URL to the dataset files."
-    },
-    "supplementary_files": {
+    "papers": {
       "type": "array",
-      "description": "Patterns or names of supplementary files to extract.",
       "items": {
-        "type": "string"
-      }
-    },
-    "reported_metrics": {
-      "type": "object",
-      "description": "Metrics reported in the paper.",
-      "required": ["mae", "r2"],
-      "properties": {
-        "mae": {
-          "type": "number",
-          "description": "Mean Absolute Error reported."
+        "type": "object",
+        "required": [
+          "doi",
+          "dataset_name",
+          "reported_metrics"
+        ],
+        "properties": {
+          "doi": {
+            "type": "string",
+            "description": "Digital Object Identifier of the paper.",
+            "pattern": "^10\\.[0-9]{4,9}/[-._;()/:A-Z0-9]+$",
+            "examples": [
+              "10.1038/s41586-020-2649-2"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "description": "Title of the paper.",
+            "minLength": 1
+          },
+          "authors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of authors."
+          },
+          "year": {
+            "type": "integer",
+            "minimum": 1900,
+            "maximum": 2100,
+            "description": "Publication year."
+          },
+          "dataset_name": {
+            "type": "string",
+            "description": "Name of the dataset used in the paper."
+          },
+          "dataset_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Optional direct URL to the dataset if not in a standard repo."
+          },
+          "repo_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to the code repository."
+          },
+          "reported_metrics": {
+            "type": "object",
+            "required": [
+              "mae",
+              "r2",
+              "rho"
+            ],
+            "properties": {
+              "mae": {
+                "type": "number",
+                "description": "Reported Mean Absolute Error."
+              },
+              "r2": {
+                "type": "number",
+                "description": "Reported R-squared value."
+              },
+              "rho": {
+                "type": "number",
+                "description": "Reported Spearman's Rho."
+              },
+              "yield_std_dev": {
+                "type": "number",
+                "nullable": true,
+                "description": "Reported standard deviation of yields if available."
+              }
+            },
+            "additionalProperties": false
+          },
+          "reaction_conditions": {
+            "type": "object",
+            "description": "Optional reaction conditions extracted from the paper.",
+            "properties": {
+              "temperature": {
+                "type": "number",
+                "description": "Temperature in Celsius."
+              },
+              "solvent": {
+                "type": "string",
+                "description": "Solvent used."
+              },
+              "catalyst_loading": {
+                "type": "number",
+                "description": "Catalyst loading percentage."
+              }
+            },
+            "additionalProperties": false
+          },
+          "experimental_replicates": {
+            "type": "integer",
+            "minimum": 1,
+            "nullable": true,
+            "description": "Number of experimental replicates reported."
+          }
         },
-        "r2": {
-          "type": "number",
-          "description": "R-squared value reported."
-        },
-        "spearman_rho": {
-          "type": "number",
-          "description": "Spearman's rank correlation coefficient reported."
-        }
-      }
-    },
-    "model_params": {
-      "type": "integer",
-      "description": "Number of parameters in the original model."
-    },
-    "random_seed": {
-      "type": "integer",
-      "description": "Random seed used in the original study, if reported."
-    },
-    "preprocessing_version": {
-      "type": "string",
-      "description": "Version of the preprocessing script used."
-    },
-    "library_versions": {
-      "type": "object",
-      "description": "Library versions used.",
-      "additionalProperties": {
-        "type": "string"
+        "additionalProperties": false
       }
     }
   },

@@ -1,0 +1,131 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: StatSummary
+description: Schema for the aggregated statistical summary of reproducibility across studies.
+type: object
+required:
+  - t_test_results
+  - mixed_effects_results
+  - heterogeneity
+properties:
+  t_test_results:
+    type: object
+    description: Results of paired t-tests for each metric.
+    properties:
+      mae:
+        type: object
+        properties:
+          statistic:
+            type: number
+          pvalue:
+            type: number
+          pvalue_corrected:
+            type: number
+      r2:
+        type: object
+        properties:
+          statistic:
+            type: number
+          pvalue:
+            type: number
+          pvalue_corrected:
+            type: number
+      rho:
+        type: object
+        properties:
+          statistic:
+            type: number
+          pvalue:
+            type: number
+          pvalue_corrected:
+            type: number
+  tost_results:
+    type: object
+    description: Results of Two One-Sided Tests for equivalence.
+    properties:
+      mae:
+        type: object
+        properties:
+          pvalue_lower:
+            type: number
+          pvalue_upper:
+            type: number
+          equivalent:
+            type: boolean
+      r2:
+        type: object
+        properties:
+          pvalue_lower:
+            type: number
+          pvalue_upper:
+            type: number
+          equivalent:
+            type: boolean
+      rho:
+        type: object
+        properties:
+          pvalue_lower:
+            type: number
+          pvalue_upper:
+            type: number
+          equivalent:
+            type: boolean
+  mixed_effects_results:
+    type: object
+    description: Results of the Linear Mixed-Effects Model.
+    properties:
+      fixed_effects_variance_explained:
+        type: number
+        description: R-squared of fixed effects.
+      random_effects_variance:
+        type: number
+        description: Variance of random intercepts.
+      residual_variance:
+        type: number
+        description: Residual variance.
+      fixed_effects_summary:
+        type: array
+        items:
+          type: object
+          properties:
+            term:
+              type: string
+            estimate:
+              type: number
+            std_err:
+              type: number
+            t_value:
+              type: number
+            p_value:
+              type: number
+  heterogeneity:
+    type: object
+    description: Heterogeneity statistics.
+    properties:
+      I2:
+        type: number
+        description: I-squared statistic.
+      pooled_effect_size:
+        type: number
+        description: Pooled effect size (mean absolute deviation).
+      confidence_interval:
+        type: array
+        items:
+          type: number
+        description: 95% confidence interval [lower, upper].
+  bland_altman_plots:
+    type: array
+    description: List of generated Bland-Altman plot filenames.
+    items:
+      type: string
+  failure_log_summary:
+    type: array
+    description: Summary of failures from the failure log.
+    items:
+      type: object
+      properties:
+        paper_doi:
+          type: string
+        failure_mode:
+          type: string
+        details:
+          type: string

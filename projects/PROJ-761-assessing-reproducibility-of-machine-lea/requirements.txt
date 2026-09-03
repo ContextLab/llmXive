@@ -8,3 +8,5 @@ matplotlib==3.8.0
 pyyaml==6.0.1
 requests==2.31.0
 scipy==1.12.0
+# Extra index for PyTorch CPU
+# pip install -r requirements.txt --extra-index-url=https://download.pytorch.org/whl/cpu

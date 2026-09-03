@@ -2,342 +2,362 @@ import json
 import logging
 import os
 import random
-import numpy as np
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional, Tuple, Union
+
+import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
+from rdkit import Chem
+from rdkit.Chem import Descriptors
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.linear_model import Ridge
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error, r2_score
 from scipy.stats import spearmanr
 
-# Import from existing metrics module
 from metrics import calculate_mae, calculate_r2, calculate_spearman_rho, calculate_deviation_index
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('artifacts/logs/model_runner.log')
+    ]
+)
 logger = logging.getLogger(__name__)
 
-PARAM_LIMIT = 1_000_000
-DEFAULT_SEED = 42
-SENSITIVITY_SEEDS = [42, 123, 999]
+# Constants
+PARAMETER_THRESHOLD = 1_000_000  # 1M parameters
+RANDOM_SEED = 42
+DATA_DIR = Path('data/processed')
+OUTPUT_DIR = Path('artifacts/reports')
+OUTPUT_FILE = OUTPUT_DIR / 'repro_results.json'
 
 def count_model_parameters(model: Any) -> int:
     """
     Count the total number of trainable parameters in a scikit-learn model.
-    For ensemble models, this sums parameters of base estimators.
+    For RandomForest, this is approximated by n_estimators * n_features * tree_depth.
+    For other models, we sum the shapes of all numpy arrays.
     """
+    if hasattr(model, 'n_estimators') and hasattr(model, 'max_depth'):
+        # Approximation for tree-based models
+        # This is a rough estimate; exact count depends on implementation
+        if hasattr(model, 'n_features_in_'):
+            n_features = model.n_features_in_
+        elif hasattr(model, 'n_features_'):
+            n_features = model.n_features_
+        else:
+            n_features = 0
+        depth = model.max_depth if model.max_depth is not None else 10
+        return model.n_estimators * n_features * depth
+    
     total_params = 0
-    if hasattr(model, 'estimators_'):
-        # For ensemble models (RandomForest, etc.)
-        base_estimator_params = 0
-        if hasattr(model.estimators_[0], 'tree_'):
-            # Count nodes in trees as a proxy for parameters (simplified)
-            for tree in model.estimators_:
-                total_params += tree.tree_.node_count
-        elif hasattr(model.estimators_[0], 'coef_'):
-            for tree in model.estimators_:
-                if hasattr(tree, 'coef_'):
-                    total_params += np.prod(tree.coef_.shape)
-        return total_params
-    elif hasattr(model, 'coef_'):
-        return int(np.prod(model.coef_.shape))
-    elif hasattr(model, 'n_features_in_'):
-        # Fallback for simple linear models
-        return model.n_features_in_ + 1 # weights + bias
-    return 0
+    for attr in dir(model):
+        if not attr.startswith('_'):
+            val = getattr(model, attr)
+            if isinstance(val, np.ndarray):
+                total_params += val.size
+            elif isinstance(val, list) and val and isinstance(val[0], np.ndarray):
+                total_params += sum(v.size for v in val)
+    return total_params
 
-def load_processed_data(data_path: Path) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+def load_processed_data(paper_id: str) -> pd.DataFrame:
     """
-    Load processed data from CSV/Parquet in data/processed/.
-    Returns DataFrame and metadata.
+    Load processed data for a specific paper from data/processed/.
+    Expected file format: {paper_id}_processed.csv
     """
+    data_path = DATA_DIR / f"{paper_id}_processed.csv"
     if not data_path.exists():
-        raise FileNotFoundError(f"Processed data not found at {data_path}")
+        logger.error(f"Processed data file not found: {data_path}")
+        raise FileNotFoundError(f"Processed data file not found: {data_path}")
     
-    if data_path.suffix == '.csv':
-        df = pd.read_csv(data_path)
-    elif data_path.suffix == '.parquet':
-        df = pd.read_parquet(data_path)
-    else:
-        raise ValueError(f"Unsupported file format: {data_path.suffix}")
-    
-    logger.info(f"Loaded data with {len(df)} rows and {len(df.columns)} columns")
-    return df, {'source': str(data_path)}
+    df = pd.read_csv(data_path)
+    logger.info(f"Loaded {len(df)} rows from {data_path}")
+    return df
 
 def encode_smiles(smiles_list: List[str]) -> np.ndarray:
     """
-    Simple molecular fingerprint encoding using RDKit (simulated here for standalone).
-    In a real pipeline, this would use RDKit to generate Morgan fingerprints.
-    For this implementation, we use a simple hash-based feature extraction.
+    Convert a list of SMILES strings to molecular descriptors.
+    Uses a fixed set of RDKit descriptors.
     """
-    # Simulated fingerprint: use character counts and simple hashes
-    # In production, replace with actual RDKit fingerprint generation
-    fingerprints = []
-    for smi in smiles_list:
-        # Simple feature extraction based on SMILES string
-        features = [
-            len(smi),
-            smi.count('C'),
-            smi.count('O'),
-            smi.count('N'),
-            smi.count('S'),
-            smi.count('P'),
-            smi.count('F'),
-            smi.count('Cl'),
-            smi.count('Br'),
-            smi.count('('),
-            smi.count(')'),
-            smi.count('='),
-            smi.count('#'),
+    descriptors = []
+    for smiles in smiles_list:
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            # Handle invalid SMILES
+            descriptors.append([0.0] * 10)  # Placeholder for invalid molecules
+            continue
+        
+        desc = [
+            Descriptors.MolWt(mol),
+            Descriptors.MolLogP(mol),
+            Descriptors.NumHDonors(mol),
+            Descriptors.NumHAcceptors(mol),
+            Descriptors.TPSA(mol),
+            Descriptors.NumRotatableBonds(mol),
+            Descriptors.NumAromaticRings(mol),
+            Descriptors.FractionCSP3(mol),
+            Descriptors.HeavyAtomCount(mol),
+            Descriptors.RingCount(mol)
         ]
-        fingerprints.append(features)
+        descriptors.append(desc)
     
-    return np.array(fingerprints)
+    return np.array(descriptors)
 
-def train_model(
-    X_train: np.ndarray, 
-    y_train: np.ndarray, 
-    seed: int,
-    max_params: int = PARAM_LIMIT
-) -> Tuple[Any, bool]:
+def train_model(X_train: np.ndarray, y_train: np.ndarray, seed: int = RANDOM_SEED) -> Any:
     """
-    Train a model on the provided data.
-    Returns (model, is_substituted).
-    If the original model exceeds max_params, a baseline model is used.
+    Train a Random Forest model.
+    If the original model was specified as too large, this baseline is used.
     """
-    # Try to train a RandomForest (often used in chemistry)
-    # Estimate parameters: n_estimators * (nodes_per_tree)
-    # We'll start with a moderate size and check
-    n_estimators = 100
-    rf = RandomForestRegressor(
-        n_estimators=n_estimators, 
-        max_depth=10, 
-        random_state=seed, 
-        n_jobs=1
+    model = RandomForestRegressor(
+        n_estimators=100,
+        max_depth=5,
+        random_state=seed,
+        n_jobs=-1
     )
-    
-    # Fit to estimate parameter count
-    rf.fit(X_train, y_train)
-    param_count = count_model_parameters(rf)
-    
-    is_substituted = False
-    if param_count > max_params:
-        logger.warning(f"Model has {param_count} parameters (> {max_params}). Substituting with Ridge regression.")
-        # Substitute with a simpler model
-        rf = Ridge(random_state=seed)
-        rf.fit(X_train, y_train)
-        is_substituted = True
-        logger.info(f"Substituted model parameter count: {count_model_parameters(rf)}")
-    
-    return rf, is_substituted
+    model.fit(X_train, y_train)
+    return model
 
-def evaluate_model(
-    model: Any, 
-    X_test: np.ndarray, 
-    y_test: np.ndarray, 
-    reported_metrics: Dict[str, float]
-) -> Dict[str, Any]:
+def evaluate_model(model: Any, X_test: np.ndarray, y_test: np.ndarray) -> Dict[str, float]:
     """
-    Evaluate the model and compute metrics.
+    Evaluate the model and return metrics.
     """
     y_pred = model.predict(X_test)
     
-    mae = calculate_mae(y_test, y_pred)
-    r2 = calculate_r2(y_test, y_pred)
-    spearman, _ = calculate_spearman_rho(y_test, y_pred)
-    
-    # Calculate deviations
-    dev_mae = abs(mae - reported_metrics.get('mae', mae))
-    dev_r2 = abs(r2 - reported_metrics.get('r2', r2))
-    dev_spearman = abs(spearman - reported_metrics.get('spearman', spearman))
-    
-    # Deviation Index S
-    epsilon = 1e-6
-    s_score = 1 - (
-        (dev_mae / (abs(reported_metrics.get('mae', mae)) + epsilon)) +
-        (dev_r2 / (abs(reported_metrics.get('r2', r2)) + epsilon)) +
-        (dev_spearman / (abs(reported_metrics.get('spearman', spearman)) + epsilon))
-    ) / 3
+    mae = mean_absolute_error(y_test, y_pred)
+    r2 = r2_score(y_test, y_pred)
+    rho, _ = spearmanr(y_test, y_pred)
     
     return {
         'mae': mae,
         'r2': r2,
-        'spearman': spearman,
-        'deviation_index': s_score,
-        'dev_mae': dev_mae,
-        'dev_r2': dev_r2,
-        'dev_spearman': dev_spearman,
-        'predictions': y_pred.tolist(),
-        'actuals': y_test.tolist()
+        'rho': rho,
+        'y_pred': y_pred.tolist(),
+        'y_test': y_test.tolist()
     }
 
 def run_sensitivity_analysis(
-    X: np.ndarray, 
-    y: np.ndarray, 
-    seeds: List[int] = SENSITIVITY_SEEDS
-) -> Dict[str, Any]:
+    df: pd.DataFrame,
+    reported_seed: Optional[int] = None
+) -> Dict[str, float]:
     """
-    Run sensitivity analysis by training on multiple seeds.
+    Run sensitivity analysis by training with different seeds.
+    Returns the maximum standard deviation observed across metrics.
     """
-    results = {'seeds': seeds, 'metrics': {}}
+    seeds = [42, 123, 999]
+    if reported_seed is not None and reported_seed not in seeds:
+        seeds.append(reported_seed)
+    
+    mae_stds = []
+    r2_stds = []
+    rho_stds = []
+    
+    # Prepare data
+    smiles = df['smiles'].tolist()
+    yields = df['yield'].values
+    X = encode_smiles(smiles)
     
     for seed in seeds:
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.2, random_state=seed
+            X, yields, test_size=0.2, random_state=seed
         )
+        model = train_model(X_train, y_train, seed=seed)
+        metrics = evaluate_model(model, X_test, y_test)
         
-        model, _ = train_model(X_train, y_train, seed)
-        y_pred = model.predict(X_test)
-        
-        mae = calculate_mae(y_test, y_pred)
-        r2 = calculate_r2(y_test, y_pred)
-        spearman, _ = calculate_spearman_rho(y_test, y_pred)
-        
-        results['metrics'][seed] = {
-            'mae': mae,
-            'r2': r2,
-            'spearman': spearman
-        }
+        mae_stds.append(metrics['mae'])
+        r2_stds.append(metrics['r2'])
+        rho_stds.append(metrics['rho'])
     
-    # Compute standard deviations
-    metric_stds = {
-        'mae': np.std([results['metrics'][s]['mae'] for s in seeds]),
-        'r2': np.std([results['metrics'][s]['r2'] for s in seeds]),
-        'spearman': np.std([results['metrics'][s]['spearman'] for s in seeds])
+    max_mae_std = np.std(mae_stds)
+    max_r2_std = np.std(r2_stds)
+    max_rho_std = np.std(rho_stds)
+    
+    # Return the maximum standard deviation observed across all metrics
+    return {
+        'max_metric_std_dev': max(max_mae_std, max_r2_std, max_rho_std)
     }
-    
-    results['metric_std'] = metric_stds
-    results['max_metric_std'] = max(metric_stds.values())
-    
-    return results
 
 def run_reproducibility_assessment(
     paper_id: str,
-    data_path: Path,
     reported_metrics: Dict[str, float],
-    reported_seed: Optional[int] = None
+    reported_seed: Optional[int] = None,
+    experimental_replicates: Optional[int] = None,
+    reaction_conditions: Optional[Dict[str, Any]] = None,
+    yield_std_dev: Optional[float] = None,
+    parameter_count: Optional[int] = None
 ) -> Dict[str, Any]:
     """
-    Main function to run the reproducibility assessment for a single paper.
+    Run the full reproducibility assessment for a single paper.
     """
-    logger.info(f"Starting reproducibility assessment for paper: {paper_id}")
-    
-    # Load data
-    try:
-        df, metadata = load_processed_data(data_path)
-    except FileNotFoundError as e:
-        logger.error(f"Data loading failed: {e}")
-        return {
-            'paper_id': paper_id,
-            'status': 'failed',
-            'error': str(e),
-            'reason': 'Data Unavailable'
-        }
-    
-    # Prepare features and target
-    # Assuming standard columns: 'smiles', 'yield'
-    if 'smiles' not in df.columns or 'yield' not in df.columns:
-        logger.error("Missing required columns: smiles, yield")
-        return {
-            'paper_id': paper_id,
-            'status': 'failed',
-            'error': 'Missing required columns',
-            'reason': 'Data Unavailable'
-        }
-    
-    X_smiles = df['smiles'].tolist()
-    y = df['yield'].values
-    
-    X = encode_smiles(X_smiles)
-    
-    # Split data
-    seed = reported_seed if reported_seed is not None else DEFAULT_SEED
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=seed
-    )
-    
-    # Train model
-    model, is_substituted = train_model(X_train, y_train, seed)
-    
-    # Evaluate
-    eval_results = evaluate_model(model, X_test, y_test, reported_metrics)
-    
-    # Sensitivity analysis
-    sensitivity_results = run_sensitivity_analysis(X, y)
-    
-    # Compile result
     result = {
-        'paper_id': paper_id,
-        'status': 'success',
-        'seed_used': seed,
-        'model_substituted': is_substituted,
-        'metrics': eval_results,
-        'sensitivity_analysis': {
-            'metric_std': sensitivity_results['metric_std'],
-            'max_metric_std': sensitivity_results['max_metric_std']
-        },
-        'metadata': metadata
+        'doi': paper_id,
+        'flags': [],
+        'experimental_replicates': experimental_replicates,
+        'reaction_conditions': reaction_conditions,
+        'yield_std_dev': yield_std_dev
     }
+    
+    try:
+        # Load data
+        df = load_processed_data(paper_id)
+        
+        # Check for required columns
+        if 'smiles' not in df.columns or 'yield' not in df.columns:
+            result['flags'].append('Data Unavailable')
+            result['mae'] = None
+            result['r2'] = None
+            result['rho'] = None
+            result['deviation_mae'] = None
+            result['deviation_r2'] = None
+            result['deviation_rho'] = None
+            result['score_s'] = None
+            result['max_metric_std_dev'] = None
+            logger.warning(f"Missing required columns in {paper_id}")
+            return result
+        
+        # Prepare features and target
+        smiles = df['smiles'].tolist()
+        yields = df['yield'].values
+        X = encode_smiles(smiles)
+        
+        # Split data
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, yields, test_size=0.2, random_state=RANDOM_SEED
+        )
+        
+        # Check parameter count and decide on model
+        used_baseline = False
+        if parameter_count is not None and parameter_count > PARAMETER_THRESHOLD:
+            logger.info(f"Paper {paper_id}: Model has {parameter_count} parameters (>1M). Using Random Forest baseline.")
+            result['flags'].append('Model Substitution/Unavailable')
+            used_baseline = True
+        elif parameter_count is None:
+            logger.warning(f"Paper {paper_id}: Parameter count unknown. Assuming baseline.")
+            result['flags'].append('Model Substitution/Unavailable')
+            used_baseline = True
+        
+        # Train model
+        model = train_model(X_train, y_train, seed=RANDOM_SEED)
+        
+        # Evaluate
+        metrics = evaluate_model(model, X_test, y_test)
+        result['mae'] = metrics['mae']
+        result['r2'] = metrics['r2']
+        result['rho'] = metrics['rho']
+        
+        # Calculate deviations
+        if reported_metrics:
+            result['deviation_mae'] = abs(result['mae'] - reported_metrics.get('mae', 0))
+            result['deviation_r2'] = abs(result['r2'] - reported_metrics.get('r2', 0))
+            result['deviation_rho'] = abs(result['rho'] - reported_metrics.get('rho', 0))
+            
+            # Calculate Deviation Index (S)
+            epsilon = 1e-6
+            term1 = result['deviation_mae'] / (abs(reported_metrics.get('mae', 0)) + epsilon)
+            term2 = result['deviation_r2'] / (abs(reported_metrics.get('r2', 0)) + epsilon)
+            term3 = result['deviation_rho'] / (abs(reported_metrics.get('rho', 0)) + epsilon)
+            result['score_s'] = 1 - (term1 + term2 + term3) / 3
+        else:
+            result['deviation_mae'] = None
+            result['deviation_r2'] = None
+            result['deviation_rho'] = None
+            result['score_s'] = None
+        
+        # Sensitivity analysis
+        sensitivity_results = run_sensitivity_analysis(df, reported_seed)
+        result['max_metric_std_dev'] = sensitivity_results['max_metric_std_dev']
+        
+        # Log substitution if applicable
+        if used_baseline and 'Model Substitution/Unavailable' not in result['flags']:
+            result['flags'].append('Model Substitution/Unavailable')
+            logger.info(f"Recorded 'Model Substitution/Unavailable' for {paper_id}")
+        
+    except FileNotFoundError as e:
+        logger.error(f"Data not found for {paper_id}: {e}")
+        result['flags'].append('Data Unavailable')
+        result['mae'] = None
+        result['r2'] = None
+        result['rho'] = None
+        result['deviation_mae'] = None
+        result['deviation_r2'] = None
+        result['deviation_rho'] = None
+        result['score_s'] = None
+        result['max_metric_std_dev'] = None
+    except Exception as e:
+        logger.error(f"Error processing {paper_id}: {e}")
+        result['flags'].append('Processing Error')
+        result['mae'] = None
+        result['r2'] = None
+        result['rho'] = None
+        result['deviation_mae'] = None
+        result['deviation_r2'] = None
+        result['deviation_rho'] = None
+        result['score_s'] = None
+        result['max_metric_std_dev'] = None
     
     return result
 
 def main():
     """
     Main entry point to run reproducibility assessment on all papers.
-    Reads manifest, processes each paper, and writes results to JSON.
+    Reads manifest from data/manifest.yaml (or .csv if that's what exists).
     """
-    # Paths
-    data_dir = Path("data/processed")
-    manifest_path = Path("data/manifest.yaml")
-    output_path = Path("artifacts/reports/repro_results.json")
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Load manifest
+    manifest_path = Path('data/manifest.yaml')
     if not manifest_path.exists():
-        logger.error("Manifest not found. Cannot proceed.")
+        manifest_path = Path('data/manifest.csv')
+    
+    if not manifest_path.exists():
+        logger.error("Manifest file not found. Please ensure data/manifest.yaml or data/manifest.csv exists.")
         return
     
-    import yaml
-    with open(manifest_path, 'r') as f:
-        manifest = yaml.safe_load(f)
+    # Load manifest
+    if manifest_path.suffix == '.yaml':
+        import yaml
+        with open(manifest_path, 'r') as f:
+            manifest = yaml.safe_load(f)
+    else:
+        import pandas as pd
+        manifest_df = pd.read_csv(manifest_path)
+        manifest = manifest_df.to_dict(orient='records')
     
     results = []
     
-    for entry in manifest.get('papers', []):
-        paper_id = entry.get('id')
-        reported_metrics = entry.get('reported_metrics', {})
-        reported_seed = entry.get('seed')
-        data_file = entry.get('data_file')
-        
-        if not data_file:
-            logger.warning(f"No data file specified for {paper_id}")
+    for entry in manifest:
+        paper_id = entry.get('doi') or entry.get('paper_id')
+        if not paper_id:
+            logger.warning("Skipping entry without DOI or paper_id")
             continue
         
-        data_path = data_dir / data_file
+        reported_metrics = entry.get('reported_metrics', {})
+        reported_seed = entry.get('reported_seed')
+        experimental_replicates = entry.get('experimental_replicates')
+        reaction_conditions = entry.get('reaction_conditions')
+        yield_std_dev = entry.get('yield_std_dev')
         
+        # Estimate parameter count if available in manifest
+        parameter_count = entry.get('parameter_count')
+        
+        logger.info(f"Processing paper: {paper_id}")
         result = run_reproducibility_assessment(
             paper_id=paper_id,
-            data_path=data_path,
             reported_metrics=reported_metrics,
-            reported_seed=reported_seed
+            reported_seed=reported_seed,
+            experimental_replicates=experimental_replicates,
+            reaction_conditions=reaction_conditions,
+            yield_std_dev=yield_std_dev,
+            parameter_count=parameter_count
         )
         results.append(result)
     
+    # Ensure output directory exists
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    
     # Write results
-    with open(output_path, 'w') as f:
+    with open(OUTPUT_FILE, 'w') as f:
         json.dump(results, f, indent=2)
     
-    logger.info(f"Reproducibility results written to {output_path}")
-    
-    # Return for testing
-    return results
+    logger.info(f"Results written to {OUTPUT_FILE}")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

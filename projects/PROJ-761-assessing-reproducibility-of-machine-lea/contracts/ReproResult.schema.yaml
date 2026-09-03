@@ -1,0 +1,75 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ReproResult
+description: Schema for the reproducibility results of a single paper.
+type: object
+required:
+  - doi
+  - flags
+properties:
+  doi:
+    type: string
+    description: Digital Object Identifier of the paper.
+  mae:
+    type: number
+    nullable: true
+    description: Reproduced Mean Absolute Error.
+  r2:
+    type: number
+    nullable: true
+    description: Reproduced R-squared value.
+  rho:
+    type: number
+    nullable: true
+    description: Reproduced Spearman's rank correlation coefficient.
+  deviation_mae:
+    type: number
+    nullable: true
+    description: Deviation of reproduced MAE from reported MAE.
+  deviation_r2:
+    type: number
+    nullable: true
+    description: Deviation of reproduced R2 from reported R2.
+  deviation_rho:
+    type: number
+    nullable: true
+    description: Deviation of reproduced rho from reported rho.
+  score_s:
+    type: number
+    nullable: true
+    description: Reproducibility score S (1 - average relative deviation).
+  max_metric_std_dev:
+    type: number
+    nullable: true
+    description: Maximum standard deviation of metrics across seed sensitivity analysis.
+  flags:
+    type: array
+    description: List of flags indicating issues (e.g., 'Model Substitution', 'Data Unavailable').
+    items:
+      type: string
+  experimental_replicates:
+    type: integer
+    nullable: true
+    description: Number of experimental replicates found in the dataset.
+  reaction_conditions:
+    type: object
+    nullable: true
+    description: Extracted reaction conditions.
+    properties:
+      temperature:
+        type: number
+      solvent:
+        type: string
+      catalyst_loading:
+        type: number
+  yield_std_dev:
+    type: number
+    nullable: true
+    description: Standard deviation of yields across experimental replicates.
+  failure_mode:
+    type: string
+    nullable: true
+    description: Specific failure mode if the paper could not be reproduced.
+  details:
+    type: string
+    nullable: true
+    description: Detailed log of the reproduction attempt.

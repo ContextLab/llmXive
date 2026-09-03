@@ -86,7 +86,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmxive-reproducibility
   verified_at: '2026-09-02T23:36:44.812563Z'
-- artifact_hash: cc4666e20ec51854b2f90ce648c8fe4a7712fc5bfc4a30502df47bfea5327719
+- artifact_hash: 37e6ef75bc85a510b5a8e1805d0b5280faf3bbea189ec41347d8c8ce39b9e1e6
   artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -96,4 +96,4 @@
   value: https://download.pytorch.org/whl/cpu`
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-09-02T23:56:29.560032Z'
+  verified_at: '2026-09-03T12:02:35.249221Z'

@@ -1,3 +1,23 @@
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `contracts/` directory or JSON Schema files for `PaperManifest`, `ReproResult`,
+    or `StatSummary` are present in the provided evidence; the implementer has not
+    supplied the required artifacts.
+T013:
+  c: false
+  h: 0ec15616a2750a999f343aa272171d6c18656e92d006e92721dfd6cee24a67f8
+  r: "The repository lacks the required `artifacts/reports/repro_results.json` output\
+    \ file, and the provided `code/model_runner.py` is incomplete (truncated at `encode_smiles`\
+    \ with a syntax error) and does not show the model\u2011substitution logic or\
+    \ logging of \u201CModel Substitution\u201D. Consequently the task\u2019s core\
+    \ requirements are not met."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `contracts/ReproResult.json` file (or its updated contents) was provided;
+    without the schema file we cannot confirm that the three new fields were added
+    with the correct types and nullability. The required artifact is missing.
 T029:
   c: false
   h: 6a9b43d689649368ff7720c6addaae481ed31386720629d634248b3657ac5bb4
@@ -36,3 +56,9 @@ T037:
     \ that logic ensuring checklist items are actionable has been added. The required\
     \ artifact (e.g., updated guideline\u2011generation code or a sample actionable\
     \ checklist) is missing, so the task is not verified as completed."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `docs/README.md` with installation instructions or `docs/quickstart.md`
+    with example usage were provided; the required documentation files are missing
+    from the evidence.

@@ -2,96 +2,91 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://llmxive.org/schemas/ReproResult.schema.json",
   "title": "ReproResult",
-  "description": "Schema for the results of a single reproducibility run for a paper.",
+  "description": "Schema for the output of a single paper's reproducibility assessment.",
   "type": "object",
   "required": [
     "doi",
-    "metrics",
-    "deviations",
-    "reproducibility_score",
-    "status"
+    "mae",
+    "r2",
+    "rho",
+    "deviation_mae",
+    "deviation_r2",
+    "deviation_rho",
+    "score_s",
+    "flags",
+    "max_metric_std_dev"
   ],
   "properties": {
     "doi": {
       "type": "string",
-      "description": "DOI of the paper being reproduced."
+      "description": "Digital Object Identifier of the paper."
     },
-    "status": {
-      "type": "string",
-      "enum": ["success", "partial", "failed", "substituted"],
-      "description": "Status of the reproduction attempt."
+    "mae": {
+      "type": ["number", "null"],
+      "description": "Reproduced Mean Absolute Error. Null if calculation failed."
     },
-    "failure_reason": {
-      "type": "string",
-      "description": "Reason for failure if status is not success."
+    "r2": {
+      "type": ["number", "null"],
+      "description": "Reproduced R-squared value. Null if calculation failed."
     },
-    "metrics": {
-      "type": "object",
-      "description": "Reproduced metrics.",
-      "required": ["mae", "r2"],
+    "rho": {
+      "type": ["number", "null"],
+      "description": "Reproduced Spearman's Rho. Null if calculation failed."
+    },
+    "deviation_mae": {
+      "type": ["number", "null"],
+      "description": "Absolute deviation of reproduced MAE from reported."
+    },
+    "deviation_r2": {
+      "type": ["number", "null"],
+      "description": "Absolute deviation of reproduced R2 from reported."
+    },
+    "deviation_rho": {
+      "type": ["number", "null"],
+      "description": "Absolute deviation of reproduced Rho from reported."
+    },
+    "score_s": {
+      "type": ["number", "null"],
+      "description": "Reproducibility Score S (1 - average normalized deviations)."
+    },
+    "max_metric_std_dev": {
+      "type": ["number", "null"],
+      "description": "Maximum standard deviation of metrics across sensitivity seeds."
+    },
+    "experimental_replicates": {
+      "type": ["integer", "null"],
+      "description": "Number of experimental replicates found/used."
+    },
+    "reaction_conditions": {
+      "type": ["object", "null"],
+      "description": "Extracted reaction conditions.",
       "properties": {
-        "mae": {
+        "temperature": {
           "type": "number"
         },
-        "r2": {
-          "type": "number"
+        "solvent": {
+          "type": "string"
         },
-        "spearman_rho": {
+        "catalyst_loading": {
           "type": "number"
         }
-      }
+      },
+      "additionalProperties": false
     },
-    "deviations": {
-      "type": "object",
-      "description": "Absolute deviations from reported metrics.",
-      "properties": {
-        "mae": {
-          "type": "number"
-        },
-        "r2": {
-          "type": "number"
-        },
-        "spearman_rho": {
-          "type": "number"
-        }
-      }
+    "yield_std_dev": {
+      "type": ["number", "null"],
+      "description": "Standard deviation of yields across replicates."
     },
-    "reproducibility_score": {
-      "type": "number",
-      "description": "Deviation Index (S) score.",
-      "minimum": 0,
-      "maximum": 1
+    "flags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of flags indicating issues (e.g., 'Model Substitution', 'Missing Replicate Data', 'Data Unavailable')."
     },
-    "seed_used": {
-      "type": "integer",
-      "description": "Seed used for reproduction."
-    },
-    "model_substituted": {
-      "type": "boolean",
-      "description": "Whether the model was substituted due to size."
-    },
-    "metric_std": {
-      "type": "object",
-      "description": "Standard deviation of metrics across sensitivity seeds.",
-      "properties": {
-        "mae": {
-          "type": "number"
-        },
-        "r2": {
-          "type": "number"
-        },
-        "spearman_rho": {
-          "type": "number"
-        }
-      }
-    },
-    "max_metric_std": {
-      "type": "number",
-      "description": "Maximum standard deviation observed across all metrics."
-    },
-    "parameter_count": {
-      "type": "integer",
-      "description": "Number of parameters in the reproduced model."
+    "failure_details": {
+      "type": ["object", "null"],
+      "description": "Detailed error or failure information if applicable."
     }
   },
   "additionalProperties": false

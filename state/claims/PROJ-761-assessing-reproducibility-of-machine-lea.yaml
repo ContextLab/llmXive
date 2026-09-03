@@ -1,0 +1,1084 @@
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Deviation Index S formula with epsilon 1e-6
+  claim_id: c_d5c9c364
+  context: "Create code/metrics.py with functions for MAE, R\xB2, Spearman \u03C1\
+    , and the Deviation Index (S) calculation (FR-009) using the exact formula"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The formula for the Deviation Index (S) is S = 1 \u2013 (|\u0394MAE|/(|MAE_ref|+\u03B5\
+    ) + |\u0394R2|/(|R2_ref|+\u03B5) + |\u0394\u03C1|/(|\u03C1_ref|+\u03B5))/3 where\
+    \ \u03B5 = 1e-6."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:19:04Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: TOST tolerance delta 0.1
+  claim_id: c_cbcb1049
+  context: "Implement code/stats.py with TOST (Two One-Sided Tests) for MAE, R\xB2\
+    , \u03C1 against tolerance delta (use delta=0.1 as defined in plan.md)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The tolerance delta for TOST equivalence analysis is 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:19:22Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis seeds 42, 123, 999
+  claim_id: c_a0a7f082
+  context: Implement sensitivity analysis in code/model_runner.py to sweep seeds {42,
+    123, 999}, compute metric_std for each metric
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps seeds 42, 123, and 999.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:19:43Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Random Forest baseline n_estimators 100 max_depth 5
+  claim_id: c_a4f1d5b6
+  context: Include logic to substitute models exceeding a moderate parameter scale
+    with a Random Forest baseline (n_estimators=100, max_depth=5)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Random Forest baseline substitution uses n_estimators=100 and max_depth=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:20:01Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Model substitution threshold 1 million parameters
+  claim_id: c_dc98ca9a
+  context: 'Include logic to substitute models exceeding a moderate parameter scale
+    with a Random Forest baseline... Verification: Verify log contains Model Substitution
+    for any paper with >1M parameters.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Random Forest baseline substitution triggers for models exceeding
+    1 million parameters.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:20:23Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Default random seed 42
+  claim_id: c_6e344fc9
+  context: Implement logic in code/model_runner.py to handle missing seeds (default
+    42)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default random seed for missing seeds is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:20:41Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Python version 3.11
+  claim_id: c_f9b946ac
+  context: Initialize Python 3.11 project... Create Dockerfile with Python 3.11
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Python version used is 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:21:00Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: PyTorch version 2.2.0+cpu
+  claim_id: c_41cf819a
+  context: 'requirements.txt containing exact pinned versions: torch==2.2.0+cpu'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The PyTorch version is 2.2.0+cpu.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:21:17Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.5.0
+  claim_id: c_58bc1cfa
+  context: 'requirements.txt containing exact pinned versions: scikit-learn==1.5.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scikit-learn version is 1.5.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:21:52Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: RDKit version 2024.3.1
+  claim_id: c_e8fb4239
+  context: 'requirements.txt containing exact pinned versions: rdkit==2024.3.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The RDKit version is 2024.3.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:22:25Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.1
+  claim_id: c_b0b95081
+  context: 'requirements.txt containing exact pinned versions: statsmodels==0.14.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statsmodels version is 0.14.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:22:31Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: pandas version 2.2.0
+  claim_id: c_c8094762
+  context: 'requirements.txt containing exact pinned versions: pandas==2.2.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pandas version is 2.2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:22:38Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.0
+  claim_id: c_40a70c3f
+  context: 'requirements.txt containing exact pinned versions: numpy==1.26.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The numpy version is 1.26.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:22:44Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.8.0
+  claim_id: c_2e5d9853
+  context: 'requirements.txt containing exact pinned versions: matplotlib==3.8.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The matplotlib version is 3.8.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:22:50Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_ba34cabf
+  context: 'requirements.txt containing exact pinned versions: pyyaml==6.0.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pyyaml version is 6.0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:22:56Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: requests version 2.31.0
+  claim_id: c_37f65bc3
+  context: 'requirements.txt containing exact pinned versions: requests==2.31.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The requests version is 2.31.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:23:02Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Guideline checklist minimum 5 items
+  claim_id: c_7530fb32
+  context: "Generate artifacts/reports/reproducibility_checklist.md with \u22655 numbered\
+    \ items"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Guideline_checklist_minimum_5_items
+  kind: magnitude
+  raw_text: The guideline checklist must contain at least 5 numbered items.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:23:10Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Temperature extraction regex pattern
+  claim_id: c_e104bc01
+  context: "apply regex patterns r'Temperature:\\s*([\\d.]+)\\s*\xB0C' to the extracted\
+    \ text stream"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Temperature_extraction_regex_pattern
+  kind: entity_fact
+  raw_text: "The regex pattern for temperature extraction is r'Temperature:\\s*([\\\
+    d.]+)\\s*\xB0C'."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:23:17Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Solvent extraction regex pattern
+  claim_id: c_6c80ea7f
+  context: apply regex patterns ... r'Solvent:\s*(\w+)' to the extracted text stream
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Solvent_extraction_regex_pattern
+  kind: entity_fact
+  raw_text: The regex pattern for solvent extraction is r'Solvent:\s*(\w+)'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:23:52Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Yield extraction regex pattern
+  claim_id: c_8ca67fb9
+  context: apply regex patterns ... r'Yield.*?([\d.]+)%' to the extracted text stream
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Yield_extraction_regex_pattern
+  kind: entity_fact
+  raw_text: The regex pattern for yield extraction is r'Yield.*?([\d.]+)%'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:24:01Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Project requires Python 3.11, CPU-only PyTorch 2.2, scikit-learn 1.5,
+    RDKit
+  claim_id: c_46384c34
+  context: T004 Create Dockerfile with Python 3.11, CPU-only PyTorch 2.2, scikit-learn
+    1.5, RDKit; enforce no GPU flags
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires Python 3.11, CPU-only PyTorch 2.2, scikit-learn 1.5,
+    and RDKit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:26:04Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: 'Requirements pinned versions: torch 2.2.0+cpu, scikit-learn 1.5.0, rdkit
+    2024.3.1, statsmodels 0.14.1, pandas 2.2.0, numpy 1.26.0, matplotlib 3.8.0, pyyaml
+    6.0.1, requests 2.31.0'
+  claim_id: c_47a3cfce
+  context: T001b [P] Initialize Python 3.11 project with requirements.txt containing
+    exact pinned versions
+  evidence:
+    asserted: '2.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'The requirements.txt must contain exact pinned versions: torch==2.2.0+cpu,
+    scikit-learn==1.5.0, rdkit==2024.3.1, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.0,
+    matplotlib==3.8.0, pyyaml==6.0.1, requests==2.31.0.'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T11:26:04Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: "Deviation Index formula S = 1 - (|\u0394MAE|/(|MAE_ref|+\u03B5) + |\u0394\
+    R2|/(|R2_ref|+\u03B5) + |\u0394\u03C1|/(|\u03C1_ref|+\u03B5))/3 with epsilon 1e-6"
+  claim_id: c_8ddc911f
+  context: "T007 Create code/metrics.py with functions for MAE, R\xB2, Spearman \u03C1\
+    , and the Deviation Index (S) calculation"
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: "/(|MAE_ref|+\u03B5) + |\u0394R2|/(|R2_ref|+\u03B5) + |\u0394\u03C1|/(|\u03C1\
+      _ref|+\u03B5))/3 with epsilon 1e-6"
+    relation: "\u0394MAE"
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Deviation_Index_formula_S_=_1_-_(_%CE%94MAE_/(%7CMAE_ref%7C+%CE%B5)_+_%7C%CE%94R2
+    source_value: "https://en.wikipedia.org/wiki/Deviation_Index_formula_S_=_1_-_(_\u0394\
+      MAE_/(|MAE_ref|+\u03B5)_+_|\u0394R2"
+    subject: Deviation Index formula S = 1 - (
+  kind: relational
+  raw_text: "The Deviation Index (S) is calculated using the formula: S = 1 \u2013\
+    \ (|\u0394MAE|/(|MAE_ref|+\u03B5) + |\u0394R2|/(|R2_ref|+\u03B5) + |\u0394\u03C1\
+    |/(|\u03C1_ref|+\u03B5))/3 where \u03B5 = 1e-6."
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:26:17Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps seeds 42, 123, 999 to compute max metric
+    standard deviation
+  claim_id: c_930c2e83
+  context: T017 [US1] Implement sensitivity analysis in code/model_runner.py to sweep
+    seeds {42, 123, 999}, compute metric_std for each metric, and report the maximum
+    metric standard deviation observed
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps seeds 42, 123, and 999 to compute the
+    maximum metric standard deviation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:26:19Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Models exceeding 1M parameters substituted with Random Forest baseline
+    n_estimators=100 max_depth=5
+  claim_id: c_170af6e3
+  context: T013 [US1] Include logic to substitute models exceeding a moderate parameter
+    scale with a Random Forest baseline (n_estimators=100, max_depth=5)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Models exceeding 1 million parameters are substituted with a Random Forest
+    baseline using n_estimators=100 and max_depth=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:26:22Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: TOST equivalence analysis uses tolerance delta 0.1
+  claim_id: c_956dfcd9
+  context: "T026 [US2] Implement code/stats.py with TOST (Two One-Sided Tests) for\
+    \ MAE, R\xB2, \u03C1 against tolerance delta (use delta=0.1 as defined in plan.md)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The TOST (Two One-Sided Tests) for equivalence analysis uses a tolerance
+    delta of 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:26:29Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Checklist generation requires at least 5 numbered items citing guideline
+    and referencing failure mode
+  claim_id: c_c8125b71
+  context: "T036 [US3] Implement code/guidelines.py to generate artifacts/reports/reproducibility_checklist.md\
+    \ with \u22655 numbered items, each citing a published guideline and referencing\
+    \ a failure mode"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Checklist_generation_requires_at_least_5_numbered_items_citi
+  kind: magnitude
+  raw_text: The checklist generation requires at least 5 numbered items citing a published
+    guideline and referencing a failure mode.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:26:37Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Reproducibility score S calculated in artifacts/reports/repro_results.json
+  claim_id: c_d678d2e7
+  context: T018 [US1] Implement code/main.py to aggregate individual ReproResult objects
+    into artifacts/reports/repro_results.json containing deviations and score S
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: ''
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Reproducibility_score_S_calculated_in_artifacts/reports/repr
+    source_value: https://en.wikipedia.org/wiki/Reproducibility_score_S_calculated_in_artifacts/reports/repr
+    subject: Reproducibility score S calculated in artifacts/reports/repro_results.json
+  kind: relational
+  raw_text: The reproducibility score S is calculated as part of the aggregated reports
+    in artifacts/reports/repro_results.json.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:26:41Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Heterogeneity I2 calculated using Q-statistic on per-paper MAE absolute
+    deviations
+  claim_id: c_abf244ea
+  context: "T029 [US2] Implement code/stats.py to compute heterogeneity (I\xB2) and\
+    \ pooled effect size. Logic: Calculate I\xB2 using the Q-statistic on the per-paper\
+    \ MAE absolute deviations"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Heterogeneity_I2_calculated_using_Q-statistic_on_per-paper_M
+  kind: entity_fact
+  raw_text: "Heterogeneity (I\xB2) is calculated using the Q-statistic on per-paper\
+    \ MAE absolute deviations."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:26:49Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project with specific pinned library versions
+  claim_id: c_f033156e
+  context: Task T001b specifies initializing the project with a requirements.txt containing
+    exact pinned versions for all dependencies.
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The project requires Python 3.11, torch==2.2.0+cpu, scikit-learn==1.5.0,
+    rdkit==2024.3.1, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.0, matplotlib==3.8.0,
+    pyyaml==6.0.1, and requests==2.31.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T11:27:39Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Deviation Index formula with epsilon 1e-6
+  claim_id: c_7191c369
+  context: Task T007 defines the exact formula for the Deviation Index used in metrics.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Deviation Index (S) is calculated using the formula: S = 1 \u2013\
+    \ (|\u0394MAE|/(|MAE_ref|+\u03B5) + |\u0394R2|/(|R2_ref|+\u03B5) + |\u0394\u03C1\
+    |/(|\u03C1_ref|+\u03B5))/3 where \u03B5 = 1e-6."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:27:39Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Model substitution threshold at 1 million parameters
+  claim_id: c_aeb5971a
+  context: Task T013 and T016 specify enforcing a 1M parameter limit and substituting
+    larger models with a Random Forest baseline.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Models exceeding a parameter scale of 1 million (1M) are substituted with
+    a Random Forest baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:27:57Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Random Forest baseline parameters n_estimators 100 max_depth 5
+  claim_id: c_166c08e4
+  context: Task T013 specifies the configuration for the Random Forest baseline used
+    when models are substituted.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Random Forest baseline uses n_estimators=100 and max_depth=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:28:10Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis seeds 42 123 999
+  claim_id: c_f6ec02d6
+  context: Task T017 describes implementing sensitivity analysis by sweeping specific
+    seed values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps seeds 42, 123, and 999 to compute metric standard
+    deviation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:28:27Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied to t-tests and TOST
+  claim_id: c_76852f7c
+  context: Tasks T025 and T026 specify the use of Bonferroni correction for statistical
+    tests.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_to_t-tests_and_TOST
+  kind: entity_fact
+  raw_text: Bonferroni correction is applied for family-wise error control in paired
+    t-tests and TOST.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:28:46Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: TOST tolerance delta 0.1
+  claim_id: c_c84e9f97
+  context: Task T026 specifies using delta=0.1 for the TOST equivalence analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The TOST (Two One-Sided Tests) uses a tolerance delta of 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:29:12Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Reproducibility checklist minimum 5 items
+  claim_id: c_318e90a7
+  context: Task T036 requires generating a checklist with at least 5 items citing
+    guidelines and failure modes.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reproducibility_checklist_minimum_5_items
+  kind: magnitude
+  raw_text: The reproducibility checklist must contain at least 5 numbered items.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:29:40Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Installation requires pip install -r requirements.txt --extra-index-url=.
+  claim_id: c_ecf0b078
+  context: T001b [P] Initialize Python 3.11 project with requirements.txt containing
+    exact pinned versions.
+  evidence:
+    entailment_evidence: Installation requires pip install -r requirements.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Installation_requires_pip_install_-r_requirements.txt_--extr
+  kind: entity_fact
+  raw_text: Installation requires pip install -r requirements.txt --extra-index-url=.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-03T11:38:17Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Models exceeding parameter scale are substituted with Random Forest baseline
+    of 100 estimators and max depth 5
+  claim_id: c_970a15b0
+  context: T013 [US1] Implement code/model_runner.py to load data and train model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Substitute models exceeding a moderate parameter scale with a Random Forest
+    baseline (n_estimators=100, max_depth=5).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:38:30Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Model substitution is logged for papers with more than 1 million parameters
+  claim_id: c_4123da2f
+  context: T013 [US1] Implementation details for model_runner.py.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_substitution_is_logged_for_papers_with_more_than_1_mil
+  kind: magnitude
+  raw_text: Verify log contains 'Model Substitution' for any paper with >1M parameters.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:38:53Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps seeds 42, 123, and 999
+  claim_id: c_097b9355
+  context: T017 [US1] Implement sensitivity analysis in code/model_runner.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement sensitivity analysis in code/model_runner.py to sweep seeds
+    {42, 123, 999}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:39:10Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Paired t-tests for MAE, R2, and rho use Bonferroni correction
+  claim_id: c_7177243a
+  context: T025 [P] [US2] Implement code/stats.py to run paired t-tests.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Bonferroni correction
+      source_id: Q385989
+      url: https://www.wikidata.org/wiki/Q385989
+      value: Bonferroni correction
+    filled: true
+  kind: entity_fact
+  raw_text: "Run paired t-tests for each metric (MAE, R\xB2, \u03C1) unconditionally,\
+    \ applying Bonferroni correction for family-wise error control."
+  resolved_value: Bonferroni correction
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T11:39:17Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: TOST equivalence analysis uses tolerance delta of 0.1
+  claim_id: c_6ebe4e83
+  context: T026 [US2] Implement code/stats.py with TOST for MAE, R2, rho.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement TOST (Two One-Sided Tests) for MAE, R\xB2, \u03C1 against tolerance\
+    \ delta (use delta=0.1 as defined in plan.md) for supplementary equivalence analysis."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:39:48Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Heterogeneity I2 is calculated using Q-statistic on per-paper MAE absolute
+    deviations
+  claim_id: c_b8c30d00
+  context: T029 [US2] Implement code/stats.py to compute heterogeneity (I2) and pooled
+    effect size.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Heterogeneity_I2_is_calculated_using_Q-statistic_on_per-pape
+  kind: entity_fact
+  raw_text: "Calculate I\xB2 using the Q-statistic on the per-paper MAE absolute deviations."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:40:23Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Reproducibility checklist contains at least 5 items citing guidelines
+    and referencing failure modes
+  claim_id: c_ae0a14df
+  context: T036 [US3] Implement code/guidelines.py to generate reproducibility_checklist.md.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reproducibility_checklist_contains_at_least_5_items_citing_g
+  kind: magnitude
+  raw_text: "Generate artifacts/reports/reproducibility_checklist.md with \u22655\
+    \ numbered items, each citing a published guideline and referencing a failure\
+    \ mode."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:41:05Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Deviation Index S formula with epsilon 1e-6
+  claim_id: c_8a8631f3
+  context: "Task T007 Create code/metrics.py with functions for MAE, R\xB2, Spearman\
+    \ \u03C1, and the Deviation Index (S) calculation (FR-009) using the exact formula..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The formula for the Deviation Index (S) is S = 1 \u2013 (|\u0394MAE|/(|MAE_ref|+\u03B5\
+    ) + |\u0394R2|/(|R2_ref|+\u03B5) + |\u0394\u03C1|/(|\u03C1_ref|+\u03B5))/3 where\
+    \ \u03B5 = 1e-6."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:45:20Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: TOST tolerance delta 0.1
+  claim_id: c_23a0ece8
+  context: Task T026 Implement code/stats.py with TOST... against tolerance delta
+    (use delta=0.1 as defined in plan.md)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The tolerance delta for TOST (Two One-Sided Tests) is 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:45:37Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Random Forest baseline n_estimators 100 max_depth 5
+  claim_id: c_267bf143
+  context: Task T013... Include logic to substitute models exceeding a moderate parameter
+    scale with a Random Forest baseline (n_estimators=100, max_depth=5)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Random Forest baseline substitution uses n_estimators=100 and max_depth=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:45:38Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Model training random seed 42
+  claim_id: c_521c5bfd
+  context: Task T013... train model (CPU, seed 42 or reported)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random seed used for model training is 42, or the reported seed if
+    available.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:46:01Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis seeds 42 123 999
+  claim_id: c_0165850f
+  context: Task T017 Implement sensitivity analysis in code/model_runner.py to sweep
+    seeds {42, 123, 999}...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps seeds 42, 123, and 999.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:46:01Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Model parameter limit 1 million
+  claim_id: c_4edc5e98
+  context: "Task T016... enforce the \u22641M parameter limit; log 'Model Substitution/Unavailable'\
+    \ if exceeded..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model parameter limit for substitution is 1 million parameters.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:46:26Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Checklist minimum 5 items
+  claim_id: c_b83f8ffb
+  context: "Task T036... generate artifacts/reports/reproducibility_checklist.md with\
+    \ \u22655 numbered items..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Checklist_minimum_5_items
+  kind: magnitude
+  raw_text: The checklist for community guidelines must contain at least 5 numbered
+    items.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:46:54Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Python version 3.11
+  claim_id: c_d45cdbd5
+  context: Task T001b Initialize Python 3.11 project with requirements.txt...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Python version required for the project is 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:47:11Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: PyTorch version 2.2.0+cpu
+  claim_id: c_854de91c
+  context: 'Task T001b... requirements.txt containing exact pinned versions: torch==2.2.0+cpu...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The required version of PyTorch is 2.2.0+cpu.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:47:25Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.5.0
+  claim_id: c_2c65e8c2
+  context: 'Task T001b... requirements.txt containing exact pinned versions: ... scikit-learn==1.5.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The required version of scikit-learn is 1.5.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:47:39Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: RDKit version 2024.3.1
+  claim_id: c_1c72d31e
+  context: 'Task T001b... requirements.txt containing exact pinned versions: ... rdkit==2024.3.1...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The required version of RDKit is 2024.3.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:48:01Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.1
+  claim_id: c_1f15a966
+  context: 'Task T001b... requirements.txt containing exact pinned versions: ... statsmodels==0.14.1...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The required version of statsmodels is 0.14.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:48:22Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: pandas version 2.2.0
+  claim_id: c_18473432
+  context: 'Task T001b... requirements.txt containing exact pinned versions: ... pandas==2.2.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The required version of pandas is 2.2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:48:42Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.0
+  claim_id: c_bc3c9685
+  context: 'Task T001b... requirements.txt containing exact pinned versions: ... numpy==1.26.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The required version of numpy is 1.26.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:48:58Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.8.0
+  claim_id: c_a448ec38
+  context: 'Task T001b... requirements.txt containing exact pinned versions: ... matplotlib==3.8.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The required version of matplotlib is 3.8.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:49:22Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_494f2f0b
+  context: 'Task T001b... requirements.txt containing exact pinned versions: ... pyyaml==6.0.1...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The required version of pyyaml is 6.0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:49:40Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: requests version 2.31.0
+  claim_id: c_bede6b9d
+  context: 'Task T001b... requirements.txt containing exact pinned versions: ... requests==2.31.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The required version of requests is 2.31.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:49:57Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Line length 88
+  claim_id: c_c4b09ac1
+  context: Task T003a... configuring line length 88, target-version py311...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The line length for black and ruff configuration is 88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T11:50:29Z'
