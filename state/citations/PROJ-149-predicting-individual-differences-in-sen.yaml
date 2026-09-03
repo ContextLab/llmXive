@@ -42,7 +42,7 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1000/example
   verified_at: '2026-07-02T21:16:24.661729Z'
-- artifact_hash: 043754e16748a2462422945d5811d180bca2ee37d9b20379ab2b18332e03ebf8
+- artifact_hash: a767c321a4e0ca99fc5d407276018d89e948cdc77c9e455bcd930d277c4d8e2c
   artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,4 +52,4 @@
   value: https://openneuro.org/datasets/ds000224`
   verification_status: pending
   verified_against_url: https://openneuro.org/datasets/ds000224
-  verified_at: '2026-08-31T15:33:46.421740Z'
+  verified_at: '2026-09-03T06:25:13.333759Z'

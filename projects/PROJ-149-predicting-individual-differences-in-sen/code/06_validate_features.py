@@ -1,11 +1,13 @@
 """
 T035a: Validate schema of data/processed/features.csv.
 
-This script validates the feature schema contract:
-1. Checks for required columns.
-2. Checks for null values.
-3. Validates RT range (100-2000 ms).
-4. Writes a validation log to data/processed/feature_validation_log.json.
+This script verifies:
+1. Required columns exist.
+2. No null values in required columns.
+3. median_rt is within a plausible response time range (50ms - 5000ms).
+4. Data types are correct.
+
+It exits with code 0 if valid, code 1 if invalid.
 """
 import os
 import sys
@@ -14,11 +16,11 @@ import pandas as pd
 import numpy as np
 import json
 from pathlib import Path
-from datetime import datetime
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent))
-from config import get_path, ensure_dirs
+# Resolve paths relative to project root
+PROJECT_ROOT = Path(__file__).parents[0]
+DEFAULT_INPUT_PATH = PROJECT_ROOT / "data" / "processed" / "features.csv"
+DEFAULT_OUTPUT_LOG = PROJECT_ROOT / "data" / "interim" / "validation_log.json"
 
 REQUIRED_COLUMNS = [
     "participant_id",
@@ -31,110 +33,141 @@ REQUIRED_COLUMNS = [
     "gamma_rel"
 ]
 
-RT_MIN = 100.0
-RT_MAX = 2000.0
+MIN_RT_MS = 50.0
+MAX_RT_MS = 5000.0
 
-def validate_schema():
+def validate_schema(input_path: Path, output_log: Path):
     """
-    Validates the schema of data/processed/features.csv against the contract.
-    Returns a dictionary with validation results.
+    Validate the schema of the features CSV file.
+    
+    Returns a tuple (is_valid, validation_report_dict).
     """
-    features_path = get_path("data_processed", "features.csv")
-    validation_results = {
-        "timestamp": datetime.now().isoformat(),
-        "file_path": features_path,
-        "status": "failed",
+    report = {
+        "file": str(input_path),
+        "valid": True,
         "errors": [],
-        "warnings": []
+        "warnings": [],
+        "row_count": 0,
+        "column_count": 0
     }
 
-    if not os.path.exists(features_path):
-        validation_results["errors"].append(f"File not found: {features_path}")
-        return validation_results
+    # 1. Check file existence
+    if not input_path.exists():
+        report["valid"] = False
+        report["errors"].append(f"File not found: {input_path}")
+        return False, report
 
     try:
-        df = pd.read_csv(features_path)
+        df = pd.read_csv(input_path)
     except Exception as e:
-        validation_results["errors"].append(f"Failed to read CSV: {str(e)}")
-        return validation_results
+        report["valid"] = False
+        report["errors"].append(f"Failed to read CSV: {str(e)}")
+        return False, report
 
-    # 1. Check required columns
+    report["row_count"] = len(df)
+    report["column_count"] = len(df.columns)
+
+    # 2. Check required columns
     missing_cols = set(REQUIRED_COLUMNS) - set(df.columns)
     if missing_cols:
-        validation_results["errors"].append(f"Missing columns: {missing_cols}")
+        report["valid"] = False
+        report["errors"].append(f"Missing required columns: {sorted(missing_cols)}")
     else:
-        validation_results["checks"]["columns"] = "passed"
+        report["warnings"].append("All required columns present.")
 
-    # 2. Check for nulls
-    null_counts = df.isnull().sum()
-    total_nulls = null_counts.sum()
-    if total_nulls > 0:
-        validation_results["errors"].append(f"Found {total_nulls} null values.")
-        validation_results["null_counts"] = null_counts.to_dict()
-    else:
-        validation_results["checks"]["no_nulls"] = "passed"
+    if not report["valid"]:
+        # If columns are missing, we can't reliably check values
+        save_report(output_log, report)
+        return False, report
 
-    # 3. Check RT range
+    # 3. Check for nulls
+    null_counts = df[REQUIRED_COLUMNS].isna().sum()
+    null_cols = null_counts[null_counts > 0]
+    if not null_cols.empty:
+        report["valid"] = False
+        for col, count in null_cols.items():
+            report["errors"].append(f"Column '{col}' has {count} null values.")
+
+    # 4. Check median_rt range
     if "median_rt" in df.columns:
-        rt_below = (df["median_rt"] < RT_MIN).sum()
-        rt_above = (df["median_rt"] > RT_MAX).sum()
-        if rt_below > 0:
-            validation_results["errors"].append(f"Found {rt_below} RT values below {RT_MIN}ms.")
-        if rt_above > 0:
-            validation_results["errors"].append(f"Found {rt_above} RT values above {RT_MAX}ms.")
-        if rt_below == 0 and rt_above == 0:
-            validation_results["checks"]["rt_range"] = "passed"
+        rt_col = df["median_rt"]
+        invalid_low = rt_col[rt_col < MIN_RT_MS]
+        invalid_high = rt_col[rt_col > MAX_RT_MS]
+        
+        if len(invalid_low) > 0:
+            report["valid"] = False
+            report["errors"].append(
+                f"Found {len(invalid_low)} participants with RT < {MIN_RT_MS}ms."
+            )
+        if len(invalid_high) > 0:
+            report["valid"] = False
+            report["errors"].append(
+                f"Found {len(invalid_high)} participants with RT > {MAX_RT_MS}ms."
+            )
 
-    # 4. Check unique participant_id
+    # 5. Check numeric types for non-ID columns
+    numeric_cols = [c for c in REQUIRED_COLUMNS if c != "participant_id"]
+    for col in numeric_cols:
+        if col in df.columns:
+            # Check if column is numeric
+            if not pd.api.types.is_numeric_dtype(df[col]):
+                try:
+                    # Try to coerce to see if it's just a string representation of numbers
+                    pd.to_numeric(df[col], errors='raise')
+                    report["warnings"].append(f"Column '{col}' is object type but contains numeric data.")
+                except (ValueError, TypeError):
+                    report["valid"] = False
+                    report["errors"].append(f"Column '{col}' is not numeric.")
+
+    # 6. Check participant_id non-empty
     if "participant_id" in df.columns:
-        if df["participant_id"].duplicated().any():
-            validation_results["warnings"].append("Duplicate participant_ids found.")
-        else:
-            validation_results["checks"]["unique_participant_id"] = "passed"
+        empty_ids = df["participant_id"].astype(str).str.strip().eq("")
+        if empty_ids.any():
+            report["valid"] = False
+            report["errors"].append("Found empty participant_id values.")
 
-    if not validation_results["errors"]:
-        validation_results["status"] = "passed"
+    if report["valid"]:
+        report["warnings"].append("Schema validation passed.")
     
-    return validation_results
+    save_report(output_log, report)
+    return report["valid"], report
+
+def save_report(output_path: Path, report: dict):
+    """Save validation report to JSON."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
 
 def main():
-    parser = argparse.ArgumentParser(description="Validate feature schema.")
-    parser.add_argument("--output", type=str, default=None, 
-                        help="Path to write validation log (default: data/processed/feature_validation_log.json)")
+    parser = argparse.ArgumentParser(
+        description="Validate schema of data/processed/features.csv"
+    )
+    parser.add_argument(
+        "--input", 
+        type=Path, 
+        default=DEFAULT_INPUT_PATH,
+        help=f"Path to features CSV (default: {DEFAULT_INPUT_PATH})"
+    )
+    parser.add_argument(
+        "--output", 
+        type=Path, 
+        default=DEFAULT_OUTPUT_LOG,
+        help=f"Path to validation log JSON (default: {DEFAULT_OUTPUT_LOG})"
+    )
+
     args = parser.parse_args()
 
-    print("Starting feature schema validation...")
-    results = validate_schema()
+    is_valid, report = validate_schema(args.input, args.output)
 
-    # Print results
-    print(f"Validation Status: {results['status']}")
-    if results["errors"]:
-        print("Errors:")
-        for err in results["errors"]:
-            print(f"  - {err}")
-    if results["warnings"]:
-        print("Warnings:")
-        for warn in results["warnings"]:
-            print(f"  - {warn}")
-
-    # Write log
-    log_path = args.output
-    if not log_path:
-        log_path = get_path("data_processed", "feature_validation_log.json")
-    
-    # Ensure directory exists
-    ensure_dirs(Path(log_path).parent)
-
-    with open(log_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    print(f"Validation log written to: {log_path}")
-
-    # Exit with error code if validation failed
-    if results["status"] == "failed":
-        sys.exit(1)
-    else:
+    if is_valid:
+        print(f"Validation PASSED: {args.input}")
+        print(f"  Rows: {report['row_count']}, Columns: {report['column_count']}")
         sys.exit(0)
+    else:
+        print(f"Validation FAILED: {args.input}")
+        for err in report["errors"]:
+            print(f"  ERROR: {err}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

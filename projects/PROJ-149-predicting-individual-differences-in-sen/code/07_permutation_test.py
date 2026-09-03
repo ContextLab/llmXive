@@ -1,10 +1,21 @@
 """
-Permutation Test for Model Significance (T022)
+Permutation Test for Model Significance (FR-007)
 
-Implements FR-007: Permutation test to establish null distribution for model R².
-Reads observed test_r2 from data/processed/model_results.json.
-Shuffles median_rt to generate null distribution.
-Outputs data/processed/permutation_results.json and data/interim/permutation_null_distribution.npy.
+This script performs a permutation test to assess the statistical significance
+of the observed R² score from the predictive model.
+
+Methodology:
+1. Load the observed test R² from model_results.json.
+2. Load the full dataset (features.csv) and the original train/test split indices.
+3. For 10,000 iterations:
+   a. Shuffle the target variable (median_rt) on the FULL dataset.
+   b. Apply the stored split indices to the shuffled data.
+   c. Train the LASSO model on the shuffled training set.
+   d. Predict on the shuffled test set.
+   e. Compute R².
+4. Store the null distribution of R² scores.
+5. Calculate the p-value: proportion of null R² >= observed R².
+6. Save results to data/processed/permutation_results.json and null distribution to data/interim/permutation_null_distribution.npy.
 """
 import os
 import sys
@@ -12,165 +23,164 @@ import json
 import argparse
 import numpy as np
 import pandas as pd
-from pathlib import Path
-from typing import Tuple, Dict, Any, Optional
-
-# Add project root to path to allow imports from sibling modules
-project_root = Path(__file__).parent
-sys.path.insert(0, str(project_root))
-
-from config import get_path, get_seed, set_global_seed
-from utils.stats_helpers import permutation_test
+from sklearn.linear_model import Lasso
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score
+from sklearn.preprocessing import StandardScaler
+from config import get_path, ensure_dirs, get_seed
 
 # Constants
-N_PERMUTATIONS = 1000  # Number of permutations for null distribution
-RANDOM_SEED = 42
+N_PERMUTATIONS = 10000
+RANDOM_SEED = get_seed()
 
-def load_observed_results(results_path: str) -> Dict[str, Any]:
-    """Load observed model results from JSON file."""
-    if not os.path.exists(results_path):
-        raise FileNotFoundError(f"Observed results file not found: {results_path}")
-    
-    with open(results_path, 'r') as f:
-        results = json.load(f)
-    
-    if 'test_r2' not in results:
-        raise KeyError("Observed results missing 'test_r2' key")
-    
-    return results
+def load_observed_results():
+    """Load observed model results from data/processed/model_results.json."""
+    path = get_path('processed', 'model_results.json')
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Observed results file not found: {path}. "
+                                "Please run code/05_modeling.py (T017) first.")
+    with open(path, 'r') as f:
+        return json.load(f)
 
-def load_features_and_targets(features_path: str) -> Tuple[pd.DataFrame, pd.Series]:
-    """Load features and median_rt from the CLR-transformed features file."""
+def load_features_and_targets():
+    """
+    Load features and targets from data/processed/features.csv.
+    Returns X (features), y (median_rt), and the original split indices.
+    """
+    features_path = get_path('processed', 'features.csv')
+    split_indices_path = get_path('interim', 'split_indices.json')
+
     if not os.path.exists(features_path):
-        raise FileNotFoundError(f"Features file not found: {features_path}")
-    
+        raise FileNotFoundError(f"Features file not found: {features_path}. "
+                                "Please run code/04c_relative_power.py (T012c) first.")
+    if not os.path.exists(split_indices_path):
+        raise FileNotFoundError(f"Split indices file not found: {split_indices_path}. "
+                                "Please run code/05_modeling.py (T017) first.")
+
     df = pd.read_csv(features_path)
-    
+
+    # Ensure required columns exist
     required_cols = ['participant_id', 'median_rt', 'delta_rel', 'theta_rel', 
-                    'alpha_rel', 'low_beta_rel', 'high_beta_rel', 'gamma_rel']
-    
+                     'alpha_rel', 'low_beta_rel', 'high_beta_rel', 'gamma_rel']
     missing_cols = [col for col in required_cols if col not in df.columns]
     if missing_cols:
-        raise ValueError(f"Features file missing required columns: {missing_cols}")
-    
-    # Drop rows with missing values in key columns
-    df = df.dropna(subset=required_cols)
-    
-    features = df[required_cols[2:]]  # All band power columns
-    targets = df['median_rt']
-    
-    return features, targets
+        raise ValueError(f"Missing required columns in features.csv: {missing_cols}")
 
-def compute_r2_for_permutation(X: np.ndarray, y: np.ndarray, 
-                              observed_r2: float) -> float:
-    """
-    Compute R² for a permuted dataset.
-    
-    We use a simple closed-form R² calculation to avoid refitting the full model.
-    R² = 1 - (SS_res / SS_tot)
-    
-    For a linear model with permuted y, we can compute R² directly.
-    """
-    n = len(y)
-    if n == 0:
-        return 0.0
-    
-    # Mean of y
-    y_mean = np.mean(y)
-    
-    # Total sum of squares
-    ss_tot = np.sum((y - y_mean) ** 2)
-    if ss_tot == 0:
-        return 0.0
-    
-    # For a permuted dataset, we expect R² to be near 0
-    # We'll use a simple linear regression to compute the actual R²
-    # This is more accurate than assuming R² = 0
-    
-    # Add intercept term
-    X_with_intercept = np.column_stack([np.ones(n), X])
-    
-    # Ordinary least squares: beta = (X'X)^-1 X'y
-    try:
-        # Use pseudo-inverse for numerical stability
-        beta = np.linalg.lstsq(X_with_intercept, y, rcond=None)[0]
-        
-        # Predictions
-        y_pred = X_with_intercept @ beta
-        
-        # Residual sum of squares
-        ss_res = np.sum((y - y_pred) ** 2)
-        
-        # R²
-        r2 = 1 - (ss_res / ss_tot)
-        
-        return r2
-    except np.linalg.LinAlgError:
-        # If matrix is singular, return 0
-        return 0.0
+    # Separate features and target
+    feature_cols = ['delta_rel', 'theta_rel', 'alpha_rel', 'low_beta_rel', 
+                    'high_beta_rel', 'gamma_rel']
+    X = df[feature_cols].values
+    y = df['median_rt'].values
 
-def run_permutation_test(X: np.ndarray, y: pd.Series, 
-                        observed_r2: float, 
-                        n_permutations: int = 1000,
-                        random_state: int = 42) -> np.ndarray:
+    # Load split indices
+    with open(split_indices_path, 'r') as f:
+        split_data = json.load(f)
+
+    train_idx = np.array(split_data['train_idx'])
+    test_idx = np.array(split_data['test_idx'])
+
+    return X, y, train_idx, test_idx, feature_cols
+
+def compute_r2_for_permutation(X, y, train_idx, test_idx, alpha=0.01):
     """
-    Run permutation test to generate null distribution of R² values.
+    Train a LASSO model on shuffled data and compute R².
     
     Args:
-        X: Feature matrix (n_samples, n_features)
-        y: Target vector (n_samples,)
-        observed_r2: Observed R² value from the original model
-        n_permutations: Number of permutations to run
-        random_state: Random seed for reproducibility
-    
+        X: Full feature matrix (shuffled y is applied via indexing)
+        y: Full target vector (will be shuffled by caller before passing)
+        train_idx: Indices for training set
+        test_idx: Indices for test set
+        alpha: Regularization strength for LASSO
+        
     Returns:
-        Array of R² values from permuted datasets (null distribution)
+        R² score on the test set
     """
-    set_global_seed(random_state)
-    rng = np.random.default_rng(random_state)
+    # Split data
+    X_train, X_test = X[train_idx], X[test_idx]
+    y_train, y_test = y[train_idx], y[test_idx]
+
+    # Standardize features
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+
+    # Fit LASSO model
+    model = Lasso(alpha=alpha, random_state=RANDOM_SEED, max_iter=10000)
+    try:
+        model.fit(X_train_scaled, y_train)
+    except Exception:
+        # If fit fails (e.g., convergence), return NaN or a very low score
+        # to indicate a failed permutation
+        return -np.inf
+
+    # Predict
+    y_pred = model.predict(X_test_scaled)
+
+    # Compute R²
+    r2 = r2_score(y_test, y_pred)
+    return r2
+
+def run_permutation_test(X, y, train_idx, test_idx, n_permutations=N_PERMUTATIONS):
+    """
+    Run the permutation test.
     
-    null_r2_values = []
+    Args:
+        X: Full feature matrix
+        y: Full target vector
+        train_idx: Training indices
+        test_idx: Test indices
+        n_permutations: Number of permutations
+        
+    Returns:
+        null_distribution: Array of R² scores from permutations
+    """
+    print(f"Running permutation test with {n_permutations} iterations...")
+    
+    # Set random seed for reproducibility
+    np.random.seed(RANDOM_SEED)
+    
+    null_scores = np.zeros(n_permutations)
+    
+    # Optimize: Pre-scale X to avoid repeated scaling
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
     
     for i in range(n_permutations):
         # Shuffle y
-        y_permuted = y.sample(frac=1, random_state=rng.integers(0, 2**31)).values
+        y_shuffled = y.copy()
+        np.random.shuffle(y_shuffled)
         
-        # Compute R² for permuted data
-        r2_permuted = compute_r2_for_permutation(X, y_permuted, observed_r2)
-        null_r2_values.append(r2_permuted)
+        # Compute R² on shuffled data
+        r2 = compute_r2_for_permutation(X_scaled, y_shuffled, train_idx, test_idx)
+        null_scores[i] = r2
         
-        # Progress indicator
-        if (i + 1) % 100 == 0:
-            print(f"  Permutation {i + 1}/{n_permutations} completed")
-    
-    return np.array(null_r2_values)
+        if (i + 1) % 1000 == 0:
+            print(f"  Completed {i + 1}/{n_permutations} permutations")
+            
+    return null_scores
 
-def calculate_p_value(observed_r2: float, null_distribution: np.ndarray) -> float:
+def calculate_p_value(observed_r2, null_distribution):
     """
-    Calculate two-sided p-value from null distribution.
-    
-    For permutation tests, p-value = proportion of null values >= observed value.
+    Calculate the one-sided p-value.
+    p = (number of null R² >= observed R² + 1) / (n_permutations + 1)
     """
-    n_permutations = len(null_distribution)
-    n_extreme = np.sum(null_distribution >= observed_r2)
-    p_value = (n_extreme + 1) / (n_permutations + 1)  # Add 1 for observed value
+    count = np.sum(null_distribution >= observed_r2)
+    p_value = (count + 1) / (len(null_distribution) + 1)
     return p_value
 
-def save_results(observed_r2: float, p_value: float, 
-                null_distribution: np.ndarray,
-                output_json_path: str,
-                output_npy_path: str) -> Dict[str, Any]:
-    """Save permutation test results to JSON and null distribution to NPY."""
+def save_results(observed_r2, p_value, null_distribution):
+    """Save results to data/processed/permutation_results.json and null distribution to data/interim/permutation_null_distribution.npy."""
+    
     # Ensure output directories exist
-    output_json_dir = Path(output_json_path).parent
-    output_npy_dir = Path(output_npy_path).parent
-    output_json_dir.mkdir(parents=True, exist_ok=True)
-    output_npy_dir.mkdir(parents=True, exist_ok=True)
+    ensure_dirs('processed')
+    ensure_dirs('interim')
     
     # Save null distribution
-    np.save(output_npy_path, null_distribution)
+    null_path = get_path('interim', 'permutation_null_distribution.npy')
+    np.save(null_path, null_distribution)
+    print(f"Null distribution saved to: {null_path}")
     
-    # Prepare results
+    # Save results JSON
     results = {
         'observed_r2': float(observed_r2),
         'p_value': float(p_value),
@@ -179,103 +189,71 @@ def save_results(observed_r2: float, p_value: float,
         'null_distribution_std': float(np.std(null_distribution)),
         'null_distribution_min': float(np.min(null_distribution)),
         'null_distribution_max': float(np.max(null_distribution)),
-        'null_distribution_path': str(output_npy_path),
-        'significant_at_0p05': p_value < 0.05,
-        'interpretation': (
-            "Model is statistically significant" if p_value < 0.05 
-            else "Model is not statistically significant"
-        )
+        'significant_at_0.05': p_value < 0.05,
+        'significant_at_0.01': p_value < 0.01
     }
     
-    # Save results to JSON
-    with open(output_json_path, 'w') as f:
+    output_path = get_path('processed', 'permutation_results.json')
+    with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
+    print(f"Permutation results saved to: {output_path}")
     
     return results
 
 def main():
-    """Main entry point for permutation test."""
-    parser = argparse.ArgumentParser(
-        description='Run permutation test for model significance (T022)'
-    )
-    parser.add_argument(
-        '--n-permutations',
-        type=int,
-        default=N_PERMUTATIONS,
-        help=f'Number of permutations (default: {N_PERMUTATIONS})'
-    )
-    parser.add_argument(
-        '--seed',
-        type=int,
-        default=RANDOM_SEED,
-        help=f'Random seed (default: {RANDOM_SEED})'
-    )
+    parser = argparse.ArgumentParser(description='Run permutation test for model significance.')
+    parser.add_argument('--n-permutations', type=int, default=N_PERMUTATIONS, 
+                        help=f'Number of permutations (default: {N_PERMUTATIONS})')
+    parser.add_argument('--alpha', type=float, default=0.01, 
+                        help='LASSO alpha parameter (default: 0.01)')
     args = parser.parse_args()
     
-    print("Starting Permutation Test (T022)...")
-    print(f"  N permutations: {args.n_permutations}")
-    print(f"  Random seed: {args.seed}")
-    
-    # Set global seed
-    set_global_seed(args.seed)
-    
-    # Define paths
-    features_path = get_path('processed', 'features_clr.csv')
-    observed_results_path = get_path('processed', 'model_results.json')
-    output_json_path = get_path('processed', 'permutation_results.json')
-    output_npy_path = get_path('interim', 'permutation_null_distribution.npy')
-    
-    # Load observed results
-    print("\nLoading observed model results...")
-    observed_results = load_observed_results(observed_results_path)
-    observed_r2 = observed_results['test_r2']
-    print(f"  Observed test R²: {observed_r2:.4f}")
-    
-    # Load features and targets
-    print("\nLoading features and targets...")
     try:
-        X, y = load_features_and_targets(features_path)
-        print(f"  Loaded {len(X)} samples with {X.shape[1]} features")
+        # Load observed results
+        print("Loading observed model results...")
+        observed_results = load_observed_results()
+        observed_r2 = observed_results.get('test_r2')
+        
+        if observed_r2 is None:
+            raise ValueError("test_r2 not found in model_results.json")
+        
+        print(f"Observed test R²: {observed_r2:.4f}")
+        
+        # Load features and targets
+        print("Loading features and split indices...")
+        X, y, train_idx, test_idx, feature_cols = load_features_and_targets()
+        print(f"Dataset shape: X={X.shape}, y={y.shape}")
+        print(f"Train size: {len(train_idx)}, Test size: {len(test_idx)}")
+        
+        # Run permutation test
+        null_distribution = run_permutation_test(X, y, train_idx, test_idx, args.n_permutations)
+        
+        # Calculate p-value
+        p_value = calculate_p_value(observed_r2, null_distribution)
+        print(f"Permutation p-value: {p_value:.4f}")
+        
+        # Save results
+        results = save_results(observed_r2, p_value, null_distribution)
+        
+        # Print summary
+        print("\n" + "="*50)
+        print("PERMUTATION TEST RESULTS")
+        print("="*50)
+        print(f"Observed R²:        {observed_r2:.4f}")
+        print(f"P-value:            {p_value:.4f}")
+        print(f"Significant (α=0.05): {results['significant_at_0.05']}")
+        print(f"Null Mean R²:       {results['null_distribution_mean']:.4f}")
+        print(f"Null Std R²:        {results['null_distribution_std']:.4f}")
+        print("="*50)
+        
     except FileNotFoundError as e:
         print(f"ERROR: {e}")
-        print("Please ensure T012b (CLR transform) and T017 (modeling) have completed successfully.")
         sys.exit(1)
-    
-    # Run permutation test
-    print(f"\nRunning permutation test ({args.n_permutations} permutations)...")
-    null_distribution = run_permutation_test(
-        X.values, 
-        y, 
-        observed_r2, 
-        n_permutations=args.n_permutations,
-        random_state=args.seed
-    )
-    
-    # Calculate p-value
-    p_value = calculate_p_value(observed_r2, null_distribution)
-    print(f"\nPermutation test completed:")
-    print(f"  Null distribution mean: {np.mean(null_distribution):.4f}")
-    print(f"  Null distribution std: {np.std(null_distribution):.4f}")
-    print(f"  Observed R²: {observed_r2:.4f}")
-    print(f"  P-value: {p_value:.4f}")
-    print(f"  Significant at α=0.05: {p_value < 0.05}")
-    
-    # Save results
-    print("\nSaving results...")
-    results = save_results(
-        observed_r2,
-        p_value,
-        null_distribution,
-        output_json_path,
-        output_npy_path
-    )
-    
-    print(f"\nOutputs written:")
-    print(f"  {output_json_path}")
-    print(f"  {output_npy_path}")
-    
-    print("\nPermutation test completed successfully!")
-    return 0
+    except Exception as e:
+        print(f"ERROR during permutation test: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
 
 if __name__ == '__main__':
-    sys.exit(main())
+    main()
