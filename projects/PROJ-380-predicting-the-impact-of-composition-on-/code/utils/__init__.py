@@ -1,3 +1,1 @@
-"""
-Utility functions for configuration, logging, and provenance.
-"""
+"""Utility modules."""

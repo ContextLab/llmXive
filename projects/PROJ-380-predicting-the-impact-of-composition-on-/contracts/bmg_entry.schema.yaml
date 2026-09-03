@@ -1,6 +1,6 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: BMGEntry
-description: >
+description: |
   Schema for a single Bulk Metallic Glass (BMG) entry.
   Defines the structure for source metadata, elemental composition,
   and the target shear modulus property.
@@ -8,122 +8,84 @@ type: object
 required:
   - source
   - composition
-  - modulus_shear_gpa
+  - modulus
 properties:
   source:
     type: object
     description: Metadata regarding the origin of this data point.
     required:
       - database
-      - material_id
-      - citation
+      - identifier
+      - reference
     properties:
       database:
         type: string
-        description: Name of the source database (e.g., 'Materials Project', 'NIST').
-        examples:
-          - "Materials Project"
-      material_id:
+        description: Name of the source database (e.g., 'Materials Project', 'Literature').
+        minLength: 1
+      identifier:
         type: string
-        description: Unique identifier within the source database.
-        examples:
-          - "mp-123456"
-      citation:
+        description: Unique ID within the source database.
+        minLength: 1
+      reference:
         type: string
-        description: DOI or reference string for the source publication.
-        examples:
-          - "10.1038/s41524-020-00366-3"
-      retrieval_date:
+        description: Citation string or URL for the data source.
+        minLength: 1
+      retrieved_at:
         type: string
-        format: date
-        description: Date the data was fetched (ISO 8601).
-        examples:
-          - "2023-10-27"
+        format: date-time
+        description: ISO 8601 timestamp of data retrieval.
+        nullable: true
 
   composition:
     type: object
     description: Elemental composition of the alloy.
     required:
       - elements
-      - weights_wt_percent
-      - weights_at_percent
+      - units
     properties:
       elements:
-        type: array
-        items:
-          type: string
-        description: List of chemical symbols present in the alloy (sorted).
-        minItems: 2
-        examples:
-          - ["Zr", "Cu", "Al"]
-      weights_wt_percent:
-        type: array
-        items:
-          type: number
-          minimum: 0
-          maximum: 100
-        description: Weight percentages of the elements (aligned with 'elements' list).
-        minItems: 2
-        examples:
-          - [60.0, 30.0, 10.0]
-      weights_at_percent:
-        type: array
-        items:
-          type: number
-          minimum: 0
-          maximum: 100
-        description: Atomic percentages of the elements (aligned with 'elements' list).
-        minItems: 2
-        examples:
-          - [65.2, 28.5, 6.3]
-
-  modulus_shear_gpa:
-    type: number
-    description: Shear modulus in GPa.
-    minimum: 0
-    examples:
-      - 35.4
-      - 42.1
-
-  descriptors:
-    type: object
-    description: >
-      Calculated compositional descriptors used for modeling.
-      Optional at ingestion, required at training.
-    properties:
-      delta:
-        type: number
-        description: Atomic size difference parameter (delta).
-        minimum: 0
-      delta_h_mix:
-        type: number
-        description: Enthalpy of mixing (kJ/mol).
-      vec:
-        type: number
-        description: Valence Electron Concentration.
-      delta_chi:
-        type: number
-        description: Electronegativity difference.
-      vif_scores:
         type: object
-        description: Variance Inflation Factor scores for features, if applicable.
-        additionalProperties:
-          type: number
+        description: |
+          Map of element symbol to concentration.
+          Keys are chemical symbols (e.g., 'Zr', 'Cu'), values are numbers.
+        patternProperties:
+          "^[A-Z][a-z]?$":
+            type: number
+            minimum: 0
+        additionalProperties: false
+      units:
+        type: string
+        description: Unit of concentration.
+        enum:
+          - at%
+          - wt%
+        default: at%
+      alloy_family:
+        type: string
+        description: Primary alloy family classification (e.g., 'Zr-based').
         nullable: true
 
-  metadata:
+  modulus:
     type: object
-    description: Internal pipeline metadata.
+    description: Shear modulus measurement.
+    required:
+      - value
+      - unit
     properties:
-      processed_at:
+      value:
+        type: number
+        description: Shear modulus value.
+        minimum: 0
+      unit:
         type: string
-        format: date-time
-        description: ISO 8601 timestamp of processing.
-      pipeline_version:
+        description: Unit of the modulus.
+        enum:
+          - GPa
+          - MPa
+        default: GPa
+      method:
         type: string
-        description: Version of the ingestion pipeline.
-      checksum:
-        type: string
-        description: SHA-256 checksum of the raw source entry.
+        description: Measurement or calculation method (e.g., 'Resonant Ultrasound', 'Nanoindentation').
+        nullable: true
 
 additionalProperties: false

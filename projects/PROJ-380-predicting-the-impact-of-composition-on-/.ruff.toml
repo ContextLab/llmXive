@@ -1,4 +1,22 @@
-# Extends pyproject.toml settings for specific overrides if needed
-# Currently, all configuration is handled in pyproject.toml
-# This file exists to allow `ruff check` to run without explicit config path
-extend = "pyproject.toml"
+# Standalone ruff configuration file for immediate use
+# Also configured in pyproject.toml
+
+line-length = 100
+target-version = "py311"
+
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+]
+
+[per-file-ignores]
+"__init__.py" = ["F401"]

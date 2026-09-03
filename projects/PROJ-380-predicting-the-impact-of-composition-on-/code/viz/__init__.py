@@ -1,3 +1,1 @@
-"""
-Visualization and plotting modules.
-"""
+"""Visualization modules."""

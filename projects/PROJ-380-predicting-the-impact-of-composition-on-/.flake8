@@ -1,0 +1,10 @@
+[flake8]
+max-line-length = 100
+exclude = .git,__pycache__,build,dist,.venv,venv
+extend-ignore = E203, E501, W503
+# E203: Whitespace before ':' (conflicts with Black)
+# E501: Line too long (handled by Black)
+# W503: Line break occurred before a binary operator (conflicts with Black)
+per-file-ignores =
+    code/__init__.py: F401
+    tests/*: F811

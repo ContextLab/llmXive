@@ -1,6 +1,3 @@
-"""
-Logging configuration for the research pipeline.
-"""
 import logging
 import sys
 from pathlib import Path
@@ -8,38 +5,32 @@ from typing import Optional
 
 def get_logger(name: str, level: int = logging.INFO) -> logging.Logger:
     """
-    Get a logger instance with the specified name and level.
+    Gets or creates a logger with the specified name and level.
+    Configures a handler if none exists.
     
     Args:
-        name: Logger name (usually __name__).
+        name: Name of the logger.
         level: Logging level.
         
     Returns:
-        logging.Logger: Configured logger instance.
+        Configured Logger instance.
     """
     logger = logging.getLogger(name)
     logger.setLevel(level)
-    
+
     if not logger.handlers:
-        # Create console handler
-        ch = logging.StreamHandler(sys.stdout)
-        ch.setLevel(level)
-        
-        # Create formatter
+        handler = logging.StreamHandler(sys.stdout)
         formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
         )
-        ch.setFormatter(formatter)
-        
-        # Add handler to logger
-        logger.addHandler(ch)
-        
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+
     return logger
 
 def configure_root_logger(level: int = logging.INFO) -> None:
     """
-    Configure the root logger for the entire application.
+    Configures the root logger.
     
     Args:
         level: Logging level for the root logger.
@@ -48,20 +39,26 @@ def configure_root_logger(level: int = logging.INFO) -> None:
     root_logger.setLevel(level)
     
     if not root_logger.handlers:
-        ch = logging.StreamHandler(sys.stdout)
-        ch.setLevel(level)
+        handler = logging.StreamHandler(sys.stdout)
         formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
         )
-        ch.setFormatter(formatter)
-        root_logger.addHandler(ch)
+        handler.setFormatter(formatter)
+        root_logger.addHandler(handler)
 
 def main():
-    """Test logging configuration."""
-    configure_root_logger()
+    """CLI entry point for logging configuration."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Logging Configuration")
+    parser.add_argument("--level", type=str, default="INFO", 
+                        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+                        help="Logging level")
+    args = parser.parse_args()
+
+    level = getattr(logging, args.level.upper())
+    configure_root_logger(level)
     logger = get_logger(__name__)
-    logger.info("Logging configuration test successful")
+    logger.info(f"Root logger configured with level {args.level}")
 
 if __name__ == "__main__":
     main()

@@ -1,10 +1,39 @@
-T012b:
+T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `utils/provenance.py` script was shown, nor any evidence (e.g., log files,
-    checksum records, or code snippets) that it was invoked to record checksums for
-    the artifacts produced by T016 and T011. The required artifact (the provenance
-    recording) is missing.
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or `ruff.toml`, `.flake8` config) or scripts to install/run
+    ruff/flake8 and black are present. The claim lacks any artifact demonstrating
+    that linting and formatting have been set up.
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `utils/config.py` file containing random seed settings and path constants
+    was provided or referenced; the evidence contains only the task description and
+    no actual code artifact. The required initialization script is missing.
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `utils/provenance.py` file or its contents are present in the provided evidence,\
+    \ and thus the required `record_artifact(file_path, state_file)` function that\
+    \ computes a SHA\u2011256 hash and writes it to a state YAML file is missing.\
+    \ The task cannot be considered completed until this module is added with the\
+    \ specified functionality."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that a `data/` directory (with `raw/`, `processed/`,
+    and `artifacts/` subfolders) actually exists in the project repository; the claim
+    is unsupported by any listed files or screenshots. The required directory structure
+    must be created and verified.
+T011:
+  c: false
+  h: 41fce1c89352bbfdf1c630b1ee72a584a594beca53eed0714f78fe34e69ac98f
+  r: "The repository contains `code/data/synthetic_generator.py`, but the file is\
+    \ truncated and does not show any logic that writes the generated data to `data/raw/synthetic_bmg_seed.csv`\
+    \ nor calls `utils.provenance.record_artifact`. Moreover, the required output\
+    \ file `data/raw/synthetic_bmg_seed.csv` is absent from the project. The task\u2019\
+    s core deliverable (a generated CSV and provenance recording) is therefore missing."
 T014:
   c: false
   h: 5caa6515a88d6d0b17332335363dc2bca6171ec6c91dfc2bf3e3ee254eac2bcb
@@ -17,6 +46,13 @@ T015:
   r: "The required file `tests/integration/test_ingest_pipeline.py` does not exist\
     \ in the repository, so the integration test for the full ingestion pipeline is\
     \ missing. Without this test file, the task\u2019s requirement is not satisfied."
+T016:
+  c: false
+  h: 632abe4789af50dd712ec44ac14a0741263603cc2475f7a05b1dabb094c85d79
+  r: The repository lacks the required fallback data file (`data/raw/synthetic_bmg_seed.csv`)
+    and the schema file (`contracts/bmg_entry.schema.yaml`), both of which the ingest
+    script must read and validate against. Without these artifacts the implemented
+    `ingest.py` cannot fulfill the specified logic.
 T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -73,3 +109,39 @@ T040:
   r: "No `artifacts/importance_report.json` file was presented or described, and no\
     \ content showing ranked descriptors and p\u2011values was provided. The required\
     \ artifact is missing, so the task is not satisfied."
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of an updated `README.md` is provided; the claim lacks the actual
+    file content showing the added usage instructions for `make all` and the synthetic
+    data fallback explanation. The required artifact is missing, so the task is not
+    verified as completed.
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code files, diff, or refactoring documentation for the `code/` modules are
+    present; the only artifacts shown relate to feature specifications and testing
+    scenarios, not to any cleanup or refactoring work. Consequently the required artifact
+    (cleaned/refactored code) is missing.
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No runtime logs, benchmark reports, or CI/CD artifacts were provided to demonstrate\
+    \ that the entire pipeline (data ingestion, feature engineering, model training,\
+    \ evaluation) finishes in \u22646\u202Fhours on a CPU\u2011only runner. Without\
+    \ concrete timing evidence, the requirement cannot be verified."
+T044:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifacts such as a populated `artifacts/` directory, a successful `make all`
+    run log, or validation reports were provided. Without any concrete output or evidence
+    that the pipeline was executed and its results checked against contracts, the
+    claim cannot be verified. The next implementer must supply the actual `make all`
+    execution results and the validated artifacts.
+T045:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer provided no evidence of a quickstart.md file nor any validation
+    results (e.g., logs, pass/fail report). The task required executing a validation
+    of quickstart.md if it exists, but no such artifact or output is present. Consequently,
+    the requirement is unmet.

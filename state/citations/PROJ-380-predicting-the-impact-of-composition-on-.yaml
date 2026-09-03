@@ -9,3 +9,14 @@
   verification_status: mismatch
   verified_against_url: https://github.com/materials-informatics/bmg-dataset
   verified_at: '2026-07-03T07:11:39.449492Z'
+- artifact_hash: 712fd809fe4569b86e22bb01487c636e39dec869e5c2ba3598866e13189d7d2e
+  artifact_path: projects/PROJ-380-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Vif - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q113106917
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q113106917
+  verified_at: '2026-09-03T10:55:05.399721Z'
