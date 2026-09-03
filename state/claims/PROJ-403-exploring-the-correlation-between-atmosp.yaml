@@ -1,0 +1,343 @@
+- artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: "fetch ERA IVT and Z for 1979\u20132023"
+  claim_id: c_5161e80b
+  context: "Implement src/data/download.py with cdsapi wrappers to fetch ERA IVT and\
+    \ Z for 1979\u20132023, regional domain (mid-to-high northern latitudes, 100\xB0\
+    E-60\xB0W)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "fetch ERA IVT and Z for 1979\u20132023"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:23:22Z'
+- artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: regional domain 20N-60N 100E-60W
+  claim_id: c_df88826b
+  context: "Constraint: This entry point must orchestrate phases that strictly adhere\
+    \ to the regional domain (20\xB0N-60\xB0N, 100\xB0E-60\xB0W)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "regional domain (20\xB0N-60\xB0N, 100\xB0E-60\xB0W)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:24:08Z'
+- artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: xarray version 2023.9.0
+  claim_id: c_d97b8353
+  context: 'Create requirements.txt with pinned dependencies: xarray>=2023.9.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: xarray>=2023.9.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:24:23Z'
+- artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.0
+  claim_id: c_2cfad6eb
+  context: 'Create requirements.txt with pinned dependencies: numpy>=1.26.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy>=1.26.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:24:43Z'
+- artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: pandas version 2.1.0
+  claim_id: c_cdc68edb
+  context: 'Create requirements.txt with pinned dependencies: pandas>=2.1.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas>=2.1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:25:01Z'
+- artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: scipy version 1.11.0
+  claim_id: c_90c09c27
+  context: 'Create requirements.txt with pinned dependencies: scipy>=1.11.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scipy>=1.11.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:25:17Z'
+- artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.0
+  claim_id: c_3ed46edd
+  context: 'Create requirements.txt with pinned dependencies: statsmodels>=0.14.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: statsmodels>=0.14.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:25:39Z'
+- artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.8.0
+  claim_id: c_efd9125d
+  context: 'Create requirements.txt with pinned dependencies: matplotlib>=3.8.0'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Matplotlib, using the matplotlib.pyplot.ecdf function (new in version
+        3.8.0)
+      source_id: Empirical distribution function
+      url: https://en.wikipedia.org/wiki/Empirical_distribution_function
+      value: 3.8.0
+    filled: true
+  kind: numeric
+  raw_text: matplotlib>=3.8.0
+  resolved_value: 3.8.0
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T21:25:48Z'
+- artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: cartopy version 0.22.0
+  claim_id: c_ae4445d2
+  context: 'Create requirements.txt with pinned dependencies: cartopy>=0.22.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: cartopy>=0.22.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:26:02Z'
+- artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: netCDF4 version 1.6.5
+  claim_id: c_7a9324ff
+  context: 'Create requirements.txt with pinned dependencies: netCDF4>=1.6.5'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: netCDF4>=1.6.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:26:15Z'
+- artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: cftime version 1.6.2
+  claim_id: c_d973f729
+  context: 'Create requirements.txt with pinned dependencies: cftime>=1.6.2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: cftime>=1.6.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:26:30Z'
+- artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: dask complete version 2023.9.0
+  claim_id: c_cc5f8ef0
+  context: 'Create requirements.txt with pinned dependencies: dask[complete]>=2023.9.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: dask[complete]>=2023.9.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:27:01Z'
+- artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: h5netcdf version 0.14.0
+  claim_id: c_8c28de69
+  context: 'Create requirements.txt with pinned dependencies: h5netcdf>=0.14.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: h5netcdf>=0.14.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:27:15Z'
+- artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: requests version 2.31.0
+  claim_id: c_001c210b
+  context: 'Create requirements.txt with pinned dependencies: requests>=2.31.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: requests>=2.31.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:27:33Z'
+- artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: tqdm version 4.66.0
+  claim_id: c_55182a54
+  context: 'Create requirements.txt with pinned dependencies: tqdm>=4.66.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: tqdm>=4.66.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:27:47Z'
+- artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: nitime version 0.10.0
+  claim_id: c_ae4df787
+  context: 'Create requirements.txt with pinned dependencies: nitime>=0.10.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: nitime>=0.10.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:28:04Z'
+- artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: pytest version 7.4.0
+  claim_id: c_b59bd358
+  context: 'Create requirements.txt with pinned dependencies: pytest>=7.4.0'
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: pytest>=7.4.0
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T21:28:08Z'
+- artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: AR duration greater than 24 hours
+  claim_id: c_1e118a77
+  context: 'Detect AR events using SWHAT-style logic: contiguous mask (-neighbor),
+    duration >24h'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/AR_duration_greater_than_24_hours
+  kind: magnitude
+  raw_text: duration >24h
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:28:29Z'
+- artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: AR threshold adjusted by plus or minus 5.0 and 10.0 kg m-1 s-1
+  claim_id: c_5cca29f7
+  context: "Create a wrapper function to re-run AR detection logic (T018) with thresholds\
+    \ adjusted by \xB15.0 and \xB110.0 kg m\u207B\xB9 s\u207B\xB9"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "threshold adjusted by \xB15.0 and \xB110.0 kg m\u207B\xB9 s\u207B\xB9"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:28:54Z'
+- artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: execution time less than or equal to 6 hours
+  claim_id: c_7c962237
+  context: "Run full pipeline on 'ubuntu-latest' runner to verify execution time \u2264\
+    6h and RAM \u22647GB"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Execution_time_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: "execution time \u22646h"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:29:19Z'
+- artifact_path: projects/PROJ-403-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: flag bands or seasons with greater than 10 percent change
+  claim_id: c_1c205d08
+  context: Calculate percentage change relative to baseline () and flag bands/seasons
+    with >10% change as threshold-sensitive
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_bands_or_seasons_with_greater_than_10_percent_change
+  kind: magnitude
+  raw_text: flag bands/seasons with >10% change
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:29:57Z'

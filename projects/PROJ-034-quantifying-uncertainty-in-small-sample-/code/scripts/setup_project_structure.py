@@ -4,11 +4,12 @@ from pathlib import Path
 
 def create_directories():
     """
-    Creates the full project directory structure as defined in the implementation plan.
-    This includes code submodules, data directories, tests, and docs.
+    Create the full project directory structure as defined in tasks.md for T001.
+    This includes code/, data/, tests/, and docs/ trees with .gitkeep files.
     """
-    base_path = Path(".")
-    
+    base_path = Path.cwd()
+
+    # Define the directory tree structure
     directories = [
         # Code modules
         "code/simulation",
@@ -30,32 +31,44 @@ def create_directories():
         # Documentation
         "docs/paper"
     ]
-    
+
     created_count = 0
-    skipped_count = 0
-    
     for dir_path in directories:
         full_path = base_path / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
+            print(f"Created directory: {full_path}")
             created_count += 1
         else:
-            skipped_count += 1
-            # Optional: print(f"Directory already exists: {dir_path}")
-    
-    print(f"\nDirectory creation summary:")
-    print(f"  Created: {created_count}")
-    print(f"  Skipped (already exist): {skipped_count}")
-    print(f"  Total directories: {len(directories)}")
-    
-    return directories
+            print(f"Directory already exists: {full_path}")
+
+    # Create .gitkeep files to ensure directories are tracked by git
+    gitkeep_directories = [
+        "data/raw",
+        "data/simulated",
+        "data/results",
+        "docs/paper"
+    ]
+
+    for dir_path in gitkeep_directories:
+        full_path = base_path / dir_path / ".gitkeep"
+        if not full_path.exists():
+            full_path.touch()
+            print(f"Created .gitkeep: {full_path}")
+        else:
+            print(f".gitkeep already exists: {full_path}")
+
+    print(f"\nProject structure setup complete. Created {created_count} new directories.")
+    return True
 
 def main():
-    """Entry point for the script."""
-    print("Starting project structure setup...")
-    create_directories()
-    print("Project structure setup complete.")
+    """Entry point for script execution."""
+    try:
+        create_directories()
+        return 0
+    except Exception as e:
+        print(f"Error setting up project structure: {e}", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

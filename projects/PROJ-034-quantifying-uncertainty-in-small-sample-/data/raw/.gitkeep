@@ -1,2 +1,2 @@
 # This file ensures the data/raw directory is tracked by git.
-# Real data files will be placed here by the execution scripts.
+# Raw data files (e.g., UCI Concrete dataset) will be stored here.

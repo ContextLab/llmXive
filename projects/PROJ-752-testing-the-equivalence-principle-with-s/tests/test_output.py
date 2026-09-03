@@ -1,207 +1,84 @@
 import os
 import json
 import tempfile
+import pandas as pd
 import pytest
-import numpy as np
-from unittest.mock import Mock, patch
-import sys
-import pathlib
-
-# Add code directory to path for imports
-sys.path.insert(0, str(pathlib.Path(__file__).parent.parent / "code"))
-
-from data.output import (
-    compute_sha256,
-    save_orbit_solution,
-    save_eotvos_metrics,
-    run_output_pipeline,
-    record_checksum
-)
-from models.estimator import OrbitSolution
-from analysis.eotvos import EotvosResult
-from utils.logging import AnalysisError
-
-@pytest.fixture
-def mock_solution():
-    """Create a mock OrbitSolution for testing."""
-    solution = Mock(spec=OrbitSolution)
-    solution.converged = True
-    solution.residuals_norm = 1.2e-5
-    solution.iterations = 15
-    solution.satellites = ["LAGEOS-1", "LAGEOS-2"]
-    
-    # Mock extract_joint_parameters behavior
-    # We'll patch the function in the module
-    return solution
-
-@pytest.fixture
-def mock_eotvos_result():
-    """Create a mock EotvosResult for testing."""
-    result = Mock(spec=EotvosResult)
-    result.eta = 1.5e-14
-    result.eta_std = 0.3e-14
-    result.ci_95_lower = 0.9e-14
-    result.ci_95_upper = 2.1e-14
-    result.ac = 1.5e-13
-    result.g = 9.8
-    result.solution = None  # Will be set if needed
-    return result
+from code.data.output import compute_sha256, save_cleaned_data, record_checksum, ensure_raw_data_preserved, run_output_pipeline
 
 def test_compute_sha256():
-    """Test SHA256 computation on a temporary file."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+    """Test SHA256 computation on a known string."""
+    with tempfile.NamedTemporaryFile(delete=False, mode='w') as f:
         f.write("test content")
         temp_path = f.name
     
     try:
-        checksum = compute_sha256(temp_path)
-        assert len(checksum) == 64  # SHA256 hex length
-        assert all(c in '0123456789abcdef' for c in checksum)
+        # Known hash for "test content"
+        expected_hash = "6ae8a75555209fd6c44157c0aed8016e763ff435a19cf186f76863140143ff72"
+        actual_hash = compute_sha256(temp_path)
+        assert actual_hash == expected_hash
     finally:
         os.unlink(temp_path)
 
-def test_save_orbit_solution(tmp_path):
-    """Test saving OrbitSolution to JSON."""
-    output_dir = tmp_path / "results"
-    output_dir.mkdir()
-    output_path = output_dir / "orbit_solutions.json"
-    
-    # Create a mock solution with extractable parameters
-    solution = Mock(spec=OrbitSolution)
-    solution.converged = True
-    solution.residuals_norm = 1.2e-5
-    solution.iterations = 15
-    solution.satellites = ["LAGEOS-1", "LAGEOS-2"]
-    
-    # Mock the extract_joint_parameters to return known values
-    mock_params = {
-        'ac': 1.5e-13,
-        'g': 9.8,
-        'covariance': np.array([[1e-26, 0], [0, 1e-2]])
-    }
-    
-    with patch('data.output.extract_joint_parameters', return_value=mock_params):
-        save_orbit_solution(solution, str(output_path))
-    
-    assert output_path.exists()
-    
-    with open(output_path, 'r') as f:
-        data = json.load(f)
-    
-    assert data['ac'] == 1.5e-13
-    assert data['g'] == 9.8
-    assert data['converged'] is True
-    assert 'covariance' in data
-    assert 'timestamp' in data
+def test_save_cleaned_data():
+    """Test saving a DataFrame to CSV."""
+    df = pd.DataFrame({'col1': [1, 2], 'col2': ['a', 'b']})
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = os.path.join(tmpdir, 'test.csv')
+        save_cleaned_data(df, output_path)
+        
+        assert os.path.exists(output_path)
+        loaded_df = pd.read_csv(output_path)
+        assert loaded_df.equals(df)
 
-def test_save_eotvos_metrics(tmp_path):
-    """Test saving EotvosResult to JSON."""
-    output_dir = tmp_path / "results"
-    output_dir.mkdir()
-    output_path = output_dir / "eotvos_metrics.json"
-    
-    eotvos_result = Mock(spec=EotvosResult)
-    eotvos_result.eta = 1.5e-14
-    eotvos_result.eta_std = 0.3e-14
-    eotvos_result.ci_95_lower = 0.9e-14
-    eotvos_result.ci_95_upper = 2.1e-14
-    eotvos_result.ac = 1.5e-13
-    eotvos_result.g = 9.8
-    eotvos_result.solution = None
-    
-    save_eotvos_metrics(eotvos_result, str(output_path))
-    
-    assert output_path.exists()
-    
-    with open(output_path, 'r') as f:
-        data = json.load(f)
-    
-    assert data['eta'] == 1.5e-14
-    assert data['eta_std'] == 0.3e-14
-    assert data['ci_95_lower'] == 0.9e-14
-    assert data['ci_95_upper'] == 2.1e-14
-    assert data['ac'] == 1.5e-13
-    assert data['g'] == 9.8
-    assert 'timestamp' in data
+def test_record_checksum():
+    """Test recording checksum to JSON."""
+    df = pd.DataFrame({'x': [1]})
+    with tempfile.TemporaryDirectory() as tmpdir:
+        csv_path = os.path.join(tmpdir, 'data.csv')
+        json_path = os.path.join(tmpdir, 'checksums.json')
+        
+        save_cleaned_data(df, csv_path)
+        record_checksum(csv_path, json_path)
+        
+        assert os.path.exists(json_path)
+        with open(json_path, 'r') as f:
+            data = json.load(f)
+        
+        assert 'data.csv' in data
+        assert len(data['data.csv']) == 64  # SHA256 hex length
 
-def test_save_eotvos_metrics_fails_without_eta(tmp_path):
-    """Test that saving EotvosResult fails when eta is None and no solution."""
-    output_dir = tmp_path / "results"
-    output_dir.mkdir()
-    output_path = output_dir / "eotvos_metrics.json"
-    
-    eotvos_result = Mock(spec=EotvosResult)
-    eotvos_result.eta = None
-    eotvos_result.eta_std = None
-    eotvos_result.ci_95_lower = None
-    eotvos_result.ci_95_upper = None
-    eotvos_result.ac = None
-    eotvos_result.g = None
-    eotvos_result.solution = None  # No solution available
-    
-    with pytest.raises(AnalysisError, match="Cannot save EotvosResult"):
-        save_eotvos_metrics(eotvos_result, str(output_path))
+def test_ensure_raw_data_preserved():
+    """Test raw data preservation check."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Create a dummy file in raw dir
+        with open(os.path.join(tmpdir, 'raw.txt'), 'w') as f:
+            f.write("raw")
+        
+        ensure_raw_data_preserved(tmpdir)  # Should not raise
+        
+        # Test empty dir
+        empty_dir = os.path.join(tmpdir, 'empty')
+        os.makedirs(empty_dir)
+        with pytest.raises(ValueError):
+            ensure_raw_data_preserved(empty_dir)
 
-def test_run_output_pipeline(tmp_path):
-    """Test the full output pipeline."""
-    output_dir = tmp_path / "results"
-    
-    solution = Mock(spec=OrbitSolution)
-    solution.converged = True
-    solution.residuals_norm = 1.2e-5
-    solution.iterations = 15
-    solution.satellites = ["LAGEOS-1", "LAGEOS-2"]
-    
-    mock_params = {
-        'ac': 1.5e-13,
-        'g': 9.8,
-        'covariance': np.array([[1e-26, 0], [0, 1e-2]])
-    }
-    
-    eotvos_result = Mock(spec=EotvosResult)
-    eotvos_result.eta = 1.5e-14
-    eotvos_result.eta_std = 0.3e-14
-    eotvos_result.ci_95_lower = 0.9e-14
-    eotvos_result.ci_95_upper = 2.1e-14
-    eotvos_result.ac = 1.5e-13
-    eotvos_result.g = 9.8
-    eotvos_result.solution = None
-    
-    with patch('data.output.extract_joint_parameters', return_value=mock_params):
-        results = run_output_pipeline(
-            solution=solution,
-            eotvos_result=eotvos_result,
-            output_dir=str(output_dir)
-        )
-    
-    assert 'orbit_solutions' in results
-    assert 'eotvos_metrics' in results
-    assert os.path.exists(results['orbit_solutions'])
-    assert os.path.exists(results['eotvos_metrics'])
-    
-    # Check checksums file was created
-    checksums_path = output_dir / ".checksums.json"
-    assert checksums_path.exists()
-    
-    with open(checksums_path, 'r') as f:
-        checksums = json.load(f)
-    
-    assert 'orbit_solutions.json' in checksums
-    assert 'eotvos_metrics.json' in checksums
-
-def test_record_checksum(tmp_path):
-    """Test checksum recording."""
-    test_file = tmp_path / "test.txt"
-    test_file.write_text("test content")
-    
-    checksums_path = tmp_path / ".checksums.json"
-    
-    record_checksum(str(test_file), str(checksums_path))
-    
-    assert checksums_path.exists()
-    
-    with open(checksums_path, 'r') as f:
-        data = json.load(f)
-    
-    assert 'test.txt' in data
-    assert data['test.txt']['sha256'] == compute_sha256(str(test_file))
+def test_run_output_pipeline():
+    """Test the full output pipeline integration."""
+    df = pd.DataFrame({'sat': ['LAGEOS'], 'res': [0.01]})
+    with tempfile.TemporaryDirectory() as tmpdir:
+        raw_dir = os.path.join(tmpdir, 'raw')
+        os.makedirs(raw_dir)
+        with open(os.path.join(raw_dir, 'source.raw'), 'w') as f:
+            f.write("raw data")
+        
+        csv_out = os.path.join(tmpdir, 'cleaned.csv')
+        json_out = os.path.join(tmpdir, '.checksums.json')
+        
+        run_output_pipeline(df, raw_dir, csv_out, json_out)
+        
+        assert os.path.exists(csv_out)
+        assert os.path.exists(json_out)
+        
+        with open(json_out, 'r') as f:
+            checksums = json.load(f)
+        assert 'cleaned.csv' in checksums

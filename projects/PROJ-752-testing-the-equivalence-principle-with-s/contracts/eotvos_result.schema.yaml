@@ -2,141 +2,133 @@ $schema: http://json-schema.org/draft-07/schema#
 title: EotvosResult
 description: >
   Schema defining the final metric output for the Equivalence Principle test.
-  This schema captures the Eötvös parameter (η), its uncertainty, the differential
-  acceleration (a_c), local gravity (g), and metadata regarding the joint fit
-  solution used to derive these values.
+  Contains the Eötvös parameter (η), differential acceleration (ac), local gravity (g),
+  and associated statistical confidence intervals derived from the joint orbit solution.
 type: object
 required:
-  - eta
-  - eta_uncertainty
-  - eta_confidence_level
+  - satellite_pair
+  - eotvos_parameter
   - differential_acceleration
-  - differential_acceleration_uncertainty
   - local_gravity
-  - joint_fit_metrics
-  - metadata
+  - confidence_interval_95
+  - covariance_matrix
+  - solution_metadata
 properties:
-  eta:
-    type: number
-    description: >
-      The Eötvös parameter η = |a_c| / g.
-      Represents the fractional difference in acceleration between the two
-      test bodies (satellites) towards the source of gravity (Earth).
-      A value of 0 indicates perfect adherence to the Equivalence Principle.
-    minimum: -1.0
-    maximum: 1.0
-    example: 1.23e-14
+  satellite_pair:
+    type: object
+    description: Identifier of the satellite pair used in the joint fit.
+    required:
+      - primary
+      - secondary
+    properties:
+      primary:
+        type: string
+        description: Satellite ID (e.g., LAGEOS-1, Etalon-1).
+        pattern: "^[A-Z0-9-]+$"
+      secondary:
+        type: string
+        description: Satellite ID.
+        pattern: "^[A-Z0-9-]+$"
 
-  eta_uncertainty:
+  eotvos_parameter:
     type: number
     description: >
-      The standard uncertainty (1σ) of the Eötvös parameter, derived from
-      the joint covariance matrix of the least-squares fit.
+      The calculated Eötvös parameter η = |ac| / g.
+      Dimensionless quantity representing the fractional difference in acceleration.
     minimum: 0.0
-    example: 4.56e-15
-
-  eta_confidence_level:
-    type: number
-    description: >
-      The confidence level associated with the uncertainty (e.g., 0.95 for 95% CI).
-    default: 0.95
-    minimum: 0.0
-    maximum: 1.0
+    default: 0.0
 
   differential_acceleration:
-    type: number
-    description: >
-      The estimated differential acceleration a_c (m/s²) between the satellites
-      along the radial direction (or specific axis defined in metadata).
-      This is the primary parameter estimated in the joint fit.
-    example: 1.5e-13
-
-  differential_acceleration_uncertainty:
-    type: number
-    description: >
-      The standard uncertainty (1σ) of the differential acceleration a_c.
-    minimum: 0.0
-    example: 5.5e-14
+    type: object
+    description: Differential acceleration vector magnitude and uncertainty.
+    required:
+      - value
+      - unit
+      - uncertainty
+    properties:
+      value:
+        type: number
+        description: Magnitude of differential acceleration (ac).
+      unit:
+        type: string
+        const: "m/s^2"
+      uncertainty:
+        type: number
+        description: Standard deviation of the estimate (sigma_ac).
 
   local_gravity:
     type: number
     description: >
-      The nominal local gravitational acceleration g (m/s²) at the mean orbit
-      altitude of the satellites, used to normalize a_c into η.
+      Local gravitational acceleration (g) at the orbital altitude used for normalization.
+      Typically the average gravitational acceleration of the primary satellite.
     minimum: 0.0
-    example: 0.56
 
-  joint_fit_metrics:
+  confidence_interval_95:
     type: object
-    description: Metrics from the joint least-squares orbit determination.
+    description: 95% Confidence Interval for the Eötvös parameter.
     required:
-      - chi2
-      - degrees_of_freedom
-      - reduced_chi2
-      - convergence_status
-      - iterations
+      - lower
+      - upper
+      - coverage
     properties:
-      chi2:
+      lower:
         type: number
-        description: The total weighted sum of squared residuals (SSR).
+        description: Lower bound of the 95% CI.
+      upper:
+        type: number
+        description: Upper bound of the 95% CI.
+      coverage:
+        type: number
+        const: 0.95
+
+  covariance_matrix:
+    type: array
+    description: >
+      Joint covariance matrix for the estimated parameters [ac, g, ...].
+      Used for error propagation and hypothesis testing.
+      Flattened row-major order if 1D, or array of arrays if 2D.
+    items:
+      type: number
+
+  solution_metadata:
+    type: object
+    description: Metadata regarding the orbit solution and fit quality.
+    required:
+      - fit_epoch_start
+      - fit_epoch_end
+      - chi_squared
+      - degrees_of_freedom
+      - rms_residuals_m
+      - geopotential_model
+      - convergence_status
+    properties:
+      fit_epoch_start:
+        type: string
+        format: date-time
+        description: ISO 8601 start time of the fit interval.
+      fit_epoch_end:
+        type: string
+        format: date-time
+        description: ISO 8601 end time of the fit interval.
+      chi_squared:
+        type: number
+        description: Reduced chi-squared statistic of the fit.
       degrees_of_freedom:
         type: integer
-        description: Number of observations minus number of estimated parameters.
-      reduced_chi2:
+        minimum: 0
+        description: Number of degrees of freedom in the fit.
+      rms_residuals_m:
         type: number
-        description: Chi-squared per degree of freedom.
-      convergence_status:
-        type: string
-        description: Status string from the optimizer (e.g., 'CONVERGED', 'MAX_ITERATIONS').
-      iterations:
-        type: integer
-        description: Number of iterations performed by the solver.
-
-  metadata:
-    type: object
-    description: Contextual information about the analysis run.
-    required:
-      - satellites
-      - observation_period
-      - geopotential_model
-      - software_version
-    properties:
-      satellites:
-        type: array
-        description: List of satellite IDs included in the joint fit.
-        items:
-          type: string
-        example: ["LAGEOS-1", "LAGEOS-2"]
-      observation_period:
-        type: object
-        description: Start and end times of the data used.
-        required:
-          - start
-          - end
-        properties:
-          start:
-            type: string
-            format: date-time
-            description: ISO 8601 timestamp of the first observation.
-          end:
-            type: string
-            format: date-time
-            description: ISO 8601 timestamp of the last observation.
+        minimum: 0.0
+        description: Root Mean Square of post-fit residuals in meters.
       geopotential_model:
         type: string
-        description: Name of the geopotential model used (e.g., GGM05C).
-      software_version:
+        description: Identifier of the geopotential model used (e.g., GGM05C).
+      convergence_status:
         type: string
-        description: Version of the analysis pipeline.
-      covariance_matrix_subset:
-        type: array
-        description: >
-          Optional: The 2x2 covariance sub-matrix for [a_c, g] if needed for
-          downstream validation, flattened row-major.
-        items:
-          type: number
-        minItems: 4
-        maxItems: 4
-        example: [1.0e-27, 0.0, 0.0, 1.0e-4]
-
+        enum:
+          - "converged"
+          - "warning"
+          - "failed"
+        description: Status flag from the least-squares solver.
 additionalProperties: false

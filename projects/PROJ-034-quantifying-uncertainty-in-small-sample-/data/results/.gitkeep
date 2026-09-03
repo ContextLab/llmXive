@@ -1,2 +1,2 @@
 # This file ensures the data/results directory is tracked by git.
-# Real result files will be placed here by the execution scripts.
+# Simulation results, coverage metrics, and logs will be stored here.

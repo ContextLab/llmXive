@@ -1,0 +1,40 @@
+%YAML 1.2
+---
+$schema: http://json-schema.org/draft-07/schema#
+title: OrbitSolution
+description: Schema for the joint orbit solution.
+type: object
+properties:
+  satellite_ids:
+    type: array
+    items:
+      type: string
+  params:
+    type: object
+    additionalProperties:
+      type: number
+  cost:
+    type: number
+  success:
+    type: boolean
+  message:
+    type: string
+  iterations:
+    type: integer
+  covariance_shape:
+    type: array
+    items:
+      type: integer
+  covariance_flat:
+    type: array
+    items:
+      type: number
+required:
+  - satellite_ids
+  - params
+  - cost
+  - success
+  - message
+  - iterations
+  - covariance_shape
+  - covariance_flat

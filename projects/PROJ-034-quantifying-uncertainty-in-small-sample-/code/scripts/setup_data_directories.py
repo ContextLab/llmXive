@@ -1,67 +1,52 @@
 """
-Script to create the required data directory structure with .gitkeep files.
-This satisfies task T007: Create `data/raw/`, `data/simulated/`, and `data/results/`
-directory structure with `.gitkeep` files in each.
+Script to create the required data directory structure for the project.
+Creates data/raw, data/simulated, and data/results directories with .gitkeep files.
 """
 import os
 import sys
 from pathlib import Path
 
 
-def create_directories(base_path: Path) -> None:
-    """
-    Create the required data directory structure and .gitkeep files.
+def create_directories():
+    """Create the data directory structure with .gitkeep files."""
+    # Define the base data directory relative to the project root
+    # Assuming this script is run from the project root or code/scripts
+    base_path = Path(__file__).resolve().parent.parent.parent
+    data_root = base_path / "data"
 
-    Args:
-        base_path: The project root path (parent of 'data' directory)
-    """
-    # Define the required directories relative to the data folder
-    data_dirs = [
+    directories = [
         "raw",
         "simulated",
         "results"
     ]
 
-    data_root = base_path / "data"
+    created_paths = []
 
-    # Create the root data directory if it doesn't exist
-    data_root.mkdir(parents=True, exist_ok=True)
-    print(f"Created data root: {data_root}")
-
-    # Create subdirectories and .gitkeep files
-    for dir_name in data_dirs:
+    for dir_name in directories:
         dir_path = data_root / dir_name
-        
-        # Create directory (parents=True ensures all intermediate dirs are created)
         dir_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {dir_path}")
         
-        # Create .gitkeep file to ensure directory is tracked in git
+        # Create .gitkeep file to ensure directory is tracked by git
         gitkeep_path = dir_path / ".gitkeep"
-        gitkeep_path.touch()
-        print(f"Created .gitkeep: {gitkeep_path}")
+        gitkeep_path.touch(exist_ok=True)
+        
+        created_paths.append(str(gitkeep_path))
+        print(f"Created: {gitkeep_path}")
 
-    print("\nDirectory structure created successfully:")
-    print(f"  {data_root}/")
-    for dir_name in data_dirs:
-        print(f"    {dir_name}/")
-        print(f"      .gitkeep")
+    return created_paths
 
 
-def main() -> None:
-    """Main entry point for the script."""
-    # Determine project root (parent of 'code' directory)
-    # This script is located at code/scripts/setup_data_directories.py
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent.parent  # Go up 3 levels to project root
-
-    print(f"Project root: {project_root}")
-    print(f"Creating data directory structure...")
-    
-    create_directories(project_root)
-    
-    print("\nTask T007 completed: Data directories created with .gitkeep files.")
+def main():
+    """Main entry point."""
+    print("Setting up data directory structure...")
+    try:
+        created = create_directories()
+        print(f"\nSuccessfully created {len(created)} directories with .gitkeep files.")
+        return 0
+    except Exception as e:
+        print(f"Error creating directories: {e}", file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

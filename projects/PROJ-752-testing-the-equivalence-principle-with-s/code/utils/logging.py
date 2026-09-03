@@ -1,8 +1,10 @@
 """
-Standardized logging utilities for the Equivalence Principle Pipeline.
+Standardized logging and error handling utilities.
 
-Provides consistent error handling, progress logging, and structured output.
+This module provides a consistent logging interface and custom exceptions
+for the llmXive science pipeline.
 """
+
 import logging
 import sys
 import os
@@ -10,6 +12,7 @@ from typing import Optional, Dict, Any
 from datetime import datetime
 import traceback
 
+# Custom Exceptions
 class PipelineError(Exception):
     """Base exception for pipeline errors."""
     pass
@@ -19,87 +22,100 @@ class DataUnavailableError(PipelineError):
     pass
 
 class ConfigurationError(PipelineError):
-    """Raised when configuration is invalid."""
+    """Raised when configuration is invalid or missing."""
     pass
 
 class AnalysisError(PipelineError):
     """Raised when an analysis step fails."""
     pass
 
-_logger_instance: Optional[logging.Logger] = None
-_logging_initialized: bool = False
+# Logger setup
+_loggers: Dict[str, logging.Logger] = {}
 
-def init_logging(level: str = "INFO") -> None:
+def init_logging(log_level: int = logging.INFO, log_file: Optional[str] = None) -> None:
     """
-    Initialize the root logger with standard formatting.
-    
+    Initialize the root logger and handlers.
+
     Args:
-        level: Logging level (DEBUG, INFO, WARNING, ERROR).
+        log_level: Logging level (e.g., logging.INFO, logging.DEBUG).
+        log_file: Optional path to a log file. If None, logs only to console.
     """
-    global _logger_instance, _logging_initialized
-    
-    if _logging_initialized:
-        return
-        
-    _logger_instance = logging.getLogger("llmXive_pipeline")
-    _logger_instance.setLevel(getattr(logging, level.upper()))
-    
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(getattr(logging, level.upper()))
-    
+    root_logger = logging.getLogger()
+    root_logger.setLevel(log_level)
+
+    # Clear existing handlers to avoid duplicates
+    root_logger.handlers.clear()
+
+    # Console Handler
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(log_level)
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
-    console_handler.setFormatter(formatter)
-    
-    _logger_instance.addHandler(console_handler)
-    _logging_initialized = True
+    ch.setFormatter(formatter)
+    root_logger.addHandler(ch)
+
+    # File Handler (optional)
+    if log_file:
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(log_file) if os.path.dirname(log_file) else '.', exist_ok=True)
+        fh = logging.FileHandler(log_file)
+        fh.setLevel(log_level)
+        fh.setFormatter(formatter)
+        root_logger.addHandler(fh)
 
 def get_logger(name: str) -> logging.Logger:
     """
-    Get a child logger for a specific module.
-    
+    Get a logger instance by name.
+
     Args:
-        name: Module name (e.g., __name__).
-        
+        name: The name of the logger (usually __name__).
+
     Returns:
-        Configured logger instance.
+        A configured logger instance.
     """
-    if not _logging_initialized:
-        init_logging()
-    return logging.getLogger(f"llmXive_pipeline.{name}")
+    if name not in _loggers:
+        logger = logging.getLogger(name)
+        if not logger.handlers:
+            # Inherit configuration from root
+            logger.setLevel(logging.DEBUG)
+        _loggers[name] = logger
+    return _loggers[name]
 
-def log_progress(logger: logging.Logger, message: str) -> None:
+def log_progress(message: str, level: str = "INFO") -> None:
     """
-    Log a progress message at INFO level.
-    
-    Args:
-        logger: Logger instance.
-        message: Progress message.
-    """
-    logger.info(f"[PROGRESS] {message}")
+    Log a progress message.
 
-def log_error(logger: logging.Logger, message: str) -> None:
-    """
-    Log an error message at ERROR level.
-    
     Args:
-        logger: Logger instance.
-        message: Error message.
+        message: The message to log.
+        level: Log level string ('INFO', 'DEBUG', 'WARNING', 'ERROR').
     """
+    logger = get_logger("pipeline")
+    getattr(logger, level.lower())(f"[PROGRESS] {message}")
+
+def log_error(message: str, error: Optional[Exception] = None) -> None:
+    """
+    Log an error message, optionally with exception details.
+
+    Args:
+        message: The error message.
+        error: Optional exception instance to include traceback.
+    """
+    logger = get_logger("pipeline")
     logger.error(f"[ERROR] {message}")
+    if error:
+        logger.error(traceback.format_exc())
 
-def handle_fatal_error(logger: logging.Logger, exception: Exception, context: str) -> None:
+def handle_fatal_error(error: Exception, exit_code: int = 1) -> None:
     """
-    Log a fatal error with full traceback and exit.
-    
+    Handle a fatal error by logging and exiting.
+
     Args:
-        logger: Logger instance.
-        exception: The exception that occurred.
-        context: Contextual description of where it failed.
+        error: The exception that caused the failure.
+        exit_code: The exit code to return to the OS.
     """
-    logger.critical(f"[FATAL] {context}: {str(exception)}")
+    logger = get_logger("pipeline")
+    logger.critical(f"FATAL ERROR: {error}")
     logger.critical(traceback.format_exc())
-    raise SystemExit(1)
+    sys.exit(exit_code)

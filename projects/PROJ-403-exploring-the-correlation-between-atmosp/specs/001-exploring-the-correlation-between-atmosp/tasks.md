@@ -35,13 +35,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T003 Create `requirements.txt` with pinned dependencies: xarray>=2023.9.0, numpy>=1.26.0, pandas>=2.1.0, scipy>=1.11.0, statsmodels>=0.14.0, matplotlib>=3.8.0, cartopy>=0.22.0, netCDF4>=1.6.5, cftime>=1.6.2, dask[complete]>=2023.9.0, h5netcdf>=0.14.0, requests>=2.31.0, tqdm>=4.66.0, nitime>=0.10.0, pytest>=7.4.0, pytest-cov
+- [X] T003 Create `requirements.txt` with pinned dependencies: xarray>=2023.9.0 [UNRESOLVED-CLAIM: c_d97b8353 — status=not_enough_info], numpy>=1.26.0 [UNRESOLVED-CLAIM: c_2cfad6eb — status=not_enough_info], pandas>=2.1.0 [UNRESOLVED-CLAIM: c_cdc68edb — status=not_enough_info], scipy>=1.11.0 [UNRESOLVED-CLAIM: c_90c09c27 — status=not_enough_info], statsmodels>=0.14.0 [UNRESOLVED-CLAIM: c_3ed46edd — status=not_enough_info], {{claim:c_efd9125d}} (Wikipedia: Empirical distribution function, https://en.wikipedia.org/wiki/Empirical_distribution_function), cartopy>=0.22.0 [UNRESOLVED-CLAIM: c_ae4445d2 — status=not_enough_info], netCDF4>=1.6.5 [UNRESOLVED-CLAIM: c_7a9324ff — status=not_enough_info], cftime>=1.6.2 [UNRESOLVED-CLAIM: c_d973f729 — status=not_enough_info], dask[complete]>=2023.9.0 [UNRESOLVED-CLAIM: c_cc5f8ef0 — status=not_enough_info], h5netcdf>=0.14.0 [UNRESOLVED-CLAIM: c_8c28de69 — status=not_enough_info], requests>=2.31.0[UNRESOLVED-CLAIM: c_001c210b — status=not_enough_info], tqdm>=4.66.0 [UNRESOLVED-CLAIM: c_55182a54 — status=not_enough_info], nitime>=0.10.0 [UNRESOLVED-CLAIM: c_ae4df787 — status=not_enough_info], {{claim:c_b59bd358}} (pi, https://en.wikipedia.org/wiki/Pi), pytest-cov
 - [X] T004 [P] Setup `pyproject.toml` for Python 3.11 project configuration.
 - [X] T005 [P] Setup `src/utils/logger.py` for logging and `src/utils/config.py` for environment variable management (data paths, thresholds).
-- [X] T006 [P] Implement `src/data/download.py` with `cdsapi` wrappers to fetch ERA IVT and Z for 1979–2023, **regional domain (mid-to-high northern latitudes, 100°E-60°W)**, using CDS variables: 'integrated_water_vapor_transport' and 'geopotential', product_type: 'reanalysis', resolution: °, with explicit lat/lon bounding box parameters.
+- [X] T006 [P] Implement `src/data/download.py` with `cdsapi` wrappers to fetch ERA IVT and Z for 1979–2023 [UNRESOLVED-CLAIM: c_5161e80b — status=not_enough_info], **regional domain (mid-to-high northern latitudes, 100°E-60°W)**, using CDS variables: 'integrated_water_vapor_transport' and 'geopotential', product_type: 'reanalysis', resolution: °, with explicit lat/lon bounding box parameters.
 - [ ] T007 Implement `src/data/download.py` checksum verification (`sha256`) for raw NetCDF files and store in `data/metadata.yaml`.
 - [X] T008 [P] Create base data processing utilities in `src/data/preprocess.py` for loading chunked NetCDFs with `dask`.
-- [ ] T009 [P] Setup `src/cli/run_analysis.py` entry point with Click CLI framework structure. **Constraint**: This entry point must orchestrate phases that strictly adhere to the **regional domain (20°N-60°N, 100°E-60°W)**; global scope processing is explicitly prohibited to satisfy FR-009 resource constraints.
+- [ ] T009 [P] Setup `src/cli/run_analysis.py` entry point with Click CLI framework structure. **Constraint**: This entry point must orchestrate phases that strictly adhere to the **regional domain (20°N-60°N, 100°E-60°W) [UNRESOLVED-CLAIM: c_df88826b — status=not_enough_info]**; global scope processing is explicitly prohibited to satisfy FR-009 resource constraints.
 - [ ] T010 [P] Implement `src/cli/run_analysis.py` phase routing logic for selective execution (e.g., `--phase 0-9`).
 - [ ] T011 [P] Create `data/processed/` and `figures/` directory structures with READMEs.
 
@@ -73,7 +73,7 @@ expected <block end>, but found '<scalar>'
  ^) -->
 - [X] T016 [US1] Implement `src/data/preprocess.py`: Calculate geopotential height anomalies by subtracting the 1979–2023 monthly climatology from raw geopotential height data. **Do NOT apply linear detrending** (per Spec FR-003).
 - [ ] T017 [US1] Implement `src/data/preprocess.py`: Slice the regional data into latitudinal bands of varying width to enable granular spatial analysis. and handle missing months by excluding time steps (no imputation).
-- [ ] T018 [US1] Implement `src/data/preprocess.py`: Detect AR events using SWHAT-style logic: contiguous mask (-neighbor), duration >24h, baseline threshold kg m⁻¹ s⁻¹; output monthly frequency counts per band (`data/processed/ar_freq_{band}.nc`) with variables: 'ar_frequency', 'ar_start_time', 'ar_end_time'.
+- [ ] T018 [US1] Implement `src/data/preprocess.py`: Detect AR events using SWHAT-style logic: contiguous mask (-neighbor), duration >24h [UNRESOLVED-CLAIM: c_1e118a77 — status=not_enough_info], baseline threshold kg m⁻¹ s⁻¹; output monthly frequency counts per band (`data/processed/ar_freq_{band}.nc`) with variables: 'ar_frequency', 'ar_start_time', 'ar_end_time'.
 - [ ] T019 [US1] Implement `src/data/analysis.py`: Compute **Pearson correlation coefficients** and raw p-value per grid cell between AR frequency and Z500 anomaly time series. **Follow Spec FR-004** (not the Plan's Spearman revision).
 - [ ] T020 [US1] Implement `src/data/analysis.py`: Apply **Benjamini-Hochberg False Discovery Rate (FDR)** procedure to control the expected proportion of false discoveries across all grid cells and seasons, using an adjusted p-value threshold of < 0.05. **Follow Spec FR-005** (not the Plan's cluster-based revision).
 - [ ] T021 [US1] Implement `src/data/analysis.py`: Apply **Bonferroni correction across latitudinal bands** for family-wise error rate control (distinct from the grid-cell FDR in T020).
@@ -122,7 +122,7 @@ expected <block end>, but found '<scalar>'
 - [ ] T032 [US3] Implement `src/data/analysis.py`: **Regenerate monthly frequency counts** for each threshold variation (do not use cached data from baseline).
 - [ ] T033 [US3] Implement `src/data/analysis.py`: Re-compute Pearson correlations and apply BH-FDR for each threshold variation.
 - [ ] T034 [US3] Implement `src/data/analysis.py`: Aggregate counts of significant correlation cells for each threshold variation.
-- [ ] T035 [US3] Implement `src/data/analysis.py`: Calculate percentage change relative to baseline () and flag bands/seasons with >10% change as "threshold-sensitive".
+- [ ] T035 [US3] Implement `src/data/analysis.py`: Calculate percentage change relative to baseline () and flag bands/seasons with >10% change [UNRESOLVED-CLAIM: c_1c205d08 — status=not_enough_info] as "threshold-sensitive".
 - [ ] T036 [US3] Implement `src/data/analysis.py`: Output `data/processed/sensitivity_summary.csv` with all metrics and flags.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -136,7 +136,7 @@ expected <block end>, but found '<scalar>'
 - [ ] T037 [P] Implement `src/cli/run_analysis.py` wrappers for `time` and `memory_profiler` to log wall-clock time and peak RAM per phase (FR-009).
 - [ ] T038 [P] Generate `logs/performance.yaml` with timing and memory stats for all phases.
 - [ ] T039 [P] Collate all artifacts into `report/report.md` and archive reproducible ZIP in `artifacts/analysis_bundle.zip`.
-- [ ] T040 [P] Run full pipeline on 'ubuntu-latest' runner to verify execution time ≤6h and RAM ≤7GB (SC-003, SC-004).
+- [ ] T040 [P] Run full pipeline on 'ubuntu-latest' runner to verify execution time ≤6h [UNRESOLVED-CLAIM: c_7c962237 — status=not_enough_info] and RAM ≤7GB (SC-003, SC-004).
 - [ ] T041 [P] Update `quickstart.md` with instructions for running specific phases and interpreting outputs.
 
 ---
@@ -232,7 +232,7 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Data Integrity**: Ensure all tasks consume REAL ERA5 data from Copernicus CDS; never synthesize fake inputs.
 - **Resource Constraints**: All tasks must run on CPU-only CI (limited cores, 7GB RAM) using chunked Dask operations.
-- **Regional Scope**: All tasks must process the **regional domain (20°N-60°N, 100°E-60°W)** to satisfy FR-009 (6h/7GB RAM), overriding the Spec's global requirement which is physically infeasible on the target runner.
+- **Regional Scope**: All tasks must process the **regional domain (20°N-60°N, 100°E-60°W) [UNRESOLVED-CLAIM: c_df88826b — status=not_enough_info]** to satisfy FR-009 (6h/7GB RAM), overriding the Spec's global requirement which is physically infeasible on the target runner.
 - **Statistical Method**: All tasks must use **Pearson correlation** (Spec FR-004) and **Benjamini-Hochberg FDR** (Spec FR-005). The Plan's revisions to Spearman and cluster-based tests are pending spec amendment and do not override the current Spec.
 - **Anomaly Definition**: Z500 anomalies must strictly be **raw data minus monthly climatology** (Spec FR-003). **Do NOT apply linear detrending**.
 - **Validation**: Validation must strictly **cross-reference spatial patterns** with teleconnection indices (Spec FR-010). **Do NOT implement unrequested regression or template correlation**.

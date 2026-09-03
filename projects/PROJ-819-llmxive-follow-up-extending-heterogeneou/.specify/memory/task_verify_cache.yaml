@@ -41,3 +41,9 @@ T041:
     against `state/manifest.json`. The implementer did not supply a verification report,
     script output, or any indication that the final sanity check was performed, so
     the required artifact is missing.
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of new unit test files under `tests/unit/` was provided; the claim\
+    \ that edge\u2011case tests for embedding failure and memory\u2011limit scenarios\
+    \ were added cannot be confirmed. The required test artifacts are missing."

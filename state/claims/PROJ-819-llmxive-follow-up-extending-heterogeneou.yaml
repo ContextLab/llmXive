@@ -893,23 +893,6 @@
   updated_at: '2026-08-11T16:17:27Z'
 - artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
   attempts: 1
-  canonical: Sensitivity analysis uses thresholds 0.90, 0.95, 0.99
-  claim_id: c_517b459f
-  context: 'Implement sensitivity analysis loop in code/main.py iterating through
-    the exact discrete threshold set: [0.90, 0.95, 0.99].'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The sensitivity analysis loop iterates through the discrete threshold
-    set [0.90, 0.95, 0.99].
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-11T16:18:42Z'
-- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
-  attempts: 1
   canonical: Optimization rule weight for accuracy deviation is 10
   claim_id: c_7f5c84c1
   context: 'Identify optimal threshold based on the defined optimization rule: maximize
@@ -1450,3 +1433,435 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-13T20:15:05Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: Warm-up set seed range 1000 to 1099
+  claim_id: c_5db3cdb9
+  context: 'T005a [P] ... **Logic**: Use a distinct seed range `1000-1099`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The warm-up set uses a distinct seed range 1000-1099.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:50:11Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: 'Test set contains 3 distinct domains: Physics, Chemistry, Biology'
+  claim_id: c_f8f9c9a1
+  context: 'T005b [P] ... assert that `synthetic_queries_test.json` contains exactly
+    3 distinct values in the `domain` field: Physics, Chemistry, Biology.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The test set contains exactly 3 distinct values in the domain field:
+    Physics, Chemistry, Biology.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:51:07Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: Latency variance Coefficient of Variation > 10%
+  claim_id: c_58eee461
+  context: T009a [P] ... implement a random delay distribution that exhibits sufficient
+    variance (Coefficient of Variation > 10%) to ensure statistical significance in
+    T026.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Latency_variance_Coefficient_of_Variation_%3E_10%25
+  kind: magnitude
+  raw_text: The latency distribution must exhibit a Coefficient of Variation greater
+    than 10%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:52:25Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: Cache eviction trigger at 1GB or 1000 entries
+  claim_id: c_74dbd235
+  context: 'T019 [US1] **Trigger**: When cache size exceeds 1GB (or 1000 entries if
+    memory estimation is unavailable).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The cache eviction trigger is set when cache size exceeds 1GB or 1000
+    entries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:52:54Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: Permutation test n_permutations 10000
+  claim_id: c_2d2b5d2a
+  context: 'T025 [US2] ... **Parameters**: `n_permutations=10000`.'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9593 100003
+      source_id: A000040
+      url: https://oeis.org/A000040
+      value: '10000'
+    filled: true
+  kind: numeric
+  raw_text: The Permutation Test uses 10000 permutations.
+  resolved_value: '10000'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T21:53:08Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds 0.90, 0.95, 0.99
+  claim_id: c_02f35fa2
+  context: 'T034 [US3] ... iterating through the **exact** discrete threshold set:
+    `[0.90, 0.95, 0.99]`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis loop iterates through the discrete threshold
+    set [0.90, 0.95, 0.99].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:53:34Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: Optimization weight default 10
+  claim_id: c_40c30c75
+  context: T036 [US3] ... where `weight` is a **user-defined parameter** read from
+    a CLI argument or configuration file (default 10).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The optimization weight default value is 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:53:55Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: 100 warm-up queries stratified by 3 domains with seed range 1000-1099
+  claim_id: c_3b239bf5
+  context: 'T005a [P] Extend code/data/generator.py to generate the **Warm-up Set**
+    (100 queries) for FR-007. **Logic**: Use a distinct seed range `1000-1099`. Stratify
+    by domain (Physics, Chemistry, Biology) with an equal distribution per domain.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate the Warm-up Set with 100 queries using a distinct seed range
+    1000-1099, stratified by domain (Physics, Chemistry, Biology) with equal distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:55:23Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: '3 distinct domain values: Physics, Chemistry, Biology'
+  claim_id: c_bb8e338b
+  context: 'T005b [P] [Unit Test] Implement tests/unit/test_generator.py to assert
+    that synthetic_queries_test.json contains exactly 3 distinct values in the domain
+    field: Physics, Chemistry, Biology.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The generator must produce queries with exactly 3 distinct values in
+    the domain field: Physics, Chemistry, Biology.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:56:26Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: Random delay distribution with Coefficient of Variation > 10%
+  claim_id: c_8564d047
+  context: T009a [P] Modify code/pipeline/eywa_orchestra.py to accept a latency_variance
+    parameter and implement a random delay distribution that exhibits sufficient variance
+    (Coefficient of Variation > 10%) to ensure statistical significance in T026.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Random_delay_distribution_with_Coefficient_of_Variation_%3E_10
+  kind: magnitude
+  raw_text: Implement a random delay distribution in eywa_orchestra.py that exhibits
+    a Coefficient of Variation greater than 10%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:57:14Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: Cache eviction trigger at 1GB or 1000 entries
+  claim_id: c_a222210a
+  context: 'T019 [US1] Implement LRU eviction policy in code/cache/semantic_cache.py.
+    **Trigger**: When cache size exceeds 1GB (or 1000 entries if memory estimation
+    is unavailable).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The cache eviction policy triggers when the cache size exceeds 1GB or
+    1000 entries if memory estimation is unavailable.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:57:32Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: Permutation Test with 10000 permutations referencing OEIS A000040
+  claim_id: c_5711d1b5
+  context: 'T025 [US2] Implement code/analysis/stats.py for Permutation Test on accuracy
+    differences. **Parameters**: n_permutations=10000 (OEIS A000040, https://oeis.org/A000040).'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 10000 104729
+      source_id: A000040
+      url: https://oeis.org/A000040
+      value: '104729'
+    filled: true
+  kind: numeric
+  raw_text: The Permutation Test uses 10000 permutations, referencing OEIS A000040.
+  resolved_value: '104729'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T21:57:44Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity analysis thresholds: 0.90, 0.95, 0.99'
+  claim_id: c_0f4b60b1
+  context: 'T034 [US3] Implement sensitivity analysis loop in code/main.py iterating
+    through the **exact** discrete threshold set: [0.90, 0.95, 0.99].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The sensitivity analysis loop iterates through the exact discrete threshold
+    set: [0.90, 0.95, 0.99].'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:57:45Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: Optimization weight default value of 10
+  claim_id: c_c46a3252
+  context: 'T036 [US3] Identify optimal threshold based on the defined optimization
+    rule: maximize score = runtime_reduction - weight * accuracy_deviation, where
+    weight is a user-defined parameter read from a CLI argument or configuration file
+    (default 10).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The optimization rule uses a default weight of 10 for the formula score
+    = runtime_reduction - weight * accuracy_deviation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:58:09Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: Warm-up set uses seed range 1000-1099
+  claim_id: c_404d8668
+  context: 'Logic: Use a distinct seed range 1000-1099. Stratify by domain (Physics,
+    Chemistry, Biology) with an equal distribution per domain and equal step distribution
+    across varying step counts to ensure representativeness.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a distinct seed range 1000-1099 for the Warm-up Set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:59:06Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: Warm-up set stratified by domain with equal distribution
+  claim_id: c_79ecb7c6
+  context: 'Logic: Use a distinct seed range 1000-1099. Stratify by domain (Physics,
+    Chemistry, Biology) with an equal distribution per domain and equal step distribution
+    across varying step counts to ensure representativeness.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Warm-up_set_stratified_by_domain_with_equal_distribution
+  kind: entity_fact
+  raw_text: Stratify the Warm-up Set by domain (Physics, Chemistry, Biology) with
+    an equal distribution per domain.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:59:30Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: Test set contains 3 distinct domain values
+  claim_id: c_26b83968
+  context: 'Implement tests/unit/test_generator.py to assert that synthetic_queries_test.json
+    contains exactly 3 distinct values in the domain field: Physics, Chemistry, Biology.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Assert that synthetic_queries_test.json contains exactly 3 distinct values
+    in the domain field: Physics, Chemistry, Biology.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:59:58Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: Cache eviction trigger is 1GB or 1000 entries
+  claim_id: c_8e33918d
+  context: 'Implement LRU eviction policy in code/cache/semantic_cache.py. Trigger:
+    When cache size exceeds 1GB (or 1000 entries if memory estimation is unavailable).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Trigger eviction when cache size exceeds 1GB (or 1000 entries if memory
+    estimation is unavailable).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T22:00:14Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: Permutation test uses 10000 permutations
+  claim_id: c_448b162c
+  context: 'Implement code/analysis/stats.py for Permutation Test on accuracy differences.
+    Input: List of accuracy diffs (Baseline - Cached). Parameters: n_permutations=10000
+    (OEIS A000040, https://oeis.org/A000040).'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: oeis
+        source_id: A000040
+        url: https://oeis.org/A000040
+        value: '104729'
+      - channel: oeis
+        source_id: A000796
+        url: https://oeis.org/A000796
+        value: '10007'
+      - channel: oeis
+        source_id: A001203
+        url: https://oeis.org/A001203
+        value: '1229'
+      - channel: oeis
+        source_id: A001355
+        url: https://oeis.org/A001355
+        value: '1229'
+      - channel: oeis
+        source_id: A004601
+        url: https://oeis.org/A004601
+        value: '10001'
+      - channel: oeis
+        source_id: A006842
+        url: https://oeis.org/A006842
+        value: '10563'
+      - channel: oeis
+        source_id: A006843
+        url: https://oeis.org/A006843
+        value: '10563'
+      - channel: oeis
+        source_id: A014197
+        url: https://oeis.org/A014197
+        value: '16'
+      - channel: oeis
+        source_id: A046970
+        url: https://oeis.org/A046970
+        value: '1229'
+      - channel: oeis
+        source_id: A055000
+        url: https://oeis.org/A055000
+        value: '23708299'
+      - channel: oeis
+        source_id: A331124
+        url: https://oeis.org/A331124
+        value: '1229'
+      quote: 10000 1
+      source_id: A000012
+      url: https://oeis.org/A000012
+      value: '10000'
+    filled: true
+  kind: numeric
+  raw_text: Set parameters for Permutation Test with n_permutations=10000 (OEIS A000040,
+    https://oeis.org/A000040).
+  resolved_value: '10000'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T22:04:10Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 2
+  canonical: Sensitivity analysis uses thresholds 0.90, 0.95, 0.99
+  claim_id: c_517b459f
+  context: 'Implement sensitivity analysis loop in code/main.py iterating through
+    the exact discrete threshold set: [0.90, 0.95, 0.99].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis loop iterates through the discrete threshold
+    set [0.90, 0.95, 0.99].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T22:04:10Z'
+- artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  attempts: 1
+  canonical: Default optimization weight is 10
+  claim_id: c_f7b9596f
+  context: 'Identify optimal threshold based on the defined optimization rule: maximize
+    score = runtime_reduction - weight * accuracy_deviation, where weight is a user-defined
+    parameter read from a CLI argument or configuration file (default 10).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use a default optimization weight of 10 for the score formula: score
+    = runtime_reduction - weight * accuracy_deviation.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T22:04:31Z'

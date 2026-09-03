@@ -1,5 +1,5 @@
-'|consist query set test':
-  quote: '2500'
-  source_id: '2509.23775'
-  url: https://arxiv.org/abs/2509.23775
-  value: '500'
+'|parameter permutation set test':
+  quote: 10000 1
+  source_id: A000012
+  url: https://oeis.org/A000012
+  value: '10000'

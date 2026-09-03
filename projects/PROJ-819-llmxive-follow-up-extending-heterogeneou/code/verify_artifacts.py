@@ -1,110 +1,153 @@
 """
-T041: Final verification of all data artifacts in data/derived/ against state/manifest.json.
-
-This script performs a sanity check to ensure:
-1. The state/manifest.json file exists and is valid JSON.
-2. All files listed in the manifest's 'files' array that reside under 'data/derived/' actually exist on disk.
-3. The SHA-256 hash of each existing file matches the hash recorded in the manifest.
-
-Exit codes:
-0: All verifications passed.
-1: Verification failed (missing file or hash mismatch).
+Final verification script for T041.
+Verifies that all data artifacts in data/derived/ are present and match
+the hashes recorded in state/manifest.json.
 """
 import json
 import sys
+import hashlib
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
 
-# Import the manifest manager to reuse the hashing logic
-# Adjust import path based on project structure (code/ is root for imports in this context)
-try:
-    from reproducibility.manifest_manager import calculate_sha256
-except ImportError:
-    # Fallback if running as script without package structure
-    import hashlib
-    def calculate_sha256(file_path: str) -> str:
-        sha256_hash = hashlib.sha256()
+def calculate_sha256(file_path: Path) -> str:
+    """Calculate SHA-256 hash of a file."""
+    sha256_hash = hashlib.sha256()
+    try:
         with open(file_path, "rb") as f:
             for byte_block in iter(lambda: f.read(4096), b""):
                 sha256_hash.update(byte_block)
         return sha256_hash.hexdigest()
+    except FileNotFoundError:
+        return None
 
 def load_manifest(manifest_path: Path) -> Dict[str, Any]:
+    """Load the manifest JSON file."""
     if not manifest_path.exists():
-        raise FileNotFoundError(f"Manifest file not found at {manifest_path}")
+        raise FileNotFoundError(f"Manifest not found at {manifest_path}")
     
     with open(manifest_path, "r", encoding="utf-8") as f:
         return json.load(f)
 
-def verify_artifacts(project_root: Path) -> Tuple[bool, List[str]]:
-    manifest_path = project_root / "state" / "manifest.json"
-    errors: List[str] = []
+def verify_artifacts(
+    derived_dir: Path, 
+    manifest: Dict[str, Any]
+) -> Tuple[List[str], List[str], List[str]]:
+    """
+    Verify all artifacts in derived_dir against manifest.
     
-    try:
-        manifest = load_manifest(manifest_path)
-    except FileNotFoundError as e:
-        return False, [str(e)]
-    except json.JSONDecodeError as e:
-        return False, [f"Invalid JSON in manifest: {e}"]
+    Returns:
+        Tuple of (missing_files, hash_mismatches, verified_files)
+    """
+    missing_files = []
+    hash_mismatches = []
+    verified_files = []
     
-    files_list = manifest.get("files", [])
-    derived_files = [f for f in files_list if f["path"].startswith("data/derived/")]
+    # Build a map of expected files from manifest
+    manifest_files = {}
+    for entry in manifest.get("files", []):
+        path_str = entry.get("path", "")
+        # Filter for data/derived/ files
+        if path_str.startswith("data/derived/"):
+            manifest_files[path_str] = entry.get("sha256")
     
-    if not derived_files:
-        print("Warning: No files found in manifest under data/derived/")
-        # This might be a state issue, but not necessarily a failure if the directory is empty
-        # However, for T041, we expect data to exist from previous tasks.
-        # We will treat it as a warning unless the project state implies data should exist.
-        # Given T005, T005a, T030, T035, T037 should have run, we expect files.
-        # But strictly, if manifest is empty, we can't verify anything.
-        # Let's assume if the manifest exists but is empty for derived, it's a verification failure 
-        # because previous tasks (T005, T030, etc.) should have populated it.
-        # We'll check if any expected files are missing based on standard task outputs.
-        # For now, just checking the manifest content.
-        pass
+    if not manifest_files:
+        print("WARNING: No data/derived/ files found in manifest.")
+        return [], [], []
 
-    print(f"Verifying {len(derived_files)} artifacts in data/derived/...")
-    
-    for file_entry in derived_files:
-        rel_path = file_entry["path"]
-        expected_hash = file_entry["sha256"]
-        full_path = project_root / rel_path
+    # Check each file in the manifest
+    for rel_path, expected_hash in manifest_files.items():
+        full_path = derived_dir.parent / rel_path  # derived_dir is inside data/
         
         if not full_path.exists():
-            errors.append(f"MISSING: {rel_path} (listed in manifest but not found on disk)")
+            missing_files.append(rel_path)
             continue
         
-        try:
-            actual_hash = calculate_sha256(str(full_path))
-        except Exception as e:
-            errors.append(f"ERROR: Could not compute hash for {rel_path}: {e}")
+        actual_hash = calculate_sha256(full_path)
+        
+        if actual_hash is None:
+            missing_files.append(rel_path)
             continue
         
         if actual_hash != expected_hash:
-            errors.append(
-                f"MISMATCH: {rel_path}\n"
-                f"  Expected: {expected_hash}\n"
-                f"  Actual:   {actual_hash}"
-            )
+            hash_mismatches.append({
+                "path": rel_path,
+                "expected": expected_hash,
+                "actual": actual_hash
+            })
         else:
-            print(f"OK: {rel_path}")
+            verified_files.append(rel_path)
     
-    return len(errors) == 0, errors
+    # Also check if there are files in derived_dir not in manifest
+    if derived_dir.exists():
+        for file_path in derived_dir.iterdir():
+            if file_path.is_file():
+                rel_path = f"data/derived/{file_path.name}"
+                if rel_path not in manifest_files:
+                    # File exists but not in manifest - this might be expected 
+                    # for new files, but we flag it
+                    print(f"WARNING: File in data/derived/ not in manifest: {rel_path}")
+    
+    return missing_files, hash_mismatches, verified_files
 
 def main():
-    project_root = Path(__file__).resolve().parent.parent
+    """Main entry point for verification."""
+    project_root = Path(__file__).parent.parent
+    derived_dir = project_root / "data" / "derived"
+    manifest_path = project_root / "state" / "manifest.json"
+    
     print(f"Project root: {project_root}")
+    print(f"Derived directory: {derived_dir}")
+    print(f"Manifest path: {manifest_path}")
     
-    success, errors = verify_artifacts(project_root)
-    
-    if success:
-        print("\n✅ All data artifacts in data/derived/ verified successfully against state/manifest.json.")
-        sys.exit(0)
-    else:
-        print("\n❌ Verification failed:")
-        for error in errors:
-            print(f"  - {error}")
+    if not manifest_path.exists():
+        print("ERROR: state/manifest.json does not exist.")
+        print("Run the manifest generation task (T010) first.")
         sys.exit(1)
+    
+    if not derived_dir.exists():
+        print("ERROR: data/derived/ directory does not exist.")
+        sys.exit(1)
+    
+    try:
+        manifest = load_manifest(manifest_path)
+    except Exception as e:
+        print(f"ERROR: Failed to load manifest: {e}")
+        sys.exit(1)
+    
+    missing_files, hash_mismatches, verified_files = verify_artifacts(
+        derived_dir, manifest
+    )
+    
+    print("\n" + "="*60)
+    print("VERIFICATION RESULTS")
+    print("="*60)
+    
+    if verified_files:
+        print(f"\n✓ VERIFIED ({len(verified_files)} files):")
+        for f in verified_files:
+            print(f"  - {f}")
+    
+    if missing_files:
+        print(f"\n✗ MISSING ({len(missing_files)} files):")
+        for f in missing_files:
+            print(f"  - {f}")
+    
+    if hash_mismatches:
+        print(f"\n⚠ HASH MISMATCHES ({len(hash_mismatches)} files):")
+        for mismatch in hash_mismatches:
+            print(f"  - {mismatch['path']}")
+            print(f"    Expected: {mismatch['expected']}")
+            print(f"    Actual:   {mismatch['actual']}")
+    
+    print("\n" + "="*60)
+    
+    if missing_files or hash_mismatches:
+        print("RESULT: VERIFICATION FAILED")
+        sys.exit(1)
+    else:
+        print("RESULT: VERIFICATION PASSED")
+        print("All data artifacts in data/derived/ match state/manifest.json")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

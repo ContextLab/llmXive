@@ -1,18 +1,3 @@
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `utils/logging.py` file (or any non\u2011empty implementation) was presented\
-    \ in the evidence. Without the required module containing the standardized error\
-    \ handling and progress\u2011logging code, the task is not satisfied. The next\
-    \ implementer must add a functional `utils/logging.py` with the specified logging\
-    \ utilities."
-T018:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or documentation showing that 403 HTTP errors are caught\
-    \ and handled, nor any logic that detects and warns when a dataset contains fewer\
-    \ than 500 points, was provided. The required error\u2011handling implementation\
-    \ and associated tests or logs are missing."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

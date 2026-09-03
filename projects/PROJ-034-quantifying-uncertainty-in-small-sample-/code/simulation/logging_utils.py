@@ -1,86 +1,73 @@
-"""
-Utility functions for simulation logging.
-
-Provides functions to ensure log directories exist and log simulation runs
-in JSON format.
-"""
 import json
 import os
 from datetime import datetime
 from typing import Dict, Any, Optional
 from pathlib import Path
 
+LOG_FILE_PATH = "data/results/simulation.log"
 
-def ensure_log_directory(log_dir: Optional[str] = None) -> Path:
+def ensure_log_directory() -> Path:
     """
-    Ensure the log directory exists, creating it if necessary.
-    
-    Args:
-        log_dir: Path to log directory. Defaults to 'data/results'.
-        
-    Returns:
-        Path object for the log directory
+    Ensures the directory for the log file exists.
+    Creates it if it doesn't.
     """
-    if log_dir is None:
-        log_dir = "data/results"
-    
-    log_path = Path(log_dir)
-    log_path.mkdir(parents=True, exist_ok=True)
-    return log_path
-
-
-def log_simulation_run(log_entry: Dict[str, Any], log_file: Optional[str] = None) -> None:
-    """
-    Log a simulation run entry to a JSON file.
-    
-    Args:
-        log_entry: Dictionary containing log information
-        log_file: Path to log file. Defaults to 'data/results/simulation.log'
-    """
-    if log_file is None:
-        log_file = "data/results/simulation.log"
-    
-    log_path = Path(log_file)
-    
-    # Ensure parent directory exists
+    log_path = Path(LOG_FILE_PATH)
     log_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Add timestamp if not present
-    if "timestamp" not in log_entry:
-        log_entry["timestamp"] = datetime.now().isoformat()
-    
-    # Append to log file in JSON Lines format (one JSON object per line)
-    with open(log_path, 'a') as f:
-        f.write(json.dumps(log_entry) + '\n')
+    return log_path.parent
 
-
-def get_log_entries(log_file: Optional[str] = None) -> list:
+def log_simulation_run(
+    N: int,
+    rho: float,
+    seed: int,
+    duration: float,
+    vif_max: float,
+    output_path: Optional[str] = None
+) -> None:
     """
-    Read all log entries from the log file.
-    
+    Appends a single JSON line to the simulation log file.
+
     Args:
-        log_file: Path to log file. Defaults to 'data/results/simulation.log'
-        
-    Returns:
-        List of log entry dictionaries
+        N: Sample size used in the simulation.
+        rho: Target correlation coefficient used.
+        seed: Random seed used for reproducibility.
+        duration: Duration of the run in seconds.
+        vif_max: Maximum VIF score observed in the generated data.
+        output_path: Optional path override for the log file.
     """
-    if log_file is None:
-        log_file = "data/results/simulation.log"
+    log_entry = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "N": N,
+        "rho": rho,
+        "seed": seed,
+        "duration": duration,
+        "vif_max": vif_max
+    }
+
+    path_to_use = output_path if output_path else LOG_FILE_PATH
+    ensure_log_directory()
+
+    with open(path_to_use, "a") as f:
+        f.write(json.dumps(log_entry) + "\n")
+
+def get_log_entries(output_path: Optional[str] = None) -> list:
+    """
+    Reads and parses all JSON log entries from the log file.
+
+    Returns:
+        A list of dictionaries, each representing one simulation run.
+    """
+    path_to_use = output_path if output_path else LOG_FILE_PATH
     
-    log_path = Path(log_file)
-    
-    if not log_path.exists():
+    if not os.path.exists(path_to_use):
         return []
-    
+
     entries = []
-    with open(log_path, 'r') as f:
+    with open(path_to_use, "r") as f:
         for line in f:
             line = line.strip()
             if line:
                 try:
                     entries.append(json.loads(line))
                 except json.JSONDecodeError:
-                    # Skip malformed lines
                     continue
-    
     return entries

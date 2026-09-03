@@ -1,201 +1,173 @@
 # llmXive: Heterogeneous Scientific Foundation Model Collaboration
 
-Automated science pipeline for evaluating semantic caching in heterogeneous scientific model orchestration.
+A research pipeline implementing a lightweight semantic caching layer for scientific query processing, evaluating the trade-off between runtime efficiency and accuracy in heterogeneous model collaboration.
 
-## Overview
+## Project Overview
 
-This project implements a lightweight semantic caching layer that intercepts queries, computes embeddings, and retrieves cached outputs to reduce runtime and computational cost while maintaining accuracy.
+This project implements the "Heterogeneous Scientific Foundation Model Collaboration" study, focusing on:
+- **Semantic Caching**: Intercepting queries using embedding-based similarity to reuse cached LLM outputs.
+- **Efficiency Analysis**: Quantifying runtime reduction and invocation savings via a mock EywaOrchestra pipeline.
+- **Accuracy Trade-offs**: Using Permutation Tests and Linear Regression to validate statistical significance.
+- **Threshold Sensitivity**: Analyzing performance across similarity thresholds (0.90, 0.95, 0.99).
 
 ## Prerequisites
 
-- Python 3.9+
-- pip (package installer)
-- CPU-only environment (no CUDA required)
+- **Python**: 3.9 or higher
+- **OS**: Linux/macOS (tested on CI environments)
+- **Hardware**: CPU-only execution (no GPU required).
 
 ## Installation
 
-1. Clone the repository and navigate to the project directory:
+1. **Clone the repository** and navigate to the project directory:
  ```bash
+ git clone <repository-url>
  cd projects/PROJ-819-llmxive-follow-up-extending-heterogeneou
  ```
 
-2. Create a virtual environment (recommended):
+2. **Create a virtual environment** (recommended):
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
 
-3. Install dependencies:
+3. **Install dependencies**:
  ```bash
  pip install -r requirements.txt
  ```
 
-The `requirements.txt` includes:
-- `sentence-transformers`: For embedding generation
-- `scikit-learn`: For statistical utilities
-- `numpy`, `pandas`: For data handling
-- `pytest`, `pytest-benchmark`: For testing
-- `cachetools`: For LRU cache implementation
-- `statsmodels`: For linear regression analysis
+ *Dependencies include*: `sentence-transformers`, `scikit-learn`, `numpy`, `pandas`, `pytest`, `cachetools`, `statsmodels`, `black`, `ruff`.
+
+4. **Verify installation**:
+ ```bash
+ python -m pytest --version
+ python -c "import sentence_transformers; print('OK')"
+ ```
 
 ## Project Structure
 
-```
-code/
-├── cache/
-│ ├── semantic_cache.py # LRU cache with semantic similarity
-│ └── utils.py # Embedding and similarity utilities
+```text
+.
+├── code/
+│ ├── cache/ # Semantic caching logic (LRU, embeddings)
+│ ├── data/ # Data generation and loading utilities
+│ ├── pipeline/ # EywaOrchestra mock and execution runner
+│ ├── analysis/ # Metrics, statistics, and visualization
+│ ├── reproducibility/ # Manifest and checksum management
+│ └── setup_project.py # Project initialization script
 ├── data/
-│ ├── generator.py # Synthetic query generation
-│ ├── loaders.py # Benchmark query loading
-│ └── schema.py # BenchmarkQuery dataclass
-├── pipeline/
-│ ├── eywa_orchestra.py # Mock EywaOrchestra pipeline
-│ └── runner.py # Orchestration and metrics
-├── analysis/
-│ ├── metrics.py # Performance metrics calculation
-│ ├── stats.py # Statistical tests (Permutation, Linear Regression)
-│ └── visualization.py # Trade-off curve plotting
-├── reproducibility/
-│ └── manifest_manager.py # SHA-256 manifest generation
-├── setup_data_dirs.py # Directory and checksum setup
-└── setup_project.py # Project initialization
-
-data/
-├── raw/ # Raw input data (if any)
-└── derived/ # Generated datasets and results
- ├── synthetic_queries_test.json
- ├── synthetic_queries_warmup.json
- ├── results.csv
- ├── sensitivity_analysis.csv
- ├── statistics.json
- ├── trade_off_curve.png
- └── cache_events.log
-
-state/
-└── manifest.json # File integrity manifest
-
-tests/
-├── unit/ # Unit tests
-└── integration/ # Integration tests
+│ ├── raw/ # Raw input data (if applicable)
+│ └── derived/ # Generated queries, results, and plots
+├── tests/
+│ ├── unit/ # Unit tests for core logic
+│ └── integration/ # Integration tests for pipeline flows
+├── state/
+│ └── manifest.json # Reproducibility manifest (auto-generated)
+├── docs/
+│ └── research_decisions.md # Documentation of optimization weights
+├── requirements.txt
+├── README.md
+└── pyproject.toml # Linting and testing configuration
 ```
 
-## Quick Start
+## Execution Instructions
 
-### 1. Generate Datasets
+### 1. Data Generation (Phase 2)
 
-Generate the test set (500 queries) and warm-up set (100 queries):
+Generate the synthetic test set and warm-up set required for benchmarking.
 
 ```bash
-python code/data/generator.py --dataset test --output data/derived/synthetic_queries_test.json
-python code/data/generator.py --dataset warmup --output data/derived/synthetic_queries_warmup.json
+python code/data/generator.py
 ```
 
-### 2. Run the Pipeline
+*Outputs*:
+- `data/derived/synthetic_queries_test.json` (500 queries)
+- `data/derived/synthetic_queries_warmup.json` (100 queries)
 
-Execute the full pipeline with cache enabled, running sensitivity analysis across thresholds `[0.90, 0.95, 0.99]`:
+*Note*: This step also triggers the manifest generation hook (`state/manifest.json`).
+
+### 2. Run the Full Pipeline (Phase 3-5)
+
+Execute the full sensitivity analysis loop, including baseline and cached runs across thresholds `[0.90, 0.95, 0.99]`.
 
 ```bash
 python code/main.py
 ```
 
-This will:
-- Populate the cache using the warm-up set
-- Run baseline execution (no cache)
-- Run cached execution with varying thresholds
-- Perform statistical analysis (Permutation Test, Linear Regression)
-- Generate visualizations and reports
+*Arguments*:
+- `--weight`: Optimization weight for the score function (default: `10`).
+- `--thresholds`: Comma-separated list of thresholds (default: `0.90,0.95,0.99`).
 
-### 3. Analyze Results
+*Outputs*:
+- `data/derived/results.csv`: Aggregated metrics per run.
+- `data/derived/sensitivity_analysis.csv`: Metrics per threshold.
+- `data/derived/statistics.json`: P-values and regression coefficients.
+- `data/derived/trade_off_curve.png`: Visualization of the trade-off curve.
+- `data/derived/cache_events.log`: JSON Lines log of eviction events.
 
-Output files in `data/derived/`:
-- `results.csv`: Aggregated metrics for baseline vs. cached runs
-- `sensitivity_analysis.csv`: Metrics per threshold
-- `statistics.json`: P-values and regression coefficients
-- `trade_off_curve.png`: Visualization of hit-rate vs. runtime vs. accuracy
-- `cache_events.log`: JSON Lines log of cache events
+### 3. Run Baseline vs. Cached Comparison (Phase 4)
+
+To run a specific comparison without the full sensitivity loop:
+
+```bash
+# Baseline run (cache ignored)
+python code/pipeline/runner.py --mode baseline
+
+# Cached run (warm-up cache populated)
+python code/pipeline/runner.py --mode cached --threshold 0.95
+```
+
+### 4. Run Tests
+
+Execute the full test suite:
+
+```bash
+pytest tests/ -v
+```
+
+Run specific unit tests for cache logic:
+
+```bash
+pytest tests/unit/test_cache.py -v
+```
+
+Run integration tests for the pipeline:
+
+```bash
+pytest tests/integration/test_pipeline.py -v
+```
 
 ## Configuration
 
-### Optimization Weight
-
-The optimal threshold is determined by maximizing:
-```
-score = runtime_reduction - weight * accuracy_deviation
-```
-
-The `weight` parameter can be set via CLI:
-```bash
-python code/main.py --weight 10
-```
-
-Default weight is `10`.
-
-### Similarity Thresholds
-
-The sensitivity analysis iterates through discrete thresholds: `[0.90, 0.95, 0.99]`.
-
-## Testing
-
-Run all tests:
-```bash
-pytest tests/
-```
-
-Run specific test suites:
-```bash
-pytest tests/unit/ # Unit tests
-pytest tests/integration/ # Integration tests
-```
-
-Run with benchmarking:
-```bash
-pytest --benchmark-only
-```
-
-## Code Quality
-
-Format code:
-```bash
-black code/
-```
-
-Lint code:
-```bash
-ruff check code/
-```
-
-Check formatting (without modifying):
-```bash
-black --check code/
-```
+- **Similarity Thresholds**: Defined in `code/main.py` (default: `0.90, 0.95, 0.99`).
+- **Cache Size Limit**: Configured in `code/cache/semantic_cache.py` (default: 1GB or 1000 entries).
+- **Optimization Weight**: Passed via CLI `--weight` or configured in `docs/research_decisions.md`.
 
 ## Reproducibility
 
-The project maintains a `state/manifest.json` file that tracks SHA-256 hashes of all files in `code/` and `data/`. This ensures reproducibility and detects any modifications.
+The project maintains a `state/manifest.json` file that records SHA-256 hashes of all code and data artifacts. This file is automatically updated after data generation and code modifications.
 
-Generate or verify the manifest:
+To verify artifact integrity:
+
 ```bash
-python code/reproducibility/manifest_manager.py
+python code/verify_artifacts.py
 ```
 
-## Statistical Methodology
+## Troubleshooting
 
-- **Permutation Test**: Used for accuracy differences (replaces paired t-test due to degeneracy)
-- **Linear Regression**: `runtime ~ hits + misses` to quantify runtime reduction
-- **Bonferroni Correction**: Applied for multiple comparisons across thresholds
+- **Import Errors**: Ensure you are running from the project root and the virtual environment is activated.
+- **Memory Issues**: The cache eviction policy triggers at 1GB. If running on low-memory systems, reduce the limit in `semantic_cache.py`.
+- **Embedding Model Failures**: The pipeline uses CPU-only sentence transformers. If the model fails to load, check internet connectivity for the initial download.
 
 ## Contributing
 
-1. Ensure all tests pass: `pytest`
-2. Format code: `black code/`
-3. Lint code: `ruff check code/`
-4. Update `README.md` if new features are added
+1. Ensure `black` and `ruff` pass before committing:
+ ```bash
+ black --check code/ tests/
+ ruff check code/ tests/
+ ```
+2. Add tests for new functionality in `tests/unit/` or `tests/integration/`.
+3. Update `README.md` if new CLI arguments or data artifacts are added.
 
 ## License
 
-[Specify license here]
-
-## References
-
-- arXiv:2509.23775 (Context for synthetic query generation)
+This project is part of the llmXive research initiative. See the LICENSE file for details.

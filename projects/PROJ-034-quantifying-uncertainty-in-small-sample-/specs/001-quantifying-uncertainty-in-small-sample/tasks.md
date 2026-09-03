@@ -112,11 +112,11 @@
 ### Implementation for User Story 2
 
 - [X] T021 [P] [US2] Implement `code/models/ols.py`: OLS fit and standard 95% confidence interval calculation
-- [ ] T022 [US2] Implement `code/models/bootstrap.py`: Non-parametric bootstrap with BCa interval correction
-- [ ] T023 [US2] Implement `code/models/bayesian.py`: CmdStanPy model definition with Normal(0, 10) priors and Half-Cauchy scale
-- [ ] T024 [US2] Implement `code/models/bayesian.py`: Execution wrapper (multiple chains, a sufficient number of samples per chain, an adequate warmup period) and divergent transition check
-- [ ] T025 [US2] Implement `code/metrics/coverage.py`: Logic to compare intervals against $\beta_{true}$ and return binary "covered" status
-- [ ] T026 [US2] Implement `code/main.py`: Orchestration loop for Monte Carlo replications. **CRITICAL**: Implement a **fixed `for` loop over N=200 replications**. For each run, if the model fails convergence (R-hat > 1.05) or VIF > 10, **flag it as under-coverage or record the exclusion reason in a separate log**, but **DO NOT resample**. Output aggregated results to `data/results/coverage_metrics.json` with the **exact schema**:
+- [X] T022 [US2] Implement `code/models/bootstrap.py`: Non-parametric bootstrap with BCa interval correction
+- [X] T023 [US2] Implement `code/models/bayesian.py`: CmdStanPy model definition with Normal(0, 10) priors and Half-Cauchy scale
+- [X] T024 [US2] Implement `code/models/bayesian.py`: Execution wrapper (multiple chains, a sufficient number of samples per chain, an adequate warmup period) and divergent transition check
+- [X] T025 [US2] Implement `code/metrics/coverage.py`: Logic to compare intervals against $\beta_{true}$ and return binary "covered" status
+- [X] T026 [US2] Implement `code/main.py`: Orchestration loop for Monte Carlo replications. **CRITICAL**: Implement a **fixed `for` loop over N=200 replications**. For each run, if the model fails convergence (R-hat > 1.05) or VIF > 10, **flag it as under-coverage or record the exclusion reason in a separate log**, but **DO NOT resample**. Output aggregated results to `data/results/coverage_metrics.json` with the **exact schema**:
  ```json
  {
  "coverage_rate": float,
@@ -151,11 +151,11 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US3] Integration test for UCI dataset loading and subsampling in `tests/integration/test_validation.py`
+- [X] T028 [P] [US3] Integration test for UCI dataset loading and subsampling in `tests/integration/test_validation.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement `code/validation/uci_runner.py`: Fetch UCI Concrete Compressive Strength dataset using the **verified URL from T000** and cache to `data/raw/`.
+- [X] T029 [US3] Implement `code/validation/uci_runner.py`: Fetch UCI Concrete Compressive Strength dataset using the **verified URL from T000** and cache to `data/raw/`.
 - [ ] T030 [US3] Implement `code/validation/uci_runner.py`: Subsample logic to $N < 50$ using stratified random sampling with **explicit validation ensuring at least 3 predictors are retained**. If N <= p (sample size <= predictors), **SKIP that specific configuration, log a warning: "Rank-deficient: N={N} <= p={p}", and continue to the next configuration**. Do NOT raise a hard exception. Output validated subsample to `data/raw/uci_subsampled.csv` with metadata confirming predictor count and N > p status (or log of skipped attempts).
 - [ ] T031 [US3] Implement `code/validation/uci_runner.py`: **Run all three methods** (OLS, Bootstrap, Bayesian) on the subsampled data. **Dependency**: Depends on T027.5 and T030. Generate interval estimates for all methods and save to `data/results/uci_validation_results.json`.
 - [ ] T032 [US3] Implement `code/validation/uci_runner.py`: Generate interval stability metrics and width comparison (Bayesian vs OLS)

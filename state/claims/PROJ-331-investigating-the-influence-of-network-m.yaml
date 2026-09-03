@@ -1,0 +1,115 @@
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/docs/usage_guide.md
+  attempts: 1
+  canonical: enumerate all 13 directed 3-node motifs
+  claim_id: c_dc1bf47c
+  context: 'Method: Enumerate all 13 directed 3-node motifs. Generate degree-preserving
+    null models (Maslov-Sneppen). Compute z-scores.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enumerate all 13 directed 3-node motifs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:44:23Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/docs/usage_guide.md
+  attempts: 1
+  canonical: generate degree-preserving null models using Maslov-Sneppen
+  claim_id: c_145cda20
+  context: 'Method: Enumerate all 13 directed 3-node motifs. Generate degree-preserving
+    null models (Maslov-Sneppen). Compute z-scores.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_degree-preserving_null_models_using_Maslov-Sneppen
+  kind: entity_fact
+  raw_text: Generate degree-preserving null models (Maslov-Sneppen).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:44:43Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/docs/usage_guide.md
+  attempts: 1
+  canonical: pipeline fetches data from the Human Connectome Project
+  claim_id: c_c234861e
+  context: 'The pipeline fetches data from the Human Connectome Project (HCP). - **Streaming**:
+    For large datasets, the pipeline streams data to avoid memory overflow.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Human Connectome Project
+      source_id: Q387749
+      url: https://www.wikidata.org/wiki/Q387749
+      value: Human Connectome Project
+    filled: true
+  kind: entity_fact
+  raw_text: The pipeline fetches data from the Human Connectome Project (HCP).
+  resolved_value: Human Connectome Project
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T21:44:50Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/docs/usage_guide.md
+  attempts: 1
+  canonical: pipeline uses the Schaefer atlas
+  claim_id: c_539f94d3
+  context: 'Input: `.trk` or `.tck` streamlines, Schaefer atlas (`.nii.gz`). Output:
+    `data/processed/weighted_adjacency.npy`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_uses_the_Schaefer_atlas
+  kind: entity_fact
+  raw_text: The pipeline uses the Schaefer atlas.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:45:56Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/docs/usage_guide.md
+  attempts: 1
+  canonical: power analysis estimates minimum detectable effect size given N equals
+    50
+  claim_id: c_2b6f4126
+  context: Estimates minimum detectable effect size given N=50 and Bonferroni-adjusted
+    alpha.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis estimates minimum detectable effect size given N=50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:46:29Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/docs/usage_guide.md
+  attempts: 1
+  canonical: permutation test uses 1000 or more iterations
+  claim_id: c_13dbb349
+  context: 'Run only for motifs with Bonferroni-corrected p < 0.05. - **Null Hypothesis**:
+    No correlation. - **Iterations**: 1000+.'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9593 100003
+      source_id: A000040
+      url: https://oeis.org/A000040
+      value: '10000'
+    filled: true
+  kind: numeric
+  raw_text: The permutation test uses 1000+ iterations.
+  resolved_value: '10000'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T21:46:42Z'

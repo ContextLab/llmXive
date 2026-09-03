@@ -572,25 +572,6 @@
   updated_at: '2026-08-27T05:45:13Z'
 - artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
   attempts: 1
-  canonical: UCI Machine Learning Repository hosts Concrete Compressive Strength dataset
-  claim_id: c_fdf3133a
-  context: 'Verify UCI Dataset Citation: Consult the primary source for the ''Concrete
-    Compressive Strength'' dataset (UCI Machine Learning Repository).'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/UCI_Machine_Learning_Repository_hosts_Concrete_Compressive_S
-  kind: entity_fact
-  raw_text: The primary source for the 'Concrete Compressive Strength' dataset is
-    the UCI Machine Learning Repository.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-28T17:02:03Z'
-- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
-  attempts: 1
   canonical: Concrete Compressive Strength dataset source is UCI Machine Learning
     Repository
   claim_id: c_f54a8908
@@ -759,3 +740,163 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-28T17:11:54Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 2
+  canonical: UCI Machine Learning Repository hosts Concrete Compressive Strength dataset
+  claim_id: c_fdf3133a
+  context: 'Verify UCI Dataset Citation: Consult the primary source for the ''Concrete
+    Compressive Strength'' dataset (UCI Machine Learning Repository).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/UCI_Machine_Learning_Repository_hosts_Concrete_Compressive_S
+  kind: entity_fact
+  raw_text: The primary source for the 'Concrete Compressive Strength' dataset is
+    the UCI Machine Learning Repository.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:38:52Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: UCI Concrete dataset contains at least 3 predictors
+  claim_id: c_f5a7f64f
+  context: "confirm the dataset contains sufficient features (\u22653 predictors)\
+    \ and sample size potential."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/UCI_Concrete_dataset_contains_at_least_3_predictors
+  kind: magnitude
+  raw_text: The project requires the UCI Concrete dataset to contain at least 3 predictors.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:39:40Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Simulation engine generates synthetic datasets with sample sizes N less
+    than 50
+  claim_id: c_b3a4df4f
+  context: 'Goal: Generate synthetic datasets with controlled sample sizes ($N < 50$)
+    and specific correlation structures to test coverage.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_engine_generates_synthetic_datasets_with_sample_s
+  kind: magnitude
+  raw_text: The simulation engine generates synthetic datasets with sample sizes N
+    < 50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:40:28Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Monte Carlo replication loop runs for 200 iterations
+  claim_id: c_acd18b5a
+  context: 'CRITICAL: Implement a fixed for loop over N=200 replications.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Monte Carlo replication loop runs for exactly 200 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:40:47Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Bayesian models converge if R-hat less than or equal to 1.05
+  claim_id: c_deda4829
+  context: if the model fails convergence (R-hat > 1.05) or VIF > 10, flag it as under-coverage
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bayesian_models_converge_if_R-hat_less_than_or_equal_to_1.05
+  kind: magnitude
+  raw_text: Bayesian models are considered converged if R-hat is less than or equal
+    to 1.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:41:18Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Collinearity flagged when VIF exceeds 10
+  claim_id: c_e2b6a04b
+  context: Add full VIF calculation and flagging (VIF > 10) for collinearity verification
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: If the VIF is high (with 10 being the traditionally accepted thresh-
+      source_id: '2005.02245'
+      url: https://arxiv.org/abs/2005.02245
+      value: '10'
+    filled: true
+  kind: numeric
+  raw_text: Collinearity is flagged when the Variance Inflation Factor (VIF) exceeds
+    10.
+  resolved_value: '10'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T21:41:34Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Bayesian model uses Normal(0, 10) priors
+  claim_id: c_5348eaf7
+  context: 'Implement code/models/bayesian.py: CmdStanPy model definition with Normal(0,
+    10) priors and Half-Cauchy scale'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bayesian model uses Normal(0, 10) priors for coefficients.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:42:28Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Project targets Python 3.11
+  claim_id: c_b45c35ed
+  context: 'Initialize Python 3.11 project: Create requirements.txt with pinned versions'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project targets Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:42:47Z'
+- artifact_path: projects/PROJ-034-quantifying-uncertainty-in-small-sample-/specs/001-quantifying-uncertainty-in-small-sample/tasks.md
+  attempts: 1
+  canonical: Simulation runtime limit is 21600 seconds
+  claim_id: c_23ace0c6
+  context: add a check in run_full_simulation.sh that FAILS the build (exit code 1)
+    if total_duration > 21600s (6 hours).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation runtime limit is 6 hours (21600 seconds).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T21:43:09Z'

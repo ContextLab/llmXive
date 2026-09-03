@@ -85,7 +85,7 @@
 
 - [ ] T014 [US1] Implement `data/ingestion.py` function `fetch_single_satellite(satellite_id: str, url: str) -> pd.DataFrame` to fetch data from ILRS (using `requests` with exponential backoff) for a single satellite ID.
 - [ ] T014.1 [US1] Implement `data/ingestion.py` function `fetch_all_satellites(satellite_ids: list[str]) -> pd.DataFrame` to orchestrate the loop over all relevant satellites (LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, Starlette) and aggregate results into a single DataFrame.
-- [ ] T015 [US1] Implement `data/ingestion.py` to parse raw SLR files into `NormalPoint` objects <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T015 [US1] Implement `data/ingestion.py` to parse raw SLR files into `NormalPoint` objects <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T016 [US1] Implement `data/preprocessing.py` to filter residuals > 2cm and handle sparse satellites
 - [ ] T017 [US1] Implement time-alignment logic in `data/preprocessing.py` to merge multi-satellite datasets
 - [ ] T018 [US1] Add error handling for 403 errors and "Insufficient Data" (<500 points) warnings

@@ -1,2 +1,2 @@
 # This file ensures the data/simulated directory is tracked by git.
-# Real simulated data files will be placed here by the execution scripts.
+# Synthetic dataset instances will be stored here.

@@ -1,25 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The submission contains only narrative user stories and no evidence of the required
-    directory tree (e.g., no listing, screenshots, or file manifests showing `code/simulation`,
-    `code/models`, etc.). Without concrete artifacts demonstrating that the specified
-    folders exist, the task is not satisfied. The implementer must create and provide
-    proof of the full project structure.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `code/` directory containing the required sub\u2011folders\
-    \ (`simulation/`, `models/`, `metrics/`, `validation/`, `plots/`, `scripts/`)\
-    \ is provided; without visible artifacts we cannot confirm the directory structure\
-    \ exists. The implementer must add the directory tree (or a manifest) showing\
-    \ these folders."
-T007:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory structure or `.gitkeep` files were presented as evidence; the claim
-    lacks any visible artifacts confirming that `data/raw/`, `data/simulated/`, and
-    `data/results/` exist with the required placeholder files.
 T026:
   c: false
   h: 4f019cb75e8288ddbe33a79b30f72af8ba4c5b8c4ebb6e5561e5122652c0eebe
@@ -28,13 +6,22 @@ T026:
     \ and writes them to `data/results/coverage_metrics.json` with the specified schema\
     \ keys. Moreover, the expected output file `data/results/coverage_metrics.json`\
     \ is missing entirely. The task\u2019s core requirements are therefore not satisfied."
-T031:
+T027:
   c: false
-  h: 03a3ece9230f7f2347587bf93ac45cf54946456ce2072b064e08a627b590da23
-  r: "The `code/validation/uci_runner.py` file exists, but the required `data/results/best_method_config.json`\
-    \ is missing, so the script cannot determine or run the \u201Cbest method\u201D\
-    \ as specified. Without this configuration file (or a stub that loads it), the\
-    \ implementation does not meet the task requirement."
+  h: 067424f339d5f91fe5f5c3221f7148a31b95d450fecf256b437a9ef5b524b456
+  r: "The repository lacks the required `data/results/filtered_metrics.json` file,\
+    \ and the provided `code/main.py` excerpt does not show the logic that aggregates\
+    \ filtered runs and writes this JSON output (nor any check that T026 has completed).\
+    \ Consequently the task\u2019s output artifact and full filtering implementation\
+    \ are missing."
+T030:
+  c: false
+  h: 4c5b33504d579448c8e097b3d27ce0efb03226093fce716b506cedb3dac25738
+  r: "The required output file `data/raw/uci_subsampled.csv` is absent, and the provided\
+    \ `uci_runner.py` snippet is truncated before any subsampling, validation, or\
+    \ skip\u2011logic can be verified. Without the CSV (and evidence that the script\
+    \ implements the specified stratified sampling, predictor\u2011count check, and\
+    \ warning behavior), the task is not fulfilled."
 T036:
   c: false
   h: a3e2a69c77ea25b00876aa4dcbfbdec50a7cedb40a8f9b7aa5d6b371bcbbb735

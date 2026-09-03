@@ -1,1 +1,3 @@
-# tests package initialization
+"""
+Test suite for the llmXive research pipeline.
+"""

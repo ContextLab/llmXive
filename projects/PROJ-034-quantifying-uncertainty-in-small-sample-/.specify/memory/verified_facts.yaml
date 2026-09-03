@@ -1,0 +1,5 @@
+'|collinearity exceed factor flagged inflation variance when':
+  quote: If the VIF is high (with 10 being the traditionally accepted thresh-
+  source_id: '2005.02245'
+  url: https://arxiv.org/abs/2005.02245
+  value: '10'

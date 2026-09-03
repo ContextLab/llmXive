@@ -7,18 +7,20 @@ import yaml
 from src.data.download import calculate_sha256, verify_checksum, store_metadata
 
 def test_calculate_sha256():
+    """Test SHA-256 calculation on a known string."""
     with tempfile.NamedTemporaryFile(delete=False) as tmp:
-        tmp.write(b"test data for checksum")
+        tmp.write(b"hello world")
         tmp_path = tmp.name
 
     try:
         checksum = calculate_sha256(tmp_path)
-        expected = hashlib.sha256(b"test data for checksum").hexdigest()
+        expected = hashlib.sha256(b"hello world").hexdigest()
         assert checksum == expected
     finally:
         os.unlink(tmp_path)
 
 def test_verify_checksum_success():
+    """Test successful checksum verification."""
     with tempfile.NamedTemporaryFile(delete=False) as tmp:
         tmp.write(b"test data")
         tmp_path = tmp.name
@@ -30,27 +32,26 @@ def test_verify_checksum_success():
         os.unlink(tmp_path)
 
 def test_verify_checksum_failure():
+    """Test failed checksum verification."""
     with tempfile.NamedTemporaryFile(delete=False) as tmp:
         tmp.write(b"test data")
         tmp_path = tmp.name
 
     try:
-        with pytest.raises(ValueError):
-            verify_checksum(tmp_path, "wrong_checksum")
+        wrong_checksum = "0" * 64
+        assert verify_checksum(tmp_path, wrong_checksum) is False
     finally:
         os.unlink(tmp_path)
 
 def test_store_metadata():
-    metadata = {
-        "file1.nc": {
-            "path": "data/raw/file1.nc",
-            "checksum": "abc123",
-            "size_bytes": 1024
-        }
-    }
-    
+    """Test storing metadata to a YAML file."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = os.path.join(tmpdir, "metadata.yaml")
+        output_path = os.path.join(tmpdir, "test_metadata.yaml")
+        metadata = {
+            "test_key": "test_value",
+            "numbers": [1, 2, 3]
+        }
+        
         store_metadata(metadata, output_path)
         
         assert os.path.exists(output_path)
