@@ -1,0 +1,41 @@
+# Default simulation configuration for T016b
+# This file defines the parameters for the baseline simulation run.
+
+simulation:
+  # Target number of time-steps for the simulation
+  # T016b requires a minimum of 10,000 steps.
+  target_steps: 10000
+  
+  # Random seed for reproducibility
+  seed: 42
+  
+  # Memory limit in MB (used for OOM detection)
+  # Set to a value appropriate for the runner (e.g., 7000 for 7GB)
+  memory_limit_mb: 7000
+  
+  # Time limit in seconds (optional, for timeout enforcement)
+  # If not set, no time-based termination occurs.
+  time_limit_seconds: 3600
+  
+agent:
+  # Agent type to run: 'ca_eco_director' or 'neural_baseline'
+  # T016b focuses on the baseline comparison, so we default to the CA director
+  # or the proxy baseline depending on the specific run mode.
+  type: ca_eco_director
+  
+output:
+  # Directory for raw simulation logs
+  raw_data_dir: data/raw
+  
+  # Filename for the partial baseline output if time-bound
+  partial_baseline_filename: baseline_partial.parquet
+  
+  # Filename for the status log
+  status_log_filename: run_status.json
+  
+logging:
+  # Enable step latency logging
+  log_step_latency: true
+  
+  # Log level
+  level: INFO

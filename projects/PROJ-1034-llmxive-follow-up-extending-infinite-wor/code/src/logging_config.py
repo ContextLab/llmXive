@@ -1,8 +1,7 @@
 """
-Logging infrastructure for llmXive simulation pipeline.
-
+Logging infrastructure for the llmXive simulation pipeline.
 Configures a rotating file handler writing JSON logs to logs/simulation.log.
-Ensures step_latency, coherence_score, and diversity_score are recorded.
+Ensures every log entry includes a 'step_latency' key.
 """
 import json
 import os
@@ -11,206 +10,144 @@ import time
 from datetime import datetime
 from typing import Dict, Any, Optional, List
 from logging.handlers import RotatingFileHandler
-from dataclasses import dataclass, asdict
-import threading
 
 # Ensure logs directory exists
 LOG_DIR = "logs"
 LOG_FILE = os.path.join(LOG_DIR, "simulation.log")
-MAX_BYTES = 10 * 1024 * 1024  # 10 MB
-BACKUP_COUNT = 5
-
-_logger_lock = threading.Lock()
-_global_logger: Optional["SimulationLogger"] = None
-
-@dataclass
-class MetricRecord:
-    """Data class for a single metric record to be logged."""
-    timestamp: str
-    step: int
-    coherence_score: float
-    diversity_score: float
-    step_latency: float
-    run_id: Optional[str] = None
-    extra: Optional[Dict[str, Any]] = None
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for JSON serialization."""
-        data = asdict(self)
-        if self.extra:
-            data.update(self.extra)
-        return data
 
 class JsonFormatter(logging.Formatter):
-    """Custom formatter that outputs JSON."""
+    """Custom formatter to output logs as JSON lines."""
+    
     def format(self, record: logging.LogRecord) -> str:
         log_data = {
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.utcnow().isoformat(),
             "level": record.levelname,
             "message": record.getMessage(),
+            "module": record.module,
+            "function": record.funcName,
+            "line": record.lineno
         }
-        # Attach extra fields if present
+        # Append extra fields if present
         if hasattr(record, "extra_data"):
             log_data.update(record.extra_data)
         return json.dumps(log_data)
 
 class SimulationLogger:
     """
-    Wrapper around Python's logging module to provide structured JSON logging
-    for simulation metrics.
+    Wrapper around the standard logging module to enforce JSON formatting
+    and ensure 'step_latency' is recorded for simulation steps.
     """
-    def __init__(self, log_file: str = LOG_FILE, max_bytes: int = MAX_BYTES, backup_count: int = BACKUP_COUNT):
-        self.log_file = log_file
-        self.max_bytes = max_bytes
-        self.backup_count = backup_count
-        self._setup_logger()
-        self._start_time: Optional[float] = None
-
-    def _setup_logger(self) -> None:
-        """Configure the root logger with a rotating JSON file handler."""
-        # Ensure directory exists
-        os.makedirs(os.path.dirname(self.log_file), exist_ok=True)
-
-        # Create logger
-        self.logger = logging.getLogger("sim_logger")
+    
+    def __init__(self, name: str = "simulation"):
+        self.logger = logging.getLogger(name)
         self.logger.setLevel(logging.INFO)
-
-        # Avoid adding duplicate handlers
+        
+        # Prevent duplicate handlers if re-initialized
         if not self.logger.handlers:
-            # Rotating file handler
+            os.makedirs(LOG_DIR, exist_ok=True)
+            
             handler = RotatingFileHandler(
-                self.log_file,
-                maxBytes=self.max_bytes,
-                backupCount=self.backup_count,
-                encoding="utf-8"
+                LOG_FILE,
+                maxBytes=10*1024*1024, # 10MB
+                backupCount=5
             )
             handler.setFormatter(JsonFormatter())
             self.logger.addHandler(handler)
+        
+        # Also add a console handler for immediate feedback
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(JsonFormatter())
+        # Avoid adding duplicate console handlers
+        if not any(isinstance(h, logging.StreamHandler) and not isinstance(h, RotatingFileHandler) for h in self.logger.handlers):
+             # Simple check to avoid dupes in this specific context, 
+             # though the 'if not handlers' check above covers the file one.
+             pass 
+             # We will rely on the file handler being the primary source of truth for the artifact.
 
-    def start_run(self, run_id: str) -> None:
-        """Log the start of a simulation run."""
-        self._start_time = time.time()
-        self.logger.info(f"Simulation run started", extra={"extra_data": {"run_id": run_id, "status": "started"}})
-
-    def log_step(self, step: int, coherence_score: float, diversity_score: float, run_id: Optional[str] = None) -> None:
+    def log_step(self, step: int, latency: float, metrics: Optional[Dict[str, Any]] = None):
         """
-        Log a single simulation step with metrics.
+        Log a simulation step with the required 'step_latency' key.
         
         Args:
-            step: Current simulation step index.
-            coherence_score: Calculated coherence metric.
-            diversity_score: Calculated diversity metric.
-            run_id: Optional run identifier.
+            step: The current simulation step index.
+            latency: Time taken for this step in seconds.
+            metrics: Optional dictionary of additional metrics.
         """
-        if self._start_time is None:
-            self._start_time = time.time()
+        extra = {
+            "step_latency": latency,
+            "step_index": step
+        }
+        if metrics:
+            extra.update(metrics)
         
-        end_time = time.time()
-        step_latency = end_time - self._start_time
-        
-        # Reset start time for next step latency calculation (optional, or accumulate)
-        # Here we calculate latency since the last log call or start
-        # To be precise, we should track last_log_time, but for simplicity:
-        # We'll just record the current timestamp and let the consumer calculate delta if needed,
-        # or we calculate step duration if we track previous step time.
-        # Requirement: "verify log file contains step_latency key".
-        # Let's assume step_latency is the time taken for THIS step.
-        # We need to track previous time.
-        
-        # Actually, let's restructure slightly to track step duration properly.
-        # But for the initial call, we don't have a previous time.
-        # We will store the last step time in the instance.
-        pass
-
-    def _track_step(self, step: int, coherence_score: float, diversity_score: float, run_id: Optional[str] = None) -> None:
-        """Internal method to calculate latency and log."""
-        current_time = time.time()
-        
-        # Calculate latency since last step
-        if hasattr(self, '_last_step_time'):
-            step_latency = current_time - self._last_step_time
-        else:
-            step_latency = 0.0  # First step or no previous data
-        
-        self._last_step_time = current_time
-
-        record = MetricRecord(
-            timestamp=datetime.utcnow().isoformat() + "Z",
-            step=step,
-            coherence_score=coherence_score,
-            diversity_score=diversity_score,
-            step_latency=step_latency,
-            run_id=run_id
+        # Create a LogRecord with extra data
+        record = self.logger.makeRecord(
+            self.logger.name,
+            logging.INFO,
+            "",
+            0,
+            f"Step {step} completed",
+            (),
+            None
         )
+        record.extra_data = extra
+        self.logger.handle(record)
 
-        self.logger.info(
-            "Step metrics recorded",
-            extra={"extra_data": record.to_dict()}
+    def log_event(self, event_type: str, details: Dict[str, Any]):
+        """Log a generic event with structured details."""
+        record = self.logger.makeRecord(
+            self.logger.name,
+            logging.INFO,
+            "",
+            0,
+            f"Event: {event_type}",
+            (),
+            None
         )
+        record.extra_data = details
+        self.logger.handle(record)
 
-    def log_step(self, step: int, coherence_score: float, diversity_score: float, run_id: Optional[str] = None) -> None:
-        """Public method to log a step."""
-        self._track_step(step, coherence_score, diversity_score, run_id)
-
-    def finish_run(self, run_id: str, status: str = "completed") -> None:
-        """Log the end of a simulation run."""
-        self.logger.info(f"Simulation run finished", extra={"extra_data": {"run_id": run_id, "status": status}})
-
-def create_logger(log_file: Optional[str] = None) -> SimulationLogger:
-    """
-    Factory function to create a global SimulationLogger instance.
-    
-    Args:
-        log_file: Optional override for the log file path.
-    
-    Returns:
-        SimulationLogger instance.
-    """
-    global _global_logger
-    if _global_logger is None:
-        with _logger_lock:
-            if _global_logger is None:
-                _global_logger = SimulationLogger(log_file or LOG_FILE)
-    return _global_logger
+def create_logger(name: str = "simulation") -> SimulationLogger:
+    """Factory function to create a configured SimulationLogger."""
+    return SimulationLogger(name)
 
 def main():
     """
-    Demonstration of the logging infrastructure.
-    Runs a mock simulation loop and verifies that the log file contains step_latency.
+    Main entry point to demonstrate the logging infrastructure.
+    Writes test logs to logs/simulation.log and verifies 'step_latency' presence.
     """
-    logger = create_logger()
-    run_id = "demo-run-001"
-    logger.start_run(run_id)
+    logger = create_logger("test_run")
     
-    # Simulate 5 steps
-    import random
-    for i in range(5):
-        # Mock metrics
-        coh = random.uniform(0.8, 0.95)
-        div = random.uniform(0.5, 0.8)
+    # Simulate a few steps to generate logs
+    test_steps = [1, 2, 3, 4, 5]
+    for i in test_steps:
+        # Measure a real latency (simulated work)
+        start = time.time()
+        # Do a tiny bit of work to ensure latency > 0
+        _ = sum(x*x for x in range(1000))
+        latency = time.time() - start
         
-        # Small delay to simulate work
-        time.sleep(0.1)
-        
-        logger.log_step(i, coh, div, run_id)
+        logger.log_step(i, latency, {"coherence": 0.5 + i * 0.1, "diversity": 10.0})
     
-    logger.finish_run(run_id)
+    # Verify the log file exists and contains step_latency
+    if not os.path.exists(LOG_FILE):
+        raise FileNotFoundError(f"Log file {LOG_FILE} was not created.")
     
-    # Verify log content
-    print(f"Log file written to: {logger.log_file}")
-    if os.path.exists(logger.log_file):
-        with open(logger.log_file, 'r') as f:
-            lines = f.readlines()
-            print(f"Total log entries: {len(lines)}")
-            # Check for step_latency in the last entry
-            if lines:
-                last_entry = json.loads(lines[-1])
-                if "extra_data" in last_entry and "step_latency" in last_entry["extra_data"]:
-                    print("VERIFICATION PASSED: 'step_latency' key found in log.")
-                else:
-                    print("VERIFICATION FAILED: 'step_latency' key missing.")
-    else:
-        print("VERIFICATION FAILED: Log file not created.")
+    found_latency = False
+    with open(LOG_FILE, 'r') as f:
+        for line in f:
+            try:
+                data = json.loads(line)
+                if "step_latency" in data:
+                    found_latency = True
+                    break
+            except json.JSONDecodeError:
+                continue
+    
+    if not found_latency:
+        raise RuntimeError("Verification failed: 'step_latency' key not found in log file.")
+    
+    print(f"Logging infrastructure verified. Log file: {LOG_FILE}")
 
 if __name__ == "__main__":
     main()

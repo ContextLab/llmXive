@@ -1,0 +1,18 @@
+{
+  "project_id": "PROJ-1034-llmxive-follow-up-extending-infinite-wor",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/src/logging_config.py: self-declared fabricated metric \u2014 \u201c\u2026for i in range(5):         # Mock metrics         coh = random.uniform\u2026\u201d; 3 command(s) failed: python -m src.cli.run_simulation --agent ca_eco_director --steps 2000 --seed 42 (rc=2); python -m src.cli.run_simulation --mode sweep --steps 2000 --seed 42 (rc=2); python -m src.cli.validate_data --path data/raw/ (rc=1); 1 declared deliverable(s) absent: data/raw/baseline_partial.parquet",
+  "artifacts": [],
+  "failures": [
+    "python -m src.cli.run_simulation --agent ca_eco_director --steps 2000 --seed 42 -> rc=2\n    usage: run_simulation.py [-h] [--steps STEPS] [--memory-limit MEMORY_LIMIT]\n                         [--time-limit TIME_LIMIT] [--output OUTPUT]\nrun_simulation.py: error: unrecognized arguments: --agent ca_eco_director --seed 42",
+    "python -m src.cli.run_simulation --mode sweep --steps 2000 --seed 42 -> rc=2\n    usage: run_simulation.py [-h] [--steps STEPS] [--memory-limit MEMORY_LIMIT]\n                         [--time-limit TIME_LIMIT] [--output OUTPUT]\nrun_simulation.py: error: unrecognized arguments: --mode sweep --seed 42",
+    "python -m src.cli.validate_data --path data/raw/ -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-1034-llmxive-follow-up-extending-infinite-wor/code/.venv/bin/python: No module named src.cli.validate_data"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-03T14:33:10Z"
+}

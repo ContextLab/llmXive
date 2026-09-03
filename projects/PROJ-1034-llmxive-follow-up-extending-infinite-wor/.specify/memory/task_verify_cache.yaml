@@ -1,10 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or file system evidence were provided showing that the
-    required folders (`src/sim`, `src/analysis`, `src/data`, `src/cli`, `src/tests`,
-    `data/raw`, `data/processed`, `docs`, `state`) actually exist; without such artifacts
-    the claim cannot be confirmed.
 T019:
   c: false
   h: ce2c8c1687e344c040a912b5a13803cf319ef6b6a31b902df2a2a6805dcb850f

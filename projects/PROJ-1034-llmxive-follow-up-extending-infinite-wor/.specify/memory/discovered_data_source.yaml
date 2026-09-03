@@ -1,17 +1,13 @@
 status: none
-intent: Eco-Director cellular automaton simulation dataset python package benchmark
+intent: Stochastic Physics Sandbox python package dataset for cellular automata simulation
+  python package dataset
 required_fields:
-- time_step
-- agent_id
-- agent_state
-- position_x
-- position_y
-- neighborhood_radius
-- memory_depth
-- rule_parameters
-- latency_ms
-- cpu_usage_percent
-- memory_usage_mb
-cache_key: 97d2ac9f65bc6ecc0142423bd043d24c5db7953e9875043414f663229b7c3861
-searched_at: '2026-08-26T04:34:55.492443+00:00'
+- timestep
+- grid_state
+- external_force_vector
+- agent_positions
+- collision_events
+- noise_parameters
+cache_key: e3e08498f8424c52f93d0d71f891b02112c767146ace0a3b22db1b8d47ebde7d
+searched_at: '2026-09-03T14:37:50.373823+00:00'
 retry_count: 1

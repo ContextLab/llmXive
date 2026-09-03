@@ -13,7 +13,7 @@ A researcher needs to run the comparative simulation between the neural baseline
 
 **Why this priority**: This is the foundational step. Without successfully executing the simulation within the strict hardware constraints, no data can be collected to answer the research question. It validates the feasibility of the entire methodology.
 
-**Independent Test**: The system can be tested by running the simulation script for a fixed duration (e.g., 1000 time-steps) on the CI runner and verifying that the job completes without OOM (Out Of Memory) errors or timeout, while logging latency per step.
+**Independent Test**: The system can be tested by running the simulation script for a fixed duration on the CI runner and verifying that the job completes without OOM (Out Of Memory) errors or timeout, while logging latency per step.
 
 **Acceptance Scenarios**:
 

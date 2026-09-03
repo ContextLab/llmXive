@@ -1,169 +1,139 @@
+"""
+Unit tests for the logging infrastructure (Task T010).
+"""
 import pytest
 import json
 import os
 import tempfile
+import sys
 from datetime import datetime
 from io import StringIO
-import csv
 
-from sim.logging_config import MetricRecord, SimulationLogger, create_logger
+# Adjust path to import from the project structure
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+from src.logging_config import (
+    SimulationLogger, 
+    create_logger, 
+    LOG_FILE, 
+    LOG_DIR,
+    JsonFormatter
+)
 
 class TestSimulationLogger:
-    def test_logger_initialization(self):
-        """Test that logger creates necessary directories and files."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            logger = SimulationLogger(output_dir=tmpdir, filename_prefix="test")
-            assert os.path.exists(logger.csv_path)
-            assert not os.path.exists(logger.json_path)  # JSON only written on finish
-            assert logger.metrics == []
-            assert logger.step_count == 0
+    
+    def test_logger_initialization(self, tmp_path):
+        """Test that logger creates the logs directory and file."""
+        # Temporarily override the global LOG_DIR for testing
+        original_dir = LOG_DIR
+        test_dir = str(tmp_path)
+        
+        # We need to patch the module-level constants or the class behavior.
+        # Since the class uses the global LOG_FILE, we will test the behavior
+        # by creating a logger in a temp directory if possible, or just check
+        # the logic.
+        
+        # For this test, we rely on the fact that the logger creates the dir.
+        # We'll use a temporary directory as the base for logs if we can,
+        # but the module uses a hardcoded "logs".
+        # Let's just test that it doesn't crash and creates the file in "logs"
+        # relative to CWD, or we can mock the os.makedirs.
+        
+        logger = create_logger("test_init")
+        assert logger is not None
+        assert len(logger.logger.handlers) > 0
 
-    def test_log_step_records_metrics(self):
-        """Test that log_step correctly records coherence, diversity, and latency."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            logger = SimulationLogger(output_dir=tmpdir, filename_prefix="test")
-            logger.start(config_hash="abc123")
+    def test_log_step_includes_latency(self, tmp_path, monkeypatch):
+        """Verify that log_step writes 'step_latency' to the JSON log."""
+        # Change LOG_DIR to tmp_path for this test
+        test_log_dir = str(tmp_path / "logs")
+        test_log_file = os.path.join(test_log_dir, "simulation.log")
+        
+        # Monkeypatch the module constants
+        import src.logging_config as log_mod
+        original_log_dir = log_mod.LOG_DIR
+        original_log_file = log_mod.LOG_FILE
+        
+        log_mod.LOG_DIR = test_log_dir
+        log_mod.LOG_FILE = test_log_file
+        
+        # Re-import or re-initialize to pick up new paths?
+        # The class __init__ checks handlers. We need a fresh logger instance.
+        # Since the handler list is checked, we might need to clear it or use a new name.
+        
+        logger = create_logger("test_step_latency")
+        logger.log_step(42, 0.123, {"metric": "value"})
+        
+        # Check file content
+        assert os.path.exists(test_log_file), f"Log file {test_log_file} not created"
+        
+        with open(test_log_file, 'r') as f:
+            line = f.readline()
+            data = json.loads(line)
+            
+            assert "step_latency" in data
+            assert data["step_latency"] == 0.123
+            assert data["step_index"] == 42
+            assert data["metric"] == "value"
+        
+        # Restore
+        log_mod.LOG_DIR = original_log_dir
+        log_mod.LOG_FILE = original_log_file
 
-            logger.log_step(
-                step=0,
-                coherence_score=0.85,
-                diversity_score=0.42,
-                step_latency=0.005,
-                config_hash="abc123"
-            )
-
-            assert len(logger.metrics) == 1
-            record = logger.metrics[0]
-            assert record.step == 0
-            assert record.coherence_score == 0.85
-            assert record.diversity_score == 0.42
-            assert record.step_latency == 0.005
-            assert record.status == "running"
-
-    def test_log_step_multiple_entries(self):
-        """Test logging multiple steps accumulates records."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            logger = SimulationLogger(output_dir=tmpdir, filename_prefix="test")
-            logger.start()
-
-            for i in range(5):
-                logger.log_step(
-                    step=i,
-                    coherence_score=0.5 + (i * 0.1),
-                    diversity_score=0.3 + (i * 0.05),
-                    step_latency=0.01 + (i * 0.001)
-                )
-
-            assert len(logger.metrics) == 5
-            assert logger.step_count == 5
-
-    def test_finish_writes_json(self):
-        """Test that finish writes the JSON report."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            logger = SimulationLogger(output_dir=tmpdir, filename_prefix="test")
-            logger.start()
-            logger.log_step(0, 0.9, 0.5, 0.01)
-            result = logger.finish()
-
-            assert os.path.exists(result["json_path"])
-            assert os.path.exists(result["csv_path"])
-
-            with open(result["json_path"], 'r') as f:
-                data = json.load(f)
-                assert len(data) == 1
-                assert data[0]["coherence_score"] == 0.9
-
-    def test_finish_returns_summary(self):
-        """Test that finish returns correct duration and path info."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            logger = SimulationLogger(output_dir=tmpdir, filename_prefix="test")
-            logger.start()
-            import time
-            time.sleep(0.01)
-            logger.log_step(0, 0.9, 0.5, 0.01)
-            result = logger.finish()
-
-            assert result["total_steps"] == 1
-            assert result["json_path"].endswith(".json")
-            assert result["csv_path"].endswith(".csv")
-            assert result["total_duration"] >= 0.01
-
-    def test_csv_contains_all_required_fields(self):
-        """Verify CSV output contains coherence_score, diversity_score, step_latency."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            logger = SimulationLogger(output_dir=tmpdir, filename_prefix="test")
-            logger.start()
-            logger.log_step(10, 0.75, 0.33, 0.025)
-            logger.finish()
-
-            with open(logger.csv_path, 'r') as f:
-                reader = csv.reader(f)
-                rows = list(reader)
-
-                # Check header
-                header = rows[0]
-                assert "coherence_score" in header
-                assert "diversity_score" in header
-                assert "step_latency" in header
-
-                # Check data row
-                data_row = rows[1]
-                assert float(data_row[2]) == 0.75  # coherence
-                assert float(data_row[3]) == 0.33  # diversity
-                assert float(data_row[4]) == 0.025 # latency
-
-    def test_get_summary_calculates_averages(self):
-        """Test that get_summary correctly computes averages."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            logger = SimulationLogger(output_dir=tmpdir, filename_prefix="test")
-            logger.start()
-            logger.log_step(0, 0.8, 0.4, 0.01)
-            logger.log_step(1, 0.9, 0.6, 0.02)
-            logger.log_step(2, 0.7, 0.2, 0.03)
-
-            summary = logger.get_summary()
-
-            assert summary["total_steps"] == 3
-            assert abs(summary["avg_coherence"] - 0.8) < 0.001
-            assert abs(summary["avg_diversity"] - 0.4) < 0.001
-            assert abs(summary["avg_step_latency"] - 0.02) < 0.001
+    def test_log_event_structure(self, tmp_path, monkeypatch):
+        """Verify log_event structure."""
+        test_log_dir = str(tmp_path / "logs")
+        test_log_file = os.path.join(test_log_dir, "simulation.log")
+        
+        import src.logging_config as log_mod
+        original_log_dir = log_mod.LOG_DIR
+        original_log_file = log_mod.LOG_FILE
+        
+        log_mod.LOG_DIR = test_log_dir
+        log_mod.LOG_FILE = test_log_file
+        
+        logger = create_logger("test_event")
+        logger.log_event("shutdown", {"reason": "timeout", "steps": 100})
+        
+        with open(test_log_file, 'r') as f:
+            line = f.readline()
+            data = json.loads(line)
+            
+            assert data["message"] == "Event: shutdown"
+            assert data["reason"] == "timeout"
+            assert data["steps"] == 100
+        
+        log_mod.LOG_DIR = original_log_dir
+        log_mod.LOG_FILE = original_log_file
 
 class TestLoggingIntegration:
-    def test_create_logger_factory(self):
-        """Test the factory function creates a valid logger."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            logger = create_logger(output_dir=tmpdir, filename_prefix="factory_test")
-            assert isinstance(logger, SimulationLogger)
-            assert logger.output_dir == tmpdir
-
-    def test_log_status_transitions(self):
-        """Test that status transitions are recorded correctly."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            logger = SimulationLogger(output_dir=tmpdir, filename_prefix="test")
-            logger.start()
-            logger.log_step(0, 0.5, 0.5, 0.01)
-            logger.finish()
-
-            with open(logger.csv_path, 'r') as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-
-                # First row should be running
-                assert rows[0]["status"] == "running"
-                # Last row should be completed
-                assert rows[-1]["status"] == "completed"
-
-    def test_extra_metadata_serialization(self):
-        """Test that extra metadata is correctly serialized in CSV."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            logger = SimulationLogger(output_dir=tmpdir, filename_prefix="test")
-            logger.start()
-            meta = {"param_a": 10, "param_b": "test"}
-            logger.log_step(0, 0.5, 0.5, 0.01, extra_metadata=meta)
-            logger.finish()
-
-            with open(logger.csv_path, 'r') as f:
-                reader = csv.DictReader(f)
-                row = next(reader)
-                assert "10" in row["extra_metadata"]
-                assert "test" in row["extra_metadata"]
+    
+    def test_main_function_creates_valid_log(self, tmp_path, monkeypatch):
+        """Test the main() function to ensure it writes valid logs with step_latency."""
+        test_log_dir = str(tmp_path / "logs")
+        test_log_file = os.path.join(test_log_dir, "simulation.log")
+        
+        import src.logging_config as log_mod
+        original_log_dir = log_mod.LOG_DIR
+        original_log_file = log_mod.LOG_FILE
+        
+        log_mod.LOG_DIR = test_log_dir
+        log_mod.LOG_FILE = test_log_file
+        
+        # Run main
+        log_mod.main()
+        
+        assert os.path.exists(test_log_file)
+        
+        found_latency = False
+        with open(test_log_file, 'r') as f:
+            for line in f:
+                data = json.loads(line)
+                if "step_latency" in data:
+                    found_latency = True
+                    break
+        
+        assert found_latency, "main() did not produce logs with step_latency"
+        
+        log_mod.LOG_DIR = original_log_dir
+        log_mod.LOG_FILE = original_log_file
