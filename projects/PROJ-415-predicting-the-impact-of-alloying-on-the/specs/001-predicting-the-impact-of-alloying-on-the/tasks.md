@@ -166,6 +166,9 @@
 - [ ] T038 Performance optimization: Ensure GridSearch runs within 15 mins on 2-core CPU
 - [ ] T039 [P] Additional unit tests for edge cases (missing atomic data, single host metal) in `tests/unit/`
 - [ ] T040 Run `quickstart.md` validation and verify all artifacts are checksummed
+- [ ] T041 [US2] Implement `tests/integration/test_model_training.py` to verify end-to-end training flow from curated data to saved model artifacts (addresses review concern on missing integration coverage for T021-T025)
+- [ ] T042 [US3] Implement `tests/integration/test_sensitivity_analysis.py` to verify the full threshold sweep and stability calculation logic (addresses review concern on missing integration coverage for T031-T033)
+- [ ] T043 [US1] Add explicit contract test in `tests/contract/test_data.py` to validate that `errors/missing_atomic_data.csv` is generated with correct schema when atomic data is missing (addresses review concern on error handling verification)
 
 ---
 
