@@ -28685,7 +28685,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-09-03T17:02:17.387795+00:00",
+  "generated_at": "2026-09-03T17:44:17.093506+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -47679,7 +47679,7 @@
         "type": "markdown"
       },
       "current_stage": "analyzed",
-      "description": "Verdict: fail The question is currently framed as a comparison of two specific implementation architectures (CPU-based symbolic planners vs. GPU-based continuous physics policies) to determine which is \"better\" under specific hardware constraints. While it touches on the phenomenon of task failure, the core inquiry is\u2026",
+      "description": "Field: computer science To what extent do topological task constraints versus continuous physical dynamics independently contribute to failure modes in long-horizon robot manipulation, and can we empirically quantify which factor is the primary limiting resource for success in real-world execution regardless of the\u2026",
       "field": "computer science",
       "id": "PROJ-1031-llmxive-follow-up-extending-robodojo-a-u",
       "keywords": [],
@@ -95861,7 +95861,7 @@
         "type": "markdown"
       },
       "current_stage": "in_progress",
-      "description": "Verdict: pass The question asks about the psychological mechanism by which paralinguistic cues are interpreted differently based on relational context, independent of any specific computational method or algorithm. It focuses on the human perception of \"tone\" and \"support\" rather than the performance of a classifier\u2026",
+      "description": "Field: psychology How do specific paralinguistic features (emoji use, punctuation patterns, message length) in text messages from close ties versus acquaintances differentially predict perceived emotional support among adults aged 18-35? Digital communication lacks the non-verbal cues present in face-to-face\u2026",
       "field": "psychology",
       "id": "PROJ-385-the-impact-of-text-message-tone-on-perce",
       "keywords": [],
