@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Final Analysis Dataset Schema"
-description: "Schema for the unified dataset used in Bayesian modeling and regression analysis. Note: Current phase uses synthetic data."
+description: "Schema for the unified dataset used in Bayesian modeling and regression analysis. Contains both real (MFQ) and synthetic (VR logs) data."
 type: object
 properties:
   participant_id:
@@ -41,13 +41,19 @@ properties:
     description: "Moral judgment rating (1-7)."
   response_time:
     type: number
-    description: "Response time in milliseconds."
+    description: "Response time in milliseconds (Simulated)."
   gaze_metrics:
     type: string
-    description: "JSON string containing gaze tracking data."
+    description: "JSON string containing gaze tracking data (Simulated)."
   ground_truth_effect:
     type: number
     description: "The known effect size used in simulation for validation (internal use)."
+  source:
+    type: string
+    enum:
+      - "real"
+      - "simulated"
+    description: "Origin of the data row."
 required:
   - participant_id
   - story_id
@@ -60,4 +66,5 @@ required:
   - judgment_rating
   - response_time
   - ground_truth_effect
+  - source
 additionalProperties: false

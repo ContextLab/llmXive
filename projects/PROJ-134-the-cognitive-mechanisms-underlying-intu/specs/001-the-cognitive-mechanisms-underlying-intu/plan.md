@@ -1,144 +1,150 @@
-# Implementation Plan: The Cognitive Mechanisms Underlying Intuitive Moral Judgments in Virtual Environments
+# Implementation Plan: The Cognitive Mechanisms Underlying Intuitive Moral Judgments in Virtual Environments (Methodological Validation)
 
-**Branch**: `001-cognitive-mechanisms-moral-judgments` | **Date**: 2024-05-21 | **Spec**: [link]
-**Input**: Feature specification from `/specs/001-cognitive-mechanisms-moral-judgments/spec.md`
+**Branch**: `001-cognitive-mechanisms-moral-judgments` | **Date**: 2024-05-21 | **Spec**: `specs/001-the-cognitive-mechanisms-underlying-intu/spec.md`
+**Input**: Feature specification from `specs/001-the-cognitive-mechanisms-underlying-intu/spec.md`
 
 ## Summary
 
-This feature implements a **Pipeline Validation** phase for the investigation of how visual salience of avatar expressions in VR modulates moral foundation activation. Due to the absence of verified real-world VR interaction logs and a verified "Moral Stories" dataset URL, the current implementation **simulates** the experimental data structure to verify the statistical engine (PyMC3), data ingestion, and reporting pipelines. 
+This feature implements a **Methodological Validation Pipeline** to test the *statistical recovery* of known effects in a simulated VR environment. The system ingests the MFQ dataset (HuggingFace) and Moral Stories dataset (HuggingFace), constructs experimental VR conditions via a simulated blend-shape mapping, and executes a PyMC5-based Bayesian model. 
 
-**Critical Distinction**: This phase validates the *methodology and code*. It does **not** validate the scientific hypothesis regarding human cognition. Scientific claims regarding the effect of salience on judgment are explicitly deferred until **Phase 4: Data Acquisition** (real data ingestion). The synthetic data is generated with a known "ground truth" to ensure the Bayesian model can correctly recover parameters (validating the estimator), not to claim empirical discovery.
+**Critical Scope Change & Reframing**: The original research question ("How does visual salience modulate...") requires *actual human VR interaction data*, which is not available in the verified open datasets. Consequently, this feature branch is re-scoped to **validate the Bayesian decision modeling pipeline** by generating synthetic VR interaction logs (response time, gaze, judgment) conditioned on the salience variable. The study will **not** make empirical claims about human cognitive mechanisms. Instead, it will verify that the pipeline correctly recovers the *ground-truth parameters* injected by the simulation. This resolves the "tautological loop" concern by explicitly framing the work as a *simulation-based validation* rather than an empirical hypothesis test. The primary success metric is **Parameter Recovery** (bias and coverage of the injected effect size), not the detection of a novel effect.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `pymc>=5.0.0`, `scikit-learn`, `pyyaml`, `requests`, `seaborn`, `statsmodels`  
-**Storage**: Local CSV/Parquet files in `data/` (raw and derived); **YAML state file** for metadata (no SQLite).  
-**Testing**: `pytest` (unit tests for data ingestion, model convergence checks, schema validation, parameter recovery).  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, ~7GB RAM, No GPU).  
-**Project Type**: Computational Research / Data Analysis Pipeline (Validation Phase).  
-**Performance Goals**: Full pipeline (ingestion -> modeling -> reporting) must complete within 6 hours on CPU. Model convergence (R-hat < 1.05) must be achieved.  
-**Constraints**: No CUDA/GPU usage. No 8-bit/4-bit quantization. Data subset to fit ~GB RAM.  
-**Scale/Scope**: ~200 participants (simulated), ~50 moral vignettes.
+**Language/Version**: Python  
+**Primary Dependencies**: `pymc` (v5.12+, replacing deprecated PyMC3 per FR-002), `pandas`, `numpy`, `scikit-learn`, `pyyaml`, `datasets` (HuggingFace), `statsmodels`  
+**Storage**: Local CSV/Parquet files (streamed or sampled to fit available RAM constraints), `data/` directory for artifacts.  
+**Testing**: `pytest` (unit tests for data ingestion, model convergence checks, parameter recovery).  
+**Target Platform**: GitHub Actions Free Tier (CPU-only, cores, ~GB RAM) with a GPU escape hatch for PyMC if CPU sampling fails convergence.  
+**Project Type**: Computational Research Pipeline (Validation Focus)  
+**Performance Goals**: Model convergence (R-hat < 1.05) within 4 hours on a a sample of participants; full pipeline execution < 6 hours.  
+**Constraints**: No local GPU; data must be obtained via public API (HuggingFace); **Synthetic VR logs** are used as a substitute for missing real data; strict adherence to data hygiene (checksums).  
+**Scale/Scope**: A sufficient number of participants (sampled from available real data for MFQ/Moral Stories, synthetic logs generated) for the primary analysis.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. Current phase uses synthetic data with known ground truth for validation.
+> **Dataset Fit Note**: The spec requires "actual VR interaction logs" (FR-006). The verified datasets (MFQ, Moral Stories) do not contain VR-specific logs. The plan implements a **Simulation Layer** (`code/processing/simulate_logs.py`) that generates plausible `response_time` and `gaze_metrics` conditioned on the story and salience level. This is a **necessary substitution** to enable statistical modeling. The plan explicitly distinguishes between "Real Data Ingestion" (MFQ/Moral Stories) and "Synthetic Log Generation" to avoid conflation. The research question regarding *human* mechanisms is unanswerable with this data; the goal is *pipeline validation*.
+
+## Spec Deviation & Resolution
+
+- **FR-006 (Actual VR Logs)**: The spec mandates "capture and process actual VR interaction data". This cannot be met with available open data.
+  - **Resolution**: The plan documents a **Formal Deviation**. For this feature branch, "actual VR logs" are replaced by "synthetic logs generated by a validated simulation model". The simulation parameters are derived from literature (cited in `research.md`). A future phase (Phase 5) is required to ingest real VR data.
+  - **Impact**: The study cannot test the *existence* of the cognitive mechanism in humans. It can only validate the *pipeline's ability to detect* the mechanism in a controlled simulation.
+- **FR-002 (PyMC3)**: The spec mandates PyMC3.
+  - **Resolution**: PyMC3 is deprecated. The plan uses **PyMC5** (the modern successor) to satisfy the *intent* of FR-002 (Bayesian decision modeling) while adhering to current best practices. This is a tooling deviation, not a functional one.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- **I. Reproducibility**: Plan ensures `random_seed` is pinned in `code/`. External datasets (if any) are fetched from canonical HuggingFace URLs. `requirements.txt` will pin all versions. Synthetic data generation uses a fixed seed.
-- **II. Verified Accuracy**: All dataset URLs in `research.md` are sourced exclusively from the "Verified datasets" block of the user message. The "Moral Stories" dataset is explicitly marked as **Simulated** (bypassing URL verification) with a clear warning in the report. No fabricated URLs are used for real data.
-- **III. Data Hygiene**: Raw data ingestion preserves original files. Derived data (merged CSVs) will be written to new files with checksums recorded in `state/`. PII scan will be enforced (no participant names/emails in committed data).
-- **IV. Single Source of Truth**: All figures and statistics in the final report will be generated programmatically from `data/` and `code/`. No hand-typed numbers. The `state/...yaml` file is the sole source for artifact hashes.
-- **V. Versioning Discipline**: **Explicit Mechanism Added**: A dedicated `code/utils/hashing.py` script calculates SHA-256 checksums for all derived artifacts and updates the `state/...yaml` `artifact_hashes` map upon generation.
-- **VI. VR Manipulation Fidelity**: The plan explicitly defines the "salience" variable as a mapping of blend-shape parameters (low/high) in the data model. This mapping is logged in `data/` to ensure the 'perceptual salience' variable is reproducible.
-- **VII. Psychometric Instrument Integrity**: **Explicit Mechanism Added**: A validation step (US-6) compares the distribution of the synthetic MFQ data against published norms (Gervais et al., 2011) to ensure the simulation mimics real psychometric properties, even without real participants.
+- **I. Reproducibility**: The pipeline will use `datasets.load_dataset(..., streaming=True)` or fixed random seeds for sampling. All random seeds are pinned in `code/`. External datasets are fetched from verified HuggingFace URLs.
+- **II. Verified Accuracy**: All dataset citations (MFQ, Moral Stories) are from the verified list. No fabricated URLs.
+- **III. Data Hygiene**: Raw data is cached in `data/raw/` with checksums. Derived data (merged CSV) is in `data/processed/`. **Synthetic logs** are generated in `data/processed/` and clearly labeled. No PII is committed.
+- **IV. Single Source of Truth**: All statistics (ΔAIC, p-values, recovery metrics) are generated by `code/analysis/` scripts and written to `data/results/`. No hand-typed numbers.
+- **V. Versioning**: Artifacts in `data/` and `code/` will be tracked with content hashes in `state/`.
+- **VI. VR Manipulation Fidelity**: The "salience" variable is explicitly defined by a `data/config/unity_blend_shapes.yaml` mapping text to low/high salience parameters. This config is versioned and generated in Phase 1 (Task T044).
+- **VII. Psychometric Instrument Integrity**: The MFQ scores are used directly as covariates. The plan includes a validation step to ensure the VR simulation does not distort the distribution of these scores (comparing raw vs. processed distributions).
+
+**Resolution of Unresolved Concerns**:
+- **T015/T013/T014 Ordering**: T015 (ingest) now depends only on T054b (fetch_real). T013/T014 (simulation) are in Phase 2, dependent on T015.
+- **T061/T016b Duplicate**: Merged into a single `vr_mapping_logic.py` task (T016) in Phase 2.
+- **T060/T054b Forward Dependency**: T060 (streaming_loader) moved to Phase 6 (Data Ingestion) to align with T054b.
+- **T045/T046 (MDES)**: `state/mdes_report.yaml` will be generated in Phase 1 by a script that calculates power based on the sample size of the *available* real data (or the planned sample size if streaming).
+- **T009 (Logging)**: `code/utils/logging.py` will be implemented with `get_logger` and log files generated in `data/logs/`.
+- **T044 (Unity Config)**: The `unity_blend_shapes.yaml` will be created in Phase 1 as a static configuration file defining the salience mapping.
+- **T040 (Quickstart)**: Status updated to 'incomplete' in Phase 4, dependent on T018 and T056.
+- **T042 (Real Data)**: Marked as 'Deferred' to Phase 5. Current phase is Simulation Only.
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-cognitive-mechanisms-moral-judgments/
+specs/001-the-cognitive-mechanisms-underlying-intu/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-│   ├── dataset.schema.yaml
-│   └── model_output.schema.yaml
-└── tasks.md             # Phase 2 output (NOT created by /speckit-plan)
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
 code/
-├── __init__.py
-├── config.py            # Paths, seeds, constants
 ├── data/
-│   ├── __init__.py
-│   ├── ingest.py        # US-1: Ingestion and merging (Simulated MFQ)
-│   ├── preprocess.py    # US-1: Cleaning, alignment, salience mapping
-│   └── simulation.py    # US-1: Generate synthetic VR logs with ground truth
-├── models/
-│   ├── __init__.py
-│   ├── bayesian.py      # US-2: PyMC3 model definition
-│   └── regression.py    # US-3: Mixed-effects regression
+│   ├── ingestion/
+│   │   ├── fetch_real.py      # Fetches MFQ and Moral Stories
+│   │   └── streaming_loader.py # Handles streaming/sampling
+│   ├── processing/
+│   │   ├── merge_data.py      # Merges MFQ + Stories + Salience
+│   │   ├── vr_mapping_logic.py # Maps text to salience levels (T016)
+│   │   └── simulate_logs.py   # Generates VR interaction logs (Simulated)
+│   └── config/
+│       └── unity_blend_shapes.yaml # Salience definition (T044)
 ├── analysis/
-│   ├── __init__.py
-│   ├── model_comparison.py # US-2: AIC/WAIC, PPC
-│   └── validation.py    # US-3: Sensitivity analysis, Bonferroni, Parameter Recovery
+│   ├── bayesian_model.py      # PyMC5 model execution
+│   ├── model_comparison.py    # AIC/WAIC calculation
+│   ├── regression.py          # Mixed-effects regression
+│   └── validation.py          # Bonferroni, Sensitivity, MDES, Parameter Recovery
 ├── utils/
-│   ├── hashing.py       # US-5: Checksum calculation and state update
-│   └── norms.py         # US-6: Psychometric validation against Gervais et al.
-├── reports/
-│   └── generate_report.py # US-3: Final report generation (Pipeline Validation)
+│   ├── logging.py             # Logging utilities (T009)
+│   └── checksums.py           # Data hygiene
 └── tests/
-    ├── test_ingest.py
-    ├── test_model.py
-    └── test_schema.py
+    ├── unit/
+    │   ├── test_ingestion.py
+    │   ├── test_vr_mapping.py
+    │   └── test_bayesian.py
+    └── integration/
+        └── test_end_to_end.py
 
 data/
-├── raw/                 # Downloaded parquet files (checksummed)
-├── processed/           # Merged CSVs, derived features
-└── logs/                # Exclusion logs, VR mapping logs
+├── raw/                       # Cached HuggingFace data (checksummed)
+├── processed/                 # Merged CSVs (Real + Synthetic)
+└── logs/                      # Execution logs
+
+state/
+└── mdes_report.yaml           # MDES validation output (T045)
 ```
 
-**Structure Decision**: Single `code/` directory with modular sub-packages (`data`, `models`, `analysis`, `utils`) to separate concerns. `utils/hashing.py` and `utils/norms.py` added to satisfy Constitution Principles V and VII.
-
-## User Stories & Phases
-
-### User Story 1 - Data Ingestion, Experimental Construction, and Preprocessing Pipeline (Priority: P1)
-**Status**: Partially Implemented (Simulation Only)
-The system MUST ingest raw data from a **Synthetic MFQ Generator** (based on Gervais et al. norms) and a **Simulated Moral Stories** dataset, construct the experimental VR conditions by mapping text stories to VR scenes with controlled blend-shape parameters (low vs. high salience), and ingest **Simulated** VR interaction logs (response times, gaze tracking, in-VR judgment inputs) with a known ground truth.
-*   **Gap**: Real VR logs and "Moral Stories" dataset are missing. The system simulates them with a `ground_truth_effect` parameter to validate the pipeline.
-*   **Test**: The pipeline can be tested by running the ingestion and construction scripts against the synthetic data and verifying that the model recovers the `ground_truth_effect` within a credible interval.
-
-### User Story 2 - Bayesian Model Execution and Comparison (Priority: P2)
-**Status**: Implemented (Validation Mode)
-The system MUST execute a Bayesian decision model on the **Simulated** data to estimate the effect of visual salience. The model treats foundation scores as covariates and salience as a fixed-effect predictor.
-*   **Validation**: The model must recover the `ground_truth_effect` (defined in the simulation) to prove the estimator works.
-*   **Comparison**: Compare against a baseline model using AIC/WAIC. The goal is to verify the model selection procedure works correctly when the truth is known.
-
-### User Story 3 - Statistical Validation and Reporting (Priority: P3)
-**Status**: Implemented (Validation Mode)
-The system MUST perform hierarchical mixed-effects regression and apply Bonferroni correction.
-*   **Reporting**: The report will explicitly state "Pipeline Validation: PASSED/FAILED" based on parameter recovery, not "Hypothesis Supported".
-
-### User Story 4 - Real Data Integration (Priority: P4 - Deferred)
-**Status**: Not Implemented (Future Phase)
-The system MUST be capable of ingesting **Real** VR interaction logs and a verified "Moral Stories" dataset when available.
-*   **Action**: This phase is a placeholder. The pipeline is designed to accept real data in the same schema.
-
-### User Story 5 - Artifact Hashing & State Update (Priority: P1)
-**Status**: Implemented
-The system MUST calculate cryptographic checksums for all derived data and update the `state/...yaml` file's `artifact_hashes` map to satisfy Constitution Principle V.
-
-### User Story 6 - Psychometric Instrument Integrity Validation (Priority: P1)
-**Status**: Implemented
-The system MUST validate that the synthetic MFQ data distribution matches the published norms (Gervais et al.) to satisfy Constitution Principle VII.
+**Structure Decision**: Single project structure with clear separation of data ingestion, processing, and analysis. This aligns with the "Computational Research Pipeline" type and ensures reproducibility by keeping raw data separate from processed artifacts.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Synthetic Data with Ground Truth | Required to validate the Bayesian pipeline in the absence of real data. | Running the pipeline on random noise would not validate the estimator's ability to recover effects. |
-| Parameter Recovery Check | Required to distinguish "Pipeline Validation" from "Scientific Discovery". | Without this, the analysis is a tautology (testing data generated by the code). |
-| Hashing & State Update Script | Required by Constitution Principle V (Versioning Discipline). | Manual updates are error-prone and violate the "Single Source of Truth" principle. |
+| Simulation of VR Logs | Real VR logs (RT, gaze) are absent in verified datasets. | Using only text/MFQ would fail FR-006 (capture VR interaction data) unless a formal deviation is documented. |
+| Streaming Loader | Full datasets may exceed RAM. | Loading full datasets into memory risks OOM on CI. |
+| Bayesian Model (PyMC5) | Spec requires Bayesian decision modeling. | Frequentist regression alone would not satisfy FR-002. |
+| Parameter Recovery | Needed to validate the pipeline since real data is absent. | Without ground truth, we cannot validate the model's ability to detect the effect. |
 
-## Success Criteria (Revised)
+## Task Ordering & Phases
 
-- **SC-001**: Model convergence rate is measured against the standard Bayesian inference benchmark (R-hat < 1.05).
-- **SC-002**: **Pipeline Validation**: The model must recover the `ground_truth_effect` within the 95% credible interval. (Not "ΔAIC > 10" for scientific evidence yet).
-- **SC-003**: Interaction significance is measured by the correct computation and reporting of the Bonferroni-corrected p-value (Pipeline Check).
-- **SC-004**: Sensitivity analysis coverage is measured against the required threshold set {, low, high}.
-- **SC-005**: **Artifact Integrity**: All derived files must have checksums recorded in `state/...yaml`.
-- **SC-006**: **Psychometric Validity**: Synthetic MFQ distribution must match Gervais et al. (2011) norms within 1 standard deviation.
+**Phase 1: Data Ingestion & Configuration**
+- T054b: `fetch_real.py` (Fetch MFQ, Moral Stories)
+- T044: `unity_blend_shapes.yaml` (Create config with explicit schema: `salience_levels: { low: { blend_shape_0: 0.0, ... }, high: { ... } }`)
+- T045: `mdes_report.yaml` (Generate MDES report, must exist)
+- T009: `logging.py` (Implement `get_logger`, generate `data/logs/ingest.log`, `data/logs/vr_mapping.log`)
+- T060: `streaming_loader.py` (Stream data)
 
-## Risk Assessment
+**Phase 2: Data Processing & Simulation**
+- T015: `merge_data.py` (Merge real data)
+- T016: `vr_mapping_logic.py` (Map text to salience using `unity_blend_shapes.yaml`)
+- T013/T014: `simulate_logs.py` (Generate synthetic logs with known `ground_truth_effect`)
 
-- **Missing Real Data**: The primary risk is that the current phase cannot answer the scientific question. **Mitigation**: The report explicitly states "Pipeline Validation Only" and defers scientific claims to Phase 4.
-- **Simulation Bias**: The synthetic data might not capture real-world complexity. **Mitigation**: Use multivariate normal distributions based on published norms to maximize realism.
-- **Convergence Failure**: **Mitigation**: Sensitivity analysis and fallback to MLE.
+**Phase 3: Model Execution**
+- T022: `bayesian_model.py` (Fit model)
+- T022a: Convergence Gate (Check R-hat < 1.05, fail if not)
+- T023: `model_comparison.py` (Calculate ΔAIC)
+- T023a: Delta AIC Threshold Gate (Check ΔAIC > 10, log result)
+
+**Phase 4: Validation & Reporting**
+- T026: `validation.py` (Parameter recovery, Bonferroni, Sensitivity)
+- T031a: Bonferroni Output Contract (Write corrected p-values to JSON)
+- T032a: Sensitivity Analysis Report (Write multiple results to JSON)
+- T040: `quickstart_validation.py` (Verify pipeline, status: Incomplete)
+- T033: `report_generation.py` (Generate final report)
+
+**Phase 5: Real Data Integration (Deferred)**
+- T042: `end_to_end_real.py` (Ingest real VR logs, status: Deferred)
+
+**Contract Enforcement**: `simulate_logs.py` and `merge_data.py` will validate their output against `vr_interaction_schema.schema.yaml` and `dataset.schema.yaml` respectively before writing to disk.

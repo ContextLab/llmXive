@@ -59,9 +59,13 @@ properties:
       recovered_within_ci:
         type: boolean
         description: "True if ground_truth_value is within the 95% CI."
+      bias:
+        type: number
+        description: "Difference between recovered mean and ground truth."
     required:
       - ground_truth_value
       - recovered_within_ci
+      - bias
   bonferroni_p_values:
     type: object
     description: "Dictionary of foundation interaction p-values (Bonferroni corrected)."

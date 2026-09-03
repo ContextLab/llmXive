@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MFQ Dataset Schema"
+description: "Schema for the Moral Foundations Questionnaire dataset ingested from HuggingFace."
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique identifier for the participant."
+  foundation_scores:
+    type: "object"
+    description: "Scores for the five moral foundations."
+    properties:
+      care:
+        type: "number"
+        description: "Care foundation score."
+      fairness:
+        type: "number"
+        description: "Fairness foundation score."
+      loyalty:
+        type: "number"
+        description: "Loyalty foundation score."
+      authority:
+        type: "number"
+        description: "Authority foundation score."
+      purity:
+        type: "number"
+        description: "Purity foundation score."
+    required:
+      - care
+      - fairness
+      - loyalty
+      - authority
+      - purity
+  demographics:
+    type: "object"
+    description: "Optional demographic data."
+    properties:
+      age:
+        type: "integer"
+        description: "Participant age."
+      gender:
+        type: "string"
+        description: "Participant gender."
+required:
+  - participant_id
+  - foundation_scores
+additionalProperties: false

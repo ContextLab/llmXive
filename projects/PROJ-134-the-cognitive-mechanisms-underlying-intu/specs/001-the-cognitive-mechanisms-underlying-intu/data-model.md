@@ -1,83 +1,76 @@
-# Data Model: The Cognitive Mechanisms Underlying Intuitive Moral Judgments in Virtual Environments
+# Data Model: The Cognitive Mechanisms Underlying Intuitive Moral Judgments in Virtual Environments (Methodological Validation)
 
-## 1. Entity Relationship Diagram (Conceptual)
+## Entity Definitions
 
-```mermaid
-erDiagram
-    PARTICIPANT ||--o{ VIGNETTE : "views"
-    VIGNETTE ||--o{ VR_LOG : "generates"
-    PARTICIPANT {
-        string participant_id "PK"
-        float care_score
-        float fairness_score
-        float loyalty_score
-        float authority_score
-        float sanctity_score
-        string demographics
-    }
-    VIGNETTE {
-        string story_id "PK"
-        string story_text
-        string salience_level "low | high"
-        float blend_shape_1
-        float blend_shape_2
-    }
-    VR_LOG {
-        string log_id "PK"
-        string participant_id "FK"
-        string story_id "FK"
-        float judgment_rating
-        float response_time
-        json gaze_metrics
-        float ground_truth_effect "Internal: Used for validation only"
-    }
-```
+### Participant
+- **Definition**: An individual user in the study (Real Data).
+- **Attributes**:
+  - `participant_id` (str): Unique identifier.
+  - `foundation_scores` (dict): Keys: `care`, `fairness`, `loyalty`, `authority`, `purity`. Values: float (0-100).
+  - `demographics` (dict): Optional. Age, gender, etc.
+- **Source**: MFQ dataset.
 
-## 2. Data Dictionary
+### Vignette
+- **Definition**: A moral scenario mapped to a VR scene.
+- **Attributes**:
+  - `story_id` (str): Unique identifier.
+  - `text` (str): The moral story text.
+  - `salience_level` (str): "low" or "high" (derived from `unity_blend_shapes.yaml`).
+  - `blend_shape_params` (dict): Explicit Unity parameters for the expression.
+- **Source**: Moral Stories dataset + `unity_blend_shapes.yaml`.
 
-### 2.1. Participant (Synthetic, based on Gervais et al.)
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `participant_id` | string | Unique identifier. | Synthetic |
-| `care_score` | float | Score on Care foundation (0-5). | Synthetic (Norms-based) |
-| `fairness_score` | float | Score on Fairness foundation (0-5). | Synthetic (Norms-based) |
-| `loyalty_score` | float | Score on Loyalty foundation (0-5). | Synthetic (Norms-based) |
-| `authority_score` | float | Score on Authority foundation (0-5). | Synthetic (Norms-based) |
-| `sanctity_score` | float | Score on Sanctity foundation (0-5). | Synthetic (Norms-based) |
-| `demographics` | string | JSON string of age, gender, etc. | Synthetic |
+### VRInteractionLog (Simulated)
+- **Definition**: Simulated interaction data for a participant-vignette pair.
+- **Attributes**:
+  - `participant_id` (str): FK to Participant.
+  - `story_id` (str): FK to Vignette.
+  - `response_time` (float): Simulated RT in seconds.
+  - `gaze_metrics` (dict): Simulated gaze data (e.g., `fixation_count`, `saccade_amplitude`).
+  - `judgment_rating` (float): Simulated moral judgment (1-7 scale).
+  - `ground_truth_effect` (float): The known effect size used in simulation for validation.
+- **Source**: `simulate_logs.py` (generated from story + salience).
+- **Note**: This entity is **Synthetic**. It is not real human data.
 
-### 2.2. Vignette (Synthetic)
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `story_id` | string | Unique identifier. | Synthetic |
-| `story_text` | string | Text of the moral story. | Synthetic |
-| `salience_level` | string | Experimental condition: "low" or "high". | Synthetic |
-| `blend_shape_1` | float | Parameter for avatar expression (0.0 for low, 1.0 for high). | Synthetic |
-| `blend_shape_2` | float | Secondary parameter. | Synthetic |
+### ModelResult
+- **Definition**: Output of the Bayesian model.
+- **Attributes**:
+  - `model_id` (str): Identifier for the run.
+  - `posterior_samples` (dict): Posterior distributions for coefficients.
+  - `aic` (float): AIC score.
+  - `waic` (float): WAIC score.
+  - `convergence` (dict): R-hat, effective sample size.
+  - `ground_truth_recovery` (dict): Bias and coverage metrics for `ground_truth_effect`.
+- **Source**: `bayesian_model.py`.
 
-### 2.3. VR Interaction Log (Synthetic with Ground Truth)
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `log_id` | string | Unique identifier. | Synthetic |
-| `participant_id` | string | Foreign key. | Synthetic |
-| `story_id` | string | Foreign key. | Synthetic |
-| `judgment_rating` | float | Moral judgment rating (1-7). | Synthetic (Generated with `ground_truth_effect`) |
-| `response_time` | float | Time taken to respond (ms). | Synthetic |
-| `gaze_metrics` | json | JSON object with gaze coordinates. | Synthetic |
-| `ground_truth_effect` | float | The known effect size used to generate `judgment_rating`. | Internal (Validation) |
+### BaselineModel
+- **Definition**: A model where the `salience_level` coefficient is fixed to 0.
+- **Attributes**:
+  - `model_id` (str): Identifier for the baseline run.
+  - `aic` (float): AIC score.
+  - `waic` (float): WAIC score.
+- **Source**: `model_comparison.py`.
 
-## 3. Data Flow
+### ValidationReport
+- **Definition**: Output of the validation step.
+- **Attributes**:
+  - `bonferroni_p_values` (dict): Interaction p-values (Bonferroni corrected).
+  - `sensitivity_analysis` (list): Results for thresholds {2, 10, 20}.
+  - `parameter_recovery` (dict): Bias and coverage for `ground_truth_effect`.
+- **Source**: `validation.py`.
 
-1.  **Ingestion**: `data/ingest.py` generates synthetic MFQ data using `utils/norms.py`.
-2.  **Synthesis**: `data/simulation.py` generates `Vignette` and `VR_Log` data, assigning `salience_level` and `blend_shape` parameters. **Crucially**, it sets a `ground_truth_effect` (e.g., 0.5) and generates `judgment_rating` based on this effect.
-3.  **Validation**: `utils/norms.py` validates synthetic MFQ against Gervais et al. (2011).
-4.  **Merging**: `data/preprocess.py` joins datasets.
-5.  **Hashing**: `utils/hashing.py` calculates checksums and updates `state/...yaml`.
-6.  **Output**: Final unified CSV written to `data/processed/final_analysis.csv`.
+## Data Flow
 
-## 4. Assumptions & Constraints
+1.  **Ingestion**: `fetch_real.py` downloads MFQ and Moral Stories to `data/raw/`.
+2.  **Mapping**: `vr_mapping_logic.py` assigns `salience_level` and `blend_shape_params` to each story based on `unity_blend_shapes.yaml`.
+3.  **Simulation**: `simulate_logs.py` generates `VRInteractionLog` for each participant-story pair, using `foundation_scores` as covariates for the simulation parameters.
+4.  **Merging**: `merge_data.py` creates a unified DataFrame: `participant_id`, `story_id`, `salience_level`, `foundation_scores`, `response_time`, `gaze_metrics`, `judgment_rating`.
+5.  **Analysis**: `bayesian_model.py` and `regression.py` consume the merged DataFrame.
+6.  **Validation**: `validation.py` checks parameter recovery, Bonferroni, and sensitivity.
 
-*   **Synthetic Data**: The "Moral Stories" dataset and VR logs are simulated.
-*   **Ground Truth**: The simulation includes a known `ground_truth_effect` to validate the model's ability to recover parameters.
-*   **Psychometric Validity**: Synthetic MFQ data is generated to match Gervais et al. norms.
-*   **No Real Data**: The current phase does not use real participant data.
+## Data Hygiene Rules
+
+-   **Checksums**: All files in `data/raw/` are checksummed.
+-   **Immutability**: Raw files are never modified. Derivations are written to `data/processed/`.
+-   **PII**: No PII is stored. `participant_id` is a random UUID.
+-   **Versioning**: `unity_blend_shapes.yaml` and `simulate_logs.py` parameters are versioned.
+-   **Labeling**: All synthetic data files are prefixed with `simulated_` or have a `source: synthetic` flag in metadata.
