@@ -1,111 +1,41 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Regression Output Schema"
-description: "Schema for the regression results and diagnostic outputs."
-type: "object"
+description: "Schema for the regression results output."
+type: object
 properties:
-  model_1_yield_stability:
-    type: "object"
-    description: "Results for the Yield Stability model (NDVI_CV)."
-    properties:
-      coefficients:
-        type: "object"
-        description: "Dictionary of variable names to coefficient values."
-      p_values:
-        type: "object"
-        description: "Dictionary of variable names to p-values."
-      robust_se:
-        type: "object"
-        description: "Dictionary of variable names to Cluster-Robust Standard Errors."
-      vif_scores:
-        type: "object"
-        description: "Dictionary of variable names to VIF scores."
-      r_squared:
-        type: "number"
-        description: "R-squared value for the model."
-      n_obs:
-        type: "integer"
-        description: "Number of observations used."
-    required:
-      - coefficients
-      - p_values
-      - robust_se
-      - vif_scores
-      - r_squared
-      - n_obs
-  model_2_food_security:
-    type: "object"
-    description: "Results for the Food Security model."
-    properties:
-      coefficients:
-        type: "object"
-        description: "Dictionary of variable names to coefficient values."
-      p_values:
-        type: "object"
-        description: "Dictionary of variable names to p-values."
-      robust_se:
-        type: "object"
-        description: "Dictionary of variable names to Cluster-Robust Standard Errors."
-      vif_scores:
-        type: "object"
-        description: "Dictionary of variable names to VIF scores."
-      r_squared:
-        type: "number"
-        description: "R-squared value for the model."
-      n_obs:
-        type: "integer"
-        description: "Number of observations used."
-    required:
-      - coefficients
-      - p_values
-      - robust_se
-      - vif_scores
-      - r_squared
-      - n_obs
-  sensitivity_analysis:
-    type: "object"
-    description: "Results of the cloud cover and fuzzing threshold sensitivity analysis."
-    properties:
-      cloud_cover_thresholds:
-        type: "array"
-        items:
-          type: "number"
-        description: "List of cloud cover thresholds tested (e.g., [0.6, 0.7, 0.8])."
-      fuzzing_radii:
-        type: "array"
-        items:
-          type: "number"
-        description: "List of fuzzing radii tested (e.g., [0.1, 0.2])."
-      coefficients:
-        type: "object"
-        description: "Dictionary of thresholds to CSA_Index coefficients for both models."
-    required:
-      - cloud_cover_thresholds
-      - fuzzing_radii
-      - coefficients
-  diagnostics:
-    type: "object"
-    description: "Overall diagnostics and warnings."
-    properties:
-      bonferroni_threshold:
-        type: "number"
-        description: "Bonferroni-adjusted significance threshold (e.g., 0.0167)."
-      collinearity_warning:
-        type: "boolean"
-        description: "True if any VIF > 5."
-      sample_size_warning:
-        type: "boolean"
-        description: "True if N < 300 (aggregation performed) or N < 100 (power limitation)."
-      data_availability:
-        type: "string"
-        description: "Status of data availability (e.g., 'SUCCESS', 'SYNTHETIC_FALLBACK', 'MISSING_DATA')."
-    required:
-      - bonferroni_threshold
-      - collinearity_warning
-      - sample_size_warning
-      - data_availability
+  model_name:
+    type: string
+    description: "Name of the model (Yield_Stability or Food_Security)."
+  coefficient_CSA:
+    type: number
+    description: "Coefficient for the CSA_Index predictor."
+  p_value_CSA:
+    type: number
+    description: "P-value for the CSA_Index coefficient."
+  robust_se_CSA:
+    type: number
+    description: "Robust Standard Error for CSA_Index."
+  vif_scores:
+    type: object
+    description: "Variance Inflation Factors for all predictors."
+    additionalProperties:
+      type: number
+  n_observations:
+    type: integer
+    description: "Number of observations used."
+  r_squared:
+    type: number
+    description: "R-squared value of the model."
+  bonferroni_sig:
+    type: boolean
+    description: "True if p-value < 0.0167 (Bonferroni adjusted)."
 required:
-  - model_1_yield_stability
-  - model_2_food_security
-  - sensitivity_analysis
-  - diagnostics
+  - model_name
+  - coefficient_CSA
+  - p_value_CSA
+  - robust_se_CSA
+  - vif_scores
+  - n_observations
+  - r_squared
+  - bonferroni_sig
 additionalProperties: false

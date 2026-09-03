@@ -1,49 +1,47 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Analysis Dataset Schema"
-description: "Schema for the final analysis-ready dataset containing household, survey, and satellite-derived variables."
-type: "object"
+description: "Schema for the processed analysis dataset used in regression models."
+type: object
 properties:
   household_id:
-    type: "integer"
+    type: string
     description: "Unique identifier for the household."
-  latitude:
-    type: "number"
-    description: "Fuzzed latitude of the household location."
-  longitude:
-    type: "number"
-    description: "Fuzzed longitude of the household location."
-  land_size:
-    type: "number"
-    description: "Size of land owned in hectares."
-  education_level:
-    type: "integer"
-    description: "Years of education of the household head."
-  financial_access_flag:
-    type: "integer"
-    description: "Binary indicator (0/1) for access to finance."
-  CSA_Index:
-    type: "number"
-    description: "Composite score of CSA practice adoption (sum of binary indicators + extension visits)."
-  NDVI_CV:
-    type: "number"
-    description: "Coefficient of Variation (StdDev/Mean) of NDVI time-series. Lower values indicate greater stability."
-  HFIAS:
-    type: "number"
-    description: "Household Food Insecurity Access Scale score. Lower values indicate better food security."
-  cloud_cover:
-    type: "number"
-    description: "Average cloud cover percentage for the growing season satellite imagery."
   village_id:
-    type: "integer"
-    description: "Village identifier (used if aggregation is performed)."
+    type: string
+    description: "Village identifier for aggregation."
+  CSA_Index:
+    type: number
+    description: "Composite score of CSA practice adoption."
+  Stability_Score:
+    type: number
+    description: "Inverse of NDVI Coefficient of Variation (1/CV)."
+  HFIAS:
+    type: number
+    description: "Household Food Insecurity Access Scale score."
+  Access_to_Finance:
+    type: number
+    description: "Binary or continuous measure of financial access."
+  Land_Size:
+    type: number
+    description: "Land size in hectares."
+  Education_Level:
+    type: integer
+    description: "Years of education."
+  Rainfall_Anomaly:
+    type: number
+    description: "Deviation from mean rainfall."
+  Cloud_Cover_Mean:
+    type: number
+    description: "Average cloud cover for the pixel."
+  is_synthetic:
+    type: boolean
+    description: "Flag indicating if data is synthetic."
 required:
   - household_id
-  - latitude
-  - longitude
-  - land_size
-  - education_level
-  - financial_access_flag
+  - village_id
   - CSA_Index
-  - NDVI_CV
+  - Stability_Score
   - HFIAS
+  - Access_to_Finance
+  - is_synthetic
 additionalProperties: false

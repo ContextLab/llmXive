@@ -1,29 +1,25 @@
-# Implementation Plan: Correlational Analysis of Climate‑Smart Agricultural Practices and Yield Stability Independent of Financial Access
+# Implementation Plan: Correlational Analysis of Climate-Smart Agricultural Practices and Yield Stability Independent of Financial Access
 
 **Branch**: `001-climate-smart-eval` | **Date**: 2026-08-14 | **Spec**: `specs/001-climate-smart-eval/spec.md`
 **Input**: Feature specification from `/specs/001-climate-smart-eval/spec.md`
 
 ## Summary
 
-This project implements a multivariate correlational analysis to assess the marginal effect of Climate-Smart Agricultural (CSA) practices on yield stability and food security in smallholder systems, explicitly controlling for financial access. The methodology relies on classical statistics (linear regression with Cluster-Robust Standard Errors) applied to a harmonized dataset linking World Bank LSMS-ISA survey data with Sentinel-2 satellite imagery. The analysis is strictly observational, framed as associational, and includes rigorous diagnostics for collinearity (VIF), multiple hypothesis correction (Bonferroni), and sensitivity to cloud-cover thresholds and spatial fuzzing radii.
+This project implements an observational cross-sectional analysis to assess the association between Climate-Smart Agricultural (CSA) practice adoption and yield stability (measured via satellite-derived NDVI variability) and food security (HFIAS), while controlling for financial access. The implementation relies on classical statistical methods (multiple linear regression with robust standard errors) executed on a CPU-constrained GitHub Actions runner. The core challenge is harmonizing LSMS-ISA survey data with Sentinel-2 satellite imagery, constructing a validated CSA index, and performing rigorous diagnostics (VIF, Bonferroni correction) to ensure statistical integrity without fabricating data or exceeding compute limits.
+
+**Critical Data Note**: No verified open-source dataset exists that contains the specific combination of household-level CSA practices, financial access, food security scores (HFIAS), and geospatial coordinates required for this study. Consequently, this project operates in **"Structural Validation Mode"**: it validates the *code logic* and *statistical pipeline* using a verified generic tabular dataset (UCI) and clearly labeled synthetic data, but explicitly refrains from making scientific claims about the hypothesis until real data becomes available.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `geopandas`, `rasterio`, `requests`, `pyyaml`, `synth-pop`
-**Storage**: Local file system (`data/raw/`, `data/processed/`)
-**Testing**: `pytest` (unit, integration, contract)
-**Target Platform**: Linux (GitHub Actions free-tier runner: multiple CPU cores, a moderate amount of RAM, and a moderate amount of disk space.
-The research question and method remain unchanged as per the planning document requirements.)
-**Project Type**: Data Science / Statistical Analysis Pipeline
-**Performance Goals**: Complete full pipeline (ingest -> model -> report) within 6 hours; regression models must run on CPU without GPU acceleration.
-**Constraints**: 
-- No GPU available on primary runner; no deep learning models.
-- Data must be streamed or sampled to fit available RAM.
-- LSMS-ISA coordinates are fuzzed; spatial join must handle approximate matching (handled by `src/data/spatial_join.py`).
-- All results must be reproducible with pinned random seeds.
-- **Synthetic Fallback**: If real data is unavailable, a statistically realistic synthetic dataset is generated for CI validation.
-**Scale/Scope**: Target N > 1000 households (or village-level aggregation if N < 300); analysis of primary models and Multiple sensitivity sweeps (cloud cover, fuzzing radius).
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `pandas`, `numpy`, `statsmodels` (for robust regression/VIF), `geopandas` (for spatial joins), `requests`, `pyyaml`, `pytest`.  
+**Storage**: Local filesystem (`data/raw`, `data/processed`, `contracts`). No external database.  
+**Testing**: `pytest` (unit, integration, contract tests).  
+**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM).  
+**Project Type**: Data analysis pipeline / Statistical research.  
+**Performance Goals**: Complete full pipeline (ingest, join, model, report) within 6 hours on CPU.  
+**Constraints**: No GPU available; LSMS-ISA data access is restricted (requires open substitute or explicit fallback); Sentinel-2 data must be streamed or sampled to fit RAM.  
+**Scale/Scope**: Target $N > 1000$ households (if available); aggregated to village level if $N$ is insufficient.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -31,15 +27,21 @@ The research question and method remain unchanged as per the planning document r
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Compliance Strategy |
-|-----------|---------------------|
-| **I. Reproducibility** | All random seeds pinned in `src/config/constants.py`. External datasets fetched via canonical URLs (where available) or generated via the `src/data/generators/synthetic_generator.py` if real data is missing. `requirements.txt` pins every dependency. |
-| **II. Verified Accuracy** | Citations in `research.md` are verified by the Reference-Validator Agent. **Blocking Gate**: The pipeline halts if any citation fails the title-overlap check or if the source is unreachable. |
-| **III. Data Hygiene** | Raw data preserved in `data/raw/` with checksums recorded in `state/`. Derived data in `data/processed/` with clear derivation logs. PII scan enforced on commits. |
-| **IV. Single Source of Truth** | All statistics in the final report will be generated programmatically from `data/processed/analysis_dataset.csv` and `src/analysis/`. No hand-typed numbers. |
-| **V. Versioning Discipline** | Content hashes for the following artifacts are recorded in `state/projects/PROJ-006-agriculture-optimization.yaml`: `data/raw/*`, `data/processed/*`, `src/`, `contracts/`, `reports/`. |
-| **VI. Multi-Source Validation Independence** | Predictor (CSA Index) derived from survey; Outcome (NDVI_CV) derived from satellite. No tautological derivation. |
-| **VII. Spatial-Temporal Alignment Rigor** | `src/data/spatial_join.py` documents geospatial fuzzing (default spatial resolution) and temporal windows (growing season) for NDVI aggregation. |
+| Principle | Status | Action Required |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | Plan mandates pinned `requirements.txt` and random seeds in `src/analysis/`. |
+| **II. Verified Accuracy** | **PASS (with Data Gap)** | Plan acknowledges no verified primary source exists for LSMS-ISA/Sentinel-2. Structural Validation Mode uses generic verified tabular data (UCI) for code logic only. No scientific claims made on synthetic data. |
+| **III. Data Hygiene** | **PASS** | Plan requires checksums for raw data and immutable transformations to new files. |
+| **IV. Single Source of Truth** | **PASS** | Plan structure aligns with `src/analysis/` scripts and `contracts/` schemas. |
+| **V. Versioning Discipline** | **PASS** | Content hashes for artifacts will be recorded in state YAML. |
+| **VI. Multi-Source Validation** | **PASS** | Synthetic data generation is strictly decoupled from analysis logic (fixed seed, independent RNG) to prevent tautological correlation. |
+| **VII. Spatial-Temporal Alignment** | **PASS** | Plan mandates explicit growing season window alignment checks before metric calculation. |
+
+**Critical Gap Addressed**: The spec mentions LSMS-ISA for Malawi/Tanzania. The "Verified datasets" block explicitly states **NO verified source found** for LSMS-ISA. Per Constitution II and Data Availability rules, the plan **MUST NOT** assume this data is downloadable. The implementation strategy (detailed in `research.md`) will:
+1.  **Abort Real Data Path**: Acknowledge that no open dataset supports the specific hypothesis.
+2.  **Structural Validation**: Use a verified generic tabular dataset (e.g., UCI) to test the *pipeline's ability to run regressions* and calculate VIFs.
+3.  **Synthetic Fallback**: If no generic dataset is suitable, generate synthetic data strictly for schema conformance testing, clearly labeled as non-scientific.
+4.  **Reporting**: The final report will explicitly state that results are "Structural Validation Only" and not a test of the scientific hypothesis.
 
 ## Project Structure
 
@@ -51,6 +53,9 @@ specs/001-climate-smart-eval/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
+│   ├── dataset.schema.yaml
+│   └── output.schema.yaml
 └── tasks.md             # Phase 2 output
 ```
 
@@ -58,51 +63,94 @@ specs/001-climate-smart-eval/
 
 ```text
 src/
-├── cli/
-│   ├── run_pipeline.py      # Orchestrates the full workflow
-│   └── validate.py          # Validates data against contracts
-├── config/
-│   ├── constants.py         # Random seeds, paths, thresholds
-│   └── schemas.py           # Contract definitions (if needed in code)
 ├── data/
-│   ├── collectors/
-│   │   ├── survey_collector.py    # Handles LSMS-ISA logic
-│   │   └── remote_sensing_collector.py # Handles Sentinel-2 logic
-│   ├── generators/
-│   │   └── synthetic_generator.py # Generates mock data for CI
-│   └── processing/
-│       ├── spatial_join.py        # Links survey to satellite
-│       └── feature_engineering.py # Constructs CSA Index, NDVI_CV
-├── models/
-│   └── regression_models.py       # Defines and fits statsmodels OLS
-├── services/
-│   ├── diagnostics.py             # VIF calculation, robust SE
-│   └── sensitivity.py             # Cloud cover & fuzzing sweep
-└── utils/
-    └── io_helpers.py              # CSV/Parquet I/O, logging
+│   ├── ingest.py              # Data download, spatial join, cleaning
+│   ├── processing/
+│   │   └── feature_engineering.py # CSA Index, Stability Score calc
+│   └── validation.py          # Schema validation logic
+├── analysis/
+│   ├── run_regression.py      # Model fitting (Model 1 & 2)
+│   ├── diagnostics.py         # VIF, Robust SE checks
+│   └── sensitivity_check.py   # Cloud cover threshold sweep
+├── reports/
+│   └── generate_report.py     # PDF generation with disclaimers
+├── cli/
+│   ├── validate.py            # Contract validation CLI
+│   └── run_pipeline.py        # End-to-end orchestration
+├── config/
+│   ├── constants.py           # Thresholds (VIF > 5, alpha = 0.0167)
+│   └── schemas.py             # Schema definitions
+└── tests/
+    ├── contract/
+    │   └── test_dataset_schema.py
+    ├── integration/
+    │   └── test_pipeline.py
+    └── unit/
+        ├── test_feature_engineering.py
+        └── test_diagnostics.py
 
 data/
-├── raw/                           # Downloaded raw data (checksummed)
-└── processed/
-    └── analysis_dataset.csv       # Final analysis-ready data
-
-tests/
-├── contract/                      # Schema validation tests
-├── integration/                   # Pipeline end-to-end tests
-└── unit/                          # Function-level tests
+├── raw/                       # Downloaded/Verified raw data
+├── processed/                 # analysis_dataset.csv, village_aggregated.csv
+└── logs/                      # ingestion_errors.log, linkage_validation.json
 
 contracts/
 ├── dataset.schema.yaml
 └── output.schema.yaml
 ```
 
-**Structure Decision**: Selected Option 1 (Single project) with a clear separation of concerns (`data/`, `models/`, `services/`) to support the modular testing requirements (Unit, Integration, Contract) mandated by the spec and previous reviewer feedback. **Note**: `contracts/` is located at the project root, not inside `specs/`.
+**Structure Decision**: The structure follows a standard data science pipeline (Ingest -> Process -> Analyze -> Report) with explicit separation of concerns for validation (CLI) and diagnostics. This resolves the previous "structural drift" concern by ensuring `src/analysis/` contains the regression logic as specified in the plan, and `src/data/` handles the heavy lifting of ingestion and feature engineering.
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
+| Necessary Complexity | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Sensitivity Analysis Sweep** | Spec FR-006 requires testing cloud cover thresholds {, 0.8, and other representative values}. | A single threshold run would fail to meet the robustness requirement and the spec's acceptance criteria (SC-005). |
-| **Cluster-Robust SEs** | Spec FR-004 and FR-005 require handling spatial autocorrelation from fuzzing. | Standard OLS would violate the statistical rigor requirements for heteroskedasticity and spatial clustering. |
-| **Village-Level Aggregation** | Spec requires fallback if N < 300. | A hard failure would prevent the study from producing results in low-overlap scenarios, violating the "feasibility" constraint. |
-| **Synthetic Generator** | CI reproducibility requires data availability without manual intervention. | A "Fail Fast" strategy prevents automated validation of the statistical pipeline. |
+| **Spatial Join & Satellite Harmonization** | Essential for linking survey data to yield stability metrics. | A simple CSV merge is insufficient; geospatial alignment (fuzzing, pixel matching) is required by the methodology. |
+| **Robust Standard Errors & VIF Diagnostics** | Required by FR-004/FR-005 to address heteroskedasticity and collinearity. | OLS without diagnostics would violate statistical rigor requirements and risk spurious results. |
+| **Sensitivity Analysis (Cloud Cover Sweep)** | Required by FR-006 to validate robustness against data quality thresholds. | A single-point analysis would fail to demonstrate result stability under varying data quality conditions. |
+| **Model Specification Sensitivity** | Required to detect non-linearity (Ramsey RESET) and interaction effects. | A linear-only model risks Type II errors if the true relationship is non-linear. |
+| **Temporal Alignment Validation** | Required to ensure satellite growing season matches survey reference period. | Mismatched seasons would render the "Yield Stability" metric noise. |
+| **NDVI Masking Protocol** | Required to exclude non-vegetated pixels (fallow/early season) from CV calculation. | Including low-NDVI pixels introduces massive outliers that robust SE cannot fully correct. |
+
+## Tasks (Implementation Roadmap)
+
+*Note: Tasks are grouped by User Story for clarity, but each test type is distinct.*
+
+### Phase 1: Data Ingestion & Harmonization (US-1)
+- [ ] **T001**: Implement `src/data/ingest.py` to download/calculate synthetic data.
+- [ ] **T002**: Implement `src/data/processing/feature_engineering.py` for CSA Index and Stability Score.
+- [ ] **T003**: Implement spatial join logic with fuzzing and temporal alignment checks.
+- [ ] **T004**: Generate `data/processed/analysis_dataset.csv` and `data/logs/linkage_validation.json`.
+- [ ] **T005**: **Contract Test**: Implement `tests/contract/test_dataset_schema.py` to validate `analysis_dataset.csv` against `contracts/dataset.schema.yaml`.
+
+### Phase 2: Statistical Analysis (US-2)
+- [ ] **T006**: Implement `src/analysis/run_regression.py` for Model 1 & 2 with robust SE.
+- [ ] **T007**: Implement `src/analysis/diagnostics.py` for VIF calculation and logging.
+- [ ] **T008**: Generate `data/processed/regression_results.json`.
+- [ ] **T009**: **Unit Test**: Implement `tests/unit/test_feature_engineering.py` for CSA/NDVI logic.
+- [ ] **T010**: **Unit Test**: Implement `tests/unit/test_diagnostics.py` for VIF logic.
+
+### Phase 3: Sensitivity & Reporting (US-3)
+- [ ] **T011**: Implement `src/analysis/sensitivity_check.py` for cloud cover sweep.
+- [ ] **T012**: Implement `src/reports/generate_report.py` with disclaimers.
+- [ ] **T013**: **Integration Test**: Implement `tests/integration/test_pipeline.py` to run full flow.
+- [ ] **T014**: **Contract Test**: Implement `tests/contract/test_output_schema.py` for `regression_results.json`.
+
+## Data Availability & Structural Validation Strategy
+
+**Status**: **NO VERIFIED SOURCE** for LSMS-ISA or Sentinel-2 in the provided verified datasets block.
+
+**Strategy**:
+1.  **Structural Validation**: The pipeline will be tested using a verified generic tabular dataset (UCI Water Treatment Plant) or a strictly synthetic dataset that adheres to `contracts/dataset.schema.yaml`.
+2.  **Decoupling**: The synthetic data generation logic is **strictly decoupled** from the analysis logic (independent RNG seeds). No correlation is imposed between `CSA_Index` and `Stability_Score` in the synthetic generator.
+3.  **Outcome**: The pipeline will successfully run regressions and calculate VIFs, but the resulting coefficients and p-values are **mathematical artifacts of the random seed**, not scientific findings.
+4.  **Reporting**: The final report will explicitly state: "Results are Structural Validation Only. No scientific claims regarding the hypothesis are made due to lack of verified real-world data."
+
+## Compute Feasibility
+
+-   **Environment**: GitHub Actions Free Tier (2 CPU, ~7 GB RAM, no GPU).
+-   **Strategy**: **CPU-First**.
+    -   All statistical operations (regression, VIF) are classical and CPU-tractable.
+    -   Data processing (spatial join) will be performed on a **sampled** dataset or aggregated to village level to ensure memory safety (< 7 GB).
+    -   No deep learning or GPU-accelerated models are used.
+-   **Rationale**: The methodology (OLS, VIF, Bonferroni) does not require GPU acceleration. Using a GPU would be unnecessary overhead and incompatible with the runner. The "GPU escape hatch" is not needed for this specific statistical analysis.

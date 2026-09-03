@@ -1,90 +1,78 @@
-# Quickstart: Correlational Analysis of Climate‑Smart Agricultural Practices and Yield Stability Independent of Financial Access
+# Quickstart: Correlational Analysis of Climate-Smart Agricultural Practices
 
 ## 1. Prerequisites
 
-- **Python**: 3.11+
-- **Dependencies**: `requirements.txt` (pinned versions)
-- **Data**: 
-    - LSMS-ISA dataset (Malawi or Tanzania) for the relevant year.
-    - Sentinel-2 or Landsat 8/9 surface reflectance data for the corresponding growing season.
-    - *Note*: If data is not available for automatic download, use the `--use-synthetic` flag to generate mock data for pipeline validation.
+- Python 3.11+
+- Git
+- Access to a GitHub Actions runner (or local environment with same specs).
 
 ## 2. Installation
 
-```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+1. **Clone the repository**:
+ ```bash
+ git clone
+ cd PROJ-006-agriculture-optimization
+ ```
 
-# Install dependencies
-pip install -r requirements.txt
-```
+2. **Install dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
+ *Dependencies include: `pandas`, `numpy`, `statsmodels`, `geopandas`, `pytest`, `pyyaml`.*
 
 ## 3. Data Setup
 
-### Option A: Automatic Download (if URLs are available)
-Run the ingestion script:
+### 3.1 Downloading Data
+The pipeline attempts to download data from verified sources.
 ```bash
-python src/cli/run_pipeline.py --stage ingest
+python src/cli/run_pipeline.py --stage download
 ```
-*Note: This step may fail if the required datasets (LSMS-ISA, Sentinel-2) are not accessible via public, unauthenticated URLs. Check logs for `MISSING_DATA` errors.*
+*Note: If LSMS-ISA or Sentinel-2 are unavailable, the script will switch to Structural Validation Mode using a generic UCI dataset or synthetic data.*
 
-### Option B: Synthetic Data (for CI/Validation)
-If real data is unavailable, generate a statistically realistic mock dataset:
+### 3.2 Verifying Data
+Ensure the data files exist and pass schema validation:
 ```bash
-python src/cli/run_pipeline.py --stage ingest --use-synthetic
+python src/cli/validate.py --input data/processed/analysis_dataset.csv
 ```
-*This creates `data/raw/synthetic_survey.csv` and `data/raw/synthetic_satellite.nc`.*
-
-### Option C: Manual Data Placement
-1. Download LSMS-ISA data and place it in `data/raw/survey_data.csv`.
-2. Download Sentinel-2/Landsat data and place it in `data/raw/satellite_data.nc`.
-3. Ensure checksums are recorded in `state/projects/PROJ-006-agriculture-optimization.yaml`.
+Expected output: `Validation PASSED: 0 errors`.
 
 ## 4. Running the Analysis
 
-### Full Pipeline
-Execute the entire pipeline (Ingest -> Process -> Analyze -> Report):
+Execute the full pipeline (Ingest -> Process -> Model -> Report):
 ```bash
-python src/cli/run_pipeline.py --stage full
+python src/cli/run_pipeline.py --full
 ```
 
-### Individual Stages
-- **Ingest**: `python src/cli/run_pipeline.py --stage ingest`
-- **Process**: `python src/cli/run_pipeline.py --stage process`
-- **Analyze**: `python src/cli/run_pipeline.py --stage analyze`
-- **Report**: `python src/cli/run_pipeline.py --stage report`
+This will:
+1. Ingest data (or generate synthetic proxy).
+2. Perform spatial join and feature engineering.
+3. Run regression models with robust SE.
+4. Perform VIF diagnostics.
+5. Run sensitivity analysis (cloud cover & model specification).
+6. Generate `reports/final_report.pdf`.
 
-## 5. Validation
+## 5. Running Tests
 
-### Schema Validation
-Validate the processed dataset against the contract:
+Execute the test suite to verify implementation correctness:
 ```bash
-python src/cli/validate.py --input data/processed/analysis_dataset.csv --contract contracts/dataset.schema.yaml
+pytest tests/ -v
 ```
 
-### Unit Tests
-Run unit tests for data processing and modeling:
-```bash
-pytest tests/unit/
-```
+**Key Tests**:
+- `tests/contract/test_dataset_schema.py`: Validates data structure.
+- `tests/integration/test_pipeline.py`: Verifies end-to-end flow.
+- `tests/unit/test_feature_engineering.py`: Checks CSA Index and Stability Score logic.
 
-### Contract Tests
-Run contract validation tests:
-```bash
-pytest tests/contract/
-```
+## 6. Expected Outputs
 
-## 6. Output
-
-- **Analysis Dataset**: `data/processed/analysis_dataset.csv`
-- **Regression Results**: `data/processed/regression_results.json`
-- **Sensitivity Analysis**: `data/processed/sensitivity_analysis.csv` and `data/processed/sensitivity_plot.png`
-- **Final Report**: `reports/final_report.pdf`
+- `data/processed/analysis_dataset.csv`: The final analysis-ready dataset.
+- `data/processed/regression_results.json`: Coefficients, p-values, VIF scores.
+- `reports/final_report.pdf`: The scientific report with disclaimers.
+- `data/logs/ingestion_errors.log`: Any records excluded during processing.
 
 ## 7. Troubleshooting
 
-- **Error: `MISSING_DATA`**: The required datasets (LSMS-ISA or Sentinel-2) could not be downloaded. Use `--use-synthetic` for validation or place files manually in `data/raw/`.
-- **Error: `SPATIAL_OVERLAP_LOW`**: Fewer than 300 households matched. The pipeline will automatically aggregate to village level. If N < 100, it will switch to bivariate correlation.
-- **Error: `VIF_HIGH`**: High collinearity detected. The report will include a warning; interpret coefficients with caution.
-- **Error: `POWER_LOW`**: Sample size too small for multiple regression. The pipeline will switch to bivariate analysis and flag the limitation.
+- **Error: "NO_DATA_AVAILABLE"**: The verified datasets (LSMS-ISA) are not accessible. The pipeline has switched to Structural Validation Mode (UCI/Synthetic). Check `data/processed/analysis_dataset.csv` for `is_synthetic=True`.
+- **Error: "VIF > 5"**: Collinearity detected. Check `data/logs/diagnostics.log` for flagged variables.
+- **Error: "Spatial Join Failed"**: Coordinates may be missing or fuzzed too aggressively. Check `data/logs/linkage_validation.json`.
+- **Error: "LOW_POWER"**: Sample size is insufficient even after aggregation. Check `data/logs/power_analysis.log`.
