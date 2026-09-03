@@ -1,97 +1,81 @@
-"""
-Unit tests for the repo_fetcher module (T010).
-"""
-
 import json
-import os
-import tempfile
-from pathlib import Path
 import pytest
+from pathlib import Path
+from unittest.mock import patch, MagicMock
 
 from utils.repo_fetcher import (
-    validate_repo_list_schema,
+    fetch_top_repos_from_pypi,
     fetch_fallback_repos,
+    validate_repo_list_schema,
     create_repo_list_file,
-    RepoFetcherException
+    FALLBACK_REPOS
 )
+from utils.exceptions import RepoFetcherException
 
-class TestRepoFetcher:
+@pytest.fixture
+def temp_dir(tmp_path):
+    return tmp_path
+
+def test_fetch_fallback_repos_count():
+    """Test that fallback repos returns exactly 20 items (or the defined constant)"""
+    repos = fetch_fallback_repos()
+    assert len(repos) == 20
+
+def test_fetch_fallback_repos_schema():
+    """Test that fallback repos have the required schema"""
+    repos = fetch_fallback_repos()
+    assert validate_repo_list_schema(repos) is True
+
+def test_validate_repo_list_schema_valid():
+    """Test schema validation with valid data"""
+    valid_data = [
+        {"repo_url": "http://a.com", "github_url": "http://b.com", "star_count": 100},
+        {"repo_url": "http://c.com", "github_url": "http://d.com", "star_count": 200}
+    ]
+    assert validate_repo_list_schema(valid_data) is True
+
+def test_validate_repo_list_schema_missing_field():
+    """Test schema validation with missing field"""
+    invalid_data = [
+        {"repo_url": "http://a.com", "github_url": "http://b.com"} # Missing star_count
+    ]
+    assert validate_repo_list_schema(invalid_data) is False
+
+def test_validate_repo_list_schema_invalid_type():
+    """Test schema validation with invalid type"""
+    invalid_data = [
+        {"repo_url": "http://a.com", "github_url": "http://b.com", "star_count": "many"}
+    ]
+    assert validate_repo_list_schema(invalid_data) is False
+
+def test_create_repo_list_file(temp_dir):
+    """Test creating the repo list file"""
+    repos = fetch_fallback_repos()
+    output_path = temp_dir / "test_repos.json"
     
-    def test_validate_repo_list_schema_valid(self):
-        """Test validation with a valid repository list."""
-        valid_repo = {
-            "repo_url": "https://github.com/test/repo",
-            "github_url": "https://github.com/test/repo",
-            "star_count": 100
-        }
-        assert validate_repo_list_schema([valid_repo]) is True
+    create_repo_list_file(repos, output_path)
+    
+    assert output_path.exists()
+    
+    with open(output_path, 'r') as f:
+        data = json.load(f)
+    
+    assert len(data) == 20
+    assert validate_repo_list_schema(data) is True
+    
+    # Check sorting (descending by star_count)
+    for i in range(len(data) - 1):
+        assert data[i]['star_count'] >= data[i+1]['star_count']
 
-    def test_validate_repo_list_schema_missing_field(self):
-        """Test validation fails with missing fields."""
-        invalid_repo = {
-            "repo_url": "https://github.com/test/repo",
-            "star_count": 100
-        }
-        with pytest.raises(RepoFetcherException):
-            validate_repo_list_schema([invalid_repo])
-
-    def test_validate_repo_list_schema_invalid_type(self):
-        """Test validation fails with invalid star_count type."""
-        invalid_repo = {
-            "repo_url": "https://github.com/test/repo",
-            "github_url": "https://github.com/test/repo",
-            "star_count": "not an integer"
-        }
-        with pytest.raises(RepoFetcherException):
-            validate_repo_list_schema([invalid_repo])
-
-    def test_fetch_fallback_repos_returns_list(self):
-        """Test that fallback repos returns a non-empty list."""
-        repos = fetch_fallback_repos()
-        assert isinstance(repos, list)
-        assert len(repos) > 0
-
-    def test_create_repo_list_file_creates_json(self):
-        """Test that create_repo_list_file writes a valid JSON file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "test_repo_list.json")
-            result_path = create_repo_list_file(output_path, limit=5)
-            
-            assert result_path.exists()
-            with open(result_path, 'r') as f:
-                data = json.load(f)
-            
-            assert isinstance(data, list)
-            assert len(data) <= 5
-            
-            # Verify schema
-            for repo in data:
-                assert "repo_url" in repo
-                assert "github_url" in repo
-                assert "star_count" in repo
-
-    def test_create_repo_list_file_limit_enforcement(self):
-        """Test that the limit parameter is strictly enforced."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "test_repo_list.json")
-            limit = 3
-            create_repo_list_file(output_path, limit=limit)
-            
-            with open(output_path, 'r') as f:
-                data = json.load(f)
-            
-            assert len(data) == limit
-
-    def test_create_repo_list_file_count_constraint_warning(self):
-        """Test that a warning is logged if count is < 1 (simulated)."""
-        # This test is more of a structural check since the frozen list is > 1.
-        # We verify the function handles the path correctly.
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "test_repo_list.json")
-            # We can't easily trigger the < 1 case without modifying the frozen list,
-            # but we verify the file is created correctly.
-            create_repo_list_file(output_path, limit=20)
-            assert Path(output_path).exists()
-            with open(output_path, 'r') as f:
-                data = json.load(f)
-            assert 1 <= len(data) <= 20
+@patch('utils.repo_fetcher.requests.Session')
+def test_fetch_top_repos_from_pypi_fallback_on_api_failure(mock_session_class):
+    """Test that API failure triggers fallback"""
+    mock_session = MagicMock()
+    mock_session.get.side_effect = Exception("Network error")
+    mock_session_class.return_value = mock_session
+    
+    repos = fetch_top_repos_from_pypi()
+    
+    # Should fall back to the verified list
+    assert len(repos) == 20
+    assert repos[0] == FALLBACK_REPOS[0]

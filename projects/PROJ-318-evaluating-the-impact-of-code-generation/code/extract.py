@@ -1,9 +1,3 @@
-"""
-Repository extraction pipeline for code documentation analysis.
-
-This module handles the extraction of public method signatures and
-human-written docstrings from Python repositories.
-"""
 import json
 import logging
 import os
@@ -11,15 +5,12 @@ import sys
 import hashlib
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-import argparse
 
-# Import from local utilities
-from utils.git_clone import clone_repository, clone_repos_from_list
-from utils.file_walker import walk_python_files
-from utils.ast_parser import parse_python_file
-from utils.models import MethodSignature, DocstringPair, serialize_pairs_to_json, compute_checksum
+from utils.ast_parser import parse_python_files
+from utils.file_walker import collect_python_files
 from utils.repo_loader import load_repo_list
-from utils.exceptions import GitCloneException, FileWalkerException, ASTParsingException, SerializationException
+from utils.exceptions import SerializationException, RepoLoaderException
+from utils.models import serialize_pairs_to_json
 
 # Configure logging
 logging.basicConfig(
@@ -32,213 +23,155 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def extract_repo_methods(repo_path: Path, max_methods: int = 1000) -> List[Dict[str, Any]]:
-    """
-    Extract public method signatures and docstrings from a repository.
-    
-    Args:
-        repo_path: Path to the cloned repository
-        max_methods: Maximum number of methods to extract per repository
-        
-    Returns:
-        List of method signature dictionaries
-    """
-    if not repo_path.exists():
-        raise FileWalkerException(f"Repository path does not exist: {repo_path}")
-    
-    results = []
-    python_files = list(walk_python_files(repo_path))
-    logger.info(f"Found {len(python_files)} Python files in {repo_path.name}")
-    
-    for file_path in python_files:
-        if len(results) >= max_methods:
-            logger.warning(f"Reached max_methods limit ({max_methods}) for {repo_path.name}")
-            break
-            
-        try:
-            methods = parse_python_file(file_path)
-            for method in methods:
-                if len(results) >= max_methods:
-                    break
-                results.append(method)
-        except ASTParsingException as e:
-            logger.warning(f"Skipping malformed file {file_path}: {e}")
-            continue
-            
-    logger.info(f"Extracted {len(results)} methods from {repo_path.name}")
-    return results
+MAX_METHODS_PER_REPO = 1000
 
-def process_repositories(repo_list: List[Dict[str, Any]], output_dir: Path, max_methods: int = 1000) -> List[Path]:
+def extract_repo_methods(repo_path: Path, repo_id: str) -> List[Dict[str, Any]]:
     """
-    Process all repositories in the list and extract method data.
-    
-    Args:
-        repo_list: List of repository dictionaries with 'repo_url' and 'github_url'
-        output_dir: Directory to save extracted data
-        max_methods: Maximum methods per repository
-        
-    Returns:
-        List of paths to generated JSON files
+    Extract method signatures and docstrings from a single repository.
+    Truncates to MAX_METHODS_PER_REPO.
     """
-    output_dir.mkdir(parents=True, exist_ok=True)
-    generated_files = []
+    logger.info(f"Extracting methods from {repo_path} (ID: {repo_id})")
     
-    for repo_info in repo_list:
-        repo_url = repo_info.get('repo_url')
-        repo_name = repo_info.get('github_url', repo_url.split('/')[-1])
-        
-        logger.info(f"Processing repository: {repo_name}")
-        
+    py_files = list(collect_python_files(repo_path))
+    if not py_files:
+        logger.warning(f"No Python files found in {repo_path}")
+        return []
+
+    # Parse all files
+    all_methods = []
+    for file_path in py_files:
         try:
-            # Clone repository
-            repo_path = clone_repository(repo_url, output_dir.parent / 'repos' / repo_name)
-            
-            # Extract methods
-            methods = extract_repo_methods(repo_path, max_methods)
-            
-            if not methods:
-                logger.warning(f"No methods extracted from {repo_name}")
-                continue
-                
-            # Create output filename
-            output_file = output_dir / f"{repo_name}_methods.json"
-            
-            # Serialize to JSON
-            serialized_data = serialize_pairs_to_json(methods)
-            with open(output_file, 'w', encoding='utf-8') as f:
-                json.dump(serialized_data, f, indent=2)
-                
-            generated_files.append(output_file)
-            logger.info(f"Saved {len(methods)} methods to {output_file}")
-            
-        except (GitCloneException, FileWalkerException, ASTParsingException) as e:
-            logger.error(f"Failed to process {repo_name}: {e}")
+            methods = parse_python_files([file_path])
+            all_methods.extend(methods)
+        except Exception as e:
+            logger.error(f"Error parsing {file_path}: {e}")
             continue
-            
-    return generated_files
+
+    # Truncate if necessary
+    if len(all_methods) > MAX_METHODS_PER_REPO:
+        logger.info(f"Truncating {len(all_methods)} methods to {MAX_METHODS_PER_REPO} for {repo_id}")
+        all_methods = all_methods[:MAX_METHODS_PER_REPO]
+    
+    logger.info(f"Extracted {len(all_methods)} methods from {repo_id}")
+    return all_methods
 
 def compute_file_checksum(file_path: Path) -> str:
-    """
-    Compute SHA-256 checksum of a file.
-    
-    Args:
-        file_path: Path to the file
-        
-    Returns:
-        Hexadecimal string of the SHA-256 hash
-    """
+    """Compute SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def record_state_hash(project_id: str, artifact_paths: List[Path], state_dir: Path) -> None:
+def record_state_hash(artifact_path: Path, project_id: str) -> None:
     """
-    Record checksums of generated artifacts in the project state file.
-    
-    Args:
-        project_id: Project identifier
-        artifact_paths: List of paths to artifact files
-        state_dir: Directory containing project state
+    Compute SHA-256 of the artifact and record it in state/projects/{project_id}.yaml.
+    Creates the state/projects directory and file if they don't exist.
     """
+    if not artifact_path.exists():
+        raise FileNotFoundError(f"Artifact file not found: {artifact_path}")
+
+    checksum = compute_file_checksum(artifact_path)
+    logger.info(f"Computed checksum for {artifact_path}: {checksum}")
+
+    state_dir = Path("state/projects")
     state_dir.mkdir(parents=True, exist_ok=True)
+
     state_file = state_dir / f"{project_id}.yaml"
     
+    # Load existing state or initialize
+    existing_hashes = {}
+    if state_file.exists():
+        try:
+            import yaml
+            with open(state_file, 'r') as f:
+                state_data = yaml.safe_load(f) or {}
+                existing_hashes = state_data.get('artifact_hashes', {})
+        except Exception as e:
+            logger.warning(f"Could not load existing state file: {e}")
+            existing_hashes = {}
+
+    # Update with new hash
+    existing_hashes[artifact_path.name] = checksum
+
+    # Write back
     import yaml
-    
-    artifact_hashes = {}
-    for path in artifact_paths:
-        if path.exists():
-            checksum = compute_file_checksum(path)
-            artifact_hashes[path.name] = checksum
-            
     state_data = {
         'project_id': project_id,
-        'artifact_hashes': artifact_hashes,
-        'generated_files': [str(p) for p in artifact_paths]
+        'artifact_hashes': existing_hashes
     }
+    with open(state_file, 'w') as f:
+        yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
     
-    with open(state_file, 'w', encoding='utf-8') as f:
-        yaml.dump(state_data, f, default_flow_style=False)
+    logger.info(f"Recorded checksum for {artifact_path.name} in {state_file}")
+
+def process_repositories(repo_list_path: Path, output_dir: Path, project_id: str) -> None:
+    """
+    Process all repositories in the list, extract methods, and save to JSON.
+    """
+    try:
+        repos = load_repo_list(repo_list_path)
+    except RepoLoaderException as e:
+        logger.error(f"Failed to load repo list: {e}")
+        raise
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    processed_count = 0
+    for repo in repos:
+        repo_id = repo.get('id') or repo.get('repo_url', '').replace('/', '_').replace('.', '_')
+        repo_path = Path(repo.get('local_path'))
         
-    logger.info(f"State recorded to {state_file}")
+        if not repo_path.exists():
+            logger.warning(f"Repository path does not exist: {repo_path}. Skipping.")
+            continue
+
+        methods = extract_repo_methods(repo_path, repo_id)
+        
+        if not methods:
+            logger.warning(f"No methods extracted for {repo_id}. Skipping serialization.")
+            continue
+
+        # Serialize to JSON
+        output_file = output_dir / f"{repo_id}.json"
+        try:
+            with open(output_file, 'w', encoding='utf-8') as f:
+                json.dump(methods, f, indent=2, ensure_ascii=False)
+            logger.info(f"Saved {len(methods)} methods to {output_file}")
+            
+            # Record hash in state
+            record_state_hash(output_file, project_id)
+            processed_count += 1
+        except Exception as e:
+            logger.error(f"Failed to save or record state for {repo_id}: {e}")
+            raise SerializationException(f"Failed to serialize {repo_id}: {e}")
+
+    logger.info(f"Successfully processed {processed_count} repositories.")
 
 def main():
-    """
-    Main entry point for the extraction pipeline.
-    
-    Parses command-line arguments and orchestrates the extraction process.
-    """
-    parser = argparse.ArgumentParser(
-        description='Extract method signatures and docstrings from Python repositories.'
-    )
-    parser.add_argument(
-        '--repo-list',
-        type=str,
-        default='data/raw/repo_list.json',
-        help='Path to the repository list JSON file'
-    )
-    parser.add_argument(
-        '--output-dir',
-        type=str,
-        default='data/raw/repos',
-        help='Output directory for extracted data'
-    )
-    parser.add_argument(
-        '--state-dir',
-        type=str,
-        default='state/projects',
-        help='Directory for project state files'
-    )
-    parser.add_argument(
-        '--max-methods',
-        type=int,
-        default=1000,
-        help='Maximum number of methods to extract per repository'
-    )
-    parser.add_argument(
-        '--project-id',
-        type=str,
-        default='PROJ-318-evaluating-the-impact-of-code-generation',
-        help='Project identifier for state tracking'
-    )
-    
-    args = parser.parse_args()
-    
-    logger.info("Starting repository extraction pipeline")
-    logger.info(f"Repository list: {args.repo_list}")
-    logger.info(f"Output directory: {args.output_dir}")
-    logger.info(f"Max methods per repo: {args.max_methods}")
-    
-    # Load repository list
-    try:
-        repo_list = load_repo_list(Path(args.repo_list))
-        logger.info(f"Loaded {len(repo_list)} repositories")
-    except Exception as e:
-        logger.error(f"Failed to load repository list: {e}")
-        sys.exit(1)
-        
-    # Process repositories
-    output_path = Path(args.output_dir)
-    try:
-        generated_files = process_repositories(repo_list, output_path, args.max_methods)
-    except Exception as e:
-        logger.error(f"Extraction failed: {e}")
-        sys.exit(1)
-        
-    if not generated_files:
-        logger.warning("No files were generated")
-        sys.exit(0)
-        
-    # Record state
-    try:
-        record_state_hash(args.project_id, generated_files, Path(args.state_dir))
-    except Exception as e:
-        logger.error(f"Failed to record state: {e}")
-        # Don't exit on state recording failure
-        
-    logger.info("Extraction pipeline completed successfully")
+    """Main entry point for extraction."""
+    # Default paths
+    repo_list_path = Path("data/raw/repo_list.json")
+    output_dir = Path("data/raw/repos")
+    project_id = "PROJ-318-evaluating-the-impact-of-code-generation"
 
-if __name__ == '__main__':
+    if len(sys.argv) > 1:
+        repo_list_path = Path(sys.argv[1])
+    if len(sys.argv) > 2:
+        output_dir = Path(sys.argv[2])
+    if len(sys.argv) > 3:
+        project_id = sys.argv[3]
+
+    logger.info(f"Starting extraction with repo list: {repo_list_path}")
+    logger.info(f"Output directory: {output_dir}")
+    logger.info(f"Project ID: {project_id}")
+
+    try:
+        process_repositories(repo_list_path, output_dir, project_id)
+        logger.info("Extraction completed successfully.")
+    except Exception as e:
+        logger.error(f"Extraction failed: {e}", exc_info=True)
+        sys.exit(1)
+
+if __name__ == "__main__":
     main()

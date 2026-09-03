@@ -2857,3 +2857,525 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-30T19:57:36Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: PyPI API fallback to 20 top repos after 3 retries
+  claim_id: c_9ff0de35
+  context: Task T010 describes fetching repositories and specifies the fallback logic
+    if the API fails.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the PyPI API fails to return 20 valid repos after 3 retries with exponential
+    backoff, fall back to a pre-defined, verified list of 20 top PyPI repos stored
+    in data/raw/frozen_repo_list.json
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:47:21Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Repo list JSON schema requires 20 entries with specific fields
+  claim_id: c_0c778aea
+  context: Task T010 verification steps require specific schema fields and a count
+    of 20.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The JSON schema for the repo list must include repo_url, github_url, star_count
+    and the count must be exactly 20
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:48:03Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Maximum 1,000 methods per repository
+  claim_id: c_e84697c0
+  context: Phase 3 Goal states the extraction process truncates method lists to a
+    fixed sample.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Truncate the list to a maximum of 1,000 methods per repository
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:48:43Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Docstring generation on up to 1,000 methods per repository
+  claim_id: c_8d3e3ca0
+  context: Phase 4 Goal specifies the scope of the generation task.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate docstrings for the truncated list of up to 1,000 methods per
+    repository with a fixed temperature
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:49:33Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Docstring generation completion within 6 hours on CPU
+  claim_id: c_8c4267b0
+  context: Phase 4 Goal sets a time constraint for the generation process.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure completion within 6 hours on CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:50:09Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Memory usage under 7 GB RAM during generation
+  claim_id: c_f737385f
+  context: Phase 4 Independent Test specifies the memory constraint for the generation
+    task.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify output file contains generated text, model loads in CPU mode (strict
+    4-bit with fallback), and memory stays under 7 GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:51:22Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Generation test on subset of 50 methods
+  claim_id: c_c22c4133
+  context: Phase 4 Independent Test specifies the sample size for the test run.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run generation on a subset of 50 methods
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:51:57Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Fixed temperature of 0.2 for generation
+  claim_id: c_2a5475b1
+  context: Task T024 specifies the temperature parameter for the generation loop.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute python code/generate.py with a fixed temperature of 0.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:52:27Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Abort generation if RAM exceeds 7 GB
+  claim_id: c_acc1bf4c
+  context: Task T025 details the memory monitoring and abort logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Abort if RAM > 7 GB, logging a specific RAM_LIMIT_EXCEEDED entry
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:52:27Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Coverage score formula: matched params divided by total AST params'
+  claim_id: c_80bae293
+  context: Task T027 describes the calculation of the coverage score.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate coverage_score as (0 matched params / total AST params) = 0.0
+    explicitly verifying the formula
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:52:48Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Total row count <= 20,000 (20 repos * 1000 methods)
+  claim_id: c_4118a7da
+  context: Task T026 specifies the aggregate verification for the final results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the final file structure and total row count <= 20,000 (20 repos
+    * 1000 methods)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:53:22Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Parameter Coverage Score formula: matched params / total AST params'
+  claim_id: c_97b42f95
+  context: Task T033 defines the formula for calculating parameter coverage.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Parameter_Coverage_Score_formula:_matched_params_/_total_AST
+  kind: entity_fact
+  raw_text: 'Implement Parameter Coverage Score calculation: (matched params / total
+    AST params)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:54:16Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Log warning if method pairs < 30 before Wilcoxon test
+  claim_id: c_ffc9ce02
+  context: Task T036 specifies the condition for logging a warning before statistical
+    testing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Log a warning if total method pairs < 30 AND proceed with the Wilcoxon
+    test
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:54:17Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: truncate repository methods to max 1000
+  claim_id: c_1c18579b
+  context: Extract public method signatures and human-written docstrings from a representative
+    set of top PyPI repositories, truncate the list to a maximum of 1,000 methods
+    per repository (fixed sample), and output a structured JSON dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The list of repositories must be truncated to a maximum of 1,000 methods
+    per repository.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:58:10Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: final results row count max 20000
+  claim_id: c_f58144a6
+  context: verify the final file structure and total row count <= 20,000 (20 repos
+    * 1000 methods).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Final_results_row_count_max_20000
+  kind: magnitude
+  raw_text: The final aggregated results file must have a total row count less than
+    or equal to 20,000.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:59:25Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: frozen repo list count exactly 20
+  claim_id: c_8135736b
+  context: If the PyPI API fails to return 20 valid repos after 3 retries with exponential
+    backoff, fall back to a pre-defined, verified list of 20 top PyPI repos... Ensure
+    JSON schema includes repo_url, github_url, star_count and count is exactly 20.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The repository list must contain exactly 20 repositories.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T05:00:03Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: model loading strict 4-bit quantization with fallback
+  claim_id: c_11385b3b
+  context: 'strict 4-bit quantization fallback logic: if 4-bit fails, the script MUST
+    attempt 8-bit, then full precision, and ONLY abort if all quantization schemes
+    fail.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model must load in 4-bit quantization with a fallback to 8-bit or
+    full precision if 4-bit fails.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T05:00:57Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: generation completion time max 6 hours on CPU
+  claim_id: c_f81f6e54
+  context: generate docstrings for the truncated list of up to 1,000 methods per repository
+    with a fixed temperature, ensuring completion within 6 hours on CPU.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The generation process must complete within 6 hours on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T05:01:50Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: generation memory limit 7 GB RAM
+  claim_id: c_1de84eb7
+  context: Verify output file contains generated text, model loads in CPU mode (strict
+    4-bit with fallback), and memory stays under 7 GB RAM as monitored via /proc/self/status.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory usage during generation must stay under 7 GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T05:02:31Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: generation temperature 0.2
+  claim_id: c_ff0de818
+  context: generate docstrings with a fixed temperature of 0.2, and write intermediate
+    results to data/processed/generation_batch_{repo_id}.json
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fixed temperature for docstring generation is 0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T05:02:53Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: wilcoxon test warning threshold 30 pairs
+  claim_id: c_3aad8cbe
+  context: Add logic to log a warning if total method pairs < 30 AND proceed with
+    the Wilcoxon test reading from data/processed/results_with_scores.json.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Wilcoxon_test_warning_threshold_30_pairs
+  kind: magnitude
+  raw_text: The Wilcoxon signed-rank test should log a warning if the total method
+    pairs are fewer than 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T05:03:57Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: transformers version 4.35.0
+  claim_id: c_a4eda9d6
+  context: Initialize Python + project with requirements.txt dependencies (transformers==4.35.0,
+    torch==2.1.0, bitsandbytes==0.41.0, sentence-transformers==2.2.2, docstring_parser==0.16,
+    scipy==1.11.0, requests==2.31.0, pyyaml==6.0.1, pytest==7.4.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dependency list includes transformers==4.35.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T05:04:29Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: torch version 2.1.0
+  claim_id: c_5dfd5add
+  context: Initialize Python + project with requirements.txt dependencies (transformers==4.35.0,
+    torch==2.1.0, bitsandbytes==0.41.0, sentence-transformers==2.2.2, docstring_parser==0.16,
+    scipy==1.11.0, requests==2.31.0, pyyaml==6.0.1, pytest==7.4.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dependency list includes torch==2.1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T05:05:04Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: bitsandbytes version 0.41.0
+  claim_id: c_ceec6bcf
+  context: Initialize Python + project with requirements.txt dependencies (transformers==4.35.0,
+    torch==2.1.0, bitsandbytes==0.41.0, sentence-transformers==2.2.2, docstring_parser==0.16,
+    scipy==1.11.0, requests==2.31.0, pyyaml==6.0.1, pytest==7.4.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dependency list includes bitsandbytes==0.41.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T05:05:28Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: sentence-transformers version 2.2.2
+  claim_id: c_f4f32515
+  context: Initialize Python + project with requirements.txt dependencies (transformers==4.35.0,
+    torch==2.1.0, bitsandbytes==0.41.0, sentence-transformers==2.2.2, docstring_parser==0.16,
+    scipy==1.11.0, requests==2.31.0, pyyaml==6.0.1, pytest==7.4.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dependency list includes sentence-transformers==2.2.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T05:06:02Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: scipy version 1.11.0
+  claim_id: c_26d5a67b
+  context: Initialize Python + project with requirements.txt dependencies (transformers==4.35.0,
+    torch==2.1.0, bitsandbytes==0.41.0, sentence-transformers==2.2.2, docstring_parser==0.16,
+    scipy==1.11.0, requests==2.31.0, pyyaml==6.0.1, pytest==7.4.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dependency list includes scipy==1.11.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T05:06:36Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: requests version 2.31.0
+  claim_id: c_7dd62378
+  context: Initialize Python + project with requirements.txt dependencies (transformers==4.35.0,
+    torch==2.1.0, bitsandbytes==0.41.0, sentence-transformers==2.2.2, docstring_parser==0.16,
+    scipy==1.11.0, requests==2.31.0, pyyaml==6.0.1, pytest==7.4.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dependency list includes requests==2.31.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T05:07:06Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_456d4ae5
+  context: Initialize Python + project with requirements.txt dependencies (transformers==4.35.0,
+    torch==2.1.0, bitsandbytes==0.41.0, sentence-transformers==2.2.2, docstring_parser==0.16,
+    scipy==1.11.0, requests==2.31.0, pyyaml==6.0.1, pytest==7.4.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dependency list includes pyyaml==6.0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T05:07:26Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: pytest version 7.4.0
+  claim_id: c_339da5ae
+  context: Initialize Python + project with requirements.txt dependencies (transformers==4.35.0,
+    torch==2.1.0, bitsandbytes==0.41.0, sentence-transformers==2.2.2, docstring_parser==0.16,
+    scipy==1.11.0, requests==2.31.0, pyyaml==6.0.1, pytest==7.4.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dependency list includes pytest==7.4.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T05:08:01Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: model name Salesforce/codegen-350M-mono
+  claim_id: c_005bd059
+  context: Implement model loader for Salesforce/codegen-350M-mono with strict 4-bit
+    quantization fallback logic
+  evidence:
+    entailment_evidence: Model name Salesforce/codegen-350M-mono
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Model_name_Salesforce/codegen-350M-mono
+  kind: entity_fact
+  raw_text: The model used for generation is Salesforce/codegen-350M-mono.
+  resolved_value: model name Salesforce/codegen-350M-mono
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T05:08:05Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: semantic similarity model sentence-transformers/all-MiniLM-L6-v2
+  claim_id: c_8ea741c7
+  context: Implement semantic similarity calculation using sentence-transformers/all-MiniLM-L6-v2
+    as auxiliary metric
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Semantic_similarity_model_sentence-transformers/all-MiniLM-L
+  kind: entity_fact
+  raw_text: The semantic similarity calculation uses sentence-transformers/all-MiniLM-L6-v2.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T05:08:37Z'

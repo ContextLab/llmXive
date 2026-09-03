@@ -1,38 +1,22 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings, screenshots, or command output were provided to demonstrate
-    that the required folders (`code/`, `code/utils/`, `data/raw/`, `data/raw/repos/`,
-    `data/processed/`, `tests/unit/`, `tests/integration/`, `state/`, `logs/`) actually
-    exist; the claim is unsubstantiated. The implementer must supply concrete evidence
-    (e.g., `ls -R` output, a script that checks each path, or a zip of the created
-    structure).
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.gitkeep` files were presented, and no output of the verification command
-    (`find code data tests state logs -name .gitkeep | wc -l`) is provided to confirm
-    that the count matches the number of newly created directories. The required artifact
-    is missing.
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No configuration files, scripts, or documentation were presented that define\
     \ environment variables for model paths or implement rate\u2011limit retry logic.\
     \ The claim lacks any tangible artifact, so the requirement is not satisfied."
+T010:
+  c: false
+  h: 0d87e8f295bb10a20a5cfb90ccc3d3ffbd86c227739f236457878a79083b2f30
+  r: "The required output files `data/raw/frozen_repo_list.json` and `data/raw/repo_list.json`\
+    \ do not exist, and the provided `code/utils/repo_fetcher.py` is incomplete (truncated\
+    \ and lacks the logic to fetch, sort, write the JSON, and copy the frozen list).\
+    \ Consequently the task\u2019s specifications are not satisfied."
 T011c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No unit test or script was provided in `code/utils/` that triggers the 4\u2011\
     bit quantization failure and checks fallback to 8\u2011bit or full\u2011precision\
     \ loading. The required artifact is missing entirely, so the task is not satisfied."
-T019:
-  c: false
-  h: 3ab81ef6ca446bb1c3130438f530654fab79db8692abb1ea1e75e6b372d59de9
-  r: The `state/projects/PROJ-318-evaluating-the-impact-of-code-generation.yaml` file
-    does not exist, and the provided `code/extract.py` is truncated before any serialization,
-    checksum computation, or YAML update logic is implemented. Consequently, the required
-    data export and hash recording are not present.
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -46,12 +30,6 @@ T030:
   r: "The required file `tests/unit/test_stats.py` is missing from the repository,\
     \ so no unit test for semantic similarity calculation exists. Without this artifact,\
     \ the task\u2019s deliverable is not present."
-T031:
-  c: false
-  h: c74884a751bb8b8496426a848fc14f950e454016f78ca6f34eeebb2cb145372a
-  r: "The required artifact `tests/unit/test_stats.py` is missing from the repository,\
-    \ so no unit test for the Wilcoxon test with a small dataset warning is present.\
-    \ The task\u2019s core deliverable is therefore not satisfied."
 T033:
   c: false
   h: 8f4b0c747b94d6841bf1b6d2401510ab95a5ae49218ec91790e8e88b93bf9826
@@ -91,3 +69,16 @@ T037:
   r: "The required output file `data/processed/final_report.json` does not exist,\
     \ and there is no evidence that `python code/analyze.py --report` was run to generate\
     \ it. Consequently the task\u2019s core deliverable is missing."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated\u202FREADME.md file was presented; the claim lacks any evidence of\
+    \ added installation instructions or usage examples, so the required artifact\
+    \ is missing."
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a modified or newly created `quickstart.md` was provided; the\
+    \ claim lacks the required artifact showing a step\u2011by\u2011step execution\
+    \ guide. The implementer must supply the updated `quickstart.md` file with the\
+    \ requested instructions."

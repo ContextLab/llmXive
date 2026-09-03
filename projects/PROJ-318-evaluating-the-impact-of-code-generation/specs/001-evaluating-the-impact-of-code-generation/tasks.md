@@ -43,8 +43,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create project structure: `code/`, `code/utils/`, `data/raw/`, `data/raw/repos/`, `data/processed/`, `tests/unit/`, `tests/integration/`, `state/`, `logs/` **by running `mkdir -p code code/utils data/raw/repos data/processed tests/unit tests/integration state logs` and verifying existence with `test -d` for each directory**
-- [ ] T001b [P] Create `.gitkeep` files in all newly created directories to ensure version control tracks them. **Verification**: `find code data tests state logs -name.gitkeep | wc -l` must match directory count.
+- [ ] T001a [P] Create project structure: `code/`, `code/utils/`, `data/raw/`, `data/raw/repos/`, `data/processed/`, `tests/unit/`, `tests/integration/`, `state/`, `logs/` **by running `mkdir -p code code/utils data/raw/repos data/processed tests/unit tests/integration state logs` and verifying existence with `test -d code && test -d code/utils && test -d data/raw/repos && test -d data/processed && test -d tests/unit && test -d tests/integration && test -d state && test -d logs` (all must return 0)**.
+- [ ] T001b [P] Create `.gitkeep` files in all newly created directories to ensure version control tracks them. **Verification**: `find code data tests state logs -name.gitkeep | wc -l` must equal 8 (one per directory).
 
 - [X] T002 [P] Initialize Python + project with `requirements.txt` dependencies (`transformers==4.35.0`, `torch==2.1.0`, `bitsandbytes==0.41.0`, `sentence-transformers==2.2.2`, `docstring_parser==0.16`, `scipy==1.11.0`, `requests==2.31.0`, `pyyaml==6.0.1`, `pytest==7.4.0`) **with strict 4-bit quantization fallback logic: if 4-bit fails, the script MUST attempt 8-bit, then full precision, and ONLY abort if all quantization schemes fail to prevent OOM crashes, ensuring deterministic generation per Constitution Principle VII. MUST also explicitly pin random seeds in `code/config.py` (numpy, random, torch, transformers) and verify via a dummy run that outputs are identical on repeated runs.**
 - [X] T003 [P] Create `.flake8` (max-line-length=88) and `pyproject.toml` (black settings) configuration files
@@ -63,10 +63,10 @@
 - [X] T007 [P] Create base data models (MethodSignature, DocstringPair) and serialization logic in `code/utils/models.py`
 - [X] T008 [P] Configure memory monitoring utility (reading `/proc/self/status`) and logging infrastructure in `code/utils/monitor.py`
 - [X] T009 [P] Setup environment configuration management: Create `code/config.py` with a `Config` class defining model paths and rate-limit retries, and verify via `import config`
-- [ ] T010 [S] **Create/freeze `data/raw/repo_list.json`**: **Implement `code/utils/repo_fetcher.py` to fetch a strictly deterministic, frozen list of up to 20 top Python repositories** (e.g., from a pinned static JSON file `data/raw/frozen_repo_list.json` or a PyPI query with a fixed seed and sort order). **Write the output to `data/raw/repo_list.json`**. **Validation**: Ensure JSON schema includes `repo_url`, `github_url`, `star_count` and count is **between 1 and 20**. If fewer than 20 are found, log a warning but proceed; do not abort. **Must complete after T009**. **Verification**: Log the selected repo URLs and confirm the count is between 1 and 20.
+- [ ] T010 [S] **Create/freeze `data/raw/repo_list.json`**: **Implement `code/utils/repo_fetcher.py` to fetch a representative set of top-ranked Python repositories on the PyPI leaderboard. via the PyPI JSON API (or a static HuggingFace mirror if available), sort them deterministically by star count (or download count if star count is unavailable), and write the list to `data/raw/frozen_repo_list.json` (static source). If the PyPI API fails to return 20 valid repos after 3 retries with exponential backoff, fall back to a pre-defined, verified list of 20 top PyPI repos stored in `data/raw/frozen_repo_list.json` (backup source). Then, create `data/raw/repo_list.json` by copying the frozen list.** **Verification**: Ensure JSON schema includes `repo_url`, `github_url`, `star_count` and count is **exactly 20**. If fewer than 20 are found, log a warning but proceed; do not abort. **Must complete after T009**. **Verification**: Log the selected repo URLs and confirm the count is 20.
 - [X] T011 [P] Implement model loader for `Salesforce/codegen-350M-mono` with **strict 4-bit quantization fallback logic: if 4-bit fails, attempt 8-bit, then full precision, and abort only if all fail** and **explicitly verify quantization configuration is active** in `code/utils/model_loader.py`
-- [X] T011b [P] **Define `MemoryLimitException`** class in `code/utils/exceptions.py` for use by memory monitoring tasks. **[FR-006: Defines the exception class required for memory monitoring compliance]**. **Wait for T008 completion**
-- [ ] T011c [P] **Verify Quantization Fallback**: Create a unit test or script in `code/utils/` that explicitly triggers the fallback logic (e.g., by mocking a 4-bit failure) and verifies the system successfully loads the model using 8-bit or full precision. **Wait for T011 completion**
+- [X] T011b [P] **Define `MemoryLimitException`** class in `code/utils/exceptions.py` for use by memory monitoring tasks. **[FR-006: Defines the exception class required for memory monitoring compliance]**. **No dependency on T008; the exception class is independent of the monitoring utility setup.**
+- [X] T011c [P] **Verify Quantization Fallback**: Create a unit test or script in `code/utils/` that explicitly triggers the fallback logic (e.g., by mocking a 4-bit failure) and verifies the system successfully loads the model using 8-bit or full precision. **Verification**: Run the test script and confirm it exits with code 0 and logs "Fallback successful". **Wait for T011 completion**
 - [X] T012 [US1] Unit test for AST parser skipping malformed files in `tests/unit/test_ast_parser.py`
 - [X] T013 [US1] Unit test for `null` handling when no docstring exists in `tests/unit/test_coverage.py`
 - [X] T014 [US1] Integration test for single-repo extraction pipeline in `tests/integration/test_extraction.py`
@@ -86,8 +86,8 @@
 - [X] T015 [US1] Implement Git repository clone utility in `code/utils/git_clone.py` and verify repo exists in `data/raw/repos/`. **Wait for T010 completion**
 - [X] T016 [US1] Implement file walker to filter `.py` files (generator function) and verify via unit test returning list of.py files in `code/utils/file_walker.py`
 - [X] T017 [US1] Integrate AST parser to extract public method signatures and docstrings in `code/extract.py`. **Wait for T010 completion**
-- [X] T018 [US1] Implement logic to truncate method lists to **max [deferred] per repository** (fixed sample), log counts, and **verify output JSON row count <= 1000** in `code/extract.py`
-- [ ] T019 [US1] Serialize extracted data (including **`ast_params`** list) to `data/raw/repos/`, **compute SHA-256 checksum, and record ONLY in `state/projects/PROJ-318-evaluating-the-impact-of-code-generation.yaml` under `artifact_hashes`** in `code/extract.py`
+- [X] T018 [US1] Implement logic to truncate method lists to **max [deferred] per repository** (fixed sample, per FR-001 and Constitution Principle VII), log counts, and **verify output JSON row count <= 1,000** in `code/extract.py`
+- [ ] T019 [US1] Serialize extracted data (including **`ast_params`** list) to `data/raw/repos/`, **compute SHA-256 checksum, and record ONLY in `state/projects/PROJ-318-evaluating-the-impact-of-code-generation.yaml` under `artifact_hashes`**. **Sub-task**: Ensure `state/projects/` directory exists and initialize the YAML file if missing before recording the hash. **Wait for T018 completion**. **Note**: This task satisfies Constitution Principle V (Versioning Discipline) as mandated by the Plan's 'Constitution Check' section.
 - [X] T020 [US1] Add validation to ensure `human_docstring` is `null` (not empty string) when missing in `code/extract.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -109,9 +109,9 @@
 ### Implementation for User Story 2
 
 - [X] T024 [US2] Implement docstring generation loop: **Execute `python code/generate.py`** to iterate over all JSON files in `data/raw/repos/*.json` in sorted filename order (run in parallel per repo), load each, generate docstrings with **a fixed temperature of 0.2**, and write intermediate results to `data/processed/generation_batch_{repo_id}.json` **preserving `ast_params`**. **Verification**: Explicitly check that row count per batch <= 1,000. **Wait for T019 completion**
-- [X] T025 [US2] Integrate memory monitoring to abort if RAM > 7 GB, logging a specific `RAM_LIMIT_EXCEEDED` entry to `logs/monitor.log` and raising a `MemoryLimitException` (defined in `code/utils/exceptions.py`) in `code/generate.py`. **Implementation Detail**: If RAM limit is hit, **first attempt to retry processing the repository in smaller chunks (e.g., a manageable subset of methods at a time)** before final abort. **Wait for T011b completion**
-- [X] T027 [US2] **Handle empty/whitespace generated docstrings**: **Execute `python code/generate.py --post-process`** to read from `data/processed/generation_batch_{repo_id}.json` (after all T024 batches complete), **calculate `coverage_score` as (0 matched params / total AST params) = 0.0** explicitly verifying the formula `(matched params / total AST params)` before assignment. **If the generated docstring is empty or whitespace-only (if len(docstring.strip()) == 0), set `needs_review` to true**. **Write the updated records back to the same intermediate batch files**. **Wait for T024 completion (all batches)**
-- [ ] T026 [US2] **Aggregate and Consolidate**: **Execute `python code/aggregate.py`** to merge `data/processed/generation_batch_*.json` into a single `data/processed/results.json`, **preserving `ast_params`**, and **verify the final file structure and total row count <= 20,000 (20 repos * 1000 methods)**. **Wait for T027 completion**
+- [X] T025 [US2] Integrate memory monitoring to abort if RAM > 7 GB, logging a specific `RAM_LIMIT_EXCEEDED` entry to `logs/monitor.log` and raising a `MemoryLimitException` (defined in `code/utils/exceptions.py`) in `code/generate.py`. **Implementation Detail**: If RAM limit is hit, **immediately abort the process** after logging. **Do NOT retry with smaller chunks**. Wait for T011b completion
+- [X] T027 [US2] **Handle empty/whitespace generated docstrings**: **Execute `python code/generate.py --post-process`** to read from `data/processed/generation_batch_{repo_id}.json` (after all T024 batches complete), **calculate `coverage_score` as (0 matched params / total AST params) = 0.0** explicitly verifying the formula `(matched params / total AST params)` before assignment. **If the generated docstring is empty or whitespace-only (if len(docstring.strip()) == 0), set `needs_review` to true**. **Write the updated records back to a NEW file: `data/processed/generation_batch_{repo_id}_cleaned.json`**. **Wait for T024 completion (all batches)**
+- [X] T026 [US2] **Aggregate and Consolidate**: **Execute `python code/aggregate.py`** to merge `data/processed/generation_batch_*_cleaned.json` into a single `data/processed/results.json`, **preserving `ast_params`**, and **verify the final file structure and total row count <= 20,000 (20 repos * 1000 methods)**. **Wait for T027 completion**
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -125,18 +125,17 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T029 [US3] Unit test for Parameter Coverage Score calculation edge cases (complex type hints) in `tests/unit/test_coverage.py`
-- [X] T030 [US3] **Create file `tests/unit/test_stats.py`** and implement unit test for semantic similarity calculation in `tests/unit/test_stats.py`. **Wait for T026 completion**
-- [X] T031 [US3] **Append to `tests/unit/test_stats.py` (created in T030)** and implement unit test for Wilcoxon test with small dataset warning in `tests/unit/test_stats.py`. **Wait for T030 completion**
-- [X] T032 [US3] Integration test for full analysis pipeline on processed results in `tests/integration/test_analysis.py`
+- [ ] T030 [US3] **Create file `tests/unit/test_stats.py`** and implement unit tests for **both** semantic similarity calculation **and** Wilcoxon test with small dataset warning in `tests/unit/test_stats.py`. **Step 1**: Create the empty file. **Step 2**: Implement the test functions. **Verification**: Run `pytest tests/unit/test_stats.py` and ensure all tests pass. **Wait for T026 completion**
 
 ### Implementation for User Story 3
 
-- [ ] T033 [US3] Implement Parameter Coverage Score calculation: `(matched params / total AST params)` using **`docstring_parser`** to parse docstring text and matching against **`ast_params`** from `data/processed/results.json`. **Execute `python code/analyze.py --step=coverage`** to calculate scores and **write to `data/processed/results_with_coverage.json`**. **Wait for T026 completion**
-- [ ] T034 [US3] Implement semantic similarity calculation using `sentence-transformers/all-MiniLM-L6-v2` as auxiliary metric reading from `data/processed/results_with_coverage.json` (output of T033). **Execute `python code/analyze.py --step=similarity`** to calculate scores and **append results to create `data/processed/results_with_scores.json`**. **Wait for T033 completion**
-- [ ] T035 [US3] Implement Wilcoxon signed-rank test for paired Human vs. LLM scores reading from `data/processed/results_with_scores.json` (output of T034). **Execute `python code/analyze.py --step=stats`**. **Wait for T034 completion**
-- [ ] T036 [US3] Add logic to **log a warning if total method pairs < 30 AND proceed with the Wilcoxon test** reading from `data/processed/results_with_scores.json`. **Execute `python code/analyze.py --step=stats`**. **Wait for T035 completion**
-- [ ] T037 [US3] Generate final report with p-value, test statistic, and coverage rates to `data/processed/final_report.json`. **Execute `python code/analyze.py --report`**. **Wait for T036 completion**
-- [~] T038 [US3] Handle complex type hints (e.g., `List[Dict[str, Any]]`) as unmatched but non-crashing reading from `data/processed/results_with_scores.json`. **Execute `python code/analyze.py`**. **Wait for T037 completion**
+- [ ] T041b [P] Refactor `code/analyze.py` to expose `main()` functions with explicit argument parsing and remove global execution code. **Wait for T026 completion**
+- [ ] T033 [US3] **Verify `data/processed/results.json` exists and is non-empty**. **Implement Parameter Coverage Score calculation**: `(matched params / total AST params)` using **`docstring_parser`** to parse docstring text and matching against **`ast_params`** from `data/processed/results.json`. **Execute `python code/analyze.py --step=coverage`** to calculate scores and **write to `data/processed/results_with_coverage.json`**. **Verification**: Confirm output file exists and contains a `coverage_score` field for every record. **Wait for T041b completion**
+- [ ] T034 [US3] **Verify `data/processed/results_with_coverage.json` exists and is non-empty**. **Implement semantic similarity calculation** using `sentence-transformers/all-MiniLM-L6-v2` as auxiliary metric reading from `data/processed/results_with_coverage.json` (output of T033). **Execute `python code/analyze.py --step=similarity`** to calculate scores and **append results to create `data/processed/results_with_scores.json`**. **Verification**: Confirm output file exists and contains a `semantic_similarity` field for every record. **Wait for T033 completion**
+- [ ] T035 [US3] **Verify `data/processed/results_with_scores.json` exists and is non-empty**. **Implement Wilcoxon signed-rank test** for paired Human vs. LLM scores reading from `data/processed/results_with_scores.json` (output of T034). **Execute `python code/analyze.py --step=stats`**. **Wait for T034 completion**
+- [ ] T036 [US3] **Verify `data/processed/results_with_scores.json` exists**. Add logic to **log a warning if total method pairs < 30 AND proceed with the Wilcoxon test** reading from `data/processed/results_with_scores.json`. **Execute `python code/analyze.py --step=stats`**. **Wait for T035 completion**
+- [ ] T037 [US3] **Verify `data/processed/results_with_scores.json` exists**. Generate final report with p-value, test statistic, and coverage rates to `data/processed/final_report.json`. **Execute `python code/analyze.py --report`**. **Wait for T036 completion**
+- [ ] T038 [US3] **Verify `data/processed/results_with_scores.json` exists**. Handle complex type hints (e.g., `List[Dict[str, Any]]`) as unmatched but non-crashing reading from `data/processed/results_with_scores.json`. **Execute `python code/analyze.py`**. **Wait for T037 completion**
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -146,10 +145,9 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T039 [P] Update README.md with installation instructions and usage examples
-- [~] T040 [P] Update quickstart.md with step-by-step execution guide
+- [ ] T039 [P] Update README.md with installation instructions and usage examples
+- [ ] T040 [P] Update quickstart.md with step-by-step execution guide
 - [X] T041a [P] Refactor `code/extract.py` to expose a `main()` function with explicit argument parsing and remove global execution code.
-- [ ] T041b [P] Refactor `code/generate.py` and `code/analyze.py` to expose `main()` functions with explicit argument parsing and remove global execution code.
 - [ ] T043 [P] Add unit tests for uncovered code paths identified by coverage report
 - [ ] T044 Run `python -m code.quickstart` and verify exit code 0
 - [ ] T045 Run `scripts/verify_repro.sh` and ensure `state/projects/$(PROJECT_SLUG).yaml` matches previous run
@@ -189,8 +187,8 @@
  - US1 must complete before US2 begins.
  - US2 must complete before US3 begins.
 - All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- **Only independent utilities (Phase 2) and Setup (Phase 1) allow parallel execution across stories.**
+- Models within a story marked [P] can run in parallel **ONLY if they are independent tasks (e.g., T015, T016).**
+- **IMPORTANT**: The analysis pipeline tasks (T033, T034, T035, T036, T037, T038) are **strictly sequential** and CANNOT be parallelized. The note "Models within a story marked [P] can run in parallel" does NOT apply to these sequential data-processing steps.
 
 ---
 
@@ -251,15 +249,14 @@ With multiple developers:
 - **CRITICAL**: Data flow must be respected: US1 (Extract) → US2 (Generate) → US3 (Analyze). Do not run US2 before US1 produces data.
 - **CRITICAL**: Model loading MUST enforce 4-bit quantization with fallback to 8-bit/full precision if 4-bit fails, aborting only if all fail (Constitution Principle VII).
 - **CRITICAL**: All data sources must be real; no synthetic fallbacks for data loading.
-- **CRITICAL**: Fixed sample size is capped at [deferred] methods per repository as per Spec (FR-001).
+- **CRITICAL**: Fixed sample size is capped at **[deferred]** methods per repository as per Spec (FR-001) and Constitution Principle VII.
 - **NOTE**: T011b defines `MemoryLimitException` required by T025 and is now in Phase 2.
-- **NOTE**: T027 correctly reads from intermediate batch files, sets flags, and writes back before T026 aggregates.
+- **NOTE**: T027 correctly reads from intermediate batch files, sets flags, and writes to a new `_cleaned` file before T026 aggregates.
 - **NOTE**: T026 and T033 now write to distinct files (`results.json` vs `results_with_coverage.json`) to prevent overwrites.
-- **NOTE**: T010 prioritizes a frozen, deterministic list (up to 20) to ensure reproducibility.
-- **NOTE**: T042 was removed to resolve circular dependency; 6-hour limit verification is handled in CI.
-- **NOTE**: T001 was split into T001a (dirs) and T001b (gitkeep) for executability.
-- **NOTE**: T002 ensures Constitution Principle I (Reproducibility) is met by consolidating seed pinning.
+- **NOTE**: T010 prioritizes a frozen, deterministic list (exactly 20) to ensure reproducibility, sourced from PyPI.
 - **NOTE**: T011c explicitly verifies the quantization fallback logic.
-- **NOTE**: T030 and T031 explicitly create the `test_stats.py` file.
-- **NOTE**: T033-T038 are strictly sequential to prevent race conditions.
-- **NOTE**: T027 now explicitly defines the threshold logic for empty docstrings.
+- **NOTE**: T030 consolidates test creation and implementation.
+- **NOTE**: T033-T038 are strictly sequential to prevent race conditions and now include file existence checks.
+- **NOTE**: T033-T038 cannot be parallelized; the "Parallel Opportunities" section has been updated to reflect this strict sequential dependency.
+- **NOTE**: T019 explicitly references Constitution Principle V to ensure traceability for versioning requirements.
+- **NOTE**: T025 mandates immediate abort on RAM limit breach; no chunking retries allowed.
