@@ -2,123 +2,121 @@ import logging
 import sys
 from pathlib import Path
 from typing import Tuple
-
 import pandas as pd
 from utils.state_manager import compute_sha256, update_artifact_state
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
+
+# Define paths relative to project root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+NREL_PATH = PROJECT_ROOT / "data" / "raw" / "nrel_perovskites.csv"
+MP_PATH = PROJECT_ROOT / "data" / "raw" / "mp_perovskites.csv"
+OUTPUT_PATH = PROJECT_ROOT / "data" / "raw" / "perovskites_merged.csv"
 
 def load_csv_safe(file_path: Path) -> pd.DataFrame:
     """
     Safely load a CSV file.
-    
-    Args:
-        file_path: Path to the CSV file.
-        
-    Returns:
-        DataFrame containing the CSV data.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the file is empty or invalid.
+    Raises FileNotFoundError if the file does not exist.
+    Raises ValueError if the file is empty or has no rows.
     """
     if not file_path.exists():
         raise FileNotFoundError(f"Source file not found: {file_path}")
     
-    try:
-        df = pd.read_csv(file_path)
-        if df.empty:
-            raise ValueError(f"Source file is empty: {file_path}")
-        logger.info(f"Loaded {len(df)} rows from {file_path.name}")
-        return df
-    except pd.errors.EmptyDataError:
-        raise ValueError(f"Source file is empty or invalid: {file_path}")
-
-def merge_perovskite_datasets(nrel_path: Path, mp_path: Path, output_path: Path) -> Tuple[int, int]:
-    """
-    Merge NREL and Materials Project datasets.
+    df = pd.read_csv(file_path)
     
-    This function:
-    1. Loads both source CSVs.
+    if df.empty:
+        raise ValueError(f"Source file is empty or has no data rows: {file_path}")
+    
+    logger.info(f"Loaded {len(df)} rows from {file_path.name}")
+    return df
+
+def merge_perovskite_datasets() -> Tuple[pd.DataFrame, int]:
+    """
+    Merge NREL and Materials Project data.
+    
+    1. Verifies both source files exist and are non-empty (as per T012d constraint).
     2. Concatenates the DataFrames.
     3. Drops duplicates based on 'formula' and 'source'.
     4. Logs the count of removed duplicates.
-    5. Writes the final merged dataset to the output path.
-    6. Updates the state file with the new artifact hash.
+    5. Writes the final merged dataset to data/raw/perovskites_merged.csv.
     
-    Args:
-        nrel_path: Path to the NREL source CSV.
-        mp_path: Path to the Materials Project source CSV.
-        output_path: Path where the merged CSV will be written.
-        
     Returns:
-        A tuple (original_count, duplicate_count).
+        Tuple[pd.DataFrame, int]: The merged DataFrame and the count of removed duplicates.
+    
+    Raises:
+        FileNotFoundError: If either source file is missing.
+        ValueError: If either source file is empty.
     """
-    logger.info(f"Starting merge: {nrel_path.name} + {mp_path.name}")
+    logger.info("Starting dataset merge process.")
     
-    df_nrel = load_csv_safe(nrel_path)
-    df_mp = load_csv_safe(mp_path)
-    
-    # Ensure both have a 'source' column to distinguish origin if not already present
-    # The fetch tasks (T012a, T012b) should have added this, but we enforce it here for safety
-    if 'source' not in df_nrel.columns:
-        df_nrel['source'] = 'nrel'
-    if 'source' not in df_mp.columns:
-        df_mp['source'] = 'materials_project'
-    
-    original_count = len(df_nrel) + len(df_mp)
-    
-    # Concatenate
+    # 1. Load sources (fails loudly if missing/empty, satisfying T012d constraint)
+    try:
+        df_nrel = load_csv_safe(NREL_PATH)
+        df_mp = load_csv_safe(MP_PATH)
+    except (FileNotFoundError, ValueError) as e:
+        logger.critical(f"Merge failed due to missing or invalid source data: {e}")
+        raise
+
+    # 2. Concatenate
+    logger.info("Concatenating datasets...")
     merged_df = pd.concat([df_nrel, df_mp], ignore_index=True)
-    
-    # Drop duplicates based on 'formula' and 'source'
-    # FR-001 requires fetching both sources, but we must avoid identical entries
+    initial_count = len(merged_df)
+    logger.info(f"Total rows before deduplication: {initial_count}")
+
+    # 3. Drop duplicates based on 'formula' and 'source'
+    # Ensure 'source' column exists; if not, assume source based on filename context if needed,
+    # but standard practice is to have a 'source' column.
+    # If 'source' is missing in one, we might need to add it before concat.
+    # Assuming T012a/T012b ensured 'source' column exists. If not, we add it here for safety.
+    if 'source' not in merged_df.columns:
+        logger.warning("'source' column missing in merged data. Attempting to infer...")
+        # This should ideally be handled in fetchers, but fallback logic here:
+        # We cannot reliably infer row-by-row without index, so we assume the fetchers did their job.
+        # If this fails, the data is malformed.
+        raise ValueError("Critical: 'source' column missing in input data. Fetchers must ensure this column exists.")
+
     if 'formula' not in merged_df.columns:
-        raise ValueError("Merged data must contain a 'formula' column for deduplication.")
-        
-    initial_len = len(merged_df)
-    merged_df = merged_df.drop_duplicates(subset=['formula', 'source'], keep='first')
-    final_len = len(merged_df)
-    duplicates_removed = initial_len - final_len
+        raise ValueError("Critical: 'formula' column missing in input data.")
+
+    # Drop duplicates
+    # Keep the first occurrence
+    merged_df.drop_duplicates(subset=['formula', 'source'], inplace=True)
     
-    logger.info(f"Merged dataset: {initial_len} -> {final_len} rows")
-    logger.info(f"Removed {duplicates_removed} duplicate entries based on (formula, source).")
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Write to CSV
-    merged_df.to_csv(output_path, index=False)
-    logger.info(f"Written merged dataset to {output_path}")
-    
-    # Update state
-    state_hash = compute_sha256(output_path)
-    update_artifact_state(output_path, state_hash)
-    logger.info(f"Updated state with hash: {state_hash}")
-    
-    return original_count, duplicates_removed
+    final_count = len(merged_df)
+    duplicates_removed = initial_count - final_count
+
+    logger.info(f"Total rows after deduplication: {final_count}")
+    logger.info(f"Removed {duplicates_removed} duplicate entries based on 'formula' and 'source'.")
+
+    # 4. Write output
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    merged_df.to_csv(OUTPUT_PATH, index=False)
+    logger.info(f"Merged dataset written to {OUTPUT_PATH}")
+
+    # 5. Update state
+    try:
+        sha_hash = compute_sha256(OUTPUT_PATH)
+        update_artifact_state("perovskites_merged.csv", sha_hash)
+        logger.info(f"State updated for {OUTPUT_PATH} with hash {sha_hash[:16]}...")
+    except Exception as e:
+        logger.warning(f"Failed to update state for merged dataset: {e}")
+
+    return merged_df, duplicates_removed
 
 def main():
-    """Main entry point for the merge task."""
-    base_dir = Path(__file__).resolve().parent.parent
-    nrel_path = base_dir / "data" / "raw" / "nrel_perovskites.csv"
-    mp_path = base_dir / "data" / "raw" / "mp_perovskites.csv"
-    output_path = base_dir / "data" / "raw" / "perovskites_merged.csv"
-    
-    if not nrel_path.exists():
-        logger.error(f"Required input missing: {nrel_path}. Run T012a first.")
-        sys.exit(1)
-    if not mp_path.exists():
-        logger.error(f"Required input missing: {mp_path}. Run T012b first.")
-        sys.exit(1)
-        
+    """Entry point for the merge script."""
     try:
-        total_rows, dups = merge_perovskite_datasets(nrel_path, mp_path, output_path)
-        logger.info(f"Merge complete. Total rows processed: {total_rows}, Duplicates removed: {dups}")
+        merged_df, dup_count = merge_perovskite_datasets()
+        logger.info("Merge completed successfully.")
+        return 0
     except Exception as e:
-        logger.error(f"Merge failed: {e}")
-        sys.exit(1)
+        logger.error(f"Merge process failed: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

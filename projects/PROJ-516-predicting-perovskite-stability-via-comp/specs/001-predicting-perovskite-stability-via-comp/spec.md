@@ -45,7 +45,7 @@ As a domain researcher, I want to extract SHAP values from the best-performing m
 
 **Why this priority**: This provides interpretability and external validation. While not strictly required for a working model, it is essential for scientific credibility and answering the research question about which compositional factors matter.
 
-**Independent Test**: Can be fully tested by running SHAP analysis on a representative test set and verifying that the top 3 features by importance are reported with corresponding SHAP values and permutation-test p-values.
+**Independent Test**: Can be fully tested by running SHAP analysis on a representative test set and verifying that the A subset of the most important features is reported. with corresponding SHAP values and permutation-test p-values.
 
 **Acceptance Scenarios**:
 

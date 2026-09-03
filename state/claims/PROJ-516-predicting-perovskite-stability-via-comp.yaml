@@ -454,3 +454,1143 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-02T16:47:55Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: TGA instrument registry contains 5 specific models with documented precision
+    values
+  claim_id: c_e379d5ce
+  context: 'Implement code/utils/instrument_registry.py to maintain a lookup table
+    of known TGA instruments with documented precision values. Specificity: Include
+    at least these 5 models...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/TGA_instrument_registry_contains_5_specific_models_with_docu
+  kind: magnitude
+  raw_text: "Include at least these 5 models: 'TA Instruments Thermogravimetric Analyzer'\
+    \ (\xB15\xB0C), 'Mettler Toledo TGA/DSC +' (\xB15\xB0C), 'PerkinElmer TGA4000'\
+    \ (\xB15\xB0C), 'Shimadzu TGA-50' (\xB15\xB0C), 'Netzsch STA 449 F3' (\xB13\xB0\
+    C)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:14:43Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: 1000 permutations executed for statistical stability in permutation importance
+    testing
+  claim_id: c_ae814b7d
+  context: 'Verification: Verify feature_importance.csv contains p-values, 1000 permutations
+    were executed, and the selected correction method is documented.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1000 permutations were executed
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:15:07Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime must complete within 4 hours
+  claim_id: c_6e705aec
+  context: 'Optimize identified bottlenecks to ensure full pipeline completes within
+    4 hours (performance goal). Verification: Verify pipeline runtime report shows
+    <= 4 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify pipeline runtime report shows <= 4 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:15:31Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Stratified k-fold cross-validation uses k=5 folds
+  claim_id: c_91bd2662
+  context: "Independent Test: Run k-fold CV on a subset of the data, where k=5; verify\
+    \ all models complete within 30 mins with R\xB2 metrics."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run k-fold CV on a subset of the data, where k=5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:17:15Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Grid search limited to maximum 10 hyperparameter combinations per model
+  claim_id: c_625c103f
+  context: 'Implement grid search with a hard cap of <= 10 hyperparameter combinations
+    per model. Verification: Verify model_runs.json shows <= 10 combinations per model...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement grid search with a hard cap of <= 10 hyperparameter combinations
+    per model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:17:46Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: "Default TGA precision is \xB110\xB0C for unknown instrument models"
+  claim_id: c_b180d5fb
+  context: "If a model is not in the registry, use the spec default of \xB110\xB0\
+    C. Verification: Verify instrument_registry.py contains at least 5 common TGA\
+    \ models with documented precision values and defaults to \xB110\xB0C for unknown\
+    \ models."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If a model is not in the registry, use the spec default of \xB110\xB0\
+    C."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:18:23Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: "Missing temperature precision defaults to \xB110\xB0C with warning log"
+  claim_id: c_d82203e0
+  context: "Implement code/utils/uncertainty_parser.py to parse temperature_precision\
+    \ from source metadata; if missing, default to \xB110\xB0C and log a warning"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "if missing, default to \xB110\xB0C and log a warning"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:18:45Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: API retry logic implements 3 retries with exponential backoff intervals
+    of 1s, 2s, and 4s
+  claim_id: c_cac52f0c
+  context: 'Implement code/utils/data_fetcher.py with retry logic: up to 3 retries
+    with exponential backoff (1s, 2s, 4s) for API unavailability.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'retry logic: up to 3 retries with exponential backoff (1s, 2s, 4s) for
+    API unavailability.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:19:06Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Out-of-distribution detection flags compositions with Mahalanobis distance
+    greater than 3.0
+  claim_id: c_f116ca9a
+  context: 'Implement OOD detection: Flag compositions with elements NOT in the training
+    set (based on T017 dataset) or with a Mahalanobis distance > 3.0 from the training
+    distribution.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Out-of-distribution_detection_flags_compositions_with_Mahala
+  kind: magnitude
+  raw_text: Mahalanobis distance > 3.0 from the training distribution
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:19:33Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Data entries with 2 or more missing descriptor values are excluded
+  claim_id: c_aad2a356
+  context: Implement logic to exclude entries with >= 2 missing descriptor values
+    and log exclusion counts.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: exclude entries with >= 2 missing descriptor values
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:20:04Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Exclusion count threshold is 10 times the number of features
+  claim_id: c_52848fa2
+  context: 'Verification: Log exclusion count to data/processed/exclusion_log.csv
+    and verify count matches expected threshold (n >= 10 * features).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: log exclusion count to data/processed/exclusion_log.csv and verify count
+    matches expected threshold (n >= 10 * features).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:20:25Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Final merged dataset must contain at least 200 rows
+  claim_id: c_1d39d80e
+  context: 'Merge NREL and Materials Project data... and write final merged dataset
+    to data/raw/perovskites_merged.csv. Verification: Verify data/raw/perovskites_merged.csv
+    exists with row count >= 200...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Final_merged_dataset_must_contain_at_least_200_rows
+  kind: magnitude
+  raw_text: Verify data/processed/descriptors_final.csv exists with row count >= 200
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:20:56Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: "TGA instrument registry includes 5 specific models with documented precision\
+    \ values: TA Instruments (\xB15\xB0C), Mettler Toledo (\xB15\xB0C), PerkinElmer\
+    \ (\xB15\xB0C), Shimadzu (\xB15\xB0C), Netzsch (\xB13\xB0C)"
+  claim_id: c_efd21371
+  context: 'T047c [P] Implement code/utils/instrument_registry.py to maintain a lookup
+    table of known TGA instruments with documented precision values. Specificity:
+    Include at least these 5 models...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/TGA_instrument_registry_includes_5_specific_models_with_docu
+  kind: magnitude
+  raw_text: "Include at least these 5 models: 'TA Instruments Thermogravimetric Analyzer'\
+    \ (\xB15\xB0C), 'Mettler Toledo TGA/DSC +' (\xB15\xB0C), 'PerkinElmer TGA4000'\
+    \ (\xB15\xB0C), 'Shimadzu TGA-50' (\xB15\xB0C), 'Netzsch STA 449 F3' (\xB13\xB0\
+    C)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:22:11Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: "Default temperature precision for unknown TGA instruments is \xB110\xB0\
+    C"
+  claim_id: c_0f72f80f
+  context: "T047c... If a model is not in the registry, use the spec default of \xB1\
+    10\xB0C."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If a model is not in the registry, use the spec default of \xB110\xB0\
+    C."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:22:11Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Merged perovskite dataset contains at least 200 rows
+  claim_id: c_ad44ab20
+  context: 'T012c... Write final merged dataset to data/raw/perovskites_merged.csv.
+    Verification: Verify data/raw/perovskites_merged.csv exists with row count >=
+    200...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Merged_perovskite_dataset_contains_at_least_200_rows
+  kind: magnitude
+  raw_text: Verify `data/raw/perovskites_merged.csv` exists with row count >= 200
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:22:49Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Stratified K-fold cross-validation uses 5 folds
+  claim_id: c_cf1dcef4
+  context: T020c [US2] Implement stratified KFold logic with k=5 using perovskite_family
+    column...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement stratified KFold logic with k=5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:23:05Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Grid search limited to maximum 10 hyperparameter combinations per model
+  claim_id: c_4b4b4fd0
+  context: T022 [US2] Implement grid search with a hard cap of <= 10 hyperparameter
+    combinations per model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement grid search with a hard cap of <= 10 hyperparameter combinations
+    per model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:23:06Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: API fetcher retry logic uses 3 retries with exponential backoff intervals
+    of 1s, 2s, and 4s
+  claim_id: c_fd336a39
+  context: 'T006 [P] Implement code/utils/data_fetcher.py with retry logic: up to
+    3 retries with exponential backoff (1s, 2s, 4s) for API unavailability.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `code/utils/data_fetcher.py` with retry logic: up to 3 retries
+    with exponential backoff (1s, 2s, 4s) for API unavailability.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:23:25Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: "Missing temperature precision defaults to \xB110\xB0C"
+  claim_id: c_841fbad0
+  context: "T042 [P] Implement code/utils/uncertainty_parser.py to parse temperature_precision\
+    \ from source metadata; if missing, default to \xB110\xB0C and log a warning"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "if missing, default to \xB110\xB0C and log a warning"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:23:25Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: "Registry of 5 TGA models with specific precision values: TA Instruments\
+    \ (\xB15C), Mettler Toledo (\xB15C), PerkinElmer (\xB15C), Shimadzu (\xB15C),\
+    \ Netzsch (\xB13C)"
+  claim_id: c_149c6bcb
+  context: Task T047c specifies the instrument registry to maintain a lookup table
+    of known TGA instruments with documented precision values.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Registry_of_5_TGA_models_with_specific_precision_values:_TA
+  kind: magnitude
+  raw_text: "Include at least these 5 models: 'TA Instruments Thermogravimetric Analyzer'\
+    \ (\xB15\xB0C), 'Mettler Toledo TGA/DSC +' (\xB15\xB0C), 'PerkinElmer TGA4000'\
+    \ (\xB15\xB0C), 'Shimadzu TGA-50' (\xB15\xB0C), 'Netzsch STA 449 F3' (\xB13\xB0\
+    C)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:24:29Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: "Default precision for unknown TGA models is \xB110C"
+  claim_id: c_d7a25cfe
+  context: Task T047c specifies the fallback strategy for instrument models not found
+    in the registry.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If a model is not in the registry, use the spec default of \xB110\xB0\
+    C."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:24:29Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: API retry logic uses exponential backoff intervals of 1s, 2s, and 4s
+  claim_id: c_69026460
+  context: Task T006 describes the implementation of retry logic for the data fetcher.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/API_retry_logic_uses_exponential_backoff_intervals_of_1s,_2s
+  kind: entity_fact
+  raw_text: Retry logic implements exponential backoff with intervals 1s, 2s, 4s for
+    API unavailability.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:24:54Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: 1000 permutations executed for permutation importance testing
+  claim_id: c_1750d7b0
+  context: Task T029 verification requires executing 1000 permutations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1000 permutations were executed to ensure statistical stability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:25:30Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Stratified K-fold cross-validation uses k=5 folds
+  claim_id: c_2297eca5
+  context: Task T020c specifies the cross-validation strategy for model training.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stratified KFold logic with k=5 using perovskite_family column.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:25:51Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Grid search limited to maximum 10 hyperparameter combinations per model
+  claim_id: c_f3a0ce5a
+  context: Task T022 imposes a limit on the number of hyperparameter combinations
+    during grid search.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Grid search with a hard cap of <= 10 hyperparameter combinations per model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:26:04Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime limit is 4 hours
+  claim_id: c_038c5ca4
+  context: Task T019 and T037b specify the maximum allowed runtime for the pipeline.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pipeline must complete within 4 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:26:24Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Out-of-distribution detection threshold is Mahalanobis distance greater
+    than 3.0
+  claim_id: c_b15e44eb
+  context: Task T031 defines the criteria for flagging out-of-distribution compositions.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Out-of-distribution_detection_threshold_is_Mahalanobis_dista
+  kind: magnitude
+  raw_text: Mahalanobis distance > 3.0 from the training distribution flags compositions
+    as out-of-distribution.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:26:43Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Exclusion threshold for missing descriptor values is 2 or more
+  claim_id: c_06c4f849
+  context: Task T015a defines the criteria for excluding data entries with missing
+    descriptors.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude entries with >= 2 missing descriptor values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:26:43Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: "Default temperature precision is \xB110C when missing from source"
+  claim_id: c_2100856a
+  context: Task T042 specifies the default value for temperature precision.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Default temperature_precision is \xB110\xB0C if missing from source metadata."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:27:02Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: "Instrument registry includes 5 specific TGA models with documented precision\
+    \ values ranging from \xB13\xB0C to \xB15\xB0C"
+  claim_id: c_c88da005
+  context: 'Implement code/utils/instrument_registry.py to maintain a lookup table
+    of known TGA instruments with documented precision values. Specificity: Include
+    at least these 5 models...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Instrument_registry_includes_5_specific_TGA_models_with_docu
+  kind: magnitude
+  raw_text: "Include at least these 5 models: 'TA Instruments Thermogravimetric Analyzer'\
+    \ (\xB15\xB0C), 'Mettler Toledo TGA/DSC +' (\xB15\xB0C), 'PerkinElmer TGA4000'\
+    \ (\xB15\xB0C), 'Shimadzu TGA-50' (\xB15\xB0C), 'Netzsch STA 449 F3' (\xB13\xB0\
+    C)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:28:15Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: "Default TGA instrument precision for unknown models is \xB110\xB0C"
+  claim_id: c_e2d0651f
+  context: "Specificity: Include at least these 5 models... If a model is not in the\
+    \ registry, use the spec default of \xB110\xB0C."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If a model is not in the registry, use the spec default of \xB110\xB0\
+    C."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:28:15Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: "Missing temperature_precision defaults to \xB110\xB0C with a warning\
+    \ log"
+  claim_id: c_eb00993a
+  context: "Implement code/utils/uncertainty_parser.py to parse temperature_precision\
+    \ from source metadata; if missing, default to \xB110\xB0C and log a warning"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement code/utils/uncertainty_parser.py to parse temperature_precision\
+    \ from source metadata; if missing, default to \xB110\xB0C and log a warning"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:28:31Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Permutation importance testing executes 1000 permutations
+  claim_id: c_df454a40
+  context: 'Verification: Verify feature_importance.csv contains p-values, 1000 permutations
+    were executed, and the selected correction method is documented.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify 1000 permutations were executed
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:28:59Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Stratified KFold cross-validation uses 5 folds
+  claim_id: c_ad3c6853
+  context: Implement stratified KFold logic with k=5 using perovskite_family column
+    from T014b
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement stratified KFold logic with k=5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:29:00Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Grid search is capped at 10 hyperparameter combinations per model
+  claim_id: c_d9a7a086
+  context: Implement grid search with a hard cap of <= 10 hyperparameter combinations
+    per model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement grid search with a hard cap of <= 10 hyperparameter combinations
+    per model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:29:00Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime is capped at 4 hours
+  claim_id: c_43511b49
+  context: Integration test for full pipeline runtime (must complete <= 4 hours) in
+    tests/integration/test_pipeline_runtime.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the pipeline completes within 4 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:29:18Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: API fetcher implements 3 retries with exponential backoff intervals of
+    1s, 2s, and 4s
+  claim_id: c_0604f02e
+  context: 'Implement code/utils/data_fetcher.py with retry logic: up to 3 retries
+    with exponential backoff (1s, 2s, 4s) for API unavailability.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement code/utils/data_fetcher.py with retry logic: up to 3 retries
+    with exponential backoff (1s, 2s, 4s) for API unavailability.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:29:19Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Metadata JSON schema requires formula, instrument_model, manufacturer,
+    and precision_source keys
+  claim_id: c_96b5b8f6
+  context: 'Schema: The JSON must be a list of objects, each with keys: formula, instrument_model,
+    manufacturer, precision_source (value=''source'' or ''registry'').'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Metadata_JSON_schema_requires_formula,_instrument_model,_man
+  kind: entity_fact
+  raw_text: 'The JSON must be a list of objects, each with keys: formula, instrument_model,
+    manufacturer, precision_source (value=''source'' or ''registry'').'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:29:54Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Data ingestion output schema includes 10 specific columns with non-null
+    values
+  claim_id: c_66df3e0c
+  context: Verify output CSV contains columns [formula, T_d, atomic_fraction_A, atomic_fraction_B,
+    atomic_fraction_X, weighted_ionic_radius, weighted_electronegativity, weighted_formation_enthalpy,
+    variance_ionic_radius, variance_electronegativity] with non-null values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify output CSV contains columns [formula, T_d, atomic_fraction_A, atomic_fraction_B,
+    atomic_fraction_X, weighted_ionic_radius, weighted_electronegativity, weighted_formation_enthalpy,
+    variance_ionic_radius, variance_electronegativity] with non-null values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:29:54Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Merged perovskite dataset contains at least 200 rows
+  claim_id: c_255c065c
+  context: 'Verification: Verify data/raw/perovskites_merged.csv exists with row count
+    >= 200 and log specific duplicate count.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Merged_perovskite_dataset_contains_at_least_200_rows
+  kind: magnitude
+  raw_text: Verify data/raw/perovskites_merged.csv exists with row count >= 200
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:29:56Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Exclusion threshold for missing descriptors is 10 times the number of
+    features
+  claim_id: c_916f8647
+  context: Log exclusion count to data/processed/exclusion_log.csv and verify count
+    matches expected threshold (n >= 10 * features).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Log exclusion count to data/processed/exclusion_log.csv and verify count
+    matches expected threshold (n >= 10 * features).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:29:57Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: VIF diagnostic computation and feature removal logic are unit tested
+  claim_id: c_3d437000
+  context: Unit test for VIF diagnostic computation and feature removal logic in tests/unit/test_vif.py.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/VIF_diagnostic_computation_and_feature_removal_logic_are_uni
+  kind: entity_fact
+  raw_text: Unit test for VIF diagnostic computation and feature removal logic in
+    tests/unit/test_vif.py.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:30:20Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: VIF report flags descriptors with values greater than 5
+  claim_id: c_4afba309
+  context: 'Verification: Verify vif_report.csv contains VIF values for all descriptors
+    and flags those > 5.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_report_flags_descriptors_with_values_greater_than_5
+  kind: magnitude
+  raw_text: Verify vif_report.csv contains VIF values for all descriptors and flags
+    those > 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:30:46Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Combined standard uncertainty for T_d is calculated from instrument precision
+    and experimental error
+  claim_id: c_a4e64c8c
+  context: Implement code/utils/uncertainty_propagator.py to calculate the combined
+    standard uncertainty for T_d based on the instrument precision and any reported
+    experimental error
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Combined_standard_uncertainty_for_T_d_is_calculated_from_ins
+  kind: entity_fact
+  raw_text: Implement code/utils/uncertainty_propagator.py to calculate the combined
+    standard uncertainty for T_d based on the instrument precision and any reported
+    experimental error
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:31:13Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: 5 specific TGA models with documented precision values in instrument
+    registry
+  claim_id: c_f0cde78e
+  context: 'T047c [P] Implement code/utils/instrument_registry.py to maintain a lookup
+    table of known TGA instruments with documented precision values. Specificity:
+    Include at least these 5 models...'
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/5_specific_TGA_models_with_documented_precision_values_in_in
+  kind: magnitude
+  raw_text: "Include at least these 5 models: 'TA Instruments Thermogravimetric Analyzer'\
+    \ (\xB15\xB0C), 'Mettler Toledo TGA/DSC +' (\xB15\xB0C), 'PerkinElmer TGA4000'\
+    \ (\xB15\xB0C), 'Shimadzu TGA-50' (\xB15\xB0C), 'Netzsch STA 449 F3' (\xB13\xB0\
+    C)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-03T19:31:48Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Default TGA precision of 10 degrees Celsius for unknown models
+  claim_id: c_a0c05de7
+  context: "T047c ... If a model is not in the registry, use the spec default of \xB1\
+    10\xB0C."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If a model is not in the registry, use the spec default of \xB110\xB0\
+    C."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:31:48Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: API retry logic with 3 attempts and exponential backoff intervals 1s,
+    2s, 4s
+  claim_id: c_b4e50a1c
+  context: 'T006 Implement code/utils/data_fetcher.py with retry logic: up to 3 retries
+    with exponential backoff (1s, 2s, 4s) for API unavailability.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Retry logic: up to 3 retries with exponential backoff (1s, 2s, 4s) for
+    API unavailability.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:31:49Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime limit of 4 hours
+  claim_id: c_2d8b4da0
+  context: T037b [P] Optimize identified bottlenecks to ensure full pipeline completes
+    within 4 hours (performance goal).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify pipeline runtime report shows <= 4 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:31:49Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Grid search limit of 10 hyperparameter combinations per model
+  claim_id: c_3a344c2c
+  context: T022 [US2] Implement grid search with a hard cap of <= 10 hyperparameter
+    combinations per model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement grid search with a hard cap of <= 10 hyperparameter combinations
+    per model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:31:49Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Stratified k-fold cross-validation with k equal to 5
+  claim_id: c_9dfdf603
+  context: "Independent Test: Run k-fold CV on a subset of the data, where k=5; verify\
+    \ all models complete within 30 mins with R\xB2 metrics."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run k-fold CV on a subset of the data, where k=5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:31:49Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Merged perovskite dataset containing at least 200 rows
+  claim_id: c_e85cc970
+  context: 'T012c [US1] Merge NREL and Materials Project data... Verification: Verify
+    data/raw/perovskites_merged.csv exists with row count >= 200 and log specific
+    duplicate count.'
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Merged_perovskite_dataset_containing_at_least_200_rows
+  kind: magnitude
+  raw_text: Verify `data/raw/perovskites_merged.csv` exists with row count >= 200
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-03T19:31:51Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Out-of-distribution detection threshold Mahalanobis distance greater
+    than 3.0
+  claim_id: c_14c17b30
+  context: 'T031 [US3] Implement OOD detection: Flag compositions with elements NOT
+    in the training set (based on T017 dataset) or with a Mahalanobis distance > 3.0
+    from the training distribution.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Out-of-distribution_detection_threshold_Mahalanobis_distance
+  kind: magnitude
+  raw_text: Flag compositions with ... a Mahalanobis distance > 3.0 from the training
+    distribution.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:32:57Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Default temperature precision of 10 degrees Celsius if missing in metadata
+  claim_id: c_0f751b47
+  context: "T042 [P] Implement code/utils/uncertainty_parser.py to parse temperature_precision\
+    \ from source metadata; if missing, default to \xB110\xB0C and log a warning"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "if missing, default to \xB110\xB0C and log a warning"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:32:57Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: 5 specific TGA models with documented precision values in instrument
+    registry
+  claim_id: c_6093cee4
+  context: 'T047c [P] Implement `code/utils/instrument_registry.py` to maintain a
+    lookup table of known TGA instruments with documented precision values. Specificity:
+    Include at least these 5 models...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/5_specific_TGA_models_with_documented_precision_values_in_in
+  kind: magnitude
+  raw_text: "Include at least these 5 models: 'TA Instruments Thermogravimetric Analyzer'\
+    \ (\xB15\xB0C), 'Mettler Toledo TGA/DSC +' (\xB15\xB0C), 'PerkinElmer TGA4000'\
+    \ (\xB15\xB0C), 'Shimadzu TGA-50' (\xB15\xB0C), 'Netzsch STA 449 F3' (\xB13\xB0\
+    C)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:34:14Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: default TGA precision of 10 degrees Celsius for unknown models
+  claim_id: c_0f2e5272
+  context: "...If a model is not in the registry, use the spec default of \xB110\xB0\
+    C. Verification: Verify `instrument_registry.py` contains at least 5 common TGA\
+    \ models... and defaults to \xB110\xB0C for unknown models."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If a model is not in the registry, use the spec default of \xB110\xB0\
+    C."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:34:14Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Merged dataset row count greater than or equal to 200
+  claim_id: c_19825fd2
+  context: 'T012c [US1] Merge NREL and Materials Project data... Verification: Verify
+    `data/raw/perovskites_merged.csv` exists with row count >= 200...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Merged_dataset_row_count_greater_than_or_equal_to_200
+  kind: magnitude
+  raw_text: Verify `descriptors_final.csv` exists with row count >= 200 and log specific
+    duplicate count.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:34:58Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Hard cap of 10 hyperparameter combinations per model
+  claim_id: c_d742bddc
+  context: 'T022 [US2] Implement grid search with a hard cap of <= 10 hyperparameter
+    combinations per model. Verification: Verify `model_runs.json` shows <= 10 combinations
+    per model...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement grid search with a hard cap of <= 10 hyperparameter combinations
+    per model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:34:58Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Stratified K-fold cross-validation with k equals 5
+  claim_id: c_5156be4e
+  context: "Independent Test: Run k-fold CV on a subset of the data, where k=5; verify\
+    \ all models complete within 30 mins with R\xB2 metrics."
+  evidence:
+    asserted: '5.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: Run k-fold CV on a subset of the data, where k=5...
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T19:34:58Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Stratified K-fold cross-validation with k equals 5 using perovskite families
+  claim_id: c_92a8080b
+  context: T020c [US2] Implement stratified KFold logic with k=5 using `perovskite_family`
+    column from T014b...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement stratified KFold logic with k=5 using `perovskite_family` column
+    from T014b (specifically [lead-halide, tin-halide, double perovskite])...
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:35:28Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: API retry logic with 3 retries and exponential backoff intervals 1s 2s
+    4s
+  claim_id: c_2e47363c
+  context: 'T006 Implement `code/utils/data_fetcher.py` with retry logic: up to 3
+    retries with exponential backoff (1s, 2s, 4s) for API unavailability.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `code/utils/data_fetcher.py` with retry logic: up to 3 retries
+    with exponential backoff (1s, 2s, 4s) for API unavailability.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:35:28Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Default temperature precision of 10 degrees Celsius if missing
+  claim_id: c_3076ad84
+  context: "T042 [P] Implement `code/utils/uncertainty_parser.py` to parse `temperature_precision`\
+    \ from source metadata; if missing, default to \xB110\xB0C and log a warning"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "if missing, default to \xB110\xB0C and log a warning"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:35:28Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Default precision of 10 degrees Celsius for missing instrumentation metadata
+  claim_id: c_6bfcb3c9
+  context: "T047a [US1] Enhance `code/utils/data_fetcher.py`... If these fields are\
+    \ missing, log a WARNING and assign a default precision of \xB110\xB0C using the\
+    \ fallback strategy."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "if missing, assign a default precision of \xB110\xB0C using the fallback\
+    \ strategy."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:36:03Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 2
+  canonical: Instrument distribution table with specific entry counts in validation
+    report
+  claim_id: c_550a0bb3
+  context: 'T047e [US3] Update `data/processed/validation_report.md` to include a
+    ''Instrumentation Audit'' table listing the distribution of TGA models used across
+    the dataset (e.g., ''TA Instruments: 120 entries'', ''Mettler Toledo: 80 entries'')...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Verify `validation_report.md` contains a table with instrument distribution
+    and precision ranges (e.g., ''TA Instruments: 120 entries'', ''Mettler Toledo:
+    80 entries'').'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T19:36:40Z'

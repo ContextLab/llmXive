@@ -19,14 +19,13 @@ T008:
   r: No `.env` file, configuration script, or documentation was presented showing
     that API keys for Materials Project and NREL have been set up and managed via
     environment variables. The required artifact is missing, so the task is not satisfied.
-T012c:
+T012d:
   c: false
-  h: 11f9407fbbc37d7338e63ac548f30ac7bfb66f778b33d826db7adce553cc2f06
-  r: The required output file `data/raw/perovskites_merged.csv` is missing, so the
-    merging step was not demonstrated or completed. No evidence of fetching the two
-    sources, concatenating, deduplication, or logging duplicate counts is provided.
-    The implementer must create the merged CSV at the specified path with the described
-    processing.
+  h: 6fcd6ad49a08c620fb9ba185b98de8cc21cbbc79fb176341585fd77572e9ce19
+  r: "Both required files `data/raw/nrel_perovskites.csv` and `data/raw/mp_perovskites.csv`\
+    \ are missing, so the task\u2019s condition (existence and at least one row) is\
+    \ not satisfied and no verification or critical error logging can have occurred.\
+    \ The implementer must provide the two CSV files with data."
 T014:
   c: false
   h: 158e7382bca26b99e736eb6784506bc643ce7946dcc5c1c81a1a2c10ebc7162a
