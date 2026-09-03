@@ -1,45 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was presented showing that a `code/scripts/` directory actually exists
-    in the repository (e.g., a directory listing, screenshot, or commit diff). Without
-    such proof, we cannot confirm the required artifact was created.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided showing that the directory `code/data/raw/` actually\
-    \ exists (or was created). The implementer\u2019s claim lacks any artifact (e.g.,\
-    \ a directory listing or screenshot) to verify the required folder was made. The\
-    \ missing proof must be supplied for the task to be considered complete."
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that the directory `code/data/processed/` actually\
-    \ exists; the artifacts shown relate only to higher\u2011level user stories and\
-    \ contain no filesystem listing or created folder. The required directory creation\
-    \ step is missing."
-T001d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was presented showing that a `code/data/splits/` directory exists
-    in the repository (or that it contains any files). Without a visible directory
-    or confirmation of its creation, the task requirement is not satisfied. The implementer
-    must add the directory (and optionally populate it) and provide proof (e.g., a
-    directory listing).
-T001e:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `code/models/` directory was provided; the artifact list is
-    empty, so the required directory does not appear to exist. The implementer must
-    create the directory (and optionally add a placeholder file) to satisfy task T001e.
-T001f:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided showing that a `code/tests/` directory exists in the
-    repository (e.g., a directory listing or file within it). Without such proof,
-    we cannot confirm the required artifact was created. The implementer must add
-    a visible confirmation that the directory now exists (e.g., a screenshot of the
-    repo tree, a commit diff, or a placeholder test file inside the folder).
 T002a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -55,37 +13,51 @@ T004:
     be confirmed. The implementer must add the `.gitignore` file containing those
     exclusion patterns.
 T010:
-  c: false
-  h: b75a0aa0de9d85be3aa608a9f451a3e61450af5443829a21adb02665dda66fad
-  r: "The `download.py` script exists and contains code to stream\u2011load the dataset\
-    \ and filter for an `actions` field, but the provided excerpt ends before the\
-    \ `save_to_jsonl` implementation and there is no call that writes the filtered\
-    \ samples to `code/data/raw/bridge_samples.jsonl`. Moreover, the expected output\
-    \ file is missing from the repository. The task therefore is not fully satisfied."
+  c: true
+  h: a11c4da24bc7ab361c8f891a91356ad78adc788bed0b7d09444d566354d4bb1c
+  r: "The `code/scripts/download.py` file exists, is non\u2011empty, and contains\
+    \ code that loads the `bridge-to-worlds/bridge-data` dataset with `streaming=True`,\
+    \ filters for samples with an `actions` field, raises a `RuntimeError` on load\
+    \ failure, and defines the correct output path (`code/data/raw/bridge_samples.jsonl`).\
+    \ The missing `bridge_samples.jsonl` file is a runtime product, not a required\
+    \ artifact for the implementation task."
 T011:
   c: false
-  h: ff7f73140cc9b7f25e7617d16e11db4f3aa84b9947cace09f0b37118804e4b97
-  r: "The provided `transform.py` loads the schema, computes the L2 norm, checks keywords,\
-    \ and adds a label, but the script is truncated before any dataset\u2011processing\
-    \ loop and does not contain code that writes the results to `code/data/processed/unified_dataset.jsonl`.\
-    \ Moreover, the required output file `unified_dataset.jsonl` is absent from the\
-    \ repository. The task\u2019s final saving step is therefore not fulfilled."
+  h: 80277d11dd2bcfaa5f036c3adc2831d1f62340e41302528059923515411f26d2
+  r: "The required `code/data/schema/action_schema.json` file is absent, so the script\
+    \ cannot load the rule definition. Additionally, the expected output `code/data/processed/unified_dataset.jsonl`\
+    \ does not exist, and the provided `transform.py` snippet is incomplete (truncated\
+    \ before any data loading, rule application, or saving logic). These missing artifacts\
+    \ mean the task\u2019s requirements are not met."
 T012:
   c: false
-  h: 8b63708d8ca57fc7fb69ac4612d5b2ce17fafc51424e51397d6b746dd6cb6c25
-  r: "The repository contains a `train.py` file, but it is truncated and does not\
-    \ show a full training loop, model saving, or the required memory\u2011monitor\
-    \ logging implementation. Moreover, the expected output artifacts `code/models/proxy_hard/model.pt`\
-    \ and `code/logs/memory_profile.log` are absent. These missing pieces mean the\
-    \ task\u2019s requirements are not satisfied."
+  h: b2a1f059bf932a9e436f88fc963a93e37c9d93f1a9cf0cd0462ebc914c1276c7
+  r: "The provided `train.py` is truncated and does not contain the full training\
+    \ loop, memory\u2011monitoring logic, or code that saves the model to `code/models/proxy_hard/model.pt`.\
+    \ Moreover, the expected output files (`model.pt` and `memory_profile.log`) are\
+    \ absent from the repository."
 T017:
   c: false
-  h: 198a6a0d7917dc7e09a4b889fa1dbebed950ec1cd054e35aa90d2b38f69476b7
-  r: "The repository contains `code/scripts/evaluate.py`, but the file is truncated\
-    \ and does not show the full implementation of the required steps (splitting,\
-    \ inference, metric calculation, statistical testing, and saving results). Moreover,\
-    \ the required output artifacts `code/data/results/comparative_analysis.json`\
-    \ and `code/data/results/raw_predictions.jsonl` are absent from the project. Without\
-    \ these files, the script does not fulfill the task\u2019s core deliverables.\
-    \ The missing outputs must be generated by the script for the task to be considered\
-    \ complete."
+  h: 6fc855219413f0edb98ec9994b1336bba132134640b022610174e3f821a2833d
+  r: The provided `code/scripts/evaluate.py` is only partially shown (truncated after
+    the start of `load_unified_dataset`) and does not demonstrate the required logic
+    for dataset splitting, inference, metric calculation, statistical testing, or
+    writing the `comparative_analysis.json` and `raw_predictions.jsonl` files. Moreover,
+    the expected output files are absent from the repository. The implementation must
+    be completed to include all specified steps and generate the required result files.
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or test file was provided that adds the required validation
+    for the `physics_reward` field in the Bridge Data, nor any evidence (e.g., error
+    messages, unit tests) showing that the pipeline aborts with a clear error when
+    the field is missing. The implementer must supply the actual implementation (e.g.,
+    a Python module or function) and demonstration that it correctly detects the absence
+    of `physics_reward` and raises the specified error.
+T019:
+  c: false
+  h: 1668175acd05ff6cc649640549a5c7221f8fed095907786bba891b612665b557
+  r: "The `extract_errors.py` script is truncated (the `main()` function is incomplete)\
+    \ and the required input file `code/data/results/raw_predictions.jsonl` as well\
+    \ as the expected output `code/data/processed/misclassified_samples.jsonl` are\
+    \ absent, so the task\u2019s functional requirement is not met."

@@ -120,9 +120,9 @@ def main():
         logger.info("Initializing optimized streaming pipeline...")
         samples = fetch_and_filter_dataset()
         save_to_jsonl(samples, OUTPUT_FILE)
-        logger.info("Task T027 (download optimization) completed successfully.")
+        logger.info("Task T010 completed successfully: data saved to bridge_samples.jsonl")
     except Exception as e:
-        logger.error(f"Task T027 failed: {e}")
+        logger.error(f"Task T010 failed: {e}")
         # Re-raise to ensure the execution stage sees the failure
         raise
     finally:

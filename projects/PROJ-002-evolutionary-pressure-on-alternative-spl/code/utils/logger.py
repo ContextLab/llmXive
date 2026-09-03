@@ -1,315 +1,185 @@
-"""
-Logging infrastructure for the llmXive automated science pipeline.
-
-Provides timestamped, multi-level logging with error code tracking.
-Integrates with loguru for structured output and file rotation.
-"""
 import os
 import sys
-from pathlib import Path
-from datetime import datetime
-from typing import Optional, Dict, List, Any
 import json
 import logging
+from pathlib import Path
+from datetime import datetime
+from typing import Dict, List, Optional, Any
+
 from loguru import logger
 
-# Global state for error tracking
+# Global error store for tracking errors across the pipeline
 _error_store: List[Dict[str, Any]] = []
-_initialized: bool = False
 _log_file_path: Optional[Path] = None
 
-# Error code registry
-ERROR_CODES = {
-    101: "INSUFFICIENT_REPLICATES",
-    102: "EXCESSIVE_REPLICATES",
-    103: "ALIGNMENT_TIMEOUT",
-    104: "DATA_FETCH_FAILED",
-    105: "MANIFEST_VALIDATION_FAILED",
-    106: "TREE_FILE_MISSING",
-    107: "TREE_FILE_MALFORMED",
-    108: "PHYLOP_QUERY_FAILED",
-    109: "STATS_COMPUTATION_FAILED",
-    110: "PLOT_VALIDATION_FAILED",
-}
-
-def setup_logger(
-    log_dir: str = "data/logs",
-    filename: str = "pipeline.log",
-    level: str = "INFO",
-    rotation: str = "10 MB",
-    retention: str = "7 days",
-) -> Path:
+def setup_logger(log_dir: Optional[Union[str, Path]] = None, level: str = "INFO") -> Path:
     """
     Initialize the logging infrastructure.
-    
+
     Args:
-        log_dir: Directory to store log files
-        filename: Name of the log file
-        level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-        rotation: Max size before rotation (e.g., "10 MB")
-        retention: How long to keep old logs (e.g., "7 days")
-        
+        log_dir: Directory to store log files. Defaults to 'logs' in current working dir.
+        level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
+
     Returns:
-        Path to the created log file
-        
-    Raises:
-        ValueError: If log_dir cannot be created
+        Path to the created log file.
     """
-    global _initialized, _log_file_path
-    
-    log_path = Path(log_dir)
-    log_path.mkdir(parents=True, exist_ok=True)
-    
-    log_file = log_path / filename
-    _log_file_path = log_file
-    
-    # Remove default loguru handler
+    global _log_file_path
+
+    if log_dir is None:
+        log_dir = Path.cwd() / "logs"
+    else:
+        log_dir = Path(log_dir)
+
+    log_dir.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    log_filename = f"pipeline_{timestamp}.log"
+    log_path = log_dir / log_filename
+    _log_file_path = log_path
+
+    # Remove default handlers to avoid duplicates
     logger.remove()
-    
-    # Add console handler with format
+
+    # Add console handler
     logger.add(
-        sys.stderr,
-        format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
-        level=level,
+        sys.stdout,
+        format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan> - <level>{message}</level>",
+        level=level
     )
-    
-    # Add file handler with rotation
+
+    # Add file handler
     logger.add(
-        str(log_file),
-        format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}",
+        log_path,
+        format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function} | {message}",
         level=level,
-        rotation=rotation,
-        retention=retention,
-        compression="zip",
+        rotation="10 MB",
+        retention="1 week"
     )
-    
-    _initialized = True
-    logger.info(f"Logger initialized. Log file: {log_file}")
-    return log_file
+
+    logger.info(f"Logger initialized. Log file: {log_path}")
+    return log_path
 
 def get_log_file_path() -> Optional[Path]:
     """Return the path to the current log file."""
     return _log_file_path
 
-def track_error(
-    error_code: int,
-    message: str,
-    context: Optional[Dict[str, Any]] = None,
-    exception: Optional[Exception] = None,
-) -> Dict[str, Any]:
+def track_error(error_code: str, message: str, context: Optional[Dict[str, Any]] = None) -> None:
     """
-    Track an error with code and context for audit trails.
-    
+    Record an error in the global error store.
+
     Args:
-        error_code: Numeric error code from ERROR_CODES
-        message: Human-readable error message
-        context: Optional dictionary of contextual data
-        exception: Optional exception object for traceback
-        
-    Returns:
-        Dictionary containing the tracked error record
+        error_code: A unique code for the error (e.g., 'E001').
+        message: Human-readable error message.
+        context: Optional dictionary of additional context (e.g., file paths, variables).
     """
-    if not _initialized:
-        setup_logger()
-    
-    error_record = {
-        "timestamp": datetime.utcnow().isoformat(),
+    entry = {
+        "timestamp": datetime.now().isoformat(),
         "error_code": error_code,
-        "error_name": ERROR_CODES.get(error_code, f"UNKNOWN_{error_code}"),
         "message": message,
-        "context": context or {},
-        "exception_type": type(exception).__name__ if exception else None,
-        "exception_message": str(exception) if exception else None,
+        "context": context or {}
     }
-    
-    _error_store.append(error_record)
-    
-    # Log to loguru
-    if exception:
-        logger.error(f"[{error_record['error_name']}] {message}", exc_info=True)
-    else:
-        logger.error(f"[{error_record['error_name']}] {message}")
-    
-    return error_record
+    _error_store.append(entry)
+    logger.error(f"[{error_code}] {message}")
 
 def get_tracked_errors() -> List[Dict[str, Any]]:
-    """Return all tracked errors."""
+    """Return the list of tracked errors."""
     return _error_store.copy()
 
-def get_error_summary() -> Dict[str, Any]:
+def get_error_summary() -> Dict[str, int]:
     """
-    Generate a summary of all tracked errors.
-    
+    Return a summary of error counts by error code.
+
     Returns:
-        Dictionary with error counts by code and total count
+        Dictionary mapping error_code to count.
     """
-    summary = {
-        "total_errors": len(_error_store),
-        "by_code": {},
-        "by_name": {},
-        "latest_error": _error_store[-1] if _error_store else None,
-    }
-    
-    for error in _error_store:
-        code = error["error_code"]
-        name = error["error_name"]
-        
-        summary["by_code"][code] = summary["by_code"].get(code, 0) + 1
-        summary["by_name"][name] = summary["by_name"].get(name, 0) + 1
-    
+    summary = {}
+    for entry in _error_store:
+        code = entry["error_code"]
+        summary[code] = summary.get(code, 0) + 1
     return summary
 
-def log_error(
-    error_code: int,
-    message: str,
-    context: Optional[Dict[str, Any]] = None,
-) -> None:
+def log_error(error_code: str, message: str, context: Optional[Dict[str, Any]] = None) -> None:
     """
-    Convenience function to track and log an error.
-    
+    Log an error and track it.
+
     Args:
-        error_code: Numeric error code
-        message: Error message
-        context: Optional context dictionary
+        error_code: Unique error code.
+        message: Error message.
+        context: Optional context.
     """
     track_error(error_code, message, context)
+    logger.error(f"[{error_code}] {message}")
 
-def log_critical(message: str, context: Optional[Dict[str, Any]] = None) -> None:
+def log_critical(error_code: str, message: str, context: Optional[Dict[str, Any]] = None) -> None:
     """
-    Log a critical error with context.
-    
-    Args:
-        message: Critical error message
-        context: Optional context dictionary
-    """
-    if not _initialized:
-        setup_logger()
-    
-    logger.critical(f"[CRITICAL] {message}", extra={"context": context or {}})
+    Log a critical error and track it.
 
-def log_exception(
-    error_code: int,
-    message: str,
-    exception: Exception,
-    context: Optional[Dict[str, Any]] = None,
-) -> None:
-    """
-    Log an exception with traceback.
-    
     Args:
-        error_code: Numeric error code
-        message: Error message
-        exception: Exception object
-        context: Optional context dictionary
+        error_code: Unique error code.
+        message: Error message.
+        context: Optional context.
     """
-    track_error(error_code, message, context, exception)
+    track_error(error_code, message, context)
+    logger.critical(f"[{error_code}] {message}")
 
-def log_pipeline_step(step_name: str, status: str = "STARTED") -> None:
+def log_exception(error_code: str, exc: Exception, context: Optional[Dict[str, Any]] = None) -> None:
     """
-    Log a pipeline step lifecycle event.
-    
-    Args:
-        step_name: Name of the pipeline step
-        status: One of STARTED, COMPLETED, FAILED
-    """
-    if not _initialized:
-        setup_logger()
-    
-    status_icon = {
-        "STARTED": "▶",
-        "COMPLETED": "✓",
-        "FAILED": "✗",
-    }.get(status, "?")
-    
-    logger.info(f"{status_icon} PIPELINE_STEP: {step_name} [{status}]")
+    Log an exception and track it.
 
-def export_error_log(output_path: str = "data/logs/error_log.json") -> Path:
-    """
-    Export all tracked errors to a JSON file.
-    
     Args:
-        output_path: Path for the output JSON file
-        
-    Returns:
-        Path to the created file
+        error_code: Unique error code.
+        exc: The exception object.
+        context: Optional context.
     """
-    output = Path(output_path)
-    output.parent.mkdir(parents=True, exist_ok=True)
-    
-    summary = get_error_summary()
-    export_data = {
-        "exported_at": datetime.utcnow().isoformat(),
-        "summary": summary,
-        "errors": _error_store,
-    }
-    
-    with open(output, "w", encoding="utf-8") as f:
-        json.dump(export_data, f, indent=2, default=str)
-    
-    logger.info(f"Error log exported to {output}")
-    return output
+    track_error(error_code, str(exc), context)
+    logger.exception(f"[{error_code}] Exception occurred: {exc}")
 
-def quick_log(level: str, message: str) -> None:
+def log_pipeline_step(step_name: str, status: str = "started", details: Optional[Dict[str, Any]] = None) -> None:
     """
-    Quick log without error tracking.
-    
+    Log the start or completion of a pipeline step.
+
     Args:
-        level: Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-        message: Message to log
+        step_name: Name of the step.
+        status: 'started', 'completed', 'failed'.
+        details: Optional details about the step.
     """
-    if not _initialized:
-        setup_logger()
-    
-    log_method = getattr(logger, level.lower(), logger.info)
-    log_method(message)
+    msg = f"Pipeline Step: {step_name} - {status}"
+    if details:
+        msg += f" | Details: {json.dumps(details)}"
+    if status == "completed":
+        logger.info(msg)
+    elif status == "failed":
+        logger.error(msg)
+    else:
+        logger.info(msg)
+
+def export_error_log(output_path: Union[str, Path]) -> None:
+    """
+    Export the error store to a JSON file.
+
+    Args:
+        output_path: Path to the output JSON file.
+    """
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(_error_store, f, indent=2)
+    logger.info(f"Error log exported to {output_path}")
+
+def quick_log(message: str, level: str = "INFO") -> None:
+    """
+    Log a simple message without extra formatting.
+
+    Args:
+        message: Message to log.
+        level: Log level string.
+    """
+    getattr(logger, level.lower())(message)
 
 def clean_error_store() -> None:
-    """Clear the error store (useful for testing)."""
+    """Clear the global error store."""
     global _error_store
-    _error_store.clear()
+    _error_store = []
+    logger.debug("Error store cleared.")
 
-def log_hash_to_file(
-    file_path: str,
-    hash_value: str,
-    algorithm: str = "sha256",
-) -> None:
-    """
-    Log a file hash to the pipeline log.
-    
-    Args:
-        file_path: Path to the hashed file
-        hash_value: The hash string
-        algorithm: Hash algorithm used
-    """
-    if not _initialized:
-        setup_logger()
-    
-    logger.info(f"HASH: {file_path} | {algorithm}: {hash_value}")
-
-def log_manifest_entry(
-    artifact_name: str,
-    hash_value: str,
-    artifact_type: str,
-    size_bytes: Optional[int] = None,
-) -> None:
-    """
-    Log a manifest entry to the pipeline log.
-    
-    Args:
-        artifact_name: Name of the artifact
-        hash_value: SHA-256 hash
-        artifact_type: Type of artifact (e.g., 'BAM', 'PSI_TABLE')
-        size_bytes: Optional file size in bytes
-    """
-    if not _initialized:
-        setup_logger()
-    
-    entry = f"MANIFEST: {artifact_name} | type={artifact_type} | hash={hash_value}"
-    if size_bytes is not None:
-        entry += f" | size={size_bytes}B"
-    
-    logger.info(entry)
-
-# Initialize logger on module import if needed
-# Note: Explicit setup_logger() call is recommended in main entry points
-# This ensures the logger is ready for immediate use in imports
+# Import Union here to avoid forward reference issues if type hints are evaluated
+from typing import Union

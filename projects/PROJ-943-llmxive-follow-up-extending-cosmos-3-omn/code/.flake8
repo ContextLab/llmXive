@@ -1,14 +1,6 @@
 [flake8]
-# Maximum line length
-max-line-length = 88
-
-# Ignore specific error codes
-# E501: line too long (handled by max-line-length)
-# W503: line break before binary operator (conflicts with Black)
-# E203: whitespace before ':' (conflicts with Black)
-ignore = E501, W503, E203
-
-# Exclude directories
+max-line-length = 120
+extend-ignore = E203, W503
 exclude =
     .git,
     __pycache__,
@@ -19,14 +11,8 @@ exclude =
     .venv,
     venv,
     data,
-    models,
-    figures,
-    .mypy_cache,
-    .pytest_cache
-    
-# Per-file ignores (optional, can be added as needed)
-# per-file-ignores = 
-#     __init__.py: F401
-    
-# Max complexity for cyclomatic complexity check
-max-complexity = 10
+    models
+per-file-ignores =
+    # Allow unused imports in __init__.py and test files for setup
+    */__init__.py: F401
+    */tests/*: F401, E501

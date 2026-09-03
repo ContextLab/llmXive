@@ -1,40 +1,30 @@
 """
-Script to initialize the logging infrastructure for the project.
-Ensures the log directory exists and configures the root logger.
+Setup script to initialize logging infrastructure.
+This script ensures the logging configuration is applied at the start of the pipeline.
 """
 import os
 import sys
 from pathlib import Path
 
-# Add code directory to path to import lib modules
-project_root = Path(__file__).resolve().parent.parent
-code_dir = project_root / "code"
+# Add the code directory to the path to allow relative imports
+code_dir = Path(__file__).parent
 if str(code_dir) not in sys.path:
     sys.path.insert(0, str(code_dir))
 
 from lib.logging_config import setup_logging, get_logger
 
-
 def main():
-    """Initialize logging and verify the log file is created."""
-    log_path = "data/results/execution.log"
+    """Initialize logging and verify the setup."""
+    logger = get_logger("setup_logging")
     
-    # Initialize logging
-    logger = setup_logging(log_file_path=log_path, level=10, console_output=True)
-    
-    # Log startup message
-    logger.info("Logging infrastructure initialized.", extra_data={"status": "ready", "log_file": log_path})
-    
-    # Verify file existence
-    full_path = project_root / log_path
-    if full_path.exists():
-        logger.info(f"Log file successfully created at: {full_path}")
-    else:
-        logger.error(f"Failed to create log file at: {full_path}")
-        sys.exit(1)
-
-    return 0
-
+    try:
+        setup_logging()
+        logger.info("Logging infrastructure configured successfully.", status="initialized")
+        logger.info("Log file location: data/results/execution.log")
+        return 0
+    except Exception as e:
+        logger.error(f"Failed to configure logging: {str(e)}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

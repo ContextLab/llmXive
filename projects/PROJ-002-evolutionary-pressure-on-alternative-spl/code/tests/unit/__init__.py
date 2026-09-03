@@ -1,1 +1,4 @@
-"""Unit tests for the evolutionary pressure on alternative splicing pipeline."""
+"""
+Unit tests for llmXive PROJ-002.
+These tests verify individual components in isolation.
+"""

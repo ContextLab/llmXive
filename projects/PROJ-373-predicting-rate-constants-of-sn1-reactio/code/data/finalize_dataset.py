@@ -1,3 +1,7 @@
+"""
+Finalize the dataset by merging cleaned data and exclusion reports.
+Computes success rates and checksums.
+"""
 import os
 import sys
 import csv
@@ -6,22 +10,30 @@ import logging
 import argparse
 import hashlib
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple, List
+from typing import Dict, List, Any, Optional
+
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
 
 from config import DataConfig, ensure_dirs
 from utils.logger import get_logger
 
-# Constants
-DATA_CONFIG = DataConfig()
-
-def setup_finalize_logger() -> logging.Logger:
-    """Setup logging for the finalize dataset stage."""
-    logger = get_logger("finalize_dataset")
-    logger.setLevel(logging.INFO)
-    return logger
+def setup_finalize_logger(log_file: Path):
+    """Setup logging for the finalize stage."""
+    ensure_dirs()
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_file),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
+    return get_logger(__name__)
 
 def load_processed_data(input_path: Path) -> List[Dict[str, Any]]:
-    """Load processed data from a CSV file."""
+    """Load the cleaned intermediate data."""
     if not input_path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
     
@@ -33,11 +45,9 @@ def load_processed_data(input_path: Path) -> List[Dict[str, Any]]:
     return data
 
 def load_exclusion_report(exclusion_path: Path) -> List[Dict[str, Any]]:
-    """Load exclusion report from a CSV file."""
+    """Load the exclusion report."""
     if not exclusion_path.exists():
-        # If exclusion report doesn't exist, return empty list
-        # This might happen if no exclusions were made
-        return []
+        raise FileNotFoundError(f"Exclusion report not found: {exclusion_path}")
     
     data = []
     with open(exclusion_path, 'r', newline='', encoding='utf-8') as f:
@@ -46,12 +56,10 @@ def load_exclusion_report(exclusion_path: Path) -> List[Dict[str, Any]]:
             data.append(row)
     return data
 
-def save_dataset(data: List[Dict[str, Any]], output_path: Path) -> None:
-    """Save the final dataset to a CSV file."""
+def save_dataset(output_path: Path, data: List[Dict[str, Any]]):
+    """Save the final dataset to CSV."""
     if not data:
-        raise ValueError("Cannot save empty dataset")
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+        raise ValueError("No data to save")
     
     fieldnames = list(data[0].keys())
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
@@ -59,34 +67,31 @@ def save_dataset(data: List[Dict[str, Any]], output_path: Path) -> None:
         writer.writeheader()
         writer.writerows(data)
 
-def calculate_success_rate(original_count: int, final_count: int) -> float:
+def calculate_success_rate(total_input: int, total_output: int) -> float:
     """Calculate the success rate of the pipeline."""
-    if original_count == 0:
+    if total_input == 0:
         return 0.0
-    return (final_count / original_count) * 100
+    return total_output / total_input
 
-def save_success_rate_report(success_rate: float, original_count: int, final_count: int, output_path: Path) -> None:
-    """Save the success rate report to a JSON file."""
+def save_success_rate_report(output_path: Path, success_rate: float, total_input: int, total_output: int):
+    """Save the success rate report."""
     report = {
         "success_rate": success_rate,
-        "original_count": original_count,
-        "final_count": final_count,
+        "total_input_rows": total_input,
+        "total_output_rows": total_output,
         "status": "completed"
     }
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
+    with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
 
-def save_post_filter_distribution(data: List[Dict[str, Any]], output_path: Path) -> None:
+def save_post_filter_distribution(output_path: Path, data: List[Dict[str, Any]]):
     """Save the distribution of substrate classes after filtering."""
     distribution = {}
     for row in data:
-        substrate_class = row.get('substrate_class', 'unknown')
-        distribution[substrate_class] = distribution.get(substrate_class, 0) + 1
+        cls = row.get('substrate_class', 'unknown')
+        distribution[cls] = distribution.get(cls, 0) + 1
     
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
+    with open(output_path, 'w') as f:
         json.dump(distribution, f, indent=2)
 
 def compute_file_checksum(file_path: Path) -> str:
@@ -97,107 +102,82 @@ def compute_file_checksum(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def save_checksum(file_path: Path, checksum: str, output_path: Path) -> None:
-    """Save the checksum to a text file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
+def save_checksum(checksum_path: Path, file_path: Path, checksum: str):
+    """Save the checksum to a file."""
+    with open(checksum_path, 'w') as f:
         f.write(f"{checksum}  {file_path.name}\n")
 
-def save_final_dataset(data: List[Dict[str, Any]], output_path: Path) -> None:
-    """Save the final dataset to a CSV file (alias for save_dataset)."""
-    save_dataset(data, output_path)
+def save_final_dataset(data: List[Dict[str, Any]], output_path: Path, checksum_path: Path):
+    """Save the final dataset and its checksum."""
+    save_dataset(output_path, data)
+    checksum = compute_file_checksum(output_path)
+    save_checksum(checksum_path, output_path, checksum)
 
-def load_split_datasets(split_path: Path) -> Tuple[Dict[str, Any], Dict[str, Any], Dict[str, Any]]:
-    """
-    Load the train, validation, and test splits from CSV files.
-    Returns a tuple of (train_data, val_data, test_data).
-    """
-    train_path = split_path / "train.csv"
-    val_path = split_path / "validation.csv"
-    test_path = split_path / "test.csv"
-    
-    def load_split(path: Path) -> Dict[str, Any]:
-        if not path.exists():
-            return {"smiles": [], "rate_constant": [], "substrate_class": []}
-        
-        data = {"smiles": [], "rate_constant": [], "substrate_class": []}
-        with open(path, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                data["smiles"].append(row.get("smiles", ""))
-                data["rate_constant"].append(float(row.get("rate_constant", 0)))
-                data["substrate_class"].append(row.get("substrate_class", "unknown"))
-        return data
-    
-    return load_split(train_path), load_split(val_path), load_split(test_path)
+def load_split_datasets(split_dir: Path) -> Dict[str, List[Dict[str, Any]]]:
+    """Load split datasets (train, val, test) if they exist."""
+    splits = {}
+    for split_name in ['train', 'val', 'test']:
+        split_file = split_dir / f"{split_name}_sn1.csv"
+        if split_file.exists():
+            splits[split_name] = load_processed_data(split_file)
+    return splits
 
 def main():
-    """Main entry point for the finalize dataset stage."""
-    parser = argparse.ArgumentParser(description="Finalize the processed dataset")
-    parser.add_argument("--input", type=str, default=str(DATA_CONFIG.PROCESSED_DIR / "cleaned_intermediate.csv"),
-                      help="Path to the cleaned intermediate CSV file")
-    parser.add_argument("--exclusion-report", type=str, default=str(DATA_CONFIG.PROCESSED_DIR / "exclusion_report.csv"),
-                      help="Path to the exclusion report CSV file")
-    parser.add_argument("--output", type=str, default=str(DATA_CONFIG.PROCESSED_DIR / "cleaned_sn1.csv"),
-                      help="Path to save the final cleaned dataset")
-    parser.add_argument("--checksum-output", type=str, default=str(DATA_CONFIG.PROCESSED_DIR / "cleaned_sn1.csv.sha256"),
-                      help="Path to save the checksum file")
-    parser.add_argument("--success-rate-output", type=str, default=str(DATA_CONFIG.PROCESSED_DIR / "success_rate.json"),
-                      help="Path to save the success rate report")
-    parser.add_argument("--distribution-output", type=str, default=str(DATA_CONFIG.PROCESSED_DIR / "post_filter_distribution.json"),
-                      help="Path to save the post-filter distribution")
-    
-    args = parser.parse_args()
-    
-    logger = setup_finalize_logger()
-    logger.info("Starting finalize dataset stage")
-    
+    """Main entry point for dataset finalization."""
+    config = DataConfig()
+    ensure_dirs()
+    log_file = Path(config.log_dir) / "finalize_dataset.log"
+    logger = setup_finalize_logger(log_file)
+
+    logger.info("Starting dataset finalization...")
+
+    # Define paths
+    input_path = Path(config.intermediate_cleaned_path)
+    exclusion_path = Path(config.exclusion_report_path)
+    output_path = Path(config.cleaned_sn1_path)
+    checksum_path = Path(config.checksum_path)
+    success_rate_path = Path(config.success_rate_path)
+    distribution_path = Path(config.post_filter_distribution_path)
+
+    # Load data
     try:
-        # Ensure directories exist
-        ensure_dirs(DATA_CONFIG)
-        
-        input_path = Path(args.input)
-        exclusion_path = Path(args.exclusion_report)
-        output_path = Path(args.output)
-        checksum_output_path = Path(args.checksum_output)
-        success_rate_output_path = Path(args.success_rate_output)
-        distribution_output_path = Path(args.distribution_output)
-        
-        # Load processed data
-        logger.info(f"Loading processed data from {input_path}")
-        processed_data = load_processed_data(input_path)
-        original_count = len(processed_data)
-        logger.info(f"Loaded {original_count} rows")
-        
-        # Load exclusion report (for logging purposes)
-        exclusion_data = load_exclusion_report(exclusion_path)
-        logger.info(f"Loaded {len(exclusion_data)} exclusion records")
-        
-        # Save the final dataset
-        logger.info(f"Saving final dataset to {output_path}")
-        save_dataset(processed_data, output_path)
-        
-        # Calculate and save success rate
-        final_count = len(processed_data)
-        success_rate = calculate_success_rate(original_count, final_count)
-        logger.info(f"Success rate: {success_rate:.2f}%")
-        save_success_rate_report(success_rate, original_count, final_count, success_rate_output_path)
-        
-        # Save post-filter distribution
-        logger.info("Saving post-filter distribution")
-        save_post_filter_distribution(processed_data, distribution_output_path)
-        
-        # Compute and save checksum
-        checksum = compute_file_checksum(output_path)
-        logger.info(f"Checksum: {checksum}")
-        save_checksum(output_path, checksum, checksum_output_path)
-        
-        logger.info("Finalize dataset stage completed successfully")
-        return 0
-        
-    except Exception as e:
-        logger.error(f"Error during finalize dataset stage: {e}", exc_info=True)
-        return 1
+        data = load_processed_data(input_path)
+        logger.info(f"Loaded {len(data)} rows from {input_path}")
+    except FileNotFoundError as e:
+        logger.error(f"Fatal error: {e}")
+        # Create empty output with status
+        with open(output_path, 'w') as f:
+            f.write("smiles,rate_constant,substrate_class\n")
+        with open(success_rate_path, 'w') as f:
+            json.dump({"status": "blocked", "reason": "input_missing"}, f)
+        sys.exit(1)
+
+    # Load exclusion report for logging (optional, not strictly needed for merge if clean.py already filtered)
+    try:
+        exclusions = load_exclusion_report(exclusion_path)
+        logger.info(f"Loaded {len(exclusions)} exclusion records")
+    except FileNotFoundError as e:
+        logger.warning(f"Exclusion report not found: {e}")
+        exclusions = []
+
+    # Save final dataset
+    save_final_dataset(data, output_path, checksum_path)
+    logger.info(f"Saved final dataset to {output_path}")
+
+    # Calculate and save success rate
+    # Assuming input to this stage is the intermediate_cleaned which is already filtered
+    # We need the raw count from earlier. For now, we calculate based on available data.
+    # In a real pipeline, we'd track counts through the stages.
+    total_input = len(data) + len(exclusions) # Approximation
+    success_rate = calculate_success_rate(total_input, len(data))
+    save_success_rate_report(success_rate_path, success_rate, total_input, len(data))
+    logger.info(f"Success rate: {success_rate:.4f}")
+
+    # Save distribution
+    save_post_filter_distribution(distribution_path, data)
+    logger.info(f"Saved distribution to {distribution_path}")
+
+    logger.info("Dataset finalization completed.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

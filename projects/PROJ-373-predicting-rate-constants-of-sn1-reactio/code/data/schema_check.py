@@ -37,26 +37,25 @@ def setup_schema_check_logger():
 def fetch_dataset_info(dataset_id: str) -> dict:
     """
     Fetch dataset info from HuggingFace without downloading full data.
-    Uses streaming metadata if available, or loads just the info.
+    Uses streaming mode to inspect features efficiently.
     """
     try:
         from datasets import load_dataset
         # Load in streaming mode to get info without downloading full data
-        # This is efficient for checking columns
         ds = load_dataset(dataset_id, split="train", streaming=True)
-        # Get column names from the dataset object
-        # For streaming datasets, we might need to peek at the first item
-        # or check the features if available immediately
-        if hasattr(ds, 'features'):
+        
+        # Try to get features directly first
+        if hasattr(ds, 'features') and ds.features:
             columns = list(ds.features.keys())
         else:
-            # Fallback: try to get one row to infer columns
-            # This is a bit heavy but necessary if features aren't exposed
+            # Fallback: peek at the first item to infer columns
+            # This is necessary if features aren't immediately exposed
             try:
                 first_item = next(iter(ds))
                 columns = list(first_item.keys())
-            except Exception as e:
-                raise RuntimeError(f"Failed to inspect dataset {dataset_id}: {e}")
+            except Exception as peek_error:
+                raise RuntimeError(f"Failed to inspect dataset {dataset_id}: {peek_error}")
+        
         return {
             "dataset_id": dataset_id,
             "columns": columns,
@@ -70,16 +69,15 @@ def fetch_dataset_info(dataset_id: str) -> dict:
             "error": str(e)
         }
 
-def validate_columns(dataset_info: dict) -> bool:
+def validate_columns(dataset_info: dict) -> tuple:
     """
     Validate that all required columns are present in the dataset.
-    Returns True if valid, False otherwise.
+    Returns (is_valid, list_of_missing_columns).
     """
     columns = dataset_info.get("columns", [])
     missing = [col for col in REQUIRED_COLUMNS if col not in columns]
-    if missing:
-        return False
-    return True
+    is_valid = len(missing) == 0
+    return is_valid, missing
 
 def main():
     """
@@ -104,8 +102,8 @@ def main():
             all_valid = False
             continue
 
-        if not validate_columns(info):
-            missing = [col for col in REQUIRED_COLUMNS if col not in info["columns"]]
+        is_valid, missing = validate_columns(info)
+        if not is_valid:
             logger.error(f"Dataset {dataset_id} missing required columns: {missing}")
             all_valid = False
         else:

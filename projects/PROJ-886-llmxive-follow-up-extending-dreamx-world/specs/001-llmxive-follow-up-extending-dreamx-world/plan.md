@@ -120,7 +120,7 @@ projects/PROJ-886-llmxive-follow-up-extending-dreamx-world/
 1. **Convergence Test**: Run McNemar's test on binary `convergence` flags.
 2. **Error Test**: Run Wilcoxon signed-rank test on MAE scores *only* for `convergence=true` trajectories. **No Sentinels**: Sentinel values are excluded from the Wilcoxon test.
 3. **Censoring Analysis**: Calculate and report the 'Censoring Rate' for both models.
-4. **Sensitivity Analysis**: Sweep thresholds {0.01, 0.05, 0.1} MAE and report success rates.
+4. **Sensitivity Analysis**: Sweep thresholds {0.05, 0.1} MAE and report success rates.
 
 ### Phase 4: Sensitivity Analysis (FR-006)
 1. **Execute Sweep**: Run `code/analysis/sensitivity.py` with thresholds {0.01, 0.05, 0.1}.

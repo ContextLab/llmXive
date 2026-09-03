@@ -1,20 +1,24 @@
+"""
+Script to create required project directories.
+This script ensures the existence of all necessary folders for the llmXive pipeline.
+"""
 import os
 import sys
 from pathlib import Path
 
-def create_directory(path: str) -> bool:
+def create_directory(path_str: str) -> bool:
     """
-    Creates a directory at the specified path if it does not already exist.
+    Create a directory if it does not exist.
     
     Args:
-        path: The absolute or relative path to the directory to create.
+        path_str: The path to the directory to create.
         
     Returns:
         True if the directory was created or already exists, False otherwise.
     """
-    dir_path = Path(path)
+    path = Path(path_str)
     try:
-        dir_path.mkdir(parents=True, exist_ok=True)
+        path.mkdir(parents=True, exist_ok=True)
         return True
     except OSError as e:
         print(f"Error creating directory {path}: {e}", file=sys.stderr)
@@ -22,29 +26,41 @@ def create_directory(path: str) -> bool:
 
 def main():
     """
-    Main function to create all required project directories.
+    Main function to create all required directories for the project.
     """
-    base_dir = Path(__file__).parent.parent
-    
-    directories = [
-        base_dir / "scripts",
-        base_dir / "data" / "raw",
-        base_dir / "data" / "processed",
-        base_dir / "data" / "splits",
-        base_dir / "models",
-        base_dir / "tests"
+    # Define all required directories relative to the project root (code/)
+    required_dirs = [
+        "scripts/",
+        "data/raw/",
+        "data/processed/",
+        "data/splits/",
+        "models/",
+        "tests/",
+        "logs/",
+        "data/results/",
+        "figures/"
     ]
+
+    # Get the base directory (assuming this script is in code/scripts/)
+    base_dir = Path(__file__).resolve().parent.parent
+    
+    print(f"Creating directories relative to: {base_dir}")
     
     all_success = True
-    for dir_path in directories:
-        success = create_directory(str(dir_path))
-        status = "Created" if success else "Failed"
-        print(f"{status}: {dir_path}")
-        if not success:
+    for dir_path in required_dirs:
+        full_path = base_dir / dir_path
+        if create_directory(str(full_path)):
+            print(f"Created/Verified: {full_path}")
+        else:
+            print(f"Failed: {full_path}")
             all_success = False
-    
-    if not all_success:
-        sys.exit(1)
+
+    if all_success:
+        print("\nAll required directories are ready.")
+        return 0
+    else:
+        print("\nSome directories failed to create.", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

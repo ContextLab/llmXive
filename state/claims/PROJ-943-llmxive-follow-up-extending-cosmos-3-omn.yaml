@@ -56,3 +56,125 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-15T10:49:00Z'
+- artifact_path: projects/PROJ-943-llmxive-follow-up-extending-cosmos-3-omn/code/data/results/error_analysis_report.md
+  attempts: 1
+  canonical: 42 errors due to Visual Ambiguity (35.0%)
+  claim_id: c_faee2a50
+  context: The following table summarizes the distribution of errors across identified
+    failure modes based on the analysis of misclassified_samples.jsonl.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis of misclassified_samples.jsonl identified 42 errors due to
+    Visual Ambiguity, representing 35.0% of the total.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T02:09:34Z'
+- artifact_path: projects/PROJ-943-llmxive-follow-up-extending-cosmos-3-omn/code/data/results/error_analysis_report.md
+  attempts: 1
+  canonical: 58 errors due to Logical Complexity (48.3%)
+  claim_id: c_66bdc7d8
+  context: The following table summarizes the distribution of errors across identified
+    failure modes based on the analysis of misclassified_samples.jsonl.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis identified 58 errors due to Logical Complexity, representing
+    48.3% of the total.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T02:09:44Z'
+- artifact_path: projects/PROJ-943-llmxive-follow-up-extending-cosmos-3-omn/code/data/results/error_analysis_report.md
+  attempts: 1
+  canonical: 20 errors due to Context Mismatch (16.7%)
+  claim_id: c_1c41af0c
+  context: The following table summarizes the distribution of errors across identified
+    failure modes based on the analysis of misclassified_samples.jsonl.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis identified 20 errors due to Context Mismatch, representing
+    16.7% of the total.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T02:10:01Z'
+- artifact_path: projects/PROJ-943-llmxive-follow-up-extending-cosmos-3-omn/code/data/results/error_analysis_report.md
+  attempts: 1
+  canonical: Total misclassified samples 120
+  claim_id: c_6a4ec1cd
+  context: 'Note: Percentages are calculated based on the total number of misclassified
+    samples (N=120).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total number of misclassified samples analyzed was 120.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T02:10:15Z'
+- artifact_path: projects/PROJ-943-llmxive-follow-up-extending-cosmos-3-omn/code/data/results/error_analysis_report.md
+  attempts: 1
+  canonical: 80% of Visual Ambiguity cases had significant occlusion or low-light
+    conditions
+  claim_id: c_bd238243
+  context: 'Observation: In 80% of these cases, the image field contained significant
+    occlusion or low-light conditions, making the ground truth action vector noisy.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: In 80% of Visual Ambiguity cases, the image field contained significant
+    occlusion or low-light conditions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T02:10:15Z'
+- artifact_path: projects/PROJ-943-llmxive-follow-up-extending-cosmos-3-omn/code/data/results/error_analysis_report.md
+  attempts: 1
+  canonical: Sample bridge_sample_1024 misclassified with norm 0.52 and missing keywords
+  claim_id: c_e05201ef
+  context: 'Sample ID: bridge_sample_1024 - True Label: constraint_violated - Predicted:
+    constraint_satisfied - Reason: norm (0.52) > threshold (0.5), but text_description
+    (''moving slowly'') lacked keywords.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sample bridge_sample_1024 had an L2 norm of 0.52 and was misclassified
+    because the text description 'moving slowly' lacked keywords.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T02:10:27Z'
+- artifact_path: projects/PROJ-943-llmxive-follow-up-extending-cosmos-3-omn/code/data/results/error_analysis_report.md
+  attempts: 1
+  canonical: Sample bridge_sample_4092 misclassified with norm 0.81 due to camera
+    shake
+  claim_id: c_98cd179d
+  context: 'Sample ID: bridge_sample_4092 - True Label: constraint_satisfied - Predicted:
+    constraint_violated - Reason: High norm (0.81) due to camera shake, not physical
+    constraint.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sample bridge_sample_4092 had an L2 norm of 0.81 and was misclassified
+    due to camera shake rather than a physical constraint.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T02:12:50Z'

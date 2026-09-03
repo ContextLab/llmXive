@@ -4,14 +4,18 @@ extend-ignore = E203, E501, W503
 exclude =
     .git,
     __pycache__,
+    .venv,
+    venv,
+    env,
     .eggs,
     *.egg-info,
     build,
     dist,
-    .venv,
-    venv
+    data,
+    results,
+    docs
 per-file-ignores =
-    # Allow unused imports in __init__.py for exports
+    # Allow unused imports in __init__.py
     */__init__.py: F401
-    # Allow unused arguments in tests
-    tests/*: ARG001, ARG002
+    # Allow high line length in tests for readability
+    tests/*: E501

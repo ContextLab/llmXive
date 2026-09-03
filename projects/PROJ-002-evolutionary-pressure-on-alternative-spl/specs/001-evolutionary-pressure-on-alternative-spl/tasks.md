@@ -28,7 +28,7 @@
 - [X] T001b Create configuration skeleton files: `config/genomes.yaml`, `config/species_replicates.yaml`
 - [ ] T001c Create test directory structure: `tests/unit/`, `tests/integration/`, `tests/contract/`
 - [X] T002 Create `requirements.txt` pinning versions for: pandas, numpy, pyyaml, biopython, requests, tqdm, pybedtools, pyBigWig, scikit-learn, loguru. Create `renv.lock` for R dependencies: phylolm, ape, data.table, ggplot2.
-- [ ] T003 [P] Configure linting (flake, black) and formatting tools [UNRESOLVED-CLAIM: c_c030b476 — status=not_enough_info]
+- [ ] T003 [P] Configure linting (flake, black) and formatting tools [UNRESOLVED-CLAIM: c_0c804ed2 — status=not_enough_info]
 
 ---
 
@@ -63,7 +63,7 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T010 [P] [US1] Contract test for data download and replicate validation in `tests/contract/test_download_replicates.py`: Verify pipeline aborts with error 101 if <3 replicates and error 102 if >5 replicates [UNRESOLVED-CLAIM: c_a22567e4 — status=not_enough_info], including informative error messages as specified in US-1 acceptance scenarios.
+- [X] T010 [P] [US1] Contract test for data download and replicate validation in `tests/contract/test_download_replicates.py`: Verify pipeline aborts with error 101 if <3 replicates and error 102 if >5 replicates [UNRESOLVED-CLAIM: c_66427f40 — status=not_enough_info], including informative error messages as specified in US-1 acceptance scenarios.
 - [X] T011 [P] [US1] Integration test for full alignment and PSI quantification flow in `tests/integration/test_psi_pipeline.py`: Verify PSI table is produced, `pipeline.log` contains timestamps, and at least one splice junction is reported.
 - [ ] T012 [P] [US1] Unit test for alignment duration validation script (`validate_alignment_time.py`) in `tests/unit/test_align_time.py`: Verify script correctly parses duration from `pipeline.log` and asserts ≤2 hours.
 
@@ -99,7 +99,7 @@
 - [ ] T024 [P] [US2] Implement flanking sequence extraction (`src/pipeline/extract_flanks.py`) using `bedtools getfasta` for ±500 bp regions
 - [ ] T025 [P] [US2] Implement phyloP score retrieval (`src/pipeline/annotate_phyloP.py`) using `pyBigWig` to query UCSC Multi-way Vertebrate Conservation track. Source: UCSC Table Browser (phyloP100way).
 - [ ] T026 [US2] Implement logic to calculate average phyloP score (ignoring Ns) and record `NA` for assembly gaps
-- [ ] T027 [US2] Implement accelerated-evolution flagging logic (TRUE if average phyloP score ≤ -2.0) [UNRESOLVED-CLAIM: c_08287267 — status=not_enough_info] in `annotate_phyloP.py`
+- [ ] T027 [US2] Implement accelerated-evolution flagging logic (TRUE if average phyloP score ≤ -2.0) [UNRESOLVED-CLAIM: c_a31a891e — status=not_enough_info] in `annotate_phyloP.py`
 - [ ] T028 [P] [US2] Implement sensitivity analysis script (`src/pipeline/sensitivity_analysis.py`) to sweep the acceleration threshold (±0.5) AND validates the permutation null model's robustness by comparing empirical p-values against model-based p-values across threshold sweeps.
 - [ ] T029 [P] [US2] Ensure exclusion of events with `NA` phyloP scores from downstream enrichment tests
 

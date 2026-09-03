@@ -2,105 +2,104 @@ import pytest
 import os
 import sys
 import json
+import tempfile
 from pathlib import Path
 from datetime import datetime
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
-# Add code to path for imports
+# Ensure we can import from code/utils
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from code.utils.logger import (
     setup_logger,
+    get_log_file_path,
     track_error,
     get_tracked_errors,
+    get_error_summary,
     log_error,
     log_critical,
     log_exception,
     log_pipeline_step,
-    get_log_file_path,
-    get_error_summary,
     export_error_log,
-    quick_log
+    quick_log,
+    get_log_file_path,
+    clean_error_store,
+    log_hash_to_file,
+    log_manifest_entry,
+    _error_store
 )
-from loguru import logger
 
 @pytest.fixture
 def clean_error_store():
-    """Fixture to clear error store before each test."""
-    from code.utils.logger import _error_store
-    _error_store.clear()
+    """Fixture to clear error store before and after each test."""
+    clean_error_store()
     yield
-    _error_store.clear()
+    clean_error_store()
 
 @pytest.fixture
 def temp_log_dir(tmp_path):
-    """Fixture to create a temporary log directory."""
-    log_dir = tmp_path / "data" / "logs"
-    log_dir.mkdir(parents=True, exist_ok=True)
-    return log_dir
+    """Create a temporary log directory for testing."""
+    # We can't easily change the global LOGS_DIR without mocking,
+    # so we just ensure the directory exists for the test environment
+    return tmp_path
 
-def test_setup_logger_initializes(clean_error_store, tmp_path):
-    """Test that setup_logger creates the log file and directory."""
-    # We cannot easily mock the global _LOG_DIR in the module, 
-    # so we test the function's behavior by checking if it runs without error.
-    # In a real scenario, we might patch _LOG_DIR.
-    # For this test, we assume the default setup works if no exception is raised.
-    try:
-        setup_logger(level="DEBUG", log_file_name="test_setup.log")
-        # Check if log file exists (it might be in the real project path, not tmp_path)
-        # This test mainly ensures no ImportError or immediate crash.
-        assert True 
-    except Exception as e:
-        pytest.fail(f"setup_logger raised an exception: {e}")
+def test_setup_logger_initializes(clean_error_store):
+    """Test that setup_logger initializes loguru handlers."""
+    # Reset setup state if possible (loguru doesn't expose _is_setup)
+    # We rely on the fact that calling it multiple times is safe
+    setup_logger(level="DEBUG")
+    # If we get here without exception, initialization succeeded
+    assert True
 
 def test_track_error(clean_error_store):
-    """Test that track_error adds to the store."""
-    track_error(101, "Test error message", {"key": "value"})
+    """Test that track_error records an error correctly."""
+    track_error("E001", "Test error message", {"key": "value"})
     errors = get_tracked_errors()
     assert len(errors) == 1
-    assert errors[0]["error_code"] == 101
+    assert errors[0]["error_code"] == "E001"
     assert errors[0]["message"] == "Test error message"
-    assert errors[0]["context"]["key"] == "value"
+    assert errors[0]["context"] == {"key": "value"}
     assert "timestamp" in errors[0]
 
 def test_get_error_summary(clean_error_store):
-    """Test error summary calculation."""
-    track_error(101, "Error 1")
-    track_error(101, "Error 2")
-    track_error(102, "Error 3")
+    """Test that get_error_summary returns correct counts."""
+    track_error("E001", "Error 1")
+    track_error("E002", "Error 2")
+    track_error("E001", "Error 3")
     
     summary = get_error_summary()
-    assert summary["101"] == 2
-    assert summary["102"] == 1
+    assert summary["total_errors"] == 3
+    assert summary["by_code"]["E001"] == 2
+    assert summary["by_code"]["E002"] == 1
 
 def test_log_error(clean_error_store):
-    """Test log_error function."""
-    log_error(201, "Log error test")
+    """Test that log_error tracks and logs."""
+    log_error("E003", "Log error test")
     errors = get_tracked_errors()
     assert len(errors) == 1
-    assert errors[0]["error_code"] == 201
+    assert errors[0]["error_code"] == "E003"
 
 def test_log_critical(clean_error_store):
-    """Test log_critical function."""
-    log_critical("Critical failure")
+    """Test that log_critical marks error as critical."""
+    log_critical("E004", "Critical test")
     errors = get_tracked_errors()
     assert len(errors) == 1
-    assert errors[0]["error_code"] == 999
-    assert "Critical failure" in errors[0]["message"]
+    assert errors[0].get("critical") is True
 
-def test_log_pipeline_step(clean_error_store, caplog):
-    """Test log_pipeline_step."""
-    # We can't easily capture loguru output in caplog without custom handlers
-    # So we test the logic and side effects (tracking if applicable, though step doesn't track by default)
-    log_pipeline_step("TestStep", "STARTED", {"input": "data"})
-    log_pipeline_step("TestStep", "COMPLETED", {"output": "result"})
-    log_pipeline_step("TestStep", "FAILED", {"reason": "timeout"})
-    assert True # If we get here, no exception
+def test_log_pipeline_step(clean_error_store):
+    """Test pipeline step logging."""
+    log_pipeline_step("Data Download", "STARTED")
+    log_pipeline_step("Data Download", "COMPLETED")
+    log_pipeline_step("Alignment", "FAILED")
+    
+    # Just verify no exceptions and logs are generated
+    assert True
 
 def test_export_error_log(clean_error_store, tmp_path):
-    """Test export_error_log creates a valid JSON file."""
-    track_error(301, "Export test")
-    output_path = tmp_path / "exported_errors.json"
+    """Test exporting error log to JSON."""
+    track_error("E005", "Export test")
+    output_path = tmp_path / "test_export.json"
+    
     result_path = export_error_log(output_path)
     
     assert result_path == output_path
@@ -110,16 +109,36 @@ def test_export_error_log(clean_error_store, tmp_path):
         data = json.load(f)
     
     assert len(data) == 1
-    assert data[0]["error_code"] == 301
+    assert data[0]["error_code"] == "E005"
 
-def test_quick_log(clean_error_store):
-    """Test quick_log."""
-    quick_log("Quick message", "INFO")
-    quick_log("Quick error", "ERROR")
+def test_quick_log(clean_error_store, caplog):
+    """Test quick_log function."""
+    # Note: loguru uses sys.stderr, not caplog directly, 
+    # but we test that the function doesn't crash
+    quick_log("Info message", "INFO")
+    quick_log("Debug message", "DEBUG")
+    quick_log("Warning message", "WARNING")
+    quick_log("Error message", "ERROR")
+    quick_log("Critical message", "CRITICAL")
+    quick_log("Unknown level", "UNKNOWN") # Should default to INFO
     assert True
 
-def test_get_log_file_path(clean_error_store):
-    """Test get_log_file_path returns a Path object."""
-    path = get_log_file_path()
+def test_get_log_file_path():
+    """Test getting log file path."""
+    path = get_log_file_path("custom.log")
     assert isinstance(path, Path)
-    assert path.name == "pipeline.log"
+    assert path.name == "custom.log"
+    assert path.parent.name == "logs"
+
+def test_log_hash_to_file(clean_error_store):
+    """Test logging a hash."""
+    test_path = Path("/fake/path/file.bam")
+    test_hash = "abc123"
+    log_hash_to_file(test_path, test_hash)
+    assert True
+
+def test_log_manifest_entry(clean_error_store):
+    """Test logging manifest entry."""
+    test_path = Path("/fake/manifest.json")
+    log_manifest_entry(test_path, 5)
+    assert True

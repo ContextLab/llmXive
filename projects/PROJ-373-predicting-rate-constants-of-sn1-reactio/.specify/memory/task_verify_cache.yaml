@@ -1,26 +1,27 @@
 T011a:
   c: false
-  h: 1bd748bcf12f455c7c09b22c099fb4b5419accb390163dcf4276866c11daf6d7
-  r: The provided `schema_check.py` is incomplete (truncated) and does not show the
-    required logic to raise a `ValueError` when required columns are missing, nor
-    does it create the `data/processed/schema_check.log` file (the log file is missing).
-    The implementation must be finished to include the fatal error handling and generate
-    the log output.
+  h: 885feabe65d9fb31188cef1582e6019d8bdac47357bb962738fe5cfc2b6329b6
+  r: The `code/data/schema_check.py` file exists but is incomplete (truncated) and
+    we cannot verify that it raises a fatal `ValueError` on missing columns. Moreover,
+    the required output log `data/processed/schema_check.log` is missing, indicating
+    the script either was not executed or does not produce the expected log file.
+    The task therefore is not fully satisfied.
 T011b:
   c: false
-  h: b90d3f64a1f2dab613d9cb461b6b64e6fd5cbbf929da21886851deb267c5840e
-  r: "The required output file `data/raw/sn1_raw.parquet` does not exist, and the\
-    \ provided `download.py` is only partially shown (truncated) with no evidence\
-    \ that it actually writes the parquet file. Without the generated dataset file,\
-    \ the task\u2019s core requirement is unmet."
+  h: d2684447dcae0adb6db69bfee5612d5d49c33406329be10882f3b02545583156
+  r: "The provided `code/data/download.py` is truncated and does not contain the full\
+    \ implementation (e.g., the `download_dataset` function is incomplete and never\
+    \ writes `sn1_raw.parquet`). Moreover, the required output file `data/raw/sn1_raw.parquet`\
+    \ is missing from the repository. The task\u2019s core requirements are therefore\
+    \ not satisfied."
 T011c:
   c: false
-  h: 7d200cf2cc912f21a572eef599faf8283bce823c5f6caad69f85ee3435a03339
-  r: "The repository contains `code/data/mapping.py`, but the script is truncated\
-    \ and never writes the required `data/processed/intermediate_sn1.csv`. The exclusion\
-    \ log exists but only contains the header and no logged rows, indicating the cleaning\
-    \ step was not executed. The primary output file is missing, so the task\u2019\
-    s deliverable is not fulfilled."
+  h: 7df610cb0687e5df05c59b7e3e91189fab95d8403c5a46a635c251698af7cb20
+  r: "The provided `code/data/mapping.py` is truncated and ends mid\u2011statement,\
+    \ so it does not contain a complete implementation (e.g., no code to write `intermediate_sn1.csv`\
+    \ or to log exclusions). Additionally, the required output files `data/processed/exclusion_raw.log`\
+    \ and `data/processed/intermediate_sn1.csv` are absent. The task\u2019s mapping\
+    \ and cleaning logic is therefore not fully realized."
 T015:
   c: false
   h: 780590bf995b69034b7bf3fc3babe60ce3545be25d3a40927b1d8c963d3903a2
@@ -44,11 +45,3 @@ T028:
     \ is present. Additionally, the provided `collinearity.py` is truncated and does\
     \ not show the full VIF calculation and JSON generation logic. The task\u2019\
     s essential artifacts are missing."
-T040:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No execution logs, generated artifacts, or the required `artifacts/feasibility_test_log.json`\
-    \ (or any other validation output) were provided. Without these files we cannot\
-    \ confirm that the pipeline was re\u2011run, that schemas were checked, or that\
-    \ any timeout/abortion was documented, so the task\u2019s validation requirement\
-    \ is unmet."

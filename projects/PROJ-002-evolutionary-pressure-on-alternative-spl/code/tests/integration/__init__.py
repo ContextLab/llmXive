@@ -1,1 +1,4 @@
-"""Integration tests for the evolutionary pressure on alternative splicing pipeline."""
+"""
+Integration tests for llmXive PROJ-002.
+These tests verify interactions between multiple components.
+"""

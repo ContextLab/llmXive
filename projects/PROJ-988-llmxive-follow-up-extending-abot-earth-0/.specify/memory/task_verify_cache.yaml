@@ -1,0 +1,45 @@
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided evidence contains only high\u2011level user story descriptions\
+    \ and no actual code, configuration files, or scripts implementing loaders for\
+    \ `city_list.txt` or managing random seeds. Consequently, the required environment\
+    \ configuration management artifacts are missing."
+T012:
+  c: false
+  h: d9bfe4364c7cad571453b52a85fd95e0b7667438b8295756e2dd71cf5c7886fb
+  r: "The required output files `data/processed/raw_manifest.csv`, `aligned_pairs.csv`,\
+    \ and `alignment_report.csv` are absent, and the provided `code/01_data_curation.py`\
+    \ is only a partial, mock\u2011up (truncated) that does not demonstrably perform\
+    \ the full download, retry loop, saving of raw assets, or CSV generation. The\
+    \ task\u2019s deliverables are therefore not satisfied."
+T013:
+  c: false
+  h: a780803393b430c8390f632513bd857eba131b1fd6831c543ecc21f246472453
+  r: "The repository contains a `code/01_patch_extraction.py` file, but it is truncated\
+    \ and does not show a complete implementation (e.g., the loop body is cut off\
+    \ and no saving logic is visible). Moreover, the required output `data/processed/patch_manifest.csv`\
+    \ is absent, and there is no evidence of any extracted patch files in `data/processed/patches_100m2/`.\
+    \ The task\u2019s core deliverables are therefore missing."
+T014b:
+  c: false
+  h: 54e05dfdabaa844a09d8099e0e291710ee1044362a67bf99f84a3ae257dfb62e
+  r: "The `data/processed/degraded_manifest.json` file is missing, and the provided\
+    \ `code/02_degradation_pipeline.py` is only partially shown (truncated) with no\
+    \ evidence that it actually writes the NNF\u2011varied scenes or generates the\
+    \ manifest. Consequently the required outputs are not present."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission provides only the task description and project context but contains\
+    \ no actual files in `data/raw/real_cloud_masks_subset/` nor any documented Kolmogorov\u2011\
+    Smirnov comparison method. Without the real cloud mask dataset and a concrete\
+    \ statistical test definition, the requirement is not satisfied."
+T016:
+  c: false
+  h: fb78118b972ccc8342229fe53d9e22a83ddac2d6ea2b44264c6c6e6ea8ffacd3
+  r: "The provided `code/02b_validate_masks.py` is truncated (e.g., unfinished `sizes\
+    \ =` line) and lacks the KS\u2011test logic, result\u2011writing, and degradation\u2011\
+    parameter\u2011tuning steps required by the task. Moreover, the expected output\
+    \ file `data/results/mask_similarity_score.json` does not exist. The implementation\
+    \ must be completed and produce the JSON result."

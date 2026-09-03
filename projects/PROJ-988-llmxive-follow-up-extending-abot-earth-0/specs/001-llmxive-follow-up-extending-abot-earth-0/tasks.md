@@ -60,14 +60,14 @@
 Examples of foundational tasks (adjust based on your project):
 
 - [X] T004 [P] Setup `data/` directory structure (`raw/`, `processed/`, `results/`, `interim/`)
-- [ ] T005 [P] Implement `code/lib/alignment.py` for coordinate transform logic (UTM/Geographic)
-- [ ] T006 [P] Implement `code/lib/degradation.py` for synthetic mask generation and downscaling logic
+- [X] T005 [P] Implement `code/lib/alignment.py` for coordinate transform logic (UTM/Geographic)
+- [X] T006 [P] Implement `code/lib/degradation.py` for synthetic mask generation and downscaling logic
 - [X] T007a [P] Create `code/lib/models.py` class `DegradedScene`
 - [X] T007b [P] Create `code/lib/models.py` class `ReconstructedScene`
 - [X] T007c [P] Create `code/lib/models.py` class `GroundTruthLiDAR`
-- [ ] T007d [P] Create `code/lib/models.py` class `FidelityMetrics`
+- [X] T007d [P] Create `code/lib/models.py` class `FidelityMetrics`
 - [ ] T008 [P] Configure logging infrastructure to `data/results/execution.log` with structured JSON output
-- [~] T009 [P] Setup environment configuration management (loaders for `city_list.txt`, random seeds)
+- [ ] T009 [P] Setup environment configuration management (loaders for `city_list.txt`, random seeds)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,20 +83,20 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T011a [P] [US1] Unit test for alignment error calculation in `tests/unit/test_alignment.py` (verify < 2m residual)
+- [X] T011a [P] [US1] Unit test for alignment error calculation in `tests/unit/test_alignment.py` (verify < 2m residual [UNRESOLVED-CLAIM: c_f741df94 — status=not_enough_info])
 - [X] T011b [P] [US1] Unit test for degradation parameters in `tests/unit/test_degradation.py` (verify coarse spatial resolution and partial cloud coverage; **verify implementation of Kolmogorov-Smirnov (KS) test for mask distribution comparison**)
 - [X] T011c [P] [US1] Unit test for cloud mask validation logic in `tests/unit/test_mask_validation.py` (verify KS-test implementation)
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/01_data_curation.py` to download Sentinel-2 (Microsoft Planetary Computer) and LiDAR (USGS 3DEP/NYC) for urban regions; **implement a `while count < 500` retry loop** that repeatedly downloads and aligns new batches until a sufficient number of valid samples (alignment error < 2m) are secured; save raw assets to `data/raw/` and generate `data/processed/raw_manifest.csv` listing all downloaded IDs; output the final filtered dataset to `data/processed/aligned_pairs.csv` and `data/processed/alignment_report.csv`
-- [~] T013 [US1] Implement `code/01_patch_extraction.py` to **extract 100m² patches ** from the downloaded 1km² aligned tiles (output of T012); output to `data/processed/patches_100m2/`; ensure this step occurs BEFORE degradation to satisfy compute budget constraints (SC-003, FR-003); generate `data/processed/patch_manifest.csv`
-- [~] T015 [US1] Acquire reference real cloud masks for a small subset of selected regions from Sentinel-2 Cloud Probability dataset (e.g., `S2MSK` products) and save to `data/raw/real_cloud_masks_subset/`; **define the statistical comparison method (Kolmogorov-Smirnov test)** to compare the distribution of synthetic masks against these real masks; **DO NOT** switch the data source to real masks, use only for tuning
-- [~] T016 [US1] Implement `code/02b_validate_masks.py` to **perform the Kolmogorov-Smirnov test** between synthetic mask stats and `data/raw/real_cloud_masks_subset/`; output `data/results/mask_similarity_score.json`; if similarity < 0.8, **tune the degradation pipeline parameters** (T014a) to improve similarity, ensuring the experiment remains synthetic-only
+- [ ] T012 [US1] Implement `code/01_data_curation.py` to download Sentinel-2 (Microsoft Planetary Computer) and LiDAR (USGS 3DEP/NYC) for urban regions; **implement a `while count < 500` retry loop** that repeatedly downloads and aligns new batches until a sufficient number of valid samples (alignment error < 2m) are secured; save raw assets to `data/raw/` and generate `data/processed/raw_manifest.csv` listing all downloaded IDs; output the final filtered dataset to `data/processed/aligned_pairs.csv` and `data/processed/alignment_report.csv`
+- [ ] T013 [US1] Implement `code/01_patch_extraction.py` to **extract 100m² patches [UNRESOLVED-CLAIM: c_c21b9641 — status=not_enough_info] ** from the downloaded 1km² aligned tiles (output of T012); output to `data/processed/patches_100m2/`; ensure this step occurs BEFORE degradation to satisfy compute budget constraints (SC-003, FR-003); generate `data/processed/patch_manifest.csv`
+- [ ] T015 [US1] Acquire reference real cloud masks for a small subset of selected regions from Sentinel-2 Cloud Probability dataset (e.g., `S2MSK` products) and save to `data/raw/real_cloud_masks_subset/`; **define the statistical comparison method (Kolmogorov-Smirnov test)** to compare the distribution of synthetic masks against these real masks; **DO NOT** switch the data source to real masks, use only for tuning
+- [ ] T016 [US1] Implement `code/02b_validate_masks.py` to **perform the Kolmogorov-Smirnov test** between synthetic mask stats and `data/raw/real_cloud_masks_subset/`; output `data/results/mask_similarity_score.json`; if similarity < 0.8, **tune the degradation pipeline parameters** (T014a) to improve similarity, ensuring the experiment remains synthetic-only
 - [X] T014a [US1] Implement `code/02_degradation_pipeline.py` to apply **downscale to coarse spatial resolution
 
 The research question and method remain unchanged as per the original planning document, with the specific empirical value generalized to a qualitative descriptor.** and **procedural cloud masks** (tuned per T016) to the 100m² patches from T013; output intermediate degraded scenes to `data/processed/degraded_base/`; ensure the resolution is explicitly set to 30m/pixel ± 1%
-- [~] T014b [US1] Implement `code/02_degradation_pipeline.py` to apply **temporal shifts** (simulating stale imagery via temporal interpolation or selection from adjacent dates) and **systematically vary NNF** (Normalized Noise Fraction) by sweeping degradation intensity across the sample set; output the final NNF-varied dataset to `data/processed/nnf_varied_scenes/` and `data/processed/degraded_manifest.json`
+- [ ] T014b [US1] Implement `code/02_degradation_pipeline.py` to apply **temporal shifts** (simulating stale imagery via temporal interpolation or selection from adjacent dates) and **systematically vary NNF** (Normalized Noise Fraction) by sweeping degradation intensity across the sample set; output the final NNF-varied dataset to `data/processed/nnf_varied_scenes/` and `data/processed/degraded_manifest.json`
 - [ ] T017 [US1] Save aligned pairs, patches, and degraded scenes to `data/processed/` with checksums in `data/manifest.json`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -105,24 +105,24 @@ The research question and method remain unchanged as per the original planning d
 
 ## Phase 4: User Story 2 - CPU-Optimized Generative Restoration (Priority: P2)
 
-**Goal**: Run 3D Gaussian Splatting (3DGS) and CPU-optimized inpainting (ONNX Runtime) on degraded scenes within 45 mins/scene and < 6.5 GB RAM, measuring performance metrics.
+**Goal**: Run 3D Gaussian Splatting (3DGS) and CPU-optimized inpainting (ONNX Runtime) on degraded scenes within 45 mins/scene and < 6.5 GB RAM [UNRESOLVED-CLAIM: c_044e04ba — status=refuted], measuring performance metrics.
 
 **Independent Test**: A single degraded patch is processed end-to-end on a multi-core CPU, producing a valid `.ply` file without CUDA errors, with logged RAM/time metrics.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T018 [P] [US2] Unit test for ONNX Runtime initialization in `tests/unit/test_cpu_3dgs.py` (verify no GPU device calls)
-- [~] T019 [P] [US2] Integration test for memory usage in `tests/integration/test_memory_limits.py` (verify < 6.5 GB peak RAM)
+- [~] T019 [P] [US2] Integration test for memory usage in `tests/integration/test_memory_limits.py` (verify < 6.5 GB peak RAM [UNRESOLVED-CLAIM: c_b00e184c — status=not_enough_info])
 
 ### Implementation for User Story 2
 
 - [ ] T020 [US2] Implement `code/lib/cpu_3dgs_wrapper.py` to load CPU-quantized diffusion prior (low-bit/LCM) via ONNX Runtime; explicitly assert `torch.cuda.is_available()` is False and force `execution_provider=['CPUExecutionProvider']`
-- [ ] T021 [US2] Implement `code/03_3dgs_baseline.py` to generate baseline 3DGS `.ply` scenes from the **degraded inputs in `data/processed/nnf_varied_scenes/` (from T014b)**; output to `data/processed/reconstructed/baseline/`; ensure completion < 30 mins per scene; **wrap execution with `memory_profiler` to log per-sample `peak_ram_mb` and `wall_clock_time` to a temporary buffer**
-- [ ] T022 [US2] Implement `code/03_render_interface.py` to load the baseline `.ply` files from T021 and render 512x512 RGB and Depth maps using fixed camera intrinsics (f=1024, c=256) and fixed poses; output to `data/processed/reconstructed/rendered_interface/`; **this is the mandatory data interface for the inpainting module**
-- [ ] T023 [US2] Implement `code/03_inpainting_restoration.py` to consume the **rendered maps from T022**, apply the CPU-optimized inpainting module, and generate Inpainted `.ply` files; output to `data/processed/reconstructed/inpainted/`; **wrap execution with `memory_profiler` to log per-sample `peak_ram_mb` and `wall_clock_time` to the same temporary buffer**
-- [ ] T024 [US2] Implement `code/03_performance_logger.py` to **finalize the per-sample performance logs** from the temporary buffer (generated by T021/T023), ensuring `peak_ram_mb`, `wall_clock_time`, and `status` (success/ERR_OOM_CPU) are written for every sample to a staging file; handle `MemoryError` by logging `ERR_OOM_CPU`
-- [ ] T027 [US2] Implement `code/03_ply_validator.py` to validate output `.ply` files for format compatibility and size < 500 MB; **ensure the staging performance logs from T024 are persisted** before aggregation
-- [ ] T026 [US2] Implement `code/03_performance_aggregator.py` to **read the staging performance logs from T024/T027**, **verify that the total sample execution time fits within the GitHub Actions time window**, and **write per-sample rows** (including `sample_id`, `peak_ram_mb`, `wall_clock_time`, `status`) to `data/results/performance_log.csv`
+- [ ] T021 [US2] Implement `code/03_3dgs_baseline.py` to generate baseline 3DGS `.ply` scenes from the **degraded inputs in `data/processed/nnf_varied_scenes/` (from T014b)**; output to `data/processed/reconstructed/baseline/`; ensure completion < 30 mins per scene [UNRESOLVED-CLAIM: c_72e009e7 — status=not_enough_info]; **wrap execution with `memory_profiler` to log per-sample `peak_ram_mb` and `wall_clock_time` to a temporary buffer**
+- [X] T022 [US2] Implement `code/03_render_interface.py` to load the baseline `.ply` files from T021 and render 512x512 RGB and Depth maps using fixed camera intrinsics (f=1024, c=256) [UNRESOLVED-CLAIM: c_c18be520 — status=not_enough_info] and fixed poses; output to `data/processed/reconstructed/rendered_interface/`; **this is the mandatory data interface for the inpainting module**
+- [X] T023 [US2] Implement `code/03_inpainting_restoration.py` to consume the **rendered maps from T022**, apply the CPU-optimized inpainting module, and generate Inpainted `.ply` files; output to `data/processed/reconstructed/inpainted/`; **wrap execution with `memory_profiler` to log per-sample `peak_ram_mb` and `wall_clock_time` to the same temporary buffer**
+- [X] T024 [US2] Implement `code/03_performance_logger.py` to **finalize the per-sample performance logs** from the temporary buffer (generated by T021/T023), ensuring `peak_ram_mb`, `wall_clock_time`, and `status` (success/ERR_OOM_CPU) are written for every sample to a staging file; handle `MemoryError` by logging `ERR_OOM_CPU`
+- [X] T027 [US2] Implement `code/03_ply_validator.py` to validate output `.ply` files for format compatibility and size < 500 MB; **ensure the staging performance logs from T024 are persisted** before aggregation
+- [~] T026 [US2] Implement `code/03_performance_aggregator.py` to **read the staging performance logs from T024/T027**, **verify that the total sample execution time fits within the GitHub Actions time window**, and **write per-sample rows** (including `sample_id`, `peak_ram_mb`, `wall_clock_time`, `status`) to `data/results/performance_log.csv`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
