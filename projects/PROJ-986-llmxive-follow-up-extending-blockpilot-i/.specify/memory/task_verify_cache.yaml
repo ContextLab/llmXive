@@ -12,3 +12,12 @@ T009a:
     \ acceptance\u2011length values for each block size, identified\u202F\\(B^*\\\
     ), or runtime measurements) required to verify the feasibility check. The task\
     \ therefore remains unfinished."
+T046:
+  c: false
+  h: 2370641d12df4ea00781d5217d80c72888df21c25a26d0ee0214c261d4e24bce
+  r: The provided `code/evaluate.py` snippet never reaches any section that loads
+    `uncertainty_metrics.jsonl`, computes Pearson or Spearman correlations for predicted
+    block size vs. perplexity, and writes the results to `data/processed/correlation_report.json`.
+    The existing `correlation_report.json` is a placeholder with zero samples and
+    an error message, indicating no real computation was performed. The task therefore
+    remains unfinished.
