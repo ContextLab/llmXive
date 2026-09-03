@@ -18,12 +18,12 @@
         "page": 33
       }
     ],
-    "audited_at": "2026-09-03T10:49:10.928850+00:00"
+    "audited_at": "2026-09-03T11:17:54.798157+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-643-collectionlora-collecting-50-effects-in",
-  "updated_at": "2026-09-03T10:49:10.928861+00:00"
+  "updated_at": "2026-09-03T11:17:54.798173+00:00"
 }
