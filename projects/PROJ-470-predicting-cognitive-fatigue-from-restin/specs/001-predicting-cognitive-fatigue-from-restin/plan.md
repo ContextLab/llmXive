@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a computational pipeline to predict cognitive fatigue by analyzing the complexity of resting-state EEG signals. The approach involves retrieving a **single public dataset** containing both resting-state EEG and paired subjective fatigue ratings (or PVT-derived proxies) from the same participants. The pipeline preprocesses signals using MNE-Python (–40 Hz bandpass, Hz notch, artifact rejection at ±100 µV), extracts Lempel-Ziv Complexity (LZC) and Permutation Entropy (PE) features, and performs correlational analysis between **Delta Complexity** (Post - Pre) and **Delta Fatigue** (Post - Pre). 
+This project implements a computational pipeline to predict cognitive fatigue by analyzing the complexity of resting-state EEG signals. The approach involves retrieving a **single public dataset** containing both resting-state EEG and paired subjective fatigue ratings (or PVT-derived proxies) from the same participants. The pipeline preprocesses signals using MNE-Python (– Hz bandpass, Hz notch, artifact rejection at ±100 µV), extracts Lempel-Ziv Complexity (LZC) and Permutation Entropy (PE) features, and performs correlational analysis between **Delta Complexity** (Post - Pre) and **Delta Fatigue** (Post - Pre). 
 
 The primary analysis is a Spearman/Pearson correlation of deltas (per FR-004). A secondary ANCOVA model (`Post_Complexity ~ Fatigue_Delta + Pre_Complexity + Covariates`) is used for robustness and confound control. The pipeline strictly enforces SC-001: if the validated dataset yields N < 30, the system halts immediately with a specific error code. Multiple-comparison correction (Benjamini-Hochberg) and collinearity diagnostics (VIF < 5) are mandatory. The pipeline is designed to run entirely on CPU within the -hour/7GB RAM constraints.
 
@@ -34,7 +34,7 @@ The primary analysis is a Spearman/Pearson correlation of deltas (per FR-004). A
 | **III. Data Hygiene** | **Compliant** | Raw data checksummed. Derivations write to new files (`data/processed/`). PII scan enforced. |
 | **IV. Single Source of Truth** | **Compliant** | All figures/stats in final report trace to `data/analysis` CSVs. Contracts map to specific output files. |
 | **V. Versioning Discipline** | **Compliant** | Artifacts carry content hashes. State file updated on change. |
-| **VI. EEG Signal Processing** | **Compliant** | Pipeline: MNE-Python, 1–40 Hz bandpass, notch filter, average re-reference, artifact rejection (±100 µV). `code/config.yaml` values derived directly from FR-002/FR-003. |
+| **VI. EEG Signal Processing** | **Compliant** | Pipeline: MNE-Python, –40 Hz bandpass, notch filter, average re-reference, artifact rejection (±100 µV). `code/config.yaml` values derived directly from FR-002/FR-003. |
 | **VII. Statistical Correlation** | **Compliant** | Primary: Delta-Delta correlation (FR-004). Secondary: ANCOVA for confounds. BH correction (FR-005). VIF diagnostics (SC-004). |
 
 ## Project Structure
@@ -92,7 +92,11 @@ projects/PROJ-470-predicting-cognitive-fatigue-from-restin/
 
 - **T001**: **Verified Accuracy Check**. Validate all citations in `research.md` against the "Verified datasets" block. Fail if any citation is unreachable or mismatched. (Constitution II)
 - **T002**: **Data Validation**. Download dataset. Check for presence of both `eeg_data` and `fatigue_rating` variables. If N < 30, halt with error code and list available variables. (FR-001, SC-001)
-- **T003**: **Preprocessing**. Apply 1–40 Hz bandpass, 50 Hz notch, re-reference, and artifact rejection (±100 µV). Write to `.fif` conforming to `processed_eeg.schema.yaml`. (FR-002, T011)
+- **T003**: **Preprocessing**. Apply Low-frequency bandpass (e.g., below 40 Hz), A power line frequency notch
+
+The research question remains: How can we effectively remove power line interference from biomedical signals?
+The method remains: We will apply a notch filter tuned to the local mains frequency.
+References: [Citation preserved as in original context], re-reference, and artifact rejection (±100 µV). Write to `.fif` conforming to `processed_eeg.schema.yaml`. (FR-002, T011)
 - **T004**: **Feature Extraction**. Calculate LZC (median quantization) and PE (dim=3, lag=1) for segments ≥ 120s. (FR-003)
 - **T005**: **Collinearity Diagnostics**. Calculate VIF for predictors. Verify VIF < 5. Output `vif_diagnostics.log` conforming to `vif_diagnostics.schema.yaml`. (SC-004)
 - **T006**: **Sensitivity Analysis**. Run discrete significance checks at p ≤ 0.05 and p ≤ 0.01. Output `sensitivity_table.csv` conforming to `sensitivity_table.schema.yaml`. (FR-006)

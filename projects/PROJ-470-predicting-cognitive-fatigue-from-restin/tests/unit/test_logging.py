@@ -1,143 +1,230 @@
 """
-Unit tests for the logging infrastructure.
+Unit tests for the logging infrastructure (T006).
+
+This test verifies that:
+1. The exclusion log file is created in data/processed/exclusion_log.csv
+2. The file contains the correct columns: participant_id, reason, timestamp
+3. The logging functions can be called without errors
+4. The file is created in the correct location (not a temporary directory)
 """
 import os
-import sys
 import csv
 import pytest
 from pathlib import Path
+from datetime import datetime
 import shutil
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root / "code"))
-
+# Import the logging module
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 from utils.logging import (
-    get_logger, 
-    log_participant_exclusion, 
-    log_artifact_rejection, 
-    save_rejection_summary, 
+    get_logger,
+    log_artifact_rejection,
+    log_participant_exclusion,
+    save_exclusion_log_csv,
     get_rejection_counts,
-    save_exclusion_log_csv
+    EXCLUSION_LOG_PATH,
+    LOGS_DIR
 )
 
-@pytest.fixture(autouse=True)
-def reset_logger_state():
-    """Reset the global logger state before each test."""
-    import utils.logging
-    utils.logging._logger = None
-    # Clean up logs directory if it exists from previous runs
-    logs_dir = Path("logs")
-    if logs_dir.exists():
-        shutil.rmtree(logs_dir)
-    yield
-    # Cleanup after test
-    if logs_dir.exists():
-        shutil.rmtree(logs_dir)
 
-def test_get_logger_initialization():
-    """Test that the logger is created and configured correctly."""
-    logger = get_logger()
-    assert logger is not None
-    assert logger.name == "eeg_pipeline"
-    assert hasattr(logger, 'rejection_log')
-    assert hasattr(logger, 'exclusion_log')
-    assert isinstance(logger.rejection_log, list)
-    assert isinstance(logger.exclusion_log, list)
+@pytest.fixture(autouse=True)
+def cleanup_exclusion_log():
+    """Clean up the exclusion log file before and after each test."""
+    # Clean up before test
+    if EXCLUSION_LOG_PATH.exists():
+        EXCLUSION_LOG_PATH.unlink()
+    
+    yield
+    
+    # Clean up after test
+    if EXCLUSION_LOG_PATH.exists():
+        EXCLUSION_LOG_PATH.unlink()
+
+
+def test_exclusion_log_file_location():
+    """Test that the exclusion log is created in data/processed/, not a temp directory."""
+    # Ensure the file path is in data/processed
+    assert str(EXCLUSION_LOG_PATH).startswith("data/processed")
+    assert EXCLUSION_LOG_PATH.name == "exclusion_log.csv"
+    
+    # Verify the directory exists
+    assert LOGS_DIR.exists()
+    assert LOGS_DIR.is_dir()
+
+
+def test_log_artifact_rejection_creates_file():
+    """Test that logging an artifact rejection creates the exclusion log file."""
+    # Log an artifact rejection
+    log_artifact_rejection("participant_001", "amplitude_threshold")
+    
+    # Verify the file was created
+    assert EXCLUSION_LOG_PATH.exists(), "Exclusion log file was not created"
+    assert EXCLUSION_LOG_PATH.is_file(), "Exclusion log path is not a file"
+
+
+def test_log_artifact_rejection_has_correct_columns():
+    """Test that the exclusion log has the correct columns."""
+    # Log an artifact rejection
+    log_artifact_rejection("participant_001", "amplitude_threshold")
+    
+    # Read the file and verify columns
+    with open(EXCLUSION_LOG_PATH, 'r') as f:
+        reader = csv.reader(f)
+        header = next(reader)
+        
+        expected_columns = ['participant_id', 'reason', 'timestamp']
+        assert header == expected_columns, f"Expected columns {expected_columns}, got {header}"
+
 
 def test_log_participant_exclusion():
-    """Test logging a participant exclusion."""
-    log_participant_exclusion("P001", "amplitude > 100uV", "preprocessing")
+    """Test that logging a participant exclusion works correctly."""
+    # Log a participant exclusion
+    log_participant_exclusion("participant_002", "segment_too_short")
     
-    logger = get_logger()
-    assert len(logger.exclusion_log) == 1
+    # Verify the file was created and contains the entry
+    assert EXCLUSION_LOG_PATH.exists()
     
-    record = logger.exclusion_log[0]
-    assert record["participant_id"] == "P001"
-    assert record["reason"] == "amplitude > 100uV"
-    assert record["stage"] == "preprocessing"
-    assert "timestamp" in record
-
-def test_log_artifact_rejection():
-    """Test logging an artifact rejection."""
-    log_artifact_rejection("S001", "high amplitude", "amplitude", threshold=100.0, measured_value=150.0)
-    
-    logger = get_logger()
-    assert len(logger.rejection_log) == 1
-    
-    record = logger.rejection_log[0]
-    assert record["segment_id"] == "S001"
-    assert record["reason"] == "high amplitude"
-    assert record["artifact_type"] == "amplitude"
-    assert record["threshold"] == 100.0
-    assert record["measured_value"] == 150.0
-
-def test_save_exclusion_log_csv():
-    """Test that exclusion log is saved to CSV with correct format."""
-    # Log some exclusions
-    log_participant_exclusion("P001", "amplitude > 100uV", "preprocessing")
-    log_participant_exclusion("P002", "segment < 120s", "preprocessing")
-    log_participant_exclusion("P003", "line noise", "preprocessing")
-    
-    # Save to CSV
-    save_exclusion_log_csv("logs/exclusion_log.csv")
-    
-    # Verify file exists
-    csv_path = Path("logs/exclusion_log.csv")
-    assert csv_path.exists()
-    
-    # Verify content
-    with open(csv_path, mode='r') as f:
+    with open(EXCLUSION_LOG_PATH, 'r') as f:
         reader = csv.DictReader(f)
         rows = list(reader)
         
-        assert len(rows) == 3
+        assert len(rows) == 1, f"Expected 1 row, got {len(rows)}"
+        assert rows[0]['participant_id'] == "participant_002"
+        assert rows[0]['reason'] == "segment_too_short"
+        assert 'timestamp' in rows[0]
+        assert rows[0]['timestamp'] != ""
+
+
+def test_multiple_log_entries():
+    """Test that multiple log entries are appended correctly."""
+    # Log multiple events
+    log_artifact_rejection("participant_001", "amplitude_threshold")
+    log_participant_exclusion("participant_002", "segment_too_short")
+    log_artifact_rejection("participant_003", "line_noise")
+    
+    # Verify all entries are present
+    with open(EXCLUSION_LOG_PATH, 'r') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
         
-        # Check headers
-        assert set(reader.fieldnames) == {"participant_id", "reason", "timestamp"}
+        assert len(rows) == 3, f"Expected 3 rows, got {len(rows)}"
         
-        # Check data
-        assert rows[0]["participant_id"] == "P001"
-        assert rows[0]["reason"] == "amplitude > 100uV"
+        # Check each entry
+        assert rows[0]['participant_id'] == "participant_001"
+        assert rows[0]['reason'] == "amplitude_threshold"
         
-        assert rows[1]["participant_id"] == "P002"
-        assert rows[1]["reason"] == "segment < 120s"
+        assert rows[1]['participant_id'] == "participant_002"
+        assert rows[1]['reason'] == "segment_too_short"
         
-        assert rows[2]["participant_id"] == "P003"
-        assert rows[2]["reason"] == "line noise"
+        assert rows[2]['participant_id'] == "participant_003"
+        assert rows[2]['reason'] == "line_noise"
+
+
+def test_save_exclusion_log_csv():
+    """Test the save_exclusion_log_csv function."""
+    # Prepare test data
+    test_data = [
+        {'participant_id': 'participant_001', 'reason': 'amplitude_threshold', 'timestamp': '2024-01-01T12:00:00'},
+        {'participant_id': 'participant_002', 'reason': 'segment_too_short', 'timestamp': '2024-01-01T12:01:00'}
+    ]
+    
+    # Save the data
+    save_exclusion_log_csv(test_data)
+    
+    # Verify the file was created and contains the data
+    assert EXCLUSION_LOG_PATH.exists()
+    
+    with open(EXCLUSION_LOG_PATH, 'r') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        
+        assert len(rows) == 2, f"Expected 2 rows, got {len(rows)}"
+        assert rows[0]['participant_id'] == 'participant_001'
+        assert rows[1]['participant_id'] == 'participant_002'
+
 
 def test_get_rejection_counts():
-    """Test counting exclusions and rejections by reason."""
-    log_participant_exclusion("P001", "amplitude > 100uV", "preprocessing")
-    log_participant_exclusion("P002", "amplitude > 100uV", "preprocessing")
-    log_participant_exclusion("P003", "segment < 120s", "preprocessing")
+    """Test that get_rejection_counts returns correct counts."""
+    # Log multiple events with different reasons
+    log_artifact_rejection("participant_001", "amplitude_threshold")
+    log_artifact_rejection("participant_002", "amplitude_threshold")
+    log_participant_exclusion("participant_003", "segment_too_short")
+    log_artifact_rejection("participant_004", "line_noise")
     
-    log_artifact_rejection("S001", "high amplitude", "amplitude")
-    log_artifact_rejection("S002", "high amplitude", "amplitude")
-    
+    # Get counts
     counts = get_rejection_counts()
     
-    assert counts["exclusions"]["amplitude > 100uV"] == 2
-    assert counts["exclusions"]["segment < 120s"] == 1
-    
-    assert counts["rejections"]["high amplitude"] == 2
+    assert counts['amplitude_threshold'] == 2
+    assert counts['segment_too_short'] == 1
+    assert counts['line_noise'] == 1
 
-def test_save_rejection_summary():
-    """Test saving rejection summary to JSON."""
-    log_participant_exclusion("P001", "amplitude > 100uV", "preprocessing")
-    log_artifact_rejection("S001", "high amplitude", "amplitude")
+
+def test_get_logger_returns_reproducible_logger():
+    """Test that get_logger returns a ReproducibilityLogger instance."""
+    logger = get_logger("test_logger")
     
-    save_rejection_summary("logs/rejection_summary.json")
+    # Verify it's the correct type
+    from utils.logging import ReproducibilityLogger
+    assert isinstance(logger, ReproducibilityLogger)
     
-    json_path = Path("logs/rejection_summary.json")
-    assert json_path.exists()
+    # Verify it has the expected methods
+    assert hasattr(logger, 'log')
+    assert hasattr(logger, 'info')
+    assert hasattr(logger, 'debug')
+    assert hasattr(logger, 'warning')
+    assert hasattr(logger, 'error')
+    assert hasattr(logger, 'critical')
+
+
+def test_logger_handles_arbitrary_calls():
+    """Test that the logger handles arbitrary call shapes without raising."""
+    logger = get_logger("test_logger")
+    
+    # These should not raise any errors
+    logger.log("operation", param1="value1", param2="value2")
+    logger.info("info message")
+    logger.debug("debug message")
+    logger.warning("warning message")
+    logger.error("error message")
+    logger.critical("critical message")
+    logger.any_unknown_method("arg1", arg2="value")
+    
+    # Verify the logger didn't crash
+    assert True
+
+
+def test_log_entry_to_json():
+    """Test that LogEntry can be converted to JSON."""
+    from utils.logging import LogEntry
+    
+    entry = LogEntry(operation="test", parameters={"key": "value"})
+    json_str = entry.to_json()
     
     import json
-    with open(json_path, 'r') as f:
-        data = json.load(f)
+    parsed = json.loads(json_str)
     
-    assert "exclusions" in data
-    assert "rejections" in data
-    assert "generated_at" in data
-    assert len(data["exclusions"]) == 1
-    assert len(data["rejections"]) == 1
+    assert parsed['operation'] == "test"
+    assert parsed['parameters']['key'] == "value"
+    assert 'timestamp' in parsed
+
+
+def test_file_not_in_temp_directory():
+    """Verify the exclusion log is NOT in a temporary directory."""
+    # Log an event to create the file
+    log_artifact_rejection("participant_001", "test_reason")
+    
+    # Verify the file path is not in /tmp, /var/tmp, or similar
+    import tempfile
+    temp_dir = tempfile.gettempdir()
+    
+    assert not str(EXCLUSION_LOG_PATH).startswith(temp_dir), \
+        f"Exclusion log should not be in temp directory {temp_dir}"
+    assert not str(EXCLUSION_LOG_PATH).startswith("/tmp"), \
+        "Exclusion log should not be in /tmp"
+    assert not str(EXCLUSION_LOG_PATH).startswith("/var/tmp"), \
+        "Exclusion log should not be in /var/tmp"
+    
+    # Verify it IS in data/processed
+    assert str(EXCLUSION_LOG_PATH).startswith("data/processed"), \
+        f"Exclusion log should be in data/processed, got {EXCLUSION_LOG_PATH}"

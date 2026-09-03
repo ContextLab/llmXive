@@ -1,17 +1,15 @@
 status: none
-intent: PhysioNet EEG fatigue dataset resting state subjective fatigue ratings CIRCOR
-  Digiscope python package dataset
+intent: PhysioNet resting state EEG fatigue ratings dataset OpenNeuro download python
+  package dataset
 required_fields:
-- participant_id
-- eeg_signal
-- channel_names
+- subject_id
+- EEG_signal
 - sampling_rate
-- recording_start_time
-- recording_end_time
-- fatigue_rating_pre
-- fatigue_rating_post
-- task_type
-- condition
-cache_key: 7213cbb64390a9297c818c8d169fda2d26e9d4c6a3fcb3f6c60449450043267f
-searched_at: '2026-08-31T09:38:03.025913+00:00'
+- resting_state_marker
+- pre_fatigue_rating
+- post_fatigue_rating
+- task_event_markers
+- session_timestamp
+cache_key: c0bed27926519ed3a75ea9d9092cb8f0848980e16c8aa1b43bff7d44b24df802
+searched_at: '2026-09-03T02:45:01.021756+00:00'
 retry_count: 1

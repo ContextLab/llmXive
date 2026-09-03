@@ -1,18 +1,22 @@
 {
   "project_id": "PROJ-470-predicting-cognitive-fatigue-from-restin",
   "ok": false,
-  "reason": "3 command(s) failed: python code/download.py (rc=1); python code/features.py (rc=1); python code/analysis.py (rc=1); 1 declared deliverable(s) absent: data/processed/lzc_metrics.csv",
-  "artifacts": [],
-  "failures": [
-    "python code/download.py -> rc=1\n    ",
-    "python code/features.py -> rc=1\n    2026-08-03 08:29:52,817 - features - INFO - Starting Permutation Entropy and LZC calculation pipeline\n2026-08-03 08:29:52,818 - features - ERROR - Processed data directory not found: data/processed\n2026-08-03 08:29:52,818 - features - ERROR - Missing file: data/processed/cleaned_eeg.fif",
-    "python code/analysis.py -> rc=1\n    2026-08-03 08:29:53,462 - __main__ - INFO - Starting analysis pipeline.\n2026-08-03 08:29:53,462 - __main__ - ERROR - Features file not found: data/processed/lzc_metrics.csv\n\nINFO:__main__:Starting analysis pipeline.\nERROR:__main__:Features file not found: data/processed/lzc_metrics.csv"
+  "reason": "every produced artifact is gitignored (data/raw/download_manifest.json) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 5 command(s) failed: python code/download.py --validate (rc=1); python code/preprocess.py (rc=1); python code/features.py (rc=1); 4 declared deliverable(s) absent: data/analysis/bh_corrected_pvalues.csv; data/analysis/complexity_metrics.csv; data/analysis/delta_scores.csv",
+  "artifacts": [
+    "data/raw/download_manifest.json"
   ],
-  "fix_rounds": 6,
+  "failures": [
+    "python code/download.py --validate -> rc=1\n    2026-09-03 02:44:04,064 - download - INFO - Starting download pipeline.\n2026-09-03 02:44:04,307 - download - ERROR - HTTP Error: 404 - Not Found\n2026-09-03 02:44:04,309 - download - ERROR - Failed to fetch or parse metadata. Exiting.",
+    "python code/preprocess.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/preprocess.py\", line 161, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/preprocess.py\", line 139, in main\n    logger = setup_logger(\"preprocess\")\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/preprocess.py\", line 19, in setup_logger\n    l",
+    "python code/features.py -> rc=1\n    unner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/.venv/lib/python3.11/site-packages/nolds/__init__.py\", line 5, in <module>\n    from .datasets import brown72, tent_map, logistic_map, fbm, fgn, qrandom, \\\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/.venv/lib/python3.11/site-packages/nolds/datasets.py\", line 467, in <module>\n    brown72 = load_brown72()\n              ^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognit",
+    "python code/analysis.py -> rc=1\n    2026-09-03 02:44:06,758 - analysis - INFO - Starting analysis pipeline.\n2026-09-03 02:44:06,759 - analysis - INFO - Loaded config: {'filter_low': 1, 'filter_high': 40, 'artifact_threshold': 100, 'random_seed': 42, 'min_participants': 30, 'notch_freq': 50}\n2026-09-03 02:44:06,759 - analysis - ERROR - Complexity metrics file not found: data/analysis/complexity_metrics.csv\n2026-09-03 02:44:06,760 - analysis - ERROR - Run code/features.py first to generate complexity metrics.",
+    "python code/report.py -> rc=1\n    ck (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/report.py\", line 138, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/report.py\", line 133, in main\n    generate_report(results_df, sensitivity_df, output_path)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/report.py\", line 83, in generate_report\n    report.append(render_markdown_table(resu"
+  ],
+  "fix_rounds": 8,
   "model_tier": 0,
-  "total_attempts": 6,
+  "total_attempts": 8,
   "replan_rounds": 0,
-  "failure_class": "execution_bug",
+  "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-08-03T08:29:54Z"
+  "updated_at": "2026-09-03T02:44:08Z"
 }

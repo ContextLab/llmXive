@@ -1,333 +1,215 @@
-"""
-Feature extraction module for EEG complexity metrics.
-Calculates Lempel-Ziv Complexity (LZC) and Permutation Entropy (PE).
-"""
 import os
 import sys
 import yaml
+import logging
 import pandas as pd
 import numpy as np
 from pathlib import Path
-import logging
-from typing import Tuple, List, Dict, Any
+from scipy import signal as scipy_signal
 
-# Import local utilities
-from utils.logging import get_logger, save_exclusion_log_csv
-from models.eeg_segment import EEGSegment
-
-# Import complexity calculation libraries
+# Import Lempel-Ziv complexity implementation
 try:
-    from lempel_ziv_complexity import lempel_ziv_complexity
+    from lempel_ziv import lempel_ziv_complexity
 except ImportError:
-    # Fallback implementation if package not found (should be in requirements)
-    def lempel_ziv_complexity(sequence):
-        """
-        Simple LZC implementation.
-        """
-        sequence = np.array(sequence)
-        if len(sequence) == 0:
-            return 0.0
-        
-        # Binarize
-        mean_val = np.mean(sequence)
-        binary_seq = (sequence > mean_val).astype(int)
-        
-        # Calculate complexity
-        n = len(binary_seq)
-        c = 1
-        l = 1
-        i = 0
-        
-        while i + l < n:
-            if binary_seq[i:i+l] in [binary_seq[j:j+l] for j in range(i+1, i+l+1)]:
-                l += 1
-            else:
-                c += 1
-                i += l
-                l = 1
-                if i >= n:
-                    break
-        
-        return float(c / np.log2(n)) if n > 0 else 0.0
+    # Fallback if the specific package name varies, try common alias
+    try:
+        from lempel_ziv_complexity import lempel_ziv_complexity
+    except ImportError:
+        raise ImportError(
+            "Required package 'lempel_ziv' or 'lempel_ziv_complexity' not found. "
+            "Please ensure it is installed in the virtual environment."
+        )
 
+# Import permutation entropy implementation
 try:
     import nolds
 except ImportError:
-    nolds = None
+    raise ImportError(
+        "Required package 'nolds' not found. "
+        "Please ensure it is installed in the virtual environment."
+    )
 
-def load_config(config_path: str = "code/config.yaml") -> Dict[str, Any]:
-    """Load configuration from YAML file."""
-    if not os.path.exists(config_path):
-        raise FileNotFoundError(f"Configuration file not found: {config_path}")
-    
+def load_config():
+    """Load configuration from code/config.yaml."""
+    config_path = Path(__file__).parent / "config.yaml"
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
-def setup_logger(name: str, log_dir: str = "logs") -> logging.Logger:
-    """Setup logging infrastructure."""
-    os.makedirs(log_dir, exist_ok=True)
+def setup_logger(name):
+    """Setup a basic logger."""
     logger = logging.getLogger(name)
+    if logger.handlers:
+        return logger
     logger.setLevel(logging.INFO)
-    
-    # File handler
-    fh = logging.FileHandler(os.path.join(log_dir, f"{name}.log"))
-    fh.setLevel(logging.INFO)
-    
-    # Console handler
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-    
-    # Formatter
+    handler = logging.StreamHandler()
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    fh.setFormatter(formatter)
-    ch.setFormatter(formatter)
-    
-    logger.addHandler(fh)
-    logger.addHandler(ch)
-    
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
     return logger
 
-def calculate_lempel_ziv_complexity(signal: np.ndarray) -> float:
+def calculate_lempel_ziv_complexity(signal):
     """
-    Calculate Lempel-Ziv Complexity for a given signal.
+    Calculate Lempel-Ziv complexity for a signal.
     
     Args:
-        signal: 1D numpy array of EEG data.
+        signal (np.ndarray): 1D array of float values.
         
     Returns:
-        Normalized LZC value.
+        float: Normalized Lempel-Ziv complexity.
     """
-    if nolds:
-        try:
-            return float(nolds.lzc(signal))
-        except Exception as e:
-            # Fallback to custom implementation
-            pass
+    if len(signal) < 10:
+        return 0.0
     
-    return lempel_ziv_complexity(signal)
+    # Binarize the signal using median threshold
+    median_val = np.median(signal)
+    binary_signal = (signal >= median_val).astype(int)
+    
+    # Calculate LZC
+    try:
+        lzc = lempel_ziv_complexity(binary_signal)
+        # Normalize by length to allow comparison across segments
+        n = len(binary_signal)
+        normalized_lzc = lzc / (n / np.log2(n))
+        return float(normalized_lzc)
+    except Exception as e:
+        logging.getLogger("features").warning(f"LZC calculation failed for segment: {e}")
+        return np.nan
 
-def calculate_permutation_entropy(signal: np.ndarray, embedding_dim: int = 3, time_delay: int = 1) -> float:
+def calculate_permutation_entropy(signal, order=3, delay=1):
     """
-    Calculate Permutation Entropy for a given signal.
+    Calculate Permutation Entropy for a signal using nolds.
     
     Args:
-        signal: 1D numpy array of EEG data.
-        embedding_dim: Dimension of the embedding (m).
-        time_delay: Time delay for embedding (tau).
+        signal (np.ndarray): 1D array of float values.
+        order (int): Embedding dimension.
+        delay (int): Time delay.
         
     Returns:
-        Normalized Permutation Entropy value.
+        float: Permutation entropy.
     """
-    if nolds:
-        try:
-            return float(nolds.pe(signal, dim=embedding_dim, tau=time_delay))
-        except Exception as e:
-            logger = logging.getLogger("features")
-            logger.warning(f"nolds.pe failed: {e}, using fallback.")
+    if len(signal) < order + delay:
+        return 0.0
     
-    # Fallback implementation for Permutation Entropy
-    return _calculate_permutation_entropy_fallback(signal, embedding_dim, time_delay)
+    try:
+        pe = nolds.pe(signal, emb_dim=order, lag=delay)
+        return float(pe)
+    except Exception as e:
+        logging.getLogger("features").warning(f"Permutation entropy calculation failed: {e}")
+        return np.nan
 
-def _calculate_permutation_entropy_fallback(signal: np.ndarray, embedding_dim: int = 3, time_delay: int = 1) -> float:
+def process_eeg_segments(raw_eeg, config):
     """
-    Fallback implementation of Permutation Entropy using numpy/scipy.
-    """
-    n = len(signal)
-    if n < embedding_dim + (embedding_dim - 1) * time_delay:
-        return 0.0
-    
-    # Generate permutations
-    patterns = []
-    for i in range(n - (embedding_dim - 1) * time_delay):
-        pattern = [signal[i + j * time_delay] for j in range(embedding_dim)]
-        # Get rank order
-        rank = sorted(range(embedding_dim), key=lambda k: pattern[k])
-        patterns.append(tuple(rank))
-    
-    if not patterns:
-        return 0.0
-    
-    # Count frequencies
-    from collections import Counter
-    counts = Counter(patterns)
-    total = len(patterns)
-    
-    # Calculate entropy
-    entropy = 0.0
-    for count in counts.values():
-        p = count / total
-        if p > 0:
-            entropy -= p * np.log2(p)
-    
-    # Normalize
-    max_entropy = np.log2(np.math.factorial(embedding_dim))
-    if max_entropy == 0:
-        return 0.0
-    
-    return float(entropy / max_entropy)
-
-def process_eeg_segments(raw_data_path: str, config: Dict[str, Any], logger: logging.Logger) -> List[Dict[str, Any]]:
-    """
-    Process EEG segments from the preprocessed FIF file.
+    Process EEG data to extract complexity metrics per channel.
     
     Args:
-        raw_data_path: Path to the cleaned_eeg.fif file.
-        config: Configuration dictionary.
-        logger: Logger instance.
+        raw_eeg (mne.io.Raw): Loaded MNE raw object.
+        config (dict): Configuration dictionary.
         
     Returns:
-        List of dictionaries containing metrics.
+        list: List of dictionaries containing metrics.
     """
-    import mne
-    
-    if not os.path.exists(raw_data_path):
-        raise FileNotFoundError(f"Processed data file not found: {raw_data_path}")
-    
-    # Load the FIF file
-    raw = mne.read_raw_fif(raw_data_path, preload=True)
-    
-    # Extract channel names
-    channel_names = raw.ch_names
-    sfreq = raw.info['sfreq']
-    
-    # Get participant ID from filename or info
-    # Assuming filename format: data/processed/participant_{id}_cleaned.fif or similar
-    # If the file contains multiple subjects, we need to handle that.
-    # For now, assuming single subject per file or a concatenated file with events.
-    # Based on T010/T011, we expect a single cleaned file per run, potentially concatenated.
-    # Let's assume the file represents one participant for simplicity, or we extract from filename.
-    participant_id = Path(raw_data_path).stem.replace("cleaned_eeg_", "").replace("cleaned_", "")
-    if participant_id == "cleaned_eeg":
-        participant_id = "unknown" # Fallback
-    
+    logger = logging.getLogger("features")
     metrics = []
     
-    # If the file contains multiple segments (epochs), we might need to average or process per epoch.
-    # For this task, we process the continuous data per channel.
+    # Get channel names and data
+    ch_names = raw_eeg.ch_names
+    data, times = raw_eeg.get_data(return_times=True)
+    sfreq = raw_eeg.info['sfreq']
     
-    logger.info(f"Processing {len(channel_names)} channels for participant {participant_id}")
+    logger.info(f"Processing {len(ch_names)} channels with {data.shape[1]} samples")
     
-    for ch_name in channel_names:
-        # Get data for the channel
-        data, times = raw[ch_name]
-        signal = data[0]
+    # Process each channel
+    for idx, ch_name in enumerate(ch_names):
+        channel_data = data[idx, :]
         
-        # Skip if signal is too short
-        if len(signal) < 100:
-            logger.warning(f"Skipping channel {ch_name}: signal too short ({len(signal)} samples)")
+        # Skip non-EEG channels if any
+        if not ch_name[0].isalpha():
             continue
-        
-        # Calculate LZC
-        lzc_val = calculate_lempel_ziv_complexity(signal)
-        
-        # Calculate PE
-        embedding_dim = config.get('embedding_dim', 3)
-        time_delay = config.get('time_delay', 1)
-        pe_val = calculate_permutation_entropy(signal, embedding_dim, time_delay)
+            
+        lzc = calculate_lempel_ziv_complexity(channel_data)
+        pe = calculate_permutation_entropy(channel_data)
         
         metrics.append({
-            'participant_id': participant_id,
-            'channel': ch_name,
-            'lzc_value': lzc_val,
-            'pe_value': pe_val
+            "participant_id": raw_eeg.filenames[0].split('/')[-1].split('.')[0] if raw_eeg.filenames else "unknown",
+            "channel": ch_name,
+            "lzc": lzc,
+            "pe": pe,
+            "sfreq": sfreq,
+            "duration_sec": len(channel_data) / sfreq
         })
-    
+        
     return metrics
 
-def save_metrics_to_csv(metrics: List[Dict[str, Any]], output_path: str, metric_type: str = "combined"):
+def save_metrics_to_csv(metrics, output_path):
     """
-    Save calculated metrics to a CSV file.
-    
-    Args:
-        metrics: List of metric dictionaries.
-        output_path: Path to the output CSV file.
-        metric_type: Type of metrics ('lzc', 'pe', or 'combined').
+    Save metrics to a CSV file.
     """
-    if not metrics:
-        logger = logging.getLogger("features")
-        logger.warning("No metrics to save.")
-        # Create empty file with headers
-        df = pd.DataFrame(columns=['participant_id', 'channel', f'{metric_type}_value'])
-        df.to_csv(output_path, index=False)
-        return
-    
-    df = pd.DataFrame(metrics)
-    
-    # Ensure columns are in correct order and named correctly based on task
-    if metric_type == "lzc":
-        df = df[['participant_id', 'channel', 'lzc_value']]
-        df.to_csv(output_path, index=False)
-    elif metric_type == "pe":
-        df = df[['participant_id', 'channel', 'pe_value']]
-        df.to_csv(output_path, index=False)
-    else:
-        # Combined: save both if needed, but task T016 specifically asks for pe_metrics.csv
-        # We will save the specific file requested by the calling function
-        df.to_csv(output_path, index=False)
-    
     logger = logging.getLogger("features")
-    logger.info(f"Saved {len(metrics)} metrics to {output_path}")
+    if not metrics:
+        logger.warning("No metrics to save.")
+        return
+        
+    try:
+        df = pd.DataFrame(metrics)
+        # Ensure numeric columns are properly formatted
+        for col in ['lzc', 'pe']:
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='coerce')
+        
+        df.to_csv(output_path, index=False)
+        logger.info(f"Metrics saved to {output_path} ({len(df)} rows)")
+    except Exception as e:
+        logger.error(f"Failed to save metrics: {e}")
+        raise
 
 def main():
-    """Main entry point for feature extraction."""
+    """Main entry point for feature extraction pipeline."""
     logger = setup_logger("features")
-    logger.info("Starting Permutation Entropy and LZC calculation pipeline")
+    logger.info("Starting feature extraction pipeline")
     
-    # Load config
-    try:
-        config = load_config()
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        sys.exit(1)
-    
-    # Define paths
+    config = load_config()
     processed_dir = Path("data/processed")
-    if not processed_dir.exists():
-        logger.error(f"Processed data directory not found: {processed_dir}")
+    analysis_dir = Path("data/analysis")
+    analysis_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Load processed data
+    processed_file = processed_dir / "cleaned_eeg.fif"
+    if not processed_file.exists():
+        logger.error("Processed data not found. Run preprocess.py first.")
         sys.exit(1)
     
-    # Input file for T011 output
-    input_file = processed_dir / "cleaned_eeg.fif"
-    
-    if not input_file.exists():
-        logger.error(f"Missing file: {input_file}")
-        sys.exit(1)
-    
-    # Output paths
-    lzc_output = processed_dir / "lzc_metrics.csv"
-    pe_output = processed_dir / "pe_metrics.csv"
-    
+    # Load data using MNE
     try:
-        # Process data
-        metrics = process_eeg_segments(str(input_file), config, logger)
-        
-        if not metrics:
-            logger.error("No metrics were calculated.")
-            sys.exit(1)
-        
-        # Save LZC metrics (for T015)
-        lzc_only = [m for m in metrics if 'lzc_value' in m]
-        if lzc_only:
-            save_metrics_to_csv(lzc_only, str(lzc_output), metric_type="lzc")
-        else:
-            # Fallback: save all if lzc_only is empty but data exists
-            pd.DataFrame(metrics)[['participant_id', 'channel', 'lzc_value']].to_csv(lzc_output, index=False)
-        
-        # Save PE metrics (for T016)
-        pe_only = [m for m in metrics if 'pe_value' in m]
-        if pe_only:
-            save_metrics_to_csv(pe_only, str(pe_output), metric_type="pe")
-        else:
-            # Fallback
-            pd.DataFrame(metrics)[['participant_id', 'channel', 'pe_value']].to_csv(pe_output, index=False)
-        
-        logger.info("Feature extraction completed successfully.")
-        
+        import mne
+        raw = mne.io.read_raw_fif(processed_file, preload=True)
     except Exception as e:
-        logger.error(f"Error during feature extraction: {e}")
-        import traceback
-        traceback.print_exc()
+        logger.error(f"Failed to load {processed_file}: {e}")
         sys.exit(1)
+    
+    # Extract features
+    metrics = process_eeg_segments(raw, config)
+    
+    if not metrics:
+        logger.error("No metrics extracted. Check input data.")
+        sys.exit(1)
+    
+    # Save main metrics
+    output_path = analysis_dir / "complexity_metrics.csv"
+    save_metrics_to_csv(metrics, output_path)
+    
+    # Save LZC-only metrics as required by data contract (lzc_metrics.csv)
+    lzc_path = analysis_dir / "lzc_metrics.csv"
+    lzc_metrics = [
+        {
+            "participant_id": m["participant_id"],
+            "channel": m["channel"],
+            "lzc": m["lzc"]
+        }
+        for m in metrics
+    ]
+    save_metrics_to_csv(lzc_metrics, lzc_path)
+    
+    logger.info("Feature extraction complete.")
 
 if __name__ == "__main__":
     main()

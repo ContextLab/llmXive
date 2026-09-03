@@ -1,3 +1,21 @@
+T006:
+  c: false
+  h: 31172ac30297d8714ee243090f9d0cd3e51164f28c3e4f290f1169702c6ef7ff
+  r: The repository contains a `tests/unit/test_logging.py` that expects constants
+    `EXCLUSION_LOG_PATH` and `LOGS_DIR` and that `log_artifact_rejection`/`log_participant_exclusion`
+    write a CSV file, but `code/utils/logging.py` is truncated and does not show these
+    constants nor any code that actually creates `data/processed/exclusion_log.csv`.
+    Moreover the CSV file is absent on disk. Consequently the required logging utility
+    and its verification are not fully implemented.
+T009:
+  c: false
+  h: bffb76e85f584c99626e834a5f87d478abbca77bad5ffe81f14eeec68495ce38
+  r: "The provided `code/download.py` is incomplete and contains placeholder logic\
+    \ (e.g., hard\u2011coded PhysioNet ID, no HuggingFace search, no HTTP HEAD request,\
+    \ truncated main function). It never writes a successful `download_manifest.json`\
+    \ nor creates `data/raw/sample_eeg.fif` (the manifest present records a failure\
+    \ and the sample file is missing). Thus the required artifacts and behavior are\
+    \ not present."
 T010:
   c: false
   h: 3ee9d132d5749fd6978e60b3b070e9ffa55c22f0d5155f90aa66052c7ac5f791
@@ -24,23 +42,22 @@ T012:
     \ of segments shorter than 120\u202Fseconds, nor does it demonstrate writing the\
     \ required columns (`participant_id, reason, timestamp`) to the CSV. The artifact\u2011\
     rejection logic is therefore incomplete."
+T013:
+  c: false
+  h: 58002bd314e2fc236212f4fdc80d8880b0a64c6c8162347597917539eb57834e
+  r: "The `reject_artifacts` function only logs rejected channel indices and returns\
+    \ the original `raw` unchanged, so epochs >\xB1100\u202F\xB5V are not actually\
+    \ excluded. Moreover, the required `data/processed/exclusion_log.csv` file is\
+    \ missing entirely. The task\u2019s verification condition (log entries for rejected\
+    \ epochs) is therefore not satisfied."
 T014:
   c: false
-  h: be11b7ad5377b1c9da590f3188988417fa4b7a8ec03c905323ba424c6bcb58f1
-  r: "The required output file `data/processed/lzc_metrics.csv` does not exist, and\
-    \ the provided `code/features.py` lacks any implementation of Lempel\u2011Ziv\
-    \ complexity (it only contains a partially shown permutation\u2011entropy function\
-    \ and is truncated). Consequently the script does not meet the specification of\
-    \ calculating LZC per channel and writing the results to the CSV. The missing\
-    \ CSV and absent LZC logic must be added."
-T016:
-  c: false
-  h: 069fd76a930437909959119caa1826f027dc57bb60d2934628d92b1fa70acd4e
-  r: "The repository contains a `code/features.py` file, but it is truncated (the\
-    \ `calculate_permutation_entropy` function is incomplete) and there is no code\
-    \ that writes the permutation\u2011entropy results to `data/processed/pe_metrics.csv`.\
-    \ Moreover, the required CSV file is absent from the project. The task\u2019s\
-    \ core output is therefore missing."
+  h: 58002bd314e2fc236212f4fdc80d8880b0a64c6c8162347597917539eb57834e
+  r: "The `data/processed/exclusion_log.csv` file does not exist, so no exclusion\
+    \ entries can be verified. Moreover, the `reject_short_segments` function in `code/preprocess.py`\
+    \ is truncated and does not show a complete implementation of the segment\u2011\
+    length validation or logging of the `\"segment_too_short\"` reason. Both required\
+    \ artifacts are missing/incomplete."
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -69,10 +86,3 @@ T027:
     \ or a report confirming that memory usage stayed \u2264\u202F7\u202FGB is present.\
     \ The claim lacks the required evidence (e.g., monitoring logs, screenshots, or\
     \ a summary table) to verify the memory\u2011usage requirement."
-T036:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No runtime logs, timing report, or monitoring script are provided to demonstrate\
-    \ that the total pipeline execution stays within the 6\u2011hour limit; the task\
-    \ entry even notes \u201CFAILED: unspecified\u201D. The required evidence of a\
-    \ measured pipeline duration is missing."
