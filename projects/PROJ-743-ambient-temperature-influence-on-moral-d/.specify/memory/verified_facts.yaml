@@ -1,4 +1,4 @@
-'|era5 grid resolution':
+5|era5 grid resolution sample:
   quote: Freely available Global Atmospheric Models such as ERA5 data are generated
     using Copernicus Climate Change Service Information developed for numerical weather
     prediction. These models can provide accurate and high-resolution (still is coarse
@@ -12,4 +12,4 @@
     level to 50 km.
   source_id: Atmospheric correction for interferometric synthetic aperture radar technique
   url: https://en.wikipedia.org/wiki/Atmospheric_correction_for_interferometric_synthetic_aperture_radar_technique
-  value: 0.25 degrees
+  value: '0.25'

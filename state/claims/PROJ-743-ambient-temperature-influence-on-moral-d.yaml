@@ -2985,3 +2985,409 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-31T14:54:03Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Copernicus Climate Data Store API provides hourly near-surface temperature
+    data
+  claim_id: c_a0dc68eb
+  context: Verify the canonical URL for the Copernicus Climate Data Store (CDS) API
+    () for hourly near-surface temperature data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Copernicus_Climate_Data_Store_API_provides_hourly_near-surfa
+  kind: entity_fact
+  raw_text: The Copernicus Climate Data Store (CDS) API provides hourly near-surface
+    temperature data
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:44:16Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 sample subset Jan 1 2016 to Jan 7 2016 for London (51.5074, -0.1278)
+  claim_id: c_3349e125
+  context: "Write code/validate_era5.py to fetch a specific sample subset (Jan 1 \u2013\
+    \ Jan 7 2016) for London (51.5074, \u20110.1278) using the CDS API"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample ERA5 data subset spans from Jan 1 to Jan 7 2016 for London
+    (51.5074, -0.1278)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:44:55Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Anderson-Darling sample fraction is 0.1
+  claim_id: c_6302d9aa
+  context: Set a sampling fraction in code/config.py... ANDERSON_DARLING_SAMPLE_FRACTION
+    = 0.1
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Anderson-Darling test uses a sample fraction of 0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:45:23Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Response time filter range 100 ms to 10000 ms
+  claim_id: c_dbd74149
+  context: 'HARD FILTER: Immediately filter out records with response times < 100
+    ms or > 10 000 ms.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Response time filtering excludes records below 100 ms or above 10000 ms
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:45:52Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Temperature filter range -50C to 60C
+  claim_id: c_2271bdb0
+  context: "TEMPERATURE_MIN = -50.0, TEMPERATURE_MAX = 60.0... Filter out records\
+    \ with temperature values outside the range... < -50\xB0C or > 60\xB0C"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Temperature values are filtered to the range of -50\xB0C to 60\xB0C"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:46:23Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Geospatial match distance threshold 100 km
+  claim_id: c_0e5ae257
+  context: If distance > DISTANCE_THRESHOLD_KM, set match_quality = 'low'... DISTANCE_THRESHOLD_KM
+    = 100
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The distance threshold for geospatial matching is 100 km
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:47:09Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Temperature gap exclusion threshold 2 hours
+  claim_id: c_39fce1db
+  context: "If gap > 2 hours \u2192 exclude the record and log reason 'temperature\
+    \ gap > 2 hours'"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Temperature_gap_exclusion_threshold_2_hours
+  kind: causal
+  raw_text: Temperature gaps greater than 2 hours result in record exclusion
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:47:14Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Anderson-Darling test on 0.1 fraction of residuals
+  claim_id: c_314b5f53
+  context: "Sample [deferred] of residuals (per ANDERSON_DARLING_SAMPLE_FRACTION)\
+    \ and compute Anderson\u2011Darling statistic"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Anderson-Darling test is performed on a 0.1 fraction of residuals
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:47:50Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Baseline proxy criteria stake imbalance > 3:1 or complexity < 0.2
+  claim_id: c_995f4b38
+  context: derive a proxy by calculating the median response time per participant
+    across all dilemmas where the decision was 'obvious' (defined as stake imbalance
+    > 3:1 OR dilemma complexity score < 0.2)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Baseline reaction time proxy is derived from dilemmas with stake imbalance
+    > 3:1 OR dilemma complexity score < 0.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:48:15Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 2
+  canonical: Moral Machine dataset URL is https://osf.io/...
+  claim_id: c_d4207c9d
+  context: Verify the Moral Machine dataset URL (https://osf.io/...) and required
+    columns (latitude, longitude, timestamp, response_time, country, dilemma_id).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Moral_Machine_dataset_URL_is_https://osf.io/...
+  kind: entity_fact
+  raw_text: The Moral Machine dataset URL is https://osf.io/...
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:56:49Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: CDS API provides hourly near-surface temperature data
+  claim_id: c_242751fd
+  context: Verify the canonical URL for the Copernicus Climate Data Store (CDS) API
+    () for hourly near-surface temperature data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CDS_API_provides_hourly_near-surface_temperature_data
+  kind: entity_fact
+  raw_text: The Copernicus Climate Data Store (CDS) API provides hourly near-surface
+    temperature data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:56:54Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 sample subset for London covers Jan 1 to Jan 7 2016
+  claim_id: c_1dd98ebf
+  context: "Write code/validate_era5.py to fetch a specific sample subset (Jan 1 \u2013\
+    \ Jan 7 2016) for London (51.5074, -0.1278) using the CDS API."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The ERA5 sample subset for London (51.5074, -0.1278) covers the period\
+    \ Jan 1 \u2013 Jan 7 2016."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:57:23Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 grid resolution is 0.25
+  claim_id: c_9d166dfe
+  context: using the CDS API with product_type='reanalysis', variable='2m_temperature',
+    and grid_resolution='0.25'.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Freely available Global Atmospheric Models such as ERA5 data are generated
+        using Copernicus Climate Change Service Information developed for numerical
+        weather prediction. These models can provide accurate and high-resolution
+        (still is coarse for InSAR studies) parameters for characterizing the atmosphere
+        state. Therefore, these methods are promising and practical techniques for
+        atmospheric noise mitigation in InSAR technique. Based on the combination
+        of different input datasets, the ERA5 is a global atmospheric model calculated
+        by the European Center for Medium-Range Weather Forecasting (ECMWF). Several
+        meteorological parameters are provided, such as pressure, temperature, and
+        relative humidity, at hourly intervals with a horizontal resolution of 0.25
+        degrees and a vertical resolution of 37 intervals from sea level to 50 km.
+      source_id: Atmospheric correction for interferometric synthetic aperture radar
+        technique
+      url: https://en.wikipedia.org/wiki/Atmospheric_correction_for_interferometric_synthetic_aperture_radar_technique
+      value: '0.25'
+    filled: true
+  kind: numeric
+  raw_text: The ERA5 grid resolution for the sample is 0.25.
+  resolved_value: '0.25'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T04:57:42Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Distance threshold for matching is 100 km
+  claim_id: c_4850b3c4
+  context: DISTANCE_THRESHOLD_KM = 100
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The distance threshold for matching is 100 km.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:58:13Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Minimum temperature value is -50.0 degrees Celsius
+  claim_id: c_818d4092
+  context: TEMPERATURE_MIN = -50.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum temperature value is -50.0 degrees Celsius.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:58:55Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Maximum temperature value is 60.0 degrees Celsius
+  claim_id: c_92cb2a11
+  context: TEMPERATURE_MAX = 60.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum temperature value is 60.0 degrees Celsius.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T04:59:26Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Minimum response time is 100 ms
+  claim_id: c_d42eafe0
+  context: RESPONSE_TIME_MIN_MS = 100
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum response time is 100 ms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T05:00:05Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Maximum response time is 10000 ms
+  claim_id: c_040bef11
+  context: RESPONSE_TIME_MAX_MS = 10000
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum response time is 10000 ms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T05:00:42Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: World Bank API code PD.SEX.TOTL.ZS provides gender data
+  claim_id: c_5e79b452
+  context: Retrieve age, gender, and urban/rural classification from the World Bank
+    API ( for population, PD.SEX.TOTL.ZS for gender).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/World_Bank_API_code_PD.SEX.TOTL.ZS_provides_gender_data
+  kind: entity_fact
+  raw_text: The World Bank API provides population data under the code PD.SEX.TOTL.ZS
+    for gender.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T05:01:11Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Linear interpolation used for temperature gaps <= 2 hours
+  claim_id: c_e0f5a036
+  context: "If gap \u2264 2 hours \u2192 linearly interpolate."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Linear_interpolation_used_for_temperature_gaps_%3C=_2_hours
+  kind: magnitude
+  raw_text: Linear interpolation is used for temperature gaps less than or equal to
+    2 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T05:01:52Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Records excluded if temperature gap > 2 hours
+  claim_id: c_a6cbaaa9
+  context: "If gap > 2 hours \u2192 exclude the record and log reason 'temperature\
+    \ gap > 2 hours'."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Records_excluded_if_temperature_gap_%3E_2_hours
+  kind: magnitude
+  raw_text: Records are excluded if the temperature gap is greater than 2 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T05:02:30Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Obvious decision defined as stake imbalance > 3:1
+  claim_id: c_0648f949
+  context: defined as stake imbalance > 3:1 OR dilemma complexity score < 0.2
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Obvious_decision_defined_as_stake_imbalance_%3E_3:1
+  kind: magnitude
+  raw_text: An obvious decision is defined as a stake imbalance greater than 3:1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T05:02:53Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Obvious decision defined as dilemma complexity score < 0.2
+  claim_id: c_ead81a84
+  context: defined as stake imbalance > 3:1 OR dilemma complexity score < 0.2
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Obvious_decision_defined_as_dilemma_complexity_score_%3C_0.2
+  kind: magnitude
+  raw_text: An obvious decision is defined as a dilemma complexity score less than
+    0.2.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T05:03:20Z'

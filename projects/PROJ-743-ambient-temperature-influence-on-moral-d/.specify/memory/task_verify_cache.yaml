@@ -1,3 +1,17 @@
+T001b:
+  c: false
+  h: 9ff346375671f4d8506e82633c813dd6d8f128a4b2f0d7c35aed3c1e29c45ad5
+  r: The required output file `data/raw/era5_sample.h5` is missing, and the provided
+    log does not show the specific validation messages the task demands. The script
+    is incomplete/truncated and there is no evidence that it fetched, saved, and validated
+    the data as specified. The missing HDF5 file and lack of concrete validation logs
+    must be addressed.
+T006:
+  c: false
+  h: bebd4fcc56bb6f1d1ad35aa31c8d7cd1f51176c5270323bb4b6842194fd905ec
+  r: "The required `data/raw/era5_full.h5` file is missing, so the existence check\
+    \ fails, and the log file does not contain a final \u201CPass/Fail\u201D entry\
+    \ for the gate. Consequently the validation gate was not correctly completed."
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -47,12 +61,19 @@ T019:
     \ file only has a header and no entries reflecting such exclusions. Implement\
     \ the full matching routine, add the low\u2011quality flag, and write detailed\
     \ exclusion rows to the log."
-T020:
+T028a:
   c: false
-  h: dc3b38c9259104dcab6a3c7b379ae6cafb606947e01557628e5df9349f8241ec
-  r: "The provided `code/ingestion.py` snippet does not show any implementation of\
-    \ time\u2011based linear interpolation with a \u22642\u202Fhour gap rule, nor\
-    \ does it contain logic to exclude records with larger gaps and write detailed\
-    \ reasons to `results/logs/exclusion_log.csv`. The exclusion log file only contains\
-    \ a header and no actual exclusion entries. Consequently, the required functionality\
-    \ and logging are missing."
+  h: a6cf2131a14a4b40cfc1b049e1af918a036d80b928444aef9f74a123913aefb4
+  r: "The log file `results/logs/covariate_status.json` is present, but the required\
+    \ output `data/processed/covariates.csv` does not exist, so the task\u2019s final\
+    \ step of saving the covariates was not fulfilled. The missing CSV file must be\
+    \ created (even if containing nulls) to satisfy the requirement."
+T028g:
+  c: false
+  h: 68999d7713dfd9272fa9c2e9a15d42e919402c98f0b760cbaca423a0fcb602fa
+  r: "The provided evidence includes only a partial `code/modeling.py` file that does\
+    \ not show any handling of a `dilemma_choice` column, and the required log file\
+    \ `results/logs/dilemma_choice_verification.json` is missing. No unit\u2011test\
+    \ verifying that `dilemma_choice` is created without referencing `response_time`\
+    \ or that it is merged as a fixed effect is present. The implementer must add\
+    \ the appropriate test and generate the verification JSON log."

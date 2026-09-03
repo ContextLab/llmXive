@@ -1,10 +1,18 @@
-cdsapi  # auto-added: imported by run-book but missing from venv
-h5py  # auto-added: imported by run-book but missing from venv
-numpy  # auto-added: imported by run-book but missing from venv
-pandas  # auto-added: imported by run-book but missing from venv
-requests  # auto-added: imported by run-book but missing from venv
-scipy  # auto-added: imported by run-book but missing from venv
-statsmodels  # auto-added: imported by run-book but missing from venv
-urllib3  # auto-added: imported by run-book but missing from venv
-xarray  # auto-added: imported by run-book but missing from venv
-pyyaml  # auto-added: imported by run-book but missing from venv
+cdsapi
+xarray
+h5py
+numpy
+pandas
+shapely
+geopandas
+scikit-learn
+statsmodels
+matplotlib
+seaborn
+pyarrow
+pydantic
+ruff
+black
+pytest
+requests
+pyyaml

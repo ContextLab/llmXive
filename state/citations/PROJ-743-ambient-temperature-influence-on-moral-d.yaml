@@ -53,7 +53,7 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1126/science.aar7000
   verified_at: '2026-08-19T21:43:10.349798Z'
-- artifact_hash: cce5b860e74402b23a0372bc21c9f06cc22564b515c58024ad6d5e564263a969
+- artifact_hash: 7e284b44bdfb8f6e42136cf328fa4bd89dd088b2094e3c7bdced8b6f59ebdac9
   artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -63,4 +63,4 @@
   value: https://osf.io/...`
   verification_status: pending
   verified_against_url: https://osf.io/
-  verified_at: '2026-08-31T14:54:03.296333Z'
+  verified_at: '2026-09-03T04:56:14.751265Z'

@@ -4,7 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001b` (rejected 1x): The required output file `data/raw/era5_sample.h5` is missing, and the provided log does not show any actual validation of hourly resolution, `float32` dtype, or temperature range for that file. The task’s core deliverable (the fetched and validated H5 dataset) was not produced.
+- `T002d` (rejected 1x): declared artifact(s) missing/empty/invalid: data/raw/era5_full.h5, state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml
+- `T003` (rejected 1x): declared artifact(s) missing/empty/invalid: data/raw/era5_sample.h5, state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml
 
 ## Required change
 
