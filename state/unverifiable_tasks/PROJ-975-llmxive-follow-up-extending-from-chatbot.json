@@ -1,0 +1,48 @@
+{
+  "project_id": "PROJ-975-llmxive-follow-up-extending-from-chatbot",
+  "tasks": [
+    {
+      "task_key": "T001",
+      "reject_count": 1,
+      "last_reason": "No directory listings or file system snapshots were provided showing the required subdirectories (`data/raw`, `data/results`, `code`, `tests/unit`, `tests/contract`, `contracts`). Without concrete evidence that these folders exist and are non\u2011empty, the task requirement is not satisfied. The implementer must supply a directory tree view or similar proof that the specified subdirectories have been created in the repository.",
+      "first_seen": "2026-09-03T07:02:37.330189+00:00",
+      "last_seen": "2026-09-03T07:02:37.330189+00:00"
+    },
+    {
+      "task_key": "T003",
+      "reject_count": 1,
+      "last_reason": "No `quickstart.md` file was presented; there is no evidence of a non\u2011empty markdown document containing placeholder text and installation instructions, which is the explicit deliverable of task T003. The required artifact is missing.",
+      "first_seen": "2026-09-03T07:02:37.331210+00:00",
+      "last_seen": "2026-09-03T07:02:37.331210+00:00"
+    },
+    {
+      "task_key": "T004",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: pre-commit-config.yaml",
+      "first_seen": "2026-09-03T07:02:37.332105+00:00",
+      "last_seen": "2026-09-03T07:02:37.332105+00:00"
+    },
+    {
+      "task_key": "T009a",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: schema.yaml",
+      "first_seen": "2026-09-03T07:02:37.333113+00:00",
+      "last_seen": "2026-09-03T07:02:37.333113+00:00"
+    },
+    {
+      "task_key": "T009b",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: schema.yaml",
+      "first_seen": "2026-09-03T07:02:37.334058+00:00",
+      "last_seen": "2026-09-03T07:02:37.334058+00:00"
+    },
+    {
+      "task_key": "T009c",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: schema.yaml",
+      "first_seen": "2026-09-03T07:02:37.335027+00:00",
+      "last_seen": "2026-09-03T07:02:37.335027+00:00"
+    }
+  ],
+  "updated_at": "2026-09-03T07:02:37.335027+00:00"
+}

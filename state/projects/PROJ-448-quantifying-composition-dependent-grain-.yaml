@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T16:40:16.448511Z'
-current_stage: tasked
+current_stage: analyzed
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-448-quantifying-composition-dependent-grain-
-last_run_id: 30623fbb-9d14-49cf-8e76-710b62111552
+last_run_id: 52ccb298-7444-4ae6-b633-5b24e0927525
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-448-quantifying-composition-dependent-grain-/specs/001-quantifying-composition-dependent-grain
 title: Quantifying Composition-Dependent Grain Boundary Segregation in BCC Alloys
-updated_at: '2026-09-02T07:57:31.467682Z'
+updated_at: '2026-09-03T06:49:38.168126Z'

@@ -1,17 +1,23 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Pipeline Output Schema
-description: |
-  Schema for all output artifacts produced by the distribution shift detection pipeline.
-  Ensures consistency of flags, baseline results, sensitivity analysis, and reports.
+# Output Schema for Pipeline Results
+# Defines the structure of all generated output files
 type: object
+required:
+  - flags
+  - report
+  - baselines
+  - sensitivity
 properties:
   flags:
-    description: MMD detected shift flags
     type: object
+    description: MMD shift detection flags
+    required:
+      - file_path
+      - columns
+      - data_types
     properties:
       file_path:
         type: string
-        pattern: ^data/processed/flags\.csv$
+        pattern: "^data/processed/flags\\.csv$"
       columns:
         type: array
         items:
@@ -24,25 +30,75 @@ properties:
           const: "p_value"
         contains:
           const: "flagged"
-      required_columns:
-        type: array
-        items:
-          type: string
-        minItems: 4
-        contains:
-          const: "week"
-        contains:
-          const: "flagged"
-      schema_version:
-        type: string
-        const: "1.0"
-  baselines:
-    description: Baseline change-point detection results
+      data_types:
+        type: object
+        properties:
+          week:
+            type: string
+            enum: ["int", "float"]
+          mmd_statistic:
+            type: string
+            enum: ["float"]
+          p_value:
+            type: string
+            enum: ["float"]
+          flagged:
+            type: string
+            enum: ["bool", "int", "object"]
+      constraints:
+        type: object
+        properties:
+          p_value_range:
+            type: object
+            properties:
+              min:
+                type: number
+                const: 0.0
+              max:
+                type: number
+                const: 1.0
+          flagged_boolean:
+            type: boolean
+            const: true
+  report:
     type: object
+    description: Final analysis report
+    required:
+      - file_path
+      - format
     properties:
       file_path:
         type: string
-        pattern: ^data/processed/baselines\.csv$
+        pattern: "^figures/report\\.pdf$"
+      format:
+        type: string
+        enum: ["pdf"]
+      contents:
+        type: object
+        description: Required sections in the report
+        properties:
+          metrics_table:
+            type: boolean
+            const: true
+          timeline_plot:
+            type: boolean
+            const: true
+          sensitivity_summary:
+            type: boolean
+            const: true
+          baseline_comparison:
+            type: boolean
+            const: true
+  baselines:
+    type: object
+    description: Baseline change point detection results
+    required:
+      - file_path
+      - columns
+    properties:
+      file_path:
+        type: string
+        pattern: "^data/processed/baselines\\.csv$"
       columns:
         type: array
         items:
@@ -54,96 +110,90 @@ properties:
         contains:
           const: "statistic"
         contains:
-          const: "detected"
-      required_columns:
-        type: array
-        items:
-          type: string
-        minItems: 4
-        contains:
-          const: "week"
-        contains:
-          const: "method"
-      methods:
-        type: array
-        items:
-          type: string
-        contains:
-          const: "pettitt"
-        contains:
-          const: "bocpd"
+          const: "p_value"
+      data_types:
+        type: object
+        properties:
+          week:
+            type: string
+            enum: ["int", "float"]
+          method:
+            type: string
+            enum: ["object", "string"]
+          statistic:
+            type: string
+            enum: ["float"]
+          p_value:
+            type: string
+            enum: ["float"]
   sensitivity:
+    type: object
     description: Sensitivity analysis results
+    required:
+      - grid_file
+      - tolerance_file
+    properties:
+      grid_file:
+        type: object
+        properties:
+          file_path:
+            type: string
+            pattern: "^data/processed/sensitivity\\.csv$"
+          columns:
+            type: array
+            items:
+              type: string
+            contains:
+              const: "bandwidth"
+            contains:
+              const: "window_size"
+            contains:
+              const: "precision"
+            contains:
+              const: "recall"
+            contains:
+              const: "detection_delay"
+      tolerance_file:
+        type: object
+        properties:
+          file_path:
+            type: string
+            pattern: "^data/processed/tolerance_sensitivity\\.csv$"
+          columns:
+            type: array
+            items:
+              type: string
+            contains:
+              const: "tolerance"
+            contains:
+              const: "precision"
+            contains:
+              const: "recall"
+  state:
     type: object
+    description: State tracking file for hash verification
+    required:
+      - file_path
+      - format
     properties:
       file_path:
         type: string
-        pattern: ^data/processed/sensitivity\.csv$
-      columns:
-        type: array
-        items:
-          type: string
-        contains:
-          const: "bandwidth"
-        contains:
-          const: "window_size"
-        contains:
-          const: "precision"
-        contains:
-          const: "recall"
-        contains:
-          const: "delay"
-      required_columns:
-        type: array
-        items:
-          type: string
-        minItems: 5
-        contains:
-          const: "bandwidth"
-        contains:
-          const: "precision"
-  tolerance_sensitivity:
-    description: Week-alignment tolerance sweep results
-    type: object
-    properties:
-      file_path:
+        pattern: "^state/hashes\\.json$"
+      format:
         type: string
-        pattern: ^data/processed/tolerance_sensitivity\.csv$
-      columns:
-        type: array
-        items:
-          type: string
-        contains:
-          const: "tolerance_weeks"
-        contains:
-          const: "precision"
-        contains:
-          const: "recall"
-      required_columns:
-        type: array
-        items:
-          type: string
-        minItems: 3
-        contains:
-          const: "tolerance_weeks"
-  report:
-    description: Final PDF report
-    type: object
-    properties:
-      file_path:
-        type: string
-        pattern: ^data/processed/report\.pdf$
-      contains:
-        type: array
-        items:
-          type: string
-        contains:
-          const: "metrics_summary"
-        contains:
-          const: "timeline_plot"
-        contains:
-          const: "sensitivity_summary"
-required:
-  - flags
-  - report
-additionalProperties: false
+        enum: ["json"]
+      contents:
+        type: object
+        description: Hash mapping
+        properties:
+          files:
+            type: object
+            additionalProperties:
+              type: object
+              properties:
+                sha256:
+                  type: string
+                  pattern: "^[a-f0-9]{64}$"
+                timestamp:
+                  type: string
+                  format: date-time

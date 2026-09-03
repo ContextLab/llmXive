@@ -1,50 +1,65 @@
 import os
 import sys
+import logging
+
+# Configure logging for the setup process
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 def main():
     """
-    Creates the project directory structure as specified in T001.
-    Directories: data/raw, data/processed, code, tests, code/contracts
-    """
-    base_dirs = [
-        "data/raw",
-        "data/processed",
-        "code",
-        "tests",
-        "code/contracts"
-    ]
-
-    created = []
-    skipped = []
-
-    for dir_path in base_dirs:
-        if os.path.exists(dir_path):
-            skipped.append(dir_path)
-            continue
-        os.makedirs(dir_path, exist_ok=True)
-        created.append(dir_path)
-
-    if created:
-        print(f"Created directories: {', '.join(created)}")
-    if skipped:
-        print(f"Directories already exist: {', '.join(skipped)}")
+    Creates the required project directory structure.
     
-    # Ensure code/__init__.py exists if 'code' was created or to be safe
-    code_init = "code/__init__.py"
-    if not os.path.exists(code_init):
-        with open(code_init, "w") as f:
-            f.write("# llmXive project package\n")
-        print(f"Created {code_init}")
+    Creates the following directories relative to the project root:
+    - data/raw
+    - data/processed
+    - code (already exists as this script is in it, but ensures parent structure)
+    - tests
+    - code/contracts
+    
+    This script is idempotent; it will not fail if directories already exist.
+    """
+    # Define the base path as the current working directory (project root)
+    # Since this script is in 'code/', we go up one level to ensure we are at root
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    
+    directories = [
+        os.path.join(base_dir, 'data', 'raw'),
+        os.path.join(base_dir, 'data', 'processed'),
+        os.path.join(base_dir, 'tests'),
+        os.path.join(base_dir, 'code', 'contracts')
+    ]
+    
+    logger.info(f"Ensuring project structure exists at: {base_dir}")
+    
+    created_count = 0
+    for directory in directories:
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+            logger.info(f"Created directory: {directory}")
+            created_count += 1
+        else:
+            logger.debug(f"Directory already exists: {directory}")
+    
+    if created_count > 0:
+        logger.info(f"Successfully created {created_count} new directories.")
+    else:
+        logger.info("All required directories already existed.")
+    
+    # Verify structure
+    missing = []
+    for directory in directories:
+        if not os.path.isdir(directory):
+            missing.append(directory)
+    
+    if missing:
+        logger.error(f"Failed to create or verify directories: {missing}")
+        sys.exit(1)
+    
+    logger.info("Project structure verification complete.")
 
-    # Ensure tests/__init__.py exists
-    tests_init = "tests/__init__.py"
-    if not os.path.exists(tests_init):
-        with open(tests_init, "w") as f:
-            f.write("# Tests package\n")
-        print(f"Created {tests_init}")
-
-    print("Project structure initialization complete.")
-    return 0
-
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__ == '__main__':
+    main()

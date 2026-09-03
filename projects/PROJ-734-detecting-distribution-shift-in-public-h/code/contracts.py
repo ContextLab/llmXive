@@ -1,3 +1,7 @@
+"""
+Contract validation module for data and output integrity.
+Implements schema loading and validation against YAML definitions.
+"""
 import os
 import yaml
 import csv
@@ -6,172 +10,154 @@ from datetime import datetime
 from exceptions import E_NO_DATA
 
 def load_schema(schema_path: str) -> Dict[str, Any]:
-    """Load a JSON schema from a YAML file."""
+    """Load a YAML schema definition from disk."""
     if not os.path.exists(schema_path):
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+        raise E_NO_DATA(f"Schema file not found: {schema_path}")
+    
     with open(schema_path, 'r') as f:
         return yaml.safe_load(f)
 
-def validate_date_format(date_str: str) -> bool:
-    """Validate ISO week format (YYYY-Www or YYYY-ww)."""
+def validate_date_format(date_str: str, format_str: str = "%Y-%m-%d") -> bool:
+    """Validate a date string against a format."""
     try:
-        # Attempt to parse common week formats
-        if 'W' in date_str:
-            datetime.strptime(date_str, "%Y-W%W")
-        else:
-            # Fallback for YYYY-ww format if supported by specific parser
-            # Basic regex check for YYYY-ww
-            if len(date_str) == 7 and date_str[4] == '-':
-                int(date_str[:4])
-                int(date_str[5:])
-                return True
-            return False
+        datetime.strptime(date_str, format_str)
         return True
     except ValueError:
         return False
 
-def validate_numeric(value: Any) -> bool:
-    """Check if a value is numeric."""
-    try:
-        float(value)
-        return True
-    except (ValueError, TypeError):
+def validate_numeric(value: Any, min_val: Optional[float] = None, max_val: Optional[float] = None) -> bool:
+    """Validate that a value is numeric and within bounds."""
+    if not isinstance(value, (int, float)):
         return False
+    if min_val is not None and value < min_val:
+        return False
+    if max_val is not None and value > max_val:
+        return False
+    return True
 
-def validate_record(record: Dict[str, Any], schema: Dict[str, Any], record_type: str) -> List[str]:
-    """
-    Validate a single record against a schema definition.
-    Returns a list of errors.
-    """
-    errors = []
-    required_cols = schema.get('required_columns', [])
+def validate_record(record: Dict[str, Any], schema: Dict[str, Any]) -> bool:
+    """Validate a single record against a schema definition."""
+    required = schema.get('required', [])
+    properties = schema.get('properties', {})
     
-    for col in required_cols:
-        if col not in record:
-            errors.append(f"Missing required column: {col}")
-            continue
-        
-        value = record[col]
-        
-        # Type checks based on column name heuristics if specific type not in schema
-        if 'week' in col.lower():
-            if not validate_date_format(str(value)):
-                errors.append(f"Invalid date format in {col}: {value}")
-        elif 'ili' in col.lower() or 'percent' in col.lower():
-            if not validate_numeric(value):
-                errors.append(f"Non-numeric value in {col}: {value}")
-        elif col == 'event_name':
-            if not isinstance(value, str) or len(value.strip()) == 0:
-                errors.append(f"Invalid event name in {col}: {value}")
+    # Check required fields
+    for field in required:
+        if field not in record:
+            return False
     
-    return errors
+    # Validate field types and constraints
+    for field, value in record.items():
+        if field in properties:
+            field_schema = properties[field]
+            field_type = field_schema.get('type')
+            
+            if field_type == 'string' and not isinstance(value, str):
+                return False
+            elif field_type == 'integer' and not isinstance(value, int):
+                return False
+            elif field_type == 'number' and not isinstance(value, (int, float)):
+                return False
+            elif field_type == 'boolean' and not isinstance(value, bool):
+                return False
+            
+            # Check pattern constraints
+            if 'pattern' in field_schema and isinstance(value, str):
+                import re
+                if not re.match(field_schema['pattern'], value):
+                    return False
+    
+    return True
 
-def validate_csv_file(file_path: str, schema: Dict[str, Any], record_type: str = "dataset") -> bool:
-    """
-    Validate a CSV file against a schema.
-    Returns True if valid, raises E_NO_DATA or ValueError if invalid.
-    """
+def validate_csv_file(file_path: str, schema: Dict[str, Any]) -> bool:
+    """Validate a CSV file against a schema."""
     if not os.path.exists(file_path):
-        raise E_NO_DATA(f"Required data file missing: {file_path}")
+        return False
     
-    schema_props = schema.get('properties', {}).get(record_type, {})
-    expected_cols = schema_props.get('columns', [])
-    
-    with open(file_path, 'r', newline='', encoding='utf-8') as f:
+    with open(file_path, 'r') as f:
         reader = csv.DictReader(f)
         
-        # Check header
-        if reader.fieldnames is None:
-            raise ValueError(f"Empty CSV file: {file_path}")
-        
-        missing_cols = set(expected_cols) - set(reader.fieldnames)
-        if missing_cols:
-            raise ValueError(f"Missing columns in {file_path}: {missing_cols}")
+        # Check columns
+        required_columns = schema.get('columns', [])
+        if not all(col in reader.fieldnames for col in required_columns):
+            return False
         
         # Validate rows
-        row_count = 0
-        for i, row in enumerate(reader):
-            row_count += 1
-            errors = validate_record(row, schema_props, record_type)
-            if errors:
-                # Log first error and raise
-                raise ValueError(f"Validation error in {file_path}, row {i+2}: {errors[0]}")
-        
-        if row_count == 0:
-            raise ValueError(f"CSV file {file_path} contains no data rows")
+        for row in reader:
+            if not validate_record(row, schema):
+                return False
     
     return True
 
-def validate_raw_data(raw_dir: str = "data/raw") -> bool:
-    """
-    Validate raw dataset schemas.
-    Checks fluview_ili.csv and ground_truth_events.csv.
-    """
-    dataset_schema_path = "contracts/dataset.schema.yaml"
-    if not os.path.exists(dataset_schema_path):
-        raise E_NO_DATA(f"Dataset schema missing: {dataset_schema_path}")
+def validate_raw_data() -> bool:
+    """Validate raw data files against dataset schema."""
+    dataset_schema_path = 'contracts/dataset.schema.yaml'
+    dataset_schema = load_schema(dataset_schema_path)
     
-    schema = load_schema(dataset_schema_path)
+    # Validate FluView data
+    fluview_schema = dataset_schema['properties']['fluview']
+    fluview_path = fluview_schema['properties']['file_path']['pattern'].replace('^', '').replace('$', '').replace('\\', '')
     
-    # Validate FluView
-    fluview_path = os.path.join(raw_dir, "fluview_ili.csv")
-    try:
-        validate_csv_file(fluview_path, schema, "fluview_ili")
-    except E_NO_DATA:
-        raise
-    except Exception as e:
-        raise ValueError(f"FluView data invalid: {e}")
+    if not os.path.exists(fluview_path):
+        return False
     
-    # Validate Ground Truth
-    gt_path = os.path.join(raw_dir, "ground_truth_events.csv")
-    try:
-        validate_csv_file(gt_path, schema, "ground_truth_events")
-    except E_NO_DATA:
-        raise
-    except Exception as e:
-        raise ValueError(f"Ground truth data invalid: {e}")
+    if not validate_csv_file(fluview_path, fluview_schema):
+        return False
+    
+    # Validate ground truth data
+    gt_schema = dataset_schema['properties']['ground_truth']
+    gt_path = gt_schema['properties']['file_path']['pattern'].replace('^', '').replace('$', '').replace('\\', '')
+    
+    if not os.path.exists(gt_path):
+        return False
+    
+    if not validate_csv_file(gt_path, gt_schema):
+        return False
     
     return True
 
-def validate_output_data(processed_dir: str = "data/processed") -> bool:
-    """
-    Validate output dataset schemas.
-    Checks flags.csv, baselines.csv, sensitivity.csv, etc.
-    """
-    output_schema_path = "contracts/output.schema.yaml"
-    if not os.path.exists(output_schema_path):
-        raise E_NO_DATA(f"Output schema missing: {output_schema_path}")
+def validate_output_data() -> bool:
+    """Validate output files against output schema."""
+    output_schema_path = 'contracts/output.schema.yaml'
+    output_schema = load_schema(output_schema_path)
     
-    schema = load_schema(output_schema_path)
+    # Validate flags
+    flags_schema = output_schema['properties']['flags']
+    flags_path = flags_schema['properties']['file_path']['pattern'].replace('^', '').replace('$', '').replace('\\', '')
     
-    # Validate Flags
-    flags_path = os.path.join(processed_dir, "flags.csv")
-    try:
-        validate_csv_file(flags_path, schema, "flags")
-    except E_NO_DATA:
-        # Flags might be empty if no shifts detected, but file must exist
-        if not os.path.exists(flags_path):
-            raise E_NO_DATA(f"Output file missing: {flags_path}")
+    if not os.path.exists(flags_path):
+        return False
     
-    # Validate Baselines
-    baselines_path = os.path.join(processed_dir, "baselines.csv")
-    if os.path.exists(baselines_path):
-        try:
-            validate_csv_file(baselines_path, schema, "baselines")
-        except Exception as e:
-            raise ValueError(f"Baselines data invalid: {e}")
+    if not validate_csv_file(flags_path, flags_schema):
+        return False
     
-    # Validate Sensitivity
-    sens_path = os.path.join(processed_dir, "sensitivity.csv")
-    if os.path.exists(sens_path):
-        try:
-            validate_csv_file(sens_path, schema, "sensitivity")
-        except Exception as e:
-            raise ValueError(f"Sensitivity data invalid: {e}")
+    # Validate baselines
+    baselines_schema = output_schema['properties']['baselines']
+    baselines_path = baselines_schema['properties']['file_path']['pattern'].replace('^', '').replace('$', '').replace('\\', '')
     
-    # Validate Report
-    report_path = os.path.join(processed_dir, "report.pdf")
-    if not os.path.exists(report_path):
-        raise E_NO_DATA(f"Output file missing: {report_path}")
+    if not os.path.exists(baselines_path):
+        return False
+    
+    if not validate_csv_file(baselines_path, baselines_schema):
+        return False
+    
+    # Validate sensitivity results
+    sensitivity_schema = output_schema['properties']['sensitivity']
+    grid_schema = sensitivity_schema['properties']['grid_file']['properties']
+    grid_path = grid_schema['file_path']['pattern'].replace('^', '').replace('$', '').replace('\\', '')
+    
+    if not os.path.exists(grid_path):
+        return False
+    
+    if not validate_csv_file(grid_path, grid_schema):
+        return False
+    
+    tolerance_schema = sensitivity_schema['properties']['tolerance_file']['properties']
+    tolerance_path = tolerance_schema['file_path']['pattern'].replace('^', '').replace('$', '').replace('\\', '')
+    
+    if not os.path.exists(tolerance_path):
+        return False
+    
+    if not validate_csv_file(tolerance_path, tolerance_schema):
+        return False
     
     return True

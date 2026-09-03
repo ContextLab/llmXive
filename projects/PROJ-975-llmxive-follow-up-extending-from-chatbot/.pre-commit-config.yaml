@@ -1,44 +1,80 @@
 # Pre-commit configuration for llmXive project
-# Enforces linting (ruff) and formatting (black) standards
-# Install with: pre-commit install
+# Configures linting (ruff) and formatting (black) tools
+# See: https://pre-commit.com/
 
 repos:
+  # Black: Opinionated Python code formatter
+  - repo: https://github.com/psf/black
+    rev: 24.3.0
+    hooks:
+      - id: black
+        name: black
+        description: "Format Python code with Black"
+        entry: black
+        language: python
+        types: [python]
+        require_serial: true
+
+  # Ruff: Extremely fast Python linter and code formatter
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.5
+    hooks:
+      # Run the linter
+      - id: ruff
+        name: ruff
+        description: "Lint Python code with Ruff"
+        entry: ruff
+        language: python
+        types: [python]
+        args: [--fix, --exit-non-zero-on-fix]
+
+      # Run the formatter (alternative to black if desired, but we use black above)
+      # - id: ruff-format
+      #   name: ruff-format
+      #   description: "Format Python code with Ruff"
+      #   entry: ruff
+      #   language: python
+      #   types: [python]
+
+  # Trailing whitespace and end-of-file fixes
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
       - id: trailing-whitespace
-        files: \.(py|md|yaml|yml|json)$
+        name: trim trailing whitespace
+        description: "Trim trailing whitespace"
+        entry: trailing-whitespace-fixer
+        language: python
+        types: [text]
+        stages: [commit, push, manual]
+
       - id: end-of-file-fixer
-        files: \.(py|md|yaml|yml|json)$
+        name: fix end of files
+        description: "Ensure files end with a newline"
+        entry: end-of-file-fixer
+        language: python
+        types: [text]
+        stages: [commit, push, manual]
+
       - id: check-yaml
+        name: check yaml
+        description: "Check YAML syntax"
+        entry: check-yaml
+        language: python
+        types: [yaml]
         args: [--unsafe]
+
       - id: check-json
-      - id: check-ast
-      - id: check-merge-conflict
-      - id: debug-statements
+        name: check json
+        description: "Check JSON syntax"
+        entry: check-json
+        language: python
+        types: [json]
 
-  - repo: https://github.com/psf/black
-    rev: 24.2.0
-    hooks:
-      - id: black
-        language_version: python3.11
-        args: [--line-length=100]
-        files: ^code/|tests/
-
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.0
-    hooks:
-      - id: ruff
-        args: [--fix, --exit-non-zero-on-fix]
-        files: ^code/|tests/
-
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
-    hooks:
-      - id: mypy
-        additional_dependencies:
-          - types-PyYAML
-          - types-requests
-          - types-pandas
-        args: [--ignore-missing-imports]
-        files: ^code/|tests/
+      - id: check-added-large-files
+        name: check for large files
+        description: "Prevent committing large files"
+        entry: check-added-large-files
+        language: python
+        types: [file]
+        args: [--maxkb=5000]

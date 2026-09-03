@@ -26,10 +26,12 @@
 
 ### Sub-Phase 0.1: Source Verification & Spec Amendments (Research)
 
-- [ ] T018a-Config [Research] [FR-007] [US-1] Create `research/candidate_sources.json` with the pre-provided list of candidate NIST APT accession IDs for binary systems (Fe-Cr, Fe-Mo, Fe-V, Fe-W). **Requirements**:
- 1. **Constraint**: Create the file `research/candidate_sources.json` with a JSON object containing a key `binary_apt_ids` and a list of candidate IDs.
- 2. **Constraint**: If no candidate IDs are known, create an empty list `[]` and log a warning.
- 3. **Deliverable**: `research/candidate_sources.json` with `binary_apt_ids` key.
+- [ ] T018-Config [Research] [FR-007] [US-1] Create `research/candidate_sources.json` with pre-provided lists of candidate IDs/DOIs. **Requirements**:
+ 1. **Constraint**: Create the file `research/candidate_sources.json` with a JSON object.
+ 2. **Constraint**: Include keys: `binary_apt_ids` (list), `ternary_apt_dois` (list), `calphad_dois` (list), `dft_dois` (list).
+ 3. **Constraint**: If no candidate IDs/DOIs are known, create empty lists `[]` for each key and log a warning.
+ 4. **Constraint**: Use placeholder values (e.g., "NIST_ID_PLACEHOLDER", "DOI_PLACEHOLDER") if specific IDs are not yet known, to ensure the task is executable.
+ 5. **Deliverable**: `research/candidate_sources.json` with all required keys.
  **Dependency**: None.
 
 - [ ] T018a-Script [Research] [FR-007] [US-1] Create `code/data/verify_apt_binary.py` to validate candidate IDs. **Requirements**:
@@ -38,20 +40,14 @@
  3. **Constraint**: If NO verified IDs are found, the script MUST record "No verified APT data found" with a citation to the search query and timestamp in `research/data_sources.md`.
  4. **Constraint**: If "No verified APT data found", the script MUST NOT halt the pipeline; it MUST set a flag to trigger the fallback path.
  5. **Deliverable**: `code/data/verify_apt_binary.py`.
- **Dependency**: Must run after T018a-Config.
+ **Dependency**: Must run after T018-Config.
 
 - [ ] T018a-Exec [Research] [FR-007] [US-1] Execute `code/data/verify_apt_binary.py` to verify binary APT sources. **Requirements**:
  1. Run `python code/data/verify_apt_binary.py`.
  2. **Constraint**: If verified IDs are found, record them in `research/data_sources.md`.
  3. **Constraint**: If NO verified IDs are found, record "No verified APT data found" in `research/data_sources.md` and **continue** the pipeline to fallback tasks (T095e).
  4. **Deliverable**: Updated `research/data_sources.md` with "Binary APT Sources" section.
- **Dependency**: Must run after T018a-Script and T018a-Config.
-
-- [ ] T018c-Config [Research] [FR-007] [US-1] Create `research/candidate_sources.json` (append) with the pre-provided list of candidate DOIs for ternary APT datasets (Fe-Cr-Mo, etc.). **Requirements**:
- 1. **Constraint**: Append to `research/candidate_sources.json` a key `ternary_apt_dois` with a list of candidate DOIs.
- 2. **Constraint**: If no candidate DOIs are known, create an empty list `[]` and log a warning.
- 3. **Deliverable**: Updated `research/candidate_sources.json` with `ternary_apt_dois` key.
- **Dependency**: Must run after T018a-Config.
+ **Dependency**: Must run after T018a-Script and T018-Config.
 
 - [ ] T018c-Script [Research] [FR-007] [US-1] Create `code/data/verify_apt_ternary.py` to validate candidate DOIs. **Requirements**:
  1. **Constraint**: Do NOT perform live API searches in the script creation phase. The script MUST be designed to validate a pre-provided list of candidate DOIs in `research/candidate_sources.json` against CrossRef API.
@@ -59,20 +55,14 @@
  3. **Constraint**: If NO verified ternary APT data exists, the script MUST explicitly record "No verified ternary APT data found" and document the search scope in `research/data_sources.md`.
  4. **Constraint**: If "No verified ternary APT data found", the script MUST NOT halt the pipeline; it MUST set a flag to trigger the fallback path.
  5. **Deliverable**: `code/data/verify_apt_ternary.py`.
- **Dependency**: Must run after T018c-Config.
+ **Dependency**: Must run after T018-Config.
 
 - [ ] T018c-Exec [Research] [FR-007] [US-1] Execute `code/data/verify_apt_ternary.py` to verify ternary APT sources. **Requirements**:
  1. Run `python code/data/verify_apt_ternary.py`.
  2. **Constraint**: If verified DOIs are found, record them in `research/data_sources.md`.
  3. **Constraint**: If NO verified ternary APT data found, record "No verified ternary APT data found" in `research/data_sources.md` and **continue** the pipeline to fallback tasks (T095e).
  4. **Deliverable**: Updated `research/data_sources.md` with "Ternary APT Sources" section.
- **Dependency**: Must run after T018c-Script and T018c-Config.
-
-- [ ] T018d-Config [Research] [FR-001] [FR-007] [US-1] Create `research/candidate_sources.json` (append) with the pre-provided list of candidate DOIs for open CALPHAD sources. **Requirements**:
- 1. **Constraint**: Append to `research/candidate_sources.json` a key `calphad_dois` with a list of candidate DOIs.
- 2. **Constraint**: If no candidate DOIs are known, create an empty list `[]` and log a warning.
- 3. **Deliverable**: Updated `research/candidate_sources.json` with `calphad_dois` key.
- **Dependency**: Must run after T018c-Config.
+ **Dependency**: Must run after T018c-Script and T018-Config.
 
 - [ ] T018d-Script [Research] [FR-001] [FR-007] [US-1] Create `code/data/verify_calphad.py` to validate candidate DOIs. **Requirements**:
  1. **Constraint**: Do NOT perform live API searches in the script creation phase. The script MUST be designed to validate a pre-provided list of candidate DOIs in `research/candidate_sources.json`.
@@ -81,20 +71,14 @@
  4. Record the DOI/URL in `research/data_sources.md`.
  5. **Constraint**: If no open source is found, record "No verified open CALPHAD source found" and **continue** the pipeline to fallback tasks (T095e).
  6. **Deliverable**: `code/data/verify_calphad.py`.
- **Dependency**: Must run after T018d-Config.
+ **Dependency**: Must run after T018-Config.
 
 - [ ] T018d-Exec [Research] [FR-001] [FR-007] [US-1] Execute `code/data/verify_calphad.py` to verify CALPHAD sources. **Requirements**:
  1. Run `python code/data/verify_calphad.py`.
  2. **Constraint**: If verified DOI/URL is found, record it in `research/data_sources.md`.
  3. **Constraint**: If no open source is found, record "No verified open CALPHAD source found" in `research/data_sources.md` and **continue** the pipeline to fallback tasks (T095e).
  4. **Deliverable**: Updated `research/data_sources.md` with "CALPHAD Source" section.
- **Dependency**: Must run after T018d-Script and T018d-Config.
-
-- [ ] T018e-Config [Research] [FR-002] [FR-007] [US-1] Create `research/candidate_sources.json` (append) with the pre-provided list of candidate DOIs for DFT datasets. **Requirements**:
- 1. **Constraint**: Append to `research/candidate_sources.json` a key `dft_dois` with a list of candidate DOIs.
- 2. **Constraint**: If no candidate DOIs are known, create an empty list `[]` and log a warning.
- 3. **Deliverable**: Updated `research/candidate_sources.json` with `dft_dois` key.
- **Dependency**: Must run after T018d-Config.
+ **Dependency**: Must run after T018d-Script and T018-Config.
 
 - [ ] T018e-Script [Research] [FR-002] [FR-007] [US-1] Create `code/data/verify_dft.py` to validate candidate DOIs. **Requirements**:
  1. **Constraint**: Do NOT perform live API searches in the script creation phase. The script MUST be designed to validate a pre-provided list of candidate DOIs in `research/candidate_sources.json`.
@@ -102,14 +86,14 @@
  3. **Constraint**: If no dataset is found, record "No verified DFT source found" and **continue** the pipeline to fallback tasks (T095e).
  4. Record the DOI/URL in `research/data_sources.md`.
  5. **Deliverable**: `code/data/verify_dft.py`.
- **Dependency**: Must run after T018e-Config.
+ **Dependency**: Must run after T018-Config.
 
 - [ ] T018e-Exec [Research] [FR-002] [FR-007] [US-1] Execute `code/data/verify_dft.py` to verify DFT sources. **Requirements**:
  1. Run `python code/data/verify_dft.py`.
  2. **Constraint**: If verified DOI/URL is found, record it in `research/data_sources.md`.
  3. **Constraint**: If no DFT source is found, record "No verified DFT source found" in `research/data_sources.md` and **continue** the pipeline to fallback tasks (T095e).
  4. **Deliverable**: Updated `research/data_sources.md` with "DFT Source" section.
- **Dependency**: Must run after T018e-Script and T018e-Config.
+ **Dependency**: Must run after T018e-Script and T018-Config.
 
 - [ ] T017b-Config [Research] [FR-002] [Constitution VI] Create the content for `research/spec_amendment_fr002.md`. **Requirements**:
  1. Create the content string for the "Spec Amendment" artifact explicitly documenting the deviation from FR-002.
@@ -117,8 +101,9 @@
  3. Justify this amendment based on CI hardware constraints and the need for a runnable pipeline.
  4. **Constraint**: This document serves as the Single Source of Truth for the deviation, aligning Spec and Plan.
  5. **Template**: The content MUST contain the following text verbatim:
- "This project deviates from FR-002 due to CI hardware constraints. Instead of running Quantum ESPRESSO, it loads pre-computed DFT energies from [Source DOI]. This deviation is justified by the need for a runnable pipeline on free-tier hardware."
- 6. **Deliverable**: Content string for `research/spec_amendment_fr002.md`.
+ "This project deviates from FR-002 due to CI hardware constraints. Instead of running Quantum ESPRESSO, it loads pre-computed DFT energies from [SOURCE_DOI_PLACEHOLDER]. This deviation is justified by the need for a runnable pipeline on free-tier hardware."
+ 6. **Constraint**: Replace [SOURCE_DOI_PLACEHOLDER] with the actual DOI from `research/data_sources.md` before execution.
+ 7. **Deliverable**: Content string for `research/spec_amendment_fr002.md`.
  **Dependency**: None.
 
 - [ ] T017b-Script [Research] [FR-002] [Constitution VI] Create `code/data/write_spec_amendment.py`. **Requirements**:
@@ -132,6 +117,12 @@
  2. **Constraint**: Verify that `research/spec_amendment_fr002.md` exists and contains the required text.
  3. **Deliverable**: `research/spec_amendment_fr002.md`.
  **Dependency**: Must run after T017b-Script and T017b-Config.
+
+- [ ] T017b-Update [Research] [FR-002] [Constitution VI] Update `plan.md` to reflect the amendment. **Requirements**:
+ 1. Append a note to `plan.md` stating: "FR-002 amended for CI: DFT computation replaced by pre-computed data loading (see research/spec_amendment_fr002.md)."
+ 2. **Constraint**: This ensures the Single Source of Truth is maintained.
+ 3. **Deliverable**: Updated `plan.md`.
+ **Dependency**: Must run after T017b-Exec.
 
 - [ ] T017a-Script [Research] [FR-002] [Constitution VI] Create `code/data/write_fr002_deviation.py`. **Requirements**:
  1. Create a script that documents the deviation from the spec's "compute segregation energies using Quantum ESPRESSO" requirement.
@@ -152,7 +143,7 @@
 - [ ] T045a-Fetch [Research] [FR-007] Fetch APT datasets for binary systems (Fe-Cr, Fe-Mo, Fe-V, Fe-W) using IDs from T018a-Exec. **Requirements**:
  1. Implement `code/data/fetch_apt_data.py` to download real APT data for binary systems.
  2. Use specific Accession IDs recorded in `research/data_sources.md` by T018a-Exec.
- 3. **Constraint**: If T018a-Exec recorded "No verified APT data found", the task MUST raise a `DataNotFoundError` and halt execution. Do NOT create placeholders.
+ 3. **Constraint**: If T018a-Exec recorded "No verified APT data found", the task MUST NOT raise an exception. It MUST record a status "no_data" in `data/processed/validation_status.json` and **continue** the pipeline.
  4. **Constraint**: If a network error occurs during fetch, the task MUST raise a `FetchError` and halt execution.
  5. **Output**: Save real data to `data/raw/apt_data/<system>_apt.json`. Update `data_manifest.json` with `source_type: 'experimental'`, `source_id: <accession_id>`, `doi: <doi>`, `url: <url>`.
  **Dependency**: Must run after T018a-Exec.
@@ -160,7 +151,7 @@
 - [ ] T045c-Fetch [Research] [FR-007] Fetch APT datasets for ternary systems (Fe-Cr-Mo, etc.) using DOIs from T018c-Exec. **Requirements**:
  1. Extend `code/data/fetch_apt_data.py` to download real APT data for ternary systems.
  2. Use specific DOIs recorded in `research/data_sources.md` by T018c-Exec.
- 3. **Constraint**: If T018c-Exec recorded "No verified ternary APT data found", the task MUST raise a `DataNotFoundError` and halt execution.
+ 3. **Constraint**: If T018c-Exec recorded "No verified ternary APT data found", the task MUST NOT raise an exception. It MUST record a status "no_data" in `data/processed/validation_status.json` and **continue** the pipeline.
  4. **Constraint**: If fetch fails, the task MUST raise a `FetchError` and halt execution.
  5. **Output**: Save real data to `data/raw/apt_data/` and update `data_manifest.json`.
  **Dependency**: Must run after T018c-Exec.
@@ -168,7 +159,7 @@
 - [ ] T045e-Fetch [Research] [FR-001] [FR-007] Fetch Open CALPHAD parameters using DOI from T018d-Exec. **Requirements**:
  1. Implement `code/data/download_calphad.py` to fetch the file using the specific DOI/URL from T018d-Exec.
  2. Verify checksum against the provided hash in `research/data_sources.md`.
- 3. **Constraint**: If T018d-Exec recorded "No verified open CALPHAD source found", the task MUST raise a `DataNotFoundError` and halt execution.
+ 3. **Constraint**: If T018d-Exec recorded "No verified open CALPHAD source found", the task MUST NOT raise an exception. It MUST record a status "no_data" in `data/processed/validation_status.json` and **continue** the pipeline.
  4. **Constraint**: If fetch fails or checksum mismatch, the task MUST raise a `FetchError` and halt execution.
  5. **Output**: Save to `data/raw/calphad_params.json`. Update `data_manifest.json`.
  **Dependency**: Must run after T018d-Exec.
@@ -176,8 +167,8 @@
 - [ ] T045f-Fetch [Research] [FR-002] [FR-007] Fetch pre‑computed DFT energies using DOI from T018e-Exec. **Requirements**:
  1. Implement `code/data/download_dft_energies.py` to fetch the file using the specific DOI/URL from T018e-Exec.
  2. Verify checksum/DOI.
- 3. **Constraint**: If T018e-Exec recorded "No verified DFT source found", the task MUST raise a `DataNotFoundError` and **continue** to T045f-Gen (fallback).
- 4. **Constraint**: If fetch fails or checksum mismatch, the task MUST raise a `FetchError` and **continue** to T045f-Gen (fallback).
+ 3. **Constraint**: If T018e-Exec recorded "No verified DFT source found", the task MUST catch the `DataNotFoundError` internally and trigger T045f-Gen (fallback). Do NOT raise the exception to the pipeline.
+ 4. **Constraint**: If fetch fails or checksum mismatch, the task MUST raise a `FetchError` and halt execution.
  5. **Output**: Save to `data/raw/dft_energies.json`. Update `data_manifest.json`.
  **Dependency**: Must run after T018e-Exec.
 
@@ -189,7 +180,7 @@
  **Dependency**: Must run after T045f-Fetch.
 
 - [ ] T090-Config [Research] [FR-001] Create `research/synthetic_ground_truth.yaml` with injection parameters. **Requirements**:
- 1. Create the file `research/synthetic_ground_truth.yaml` with a YAML structure containing `interaction_coefficients` and `random_seed`.
+ 1. Create the file `research/synthetic_ground_truth.yaml` with a YAML structure containing `interaction_coefficients` (default: {Cr_Mo: 0.05, Cr_V: 0.05, ...}) and `random_seed` (default: 42).
  2. **Constraint**: This file MUST be created before T090-Script runs.
  3. **Deliverable**: `research/synthetic_ground_truth.yaml`.
  **Dependency**: None.
@@ -296,10 +287,10 @@
 - [ ] T013 [US1] [FR-002, FR-007] Implement `code/services/surrogate_service.py` to compute literature‑calibrated segregation energies. **Input**: Load REAL DFT segregation energies for binaries from `data/raw/dft_energies.json` via `code/data/load_dft_energies.py` (T013b). **Constraint**: This task MUST NOT implement or call any real DFT code. It MUST load the pre‑computed energies from the REAL dataset (T045f-Fetch) or the fallback placeholder (T045f-Gen). **Constraint**: If `data/raw/dft_energies.json` is missing, raise a hard error. **Dependency**: Must run after T045f-Fetch/T045f-Gen, T013b, T017b-Exec, T017a-Exec, and T049b-Lookup.
 - [ ] T013-Exec [US1] [FR-002, FR-007] Execute `code/services/surrogate_service.py` to generate `data/processed/surrogate_energies.json`. **Requirements**:
  1. Run `python code/services/surrogate_service.py`.
- 2. **Constraint**: If `data/raw/dft_energies.json` contains a 'MISSING_SOURCE' flag (from T045f-Gen), the task MUST log "Data missing: using fallback" and generate a minimal output file with `source_type: 'fallback'` instead of raising a hard error.
- 3. **Constraint**: If `data/raw/dft_energies.json` is missing entirely (no file), raise a hard error.
+ 2. **Constraint**: If `data/raw/dft_energies.json` is missing entirely (no file), raise a hard error.
+ 3. **Constraint**: If `data/raw/dft_energies.json` contains a 'MISSING_SOURCE' flag (from T045f-Gen), the task MUST log "Data missing: using fallback" and generate a minimal output file with `source_type: 'fallback'` instead of raising a hard error.
  4. **Output**: Save to `data/processed/surrogate_energies.json`.
- **Dependency**: Must run after T013 and T017c.
+ **Dependency**: Must run after T013 and T045f-Fetch/T045f-Gen.
 - [X] T017c [P] [FR-002] [Constitution VI] Implement `code/services/thermo_consistency_check.py` to verify that loaded surrogate DFT energies align with TCFE9 parameters. **Requirements**:
  1. Load `data/raw/dft_energies.json` (T045f-Fetch/T045f-Gen) and `data/raw/calphad_params.json` (T045e-Fetch).
  2. Compare segregation energies against thermodynamic predictions from CALPHAD for binary systems.
@@ -337,7 +328,8 @@
  1. Use `sklearn.preprocessing.PolynomialFeatures(degree=2, include_bias=False)` to generate interaction terms (e.g., Cr*Mo, Cr*V).
  2. **Constraint**: If `sklearn` is unavailable, manual implementation of interaction terms is permitted provided the mathematical result is identical.
  3. **Constraint**: Use exact column naming convention: `Cr_Mo`, `Cr_V`, `Mo_V`, `Cr_W`, `Mo_W`, `V_W` (underscores for interactions).
- 4. **Deliverable**: Generate `data/processed/interaction_terms_temp.csv` with columns [Cr, Mo, Cr_Mo,...] using comma delimiter. **Output Path**: `data/processed/interaction_terms_temp.csv`.
+ 4. **Constraint**: Input file: `data/processed/segregation_profiles.json` (from T018).
+ 5. **Deliverable**: Generate `data/processed/interaction_terms_temp.csv` with columns [Cr, Mo, Cr_Mo,...] using comma delimiter. **Output Path**: `data/processed/interaction_terms_temp.csv`.
  **Dependency**: Must run after T018.
 - [ ] T021a-Persist [US2] [FR-004] Persist interaction terms to `data/processed/interaction_terms.csv`. **Requirements**:
  1. Read `data/processed/interaction_terms_temp.csv` (from T021a-Gen).
@@ -352,6 +344,11 @@
  3. **Output**: Write `data/processed/mse_comparison.json`.
  **Dependency**: Must run after T022 and T021b.
 - [ ] T023 [US2] [FR-004] Implement significance testing (p-value < 0.05) for interaction coefficients. **Dependency**: Must run after T021b.
+- [ ] T023-Exec [US2] [FR-004] Execute the significance testing logic. **Requirements**:
+ 1. Run `python code/services/significance_test.py` (created by T023).
+ 2. **Constraint**: Ensure p-values are calculated and stored.
+ 3. **Output**: Write `data/processed/significance_results.json`.
+ **Dependency**: Must run after T023 and T021b.
 - [X] T024a [US2] [FR-006] Implement `code/services/plotter.py` to generate heatmaps visualizing segregation energy vs. bulk composition and temperature. **Requirements**:
  1. Input: `data/processed/segregation_profiles.json` (T018).
  2. Output: `data/figures/segregation_heatmap.png` (T024b).
@@ -360,12 +357,12 @@
  **Dependency**: Must run after T018.
 - [ ] T024b [US2] [FR-006] Integrate the plotting logic from T024a to generate `data/figures/segregation_heatmap.png`. **Dependency**: Must run after T024a and T018.
 - [X] T021c [US2] [FR-004] [Constitution VII] Implement `code/services/statistical_validation.py` to orchestrate joint verification of interaction term significance AND k-fold stability. **Requirements**:
- 1. Input: Regression coefficients from T021b, p-values from T023, CV results from T029/T030.
+ 1. Input: Regression coefficients from T021b, p-values from T023-Exec, CV results from T029/T030.
  2. **Constraint**: Check if ANY interaction term has p < 0.05 AND |coefficient| > 0.01 eV.
  3. **Constraint**: Check if CV R² standard deviation <= 0.05.
  4. **Constraint**: If BOTH conditions are met, mark "Cooperative Effects Detected". If either fails, mark "No Significant Cooperative Effects".
  5. **Output**: Write `data/processed/statistical_validation_report.json` with unified pass/fail status.
- **Dependency**: Must run after T023 and T030.
+ **Dependency**: Must run after T023-Exec and T030.
 - [ ] T025 [US2] Write results to `data/processed/cooperative_effects_analysis.json` including coefficients, p-values, and MSE reduction stats. **Dependency**: Must run after T021c and T022-Exec.
 - [ ] T026 [US2] Add logic to flag systems where no significant cooperative effects are detected within statistical power. **Dependency**: Must run after T025.
 
@@ -450,6 +447,7 @@
  3. Estimate the **quantity of material** required (e.g., needle‑shaped specimens of ~100 nm diameter) and the preparation method (FIB lift‑out).
  4. Cite specific literature (DOI 10.1016/j.actamat.2020.01.015) where APT has successfully measured similar segregation in BCC Fe alloys.
  5. Explicitly state that while the current CI pipeline uses a surrogate, this plan defines the *physical* validation step required for final scientific acceptance.
+ 6. **Constraint**: Generate this file as a required output artifact for the CI build, even if no data exists.
  **Dependency**: None (can run in parallel with T095a-Check, but must be included in the final report).
 
 **Checkpoint**: Validation strategy is documented, the project acknowledges the redefined success criterion, and the experimental gap identified by the reviewer is explicitly addressed.
@@ -472,12 +470,14 @@
  1. Calculate the theoretical detection limit for the specified APT setup based on literature sensitivity factors (use DOI 10.1016/j.actamat.2020.01.015, Equation (3) from the paper).
  2. Compare this limit against the predicted segregation concentrations from the McLean model (T018).
  3. **Constraint**: If the predicted concentration is below the detection limit, explicitly state "Below Detection Limit" and propose a strategy (e.g., lower temperature, higher bulk concentration) to bring the signal within range.
+ 4. **Constraint**: Ensure this file is generated as a required output artifact for the CI build.
  **Dependency**: Must run after T101 (Apparatus Definition) AND T018.
 
 - [ ] T103 [Review-Response] [FR-007] Revise `research/validation_report.md` to include a "Gap Analysis" section. **Requirements**:
  1. Compare the current computational results (surrogate) with the proposed experimental plan.
  2. Explicitly state: "This project validates the *methodology* of detecting non‑linearity. The *quantitative* validation of segregation energies requires the experimental apparatus defined in T100/T101."
  3. **Constraint**: Do not claim the computational results are "verified" without the experimental data. Use language like "consistent with" or "predicted by".
+ 4. **Constraint**: Ensure this file is generated as a required output artifact for the CI build.
  **Dependency**: Must run after T102 (Detection Limit) AND T096 (Validation Report).
 
 **Checkpoint**: The project now explicitly addresses the reviewer's concern about the lack of experimental apparatus definition and provides a clear path to physical validation.

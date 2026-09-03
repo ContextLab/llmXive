@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Ingestion and Quality Control (Priority: P1)
 
-The system must successfully download preprocessed fMRI data from OpenNeuro (specifically Cyberball task datasets like ds000030), **verify the presence of distinct 'Inclusion' and 'Exclusion' event markers in the dataset metadata**, extract BOLD time-series from canonical DMN regions (PCC, mPFC, angular gyrus) using **Beta-Series Correlation methodology**, and rigorously filter out subjects with excessive motion artifacts (>3mm displacement) to ensure data integrity.
+The system must successfully download preprocessed fMRI data from OpenNeuro (specifically Cyberball task datasets like `ds000030`), **verify the presence of distinct 'Inclusion' and 'Exclusion' event markers in the dataset metadata**, extract BOLD time-series from canonical DMN regions (PCC, mPFC, angular gyrus) using **Beta-Series Correlation methodology**, and rigorously filter out subjects with excessive motion artifacts (>3mm displacement) to ensure data integrity.
 
 **Why this priority**: Without a clean, valid dataset with correct event markers and appropriate preprocessing (Beta-series), no statistical analysis can be performed. This is the foundational step that determines the feasibility of the entire study.
 
@@ -66,7 +66,7 @@ The system must execute a non-parametric paired permutation test (iterations = *
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download preprocessed fMRI data from OpenNeuro (e.g., ds000030), **verify the presence of 'Inclusion' and 'Exclusion' event markers in the metadata**, and verify file integrity before processing (See US-1).
+- **FR-001**: System MUST download preprocessed fMRI data from OpenNeuro (e.g., `ds000030`), **verify the presence of 'Inclusion' and 'Exclusion' event markers in the metadata**, and verify file integrity before processing (See US-1).
 - **FR-002**: System MUST calculate head motion displacement for every subject and exclude any subject with maximum displacement >3mm (See US-1).
 - **FR-003**: System MUST extract BOLD time-series signals from PCC, mPFC, and angular gyrus using a standard atlas (e.g., AAL or Harvard-Oxford) and **estimate beta coefficients for each event trial** (Beta-Series Correlation) (See US-1).
 - **FR-004**: System MUST compute Pearson correlation matrices for DMN nodes separately for the **Inclusion** and **Exclusion** conditions, using the **estimated beta-series** for each event type, not raw time-series segments (See US-2).
@@ -111,4 +111,5 @@ The system must execute a non-parametric paired permutation test (iterations = *
 - **Edge-wise testing (FR-011) is an exploratory secondary analysis; the global connectivity strength (FR-005) is the primary outcome.**
 - **Only real empirical data from OpenNeuro will be used. No synthetic data, placeholder values, or simulated results are generated. If data is missing or insufficient, the system halts.**
 - **The minimum sample size threshold of N=10 is based on the requirement for a stable non-parametric permutation test distribution with 5000 iterations.**
-- **Beta-Series Correlation (Rissman et al.,) is used instead of raw time-series correlation to correctly handle task-evoked fMRI data and avoid hemodynamic response confounds.**
+- **Beta-Series Correlation (Rissman et al.) is used instead of raw time-series correlation to correctly handle task-evoked fMRI data and avoid hemodynamic response confounds.**
+- **All statistical outputs (p-values, effect sizes, confidence intervals) are derived exclusively from the measured BOLD signal and event timing data; no hardcoded metrics, simulated distributions, or placeholder values are used to bypass data limitations.** (See SC-002, FR-006).

@@ -1,7 +1,9 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Experiment Log Schema"
-description: "Schema for a single experiment log entry"
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: Experiment Log Entry Schema
+description: >-
+  Schema for a single row in the experiment log CSV.
+  Matches the columns defined in code/agent.py and code/logging_config.py.
+type: object
 required:
   - task_id
   - skill_id
@@ -13,39 +15,41 @@ required:
   - pruning_risk_count
   - library_size
   - pruning_enabled
+  - edge_case
 properties:
   task_id:
-    type: "string"
-    description: "ID of the task executed"
+    type: string
+    description: Unique identifier for the task being executed.
   skill_id:
-    type: "string"
-    description: "ID of the skill attempted"
+    type: string
+    description: Identifier of the primary skill or skill set used.
   success:
-    type: "boolean"
-    description: "Whether the task execution succeeded"
+    type: boolean
+    description: Whether the task execution succeeded.
   latency:
-    type: "number"
-    description: "Execution latency in seconds"
+    type: number
+    description: Execution latency in seconds.
   tokens:
-    type: "integer"
-    description: "Number of tokens used"
+    type: integer
+    description: Number of tokens consumed during execution.
   retrieval_precision:
-    type: "number"
-    description: "Jaccard similarity between retrieved and ground truth"
-    minimum: 0.0
-    maximum: 1.0
+    type: number
+    format: float
+    description: Jaccard similarity between retrieved skills and ground truth.
   retrieval_diversity:
-    type: "number"
-    description: "Inverse variance of cosine similarities to ground truth"
+    type: number
+    format: float
+    description: Inverse of the variance of cosine similarities of retrieved skills.
   pruning_risk_count:
-    type: "integer"
-    description: "Count of high-similarity skills pruned"
-    minimum: 0
+    type: integer
+    description: Number of high-similarity skills pruned in the last pruning cycle.
   library_size:
-    type: "integer"
-    description: "Current size of the skill library"
-    minimum: 1
+    type: integer
+    description: Current size of the active skill library.
   pruning_enabled:
-    type: "boolean"
-    description: "Whether pruning was active for this run"
+    type: boolean
+    description: Whether pruning heuristic is active for this run.
+  edge_case:
+    type: boolean
+    description: Flag indicating if this run hit a maximal overlap or other edge condition.
 additionalProperties: false

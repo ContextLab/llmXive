@@ -1,10 +1,14 @@
 # Quick Start Guide
 
-This guide provides step-by-step instructions to get the distribution shift detection pipeline up and running quickly.
+This guide provides step-by-step instructions to run the distribution shift detection pipeline.
 
-## Step 1: Environment Setup
+## Prerequisites
 
-Ensure you have Python 3.8+ installed. Then:
+- Python 3.8+
+- pip package manager
+- Internet connection (for downloading CDC data)
+
+## Step 1: Setup Environment
 
 ```bash
 # Create and activate virtual environment
@@ -15,66 +19,66 @@ source venv/bin/activate # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## Step 2: Verify Project Structure
+## Step 2: Download Real CDC Data
 
-Ensure the following directories exist:
-```
-data/raw
-data/processed
-code
-tests
-code/contracts
-```
-
-If any are missing, create them:
-```bash
-mkdir -p data/raw data/processed code tests code/contracts
-```
-
-## Step 3: Download Real CDC Data
-
-The pipeline requires real CDC data. Run the download script:
+The pipeline requires real CDC FluView ILI data and ground truth events.
 
 ```bash
 python code/download_data.py
 ```
 
-This will:
-- Fetch CDC FluView ILI data to `data/raw/fluview_ili.csv`
-- Fetch ground truth events to `data/raw/ground_truth_events.csv`
-- Log the exact URLs and retrieval dates
-- Verify checksums (if available)
+This script will:
+- Fetch ILI data from the CDC FluView API
+- Fetch ground truth events from CDC virological/hospitalization data
+- Save raw data to `data/raw/`
+- Verify checksums where available
+- Log the exact URL and retrieval date
 
-**Note**: If the download fails, the script will raise an `E-NO-DATA` exception and halt. Do not use synthetic data for final results.
+**Note**: If data download fails, the pipeline will halt with an `E-NO-DATA` exception. No synthetic fallback is provided.
 
-## Step 4: Run the Pipeline
+## Step 3: Run the Main Pipeline
 
-Execute the main pipeline script:
+Execute the full analysis pipeline:
 
 ```bash
 python code/main.py
 ```
 
-This runs:
-1. **Preprocessing**: Handles missing weeks, log-transforms, and standardizes data.
-2. **MMD Detection**: Identifies distribution shifts using Gaussian-kernel MMD.
-3. **Baseline Comparison**: Runs Pettitt and BOCPD methods.
-4. **Evaluation**: Computes precision, recall, and detection delay against ground truth.
-5. **Sensitivity Analysis**: Tests robustness across parameter grids.
-6. **Report Generation**: Creates `figures/report.pdf`.
+This will:
+1. Validate configuration and data availability
+2. Preprocess ILI data (remove missing weeks, log-transform, standardize)
+3. Run MMD-based shift detection with Bonferroni correction
+4. Execute baseline methods (Pettitt, BOCPD)
+5. Evaluate detection performance against ground truth
+6. Generate the comprehensive PDF report
 
-## Step 5: Review Outputs
+## Step 4: Run Sensitivity Analysis (Optional)
 
-After completion, check the following:
+Assess robustness to hyperparameter choices:
 
-- **Flags**: `data/processed/flags.csv` - Weeks flagged as having distribution shifts.
-- **Baselines**: `data/processed/baselines.csv` - Change points detected by baseline methods.
-- **Sensitivity**: `data/processed/sensitivity.csv` and `data/processed/tolerance_sensitivity.csv` - Results of sensitivity analysis.
-- **Report**: `figures/report.pdf` - Comprehensive summary with metrics and visualizations.
+```bash
+python code/sensitivity.py
+```
+
+This will:
+- Sweep over bandwidth values (median, CV-based)
+- Test different window lengths (8, 12, 16 weeks)
+- Vary week-alignment tolerance (±1, ±2, ±3 weeks)
+- Output `sensitivity.csv` and `tolerance_sensitivity.csv`
+- Update the report with sensitivity analysis plots
+
+## Step 5: View Results
+
+After completion, you will find:
+
+- `data/processed/flags.csv`: Weeks flagged as distribution shifts
+- `data/processed/baselines.csv`: Change points from baseline methods
+- `data/processed/sensitivity.csv`: Sensitivity analysis metrics
+- `figures/report.pdf`: Full analysis report with visualizations
 
 ## Step 6: Run Tests (Optional)
 
-To verify the implementation:
+Verify the implementation with the test suite:
 
 ```bash
 pytest tests/
@@ -82,14 +86,23 @@ pytest tests/
 
 ## Troubleshooting
 
-- **Missing Data**: If `data/raw/fluview_ili.csv` or `data/raw/ground_truth_events.csv` is missing, re-run `python code/download_data.py`.
-- **Import Errors**: Ensure all dependencies are installed (`pip install -r requirements.txt`).
-- **Runtime Errors**: Check `code/config.yaml` for valid parameters and ensure your system has sufficient memory (recommended: >7GB RAM for large datasets).
+### Data Download Fails
+- Ensure internet connection is available
+- Check that CDC API endpoints are accessible
+- Verify no firewall is blocking the requests
+- The script will raise `E-NO-DATA` if download fails
+
+### Memory Issues
+- The pipeline is designed to run on standard hardware (<7GB RAM)
+- If permutation testing is too slow, the MMD detector will automatically reduce permutation count (but maintain strict Bonferroni threshold)
+
+### Configuration Errors
+- Ensure `code/config.yaml` exists with required keys
+- Validate schema with: `python code/main.py --validate-only`
 
 ## Next Steps
 
-- Customize parameters in `code/config.yaml`.
-- Extend the pipeline with new detection methods.
-- Contribute to the project by adding tests or improving documentation.
-
-For more details, see the [README.md](README.md).
+- Review the generated `report.pdf` for detailed analysis
+- Examine `sensitivity.csv` to understand parameter robustness
+- Compare MMD performance against baseline methods in the report
+- Contribute to ongoing development (see CONTRIBUTING.md)

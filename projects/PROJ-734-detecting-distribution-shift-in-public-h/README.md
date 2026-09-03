@@ -1,128 +1,104 @@
-# Detecting Distribution Shift in Public Health Surveillance Data
+# Detecting Distribution Shift in Public Health Surveillance Data via Kernel Two‑Sample Tests
 
-This project implements an automated pipeline to detect distribution shifts in public health surveillance data (specifically CDC FluView ILI data) using Kernel Two-Sample Tests (Maximum Mean Discrepancy - MMD). It compares MMD performance against baseline change-point detection methods (Pettitt test and BOCPD).
+## Overview
 
-## Features
+This project implements a reproducible pipeline to detect distribution shifts in public health surveillance data (specifically CDC FluView ILI data) using Kernel Maximum Mean Discrepancy (MMD) tests. The pipeline compares the performance of MMD against baseline change-point detection methods (Pettitt test and Bayesian Online Change-Point Detection) and performs sensitivity analysis on key hyperparameters.
 
-- **Automated Shift Detection**: Uses Gaussian-kernel MMD with multi-week windows to identify weeks where the ILI distribution has significantly changed.
-- **Baseline Comparisons**: Implements Pettitt rolling-window test and Bayesian Online Change-Point Detection (BOCPD) for comparison.
-- **Robustness & Sensitivity Analysis**: Evaluates sensitivity to kernel bandwidth, window length, and week-alignment tolerance.
-- **Real Data Integration**: Fetches real CDC FluView ILI data and ground truth events directly from official sources.
-- **Reproducible Reporting**: Generates a comprehensive PDF report with metrics, plots, and sensitivity analysis.
+## Key Features
 
-## Prerequisites
-
-- Python 3.8+
-- pip package manager
-- Access to the internet (to download CDC data)
-
-## Installation
-
-1. Clone the repository:
- ```bash
- git clone <repository-url>
- cd detecting-distribution-shift
- ```
-
-2. Create a virtual environment (recommended):
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
+- **Automated Shift Detection**: Flags weeks where ILI distribution has changed using Gaussian-kernel MMD with Bonferroni correction
+- **Baseline Comparison**: Implements Pettitt rolling-window test and BOCPD (Gaussian observation model)
+- **Sensitivity Analysis**: Assesses robustness to kernel bandwidth, window length, and week-alignment tolerance
+- **Real Data Pipeline**: Fetches data directly from CDC sources (no synthetic data for final results)
+- **Comprehensive Evaluation**: Computes precision, recall, and detection delay metrics against ground truth events
 
 ## Project Structure
 
 ```
 .
 ├── code/ # Source code
-│ ├── __init__.py
-│ ├── main.py # Main entry point
-│ ├── config.yaml # Configuration file
-│ ├── download_data.py # Data fetching scripts
-│ ├── preprocess.py # Data preprocessing
+│ ├── main.py # Pipeline orchestration
+│ ├── download_data.py # CDC data fetching
+│ ├── preprocess.py # Data cleaning and transformation
 │ ├── mmd_detector.py # MMD-based shift detection
-│ ├── pettitt.py # Pettitt test implementation
-│ ├── bocpd.py # BOCPD implementation
-│ ├── evaluate.py # Evaluation metrics
+│ ├── pettitt.py # Pettitt baseline implementation
+│ ├── bocpd.py # BOCPD baseline implementation
+│ ├── evaluate.py # Metrics calculation
 │ ├── sensitivity.py # Sensitivity analysis
 │ ├── report_generator.py # PDF report generation
-│ └──... # Other modules
+│ └──... # Supporting modules
 ├── data/
-│ ├── raw/ # Raw downloaded data
-│ │ ├── fluview_ili.csv
-│ │ └── ground_truth_events.csv
-│ └── processed/ # Processed data
+│ ├── raw/ # Raw downloaded data (CDC)
+│ └── processed/ # Preprocessed data
 ├── tests/ # Unit and integration tests
-├── contracts/ # Data schemas
-├── specs/ # Design documents
+├── contracts/ # Schema definitions
+├── data-model.md # Data model documentation
+├── plan.md # Project plan
+├── quickstart.md # Quick start guide
 ├── requirements.txt # Python dependencies
-├── README.md # This file
-└── quickstart.md # Quick start guide
+└── README.md # This file
 ```
 
-## Usage
+## Installation
 
-### Quick Start
-
-See [quickstart.md](quickstart.md) for a step-by-step guide to running the pipeline.
-
-### Running the Full Pipeline
-
-1. **Download Data**:
+1. Clone the repository
+2. Create a virtual environment:
  ```bash
- python code/download_data.py
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
- This fetches CDC FluView ILI data and ground truth events, saving them to `data/raw/`.
-
-2. **Run the Pipeline**:
+3. Install dependencies:
  ```bash
- python code/main.py
+ pip install -r requirements.txt
  ```
- This executes the full pipeline:
- - Preprocessing
- - MMD shift detection
- - Baseline comparisons (Pettitt, BOCPD)
- - Evaluation against ground truth
- - Sensitivity analysis
- - Report generation
 
-3. **Outputs**:
- - `data/processed/flags.csv`: Flagged weeks with distribution shifts
- - `data/processed/baselines.csv`: Baseline change-point detections
- - `data/processed/sensitivity.csv`: Sensitivity analysis results
- - `figures/report.pdf`: Comprehensive PDF report
+## Quick Start
 
-### Running Tests
+See [quickstart.md](quickstart.md) for detailed instructions on running the pipeline.
 
 ```bash
-pytest tests/
+# Download real CDC data
+python code/download_data.py
+
+# Run the full pipeline
+python code/main.py
+
+# Generate sensitivity analysis
+python code/sensitivity.py
 ```
 
 ## Configuration
 
-Edit `code/config.yaml` to adjust parameters:
+Configuration is managed via `code/config.yaml`:
 - `seed`: Random seed for reproducibility
 - `permutations`: Number of permutations for MMD p-value estimation
-- `window_size`: Size of the sliding window for analysis
+- `window_size`: Sliding window size for analysis
 - `stride`: Step size between windows
-- `alpha`: Significance level for Bonferroni correction
+- `alpha`: Significance level for hypothesis testing
 
 ## Data Sources
 
-- **CDC FluView ILI Data**: Downloaded directly from the CDC API or verified direct CSV source.
-- **Ground Truth Events**: Sourced from CDC Virological/Hospitalization data.
+- **ILI Data**: CDC FluView surveillance data (downloaded via `code/download_data.py`)
+- **Ground Truth**: CDC Virological/Hospitalization events (downloaded via `code/download_data.py`)
 
-The pipeline enforces data integrity by validating checksums and raising `E-NO-DATA` if real CDC data cannot be fetched.
+## Outputs
+
+- `data/processed/flags.csv`: Flagged weeks with distribution shifts
+- `data/processed/baselines.csv`: Change points detected by baseline methods
+- `data/processed/sensitivity.csv`: Sensitivity analysis results
+- `figures/report.pdf`: Comprehensive analysis report with visualizations
+
+## Testing
+
+Run the test suite:
+```bash
+pytest tests/
+```
 
 ## License
 
-This project is licensed under the MIT License.
+[Add your license information here]
 
 ## Contributing
 
-Contributions are welcome! Please follow the project's coding standards and ensure all tests pass before submitting pull requests.
+[Add contribution guidelines here]

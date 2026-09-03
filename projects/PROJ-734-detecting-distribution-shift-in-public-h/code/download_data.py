@@ -1,13 +1,8 @@
 """
-Module to fetch CDC FluView ILI data and CDC Virological/Hospitalization ground truth.
+Data download module for CDC FluView and Virological/Hospitalization ground truth.
 
-This script downloads the ILI (Influenza-like Illness) data directly from the CDC's
-FluView repository and the ground truth events (Virological/Hospitalization) from
-verified CDC sources. It verifies the download integrity and logs metadata.
-
-Outputs:
-    data/raw/fluview_ili.csv
-    data/raw/ground_truth_events.csv
+This module handles fetching real CDC data from canonical sources.
+It strictly enforces the use of real data and raises E_NO_DATA on failure.
 """
 import os
 import sys
@@ -15,323 +10,300 @@ import logging
 import hashlib
 import urllib.request
 import urllib.error
-from datetime import datetime
-from typing import Optional, Tuple, List, Dict, Any
 import csv
+from typing import Optional, List, Dict, Any
 
-# Add project root to path to allow imports if run as script
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
-
-from logging_setup import setup_logging
+# Import local project modules
 from exceptions import E_NO_DATA
+from logging_setup import setup_logging
 
-# Constants
+# Configure logging
+logger = setup_logging(__name__)
+
+# Output paths
 DATA_DIR = "data/raw"
-ILI_OUTPUT_FILE = os.path.join(DATA_DIR, "fluview_ili.csv")
-GROUND_TRUTH_OUTPUT_FILE = os.path.join(DATA_DIR, "ground_truth_events.csv")
+FLUVIEW_PATH = os.path.join(DATA_DIR, "fluview_ili.csv")
+GROUND_TRUTH_PATH = os.path.join(DATA_DIR, "ground_truth_events.csv")
 
-# Canonical CDC URL for National Summary ILI Data (CSV format)
-CDC_ILI_URL = "https://gis.cdc.gov/grasp/fluview/fluport/fluview_weekly_ili.csv"
+# Canonical CDC Sources (Direct URLs to CSVs or API endpoints)
+# Note: CDC FluView data is often aggregated weekly. We use the public API/CSV endpoint.
+# For ground truth (Virological/Hospitalization), we use the CDC NREVSS (National Respiratory
+# and Enteric Virus Surveillance System) or FluView Public API if a direct CSV exists.
+# If a direct CSV is not available, we attempt to fetch the JSON API and parse it.
 
-# CDC FluView National Summary Virological Data URL (CSV format)
-# This endpoint provides the virological surveillance data which serves as ground truth for events.
-# Note: Direct historical CSV downloads for "events" are often aggregated. 
-# We fetch the raw virological data and derive event markers based on significant spikes 
-# or known outbreak periods if a direct "events" list is not available as a static CSV.
-# However, per the task requirement to fetch "ground truth", we will attempt to fetch
-# the National Summary Virological data which contains the raw counts used to define these events.
-CDC_VIR_URL = "https://gis.cdc.gov/grasp/fluview/fluport/fluview_weekly_virologic.csv"
+# URL for FluView ILI data (Weekly National ILI Percentage)
+# Using the CDC Public API endpoint for FluView
+FLUVIEW_URL = "https://gis.cdc.gov/grasp/fluview/fluport.csv"
 
-# If a specific "events" CSV is not directly available, we will parse the Virological data
-# to generate the required `start_week, end_week, event_name` format based on high positivity rates.
-# For the purpose of this pipeline, we define "events" as weeks where National Positivity > 10%.
-
-EXPECTED_HASH_ILI = None 
-
-logger = setup_logging()
+# URL for Ground Truth (Virological/Hospitalization)
+# CDC NREVSS provides weekly data. We will attempt to fetch the public CSV export.
+# If the direct CSV is not stable, we use the FluView API to extract specific virologic data.
+# As a verified source for "events" (outbreaks/peaks), we often need to derive them from
+# the virologic positivity rates or hospitalization counts.
+# For this implementation, we target the CDC NREVSS weekly summary CSV if available,
+# or the FluView API JSON which contains the necessary weekly counts.
+# We will use the FluView API JSON as the primary source for ground truth events
+# to ensure we get the "Virological" data required.
+GROUND_TRUTH_API_URL = "https://gis.cdc.gov/grasp/fluview/fluport.json"
 
 def calculate_sha256(filepath: str) -> str:
-    """Calculate SHA256 checksum of a file."""
+    """Calculate SHA256 hash of a file."""
     sha256_hash = hashlib.sha256()
-    with open(filepath, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+    try:
+        with open(filepath, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except FileNotFoundError:
+        return ""
 
-def fetch_cdc_data(url: str, output_path: str, file_type: str) -> Tuple[bool, str]:
+def fetch_cdc_data(url: str, output_path: str, is_json: bool = False) -> None:
     """
-    Fetches data from the CDC URL and saves it to the output path.
-    
-    Args:
-        url: The canonical CDC URL.
-        output_path: Local path to save the CSV.
-        file_type: Description of the file for logging (e.g., "ILI", "Virological").
-        
-    Returns:
-        Tuple of (success: bool, message: str)
+    Fetch data from a URL and save to output_path.
+    Raises E_NO_DATA if fetch fails.
     """
-    logger.info(f"Attempting to fetch {file_type} data from canonical source: {url}")
+    logger.info(f"Fetching data from: {url}")
     logger.info(f"Saving to: {output_path}")
-    
-    try:
-        # Create directory if it doesn't exist
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        
-        # Set a user agent to be polite to the CDC server
-        headers = {
-            'User-Agent': 'llmXive-Research-Agent/1.0 (Automated Science Pipeline)'
-        }
-        req = urllib.request.Request(url, headers=headers)
-        
-        with urllib.request.urlopen(req, timeout=60) as response:
-            # Check content type
-            content_type = response.headers.get('Content-Type', '')
-            if 'text/csv' not in content_type and 'application/octet-stream' not in content_type:
-                logger.warning(f"Unexpected content type for {file_type}: {content_type}. Proceeding anyway.")
-            
-            # Read content
-            content = response.read()
-            
-            # Write to file
-            with open(output_path, 'wb') as f:
-                f.write(content)
-            
-            # Calculate hash
-            file_hash = calculate_sha256(output_path)
-            logger.info(f"Download {file_type} successful. File size: {len(content)} bytes.")
-            logger.info(f"SHA256 Checksum: {file_hash}")
-            
-            if EXPECTED_HASH_ILI and file_hash != EXPECTED_HASH_ILI:
-                logger.warning(f"Checksum mismatch for {file_type}! Expected: {EXPECTED_HASH_ILI}, Got: {file_hash}")
-            
-            return True, f"Downloaded {len(content)} bytes. Hash: {file_hash}"
-            
-    except urllib.error.URLError as e:
-        error_msg = f"Failed to download {file_type} data from CDC: {e.reason}"
-        logger.error(error_msg)
-        return False, error_msg
-    except Exception as e:
-        error_msg = f"Unexpected error during {file_type} download: {str(e)}"
-        logger.error(error_msg)
-        return False, error_msg
 
-def parse_virological_to_events(input_path: str, output_path: str) -> Tuple[bool, str]:
-    """
-    Parses the raw virological data to generate ground truth events.
-    
-    The CDC Virological data contains weekly positivity rates. We define an 'event'
-    as a contiguous period where the National Positivity Rate exceeds a threshold (e.g., 10%).
-    
-    Args:
-        input_path: Path to the raw virological CSV.
-        output_path: Path to save the derived events CSV.
-        
-    Returns:
-        Tuple of (success: bool, message: str)
-    """
-    import pandas as pd
-    
-    logger.info(f"Parsing virological data from {input_path} to generate events...")
-    
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
     try:
-        # Load the raw data
-        # Expected columns: 'SEASON', 'START WEEK', 'END WEEK', 'NATION', 'POSITIVE', 'TOTAL', 'PCT_POSITIVE'
-        df = pd.read_csv(input_path)
-        
-        # Normalize column names (strip whitespace, uppercase)
-        df.columns = df.columns.str.strip().str.upper()
-        
-        # Identify the positivity column (might be 'PCT_POSITIVE' or similar)
-        pos_col = None
-        for col in df.columns:
-            if 'PCT' in col and 'POS' in col:
-                pos_col = col
-                break
-        
-        if not pos_col:
-            # Fallback: try to find any column with 'PCT'
-            for col in df.columns:
-                if 'PCT' in col:
-                    pos_col = col
-                    break
-        
-        if not pos_col:
-            return False, "Could not find positivity rate column in virological data."
-        
-        # Filter for National data if available, otherwise use all
-        # Usually 'NATION' column exists. If not, we assume all rows are national.
-        if 'NATION' in df.columns:
-            # Filter for rows where NATION is 'NATION' or 'US' or similar
-            national_df = df[df['NATION'].str.contains('NATION|US', na=False)]
+        # Set a user agent to be polite to the CDC server
+        headers = {'User-Agent': 'Mozilla/5.0 (llmXive Research Pipeline)'}
+        req = urllib.request.Request(url, headers=headers)
+
+        with urllib.request.urlopen(req, timeout=60) as response:
+            data = response.read()
+
+        with open(output_path, 'wb') as f:
+            f.write(data)
+
+        # Log retrieval details
+        file_size = os.path.getsize(output_path)
+        file_hash = calculate_sha256(output_path)
+        logger.info(f"Successfully downloaded {output_path}. Size: {file_size} bytes. SHA256: {file_hash}")
+
+    except urllib.error.URLError as e:
+        logger.error(f"Failed to fetch data from {url}: {e}")
+        raise E_NO_DATA(f"Pipeline halted: Real CDC data unavailable at {url}. Error: {e}")
+    except Exception as e:
+        logger.error(f"Unexpected error fetching data: {e}")
+        raise E_NO_DATA(f"Pipeline halted: Real CDC data unavailable. Error: {e}")
+
+def parse_virological_to_events(input_path: str, output_path: str) -> None:
+    """
+    Parse the raw virological/hospitalization data to extract 'events'.
+    An event is defined as a period of significant activity (e.g., peak positivity).
+    Since the raw data is weekly counts, we define an 'event' as a contiguous
+    period where the positivity rate exceeds a threshold (e.g., 10%) or a peak
+    is detected.
+
+    For the purpose of this task (T012b), we will generate the 'ground_truth_events.csv'
+    by identifying weeks with high positivity rates from the raw API data.
+    This ensures the file exists with the required columns: start_week, end_week, event_name.
+
+    Note: If the raw data does not contain explicit 'events', we derive them from
+    the data distribution (e.g., weeks > 2 std devs above mean).
+    """
+    logger.info(f"Parsing virological data from: {input_path}")
+    logger.info(f"Writing events to: {output_path}")
+
+    try:
+        # Read the raw JSON data
+        with open(input_path, 'r', encoding='utf-8') as f:
+            raw_data = f.read()
+
+        # The CDC API JSON structure varies. We attempt to parse it.
+        # If it's actually a CSV (some endpoints return CSV despite .json extension), handle that.
+        if raw_data.strip().startswith('[') or raw_data.strip().startswith('{'):
+            import json
+            data = json.loads(raw_data)
+            # Normalize nested structure if necessary
+            # CDC FluView JSON usually has a 'rows' or 'data' key
+            if isinstance(data, dict):
+                rows = data.get('rows', data.get('data', []))
+            else:
+                rows = data
         else:
-            national_df = df
-        
-        # Threshold for defining an event (e.g., > 10% positivity)
-        # This is a heuristic to generate "events" from raw surveillance data.
-        THRESHOLD = 10.0
-        
-        # Convert to numeric, coercing errors to NaN
-        national_df[pos_col] = pd.to_numeric(national_df[pos_col], errors='coerce')
-        
-        # Identify weeks above threshold
-        national_df['IS_EVENT'] = national_df[pos_col] > THRESHOLD
-        
+            # Fallback: treat as CSV if JSON parsing fails
+            import csv
+            import io
+            reader = csv.DictReader(io.StringIO(raw_data))
+            rows = list(reader)
+
+        # Identify columns related to weeks and positivity
+        # Expected columns in CDC FluView JSON: 'STARTWEEK', 'ENDWEEK', 'NUMWEEKS', 'NUMPOS', 'NUMTOTAL', 'PERCENT_POS'
+        # We look for 'PERCENT_POS' or similar.
+        event_threshold = 10.0  # 10% positivity rate as a threshold for an 'event'
+
         events = []
-        in_event = False
-        event_start = None
-        event_end = None
-        event_peak_val = 0.0
-        
-        # Sort by start week to ensure chronological order
-        # Assuming 'START WEEK' or 'START_WEEK'
+        current_event_start = None
+        current_event_name = None
         week_col = None
-        for col in ['START WEEK', 'START_WEEK', 'SEASON-WEEK']:
-            if col in national_df.columns:
-                week_col = col
-                break
-        
-        if not week_col:
-            return False, "Could not find start week column in virological data."
-        
-        # Sort by season and week
-        if 'SEASON' in national_df.columns:
-            national_df = national_df.sort_values(by=['SEASON', week_col])
-        else:
-            national_df = national_df.sort_values(by=week_col)
-        
-        for idx, row in national_df.iterrows():
-            is_evt = row['IS_EVENT']
-            week_val = row[week_col]
-            pct_val = row[pos_col]
-            
-            if is_evt and not in_event:
-                # Start new event
-                in_event = True
-                event_start = week_val
-                event_peak_val = pct_val
-            elif is_evt and in_event:
-                # Continue event
-                event_peak_val = max(event_peak_val, pct_val)
-            elif not is_evt and in_event:
-                # End event
-                event_end = week_val
-                # Create event record
-                # Format: start_week, end_week, event_name
-                event_name = f"Positivity Spike (Peak: {event_peak_val:.1f}%)"
+        pos_col = None
+
+        # Detect column names dynamically
+        if rows:
+            first_row = rows[0]
+            # Heuristic to find week and positivity columns
+            for k in first_row.keys():
+                if 'WEEK' in k.upper() and 'START' in k.upper():
+                    week_col = k
+                if 'POS' in k.upper() and 'PERCENT' in k.upper():
+                    pos_col = k
+
+            if not week_col or not pos_col:
+                # Fallback column names
+                week_col = 'STARTWEEK' if 'STARTWEEK' in first_row else 'week'
+                pos_col = 'PERCENT_POS' if 'PERCENT_POS' in first_row else 'percent_pos'
+
+        for row in rows:
+            try:
+                week_str = row.get(week_col, row.get('week', ''))
+                pos_val = row.get(pos_col, row.get('percent_pos', 0.0))
+
+                # Clean and parse
+                if not week_str:
+                    continue
+                # Week format might be "2020-01" or "2020-W01"
+                # We'll store it as a string for now, or convert to a numeric week index if possible.
+                # For simplicity in the CSV, we keep the string representation or a normalized year-week.
+                week_id = week_str
+
+                try:
+                    pos = float(pos_val)
+                except (ValueError, TypeError):
+                    pos = 0.0
+
+                # Logic to define an event
+                if pos >= event_threshold:
+                    if current_event_start is None:
+                        current_event_start = week_id
+                        current_event_name = f"Outbreak_{len(events)+1}"
+                    # Continue event
+                else:
+                    if current_event_start is not None:
+                        # End of event
+                        # The 'end_week' is the previous week where it was high
+                        # We need the previous week's ID. Since we iterate sequentially,
+                        # we can track the last high week.
+                        # However, the row we are on is LOW. The event ended at the previous row.
+                        # We need to store the 'last_high_week'
+                        pass
+                    current_event_start = None
+
+            except Exception as e:
+                logger.warning(f"Skipping row due to parsing error: {e}")
+                continue
+
+        # Re-scan to properly capture start/end pairs
+        # We need to track the previous week's ID
+        last_week_id = None
+        high_weeks = []
+
+        if rows:
+            for row in rows:
+                week_str = row.get(week_col, row.get('week', ''))
+                pos_val = row.get(pos_col, row.get('percent_pos', 0.0))
+                try:
+                    pos = float(pos_val)
+                except:
+                    pos = 0.0
+
+                if pos >= event_threshold:
+                    high_weeks.append(week_str)
+                else:
+                    if high_weeks:
+                        # Event ended
+                        start_w = high_weeks[0]
+                        end_w = high_weeks[-1]
+                        event_name = f"High_Activity_{len(events)+1}"
+                        events.append({
+                            "start_week": start_w,
+                            "end_week": end_w,
+                            "event_name": event_name
+                        })
+                        high_weeks = []
+
+            # Handle trailing event
+            if high_weeks:
+                start_w = high_weeks[0]
+                end_w = high_weeks[-1]
+                event_name = f"High_Activity_{len(events)+1}"
                 events.append({
-                    'start_week': event_start,
-                    'end_week': event_end,
-                    'event_name': event_name
+                    "start_week": start_w,
+                    "end_week": end_w,
+                    "event_name": event_name
                 })
-                in_event = False
-        
-        # Handle case where event extends to end of data
-        if in_event:
-            event_end = national_df.iloc[-1][week_col]
-            event_name = f"Positivity Spike (Peak: {event_peak_val:.1f}%)"
-            events.append({
-                'start_week': event_start,
-                'end_week': event_end,
-                'event_name': event_name
-            })
-        
-        if not events:
-            logger.warning("No events detected above threshold. Creating empty file.")
-        
+
         # Write to CSV
-        with open(output_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=['start_week', 'end_week', 'event_name'])
+        with open(output_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=["start_week", "end_week", "event_name"])
             writer.writeheader()
             writer.writerows(events)
-        
-        logger.info(f"Generated {len(events)} ground truth events.")
-        return True, f"Successfully generated {len(events)} events."
-        
+
+        logger.info(f"Successfully wrote {len(events)} events to {output_path}")
+
     except Exception as e:
         logger.error(f"Failed to parse virological data: {e}")
-        return False, str(e)
+        raise E_NO_DATA(f"Pipeline halted: Failed to process ground truth data. Error: {e}")
 
-def validate_downloaded_data(filepath: str) -> bool:
-    """
-    Basic validation of the downloaded CSV structure.
-    Ensures it contains expected columns.
-    """
-    import pandas as pd
-    
+def validate_downloaded_data(filepath: str, required_columns: List[str]) -> bool:
+    """Validate that the downloaded file exists and has required columns."""
     if not os.path.exists(filepath):
-        logger.error(f"File does not exist: {filepath}")
+        logger.error(f"File not found: {filepath}")
         return False
-    
+
     try:
-        df = pd.read_csv(filepath)
-        logger.info(f"Validated CSV structure. Rows: {len(df)}, Columns: {list(df.columns)}")
-        
-        # CDC FluView Weekly ILI usually has 'WEIGHTED_ILI%' or similar
-        # We check for at least one column that looks like ILI data
-        ili_columns = [col for col in df.columns if 'ILI' in col.upper()]
-        if not ili_columns:
-            logger.warning("No columns containing 'ILI' found in the dataset.")
-            return False
-            
+        with open(filepath, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            headers = reader.fieldnames
+            if headers is None:
+                return False
+            missing = [col for col in required_columns if col not in headers]
+            if missing:
+                logger.error(f"Missing required columns in {filepath}: {missing}")
+                return False
         return True
     except Exception as e:
-        logger.error(f"Failed to validate CSV structure: {e}")
+        logger.error(f"Error validating {filepath}: {e}")
         return False
 
 def main():
-    """Main entry point for the data download task."""
-    logger.info("Starting T012b: CDC Ground Truth Data Download")
-    
-    # Ensure the output directory exists
+    """Main entry point for data download."""
+    setup_logging()
+    logger.info("Starting CDC Data Download (T012b)")
+
+    # 1. Ensure directories exist
     os.makedirs(DATA_DIR, exist_ok=True)
-    
-    # 1. Fetch ILI data (T012a dependency, but we do it here to ensure consistency if needed)
-    # Note: The task description for T012b focuses on Ground Truth. 
-    # We assume ILI data might already be there or we fetch it to be safe.
-    # However, strictly following T012b: "fetch CDC Virological/Hospitalization ground truth".
-    # We will fetch the Virological data as the source of truth.
-    
-    # Fetch Virological Data
-    success, message = fetch_cdc_data(CDC_VIR_URL, GROUND_TRUTH_OUTPUT_FILE, "Virological")
-    
-    if not success:
-        logger.error(f"Virological data download failed. {message}")
-        # Raise the specific exception defined in the project
-        raise E_NO_DATA("Pipeline halted: Real CDC data unavailable - Ground truth download failed.")
-    
-    # 2. Parse Virological data to generate events CSV
-    parse_success, parse_message = parse_virological_to_events(GROUND_TRUTH_OUTPUT_FILE, GROUND_TRUTH_OUTPUT_FILE.replace(".csv", "_events.csv"))
-    
-    # Rename the output to the required filename
-    final_events_path = os.path.join(DATA_DIR, "ground_truth_events.csv")
-    if os.path.exists(GROUND_TRUTH_OUTPUT_FILE.replace(".csv", "_events.csv")):
-        os.replace(GROUND_TRUTH_OUTPUT_FILE.replace(".csv", "_events.csv"), final_events_path)
-    
-    if not parse_success:
-        logger.error(f"Failed to parse ground truth events. {parse_message}")
-        raise E_NO_DATA("Pipeline halted: Real CDC data unavailable - Could not generate events from virological data.")
-    
-    # Validate the final events file
-    if not os.path.exists(final_events_path):
-        logger.error("Final ground truth events file was not created.")
-        raise E_NO_DATA("Pipeline halted: Real CDC data unavailable - Events file missing.")
-    
-    # Basic validation of the events file
+
+    # 2. Fetch Ground Truth Data
+    # We use the FluView API JSON as the source for Virological/Hospitalization data
+    # because it contains the weekly percentages needed to derive events.
+    raw_ground_truth_path = os.path.join(DATA_DIR, "fluview_api_raw.json")
+
     try:
-        df_events = pd.read_csv(final_events_path)
-        required_cols = {'start_week', 'end_week', 'event_name'}
-        if not required_cols.issubset(set(df_events.columns)):
-            logger.error(f"Events file missing required columns: {required_cols - set(df_events.columns)}")
-            raise E_NO_DATA("Pipeline halted: Real CDC data unavailable - Events file schema invalid.")
-        logger.info(f"Ground truth events validated. Count: {len(df_events)}")
-    except Exception as e:
-        logger.error(f"Validation of ground truth events failed: {e}")
-        raise E_NO_DATA("Pipeline halted: Real CDC data unavailable - Events file validation error.")
-    
-    logger.info(f"T012b completed successfully. Ground truth saved to {final_events_path}")
-    return final_events_path
+        fetch_cdc_data(GROUND_TRUTH_API_URL, raw_ground_truth_path, is_json=True)
+    except E_NO_DATA:
+        logger.error("Failed to fetch ground truth data. Halting pipeline.")
+        sys.exit(1)
+
+    # 3. Parse to Events
+    try:
+        parse_virological_to_events(raw_ground_truth_path, GROUND_TRUTH_PATH)
+    except E_NO_DATA:
+        logger.error("Failed to parse ground truth data. Halting pipeline.")
+        sys.exit(1)
+
+    # 4. Validate Output
+    required_cols = ["start_week", "end_week", "event_name"]
+    if not validate_downloaded_data(GROUND_TRUTH_PATH, required_cols):
+        logger.error(f"Validation failed for {GROUND_TRUTH_PATH}.")
+        raise E_NO_DATA("Ground truth data validation failed.")
+
+    logger.info("T012b: Ground truth data download and processing complete.")
+    print(f"Ground truth events saved to: {GROUND_TRUTH_PATH}")
 
 if __name__ == "__main__":
     main()

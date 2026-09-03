@@ -1,71 +1,95 @@
 """
-Contract test for T009c: Validate experiment_log.schema.yaml.
-
-This test ensures that the schema defined in contracts/experiment_log.schema.yaml
-is valid JSON Schema and that a sample log entry conforms to it.
+Contract test for T009c: Validate experiment_log.schema.yaml against sample data.
 """
-import os
 import json
-import pytest
+import os
 import yaml
+import pytest
 from jsonschema import validate, ValidationError
 
-SCHEMA_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'contracts', 'experiment_log.schema.yaml')
-SAMPLE_ENTRY = {
-    "task_id": "T-001",
-    "skill_id": "S-104",
-    "success": True,
-    "latency": 0.45,
-    "tokens": 128,
-    "retrieval_precision": 0.8,
-    "retrieval_diversity": 2.5,
-    "pruning_risk_count": 0,
-    "library_size": 100,
-    "pruning_enabled": True
-}
+SCHEMA_PATH = "contracts/experiment_log.schema.yaml"
 
-def test_schema_file_exists():
-    """Verify the schema file exists on disk."""
-    assert os.path.exists(SCHEMA_PATH), f"Schema file not found at {SCHEMA_PATH}"
+def load_schema():
+    if not os.path.exists(SCHEMA_PATH):
+        raise FileNotFoundError(f"Schema file not found at {SCHEMA_PATH}")
+    with open(SCHEMA_PATH, "r") as f:
+        return yaml.safe_load(f)
 
-def test_schema_is_valid_json_schema():
-    """Verify the YAML file parses correctly and is a valid JSON Schema object."""
-    with open(SCHEMA_PATH, 'r') as f:
-        schema = yaml.safe_load(f)
+def test_schema_validates_sample_entry():
+    """Verify that a valid sample log entry passes validation."""
+    schema = load_schema()
     
-    assert isinstance(schema, dict), "Schema must be a dictionary"
-    assert "$schema" in schema, "Schema must define $schema"
-    assert "properties" in schema, "Schema must define properties"
-    assert "required" in schema, "Schema must define required fields"
+    sample_entry = {
+        "task_id": "task_001",
+        "skill_id": "skill_42",
+        "success": True,
+        "latency": 0.45,
+        "tokens": 120,
+        "retrieval_precision": 0.85,
+        "retrieval_diversity": 2.5,
+        "pruning_risk_count": 0,
+        "library_size": 50,
+        "pruning_enabled": True,
+        "edge_case": False
+    }
 
-def test_sample_entry_validates_against_schema():
-    """Verify a sample log entry validates successfully."""
-    with open(SCHEMA_PATH, 'r') as f:
-        schema = yaml.safe_load(f)
-    
-    try:
-        validate(instance=SAMPLE_ENTRY, schema=schema)
-    except ValidationError as e:
-        pytest.fail(f"Sample entry failed validation: {e.message}")
+    # This should not raise
+    validate(instance=sample_entry, schema=schema)
 
-def test_missing_required_field_fails():
-    """Verify that removing a required field causes validation to fail."""
-    with open(SCHEMA_PATH, 'r') as f:
-        schema = yaml.safe_load(f)
+def test_schema_rejects_missing_field():
+    """Verify that missing required fields cause validation failure."""
+    schema = load_schema()
     
-    invalid_entry = SAMPLE_ENTRY.copy()
-    del invalid_entry["task_id"]
+    incomplete_entry = {
+        "task_id": "task_001",
+        # missing other required fields
+    }
+
+    with pytest.raises(ValidationError):
+        validate(instance=incomplete_entry, schema=schema)
+
+def test_schema_rejects_wrong_type():
+    """Verify that type mismatches cause validation failure."""
+    schema = load_schema()
     
+    invalid_entry = {
+        "task_id": "task_001",
+        "skill_id": "skill_42",
+        "success": "not_a_boolean",  # Should be boolean
+        "latency": 0.45,
+        "tokens": 120,
+        "retrieval_precision": 0.85,
+        "retrieval_diversity": 2.5,
+        "pruning_risk_count": 0,
+        "library_size": 50,
+        "pruning_enabled": True,
+        "edge_case": False
+    }
+
     with pytest.raises(ValidationError):
         validate(instance=invalid_entry, schema=schema)
 
-def test_wrong_type_fails():
-    """Verify that providing a wrong type for a field causes validation to fail."""
-    with open(SCHEMA_PATH, 'r') as f:
-        schema = yaml.safe_load(f)
+def test_schema_rejects_extra_field():
+    """Verify that additional properties are rejected (additionalProperties: false)."""
+    schema = load_schema()
     
-    invalid_entry = SAMPLE_ENTRY.copy()
-    invalid_entry["success"] = "true"  # Should be boolean
-    
+    extra_field_entry = {
+        "task_id": "task_001",
+        "skill_id": "skill_42",
+        "success": True,
+        "latency": 0.45,
+        "tokens": 120,
+        "retrieval_precision": 0.85,
+        "retrieval_diversity": 2.5,
+        "pruning_risk_count": 0,
+        "library_size": 50,
+        "pruning_enabled": True,
+        "edge_case": False,
+        "unexpected_field": "should_fail"
+    }
+
     with pytest.raises(ValidationError):
-        validate(instance=invalid_entry, schema=schema)
+        validate(instance=extra_field_entry, schema=schema)
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

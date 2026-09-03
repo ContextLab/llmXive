@@ -1,17 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`data/raw`, `data/processed`, `code`,
-    `tests`, `code/contracts`) being created is provided; the implementer did not
-    supply any artifact showing the project structure exists. The task is therefore
-    not satisfied.
-T005:
-  c: false
-  h: 3c05e94ffe1c52379773caef0b9df18d52e96dc791b5cee061bc76e41ae23ba7
-  r: "The `code/main.py` file defines a Pydantic `Config` model and attempts to validate\
-    \ against a schema, but the required `contracts/config.schema.yaml` file does\
-    \ not exist on disk, so the schema\u2011based validation cannot be performed.\
-    \ The missing schema file must be added for the task to be considered complete."
 T009:
   c: true
   h: cda04b41f3e2578980ac11835aa7d2025e650f1366c81d9ce8a6742c0d057657
@@ -20,35 +6,6 @@ T009:
     CSV files, raises `E_NO_DATA` with the mandated message (including the required
     phrase) and the main routine logs the error and exits. The necessary artifacts
     are present and functional.
-T012a:
-  c: false
-  h: fba5bc2a963444c54ba4970b3bbaff05e4f00e796c9725aefbf46bde0505e0c1
-  r: The `code/download_data.py` file is present but the provided excerpt is truncated,
-    so we cannot confirm that it actually downloads the CDC FluView ILI CSV, saves
-    it to `data/raw/fluview_ili.csv`, and logs the URL/retrieval date or performs
-    checksum verification. Moreover, the expected output file `data/raw/fluview_ili.csv`
-    is missing, indicating the script has not been executed or does not produce the
-    required artifact. The implementer must ensure the script contains the full download
-    logic, logging, and (if possible) checksum verification, and that running it creates
-    the `fluview_ili.csv` fil
-T012b:
-  c: false
-  h: 3b20897d5e4f949b578955917ef1b86eab3b31b8ba5ca077f105c44e9ef165ad
-  r: "The repository lacks the required `data/raw/ground_truth_events.csv` file, and\
-    \ the provided `code/download_data.py` does not demonstrably implement fetching\
-    \ a ground\u2011truth CSV with the exact `start_week, end_week, event_name` columns\
-    \ nor raise `E-NO-DATA` on failure. The script is truncated and appears to generate\
-    \ events heuristically rather than download a verified ground\u2011truth file,\
-    \ so the task\u2019s requirements are not met."
-T016:
-  c: false
-  h: 7f2536cc75263b7495a27e0a608028bb8277d87dd335c75d60a080a653d6314a
-  r: "The repository lacks the required `data/raw/ground_truth_events.csv` file, so\
-    \ `evaluate.py` cannot actually load the ground\u2011truth data. Moreover, the\
-    \ script contains no logic to perform the \u201Csource independence\u201D checks\
-    \ (URL whitelist validation and ensuring the file has no ILI columns) that the\
-    \ task explicitly demands. These missing pieces must be added for the task to\
-    \ be considered complete."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -85,3 +42,17 @@ T037:
   r: No evidence of the required unit test files (`tests/unit/test_constant_series.py`
     and `tests/unit/test_outlier_handling.py`) was provided; the claim lacks any displayed
     code, file listings, or test content, so the task is not demonstrably completed.
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence is provided that a `pytest` run was performed in the `code/` directory,\
+    \ nor any output showing an exit code of\u202F0. The required artifact (successful\
+    \ test execution log or result file) is missing, so the task cannot be confirmed\
+    \ as completed."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided only a feature specification for a distribution\u2011\
+    shift pipeline and no evidence of any `data/` files being checked for `sha256sum`\
+    \ nor any `state/` JSON files being created or updated with those hashes. Consequently,\
+    \ the required artifacts for task T039 are missing."

@@ -1,42 +1,88 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Pipeline Configuration Schema"
+description: "Schema for validating the project configuration file (config.yaml)"
 type: object
 properties:
   seed:
     type: integer
+    description: "Random seed for reproducibility"
     minimum: 0
-    description: Random seed for reproducibility
   permutations:
     type: integer
+    description: "Number of permutations for MMD significance testing"
     minimum: 1
-    description: Number of permutations for MMD p-value estimation
+    default: 1000
   window_size:
     type: integer
-    minimum: 1
-    description: Size of the sliding window for distribution shift detection
+    description: "Size of the sliding window for distribution comparison"
+    minimum: 2
+    default: 12
   stride:
     type: integer
+    description: "Stride for the sliding window"
     minimum: 1
-    description: Stride for the sliding window
+    default: 1
   alpha:
     type: number
+    description: "Significance level (alpha) for hypothesis testing"
     minimum: 0.0
     maximum: 1.0
-    description: Significance level for statistical tests
-  bandwidth_method:
-    type: string
-    enum: [median, cv, fixed]
-    description: Method for estimating Gaussian kernel bandwidth
-  min_samples:
-    type: integer
-    minimum: 1
-    description: Minimum number of samples required per window
+    default: 0.01
+  bandwidth:
+    type:
+      - string
+      - number
+    description: "Kernel bandwidth strategy ('median', 'cv') or fixed value"
+    default: "median"
   tolerance_weeks:
     type: integer
+    description: "Tolerance in weeks for detection delay evaluation"
     minimum: 0
-    description: Tolerance in weeks for detection delay calculation
+    default: 2
+  data_paths:
+    type: object
+    description: "Paths to data files"
+    properties:
+      raw_ili:
+        type: string
+        description: "Path to raw ILI data CSV"
+        default: "data/raw/fluview_ili.csv"
+      raw_ground_truth:
+        type: string
+        description: "Path to ground truth events CSV"
+        default: "data/raw/ground_truth_events.csv"
+      processed:
+        type: string
+        description: "Path to processed data directory"
+        default: "data/processed"
+      outputs:
+        type: string
+        description: "Path to output directory"
+        default: "data/processed"
+    required:
+      - raw_ili
+      - raw_ground_truth
+      - processed
+      - outputs
+  logging:
+    type: object
+    description: "Logging configuration"
+    properties:
+      level:
+        type: string
+        enum: ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+        default: "INFO"
+      format:
+        type: string
+        default: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    required:
+      - level
 required:
   - seed
   - permutations
   - window_size
   - stride
   - alpha
+  - data_paths
+  - logging
 additionalProperties: false

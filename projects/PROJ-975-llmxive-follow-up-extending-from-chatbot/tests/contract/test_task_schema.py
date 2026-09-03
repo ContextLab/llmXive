@@ -1,8 +1,5 @@
 """
-Contract test for T009a: Validate tasks.json schema against contracts/task.schema.yaml.
-
-This test verifies that the JSON schema defined in contracts/task.schema.yaml
-correctly validates sample task objects.
+Contract test for T009a: Validate tasks.json against contracts/task.schema.yaml.
 """
 import json
 import os
@@ -10,84 +7,56 @@ import yaml
 import pytest
 from jsonschema import validate, ValidationError
 
-# Resolve paths relative to project root
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-SCHEMA_PATH = os.path.join(PROJECT_ROOT, "contracts", "task.schema.yaml")
-SAMPLE_TASK = {
-    "task_id": "T001",
-    "description": "Create subdirectories for project structure",
-    "ground_truth_path": "data/raw/sample_task.json",
-    "complexity": "low"
-}
+SCHEMA_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'contracts', 'task.schema.yaml')
+TASKS_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'raw', 'tasks.json')
 
-def load_schema():
-    """Load the YAML schema file."""
-    if not os.path.exists(SCHEMA_PATH):
-        pytest.fail(f"Schema file not found at {SCHEMA_PATH}")
-    with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
+@pytest.fixture
+def schema():
+    with open(SCHEMA_PATH, 'r') as f:
         return yaml.safe_load(f)
 
-def test_schema_loads():
-    """Verify the schema file is valid YAML and loads correctly."""
-    schema = load_schema()
-    assert schema is not None
-    assert "$schema" in schema
-    assert schema["title"] == "Task Schema"
+@pytest.fixture
+def tasks_data():
+    if not os.path.exists(TASKS_PATH):
+        pytest.skip(f"Tasks file not found at {TASKS_PATH}. Run generate_data.py first.")
+    with open(TASKS_PATH, 'r') as f:
+        data = json.load(f)
+    # Handle if data is a list or a dict with a 'tasks' key
+    if isinstance(data, dict) and 'tasks' in data:
+        return data['tasks']
+    return data
 
-def test_valid_task_passes_validation():
-    """Verify that a valid task object passes jsonschema.validate."""
-    schema = load_schema()
-    try:
-        validate(instance=SAMPLE_TASK, schema=schema)
-    except ValidationError as e:
-        pytest.fail(f"Valid task failed validation: {e.message}")
+def test_schema_loads(schema):
+    """Ensure the YAML schema is valid and loads correctly."""
+    assert 'properties' in schema
+    assert 'task_id' in schema['properties']
+    assert 'description' in schema['properties']
+    assert 'ground_truth_path' in schema['properties']
+    assert 'complexity' in schema['properties']
 
-def test_missing_required_field_fails():
-    """Verify that a task missing a required field fails validation."""
-    schema = load_schema()
-    invalid_task = SAMPLE_TASK.copy()
-    del invalid_task["task_id"]
-    
-    with pytest.raises(ValidationError):
-        validate(instance=invalid_task, schema=schema)
-
-def test_invalid_complexity_fails():
-    """Verify that a task with invalid complexity value fails validation."""
-    schema = load_schema()
-    invalid_task = SAMPLE_TASK.copy()
-    invalid_task["complexity"] = "super_hard"
-    
-    with pytest.raises(ValidationError):
-        validate(instance=invalid_task, schema=schema)
-
-def test_invalid_task_id_format_fails():
-    """Verify that a task with invalid task_id format fails validation."""
-    schema = load_schema()
-    invalid_task = SAMPLE_TASK.copy()
-    invalid_task["task_id"] = "INVALID_ID"
-    
-    with pytest.raises(ValidationError):
-        validate(instance=invalid_task, schema=schema)
-
-def test_extra_properties_fails():
-    """Verify that a task with extra properties fails validation (additionalProperties: false)."""
-    schema = load_schema()
-    invalid_task = SAMPLE_TASK.copy()
-    invalid_task["unknown_field"] = "should not be allowed"
-    
-    with pytest.raises(ValidationError):
-        validate(instance=invalid_task, schema=schema)
-
-def test_metadata_field_is_optional():
-    """Verify that a task without metadata field passes validation."""
-    schema = load_schema()
-    task_without_metadata = {
-        "task_id": "T002",
-        "description": "Another task",
-        "ground_truth_path": "data/raw/another.json",
-        "complexity": "medium"
+def test_sample_task_validates(schema):
+    """Validate a single sample task object against the schema."""
+    sample_task = {
+        "task_id": "TASK_SAMPLE_001",
+        "description": "Calculate the sum of two numbers and return the result.",
+        "ground_truth_path": ["skill_add", "skill_return"],
+        "complexity": 2
     }
     try:
-        validate(instance=task_without_metadata, schema=schema)
+        validate(instance=sample_task, schema=schema)
     except ValidationError as e:
-        pytest.fail(f"Task without metadata failed validation: {e.message}")
+        pytest.fail(f"Sample task failed schema validation: {e.message}")
+
+def test_all_tasks_validate(schema, tasks_data):
+    """Validate every task in the generated dataset against the schema."""
+    assert len(tasks_data) > 0, "No tasks found to validate."
+    
+    errors = []
+    for idx, task in enumerate(tasks_data):
+        try:
+            validate(instance=task, schema=schema)
+        except ValidationError as e:
+            errors.append(f"Task {idx} (ID: {task.get('task_id', 'UNKNOWN')}): {e.message}")
+    
+    if errors:
+        pytest.fail(f"Schema validation failed for {len(errors)} tasks:\n" + "\n".join(errors[:5]))

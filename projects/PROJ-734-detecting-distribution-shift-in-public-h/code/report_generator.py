@@ -2,16 +2,17 @@ import os
 import sys
 import logging
 import matplotlib
-matplotlib.use('Agg')  # Non-interactive backend for server/headless environments
+matplotlib.use('Agg')  # Non-interactive backend for headless execution
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from typing import List, Dict, Tuple, Optional
 from datetime import datetime
+import yaml
 
-from main import load_config
-from evaluate import load_flags, load_ground_truth
-from sensitivity_aggregator import load_grid_results, load_tolerance_results
+# Import project utilities
+from main import load_config, DataPathsConfig
+from exceptions import E_NO_DATA
 
 # Configure logging
 logging.basicConfig(
@@ -20,215 +21,298 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_metrics(report_path: str = 'data/processed/report_metrics.json') -> Dict:
-    """Load metrics from the evaluation report if available."""
-    if os.path.exists(report_path):
-        try:
-            # Assuming JSON format for metrics
-            with open(report_path, 'r') as f:
-                import json
-                return json.load(f)
-        except Exception as e:
-            logger.warning(f"Could not load metrics from {report_path}: {e}")
-    return {}
+def load_metrics(output_dir: str) -> Dict[str, pd.DataFrame]:
+    """Load metrics from sensitivity analysis outputs."""
+    grid_path = os.path.join(output_dir, 'sensitivity.csv')
+    tol_path = os.path.join(output_dir, 'tolerance_sensitivity.csv')
+    
+    results = {}
+    if os.path.exists(grid_path):
+        results['grid'] = pd.read_csv(grid_path)
+    if os.path.exists(tol_path):
+        results['tolerance'] = pd.read_csv(tol_path)
+        
+    if not results:
+        raise FileNotFoundError("No sensitivity analysis results found. Run sensitivity.py first.")
+        
+    return results
 
-def load_flags(flags_path: str = 'data/processed/flags.csv') -> pd.DataFrame:
-    """Load the flags CSV."""
-    if os.path.exists(flags_path):
-        return pd.read_csv(flags_path)
-    return pd.DataFrame()
+def load_flags(output_dir: str) -> pd.DataFrame:
+    """Load the main pipeline flags."""
+    path = os.path.join(output_dir, 'flags.csv')
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Flags file not found at {path}. Run main.py pipeline first.")
+    return pd.read_csv(path)
 
-def load_ground_truth(gt_path: str = 'data/raw/ground_truth_events.csv') -> pd.DataFrame:
+def load_ground_truth(data_dir: str) -> pd.DataFrame:
     """Load ground truth events."""
-    if os.path.exists(gt_path):
-        return pd.read_csv(gt_path)
-    return pd.DataFrame()
+    path = os.path.join(data_dir, 'ground_truth_events.csv')
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Ground truth file not found at {path}.")
+    return pd.read_csv(path)
 
-def create_summary_plot(metrics: Dict, sensitivity_results: pd.DataFrame, output_path: str):
-    """Create a summary plot showing MMD performance vs sensitivity parameters."""
-    plt.figure(figsize=(12, 8))
-    
-    if sensitivity_results.empty:
-        plt.text(0.5, 0.5, 'No sensitivity data available', ha='center', va='center', fontsize=12)
-    else:
-        # Plot Precision vs Bandwidth for different window sizes
-        unique_windows = sensitivity_results['window_size'].unique()
-        colors = plt.cm.Set3(np.linspace(0, 1, len(unique_windows)))
-        
-        for i, window in enumerate(unique_windows):
-            subset = sensitivity_results[sensitivity_results['window_size'] == window]
-            plt.plot(subset['bandwidth'], subset['precision'], 
-                     marker='o', label=f'Window={window}', color=colors[i])
-        
-        plt.xlabel('Bandwidth (sigma)')
-        plt.ylabel('Precision')
-        plt.title('Sensitivity Analysis: Precision vs Bandwidth by Window Size')
-        plt.legend()
-        plt.grid(True, alpha=0.3)
-    
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=300)
-    plt.close()
-    logger.info(f"Saved summary plot to {output_path}")
-
-def create_tolerance_plot(tolerance_results: pd.DataFrame, output_path: str):
-    """Create a plot showing metric variation across tolerance windows."""
-    plt.figure(figsize=(10, 6))
-    
-    if tolerance_results.empty:
-        plt.text(0.5, 0.5, 'No tolerance data available', ha='center', va='center', fontsize=12)
-    else:
-        # Plot Recall vs Tolerance
-        plt.plot(tolerance_results['tolerance_weeks'], tolerance_results['recall'], 
-                 marker='s', color='blue', linewidth=2, markersize=8)
-        plt.plot(tolerance_results['tolerance_weeks'], tolerance_results['precision'], 
-                 marker='^', color='red', linewidth=2, markersize=8)
-        
-        plt.xlabel('Tolerance (weeks)')
-        plt.ylabel('Metric Score')
-        plt.title('Sensitivity Analysis: Metric Variation vs Detection Tolerance')
-        plt.legend(['Recall', 'Precision'])
-        plt.grid(True, alpha=0.3)
-        plt.xticks(tolerance_results['tolerance_weeks'])
-    
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=300)
-    plt.close()
-    logger.info(f"Saved tolerance plot to {output_path}")
-
-def create_timeline_plot(flags_df: pd.DataFrame, ground_truth_df: pd.DataFrame, output_path: str):
-    """Create a timeline plot showing detected shifts vs ground truth events."""
-    plt.figure(figsize=(14, 6))
-    
-    if not flags_df.empty:
-        # Plot ILI data if available (assuming a column 'ili_value' or similar)
-        # If not, just plot the flags
-        if 'week' in flags_df.columns and 'ili_value' in flags_df.columns:
-            plt.plot(flags_df['week'], flags_df['ili_value'], 'k-', alpha=0.5, label='ILI Value')
-        
-        # Plot flags
-        flagged_weeks = flags_df[flags_df['is_shift'] == 1]['week']
-        plt.scatter(flagged_weeks, 
-                    [flags_df[flags_df['week'] == w]['ili_value'].values[0] if 'ili_value' in flags_df.columns else 0 
-                     for w in flagged_weeks],
-                    color='red', s=100, marker='x', label='Detected Shift (MMD)', zorder=5)
-    
-    if not ground_truth_df.empty:
-        # Plot ground truth events as vertical bands
-        for _, row in ground_truth_df.iterrows():
-            start = row.get('start_week')
-            end = row.get('end_week')
-            if pd.notna(start) and pd.notna(end):
-                plt.axvspan(start, end, color='green', alpha=0.2, label='Ground Truth Event' if start == ground_truth_df.iloc[0]['start_week'] else "")
-                plt.axvline(start, color='green', linestyle='--', alpha=0.5)
-    
-    plt.xlabel('Week')
-    plt.ylabel('Value')
-    plt.title('Distribution Shift Detection: MMD Flags vs Ground Truth Events')
-    plt.legend(loc='upper left')
-    plt.grid(True, alpha=0.3)
-    
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=300)
-    plt.close()
-    logger.info(f"Saved timeline plot to {output_path}")
-
-def generate_report(output_path: str = 'figures/report.pdf'):
+def create_summary_plot(metrics: Dict[str, pd.DataFrame], save_path: str):
     """
-    Generate the final report PDF including:
+    Create a summary plot showing sensitivity of metrics (Precision, Recall, Delay)
+    to different bandwidths and window sizes.
+    """
+    if 'grid' not in metrics:
+        logger.warning("Grid results not found, skipping summary plot.")
+        return
+
+    df = metrics['grid']
+    required_cols = ['precision', 'recall', 'detection_delay']
+    if not all(col in df.columns for col in required_cols):
+        logger.warning(f"Missing columns in grid data. Expected {required_cols}, found {df.columns.tolist()}")
+        return
+
+    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    
+    # Plot Precision
+    ax = axes[0]
+    # Group by bandwidth, mean over window sizes
+    prec_bw = df.groupby('bandwidth')['precision'].mean()
+    ax.bar(prec_bw.index.astype(str), prec_bw.values, color='skyblue', edgecolor='navy')
+    ax.set_title('Mean Precision vs Bandwidth')
+    ax.set_xlabel('Bandwidth (sigma)')
+    ax.set_ylabel('Precision')
+    ax.tick_params(axis='x', rotation=45)
+
+    # Plot Recall
+    ax = axes[1]
+    rec_win = df.groupby('window_size')['recall'].mean()
+    ax.bar(rec_win.index.astype(str), rec_win.values, color='lightgreen', edgecolor='darkgreen')
+    ax.set_title('Mean Recall vs Window Size')
+    ax.set_xlabel('Window Size (weeks)')
+    ax.set_ylabel('Recall')
+    ax.tick_params(axis='x', rotation=45)
+
+    # Plot Detection Delay
+    ax = axes[2]
+    delay_combined = df.groupby(['bandwidth', 'window_size'])['detection_delay'].mean().reset_index()
+    # Pivot for heatmap-like bar chart or just scatter
+    # Let's do a grouped bar or scatter with color
+    # Simple: mean delay by window size, colored by bandwidth
+    unique_bw = delay_combined['bandwidth'].unique()
+    colors = plt.cm.viridis(np.linspace(0, 1, len(unique_bw)))
+    
+    for i, bw in enumerate(unique_bw):
+        subset = delay_combined[delay_combined['bandwidth'] == bw]
+        ax.bar(subset['window_size'] + i*0.2, subset['detection_delay'], width=0.2, label=f'{bw:.2f}', color=colors[i])
+    
+    ax.set_title('Mean Detection Delay')
+    ax.set_xlabel('Window Size (weeks)')
+    ax.set_ylabel('Delay (weeks)')
+    ax.legend(title='Bandwidth')
+    ax.set_xticks(df['window_size'].unique() + 0.1)
+    ax.set_xticklabels(df['window_size'].unique())
+
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=150, bbox_inches='tight')
+    plt.close()
+    logger.info(f"Summary plot saved to {save_path}")
+
+def create_tolerance_plot(metrics: Dict[str, pd.DataFrame], save_path: str):
+    """
+    Create a plot showing how metrics vary with week-alignment tolerance.
+    """
+    if 'tolerance' not in metrics:
+        logger.warning("Tolerance results not found, skipping tolerance plot.")
+        return
+
+    df = metrics['tolerance']
+    if 'tolerance' not in df.columns:
+        logger.warning("Tolerance column missing in tolerance data.")
+        return
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    
+    # Plot Precision, Recall, F1 vs Tolerance
+    if 'precision' in df.columns:
+        ax.plot(df['tolerance'], df['precision'], marker='o', label='Precision', linewidth=2)
+    if 'recall' in df.columns:
+        ax.plot(df['tolerance'], df['recall'], marker='s', label='Recall', linewidth=2)
+    if 'f1' in df.columns:
+        ax.plot(df['tolerance'], df['f1'], marker='^', label='F1 Score', linewidth=2)
+        
+    ax.set_title('Metric Sensitivity to Week-Alignment Tolerance')
+    ax.set_xlabel('Tolerance (weeks)')
+    ax.set_ylabel('Score')
+    ax.legend()
+    ax.grid(True, linestyle='--', alpha=0.7)
+    ax.set_xticks(df['tolerance'].unique())
+    
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=150, bbox_inches='tight')
+    plt.close()
+    logger.info(f"Tolerance plot saved to {save_path}")
+
+def create_timeline_plot(flags: pd.DataFrame, ground_truth: pd.DataFrame, save_path: str):
+    """
+    Create a timeline plot showing detected shifts vs ground truth events.
+    """
+    if flags.empty or ground_truth.empty:
+        logger.warning("Empty flags or ground truth, skipping timeline plot.")
+        return
+
+    fig, ax = plt.subplots(figsize=(14, 6))
+
+    # Plot Ground Truth Events as vertical shaded regions
+    for _, row in ground_truth.iterrows():
+        start = row['start_week']
+        end = row['end_week']
+        ax.axvspan(start, end, color='red', alpha=0.2, label='Ground Truth Event' if start == ground_truth['start_week'].iloc[0] else "")
+
+    # Plot Detected Flags
+    # Assuming flags has 'week' and 'is_shift' columns
+    if 'week' in flags.columns and 'is_shift' in flags.columns:
+        shift_weeks = flags[flags['is_shift']]['week']
+        ax.scatter(shift_weeks, [0]*len(shift_weeks), color='blue', marker='x', s=100, label='Detected Shift', zorder=5)
+        
+        # Add text labels for detected weeks
+        for w in shift_weeks:
+            ax.text(w, 0.1, f"Detected", rotation=90, fontsize=8, va='bottom', ha='center')
+
+    ax.set_title('Distribution Shift Detection Timeline')
+    ax.set_xlabel('Week Index')
+    ax.set_ylabel('Signal (0 = No Shift)')
+    ax.set_yticks([])  # Hide y-axis as it's just a timeline
+    ax.legend(loc='upper right')
+    ax.grid(True, axis='x', linestyle='--', alpha=0.5)
+
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=150, bbox_inches='tight')
+    plt.close()
+    logger.info(f"Timeline plot saved to {save_path}")
+
+def generate_report(output_dir: str, data_dir: str, report_path: str):
+    """
+    Generate the final PDF report including:
     1. Executive Summary
-    2. MMD Detection Results
-    3. Sensitivity Analysis Summary (T033 requirement)
-    4. Variation Plots
-    5. Baseline Comparison (if available)
+    2. Sensitivity Analysis Summary (Grid & Tolerance)
+    3. Variation Plots
+    4. Detection Timeline
     """
-    logger.info("Generating report PDF...")
+    logger.info(f"Generating report at {report_path}")
     
     # Load data
-    config = load_config()
-    flags_df = load_flags()
-    ground_truth_df = load_ground_truth()
-    grid_results = load_grid_results()
-    tolerance_results = load_tolerance_results()
-    metrics = load_metrics()
-    
-    # Create plots directory if needed
-    plots_dir = 'figures'
+    try:
+        metrics = load_metrics(output_dir)
+        flags = load_flags(output_dir)
+        ground_truth = load_ground_truth(data_dir)
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        raise
+
+    # Create plots
+    plots_dir = os.path.join(output_dir, 'figures')
     os.makedirs(plots_dir, exist_ok=True)
     
-    # Generate plots
     summary_plot_path = os.path.join(plots_dir, 'sensitivity_summary.png')
-    tolerance_plot_path = os.path.join(plots_dir, 'tolerance_variation.png')
+    tolerance_plot_path = os.path.join(plots_dir, 'tolerance_sensitivity.png')
     timeline_plot_path = os.path.join(plots_dir, 'detection_timeline.png')
     
-    create_summary_plot(metrics, grid_results, summary_plot_path)
-    create_tolerance_plot(tolerance_results, tolerance_plot_path)
-    create_timeline_plot(flags_df, ground_truth_df, timeline_plot_path)
+    create_summary_plot(metrics, summary_plot_path)
+    create_tolerance_plot(metrics, tolerance_plot_path)
+    create_timeline_plot(flags, ground_truth, timeline_plot_path)
+
+    # Generate PDF using matplotlib's pdf backend directly or reportlab if available
+    # Since we want to keep dependencies minimal and use existing matplotlib, we will construct a PDF
+    # using matplotlib's PdfPages.
     
-    # Create the PDF report using matplotlib
-    # Note: For a full PDF with text, we use a multi-page figure approach
-    fig, axs = plt.subplots(2, 2, figsize=(14, 10))
-    fig.suptitle(f'Distribution Shift Detection Report\nGenerated: {datetime.now().strftime("%Y-%m-%d %H:%M")}', fontsize=14, fontweight='bold')
+    from matplotlib.backends.backend_pdf import PdfPages
     
-    # Page 1: Overview and Timeline
-    ax1 = axs[0, 0]
-    ax1.text(0.1, 0.9, 'Executive Summary', fontsize=12, fontweight='bold')
-    ax1.text(0.1, 0.8, f'Total weeks analyzed: {len(flags_df) if not flags_df.empty else 0}', fontsize=10)
-    ax1.text(0.1, 0.75, f'Shifts detected: {len(flags_df[flags_df["is_shift"] == 1]) if not flags_df.empty else 0}', fontsize=10)
-    if not ground_truth_df.empty:
-        ax1.text(0.1, 0.7, f'Ground truth events: {len(ground_truth_df)}', fontsize=10)
-    
-    # Insert timeline image
-    ax1.imshow(plt.imread(timeline_plot_path))
-    ax1.axis('off')
-    
-    # Page 1: Sensitivity Summary
-    ax2 = axs[0, 1]
-    ax2.text(0.1, 0.9, 'Sensitivity Analysis: Parameter Grid', fontsize=12, fontweight='bold')
-    if not grid_results.empty:
-        ax2.imshow(plt.imread(summary_plot_path))
-    else:
-        ax2.text(0.5, 0.5, 'No grid search results available', ha='center', va='center')
-    ax2.axis('off')
-    
-    # Page 1: Tolerance Sensitivity
-    ax3 = axs[1, 0]
-    ax3.text(0.1, 0.9, 'Sensitivity Analysis: Tolerance Sweep', fontsize=12, fontweight='bold')
-    if not tolerance_results.empty:
-        ax3.imshow(plt.imread(tolerance_plot_path))
-    else:
-        ax3.text(0.5, 0.5, 'No tolerance sweep results available', ha='center', va='center')
-    ax3.axis('off')
-    
-    # Page 1: Metrics Summary Table
-    ax4 = axs[1, 1]
-    ax4.text(0.1, 0.9, 'Key Metrics', fontsize=12, fontweight='bold')
-    if metrics:
-        rows = list(metrics.keys())
-        vals = [str(v) for v in metrics.values()]
-        table_data = [[r, v] for r, v in zip(rows, vals)]
-        table = ax4.table(cellText=table_data, colLabels=['Metric', 'Value'], 
-                         loc='center', cellLoc='left')
-        table.auto_set_font_size(False)
-        table.set_fontsize(10)
-        table.scale(1.2, 1.5)
-        ax4.axis('off')
-    else:
-        ax4.text(0.5, 0.5, 'No metrics available', ha='center', va='center')
-    
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
-    plt.close()
-    
-    logger.info(f"Report generated successfully: {output_path}")
-    return output_path
+    with PdfPages(report_path) as pdf:
+        # Page 1: Title and Summary
+        fig, ax = plt.subplots(figsize=(8.5, 11))
+        ax.axis('off')
+        plt.title('Distribution Shift Detection Report', fontsize=24, pad=20)
+        plt.text(0.5, 0.9, 'Sensitivity Analysis Summary', fontsize=18, ha='center')
+        
+        # Add a table with key metrics if available
+        if 'grid' in metrics:
+            grid_df = metrics['grid']
+            best_idx = grid_df['f1'].idxmax() if 'f1' in grid_df.columns else grid_df['recall'].idxmax()
+            best_config = grid_df.loc[best_idx]
+            
+            table_data = [
+                ['Configuration', 'Value'],
+                ['Best Bandwidth', f"{best_config['bandwidth']:.2f}"],
+                ['Best Window Size', f"{best_config['window_size']}"],
+                ['Max Precision', f"{best_config['precision']:.3f}" if 'precision' in best_config else "N/A"],
+                ['Max Recall', f"{best_config['recall']:.3f}" if 'recall' in best_config else "N/A"],
+                ['Min Delay', f"{best_config['detection_delay']:.2f}" if 'detection_delay' in best_config else "N/A"]
+            ]
+            
+            table = ax.table(cellText=table_data, loc='center', cellLoc='center', colWidths=[0.3, 0.3])
+            table.auto_set_font_size(False)
+            table.set_fontsize(12)
+            table.scale(1.2, 1.5)
+            
+            # Add a note about the Bonferroni correction
+            plt.text(0.5, 0.4, 
+                     f"Note: Statistical significance threshold adjusted via Bonferroni correction (α = 0.01/N).\n"
+                     f"Permutation count dynamically adjusted for runtime constraints without altering threshold.",
+                     fontsize=10, ha='center', style='italic')
+
+        pdf.savefig(fig)
+        plt.close(fig)
+
+        # Page 2: Sensitivity Plots
+        fig, axes = plt.subplots(2, 1, figsize=(8.5, 11))
+        
+        # Re-load images to display in PDF
+        if os.path.exists(summary_plot_path):
+            ax[0].imshow(plt.imread(summary_plot_path))
+            ax[0].axis('off')
+            ax[0].set_title('Sensitivity to Kernel & Window Parameters')
+        else:
+            ax[0].text(0.5, 0.5, 'Summary Plot Not Generated', ha='center')
+            ax[0].axis('off')
+
+        if os.path.exists(tolerance_plot_path):
+            ax[1].imshow(plt.imread(tolerance_plot_path))
+            ax[1].axis('off')
+            ax[1].set_title('Sensitivity to Week-Alignment Tolerance')
+        else:
+            ax[1].text(0.5, 0.5, 'Tolerance Plot Not Generated', ha='center')
+            ax[1].axis('off')
+
+        plt.tight_layout()
+        pdf.savefig(fig)
+        plt.close(fig)
+
+        # Page 3: Timeline
+        fig, ax = plt.subplots(figsize=(8.5, 11))
+        if os.path.exists(timeline_plot_path):
+            ax.imshow(plt.imread(timeline_plot_path))
+            ax.axis('off')
+            ax.set_title('Detection Timeline vs Ground Truth')
+        else:
+            ax.text(0.5, 0.5, 'Timeline Plot Not Generated', ha='center')
+            ax.axis('off')
+        
+        plt.tight_layout()
+        pdf.savefig(fig)
+        plt.close(fig)
+
+    logger.info(f"Report successfully generated: {report_path}")
 
 def main():
-    """Main entry point for report generation."""
-    logger.info("Starting report generation...")
+    """Entry point for report generation."""
+    config = load_config()
+    paths = DataPathsConfig()
+    
+    output_dir = paths.PROCESSED_DIR
+    data_dir = paths.RAW_DIR
+    report_path = os.path.join(output_dir, 'report.pdf')
+    
+    # Ensure output directory exists
+    os.makedirs(output_dir, exist_ok=True)
+    
     try:
-        output_path = generate_report()
-        logger.info(f"Report generation complete. Output: {output_path}")
+        generate_report(output_dir, data_dir, report_path)
+        print(f"Report generation complete: {report_path}")
     except Exception as e:
         logger.error(f"Report generation failed: {e}")
         raise

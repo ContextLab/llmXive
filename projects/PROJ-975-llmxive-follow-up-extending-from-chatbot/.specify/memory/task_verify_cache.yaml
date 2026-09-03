@@ -1,18 +1,18 @@
-T001:
+T007:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listings or file system snapshots were provided showing the required\
-    \ subdirectories (`data/raw`, `data/results`, `code`, `tests/unit`, `tests/contract`,\
-    \ `contracts`). Without concrete evidence that these folders exist and are non\u2011\
-    empty, the task requirement is not satisfied. The implementer must supply a directory\
-    \ tree view or similar proof that the specified subdirectories have been created\
-    \ in the repository."
-T003:
+  h: ab331b9c0248d6552b7003fdcb2a6c342f1549eddadbee364c279a246d4d6e1a
+  r: "The `code/logging_config.py` file is truncated (ends with `_handler = `) and\
+    \ never adds the CSV handler or returns a fully configured logger. The provided\
+    \ CSV file\u2019s header omits the `\"edge_case\"` column defined in `LOG_COLUMNS`,\
+    \ and the required `contracts/experiment_log.schema.yaml` file is missing, so\
+    \ schema compliance cannot be verified."
+T011:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `quickstart.md` file was presented; there is no evidence of a non\u2011empty\
-    \ markdown document containing placeholder text and installation instructions,\
-    \ which is the explicit deliverable of task T003. The required artifact is missing."
+  h: 788dc3016ba7d45a854c3f8d8f2fca8cae02729614e8c68ce6d8fd54ac6593cd
+  r: The provided `tests/contract/test_schemas.py` is incomplete and contains syntax
+    errors (e.g., `for skill i`), and it attempts to load `contracts/task.schema.yaml`
+    which is missing from the repository. Without the schema file and a syntactically
+    correct test, the contract validation cannot be performed.
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -27,13 +27,6 @@ T032:
     \ that writes the tipping point, p\u2011value, and VIF metrics to `data/results/final_analysis.json`).\
     \ Moreover, the required `data/results/final_analysis.json` file does not exist.\
     \ The task\u2019s deliverables are therefore missing."
-T033:
-  c: false
-  h: dbe819b07e2da0c2314d1d20d6349da581de549ec4a965515d8136d7e2c79d33
-  r: The `code/analyze.py` contains a `perform_piecewise_regression` function, but
-    it never writes the computed `x0` to `data/results/tipping_point.json` (the file
-    is missing). Consequently the required output artifact is absent, so the task
-    is not fulfilled.
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

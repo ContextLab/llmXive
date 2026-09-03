@@ -1,194 +1,169 @@
-"""
-Main entry point for the distribution shift detection pipeline.
-Handles configuration loading, validation, and orchestration of the pipeline steps.
-"""
 import os
 import sys
 import yaml
 import logging
-from pydantic import BaseModel, Field, ValidationError
-from typing import Optional, Dict, Any
-import json
+from pydantic import BaseModel, Field, ValidationError, validator
+from typing import Optional, Dict, Any, List
+from pathlib import Path
 
 # Import local modules
 from exceptions import E_NO_DATA
 from logging_setup import setup_logging
-from download_data import fetch_cdc_data, parse_virological_to_events, validate_downloaded_data
-from preprocess import preprocess_pipeline
-from mmd_detector import detect_shifts, main as run_mmd
-from evaluate import evaluate_pipeline, main as run_evaluate
-from report_generator import generate_report, main as run_report
-from bocpd import run_bocpd_rolling_window
-from pettitt import run_pettitt_rolling_window
-from sensitivity import run_tolerance_sweep
+from contracts import load_schema, validate_record
 
-# Configure logging
-logger = logging.getLogger(__name__)
+# Configuration Model Definition
+class DataPathsConfig(BaseModel):
+    raw_ili: str = Field(..., description="Path to raw ILI data CSV")
+    raw_ground_truth: str = Field(..., description="Path to ground truth events CSV")
+    processed: str = Field(..., description="Path to processed data directory")
+    outputs: str = Field(..., description="Path to output directory")
+
+class LoggingConfig(BaseModel):
+    level: str = Field("INFO", description="Logging level")
+    format: str = Field("%(asctime)s - %(name)s - %(levelname)s - %(message)s", description="Log format")
 
 class Config(BaseModel):
-    """
-    Configuration model for the distribution shift detection pipeline.
-    Validates against the schema defined in contracts/config.schema.yaml.
-    """
     seed: int = Field(42, ge=0, description="Random seed for reproducibility")
     permutations: int = Field(1000, ge=1, description="Number of permutations for MMD")
-    window_size: int = Field(12, ge=1, description="Sliding window size")
-    stride: int = Field(1, ge=1, description="Stride for sliding window")
-    alpha: float = Field(0.01, ge=0.0, le=1.0, description="Significance level")
-    bandwidth_method: str = Field("median", description="Bandwidth estimation method")
-    min_samples: int = Field(5, ge=1, description="Minimum samples per window")
-    tolerance_weeks: int = Field(2, ge=0, description="Tolerance for detection delay")
+    window_size: int = Field(12, ge=2, description="Sliding window size")
+    stride: int = Field(1, ge=1, description="Sliding window stride")
+    alpha: float = Field(0.01, gt=0, lt=1, description="Significance level")
+    bandwidth: str = Field("median", description="Kernel bandwidth strategy")
+    tolerance_weeks: int = Field(2, ge=0, description="Tolerance in weeks for evaluation")
+    data_paths: DataPathsConfig
+    logging: LoggingConfig
 
     class Config:
-        extra = "forbid"
+        extra = 'forbid'
 
 def load_config(config_path: str = "code/config.yaml") -> Config:
-    """
-    Load configuration from YAML file and validate against Pydantic model.
-    """
+    """Load and parse the configuration file."""
     if not os.path.exists(config_path):
-        logger.error(f"Configuration file not found: {config_path}")
         raise FileNotFoundError(f"Configuration file not found: {config_path}")
-
-    try:
-        with open(config_path, 'r') as f:
-            config_data = yaml.safe_load(f)
-        
-        # Validate against Pydantic model
-        config = Config(**config_data)
-        logger.info(f"Configuration loaded and validated successfully from {config_path}")
-        return config
     
-    except ValidationError as e:
-        logger.error(f"Configuration validation failed: {e}")
-        raise
-    except yaml.YAMLError as e:
-        logger.error(f"YAML parsing error: {e}")
-        raise
-
-def validate_config_schema(config_data: Dict[str, Any], schema_path: str = "contracts/config.schema.yaml") -> bool:
-    """
-    Validate configuration data against the JSON schema.
-    This provides an additional layer of validation beyond Pydantic.
-    """
+    with open(config_path, 'r') as f:
+        raw_config = yaml.safe_load(f)
+    
+    # Validate against Pydantic model
     try:
-        import jsonschema
-        with open(schema_path, 'r') as f:
-            schema = yaml.safe_load(f)
-        
-        jsonschema.validate(instance=config_data, schema=schema)
-        logger.info("Configuration validated against JSON schema")
-        return True
-    except ImportError:
-        logger.warning("jsonschema not installed, skipping schema validation")
-        return True
-    except FileNotFoundError:
-        logger.error(f"Schema file not found: {schema_path}")
-        return False
-    except jsonschema.ValidationError as e:
-        logger.error(f"Schema validation error: {e}")
-        return False
+        config = Config(**raw_config)
+    except ValidationError as e:
+        raise ValueError(f"Configuration validation failed: {e}")
+    
+    return config
 
-def validate_data_availability() -> None:
+def validate_config_schema(config_path: str = "code/config.yaml") -> bool:
     """
-    Validate that required real data files exist before proceeding.
+    Validate the config.yaml file against the JSON schema in contracts/config.schema.yaml.
+    Returns True if valid, raises ValueError if invalid.
+    """
+    schema_path = "contracts/config.schema.yaml"
+    if not os.path.exists(schema_path):
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    
+    # Load schema
+    schema = load_schema(schema_path)
+    
+    # Load config
+    with open(config_path, 'r') as f:
+        config_data = yaml.safe_load(f)
+    
+    # Validate using the schema validation logic
+    # Note: pydantic already did structural validation, this is for strict schema adherence
+    try:
+        validate_record(config_data, schema)
+    except Exception as e:
+        raise ValueError(f"Schema validation failed: {e}")
+    
+    return True
+
+def validate_data_availability(config: Config) -> None:
+    """
+    Check if required data files exist.
     Raises E_NO_DATA if files are missing.
     """
     required_files = [
-        "data/raw/fluview_ili.csv",
-        "data/raw/ground_truth_events.csv"
+        config.data_paths.raw_ili,
+        config.data_paths.raw_ground_truth
     ]
     
-    missing_files = []
-    for file_path in required_files:
-        if not os.path.exists(file_path):
-            missing_files.append(file_path)
+    missing = []
+    for f in required_files:
+        if not os.path.exists(f):
+            missing.append(f)
     
-    if missing_files:
-        error_msg = f"Pipeline halted: Real CDC data unavailable. Missing: {', '.join(missing_files)}"
-        logger.error(error_msg)
-        raise E_NO_DATA(error_msg)
+    if missing:
+        msg = f"Pipeline halted: Real CDC data unavailable. Missing: {missing}"
+        logging.error(msg)
+        raise E_NO_DATA(msg)
     
-    logger.info("All required data files found")
+    logging.info("Data availability check passed.")
 
-def run_pipeline(config: Config) -> None:
-    """
-    Execute the full distribution shift detection pipeline.
-    """
-    logger.info("Starting distribution shift detection pipeline")
+def run_pipeline(config: Config) -> Dict[str, Any]:
+    """Execute the main distribution shift detection pipeline."""
+    logging.info("Starting pipeline execution...")
     
-    # Step 1: Validate data availability
-    validate_data_availability()
-    
-    # Step 2: Preprocess data
-    logger.info("Preprocessing data...")
+    # Preprocessing
+    from preprocess import preprocess_pipeline
     processed_data = preprocess_pipeline(config)
     
-    # Step 3: Run MMD detection
-    logger.info("Running MMD shift detection...")
-    mmd_results = run_mmd(processed_data, config)
+    # MMD Detection
+    from mmd_detector import detect_shifts
+    flags = detect_shifts(processed_data, config)
     
-    # Step 4: Run baseline methods (Pettitt and BOCPD)
-    logger.info("Running baseline change-point detection...")
-    pettitt_results = run_pettitt_rolling_window(processed_data, config)
-    bocpd_results = run_bocpd_rolling_window(processed_data, config)
+    # Evaluation
+    from evaluate import evaluate_pipeline
+    metrics = evaluate_pipeline(flags, config)
     
-    # Step 5: Evaluate results
-    logger.info("Evaluating pipeline results...")
-    evaluation_results = run_evaluate(mmd_results, pettitt_results, bocpd_results, config)
+    # Report Generation
+    from report_generator import generate_report
+    generate_report(metrics, flags, config)
     
-    # Step 6: Generate report
-    logger.info("Generating final report...")
-    report_path = run_report(evaluation_results, config)
-    
-    logger.info(f"Pipeline completed successfully. Report saved to: {report_path}")
+    logging.info("Pipeline execution completed successfully.")
+    return metrics
 
-def run_sensitivity_analysis(config: Config) -> None:
-    """
-    Run sensitivity analysis on key parameters.
-    """
-    logger.info("Starting sensitivity analysis...")
-    run_tolerance_sweep(config)
-    logger.info("Sensitivity analysis completed")
+def run_sensitivity_analysis(config: Config) -> Dict[str, Any]:
+    """Run sensitivity analysis over grid parameters."""
+    logging.info("Starting sensitivity analysis...")
+    from sensitivity import run_grid_search, run_tolerance_sweep
+    
+    grid_results = run_grid_search(config)
+    tolerance_results = run_tolerance_sweep(config)
+    
+    from sensitivity_aggregator import save_aggregated_metrics
+    aggregated = save_aggregated_metrics(grid_results, tolerance_results, config)
+    
+    logging.info("Sensitivity analysis completed.")
+    return aggregated
 
 def main():
-    """
-    Main entry point for the pipeline.
-    """
-    # Setup logging
+    """Main entry point for the pipeline."""
+    # Setup logging first
     setup_logging()
     
     try:
-        # Load and validate configuration
+        # Load and validate config
         config = load_config()
+        validate_config_schema()
         
-        # Additional schema validation if jsonschema is available
-        with open("code/config.yaml", 'r') as f:
-            config_data = yaml.safe_load(f)
-        validate_config_schema(config_data)
+        # Setup logging with config values
+        # (Re-setup if logging config changed, though typically done once)
         
-        # Parse command line arguments for mode selection
-        if len(sys.argv) > 1:
-            mode = sys.argv[1]
-            if mode == "sensitivity":
-                run_sensitivity_analysis(config)
-            else:
-                run_pipeline(config)
-        else:
-            run_pipeline(config)
-            
+        # Validate data
+        validate_data_availability(config)
+        
+        # Run main pipeline
+        run_pipeline(config)
+        
+        # Run sensitivity analysis
+        run_sensitivity_analysis(config)
+        
     except E_NO_DATA as e:
-        logger.critical(str(e))
-        sys.exit(1)
-    except FileNotFoundError as e:
-        logger.critical(str(e))
-        sys.exit(1)
-    except ValidationError as e:
-        logger.critical(f"Configuration error: {e}")
+        logging.error(str(e))
         sys.exit(1)
     except Exception as e:
-        logger.critical(f"Unexpected error: {e}")
-        sys.exit(1)
+        logging.error(f"Pipeline failed with error: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

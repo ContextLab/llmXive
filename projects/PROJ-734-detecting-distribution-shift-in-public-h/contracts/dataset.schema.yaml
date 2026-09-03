@@ -1,78 +1,77 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: CDC FluView and Ground Truth Dataset Schema
-description: |
-  Schema for raw and processed datasets used in distribution shift detection.
-  Enforces data integrity for CDC FluView ILI data and Ground Truth Event data.
+# Dataset Schema for CDC FluView and Ground Truth Events
+# Used for data integrity validation during pipeline execution
 type: object
+required:
+  - fluview
+  - ground_truth
 properties:
-  fluview_ili:
-    description: Raw CDC FluView ILI data
+  fluview:
     type: object
+    description: CDC FluView ILI data schema
+    required:
+      - file_path
+      - columns
+      - data_types
     properties:
       file_path:
         type: string
-        pattern: ^data/raw/fluview_ili\.csv$
+        pattern: "^data/raw/fluview_ili\\.csv$"
+        description: Path to the raw FluView ILI CSV file
       columns:
         type: array
         items:
           type: string
-        contains:
-          const: "week"
-          description: ISO week string (e.g., 2020-01)
-        contains:
-          const: "ili"
-          description: ILI percentage (float)
-        contains:
-          const: "num_ili"
-          description: Number of ILI visits (int)
-        contains:
-          const: "num_patients"
-          description: Total patients seen (int)
-      required_columns:
-        type: array
-        items:
-          type: string
+        description: Required columns in the dataset
         minItems: 4
         contains:
           const: "week"
-        contains:
-          const: "ili"
-      data_integrity:
+      data_types:
         type: object
+        description: Expected data types for key columns
         properties:
-          has_missing_weeks:
+          week:
+            type: string
+            enum: ["int", "float", "object"]
+          ili:
+            type: string
+            enum: ["float", "int"]
+          num_ili_patients:
+            type: string
+            enum: ["float", "int"]
+          pop_at_risk:
+            type: string
+            enum: ["float", "int"]
+      constraints:
+        type: object
+        description: Data constraints
+        properties:
+          week_range:
+            type: object
+            properties:
+              min_week:
+                type: integer
+              max_week:
+                type: integer
+          non_negative_ili:
             type: boolean
-            description: Flag indicating presence of missing weeks (NaNs)
-          has_constant_segments:
-            type: boolean
-            description: Flag indicating zero-variance segments
-          has_outliers:
-            type: boolean
-            description: Flag indicating statistical outliers
-  ground_truth_events:
-    description: Ground truth public health events
+            const: true
+  ground_truth:
     type: object
+    description: Ground truth events schema
+    required:
+      - file_path
+      - columns
+      - data_types
     properties:
       file_path:
         type: string
-        pattern: ^data/raw/ground_truth_events\.csv$
+        pattern: "^data/raw/ground_truth_events\\.csv$"
+        description: Path to the raw ground truth events CSV file
       columns:
         type: array
         items:
           type: string
-        contains:
-          const: "start_week"
-          description: Start week of the event
-        contains:
-          const: "end_week"
-          description: End week of the event
-        contains:
-          const: "event_name"
-          description: Name of the event
-      required_columns:
-        type: array
-        items:
-          type: string
+        description: Required columns
         minItems: 3
         contains:
           const: "start_week"
@@ -80,16 +79,28 @@ properties:
           const: "end_week"
         contains:
           const: "event_name"
-      source_independence:
+      data_types:
         type: object
+        description: Expected data types
         properties:
-          verified_source:
+          start_week:
+            type: string
+            enum: ["int", "float"]
+          end_week:
+            type: string
+            enum: ["int", "float"]
+          event_name:
+            type: string
+            enum: ["object", "string"]
+      constraints:
+        type: object
+        description: Data constraints
+        properties:
+          start_before_end:
             type: boolean
-            description: Confirmed to be from a verified CDC source, not derived from ILI data
-          no_ili_columns:
-            type: boolean
-            description: Confirmed no ILI-related columns present
-required:
-  - fluview_ili
-  - ground_truth_events
-additionalProperties: false
+            const: true
+          valid_event_names:
+            type: array
+            items:
+              type: string
+            description: List of valid event types

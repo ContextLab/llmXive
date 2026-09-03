@@ -1,24 +1,22 @@
 # llmXive: From Chatbot to Digital Colleague
 
-**Quick Start Guide**
-
-This project implements an automated science pipeline to evaluate the performance of a "Digital Colleague" agent across varying library sizes and semantic overlaps.
+A reproducible research pipeline for simulating persistent digital colleagues with overlapping skill libraries.
 
 ## Prerequisites
 
 - Python 3.9+
 - pip
-- (Optional) Virtual environment tool (venv, conda)
+- System RAM: ≥ 8 GB recommended for full dataset generation
 
 ## Installation
 
-1. **Clone the repository** (if not already done):
+1. **Clone the repository**:
  ```bash
  git clone <repository-url>
- cd llmxive-follow-up-extending-from-chatbot
+ cd PROJ-975-llmxive-follow-up-extending-from-chatbot
  ```
 
-2. **Create and activate a virtual environment** (recommended):
+2. **Create a virtual environment** (recommended):
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
@@ -28,78 +26,76 @@ This project implements an automated science pipeline to evaluate the performanc
  ```bash
  pip install -r requirements.txt
  ```
- *Note: `requirements.txt` contains pinned versions for reproducibility.*
 
-## Project Structure
+## Quick Start
 
-- `code/`: Source code for data generation, agent execution, and analysis.
-- `data/raw/`: Generated synthetic datasets (tasks, skills).
-- `data/results/`: Experiment logs, metrics, and analysis reports.
-- `contracts/`: JSON/YAML schemas for data validation.
-- `tests/`: Unit and integration tests.
-
-## Quick Start Execution
-
-Follow these steps to generate data, run the experiment, and analyze results.
-
-### 1. Setup Project Directories
-Ensure the directory structure exists:
+### 1. Project Setup
+Ensure the directory structure is created:
 ```bash
 python code/setup_directories.py
 ```
 
-### 2. Generate Synthetic Data
-Create the skills library and task set:
+### 2. Configure Seeds (Optional)
+Set environment variables to override defaults in `code/config.py`:
+```bash
+export SEED_A=42
+export SEED_B=123
+export OVERLAP_LEVEL=medium
+```
+
+### 3. Generate Synthetic Data
+Generate 500 multi-step tasks and a configurable skill library:
 ```bash
 python code/generate_data.py
 ```
-*Outputs:* `data/raw/skills.json`, `data/raw/tasks.json`, `data/raw/checksums.json`.
+**Outputs**:
+- `data/raw/tasks.json`
+- `data/raw/skills.json`
+- `state/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot.yaml` (checksums)
 
-### 3. Run the Experiment
-Execute the agent across different library sizes:
-```bash
-python code/run_experiment.py
-```
-*Outputs:* `data/results/experiment_log.csv`, `data/results/metrics.json`.
-
-### 4. Run Baseline (No Pruning)
+### 4. Run Baseline Experiment (No Pruning)
+Execute the agent with pruning disabled across library sizes [10, 30, 50, 100]:
 ```bash
 python code/run_baseline.py
 ```
-*Outputs:* `data/results/experiment_log_baseline.csv`.
+**Outputs**:
+- `data/results/experiment_log_baseline.csv`
+- `data/results/baseline_metrics.json`
 
-### 5. Analyze Results
-Perform statistical analysis and generate the final report:
+### 5. Run Pruning Experiment
+Execute the agent with the "Safe Pruning" heuristic enabled:
+```bash
+python code/run_experiment.py
+```
+**Outputs**:
+- `data/results/experiment_log.csv`
+
+### 6. Analyze Results
+Perform statistical analysis, calculate VIF, and identify the tipping point:
 ```bash
 python code/analyze.py
 ```
-*Outputs:* `data/results/final_analysis.json`, `data/results/tipping_point.json`, `data/results/sensitivity_report.json`.
+**Outputs**:
+- `data/results/tipping_point.json`
+- `data/results/final_analysis.json`
+- `data/results/sensitivity_report.json`
+
+## Verification
+
+To verify the logging infrastructure:
+```bash
+python code/verify_logging.py
+```
 
 ## Configuration
 
-- **Seeds**: Controlled via `code/config.py` (default values or environment variables).
-- **Pruning Thresholds**: Configurable in `code/config.py` (default: prune every 10 tasks).
-- **Overlap Level**: Set in `code/config.py` to control semantic density of the skill library.
-
-## Validation
-
-- **Schema Validation**: Run contract tests to ensure data compliance:
- ```bash
- pytest tests/contract/
- ```
-- **Unit Tests**:
- ```bash
- pytest tests/unit/
- ```
+Edit `code/config.py` to modify:
+- `SEED_A`, `SEED_B`: Random seeds for reproducibility
+- `OVERLAP_LEVEL`: 'low', 'medium', or 'high' semantic overlap
+- `PRUNING_INTERVAL`: Number of tasks between pruning checks (default: 10)
 
 ## Troubleshooting
 
-- **Memory Errors**: If you encounter "Memory Limit Exceeded", the script will fail gracefully. Reduce the number of skills or tasks in `config.py`.
-- **Missing Files**: Ensure `data/raw/` and `data/results/` directories exist before running scripts.
-- **Dependencies**: If installation fails, check that your Python version is 3.9 or higher.
-
-## Next Steps
-
-- Review `README.md` for detailed architecture and API documentation.
-- Explore `specs/` for user stories and functional requirements.
-- Modify `code/config.py` to experiment with different parameters.
+- **Memory Errors**: The script checks for >7GB RAM usage. If exceeded, it will fail with "Memory Limit Exceeded". Reduce `OVERLAP_LEVEL` or run on a machine with more RAM.
+- **Missing Modules**: Ensure all dependencies in `requirements.txt` are installed.
+- **Data Integrity**: Checksums are stored in `state/projects/...yaml`. If data files are modified, regeneration is required.

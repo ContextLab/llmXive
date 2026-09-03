@@ -1,21 +1,11 @@
 """
-Aggregator for Sensitivity Analysis Results (T032).
+Sensitivity Aggregator Module (Task T032)
 
-This module aggregates metrics from all sensitivity configurations
-(bandwidths, window sizes, and tolerance sweeps) into a single
-sensitivity.csv file as required by FR-007 and FR-010.
+Aggregates metrics from grid search (bandwidth/window variations) and
+tolerance sweeps into a single 'sensitivity.csv' file.
 
-It assumes that:
-1. T029 has generated metrics for different bandwidths/window sizes
-   and stored them in a temporary structure or intermediate files.
-2. T030 has generated tolerance sweep metrics.
-3. The main.py entry point calls this aggregator after running the
-   sensitivity grid and tolerance sweep.
-
-Output:
-- data/processed/sensitivity.csv: Aggregated metrics for all configurations.
+Implements FR-007 (Grid search aggregation) and FR-010 (Tolerance sweep aggregation).
 """
-
 import os
 import sys
 import logging
@@ -23,129 +13,142 @@ import pandas as pd
 import numpy as np
 from typing import List, Dict, Tuple, Optional
 
-# Import existing utilities if needed, though this is mostly data wrangling
-# We rely on the outputs from T029 (grid) and T030 (tolerance)
-# Since T029 and T030 are implemented, we assume they write to specific intermediate files
-# or we can re-run the logic if needed. However, the most robust way is to assume
-# the previous steps wrote their results to disk.
-
-# Let's define the expected intermediate paths based on standard project conventions
-# If T029 writes to data/processed/grid_results.csv and T030 writes to data/processed/tolerance_results.csv
-# We will load, merge, and save to data/processed/sensitivity.csv
-
-GRID_RESULTS_PATH = "data/processed/grid_results.csv"
-TOLERANCE_RESULTS_PATH = "data/processed/tolerance_results.csv"
-OUTPUT_PATH = "data/processed/sensitivity.csv"
-
-# If these intermediate files don't exist, we might need to generate them on the fly
-# if the previous tasks (T029, T030) didn't save them.
-# However, T029 and T030 are marked as completed, so we assume they saved their outputs.
-# If they didn't, we might need to re-run the logic here.
-# To be safe, we will check for existence. If missing, we will try to reconstruct
-# by calling the relevant functions from sensitivity.py if they expose a "run and return results" interface.
-# But looking at the API surface for sensitivity.py:
-# public names: run_tolerance_sweep, main
-# It doesn't explicitly expose a "run_grid" function that returns data.
-# T029 implementation likely wrote to a file.
-
-# Let's implement the aggregator to load existing files.
-# If files are missing, we log a warning and attempt to re-run the logic if possible,
-# or raise an error.
+# Import existing paths/config if needed, though we rely on standard paths
+from main import load_config, DataPathsConfig
 
 logger = logging.getLogger(__name__)
 
-def load_grid_results() -> Optional[pd.DataFrame]:
-    """Load grid results from T029."""
-    if os.path.exists(GRID_RESULTS_PATH):
-        logger.info(f"Loading grid results from {GRID_RESULTS_PATH}")
-        return pd.read_csv(GRID_RESULTS_PATH)
-    else:
-        logger.warning(f"Grid results file {GRID_RESULTS_PATH} not found.")
-        return None
+def load_grid_results(file_path: str) -> pd.DataFrame:
+    """
+    Load the grid search results CSV.
+    Expected columns: bandwidth, window_size, precision, recall, f1_score, detection_delay, p_value
+    """
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Grid results file not found: {file_path}")
+    
+    df = pd.read_csv(file_path)
+    logger.info(f"Loaded grid results from {file_path}: {len(df)} rows")
+    return df
 
-def load_tolerance_results() -> Optional[pd.DataFrame]:
-    """Load tolerance results from T030."""
-    if os.path.exists(TOLERANCE_RESULTS_PATH):
-        logger.info(f"Loading tolerance results from {TOLERANCE_RESULTS_PATH}")
-        return pd.read_csv(TOLERANCE_RESULTS_PATH)
-    else:
-        logger.warning(f"Tolerance results file {TOLERANCE_RESULTS_PATH} not found.")
-        return None
+def load_tolerance_results(file_path: str) -> pd.DataFrame:
+    """
+    Load the tolerance sweep results CSV.
+    Expected columns: tolerance_weeks, precision, recall, f1_score, detection_delay
+    """
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Tolerance results file not found: {file_path}")
+    
+    df = pd.read_csv(file_path)
+    logger.info(f"Loaded tolerance results from {file_path}: {len(df)} rows")
+    return df
 
-def aggregate_metrics() -> pd.DataFrame:
+def aggregate_metrics(grid_df: pd.DataFrame, tolerance_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Aggregate metrics from grid and tolerance sweeps into a single DataFrame.
+    Aggregate metrics from both grid and tolerance results into a unified DataFrame.
     
-    Returns:
-        pd.DataFrame: Combined sensitivity analysis results.
+    This function combines the results, adding a 'source_type' column to distinguish
+    between 'grid_search' (bandwidth/window variations) and 'tolerance_sweep'.
+    
+    Returns a DataFrame with columns:
+    - source_type: 'grid_search' or 'tolerance_sweep'
+    - config_param_1: bandwidth or tolerance_weeks
+    - config_param_2: window_size (only for grid_search, NaN otherwise)
+    - precision, recall, f1_score, detection_delay
+    - timestamp: generation time
     """
-    grid_df = load_grid_results()
-    tolerance_df = load_tolerance_results()
+    # Process Grid Results
+    grid_df = grid_df.copy()
+    grid_df['source_type'] = 'grid_search'
+    grid_df['config_param_1'] = grid_df['bandwidth']
+    grid_df['config_param_2'] = grid_df['window_size']
+    grid_df['tolerance_weeks'] = np.nan  # Placeholder for consistency
     
-    if grid_df is None and tolerance_df is None:
-        raise FileNotFoundError(
-            "No sensitivity results found. Ensure T029 and T030 have been executed "
-            "and their output files (grid_results.csv, tolerance_results.csv) exist."
-        )
+    # Select and order columns for output
+    grid_output = grid_df[['source_type', 'config_param_1', 'config_param_2', 
+                           'tolerance_weeks', 'precision', 'recall', 'f1_score', 
+                           'detection_delay', 'p_value']]
     
-    results = []
+    # Process Tolerance Results
+    tolerance_df = tolerance_df.copy()
+    tolerance_df['source_type'] = 'tolerance_sweep'
+    tolerance_df['config_param_1'] = tolerance_df['tolerance_weeks']
+    tolerance_df['config_param_2'] = np.nan  # No window size variation here
+    tolerance_df['bandwidth'] = np.nan       # No bandwidth variation here
+    tolerance_df['window_size'] = np.nan     # No window size variation here
     
-    if grid_df is not None:
-        # Ensure grid_df has the necessary columns
-        # Expected columns from T029: bandwidth, window_size, precision, recall, f1_score, detection_delay
-        # We might need to add a 'type' column to distinguish grid vs tolerance
-        grid_df['analysis_type'] = 'grid'
-        results.append(grid_df)
+    # Add placeholder p_value if missing (tolerance sweep might not compute p-values per row)
+    if 'p_value' not in tolerance_df.columns:
+        tolerance_df['p_value'] = np.nan
+        
+    tolerance_output = tolerance_df[['source_type', 'config_param_1', 'config_param_2', 
+                                     'tolerance_weeks', 'precision', 'recall', 'f1_score', 
+                                     'detection_delay', 'p_value']]
     
-    if tolerance_df is not None:
-        # Expected columns from T030: tolerance, precision, recall, f1_score, detection_delay
-        # We might need to add a 'type' column and potentially standardize column names
-        tolerance_df['analysis_type'] = 'tolerance'
-        # If tolerance_df doesn't have bandwidth or window_size, we can set them to NaN or 'default'
-        if 'bandwidth' not in tolerance_df.columns:
-            tolerance_df['bandwidth'] = np.nan
-        if 'window_size' not in tolerance_df.columns:
-            tolerance_df['window_size'] = np.nan
-        results.append(tolerance_df)
+    # Concatenate
+    combined = pd.concat([grid_output, tolerance_output], ignore_index=True)
     
-    if not results:
-        raise ValueError("No data to aggregate.")
+    # Sort by source_type then by config_param_1
+    combined = combined.sort_values(by=['source_type', 'config_param_1']).reset_index(drop=True)
     
-    combined_df = pd.concat(results, ignore_index=True)
-    
-    # Sort by analysis_type, then by relevant parameters
-    combined_df = combined_df.sort_values(by=['analysis_type', 'bandwidth', 'window_size', 'tolerance'])
-    
-    return combined_df
+    logger.info(f"Aggregated {len(grid_output)} grid rows and {len(tolerance_output)} tolerance rows.")
+    return combined
 
-def save_aggregated_metrics(df: pd.DataFrame, output_path: str):
+def save_aggregated_metrics(df: pd.DataFrame, output_path: str) -> None:
     """
-    Save the aggregated metrics to a CSV file.
-    
-    Args:
-        df: DataFrame containing aggregated metrics.
-        output_path: Path to save the CSV file.
+    Save the aggregated DataFrame to the specified CSV path.
     """
+    # Ensure directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
     df.to_csv(output_path, index=False)
-    logger.info(f"Aggregated sensitivity metrics saved to {output_path}")
+    logger.info(f"Saved aggregated sensitivity metrics to {output_path}")
 
 def main():
-    """Main entry point for the sensitivity aggregator."""
-    # Setup logging if not already done
-    if not logging.root.handlers:
-        from logging_setup import setup_logging
-        setup_logging()
+    """
+    Main entry point for T032: Aggregate metrics for all configurations into sensitivity.csv.
+    """
+    # Setup logging
+    from logging_setup import setup_logging
+    setup_logging()
     
-    logger.info("Starting sensitivity metrics aggregation (T032).")
+    # Load configuration
+    config = load_config()
+    paths = DataPathsConfig()
+    
+    # Define input paths (generated by T029 and T030)
+    grid_results_path = os.path.join(paths.processed_dir, 'grid_results.csv')
+    tolerance_results_path = os.path.join(paths.processed_dir, 'tolerance_results.csv')
+    output_path = os.path.join(paths.processed_dir, 'sensitivity.csv')
+    
+    logger.info("Starting sensitivity aggregation (T032)...")
     
     try:
-        combined_df = aggregate_metrics()
-        save_aggregated_metrics(combined_df, OUTPUT_PATH)
-        logger.info("Sensitivity aggregation completed successfully.")
+        # Load inputs
+        grid_df = load_grid_results(grid_results_path)
+        tolerance_df = load_tolerance_results(tolerance_results_path)
+        
+        # Aggregate
+        aggregated_df = aggregate_metrics(grid_df, tolerance_df)
+        
+        # Save
+        save_aggregated_metrics(aggregated_df, output_path)
+        
+        logger.info("T032 completed successfully.")
+        
+        # Print summary
+        print(f"\n--- Sensitivity Aggregation Summary ---")
+        print(f"Total configurations analyzed: {len(aggregated_df)}")
+        print(f"Grid search configurations: {len(aggregated_df[aggregated_df['source_type'] == 'grid_search'])}")
+        print(f"Tolerance sweep configurations: {len(aggregated_df[aggregated_df['source_type'] == 'tolerance_sweep'])}")
+        print(f"Output saved to: {output_path}")
+        
+    except FileNotFoundError as e:
+        logger.error(f"Missing required input file: {e}")
+        logger.error("Ensure T029 (grid search) and T030 (tolerance sweep) have been executed successfully.")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Failed to aggregate sensitivity metrics: {e}")
-        raise
+        logger.error(f"Error during aggregation: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
