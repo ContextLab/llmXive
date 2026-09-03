@@ -5,6 +5,15 @@ T010:
     \ file is provided, and there is no content showing the required entity definitions\
     \ (AR Event, Gravity Anomaly, Correlation Result). The task\u2019s core artifact\
     \ is missing, so the requirement is not satisfied."
+T011a:
+  c: false
+  h: ea08030da03f3e3c6d16c33cd90687393ba3e69e7599aef9ff2caf04bf5cd1ab
+  r: "The provided `01_fetch_coefficients.py` never reads `config/urls.yaml` (the\
+    \ file is missing) and the displayed code is truncated before the C20\u2011fetch\
+    \ block, so it\u2019s unclear if it fully implements the required logic. Moreover,\
+    \ the generated `coeffs/degree1.yaml` and `coeffs/c20.yaml` contain placeholder\
+    \ comments rather than the fetched coefficient values, indicating the script did\
+    \ not produce the expected output. The task therefore remains unfinished."
 T012:
   c: false
   h: f6f93db0c424b69b2e0a6ba25c5114fc75330fee1a00a1d4fd0cbc933767ce80

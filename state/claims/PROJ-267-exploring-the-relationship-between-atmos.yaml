@@ -7172,25 +7172,6 @@
   status: verified
   updated_at: '2026-09-02T15:35:17Z'
 - artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
-  attempts: 2
-  canonical: citation verification script checks HTML title overlap >= 0.7
-  claim_id: c_da05d27e
-  context: "The script performs an HTTP HEAD request for each URL and checks that\
-    \ the fetched HTML title overlaps \u2265 0.7 with the expected title (stored in\
-    \ the YAML). It exits with a non\u2011zero code on any failure, ensuring Constitution\
-    \ Principle II is satisfied before data ingestion."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "The script performs an HTTP HEAD request for each URL and checks that\
-    \ the fetched HTML title overlaps \u2265 0.7 with the expected title."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-02T15:35:29Z'
-- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
   attempts: 1
   canonical: analysis assumes static non-rotating frame for monthly aggregation acknowledging
     coordinate artifacts
@@ -7388,3 +7369,468 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-02T15:41:59Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 0
+  canonical: Target region West Coast NA 40N to 50N 120W to 125W
+  claim_id: c_4ee31e2b
+  context: "filters to the Target region (West Coast NA: \xB0N\u201150\xB0N, 120\xB0\
+    W\u2011125\xB0W)"
+  evidence:
+    entailment_evidence: Target region defined as West Coast NA 35N-50N 120W-125W
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Target_region_defined_as_West_Coast_NA_35N-50N_120W-125W
+  kind: entity_fact
+  raw_text: "The Target region is defined as West Coast NA: 40\xB0N\u201150\xB0N,\
+    \ 120\xB0W\u2011125\xB0W."
+  resolved_value: Target region defined as West Coast NA 35N-50N 120W-125W
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T20:43:14Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: HTTP HEAD request title overlap threshold 0.7
+  claim_id: c_4f830263
+  context: "The script performs an HTTP HEAD request for each URL and checks that\
+    \ the fetched HTML title overlaps \u2265 0.7 with the expected title (stored in\
+    \ the YAML). It exits with a non\u2011zero code on any failure, ensuring Constitution\
+    \ Principle II is satisfied before data ingestion."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The script performs an HTTP HEAD request for each URL and checks that\
+    \ the fetched HTML title overlaps \u2265 0.7 with the expected title."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T20:43:30Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: merged CSV 90 percent expected rows no NaN
+  claim_id: c_f631a0e6
+  context: "Independent Test: Execute the data pipeline script and verify the merged\
+    \ CSV contains \u2265 90 % of expected monthly rows and no NaN values in the primary\
+    \ columns."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The merged CSV contains \u2265 90 % of expected monthly rows and no NaN\
+    \ values in the primary columns."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T20:43:31Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Control region East Coast NA 70W to 75W
+  claim_id: c_c41bd830
+  context: "filters to the Control region (East Coast NA: Southern to mid-latitudes,\
+    \ 70\xB0W\u201175\xB0W, an area with minimal AR activity)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Control_region_East_Coast_NA_70W_to_75W
+  kind: entity_fact
+  raw_text: "The Control region is defined as East Coast NA: Southern to mid-latitudes,\
+    \ 70\xB0W\u201175\xB0W."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T20:43:58Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Gaussian smoothing spatial scale 300 km
+  claim_id: c_411db5e5
+  context: performs Gaussian smoothing with a characteristic spatial scale of 300
+    km by projecting data to a 2D grid
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Gaussian smoothing is performed with a characteristic spatial scale of
+    300 km.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T20:44:40Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling seed 42
+  claim_id: c_cd333d62
+  context: apply bootstrap resampling (A sufficient number of iterations, seed=42)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling uses seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T20:45:05Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: Pearson correlation symmetric lag range
+  claim_id: c_caf8dbd9
+  context: "for each lag in a symmetric range of negative to positive integer lags,\
+    \ computes Pearson r and raw p\u2011value"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pearson_correlation_symmetric_lag_range
+  kind: entity_fact
+  raw_text: The analysis computes Pearson correlation for a symmetric range of negative
+    to positive integer lags.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T20:45:35Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: bootstrap 95 percent confidence intervals
+  claim_id: c_3ed25dcb
+  context: performs bootstrap (multiple iterations) to obtain 95 % CI
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling obtains 95 % confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T20:45:56Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: lag values -3 to 3
+  claim_id: c_29762c99
+  context: lags = [-3, -2, -1, 0, 1, 2, 3]
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Lag values analyzed are -3, -2, -1, 0, 1, 2, 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T20:46:14Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: primary sensitivity thresholds 0.4 0.5 0.6
+  claim_id: c_21dd9207
+  context: Performs analysis ONLY for the specific threshold set {a low value, 0.5,
+    0.6} as required by SC-003... The specific values {0.4, 0.5, 0.6} are the primary
+    verification metric per SC-003.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The primary sensitivity thresholds are 0.4, 0.5, and 0.6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T20:46:34Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: typical Atmospheric River duration 3.5 days
+  claim_id: c_fde2e84f
+  context: 'ar_duration_days = 3.5 # Average from literature'
+  evidence:
+    asserted: '3.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The typical duration of Atmospheric Rivers is 3.5 days.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T20:46:35Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: sampling interval 30 days
+  claim_id: c_5697c95d
+  context: sampling_interval_days = 30.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sampling interval is 30 days.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T20:47:09Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: runtime constraint 6 hours
+  claim_id: c_9ed8ca1f
+  context: LIMIT_SECONDS = 6 * 3600
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The runtime constraint is \u2264 6 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T20:47:11Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 0
+  canonical: target region defined as West Coast NA 40N-50N 120W-125W
+  claim_id: c_b8b38e5b
+  context: "filters to the Target region (West Coast NA: \xB0N\u201150\xB0N, 120\xB0\
+    W\u2011125\xB0W), saves raw files under data/raw/grace-fo/target/ and records\
+    \ SHA\u2011256 checksums."
+  evidence:
+    entailment_evidence: Target region defined as West Coast NA 35N-50N 120W-125W
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Target_region_defined_as_West_Coast_NA_35N-50N_120W-125W
+  kind: entity_fact
+  raw_text: "The target region is defined as the West Coast NA: 40\xB0N\u201150\xB0\
+    N, 120\xB0W\u2011125\xB0W."
+  resolved_value: Target region defined as West Coast NA 35N-50N 120W-125W
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T20:48:24Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 3
+  canonical: citation verification script checks HTML title overlap >= 0.7
+  claim_id: c_da05d27e
+  context: "The script performs an HTTP HEAD request for each URL and checks that\
+    \ the fetched HTML title overlaps \u2265 0.7 with the expected title (stored in\
+    \ the YAML). It exits with a non\u2011zero code on any failure, ensuring Constitution\
+    \ Principle II is satisfied before data ingestion."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The script performs an HTTP HEAD request for each URL and checks that\
+    \ the fetched HTML title overlaps \u2265 0.7 with the expected title."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T20:48:40Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: GRACE-FO preprocessing applies Gaussian smoothing with 300 km spatial
+    scale
+  claim_id: c_0ef651a7
+  context: performs Gaussian smoothing with a characteristic spatial scale of 300
+    km by projecting data to a 2D grid (using a high-resolution grid), applying 2D
+    convolution with a Gaussian kernel (sigma=300km converted to grid units), and
+    aggregating back.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script applies Gaussian smoothing with a characteristic spatial scale
+    of 300 km.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T20:49:05Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: control region defined as East Coast NA 70W-75W
+  claim_id: c_bb6aa56c
+  context: "filters to the Control region (East Coast NA: Southern to mid-latitudes,\
+    \ 70\xB0W\u201175\xB0W, an area with minimal AR activity), saves raw files under\
+    \ data/raw/grace-fo/control/ and records SHA\u2011256 checksums."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Control_region_defined_as_East_Coast_NA_70W-75W
+  kind: entity_fact
+  raw_text: "The control region is defined as the East Coast NA: Southern to mid-latitudes,\
+    \ 70\xB0W\u201175\xB0W."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T20:49:09Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: analysis uses gravitational potential perturbation at GRACE-FO satellite
+    altitude as proxy for mass redistribution
+  claim_id: c_e1c4c031
+  context: "The analysis utilizes the perturbation in gravitational potential at the\
+    \ GRACE\u2011FO satellite altitude (\u2248 low Earth orbit) as the proxy for mass\
+    \ redistribution. This is distinct from the geoid height at the Earth's surface."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_uses_gravitational_potential_perturbation_at_GRACE-
+  kind: entity_fact
+  raw_text: "The analysis utilizes the perturbation in gravitational potential at\
+    \ the GRACE\u2011FO satellite altitude (\u2248 low Earth orbit) as the proxy for\
+    \ mass redistribution."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T20:49:42Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: correlation analysis lag range includes -3 to 3
+  claim_id: c_641616e1
+  context: for each lag in a symmetric range of negative to positive integer lags,
+    computes Pearson r and raw p-value... lags = [-3, -2, -1, 0, 1, 2, 3]
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The correlation analysis uses a symmetric range of negative to positive
+    integer lags including -3, -2, -1, 0, 1, 2, 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T20:50:18Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling uses 1000 iterations with seed 42
+  claim_id: c_9a413ea1
+  context: 'performs bootstrap (multiple iterations) to obtain 95 % CI... def bootstrap_ci(x,
+    y, iterations=1000, seed=42):'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap resampling uses 1000 iterations with seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T20:50:41Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis uses thresholds 0.4, 0.5, 0.6
+  claim_id: c_c404e138
+  context: 'PRIMARY: Performs analysis ONLY for the specific threshold set {a low
+    value, 0.5, 0.6} as required by SC-003... THRESHOLDS_PRIMARY = [0.4, 0.5, 0.6]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis report performs analysis for the specific threshold
+    set {0.4, 0.5, 0.6}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T20:51:08Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: pipeline runtime constraint is 6 hours
+  claim_id: c_fa7182ae
+  context: compares it against the specified time limit, and writes docs/runtime_report.md
+    indicating PASS/FAIL... LIMIT_SECONDS = 6 * 3600
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The runtime constraint for the pipeline is specified as 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T20:51:29Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: typical Atmospheric River duration is 3.5 days
+  claim_id: c_b7d9badc
+  context: 'retrieves literature values for the typical duration of Atmospheric Rivers
+    (days)... ar_duration_days = 3.5 # Average from literature'
+  evidence:
+    asserted: '3.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The typical duration of Atmospheric Rivers is cited as 3.5 days in the
+    temporal bias analysis.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T20:51:31Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: monthly sampling interval is 30 days
+  claim_id: c_8f36dbda
+  context: compares this duration to the monthly sampling interval (30 days)... sampling_interval_days
+    = 30.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The monthly sampling interval for the analysis is 30 days.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T20:52:08Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: MDC calculated using Fisher Z-transformation tanh(z_alpha / sqrt(n-3))
+  claim_id: c_fbdc0be3
+  context: 'Calculates Minimum Detectable Correlation (MDC) derived from the sample
+    size and alpha for power analysis... Using the Fisher Z-transformation approximation:
+    MDC = tanh(z_alpha / sqrt(n - 3))'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The Minimum Detectable Correlation (MDC) is calculated using the Fisher
+    Z-transformation approximation: MDC = tanh(z_alpha / sqrt(n - 3)).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T20:52:45Z'
+- artifact_path: projects/PROJ-267-exploring-the-relationship-between-atmos/specs/001-exploring-the-relationship-between-atmos/tasks.md
+  attempts: 1
+  canonical: merged CSV must contain >= 90% of expected monthly rows
+  claim_id: c_ee20526f
+  context: "Execute the data pipeline script and verify the merged CSV contains \u2265\
+    \ 90 % of expected monthly rows and no NaN values in the primary columns."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The project requires that the merged CSV contains \u2265 90 % of expected\
+    \ monthly rows."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T20:52:46Z'
