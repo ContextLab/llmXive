@@ -37,7 +37,7 @@
 **Purpose**: Identify, verify, download, and validate public datasets. **Depends on T001a/b.**
 **Ordering Note**: T012a -> T012b -> T012c -> T013 -> T014a -> T014b -> T017a -> T017b. T012a must complete before T012b. T012b must complete before T012c. T012c must complete before T013. T013 must complete before T014a.
 
-- [X] T012a [P] **Discover** available plant metabolomics studies. **Logic**: Query the Metabolomics Workbench API (endpoint: `) with search parameters for `subject_type=plant` and `data_type=metabolomics`. **Output**: Write a JSON list to `data/raw/study_manifest.json` containing `study_id`, `title`, and `download_url` for all available plant studies. **Verification**: Run script and verify `data/raw/study_manifest.json` exists, is non-empty, and contains valid JSON with at least one Study ID and valid URLs. **Note**: This task does NOT filter for resistance metadata yet; that is handled in T012c.
+- [X] T012a [P] **Discover** available plant metabolomics studies. **Logic**: Query the Metabolomics Workbench API (endpoint: `https://www.metabolomicsworkbench.org/data/studies.php?STUDY_TYPE=METABOLOMICS&SUBJECT_TYPE=PLANT`) with search parameters for `subject_type=plant` and `data_type=metabolomics`. **Output**: Write a JSON list to `data/raw/study_manifest.json` containing `study_id`, `title`, and `download_url` for all available plant studies. **Verification**: Run script and verify `data/raw/study_manifest.json` exists, is non-empty, and contains valid JSON with at least one Study ID and valid URLs. **Note**: This task does NOT filter for resistance metadata yet; that is handled in T012c.
 
 - [X] T012b [P] **Download** raw data for all studies in manifest. **Pre-requisite**: T012a must complete successfully. **Pre-check**: Verify `data/raw/study_manifest.json` exists. **Logic**: For each study in the manifest, `requests.get()` the `download_url`. **File Naming**: Save raw files as `data/raw/{study_id}_raw_intensity.csv` and `data/raw/{study_id}_phenotype.csv`. **Output**: Store raw files with SHA256 checksums in `data/raw/`. **Verification**: Confirm files exist and are non-empty. **Note**: This task downloads ALL studies; filtering happens in T012c.
 
@@ -168,7 +168,7 @@
 - [X] T026a [US3] **Extract Top Metabolites**. **Pre-requisite**: T020c-exec must complete. **Pre-check**: Verify `results/feature_importance_ranking.json` exists. **Logic**: Read `results/feature_importance_ranking.json` (output of T020c). Extract the top-ranked metabolites ranked by mean decrease in impurity.
  **Output**: Save `results/top_metabolites.json` containing the list of top 10 metabolites.
  **Verification**: Verify output file exists and contains the correct keys.
-- [X] T026b [US3] **Map Pathways**. **Pre-requisite**: T026a and T025b must complete. **Logic**: Read `results/top_metabolites.json`. Map metabolites to KEGG/MetaCyc pathways using the KEGG REST API (`) with `inchikey` as the query parameter. **Fallback Strategy**: If primary mapping fails, attempt secondary lookup via metabolite synonyms from `data/mappings/synonyms.json`. **Soft Fail Strategy**: If <10 metabolites map, proceed with the available mappings and log a warning (do NOT raise an error).
+- [X] T026b [US3] **Map Pathways**. **Pre-requisite**: T026a and T025b must complete. **Logic**: Read `results/top_metabolites.json`. Map metabolites to KEGG/MetaCyc pathways using the KEGG REST API (`https://rest.kegg.jp/link/pathway/`) with `inchikey` as the query parameter. **Fallback Strategy**: If primary mapping fails, attempt secondary lookup via metabolite synonyms from `data/mappings/synonyms.json`. **Soft Fail Strategy**: If <10 metabolites map, proceed with the available mappings and log a warning (do NOT raise an error).
  **Output**: Save `results/pathway_mappings.json` containing mapped pathways and a `mapping_success_rate` field.
  **Verification**: Verify output file exists and contains the correct keys.
 - [X] T026c [US3] **Generate Report**. **Pre-requisite**: T026b must complete. **Logic**: Read `results/pathway_mappings.json` and `results/top_metabolites.json`. Generate interpretation report discussing biological plausibility. Include the mandatory "framing" text: "These findings represent statistical associations between pre-challenge metabolite profiles and disease resistance phenotypes. No causal claims are made."
@@ -209,6 +209,18 @@ The research question remains: [Research Question]. The method remains: [Method]
 
 ---
 
+## Phase 6: Revision & Resilience (Addressing Review Concerns)
+
+**Purpose**: Address specific edge cases and robustness concerns raised during analysis to ensure the pipeline fails loudly on bad data and handles class imbalance correctly.
+
+- [ ] T034 [P] [US1] **Implement** robust data fetching in `code/data/download.py` to **FAIL LOUDLY**. **Logic**: Remove any `try/except` blocks that catch network errors and fall back to `generate_synthetic_*()` or `mock_*()` data. If `requests.get()` fails or returns a non-200 status, **raise a custom `DataFetchError`** with a clear message indicating the specific study ID and URL that failed. **Verification**: Run unit test `tests/unit/test_download.py` simulating a network failure; assert that the test raises `DataFetchError` and no synthetic data is generated.
+- [ ] T035 [P] [US2] **Implement** class imbalance handling in `code/modeling/train.py`. **Logic**: In the stratified split logic (T020a), check if the hold-out set (or any CV fold) contains zero samples of the minority class (e.g., no resistant samples). If detected, **raise a `ClassImbalanceError`** with a detailed message explaining the split failure. **Do NOT** silently drop the minority class or adjust the split ratio without explicit logging. **Verification**: Run unit test `tests/unit/test_modeling.py` with a synthetic dataset having 0 positive samples in the hold-out set; assert that `ClassImbalanceError` is raised.
+- [ ] T036 [P] [US2] **Implement** ComBat convergence fallback in `code/data/preprocess.py`. **Logic**: Wrap the ComBat execution in a `try/except` block that catches `ConvergenceWarning` or `LinAlgError`. If ComBat fails to converge, **log a `BatchCorrectionWarning`** and **fall back to simple mean-centering per batch** (standardizing each batch to mean=0, std=1) instead of halting or skipping correction entirely. **Verification**: Run integration test with a synthetic dataset designed to trigger ComBat divergence; verify that mean-centering is applied and the pipeline continues successfully.
+- [ ] T037 [P] [US1] **Implement** InChIKey alignment strictness check. **Logic**: In `code/data/preprocess.py`, after aligning metabolites via InChIKey, calculate the percentage of original features retained. If the intersection of aligned metabolites is **< 10 features**, **raise a `DataQualityError`** indicating that the dataset is too sparse for meaningful analysis. **Verification**: Run unit test with a dataset having < 10 common metabolites; assert that `DataQualityError` is raised.
+- [ ] T038 [P] [US2] **Implement** learning curve power analysis. **Logic**: In `code/modeling/evaluate.py`, if N < 50, perform the learning curve analysis (T020a-exec) and calculate the slope of the learning curve. If the slope remains steep at the maximum sample size (indicating underfitting due to sample size), **flag the result in `results/learning_curve.json` with a `power_limitation_warning`** and **do NOT** proceed to claim statistical significance for the model performance. **Verification**: Run integration test with a small dataset (N=30) and verify the warning is present in the output JSON.
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -219,6 +231,7 @@ The research question remains: [Research Question]. The method remains: [Method]
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Revision (Phase 6)**: Can be implemented in parallel with User Stories once Foundational is complete, but must be verified before final release.
 
 ### User Story Dependencies
 
@@ -242,6 +255,7 @@ The research question remains: [Research Question]. The method remains: [Method]
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+- Phase 6 (Revision) tasks can run in parallel with User Stories as they are independent robustness checks.
 
 ---
 
@@ -286,6 +300,7 @@ With multiple developers:
  - Developer A: User Story 1
  - Developer B: User Story 2
  - Developer C: User Story 3
+ - Developer D: Phase 6 (Resilience/Edge Cases)
 3. Stories complete and integrate independently
 
 ---
@@ -299,3 +314,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **Critical**: Phase 6 tasks (T034-T038) are mandatory for the "Constitution Check" to pass regarding Data Hygiene and Verified Accuracy. They ensure the system fails loudly on bad data rather than fabricating results.
