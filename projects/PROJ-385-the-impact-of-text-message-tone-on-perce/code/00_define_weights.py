@@ -1,95 +1,73 @@
 """
-T090: Define cue-intensity weighting schemes.
+Cue Intensity Weight Schemes Definition (T090)
 
-This script defines three specific weighting schemes for cue intensity
-(emoji, punctuation, length) and saves them to a JSON file in the processed data directory.
-
-Schemes required by FR-005:
-1. Equal Weight: { "emoji": 0.333, "punctuation": 0.333, "length": 0.333 }
-2. Emoji-Dominant: { "emoji": 0.6, "punctuation": 0.2, "length": 0.2 }
-3. Punctuation-Dominant: { "emoji": 0.2, "punctuation": 0.6, "length": 0.2 }
-
-The 'Equal Weight' scheme serves as the baseline.
+Defines and saves the three weighting schemes for cue intensity calculation.
+Output: data/processed/cue_intensity_weights.json
 """
-
 import json
 import sys
 from pathlib import Path
-
-# Add the code directory to the path to allow imports from config
-code_dir = Path(__file__).resolve().parent
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
-
 from config import get_processed_data_dir
 from logging_config import setup_logging, get_logger
 
-# Setup logging
-logger = setup_logging()
 logger = get_logger(__name__)
 
 def get_cue_intensity_schemes():
     """
-    Returns a dictionary containing the three predefined cue intensity weighting schemes.
+    Returns the three predefined cue intensity weighting schemes.
     
     Returns:
-        dict: A dictionary with keys 'equal_weight', 'emoji_dominant', and 'punctuation_dominant'
-              mapping to their respective weight dictionaries.
+        dict: Dictionary containing the three schemes
     """
-    schemes = {
-        "equal_weight": {
-            "emoji": 0.333,
-            "punctuation": 0.333,
-            "length": 0.333
+    return {
+        "Equal": {
+            "emoji": 0.33,
+            "punctuation": 0.33,
+            "length": 0.34
         },
-        "emoji_dominant": {
+        "Emoji-Dominant": {
             "emoji": 0.6,
             "punctuation": 0.2,
             "length": 0.2
         },
-        "punctuation_dominant": {
+        "Punctuation-Dominant": {
             "emoji": 0.2,
             "punctuation": 0.6,
             "length": 0.2
         }
     }
-    return schemes
 
-def save_schemes(schemes, output_path):
+def save_schemes(output_path: Path = None):
     """
     Saves the cue intensity schemes to a JSON file.
     
     Args:
-        schemes (dict): The dictionary of schemes to save.
-        output_path (Path): The path where the JSON file will be written.
+        output_path: Optional path to save the file. Defaults to data/processed/cue_intensity_weights.json
     """
-    try:
-        # Ensure the directory exists
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(schemes, f, indent=4)
-        
-        logger.info(f"Successfully saved cue intensity schemes to {output_path}")
-    except IOError as e:
-        logger.error(f"Failed to save schemes to {output_path}: {e}")
-        raise
-
-def main():
-    """Main entry point for the script."""
-    logger.info("Starting T090: Define cue-intensity weighting schemes")
+    if output_path is None:
+        output_path = get_processed_data_dir() / "cue_intensity_weights.json"
     
-    # Get the output path
-    processed_dir = get_processed_data_dir()
-    output_file = processed_dir / "cue_intensity_weights.json"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Get the schemes
     schemes = get_cue_intensity_schemes()
     
-    # Save the schemes
-    save_schemes(schemes, output_file)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(schemes, f, indent=2)
     
-    logger.info("T090 completed successfully")
+    logger.info(f"Saved cue intensity schemes to {output_path}")
+    return output_path
+
+def main():
+    """Main entry point for defining weights."""
+    setup_logging()
+    
+    try:
+        output_path = save_schemes()
+        logger.info("Weights defined and saved successfully")
+        return 0
+    except Exception as e:
+        logger.error(f"Error defining weights: {e}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    exit(main())

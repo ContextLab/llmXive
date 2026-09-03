@@ -2,7 +2,7 @@
 Project Configuration and Path Resolution.
 
 Provides helper functions to resolve project directories relative to the
-repository root.
+repository root and defines global constants for reproducibility.
 """
 import os
 from pathlib import Path
@@ -12,16 +12,13 @@ from pathlib import Path
 # This must be an integer constant.
 RANDOM_SEED: int = 42
 
-# --- Path Resolution ---
-# Determine the project root. 
-# We assume this file is in code/config.py, so root is 2 levels up.
-# If run as a module, we might need to adjust.
-# For safety, we look for a marker file or assume the structure.
-# Standard assumption: project_root = Path(__file__).parent.parent
-_PROJECT_ROOT = Path(__file__).parent.parent.resolve()
-
 # Base data path relative to project root
 BASE_DATA_PATH_STR: str = "data"
+
+# --- Path Resolution ---
+# Determine the project root.
+# We assume this file is in code/config.py, so root is 2 levels up.
+_PROJECT_ROOT = Path(__file__).parent.parent.resolve()
 
 def get_project_root() -> Path:
     """Return the absolute path to the project root."""

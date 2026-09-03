@@ -1,112 +1,78 @@
 """
-Define cue‑intensity weighting schemes for the sensitivity analysis.
+Defines and saves the cue intensity weighting schemes for the sensitivity analysis.
 
-This script creates a JSON file ``cue_intensity_weights.json`` in the
-``data/processed`` directory containing four predefined weighting schemes:
+This module creates the JSON file containing three weighting dictionaries:
+1. Equal: Equal distribution across emoji, punctuation, and length.
+2. Emoji-Dominant: Higher weight on emoji cues.
+3. Punctuation-Dominant: Higher weight on punctuation cues.
 
-1. Primary:          {"emoji": 0.4, "punctuation": 0.3, "length": 0.3}
-2. Equal:            {"emoji": 0.33, "punctuation": 0.33, "length": 0.33}
-3. Emoji‑Dominant:   {"emoji": 0.6, "punctuation": 0.2, "length": 0.2}
-4. Punctuation‑Dominant: {"emoji": 0.2, "punctuation": 0.6, "length": 0.2}
-
-The JSON file is written when the module is executed as a script
-(``python code/090_define_cue_weights.py``) or when :func:`main` is called
-programmatically.
+The output file is saved to data/processed/cue_intensity_weights.json.
 """
-
 import json
 from pathlib import Path
 from typing import Dict, Any
 
 from config import get_processed_data_dir
+from logging_config import setup_logging, get_logger
 
-__all__ = [
-    "get_cue_intensity_schemes",
-    "save_schemes",
-    "main",
-]
-
+# Initialize logger
+logger = get_logger(__name__)
 
 def get_cue_intensity_schemes() -> Dict[str, Dict[str, float]]:
     """
-    Return a dictionary containing the four cue‑intensity weighting schemes.
-
-    Returns
-    -------
-    Dict[str, Dict[str, float]]
-        Mapping from scheme name to a mapping of cue names to numeric weights.
+    Returns the three cue intensity weighting schemes with exact numeric values.
+    
+    Returns:
+        Dict mapping scheme names to their weight dictionaries.
     """
-    # The numeric values are defined exactly as required by the specification.
-    schemes: Dict[str, Dict[str, float]] = {
-        "Primary": {
-            "emoji": 0.4,
-            "punctuation": 0.3,
-            "length": 0.3,
-        },
+    return {
         "Equal": {
             "emoji": 0.33,
             "punctuation": 0.33,
-            "length": 0.33,
+            "length": 0.34
         },
         "Emoji-Dominant": {
             "emoji": 0.6,
             "punctuation": 0.2,
-            "length": 0.2,
+            "length": 0.2
         },
         "Punctuation-Dominant": {
             "emoji": 0.2,
             "punctuation": 0.6,
-            "length": 0.2,
-        },
+            "length": 0.2
+        }
     }
-    return schemes
 
-
-def save_schemes(
-    schemes: Dict[str, Dict[str, float]],
-    filename: Path | None = None,
-) -> Path:
+def save_schemes(output_path: Path, schemes: Dict[str, Dict[str, float]]) -> None:
     """
-    Serialize the weighting schemes to a JSON file.
-
-    Parameters
-    ----------
-    schemes : Dict[str, Dict[str, float]]
-        The cue‑intensity schemes to write.
-    filename : Path | None, optional
-        Destination file.  If ``None`` the default location
-        ``data/processed/cue_intensity_weights.json`` is used.
-
-    Returns
-    -------
-    Path
-        The path to the file that was written.
+    Saves the weighting schemes to a JSON file.
+    
+    Args:
+        output_path: Path to the output JSON file.
+        schemes: The weighting schemes to save.
     """
-    if filename is None:
-        processed_dir = get_processed_data_dir()
-        filename = processed_dir / "cue_intensity_weights.json"
-
-    # Ensure the target directory exists.
-    filename.parent.mkdir(parents=True, exist_ok=True)
-
-    # Write JSON with a stable ordering for reproducibility.
-    with filename.open("w", encoding="utf-8") as f:
-        json.dump(schemes, f, indent=2, sort_keys=True)
-
-    return filename
-
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(schemes, f, indent=2)
+    logger.info(f"Saved cue intensity weights to {output_path}")
 
 def main() -> None:
-    """
-    Entry‑point for the module.
-
-    Generates the cue‑intensity weighting schemes and writes them to the
-    canonical JSON file under ``data/processed``.
-    """
+    """Main entry point to generate and save the weighting schemes."""
+    setup_logging()
+    
+    # Get the output directory
+    processed_dir = get_processed_data_dir()
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Define the output path
+    output_path = processed_dir / "cue_intensity_weights.json"
+    
+    # Get the schemes
     schemes = get_cue_intensity_schemes()
-    output_path = save_schemes(schemes)
-    print(f"Cue‑intensity weighting schemes saved to: {output_path}")
-
+    
+    # Save them
+    save_schemes(output_path, schemes)
+    
+    logger.info("Task T090 completed: Cue-intensity weighting schemes generated.")
 
 if __name__ == "__main__":
     main()

@@ -1,39 +1,31 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Rating
-description: Schema for a participant's rating of a stimulus.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Rating Schema
+description: Schema for participant ratings (data/raw/real_ratings.csv)
 type: object
+properties:
+  prolific_id:
+    type: string
+    description: Participant's Prolific ID (will be hashed later)
+  stimulus_id:
+    type: string
+    description: Reference to the stimulus being rated
+  relationship_type:
+    type: string
+    enum: ["friend", "acquaintance"]
+    description: The relationship context for this rating
+  rating:
+    type: number
+    minimum: 1.0
+    maximum: 7.0
+    description: Perceived emotional support rating (1-7 scale)
+  timestamp:
+    type: string
+    format: date-time
+    description: When the rating was submitted
 required:
-  - participant_id
+  - prolific_id
   - stimulus_id
   - relationship_type
   - rating
   - timestamp
-  - prolific_id
-properties:
-  participant_id:
-    type: string
-    pattern: "^[a-f0-9]{64}$"
-    description: SHA-256 hash of the Prolific ID (anonymized).
-  stimulus_id:
-    type: string
-    pattern: "^S\\d{4}$"
-    description: Reference to the stimulus being rated.
-  relationship_type:
-    type: string
-    enum:
-      - friend
-      - acquaintance
-    description: The relationship context in which the rating was given.
-  rating:
-    type: number
-    minimum: 1
-    maximum: 7
-    description: Perceived emotional support rating (1-7 Likert scale).
-  timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of the rating.
-  prolific_id:
-    type: string
-    pattern: "^\\w+$"
-    description: Original Prolific ID (before anonymization, used for consent matching).
+additionalProperties: false

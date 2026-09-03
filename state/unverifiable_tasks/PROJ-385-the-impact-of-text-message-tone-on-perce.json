@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-385-the-impact-of-text-message-tone-on-perce",
+  "tasks": [
+    {
+      "task_key": "T090",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: data/processed/cue_intensity_weights.json",
+      "first_seen": "2026-09-03T16:50:30.069995+00:00",
+      "last_seen": "2026-09-03T16:50:30.069995+00:00"
+    }
+  ],
+  "updated_at": "2026-09-03T16:50:30.069995+00:00"
+}

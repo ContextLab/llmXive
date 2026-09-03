@@ -1,28 +1,33 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: LMMSummary
-description: Schema for the Linear Mixed Model summary statistics.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: LMM Summary Schema
+description: Schema for Linear Mixed Model summary results (data/results/lmm_summary.csv)
 type: object
+properties:
+  fixed_effect:
+    type: string
+    description: Name of the fixed effect term
+  estimate:
+    type: number
+    description: Estimated coefficient value
+  stderr:
+    type: number
+    description: Standard error of the estimate
+  z_value:
+    type: number
+    description: Wald Z-statistic
+  p_value:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: P-value for the effect
+  cohens_f:
+    type: number
+    minimum: 0.0
+    description: Cohen's f effect size (optional, for interaction terms)
 required:
   - fixed_effect
   - estimate
   - stderr
   - z_value
   - p_value
-properties:
-  fixed_effect:
-    type: string
-    description: Name of the fixed effect (e.g., "cue_intensity", "relationship_type").
-  estimate:
-    type: number
-    description: Coefficient estimate.
-  stderr:
-    type: number
-    description: Standard error of the estimate.
-  z_value:
-    type: number
-    description: Wald Z-statistic.
-  p_value:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: P-value associated with the Z-statistic.
+additionalProperties: false

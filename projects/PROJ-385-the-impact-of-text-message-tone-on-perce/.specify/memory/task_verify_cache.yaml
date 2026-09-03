@@ -1,10 +1,40 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory tree or README.md was presented; the claim that `ls -R` matches\
+    \ the expected hierarchy cannot be verified because the required artifacts (code/,\
+    \ data/, tests/ directories and a non\u2011empty README.md) are missing from the\
+    \ provided evidence."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No validation artifact (e.g., a report, checklist, or updated `data-model.md`
+    with comments) was provided to show that the `specs/001-the-impact-of-text-message-tone-on-perce/data-model.md`
+    file was examined and confirmed to meet the current spec requirements for the
+    Stimulus, Participant, Rating, and AnalysisResult entities. The implementer must
+    supply a concrete validation output (e.g., a markdown file or summary) demonstrating
+    the compliance check.
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure or `.gitkeep` files were presented as evidence; without
+    visible `data/raw/`, `data/processed/`, and `data/consent/` folders containing
+    a `.gitkeep` each, the requirement cannot be confirmed. The implementer must provide
+    the actual filesystem layout or a listing showing those directories and files.
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing any JSON or YAML schema files in the required
+    path `specs/001-the-impact-of-text-message-tone-on-perce/contracts/`. Without
+    actual files (or a directory listing) the claim cannot be verified. The implementer
+    must add the schema files (or a proof of their existence) in that location.
 T008:
   c: false
-  h: bd56e10ae287eea10f0ff043f20cd70696a729ad2eb6db409ee39568eafd4103
-  r: The `code/logging_config.py` file exists, but importing it does not create `data/pipeline.log`
-    nor write any startup message, and the expected log file is absent. The implementation
-    must ensure the log file is generated on import (or via an explicit call) and
-    that a startup entry is written.
+  h: 21c7be70cb44df4e320ec2357e29abaff6c8dc82ebe73c7b20be5f766eb859c6
+  r: "The repository contains `code/logging_config.py`, but the module does not create\
+    \ `data/pipeline.log` on import (the logging setup is only executed when `setup_logging()`\
+    \ is called). Consequently the expected log file is missing, and the startup message\
+    \ is never written. The task\u2019s requirement is therefore not met."
 T010a:
   c: false
   h: cc92d0c43e5381fd370fb82598865015f08eb09b3dcdf760944a6653e929e57b
@@ -84,26 +114,12 @@ T036:
   r: No evidence of additional unit test files for edge cases (missing data handling,
     randomization failure) was provided in the `tests/unit/` directory; the required
     artifacts are missing.
-T058:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No benchmark artifact was provided; there is no evidence of a `--benchmark --mode\
-    \ mock` run, nor any output containing `total_duration_seconds` to verify it is\
-    \ \u2264\u202F21600 seconds. The implementer\u2019s submission contains only the\
-    \ project\u2019s research specifications, not the required benchmark results."
 T084:
   c: false
   h: ee8f6eaab17d675ec587331ca567fa261d29d3ce04a7ec92f6d27f0020f46c50
   r: The required files `data/processed/analysis_ready.csv` and `analysis_ready.schema.yaml`
     are missing, so no validation could have been performed. Without these artifacts
     the claimed test cannot be verified.
-T090:
-  c: false
-  h: c9efcc786bb7c3c4d6e2a8a375b4adb38f321927d891247c20c511bd3a40042b
-  r: "The required output file `data/processed/cue_intensity_weights.json` does not\
-    \ exist, so the weighting schemes are not actually stored as specified. The script\
-    \ defines the correct weights, but without the JSON file the task\u2019s deliverable\
-    \ is missing."
 T090b:
   c: false
   h: faccf438fef141ecc86a6810466818285da4a24ccbe9cecebb7bcf56cf64605f
@@ -111,18 +127,12 @@ T090b:
     \ and the provided script `code/00_generate_synthetic_power_data.py` is incomplete\
     \ (truncated and contains a syntax error). Without a generated zip containing\
     \ the synthetic datasets, the task\u2019s deliverable is not satisfied."
-T101:
+T091:
   c: false
-  h: ee7693ad76c7e8723c400fb40712aac0db9b5240af39b47b85ead0b1985e098b
-  r: "The guard script exists but the required data file `data/processed/anonymised_ratings.csv`\
-    \ and the schema file `rating.schema.yaml` are missing, so the guard cannot perform\
-    \ its checks. Moreover, the provided code snippet is truncated, shows no actual\
-    \ PII\u2011detection logic or a `main` block that exits with a non\u2011zero status,\
-    \ and there is no evidence of the test T125 confirming the abort behavior. The\
-    \ implementation therefore does not satisfy the task\u2019s requirements."
-T102:
-  c: true
-  h: 7b7c231993d6578c07f875cc3a7762de4c887c8bf0c4553282c290fa2e49fa7c
-  r: "The `ci/check_real_data.yml` workflow is present and contains logic that checks\
-    \ for `data/raw/real_ratings.csv`, outputs an error message, and exits with status\u202F\
-    1 when the file is missing, thereby aborting the pipeline as required."
+  h: 5c38ece65c17b2525587e9bac1cb9e0b69d83d1630bdaeb622a791ff2e33382c
+  r: "The required output file `data/processed/power_analysis_results.json` is not\
+    \ present, so the task\u2019s deliverable cannot be verified. Additionally, the\
+    \ provided `code/00_run_power_simulation.py` is truncated and does not show a\
+    \ complete implementation that would generate the JSON. The missing result file\
+    \ (and incomplete script) means the power\u2011analysis simulation has not been\
+    \ demonstrably executed."

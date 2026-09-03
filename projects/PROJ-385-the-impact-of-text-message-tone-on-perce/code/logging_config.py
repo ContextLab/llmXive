@@ -46,8 +46,16 @@ def setup_logging(log_file: Optional[Path] = None) -> logging.Logger:
     # Root logger
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.DEBUG)
+    
+    # Remove existing handlers to prevent duplicates on re-import
+    for handler in root_logger.handlers[:]:
+        root_logger.removeHandler(handler)
+    
     root_logger.addHandler(file_handler)
     root_logger.addHandler(console_handler)
+    
+    # Log startup message immediately
+    root_logger.info("Pipeline logging initialized.")
     
     return root_logger
 

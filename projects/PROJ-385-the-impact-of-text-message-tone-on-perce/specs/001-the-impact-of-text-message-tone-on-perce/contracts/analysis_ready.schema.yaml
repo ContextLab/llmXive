@@ -1,41 +1,42 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: AnalysisReady
-description: Schema for the cleaned dataset ready for LMM fitting.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Analysis Ready Schema
+description: Schema for the merged analysis-ready dataset (data/processed/analysis_ready.csv)
 type: object
+properties:
+  participant_id:
+    type: string
+    description: Anonymized participant ID (SHA-256 hash)
+  stimulus_id:
+    type: string
+    description: Reference to the stimulus
+  relationship_type:
+    type: string
+    enum: ["friend", "acquaintance"]
+    description: Relationship context
+  rating:
+    type: number
+    minimum: 1.0
+    maximum: 7.0
+    description: Perceived emotional support rating
+  emoji_count:
+    type: integer
+    description: Number of emojis in the stimulus
+  punctuation_type:
+    type: string
+    description: Type of punctuation
+  length_category:
+    type: string
+    description: Length category of the stimulus
+  cue_intensity:
+    type: number
+    description: Calculated cue intensity
 required:
   - participant_id
   - stimulus_id
   - relationship_type
   - rating
+  - emoji_count
+  - punctuation_type
+  - length_category
   - cue_intensity
-  - scenario_id
-properties:
-  participant_id:
-    type: string
-    pattern: "^[a-f0-9]{64}$"
-    description: Anonymized participant identifier.
-  stimulus_id:
-    type: string
-    pattern: "^S\\d{4}$"
-    description: Stimulus identifier.
-  relationship_type:
-    type: string
-    enum:
-      - friend
-      - acquaintance
-    description: Relationship context.
-  rating:
-    type: number
-    minimum: 1
-    maximum: 7
-    description: Support rating.
-  cue_intensity:
-    type: string
-    enum:
-      - low
-      - medium
-      - high
-    description: Cue intensity level.
-  scenario_id:
-    type: string
-    description: Base scenario identifier.
+additionalProperties: false

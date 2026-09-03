@@ -1,52 +1,84 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: AnalysisResult
-description: Schema for the final aggregated analysis results.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Analysis Result Schema
+description: Schema for the final aggregated analysis results (data/results/analysis_results.json)
 type: object
-required:
-  - fixed_effects
-  - random_effects
-  - model_fit
-  - post_hoc_results
 properties:
-  fixed_effects:
+  lmm_summary:
     type: array
     items:
-      type: object
-      properties:
-        term:
-          type: string
-        estimate:
-          type: number
-        p_value:
-          type: number
-  random_effects:
-    type: object
-    properties:
-      participant_variance:
-        type: number
-      stimulus_variance:
-        type: number
-      residual_variance:
-        type: number
-  model_fit:
-    type: object
-    properties:
-      aic:
-        type: number
-      bic:
-        type: number
-      log_likelihood:
-        type: number
-  post_hoc_results:
+      $ref: "#/definitions/lmm_effect"
+    description: List of fixed effects from the LMM
+  posthoc_results:
     type: array
     items:
-      type: object
-      properties:
-        comparison:
-          type: string
-        estimate:
-          type: number
-        p_value:
-          type: number
-        significant:
-          type: boolean
+      $ref: "#/definitions/posthoc_comparison"
+    description: Tukey HSD post-hoc comparisons
+  exclusion_summary:
+    type: object
+    properties:
+      total_participants:
+        type: integer
+      excluded_count:
+        type: integer
+      exclusion_reasons:
+        type: object
+        additionalProperties:
+          type: integer
+    description: Summary of participant exclusions
+  metadata:
+    type: object
+    properties:
+      model_type:
+        type: string
+      df_method:
+        type: string
+      timestamp:
+        type: string
+        format: date-time
+    description: Metadata about the analysis
+required:
+  - lmm_summary
+  - posthoc_results
+  - exclusion_summary
+  - metadata
+definitions:
+  lmm_effect:
+    type: object
+    properties:
+      fixed_effect:
+        type: string
+      estimate:
+        type: number
+      stderr:
+        type: number
+      z_value:
+        type: number
+      p_value:
+        type: number
+      cohens_f:
+        type: number
+    required:
+      - fixed_effect
+      - estimate
+      - stderr
+      - z_value
+      - p_value
+  posthoc_comparison:
+    type: object
+    properties:
+      group1:
+        type: string
+      group2:
+        type: string
+      estimate:
+        type: number
+      p_value:
+        type: number
+      significant:
+        type: boolean
+    required:
+      - group1
+      - group2
+      - estimate
+      - p_value
+      - significant

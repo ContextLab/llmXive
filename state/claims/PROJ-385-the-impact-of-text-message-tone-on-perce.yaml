@@ -3227,3 +3227,173 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-31T22:00:04Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: Analysis uses Wald-Z approximation for degrees of freedom
+  claim_id: c_40a089ae
+  context: The analysis uses the Wald-Z approximation for degrees of freedom. The
+    original Spec (FR-003) and Plan (Phase 3) requested Satterthwaite approximation;
+    however, the Python-only stack (Plan Phase 3) restricts us to statsmodels, which
+    only provides Wald-Z.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_uses_Wald-Z_approximation_for_degrees_of_freedom
+  kind: entity_fact
+  raw_text: The analysis uses the Wald-Z approximation for degrees of freedom.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T16:46:54Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: statsmodels.MixedLM does not support Satterthwaite approximation
+  claim_id: c_a8f733d4
+  context: The original Spec (FR-003) and Plan (Phase 3) requested Satterthwaite approximation;
+    however, the Python-only stack (Plan Phase 3) restricts us to statsmodels, which
+    only provides Wald-Z.
+  evidence:
+    entailment_evidence: MixedLM does not support Satterthwaite approxima
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Statsmodels.MixedLM_does_not_support_Satterthwaite_approxima
+  kind: entity_fact
+  raw_text: statsmodels.MixedLM does not support Satterthwaite approximation.
+  resolved_value: statsmodels.MixedLM does not support Satterthwaite approximation
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T16:46:56Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: Synthetic power analysis datasets N=60 effect size 0.25
+  claim_id: c_54e80f59
+  context: "Zip contains datasets with N=60, effect size 0.25, random\u2011effects\
+    \ structure (Participant, Stimulus)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic datasets for power analysis contain N=60 and effect size 0.25.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T16:47:47Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: Power analysis estimated power threshold 0.80
+  claim_id: c_a9302ca3
+  context: "JSON includes keys estimated_power, target_N, method and estimated_power\
+    \ \u2265 0.80."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Power analysis results require estimated_power \u2265 0.80."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T16:47:48Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: Power analysis target N threshold 60
+  claim_id: c_21079f90
+  context: Script exits with error if estimated_power < 0.80 or target_N < 60.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_target_N_threshold_60
+  kind: magnitude
+  raw_text: Target N for power analysis must be at least 60.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T16:49:02Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime benchmark threshold 21600 seconds
+  claim_id: c_f71e4480
+  context: CI step runs this benchmark; fails on excess time.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_benchmark_threshold_21600_seconds
+  kind: magnitude
+  raw_text: Pipeline runtime benchmark fails if greater than 21600 seconds.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T16:49:23Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: Pipeline performance documentation 6 hours
+  claim_id: c_35c35e51
+  context: "Update plan.md and README.md to state \u2264 6 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Pipeline performance documentation states \u2264 6 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T16:49:24Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: Equal cue intensity weights emoji 0.33 punctuation 0.33 length 0.34
+  claim_id: c_4d1d8f3c
+  context: 'Equal: {"emoji": 0.33, "punctuation": 0.33, "length": 0.34}'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cue-intensity weighting scheme Equal assigns emoji 0.33, punctuation 0.33,
+    length 0.34.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T16:49:50Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: Emoji-Dominant cue intensity weights emoji 0.6 punctuation 0.2 length
+    0.2
+  claim_id: c_5926f509
+  context: 'Emoji-Dominant: {"emoji": 0.6, "punctuation": 0.2, "length": 0.2}'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cue-intensity weighting scheme Emoji-Dominant assigns emoji 0.6, punctuation
+    0.2, length 0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T16:50:04Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: Punctuation-Dominant cue intensity weights emoji 0.2 punctuation 0.6
+    length 0.2
+  claim_id: c_da861981
+  context: 'Punctuation-Dominant: {"emoji": 0.2, "punctuation": 0.6, "length": 0.2}'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cue-intensity weighting scheme Punctuation-Dominant assigns emoji 0.2,
+    punctuation 0.6, length 0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T16:50:19Z'

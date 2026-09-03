@@ -1,246 +1,261 @@
 """
-T091: Perform simulation-based power analysis for the LMM using synthetic datasets.
+Task T091: Run Power-Analysis Simulation
 
-This script reads the synthetic datasets generated in T090a, performs
-simulation-based power analysis for the Linear Mixed Model (LMM), and
-outputs the results to data/processed/power_analysis_results.json.
+Executes the power analysis simulation using the synthetic datasets generated in T090b.
+Reads the synthetic zip file, runs LMM simulations, estimates power, and calculates
+the required target N to achieve >= 0.80 power.
 
-Dependencies:
-- T090a: data/processed/synthetic_power_datasets.zip (input)
-- code/00_power_analysis.py: core simulation functions (imported)
+Output: data/processed/power_analysis_results.json
 """
-
 import json
 import logging
 import sys
 import zipfile
 from io import StringIO
 from pathlib import Path
-
+import csv
+import random
 import numpy as np
 import pandas as pd
-from statsmodels.regression.mixed_linear_model import MixedLM
-from statsmodels.genmod.generalized_linear_model import GLM
+import statsmodels.formula.api as smf
+from statsmodels.stats.power import TTestIndPower
 
-# Project imports
-from config import get_processed_data_dir
+# Local imports matching the API surface
+from config import get_processed_data_dir, get_data_dir
 from logging_config import setup_logging, get_logger
 
-# Import core power analysis functions from the existing module
-# Note: The API surface lists 'code/00_power_analysis.py' with functions:
-# simulate_data, run_lmm, estimate_power, find_required_n, etc.
-# However, we need to implement the logic here or import correctly.
-# Since the task requires using the synthetic datasets from T090a,
-# we will load them and run the simulation logic directly here
-# to ensure we use the specific synthetic data provided.
-
-# We will re-implement the necessary simulation logic here to ensure
-# it works with the specific synthetic data format from T090a.
-# The existing 'code/00_power_analysis.py' might be a template or
-# reference, but we need to ensure the specific task T091 is completed
-# with the actual data.
-
-setup_logging()
+# Initialize logging
+logger = setup_logging()
 logger = get_logger(__name__)
 
-def load_synthetic_datasets(zip_path: Path) -> list[pd.DataFrame]:
-    """Load synthetic datasets from the zip file created in T090a."""
-    datasets = []
-    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-        for file_name in zip_ref.namelist():
-            if file_name.endswith('.csv'):
-                with zip_ref.open(file_name) as f:
-                    # Read as text to handle potential encoding issues
-                    content = f.read().decode('utf-8')
-                    df = pd.read_csv(StringIO(content))
-                    datasets.append(df)
-    logger.info(f"Loaded {len(datasets)} synthetic datasets from {zip_path}")
-    return datasets
-
-def run_lmm_simulation(data: pd.DataFrame) -> dict:
+def load_synthetic_datasets(zip_path: Path) -> pd.DataFrame:
     """
-    Fit a Linear Mixed Model to the data and extract key statistics.
+    Loads the synthetic dataset from the zip file generated in T090b.
+    Reads the CSV content from within the zip.
+    """
+    if not zip_path.exists():
+        raise FileNotFoundError(f"Synthetic dataset zip file not found: {zip_path}")
     
-    Model: rating ~ cue_intensity + (1 | participant_id)
+    logger.info(f"Loading synthetic datasets from {zip_path}")
     
-    Returns:
-        dict: Contains 'converged', 'p_value', 'beta_interaction' (if applicable)
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        # Assume the zip contains a single CSV file or we look for .csv
+        csv_files = [f for f in zip_ref.namelist() if f.endswith('.csv')]
+        if not csv_files:
+            raise ValueError(f"No CSV files found in {zip_path}")
+        
+        # Load the first (or only) CSV
+        csv_filename = csv_files[0]
+        with zip_ref.open(csv_filename) as f:
+            # Decode bytes to string for pandas
+            content = f.read().decode('utf-8')
+            df = pd.read_csv(StringIO(content))
+            
+    logger.info(f"Loaded {len(df)} rows from {csv_filename}")
+    return df
+
+def run_lmm_simulation(df: pd.DataFrame) -> dict:
+    """
+    Runs a Linear Mixed Effects Model on the provided dataframe.
+    Uses statsmodels MixedLM.
+    Formula: rating ~ relationship * cue_intensity + (1|participant_id) + (1|stimulus_id)
+    
+    Returns coefficients and p-values for the interaction term.
     """
     try:
-        # Ensure required columns exist
-        required_cols = ['rating', 'cue_intensity', 'participant_id']
-        if not all(col in data.columns for col in required_cols):
-            logger.warning(f"Missing required columns in dataset. Available: {data.columns.tolist()}")
-            return {'converged': False, 'error': 'Missing columns'}
+        # Ensure numeric types
+        df['rating'] = pd.to_numeric(df['rating'], errors='coerce')
+        df['cue_intensity'] = pd.to_numeric(df['cue_intensity'], errors='coerce')
+        
+        # Drop NaNs for modeling
+        model_data = df.dropna(subset=['rating', 'cue_intensity', 'participant_id', 'stimulus_id', 'relationship'])
+        
+        if len(model_data) < 10:
+            logger.warning("Dataset too small for LMM fitting")
+            return {"estimate": 0.0, "p_value": 1.0, "z_value": 0.0}
 
-        # Prepare data for statsmodels
-        # Convert categorical variables if necessary
-        data = data.copy()
-        data['participant_id'] = data['participant_id'].astype(str)
+        # Fit MixedLM
+        # Note: statsmodels MixedLM uses 'groups' for the random effect grouping variable
+        # We fit a model with random intercepts for participant and stimulus
+        # Since MixedLM handles one grouping factor at a time, we might need to stack or use a workaround.
+        # However, for power simulation, we often simulate the effect directly or use a simplified model
+        # if the full random structure is too complex for a quick simulation.
+        # Given the constraints, we will fit a model with participant random intercepts as the primary driver,
+        # or use a fixed effect approximation if the full model fails.
+        
+        # Attempting a simplified LMM with participant as random effect
+        # Formula: rating ~ relationship + cue_intensity + relationship:cue_intensity
+        formula = "rating ~ relationship * cue_intensity"
+        
+        # Group by participant
+        model = smf.mixedlm(formula, model_data, groups=model_data["participant_id"])
+        result = model.fit(reml=False)
+        
+        # Extract interaction coefficient (relationship[T.acquaintance]:cue_intensity)
+        # The column name depends on the reference level. We look for the interaction term.
+        interaction_col = None
+        for col in result.params.index:
+            if "cue_intensity" in str(col) and "relationship" in str(col):
+                interaction_col = col
+                break
+        
+        if interaction_col is None:
+            # Fallback: look for any interaction
+            for col in result.params.index:
+                if ":" in str(col) or "*" in str(col):
+                    interaction_col = col
+                    break
 
-        # Fit the model
-        # Using a simple random intercept model for power analysis
-        # If 'cue_intensity' is categorical, we might need to encode it
-        # For simplicity, we assume it's numeric or can be treated as such
-        # If it's categorical, we'll use a dummy variable approach
-        
-        # Check if cue_intensity is numeric
-        if not np.issubdtype(data['cue_intensity'].dtype, np.number):
-            # If it's categorical, we'll use the first level as reference
-            # and create dummy variables
-            data = pd.get_dummies(data, columns=['cue_intensity'], drop_first=True)
-            # This complicates the model fitting, so for power analysis
-            # we'll assume a simplified approach or use a numeric proxy
-            # For now, let's assume it's numeric or convert to numeric
-            # If it's not numeric, we'll skip this dataset
-            logger.warning("cue_intensity is not numeric, skipping this dataset for LMM fitting")
-            return {'converged': False, 'error': 'Non-numeric cue_intensity'}
-
-        # Fit the model
-        # Model: rating ~ cue_intensity + (1 | participant_id)
-        model = MixedLM.from_formula(
-            'rating ~ cue_intensity',
-            groups='participant_id',
-            data=data
-        )
-        
-        result = model.fit()
-        
-        # Extract statistics
-        p_value = result.pvalues['cue_intensity']
-        beta = result.params['cue_intensity']
-        
-        return {
-            'converged': True,
-            'p_value': p_value,
-            'beta': beta,
-            'std_err': result.bse['cue_intensity']
-        }
-        
-    except Exception as e:
-        logger.warning(f"Failed to fit LMM: {e}")
-        return {'converged': False, 'error': str(e)}
-
-def estimate_power(datasets: list[pd.DataFrame], alpha: float = 0.05) -> float:
-    """
-    Estimate statistical power based on the proportion of significant results.
-    
-    Args:
-        datasets: List of synthetic datasets
-        alpha: Significance level (default 0.05)
-        
-    Returns:
-        float: Estimated power (proportion of significant tests)
-    """
-    significant_count = 0
-    total_count = 0
-    
-    for i, df in enumerate(datasets):
-        logger.debug(f"Processing dataset {i+1}/{len(datasets)}")
-        result = run_lmm_simulation(df)
-        
-        if result.get('converged', False):
-            total_count += 1
-            if result['p_value'] < alpha:
-                significant_count += 1
+        if interaction_col:
+            estimate = result.params[interaction_col]
+            stderr = result.bse[interaction_col]
+            z_value = estimate / stderr if stderr != 0 else 0.0
+            p_value = 2 * (1 - statsmodels.stats.weightstats.ztost.ztost(estimate, stderr, 0, 0)[1]) # Approximation
+            # Better p-value from result if available, but MixedLM summary is verbose.
+            # Using a simple normal approximation for z-test
+            from scipy.stats import norm
+            p_value = 2 * (1 - norm.cdf(abs(z_value)))
+            
+            return {
+                "estimate": float(estimate),
+                "stderr": float(stderr),
+                "z_value": float(z_value),
+                "p_value": float(p_value),
+                "significant": p_value < 0.05
+            }
         else:
-            logger.warning(f"Dataset {i+1} failed to converge: {result.get('error', 'Unknown')}")
-    
-    if total_count == 0:
-        logger.error("No datasets converged. Cannot estimate power.")
-        return 0.0
-        
-    power = significant_count / total_count
-    logger.info(f"Estimated power: {power:.3f} ({significant_count}/{total_count} significant)")
-    return power
+            logger.warning("Interaction term not found in model results")
+            return {"estimate": 0.0, "p_value": 1.0, "z_value": 0.0}
 
-def calculate_target_n(estimated_power: float, target_power: float = 0.80) -> int:
+    except Exception as e:
+        logger.error(f"Error running LMM simulation: {e}", exc_info=True)
+        return {"estimate": 0.0, "p_value": 1.0, "z_value": 0.0}
+
+def estimate_power(simulation_results: list, alpha: float = 0.05) -> float:
     """
-    Estimate the required sample size to achieve target power.
-    
-    This is a simplified heuristic based on the estimated power.
-    In a real scenario, this would involve iterative simulations.
-    For this task, we'll use a simple scaling factor.
-    
-    Args:
-        estimated_power: Current estimated power
-        target_power: Desired power level (default 0.80)
-        
-    Returns:
-        int: Estimated target sample size (number of participants)
+    Estimates power as the proportion of simulations where the interaction effect is significant.
     """
-    if estimated_power == 0:
-        return 100  # Default fallback if power is 0
+    if not simulation_results:
+        return 0.0
+    significant_count = sum(1 for r in simulation_results if r.get("significant", False))
+    return significant_count / len(simulation_results)
+
+def calculate_target_n(estimated_power: float, current_n: int, target_power: float = 0.80) -> int:
+    """
+    Heuristic calculation for target N based on current power estimate.
+    If power < target, estimate required N by scaling.
+    Power roughly scales with sqrt(N).
+    N_target = N_current * (target_power / current_power)^2
+    """
+    if estimated_power >= target_power:
+        return current_n
+    
+    if estimated_power <= 0:
+        # If no power detected, assume we need a significant increase
+        return current_n * 4 
         
-    # Simple heuristic: if power is X, we need 1/X times the current sample size
-    # This is a rough approximation
-    current_n = 60  # From T090a, each dataset has N=60
-    if estimated_power < target_power:
-        # Scale up: target_n = current_n * (target_power / estimated_power)
-        # But cap it to a reasonable maximum
-        target_n = int(current_n * (target_power / estimated_power))
-        target_n = min(target_n, 500)  # Cap at 500
-    else:
-        target_n = current_n
+    ratio = target_power / estimated_power
+    # Avoid extreme scaling if power is very low
+    if ratio > 10:
+        ratio = 10
         
-    logger.info(f"Estimated target N: {target_n} (current N=60, power={estimated_power:.3f})")
-    return target_n
+    target_n = int(current_n * (ratio ** 2))
+    return max(target_n, current_n + 10) # Ensure some increase
 
 def main():
-    """Main entry point for the power analysis simulation."""
-    logger.info("Starting power analysis simulation (T091)")
+    """
+    Main entry point for T091.
+    1. Load synthetic data from data/processed/synthetic_power_datasets.zip
+    2. Run LMM simulation on the data (or multiple bootstrap samples if needed)
+    3. Estimate power
+    4. Calculate target N
+    5. Save results to data/processed/power_analysis_results.json
+    """
+    logger.info("Starting Power Analysis Simulation (T091)")
     
-    # Define paths
     processed_dir = get_processed_data_dir()
-    input_zip = processed_dir / "synthetic_power_datasets.zip"
-    output_json = processed_dir / "power_analysis_results.json"
+    zip_path = processed_dir / "synthetic_power_datasets.zip"
+    output_path = processed_dir / "power_analysis_results.json"
     
-    # Verify input exists
-    if not input_zip.exists():
-        logger.error(f"Input file not found: {input_zip}")
-        logger.error("Please ensure T090a has been completed and generated synthetic_power_datasets.zip")
+    # Load data
+    try:
+        df = load_synthetic_datasets(zip_path)
+    except FileNotFoundError as e:
+        logger.error(str(e))
         sys.exit(1)
     
-    # Load synthetic datasets
-    logger.info(f"Loading synthetic datasets from {input_zip}")
-    datasets = load_synthetic_datasets(input_zip)
+    # Run simulation
+    # Since the synthetic dataset might already represent a full simulation run,
+    # or we might need to bootstrap. The task says "Execute ... using the synthetic datasets".
+    # If the dataset is a single large dataset, we run one LMM.
+    # If it contains multiple simulation runs (unlikely for a single CSV), we iterate.
+    # For robustness, we will run the LMM on the provided data.
     
-    if not datasets:
-        logger.error("No datasets found in the zip file.")
-        sys.exit(1)
+    logger.info("Running LMM on synthetic data...")
+    result = run_lmm_simulation(df)
     
-    # Run power analysis
-    logger.info("Running power analysis simulations...")
-    estimated_power = estimate_power(datasets)
+    # Calculate power based on this single run? 
+    # Strictly speaking, power is a probability over repeated sampling.
+    # If the synthetic dataset represents ONE realization, we can't estimate power from one run.
+    # However, T090b generated a dataset with N=60 and effect size 0.25.
+    # We assume the 'synthetic_power_datasets.zip' might contain multiple bootstrap samples 
+    # OR we treat the single run as the basis for a simplified power check.
+    # Given the task description "Execute ... using the synthetic datasets to produce ...",
+    # and the verification "estimated_power >= 0.80", we must derive a power estimate.
     
-    # Calculate target N
-    target_n = calculate_target_n(estimated_power)
+    # Strategy: If the dataset is large enough, we can bootstrap.
+    # Or, if the dataset is a collection of simulation runs (e.g. 1000 rows where each row is a trial),
+    # we run one LMM. If the p-value is significant, we might infer power is high for this N.
+    # But to be precise: Power is the proportion of significant tests in repeated experiments.
+    # If we only have one dataset, we cannot calculate empirical power.
+    # ALTERNATIVE: The 'synthetic_power_datasets.zip' might be a collection of datasets.
+    # Let's assume the zip contains a CSV where we can perform bootstrapping to estimate power.
     
-    # Prepare results
-    results = {
+    # Bootstrapping approach for power estimation from a single dataset:
+    # Resample with replacement N times, run LMM, check significance.
+    num_bootstrap = 100
+    simulation_results = []
+    
+    logger.info(f"Performing {num_bootstrap} bootstrap iterations for power estimation...")
+    
+    for i in range(num_bootstrap):
+        # Resample participants
+        unique_participants = df['participant_id'].unique()
+        sampled_participants = np.random.choice(unique_participants, size=len(unique_participants), replace=True)
+        bootstrap_df = df[df['participant_id'].isin(sampled_participants)]
+        
+        if len(bootstrap_df) < 10:
+            continue
+            
+        res = run_lmm_simulation(bootstrap_df)
+        simulation_results.append(res)
+        
+    estimated_power = estimate_power(simulation_results)
+    current_n = len(df['participant_id'].unique())
+    target_n = calculate_target_n(estimated_power, current_n)
+    
+    logger.info(f"Estimated Power: {estimated_power:.2f}")
+    logger.info(f"Target N for 0.80 power: {target_n}")
+    
+    # Prepare output
+    output_data = {
         "estimated_power": estimated_power,
         "target_N": target_n,
-        "method": "simulation-based LMM power analysis",
-        "num_simulations": len(datasets),
+        "method": "Bootstrap LMM (statsmodels MixedLM)",
+        "current_N": current_n,
+        "simulation_runs": num_bootstrap,
         "alpha": 0.05,
-        "target_power": 0.80,
-        "details": {
-            "input_file": str(input_zip),
-            "output_file": str(output_json),
-            "model": "MixedLM (rating ~ cue_intensity + (1 | participant_id))"
-        }
+        "interaction_estimate_mean": np.mean([r['estimate'] for r in simulation_results]),
+        "interaction_p_mean": np.mean([r['p_value'] for r in simulation_results])
     }
     
-    # Save results
-    logger.info(f"Saving results to {output_json}")
-    with open(output_json, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info("Power analysis simulation completed successfully")
-    logger.info(f"Estimated power: {estimated_power:.3f}")
-    logger.info(f"Target N: {target_n}")
-    
-    return results
+    # Save to JSON
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(output_data, f, indent=2)
+        
+    logger.info(f"Power analysis results saved to {output_path}")
+    print(json.dumps(output_data, indent=2))
 
 if __name__ == "__main__":
     main()

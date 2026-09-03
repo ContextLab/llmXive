@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T01:01:23.572043Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-385-the-impact-of-text-message-tone-on-perce
-last_run_id: 4ba47e5b-b98f-4c50-b2ac-41a2de972447
+last_run_id: 73793e7a-e4e0-4546-ae90-0e1f1de9ee7c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce
 title: The Impact of Text Message Tone on Perceived Emotional Support
-updated_at: '2026-08-31T22:00:13.126243Z'
+updated_at: '2026-09-03T16:50:31.757091Z'

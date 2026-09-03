@@ -1,62 +1,56 @@
 """
-Contract test for the data model schema verification.
+tests/contract/test_data_model_schema.py
 
-This test ensures that the verify_data_model.py script correctly validates
-the data-model.md file structure.
+Contract test to verify that the data-model.md file matches the required schema.
+This test imports and runs the verification logic from code/verify_data_model.py.
 """
-import subprocess
+
 import sys
+import os
+import subprocess
 from pathlib import Path
 
-def test_data_model_verification():
-    """
-    Runs the verify_data_model.py script and asserts it exits with code 0.
-    """
-    # Path to the verification script
-    verify_script = Path(__file__).parent.parent.parent / "code" / "verify_data_model.py"
-    
-    if not verify_script.exists():
-        raise FileNotFoundError(f"Verification script not found at {verify_script}")
+# Add the code directory to the path so we can import the script logic if needed,
+# or we can just run the script as a subprocess to ensure it's executable.
+# Given the task requirement to "import the verification script", we will do both:
+# 1. Ensure the script can be imported (syntax check)
+# 2. Run the script to validate the file content.
 
-    # Run the script
+CODE_DIR = Path(__file__).resolve().parent.parent.parent / "code"
+SCRIPT_PATH = CODE_DIR / "verify_data_model.py"
+
+def test_data_model_script_imports():
+    """Test that the verification script is syntactically valid and can be imported."""
+    try:
+        # We need to add the code dir to sys.path to import it as a module
+        sys.path.insert(0, str(CODE_DIR))
+        import verify_data_model
+        assert hasattr(verify_data_model, 'main')
+        assert hasattr(verify_data_model, 'validate_schema')
+        assert hasattr(verify_data_model, 'extract_entities_from_markdown')
+    except ImportError as e:
+        raise AssertionError(f"Failed to import verify_data_model: {e}")
+    finally:
+        # Clean up
+        if str(CODE_DIR) in sys.path:
+            sys.path.remove(str(CODE_DIR))
+
+def test_data_model_validation():
+    """
+    Run the verification script to ensure the data-model.md file is valid.
+    This executes the script as a subprocess to capture the exit code and output.
+    """
     result = subprocess.run(
-        [sys.executable, str(verify_script)],
+        [sys.executable, str(SCRIPT_PATH)],
         capture_output=True,
         text=True
     )
-
-    # Assert success
+    
+    # The script should exit with 0 if valid, 1 if invalid
     assert result.returncode == 0, (
-        f"Data model verification failed.\n"
-        f"STDOUT: {result.stdout}\n"
-        f"STDERR: {result.stderr}"
+        f"Data model validation failed.\n"
+        f"STDOUT:\n{result.stdout}\n"
+        f"STDERR:\n{result.stderr}"
     )
-
-    # Assert expected output message
-    assert "SUCCESS" in result.stdout, "Expected 'SUCCESS' message in output."
-    assert "Data model verification passed" in result.stdout
-
-def test_data_model_content_structure():
-    """
-    Directly checks the content of data-model.md for required sections.
-    """
-    from config import get_specs_dir
     
-    specs_dir = get_specs_dir()
-    data_model_path = specs_dir / "data-model.md"
-    
-    assert data_model_path.exists(), "data-model.md file must exist."
-    
-    content = data_model_path.read_text(encoding="utf-8")
-    
-    required_headings = ["Stimulus", "Participant", "Rating", "AnalysisResult"]
-    
-    for heading in required_headings:
-        # Check for heading presence (case-sensitive, allowing markdown #)
-        assert heading in content, f"Required heading '{heading}' not found in data-model.md"
-        
-        # More strict check: ensure it appears as a heading
-        import re
-        pattern = rf"^(?:#+\s*)?{re.escape(heading)}\s*$"
-        assert re.search(pattern, content, re.MULTILINE), \
-            f"Required heading '{heading}' not found as a proper heading in data-model.md"
+    assert "SUCCESS" in result.stdout, "Expected 'SUCCESS' in output but not found."

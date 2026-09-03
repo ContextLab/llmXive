@@ -9,25 +9,3 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/text-tone-emotional-support
   verified_at: '2026-08-08T10:32:52.435993Z'
-- artifact_hash: 57284bbfc296ad7fb5a268b1ade9a50e9816939887d68dc86df94a8f0cb2beec
-  artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: check - Wikidata
-  kind: url
-  value: https://www.wikidata.org/wiki/Q14290457
-  verification_status: pending
-  verified_against_url: https://www.wikidata.org/wiki/Q14290457
-  verified_at: '2026-08-31T22:00:04.870565Z'
-- artifact_hash: 57284bbfc296ad7fb5a268b1ade9a50e9816939887d68dc86df94a8f0cb2beec
-  artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: Wald - Wikidata
-  kind: url
-  value: https://www.wikidata.org/wiki/Q67272
-  verification_status: pending
-  verified_against_url: https://www.wikidata.org/wiki/Q67272
-  verified_at: '2026-08-31T22:00:04.870565Z'
