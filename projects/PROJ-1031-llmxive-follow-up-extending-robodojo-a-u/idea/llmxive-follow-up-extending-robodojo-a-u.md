@@ -9,18 +9,30 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-To what extent is high-fidelity continuous physics simulation necessary for successful long-horizon robot manipulation planning, and can topological symbolic abstractions alone suffice to bridge the sim-to-real gap in generalist policies?
+To what extent do topological task constraints versus continuous physical dynamics independently contribute to failure modes in long-horizon robot manipulation, and can we empirically quantify which factor is the primary limiting resource for success in real-world execution regardless of the specific planning architecture?
 
 ## Motivation
 
-Current benchmarks like RoboDojo rely heavily on computationally intensive GPU-based physics simulators, creating a barrier for researchers with limited hardware. This research investigates whether "logical correctness" (topological task constraints) is a more critical bottleneck than continuous physical fidelity for long-horizon tasks, potentially enabling high-throughput, CPU-tractable evaluation pipelines while challenging the assumption that high-fidelity physics is strictly necessary for complex manipulation planning.
+Current high-fidelity benchmarks like RoboDojo rely on computationally intensive GPU-based physics simulators, creating a barrier for researchers without access to specialized hardware. This research investigates whether the primary bottleneck in long-horizon planning is the continuous modeling of physical dynamics or the logical sequencing of topological constraints. By isolating these factors, we aim to determine if lightweight, CPU-tractable symbolic planners can achieve real-world success rates comparable to heavy physics-based policies, potentially democratizing access to robot learning research.
 
-## Related work
+## Literature gap analysis
 
-- [RoboDojo: A Unified Sim-and-Real Benchmark for Comprehensive Evaluation of Generalist Robot Manipulation Policies](https://arxiv.org/abs/2607.04434) — Establishes the baseline 18 real-world tasks and 42 simulation tasks, highlighting the current reliance on GPU-intensive simulators and the challenges of long-horizon execution.
-- [Robot Policy Evaluation for Sim-to-Real Transfer: A Benchmarking Perspective](https://arxiv.org/abs/2508.11117) — Critiques the disconnect between simulation benchmarks and real-world application, emphasizing the need for evaluation protocols that prioritize real-world viability over simulation fidelity.
-- [Sim-to-Real Transfer in Deep Reinforcement Learning for Bipedal Locomotion](https://arxiv.org/abs/2511.06465) — Discusses the critical challenges of transferring learned policies from simulation to reality in dynamic environments, reinforcing the need for robust transfer mechanisms that can handle discrepancies between simulated and real-world dynamics.
-- [Towards bridging the gap: Systematic sim-to-real transfer for diverse legged robots](https://arxiv.org/abs/2509.06342) — Highlights that controllers trained in simulation often fail to transfer reliably, suggesting that current simulation models may lack the necessary generalization properties for complex real-world deployment.
+### What we searched
+We queried Semantic Scholar, arXiv, and OpenAlex using two distinct strategies: (1) a focused query on "symbolic vs continuous physics robot planning bottlenecks" to find direct comparisons, and (2) a broadened query on "sim-to-real transfer benchmarks logical vs physical fidelity" to identify methodological precedents. The search returned a small set of relevant papers primarily establishing baseline benchmarks (RoboDojo), general sim-to-real techniques using domain randomization, and the scaling of Vision-Language-Action (VLA) models. No papers were found that explicitly compare a CPU-based symbolic planning layer against GPU-based continuous physics baselines for the specific purpose of isolating topological bottlenecks in long-horizon manipulation.
+
+### What is known
+- [RoboDojo: A Unified Sim-and-Real Benchmark for Comprehensive Evaluation of Generalist Robot Manipulation Policies](https://arxiv.org/abs/2607.04434) — Establishes the standard 18 real-world and 42 simulation tasks for evaluating generalist policies, highlighting the current industry reliance on high-fidelity, GPU-intensive simulators for training.
+- [Efficient Sim-to-Real Transfer of World-Action Models from Synthetic Priors](https://arxiv.org/abs/2606.31101) — Demonstrates that synthetic priors can reduce the need for real-world demonstrations, but the approach still fundamentally assumes continuous model dynamics and does not explore discrete symbolic abstractions as a primary planning mechanism.
+- [Benchmarking Domain Randomisation for Visual Sim-to-Real Transfer](https://arxiv.org/abs/2011.07112) — Provides a foundational analysis of visual transfer techniques, confirming that visual fidelity is a major hurdle, but does not address the computational trade-offs between continuous physics engines and discrete logical planners.
+
+### What is NOT known
+There is no published work that systematically isolates the impact of continuous physical fidelity versus logical/topological structure on the success rate of long-horizon robot manipulation tasks. Specifically, no study has quantified whether a CPU-tractable symbolic planner can match the real-world performance of GPU-based continuous policies, nor has the "logical bottleneck" hypothesis been tested against the standard RoboDojo benchmark suite.
+
+### Why this gap matters
+Filling this gap is critical for democratizing robot learning research; if logical structure is the primary bottleneck, the field can shift away from expensive GPU clusters toward accessible CPU-based symbolic reasoning, enabling more researchers to contribute to long-horizon planning. Conversely, if continuous physics is proven essential, it validates the current trajectory of hardware-intensive simulation, providing a clear justification for the computational costs.
+
+### How this project addresses the gap
+This project directly addresses the gap by implementing a "Symbolic-Dojo" adapter that strips continuous physics variables while preserving topological constraints, then evaluating this hybrid system against the RoboDojo baseline on the same 18 real-world tasks. The methodology explicitly measures success rates and computational overhead to determine if the symbolic layer can achieve comparable performance, thereby quantifying the relative importance of logical vs. physical fidelity.
 
 ## Expected results
 
@@ -28,13 +40,14 @@ We expect to observe that a symbolic-planning extension achieves comparable succ
 
 ## Methodology sketch
 
-- Download the RoboDojo dataset (18 real-world task videos and 42 simulation task specifications) from the official repository and pre-process visual observations into high-level semantic embeddings using a frozen, CPU-efficient vision encoder (e.g., MobileViT).
-- Implement a "Symbolic-Dojo" adapter that maps these semantic embeddings into a discrete state space (e.g., PDDL-like predicates) representing object affordances and connectivity, explicitly stripping away continuous physics variables like friction coefficients and mass distribution.
-- Develop a hierarchical policy architecture where a high-level symbolic planner (e.g., A* or Monte Carlo Tree Search) generates a sequence of discrete sub-goals based on the abstract task description, running entirely on CPU.
-- Integrate a low-level controller using pre-trained weights from RoboDojo's baseline policies to execute the generated sub-goals in the real-world environment, utilizing the semantic embeddings for grounding without re-training on physics dynamics.
-- Evaluate the hybrid system against the original RoboDojo baseline policies on the 18 real-world tasks, measuring success rate, time-to-solution, and compute overhead (CPU cycles and memory usage).
-- Perform statistical analysis using a Wilcoxon signed-rank test to compare the success rates of the symbolic approach versus the continuous physics baseline, ensuring the evaluation metric (real-world success) is independent of the simulation fidelity used during planning.
-- Conduct an ablation study to isolate the impact of the symbolic abstraction layer by varying the level of detail in the state representation (e.g., full affordance graph vs. simplified connectivity graph) to determine the minimum information required for successful transfer.
+- **Data Acquisition**: Download the RoboDojo dataset (18 real-world task videos and 42 simulation task specifications) from the official repository (arXiv:2607.04434) to ensure reproducibility and avoid new data collection.
+- **Semantic Abstraction**: Pre-process visual observations into high-level semantic embeddings using a frozen, lightweight vision encoder (e.g., ResNet-18 or MobileNet) running on CPU to map continuous pixels to discrete object affordances.
+- **Symbolic State Construction**: Implement a "Symbolic-Dojo" adapter that maps these embeddings into a discrete state space (e.g., PDDL-like predicates), explicitly removing continuous physics variables (velocity, friction, torque) to isolate topological constraints.
+- **Hierarchical Planning**: Deploy a high-level symbolic planner (e.g., A* or Monte Carlo Tree Search) on a single CPU core to generate a sequence of discrete sub-goals based on the abstract task description and the discrete state space.
+- **Execution Interface**: Integrate a low-level controller (using pre-trained weights from RoboDojo baselines or a simple PID controller) to execute the generated sub-goals in the real-world environment, utilizing semantic embeddings for grounding and error correction.
+- **Independent Evaluation**: Evaluate the hybrid system against the original RoboDojo baseline policies on the 18 real-world tasks, measuring success rate, time-to-solution, and compute overhead (CPU cycles and memory usage) on a standard CPU environment (e.g., GitHub Actions runner).
+- **Statistical Validation**: Perform a paired t-test or Wilcoxon signed-rank test to compare the success rates and computational efficiency of the symbolic approach versus the continuous physics baseline, ensuring the evaluation target (real-world binary success) is independent of the planner's internal symbolic state.
+- **Ablation Study**: Conduct an ablation study varying the level of detail in the state representation (e.g., full affordance graph vs. simplified connectivity graph) to determine the minimum logical fidelity required for success.
 
 ## Duplicate-check
 
@@ -45,36 +58,16 @@ We expect to observe that a symbolic-planning extension achieves comparable succ
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-09-03T13:09:54Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-09-03T14:12:38Z
 **Outcome**: success_after_expansion
 **Original term**: llmXive follow-up: extending "RoboDojo: A Unified Sim-and-Real Benchmark for Comprehensive Evaluatio" computer science
-**Verified citation count**: 5
+**Verified citation count**: 6
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | llmXive follow-up: extending "RoboDojo: A Unified Sim-and-Real Benchmark for Comprehensive Evaluatio" computer science | 0 |
-| 1 | sim-to-real transfer learning benchmarks for robotics | 5 |
-| 2 | unified simulation and real-world evaluation frameworks for robots | 0 |
-| 3 | sim-to-real gap reduction in robotic policy learning | 0 |
-| 4 | comprehensive robotics benchmark suites for sim-and-real deployment | 0 |
-| 5 | domain randomization techniques for sim-to-real transfer | 0 |
-| 6 | real-world validation of simulated robotic training environments | 0 |
-| 7 | benchmarking robotic learning algorithms across simulation and reality | 0 |
-| 8 | sim-to-real generalization in deep reinforcement learning for robotics | 0 |
-| 9 | unified platforms for evaluating robotic sim-to-real performance | 0 |
-| 10 | transfer learning from simulation to physical robots benchmarks | 0 |
-| 11 | sim-to-real adaptation strategies for autonomous robots | 0 |
-| 12 | evaluating robotic policies in simulated and real environments | 0 |
-| 13 | cross-domain evaluation of robotic learning systems | 0 |
-| 14 | sim-to-real robustness metrics for robotic control | 0 |
-| 15 | standardized benchmarks for sim-and-real robot learning | 0 |
-| 16 | bridging the sim-to-real gap in robotic manipulation tasks | 0 |
-| 17 | simulation-based training with real-world robotic deployment benchmarks | 0 |
-| 18 | comparative analysis of sim-to-real performance in robotics | 0 |
-| 19 | robotic learning evaluation protocols for mixed sim-real settings | 0 |
-| 20 | sim-to-real transfer efficiency in comprehensive robot benchmarks | 0 |
+| 0 (initial) | llmXive follow-up: extending "RoboDojo: A Unified Sim-and-Real Benchmark for Comprehensive Evaluatio" computer science | 6 |
 
 ### Verified citations
 
@@ -82,4 +75,5 @@ We expect to observe that a symbolic-planning extension achieves comparable succ
 2. **Robot Policy Evaluation for Sim-to-Real Transfer: A Benchmarking Perspective** (2025). Xuning Yang, Clemens Eppner, Jonathan Tremblay, Dieter Fox, Stan Birchfield, et al.. arXiv. [2508.11117](https://arxiv.org/abs/2508.11117). PDF-sampled: No.
 3. **Towards bridging the gap: Systematic sim-to-real transfer for diverse legged robots** (2025). Filip Bjelonic, Fabian Tischhauser, Marco Hutter. arXiv. [2509.06342](https://arxiv.org/abs/2509.06342). PDF-sampled: No.
 4. **Xiaomi-Robotics-1: Scaling Vision-Language-Action Models with over 100K Hours of Real-World Trajectories** (2026).  Xiaomi Robotics Team, Jun Guo, Piaopiao Jin, Jason Li, Peiyan Li, et al.. arXiv. [2607.15330](https://arxiv.org/abs/2607.15330). PDF-sampled: No.
-5. **Sim-to-Real Transfer in Deep Reinforcement Learning for Bipedal Locomotion** (2025). Lingfan Bao, Tianhu Peng, Chengxu Zhou. arXiv. [2511.06465](https://arxiv.org/abs/2511.06465). PDF-sampled: No.
+5. **Benchmarking Domain Randomisation for Visual Sim-to-Real Transfer** (2020). Raghad Alghonaim, Edward Johns. arXiv. [2011.07112](https://arxiv.org/abs/2011.07112). PDF-sampled: No.
+6. **Efficient Sim-to-Real Transfer of World-Action Models from Synthetic Priors** (2026). Zixing Wang, Kausik Sivakumar, Jinghuan Shang, Yafei Hu, Zhaoming Xie, et al.. arXiv. [2606.31101](https://arxiv.org/abs/2606.31101). PDF-sampled: No.

@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-09-03T13:09:54Z",
+  "fetched_at": "2026-09-03T14:10:40Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,104 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Comprehensive Evaluatio\"",
       "target_n": 5
     },
-    "duration_seconds": 41.722,
-    "ended_at": "2026-09-03T13:09:54Z",
+    "duration_seconds": 46.085,
+    "ended_at": "2026-09-03T14:10:40Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "sim-to-real transfer learning benchmarks for robotics"
+          "sim-to-real transfer benchmarking for robotics"
         ],
         [
           2,
-          "unified simulation and real-world evaluation frameworks for robots"
+          "unified simulation and real-world evaluation frameworks"
         ],
         [
           3,
-          "sim-to-real gap reduction in robotic policy learning"
+          "robotics benchmark suites for sim-to-real gap"
         ],
         [
           4,
-          "comprehensive robotics benchmark suites for sim-and-real deployment"
+          "comprehensive robot learning evaluation protocols"
         ],
         [
           5,
-          "domain randomization techniques for sim-to-real transfer"
+          "bridging the reality gap in robotic benchmarks"
         ],
         [
           6,
-          "real-world validation of simulated robotic training environments"
+          "sim-and-real robotics performance metrics"
         ],
         [
           7,
-          "benchmarking robotic learning algorithms across simulation and reality"
+          "standardized robotics benchmarks for simulation and deployment"
         ],
         [
           8,
-          "sim-to-real generalization in deep reinforcement learning for robotics"
+          "domain randomization and sim-to-real generalization evaluation"
         ],
         [
           9,
-          "unified platforms for evaluating robotic sim-to-real performance"
+          "robotic manipulation benchmarking in simulation and reality"
         ],
         [
           10,
-          "transfer learning from simulation to physical robots benchmarks"
+          "cross-environment robot learning assessment"
         ],
         [
           11,
-          "sim-to-real adaptation strategies for autonomous robots"
+          "sim-to-real reinforcement learning benchmarks"
         ],
         [
           12,
-          "evaluating robotic policies in simulated and real environments"
+          "unified evaluation platforms for embodied AI"
         ],
         [
           13,
-          "cross-domain evaluation of robotic learning systems"
+          "realism gap analysis in robotic simulation"
         ],
         [
           14,
-          "sim-to-real robustness metrics for robotic control"
+          "robot policy transfer from simulation to real world"
         ],
         [
           15,
-          "standardized benchmarks for sim-and-real robot learning"
+          "comparative analysis of sim-to-real robot benchmarks"
         ],
         [
           16,
-          "bridging the sim-to-real gap in robotic manipulation tasks"
+          "end-to-end robotics benchmarking with real-world validation"
         ],
         [
           17,
-          "simulation-based training with real-world robotic deployment benchmarks"
+          "sim-to-real generalization in robotic tasks"
         ],
         [
           18,
-          "comparative analysis of sim-to-real performance in robotics"
+          "holistic evaluation of robotic systems across domains"
         ],
         [
           19,
-          "robotic learning evaluation protocols for mixed sim-real settings"
+          "simulation-based training and real-world testing for robots"
         ],
         [
           20,
-          "sim-to-real transfer efficiency in comprehensive robot benchmarks"
+          "robotics evaluation metrics for sim-to-real transfer"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
         "llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Comprehensive Evaluatio\" computer science": 0,
-        "sim-to-real transfer learning benchmarks for robotics": 5
+        "sim-to-real transfer benchmarking for robotics": 5
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
       "sim-to-real transfer robot learning benchmark",
-      "RoboDojo unified evaluation suite",
-      "domain randomization real-world deployment gap",
-      "sim2real generalization performance metrics",
-      "training data leakage sim-to-real contamination"
+      "RoboDojo benchmark evaluation suite robotics",
+      "domain randomization reality gap simulation",
+      "robot manipulation task success rate metrics",
+      "reinforcement learning sim2real gap closure"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,31 +120,25 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2607.15330"
+        "2011.07112"
       ]
     },
     "per_query_hit_count": {
-      "RoboDojo unified evaluation suite": 3,
-      "domain randomization real-world deployment gap": 3,
+      "RoboDojo benchmark evaluation suite robotics": 3,
+      "domain randomization reality gap simulation": 3,
       "llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Comprehensive Evaluatio\" computer science": 3,
-      "sim-to-real transfer robot learning benchmark": 3,
-      "sim2real generalization performance metrics": 3,
-      "training data leakage sim-to-real contamination": 3
+      "reinforcement learning sim2real gap closure": 3,
+      "robot manipulation task success rate metrics": 3,
+      "sim-to-real transfer robot learning benchmark": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 1,
-      "rejections": [
-        {
-          "primary_pointer": "2207.02337",
-          "rationale": "The paper focuses on security vulnerabilities and defense mechanisms in federated and transfer learning, which is a distinct construct from the user's question regarding the extension of the \"RoboDojo\" benchmark for sim-and-real evaluation in robotics. There is no overlap in the specific mechanism (benchmarking vs. security), domain (robotics simulation vs. general federated learning), or variables, and the paper does not serve as a foundational reference for the RoboDojo framework or sim-to-rea",
-          "title": "Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms"
-        }
-      ]
+      "rejected_count": 0,
+      "rejections": []
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-09-03T13:09:12Z",
+    "started_at": "2026-09-03T14:09:54Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"robodojo: a unified sim-and-real benchmark for comprehensive evaluatio\" computer science",
       "raw": "llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Comprehensive Evaluatio\" computer science"
@@ -163,7 +157,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-09-03T13:09:39Z",
+        "failed_at": "2026-09-03T14:10:21Z",
         "reason": "query_irrelevant"
       },
       {
@@ -182,7 +176,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-09-03T13:09:39Z",
+        "failed_at": "2026-09-03T14:10:21Z",
         "reason": "query_irrelevant"
       },
       {
@@ -200,7 +194,7 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-09-03T13:09:39Z",
+        "failed_at": "2026-09-03T14:10:21Z",
         "reason": "query_irrelevant"
       },
       {
@@ -221,7 +215,7 @@
           "primary_pointer": "2508.11117"
         },
         "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title='Robot Policy Evaluation for Sim-to-Real Transfer: A Benchmarking Perspective')",
-        "failed_at": "2026-09-03T13:09:39Z",
+        "failed_at": "2026-09-03T14:10:21Z",
         "reason": "query_irrelevant"
       },
       {
@@ -241,7 +235,7 @@
           "primary_pointer": "1711.10137"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title='One-Shot Reinforcement Learning for Robot Navigation with Interactive Replay')",
-        "failed_at": "2026-09-03T13:09:39Z",
+        "failed_at": "2026-09-03T14:10:21Z",
         "reason": "query_irrelevant"
       },
       {
@@ -259,47 +253,217 @@
           "primary_pointer": "2207.02337"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title='Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms')",
-        "failed_at": "2026-09-03T13:09:39Z",
+        "failed_at": "2026-09-03T14:10:21Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The emergence of unified multimodal understanding and generation models is rapidly attracting attention because of their ability to enhance instruction-following capabilities while minimizing model redundancy. However, there is a lack of a unified evaluation framework for these models, which would enable an elegant, simplified, and overall evaluation. Current models conduct evaluations on multiple task-specific benchmarks, but there are significant limitations, such as the lack of overall results, errors from extra evaluation models, reliance on extensive labeled images, benchmarks that lack diversity, and metrics with limited capacity for instruction-following evaluation. To tackle these challenges, we introduce UniEval, the first evaluation framework designed for unified multimodal models without extra models, images, or annotations. This facilitates a simplified and unified evaluation process. The UniEval framework contains a holistic benchmark, UniBench (supports both unified and visual generation models), along with the corresponding UniScore metric. UniBench includes 81 fine-grained tags contributing to high diversity. Experimental results indicate that UniBench is more challenging than existing benchmarks, and UniScore aligns closely with human evaluations, surpassing current metrics. Moreover, we extensively evaluated SoTA unified and visual generation models, uncovering new insights into Univeral's unique values.",
+          "claimed_abstract": "Recently, model-free reinforcement learning algorithms have been shown to solve challenging problems by learning from extensive interaction with the environment. A significant issue with transferring this success to the robotics domain is that interaction with the real world is costly, but training on limited experience is prone to overfitting. We present a method for learning to navigate, to a fixed goal and in a known environment, on a mobile robot. The robot leverages an interactive world model built from a single traversal of the environment, a pre-trained visual feature encoder, and stochastic environmental augmentation, to demonstrate successful zero-shot transfer under real-world environmental variations without fine-tuning.",
           "claimed_authors": [
-            "Yi Li",
-            "Haonan Wang",
-            "Qixiang Zhang",
-            "Boyu Xiao",
-            "Chenchang Hu",
-            "Hualiang Wang",
-            "Xiaomeng Li"
+            "Jake Bruce",
+            "Niko Suenderhauf",
+            "Piotr Mirowski",
+            "Raia Hadsell",
+            "Michael Milford"
           ],
-          "claimed_title": "UniEval: Unified Holistic Evaluation for Unified Multimodal Understanding and Generation",
+          "claimed_title": "One-Shot Reinforcement Learning for Robot Navigation with Interactive Replay",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2505.10483"
+          "claimed_year": 2017,
+          "primary_pointer": "1711.10137"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title='UniEval: Unified Holistic Evaluation for Unified Multimodal Understanding and Generation')",
-        "failed_at": "2026-09-03T13:09:40Z",
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title='Xiaomi-Robotics-1: Scaling Vision-Language-Action Models with over 100K Hours of Real-World Trajectories')",
+        "failed_at": "2026-09-03T14:10:21Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Multi-agent LLM frameworks are widely used to accelerate the development of agent systems powered by large language models (LLMs). These frameworks impose distinct architectural structures that govern how agents interact, store information, and coordinate tasks. However, their impact on system performance remains poorly understood. This gap is critical, as architectural choices alone can induce order-of-magnitude differences in latency and throughput, as well as substantial variation in accuracy and scalability. Addressing this challenge requires (i) jointly evaluating multiple capabilities, such as orchestration overhead, memory behavior, planning, specialization, and coordination, and (ii) conducting these evaluations under controlled, framework-level conditions to isolate architectural effects. Existing benchmarks focus on individual capabilities and lack standardized framework-level evaluation. We address these limitations by (i) introducing an architectural taxonomy for systematically comparing multi-agent LLM frameworks along fundamental dimensions, and (ii) developing MAFBench, a unified evaluation suite that integrates existing benchmarks under a standardized execution pipeline. Using MAFBench, we conduct a controlled empirical study across several widely used frameworks. Our results show that framework-level design choices alone can increase latency by over 100x, reduce planning accuracy by up to 30%, and lower coordination success from above 90% to below 30%. Finally, we translate our findings into concrete architectural design principles and framework selection guidance, and outline promising future research directions.",
+          "claimed_abstract": "Wearable robots are undergoing a disruptive transition, from the rigid machines that populated the science-fiction world in the early eighties to lightweight robotic apparel, hardly distinguishable from our daily clothes. In less than a decade of development, soft robotic suits have achieved important results in human motor assistance and augmentation. In this paper, we start by giving a definition of soft robotic suits and proposing a taxonomy to classify existing systems. We then critically review the modes of actuation, the physical human-robot interface and the intention-detection strategies of state of the art soft robotic suits, highlighting the advantages and limitations of different approaches. Finally, we discuss the impact of this new technology on human movements, for both augmenting human function and supporting motor impairments, and identify areas that are in need of further development.",
           "claimed_authors": [
-            "Abdelghny Orogat",
-            "Ana Rostam",
-            "Essam Mansour"
+            "Michele Xiloyannis",
+            "Ryan Alicea",
+            "Anna-Maria Georgarakis",
+            "Florian L. Haufe",
+            "Peter Wolf",
+            "Lorenzo Masia",
+            "Robert Riener"
           ],
-          "claimed_title": "Understanding Multi-Agent LLM Frameworks: A Unified Benchmark and Experimental Analysis",
+          "claimed_title": "Soft robotic suits: State of the art, core technologies and open challenges",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.10588"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title='Soft robotic suits: State of the art, core technologies and open challenges')",
+        "failed_at": "2026-09-03T14:10:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the era of the metaverse, self-avatars are gaining popularity, as they can enhance presence and provide embodiment when a user is immersed in Virtual Reality. They are also very important in collaborative Virtual Reality to improve communication through gestures. Whether we are using a complex motion capture solution or a few trackers with inverse kinematics (IK), it is essential to have a good match in size between the avatar and the user, as otherwise mismatches in self-avatar posture could be noticeable for the user. To achieve such a correct match in dimensions, a manual process is often required, with the need for a second person to take measurements of body limbs and introduce them into the system. This process can be time-consuming, and prone to errors. In this paper, we propose an automatic measuring method that simply requires the user to do a small set of exercises while wearing a Head-Mounted Display (HMD), two hand controllers, and three trackers. Our work provides an affordable and quick method to automatically extract user measurements and adjust the virtual humanoid skeleton to the exact dimensions. Our results show that our method can reduce the misalignment produced by the IK system when compared to other solutions that simply apply a uniform scaling to an avatar based on the height of the HMD, and make assumptions about the locations of joints with respect to the trackers.",
+          "claimed_authors": [
+            "Jose Luis Ponton",
+            "Víctor Ceballos",
+            "Lesly Acosta",
+            "Alejandro Ríos",
+            "Eva Monclús",
+            "Nuria Pelechano"
+          ],
+          "claimed_title": "Fitted avatars: automatic skeleton adjustment for self-avatars in virtual reality",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.09558"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title='Fitted avatars: automatic skeleton adjustment for self-avatars in virtual reality')",
+        "failed_at": "2026-09-03T14:10:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This publication reports on a research project in which we set out to explore the advantages and disadvantages augmented reality (AR) technology has for visual data analytics. We developed a prototype of an AR data analytics application, which provides users with an interactive 3D interface, hand gesture-based controls and multi-user support for a shared experience, enabling multiple people to collaboratively visualize, analyze and manipulate data with high dimensional features in 3D space. Our software prototype, called DataCube, runs on the Microsoft HoloLens - one of the first true stand-alone AR headsets, through which users can see computer-generated images overlaid onto real-world objects in the user's physical environment. Using hand gestures, the users can select menu options, control the 3D data visualization with various filtering and visualization functions, and freely arrange the various menus and virtual displays in their environment. The shared multi-user experience allows all participating users to see and interact with the virtual environment, changes one user makes will become visible to the other users instantly. As users engage together they are not restricted from observing the physical world simultaneously and therefore they can also see non-verbal cues such as gesturing or facial reactions of other users in the physical environment. The main objective of this research project was to find out if AR interfaces and collaborative analysis can provide an effective solution for data analysis tasks, and our experience with our prototype system confirms this.",
+          "claimed_authors": [
+            "Wanze Xie",
+            "Yining Liang",
+            "Janet Johnson",
+            "Andrea Mower",
+            "Samuel Burns",
+            "Colleen Chelini",
+            "Paul D Alessandro",
+            "Nadir Weibel",
+            "Jürgen P. Schulze"
+          ],
+          "claimed_title": "Interactive Multi-User 3D Visual Analytics in Augmented Reality",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2002.05305"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title='Interactive Multi-User 3D Visual Analytics in Augmented Reality')",
+        "failed_at": "2026-09-03T14:10:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Virtual Reality (VR) technology has been proliferating in the last decade, especially in the last few years. However, Simulator Sickness (SS) still represents a significant problem for its wider adoption. Currently, the most common way to detect SS is using the Simulator Sickness Questionnaire (SSQ). SSQ is a subjective measurement and is inadequate for real-time applications such as VR games. This research aims to investigate how to use machine learning techniques to detect SS based on in-game characters' and users' physiological data during gameplay in VR games. To achieve this, we designed an experiment to collect such data with three types of games. We trained a Long Short-Term Memory neural network with the dataset eye-tracking and character movement data to detect SS in real-time. Our results indicate that, in VR games, our model is an accurate and efficient way to detect SS in real-time.",
+          "claimed_authors": [
+            "Jialin Wang",
+            "Hai-Ning Liang",
+            "Diego Monteiro",
+            "Wenge Xu",
+            "Hao Chen",
+            "Qiwen Chen"
+          ],
+          "claimed_title": "Real-Time Detection of Simulator Sickness in Virtual Reality Games Based on Players' Psychophysiological Data during Gameplay",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.06152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title=\"Real-Time Detection of Simulator Sickness in Virtual Reality Games Based on Players' Psychophysiological Data during Gameplay\")",
+        "failed_at": "2026-09-03T14:10:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Signal Temporal Logic (STL) is an efficient technique for describing temporal constraints. It can play a significant role in robotic manipulation, for example, to optimize the robot performance according to task-dependent metrics. In this paper, we evaluate several STL robustness metrics of interest in robotic manipulation tasks and discuss a case study showing the advantages of using STL to define complex constraints. Such constraints can be understood as cost functions in task optimization. We show how STL-based cost functions can be optimized using a variety of off-the-shelf optimizers. We report initial results of this research direction on a simulated planar environment.",
+          "claimed_authors": [
+            "Akshay Dhonthi",
+            "Philipp Schillinger",
+            "Leonel Rozo",
+            "Daniele Nardi"
+          ],
+          "claimed_title": "Study of Signal Temporal Logic Robustness Metrics for Robotic Tasks Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.00339"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title='Study of Signal Temporal Logic Robustness Metrics for Robotic Tasks Optimization')",
+        "failed_at": "2026-09-03T14:10:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we present our submission to Shared Metrics Task: RoBLEURT (Robustly Optimizing the training of BLEURT). After investigating the recent advances of trainable metrics, we conclude several aspects of vital importance to obtain a well-performed metric model by: 1) jointly leveraging the advantages of source-included model and reference-only model, 2) continuously pre-training the model with massive synthetic data pairs, and 3) fine-tuning the model with data denoising strategy. Experimental results show that our model reaching state-of-the-art correlations with the WMT2020 human annotations upon 8 out of 10 to-English language pairs.",
+          "claimed_authors": [
+            "Yu Wan",
+            "Dayiheng Liu",
+            "Baosong Yang",
+            "Tianchi Bi",
+            "Haibo Zhang",
+            "Boxing Chen",
+            "Weihua Luo",
+            "Derek F. Wong",
+            "Lidia S. Chao"
+          ],
+          "claimed_title": "RoBLEURT Submission for the WMT2021 Metrics Task",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2204.13352"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title='RoBLEURT Submission for the WMT2021 Metrics Task')",
+        "failed_at": "2026-09-03T14:10:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the contribution of the Unbabel team to the WMT 2020 Shared Task on Metrics. We intend to participate on the segment-level, document-level and system-level tracks on all language pairs, as well as the 'QE as a Metric' track. Accordingly, we illustrate results of our models in these tracks with reference to test sets from the previous year. Our submissions build upon the recently proposed COMET framework: We train several estimator models to regress on different human-generated quality scores and a novel ranking model trained on relative ranks obtained from Direct Assessments. We also propose a simple technique for converting segment-level predictions into a document-level score. Overall, our systems achieve strong results for all language pairs on previous test sets and in many cases set a new state-of-the-art.",
+          "claimed_authors": [
+            "Ricardo Rei",
+            "Craig Stewart",
+            "Catarina Farinha",
+            "Alon Lavie"
+          ],
+          "claimed_title": "Unbabel's Participation in the WMT20 Metrics Shared Task",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.15535"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title=\"Unbabel's Participation in the WMT20 Metrics Shared Task\")",
+        "failed_at": "2026-09-03T14:10:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement learning (RL) research has demonstrated success in both physical and simulated domains; however, the predominant methodology remains rooted in simulations. The predominance of simulations makes translating research to physical reality uncertain for both algorithms and researchers. We propose a physical platform that is designed to simplify the transition. In this paper, we present the Open Ant: a physical variant of the commonly used Gymnasium Ant environment, along with a simulation. We demonstrate that competent walking policies can be learned from scratch in approximately one hour directly from the physical robot's experience for two substantially different RL algorithms: SARSA($λ$) and Soft Actor-Critic (SAC). Separately, we show policies that were learned in simulation transfer to reality. We also examine how well the platform supports a nimble experimental ecosystem. Specifically, we observe the speed with which new users from diverse backgrounds achieve their first success with the platform, and how easily the platform can be repaired and updated when hardware issues arise. Both the hardware design and software are available as open-source on GitHub for ease of customization. In summary, we advocate for the use of the Open Ant for RL researchers who frequently use simulated environments, so they can more easily include robot experiments in their evaluations.",
+          "claimed_authors": [
+            "Elena Sorina Lupu",
+            "Patrick Spieler",
+            "Khurram Javed",
+            "Kris De Asis",
+            "John D. Martin",
+            "Martha Steenstrup",
+            "Joseph Modayil"
+          ],
+          "claimed_title": "The Open Ant: A Robot Platform for Reinforcement Learning Research",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2602.03128"
+          "primary_pointer": "2607.18488"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title='Understanding Multi-Agent LLM Frameworks: A Unified Benchmark and Experimental Analysis')",
-        "failed_at": "2026-09-03T13:09:40Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title='The Open Ant: A Robot Platform for Reinforcement Learning Research')",
+        "failed_at": "2026-09-03T14:10:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+          "claimed_authors": [
+            "Abdul Wahab",
+            "Raksha Kumaraswamy",
+            "Martha White"
+          ],
+          "claimed_title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.12375"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title='Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning')",
+        "failed_at": "2026-09-03T14:10:21Z",
         "reason": "query_irrelevant"
       },
       {
@@ -319,153 +483,8 @@
           "claimed_year": 2025,
           "primary_pointer": "2511.22505"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title='RealD$^2$iff: Bridging Real-World Gap in Robot Manipulation via Depth Diffusion')",
-        "failed_at": "2026-09-03T13:09:40Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Remote Sensing Image Dehazing (RSID) poses significant challenges in real-world scenarios due to the complex atmospheric conditions and severe color distortions that degrade image quality. The scarcity of real-world remote sensing hazy image pairs has compelled existing methods to rely primarily on synthetic datasets. However, these methods struggle with real-world applications due to the inherent domain gap between synthetic and real data. To address this, we introduce Real-World Remote Sensing Hazy Image Dataset (RRSHID), the first large-scale dataset featuring real-world hazy and dehazed image pairs across diverse atmospheric conditions. Based on this, we propose MCAF-Net, a novel framework tailored for real-world RSID. Its effectiveness arises from three innovative components: Multi-branch Feature Integration Block Aggregator (MFIBA), which enables robust feature extraction through cascaded integration blocks and parallel multi-branch processing; Color-Calibrated Self-Supervised Attention Module (CSAM), which mitigates complex color distortions via self-supervised learning and attention-guided refinement; and Multi-Scale Feature Adaptive Fusion Module (MFAFM), which integrates features effectively while preserving local details and global context. Extensive experiments validate that MCAF-Net demonstrates state-of-the-art performance in real-world RSID, while maintaining competitive performance on synthetic datasets. The introduction of RRSHID and MCAF-Net sets new benchmarks for real-world RSID research, advancing practical solutions for this complex task. The code and dataset are publicly available at https://github.com/lwCVer/RRSHID.",
-          "claimed_authors": [
-            "Zeng-Hui Zhu",
-            "Wei Lu",
-            "Si-Bao Chen",
-            "Chris H. Q. Ding",
-            "Jin Tang",
-            "Bin Luo"
-          ],
-          "claimed_title": "Real-World Remote Sensing Image Dehazing: Benchmark and Baseline",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2503.17966"
-        },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title='Real-World Remote Sensing Image Dehazing: Benchmark and Baseline')",
-        "failed_at": "2026-09-03T13:09:40Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "For a class of stochastic restart algorithms we address the effect of a nonzero level of randomization in maximizing the convergence rate for general energy landscapes. The resulting characterization of the optimal level of randomization is investigated computationally for random as well as parametric families of rugged energy landscapes.",
-          "claimed_authors": [
-            "Ted Theodosopoulos"
-          ],
-          "claimed_title": "Some Remarks on the Optimal Level of Randomization in Global Optimization",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2004,
-          "primary_pointer": "math/0406095"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title='Some Remarks on the Optimal Level of Randomization in Global Optimization')",
-        "failed_at": "2026-09-03T13:09:40Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Sim2real transfer has received increasing attention lately due to the success of learning robotic tasks in simulation end-to-end. While there has been a lot of progress in transferring vision-based navigation policies, the existing sim2real strategy for audio-visual navigation performs data augmentation empirically without measuring the acoustic gap. The sound differs from light in that it spans across much wider frequencies and thus requires a different solution for sim2real. We propose the first treatment of sim2real for audio-visual navigation by disentangling it into acoustic field prediction (AFP) and waypoint navigation. We first validate our design choice in the SoundSpaces simulator and show improvement on the Continuous AudioGoal navigation benchmark. We then collect real-world data to measure the spectral difference between the simulation and the real world by training AFP models that only take a specific frequency subband as input. We further propose a frequency-adaptive strategy that intelligently selects the best frequency band for prediction based on both the measured spectral difference and the energy distribution of the received audio, which improves the performance on the real data. Lastly, we build a real robot platform and show that the transferred policy can successfully navigate to sounding objects. This work demonstrates the potential of building intelligent agents that can see, hear, and act entirely from simulation, and transferring them to the real world.",
-          "claimed_authors": [
-            "Changan Chen",
-            "Jordi Ramos",
-            "Anshul Tomar",
-            "Kristen Grauman"
-          ],
-          "claimed_title": "Sim2Real Transfer for Audio-Visual Navigation with Frequency-Adaptive Acoustic Field Prediction",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2405.02821"
-        },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title='Sim2Real Transfer for Audio-Visual Navigation with Frequency-Adaptive Acoustic Field Prediction')",
-        "failed_at": "2026-09-03T13:09:40Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In recent years Sim2Real approaches have brought great results to robotics. Techniques such as model-based learning or domain randomization can help overcome the gap between simulation and reality, but in some situations simulation accuracy is still needed. An example is agricultural robotics, which needs detailed simulations, both in terms of dynamics and visuals. However, simulation software is still not capable of such quality and accuracy. Current Sim2Real techniques are helpful in mitigating the problem, but for these specific tasks they are not enough.",
-          "claimed_authors": [
-            "Carlo Rizzardo",
-            "Sunny Katyara",
-            "Miguel Fernandes",
-            "Fei Chen"
-          ],
-          "claimed_title": "The Importance and the Limitations of Sim2Real for Robotic Manipulation in Precision Agriculture",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2008.03983"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title='The Importance and the Limitations of Sim2Real for Robotic Manipulation in Precision Agriculture')",
-        "failed_at": "2026-09-03T13:09:40Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Simulation offers a scalable and efficient alternative to real-world data collection for learning visuomotor robotic policies. However, the simulation-to-reality, or Sim2Real distribution shift -- introduced by employing simulation-trained policies in real-world environments -- frequently prevents successful policy transfer. We present an offline framework to evaluate the performance of using large-scale pre-trained vision encoders to address the Sim2Real gap. We examine a diverse collection of encoders, assessing their ability to extract features necessary for robot control (Action Score) while remaining invariant to task-irrelevant environmental variations (Domain Invariance Score). Evaluating 23 encoders, we reveal patterns across architectures, pre-training datasets, and parameter scales. Our findings show that manipulation-pretrained encoders consistently achieve higher Action Scores, CNN-based encoders demonstrate stronger domain invariance than ViTs, and the best-performing models combine both properties, underscoring DIS and AS as complementary predictors of Sim2Real transferability.",
-          "claimed_authors": [
-            "Yash Yardi",
-            "Samuel Biruduganti",
-            "Lars Ankile"
-          ],
-          "claimed_title": "Bridging the Sim2Real Gap: Vision Encoder Pre-Training for Visuomotor Policy Transfer",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2501.16389"
-        },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title='Bridging the Sim2Real Gap: Vision Encoder Pre-Training for Visuomotor Policy Transfer')",
-        "failed_at": "2026-09-03T13:09:40Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
-          "claimed_authors": [
-            "Deepesh Data",
-            "Linqi Song",
-            "Suhas Diggavi"
-          ],
-          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1907.02664"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
-        "failed_at": "2026-09-03T13:09:40Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
-          "claimed_authors": [
-            "Deepesh Data",
-            "Suhas Diggavi"
-          ],
-          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2005.07866"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
-        "failed_at": "2026-09-03T13:09:40Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In this paper we use H II starburst galaxy apparent magnitude versus redshift data from Siegel et al. (2005) to constrain dark energy cosmological model parameters. These constraints are generally consistent with those derived using other data sets, but are not as restrictive as the tightest currently available constraints.",
-          "claimed_authors": [
-            "Data Mania",
-            "Bharat Ratra"
-          ],
-          "claimed_title": "Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2011,
-          "primary_pointer": "1110.5626"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"RoboDojo: A Unified Sim-and-Real Benchmark for Com', candidate_title='Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data')",
-        "failed_at": "2026-09-03T13:09:40Z",
+        "failed_at": "2026-09-03T14:10:21Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -535,7 +554,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-09-03T13:09:39Z"
+          "verified_at": "2026-09-03T14:10:21Z"
         }
       },
       {
@@ -560,12 +579,12 @@
           "final_url": "https://arxiv.org/abs/2508.11117",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.8333,
+          "query_relevance_score": 1.0,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-09-03T13:09:45Z"
+          "verified_at": "2026-09-03T14:10:26Z"
         }
       },
       {
@@ -587,12 +606,12 @@
           "final_url": "https://arxiv.org/abs/2509.06342",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.6667,
+          "query_relevance_score": 0.6,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-09-03T13:09:46Z"
+          "verified_at": "2026-09-03T14:10:26Z"
         }
       },
       {
@@ -644,40 +663,71 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2607.15330",
           "http_status": 200,
-          "pdf_sample_score": 0.4109,
-          "query_relevance_score": 0.6667,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-09-03T13:09:47Z"
+          "verified_at": "2026-09-03T14:10:27Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Lingfan Bao",
-            "Tianhu Peng",
-            "Chengxu Zhou"
+            "Raghad Alghonaim",
+            "Edward Johns"
           ],
-          "title": "Sim-to-Real Transfer in Deep Reinforcement Learning for Bipedal Locomotion",
+          "title": "Benchmarking Domain Randomisation for Visual Sim-to-Real Transfer",
           "venue": "arXiv",
-          "year": 2025
+          "year": 2020
         },
-        "primary_pointer": "2511.06465",
-        "summary": "This chapter addresses the critical challenge of simulation-to-reality (sim-to-real) transfer for deep reinforcement learning (DRL) in bipedal locomotion. After contextualizing the problem within various control architectures, we dissect the ``curse of simulation'' by analyzing the primary sources of sim-to-real gap: robot dynamics, contact modeling, state estimation, and numerical solvers. Building on this diagnosis, we structure the solutions around two complementary philosophies. The first is to shrink the gap through model-centric strategies that systematically improve the simulator's physical fidelity. The second is to harden the policy, a complementary approach that uses in-simulation robustness training and post-deployment adaptation to make the policy inherently resilient to model inaccuracies. The chapter concludes by synthesizing these philosophies into a strategic framework, providing a clear roadmap for developing and evaluating robust sim-to-real solutions.",
+        "primary_pointer": "2011.07112",
+        "summary": "Domain randomisation is a very popular method for visual sim-to-real transfer in robotics, due to its simplicity and ability to achieve transfer without any real-world images at all. Nonetheless, a number of design choices must be made to achieve optimal transfer. In this paper, we perform a comprehensive benchmarking study on these different choices, with two key experiments evaluated on a real-world object pose estimation task. First, we study the rendering quality, and find that a small number of high-quality images is superior to a large number of low-quality images. Second, we study the type of randomisation, and find that both distractors and textures are important for generalisation to novel environments.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2511.06465",
+          "final_url": "https://arxiv.org/abs/2011.07112",
           "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.6667,
+          "pdf_sample_score": 0.1859,
+          "query_relevance_score": 1.0,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-09-03T13:09:47Z"
+          "verified_at": "2026-09-03T14:10:28Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zixing Wang",
+            "Kausik Sivakumar",
+            "Jinghuan Shang",
+            "Yafei Hu",
+            "Zhaoming Xie",
+            "Ran Gong",
+            "Xiaohan Zhang",
+            "Karl Schmeckpeper"
+          ],
+          "title": "Efficient Sim-to-Real Transfer of World-Action Models from Synthetic Priors",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.31101",
+        "summary": "Bridging the sim-to-real gap is a core challenge in deploying learned manipulation policies. Sim-to-real learning is attractive because it can replace expensive real robot demonstrations with scalable synthetic data, yet world-action models have not previously been shown to transfer from simulation to real robotic manipulation. We study whether a world-action model can be trained from synthetic priors and deployed zero-shot in the real world. To this end, we build upon Cosmos Policy, a video diffusion model adapted for visuomotor control. We construct simulation environments with extensive domain randomization and generate demonstrations using the AnyTask motion planning pipeline. We evaluate our approach across object lifting, drawer opening, and pick-and-place tasks using ${\\sim}800$ synthetic demonstrations per task and no real demonstrations. When deployed zero-shot on a Franka Robot, our policy attains a 35\\% average success rate. To our knowledge, this represents the first successful sim-to-real transfer of a world-action model for robotic manipulation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.31101",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-03T14:10:30Z"
         }
       }
     ]
