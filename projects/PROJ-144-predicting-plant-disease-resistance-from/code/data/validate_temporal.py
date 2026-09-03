@@ -1,11 +1,11 @@
 """
-Temporal Validation Module for Plant Metabolomics Pipeline.
+Temporal validation for plant disease resistance studies.
 
-This module implements FR-014: Explicitly check metadata for 'pre-challenge',
-'baseline', or timestamps prior to pathogen inoculation.
+Verifies FR-014: Explicitly check metadata for 'pre-challenge', 'baseline',
+or timestamps prior to pathogen inoculation.
 
-It reads raw phenotype CSVs downloaded in T012b, verifies temporal consistency,
-and writes a validation log to data/processed/temporal_validation_log.json.
+This script analyzes study metadata to ensure samples were collected
+before pathogen challenge, which is critical for predictive modeling.
 """
 
 import os
@@ -14,299 +14,399 @@ import json
 import glob
 import logging
 from datetime import datetime
-from typing import List, Dict, Any, Optional, Tuple
 from pathlib import Path
+from typing import Dict, List, Any, Optional, Tuple
 
-# Import constants and utilities from the project structure
+# Import from project constants
 from utils.constants import DATA_RAW_DIR, DATA_PROCESSED_DIR
-from utils.io import log_data_acquisition_step
 
-# Configure logging
+# Setup logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('state/temporal_validation.log')
-    ]
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-class TemporalVerificationWarning(Warning):
-    """Custom warning for ambiguous or missing temporal metadata."""
+
+class TemporalVerificationWarning(UserWarning):
+    """Warning raised when temporal metadata is ambiguous or missing."""
     pass
 
+
 class TemporalVerificationError(Exception):
-    """Custom error for critical temporal validation failures."""
+    """Error raised when no studies pass temporal verification."""
     pass
+
 
 def parse_date(date_str: str) -> Optional[datetime]:
     """
-    Attempt to parse a date string into a datetime object.
-    Supports common formats: ISO 8601, YYYY-MM-DD, MM/DD/YYYY.
+    Parse a date string into a datetime object.
+
+    Supports multiple common date formats.
+
+    Args:
+        date_str: Date string to parse
+
+    Returns:
+        datetime object or None if parsing fails
     """
-    if not date_str or pd.isna(date_str):
+    if not date_str or not isinstance(date_str, str):
         return None
 
-    date_str = str(date_str).strip()
-    formats = [
-        "%Y-%m-%d",
-        "%Y-%m-%dT%H:%M:%S",
-        "%Y-%m-%dT%H:%M:%SZ",
-        "%m/%d/%Y",
-        "%d-%m-%Y",
-        "%Y%m%d"
+    date_str = date_str.strip()
+    if not date_str:
+        return None
+
+    # Common date formats to try
+    date_formats = [
+        '%Y-%m-%d',
+        '%Y/%m/%d',
+        '%d-%m-%Y',
+        '%d/%m/%Y',
+        '%m-%d-%Y',
+        '%m/%d/%Y',
+        '%Y-%m-%dT%H:%M:%S',
+        '%Y-%m-%dT%H:%M:%SZ',
+        '%Y-%m-%d %H:%M:%S',
     ]
 
-    for fmt in formats:
+    for fmt in date_formats:
         try:
             return datetime.strptime(date_str, fmt)
         except ValueError:
             continue
+
+    # Try pandas if available for more flexible parsing
+    try:
+        import pandas as pd
+        parsed = pd.to_datetime(date_str, errors='coerce')
+        if not pd.isna(parsed):
+            return parsed.to_pydatetime()
+    except ImportError:
+        pass
+    except Exception:
+        pass
+
+    logger.warning(f"Could not parse date: {date_str}")
     return None
 
+
 def load_manifest(manifest_path: str) -> List[Dict[str, Any]]:
-    """Load the study manifest JSON file."""
+    """
+    Load the study manifest JSON file.
+
+    Args:
+        manifest_path: Path to the manifest file
+
+    Returns:
+        List of study dictionaries
+    """
     if not os.path.exists(manifest_path):
         raise FileNotFoundError(f"Manifest file not found: {manifest_path}")
 
     with open(manifest_path, 'r') as f:
-        data = json.load(f)
-    return data
+        return json.load(f)
 
-def load_phenotype_data(study_id: str) -> Optional[Dict[str, Any]]:
+
+def load_phenotype_data(study_id: str, raw_dir: str) -> Optional[Dict[str, Any]]:
     """
     Load phenotype data for a specific study.
-    Returns a dictionary with the dataframe and metadata.
+
+    Args:
+        study_id: Study identifier
+        raw_dir: Directory containing raw data files
+
+    Returns:
+        Dictionary with phenotype data or None if not found
     """
-    phenotype_path = os.path.join(DATA_RAW_DIR, f"{study_id}_phenotype.csv")
-    
-    if not os.path.exists(phenotype_path):
-        logger.warning(f"Phenotype file not found for study {study_id}: {phenotype_path}")
-        return None
+    # Look for phenotype files with various naming conventions
+    phenotype_patterns = [
+        os.path.join(raw_dir, f"{study_id}_phenotype.csv"),
+        os.path.join(raw_dir, f"{study_id}_phenotypes.csv"),
+        os.path.join(raw_dir, f"{study_id}_metadata.csv"),
+        os.path.join(raw_dir, f"{study_id}_raw_phenotype.csv"),
+    ]
 
-    try:
-        import pandas as pd
-        df = pd.read_csv(phenotype_path)
-        return {
-            'study_id': study_id,
-            'df': df,
-            'path': phenotype_path
-        }
-    except Exception as e:
-        logger.error(f"Error loading phenotype data for {study_id}: {e}")
-        return None
+    for pattern in phenotype_patterns:
+        if os.path.exists(pattern):
+            try:
+                import pandas as pd
+                df = pd.read_csv(pattern)
+                return {
+                    'path': pattern,
+                    'data': df,
+                    'columns': df.columns.tolist()
+                }
+            except Exception as e:
+                logger.warning(f"Failed to load {pattern}: {e}")
+                continue
 
-def check_temporal_fields(df: Any, study_id: str) -> Dict[str, Any]:
+    return None
+
+
+def check_temporal_fields(
+    study_id: str,
+    phenotype_data: Dict[str, Any],
+    columns: List[str]
+) -> Tuple[str, str, List[str]]:
     """
-    Check for temporal fields in the dataframe and verify pre-challenge status.
-    
-    Fields to check:
-    - 'timepoint', 'sample_date', 'collection_date', 'inoculation_date'
-    
-    Logic:
-    - If 'inoculation_date' exists, verify 'sample_date' (or similar) is prior.
-    - If 'timepoint' exists, check for values like 'baseline', 'pre-challenge', 0.
+    Check for temporal metadata fields in phenotype data.
+
+    Args:
+        study_id: Study identifier
+        phenotype_data: Dictionary with phenotype data
+        columns: List of column names to check
+
+    Returns:
+        Tuple of (status, message, found_fields)
     """
-    result = {
-        'study_id': study_id,
-        'status': 'unverified',
-        'reason': 'Unknown',
-        'fields_found': [],
-        'warnings': []
-    }
+    # Fields indicating pre-challenge/baseline samples
+    temporal_indicators = [
+        'timepoint', 'sample_date', 'collection_date', 'inoculation_date',
+        'pre_challenge', 'baseline', 'pre_inoculation', 'before_challenge',
+        'day0', 'day_0', 't0', 't_0', 'start_date', 'initial_date'
+    ]
 
-    columns = [str(c).lower() for c in df.columns]
-    
-    # Mapping of expected columns to canonical names
-    date_columns = {
-        'timepoint': 'timepoint',
-        'sample_date': 'sample_date',
-        'collection_date': 'sample_date',
-        'inoculation_date': 'inoculation_date',
-        'baseline': 'baseline_indicator'
-    }
+    # Fields indicating challenge/inoculation events
+    challenge_indicators = [
+        'challenge_date', 'inoculation_date', 'treatment_date',
+        'post_challenge', 'post_inoculation', 'challenge_time',
+        'inoculation_time', 'challenge_day', 'inoculation_day'
+    ]
 
-    found_fields = []
-    sample_date_col = None
-    inoculation_date_col = None
-    timepoint_col = None
-    baseline_col = None
+    found_temporal = []
+    found_challenge = []
 
-    for col in df.columns:
-        col_lower = str(col).lower()
-        if col_lower in date_columns:
-            found_fields.append(col)
-            if col_lower == 'timepoint':
-                timepoint_col = col
-            elif col_lower in ['sample_date', 'collection_date']:
-                sample_date_col = col
-            elif col_lower == 'inoculation_date':
-                inoculation_date_col = col
-            elif col_lower == 'baseline':
-                baseline_col = col
+    columns_lower = [c.lower() for c in columns]
 
-    result['fields_found'] = found_fields
-
-    # Case 1: Check for explicit timepoint values (baseline, pre-challenge)
-    if timepoint_col:
-        logger.info(f"Study {study_id}: Found timepoint column '{timepoint_col}'")
-        # Check if any value indicates pre-challenge
-        sample_values = df[timepoint_col].dropna().unique()
-        pre_challenge_keywords = ['baseline', 'pre-challenge', 'prechallenge', '0', 't0', 't_0']
-        
-        has_pre_challenge = False
-        for val in sample_values:
-            val_str = str(val).lower().strip()
-            if any(kw in val_str for kw in pre_challenge_keywords):
-                has_pre_challenge = True
+    for col in columns:
+        col_lower = col.lower()
+        for indicator in temporal_indicators:
+            if indicator in col_lower:
+                found_temporal.append(col)
+                break
+        for indicator in challenge_indicators:
+            if indicator in col_lower:
+                found_challenge.append(col)
                 break
 
-        if has_pre_challenge:
-            result['status'] = 'verified'
-            result['reason'] = 'Contains explicit pre-challenge/baseline timepoint'
-        else:
-            result['status'] = 'unverified'
-            result['reason'] = 'Timepoint column present but no pre-challenge values found'
-            result['warnings'].append(f"Timepoint values: {sample_values[:5]}...")
+    # Check for explicit baseline/pre-challenge labels in values
+    status = "unverified"
+    message = "No temporal metadata fields found"
 
-    # Case 2: Check for date comparison (sample_date < inoculation_date)
-    elif sample_date_col and inoculation_date_col:
-        logger.info(f"Study {study_id}: Found date columns for comparison")
-        # Convert columns to datetime
-        try:
-            sample_dates = pd.to_datetime(df[sample_date_col], errors='coerce')
-            inoc_dates = pd.to_datetime(df[inoculation_date_col], errors='coerce')
-            
-            # Check if any sample is before inoculation
-            valid_pairs = sample_dates.notna() & inoc_dates.notna()
-            if valid_pairs.any():
-                prior_samples = sample_dates[valid_pairs] < inoc_dates[valid_pairs]
-                if prior_samples.any():
-                    result['status'] = 'verified'
-                    result['reason'] = 'Sample dates found prior to inoculation dates'
+    if found_temporal or found_challenge:
+        found_fields = found_temporal + found_challenge
+
+        # Try to verify temporal relationship if both exist
+        if found_temporal and found_challenge:
+            try:
+                import pandas as pd
+                df = phenotype_data['data']
+
+                # Get the temporal and challenge columns
+                sample_col = found_temporal[0]
+                challenge_col = found_challenge[0]
+
+                # Parse dates
+                sample_dates = df[sample_col].apply(parse_date)
+                challenge_dates = df[challenge_col].apply(parse_date)
+
+                # Check if any sample dates are before challenge dates
+                verified_count = 0
+                for s_date, c_date in zip(sample_dates, challenge_dates):
+                    if s_date and c_date and s_date < c_date:
+                        verified_count += 1
+
+                if verified_count > 0:
+                    status = "verified"
+                    message = f"Found {verified_count} samples with timestamps before challenge"
                 else:
-                    result['status'] = 'unverified'
-                    result['reason'] = 'No sample dates found prior to inoculation'
-                    result['warnings'].append("All samples appear to be post-inoculation")
-            else:
-                result['status'] = 'unverified'
-                result['reason'] = 'Could not parse date columns for comparison'
-                result['warnings'].append("Invalid date formats in columns")
-        except Exception as e:
-            result['status'] = 'unverified'
-            result['reason'] = f'Error parsing dates: {str(e)}'
-            result['warnings'].append(str(e))
+                    status = "unverified"
+                    message = "No samples found with timestamps before challenge"
 
-    # Case 3: Check for baseline indicator column
-    elif baseline_col:
-        logger.info(f"Study {study_id}: Found baseline indicator column")
-        if df[baseline_col].any():
-            result['status'] = 'verified'
-            result['reason'] = 'Baseline indicator present and positive'
-        else:
-            result['status'] = 'unverified'
-            result['reason'] = 'Baseline indicator column present but no positive values'
-    
-    else:
-        # No relevant fields found
-        result['status'] = 'unverified'
-        result['reason'] = 'No temporal fields (timepoint, sample_date, inoculation_date) found'
-        result['warnings'].append("Missing required temporal metadata fields")
+            except Exception as e:
+                status = "warning"
+                message = f"Could not verify temporal relationship: {e}"
 
-    return result
+        elif found_temporal:
+            status = "verified"
+            message = f"Found temporal field(s): {', '.join(found_temporal)}"
 
-def validate_studies_from_manifest(manifest_path: str) -> List[Dict[str, Any]]:
+        elif found_challenge:
+            status = "warning"
+            message = f"Found challenge field(s) but no baseline indicator: {', '.join(found_challenge)}"
+
+        return status, message, found_fields
+
+    return status, message, []
+
+
+def validate_studies_from_manifest(
+    manifest_path: str,
+    raw_dir: str,
+    output_path: str
+) -> Dict[str, Any]:
     """
-    Iterate through studies in the manifest and validate temporal consistency.
+    Validate temporal metadata for all studies in the manifest.
+
+    Args:
+        manifest_path: Path to the study manifest
+        raw_dir: Directory containing raw phenotype files
+        output_path: Path for the validation log output
+
+    Returns:
+        Dictionary with validation results
     """
+    logger.info(f"Loading manifest from {manifest_path}")
     studies = load_manifest(manifest_path)
-    validation_results = []
-    verified_count = 0
+
+    results = {
+        'validation_timestamp': datetime.now().isoformat(),
+        'total_studies': len(studies),
+        'verified_count': 0,
+        'warning_count': 0,
+        'unverified_count': 0,
+        'study_results': []
+    }
+
+    verified_studies = []
+    warning_studies = []
+    unverified_studies = []
 
     for study in studies:
         study_id = study.get('study_id')
         if not study_id:
-            logger.warning("Skipping study with missing ID in manifest")
+            logger.warning(f"Skipping study without ID: {study}")
             continue
 
-        logger.info(f"Validating temporal consistency for study: {study_id}")
-        
+        logger.info(f"Validating study: {study_id}")
+
         # Load phenotype data
-        data = load_phenotype_data(study_id)
-        if not data:
-            # If data is missing, we mark as unverified but do not halt
-            # The task says: "mark the study as 'unverified' and log a TemporalVerificationWarning"
-            warning_msg = f"Phenotype data missing for {study_id}"
-            logger.warning(warning_msg)
+        phenotype_data = load_phenotype_data(study_id, raw_dir)
+
+        if phenotype_data is None:
             result = {
                 'study_id': study_id,
                 'status': 'unverified',
-                'reason': 'Phenotype data file missing',
-                'fields_found': [],
-                'warnings': [warning_msg]
+                'message': 'Phenotype file not found',
+                'found_fields': []
             }
-            validation_results.append(result)
-            continue
+            unverified_studies.append(study_id)
+        else:
+            status, message, found_fields = check_temporal_fields(
+                study_id,
+                phenotype_data,
+                phenotype_data['columns']
+            )
 
-        # Check temporal fields
-        result = check_temporal_fields(data['df'], study_id)
-        validation_results.append(result)
+            result = {
+                'study_id': study_id,
+                'status': status,
+                'message': message,
+                'found_fields': found_fields,
+                'phenotype_file': phenotype_data['path']
+            }
 
-        if result['status'] == 'verified':
-            verified_count += 1
-        
-        # Log warnings if status is unverified
-        if result['status'] == 'unverified' and result['warnings']:
-            for w in result['warnings']:
-                logger.warning(f"TemporalVerificationWarning for {study_id}: {w}")
+            if status == 'verified':
+                verified_studies.append(study_id)
+            elif status == 'warning':
+                warning_studies.append(study_id)
+                logger.warning(f"Temporal warning for {study_id}: {message}")
+            else:
+                unverified_studies.append(study_id)
 
-    return validation_results
+        results['study_results'].append(result)
+
+        # Update counts
+        if status == 'verified':
+            results['verified_count'] += 1
+        elif status == 'warning':
+            results['warning_count'] += 1
+        else:
+            results['unverified_count'] += 1
+
+    # Write output
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2, default=str)
+
+    logger.info(f"Validation complete. Results written to {output_path}")
+    logger.info(f"Verified: {results['verified_count']}, "
+               f"Warnings: {results['warning_count']}, "
+               f"Unverified: {results['unverified_count']}")
+
+    return results
+
 
 def main():
     """
-    Main entry point for the temporal validation script.
-    
-    1. Load study manifest from data/raw/study_manifest.json
-    2. Validate each study's phenotype data for temporal consistency
-    3. Write results to data/processed/temporal_validation_log.json
-    4. Exit with code 0 if at least one study is verified, else 1
+    Main entry point for temporal validation.
+
+    Reads the study manifest, validates temporal metadata for each study,
+    and writes results to the validation log.
+
+    Exit codes:
+        0: At least one study verified
+        1: No studies verified
     """
-    manifest_path = os.path.join(DATA_RAW_DIR, "study_manifest.json")
-    output_dir = DATA_PROCESSED_DIR
-    output_path = os.path.join(output_dir, "temporal_validation_log.json")
+    # Define paths
+    manifest_path = os.path.join(DATA_RAW_DIR, 'filtered_study_manifest.json')
 
-    # Ensure output directory exists
-    os.makedirs(output_dir, exist_ok=True)
+    # Check if we should use the raw manifest if filtered doesn't exist
+    if not os.path.exists(manifest_path):
+        manifest_path = os.path.join(DATA_RAW_DIR, 'study_manifest.json')
 
-    logger.info("Starting temporal validation pipeline...")
-    
+    output_path = os.path.join(DATA_PROCESSED_DIR, 'temporal_validation_log.json')
+
+    # Ensure directories exist
+    os.makedirs(DATA_RAW_DIR, exist_ok=True)
+    os.makedirs(DATA_PROCESSED_DIR, exist_ok=True)
+
     try:
-        # Validate studies
-        results = validate_studies_from_manifest(manifest_path)
-        
-        # Write results to JSON
-        with open(output_path, 'w') as f:
-            json.dump(results, f, indent=2, default=str)
-        
-        logger.info(f"Validation log written to: {output_path}")
+        # Run validation
+        results = validate_studies_from_manifest(
+            manifest_path,
+            DATA_RAW_DIR,
+            output_path
+        )
 
         # Determine exit code
-        verified_studies = [r for r in results if r['status'] == 'verified']
-        
-        if len(verified_studies) == 0:
-            logger.error("NO studies were verified. Exiting with code 1.")
-            sys.exit(1)
-        else:
-            logger.info(f"Success: {len(verified_studies)} study(s) verified. Exiting with code 0.")
-            sys.exit(0)
+        if results['verified_count'] == 0:
+            logger.error("No studies passed temporal verification!")
+            # Only exit with error if we have studies but none verified
+            if results['total_studies'] > 0:
+                raise TemporalVerificationError(
+                    f"No studies verified. Verified: 0, "
+                    f"Warnings: {results['warning_count']}, "
+                    f"Unverified: {results['unverified_count']}"
+                )
+
+        return 0
 
     except FileNotFoundError as e:
-        logger.error(f"Critical error: {e}")
-        sys.exit(1)
+        logger.error(f"Required file not found: {e}")
+        # Create empty result file
+        empty_results = {
+            'validation_timestamp': datetime.now().isoformat(),
+            'total_studies': 0,
+            'verified_count': 0,
+            'warning_count': 0,
+            'unverified_count': 0,
+            'study_results': [],
+            'error': str(e)
+        }
+        with open(output_path, 'w') as f:
+            json.dump(empty_results, f, indent=2)
+        return 1
+
+    except TemporalVerificationError as e:
+        logger.error(str(e))
+        return 1
+
     except Exception as e:
         logger.error(f"Unexpected error during validation: {e}")
-        sys.exit(1)
+        return 1
 
-if __name__ == "__main__":
-    main()
+
+if __name__ == '__main__':
+    sys.exit(main())

@@ -31,7 +31,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmxive
   verified_at: '2026-08-12T06:00:41.266117Z'
-- artifact_hash: 895308d2260d0427cb2017ab1dade5a7abde98c49bd729a5d150dadc0ebeb9de
+- artifact_hash: 692fc4783c3122ffca5dc33548fd7830cef0af8f60423ba6b78da3a2e27ba41d
   artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,8 +41,8 @@
   value: https://www.metabolomicsworkbench.org/data/study.php?STUDY_ID=`
   verification_status: pending
   verified_against_url: https://www.metabolomicsworkbench.org/data/study.php?STUDY_ID=
-  verified_at: '2026-09-03T10:00:39.147248Z'
-- artifact_hash: 895308d2260d0427cb2017ab1dade5a7abde98c49bd729a5d150dadc0ebeb9de
+  verified_at: '2026-09-03T13:51:41.646146Z'
+- artifact_hash: 692fc4783c3122ffca5dc33548fd7830cef0af8f60423ba6b78da3a2e27ba41d
   artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -52,4 +52,4 @@
   value: https://rest.kegg.jp/link/pathway/`
   verification_status: unreachable
   verified_against_url: https://rest.kegg.jp/link/pathway/
-  verified_at: '2026-09-03T10:00:39.147248Z'
+  verified_at: '2026-09-03T13:51:41.646146Z'

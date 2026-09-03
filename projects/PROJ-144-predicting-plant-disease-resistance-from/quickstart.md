@@ -1,180 +1,129 @@
-# Quick Start Guide
+# Quickstart Guide: Predicting Plant Disease Resistance from Metabolomic Data
 
-## Prerequisites Check
+This guide provides the exact commands to run the full pipeline end-to-end.
 
-Before starting, ensure you have:
-- Python 3.8 or higher installed
-- pip package manager
-- Internet access for downloading data from Metabolomics Workbench
-- At least 8GB RAM available
-- ~2GB free disk space for intermediate files
+## Prerequisites
 
-## Step-by-Step Execution
+- Python 3.9+
+- pip
+- Internet access (for downloading datasets and KEGG API calls)
 
-### 1. Setup Environment
+## Installation
 
 ```bash
-# Create virtual environment
-python -m venv venv
-
-# Activate environment
-source venv/bin/activate # Linux/Mac
-# or
-venv\\Scripts\\activate # Windows
-
 # Install dependencies
-pip install -r requirements.txt
+pip install -r code/requirements.txt
 ```
 
-### 2. Verify Study Availability
+## Full Pipeline Execution
+
+Run the following commands in order to execute the entire pipeline:
+
+### Phase 0: Data Acquisition
 
 ```bash
-python code/research/verify_studies.py
+# 1. Discover plant metabolomics studies
+python code/data/discover_studies.py --output data/raw/study_manifest_raw.json
+
+# 2. Serialize study manifest
+python code/data/serialize_manifest.py --input data/raw/study_manifest_raw.json --output data/raw/study_manifest.json
+
+# 3. Validate study manifest
+python code/data/validate_manifest.py --input data/raw/study_manifest.json --schema contracts/metadata.schema.yaml --output state/schema_validation_log.txt
+
+# 4. Download raw data for all studies
+python code/data/download_study.py --manifest data/raw/study_manifest.json --output-dir data/raw
+
+# 5. Match resistance metadata and filter studies
+python code/data/match_and_download.py --input data/raw --output data/raw/filtered_study_manifest.json
+
+# 6. Validate temporal metadata
+python code/data/validate_temporal.py --input data/raw --output data/processed/temporal_validation_log.json
+
+# 7. Detect label heterogeneity
+python code/data/detect_label_heterogeneity.py --input data/raw --output data/processed/heterogeneity_report.json
 ```
 
-**Expected Output**:
-- `data/raw/study_manifest.json` created
-- Console message showing number of valid studies found
-
-**Validation**:
-```bash
-cat data/raw/study_manifest.json | python -m json.tool
-```
-
-### 3. Download Raw Data
-
-```bash
-python code/data/download_study.py --study_ids data/raw/study_manifest.json
-```
-
-**Expected Output**:
-- Raw CSV files in `data/raw/`
-- Checksum files generated
-- Temporal verification completed
-
-**Validation**:
-```bash
-ls -lh data/raw/
-```
-
-### 4. Preprocess Data
+### Phase 1: Preprocessing
 
 ```bash
-python code/data/preprocess.py --study_ids data/raw/study_manifest.json --output data/processed/
+# 8. Harmonize labels
+python code/data/harmonize_labels.py --input data/raw --heterogeneity data/processed/heterogeneity_report.json --output data/processed/harmonized_labels.csv
+
+# 9. Execute preprocessing pipeline (log transform, filter, align, ComBat)
+python code/data/preprocess.py --input data/raw --output data/processed
 ```
 
-**Expected Output**:
-- `data/processed/batch_corrected_matrix.csv`
-- `data/processed/labels.csv`
-- `data/processed/preprocess_log.json`
-
-**Validation**:
-```bash
-head -5 data/processed/batch_corrected_matrix.csv
-wc -l data/processed/batch_corrected_matrix.csv
-```
-
-### 5. Train Model
+### Phase 2: Modeling
 
 ```bash
-python code/modeling/train.py --input data/processed/ --output results/
+# 10. Split data (or configure learning curve if N < 50)
+python code/modeling/split_data.py --input data/processed --output data/processed/split_config.json
+
+# 11. Train model
+python code/modeling/train.py --input data/processed --output results/model.pkl
+
+# 12. Extract feature importance
+python code/modeling/extract_feature_importance.py --input results/model.pkl --output results/feature_importance_ranking.json
+
+# 13. Correlation analysis with FDR
+python code/modeling/correlation_analysis.py --input data/processed --output results/correlation_analysis_fdr_corrected.json
+
+# 14. Model validation and permutation testing
+python code/modeling/validate_model.py --input data/processed --model results/model.pkl --output results/model_validation.json
+
+# 15. Sensitivity analysis
+python code/modeling/sensitivity_analysis.py --input data/processed --model results/model.pkl --output results/sensitivity_analysis.json
+
+# 16. Collinearity diagnostics
+python code/modeling/collinearity.py --input data/processed --output results/vif_scores.json
 ```
 
-**Expected Output**:
-- Trained model saved
-- `results/feature_importance_ranking.json`
-- Cross-validation results
-
-**Validation**:
-```bash
-cat results/feature_importance_ranking.json | python -m json.tool
-```
-
-### 6. Evaluate Model
-
-```bash
-python code/modeling/evaluate.py --input data/processed/ --results results/
-```
-
-**Expected Output**:
-- `results/metrics.json`
-- `results/shap_analysis.json`
-- Learning curve plots
-
-**Validation**:
-```bash
-cat results/metrics.json | python -m json.tool
-```
-
-### 7. Interpret Results
+### Phase 3: Interpretation (T043 - KEGG API with Retry/Fallback)
 
 ```bash
-python code/modeling/interpret.py --results results/
-python code/modeling/generate_final_metrics.py --results results/
+# 17. Extract top metabolites
+python code/modeling/extract_feature_importance.py --input results/model.pkl --output results/top_metabolites.json
+
+# 18. Map pathways with KEGG API (includes retry/fallback logic)
+python code/modeling/interpret.py --input results/top_metabolites.json --output results/pathway_analysis.json
+
+# 19. Generate pathway report
+python code/modeling/generate_framing_report.py --input results/pathway_analysis.json --output results/pathway_report.json
+
+# 20. Merge pathway analysis
+python code/modeling/merge_pathway_analysis.py --input results --output results/pathway_analysis.json
 ```
 
-**Expected Output**:
-- `results/pathway_analysis.json`
-- `results/top_metabolites.json`
-- Visualization plots in `results/plots/`
-
-**Validation**:
-```bash
-ls -lh results/plots/
-cat results/pathway_analysis.json | python -m json.tool
-```
-
-### 8. Generate Final Report
+### Phase 4: Final Report
 
 ```bash
-python code/modeling/generate_associational_report.py --results results/
+# 21. Generate final metrics and summary
+python code/modeling/generate_final_metrics.py --input results --output results/analysis_summary.json
+
+# 22. Generate associational report
+python code/modeling/generate_associational_report.py --input results/analysis_summary.json --output results/report_framing.md
 ```
 
-**Expected Output**:
-- `results/report_framing.md`
-- Consolidated associational report
+## Verification
 
-**Validation**:
+After running the pipeline, verify that all expected outputs exist:
+
 ```bash
-grep -i "associations" results/report_framing.md
+# Check key artifacts
+ls -lh data/raw/study_manifest.json
+ls -lh data/processed/heterogeneity_report.json
+ls -lh data/processed/temporal_validation_log.json
+ls -lh results/pathway_analysis.json
+ls -lh results/analysis_summary.json
 ```
 
-## Common Issues
+## Troubleshooting
 
-### Issue: "Study not found" error
-**Solution**: Ensure the Metabolomics Workbench API is accessible and the study IDs in `study_manifest.json` are valid.
+- **KEGG API timeouts**: The `interpret.py` script automatically retries with exponential backoff. If failures persist, check your internet connection.
+- **Missing data files**: Ensure all previous steps completed successfully. Check `data/raw/` and `data/processed/` directories.
+- **Class imbalance**: If you see `ClassImbalanceError`, check the distribution of your labels in the hold-out set.
 
-### Issue: "Insufficient memory" error
-**Solution**: Reduce the number of studies processed or increase available RAM. The pipeline will automatically switch to streaming mode for large datasets.
+## Limitations
 
-### Issue: "Temporal verification failed"
-**Solution**: This is expected if a study lacks pre-challenge/baseline samples. The pipeline will skip that study and log a warning.
-
-### Issue: "ComBat not applicable"
-**Solution**: This warning appears when only one study is present. Batch correction is correctly skipped in this case.
-
-## Verification Checklist
-
-After running the full pipeline, verify:
-
-- [ ] `data/raw/study_manifest.json` exists and is valid JSON
-- [ ] `data/processed/batch_corrected_matrix.csv` exists with >10 metabolites
-- [ ] `data/processed/labels.csv` exists with binary labels
-- [ ] `results/metrics.json` contains balanced_accuracy, roc_auc, permutation_p_value
-- [ ] `results/shap_analysis.json` contains correlation data and framing
-- [ ] `results/pathway_analysis.json` contains pathway mappings and narrative
-- [ ] `results/plots/` contains at least one PNG file
-- [ ] All JSON files contain the "framing" field with associational text
-- [ ] `state/artifact_hashes.yaml` contains SHA256 checksums for all artifacts
-
-## Next Steps
-
-1. Review the generated reports in `results/`
-2. Examine the pathway analysis for biological plausibility
-3. Validate the associational framing in all outputs
-4. Consider extending the analysis with additional datasets
-5. Share findings with appropriate caveats about associational nature
-
-## Support
-
-For issues or questions, refer to the full documentation in `README.md` or check the test suite in `tests/` for usage examples.
+These findings represent statistical associations between pre-challenge metabolite profiles and disease resistance phenotypes. No causal claims are made.

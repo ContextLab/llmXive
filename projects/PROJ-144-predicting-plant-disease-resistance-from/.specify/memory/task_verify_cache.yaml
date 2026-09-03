@@ -6,20 +6,14 @@ T005:
     \ and a SHA256 hash to `state/artifact_hashes.yaml` (creating the file if absent).\
     \ The required functionality is present and the code will generate the YAML log\
     \ as specified."
-T014b:
+T013:
   c: false
-  h: 37efb5f92fd04d08158cad03634b03ed4b29b3e77c6a3384a0972668fa17361b
-  r: "The required input `data/processed/heterogeneity_report.json` does not exist,\
-    \ so the label\u2011harmonization step cannot be performed as specified. The missing\
-    \ artifact must be provided (or generated) for the task to be considered complete."
-T017a:
-  c: false
-  h: 2567d604f6ad3d096f6a2c8829113ddf35e572917727f4baf60f0479c905715e
-  r: "The required input `data/processed/harmonized_labels.csv` is missing, so the\
-    \ pre\u2011check would raise `DataUnavailableError` and the script was never executed.\
-    \ Consequently the expected output files (`batch_corrected_matrix.csv`, `labels.csv`,\
-    \ `preprocess_log.json`) are also absent. The task therefore is not genuinely\
-    \ completed."
+  h: ba5a6fe0f16a3957c7c9b2e9a3eed2d81f632e75aa24d3c437c450898abea6d3
+  r: "The repository contains `code/data/validate_temporal.py`, but the file is truncated\
+    \ in the view and there is no `data/processed/temporal_validation_log.json` produced\
+    \ (the file is missing). Since the required output log is absent (and the script\u2019\
+    s full logic/exit\u2011code handling cannot be verified), the task is not fully\
+    \ satisfied."
 T019:
   c: false
   h: 74347121ce103044f520c0bbaa7f3ed95f75f62c5caaa66cb681a60919589a76

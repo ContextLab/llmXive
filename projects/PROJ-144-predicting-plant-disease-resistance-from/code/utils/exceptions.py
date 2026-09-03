@@ -1,30 +1,42 @@
+"""
+Custom exceptions for the plant disease resistance prediction pipeline.
+
+This module defines all custom exception classes used throughout the project
+to ensure consistent error handling and clear error messages.
+"""
+
 class DataFetchError(Exception):
-    """Raised when data fetching fails."""
+    """Raised when data fetching from external sources fails."""
+    pass
+
+class DataUnavailableError(Exception):
+    """Raised when required data files are missing or unavailable."""
     pass
 
 class DataAvailabilityError(Exception):
-    """Raised when required data is not available."""
-    pass
-
-class TemporalVerificationWarning(Warning):
-    """Warning for ambiguous temporal metadata."""
+    """Raised when no studies meet the required metadata criteria."""
     pass
 
 class TemporalVerificationError(Exception):
-    """Error for critical temporal metadata failures."""
+    """Raised when temporal validation fails completely (no studies verified)."""
+    pass
+
+class TemporalVerificationWarning(Warning):
+    """Warning for individual studies with ambiguous temporal metadata."""
+    pass
+
+class BatchCorrectionFailureError(Exception):
+    """Raised when batch correction (e.g., ComBat) fails to converge."""
+    pass
+
+class DataAlignmentError(Exception):
+    """Raised when metabolite alignment fails due to insufficient intersection."""
     pass
 
 class ClassImbalanceError(Exception):
-    """
-    Raised when a stratified split results in a hold-out set (or CV fold)
-    containing zero samples of the minority class.
-    """
+    """Raised when class imbalance is detected in validation splits."""
     pass
 
-class ConvergenceWarning(Warning):
-    """Warning when batch correction fails to converge."""
-    pass
-
-class DataQualityError(Exception):
-    """Raised when data quality (e.g., InChIKey alignment) is insufficient."""
+class PathwayMappingWarning(Warning):
+    """Warning for pathway mapping issues (e.g., API timeouts, low success rate)."""
     pass
