@@ -18,6 +18,9 @@ properties:
   is_boundary:
     type: boolean
     description: "True if distance < 5% of hull radius"
+  is_valid_composition:
+    type: boolean
+    description: "True if point passed simplex projection check"
 required:
   - composition_id
   - predicted_bulk
@@ -25,4 +28,5 @@ required:
   - uncertainty_variance
   - hull_distance
   - is_boundary
+  - is_valid_composition
 additionalProperties: false

@@ -1,56 +1,47 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Validation Report"
-description: "Schema for data/processed/model_validation_report.json"
+title: "ModelValidation"
+description: "Schema for model validation report including uncertainty metrics."
 type: "object"
 properties:
-  model_type:
+  sample_id:
     type: "string"
-    const: "GradientBoosting"
-  validation_method:
-    type: "string"
-    const: "LOSO-CV"
-  metrics:
-    type: "object"
-    properties:
-      bulk_modulus:
-        type: "object"
-        properties:
-          r2_mean:
-            type: "number"
-          r2_std:
-            type: "number"
-          mae_mean:
-            type: "number"
-        required:
-          - r2_mean
-          - r2_std
-          - mae_mean
-      shear_modulus:
-        type: "object"
-        properties:
-          r2_mean:
-            type: "number"
-          r2_std:
-            type: "number"
-          mae_mean:
-            type: "number"
-        required:
-          - r2_mean
-          - r2_std
-          - mae_mean
-    required:
-      - bulk_modulus
-      - shear_modulus
-  sample_size:
-    type: "integer"
-    minimum: 1
-  systems_tested:
-    type: "array"
-    items:
-      type: "string"
+    description: "Unique identifier for the sample"
+  predicted_bulk:
+    type: "number"
+    description: "Predicted Bulk Modulus"
+  predicted_shear:
+    type: "number"
+    description: "Predicted Shear Modulus"
+  actual_bulk:
+    type: "number"
+    description: "Actual Bulk Modulus"
+    minimum: 0
+  actual_shear:
+    type: "number"
+    description: "Actual Shear Modulus"
+    minimum: 0
+  uncertainty_variance:
+    type: "number"
+    description: "Variance across LOSO-CV splits"
+    minimum: 0
+  hull_distance:
+    type: "number"
+    description: "Distance from convex hull centroid"
+    minimum: 0
+  is_boundary:
+    type: "boolean"
+    description: "Within 5% of hull radius"
+  is_valid_composition:
+    type: "boolean"
+    description: "Passed simplex projection check"
 required:
-  - model_type
-  - validation_method
-  - metrics
-  - sample_size
-  - systems_tested
+  - sample_id
+  - predicted_bulk
+  - predicted_shear
+  - actual_bulk
+  - actual_shear
+  - uncertainty_variance
+  - hull_distance
+  - is_boundary
+  - is_valid_composition
+additionalProperties: false

@@ -8,8 +8,16 @@ properties:
     description: "Unique ID for the cluster."
   correlation_coefficient:
     type: "number"
-    description: "Pearson correlation between Bulk and Shear moduli in this cluster. Value must be between -1 and 1. A value < 0.5 indicates weak linear dependence (decoupled)."
+    description: "Pearson correlation between Bulk and Shear moduli in this cluster. Value must be between -1 and 1."
     minimum: -1
+    maximum: 1
+  null_correlation_mean:
+    type: "number"
+    description: "Mean correlation from 1000 permutations of shuffled composition assignments within the cluster."
+  p_value:
+    type: "number"
+    description: "P-value from local permutation test (proportion of shuffled correlations < observed)."
+    minimum: 0
     maximum: 1
   point_count:
     type: "integer"
@@ -21,7 +29,7 @@ properties:
     minimum: 0
   is_significant:
     type: "boolean"
-    description: "True if the deviation from global trend is statistically significant (p < 0.05 via permutation test) AND local correlation < 0.5."
+    description: "True if p_value < 0.05 AND local correlation < global correlation - 0.2."
   representative_composition:
     type: "object"
     description: "Centroid composition of the cluster."
@@ -30,6 +38,8 @@ properties:
 required:
   - cluster_id
   - correlation_coefficient
+  - null_correlation_mean
+  - p_value
   - point_count
   - uncertainty_variance
   - is_significant

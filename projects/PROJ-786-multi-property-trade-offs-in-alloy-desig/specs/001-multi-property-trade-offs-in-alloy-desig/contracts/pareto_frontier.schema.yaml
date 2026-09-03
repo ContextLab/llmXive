@@ -22,22 +22,30 @@ properties:
         uncertainty_variance:
           type: "number"
           minimum: 0
-          description: "Variance of predictions across LOSO-CV folds. Used to flag regions where trade-off identification is unreliable."
+          description: "Variance of predictions across LOEO-CV folds. Used to flag regions where trade-off identification is unreliable."
         is_extrapolated:
           type: "boolean"
-          description: "True if point is on the boundary of the convex hull (proximity flag), distinct from uncertainty_variance."
+          description: "True if point is on the boundary of the compositional convex hull (proximity flag), distinct from uncertainty_variance."
+        is_valid_composition:
+          type: "boolean"
+          description: "True if point passed simplex projection check."
       required:
         - composition
         - predicted_bulk_modulus
         - predicted_shear_modulus
         - uncertainty_variance
         - is_extrapolated
+        - is_valid_composition
   dominance_ratio:
     type: "number"
-    description: "Percentage of empirical test points dominated by this frontier."
+    description: "Percentage of empirical test points dominated by this frontier. If < 5%, indicates a null result."
     minimum: 0
     maximum: 100
+  is_null_result:
+    type: "boolean"
+    description: "True if dominance_ratio < 5%, indicating no new trade-offs discovered beyond existing data."
 required:
   - points
   - dominance_ratio
+  - is_null_result
 additionalProperties: false

@@ -1,95 +1,89 @@
 # Data Model: Multi-Property Trade-Offs in Alloy Design
 
-## 1. Entity Relationship Diagram (Conceptual)
+## Overview
 
-```mermaid
-erDiagram
-    ALLOY_ENTRY {
-        string composition_id PK
-        string composition_formula
-        float bulk_modulus
-        float shear_modulus
-        string source_system
-        list elements
-    }
-    ENCODED_FEATURES {
-        string composition_id PK, FK
-        float avg_atomic_radius
-        float std_atomic_radius
-        float avg_electronegativity
-        float std_electronegativity
-        float num_elements
-        vector ilr_features
-    }
-    MODEL_OUTPUT {
-        string composition_id PK, FK
-        float predicted_bulk
-        float predicted_shear
-        float uncertainty_bulk
-        float uncertainty_shear
-        bool is_hull_boundary
-    }
-    CLUSTER_ASSIGNMENT {
-        string composition_id PK, FK
-        int cluster_id
-        float cluster_correlation
-        bool is_decoupled
-    }
-```
+This document defines the data structures used throughout the pipeline. All data is stored in `data/processed/` as CSV or JSON files. The `contracts/` directory contains YAML schemas for validation.
 
-## 2. Data Dictionary
+## Core Entities
 
-### 2.1 Raw Input: `data/raw/oqmd_targets.csv`
-| Column | Type | Description |
-|--------|------|-------------|
-| `composition` | string | Chemical formula (e.g., "Fe0.5Ni0.5") |
-| `bulk_modulus` | float | Bulk modulus in GPa |
-| `shear_modulus` | float | Shear modulus in GPa |
-| `elements` | string | Comma-separated list of elements |
+### 1. AlloyEntry
+Represents a single alloy composition and its properties.
 
-### 2.2 Processed: `data/processed/encoded_alloys.csv`
-| Column | Type | Description |
-|--------|------|-------------|
-| `composition_id` | string | Unique hash of composition |
-| `composition` | string | Original formula |
-| `bulk_modulus` | float | Target 1 |
-| `shear_modulus` | float | Target 2 |
-| `avg_atomic_radius` | float | Weighted mean of atomic radii |
-| `std_atomic_radius` | float | Weighted std of atomic radii |
-| `avg_electronegativity` | float | Weighted mean of electronegativities |
-| `std_electronegativity` | float | Weighted std of electronegativities |
-| `num_elements` | int | Count of unique elements |
-| `ilr_1` ... `ilr_N` | float | Isometric log-ratio transformed features |
+**Source**: `data/processed/encoded_alloys.csv`
+**Schema**: `contracts/alloy_entry.schema.yaml`
 
-### 2.3 Model Output: `data/processed/model_validation_report.json`
-| Key | Type | Description |
-|-----|------|-------------|
-| `composition_id` | string | ID of the point |
-| `predicted_bulk` | float | Model prediction |
-| `predicted_shear` | float | Model prediction |
-| `uncertainty_variance` | float | Variance from LOSO-CV predictions |
-| `hull_distance` | float | Distance to convex hull boundary |
-| `is_boundary` | boolean | True if distance < 5% of hull radius |
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `composition` | string | Chemical formula (e.g., "Fe0.8Ni0.2") | Non-null, unique |
+| `bulk_modulus` | float | Bulk Modulus (GPa) | > 0, non-null |
+| `shear_modulus` | float | Shear Modulus (GPa) | > 0, non-null |
+| `elements` | list[string] | List of constituent elements | Non-empty |
+| `ilr_features` | list[float] | Isometric log-ratio transformed features | Length = num_elements - 1 |
+| `periodic_desc` | list[float] | Weighted periodic descriptors | Length = num_elements * 2 |
+| `system_group` | string | Primary constituent group (e.g., "Fe-Ni") | Non-null |
+| `valid` | bool | Filtered for non-null moduli | True |
 
-### 2.4 LOSO Test Points: `data/processed/loso_test_points.csv`
-| Column | Type | Description |
-|--------|------|-------------|
-| `composition_id` | string | ID of the point |
-| `system` | string | Chemical system name |
-| `actual_bulk` | float | True value |
-| `predicted_bulk` | float | Model prediction |
-| `residual` | float | Difference |
+### 2. ClusterAnalysis
+Represents the result of HDBSCAN clustering and decoupling analysis.
 
-### 2.5 Sensitivity Output: `data/processed/sensitivity_analysis.csv`
-| Column | Type | Description |
-|--------|------|-------------|
-| `threshold` | float | Correlation threshold (0.1 to 0.9) |
-| `robustness_score` | float | Stability metric (0.0 to 1.0) |
+**Source**: `data/processed/cluster_analysis.json`
+**Schema**: `contracts/cluster_analysis.schema.yaml` (Implicit in CSV/JSON)
 
-## 3. Data Flow
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `cluster_id` | int | Cluster identifier | >= 0 |
+| `size` | int | Number of samples in cluster | > 0 |
+| `correlation_coefficient` | float | Local Pearson r (K vs G) | [-1, 1] |
+| `residual_variance` | float | Variance from Poisson line (if applicable) | >= 0 |
+| `is_decoupled` | bool | Meets SC-002 criteria | True/False |
+| `decoupling_reason` | string | "low_correlation" or "poisson_anomaly" | Enum |
+| `p_value` | float | P-value from local permutation test | [0, 1] |
+| `bootstrap_ci` | list[float] | 95% CI of correlation from bootstrap | [0, 1] |
 
-1. **Ingestion**: `oqmd_targets.csv` -> Filtered -> `encoded_alloys.csv`
-2. **Training**: `encoded_alloys.csv` -> Split (LOSO) -> Model Weights + `loso_test_points.csv`
-3. **Optimization**: Model Weights + `encoded_alloys.csv` (Hull) -> `pareto_frontier.csv`
-4. **Analysis**: `encoded_alloys.csv` (ilr) -> LCE -> `sensitivity_analysis.csv`
-5. **Versioning**: All `data/processed` files -> Hash -> `state/` YAML
+### 3. ModelValidation
+Represents the output of LOSO-CV and uncertainty metrics.
+
+**Source**: `data/processed/model_validation_report.json`
+**Schema**: `contracts/model_validation.schema.yaml`
+
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `sample_id` | string | Unique identifier for the sample | Non-null |
+| `predicted_bulk` | float | Predicted Bulk Modulus | Any |
+| `predicted_shear` | float | Predicted Shear Modulus | Any |
+| `actual_bulk` | float | Actual Bulk Modulus | > 0 |
+| `actual_shear` | float | Actual Shear Modulus | > 0 |
+| `uncertainty_variance` | float | Variance across LOSO-CV splits | >= 0 |
+| `hull_distance` | float | Distance from convex hull centroid | >= 0 |
+| `is_boundary` | bool | Within 5% of hull radius | True/False |
+| `is_valid_composition` | bool | Passed simplex projection check | True |
+
+### 4. SensitivityAnalysis
+Represents the robustness of decoupling clusters to threshold changes.
+
+**Source**: `data/processed/sensitivity_analysis.csv`
+**Schema**: `contracts/sensitivity_analysis.schema.yaml`
+
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `threshold` | float | Correlation/Residual threshold | [0.1, 0.9] |
+| `robustness_score` | float | Jaccard Index with adjacent threshold | [0, 1] |
+| `num_clusters` | int | Number of clusters at this threshold | >= 0 |
+| `bootstrap_ci_lower` | float | Lower bound of 95% CI | >= 0 |
+| `bootstrap_ci_upper` | float | Upper bound of 95% CI | <= 1 |
+
+## Data Flow
+
+1. **Ingestion**: Raw OQMD CSV -> Filtered/Encoded `encoded_alloys.csv`.
+2. **Feasibility**: `encoded_alloys.csv` -> `feasibility_report.json` (Global r, analysis mode).
+3. **Modeling**: `encoded_alloys.csv` -> `model_validation_report.json` (Predictions, uncertainty).
+4. **Clustering**: `encoded_alloys.csv` + `feasibility_report.json` -> `cluster_analysis.json`.
+5. **Sensitivity**: `cluster_analysis.json` -> `sensitivity_analysis.csv`.
+6. **Optimization**: `encoded_alloys.csv` -> `pareto_frontier.csv`.
+
+## Storage Constraints
+
+- **Format**: CSV for tabular data (efficient streaming), JSON for structured reports.
+- **Encoding**: UTF-8.
+- **Compression**: Raw data gzipped; processed data uncompressed for speed.
+- **Checksums**: All files in `data/` must have a corresponding `.sha256` file.

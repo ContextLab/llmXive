@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EncodedAlloysDataset"
+description: "Schema for the processed alloy dataset with encoded features and targets."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      source:
+        type: "string"
+        description: "Source dataset URL"
+      generated_at:
+        type: "string"
+        format: "date-time"
+      checksum:
+        type: "string"
+        description: "SHA256 checksum of the raw source file"
+    required:
+      - source
+      - generated_at
+      - checksum
+  data:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        composition_id:
+          type: "string"
+        composition:
+          type: "string"
+          description: "Original composition string (e.g., Fe0.8Ni0.2)"
+        bulk_modulus:
+          type: "number"
+          minimum: 0
+          description: "Bulk Modulus in GPa"
+        shear_modulus:
+          type: "number"
+          minimum: 0
+          description: "Shear Modulus in GPa"
+        features:
+          type: "array"
+          items:
+            type: "number"
+          description: "Weighted average periodic descriptors"
+        ilr_features:
+          type: "array"
+          items:
+            type: "number"
+          description: "Isometric log-ratio transformed features"
+      required:
+        - composition_id
+        - composition
+        - bulk_modulus
+        - shear_modulus
+        - features
+        - ilr_features
+    minItems: 500
+  required:
+    - metadata
+    - data
+required:
+  - metadata
+  - data
+additionalProperties: false

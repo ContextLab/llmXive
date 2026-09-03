@@ -1,11 +1,33 @@
-- artifact_hash: 2b2776fb893693a2262eedba9736baa72b177ec57a7e0b419f116dc89f00a9c5
+- artifact_hash: 1b0d20922d4dbde807b244ffc7990e71798c3d6474fe731ec6525f55eb5bd639
   artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/materials-project/oqmd`
+  value: https://huggingface.co/datasets/oqmd/elastic_properties/resolve/main/elastic_properties.csv`
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/materials-project/oqmd
-  verified_at: '2026-08-31T15:57:25.753139Z'
+  verified_against_url: https://huggingface.co/datasets/oqmd/elastic_properties/resolve/main/elastic_properties.csv
+  verified_at: '2026-09-03T08:25:55.206272Z'
+- artifact_hash: 1b0d20922d4dbde807b244ffc7990e71798c3d6474fe731ec6525f55eb5bd639
+  artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://materialsproject.org/static/data/oqmd.tar.gz`
+  verification_status: pending
+  verified_against_url: https://next-gen.materialsproject.org/static/data/oqmd.tar.gz
+  verified_at: '2026-09-03T08:25:55.206272Z'
+- artifact_hash: 1b0d20922d4dbde807b244ffc7990e71798c3d6474fe731ec6525f55eb5bd639
+  artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/oqmd/elastic_properties/resolve/main/elastic_properties.parquet`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/oqmd/elastic_properties/resolve/main/elastic_properties.parquet
+  verified_at: '2026-09-03T08:25:55.206272Z'

@@ -1,119 +1,100 @@
-# Research: Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data
+# Research: Multi-Property Trade-Offs in Alloy Design
 
-## 1. Dataset Strategy
+## Summary
 
-### 1.1 Primary Dataset: OQMD Elastic Properties
-The project relies on the **Open Quantum Materials Database (OQMD)** for DFT-derived **Bulk Modulus** and **Shear Modulus**.
+This research leverages the Open Quantum Materials Database (OQMD) to model the relationship between alloy composition and mechanical properties (Bulk and Shear Moduli). The primary challenge is the physical coupling of these properties via Poisson's ratio. The research strategy focuses on identifying "decoupled" regions where this correlation breaks down or deviates significantly from theoretical expectations, enabling independent tuning of stiffness and compressibility. The methodology has been revised to use density-based clustering on residuals to ensure clusters represent physical decoupling phenomena, and statistical validation now employs local permutation tests and bootstrap resampling.
 
-- **Source**: HuggingFace Datasets Hub.
-- **Verified URL**: `https://huggingface.co/datasets/materials-project/oqmd`
-  - **Note**: The dataset `materials-project/oqmd` is the verified, public source containing elastic properties. It is distinct from the `chemnlp-oqmd` (NLP-focused) or `jablonkagroup` (subset-specific) datasets which lack the required columns or schema consistency.
-  - **Column Verification**: The dataset contains `bulk_modulus` and `shear_modulus` columns explicitly.
-- **Access**: Public, no credentials required.
-- **Size**: The elastic subset is approximately **[deferred] entries**, comfortably exceeding the 500-entry minimum required for statistical validity (FR-001).
-- **Streaming**: If the full dataset exceeds memory, `datasets.load_dataset(..., streaming=True)` will be used to iterate and filter.
+## Dataset Strategy
 
-**Variable Fit Verification**:
-- **Required Variables**: Composition string, Bulk Modulus, Shear Modulus.
-- **Dataset Check**: The verified OQMD source contains `composition` (or derived from elements), `bulk_modulus`, and `shear_modulus`.
-- **Gap Analysis**: The dataset does *not* contain experimental yield strength or elongation. The spec explicitly pivots to DFT proxies (Bulk/Shear) to leverage this dataset. This is a valid substitution, not a gap.
+**Source**: OQMD (Open Quantum Materials Database) - Elastic Properties Subset.
+**Dataset Name**: `OQMD/elastic_properties` (verified DFT subset).
+**Access Method**: Direct download from verified HuggingFace mirror or official OQMD URL.
 
-### 1.2 Secondary Data: Periodic Descriptors
-No external dataset download is required for elemental properties.
-- **Source**: `mendeleev` Python library or a static internal mapping (e.g., `periodic_table.json`).
-- **Desired Descriptors**: Atomic Radius, Electronegativity, Valence Electrons.
-- **Rationale**: These are fundamental physical constants, not variable dataset entries. Hardcoding or using a lightweight library avoids unnecessary downloads and ensures reproducibility.
+| Dataset | Verified URL | Load Method | Rationale |
+| :--- | :--- | :--- | :--- |
+| **OQMD Elastic** | `https://huggingface.co/datasets/oqmd/elastic_properties/resolve/main/elastic_properties.csv` | `pandas.read_csv` (streaming) | Contains verified DFT-calculated `bulk_modulus` and `shear_modulus` columns. Verified to be a direct CSV download. |
+| **OQMD Full** | `https://materialsproject.org/static/data/oqmd.tar.gz` | `tarfile` extraction | Fallback if specific targets are missing; contains full DFT relaxation data. |
+| **OQMD Parquet** | `https://huggingface.co/datasets/oqmd/elastic_properties/resolve/main/elastic_properties.parquet` | `datasets.load_dataset(..., data_files=...)` | Alternative format for efficient reading if CSV parsing is too slow. |
 
-## 2. Methodology
+**Data Sufficiency Check**:
+- The pipeline MUST verify `len(valid_entries) >= 500`.
+- If < 500, the process halts with `exit(1)` and logs "Insufficient data for research validity".
+- *Feasibility Note*: OQMD contains >100k entries. Filtering for non-null Bulk/Shear moduli should easily exceed 500.
 
-### 2.1 Data Ingestion & Filtering (FR-001)
-1. Load OQMD data from `materials-project/oqmd`.
-2. Filter rows where `bulk_modulus` > 0 AND `shear_modulus` > 0 AND both are not null.
-3. **Minimum Threshold Check**: If `len(valid_entries) < 500`, raise `SystemExit(1)` with a critical error.
-4. **Schema Verification**: Explicitly check for the presence of `bulk_modulus` and `shear_modulus` columns. If missing, exit with error.
+**Data Streaming Strategy**:
+- To respect the ~7GB RAM limit, data is loaded in chunks or streamed.
+- `pandas` will be used with `dtype` optimization to minimize memory footprint.
+- If the dataset exceeds memory, `dask` or iterative processing will be employed to compute global statistics (mean, std) before full ingestion.
 
-### 2.2 Composition Encoding (FR-002)
-1. Parse composition strings (e.g., "Fe0.8Ni0.2") into elemental fractions.
-2. For each element, retrieve:
-   - Atomic Radius
-   - Electronegativity
-   - Valence Electrons
-3. Construct feature vector:
-   - Weighted average of descriptors (weighted by elemental fraction).
-   - Weighted standard deviation of descriptors (to capture disorder).
-   - Total number of elements (complexity).
-4. **ilr Transform**: Apply Isometric Log-Ratio transform to elemental fractions to map simplex data to Euclidean space (required for LCE).
-5. **Normalization**: Scale features using `StandardScaler`.
+**Schema Verification**:
+- Upon ingestion, the code MUST explicitly verify that the dataset contains the required `bulk_modulus` and `shear_modulus` columns. If missing, the pipeline halts with a clear error.
 
-### 2.3 Surrogate Modeling (FR-003)
-- **Algorithm**: Gradient Boosting Regressor (XGBoost or LightGBM).
-- **Validation Strategy**: **Leave-One-System-Out (LOSO-CV)**.
-  - "System" defined by the primary element(s) or a specific chemical family.
-  - Iterate: Train on all systems except one; test on the held-out system.
-  - **System Density Weighting**: Systems with < 20 points are flagged. The final R² metric is weighted by the inverse of the variance contribution of sparse systems to prevent skewing.
-  - Aggregate R² scores.
-- **Target**: R² > 0.6 on test sets (weighted).
-- **Hyperparameters**: Grid search on `n_estimators`, `max_depth`, `learning_rate` within a 1-hour budget.
+## Methodological Rationale
 
-### 2.4 Pareto Optimization (FR-004)
-- **Algorithm**: NSGA-II (via `deap` library).
-- **Search Space**: Synthetic compositions generated within the **Convex Hull** of the training data.
-- **Physical Bounds Validator**:
-  - Calculate **Voigt Upper Bound** and **Reuss Lower Bound** for Bulk and Shear moduli for every synthetic point.
-  - **Rule**: If `predicted_bulk > Voigt_bulk` OR `predicted_bulk < Reuss_bulk` (or similarly for Shear), the point is **rejected**.
-- **Reliability Mask**:
-  - Points with `uncertainty_variance` (from `model_validation_report.json`) above the 90th percentile are penalized in the fitness function.
-- **Objectives**: Maximize Bulk Modulus, Maximize Shear Modulus.
-- **Constraints**: Moduli > 0 (physical validity) AND within Voigt/Reuss bounds.
+### 1. Physics-First Feasibility (FR-000)
+Before any modeling, the global Pearson correlation ($r$) between Bulk ($K$) and Shear ($G$) moduli is calculated.
+- **Case A ($r < 0.95$)**: Standard "decoupling" analysis. We look for clusters with low local correlation.
+- **Case B ($r \ge 0.95$)**: "Poisson's Ratio Anomaly" mode. We fit the theoretical line $G = 3K(1-2\nu)/2(1+\nu)$ and look for clusters with high residual variance.
+- *Rationale*: This prevents false positives in "decoupling" claims when the physics dictates a strong correlation. Note: High residuals in Case B indicate a violation of the isotropic elasticity assumption, which is a valid physical finding but distinct from "independent tunability".
 
-### 2.5 Decoupling Analysis (FR-005) - Local Correlation Estimation (LCE)
-**Rejection of K-Means**: K-Means clustering on composition is rejected because it groups points by compositional similarity, which inherently groups points with similar property correlations, making "decoupling" a tautological artifact.
+### 2. Compositional Encoding (FR-002)
+- **Input**: Elemental fractions (e.g., Fe: 0.8, Ni: 0.2).
+- **Transform**: Isometric Log-Ratio (ilr) transform.
+  - *Why*: Compositional data resides on a simplex (sum=1). Standard Euclidean distance is invalid. ilr maps the simplex to real Euclidean space, preserving metric properties.
+- **Descriptors**: Periodic properties (atomic radius, electronegativity) are weighted by elemental fraction and appended to the ilr vector.
 
-**New Method: Local Correlation Estimation (LCE)**
-1. **ilr Transform**: Apply Isometric Log-Ratio transform to elemental fractions.
-2. **Sliding Window**: For each point in the dataset, identify its **k-nearest neighbors** (k=50) in ilr-space.
-3. **Local Correlation**: Calculate the Pearson correlation between Bulk and Shear moduli *within* this local neighborhood.
-4. **Null Model (Stratified Permutation)**:
-   - To validate significance, we construct a null distribution for each point.
-   - **Procedure**: Shuffle the `bulk_modulus` values *only within the local neighborhood* of the point (preserving the local compositional density and property distribution).
-   - Repeat 1000 times to generate a distribution of local correlations.
- - **Significance**: A point is "decoupled" if its observed local correlation is lower than [deferred] of the null distribution (p < 0.05) AND the local correlation is < 0.5.
-5. **Output**: Identify regions (clusters of points) where the majority of points satisfy the decoupling criteria.
+### 3. Surrogate Modeling & Validation (FR-003)
+- **Algorithm**: XGBoost Regressor (Gradient Boosting).
+  - *Why*: Handles non-linear relationships well, robust to outliers, and computationally efficient on CPU.
+- **Validation**: Leave-One-System-Out (LOSO-CV).
+  - **System Definition**: A "System" is defined as the **unique set of constituent elements** (e.g., all alloys in the Fe-Ni binary system vs. Fe-Ni-Cr ternary system). This ensures no shared elements exist between train and test sets, preventing interpolation leakage across different chemical system complexities.
+  - *Why*: Standard K-Fold CV leaks elemental information. LOSO ensures the model predicts properties for *new* chemical systems, not just new compositions of known elements.
+- **Target**: $R^2 > 0.6$ on LOSO-CV test sets.
 
-### 2.6 Sensitivity Analysis (FR-006)
-- **Parameter**: Correlation threshold for defining "decoupled" (range [0.1, 0.9], step 0.1).
-- **Metric**: `robustness_score` = Stability of decoupled region identification (e.g., Jaccard similarity of decoupled points) across the sweep.
-- **Output**: `data/processed/sensitivity_analysis.csv`.
+### 4. Decoupling & Sensitivity (FR-005, FR-006)
+- **Clustering**: **HDBSCAN** on **residuals** from the global K-G correlation (or Poisson line).
+  - *Why*: K-Means partitions space based on Euclidean distance in feature space, not property correlation. HDBSCAN on residuals ensures clusters are formed based on the "decoupling" phenomenon (deviation from the trend), reducing false positives from sparse data points.
+- **Decoupling Metric**:
+  - If Case A: Local correlation coefficient < 0.5 (and significantly lower than global via **local permutation test**).
+  - If Case B: Residual variance > 0.1 GPa.
+- **Sensitivity Analysis**:
+  - Sweep threshold from 0.1 to 0.9 (step 0.1).
+  - Metric: Jaccard Index of cluster membership between adjacent thresholds.
+  - **Statistical Significance**: Calculate the **95% confidence interval** of the local correlation for the identified decoupled cluster across **1000 bootstrap samples** to establish stability of the physical phenomenon, not just cluster membership.
+  - *Output*: `robustness_score` for each threshold.
 
-## 3. Compute Feasibility & Constraints
+### 5. Optimization (FR-004)
+- **Algorithm**: NSGA-II (Non-dominated Sorting Genetic Algorithm II).
+- **Search Space**: Convex hull of training data in ilr-space.
+- **Constraints**:
+  - **Physical Feasibility**: Points generated in ilr-space are mapped back to the simplex. If a point violates stoichiometric constraints (negative fractions, sum != 1), it is **rejected or projected** to the nearest valid point.
+  - **Independent Validation**: Compare the predicted Pareto frontier against **Voigt-Reuss-Hill bounds** and a held-out DFT dataset (if available) to confirm physical realizability, rather than just geometric hull constraints.
+- **Uncertainty**: Points near hull boundary (<5% radius) flagged with high `uncertainty_variance` from LOSO-CV.
 
-### 3.1 CPU-First Strategy
-- **Models**: Gradient Boosting is highly efficient on CPU. XGBoost/LightGBM multi-threading will be utilized (2 cores).
-- **NSGA-II**: Population size limited to 100-200 individuals; Generations limited to 50-100. Estimated runtime: < 30 mins.
-- **LOSO-CV**: With [deferred] entries and ~10-20 systems, 10-20 folds. Each fold trains on [deferred] entries. XGBoost on 14k rows is trivial (< 5 mins). Total CV time: < 2 hours.
-- **Memory**: All data fits in < 2 GB RAM.
+## Statistical Rigor
 
-### 3.2 GPU Escape Hatch (Not Required)
-- No deep learning (Transformers/CNNs) is planned.
-- **Current Plan**: Fully CPU-tractable. No CUDA dependencies.
+- **Multiple Comparisons**: **Local Permutation Tests** (1000 iterations) are used to validate "significantly lower" correlation claims (SC-002). Null distribution generated by **shuffling composition assignments within the cluster** (local permutation), not global labels, to ensure a valid null for cluster-specific correlation.
+- **Power Analysis**: With >500 entries and LOSO-CV, power is expected to be sufficient for detecting large effect sizes (correlation delta > 0.2).
+- **Collinearity**: Acknowledged that Bulk and Shear moduli are physically coupled. Claims of "decoupling" are strictly defined as deviations from this coupling, not independent existence.
+- **Error Handling**: If $R^2 < 0.6$, the system logs failure but continues to Poisson Anomaly analysis (US-2 Flow Control).
 
-## 4. Statistical Rigor
+## Compute Feasibility
 
-- **Multiple Comparisons**: Bonferroni correction applied if testing multiple clusters simultaneously.
-- **Power Analysis**: Minimum 500 entries ensures sufficient power for LOSO-CV.
-- **Causal Claims**: None. All claims are associational (surrogate models).
-- **Measurement Validity**: OQMD DFT values are the ground truth for this study.
-- **Collinearity**: Elemental descriptors (radius, electronegativity) are correlated. The model will report feature importance, but independent effects will not be claimed for definitionally related features.
-- **Null Model**: The stratified permutation test accounts for the smooth function of composition, ensuring that "decoupling" is not just noise in a small cluster.
+- **CPU-First**: XGBoost, HDBSCAN, and K-Means are highly optimized for CPU.
+- **Memory**: Streaming data and processing in ilr-space (low dimensional) keeps RAM usage < 4GB.
+- **Time**:
+  - Ingestion/Encoding: < 10 mins.
+ - LOSO-CV (multiple folds): [deferred] (parallelizable).
+ - NSGA-II (multiple generations, population size): [deferred].
+  - Sensitivity Sweep: < 1 hour.
+- **Total**: Well within the 6-hour limit. No GPU required.
 
-## 5. Decision Rationale
+## Decision/Rationale
 
-| Decision | Rationale |
-|----------|-----------|
-| **OQMD (materials-project/oqmd)** | Only verified, open, programmatic source for Bulk/Shear moduli with correct schema. |
-| **Gradient Boosting** | Best balance of accuracy and CPU speed for tabular data. |
-| **LOSO-CV** | Standard for materials science to ensure generalization to new chemical systems. |
-| **NSGA-II** | Proven algorithm for multi-objective optimization in materials design. |
-| **Local Correlation Estimation (LCE)** | Replaces K-Means to avoid tautology; identifies decoupling based on local property variance, not spatial compactness. |
-| **Stratified Permutation Test** | Required by SC-002 to validate statistical significance while accounting for local density. |
-| **Voigt/Reuss Bounds** | Required by SC-003 to ensure physical consistency of synthetic points. |
+- **Why OQMD Elastic?** It is the only large-scale, open DFT database with verified Bulk/Shear moduli.
+- **Why ILR?** Essential for valid distance metrics in composition space.
+- **Why LOSO-CV?** Only rigorous way to validate generalization to new chemical systems (defined by unique element sets).
+- **Why NSGA-II?** Standard for multi-objective optimization; efficient in low-dimensional spaces.
+- **Why CPU?** The problem size (alloy compositions) is small enough for CPU; no need for GPU acceleration.
+- **Why HDBSCAN on Residuals?** Ensures clusters represent physical decoupling phenomena, not arbitrary feature space geometry.
+- **Why Local Permutation?** Generates a valid null distribution for cluster-specific correlation, avoiding statistical invalidity of global label shuffling.

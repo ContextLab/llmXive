@@ -1,128 +1,165 @@
-# Implementation Plan: Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data
+# Implementation Plan: Multi-Property Trade-Offs in Alloy Design
 
-**Branch**: `786-multi-property-trade-offs` | **Date**: 2026-07-08 | **Spec**: [link]
-**Input**: Feature specification from `/specs/786-multi-property-trade-offs/spec.md`
+**Branch**: `786-multi-property-trade-offs-in-alloy-desig` | **Date**: 2026-07-08 | **Spec**: `spec.md`
+**Input**: Feature specification from `/specs/786-multi-property-trade-offs-in-alloy-desig/spec.md`
 
 ## Summary
 
-This project implements a computational pipeline to identify alloy compositions that optimize the trade-off between **Bulk Modulus** and **Shear Moduli** using DFT-derived data from the OQMD. The approach involves ingesting compositional data, encoding it with periodic descriptors, training Gradient Boosting surrogate models validated via Leave-One-System-Out Cross-Validation (LOSO-CV), and generating a Pareto frontier via NSGA-II. 
-
-**Critical Methodological Update**: Instead of K-Means clustering on composition (which is tautological for finding property decoupling), the project now uses **Local Correlation Estimation (LCE)** with a stratified permutation null model to identify regions where Bulk and Shear moduli are genuinely uncorrelated.
+This project identifies alloy compositions optimizing the trade-off between Bulk Modulus (K) and Shear Modulus (G) using high-throughput DFT data from OQMD. The approach involves ingesting compositional data, encoding it via isometric log-ratio (ilr) transforms with periodic descriptors, training Gradient Boosting surrogates under strict Leave-One-System-Out (LOSO-CV) constraints, and generating a Pareto frontier via NSGA-II. A critical physics check (FR-000) determines whether to analyze "decoupling" via correlation deviation or Poisson's ratio anomalies. The methodology has been revised to use density-based clustering on residuals to ensure clusters represent physical decoupling phenomena, and statistical validation now employs local permutation tests and bootstrap resampling.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `scikit-learn`, `xgboost`, `scipy`, `deap`, `matplotlib`, `seaborn`, `datasets`, `pyyaml`, `numpy`  
-**Storage**: Local filesystem (`data/processed/`, `data/raw/`)  
-**Testing**: `pytest`  
-**Target Platform**: Linux (GitHub Actions runner)  
-**Project Type**: Computational research pipeline / CLI  
-**Performance Goals**: Complete full pipeline within 6 hours on 2-core CPU; LOSO-CV must finish within 4 hours.  
-**Constraints**: 
-- Strict convex hull constraint for synthetic generation.
-- Minimum 500 valid entries required; exit with error code 1 if not met.
-- No GPU usage (CPU-first strategy).
-- All random seeds pinned for reproducibility.
-- NSGA-II population size and generations tuned to fit time budget.
-**Scale/Scope**: Dataset size: a substantial collection of entries from the OQMD elastic subset, comfortably exceeding the 500-entry minimum.
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `datasets` (HuggingFace), `scikit-learn`, `hdbscan`, `xgboost` (CPU), `pymoo` (NSGA-II), `pandas`, `numpy`, `scipy`, `pyyaml`
+**Storage**: Local filesystem (`data/processed/`, `data/raw/`); CSV and JSON artifacts.
+**Testing**: `pytest` (unit, integration, contract tests).
+**Target Platform**: Linux (GitHub Actions CPU runner: 2 cores, ~7GB RAM).
+**Project Type**: Computational research pipeline / CLI.
+**Performance Goals**: Complete full pipeline (ingestion -> modeling -> optimization -> analysis) within 6 hours. R² > 0.6 on LOSO-CV.
+**Constraints**:
+- CPU-only execution (no GPU for model training; NSGA-II must be efficient).
+- Strict data locality: All data must be streamed or sampled to fit ~7GB RAM.
+- No extrapolation beyond convex hull of training data.
+- Reproducibility: Fixed random seeds (42) for all stochastic processes.
+**Scale/Scope**: A substantial number of valid alloy entries from OQMD.
 
 ## Constitution Check
 
-| Principle | Status | Evidence / Action Plan |
-|-----------|--------|------------------------|
-| **I. Reproducibility** | PASS | `requirements.txt` will pin versions. `random.seed(42)` set globally. Data fetched via `datasets.load_dataset` from verified HuggingFace URLs. |
-| **II. Verified Accuracy** | PASS | All citations in `research.md` will be cross-referenced with the "Verified datasets" block. No invented URLs. |
-| **III. Data Hygiene** | PASS | `data/raw/` will store checksums. `data/processed/` will contain derived files with clear naming. No in-place modification. |
-| **IV. Single Source of Truth** | PASS | All figures and stats in `paper/` will be generated directly from `data/processed/` artifacts. No manual entry. |
-| **V. Versioning Discipline** | PASS | A `versioning_hook` script will compute SHA-256 hashes of all `data/processed/*` artifacts and update `state/projects/PROJ-786-...yaml` automatically after each pipeline stage. |
-| **VI. Computational Surrogate Validity** | PASS | Plan explicitly includes `uncertainty_variance` calculation in `model_validation_report.json`. The Pareto optimizer **reads** this report to filter unreliable points. Claims of decoupling require stratified permutation test (p<0.05). |
-| **VII. Convex Hull Constraint** | PASS | NSGA-II generation logic will include a `check_convex_hull` function. Points outside will be discarded. Additionally, a **Rule of Mixtures Validator** (Voigt/Reuss bounds) will reject physically impossible predictions. |
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+| Principle | Status | Implementation Note |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | ✅ PASS | All scripts in `code/` use fixed seeds to ensure reproducibility. Data fetched via canonical HF URLs. |
+| **II. Verified Accuracy** | ✅ PASS | Citations in `research.md` limited to verified OQMD URLs. No fabricated sources. |
+| **III. Data Hygiene** | ✅ PASS | Raw data saved to `data/raw/` with checksums. `data/processed/` contains derived artifacts (CSV/JSON) only. |
+| **IV. Single Source of Truth** | ✅ PASS | All metrics (R², hull radius, robustness_score) derived strictly from `code/` output files. |
+| **V. Versioning Discipline** | ✅ PASS | `requirements.txt` pins versions. Artifacts tracked in `state/` via content hash. |
+| **VI. Computational Surrogate Validity** | ✅ PASS | Model validation includes LOSO-CV variance (`uncertainty_variance`) to flag unreliable regions. |
+| **VII. Convex Hull Constraint on Exploration** | ✅ PASS | NSGA-II search space is strictly bounded by the convex hull of training data in ilr-space, with projection to simplex for physical validity. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/786-multi-property-trade-offs/
+specs/786-multi-property-trade-offs-in-alloy-desig/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+└── contracts/           # Phase 1 output
+    ├── alloy_entry.schema.yaml
+    ├── dataset.schema.yaml
+    ├── decoupled_region.schema.yaml
+    ├── decoupling_validation.schema.yaml
+    ├── encoded_schema.schema.yaml
+    ├── ingest_schema.schema.yaml
+    ├── ingested_alloy.schema.yaml
+    ├── model_output.schema.yaml
+    ├── model_validation.schema.yaml
+    ├── pareto_frontier.schema.yaml
+    ├── sensitivity_analysis.schema.yaml
+    ├── sensitivity_schema.schema.yaml
+    └── validation_report.schema.yaml
 ```
 
 ### Source Code (repository root)
 
 ```text
 code/
-├── __init__.py
-├── main.py                  # Orchestration: Ingestion -> Encoding -> Training -> Optimization -> Analysis
-├── ingestion.py             # FR-001: Data loading and filtering
-├── encoding.py              # FR-002: Composition encoding + periodic descriptors
-├── training.py              # FR-003: Gradient Boosting + LOSO-CV
-├── optimization.py          # FR-004: NSGA-II + Convex Hull + Rule of Mixtures check
-├── analysis.py              # FR-005/FR-006: Local Correlation Estimation (LCE), Sensitivity analysis
+├── ingestion/
+│   ├── __init__.py
+│   ├── load_oqmd.py       # Downloads and filters OQMD data (with schema verification)
+│   └── encode_composition.py # ILR transform + periodic descriptors
+├── modeling/
+│   ├── __init__.py
+│   ├── loso_cv.py         # LOSO-CV logic with System definition (unique element sets)
+│   ├── train_surrogates.py # XGBoost training for K and G
+│   └── pareto_optimize.py  # NSGA-II generation within convex hull (with projection)
+├── analysis/
+│   ├── __init__.py
+│   ├── feasibility_check.py # FR-000: Correlation/Poisson check
+│   ├── clustering.py        # HDBSCAN on residuals + Decoupling logic
+│   └── sensitivity.py       # FR-006: Threshold sweep + Jaccard + Bootstrap
 ├── utils/
-│   ├── convex_hull.py       # Hull logic for FR-004
-│   ├── ilr_transform.py     # ilr logic for FR-005
-│   ├── periodic_props.py    # Element descriptors
-│   └── rule_of_mixtures.py  # Voigt/Reuss bound calculation
-└── config.py                # Paths, seeds, hyperparameters
-
-data/
-├── raw/                     # Downloaded OQMD files (checksummed)
-└── processed/
-    ├── encoded_alloys.csv
-    ├── loso_test_points.csv
-    ├── model_validation_report.json
-    ├── sensitivity_analysis.csv
-    └── robustness_validation.json
+│   ├── __init__.py
+│   ├── constants.py         # Periodic table data, physics constants
+│   └── io_utils.py          # Checksum, JSON/CSV writers
+├── main.py                  # Orchestration script
+└── requirements.txt
 
 tests/
 ├── unit/
 │   ├── test_encoding.py
-│   └── test_convex_hull.py
+│   └── test_physics.py
 ├── integration/
-│   └── test_ingestion_pipeline.py
-└── conftest.py
+│   └── test_ingestion_pipeline.py # Verifies encoded_alloys.csv creation
+└── contract/
+    └── test_contracts.py    # Validates output against YAML schemas
+
+data/
+├── raw/
+│   └── oqmd_targets.csv.gz  # (Downloaded, checksummed)
+└── processed/
+    ├── encoded_alloys.csv
+    ├── feasibility_report.json
+    ├── model_validation_report.json
+    ├── cluster_analysis.json
+    ├── sensitivity_analysis.csv
+    └── pareto_frontier.csv
 ```
 
-**Structure Decision**: Single project structure selected to minimize overhead. All logic is modularized into `code/` scripts to ensure `main.py` can orchestrate the full pipeline without manual intervention.
+**Structure Decision**: Single monolithic `code/` directory with modular sub-packages (`ingestion`, `modeling`, `analysis`) to facilitate isolated testing and clear data flow. This structure supports the CPU-first constraint by keeping dependencies localized and avoiding complex build systems.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Local Correlation Estimation (LCE)** | Required to avoid the tautology of K-Means clustering on composition. LCE identifies decoupling based on local property variance, not spatial compactness. | K-Means on composition groups points by similarity in composition, which inherently groups points with similar property correlations, making "decoupling" a statistical artifact. |
-| **Voigt/Reuss Bounds** | Required by SC-003 to ensure physical consistency. | Simple convex hull constraint in composition space does not guarantee physical validity in property space. |
-| **Stratified Permutation Test** | Required by SC-002 to validate significance while accounting for local density. | Simple shuffling ignores the smooth function of composition, leading to inflated false positives. |
-| **Versioning Hook** | Required by Constitution Principle V. | Manual hash updates are error-prone and violate reproducibility. |
+| **LOSO-CV over K-Fold** | Essential to prevent elemental leakage. Standard K-Fold would allow the same elements in train/test, inflating R² artificially. | K-Fold is simpler but violates the "System" definition required for true out-of-distribution generalization in materials science. |
+| **ILR Transform** | Required for compositional data (sum-to-one constraint). Euclidean distance on raw fractions is mathematically invalid. | Standard scaling/normalization ignores the simplex geometry of composition data, leading to spurious correlations. |
+| **NSGA-II within Convex Hull** | Ensures physical feasibility. Extrapolation to unknown regions is unreliable without DFT validation. | Global search (unconstrained) would generate non-physical alloys outside the data distribution, violating Constitution Principle VII. |
+| **HDBSCAN on Residuals** | Ensures clusters are formed based on the 'decoupling' phenomenon (deviation from the trend) rather than arbitrary Euclidean distance in feature space. | K-Means on features partitions space based on geometry, not property correlation, risking false positives. |
 
-## Methodological Rigor & Risk Mitigation
+## Phase Implementation Details
 
-### 1. Decoupling Analysis (FR-005)
-- **Problem**: K-Means on composition is tautological.
-- **Solution**: Use **Local Correlation Estimation (LCE)**. A sliding window (k-nearest neighbors in ilr-space) calculates local correlation.
-- **Null Model**: To validate significance, we shuffle property values *within* local neighborhoods (preserving compositional density) 1000 times. A region is "decoupled" only if its local correlation is lower than the majority of the null distribution (p < 0.05).
+### Phase 0: Data Ingestion & Feasibility (FR-000, FR-001, FR-001.1)
+- **Action**: Download OQMD elastic data via verified URL.
+- **Validation**: Verify schema contains `bulk_modulus` and `shear_modulus` columns.
+- **Filtering**: Keep only entries with positive, non-null moduli.
+- **Check**: If valid entries < 500, **exit with error code 1** and log "Insufficient data for research validity; minimum 500 entries required."
+- **Feasibility**: Calculate global Pearson correlation $r$.
+  - If $r < 0.95$: Set `analysis_mode` = "standard".
+  - If $r \ge 0.95$: Set `analysis_mode` = "poisson_anomaly".
+- **Output**: `data/processed/feasibility_report.json` (fields: `global_correlation`, `analysis_mode`).
 
-### 2. Physical Bounds (FR-004)
-- **Problem**: Convex hull in composition space does not guarantee physical bounds in property space.
-- **Solution**: Implement a **Rule of Mixtures Validator**. For every synthetic point, calculate Voigt (upper) and Reuss (lower) bounds for Bulk and Shear moduli. Reject any prediction that exceeds these theoretical limits.
+### Phase 1: Encoding & Modeling (FR-002, FR-003, FR-004)
+- **Encoding**: Apply ilr transform to elemental fractions. Append weighted periodic descriptors.
+- **System Definition**: A "System" is defined as the **unique set of constituent elements** (e.g., {Fe, Ni} vs {Fe, Ni, Cr}).
+- **Modeling**: Train XGBoost for K and G using LOSO-CV based on System definition.
+- **Uncertainty**: Store per-split predictions to calculate `uncertainty_variance` for each point.
+- **Optimization**: NSGA-II in ilr-space.
+  - **Constraint**: Map candidates back to simplex; reject or project if invalid (negative fractions, sum != 1).
+  - **Validation**: Compare frontier against Voigt-Reuss-Hill bounds.
 
-### 3. System Density (FR-003)
-- **Problem**: Sparse systems skew LOSO-CV R².
-- **Solution**: Weight systems by sample size in the final R² calculation. Systems with < 20 points are flagged and excluded from the primary "R² > 0.6" success metric if they dominate the variance.
+### Phase 2: Decoupling & Sensitivity (FR-005, FR-006)
+- **Clustering**: Apply HDBSCAN on **residuals** from the global K-G correlation (or Poisson line).
+- **Decoupling**: Identify clusters with high residual density.
+- **Permutation Test**: For identified clusters, shuffle **composition assignments within the cluster** (local permutation) to generate null distribution for correlation. Verify p < 0.05.
+- **Sensitivity**: Sweep threshold [lower bound, upper bound] (step size). Calculate Jaccard Index and **bootstrap confidence intervals** for correlation stability.
+- **Output**: `data/processed/cluster_analysis.json`, `data/processed/sensitivity_analysis.csv`.
 
-### 4. Reliability Mask
-- **Problem**: Optimizing over extrapolated regions.
-- **Solution**: The Pareto optimizer uses a **Reliability Mask**. Points with `uncertainty_variance` (from `model_validation_report.json`) above the 90th percentile are penalized or excluded.
+## Traceability Matrix
 
-## Execution Order
-
-1. **Ingestion**: Download `materials-project/oqmd`, filter for Bulk/Shear, verify >500 entries.
-2. **Encoding**: Generate `encoded_alloys.csv` with ilr features.
-3. **Training**: Run LOSO-CV, generate `model_validation_report.json` and `loso_test_points.csv`.
-4. **Optimization**: Run NSGA-II with Convex Hull + Voigt/Reuss checks + Reliability Mask. Output `pareto_frontier.csv`.
-5. **Analysis**: Run LCE + Stratified Permutation Test. Output `sensitivity_analysis.csv`.
-6. **Versioning**: Run `versioning_hook` to update `state/` YAML.
+| Requirement | Plan Element | Status |
+| :--- | :--- | :--- |
+| **FR-000** | Phase 0 Feasibility Check (Case A/B logic) | Addressed |
+| **FR-001** | Phase 0 Data Ingestion | Addressed |
+| **FR-001.1** | Phase 0 Exit Condition (error code 1) | Addressed |
+| **FR-002** | Phase 1 Encoding (ilr + descriptors) | Addressed |
+| **FR-003** | Phase 1 Modeling (LOSO-CV, unique element sets) | Addressed |
+| **FR-004** | Phase 1 Optimization (NSGA-II + projection + uncertainty) | Addressed |
+| **FR-005** | Phase 2 Clustering (HDBSCAN on residuals) | Addressed |
+| **FR-006** | Phase 2 Sensitivity (Sweep [0.1, 0.9], Jaccard, Bootstrap) | Addressed |
+| **SC-001** | Phase 1 Validation (R² > 0.6) | Addressed |
+| **SC-002** | Phase 2 Permutation Test (Local shuffle) | Addressed |
+| **SC-003** | Phase 1 Optimization (Coverage + Bounds) | Addressed |

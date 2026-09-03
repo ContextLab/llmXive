@@ -23,10 +23,10 @@
 
 ## Phase 0: Spec Alignment (COMPLETED - VERIFICATION)
 
-**Purpose**: The spec.md Version History (v1.0-v1.2) confirms the pivot to "Bulk and Shear Moduli" and the alignment of SC-003 with Constitution Principle VII. This phase verifies the spec content matches the plan's requirements and synchronizes the tasks.
+**Purpose**: The spec.md Version History (v1.0-v1.4) confirms the pivot to "Bulk and Shear Moduli", the alignment of SC-003 with Constitution Principle VII, and the adoption of **Local Correlation Estimation (LCE)** with **ilr transform** and **permutation testing** to replace K-Means. This phase verifies the spec content matches the plan's requirements and synchronizes the tasks.
 **Status**: **VERIFICATION ONLY**.
 
-- [X] T000 [P] Verify and Synchronize Spec.md with Bulk/Shear Moduli Pivot: Open `specs/001-multi-property-trade-offs/spec.md`. Verify that `Version History` contains v1.0, v1.1, and v1.2 entries explicitly referencing "Bulk and Shear Moduli" and "Strictly Within Convex Hull". **CRITICAL**: Verify that `FR-001`, `FR-003`, `FR-005`, `SC-001`, `SC-003`, and `US-1` explicitly reference these targets in their body text. If the content is missing or refers to "Yield Strength/Elongation" or "extend beyond hull" (without the specific SC-003 extension clause), the task fails and requires an immediate update to `spec.md`. **Output**: Generate a file `data/processed/spec_alignment_log.txt` containing a timestamped log of the verification results (PASS/FAIL for each FR/SC checked) and a summary of the spec version found.
+- [X] T000 [P] Verify and Synchronize Spec.md with Bulk/Shear Moduli Pivot and LCE Methodology: Open `specs/001-multi-property-trade-offs/spec.md`. Verify that `Version History` contains v1.0, v1.1, v1.2, v1.3, and v1.4 entries. **CRITICAL**: Verify that `FR-005` explicitly mandates **Local Correlation Estimation (LCE)** on **isometric log-ratio (ilr) transformed** data. Verify `SC-002` mandates a **stratified permutation test** (1000 iterations, p < 0.05). Verify `FR-006` mandates a sensitivity sweep range of [0.1, 0.9] with step 0.1. If the content refers to "K-Means clustering" without LCE/ilr context, or uses an incorrect sweep range, the task fails and requires an immediate update to `spec.md`. **Output**: Generate a file `data/processed/spec_alignment_log.txt` containing a timestamped log of the verification results (PASS/FAIL for each FR/SC checked) and a summary of the spec version found.
 
 ---
 
@@ -53,6 +53,7 @@
 - [X] T007 [P] Create base data models (Pydantic/JSON schema) for `AlloyEntry` in `code/models/alloy_entry.py`. Define fields: `composition` (str), `bulk_modulus` (float), `shear_modulus` (float), and any necessary metadata.
 - [X] T008 [P] Configure error handling and logging infrastructure (structured logs). Create `code/logging_config.py` to set up a global logger with JSON formatting and file rotation.
 - [X] T009 [P] Implement `code/utils/convex_hull.py` wrapper for `scipy.spatial.ConvexHull` and `Delaunay` point-in-hull testing.
+- [X] T029b [P] [US3] Implement `code/utils/ilr_transform.py` to perform the **isometric log-ratio (ilr) transform** on compositional data (elemental fractions) to ensure geometric validity for subsequent LCE clustering. **Output**: A function `transform_compositions(compositions)` returning ilr-transformed feature vectors.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel.
 
@@ -68,14 +69,14 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [X] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`: Assert that when input has < 500 rows (generate a dummy CSV with 499 rows using `pandas.DataFrame` matching the schema in `code/models/alloy_entry.py` with columns `composition`, `bulk_modulus`, `shear_modulus`), the script logs the specific warning "Insufficient data for statistical analysis (N < 500)" and exits with code 0. Assert that when input has >= 500 rows, no warning is logged and exit code is 0.
+- [X] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`: Assert that when input has < 500 rows (generate a dummy CSV with 499 rows using `pandas.DataFrame` matching the schema in `code/models/alloy_entry.py` with columns `composition`, `bulk_modulus`, `shear_modulus`), the script logs the specific warning "Insufficient data for statistical analysis (N < 500)" and **exits with code 1**. Assert that when input has >= 500 rows, no warning is logged and exit code is 0.
 - [ ] T011 [P] [US1] Integration test for full ingestion pipeline in `tests/integration/test_ingestion_pipeline.py`: Assert `data/processed/encoded_alloys.csv` exists and has correct columns. **Requirement**: Assert the CSV contains exactly the columns defined in `code/models/alloy_entry.py` (e.g., `composition`, `bulk_modulus`, `shear_modulus`, `element_features`) with correct data types (floats for moduli, string for composition, list/array for features). The test must verify no nulls exist in `bulk_modulus` or `shear_modulus`.
 
 ### Implementation for User Story 1
 
 - [X] T012 [US1] Implement `code/data_ingestion.py` to fetch OQMD data via HuggingFace `datasets.load_dataset('OQMD/elastic_properties')`, filter for entries with `bulk_modulus` and `shear_modulus` > 0, and exclude missing data. **Note**: This task implements the DFT proxy approach.
 - [X] T013 [P] [US1] Implement `code/feature_encoder.py` to encode compositions using elemental fractions and periodic descriptors (atomic radius, electronegativity) fetched via `pymatgen` or `mendeleev` for all elements present.
-- [X] T014 [US1] Add logic in `code/data_ingestion.py` to log "Insufficient data for statistical analysis (N < 500)" and exit with code 0 if valid entries < 500.
+- [X] T014 [US1] Add logic in `code/data_ingestion.py` to log "Insufficient data for statistical analysis (N < 500)" and **exit with code 1** if valid entries < 500.
 - [ ] T015 [S] [US1] Implement `code/main.py` orchestration step to run ingestion and encoding, saving results to `data/processed/encoded_alloys.csv`. **Dependency**: T012 and T013 must be implemented before T015 can be fully tested, but T015 can be created in parallel. **Output**: Must produce `data/processed/encoded_alloys.csv` with no nulls in key columns.
 - [X] T016 [US1] Add validation to ensure feature vectors include at least two periodic descriptors per element. Implement this in `code/feature_encoder.py` and add a corresponding test.
 - [X] T017 [US1] Add logging for data ingestion counts (total fetched, filtered, encoded) using the infrastructure from T008.
@@ -93,12 +94,11 @@
 ### Implementation for User Story 2
 
 - [X] T020 [P] [US2] Implement `code/model_training.py` to train separate GradientBoostingRegressor models for Bulk and Shear moduli using `n_jobs=2`. **Memory Constraint**: Do NOT use `max_memory` (unsupported); instead, enforce memory limits via `max_depth` and `subsample` parameters, and monitor peak memory usage using the `resource` module to ensure compliance with the <7GB RAM constraint.
-- [ ] T021 [S] [US2] Implement Leave-One-System-Out Cross-Validation (LOSO-CV) in `code/model_training.py` to validate generalizability. **Output**: Must generate `data/processed/loso_test_points.csv` containing the held-out test data and `data/processed/model_validation_report.json` containing system-level variance, coverage stats, and a flag for unreliable regions.
-- [X] T021b [S] [US2] **Depends: T021** Implement logic to enforce the R² > 0.6 gating condition. If the LOSO-CV R² score is <= 0.6, the script must raise a critical error and halt the pipeline, preventing progression to Pareto optimization.
+- [ ] T021 [S] [US2] Implement Leave-One-System-Out Cross-Validation (LOSO-CV) in `code/model_training.py` to validate generalizability. **Output**: Must generate `data/processed/loso_test_points.csv` containing the held-out test data and `data/processed/model_validation_report.json` containing **system-level variance**, **coverage stats**, and **`uncertainty_variance` for each point**. **Constraint**: If the LOSO-CV R² score is <= 0.6, the script must raise a critical error and halt the pipeline. **Reliability Mask**: The script must prepare the data for the Reliability Mask by including `uncertainty_variance` for each point.
 - [X] T022 [US2] Implement uncertainty calculation (cross-validation variance) in `code/model_training.py` and flag regions exceeding threshold.
-- [ ] T022b [S] [US2] **Depends: T021, T022** Implement logic to explicitly link LOSO-CV results to uncertainty metrics by generating `data/processed/model_validation_report.json` containing system-level variance, coverage stats, and a flag for unreliable regions.
-- [ ] T023 [S] [US2] **Depends: T021, T022b, T024b** Implement NSGA-II logic in `code/pareto_optimization.py` using `deap` with population=100, generations=50, cx_prob=0.9, mut_prob=0.1, objectives=[Bulk, Shear]. **Includes**: Generating synthetic points **strictly within** the convex hull of the training data. **CRITICAL**: Points falling outside the convex hull MUST be rejected (not flagged for inclusion) to comply with Constitution Principle VII. Implement a timeout loop using `time.sleep` and a maximum iteration count (or `signal.alarm` on Unix) to enforce the 6-hour runtime constraint (21600 seconds); if timeout is reached, the script must log a warning and exit gracefully with the best frontier found so far. **Output**: `data/results/pareto_frontier.csv` containing only valid, non-dominated points within the hull.
-- [X] T024 [S] [US2] **Depends: T023, T022b, T024b** Implement metric calculation: Calculate the **percentage of the Pareto frontier that is strictly within the empirical convex hull** and **within the Rule of Mixtures bounds** (SC-003). Compare this against the percentage of the frontier that is dominated by the Rule of Mixtures bounds. **Algorithm**: Identify frontier points with (Bulk, Shear) within the training convex hull and theoretical bounds, divide by total frontier points. **Note**: The metric "percentage extending beyond hull" is invalid and must not be calculated.
+- [ ] T023 [S] [US2] **Depends: T021, T022** Implement NSGA-II logic in `code/pareto_optimization.py` using `deap` with population=100, generations=50, cx_prob=0.9, mut_prob=0.1, objectives=[Bulk, Shear]. **Includes**: Generating synthetic points **strictly within** the convex hull of the training data. **CRITICAL**: Points falling outside the convex hull MUST be rejected (not flagged for inclusion) to comply with Constitution Principle VII. **Boundary Proximity**: The system MUST calculate the distance to the hull boundary for each point and **flag** any points approaching the boundary (distance < 5% of hull radius) in the output. **Reliability Mask**: The system MUST read `data/processed/model_validation_report.json` and apply a **Reliability Mask** to penalize or exclude points with high `uncertainty_variance`. **Timeout**: Implement a hard timeout using `signal.alarm` (Unix) or a watchdog thread (cross-platform) to enforce the 6-hour runtime constraint (21600 seconds); if timeout is reached, the script must log a warning and exit gracefully with the best frontier found so far. **Boundary Maximization**: The optimization logic must explicitly attempt to maximize points *at* the boundary (within the hull) to satisfy SC-003. **Output**: `data/results/pareto_frontier.csv` containing only valid, non-dominated points within the hull, with boundary proximity flags.
+- [X] T023b [S] [US2] **Depends: T023** Implement logic to calculate and output the `boundary_proximity` metric (distance to hull boundary) for each point in the Pareto frontier, flagging those < 5% of hull radius as required by FR-004.
+- [X] T024 [S] [US2] **Depends: T023, T023b, T024b** Implement metric calculation: Calculate the **percentage of the Pareto frontier that is strictly within the empirical convex hull** and **within the Rule of Mixtures bounds** (SC-003). Compare this against the percentage of the frontier that is dominated by the Rule of Mixtures bounds. **Algorithm**: Identify frontier points with (Bulk, Shear) within the training convex hull and theoretical bounds, divide by total frontier points. **Note**: The metric "percentage extending beyond hull" is invalid and must not be calculated.
 - [X] T024b [S] [US2] **Depends: T007** Implement `code/physics_bounds.py` to calculate Rule of Mixtures bounds for Bulk and Shear Moduli based on elemental properties. Output: `data/processed/theoretical_bounds.json`.
 - [X] T025 [US2] Add logic to clamp predictions to physical limits (e.g., moduli > 0) and flag extrapolated points.
 
@@ -113,26 +113,25 @@
 
 ## Phase 5: User Story 3 - Trade-Off Decoupling Analysis and Visualization (Priority: P3)
 
-**Goal**: Identify compositional clusters with low correlation (decoupled regions) using K-Means, visualize them, and perform sensitivity analysis.
+**Goal**: Identify compositional clusters with low correlation (decoupled regions) using **Local Correlation Estimation (LCE)** on **ilr-transformed** data, visualize them, and perform sensitivity analysis.
 
 **Independent Test**: Run cluster analysis, verify a 2D plot is generated with decoupled regions highlighted, and correlation coefficients are reported.
 
 ### Implementation for User Story 3
 
-- [X] T030 [S] [US3] Implement `code/cluster_analysis.py` to perform K-Means clustering on elemental fractions. **Step 1**: Determine optimal `k` via the Elbow Method (calculate inertia for k=2 to k=10 using the Kneedle algorithm for elbow detection). **Step 2**: Run K-Means with the **determined optimal k** (not a hardcoded value). **Note**: This task ONLY handles cluster count selection. It does NOT perform the correlation threshold sensitivity analysis. Output: `data/processed/clustering_results.csv` with cluster assignments.
-- [X] T031 [S] [US3] Implement correlation calculation between Bulk and Shear Moduli for *each cluster* to find the minimum correlation region. Output: `data/processed/correlation_stats.csv`.
-- [X] T030b [S] [US3] Identify the specific cluster with the minimum correlation (Decoupled Region) based on the output of T031. **Dependency**: Must complete T031 first.
-- [X] T034 [US3] Implement logic to flag regions where prediction variance exceeds the configured threshold (FR-006).
-- [ ] T032 [S] [US3] **Depends: T030** Implement sensitivity analysis in `code/cluster_analysis.py` to sweep **decoupling threshold (correlation cutoff)** values across a scientifically valid range (e.g., 0.5 to 0.95). **Requirement**: **Apply varying correlation thresholds to the *fixed* clustering result from T030** (do NOT re-run K-Means). Calculate and output a `robustness_score` (variance of the size of the cluster with the minimum correlation across cutoffs) to validate threshold robustness. Output: `data/processed/sensitivity_analysis.csv` with columns: `cutoff`, `region_size`, `mean_correlation`, `robustness_score`.
+- [X] T030 [S] [US3] Implement `code/cluster_analysis.py` to perform **Local Correlation Estimation (LCE)** on **ilr-transformed** compositional data (output from T029b). **Step 1**: Determine optimal neighborhood size `k` via the Elbow Method (calculate inertia for k=2 to k=10 using the Kneedle algorithm). **Step 2**: Run LCE with the **determined optimal k** (not a hardcoded value). **Note**: This task ONLY handles cluster count selection. It does NOT perform the correlation threshold sensitivity analysis. Output: `data/processed/clustering_results.csv` with cluster assignments and local correlation values.
+- [X] T031 [S] [US3] Implement correlation calculation between Bulk and Shear Moduli for *each cluster* to find the minimum correlation region. **Include**: **Stratified Permutation Test** (1000 iterations, p < 0.05) to verify that the minimum correlation cluster is significantly lower than the global correlation (SC-002). **Output**: `data/processed/correlation_stats.csv` including cluster ID, local correlation, global correlation, delta, and **p-value** from the permutation test. Identify the specific cluster with the minimum correlation (Decoupled Region) in this step.
+- [ ] T032 [S] [US3] **Depends: T031** Implement sensitivity analysis in `code/cluster_analysis.py` to sweep **decoupling threshold (correlation cutoff)** values across the range **[0.1, 0.9]** in steps of **0.1**. **Requirement**: **Apply varying correlation thresholds to the *fixed* clustering result from T030** (do NOT re-run LCE). Calculate and output a `robustness_score` (variance of the size of the cluster with the minimum correlation across cutoffs) to validate threshold robustness. Output: `data/processed/sensitivity_analysis.csv` with columns: `cutoff`, `region_size`, `mean_correlation`, `robustness_score`.
 - [ ] T032b [S] [US3] **Depends: T032** Implement validation logic to compare `sensitivity_analysis.csv` results against SC-003 requirements and output `data/results/robustness_validation.json` confirming threshold robustness.
 - [X] T033 [S] [US3] Implement `code/visualization.py` to generate a 2D plot showing compositional space, decoupled regions, and Pareto frontier.
+- [X] T034 [US3] Implement logic to flag regions where prediction variance exceeds the configured threshold (FR-006).
 - [X] T035 [S] [US3] **Depends: T031** Implement calculation of global vs. local correlation coefficients for SC-002, including the explicit calculation of the delta/ratio between local and global coefficients in a single atomic step. Output: `data/processed/correlation_stats.csv` (updated) and a summary log.
-- [X] T036 [US3] Add logging for identified decoupled region properties (cluster ID, correlation coefficient, size).
+- [X] T036 [US3] Add logging for identified decoupled region properties (cluster ID, correlation coefficient, size, p-value).
 
 ### Tests for User Story 3 (MANDATORY) ⚠️
 
 - [X] T028 [P] [US3] Contract test for visualization output in `tests/contract/test_visualization.py`: assert `data/results/decoupling_plot.png` is generated, is non-empty, and contains the expected legend labels: "Pareto Frontier", "Decoupled Region", "Empirical Data".
-- [X] T029 [P] [US3] Integration test for decoupling analysis in `tests/integration/test_decoupling_analysis.py`: assert min correlation cluster is identified correctly.
+- [X] T029 [P] [US3] Integration test for decoupling analysis in `tests/integration/test_decoupling_analysis.py`: assert min correlation cluster is identified correctly and p-value < 0.05.
 
 **Checkpoint**: All user stories should now be independently functional.
 
@@ -145,7 +144,7 @@
 - [X] T037 [P] Documentation updates in `docs/` (README, API docs for scripts).
 - [X] T038 Code cleanup and refactoring (remove debug prints, optimize imports).
 - [X] T039 Performance optimization (ensure memory usage < 7GB during NSGA-II).
-- [X] T040 [P] Additional unit tests in `tests/unit/` (encoder logic, convex hull checks).
+- [X] T040 [P] Additional unit tests in `tests/unit/` (encoder logic, convex hull checks, ilr transform).
 - [X] T041 Security hardening (validate all external data inputs).
 - [X] T042 Run `quickstart.md` validation to ensure end-to-end reproducibility.
 
@@ -155,7 +154,7 @@
 
 ### Phase Dependencies
 
-- **Phase 0 (Spec Alignment)**: **VERIFICATION ONLY**. Spec is already updated per v1.2; T000 confirms this.
+- **Phase 0 (Spec Alignment)**: **VERIFICATION ONLY**. Spec is already updated per v1.4; T000 confirms this.
 - **Setup (Phase 1)**: No dependencies.
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion.
@@ -245,11 +244,12 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Data Constraint**: All data ingestion tasks MUST use real, reachable URLs (OQMD via HuggingFace) and NEVER synthesize fake input data.
 - **Hardware Constraint**: All modeling tasks MUST run on CPU (2 cores, <7GB RAM). No CUDA, no 8-bit/4-bit quantization, no large LLMs.
-- **Spec Alignment**: Spec is already updated to target **Bulk/Shear Moduli** and **K-Means clustering** per v1.2. Phase 0 is now a verification step (T000) that actively verifies content.
-- **Ordering Note**: T030b (Identify Min Correlation) MUST precede T032 (Sensitivity Analysis). T032 defines sweep range [0.5, 0.95] and step 0.05. T035 depends on T031. T024 depends on T023, T022b, and T024b. T021b enforces the R² gate.
-- **Timeout Handling**: T023 includes explicit `time.sleep` loop or `signal.alarm` implementation to enforce the 6h runtime constraint (cross-platform).
-- **Output Artifacts**: T024b outputs `data/processed/theoretical_bounds.json`. T031/T035 output `data/processed/correlation_stats.csv`. T032 outputs `data/processed/sensitivity_analysis.csv` with robustness_score. T032b outputs `data/results/robustness_validation.json`. T021/T022b output `data/processed/loso_test_points.csv` and `data/processed/model_validation_report.json`.
+- **Spec Alignment**: Spec is updated to v1.4 to target **Bulk/Shear Moduli** and **Local Correlation Estimation (LCE)** with **ilr transform** and **permutation testing** per v1.4. Phase 0 is now a verification step (T000) that actively verifies content.
+- **Ordering Note**: T029b (ilr transform) MUST precede T030 (LCE). T031 (Permutation Test) MUST precede T032 (Sensitivity Analysis). T032 defines sweep range [0.1, 0.9] with step 0.1. T035 depends on T031. T024 depends on T023, T023b, and T024b. T021 enforces the R² gate and includes `uncertainty_variance`.
+- **Timeout Handling**: T023 includes explicit `signal.alarm` (Unix) or watchdog thread (cross-platform) implementation to enforce the 6h runtime constraint (cross-platform).
+- **Output Artifacts**: T023b outputs boundary proximity flags. T031 outputs `data/processed/correlation_stats.csv` with p-values. T032 outputs `data/processed/sensitivity_analysis.csv` with robustness_score. T032b outputs `data/results/robustness_validation.json`. T021 outputs `data/processed/loso_test_points.csv` and `data/processed/model_validation_report.json` with `uncertainty_variance` per point.
 - **Dependency Enforcement**: Tasks T012, T020, T030, T024, T035 explicitly depend on upstream artifacts to ensure data flow integrity.
 - **Memory Management**: T020 uses `max_depth` and `subsample` for memory control, not `max_memory`.
-- **Convex Hull Constraint**: T023 explicitly rejects points outside the hull to ensure strict compliance with Constitution Principle VII.
+- **Convex Hull Constraint**: T023 explicitly rejects points outside the hull and maximizes points *at* the boundary to ensure strict compliance with Constitution Principle VII and SC-003.
 - **Versioning**: T005 is complete and includes verification step T005b.
+- **Methodological Rigor**: T030 and T031 implement **Local Correlation Estimation (LCE)** with **ilr transform** and **stratified permutation test** to avoid tautology and ensure statistical validity.

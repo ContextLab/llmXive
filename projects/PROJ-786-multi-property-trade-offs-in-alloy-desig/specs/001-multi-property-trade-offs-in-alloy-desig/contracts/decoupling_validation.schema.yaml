@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DecouplingValidation"
+description: "Schema for the final decoupling validation report."
+type: "object"
+properties:
+  global_correlation:
+    type: "number"
+    description: "Pearson correlation of Bulk vs Shear for the entire dataset"
+  best_cluster_correlation:
+    type: "number"
+    description: "Lowest correlation found in any cluster"
+  delta:
+    type: "number"
+    description: "Difference between global and best cluster correlation"
+  p_value:
+    type: "number"
+    description: "P-value from local permutation test against null model"
+  significant:
+    type: "boolean"
+    description: "True if delta > 0.2 and p < 0.05"
+  physical_feasibility_check:
+    type: "string"
+    description: "Result of the Voigt-Reuss-Hill feasibility check: 'passed', 'failed', or 'pivoted_to_minimal_deviation'"
+required:
+  - global_correlation
+  - best_cluster_correlation
+  - delta
+  - p_value
+  - significant
+  - physical_feasibility_check
+additionalProperties: false
