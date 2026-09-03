@@ -1,167 +1,149 @@
 """
-Constants module for the MgB2 Impurity Impact project.
+Constants for the MgB2 Impurity Impact Prediction Pipeline.
 
-Contains atomic weights, unit conversion factors, and VIF thresholds.
+This module provides atomic weights, unit conversion factors, and
+statistical thresholds (VIF) required for data preprocessing and modeling.
 """
 
-# Atomic Weights (g/mol) from IUPAC standard atomic weights
+# Atomic Weights (g/mol)
+# Source: IUPAC Standard Atomic Weights (rounded to 4 decimal places)
 ATOMIC_WEIGHTS = {
-    "H": 1.008,
+    "H": 1.0080,
     "He": 4.0026,
-    "Li": 6.94,
+    "Li": 6.9400,
     "Be": 9.0122,
-    "B": 10.81,
-    "C": 12.011,
-    "N": 14.007,
-    "O": 15.999,
-    "F": 18.998,
-    "Ne": 20.180,
-    "Na": 22.990,
-    "Mg": 24.305,
-    "Al": 26.982,
-    "Si": 28.085,
-    "P": 30.974,
-    "S": 32.06,
-    "Cl": 35.45,
-    "Ar": 39.948,
-    "K": 39.098,
-    "Ca": 40.078,
-    "Sc": 44.956,
-    "Ti": 47.867,
-    "V": 50.942,
-    "Cr": 51.996,
-    "Mn": 54.938,
-    "Fe": 55.845,
-    "Co": 58.933,
-    "Ni": 58.693,
-    "Cu": 63.546,
-    "Zn": 65.38,
-    "Ga": 69.723,
-    "Ge": 72.630,
-    "As": 74.922,
-    "Se": 78.971,
-    "Br": 79.904,
-    "Kr": 83.798,
-    "Rb": 85.468,
-    "Sr": 87.62,
-    "Y": 88.906,
-    "Zr": 91.224,
-    "Nb": 92.906,
-    "Mo": 95.95,
-    "Tc": 98,
-    "Ru": 101.07,
-    "Rh": 102.91,
-    "Pd": 106.42,
-    "Ag": 107.87,
-    "Cd": 112.41,
-    "In": 114.82,
-    "Sn": 118.71,
-    "Sb": 121.76,
-    "Te": 127.60,
-    "I": 126.90,
-    "Xe": 131.29,
-    "Cs": 132.91,
-    "Ba": 137.33,
-    "La": 138.91,
-    "Ce": 140.12,
-    "Pr": 140.91,
-    "Nd": 144.24,
-    "Pm": 145,
-    "Sm": 150.36,
-    "Eu": 151.96,
-    "Gd": 157.25,
-    "Tb": 158.93,
-    "Dy": 162.50,
-    "Ho": 164.93,
-    "Er": 167.26,
-    "Tm": 168.93,
-    "Yb": 173.05,
-    "Lu": 174.97,
-    "Hf": 178.49,
-    "Ta": 180.95,
-    "W": 183.84,
-    "Re": 186.21,
-    "Os": 190.23,
-    "Ir": 192.22,
-    "Pt": 195.08,
-    "Au": 196.97,
-    "Hg": 200.59,
-    "Tl": 204.38,
-    "Pb": 207.2,
-    "Bi": 208.98,
-    "Po": 209,
-    "At": 210,
-    "Rn": 222,
-    "Fr": 223,
-    "Ra": 226,
-    "Ac": 227,
-    "Th": 232.04,
-    "Pa": 231.04,
-    "U": 238.03,
-    "Np": 237,
-    "Pu": 244,
-    "Am": 243,
-    "Cm": 247,
-    "Bk": 247,
-    "Cf": 251,
-    "Es": 252,
-    "Fm": 257,
-    "Md": 258,
-    "No": 259,
-    "Lr": 266,
-    "Rf": 267,
-    "Db": 268,
-    "Sg": 269,
-    "Bh": 270,
-    "Hs": 277,
-    "Mt": 278,
-    "Ds": 281,
-    "Rg": 282,
-    "Cn": 285,
-    "Nh": 286,
-    "Fl": 289,
-    "Mc": 290,
-    "Lv": 293,
-    "Ts": 294,
-    "Og": 294,
+    "B": 10.8100,
+    "C": 12.0110,
+    "N": 14.0070,
+    "O": 15.9990,
+    "F": 18.9980,
+    "Ne": 20.1800,
+    "Na": 22.9900,
+    "Mg": 24.3050,
+    "Al": 26.9820,
+    "Si": 28.0850,
+    "P": 30.9740,
+    "S": 32.0600,
+    "Cl": 35.4500,
+    "K": 39.0980,
+    "Ca": 40.0780,
+    "Sc": 44.9560,
+    "Ti": 47.8670,
+    "V": 50.9420,
+    "Cr": 51.9960,
+    "Mn": 54.9380,
+    "Fe": 55.8450,
+    "Co": 58.9330,
+    "Ni": 58.6930,
+    "Cu": 63.5460,
+    "Zn": 65.3800,
+    "Ga": 69.7230,
+    "Ge": 72.6300,
+    "As": 74.9220,
+    "Se": 78.9710,
+    "Br": 79.9040,
+    "Kr": 83.7980,
+    "Rb": 85.4680,
+    "Sr": 87.6200,
+    "Y": 88.9060,
+    "Zr": 91.2240,
+    "Nb": 92.9060,
+    "Mo": 95.9500,
+    "Tc": 98.0000,
+    "Ru": 101.0700,
+    "Rh": 102.9100,
+    "Pd": 106.4200,
+    "Ag": 107.8700,
+    "Cd": 112.4100,
+    "In": 114.8200,
+    "Sn": 118.7100,
+    "Sb": 121.7600,
+    "Te": 127.6000,
+    "I": 126.9000,
+    "Xe": 131.2900,
+    "Cs": 132.9100,
+    "Ba": 137.3300,
+    "La": 138.9100,
+    "Ce": 140.1200,
+    "Pr": 140.9100,
+    "Nd": 144.2400,
+    "Pm": 145.0000,
+    "Sm": 150.3600,
+    "Eu": 151.9600,
+    "Gd": 157.2500,
+    "Tb": 158.9300,
+    "Dy": 162.5000,
+    "Ho": 164.9300,
+    "Er": 167.2600,
+    "Tm": 168.9300,
+    "Yb": 173.0500,
+    "Lu": 174.9700,
+    "Hf": 178.4900,
+    "Ta": 180.9500,
+    "W": 183.8400,
+    "Re": 186.2100,
+    "Os": 190.2300,
+    "Ir": 192.2200,
+    "Pt": 195.0800,
+    "Au": 196.9700,
+    "Hg": 200.5900,
+    "Tl": 204.3800,
+    "Pb": 207.2000,
+    "Bi": 208.9800,
+    "Th": 232.0400,
+    "U": 238.0300,
 }
 
 # Unit Conversion Factors
-# Temperature: Kelvin
-KELVIN_TO_CELSIUS = 273.15
-CELSIUS_TO_KELVIN = 273.15
+# Temperature: Kelvin to Celsius (offset), though we primarily work in Kelvin
+KELVIN_TO_CELSIUS_OFFSET = 273.15
+CELSIUS_TO_KELVIN_OFFSET = 273.15
 
-# Pressure: Gigapascals (GPa)
+# Pressure: GPa to various units
+# 1 GPa = 10,000 bar
+# 1 GPa = 1,000 MPa
 # 1 GPa = 10^9 Pa
-GPA_TO_PA = 1e9
-PA_TO_GPA = 1e-9
-GPA_TO_BAR = 10000
-BAR_TO_GPA = 1e-4
+GPA_TO_PASCAL = 1e9
+GPA_TO_BAR = 10000.0
+GPA_TO_MPA = 1000.0
 
-# Concentration: Weight % to Atomic % conversion requires atomic weights
-# The conversion formula is: atomic_pct = (weight_pct / atomic_weight) / sum(weight_pct_i / atomic_weight_i) * 100
-# This function is implemented in preprocessing, but the factor for pure element conversion is 1:1
+# Statistical Thresholds
+# Variance Inflation Factor (VIF) thresholds for multicollinearity
+# Source: Standard statistical benchmarks (e.g., Hair et al., Montgomery et al.)
+# VIF < 5: No multicollinearity
+# 5 <= VIF < 10: Moderate multicollinearity
+# VIF >= 10: Severe multicollinearity (often used as the cutoff for removal)
+# For this project, we use a conservative threshold of 5.0 as per spec FR-004
+VIF_THRESHOLD_CONSERVATIVE = 5.0
+VIF_THRESHOLD_STRICT = 10.0
 
-# VIF (Variance Inflation Factor) Threshold Constants
-# Established benchmarks for multicollinearity detection
-VIF_THRESHOLD_LOW = 5.0   # Moderate multicollinearity (commonly used threshold)
-VIF_THRESHOLD_HIGH = 10.0 # Severe multicollinearity (strict threshold)
+# Data Processing Constants
+# Minimum number of samples required for a feature to be considered in modeling
+MIN_FEATURE_SAMPLES = 10
 
-# Default VIF threshold for this project (based on FR-006 and plan.md)
-VIF_THRESHOLD = VIF_THRESHOLD_LOW
+# Default value for missing data imputation (if not handled by midpoint logic)
+DEFAULT_IMPUTATION_VALUE = 0.0
 
-# Additional constants for data processing
-# Minimum number of samples required per impurity type for statistical significance
-MIN_SAMPLES_PER_IMPURITY = 5
+# Impurity elements commonly found in MgB2 studies (subset of atomic weights)
+# Used for quick validation of impurity columns
+COMMON_IMPURITY_ELEMENTS = [
+    "C", "Si", "Al", "Ti", "Cr", "Mn", "Fe", "Co", "Ni", "Cu",
+    "Zr", "Nb", "Y", "Ca", "Sc", "V"
+]
 
-# Maximum allowed missing value percentage per column before dropping
-MAX_MISSING_VALUE_PCT = 0.50
+def get_atomic_weight(element_symbol: str) -> float:
+    """
+    Retrieve the atomic weight for a given element symbol.
 
-# Default random seed for reproducibility
-DEFAULT_RANDOM_SEED = 42
+    Args:
+        element_symbol: The chemical symbol (e.g., 'Mg', 'B').
 
-# MgB2 specific constants
-MAGNESIUM_BORIDE_FORMULA = "MgB2"
-MAGNESIUM_ATOMIC_WEIGHT = ATOMIC_WEIGHTS["Mg"]
-BORON_ATOMIC_WEIGHT = ATOMIC_WEIGHTS["B"]
-MAGNESIUM_BORIDE_MOLECULAR_WEIGHT = MAGNESIUM_ATOMIC_WEIGHT + 2 * BORON_ATOMIC_WEIGHT
+    Returns:
+        The atomic weight in g/mol.
+
+    Raises:
+        KeyError: If the element symbol is not found in the table.
+    """
+    if element_symbol not in ATOMIC_WEIGHTS:
+        raise KeyError(f"Atomic weight not found for element: {element_symbol}")
+    return ATOMIC_WEIGHTS[element_symbol]

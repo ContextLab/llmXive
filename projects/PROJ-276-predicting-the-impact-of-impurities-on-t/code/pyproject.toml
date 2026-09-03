@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-mgb2"
+version = "0.1.0"
+description = "Predicting the Impact of Impurities on the Superconductivity of Magnesium Diboride"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas",
+    "scikit-learn",
+    "xgboost",
+    "pymatgen",
+    "requests",
+    "pyyaml",
+    "matplotlib",
+    "seaborn",
+    "statsmodels",
+    "pytest",
+    "ruff",
+    "black",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501",  # line too long (black handles this)
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+
+[tool.ruff.per-file-ignores]
+"tests/*" = ["S101"]  # allow assert in tests
+
+[tool.ruff.isort]
+known-first-party = ["src", "scripts", "tests"]
+force-sort-within-sections = true

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T09:41:51.409910Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-080-phase-transitions-in-amorphous-solids-un
-last_run_id: bf354d63-429b-4c6d-b301-11c633df7853
+last_run_id: 64f528ff-dc1e-4793-b9ac-a17a71432b9b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Phase Transitions in Amorphous Solids Under Shear Stress
-updated_at: '2026-06-13T11:29:55.202634Z'
+updated_at: '2026-09-03T15:23:18.414687Z'

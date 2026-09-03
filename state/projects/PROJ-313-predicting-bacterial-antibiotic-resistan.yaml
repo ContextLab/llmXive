@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T13:44:49.200792Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-313-predicting-bacterial-antibiotic-resistan
-last_run_id: e760d714-670d-4819-b2fe-4dcf98e1b230
+last_run_id: 626d30e9-5f7d-4640-bc03-82f53b442253
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Predicting Bacterial Antibiotic Resistance from Public Genomic Databases
-updated_at: '2026-08-09T15:50:30.053444Z'
+updated_at: '2026-09-03T15:34:22.258419Z'

@@ -1,0 +1,37 @@
+T000:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `state/contradictions/FR-006-runtime-bug.md` file is present, nor any evidence\
+    \ that a time\u2011limit enforcement was added to subsequent tasks. The required\
+    \ documentation and enforcement are missing."
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree or listing was provided to confirm that the required folders
+    (`src/ingestion`, `src/modeling`, `src/visualization`, `src/utils`, `tests/contract`,
+    `tests/integration`, `tests/unit`, `data/raw`, `data/processed`, `docs`) were
+    actually created. The implementer must supply evidence (e.g., a printed `tree`
+    or `ls -R` output) showing these paths exist.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
+    \ settings, `.ruff.toml` or `ruff.toml`, a pre\u2011commit hook file, or any script\
+    \ invoking Ruff/Black) were presented. Without these artifacts, the claim that\
+    \ linting and formatting tools are configured cannot be verified. The implementer\
+    \ must add the appropriate configuration files and ensure they are non\u2011empty\
+    \ and correctly set up."
+T010:
+  c: false
+  h: f84b42433044067770ce704081c01625d8115d91d35b6f20472542fd1ede078e
+  r: "The required file `tests/unit/test_preprocessing.py` does not exist, so no unit\
+    \ test for the weight% to atomic% conversion edge cases is present. The task\u2019\
+    s deliverable is missing entirely."
+T013:
+  c: false
+  h: 2ae0771636ae15539ea522e18dbae3191f37967568add6c8b2268f0b05cf7143
+  r: "The required `src/ingestion/download_supercon.py` file does not exist, and the\
+    \ provided `tests/unit/test_ingestion.py` only contains data\u2011filtering tests\
+    \ unrelated to downloading the SuperCon dataset or checking for a failure when\
+    \ >50\u202F% of entries lack impurity columns. No unit test verifies that the\
+    \ script exits with code\u202F1 under the specified condition."

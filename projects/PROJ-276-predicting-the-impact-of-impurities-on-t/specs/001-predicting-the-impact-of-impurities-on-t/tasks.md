@@ -84,7 +84,7 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T009 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py` (verify columns: Tc, impurities_atomic_pct, temp_K, pressure_GPa)
-- [~] T010 [P] [US1] Unit test for unit conversion logic in `tests/unit/test_preprocessing.py` (weight% to atomic% edge cases)
+- [ ] T010 [P] [US1] Unit test for unit conversion logic in `tests/unit/test_preprocessing.py` (weight% to atomic% edge cases)
 - [X] T011 [P] [US1] Unit test for data filtering in `tests/unit/test_ingestion.py` (verify rows with missing Tc/impurities are dropped)
 
 ### Implementation for User Story 1
@@ -92,7 +92,7 @@
 - [ ] T012 [P] [US1] Implement `src/ingestion/download_materials_project.py` to fetch Mg-B entries via API, handling rate limits and empty responses (exit code 1 if empty)
 - [ ] T013 [P] [US1] Implement `src/ingestion/download_supercon.py` to fetch `taqwa92/cm.mgb2` from HuggingFace; **FAIL with exit code 1 if >50% of entries lack impurity columns**. Verification: Add unit test in `tests/unit/test_ingestion.py` using a synthetic dataset with a significant proportion of nulls to confirm exit code 1.
 - [ ] T014 [US1] Implement `src/ingestion/preprocess.py` to merge datasets, convert units (weight% -> atomic%), handle synthesis ranges (midpoint imputation), and attach provenance metadata. **Verification**: Ensure provenance metadata is attached to CACHED files (bypassing T012/T013) as per FR-001.
-- [ ] T015 [US1] Implement `tests/integration/test_pipeline.py` to run full ingestion flow (T012->T013->T014) and verify `mgb2_clean.csv` integrity (count > 0, no nulls in target columns)
+- [X] T015 [US1] Implement `tests/integration/test_pipeline.py` to run full ingestion flow (T012->T013->T014) and verify `mgb2_clean.csv` integrity (count > 0, no nulls in target columns)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,8 +106,8 @@
 
 ### Tests for User Story 2
 
-- [ ] T016 [P] [US2] Unit test for stratified splitting logic in `tests/unit/test_modeling.py` (verify rare impurity binning)
-- [ ] T017 [P] [US2] Unit test for hyperparameter grid limits in `tests/unit/test_modeling.py` (verify ≤10 combinations enforced)
+- [X] T016 [P] [US2] Unit test for stratified splitting logic in `tests/unit/test_modeling.py` (verify rare impurity binning)
+- [X] T017 [P] [US2] Unit test for hyperparameter grid limits in `tests/unit/test_modeling.py` (verify ≤10 combinations enforced)
 
 ### Implementation for User Story 2
 

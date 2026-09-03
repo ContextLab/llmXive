@@ -1799,6 +1799,10 @@
     "classified_at": "2026-08-04T04:21:12Z",
     "verdict": false
   },
+  "PROJ-949-llmxive-follow-up-extending-dataclaw0-ag::1.6.0": {
+    "classified_at": "2026-09-03T15:34:52Z",
+    "verdict": false
+  },
   "PROJ-950-llmxive-follow-up-extending-tua-bench-a::1.6.0": {
     "classified_at": "2026-09-02T21:20:19Z",
     "verdict": false

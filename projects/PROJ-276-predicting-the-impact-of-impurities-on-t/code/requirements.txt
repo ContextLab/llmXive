@@ -8,3 +8,6 @@ matplotlib
 seaborn
 statsmodels
 pytest
+datasets
+ruff
+black
