@@ -66,13 +66,14 @@ properties:
     minimum: 0.95
     maximum: 1.0
   measurement_method:
-    type: string
+    type: ["string", "null"]
     description: "Method used to measure Poisson's ratio"
     enum:
       - "Ultrasonic"
       - "Resonant Ultrasound Spectroscopy"
       - "Static Tensile"
       - "Other"
+      - null
   source:
     type: string
     description: "Original data source"

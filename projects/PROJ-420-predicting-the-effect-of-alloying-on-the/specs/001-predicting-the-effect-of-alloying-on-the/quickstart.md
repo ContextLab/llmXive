@@ -2,9 +2,9 @@
 
 ## Prerequisites
 
--   Python 3.11+
--   Git
--   Access to `materialsproject.org` API (optional, if NIST data is insufficient)
+- Python 3.11 or higher.
+- Git.
+- **Materials Project API Key** (Optional but recommended for full data access). Set as environment variable `MP_API_KEY`.
 
 ## Installation
 
@@ -14,7 +14,7 @@
     cd projects/PROJ-420-predicting-the-effect-of-alloying-on-the
     ```
 
-2.  **Create virtual environment**:
+2.  **Create a virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
@@ -22,41 +22,44 @@
 
 3.  **Install dependencies**:
     ```bash
-    pip install -r requirements.txt
+    pip install -r code/requirements.txt
     ```
 
 ## Running the Pipeline
 
-The pipeline is executed via the main entry point. It handles data fetching, cleaning, modeling, and reporting.
+The pipeline is executed via a single orchestration script.
 
-```bash
-python code/main.py
-```
+1.  **Execute the main pipeline**:
+    ```bash
+    python code/main_pipeline.py
+    ```
 
-### Expected Output
+    This script will:
+    - Check for `MP_API_KEY` and attempt data extraction from Materials Project/NIST.
+    - Halt with a clear error if data is unavailable or N < 50.
+    - Filter and clean the dataset (wt% -> at%, unit normalization).
+    - Verify data independence (exclude derived Poisson's ratio).
+    - Perform ILR transformation (SBP basis).
+    - Train the Random Forest model with k-fold CV and an 80/20 split.
+    - Compute Grouped ILR feature importance and VIF on ILR features.
+    - Save results to `results/` with associational framing.
 
-Upon successful completion, the following files will be generated:
-
--   `data/raw/`: Raw downloaded data files.
--   `data/processed/alloy_cleaned.csv`: Filtered and normalized dataset.
--   `models/rf_model.pkl`: Trained Random Forest model.
--   `data/processed/model_metrics.json`: CV and Test MAE.
--   `data/processed/collinearity_diagnostic.json`: VIF analysis.
--   `results/feature_importance_summary.json`: Ranked elements.
--   `results/final_report.md`: The final scientific report.
-
-## Verification
-
-To verify the results and ensure reproducibility:
-
-```bash
-pytest tests/
-```
-
-This runs contract tests against the generated JSON schemas and unit tests for the ILR transformation.
+2.  **Verify outputs**:
+    - Check `data/processed/alloys_clean.parquet` for the cleaned dataset.
+    - Check `results/cv_metrics.json` and `results/test_metrics.json` for performance.
+    - Check `results/feature_importance.json` for element rankings (Grouped ILR).
+    - Check `results/vif_diagnostic.json` for collinearity flags (on ILR features).
+    - Check `results/model_output.json` for the "Associational, Not Causal" disclaimer.
 
 ## Troubleshooting
 
--   **Error: "No verified open-source dataset found"**: The pipeline could not fetch data from NIST or Materials Project. Check your internet connection or API keys.
--   **Error: "Insufficient data (< 50 samples)"**: The filtered dataset is too small for 5-fold cross-validation. The pipeline halts to prevent unreliable results.
--   **Error: "Unit conversion failed"**: The raw data contained inconsistent units (e.g., MPa vs GPa) that could not be resolved automatically. Check `data/processed/exclusion_log.csv`.
+- **Data Extraction Failure**: If the script halts with "Data Availability Failure" or "Insufficient Data", verify network access to Materials Project/NIST APIs and ensure `MP_API_KEY` is set if required. The project cannot proceed without valid data.
+- **Memory Error**: Unlikely given the expected dataset size (<2000 rows). If encountered, check for infinite loops or accidental data duplication.
+- **VIF Flag**: If `vif_flag` is True, review the ILR feature correlations. This is a diagnostic flag, not a failure (expected in some compositional subsets).
+- **Model Performance**: If MAE > 0.05, check `results/test_metrics.json` for the "No Signal Detected" flag if the model performs no better than the null baseline.
+
+## Output Interpretation
+
+- **MAE**: Lower is better. An MAE > 0.05 is flagged as a potential model fit issue or high noise.
+- **Feature Importance**: Higher scores indicate a stronger associational relationship with Poisson's ratio. Remember: **Correlation does not imply causation**. The scores are derived from Grouped ILR importance, not back-transformed splits.
+- **VIF**: Values > 5 on ILR features indicate potential multicollinearity in the transformed space. This is a diagnostic flag.

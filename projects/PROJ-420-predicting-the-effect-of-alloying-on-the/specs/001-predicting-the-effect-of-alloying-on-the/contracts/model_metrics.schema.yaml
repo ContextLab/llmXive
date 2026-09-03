@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ModelMetrics Schema"
-description: "Schema for model performance metrics from Repeated 5-Fold CV."
+description: "Schema for model performance metrics from Repeated 5-Fold CV and Test Set."
 type: "object"
 properties:
   cv_mae_mean:
@@ -12,6 +12,12 @@ properties:
   cv_mae_ci_upper:
     type: "number"
     description: "95% Confidence Interval Upper Bound for CV-MAE."
+  test_mae:
+    type: "number"
+    description: "Mean Absolute Error on the held-out test set."
+  null_baseline_mae:
+    type: "number"
+    description: "MAE of the null baseline (predicting the mean)."
   n_samples_total:
     type: "integer"
     minimum: 1
@@ -35,6 +41,8 @@ required:
   - "cv_mae_mean"
   - "cv_mae_ci_lower"
   - "cv_mae_ci_upper"
+  - "test_mae"
+  - "null_baseline_mae"
   - "n_samples_total"
   - "model_type"
   - "transform"

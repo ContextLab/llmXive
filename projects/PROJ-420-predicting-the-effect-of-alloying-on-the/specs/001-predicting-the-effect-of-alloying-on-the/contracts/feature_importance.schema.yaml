@@ -1,37 +1,30 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Feature Importance Schema
-description: Schema for permutation importance results on ILR features
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Feature Importance Schema"
+description: "Schema for Grouped ILR Importance results. Importance is aggregated from ILR coordinates to rank alloying elements."
 type: object
 required:
-  - feature
+  - element
   - importance_mean
   - importance_std
-  - importance_min
-  - importance_max
+  - method
 properties:
-  feature:
+  element:
     type: array
     items:
       type: string
-    description: List of feature names (ILR transformed)
+    description: "List of alloying elements (Cu, Mg, Si, Zn, Mn)."
   importance_mean:
     type: array
     items:
       type: number
-    description: Mean permutation importance for each feature
+    description: "Mean Grouped ILR Importance for each element."
   importance_std:
     type: array
     items:
       type: number
-    description: Standard deviation of permutation importance
-  importance_min:
-    type: array
-    items:
-      type: number
-    description: Minimum permutation importance value
-  importance_max:
-    type: array
-    items:
-      type: number
-    description: Maximum permutation importance value
+    description: "Standard deviation of Grouped ILR Importance."
+  method:
+    type: string
+    const: "Grouped ILR Importance"
+    description: "Method used to calculate importance. Must be 'Grouped ILR Importance'."
 additionalProperties: false

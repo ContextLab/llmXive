@@ -1,47 +1,48 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "CollinearityDiagnostic Schema"
-description: "Schema for Variance Inflation Factor (VIF) diagnostics. Note: High VIF is expected due to closure problem."
+description: "Schema for Variance Inflation Factor (VIF) diagnostics on ILR features. Note: High VIF is expected in some ILR coordinates due to underlying correlations."
 type: "object"
 properties:
   vif_scores:
     type: "object"
+    description: "VIF scores for each ILR coordinate."
     properties:
-      Cu:
+      ilr_1:
         type: "number"
         minimum: 0.0
-        description: "VIF for Copper."
-      Mg:
+        description: "VIF for ILR coordinate 1."
+      ilr_2:
         type: "number"
         minimum: 0.0
-        description: "VIF for Magnesium."
-      Si:
+        description: "VIF for ILR coordinate 2."
+      ilr_3:
         type: "number"
         minimum: 0.0
-        description: "VIF for Silicon."
-      Zn:
+        description: "VIF for ILR coordinate 3."
+      ilr_4:
         type: "number"
         minimum: 0.0
-        description: "VIF for Zinc."
-      Mn:
+        description: "VIF for ILR coordinate 4."
+      ilr_5:
         type: "number"
         minimum: 0.0
-        description: "VIF for Manganese."
+        description: "VIF for ILR coordinate 5."
     required:
-      - "Cu"
-      - "Mg"
-      - "Si"
-      - "Zn"
-      - "Mn"
+      - "ilr_1"
+      - "ilr_2"
+      - "ilr_3"
+      - "ilr_4"
+      - "ilr_5"
   max_vif:
     type: "number"
     minimum: 0.0
-    description: "Maximum VIF among all predictors."
+    description: "Maximum VIF among all ILR coordinates."
   flag:
     type: "boolean"
-    description: "True if max_vif > 5. Expected to be True for raw compositional data."
+    description: "True if max_vif > 5. Indicates potential multicollinearity in the ILR space."
   interpretation:
     type: "string"
-    description: "Human-readable interpretation of the VIF results, noting the closure problem."
+    description: "Human-readable interpretation of the VIF results, noting that VIF is computed on ILR features."
 required:
   - "vif_scores"
   - "max_vif"

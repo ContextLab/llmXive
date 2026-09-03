@@ -1,17 +1,15 @@
 status: none
-intent: download aluminum alloy composition and elastic constants from Materials Project
-  and NIST MDR python package dataset
+intent: Materials Project NIST Materials Data Repository alloy elastic python package
+  dataset
 required_fields:
 - material_id
-- chemical_formula
-- elemental_composition_atomic_fractions
-- poissons_ratio
-- youngs_modulus_gpa
-- bulk_modulus_gpa
-- shear_modulus_gpa
-- density_gcm3
-- source_database
-- entry_type
-cache_key: 6293b1af5ba6db72a8bc4b713c2abaee0339cd130fb90f381f1bd690934bfa92
-searched_at: '2026-08-25T02:39:01.577928+00:00'
+- formula
+- composition
+- poisson_ratio
+- youngs_modulus
+- composition_units
+- elastic_modulus_units
+- alloy_type
+cache_key: 8670ca24ab7792820e1fb7a2277eb5a5949eec63e77759520a8825b8cffec005
+searched_at: '2026-09-03T12:49:31.352775+00:00'
 retry_count: 1
