@@ -1,327 +1,208 @@
 """
-Preprocessing module for RULER dataset streaming and chunking.
-
-Implements dynamic fallback logic to handle memory constraints:
-1. Attempt to reduce context window to a constrained length.
-2. If memory still exceeds capacity, reduce batch size to a minimal value.
-3. Only exit with code 1 if both modes fail.
-
-This module ensures that the pipeline can run within the 7GB RAM constraint
-by aggressively managing memory usage during data loading and processing.
+Preprocessing utilities for the llmXive pipeline.
+Handles context chunking, memory monitoring, and batch reduction strategies.
 """
 import os
 import sys
 import gc
 import logging
+import resource
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Generator, Tuple
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
-import numpy as np
-from datasets import Dataset, DatasetDict
-import psutil
+# Local imports based on project API surface
+from utils.logger import get_logger_for_task, log_resource_usage
 
-# Import from project API surface
-from data.loader import download_and_verify_ruler
-from utils.logger import get_structured_logger, log_resource_usage
-from utils.config import Config, get_default_config
-
-# Constants
-MAX_RAM_GB = 7.0
-SAFE_RAM_GB = 6.5  # Safety buffer as per T040
-DEFAULT_CONTEXT_WINDOW = 4096
-MIN_BATCH_SIZE = 1
-CHUNK_SIZE_DEFAULT = 512  # Tokens per chunk
-
-logger = get_structured_logger(__name__)
+logger = get_logger_for_task("T007d")
 
 @dataclass
 class PreprocessConfig:
-    """Configuration for preprocessing pipeline."""
-    max_context_window: int = DEFAULT_CONTEXT_WINDOW
-    batch_size: int = 32
-    min_batch_size: int = MIN_BATCH_SIZE
-    chunk_size: int = CHUNK_SIZE_DEFAULT
-    max_memory_gb: float = SAFE_RAM_GB
-    output_dir: str = "data/processed"
-    dataset_name: str = "navits/ruler"
-    dataset_config: str = "default"
-    split: str = "train"
-    
+    """Configuration for preprocessing operations."""
+    max_context_tokens: int = 4096
+    initial_batch_size: int = 32
+    min_batch_size: int = 1
+    memory_threshold_gb: float = 6.5
+    reduction_factor: float = 0.5
+
 def get_available_memory_gb() -> float:
-    """Get available system memory in GB."""
-    memory = psutil.virtual_memory()
-    return memory.available / (1024 ** 3)
+    """
+    Returns the available system memory in GB.
+    Uses resource module for POSIX or psutil if available (fallback to resource).
+    """
+    try:
+        # Try psutil first if available (often used in T040)
+        import psutil
+        mem = psutil.virtual_memory()
+        return mem.available / (1024 ** 3)
+    except ImportError:
+        # Fallback to resource module (POSIX)
+        try:
+            # Get soft limit; if unlimited, estimate based on system
+            soft, hard = resource.getrlimit(resource.RLIMIT_AS)
+            if soft == resource.RLIM_INFINITY:
+                # Estimate from total memory if limit is unlimited
+                total_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024 # MB
+                return max(1.0, total_mem * 0.8) # Heuristic
+            return soft / (1024 ** 3)
+        except Exception:
+            logger.warning("Could not determine available memory via resource module. Returning 1.0 GB default.")
+            return 1.0
 
 def get_used_memory_gb() -> float:
-    """Get currently used system memory in GB."""
-    memory = psutil.virtual_memory()
-    return memory.used / (1024 ** 3)
-
-def check_memory_pressure(used_gb: float, threshold_gb: float = SAFE_RAM_GB) -> bool:
-    """Check if memory usage exceeds threshold."""
-    return used_gb > threshold_gb
-
-def reduce_context_window(dataset: Dataset, max_tokens: int) -> Dataset:
     """
-    Truncate dataset samples to fit within max_tokens.
+    Returns the currently used memory by the process in GB.
+    """
+    try:
+        import psutil
+        process = psutil.Process(os.getpid())
+        return process.memory_info().rss / (1024 ** 3)
+    except ImportError:
+        try:
+            usage = resource.getrusage(resource.RUSAGE_SELF)
+            # ru_maxrss is in KB on Linux, MB on macOS
+            # Normalize to GB
+            if sys.platform == 'darwin':
+                return usage.ru_maxrss / (1024 ** 2)
+            else:
+                return usage.ru_maxrss / (1024 ** 3)
+        except Exception:
+            logger.warning("Could not determine used memory. Returning 0.0 GB default.")
+            return 0.0
+
+def check_memory_usage() -> bool:
+    """
+    Checks if current memory usage exceeds the configured threshold (6.5 GB).
+    Returns True if usage > 6.5 GB (memory pressure detected).
+    """
+    used_gb = get_used_memory_gb()
+    threshold = 6.5
+    is_over = used_gb > threshold
+    if is_over:
+        logger.warning(f"Memory usage ({used_gb:.2f} GB) exceeds threshold ({threshold} GB).")
+    else:
+        logger.debug(f"Memory usage ({used_gb:.2f} GB) is within threshold ({threshold} GB).")
+    return is_over
+
+def reduce_context_window(config: PreprocessConfig) -> bool:
+    """
+    Attempts to reduce the context window size to alleviate memory pressure.
+    Returns True if reduction was successful and new size > 0.
+    """
+    if config.max_context_tokens <= 0:
+        return False
+    
+    new_size = max(1, int(config.max_context_tokens * config.reduction_factor))
+    if new_size < config.max_context_tokens:
+        old_size = config.max_context_tokens
+        config.max_context_tokens = new_size
+        logger.info(f"Reduced context window from {old_size} to {new_size} tokens.")
+        gc.collect()
+        return True
+    return False
+
+def reduce_batch_size(batch_size: int) -> int:
+    """
+    Reduces the batch size by half.
+    Returns the new batch size.
+    """
+    if batch_size <= 1:
+        return 1
+    new_size = max(1, batch_size // 2)
+    if new_size < batch_size:
+        logger.info(f"Reduced batch size from {batch_size} to {new_size}.")
+        gc.collect()
+    return new_size
+
+def exit_on_memory_exceeded(config: PreprocessConfig, current_batch_size: int) -> None:
+    """
+    Checks if memory is exceeded. If so, attempts to reduce context window
+    and then batch size. If both reduction modes fail (context cannot be reduced
+    further or batch size is already at minimum), raises a RuntimeError.
+    
+    This function implements the exit logic for T007d.
     
     Args:
-        dataset: Input dataset
-        max_tokens: Maximum tokens per sample
+        config: The PreprocessConfig object to modify.
+        current_batch_size: The current batch size being used.
         
-    Returns:
-        Dataset with truncated samples
+    Raises:
+        RuntimeError: If memory constraints cannot be resolved by reduction.
     """
-    logger.info(f"Reducing context window to {max_tokens} tokens")
-    
-    def truncate_sample(example):
-        if 'input_ids' in example:
-            input_ids = example['input_ids'][:max_tokens]
-            example['input_ids'] = input_ids
-            # Adjust attention_mask if present
-            if 'attention_mask' in example:
-                example['attention_mask'] = example['attention_mask'][:max_tokens]
-            # Adjust labels if present
-            if 'labels' in example:
-                example['labels'] = example['labels'][:max_tokens]
-        return example
-    
-    truncated_dataset = dataset.map(
-        truncate_sample,
-        batched=False,
-        desc="Truncating samples"
-    )
-    
-    logger.info(f"Context window reduced. New max length: {truncated_dataset[0]['input_ids'].__len__() if len(truncated_dataset) > 0 else 0}")
-    return truncated_dataset
+    if not check_memory_usage():
+        return
 
-def reduce_batch_size(current_batch_size: int, min_batch_size: int) -> int:
+    logger.error("Memory constraint exceeded. Attempting recovery strategies...")
+
+    # Strategy 1: Reduce Context Window
+    context_reduced = reduce_context_window(config)
+    
+    # Check memory again after context reduction
+    if not check_memory_usage():
+        logger.info("Context reduction resolved memory pressure.")
+        return
+
+    # Strategy 2: Reduce Batch Size
+    new_batch_size = reduce_batch_size(current_batch_size)
+    if new_batch_size < current_batch_size:
+        # Check memory again after batch reduction
+        if not check_memory_usage():
+            logger.info("Batch size reduction resolved memory pressure.")
+            return
+    
+    # If we are here, both strategies failed to resolve the issue
+    # or we couldn't reduce further (e.g., batch size already 1, context already min)
+    logger.critical("All memory reduction strategies failed. Exiting.")
+    raise RuntimeError("Memory constraint exceeded")
+
+def split_context(context: str, chunk_size: int) -> Generator[str, None, None]:
     """
-    Reduce batch size to handle memory pressure.
+    Splits a long context string into chunks of approximately chunk_size.
+    Yields chunks of text.
     
     Args:
-        current_batch_size: Current batch size
-        min_batch_size: Minimum allowed batch size
-        
-    Returns:
-        Reduced batch size
-    """
-    if current_batch_size <= min_batch_size:
-        return min_batch_size
-    
-    new_batch_size = max(min_batch_size, current_batch_size // 2)
-    logger.info(f"Reducing batch size from {current_batch_size} to {new_batch_size}")
-    return new_batch_size
-
-def stream_dataset_chunks(
-    dataset: Dataset,
-    batch_size: int,
-    chunk_size: int
-) -> Generator[Dict[str, Any], None, None]:
-    """
-    Stream dataset in manageable chunks.
-    
-    Args:
-        dataset: Input dataset
-        batch_size: Batch size for processing
-        chunk_size: Number of samples per chunk
+        context: The input text string.
+        chunk_size: The approximate number of tokens/characters per chunk.
         
     Yields:
-        Chunks of dataset samples as dictionaries
+        String chunks.
     """
-    logger.info(f"Streaming dataset with batch_size={batch_size}, chunk_size={chunk_size}")
+    if not context:
+        return
     
-    num_samples = len(dataset)
-    for start_idx in range(0, num_samples, chunk_size):
-        end_idx = min(start_idx + chunk_size, num_samples)
-        chunk = dataset.select(range(start_idx, end_idx))
-        
-        # Convert chunk to dict of lists for easier processing
-        chunk_dict = {key: list(chunk[key]) for key in chunk.column_names}
-        yield chunk_dict
-        
-        # Force garbage collection after each chunk
-        gc.collect()
-
-def preprocess_and_save(
-    config: PreprocessConfig
-) -> Dict[str, Any]:
-    """
-    Main preprocessing function with dynamic fallback logic.
+    # Simple character-based splitting for now, could be token-based if tokenizer available
+    # Assuming chunk_size refers to characters for this generic utility unless specified
+    # If token-based logic is required, it should use a specific tokenizer.
+    # For this task, we implement a robust string splitter.
     
-    Implements the fallback strategy:
-    1. Attempt to reduce context window to a constrained length.
-    2. If memory still exceeds capacity, reduce batch size to a minimal value.
-    3. Only exit with code 1 if both modes fail.
-    
-    Args:
-        config: PreprocessConfig instance
-        
-    Returns:
-        Dictionary with preprocessing results and statistics
-    """
-    logger.info("Starting preprocessing pipeline")
-    log_resource_usage()
-    
-    # Step 1: Download and verify dataset
-    logger.info(f"Loading dataset: {config.dataset_name} ({config.dataset_config})")
-    dataset_dict = download_and_verify_ruler(
-        dataset_name=config.dataset_name,
-        dataset_config=config.dataset_config,
-        verify_checksums=True
-    )
-    
-    if config.split not in dataset_dict:
-        raise ValueError(f"Split '{config.split}' not found in dataset. Available: {list(dataset_dict.keys())}")
-    
-    dataset = dataset_dict[config.split]
-    logger.info(f"Loaded {len(dataset)} samples from split '{config.split}'")
-    
-    # Initial memory check
-    initial_memory = get_used_memory_gb()
-    logger.info(f"Initial memory usage: {initial_memory:.2f} GB")
-    
-    if check_memory_pressure(initial_memory, config.max_memory_gb):
-        logger.warning(f"Initial memory usage ({initial_memory:.2f} GB) exceeds threshold ({config.max_memory_gb} GB)")
-        
-        # Fallback 1: Reduce context window
-        logger.info("Attempting to reduce context window...")
-        try:
-            dataset = reduce_context_window(dataset, config.max_context_window)
-            memory_after_truncation = get_used_memory_gb()
-            logger.info(f"Memory after context reduction: {memory_after_truncation:.2f} GB")
-            
-            if check_memory_pressure(memory_after_truncation, config.max_memory_gb):
-                logger.warning(f"Memory still exceeds threshold after context reduction ({memory_after_truncation:.2f} GB)")
-                
-                # Fallback 2: Reduce batch size
-                logger.info("Attempting to reduce batch size...")
-                current_batch_size = config.batch_size
-                while current_batch_size > config.min_batch_size:
-                    current_batch_size = reduce_batch_size(current_batch_size, config.min_batch_size)
-                    # Simulate processing with reduced batch size
-                    # In practice, this would affect how we iterate over the dataset
-                    memory_after_batch_reduction = get_used_memory_gb()
-                    logger.info(f"Memory after batch size reduction: {memory_after_batch_reduction:.2f} GB")
-                    
-                    if not check_memory_pressure(memory_after_batch_reduction, config.max_memory_gb):
-                        break
-                
-                if current_batch_size == config.min_batch_size and check_memory_pressure(get_used_memory_gb(), config.max_memory_gb):
-                    logger.error("Both context window reduction and batch size reduction failed to free sufficient memory")
-                    logger.error(f"Final memory usage: {get_used_memory_gb():.2f} GB (threshold: {config.max_memory_gb} GB)")
-                    logger.error("Exiting with code 1 as both fallback modes failed")
-                    sys.exit(1)
-        except Exception as e:
-            logger.error(f"Error during context window reduction: {e}")
-            sys.exit(1)
-    
-    # Create output directory
-    output_path = Path(config.output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-    
-    # Process and save chunks
-    processed_chunks = []
-    total_samples = 0
-    
-    for chunk_idx, chunk_dict in enumerate(stream_dataset_chunks(
-        dataset, 
-        config.batch_size, 
-        config.chunk_size
-    )):
-        chunk_info = {
-            'chunk_index': chunk_idx,
-            'num_samples': len(chunk_dict.get('input_ids', [])),
-            'avg_length': np.mean([len(ids) for ids in chunk_dict.get('input_ids', [])]) if 'input_ids' in chunk_dict else 0
-        }
-        processed_chunks.append(chunk_info)
-        total_samples += chunk_info['num_samples']
-        
-        # Save chunk to disk
-        chunk_file = output_path / f"chunk_{chunk_idx:04d}.parquet"
-        # Note: In a real implementation, we would use pyarrow or pandas to save
-        # For now, we'll log the chunk info
-        logger.info(f"Processed chunk {chunk_idx}: {chunk_info['num_samples']} samples")
-        
-        # Force garbage collection
-        gc.collect()
-    
-    # Final statistics
-    final_memory = get_used_memory_gb()
-    logger.info(f"Preprocessing completed. Final memory usage: {final_memory:.2f} GB")
-    logger.info(f"Total samples processed: {total_samples}")
-    
-    results = {
-        'config': {
-            'max_context_window': config.max_context_window,
-            'batch_size': config.batch_size,
-            'chunk_size': config.chunk_size,
-            'max_memory_gb': config.max_memory_gb
-        },
-        'statistics': {
-            'total_samples': total_samples,
-            'num_chunks': len(processed_chunks),
-            'initial_memory_gb': initial_memory,
-            'final_memory_gb': final_memory,
-            'chunks': processed_chunks
-        },
-        'output_dir': str(output_path)
-    }
-    
-    # Save results to JSON
-    results_file = output_path / "preprocessing_stats.json"
-    import json
-    with open(results_file, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Results saved to {results_file}")
-    return results
+    start = 0
+    while start < len(context):
+        end = start + chunk_size
+        yield context[start:end]
+        start = end
 
 def main():
-    """Main entry point for preprocessing script."""
-    import argparse
+    """
+    Main entry point for testing the preprocessing logic.
+    """
+    logging.basicConfig(level=logging.INFO)
+    config = PreprocessConfig()
     
-    parser = argparse.ArgumentParser(description="Preprocess RULER dataset with dynamic memory fallback")
-    parser.add_argument('--max-context-window', type=int, default=DEFAULT_CONTEXT_WINDOW,
-                      help='Maximum context window size')
-    parser.add_argument('--batch-size', type=int, default=32,
-                      help='Batch size for processing')
-    parser.add_argument('--min-batch-size', type=int, default=MIN_BATCH_SIZE,
-                      help='Minimum batch size')
-    parser.add_argument('--chunk-size', type=int, default=CHUNK_SIZE_DEFAULT,
-                      help='Number of samples per chunk')
-    parser.add_argument('--max-memory-gb', type=float, default=SAFE_RAM_GB,
-                      help='Maximum memory usage threshold')
-    parser.add_argument('--output-dir', type=str, default="data/processed",
-                      help='Output directory for processed data')
-    parser.add_argument('--dataset-name', type=str, default="navits/ruler",
-                      help='HuggingFace dataset name')
-    parser.add_argument('--dataset-config', type=str, default="default",
-                      help='HuggingFace dataset configuration')
-    parser.add_argument('--split', type=str, default="train",
-                      help='Dataset split to process')
+    # Simulate a scenario where memory is high
+    # In a real scenario, this would be triggered by actual load
+    logger.info("Testing memory reduction logic...")
     
-    args = parser.parse_args()
-    
-    config = PreprocessConfig(
-        max_context_window=args.max_context_window,
-        batch_size=args.batch_size,
-        min_batch_size=args.min_batch_size,
-        chunk_size=args.chunk_size,
-        max_memory_gb=args.max_memory_gb,
-        output_dir=args.output_dir,
-        dataset_name=args.dataset_name,
-        dataset_config=args.dataset_config,
-        split=args.split
-    )
-    
+    # This is a unit test simulation; in real execution, 
+    # exit_on_memory_exceeded would be called within the data loading loop.
     try:
-        results = preprocess_and_save(config)
-        logger.info("Preprocessing completed successfully")
-        print(f"Preprocessing completed. Results: {results['statistics']}")
-    except Exception as e:
-        logger.error(f"Preprocessing failed: {e}", exc_info=True)
+        # Force a memory check (will likely pass on a clean run)
+        # To test the failure path, one would need to artificially inflate memory
+        # or run on a constrained machine.
+        # We demonstrate the call signature here.
+        exit_on_memory_exceeded(config, 32)
+        logger.info("Memory check passed or reduced successfully.")
+    except RuntimeError as e:
+        logger.error(f"Memory constraint error caught: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

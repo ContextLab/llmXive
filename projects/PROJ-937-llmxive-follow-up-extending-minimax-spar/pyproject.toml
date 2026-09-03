@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmxive-sparse-attention"
 version = "0.1.0"
-description = "Automated science pipeline for extending MiniMax Sparse Attention"
+description = "LLM-Xive follow-up: extending MiniMax Sparse Attention"
 requires-python = ">=3.11"
 dependencies = [
     "transformers",
@@ -18,7 +18,7 @@ dependencies = [
 ]
 
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
@@ -35,7 +35,16 @@ exclude = '''
 )/
 '''
 
+[tool.ruff]
+# Inherits settings from .ruff.toml, but we can add project-specific overrides here if needed
+line-length = 100
+target-version = "py311"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::FutureWarning"
+]

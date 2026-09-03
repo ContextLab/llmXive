@@ -1,0 +1,145 @@
+- artifact_path: projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/specs/001-llmxive-follow-up-extending-minimax-spar/tasks.md
+  attempts: 1
+  canonical: memory check returns true if usage exceeds 6.5 GB
+  claim_id: c_3755c1bf
+  context: 'T007b [P] Implement `code/data/preprocess.py` memory check: `check_memory_usage()`
+    returning boolean if usage > 6.5 GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `code/data/preprocess.py` memory check: `check_memory_usage()`
+    returning boolean if usage > 6.5 GB.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T13:59:13Z'
+- artifact_path: projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/specs/001-llmxive-follow-up-extending-minimax-spar/tasks.md
+  attempts: 1
+  canonical: MiniMax-M3 fits within 7 GB RAM without quantization
+  claim_id: c_db5c360d
+  context: 'T048 [P] [US1] Implement `code/main.py` model loading mechanism: Use `transformers`
+    pipeline with `device_map="cpu"` and manual layer sharding (or other valid methods)
+    to ensure MiniMax-M3 fits within 7 GB RAM without 4-bit/8-bit quantization.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `code/main.py` model loading mechanism: Use `transformers`
+    pipeline with `device_map="cpu"` and manual layer sharding (or other valid methods)
+    to ensure MiniMax-M3 fits within 7 GB RAM without 4-bit/8-bit quantization.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T13:59:47Z'
+- artifact_path: projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/specs/001-llmxive-follow-up-extending-minimax-spar/tasks.md
+  attempts: 1
+  canonical: CPU-only heuristic run completes within 6 hours
+  claim_id: c_49c84b72
+  context: 'Independent Test: Run `code/main.py` with `device="cpu"` and heuristic
+    selection enabled on a small RULER subset; verify no CUDA errors and completion
+    within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run `code/main.py` with `device="cpu"` and heuristic selection enabled
+    on a small RULER subset; verify no CUDA errors and completion within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T14:00:08Z'
+- artifact_path: projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/specs/001-llmxive-follow-up-extending-minimax-spar/tasks.md
+  attempts: 1
+  canonical: fallback selects first k blocks if scores are less than 1e-6
+  claim_id: c_bfbc14f8
+  context: T018 [P] [US1] Implement fallback logic in `code/heuristics/` to select
+    first k blocks if all scores are near-zero (< 1e-6).
+  evidence:
+    asserted: 1e-06
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: magnitude
+  raw_text: Implement fallback logic in `code/heuristics/` to select first k blocks
+    if all scores are near-zero (< 1e-6).
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T14:00:08Z'
+- artifact_path: projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/specs/001-llmxive-follow-up-extending-minimax-spar/tasks.md
+  attempts: 1
+  canonical: reduce context to 4096 tokens or batch size to 1 if memory exceeds 85%
+    of 7 GB
+  claim_id: c_f63b8ac5
+  context: 'T019 [DEPRECATED] [US1] Implement memory guard in `code/main.py` using
+    `psutil.virtual_memory().percent`: (Logic superseded by T040; kept for reference
+    only. Original requirement: If > 85% of 7 GB, dynamically switch between reducing
+    context to 4096 tokens (first priority) OR reducing batch size to 1 (second priority)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Original requirement: If > 85% of 7 GB, dynamically switch between reducing
+    context to 4096 tokens (first priority) OR reducing batch size to 1 (second priority)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T14:00:08Z'
+- artifact_path: projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/specs/001-llmxive-follow-up-extending-minimax-spar/tasks.md
+  attempts: 1
+  canonical: perplexity calculated on frozen model without backpropagation
+  claim_id: c_965220c2
+  context: 'T021b [P] [US2] Implement `code/eval/metrics.py` proxy loss calculation:
+    Calculate perplexity on a frozen model using a proxy next-token prediction loss
+    (cross-entropy) without backpropagation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perplexity_calculated_on_frozen_model_without_backpropagatio
+  kind: entity_fact
+  raw_text: 'Implement `code/eval/metrics.py` proxy loss calculation: Calculate perplexity
+    on a frozen model using a proxy next-token prediction loss (cross-entropy) without
+    backpropagation.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T14:00:43Z'
+- artifact_path: projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/specs/001-llmxive-follow-up-extending-minimax-spar/tasks.md
+  attempts: 1
+  canonical: sensitivity sweep across thresholds 0.01, 0.05, 0.1
+  claim_id: c_7c5336b9
+  context: 'T029 [US3] Implement `code/eval/statistical.py`: Sensitivity sweep logic
+    across thresholds {0.01, 0.05, 0.1} mapping to: ''normalized attention score''
+    for Recency, ''gradient magnitude threshold'' for Gradient Magnitude, and ''entropy
+    probability cutoff'' for Block Entropy.'
+  evidence:
+    asserted: '0.01'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Implement `code/eval/statistical.py`: Sensitivity sweep logic across
+    thresholds {0.01, 0.05, 0.1} mapping to: ''normalized attention score'' for Recency,
+    ''gradient magnitude threshold'' for Gradient Magnitude, and ''entropy probability
+    cutoff'' for Block Entropy.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T14:00:43Z'

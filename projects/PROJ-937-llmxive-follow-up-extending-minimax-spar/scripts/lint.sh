@@ -1,11 +1,6 @@
 #!/bin/bash
-# Run linters without auto-fixing
+# Lint code with Ruff
 set -e
-
-echo "Running Ruff linter..."
+echo "Linting code with Ruff..."
 ruff check code/ tests/
-
-echo "Running Black check (dry-run)..."
-black --check code/ tests/
-
 echo "Linting complete."

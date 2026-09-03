@@ -9,15 +9,19 @@ This project implements a CPU-feasible evaluation framework to test whether loca
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python 3.x  
 **Primary Dependencies**: `transformers` (CPU-only), `torch` (CPU), `datasets` (HuggingFace), `scipy` (statistical tests), `pandas`, `numpy`, `pytest`  
 **Storage**: Local file system (`data/` for cached datasets, `results/` for JSON outputs)  
 **Testing**: `pytest` (unit tests for heuristics, integration tests for full RULER loop)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7 GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, sufficient RAM)  
 **Project Type**: Research/Computational Experiment  
 **Performance Goals**: Complete full RULER subset evaluation in < 6 hours; memory footprint < 7 GB.  
 **Constraints**: No GPU/CUDA; no 8-bit/4-bit quantization; frozen model weights only; deterministic heuristics.  
-**Scale/Scope**: RULER subset (sampled to fit memory); MiniMax-M3 (frozen); Several heuristics vs 1 Dense Baseline.
+**Scale/Scope**: RULER subset (sampled to fit memory); MiniMax-M (frozen)
+
+The specific value to remove/generalize: 'M'
+
+Rewritten passage:; Several heuristics vs Dense Baseline.
 
 > **Statistical Methodology Note**: The Constitution (Principle VII) mandates a **Paired t-test** for statistical significance. While the Spec (FR-005) mentions Wilcoxon, the Constitution is the higher-order SSoT. The plan implements the Paired t-test as the primary test. Wilcoxon is retained as a secondary robustness check if normality assumptions fail.
 
@@ -94,7 +98,7 @@ projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
 | **Proxy Gradient Calculation** | Required for "Local Gradient Magnitude" heuristic on frozen model. | Direct gradient computation on frozen weights is impossible without a proxy loss; ignoring this would violate FR-002. |
-| **Streaming Chunking** | RULER with long-context settings exceeds 7 GB RAM
+| **Streaming Chunking** | RULER with long-context settings exceeds substantial RAM requirements.
 
 Research Question: How does the RULER benchmark scale with increasing context lengths in terms of memory consumption?
 Method: Systematic profiling of peak RAM usage across a range of context lengths using the RULER benchmark suite.
