@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-264-predicting-plant-phenology-from-satellit",
+  "ok": false,
+  "reason": "4 run-book script(s) missing (plan/impl path mismatch): python src/cli/run_pipeline.py --mode ingestion --sites SITE_001 --year 2020; python src/cli/run_pipeline.py --mode train --folds 5 --sites SITE_001..SITE_015 --cv-type spatial; python src/cli/run_pipeline.py --mode sensitivity --alpha 0.01,0.05,0.1",
+  "artifacts": [],
+  "failures": [
+    "python src/cli/run_pipeline.py --mode ingestion --sites SITE_001 --year 2020 -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-264-predicting-plant-phenology-from-satellit/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-264-predicting-plant-phenology-from-satellit/src/cli/run_pipeline.py': [Errno 2] No such file or directory",
+    "python src/cli/run_pipeline.py --mode train --folds 5 --sites SITE_001..SITE_015 --cv-type spatial -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-264-predicting-plant-phenology-from-satellit/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-264-predicting-plant-phenology-from-satellit/src/cli/run_pipeline.py': [Errno 2] No such file or directory",
+    "python src/cli/run_pipeline.py --mode sensitivity --alpha 0.01,0.05,0.1 -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-264-predicting-plant-phenology-from-satellit/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-264-predicting-plant-phenology-from-satellit/src/cli/run_pipeline.py': [Errno 2] No such file or directory",
+    "python src/cli/run_pipeline.py --mode evaluate --model artifacts/models/best_model.pkl -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-264-predicting-plant-phenology-from-satellit/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-264-predicting-plant-phenology-from-satellit/src/cli/run_pipeline.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 8,
+  "model_tier": 0,
+  "total_attempts": 8,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-03T17:21:19Z"
+}
