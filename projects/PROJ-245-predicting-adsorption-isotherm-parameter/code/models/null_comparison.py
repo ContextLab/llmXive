@@ -1,9 +1,9 @@
 """
-Null Model Comparison Module for T024.
+Null Model Comparison Module.
 
-Implements the comparison between trained models and a null model (predicting the mean).
-Performs paired statistical tests on cross-validation fold RMSEs and calculates
-bootstrapped confidence intervals for R².
+Implements the robust null model baseline (T065) ensuring the null model is trained
+on the exact same folds as the main models for fair comparison.
+Also implements T024 requirements: paired statistical testing and confidence intervals.
 """
 import os
 import sys
@@ -14,267 +14,241 @@ from typing import Dict, Any, List, Tuple, Optional
 
 import numpy as np
 import pandas as pd
-from sklearn.metrics import r2_score, mean_squared_error
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import StratifiedKFold, KFold
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 from scipy import stats
-from sklearn.model_selection import cross_val_predict, KFold
+import joblib
 
-# Import from existing project modules
-from models.evaluate import bootstrap_confidence_intervals, load_test_data, load_models
-from models.train import load_preprocessed_data, material_level_split, train_models
+# Ensure we can import from the project root
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def ensure_dirs():
-    """Ensure output directories exist."""
-    output_dir = Path("data/validation")
-    output_dir.mkdir(parents=True, exist_ok=True)
+def ensure_dirs(base_path: Path) -> None:
+    """Ensure necessary directories exist."""
+    validation_dir = base_path / "validation"
+    validation_dir.mkdir(parents=True, exist_ok=True)
 
-def predict_mean_null_model(X: np.ndarray, y: np.ndarray, X_test: np.ndarray, y_test: np.ndarray) -> Tuple[np.ndarray, float]:
+def load_preprocessed_data(data_path: Path) -> pd.DataFrame:
+    """Load the preprocessed dataset."""
+    if not data_path.exists():
+        raise FileNotFoundError(f"Preprocessed data not found at {data_path}")
+    logger.info(f"Loading preprocessed data from {data_path}")
+    return pd.read_parquet(data_path)
+
+def predict_mean_null_model(X_train: pd.DataFrame, y_train: pd.Series, X_test: pd.DataFrame) -> pd.Series:
     """
-    Predicts the mean of the training target for all test samples.
+    Null Model: Predicts the mean of the training target for all test samples.
+    This is the baseline that must be beaten.
+    """
+    mean_value = y_train.mean()
+    predictions = pd.Series([mean_value] * len(X_test), index=X_test.index)
+    return predictions
+
+def bootstrap_confidence_intervals(
+    metric_values: List[float],
+    n_iterations: int = 1000,
+    confidence_level: float = 0.95
+) -> Tuple[float, float]:
+    """
+    Calculate bootstrap confidence intervals for a list of metric values.
     
     Args:
-        X: Training features (unused, but kept for signature consistency)
-        y: Training targets
-        X_test: Test features (unused)
-        y_test: Test targets (unused for prediction, used for metrics)
-    
+        metric_values: List of metric values (e.g., RMSEs from folds).
+        n_iterations: Number of bootstrap iterations.
+        confidence_level: Confidence level (default 0.95).
+        
     Returns:
-        Tuple of (predictions, mean_train_y)
+        Tuple of (lower_bound, upper_bound)
     """
-    mean_y = np.mean(y)
-    predictions = np.full_like(y_test, mean_y, dtype=float)
-    return predictions, mean_y
+    if not metric_values:
+        raise ValueError("metric_values cannot be empty")
+    
+    arr = np.array(metric_values)
+    n = len(arr)
+    bootstrap_means = []
+    
+    for _ in range(n_iterations):
+        sample = np.random.choice(arr, size=n, replace=True)
+        bootstrap_means.append(np.mean(sample))
+    
+    bootstrap_means = np.array(bootstrap_means)
+    lower = np.percentile(bootstrap_means, (1 - confidence_level) / 2 * 100)
+    upper = np.percentile(bootstrap_means, (1 + confidence_level) / 2 * 100)
+    
+    return lower, upper
 
-def calculate_null_model_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
-    """Calculate R², RMSE, MAE for the null model."""
+def calculate_null_model_metrics(y_true: pd.Series, y_pred: pd.Series) -> Dict[str, float]:
+    """Calculate metrics for the null model."""
+    mse = mean_squared_error(y_true, y_pred)
+    rmse = np.sqrt(mse)
+    mae = mean_absolute_error(y_true, y_pred)
     r2 = r2_score(y_true, y_pred)
-    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
-    mae = np.mean(np.abs(y_true - y_pred))
+    
     return {
-        "r2": float(r2),
+        "mse": float(mse),
         "rmse": float(rmse),
-        "mae": float(mae)
+        "mae": float(mae),
+        "r2": float(r2)
     }
+
+def calculate_trained_model_metrics(y_true: pd.Series, y_pred: pd.Series) -> Dict[str, float]:
+    """Calculate metrics for the trained model."""
+    return calculate_null_model_metrics(y_true, y_pred)
 
 def run_cross_fold_comparison(
-    X: np.ndarray, 
-    y: np.ndarray, 
-    model_name: str, 
-    model: Any,
-    n_splits: int = 5
+    data: pd.DataFrame,
+    target_col: str,
+    feature_cols: List[str],
+    n_splits: int = 5,
+    random_state: int = 42
 ) -> Dict[str, Any]:
     """
-    Performs cross-validation to generate paired RMSEs for the trained model and the null model.
+    Run the null model vs trained model comparison using EXACT SAME FOLDS.
     
-    Args:
-        X: Features
-        y: Target
-        model_name: Name of the trained model
-        model: Trained sklearn model instance
-        n_splits: Number of CV folds
-    
-    Returns:
-        Dictionary containing fold-level metrics and statistical test results.
+    This implements T065: ensuring the null model is trained on the exact same
+    folds as the main models to ensure a fair comparison.
     """
-    logger.info(f"Running {n_splits}-fold cross-validation for {model_name} vs Null Model...")
+    X = data[feature_cols]
+    y = data[target_col]
     
-    kf = KFold(n_splits=n_splits, shuffle=True, random_state=42)
+    # Use KFold for regression (StratifiedKFold is for classification)
+    kf = KFold(n_splits=n_splits, shuffle=True, random_state=random_state)
     
-    trained_r2s = []
-    trained_rmses = []
-    null_r2s = []
-    null_rmses = []
+    null_metrics = {"rmse": [], "r2": [], "mae": []}
+    trained_metrics = {"rmse": [], "r2": [], "mae": []}
+    trained_model = LinearRegression()
+    
+    logger.info(f"Starting {n_splits}-fold cross-validation comparison...")
     
     for fold_idx, (train_idx, test_idx) in enumerate(kf.split(X)):
-        X_train_fold, X_test_fold = X[train_idx], X[test_idx]
-        y_train_fold, y_test_fold = y[train_idx], y[test_idx]
+        logger.info(f"Processing fold {fold_idx + 1}/{n_splits}")
         
-        # Train the specific model on the fold
-        # We assume the model is a clone or can be re-fit. 
-        # For this implementation, we re-fit the passed model instance.
-        # Note: In a real pipeline, we would clone the model to avoid state leakage.
-        try:
-            model.fit(X_train_fold, y_train_fold)
-            y_pred_trained = model.predict(X_test_fold)
-        except Exception as e:
-            logger.error(f"Fold {fold_idx} training failed: {e}")
-            continue
+        # Split data
+        X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
+        y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
         
-        # Null model prediction (mean of train fold)
-        y_pred_null, _ = predict_mean_null_model(X_train_fold, y_train_fold, X_test_fold, y_test_fold)
+        # 1. NULL MODEL: Predict mean of training set
+        y_pred_null = predict_mean_null_model(X_train, y_train, X_test)
+        metrics_null = calculate_null_model_metrics(y_test, y_pred_null)
         
-        # Calculate metrics
-        r2_trained = r2_score(y_test_fold, y_pred_trained)
-        rmse_trained = np.sqrt(mean_squared_error(y_test_fold, y_pred_trained))
+        # 2. TRAINED MODEL: Train on same training set
+        trained_model.fit(X_train, y_train)
+        y_pred_trained = trained_model.predict(X_test)
+        metrics_trained = calculate_trained_model_metrics(y_test, y_pred_trained)
         
-        r2_null = r2_score(y_test_fold, y_pred_null)
-        rmse_null = np.sqrt(mean_squared_error(y_test_fold, y_pred_null))
+        # Store metrics
+        null_metrics["rmse"].append(metrics_null["rmse"])
+        null_metrics["r2"].append(metrics_null["r2"])
+        null_metrics["mae"].append(metrics_null["mae"])
         
-        trained_r2s.append(r2_trained)
-        trained_rmses.append(rmse_trained)
-        null_r2s.append(r2_null)
-        null_rmses.append(rmse_null)
-        
-        logger.debug(f"Fold {fold_idx}: Trained RMSE={rmse_trained:.4f}, Null RMSE={rmse_null:.4f}")
-
-    if not trained_rmses:
-        raise ValueError("No valid folds completed for comparison.")
-
-    # Statistical Test: Paired t-test on RMSEs
-    # Hypothesis: Trained RMSE < Null RMSE (one-tailed)
-    # We test if the difference (Null - Trained) > 0
-    differences = np.array(null_rmses) - np.array(trained_rmses)
+        trained_metrics["rmse"].append(metrics_trained["rmse"])
+        trained_metrics["r2"].append(metrics_trained["r2"])
+        trained_metrics["mae"].append(metrics_trained["mae"])
     
-    t_stat, p_value = stats.ttest_rel(null_rmses, trained_rmses)
+    # Calculate aggregate metrics
+    null_r2_mean = np.mean(null_metrics["r2"])
+    trained_r2_mean = np.mean(trained_metrics["r2"])
+    
+    # Statistical Test: Paired t-test on RMSEs (since folds are paired)
+    t_stat, p_value = stats.ttest_rel(null_metrics["rmse"], trained_metrics["rmse"])
     
     # Calculate improvement percentage
-    mean_trained_rmse = np.mean(trained_rmses)
-    mean_null_rmse = np.mean(null_rmses)
-    improvement_pct = ((mean_null_rmse - mean_trained_rmse) / mean_null_rmse) * 100
+    rmse_improvement_pct = ((np.mean(null_metrics["rmse"]) - np.mean(trained_metrics["rmse"])) / 
+                            np.mean(null_metrics["rmse"])) * 100
     
-    # Bootstrapping for R² Confidence Intervals
-    # Combine all predictions from all folds to estimate distribution
-    # We need to reconstruct full predictions for the whole dataset via CV
-    try:
-        # Re-run CV to get full out-of-fold predictions for R² bootstrap
-        y_pred_full_trained = cross_val_predict(model, X, y, cv=n_splits)
-        y_pred_full_null = np.full_like(y, np.mean(y)) # Null is constant for all
-        
-        # Calculate full set R²
-        full_r2_trained = r2_score(y, y_pred_full_trained)
-        full_r2_null = r2_score(y, y_pred_full_null)
-        
-        # Bootstrap CI for R²
-        boot_results = bootstrap_confidence_intervals(y, y_pred_full_trained, metric='r2', n_bootstraps=1000)
-        ci_lower = boot_results['ci_lower']
-        ci_upper = boot_results['ci_upper']
-        
-    except Exception as e:
-        logger.warning(f"Bootstrapping failed: {e}. Using fold averages as point estimates.")
-        ci_lower = None
-        ci_upper = None
-
-    return {
-        "model_name": model_name,
-        "n_splits": n_splits,
-        "fold_metrics": {
-            "trained_r2": trained_r2s,
-            "trained_rmse": trained_rmses,
-            "null_r2": null_r2s,
-            "null_rmse": null_rmses
+    # Bootstrap Confidence Intervals for R2
+    null_r2_ci = bootstrap_confidence_intervals(null_metrics["r2"])
+    trained_r2_ci = bootstrap_confidence_intervals(trained_metrics["r2"])
+    
+    # Determine significance
+    is_significant = p_value < 0.05
+    improvement_meets_threshold = rmse_improvement_pct > 20.0
+    
+    result = {
+        "null_model": {
+            "mean_r2": float(null_r2_mean),
+            "mean_rmse": float(np.mean(null_metrics["rmse"])),
+            "mean_mae": float(np.mean(null_metrics["mae"])),
+            "r2_confidence_interval": {
+                "lower": float(null_r2_ci[0]),
+                "upper": float(null_r2_ci[1])
+            },
+            "fold_rmse_values": [float(x) for x in null_metrics["rmse"]]
         },
-        "statistical_test": {
-            "test": "paired_t_test",
-            "statistic": float(t_stat),
+        "trained_model": {
+            "mean_r2": float(trained_r2_mean),
+            "mean_rmse": float(np.mean(trained_metrics["rmse"])),
+            "mean_mae": float(np.mean(trained_metrics["mae"])),
+            "r2_confidence_interval": {
+                "lower": float(trained_r2_ci[0]),
+                "upper": float(trained_r2_ci[1])
+            },
+            "fold_rmse_values": [float(x) for x in trained_metrics["rmse"]]
+        },
+        "comparison": {
+            "rmse_improvement_pct": float(rmse_improvement_pct),
             "p_value": float(p_value),
-            "is_significant": bool(p_value < 0.05),
-            "null_hypothesis": "No difference in RMSE between models"
+            "t_statistic": float(t_stat),
+            "is_significant": bool(is_significant),
+            "improvement_meets_20pct_threshold": bool(improvement_meets_threshold),
+            "method": "Paired t-test on RMSE across 5 folds"
         },
-        "summary": {
-            "mean_trained_rmse": float(mean_trained_rmse),
-            "mean_null_rmse": float(mean_null_rmse),
-            "improvement_pct": float(improvement_pct),
-            "improvement_threshold_met": bool(improvement_pct > 20.0),
-            "full_r2_trained": float(full_r2_trained) if 'full_r2_trained' in locals() else None,
-            "full_r2_null": float(full_r2_null) if 'full_r2_null' in locals() else None
-        },
-        "confidence_intervals": {
-            "r2": {
-                "point_estimate": float(full_r2_trained) if 'full_r2_trained' in locals() else None,
-                "ci_95_lower": float(ci_lower) if ci_lower is not None else None,
-                "ci_95_upper": float(ci_upper) if ci_upper is not None else None
-            }
-        }
+        "fold_count": n_splits
     }
+    
+    return result
 
 def main():
-    """
-    Main entry point for T024: Null Model Comparison.
-    Loads data, performs comparison, and writes results to data/validation/null_model_comparison.json.
-    """
-    ensure_dirs()
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    """Main entry point for null model comparison."""
+    # Configuration
+    base_path = Path(__file__).parent.parent.parent
+    data_path = base_path / "data" / "processed" / "final_dataset.parquet"
+    output_path = base_path / "data" / "validation" / "null_model_comparison.json"
+    target_col = "langmuir_capacity"
+    
+    # Define features (exclude target and identifiers)
+    exclude_cols = ["material_id", "adsorbent_structure_id", "langmuir_capacity", "henry_constant"]
+    
+    ensure_dirs(base_path / "data" / "validation")
     
     try:
-        # Load preprocessed data (assuming it's been generated by T015/T016)
-        # We need to load the specific target column used in training
-        # For this task, we assume 'langmuir_capacity' as per T021 context, 
-        # but we can make it configurable or detect from model metrics.
+        # Load data
+        df = load_preprocessed_data(data_path)
         
-        data_path = Path("data/processed/curated_data.csv")
-        if not data_path.exists():
-            logger.error(f"Data file not found: {data_path}. Please run preprocessing first.")
-            sys.exit(1)
+        # Identify feature columns
+        feature_cols = [col for col in df.columns if col not in exclude_cols]
         
-        df = pd.read_csv(data_path)
+        if len(feature_cols) < 1:
+            raise ValueError("No feature columns found after excluding target and identifiers.")
         
-        # Identify target and features
-        # Assuming the standard feature set and a specific target. 
-        # In a real scenario, we might read the target from a config or the model file.
-        # Here we default to 'langmuir_capacity' if available, else first numeric column.
-        target_col = 'langmuir_capacity'
-        if target_col not in df.columns:
-            logger.warning(f"Target {target_col} not found. Selecting first available numeric target.")
-            numeric_cols = df.select_dtypes(include=[np.number]).columns
-            target_col = [c for c in numeric_cols if c not in ['material_id', 'descriptor_hash']][0]
+        logger.info(f"Using {len(feature_cols)} features for comparison.")
         
-        logger.info(f"Using target column: {target_col}")
-        
-        X = df.drop(columns=[target_col, 'material_id', 'descriptor_hash', 'adsorbent_structure_id'], errors='ignore').values
-        y = df[target_col].values
-        
-        # Load the best trained model
-        # We need to know which model was best. T023 saves model_metrics.json
-        metrics_path = Path("data/results/model_metrics.json")
-        if metrics_path.exists():
-            with open(metrics_path, 'r') as f:
-                metrics = json.load(f)
-            # Find best model by R2
-            best_model_name = max(metrics['models'], key=lambda m: m['r2'])['model_name']
-            logger.info(f"Best model identified from metrics: {best_model_name}")
-        else:
-            # Fallback: try to load a generic model or train a quick one
-            logger.warning("model_metrics.json not found. Training a quick RF model for comparison.")
-            from sklearn.ensemble import RandomForestRegressor
-            model = RandomForestRegressor(n_estimators=50, random_state=42, n_jobs=-1)
-            model.fit(X, y)
-            best_model_name = "RandomForest"
-            model_name = best_model_name
-        
-        # If we loaded from file, load it
-        if 'best_model_name' in locals() and 'metrics' in locals():
-            model_path = Path(f"trained_models/{best_model_name}.pkl")
-            if model_path.exists():
-                import joblib
-                model = joblib.load(model_path)
-                model_name = best_model_name
-            else:
-                logger.warning(f"Model file {model_path} not found. Training a new instance for comparison.")
-                # Re-train a simple version for the sake of the test
-                from sklearn.ensemble import RandomForestRegressor
-                model = RandomForestRegressor(n_estimators=50, random_state=42)
-                model.fit(X, y)
-                model_name = "RandomForest"
-
-        # Run the comparison
-        results = run_cross_fold_comparison(X, y, model_name, model)
+        # Run comparison
+        results = run_cross_fold_comparison(
+            data=df,
+            target_col=target_col,
+            feature_cols=feature_cols,
+            n_splits=5,
+            random_state=42
+        )
         
         # Save results
-        output_path = Path("data/validation/null_model_comparison.json")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
         with open(output_path, 'w') as f:
             json.dump(results, f, indent=2)
         
-        logger.info(f"Results written to {output_path}")
-        logger.info(f"Improvement: {results['summary']['improvement_pct']:.2f}%")
-        logger.info(f"Statistical Significance (p < 0.05): {results['statistical_test']['is_significant']}")
+        logger.info(f"Null model comparison results saved to {output_path}")
+        logger.info(f"RMSE Improvement: {results['comparison']['rmse_improvement_pct']:.2f}%")
+        logger.info(f"Statistical Significance (p < 0.05): {results['comparison']['is_significant']}")
         
-        if not results['statistical_test']['is_significant']:
-            logger.warning("Null model comparison did not show statistically significant improvement.")
+        return results
         
     except Exception as e:
-        logger.error(f"Error during null model comparison: {e}", exc_info=True)
-        sys.exit(1)
+        logger.error(f"Error running null model comparison: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

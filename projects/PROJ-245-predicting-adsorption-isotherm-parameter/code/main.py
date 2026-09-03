@@ -1,18 +1,16 @@
+"""
+Main orchestrator for the adsorption isotherm parameter prediction pipeline.
+Implements benchmark mode for T039c and T039b optimization verification.
+"""
 import argparse
 import logging
 import sys
 import json
 import time
 from pathlib import Path
+from datetime import datetime
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
-# Import phases
+# Import pipeline phases
 from data.download import main as download_main
 from data.loader import main as loader_main
 from data.preprocess import main as preprocess_main
@@ -21,126 +19,237 @@ from models.train import main as train_main
 from models.evaluate import main as evaluate_main
 from interpret.shap_analysis import main as shap_main
 from utils.runtime_logger import start_timer, end_timer, persist_runtime_log
+from utils.benchmark import run_benchmark_pipeline
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 def ensure_dirs():
-    """Ensure required directories exist."""
+    """Ensure all required directories exist."""
     dirs = [
-        "data/raw",
-        "data/processed",
-        "data/validation",
-        "data/results",
-        "data/benchmarks",
-        "trained_models",
-        "figures"
+        'data/raw',
+        'data/processed',
+        'data/results',
+        'data/benchmarks',
+        'data/validation',
+        'trained_models',
+        'figures'
     ]
-    for d in dirs:
-        Path(d).mkdir(parents=True, exist_ok=True)
-        logger.info(f"Ensured directory: {d}")
+    for dir_path in dirs:
+        Path(dir_path).mkdir(parents=True, exist_ok=True)
 
-def run_download_phase(data_dir: str):
-    logger.info("Running download phase...")
-    # Assuming download_main handles the fetching
-    # We might need to pass data_dir to it if it's not hardcoded
-    # For now, calling main which might use args or env
-    download_main() 
+def run_download_phase():
+    """Run the data download phase."""
+    logger.info("=== Download Phase ===")
+    download_main()
 
-def run_loader_phase(data_dir: str):
-    logger.info("Running loader phase...")
+def run_loader_phase():
+    """Run the data loader phase."""
+    logger.info("=== Loader Phase ===")
     loader_main()
 
-def run_preprocess_phase(data_dir: str, output_dir: str):
-    logger.info("Running preprocess phase...")
-    # Construct args for subprocess or call function directly
-    # Using argparse style for consistency
-    sys.argv = ['main.py', '--data-dir', data_dir, '--output-dir', output_dir]
+def run_preprocess_phase():
+    """Run the data preprocessing phase."""
+    logger.info("=== Preprocess Phase ===")
     preprocess_main()
 
 def run_audit_phase():
-    logger.info("Running audit phase...")
+    """Run the data audit phase."""
+    logger.info("=== Audit Phase ===")
     audit_main()
 
-def run_train_phase(data_dir: str, target: str):
-    logger.info("Running train phase...")
-    sys.argv = ['main.py', '--data-dir', data_dir, '--target', target]
+def run_train_phase():
+    """Run the model training phase."""
+    logger.info("=== Train Phase ===")
     train_main()
 
-def run_evaluation_phase(model_path: str):
-    logger.info("Running evaluation phase...")
-    sys.argv = ['main.py', '--model-path', model_path]
+def run_evaluation_phase():
+    """Run the model evaluation phase."""
+    logger.info("=== Evaluation Phase ===")
     evaluate_main()
 
-def run_shap_phase(model_path: str):
-    logger.info("Running SHAP phase...")
-    sys.argv = ['main.py', '--model-path', model_path]
+def run_shap_phase():
+    """Run the SHAP analysis phase."""
+    logger.info("=== SHAP Phase ===")
     shap_main()
 
-def run_benchmark_mode(dry_run: bool = False):
+def run_benchmark_mode(data_dir='data/processed', 
+                      max_runtime_hours=4.0, 
+                      sample_size=None, 
+                      n_jobs=-1):
     """
-    Run the full pipeline with benchmarking.
-    If dry_run is True, skip training and tuning.
+    Run full pipeline in benchmark mode with optimizations.
+    This is the entry point for T039b and T039c verification.
     """
+    logger.info("=== Benchmark Mode ===")
+    logger.info(f"Max runtime: {max_runtime_hours} hours")
+    logger.info(f"Sample size: {sample_size}")
+    logger.info(f"Parallel jobs: {n_jobs}")
+    
+    # Start timer
     start_timer()
-    status = "success"
     
     try:
-        ensure_dirs()
+        # Run benchmark pipeline with optimizations
+        results = run_benchmark_pipeline(
+            data_dir=data_dir,
+            output_dir='data/benchmarks',
+            max_runtime_hours=max_runtime_hours,
+            sample_size=sample_size,
+            n_jobs=n_jobs
+        )
         
-        # 1. Download
-        run_download_phase("data/raw")
+        # Persist runtime log
+        persist_runtime_log(
+            duration_seconds=results.get('total_duration_seconds', 0),
+            status=results.get('status', 'unknown')
+        )
         
-        # 2. Load
-        run_loader_phase("data/raw")
+        logger.info(f"Benchmark completed: {results.get('status', 'unknown')}")
+        logger.info(f"Total duration: {results.get('total_duration_hours', 0):.2f} hours")
         
-        # 3. Preprocess
-        run_preprocess_phase("data/raw", "data/processed")
-        
-        # 4. Audit
-        run_audit_phase()
-        
-        if not dry_run:
-            # 5. Train
-            run_train_phase("data/processed", "langmuir_capacity")
-            
-            # 6. Evaluate
-            run_evaluation_phase("trained_models/best_model.pkl")
-            
-            # 7. SHAP
-            run_shap_phase("trained_models/best_model.pkl")
-        else:
-            logger.info("Dry run mode: Skipping training and evaluation.")
-            
-        end_timer()
-        persist_runtime_log("data/benchmarks/runtime_log.json", status=status)
+        return results
         
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        end_timer()
-        persist_runtime_log("data/benchmarks/runtime_log.json", status="failed", extra_metrics={"error": str(e)})
+        logger.error(f"Benchmark failed: {e}")
+        persist_runtime_log(
+            duration_seconds=0,
+            status='failed'
+        )
         raise
 
 def main():
-    parser = argparse.ArgumentParser(description="Adsorption Isotherm Parameter Prediction Pipeline")
-    parser.add_argument('--task', type=str, choices=['curate_data', 'train_model', 'shap_analysis', 'benchmark'], default='benchmark')
-    parser.add_argument('--data-dir', type=str, default='data/raw')
-    parser.add_argument('--output-dir', type=str, default='data/processed')
-    parser.add_argument('--target', type=str, default='langmuir_capacity')
-    parser.add_argument('--model-path', type=str, default='trained_models/best_model.pkl')
-    parser.add_argument('--mode', type=str, choices=['full', 'dry_run'], default='full')
+    """Main entry point with CLI argument parsing."""
+    parser = argparse.ArgumentParser(
+        description='Adsorption Isotherm Parameter Prediction Pipeline'
+    )
+    
+    parser.add_argument(
+        '--mode', 
+        type=str, 
+        default='full',
+        choices=['full', 'benchmark', 'download', 'preprocess', 'train', 'evaluate', 'shap'],
+        help='Pipeline mode to run'
+    )
+    
+    parser.add_argument(
+        '--data-dir', 
+        type=str, 
+        default='data/processed',
+        help='Directory containing data'
+    )
+    
+    parser.add_argument(
+        '--task',
+        type=str,
+        choices=['curate_data', 'train_model', 'shap_analysis', 'benchmark'],
+        help='Specific task to run'
+    )
+    
+    parser.add_argument(
+        '--target',
+        type=str,
+        default='langmuir_capacity',
+        help='Target variable for training'
+    )
+    
+    parser.add_argument(
+        '--model',
+        type=str,
+        help='Path to pre-trained model for SHAP analysis'
+    )
+    
+    parser.add_argument(
+        '--max-runtime',
+        type=float,
+        default=4.0,
+        help='Maximum runtime in hours for benchmark mode'
+    )
+    
+    parser.add_argument(
+        '--sample-size',
+        type=int,
+        default=None,
+        help='Sample size for large datasets in benchmark mode'
+    )
+    
+    parser.add_argument(
+        '--n-jobs',
+        type=int,
+        default=-1,
+        help='Number of parallel jobs (-1 for all cores)'
+    )
     
     args = parser.parse_args()
     
-    if args.task == 'benchmark':
-        dry_run = (args.mode == 'dry_run')
-        run_benchmark_mode(dry_run=dry_run)
-    elif args.task == 'curate_data':
-        ensure_dirs()
-        run_download_phase(args.data_dir)
-        run_loader_phase(args.data_dir)
-        run_preprocess_phase(args.data_dir, args.output_dir)
-    elif args.task == 'train_model':
-        run_train_phase(args.data_dir, args.target)
-    elif args.task == 'shap_analysis':
-        run_shap_phase(args.model_path)
+    # Ensure directories exist
+    ensure_dirs()
+    
+    try:
+        if args.mode == 'benchmark' or args.task == 'benchmark':
+            # Run benchmark mode for T039b/T039c
+            results = run_benchmark_mode(
+                data_dir=args.data_dir,
+                max_runtime_hours=args.max_runtime,
+                sample_size=args.sample_size,
+                n_jobs=args.n_jobs
+            )
+            print(json.dumps(results, indent=2, default=str))
+            
+        elif args.task == 'curate_data':
+            # Run data curation pipeline
+            run_download_phase()
+            run_loader_phase()
+            run_preprocess_phase()
+            run_audit_phase()
+            
+        elif args.task == 'train_model':
+            # Run training pipeline
+            run_preprocess_phase()
+            run_audit_phase()
+            run_train_phase()
+            run_evaluation_phase()
+            
+        elif args.task == 'shap_analysis':
+            # Run SHAP analysis
+            run_shap_phase()
+            
+        elif args.mode == 'full':
+            # Run full pipeline
+            run_download_phase()
+            run_loader_phase()
+            run_preprocess_phase()
+            run_audit_phase()
+            run_train_phase()
+            run_evaluation_phase()
+            run_shap_phase()
+            
+        elif args.mode == 'download':
+            run_download_phase()
+            
+        elif args.mode == 'preprocess':
+            run_preprocess_phase()
+            
+        elif args.mode == 'train':
+            run_train_phase()
+            
+        elif args.mode == 'evaluate':
+            run_evaluation_phase()
+            
+        elif args.mode == 'shap':
+            run_shap_phase()
+            
+    except Exception as e:
+        logger.error(f"Pipeline failed: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
+    
+    logger.info("Pipeline completed successfully")
+    sys.exit(0)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

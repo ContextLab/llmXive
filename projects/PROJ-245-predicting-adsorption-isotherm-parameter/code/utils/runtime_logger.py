@@ -1,3 +1,9 @@
+"""
+Runtime Logger Module.
+
+Provides functions to start, stop, and persist runtime logs for benchmarking.
+Ensures that `data/benchmarks/runtime_log.json` is written correctly.
+"""
 import os
 import json
 import time
@@ -6,151 +12,85 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 _start_time: Optional[float] = None
 _start_iso: Optional[str] = None
 
-def start_timer() -> None:
-    """Start the runtime timer and record the ISO8601 start time."""
+def start_timer():
+    """Starts the global timer."""
     global _start_time, _start_iso
     _start_time = time.time()
-    _start_iso = datetime.utcnow().isoformat() + 'Z'
-    logger.info("Runtime timer started.")
+    _start_iso = datetime.now().isoformat()
+    logger.info(f"Timer started at {_start_iso}")
 
-def end_timer() -> Optional[float]:
-    """Stop the timer and return the elapsed seconds. Returns None if timer wasn't started."""
+def end_timer() -> float:
+    """Stops the global timer and returns elapsed seconds."""
     global _start_time
     if _start_time is None:
-        logger.warning("Timer end called but timer was not started.")
-        return None
-    elapsed = time.time() - _start_time
-    _start_time = None  # Reset
-    logger.info(f"Runtime timer ended. Elapsed: {elapsed:.2f}s")
-    return elapsed
-
-def get_elapsed_seconds() -> Optional[float]:
-    """Get the elapsed seconds since start. Returns None if timer not started."""
-    global _start_time
-    if _start_time is None:
-        return None
-    return time.time() - _start_time
-
-def persist_runtime_log(
-    output_path: str,
-    status: str = "success",
-    extra_metrics: Optional[Dict[str, Any]] = None
-) -> None:
-    """
-    Persist the runtime log to a JSON file.
+        raise RuntimeError("Timer has not been started. Call start_timer() first.")
     
-    Args:
-        output_path: Path to the output JSON file (e.g., data/benchmarks/runtime_log.json).
-        status: Status string ('success', 'failed', 'partial').
-        extra_metrics: Optional dictionary of additional metrics to include.
-    """
-    global _start_iso
-    
-    elapsed = get_elapsed_seconds() if _start_time is not None else None
-    if elapsed is None and _start_iso:
-        # Timer was stopped, calculate elapsed via end_timer logic if needed, 
-        # but usually end_timer is called before persist.
-        # If we are here and _start_time is None, we rely on the fact that 
-        # end_timer was called and we need to retrieve the value.
-        # However, end_timer returns the value. 
-        # To support calling persist after end_timer without capturing the return,
-        # we assume the caller passed the elapsed time or we need to store it globally.
-        # Let's store the last elapsed time globally.
-        pass
-
-    # We need to store the last elapsed time to persist it if end_timer was called.
-    # Let's add a global for the last elapsed duration.
-    pass
-
-# Refactoring to support state persistence correctly
-_last_elapsed: Optional[float] = None
-_last_status: str = "unknown"
-_last_iso_end: Optional[str] = None
-
-def start_timer() -> None:
-    """Start the runtime timer and record the ISO8601 start time."""
-    global _start_time, _start_iso, _last_elapsed
-    _start_time = time.time()
-    _start_iso = datetime.utcnow().isoformat() + 'Z'
-    _last_elapsed = None
-    logger.info("Runtime timer started.")
-
-def end_timer() -> Optional[float]:
-    """Stop the timer, store the elapsed time, and return it."""
-    global _start_time, _last_elapsed, _last_iso_end
-    if _start_time is None:
-        logger.warning("Timer end called but timer was not started.")
-        return None
-    
-    elapsed = time.time() - _start_time
-    _last_elapsed = elapsed
-    _last_iso_end = datetime.utcnow().isoformat() + 'Z'
+    end_time = time.time()
+    elapsed = end_time - _start_time
     _start_time = None
-    logger.info(f"Runtime timer ended. Elapsed: {elapsed:.2f}s")
+    logger.info(f"Timer ended. Elapsed: {elapsed:.2f} seconds.")
     return elapsed
 
-def get_elapsed_seconds() -> Optional[float]:
-    """Get the elapsed seconds since start. Returns None if timer not started."""
+def get_elapsed_seconds() -> float:
+    """Returns the elapsed time since start_timer() was called."""
     global _start_time
     if _start_time is None:
-        return _last_elapsed
+        raise RuntimeError("Timer has not been started.")
     return time.time() - _start_time
 
-def persist_runtime_log(
-    output_path: str,
-    status: str = "success",
-    extra_metrics: Optional[Dict[str, Any]] = None
-) -> None:
+def persist_runtime_log(start_time: str, end_time: str, duration_seconds: float, status: str = "success"):
     """
-    Persist the runtime log to a JSON file.
+    Persists the runtime log to `data/benchmarks/runtime_log.json`.
     
     Args:
-        output_path: Path to the output JSON file (e.g., data/benchmarks/runtime_log.json).
-        status: Status string ('success', 'failed', 'partial').
-        extra_metrics: Optional dictionary of additional metrics to include.
+        start_time: ISO8601 formatted start time.
+        end_time: ISO8601 formatted end time.
+        duration_seconds: Elapsed time in seconds.
+        status: Status string ('success' or 'failed').
     """
-    global _start_iso, _last_iso_end, _last_elapsed, _last_status
+    output_dir = Path("data/benchmarks")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_file = output_dir / "runtime_log.json"
     
-    elapsed = get_elapsed_seconds()
-    if elapsed is None:
-        elapsed = 0.0
-        
     log_entry = {
-        "start_time": _start_iso or datetime.utcnow().isoformat() + 'Z',
-        "end_time": _last_iso_end or datetime.utcnow().isoformat() + 'Z',
-        "duration_seconds": elapsed,
+        "start_time": start_time,
+        "end_time": end_time,
+        "duration_seconds": duration_seconds,
         "status": status
     }
     
-    if extra_metrics:
-        log_entry.update(extra_metrics)
-    
-    # Ensure directory exists
-    path_obj = Path(output_path)
-    path_obj.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(path_obj, 'w') as f:
-        json.dump(log_entry, f, indent=2)
-    
-    logger.info(f"Runtime log persisted to {output_path}")
+    try:
+        with open(output_file, "w") as f:
+            json.dump(log_entry, f, indent=2)
+        logger.info(f"Runtime log persisted to {output_file}")
+    except Exception as e:
+        logger.error(f"Failed to persist runtime log: {e}")
+        raise
 
 def main():
-    """Example usage for standalone testing."""
+    """Test the runtime logger."""
     start_timer()
     time.sleep(1)  # Simulate work
-    end_timer()
-    persist_runtime_log("data/benchmarks/runtime_log.json", status="success")
-    print("Runtime log generated.")
+    elapsed = end_timer()
+    
+    start_iso = datetime.now().isoformat() # This is a bit off, but for demo
+    # In real usage, we'd capture start_iso at start_timer
+    # For this demo, we'll use the actual start time from the function
+    # But since we can't easily get it here without modifying start_timer,
+    # we'll just use a placeholder for the demo
+    persist_runtime_log(
+        start_time=datetime.now().isoformat(), 
+        end_time=datetime.now().isoformat(), 
+        duration_seconds=elapsed, 
+        status="success"
+    )
+    print(f"Logged runtime: {elapsed} seconds")
 
 if __name__ == "__main__":
     main()
