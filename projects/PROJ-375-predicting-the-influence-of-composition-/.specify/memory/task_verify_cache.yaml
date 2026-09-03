@@ -1,3 +1,47 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides no evidence (e.g., a directory tree listing or screenshots)
+    that the required folders (`code/ingestion`, `code/features`, `code/modeling`,
+    `code/utils`, `data/raw`, `data/processed`, `tests/unit`, `tests/integration`)
+    actually exist in the repository. Without such proof, we cannot verify the task
+    was completed.
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact was provided showing that a `docs` directory exists in the repository
+    root; without a file listing, screenshot, or other proof, we cannot confirm the
+    `mkdir -p docs` command was executed. The implementer must supply evidence (e.g.,
+    directory listing) that the `docs` folder was created.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `code/models` directory was presented; the implementer did\
+    \ not provide a file\u2011system listing, screenshot, or any artifact confirming\
+    \ that `mkdir -p code/models` was executed. The required directory is therefore\
+    \ missing from the supplied evidence."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `results` directory being created (e.g., no listing, screenshot,
+    or commit showing `mkdir -p results`). The required artifact is missing, so the
+    task is not verified as completed.
+T003:
+  c: false
+  h: 25142b47a3d9c8b2de2c6728b6b9679bdf900ff71e7a5d8576fa77eb99e3ed39
+  r: "The repository contains the required `code/.ruff.toml` with the correct rule\
+    \ selections and line\u2011length setting, but there is no evidence that the `ruff`\
+    \ linter was installed (e.g., no `requirements.txt`, `pyproject.toml`, or lock\
+    \ file listing `ruff`). The task\u2019s installation requirement is therefore\
+    \ unmet."
+T012:
+  c: false
+  h: 4bffe84250e2e8b508d82d03ccbabb289fec7f819a6754e50c2f3266446d9175
+  r: "The integration test file exists but is truncated (the `test_schema_validation`\
+    \ function ends abruptly and never creates or checks a real DataFrame). Moreover,\
+    \ the required schema file `contracts/mg_dataset.schema.yaml` is missing, so the\
+    \ test cannot load or validate against the contract. Both the artifact and its\
+    \ content fail to meet the task\u2019s requirement."
 T017a:
   c: false
   h: 7b0ff66abdd2aff7f358cace863274147fe6fe4b355dd82c5ba4c3909b1b1797
@@ -5,14 +49,6 @@ T017a:
     \ why `size_mismatch` is kept despite a high VIF, and the required `results/metrics.json`\
     \ file does not exist at all. Both the documentation comment and the JSON flag\
     \ for VIF\u202F>\u202F5.0 are missing."
-T025:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `train.py` file was presented in `code/modeling/`, nor any code snippet showing\
-    \ it loading `clean_mg_data.parquet` and constructing a feature matrix. Without\
-    \ the actual script, we cannot confirm the required artifact exists or meets the\
-    \ specification. The implementer must provide a non\u2011empty `train.py` that\
-    \ performs the described data loading and feature preparation."
 T031:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -62,3 +62,71 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.4567890
   verified_at: '2026-07-20T21:04:30.751034Z'
+- artifact_hash: f2793a368a7c8f55bfb6f9a4d2f7ad362f0769bfadc285688fecb7b4d02fcece
+  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://next-gen.materialsproject.org/api
+  verification_status: pending
+  verified_against_url: https://next-gen.materialsproject.org/api
+  verified_at: '2026-09-03T07:28:22.752315Z'
+- artifact_hash: f2793a368a7c8f55bfb6f9a4d2f7ad362f0769bfadc285688fecb7b4d02fcece
+  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://aflow.org/api
+  verification_status: mismatch
+  verified_against_url: https://aflow.org/api
+  verified_at: '2026-09-03T07:28:22.752315Z'
+- artifact_hash: 21769782334a530fbe18ea24a9da4b163abf81445eeb2d0c4ab4a2de8ee1fb41
+  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: mendeleev
+  fetched_title: "GitHub - lmmentel/mendeleev: A python package for accessing various\
+    \ properties of elements, ions and isotopes in the periodic table of elements.\
+    \ \xB7 GitHub"
+  kind: url
+  value: https://github.com/lmmentel/mendeleev
+  verification_status: pending
+  verified_against_url: https://github.com/lmmentel/mendeleev
+  verified_at: '2026-09-03T07:38:53.582921Z'
+- artifact_hash: 21769782334a530fbe18ea24a9da4b163abf81445eeb2d0c4ab4a2de8ee1fb41
+  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://next-gen.materialsproject.org
+  verification_status: pending
+  verified_against_url: https://next-gen.materialsproject.org
+  verified_at: '2026-09-03T07:38:53.582921Z'
+- artifact_hash: 21769782334a530fbe18ea24a9da4b163abf81445eeb2d0c4ab4a2de8ee1fb41
+  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: Aflow - Automatic FLOW for Materials Discovery
+  kind: url
+  value: https://aflow.org
+  verification_status: pending
+  verified_against_url: https://aflow.org
+  verified_at: '2026-09-03T07:38:53.582921Z'
+- artifact_hash: fbd03d8d56dc7aec9b787c3e10f090ddd67e829addbae8bf6c31aea96b829c60
+  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://next-gen.materialsproject.org/materials/v2/`
+  verification_status: pending
+  verified_against_url: https://next-gen.materialsproject.org/materials/v2/
+  verified_at: '2026-09-03T07:38:54.796196Z'

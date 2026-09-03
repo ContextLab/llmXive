@@ -1,233 +1,159 @@
-"""
-Save cleaned metallic glass dataset to Parquet with checksum manifest.
-
-This module implements T022: Save cleaned dataset to `data/processed/clean_mg_data.parquet`
-with checksum manifest using `compute_sha256` from T005a.
-"""
 import os
 import sys
 import logging
 import json
 from pathlib import Path
 import pandas as pd
-from typing import Optional
+import pyarrow.parquet as pq
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
-
+# Import from project modules based on API surface
 from utils.io import compute_sha256, setup_logging
+from ingestion.fetch_data import fetch_data
+from features.descriptors import extract_descriptors
 from utils.config import get_env_var
-from features.dataset_models import validate_entry_to_model, MetallicGlassEntry
 
 # Configure logging
 logger = setup_logging()
 
-def load_intermediate_data(raw_data_dir: Optional[Path] = None) -> pd.DataFrame:
+REQUIRED_COLUMNS = [
+    'composition',
+    'cte',
+    'mean_atomic_radius',
+    'electronegativity_var',
+    'vec',
+    'size_mismatch'
+]
+
+def load_intermediate_data() -> pd.DataFrame:
     """
-    Load intermediate data from the ingestion pipeline.
-    
-    T013-T015 should have produced intermediate CSV/Parquet files in data/raw/.
-    We look for the most recent intermediate file or the one named 'intermediate_mg_data.csv'.
-    
-    Returns:
-        pd.DataFrame: The loaded data.
-    
-    Raises:
-        FileNotFoundError: If no intermediate data is found.
-        ValueError: If the data is empty or invalid.
+    Fetches data from APIs or fallback, calculates descriptors, and returns a DataFrame.
+    This function orchestrates the pipeline up to the point of saving.
     """
-    if raw_data_dir is None:
-        raw_data_dir = project_root / "data" / "raw"
+    logger.info("Starting data ingestion and feature extraction pipeline.")
     
-    raw_data_dir = Path(raw_data_dir)
-    if not raw_data_dir.exists():
-        raise FileNotFoundError(f"Raw data directory not found: {raw_data_dir}")
+    # Fetch raw data
+    df_raw = fetch_data()
     
-    # Look for intermediate files
-    candidates = list(raw_data_dir.glob("intermediate_mg_data.*"))
-    if not candidates:
-        # Try to find any CSV or Parquet that might be the intermediate result
-        candidates = list(raw_data_dir.glob("*.csv")) + list(raw_data_dir.glob("*.parquet"))
+    if df_raw is None or df_raw.empty:
+        logger.error("No data returned from fetch_data. Pipeline cannot proceed.")
+        return None
+
+    logger.info(f"Fetched {len(df_raw)} raw entries.")
+
+    # Calculate descriptors
+    # Ensure 'composition' column exists before calling extract_descriptors
+    if 'composition' not in df_raw.columns:
+        raise ValueError("Raw data missing 'composition' column required for descriptors.")
     
-    if not candidates:
-        raise FileNotFoundError(
-            f"No intermediate data found in {raw_data_dir}. "
-            "Ensure T013-T015 (fetch_data.py) has run successfully."
-        )
+    df_features = extract_descriptors(df_raw)
     
-    # Sort by modification time, take the most recent
-    candidates.sort(key=lambda p: p.stat().st_mtime, reverse=True)
-    latest_file = candidates[0]
-    
-    logger.info(f"Loading intermediate data from: {latest_file}")
-    
-    if latest_file.suffix == ".csv":
-        df = pd.read_csv(latest_file)
-    elif latest_file.suffix == ".parquet":
-        df = pd.read_parquet(latest_file)
-    else:
-        raise ValueError(f"Unsupported file format: {latest_file.suffix}")
-    
-    if df.empty:
-        raise ValueError("Intermediate data is empty. Check ingestion pipeline.")
-    
-    logger.info(f"Loaded {len(df)} rows from {latest_file.name}")
-    return df
+    if df_features is None or df_features.empty:
+        logger.error("Descriptor extraction resulted in empty DataFrame.")
+        return None
+
+    logger.info(f"Extracted descriptors for {len(df_features)} entries.")
+    return df_features
 
 def clean_and_validate(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Clean and validate the dataset according to the schema.
-    
-    - Ensure required columns exist
-    - Filter out rows with missing critical values
-    - Validate against MetallicGlassEntry model
-    
-    Args:
-        df: Input DataFrame from intermediate data.
-    
-    Returns:
-        Cleaned and validated DataFrame.
-    
-    Raises:
-        ValueError: If validation fails.
+    Validates that required columns are present and drops rows with missing values
+    in critical columns.
     """
-    required_columns = [
-        "composition", "cte", "weighted_mean_atomic_radius",
-        "electronegativity_variance", "vec", "atomic_size_mismatch",
-        "amorphous_state_flag", "alloy_family", "source"
-    ]
+    logger.info("Validating and cleaning dataset.")
     
-    missing_cols = [col for col in required_columns if col not in df.columns]
+    # Check for required columns
+    missing_cols = [col for col in REQUIRED_COLUMNS if col not in df.columns]
     if missing_cols:
-        raise ValueError(f"Missing required columns: {missing_cols}")
+        raise ValueError(f"Missing required columns after descriptor extraction: {missing_cols}")
     
-    # Filter for amorphous entries only (per T015)
-    if "amorphous_state_flag" in df.columns:
-        # Assume 1 or True indicates amorphous
-        df = df[df["amorphous_state_flag"].isin([1, True, "amorphous", "Amorphous"])]
-        logger.info(f"Filtered to amorphous entries: {len(df)} rows remaining")
+    # Drop rows with NaN in critical columns (cte and composition are essential)
+    # We drop NaNs for all required columns to ensure a clean dataset for modeling
+    initial_count = len(df)
+    df_clean = df.dropna(subset=REQUIRED_COLUMNS)
+    dropped_count = initial_count - len(df_clean)
     
-    # Drop rows with missing critical values (CTE, composition)
-    critical_cols = ["composition", "cte", "weighted_mean_atomic_radius"]
-    df = df.dropna(subset=critical_cols)
-    logger.info(f"After dropping missing values: {len(df)} rows remaining")
+    if dropped_count > 0:
+        logger.warning(f"Dropped {dropped_count} rows due to missing values in required columns.")
     
-    if df.empty:
-        raise ValueError("No valid entries after cleaning. Check data quality.")
-    
-    # Validate each row against the model (optional but recommended)
-    valid_rows = []
-    for idx, row in df.iterrows():
-        try:
-            # Convert row to dict and validate
-            entry_dict = row.to_dict()
-            # Ensure types are correct for Pydantic
-            if isinstance(entry_dict.get("amorphous_state_flag"), str):
-                entry_dict["amorphous_state_flag"] = (
-                    entry_dict["amorphous_state_flag"].lower() == "amorphous"
-                )
-            validate_entry_to_model(entry_dict)
-            valid_rows.append(row)
-        except Exception as e:
-            logger.warning(f"Skipping row {idx} due to validation error: {e}")
-    
-    if not valid_rows:
-        raise ValueError("No valid rows passed model validation.")
-    
-    cleaned_df = pd.DataFrame(valid_rows)
-    logger.info(f"Validation complete: {len(cleaned_df)} valid rows")
-    
-    return cleaned_df
+    if df_clean.empty:
+        logger.error("Dataset is empty after cleaning. No valid entries found.")
+        return None
 
-def save_parquet_and_manifest(df: pd.DataFrame, output_path: Path) -> str:
+    logger.info(f"Cleaned dataset contains {len(df_clean)} entries.")
+    return df_clean
+
+def write_manifest(output_path: Path, checksum: str) -> None:
     """
-    Save DataFrame to Parquet and generate a checksum manifest.
-    
-    Args:
-        df: Cleaned DataFrame.
-        output_path: Path to save the Parquet file.
-    
-    Returns:
-        str: The SHA256 checksum of the saved file.
+    Writes a JSON manifest file containing the checksum and metadata.
     """
-    # Ensure output directory exists
+    manifest_path = output_path.with_suffix('.json')
+    manifest_data = {
+        "file": output_path.name,
+        "checksum_algorithm": "sha256",
+        "checksum": checksum,
+        "columns": REQUIRED_COLUMNS,
+        "status": "cleaned"
+    }
+    
+    with open(manifest_path, 'w') as f:
+        json.dump(manifest_data, f, indent=2)
+    
+    logger.info(f"Manifest written to {manifest_path}")
+
+def save_parquet_and_manifest(df: pd.DataFrame, output_path: Path) -> None:
+    """
+    Saves the DataFrame to Parquet and generates a checksum manifest.
+    """
+    # Ensure directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
     # Save to Parquet
+    logger.info(f"Saving cleaned dataset to {output_path}")
     df.to_parquet(output_path, index=False)
-    logger.info(f"Saved cleaned data to: {output_path}")
     
     # Compute checksum
     checksum = compute_sha256(str(output_path))
-    logger.info(f"Checksum computed: {checksum}")
+    logger.info(f"Computed SHA256 checksum: {checksum}")
     
-    # Generate manifest
-    manifest = {
-        "file": output_path.name,
-        "path": str(output_path),
-        "sha256": checksum,
-        "row_count": len(df),
-        "column_count": len(df.columns),
-        "columns": list(df.columns),
-        "source": "ingestion_pipeline_T013-T015",
-        "task_id": "T022"
-    }
+    # Write manifest
+    write_manifest(output_path, checksum)
     
-    manifest_path = output_path.with_suffix(".json")
-    with open(manifest_path, "w") as f:
-        json.dump(manifest, f, indent=2)
+    # Final validation
+    loaded_df = pd.read_parquet(output_path)
+    if not all(col in loaded_df.columns for col in REQUIRED_COLUMNS):
+        raise RuntimeError("Saved file validation failed: missing columns.")
     
-    logger.info(f"Manifest saved to: {manifest_path}")
-    return checksum
+    logger.info("Successfully saved and validated clean dataset.")
 
-def write_manifest(manifest: dict, output_path: Path) -> None:
+def main():
     """
-    Write a manifest file for the saved dataset.
-    
-    Args:
-        manifest: Dictionary containing metadata about the dataset.
-        output_path: Path to save the manifest JSON.
-    """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w") as f:
-        json.dump(manifest, f, indent=2)
-    logger.info(f"Manifest written to: {output_path}")
-
-def main() -> None:
-    """
-    Main entry point for T022: Save cleaned dataset.
-    
-    This function orchestrates the loading, cleaning, and saving of the
-    metallic glass dataset, generating a checksum manifest.
+    Main entry point for the save clean data task.
     """
     try:
-        # Define paths
-        output_dir = project_root / "data" / "processed"
-        output_file = output_dir / "clean_mg_data.parquet"
+        # 1. Load and process data
+        df_intermediate = load_intermediate_data()
         
-        logger.info("Starting T022: Save cleaned dataset")
-        logger.info(f"Output path: {output_file}")
+        if df_intermediate is None:
+            logger.error("Pipeline halted: No data to process.")
+            sys.exit(1)
         
-        # Load intermediate data
-        df = load_intermediate_data()
+        # 2. Clean and validate
+        df_clean = clean_and_validate(df_intermediate)
         
-        # Clean and validate
-        cleaned_df = clean_and_validate(df)
+        if df_clean is None:
+            logger.error("Pipeline halted: No valid data after cleaning.")
+            sys.exit(1)
         
-        # Save to Parquet and generate manifest
-        checksum = save_parquet_and_manifest(cleaned_df, output_file)
+        # 3. Define output path
+        output_path = Path("data/processed/clean_mg_data.parquet")
         
-        logger.info(f"T022 completed successfully. Checksum: {checksum}")
+        # 4. Save to Parquet with manifest
+        save_parquet_and_manifest(df_clean, output_path)
         
-    except FileNotFoundError as e:
-        logger.error(f"Data file not found: {e}")
-        sys.exit(1)
-    except ValueError as e:
-        logger.error(f"Validation/cleaning error: {e}")
-        sys.exit(1)
+        logger.info("Task T022 completed successfully.")
+        
     except Exception as e:
-        logger.error(f"Unexpected error: {e}", exc_info=True)
+        logger.exception(f"Pipeline failed with error: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

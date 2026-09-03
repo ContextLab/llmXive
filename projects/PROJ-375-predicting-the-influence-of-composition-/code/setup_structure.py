@@ -2,15 +2,18 @@ import os
 import sys
 from pathlib import Path
 
-def create_directories() -> None:
+def create_directories():
     """
-    Create the project directory structure as per the implementation plan.
-    Creates directories for code modules, data storage, tests, and documentation.
+    Create the standard project directory structure.
+    This function ensures that all necessary directories for code, data, tests,
+    and documentation exist in the repository root.
     """
-    base_path = Path.cwd()
+    # Define the directory structure relative to the project root
+    # Assuming this script is run from the repository root or code/
+    # We use a relative path that works if run from root or code/
     
-    # Define all required directories relative to the project root
-    directories = [
+    # Base directories
+    dirs = [
         "code/ingestion",
         "code/features",
         "code/modeling",
@@ -19,20 +22,21 @@ def create_directories() -> None:
         "data/processed",
         "tests/unit",
         "tests/integration",
-        "docs"
+        "docs",
+        "results",
+        "contracts",
+        "logs",
+        "code/models"  # Specifically for T001b
     ]
-    
-    created_count = 0
-    for dir_path in directories:
+
+    # Determine the base path. If run as a script, assume current working dir is root.
+    # If imported, we might need to adjust, but typically this is run via CLI.
+    base_path = Path(".")
+
+    for dir_path in dirs:
         full_path = base_path / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {full_path}")
-    
-    print(f"Directory creation complete. {created_count} new directories created.")
+        full_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {full_path}")
 
 if __name__ == "__main__":
     create_directories()

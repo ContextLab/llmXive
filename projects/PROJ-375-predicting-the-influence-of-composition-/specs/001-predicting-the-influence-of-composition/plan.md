@@ -16,7 +16,7 @@ This project implements a computational pipeline to predict the Coefficient of T
 **Project Type**: Data Science / Computational Materials Science Pipeline
 **Performance Goals**: Complete pipeline execution within 6 hours; memory usage < 7 GB
 **Constraints**: No GPU acceleration; no external API keys stored in repo (use environment variables); strict stratification by alloy family (with fallback).
-**Scale/Scope**: Target dataset < 10,000 samples; 5-fold cross-validation (if N ≥ 50).
+**Scale/Scope**: Target dataset < 10,000 samples; -fold cross-validation (if N ≥ 50).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
@@ -101,8 +101,13 @@ projects/PROJ-375-predicting-the-influence-of-composition-/
 2. **Fallback Fetch**: If APIs return < 50 entries OR fail, download the verified Zenodo dataset (Zhang et al.).
 3. **Validation**: Check for `N ≥ 50`.
  * **If N ≥ 50**: Proceed to Phase 1.
- * **If 20 ≤ N < 50**: Proceed to Phase 1 with Hold-Out validation (skip 5-fold).
- * **If N < 20**: Proceed to Phase 1 with Leave-One-Out (LOO) validation.
+ * **If 20 ≤ N < 50**: Proceed to the initial phase with Hold-Out validation (skip 5-fold).
+
+The specific value to remove/generalize: an unspecified initial phase
+
+Rewritten passage:
+Proceed to the initial phase with Hold-Out validation (skip 5-fold).
+ * **If N < 20**: Proceed to Phase with Leave-One-Out (LOO) validation.
  * **If N = 0**: Trigger **Phase 0.5 (No Data Termination)**.
 
 ### Phase 0.5: No Data Termination (If N = 0)

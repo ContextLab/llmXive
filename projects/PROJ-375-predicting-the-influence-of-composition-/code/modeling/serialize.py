@@ -1,178 +1,179 @@
-"""
-Model Serialization Module (T031)
-
-Implements model serialization to the `models/` directory with metadata
-including hyperparameters and cross-validation scores.
-"""
 import os
 import sys
 import json
 import logging
 import pickle
 from pathlib import Path
-from typing import Dict, Any, Optional, List
-from datetime import datetime
+from typing import Any, Dict, Optional, Tuple
 
-import numpy as np
-import pandas as pd
+# Add project root to path to allow relative imports if running as script
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-# Import from project utilities
 from utils.config import get_env_var
-from utils.io import compute_sha256
+from utils.io import setup_logging
 
-# Setup logging
+# Configure logger
 logger = logging.getLogger(__name__)
 
-# Constants
-MODELS_DIR = Path("models")
-METADATA_FILE = "model_metadata.json"
-
-def ensure_models_dir():
-    """Ensure the models directory exists."""
-    MODELS_DIR.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Ensured models directory exists at {MODELS_DIR}")
+def ensure_models_dir() -> Path:
+    """Ensure the code/models directory exists."""
+    models_dir = PROJECT_ROOT / "code" / "models"
+    models_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Ensured models directory exists at: {models_dir}")
+    return models_dir
 
 def serialize_model(
-    model,
-    model_name: str,
+    model: Any,
+    model_type: str,
     hyperparameters: Dict[str, Any],
-    cv_scores: Dict[str, List[float]],
-    feature_names: Optional[List[str]] = None,
-    output_dir: Optional[Path] = None
-) -> str:
+    cv_scores: Optional[Dict[str, Any]] = None,
+    version: str = "v1"
+) -> Tuple[Path, Path]:
     """
-    Serialize a trained model and its metadata to disk.
-    
+    Serialize a trained model to disk using Joblib (pickle) and save metadata.
+
     Args:
-        model: The trained scikit-learn model object.
-        model_name: A unique name for the model (e.g., 'linear_regression', 'random_forest').
+        model: The trained scikit-learn (or compatible) model instance.
+        model_type: String identifier for the model (e.g., 'linear_regression', 'random_forest').
         hyperparameters: Dictionary of hyperparameters used for training.
-        cv_scores: Dictionary mapping metric names (e.g., 'r2', 'mae') to lists of fold scores.
-        feature_names: Optional list of feature names used in the model.
-        output_dir: Optional path to output directory (defaults to MODELS_DIR).
-        
+        cv_scores: Optional dictionary of cross-validation scores (e.g., {'r2_mean': 0.85, 'mae_mean': 0.12}).
+        version: Version string for the model file (default 'v1').
+
     Returns:
-        Path to the saved model file.
+        Tuple of (model_path, metadata_path) as Path objects.
+
+    Raises:
+        FileNotFoundError: If the model object is None.
+        ValueError: If model_type is invalid.
     """
-    if output_dir is None:
-        output_dir = MODELS_DIR
-        
-    ensure_models_dir()
-    
-    # Sanitize model name for filename
-    safe_name = model_name.replace(" ", "_").lower()
-    model_filename = f"{safe_name}.pkl"
-    model_path = output_dir / model_filename
-    
-    # Serialize the model
-    logger.info(f"Serializing model '{model_name}' to {model_path}")
-    with open(model_path, 'wb') as f:
-        pickle.dump(model, f)
-        
+    if model is None:
+        raise FileNotFoundError("Cannot serialize a None model object.")
+
+    if not model_type or not isinstance(model_type, str):
+        raise ValueError("model_type must be a non-empty string.")
+
+    models_dir = ensure_models_dir()
+
+    # Construct filenames
+    model_filename = f"{model_type}_{version}.pkl"
+    meta_filename = f"{model_type}_{version}_meta.json"
+
+    model_path = models_dir / model_filename
+    meta_path = models_dir / meta_filename
+
+    # Serialize model
+    logger.info(f"Serializing {model_type} model to {model_path}")
+    try:
+        with open(model_path, 'wb') as f:
+            pickle.dump(model, f)
+        logger.info(f"Model successfully saved to {model_path}")
+    except Exception as e:
+        logger.error(f"Failed to save model to {model_path}: {e}")
+        raise
+
     # Prepare metadata
     metadata = {
-        "model_name": model_name,
-        "model_type": type(model).__name__,
+        "model_type": model_type,
+        "version": version,
         "hyperparameters": hyperparameters,
-        "cv_scores": cv_scores,
-        "feature_names": feature_names,
-        "serialized_at": datetime.utcnow().isoformat(),
-        "model_path": str(model_path),
-        "checksum": compute_sha256(str(model_path))
+        "cv_scores": cv_scores if cv_scores else {},
+        "serialization_path": str(model_path),
+        "timestamp": None  # Can be filled by caller if needed, or left as None
     }
-    
-    # Save metadata
-    metadata_path = output_dir / METADATA_FILE
-    
-    # Load existing metadata if present to append
-    existing_metadata = []
-    if metadata_path.exists():
-        try:
-            with open(metadata_path, 'r') as f:
-                data = json.load(f)
-                if isinstance(data, list):
-                    existing_metadata = data
-                elif isinstance(data, dict):
-                    # Handle case where file might have single entry previously
-                    existing_metadata = [data]
-        except (json.JSONDecodeError, IOError) as e:
-            logger.warning(f"Could not load existing metadata from {metadata_path}: {e}. Starting new list.")
-            existing_metadata = []
-    
-    existing_metadata.append(metadata)
-    
-    with open(metadata_path, 'w') as f:
-        json.dump(existing_metadata, f, indent=2)
-        
-    logger.info(f"Saved model metadata to {metadata_path}")
-    logger.info(f"Model '{model_name}' serialized successfully with checksum {metadata['checksum']}")
-    
-    return str(model_path)
 
-def load_model(model_path: str):
+    # Serialize metadata
+    logger.info(f"Saving metadata to {meta_path}")
+    try:
+        with open(meta_path, 'w') as f:
+            json.dump(metadata, f, indent=2)
+        logger.info(f"Metadata successfully saved to {meta_path}")
+    except Exception as e:
+        logger.error(f"Failed to save metadata to {meta_path}: {e}")
+        # Attempt to clean up the model file if metadata fails
+        if model_path.exists():
+            model_path.unlink()
+        raise
+
+    return model_path, meta_path
+
+def load_model(model_path: str) -> Any:
     """
-    Load a serialized model from disk.
-    
+    Load a model from a pickle file.
+
     Args:
         model_path: Path to the .pkl file.
-        
+
     Returns:
-        The deserialized model object.
+        The loaded model object.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        pickle.UnpicklingError: If the file is corrupted.
     """
-    if not os.path.exists(model_path):
+    path = Path(model_path)
+    if not path.exists():
         raise FileNotFoundError(f"Model file not found: {model_path}")
-        
+
     logger.info(f"Loading model from {model_path}")
-    with open(model_path, 'rb') as f:
+    with open(path, 'rb') as f:
         model = pickle.load(f)
-        
     return model
 
-def load_latest_metadata() -> List[Dict[str, Any]]:
+def load_latest_metadata(model_type: str, version: str = "v1") -> Dict[str, Any]:
     """
-    Load the latest model metadata from the models directory.
-    
-    Returns:
-        List of metadata dictionaries for all serialized models.
-    """
-    metadata_path = MODELS_DIR / METADATA_FILE
-    if not metadata_path.exists():
-        logger.warning(f"Metadata file not found at {metadata_path}. Returning empty list.")
-        return []
-        
-    with open(metadata_path, 'r') as f:
-        try:
-            data = json.load(f)
-            return data if isinstance(data, list) else [data]
-        except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse metadata file: {e}")
-            return []
+    Load metadata for a specific model version.
 
-def main():
+    Args:
+        model_type: The type of model (e.g., 'linear_regression').
+        version: The version string (e.g., 'v1').
+
+    Returns:
+        Dictionary containing metadata.
+
+    Raises:
+        FileNotFoundError: If the metadata file does not exist.
     """
-    Main entry point for testing serialization functionality.
-    This script is intended to be called by the training pipeline (T025/T029).
+    models_dir = ensure_models_dir()
+    meta_filename = f"{model_type}_{version}_meta.json"
+    meta_path = models_dir / meta_filename
+
+    if not meta_path.exists():
+        raise FileNotFoundError(f"Metadata file not found: {meta_path}")
+
+    logger.info(f"Loading metadata from {meta_path}")
+    with open(meta_path, 'r') as f:
+        metadata = json.load(f)
+    return metadata
+
+def main() -> None:
     """
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+    Main entry point for serialization task.
+    This function is designed to be called by the training pipeline (T029)
+    after a model has been trained and evaluated.
     
-    # Example usage simulation (would be called from train.py)
-    logger.info("Serialization module initialized. Ready to serialize models.")
+    For T031 implementation, this serves as the standalone runner if needed,
+    but primarily it is called by train.py after training.
+    """
+    setup_logging()
+    logger.info("Starting Model Serialization Task (T031)")
+
+    # Example usage simulation (in real flow, this is called by train.py)
+    # We will not instantiate a model here to avoid dependency on training logic,
+    # but we ensure the functions are callable.
     
-    # Verify directories
-    ensure_models_dir()
-    
-    # Check if metadata file exists
-    if (MODELS_DIR / METADATA_FILE).exists():
-        logger.info("Existing metadata found.")
-        metadata = load_latest_metadata()
-        logger.info(f"Found {len(metadata)} serialized model(s) in metadata.")
-        for entry in metadata:
-            logger.info(f"  - {entry.get('model_name', 'Unknown')}: {entry.get('model_type', 'Unknown')}")
-    else:
-        logger.info("No existing metadata found. Ready for first serialization.")
+    # Verify directory creation
+    try:
+        ensure_models_dir()
+        logger.info("Models directory verified.")
+    except Exception as e:
+        logger.error(f"Failed to ensure models directory: {e}")
+        sys.exit(1)
+
+    # Note: Actual serialization happens in train.py after training.
+    # This script confirms the infrastructure is ready.
+    logger.info("Model serialization infrastructure ready.")
 
 if __name__ == "__main__":
     main()

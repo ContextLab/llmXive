@@ -1,0 +1,288 @@
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/research.md
+  attempts: 1
+  canonical: Project relies on real programmatically accessible data from public materials
+    science repositories
+  claim_id: c_866497f9
+  context: This document details the data sources, citations, and methodological decisions
+    used in the 'Predicting the Influence of Composition on the Thermal Expansion
+    of Metallic Glasses' project. The project relies on real, programmatically accessible
+    data from public materials science repositories.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_relies_on_real_programmatically_accessible_data_from
+  kind: entity_fact
+  raw_text: The project relies on real, programmatically accessible data from public
+    materials science repositories.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T07:29:36Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/research.md
+  attempts: 1
+  canonical: No synthetic or fabricated data is used in the project
+  claim_id: c_40118ca8
+  context: The project relies on real, programmatically accessible data from public
+    materials science repositories. No synthetic or fabricated data is used.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_synthetic_or_fabricated_data_is_used_in_the_project
+  kind: entity_fact
+  raw_text: No synthetic or fabricated data is used.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T07:30:15Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/research.md
+  attempts: 1
+  canonical: Primary data source is Materials Project
+  claim_id: c_f16295e4
+  context: '1.1 Materials Project (Primary Source) - URL: https://next-gen.materialsproject.org
+    - API Endpoint: /materials/v2'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_data_source_is_Materials_Project
+  kind: entity_fact
+  raw_text: The primary data source is Materials Project at https://next-gen.materialsproject.org.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T07:31:03Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/research.md
+  attempts: 1
+  canonical: Secondary data source is AFLOWlib
+  claim_id: c_8a6e9a76
+  context: '1.2 AFLOWlib (Secondary Source) - URL: https://aflow.org - API Endpoint:
+    REST API for property queries.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Secondary_data_source_is_AFLOWlib
+  kind: entity_fact
+  raw_text: The secondary data source is AFLOWlib at https://aflow.org.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T07:31:29Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/research.md
+  attempts: 1
+  canonical: Zenodo fallback dataset is Zhang et al. Thermal Expansion of Metallic
+    Glasses
+  claim_id: c_6161fae9
+  context: '1.3 Zenodo Fallback (Contingency) - Dataset: Zhang et al., ''Thermal Expansion
+    of Metallic Glasses'' (or equivalent curated dataset).'
+  evidence:
+    entailment_evidence: Zenodo fallback dataset is Zhang et al.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Zenodo_fallback_dataset_is_Zhang_et_al._Thermal_Expansion_of
+  kind: entity_fact
+  raw_text: The Zenodo fallback dataset is Zhang et al., 'Thermal Expansion of Metallic
+    Glasses'.
+  resolved_value: Zenodo fallback dataset is Zhang et al. Thermal Expansion of Metallic
+    Glasses
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T07:31:31Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/research.md
+  attempts: 1
+  canonical: Zenodo fallback activated if fewer than 50 valid entries from primary
+    sources
+  claim_id: c_94dac1a4
+  context: 'Trigger: Activated only if Materials Project and AFLOWlib return fewer
+    than 50 valid entries or fail completely.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Zenodo_fallback_activated_if_fewer_than_50_valid_entries_fro
+  kind: magnitude
+  raw_text: The Zenodo fallback is activated if Materials Project and AFLOWlib return
+    fewer than 50 valid entries or fail completely.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T07:32:22Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/research.md
+  attempts: 1
+  canonical: Compositional descriptors calculated using mendeleev Python library
+  claim_id: c_10cae5b9
+  context: 'Feature Engineering: Compositional descriptors are calculated using the
+    `mendeleev` Python library, which provides accurate elemental properties.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compositional_descriptors_calculated_using_mendeleev_Python
+  kind: entity_fact
+  raw_text: Compositional descriptors are calculated using the mendeleev Python library.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T07:32:49Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/research.md
+  attempts: 1
+  canonical: If VIF greater than 5.0 size_mismatch retained in dataset
+  claim_id: c_8c91c8d7
+  context: 'Policy: If VIF > 5.0, a warning is logged, but `size_mismatch` is **retained**
+    in the dataset.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/If_VIF_greater_than_5.0_size_mismatch_retained_in_dataset
+  kind: magnitude
+  raw_text: If VIF > 5.0, a warning is logged, but size_mismatch is retained in the
+    dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T07:34:02Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/research.md
+  attempts: 1
+  canonical: Permutation testing uses 1000 iterations for N greater than or equal
+    to 50
+  claim_id: c_aa56fc05
+  context: "4.1 Permutation Testing - Iterations: 1000 (Required for N \u2265 50 per\
+    \ FR-005)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_testing_uses_1000_iterations_for_N_greater_than
+  kind: magnitude
+  raw_text: "Permutation testing uses 1000 iterations for N \u2265 50."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T07:35:33Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/research.md
+  attempts: 1
+  canonical: Permutation testing skipped if N less than 20
+  claim_id: c_61b33ccd
+  context: 'Skip Condition: Skipped if N < 20.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_testing_skipped_if_N_less_than_20
+  kind: magnitude
+  raw_text: Permutation testing is skipped if N < 20.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T07:36:16Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/research.md
+  attempts: 1
+  canonical: Null results flagged if p-value greater than 0.05
+  claim_id: c_8db60ea3
+  context: 'Null Result: Flagged if p-value > 0.05.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Null_results_flagged_if_p-value_greater_than_0.05
+  kind: causal
+  raw_text: Null results in permutation testing are flagged if p-value > 0.05.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T07:36:20Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/research.md
+  attempts: 1
+  canonical: Jain et al. APL Materials 1 011002 2013
+  claim_id: c_136bfa9b
+  context: 'Citations - Materials Project: Jain, A. et al. ''Commentary: The Materials
+    Project: A materials genome approach to accelerating materials innovation.'' *APL
+    Materials* 1, 011002 (2013).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The citation for Materials Project is Jain, A. et al. APL Materials 1,
+    011002 (2013).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T07:36:52Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/research.md
+  attempts: 1
+  canonical: Curtarolo et al. Computational Materials Science 58 218-226 2012
+  claim_id: c_afabcf66
+  context: 'Citations - AFLOWlib: Curtarolo, S. et al. ''AFLOW: An automatic framework
+    for the exploration of materials.'' *Computational Materials Science* 58, 218-226
+    (2012).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The citation for AFLOWlib is Curtarolo, S. et al. Computational Materials
+    Science 58, 218-226 (2012).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T07:37:15Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/research.md
+  attempts: 1
+  canonical: Maximum RAM limit is 7 GB
+  claim_id: c_1224d8a2
+  context: 'Resource Limits - RAM: Maximum 7 GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum RAM limit is 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T07:37:49Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/research.md
+  attempts: 1
+  canonical: Maximum CPU usage is 2 cores
+  claim_id: c_e7c1eeba
+  context: 'Resource Limits - CPU: Maximum 2 cores (`n_jobs=2`).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum CPU usage is 2 cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T07:38:23Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/research.md
+  attempts: 1
+  canonical: Maximum runtime is 6 hours
+  claim_id: c_32caf2b1
+  context: 'Resource Limits - Runtime: Maximum 6 hours (21600 seconds).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum runtime is 6 hours (21600 seconds).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T07:38:53Z'

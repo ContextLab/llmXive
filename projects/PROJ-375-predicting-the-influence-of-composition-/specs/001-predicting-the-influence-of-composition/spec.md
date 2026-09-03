@@ -33,7 +33,7 @@ The system must train baseline linear regression and random forest models using 
 
 **Acceptance Scenarios**:
 
-1. **Given** a preprocessed dataset split into [deferred] training and [deferred] testing, **When** the training pipeline runs, **Then** it completes 5-fold cross-validation with a grid search over a range of parameter combinations for both linear regression and random forest models.
+1. **Given** a preprocessed dataset split into [deferred] training and [deferred] testing, **When** the training pipeline runs, **Then** it completes k-fold cross-validation with a grid search over a range of parameter combinations for both linear regression and random forest models.
 2. **Given** a random forest model with a specific `max_depth` and `n_estimators`, **When** the model is trained, **Then** the training job completes within 30 minutes on a 2-core CPU environment.
 3. **Given** the trained models, **When** the evaluation step runs, **Then** it outputs the R², MAE, and RMSE metrics for the held-out test set.
 
@@ -69,7 +69,7 @@ The system must perform permutation testing (A sufficient number of iterations w
 - **FR-002**: System MUST extract compositional descriptors including weighted mean atomic radius, electronegativity variance, valence electron concentration, and atomic size mismatch for each alloy (See US-1).
 - **FR-003**: System MUST split the dataset into [deferred] training and [deferred] testing sets, stratified by alloy family (Zr-based, Pd-based, Fe-based, etc.); if stratification fails due to class imbalance (empty test sets), the system MUST revert to a random split (See US-1).
 - **FR-004**: System MUST train linear regression and random forest models using scikit-learn, performing 5-fold cross-validation with a grid search over a range of parameter combinations (See US-2).
-- **FR-005**: System MUST execute a permutation test with 1000 iterations to assess whether model performance exceeds random chance, reporting p-values (See US-3).
+- **FR-005**: System MUST execute a permutation test with A sufficient number of iterations will be performed to ensure convergence. to assess whether model performance exceeds random chance, reporting p-values (See US-3).
 - **FR-006**: System MUST generate feature importance rankings for the trained models to identify the most influential compositional descriptors (See US-3).
 - **FR-007**: System MUST enforce resource constraints, ensuring the entire pipeline runs on ≤2 CPU cores and ≤7 GB RAM without GPU acceleration (See US-2).
 
@@ -87,7 +87,7 @@ The system must perform permutation testing (A sufficient number of iterations w
 
 - **SC-001**: Predictive accuracy (R²) is measured against the baseline of a linear weighted average of elemental CTEs on the held-out test set (See US-2).
 - **SC-002**: Statistical significance (p-value) of the model's performance is measured against the null hypothesis of random chance via permutation testing (See US-3).
-- **SC-003**: Feature importance rankings are measured against the magnitude of correlation coefficients between each descriptor and CTE on a distinct held-out validation set; the Top 3 features by importance must match the Top 3 by correlation coefficient magnitude to pass (See US-3).
+- **SC-003**: Feature importance rankings are measured against the magnitude of correlation coefficients between each descriptor and CTE on a distinct held-out validation set; the Top features by importance must match the Top ranked features by correlation coefficient magnitude to pass (See US-3).
 - **SC-004**: Computational efficiency (runtime and memory usage) is measured against the GitHub Actions free-tier limits (≤2 cores, ≤7 GB RAM, ≤6 hours) (See US-2).
 
 ## Assumptions
