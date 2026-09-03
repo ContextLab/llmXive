@@ -1,15 +1,15 @@
 status: none
-intent: download Metabolomics Workbench study metabolite intensity tables with phenotype
-  metadata using mwtab python package dataset
+intent: Metabolomics Workbench download metabolomics intensity tables phenotype metadata
+  python package dataset
 required_fields:
 - sample_id
-- metabolite_id_or_name
-- raw_intensity_value
+- metabolite_id
+- intensity
 - study_id
+- disease_resistance_label
 - assay_method
-- batch_identifier
-- disease_resistance_score_or_label
-- additional_phenotype_covariates
-cache_key: 41a0e830917812c4de3f7e10e8198528ff3dada251f3a8f327595c72b952e83b
-searched_at: '2026-09-03T12:59:47.529153+00:00'
+- batch_id
+- phenotype_metadata
+cache_key: e95a71f747e2d916925f6d249c6e4e1ef5551b6a73601f48275daa82876eb211
+searched_at: '2026-09-03T22:52:01.046963+00:00'
 retry_count: 1

@@ -1,100 +1,135 @@
+"""
+Unit tests for T012b: download_study.py
+"""
 import os
+import sys
 import json
 import tempfile
+import pytest
+from pathlib import Path
+from unittest.mock import patch, MagicMock, mock_open
 import zipfile
 import io
-from pathlib import Path
-import pytest
-from unittest.mock import patch, MagicMock
 
-# Import the module under test
-# Note: Assuming the test runs from the project root or code directory is in path
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# Add the code directory to the path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
 
-from data.download_study import download_study_data, compute_checksums, download_study
+from data.download_study import (
+    get_study_download_url,
+    download_study_data,
+    extract_and_save_files,
+    identify_phenotype_and_intensity_files,
+    download_study,
+    DataFetchError
+)
 
-def test_download_study_data_extraction():
-    """
-    Test that download_study_data correctly extracts CSVs from a mock zip.
-    """
-    # Create a mock zip in memory
-    mock_zip_buffer = io.BytesIO()
-    with zipfile.ZipFile(mock_zip_buffer, 'w', zipfile.ZIP_DEFLATED) as mock_zip:
-        # Create mock CSV content
-        intensity_data = "metabolite_1,metabolite_2\n10.5,20.3\n11.2,21.0"
-        phenotype_data = "sample_id,resistance\nS1,Resistant\nS2,Susceptible"
-        
-        mock_zip.writestr("study_123_intensity.csv", intensity_data)
-        mock_zip.writestr("study_123_phenotype.csv", phenotype_data)
+@pytest.fixture
+def temp_dir():
+    """Create a temporary directory for testing."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
-    mock_zip_buffer.seek(0)
+@patch('data.download_study.requests.get')
+def test_get_study_download_url_success(mock_get):
+    """Test successful URL retrieval."""
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.headers = {"Content-Type": "application/json"}
+    mock_response.json.return_value = {"download_url": "https://example.com/download.zip"}
+    mock_get.return_value = mock_response
+    
+    url = get_study_download_url("STUDY001")
+    assert url == "https://example.com/download.zip"
+    mock_get.assert_called_once()
 
-    with patch('data.download_study.requests.get') as mock_get:
-        mock_response = MagicMock()
-        mock_response.content = mock_zip_buffer.getvalue()
-        mock_response.raise_for_status = MagicMock()
-        mock_get.return_value = mock_response
+@patch('data.download_study.requests.get')
+def test_get_study_download_url_failure(mock_get):
+    """Test URL retrieval failure."""
+    mock_response = MagicMock()
+    mock_response.status_code = 404
+    mock_get.return_value = mock_response
+    
+    url = get_study_download_url("STUDY001")
+    assert url is None
 
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            output_dir = Path(tmp_dir)
-            result = download_study_data("https://mock.url", output_dir)
+@patch('data.download_study.requests.get')
+def test_download_study_data_success(mock_get, temp_dir):
+    """Test successful data download."""
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.iter_content.return_value = [b"fake zip content"]
+    mock_get.return_value = mock_response
+    
+    result = download_study_data("https://example.com/download.zip", "STUDY001", temp_dir)
+    
+    assert 'zip' in result
+    assert os.path.exists(result['zip'])
+    assert os.path.getsize(result['zip']) > 0
 
-            assert "intensity" in result
-            assert "phenotype" in result
-            assert os.path.exists(result["intensity"])
-            assert os.path.exists(result["phenotype"])
+@patch('data.download_study.requests.get')
+def test_download_study_data_failure(mock_get, temp_dir):
+    """Test download failure."""
+    mock_get.side_effect = Exception("Network error")
+    
+    with pytest.raises(DataFetchError):
+        download_study_data("https://example.com/download.zip", "STUDY001", temp_dir)
 
-            # Verify content
-            with open(result["intensity"], 'r') as f:
-                assert "metabolite_1" in f.read()
-            with open(result["phenotype"], 'r') as f:
-                assert "resistance" in f.read()
+def test_extract_and_save_files(temp_dir):
+    """Test extraction of files from a zip."""
+    # Create a fake zip file
+    zip_path = temp_dir / "test.zip"
+    with zipfile.ZipFile(zip_path, 'w') as zf:
+        zf.writestr("phenotype_data.csv", "sample,metabolite,value\n1,M1,100\n")
+        zf.writestr("intensity_data.csv", "sample,metabolite,value\n1,M1,50\n")
+    
+    saved_files = extract_and_save_files("STUDY001", str(zip_path), temp_dir)
+    
+    assert len(saved_files) == 2
+    assert any("phenotype_data.csv" in f for f in saved_files)
+    assert any("intensity_data.csv" in f for f in saved_files)
 
-def test_compute_checksums():
-    """
-    Test SHA256 checksum computation.
-    """
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        test_file = Path(tmp_dir) / "test.txt"
-        test_file.write_text("Hello, World!")
+def test_identify_phenotype_and_intensity_files(temp_dir):
+    """Test identification of file types."""
+    # Create fake files
+    phenotype_file = temp_dir / "phenotype_data.csv"
+    intensity_file = temp_dir / "intensity_data.csv"
+    other_file = temp_dir / "other.txt"
+    
+    phenotype_file.touch()
+    intensity_file.touch()
+    other_file.touch()
+    
+    files = [str(phenotype_file), str(intensity_file), str(other_file)]
+    identified = identify_phenotype_and_intensity_files(files)
+    
+    assert identified['phenotype'] is not None
+    assert identified['intensity'] is not None
 
-        checksums = compute_checksums([str(test_file)])
-        
-        assert str(test_file) in checksums
-        assert checksums[str(test_file)] == "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"
+@patch('data.download_study.get_study_download_url')
+@patch('data.download_study.download_study_data')
+@patch('data.download_study.extract_and_save_files')
+@patch('data.download_study.identify_phenotype_and_intensity_files')
+def test_download_study_full_flow(mock_identify, mock_extract, mock_download, mock_get_url, temp_dir):
+    """Test the full download flow."""
+    mock_get_url.return_value = "https://example.com/download.zip"
+    mock_download.return_value = {"zip": str(temp_dir / "test.zip")}
+    mock_extract.return_value = [str(temp_dir / "phenotype_data.csv"), str(temp_dir / "intensity_data.csv")]
+    mock_identify.return_value = {
+        'phenotype': str(temp_dir / "phenotype_data.csv"),
+        'intensity': str(temp_dir / "intensity_data.csv")
+    }
+    
+    result = download_study("STUDY001", temp_dir)
+    
+    assert 'phenotype' in result
+    assert 'intensity' in result
+    assert result['phenotype'] == str(temp_dir / "STUDY001_phenotype.csv")
+    assert result['intensity'] == str(temp_dir / "STUDY001_raw_intensity.csv")
 
-def test_download_study_failure():
-    """
-    Test that download_study handles network errors gracefully.
-    """
-    with patch('data.download_study.requests.get') as mock_get:
-        mock_get.side_effect = Exception("Network Error")
-
-        result = download_study("ST000001", "https://bad.url", Path("data/raw"))
-        
-        assert result["status"] == "failed"
-        assert "Network Error" in result["error"]
-
-def test_download_study_empty_zip():
-    """
-    Test that download_study_data raises error on empty/invalid zip.
-    """
-    mock_zip_buffer = io.BytesIO()
-    with zipfile.ZipFile(mock_zip_buffer, 'w', zipfile.ZIP_DEFLATED) as mock_zip:
-        # Write nothing or non-CSV
-        mock_zip.writestr("readme.txt", "No data here")
-
-    mock_zip_buffer.seek(0)
-
-    with patch('data.download_study.requests.get') as mock_get:
-        mock_response = MagicMock()
-        mock_response.content = mock_zip_buffer.getvalue()
-        mock_response.raise_for_status = MagicMock()
-        mock_get.return_value = mock_response
-
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            output_dir = Path(tmp_dir)
-            
-            with pytest.raises(ValueError, match="No CSV files found"):
-                download_study_data("https://mock.url", output_dir)
+@patch('data.download_study.get_study_download_url')
+def test_download_study_url_failure(mock_get_url, temp_dir):
+    """Test download failure when URL retrieval fails."""
+    mock_get_url.return_value = None
+    
+    with pytest.raises(DataFetchError):
+        download_study("STUDY001", temp_dir)

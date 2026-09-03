@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "data_file": "results/shap_analysis.json",
+    "required": []
+  }
+]

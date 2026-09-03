@@ -7,3 +7,6 @@ matplotlib>=3.7.0
 pyyaml>=6.0
 pytest>=7.4.0
 jsonschema>=4.19.0
+skcombat  # auto-added: imported by run-book but missing from venv
+statsmodels  # auto-added: imported by run-book but missing from venv
+pycombat  # auto-added: imported by run-book but missing from venv

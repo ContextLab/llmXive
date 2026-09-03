@@ -31,25 +31,14 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmxive
   verified_at: '2026-08-12T06:00:41.266117Z'
-- artifact_hash: 692fc4783c3122ffca5dc33548fd7830cef0af8f60423ba6b78da3a2e27ba41d
+- artifact_hash: 32d591e48e9dd7678c72b57be911642ca5f9c6ac09f4969b651fb5752c593f80
   artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: Metabolomics Workbench
   kind: url
-  value: https://www.metabolomicsworkbench.org/data/study.php?STUDY_ID=`
+  value: https://www.metabolomicsworkbench.org/data/study.php?STUDY_ID={id}`
   verification_status: pending
-  verified_against_url: https://www.metabolomicsworkbench.org/data/study.php?STUDY_ID=
-  verified_at: '2026-09-03T13:51:41.646146Z'
-- artifact_hash: 692fc4783c3122ffca5dc33548fd7830cef0af8f60423ba6b78da3a2e27ba41d
-  artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://rest.kegg.jp/link/pathway/`
-  verification_status: unreachable
-  verified_against_url: https://rest.kegg.jp/link/pathway/
-  verified_at: '2026-09-03T13:51:41.646146Z'
+  verified_against_url: https://www.metabolomicsworkbench.org/data/study.php?STUDY_ID={id
+  verified_at: '2026-09-03T22:55:21.023432Z'
