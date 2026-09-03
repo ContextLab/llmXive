@@ -64,11 +64,11 @@ Train LDA classifier to distinguish active shift epochs from passive navigation 
 ### Functional Requirements
 
 - **FR-001**: System MUST download an OpenNeuro dataset and verify dataset contains EEG recordings with navigation task conditions (See US-1)
-- **FR-002**: System MUST apply bandpass filter (1-40 Hz) and remove line noise at 50/60 Hz before epoch extraction (See US-1)
+- **FR-002**: System MUST apply bandpass filter (low-frequency cutoff) and remove line noise at /60 Hz before epoch extraction (See US-1)
 - **FR-003**: System MUST apply ICA-based artifact rejection with automatic component classification and manual review capability via log file or visual inspection interface (See US-1)
 - **FR-004**: System MUST segment data into -second epochs centered on attention shift events with ≥100 epochs per condition (See US-1)
-- **FR-005**: System MUST compute Morlet wavelet time-frequency decomposition for 8-30 Hz range across all epochs (See US-2)
-- **FR-006**: System MUST extract mean power values from alpha (8-12 Hz) band over parietal (P3, Pz, P4) electrodes and beta (13-30 Hz) band over frontal (F3, Fz, F4) electrodes (See US-2)
+- **FR-005**: System MUST compute Morlet wavelet time-frequency decomposition for the low-to-mid frequency range across all epochs (See US-2)
+- **FR-006**: System MUST extract mean power values from the alpha band. over parietal (P3, Pz, P4) electrodes and beta (13-30 Hz) band over frontal (F3, Fz, F4) electrodes (See US-2)
 - **FR-007**: System MUST train LDA classifier with 5-fold cross-validation and report accuracy, precision, recall metrics (See US-3)
 - **FR-008**: System MUST perform permutation testing with ≥1000 iterations to establish statistical significance at α = 0.05 (See US-3)
 - **FR-009**: System MUST apply family-wise error correction (e.g., Bonferroni or FDR) when testing multiple electrode-band comparisons (distinct from permutation testing which validates classifier accuracy) (See US-3)

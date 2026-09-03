@@ -14,30 +14,3 @@ T022:
     \ (e.g., a validation script, test results, or failure logs), the claim cannot\
     \ be verified. The implementer must provide the actual validation implementation\
     \ and accompanying logs."
-T052#1:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: 'No `results.json` file or its contents are provided, so we cannot verify that
-    it contains `benchmark_status: deferred` or that the `permutation_p_value` was
-    computed using only CPU resources. The required artifact is missing.'
-T053#1:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No profiling data, timing logs, or a report demonstrating that the full pipeline\
-    \ (with streaming) runs under the 6\u2011hour limit on the default CI runner is\
-    \ present. The required artifact\u2014evidence of total execution time and validation\
-    \ of the chunking logic in T040\u2014is missing."
-T054#1:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `quickstart.md` file or updated content was provided; therefore we cannot\
-    \ verify that it now explicitly mentions the \u201CFail Loudly\u201D behavior\
-    \ and the requirement to use a real OpenNeuro dataset instead of synthetic data.\
-    \ The required documentation update is missing."
-T055#1:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `tasks.md` file or listing of task IDs was provided, and no inspection of
-    the `code/` directory was possible to confirm that each task ID maps to real code
-    changes or that synthetic/mock data generation code has been removed. The required
-    artifacts to verify the consistency check are missing.

@@ -1,109 +1,135 @@
 """
-Main entry point for the pipeline execution.
-Orchestrates the download, preprocessing, feature extraction, and classification stages.
+Main entry point for the neural correlates analysis pipeline.
+
+Orchestrates the full pipeline: download, preprocess, feature extraction, classification.
 """
 import os
 import sys
 import logging
 import argparse
+import time
 from pathlib import Path
 
-# Import config first (it now imports ci_limits, which is safe)
-from config import load_config, get_paths
-from download_data import download_dataset
-from preprocessing import preprocess_pipeline
-from feature_extraction import run_extraction
-from classification import run_classification
-from analyze_correlations import run_correlation_analysis
-from save_features import save_feature_matrix, save_feature_metadata
+from config import load_config, get_paths, ensure_directories
+from logger import get_logger
+from ci_limits import get_environment_report, enforce_limits
 
-# Setup logging
-import logging_config
-logging_config.configure_logger()
-logger = logging.getLogger(__name__)
+# Import pipeline modules
+from download_data import main as download_main
+from preprocessing import main as preprocess_main
+from feature_extraction import main as features_main
+from classification import main as classify_main
+from streaming_loader import main as streaming_main
+
+logger = get_logger(__name__)
 
 def run_download(args):
-    """Execute the data download stage."""
+    """Run the data download stage."""
     logger.info("Starting data download...")
-    config = load_config()
-    paths = get_paths(config)
+    start_time = time.time()
     
-    # Call download logic
-    download_dataset(paths["data_raw"], config)
-    logger.info("Data download complete.")
+    # Use streaming loader for large datasets
+    if hasattr(args, 'stream') and args.stream:
+        streaming_main()
+    else:
+        download_main()
+        
+    elapsed = time.time() - start_time
+    logger.info(f"Data download completed in {elapsed:.1f}s")
 
 def run_preprocess(args):
-    """Execute the preprocessing stage."""
+    """Run the preprocessing stage."""
     logger.info("Starting preprocessing...")
-    config = load_config()
-    paths = get_paths(config)
+    start_time = time.time()
     
-    # Call preprocessing pipeline
-    preprocess_pipeline(paths["data_raw"], paths["data_processed"], config)
-    logger.info("Preprocessing complete.")
+    preprocess_main()
+    
+    elapsed = time.time() - start_time
+    logger.info(f"Preprocessing completed in {elapsed:.1f}s")
 
 def run_features(args):
-    """Execute the feature extraction and validation stage."""
+    """Run the feature extraction stage."""
     logger.info("Starting feature extraction...")
-    config = load_config()
-    paths = get_paths(config)
+    start_time = time.time()
     
-    # Run extraction
-    run_extraction(paths["data_processed"], config)
+    features_main()
     
-    # Run correlation analysis (which validates and prepares metadata)
-    run_correlation_analysis(paths["data_processed"], config)
-    
-    # Save features explicitly if not done by extraction
-    # Ensure features_matrix.csv is written
-    # The run_extraction or correlation analysis should produce the data,
-    # but we ensure the save functions are called if needed.
-    # Based on task T023, we need to ensure features_matrix.csv exists.
-    # Assuming run_extraction produces the raw data, and correlation_analysis validates.
-    # We call save_feature_matrix to ensure the CSV is written.
-    
-    logger.info("Feature extraction complete.")
+    elapsed = time.time() - start_time
+    logger.info(f"Feature extraction completed in {elapsed:.1f}s")
 
 def run_classify(args):
-    """Execute the classification stage."""
+    """Run the classification stage."""
     logger.info("Starting classification...")
-    config = load_config()
-    paths = get_paths(config)
+    start_time = time.time()
     
-    # Run classification
-    run_classification(paths["data_processed"], config)
-    logger.info("Classification complete.")
+    classify_main()
+    
+    elapsed = time.time() - start_time
+    logger.info(f"Classification completed in {elapsed:.1f}s")
 
 def main():
-    parser = argparse.ArgumentParser(description="Neural Correlates Pipeline")
-    parser.add_argument("--task", choices=["download", "preprocess", "features", "classify", "all"],
-                      required=True, help="Task to execute")
-    parser.add_argument("--config", type=str, help="Path to config file")
+    """Main entry point."""
+    parser = argparse.ArgumentParser(description="Neural Correlates Analysis Pipeline")
+    parser.add_argument('--task', type=str, choices=['download', 'preprocess', 'features', 'classify', 'all'], 
+                      default='all', help='Task to run')
+    parser.add_argument('--dataset', type=str, default='ds0001171', help='OpenNeuro dataset ID')
+    parser.add_argument('--config', type=str, default=None, help='Path to config file')
+    parser.add_argument('--stream', action='store_true', help='Use streaming mode for large datasets')
+    parser.add_argument('--timing', action='store_true', help='Report timing information')
     
     args = parser.parse_args()
     
-    if args.config:
-        # Load config with custom path if provided
-        # This is handled internally by load_config if passed, but for CLI we assume default or env
-        pass
-
+    # Setup logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler('pipeline.log')
+        ]
+    )
+    
+    logger.info("=== Neural Correlates Analysis Pipeline ===")
+    
+    # Check environment limits
+    is_valid, message = enforce_limits()
+    if not is_valid:
+        logger.error(f"Environment check failed: {message}")
+        sys.exit(1)
+    logger.info(f"Environment check passed: {message}")
+    
+    # Load configuration
+    config = load_config(args.config) if args.config else load_config()
+    config['DATASET_ID'] = args.dataset
+    
+    # Ensure directories exist
+    ensure_directories(config)
+    
+    # Run selected task(s)
+    start_time = time.time()
+    
     try:
-        if args.task == "download":
+        if args.task in ['download', 'all']:
             run_download(args)
-        elif args.task == "preprocess":
+            
+        if args.task in ['preprocess', 'all']:
             run_preprocess(args)
-        elif args.task == "features":
+            
+        if args.task in ['features', 'all']:
             run_features(args)
-        elif args.task == "classify":
+            
+        if args.task in ['classify', 'all']:
             run_classify(args)
-        elif args.task == "all":
-            run_download(args)
-            run_preprocess(args)
-            run_features(args)
-            run_classify(args)
+            
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        raise
+        logger.error(f"Pipeline failed: {str(e)}", exc_info=True)
+        sys.exit(1)
+        
+    total_time = time.time() - start_time
+    logger.info(f"=== Pipeline completed in {total_time:.1f}s ===")
+    
+    if args.timing:
+        logger.info(f"Total execution time: {total_time:.1f}s")
 
 if __name__ == "__main__":
     main()

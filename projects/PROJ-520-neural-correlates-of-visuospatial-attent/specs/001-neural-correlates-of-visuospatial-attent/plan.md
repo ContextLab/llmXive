@@ -83,8 +83,8 @@ The research question is to determine the efficacy of signal processing techniqu
 - Desynchronization magnitude computed as log ratio of post-stimulus to baseline power (SC-001)
 
 **Step 2**: Feature extraction
-- Extract mean power for the alpha frequency band at P3, Pz, and P4. per FR-006
-- Extract mean power for beta (low-beta to mid-beta range) @ F3, Fz, F4 per FR-006
+- Extract mean power for the alpha frequency band at multiple parietal electrode sites. per FR-006
+- Extract mean power for beta (low-beta to mid-beta range) at frontal electrode sites. per FR-006
 - Document electrode collinearity (neighboring electrodes correlated)
 
 **Step 3**: Feature validation

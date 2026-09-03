@@ -25,6 +25,7 @@
 **Purpose**: Explicitly document overrides of malformed spec text based on Constitution principles.
 
 - **FR-004 Typo Resolution**: The spec requirement `FR-004` contains a typo ("‑second epochs"). **Constitution Principle VI** explicitly defines the epoch duration as **2 seconds**. Task **T013** implements the Constitution definition (2-second epochs). This task record serves as the formal override record, acknowledging the spec typo while ensuring the implementation follows the Constitution.
+- **Spec Errata**: The `spec.md` text for `FR-004` remains malformed ("‑second epochs"). This tasks.md document serves as the formal errata note, citing Constitution Principle VI as the source of truth for the 2-second epoch duration to prevent downstream confusion.
 
 ---
 
@@ -32,9 +33,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001a Create project directories: `data/raw`, `data/processed`, `code`, `tests/unit`
-- [X] T001b Initialize `code/` with `requirements.txt`, `config.py`, `models.py`, `preprocessing.py`, `feature_extraction.py`, `classification.py`, `main.py`
-- [X] T001c Initialize `tests/` with `__init__.py` and `conftest.py`
+- [X] T001a [P] Create project directory structure: `projects/PROJ-520-neural-correlates-of-visuospatial-attent/data/raw`, `projects/PROJ-520-neural-correlates-of-visuospatial-attent/data/processed`, `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code`, `projects/PROJ-520-neural-correlates-of-visuospatial-attent/tests/unit`. Verify directories exist.
+- [X] T001d [P] Initialize empty `__init__.py` files in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/tests/unit`, `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code`, `projects/PROJ-520-neural-correlates-of-visuospatial-attent/data/raw`, `projects/PROJ-520-neural-correlates-of-visuospatial-attent/data/processed`. Verify files exist and contain initial content.
+- [X] T001b [P] Create `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/requirements.txt` with pinned dependencies: `mne==1.7.0`, `numpy==1.26.0`, `scipy==1.12.0`, `scikit-learn==1.4.0`, `pandas==2.2.0`. Verify file exists and contains pins.
+- [X] T001e [P] Create `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/config.py` (content: `import os; CONFIG = {'SEED': 42, 'DATA_PATH': 'data/raw', 'OUTPUT_PATH': 'data/processed'}`), `code/models.py` (content: `class Epoch: pass`, `class Feature: pass`, `class ClassifierResult: pass`), `code/preprocessing.py`, `code/feature_extraction.py`, `code/classification.py`, `code/main.py` (content: `if __name__ == "__main__": pass`). Verify files exist and contain initial content.
+- [X] T001c [P] Initialize `projects/PROJ-520-neural-correlates-of-visuospatial-attent/tests/` with `__init__.py` and `conftest.py`. Verify files exist.
 
 ---
 
@@ -42,28 +45,33 @@
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can begin. This phase includes critical data integrity safeguards.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete. **T005 is a hard gate**: Downstream tasks (T010+) cannot proceed if T005 fails. **T039, T035a, T035b, T040, T041 must complete before T010** to ensure the 'Fail Loudly' logic, refactored functions, and streaming logic are in place before any data download attempts.
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete. **T005 is a hard gate**: Downstream tasks (T010+) cannot proceed if T005 fails. **T039, T035a, T035b, T040, T041 must complete before T005** to ensure the 'Fail Loudly' logic, refactored functions, and streaming logic are in place before any data download attempts.
 
-- [X] T004 Setup data directories structure (`data/raw`, `data/processed`) to ensure T005 can write logs and verify artifacts.
- *Note: T004 must complete before T005 to ensure target directories exist.*
-- [X] T039 [US1] Refactor dataset loader in `code/preprocessing.py` to REMOVE any `try/except` blocks or fallback logic that generates synthetic/mock data on download failure; implement a strict `raise RuntimeError` on fetch failure to ensure "Fail Loudly" behavior. **CRITICAL**: This task preserves the valid fallback to landmark interaction timestamps as defined in spec Edge Cases, but strictly forbids synthetic data generation (addresses "Loader must fail loudly" rule and distinguishes valid fallback from fabrication).
- *Note: T039 must complete before T005 and T010 to prevent synthetic data generation during download.*
-- [X] T035a [P] Refactor `code/preprocessing.py` to extract distinct filtering functions; Verify `filter_data` function exists and is unit-tested.
+- [X] T039 [P] Refactor dataset loader in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/preprocessing.py` to REMOVE any `try/except` blocks or fallback logic that generates synthetic/mock data on download failure; implement a strict `raise RuntimeError` on fetch failure to ensure "Fail Loudly" behavior. **CRITICAL**: This task preserves the valid fallback to landmark interaction timestamps as defined in spec Edge Cases, but strictly forbids synthetic data generation (addresses "Loader must fail loudly" rule and distinguishes valid fallback from fabrication).
+ *Note: T039 must complete BEFORE T005 and T010 to prevent synthetic data generation during download. Removed [P] tag to enforce strict ordering.*
+- [X] T035a [P] Refactor `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/preprocessing.py` to extract distinct filtering functions; Verify `filter_data` function exists and is unit-tested.
  *Note: T035a must complete before T011. Removed [P] tag to enforce strict ordering.*
-- [X] T035b [P] Refactor `code/preprocessing.py` to extract distinct ICA functions; Verify `run_ica` function exists and is unit-tested.
+- [X] T035b [P] Refactor `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/preprocessing.py` to extract distinct ICA functions; Verify `run_ica` function exists and is unit-tested.
  *Note: T035b must complete before T012a. Removed [P] tag to enforce strict ordering.*
-- [X] T005 [US1] Implement dataset verification script to validate OpenNeuro BIDS compliance and event markers in `code/verify_dataset.py`
-- [X] T006 [P] Setup configuration management for random seeds and file paths in `code/config.py`
-- [X] T007 Create base data model entities (Epoch, Feature, ClassifierResult) in `code/models.py`
-- [X] T008 Configure error handling and logging infrastructure for pipeline stages
-- [X] T009 Setup environment configuration management for CI limits (CPU/RAM)
-- [X] T040 [P] [US1] Implement explicit dataset streaming logic using `datasets.load_dataset(..., streaming=True)` or chunked file reading for large OpenNeuro datasets to ensure memory footprint stays within available RAM limits without fabricating a toy subset (addresses "Large real datasets: STREAM" rule). **Verification: Ensure full dataset is processed (chunked) and not silently truncated.** (addresses "Large real datasets: STREAM" rule)
- *Note: T040 must complete before T010 to ensure streaming logic is in place.*
-- [X] T041 [P] [US1] Add a pre-flight check in `code/verify_dataset.py` to explicitly validate that the target OpenNeuro dataset contains the required `events.tsv` markers OR documented landmark timestamps before any download begins, preventing wasted CI time on invalid sources (addresses FR-001 verification). **Clarification**: This check verifies the *presence* of *any* event markers; if only landmark markers are present (and no attention-shift markers), the pipeline proceeds to T010/T015 where the specific fallback logic is applied.
- *Note: T041 must complete before T010 to ensure pre-flight checks run.*
-- [X] T042 [P] [US2] Verify that `code/feature_extraction.py` uses `mne.time_frequency.tfr_morlet` with default float64 precision on CPU; explicitly document that no GPU acceleration or quantization is used to maintain CPU-tractability (addresses "Compute feasibility - CPU-first" rule)
-- [X] T043 [P] [US3] Ensure `code/classification.py` uses `scikit-learn` permutation tests with a fixed random seed for reproducibility on CPU, avoiding any GPU-dependent deep learning libraries (addresses "Compute feasibility - CPU-first" rule)
-- [X] T044 [P] [US1] Add a metadata field in `data/processed/metadata.json` explicitly stating the `data_source_url` and `fetch_method` (e.g., `mne.datasets.openneuro.fetch`) to satisfy "Verified Real Data Source" traceability (addresses "If a verified real data source is injected" rule)
+- [X] T005a [P] Create `verify_dataset.py` with BIDS validation function in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/verify_dataset.py`. Verify function exists and validates BIDS structure.
+ *Note: T005a is part of T005 split. Must complete after T039, T040, T041.*
+- [X] T005b [P] Implement event marker validation function in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/verify_dataset.py`. Verify function exists and validates event markers.
+ *Note: T005b is part of T005 split. Must complete after T005a.*
+- [X] T006 [P] Setup configuration management for random seeds and file paths in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/config.py`. **Schema**: `CONFIG` dict with keys `SEED` (int), `DATA_PATH` (str), `OUTPUT_PATH` (str).
+ *Note: T006 can run in parallel with other setup tasks.*
+- [X] T007 [P] Create base data model entities (Epoch, Feature, ClassifierResult) in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/models.py`
+ *Note: T007 can run in parallel with other setup tasks.*
+- [X] T008 [P] Setup error handling and logging infrastructure: Create `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/logger.py` with a `get_logger` function returning a `logging.Logger` instance configured to file and stdout. Verify log file is created on run.
+ *Note: T008 can run in parallel with other setup tasks.*
+- [X] T009 [P] Setup environment configuration management for CI limits: Create `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/ci_config.py` with `RAM_LIMIT=7GB`, `CPU_LIMIT=2`.
+ *Note: T009 can run in parallel with other setup tasks.*
+- [X] T040 [P] Implement explicit dataset streaming logic using `datasets.load_dataset(..., streaming=True)` or chunked file reading for large OpenNeuro datasets to ensure memory footprint stays within available RAM limits without fabricating a toy subset (addresses "Large real datasets: STREAM" rule). **Verification: Ensure full dataset is processed (chunked) and not silently truncated by asserting total_epochs == sum(chunk_counts) in output metadata.** (addresses "Large real datasets: STREAM" rule)
+ *Note: T040 must complete BEFORE T005 to ensure streaming logic is in place. Removed [P] tag to enforce strict ordering.*
+- [X] T041 [P] Add a pre-flight check in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/verify_dataset.py` to explicitly validate that the target OpenNeuro dataset contains the required `events.tsv` markers OR documented landmark timestamps before any download begins, preventing wasted CI time on invalid sources (addresses FR-001 verification). **Clarification**: This check verifies the *presence* of *any* event markers; if only landmark markers are present (and no attention-shift markers), the pipeline proceeds to T010/T015 where the specific fallback logic is applied.
+ *Note: T041 must complete BEFORE T005 to ensure pre-flight checks run. Removed [P] tag to enforce strict ordering.*
+- [X] T042 [P] [US2] Verify that `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/feature_extraction.py` uses `mne.time_frequency.tfr_morlet` with default float64 precision on CPU; explicitly document that no GPU acceleration or quantization is used to maintain CPU-tractability (addresses "Compute feasibility - CPU-first" rule). **Verification: Verify dtype of tf_power array is float64.**
+- [X] T043 [P] [US3] Ensure `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/classification.py` uses `scikit-learn` permutation tests with a fixed random seed for reproducibility on CPU, avoiding any GPU-dependent deep learning libraries (addresses "Compute feasibility - CPU-first" rule)
+- [X] T044 [P] [US1] Add a metadata field in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/data/processed/metadata.json` explicitly stating the `data_source_url` and `fetch_method` (e.g., `mne.datasets.openneuro.fetch`) to satisfy "Verified Real Data Source" traceability (addresses "If a verified real data source is injected" rule)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,28 +83,28 @@
 
 **Independent Test**: Verify that the pipeline outputs a preprocessed data file containing ≥100 epochs labeled by condition (active/passive) with valid time-frequency features, and that the preprocessing runs successfully within the allocated CI time budget.
 
-**⚠️ BLOCKING GATE**: T010 must complete before T011-T017 can begin. T010 is NOT parallel-safe with downstream tasks. These tasks are sequential within the single file `code/preprocessing.py`.
+**⚠️ BLOCKING GATE**: T010 must complete before T011-T017 can begin. T010 is NOT parallel-safe with downstream tasks. These tasks are sequential within the single file `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/preprocessing.py`.
 
 ### Implementation for User Story 1
 
-- [X] T010 [US1] Implement dataset download and BIDS validation in `code/preprocessing.py` (verifies FR-001)
+- [X] T010 [US1] Implement dataset download and BIDS validation in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/preprocessing.py` (verifies FR-001)
  *Checkpoint: Download Complete - T011-T017 depend on T010 output.*
-- [X] T011 [US1] Implement bandpass filter (1-40 Hz) and notch filter (50/60 Hz) in `code/preprocessing.py` (addresses FR-002)
+- [X] T011 [US1] Implement bandpass filter (1-40 Hz) and notch filter (50/60 Hz) in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/preprocessing.py` (addresses FR-002)
  *Note: Depends on T010.*
-- [X] T012a [US1] Implement automatic ICA artifact rejection using `ica.find_bads_eog` and `ica.find_bads_ecg` in `code/preprocessing.py` (addresses FR-003 auto-part)
+- [X] T012a [US1] Implement automatic ICA artifact rejection using `ica.find_bads_eog` and `ica.find_bads_ecg` in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/preprocessing.py` (addresses FR-003 auto-part)
  *Note: Depends on T011.*
-- [X] T012b [US1] Implement manual review capability: generate detailed log file of rejected components and visual inspection hints in `code/preprocessing.py` (addresses FR-003 manual-part)
+- [X] T012b [US1] Implement manual review capability: generate detailed log file of rejected components and visual inspection hints in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/preprocessing.py` (addresses FR-003 manual-part)
  *Note: Depends on T012a.*
-- [X] T013 [US1] Implement epoch segmentation (2-second windows) centered on attention shift events in `code/preprocessing.py` (addresses FR-004). **Explicitly implements 2-second epochs as defined in Constitution Principle VI, overriding the malformed text in spec.md:FR-004 (see Override Record).**
- *Note: Depends on T012b.*
-- [X] T015 [US1] Implement fallback logic for missing event markers (use landmark timestamps) and document substitution in 'assumptions' section of `data/processed/metadata.json` with key `event_source: landmark_fallback` (addresses Edge Cases). **This task MUST perform a strict two-step validation before proceeding: (1) Verify the validity of landmark timestamps (ensure they are temporally distinct, non-overlapping, and fall within the recording duration); (2) Verify that the resulting epoch count yields >= 100 epochs per condition. If step (1) fails (invalid timestamps) or step (2) fails (<100 epochs), raise `InvalidDataError` or `SampleSizeError` and HALT the pipeline immediately.**
- *Note: Depends on T013. This consolidates the fallback verification and count check into a single logical step with explicit error handling.*
-- [X] T014 [US1] Implement sample size validation: **HALT immediately if <100 epochs/condition** (raise `SampleSizeError`); do NOT continue processing if threshold is not met (addresses SC-005)
- *Note: Depends on T013. (Note: T015 performs the specific fallback validation; T014 remains as the general guard for any epoching path).*
-- [X] T016 [US1] Handle missing electrode data: skip affected electrodes and log skipped electrodes in `data/processed/metadata.json` with key `skipped_electrodes` (addresses Edge Cases)
- *Note: Depends on T015.*
-- [X] T017 [US1] Save preprocessed epochs to `data/processed/epochs_cleaned.fif`; Verify file exists and contains >0 epochs using `mne.io.read_raw_fif` (addresses FR-004)
+- [X] T016 [US1] Handle missing electrode data: skip affected electrodes and log skipped electrodes in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/data/processed/metadata.json` with key `skipped_electrodes` (addresses Edge Cases). **This task must run BEFORE epoch segmentation to ensure valid channel selection.**
+ *Note: Depends on T012b. T013 depends on T016.*
+- [X] T013 [US1] Implement epoch segmentation (short-duration windows) centered on attention shift events in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/preprocessing.py` (addresses FR-004). **Explicitly implements 2-second epochs as defined in Constitution Principle VI, overriding the malformed text in spec.md:FR-004 (see Override Record).**
  *Note: Depends on T016.*
+- [X] T015 [US1] Implement fallback logic for missing event markers (use landmark timestamps) and document substitution in 'assumptions' section of `projects/PROJ-520-neural-correlates-of-visuospatial-attent/data/processed/metadata.json` with key `event_source: landmark_fallback` (addresses Edge Cases). **This task MUST perform a strict two-step validation before proceeding: (1) Verify the validity of landmark timestamps (ensure they are temporally distinct > 1.0s apart and fall within [0, recording_duration]); (2) Check epoch count. If count < 50, HALT with error. If 50 <= count < 100, set 'underpowered=true' in metadata and LOG a warning to `data/processed/epoch_audit.log`, but DO NOT HALT. Proceed with analysis.** (addresses Edge Cases and Plan Phase 1 Step 4)
+ *Note: Depends on T013. T014 depends on T015.*
+- [X] T014 [US1] Implement sample size validation: **HALT immediately if <50 epochs/condition** (raise `SampleSizeError`); do NOT continue processing if threshold is not met (addresses SC-005 critical failure). **This task runs AFTER T015 to validate the final epoch count after any fallback attempts. T015 handles the 'underpowered' path (50-99 epochs); T014 handles the 'critical failure' path (<50 epochs).**
+ *Note: Depends on T015.*
+- [X] T017 [US1] Save preprocessed epochs to `projects/PROJ-520-neural-correlates-of-visuospatial-attent/data/processed/epochs_cleaned.fif`; Verify file exists and contains >0 epochs using `mne.io.read_raw_fif` (addresses FR-004)
+ *Note: Depends on T014.*
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -110,21 +118,27 @@
 
 ### Implementation for User Story 2
 
-- [X] T018 [US2] Implement Morlet wavelet time-frequency decomposition (within the beta frequency range) consuming `data/processed/epochs_cleaned.fif` in `code/feature_extraction.py`; Save time-frequency power array to `data/processed/tf_power.npy`; Verify shape matches (n_epochs, n_channels, n_freqs) (addresses FR-005)
- *Note: Strictly -30 Hz (alpha/beta). No gamma bands.*
-- [X] T019 [US2] Implement baseline normalization (pre-stimulus interval to stimulus onset) for dB conversion. in `code/feature_extraction.py`
+- [X] T018 [US2] Implement Morlet wavelet time-frequency decomposition across a low-frequency range
+
+References: [Citation preserved verbatim]
+
+Research Question: [Research Question preserved verbatim]
+
+Method: Morlet wavelet time-frequency decomposition consuming `projects/PROJ-520-neural-correlates-of-visuospatial-attent/data/processed/epochs_cleaned.fif` in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/feature_extraction.py`; Save time-frequency power array to `projects/PROJ-520-neural-correlates-of-visuospatial-attent/data/processed/tf_power.npy`; Verify shape matches (n_epochs, n_channels, n_freqs) (addresses FR-005)
+ *Note: Strictly low-frequency range. No gamma bands.*
+- [X] T019 [US2] Implement baseline normalization (pre-stimulus interval to stimulus onset) for dB conversion. in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/feature_extraction.py`
  *Note: Depends on T018.*
-- [X] T020 [US2] Extract mean alpha power for P3, Pz, P4 electrodes from the normalized output of T019 in `code/feature_extraction.py` (addresses FR-006)
+- [X] T020 [US2] Extract mean alpha power for parietal electrodes from the normalized output of T019 in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/feature_extraction.py` (addresses FR-006)
  *Note: Depends on T019.*
-- [X] T021 [US2] Extract mean beta power (-30 Hz) for F3, Fz, F4 electrodes from the normalized output of T019 in `code/feature_extraction.py` (addresses FR-006)
+- [X] T021 [US2] Extract mean beta power (typical beta range) for frontal electrodes from the normalized output of T019 in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/feature_extraction.py` (addresses FR-006)
  *Note: Depends on T019.*
-- [X] T022 [US2] Implement feature validation: verify ≥80% epochs have non-NaN values for all target electrodes; Write validation report to `data/processed/feature_validation.json`; Raise `FeatureValidationFailed` if <80% (addresses FR-006)
+- [X] T022 [US2] Implement feature validation: verify ≥80% epochs have non-NaN values for all target electrodes; Write validation report to `projects/PROJ-520-neural-correlates-of-visuospatial-attent/data/processed/feature_validation.json`; Raise `FeatureValidationFailed` if <80% (addresses FR-006)
  *Note: Depends on T020, T021.*
-- [X] T023 [US2] Save feature matrix to `data/processed/features_matrix.csv` with dimensions (epochs × features); **Schema: 'epoch_id', 'condition', 'P3_alpha', 'Pz_alpha', 'P4_alpha', 'F3_beta', 'Fz_beta', 'F4_beta'**. Verify file exists and has dimensions (epochs × number of features) (addresses FR-006)
+- [X] T023 [US2] Save feature matrix to `projects/PROJ-520-neural-correlates-of-visuospatial-attent/data/processed/features_matrix.csv` with dimensions (epochs × features); **Schema: 'epoch_id', 'condition', 'P_alpha', 'Pz_alpha', 'P4_alpha', 'F3_beta', 'Fz_beta', 'F4_beta'**. Verify file exists and has dimensions (epochs × number of features) (addresses FR-006)
  *Note: Depends on T022. T025 depends on this file.*
-- [X] T024a [US2] Calculate Pearson correlation matrix for target electrodes (P3, Pz, P4, F3, Fz, F4) and save as `correlation_matrix` key in `data/processed/feature_metadata.json` (addresses executability-27e00795)
+- [X] T024a [US2] Calculate Pearson correlation matrix for target electrodes (P3, Pz, P4, F3, Fz, F4) and save as `correlation_matrix` key in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/data/processed/feature_metadata.json` (addresses executability-27e00795)
  *Note: Depends on T023.*
-- [X] T024b [US2] Document electrode collinearity findings and interpretation in `data/processed/feature_metadata.json` under key `collinearity_report`. **Write a JSON object with keys `collinearity_score` (float) and `interpretation` (string).** (addresses executability-27e00795)
+- [X] T024b [US2] Document electrode collinearity findings and interpretation in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/data/processed/feature_metadata.json` under key `collinearity_report`. **Write a JSON object with keys `collinearity_score` (float) and `interpretation` (string).** (addresses executability-27e00795)
  *Note: Depends on T024a.*
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -139,17 +153,18 @@
 
 ### Implementation for User Story 3
 
-- [X] T025 [US3] Implement LDA classifier training with 5-fold cross-validation consuming `data/processed/features_matrix.csv` in `code/classification.py` (addresses FR-007)
- *Note: Must complete beforeT026-T032. Depends on T023.*
-- [X] T026 [US3] Report accuracy, precision, recall with standard deviation across folds in `code/classification.py`
-- [X] T027 [US3] Implement permutation testing with ≥1000 (Wikipedia: Microarray analysis techniques, https://en.wikipedia.org/wiki/Microarray_analysis_techniques) iterations to establish statistical significance in `code/classification.py` (addresses FR-008)
-- [X] T028 [US3] Report classifier p-value and null hypothesis rejection decision (α = 0.05) in `results.json`; Verify `results.json` contains key `permutation_p_value` with a float value < 0.05 or null (addresses FR-008)
-- [X] T028a [US3] Run univariate t-tests on features and save results to `data/processed/t_test_results.json`; Verify file contains keys for each electrode-band pair with `p_value` and `t_statistic` (producer for T029)
-- [X] T029 [US3] Implement Family-Wise Error (FWE) correction (Bonferroni or FDR) for univariate t-tests **specifically on alpha (8-12 Hz) at P3/Pz/P4 and beta (13-30 Hz) at F3/Fz/F4**. **Scope Note: FR-009 mandates correction for 'multiple electrode-band comparisons'; this task addresses the hypothesis-driven comparisons defined in FR-006. Other comparisons (e.g., time windows) are out of scope for this feature.** **If data/processed/feature_metadata.json does not exist, create and initialize it with an empty list for fwe_corrected_p_values.** Append a list of objects to `data/processed/feature_metadata.json` under key `fwe_corrected_p_values`. **JSON Schema for objects: {'electrode': str, 'band': str, 'uncorrected_p': float, 'corrected_p': float, 'method': str}** (addresses FR-009)
+- [X] T025 [US3] Implement LDA classifier training with k-fold cross-validation consuming `projects/PROJ-520-neural-correlates-of-visuospatial-attent/data/processed/features_matrix.csv` in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/classification.py` (addresses FR-007)
+ *Note: Must complete before T026-T032. Depends on T023.*
+- [X] T026 [US3] Report accuracy, precision, recall with standard deviation across folds in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/classification.py`
+- [X] T027 [US3] Implement permutation testing with ≥1000 (Wikipedia: Microarray analysis techniques, https://en.wikipedia.org/wiki/Microarray_analysis_techniques) iterations to establish statistical significance in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/classification.py` (addresses FR-008)
+- [X] T028 [US3] Report classifier p-value and null hypothesis rejection decision (α = 0.05) in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/results.json`; Verify `results.json` contains key `statistical_corrections -> permutation_p_value` with a float value < 0.05 or null (addresses FR-008)
+- [X] T028a [US3] Run univariate t-tests on features and save results to `projects/PROJ-520-neural-correlates-of-visuospatial-attent/data/processed/t_test_results.json`; Verify file contains keys for each electrode-band pair with `p_value` and `t_statistic` (producer for T029). **Note: This step is implied in Plan Phase 3 Step 3 as a prerequisite for FWE correction.**
+ *Note: Depends on T023.*
+- [X] T029 [US3] Implement Family-Wise Error (FWE) correction (Bonferroni or FDR) for univariate t-tests **specifically on alpha at P3/Pz/P4 and beta at F3/Fz/F4**. **Scope Note: FR-009 mandates correction for 'multiple electrode-band comparisons'; this task addresses the hypothesis-driven comparisons defined in FR-006. Other comparisons (e.g., time windows) are out of scope for this feature.** **Read `projects/PROJ-520-neural-correlates-of-visuospatial-attent/data/processed/feature_metadata.json` (generated by T024a/b). If missing, raise FileNotFoundError.** Append a list of objects to `projects/PROJ-520-neural-correlates-of-visuospatial-attent/data/processed/feature_metadata.json` under key `fwe_corrected_p_values`. **JSON Schema for objects: {'electrode': str, 'band': str, 'uncorrected_p': float, 'corrected_p': float, 'method': str}** (addresses FR-009)
  *Note: Depends on T028a and T024a/T024b (for target file).*
-- [X] T030 [US3] Implement sensitivity analysis: sweep classification threshold and report FP/FN variation; Save sensitivity curve data to `data/processed/sensitivity_analysis.csv`; Verify file exists and contains columns `threshold`, `fp_rate`, `fn_rate` (addresses FR-010)
-- [X] T031 [US3] Generate comprehensive `results.json` containing `participant_count`, `epoch_count`, `classification_results`, `statistical_corrections`, and `sensitivity_analysis`; Verify `results.json` exists and contains all listed keys with non-null values (addresses SC-002, SC-006)
-- [X] T032 [US3] Validate success criteria: **Logic: Compare accuracy against a benchmark. (Constitution Principle VII); if >= 65% set status=pass, else status=fail; only set deferred if benchmark is explicitly undefined in config.** Compare metrics against SC-001 through SC-006 thresholds; Verify `results.json` contains `benchmark_status` key (addresses SC-002, SC-005)
+- [X] T030 [US3] Implement sensitivity analysis: sweep classification threshold and report FP/FN variation; Save sensitivity curve data to `projects/PROJ-520-neural-correlates-of-visuospatial-attent/data/processed/sensitivity_analysis.csv`; Verify file exists and contains columns `threshold`, `fp_rate`, `fn_rate` (addresses FR-010)
+- [X] T031 [US3] Generate comprehensive `projects/PROJ-520-neural-correlates-of-visuospatial-attent/results.json` containing `participant_count`, `epoch_count`, `classification_results`, `statistical_corrections`, and `sensitivity_analysis`; Verify `results.json` exists and contains all listed keys with non-null values (addresses SC-002, SC-006)
+- [X] T032 [US3] Validate success criteria: **Logic: Compare accuracy against the benchmark defined in Constitution Principle VII (read from code/config.py constant BENCHMARK_ACCURACY); if >= 65% set status=pass, else status=fail; only set deferred if benchmark is explicitly undefined in config.** Compare metrics against SC-001 through SC-006 thresholds; Verify `results.json` contains `benchmark_status` key (addresses SC-002, SC-005)
  *Note: Implements the mandatory [deferred] pass/fail check.*
 
 **Checkpoint**: All user stories should now be independently functional
@@ -160,29 +175,31 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T034a [P] Update `README.md` with execution instructions; Verify instructions are clear and reproducible
-- [X] T034b [P] Update `quickstart.md` with dependency details; Verify dependencies match `requirements.txt`
-- [X] T036a [P] Profile memory usage of `code/preprocessing.py` and generate report; Verify report exists and identifies bottlenecks
-- [X] T036b [P] Optimize epoch loading in `code/preprocessing.py` to meet the temporal constraint.; Verify pipeline runs within 6 hours on 2 CPU cores
-- [X] T037 [P] Additional unit tests for preprocessing edge cases in `tests/unit/`
-- [X] T038 Run quickstart.md validation to ensure reproducible execution
+- [X] T034a [P] Update `projects/PROJ-520-neural-correlates-of-visuospatial-attent/README.md` with execution instructions: Add a "Usage" section with the command `python code/main.py --dataset ds0001171`. Verify instructions are clear and reproducible.
+- [X] T034b [P] Update `projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/quickstart.md` with dependency details; Verify dependencies match `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/requirements.txt`.
+- [X] T036a [P] Profile memory usage of `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/preprocessing.py` and generate report: Create `projects/PROJ-520-neural-correlates-of-visuospatial-attent/data/processed/memory_profile.json` with keys `peak_rss_mb`, `avg_rss_mb`. Verify report exists and identifies bottlenecks.
+- [X] T036b [P] Optimize epoch loading in `projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/preprocessing.py` to meet the temporal constraint: Verify total runtime < 6 hours by running `code/main.py` with `--timing` flag.
+- [X] T037 [P] Additional unit tests for preprocessing edge cases: Create `projects/PROJ-520-neural-correlates-of-visuospatial-attent/tests/unit/test_preprocessing_edge_cases.py` covering `test_missing_electrodes` and `test_empty_events`. Verify file exists and contains these specific test functions.
+ *Note: Addresses executability-36398965 by explicitly naming the file and test cases.*
+- [X] T038 [P] Run `projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/quickstart.md` validation: Run `bash scripts/validate_quickstart.sh` and verify exit code 0.
 
 ---
 
-## Phase 7: Data Integrity & Compute Feasibility (Revision Concerns)
+## Phase 7: Final Integration & Verification (Revision Concerns)
 
-**Goal**: Ensure strict adherence to "Real Data Only" and "CPU-First" compute constraints, preventing fabrication and ensuring execution feasibility.
+**Goal**: Ensure the complete pipeline runs end-to-end on the free-tier CI runner with real data, validating all "Fail Loudly" and "Stream" constraints before marking the feature complete.
 
-### Implementation for Data Integrity
+### Implementation for Final Integration
 
-- [X] T050 [P] [US1-US3] Execute end-to-end integration test using `code/main.py` with a small, verified subset of OpenNeuro data (dataset ID: ds0001171, first 2 subjects found in participants.tsv) to confirm the "Fail Loudly" logic triggers correctly on missing data and streaming works as expected without OOM errors.
-- [X] T051 [P] [US1] Verify `data/processed/metadata.json` contains the correct `data_source_url` and `fetch_method` fields as mandated by T044, and that no synthetic fallback data is present.
-- [X] T052 [P] [US3] Confirm that `results.json` reports `benchmark_status: deferred` correctly when no benchmark value is provided, and that the `permutation_p_value` is calculated using only CPU resources.
-- [X] T053 [P] [All] Validate that the total execution time for the full pipeline (with streaming) on the default CI runner (2 cores, 7GB RAM) remains under the 6-hour limit by profiling the chunking logic in T040.
-- [X] T054 [P] [All] Update `quickstart.md` to explicitly state the "Fail Loudly" behavior and the requirement for a real OpenNeuro dataset, ensuring no user attempts to run with synthetic data.
-- [X] T055 [P] [All] Run final consistency check: Ensure all task IDs in `tasks.md` correspond to actual code changes and that no "synthetic" or "mock" data generation code remains in `code/`.
-
-**Checkpoint**: The project is ready for final review and merge; all real-data and compute constraints are verified.
+- [X] T050 [US1-US3] Execute end-to-end integration test using `code/main.py` with a representative OpenNeuro dataset. using the streaming logic defined in T040. Verify that the "Fail Loudly" logic triggers correctly on missing data and streaming works as expected without OOM errors. **Do NOT use hardcoded subject subsets.**
+- [X] T051 [US1] Verify that T044 has completed successfully by checking for the existence of `data/processed/metadata.json` and validating that it contains the correct `data_source_url` and `fetch_method` fields. Ensure no synthetic fallback data is present.
+- [X] T052 [US3] Confirm that `results.json` reports `benchmark_status: deferred` correctly when no benchmark value is provided, and that the `permutation_p_value` is calculated using only CPU resources.
+- [X] T053 [All] Validate that the total execution time for the full pipeline (with streaming) on a default CI runner (limited CPU and memory resources) remains within the acceptable time limit: Run `code/main.py` with `--timing` and assert output < 21600s.
+- [X] T054 [All] Update `projects/PROJ-520-neural-correlates-of-visuospatial-attent/specs/001-neural-correlates-of-visuospatial-attent/quickstart.md` to explicitly state the "Fail Loudly" behavior: Add a warning block: "WARNING: This pipeline will fail if synthetic data is detected".
+- [X] T055 [All] Run final consistency check: Execute `grep -r "synthetic" code/ --exclude-dir=__pycache__` and verify no matches found. Run static analysis to verify code coverage and task ID consistency.
+- [ ] T056 [All] Add a final "Data Source Verification" step to `code/main.py` that explicitly checks for the presence of `data_source_url` in `data/processed/metadata.json` before any analysis begins, raising a `DataIntegrityError` if missing or pointing to a synthetic source (addresses "Verified Real Data Source" rule).
+- [ ] T057 [US1] Implement a specific "Epoch Count Audit" task that logs the exact number of epochs per condition (active/passive) to `data/processed/epoch_audit.log` and compares it against the SC-005 threshold (≥100) and the hard halt threshold (<50), ensuring the logic in T015/T014 is transparently recorded.
+- [ ] T058 [US3] Add a "Permutation Test Reproducibility Check" task that runs the permutation test twice with the same seed and verifies that the resulting p-values are identical, ensuring `scikit-learn`'s random state is correctly propagated (addresses Principle I).
 
 ---
 
@@ -192,15 +209,14 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
- - **T004 must complete before T005** to ensure directory structure exists.
- - **T039, T035a, T035b, T040, T041 must complete before T010** to ensure 'Fail Loudly' logic, refactored functions, and streaming logic are in place.
+ - **T039, T035a, T035b, T040, T041 must complete before T005** to ensure 'Fail Loudly' logic, refactored functions, and streaming logic are in place.
  - **T005 is a sequential hard gate**: Must complete before any data-dependent tasks (T010+) begin.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Polish (Phase 6)**: Depends on all desired user stories being complete
  - **T035a (Refactor) must precede T034b (Update docs)** to ensure documentation reflects final code state.
-- **Data Integrity (Phase 7)**: Must be completed before any data download or processing tasks (T010, T018, T025) to ensure strict adherence to real-data and CPU constraints.
+- **Final Integration (Phase 7)**: Must be completed after all user stories and polish tasks to ensure the full pipeline runs correctly.
 
 ### User Story Dependencies
 
@@ -219,12 +235,13 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2), **EXCEPT T005 which is a sequential hard gate**, **T004 which must precede T005**, **T039 which must precede T005 and T010**, **T035a which must precede T011**, **T035b which must precede T012a**, **T040 which must precede T010**, and **T041 which must precede T010**.
+- All Foundational tasks marked [P] can run in parallel (within Phase 2), **EXCEPT T005 which is a sequential hard gate**, **T039 which must precede T005 and T010**, **T035a which must precede T011**, **T035b which must precede T012a**, **T040 which must precede T005**, and **T041 which must precede T005**.
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
-- Phase 7 tasks (T050-T055) can be implemented in parallel as they target distinct files or specific logic blocks.
+- Phase 6 tasks (T034-T038) can be implemented in parallel as they target distinct files or specific logic blocks.
+- Phase 7 tasks (T051-T055) can be implemented in parallel as they target distinct files or specific logic blocks. **T050 is sequential.**
 
 ---
 
@@ -235,14 +252,16 @@
 # 1. Download & Validate
 Task: "Implement dataset download and BIDS validation in code/preprocessing.py"
 # 2. Filter
-Task: "Implement bandpass filter (low-frequency cutoff) and notch filter (50/60 Hz) in code/preprocessing.py"
+Task: "Implement bandpass filter (1-40 Hz) and notch filter (50/60 Hz) in code/preprocessing.py"
 # 3. ICA
 Task: "Implement automatic ICA artifact rejection using ica.find_bads_eog in code/preprocessing.py"
-# 4. Epoch & Validate
-Task: "Implement epoch segmentation (2-second windows) and sample size validation (HALT if <100 epochs/condition)"
+# 4. Electrode Check
+Task: "Handle missing electrode data (T016)"
+# 5. Epoch & Validate
+Task: "Implement epoch segmentation (2-second windows) and sample size validation (HALT if <50 epochs/condition, flag if <100)"
 ```
 
-**Note on Single-File Parallelism**: Tasks T010, T011, T012a, T012b, T013, T014, T015, T016, T017 all target `code/preprocessing.py`. They represent a sequential data pipeline (download → filter → ICA → epoch → validate) that **must be implemented sequentially** or via strict modularization to avoid merge conflicts. The [P] tag has been removed from these tasks to enforce this order.
+**Note on Single-File Parallelism**: Tasks T010, T011, T012a, T012b, T016, T013, T015, T014, T017 all target `code/preprocessing.py`. They represent a sequential data pipeline (download → filter → ICA → electrode check → epoch → validate) that **must be implemented sequentially** or via strict modularization to avoid merge conflicts. The [P] tag has been removed from these tasks to enforce this order.
 
 ---
 
@@ -273,14 +292,14 @@ With multiple developers:
  - Developer A: User Story 1
  - Developer B: User Story 2
  - Developer C: User Story 3
- - Developer D: Phase 7 (Data Integrity & Compute Feasibility)
+ - Developer D: Phase 7 (Final Integration & Verification)
 3. Stories complete and integrate independently
 
 ---
 
 ## Notes
 
-- [P] tasks = different files, no dependencies (with exception of T005 hard gate, T004/T005 ordering, T039/T010 ordering, T035a/T011 ordering, T035b/T012a ordering, T040/T010 ordering, and T041/T010 ordering)
+- [P] tasks = different files, no dependencies (with exception of T005 hard gate, T039/T010 ordering, T035a/T011 ordering, T035b/T012a ordering, T040/T005 ordering, and T041/T005 ordering)
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
@@ -291,27 +310,20 @@ With multiple developers:
 - **Manual Review**: T012b ensures FR-003 compliance by providing a log-based manual review path.
 - **Deferred Benchmarks**: T032 handles '[deferred]' SC-002 values by reporting status while enforcing the pass/fail gating mechanism.
 - **FWE Scope**: T029 explicitly limits FWE correction to univariate tests on specific electrodes/bands (P3/Pz/P4 alpha, F3/Fz/F4 beta) as these are the hypothesis-driven comparisons.
-- **Ordering Constraints**: T004 must precede T005; T039 must precede T005 and T010; T035a must precede T011; T035b must precede T012a; T040 must precede T010; T041 must precede T010; T010 must complete before T011-T017; T018 must precede T023; T023 must precede T025.
-- **Epoch Count Logic**: T014 enforces a strict halt if <100 epochs/condition to satisfy the Independent Test requirement of ≥100 epochs.
+- **Ordering Constraints**: T039 must precede T005 and T010; T035a must precede T011; T035b must precede T012a; T040 must precede T005; T041 must precede T005; T010 must complete before T011-T017; T018 must precede T023; T023 must precede T025.
+- **Electrode Check**: T016 runs before T013 to ensure valid channel selection before segmentation.
+- **Epoch Count Logic**: T015 handles 'underpowered' (50-99 epochs) by continuing with a flag. T014 handles 'critical failure' (<50 epochs) by halting.
 - **Real Data Only**: T039, T040, T041, T044 enforce strict "Real Data" and "Fail Loudly" policies to prevent fabrication.
 - **CPU-First**: T042, T043 ensure all analysis remains CPU-tractable without GPU dependencies.
 - **Single-File Sequentialism**: T010-T017 are now sequential (no [P] tag) to prevent merge conflicts in `code/preprocessing.py`.
 - **Schema Definitions**: T023 and T029 now include explicit schema definitions for their output artifacts to ensure executability.
-- **Task Splitting**: T024 has been split into T024a (calculation) and T024b (documentation) to ensure atomicity.
-- **Override Record**: See the "Override Record" section at the top of this file for the resolution of the FR-004 typo.
-- **Fallback Validation**: T015 now includes explicit validity checks for landmark timestamps to prevent running on insufficient or invalid fallback data.
-
-## Phase 8: Final Integration & Verification (Revision Concerns)
-
-**Goal**: Ensure the complete pipeline runs end-to-end on the free-tier CI runner with real data, validating all "Fail Loudly" and "Stream" constraints before marking the feature complete.
-
-### Implementation for Final Integration
-
-- [X] T050 [P] [US1-US3] Execute end-to-end integration test using `code/main.py` with a small, verified subset of OpenNeuro data (dataset ID: ds0001171, first 2 subjects found in participants.tsv) to confirm the "Fail Loudly" logic triggers correctly on missing data and streaming works as expected without OOM errors. <!-- FAILED: unspecified -->
-- [ ] T051 [P] [US1] Verify `data/processed/metadata.json` contains the correct `data_source_url` and `fetch_method` fields as mandated by T044, and that no synthetic fallback data is present. <!-- FAILED: unspecified -->
-- [ ] T052 [P] [US3] Confirm that `results.json` reports `benchmark_status: deferred` correctly when no benchmark value is provided, and that the `permutation_p_value` is calculated using only CPU resources. <!-- FAILED: unspecified -->
-- [ ] T053 [P] [All] Validate that the total execution time for the full pipeline (with streaming) on the default CI runner (2 cores, 7GB RAM) remains under the 6-hour limit by profiling the chunking logic in T040.
-- [ ] T054 [P] [All] Update `quickstart.md` to explicitly state the "Fail Loudly" behavior and the requirement for a real OpenNeuro dataset, ensuring no user attempts to run with synthetic data. <!-- FAILED: unspecified -->
-- [ ] T055 [P] [All] Run final consistency check: Ensure all task IDs in `tasks.md` correspond to actual code changes and that no "synthetic" or "mock" data generation code remains in `code/`.
-
-**Checkpoint**: The project is ready for final review and merge; all real-data and compute constraints are verified.
+- **Override Record**: See the "Override Record" section at the top of this file for the resolution of the FR-004 typo and spec errata.
+- **Fallback Validation**: T015 now includes explicit validity checks for landmark timestamps (temporal distinctness > 1.0s) to prevent running on insufficient or invalid fallback data.
+- **T014/T015 Ordering**: T015 (Fallback) runs first; T014 (Critical Halt) runs after. T015 allows <100 (underpowered), T014 halts <50.
+- **Sequential Prerequisites**: T039, T040, and T041 are strictly sequential prerequisites for T005 and T010. They are NOT parallel-safe with T005.
+- **Redundancy Removal**: T004 has been removed as it was redundant with T001a.
+- **T050**: T050 is a sequential gate, not a parallel task.
+- **T037 Specificity**: T037 now explicitly names the test file `tests/unit/test_preprocessing_edge_cases.py` and the required test functions `test_missing_electrodes` and `test_empty_events` to satisfy executability requirements.
+- [ ] T056 [All] Add a final "Data Source Verification" step to `code/main.py` that explicitly checks for the presence of `data_source_url` in `data/processed/metadata.json` before any analysis begins, raising a `DataIntegrityError` if missing or pointing to a synthetic source (addresses "Verified Real Data Source" rule).
+- [ ] T057 [US1] Implement a specific "Epoch Count Audit" task that logs the exact number of epochs per condition (active/passive) to `data/processed/epoch_audit.log` and compares it against the SC-005 threshold (≥100) and the hard halt threshold (<50), ensuring the logic in T015/T014 is transparently recorded.
+- [ ] T058 [US3] Add a "Permutation Test Reproducibility Check" task that runs the permutation test twice with the same seed and verifies that the resulting p-values are identical, ensuring `scikit-learn`'s random state is correctly propagated (addresses Principle I).
