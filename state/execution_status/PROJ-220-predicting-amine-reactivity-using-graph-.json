@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-220-predicting-amine-reactivity-using-graph-",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/src/models/gnn.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026.INFO)          # Create dummy data     num_nodes = 10     n\u2026\u201d; 5 command(s) failed: python src/data/ingestion.py --output data/processed/reaction_records.parquet (rc=1); python src/data/descriptors.py --input data/processed/reaction_records.parquet --output data/processed/descriptor_vectors.parquet (rc=1); python code/src/data/preprocessing.py --input data/processed/reaction_records.parquet --output data/processed/graph_dataset.pt (rc=1); 2 declared deliverable(s) absent: data/derived/training_metrics.json; data/raw/audit_log.json",
+  "artifacts": [],
+  "failures": [
+    "python src/data/ingestion.py --output data/processed/reaction_records.parquet -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-220-predicting-amine-reactivity-using-graph-/src/data/ingestion.py\", line 23, in <module>\n    from src.utils.logging import get_audit_logger\nModuleNotFoundError: No module named 'src.utils.logging'",
+    "python src/data/descriptors.py --input data/processed/reaction_records.parquet --output data/processed/descriptor_vectors.parquet -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-220-predicting-amine-reactivity-using-graph-/src/data/descriptors.py\", line 24, in <module>\n    rdkit.logger.SetLogLevel(0)\n    ^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'Logger' object has no attribute 'SetLogLevel'. Did you mean: 'setLevel'?",
+    "python code/src/data/preprocessing.py --input data/processed/reaction_records.parquet --output data/processed/graph_dataset.pt -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-220-predicting-amine-reactivity-using-graph-/code/src/data/preprocessing.py\", line 17, in <module>\n    from src.utils.chemistry import calculate_gasteiger_charge, estimate_pka\nModuleNotFoundError: No module named 'src.utils.chemistry'",
+    "python src/train.py --config config/training_config.yaml -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-220-predicting-amine-reactivity-using-graph-/src/train.py\", line 30, in <module>\n    from src.utils.memory_monitor import check_limits, enforce_limits, graceful_exit\nModuleNotFoundError: No module named 'src.utils.memory_monitor'",
+    "python src/models/interpret.py --model artifacts/gnn_model.pt --data data/processed/graph_dataset.pt --output artifacts/shap_analysis.json -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-220-predicting-amine-reactivity-using-graph-/src/models/interpret.py\", line 14, in <module>\n    import matplotlib.pyplot as plt\nModuleNotFoundError: No module named 'matplotlib'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-03T21:48:48Z"
+}

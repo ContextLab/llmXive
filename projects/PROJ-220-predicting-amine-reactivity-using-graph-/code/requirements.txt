@@ -12,3 +12,7 @@ pytest>=7.4.0
 ruff>=0.1.0
 black>=23.0.0
 pyyaml>=6.0.0
+joblib  # auto-added: imported by run-book but missing from venv
+matplotlib  # auto-added: imported by run-book but missing from venv
+numpy  # auto-added: imported by run-book but missing from venv
+psutil  # auto-added: imported by run-book but missing from venv
