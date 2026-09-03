@@ -1,8 +1,11 @@
 """
-main.py - Orchestrator for the Code Churn vs Technical Debt pipeline.
+main.py - Orchestrator for the Code Churn vs Technical Debt Pipeline.
 
-Implements error handling, timeout logic, and sequential execution of pipeline stages.
+This module implements the main execution flow, error handling, and timeout logic.
+It coordinates the execution of data extraction, static analysis, preprocessing,
+statistical analysis, visualization, and reporting modules.
 """
+
 import argparse
 import logging
 import signal
@@ -13,248 +16,278 @@ import hashlib
 from pathlib import Path
 from typing import Optional, Callable, Dict, Any
 
-# Import pipeline stages
-# Note: These modules are expected to exist based on the API surface provided.
-# If they are not yet implemented, the execution will fail loudly as required.
-try:
-    from data_extraction import run_data_extraction_wrapper
-except ImportError:
-    run_data_extraction_wrapper = None
-    logging.warning("data_extraction module not found. Data extraction step will be skipped.")
-
-try:
-    from static_analysis import run_static_analysis
-except ImportError:
-    run_static_analysis = None
-    logging.warning("static_analysis module not found. Static analysis step will be skipped.")
-
-try:
-    from preprocessing import run_preprocessing
-except ImportError:
-    run_preprocessing = None
-    logging.warning("preprocessing module not found. Preprocessing step will be skipped.")
-
-try:
-    from analysis import run_analysis
-except ImportError:
-    run_analysis = None
-    logging.warning("analysis module not found. Analysis step will be skipped.")
-
-try:
-    from visualization import run_visualization
-except ImportError:
-    run_visualization = None
-    logging.warning("visualization module not found. Visualization step will be skipped.")
-
-try:
-    from reporting import run_reporting
-except ImportError:
-    run_reporting = None
-    logging.warning("reporting module not found. Reporting step will be skipped.")
-
-from config import ensure_directories, get_config_summary
+# Import pipeline step functions from sibling modules
+from config import ensure_directories, get_config_summary, get_env_override
 from utils import setup_logging, get_logger, calculate_checksum, pin_random_seed
+from data_extraction import run_data_extraction_wrapper
+from static_analysis import run_static_analysis
+from preprocessing import run_preprocessing
+from analysis import run_analysis
+from visualization import run_visualization  # Assuming this exists or is created later
+from reporting import run_reporting
+from parallelism_config import update_config_with_limits
 
-# Global timeout handler
+# Custom exception for timeout errors
 class TimeoutError(Exception):
+    """Custom timeout exception for pipeline steps."""
     pass
 
 def timeout_handler(signum, frame):
-    raise TimeoutError("Operation timed out")
+    """Signal handler for timeout events."""
+    raise TimeoutError("Pipeline step exceeded the allowed time limit.")
 
-def run_pipeline_step(step_name: str, func: Optional[Callable], args: tuple = (), kwargs: Optional[Dict[str, Any]] = None, timeout: int = 3600) -> bool:
+def run_pipeline_step(
+    step_name: str,
+    step_func: Callable,
+    timeout_seconds: Optional[int] = None,
+    logger: Optional[logging.Logger] = None
+) -> bool:
     """
-    Executes a pipeline step with timeout and error handling.
+    Execute a pipeline step with optional timeout and error handling.
     
     Args:
-        step_name: Human-readable name of the step.
-        func: The function to execute.
-        args: Positional arguments for the function.
-        kwargs: Keyword arguments for the function.
-        timeout: Maximum execution time in seconds.
+        step_name: Human-readable name of the step for logging.
+        step_func: The function to execute.
+        timeout_seconds: Optional timeout in seconds. If None, no timeout is applied.
+        logger: Logger instance. If None, a default logger is used.
         
     Returns:
-        True if successful, False otherwise.
+        True if the step completed successfully, False otherwise.
     """
-    if func is None:
+    if logger is None:
         logger = get_logger()
-        logger.warning(f"Step '{step_name}' skipped: function not implemented.")
-        return True
-
-    logger = get_logger()
-    logger.info(f"Starting step: {step_name}")
+    
+    logger.info(f"Starting pipeline step: {step_name}")
     start_time = time.time()
-
-    # Set up signal-based timeout (Unix only)
-    old_handler = signal.signal(signal.SIGALRM, timeout_handler)
-    signal.alarm(timeout)
-
+    
+    # Set up timeout handler if timeout is specified
+    old_handler = None
+    if timeout_seconds is not None:
+        # Only set signal handler on Unix-like systems
+        if hasattr(signal, 'SIGALRM'):
+            old_handler = signal.signal(signal.SIGALRM, timeout_handler)
+            signal.alarm(timeout_seconds)
+        else:
+            logger.warning(f"Timeout not supported on this platform for step: {step_name}")
+    
     try:
-        if kwargs is None:
-            kwargs = {}
-        result = func(*args, **kwargs)
-        signal.alarm(0)  # Cancel alarm
+        # Execute the step function
+        step_func(logger=logger)
         elapsed = time.time() - start_time
-        logger.info(f"Step '{step_name}' completed successfully in {elapsed:.2f}s.")
+        logger.info(f"Completed pipeline step: {step_name} in {elapsed:.2f} seconds")
         return True
-    except TimeoutError:
-        logger.error(f"Step '{step_name}' FAILED: Timeout after {timeout}s.")
-        signal.alarm(0)
+        
+    except TimeoutError as e:
+        logger.error(f"Timeout error in step {step_name}: {e}")
         return False
+        
     except Exception as e:
-        logger.error(f"Step '{step_name}' FAILED: {type(e).__name__}: {str(e)}")
-        signal.alarm(0)
+        logger.error(f"Error in pipeline step {step_name}: {e}", exc_info=True)
         return False
+        
     finally:
-        signal.signal(signal.SIGALRM, old_handler)
+        # Restore old signal handler and cancel alarm
+        if timeout_seconds is not None and hasattr(signal, 'SIGALRM'):
+            signal.alarm(0)
+            if old_handler:
+                signal.signal(signal.SIGALRM, old_handler)
 
-def execute_data_extraction(config: Dict[str, Any]) -> bool:
-    """Wrapper for data extraction step."""
-    return run_pipeline_step("Data Extraction", run_data_extraction_wrapper, kwargs={"config": config})
+def execute_data_extraction(logger: logging.Logger) -> None:
+    """Execute the data extraction pipeline step."""
+    run_data_extraction_wrapper(logger=logger)
 
-def execute_static_analysis(config: Dict[str, Any]) -> bool:
-    """Wrapper for static analysis step."""
-    return run_pipeline_step("Static Analysis", run_static_analysis, kwargs={"config": config})
+def execute_static_analysis(logger: logging.Logger) -> None:
+    """Execute the static analysis pipeline step."""
+    run_static_analysis(logger=logger)
 
-def execute_preprocessing(config: Dict[str, Any]) -> bool:
-    """Wrapper for preprocessing step."""
-    return run_pipeline_step("Preprocessing", run_preprocessing, kwargs={"config": config})
+def execute_preprocessing(logger: logging.Logger) -> None:
+    """Execute the preprocessing pipeline step."""
+    run_preprocessing(logger=logger)
 
-def execute_analysis(config: Dict[str, Any]) -> bool:
-    """Wrapper for analysis step."""
-    return run_pipeline_step("Analysis", run_analysis, kwargs={"config": config})
+def execute_analysis(logger: logging.Logger) -> None:
+    """Execute the statistical analysis pipeline step."""
+    run_analysis(logger=logger)
 
-def execute_visualization(config: Dict[str, Any]) -> bool:
-    """Wrapper for visualization step."""
-    return run_pipeline_step("Visualization", run_visualization, kwargs={"config": config})
+def execute_visualization(logger: logging.Logger) -> None:
+    """Execute the visualization pipeline step."""
+    # Placeholder for visualization module if not yet implemented
+    try:
+        run_visualization(logger=logger)
+    except ImportError:
+        logger.warning("Visualization module not yet implemented. Skipping visualization step.")
 
-def execute_reporting(config: Dict[str, Any]) -> bool:
-    """Wrapper for reporting step."""
-    return run_pipeline_step("Reporting", run_reporting, kwargs={"config": config})
+def execute_reporting(logger: logging.Logger) -> None:
+    """Execute the reporting pipeline step."""
+    run_reporting(logger=logger)
 
-def compute_file_checksums(root_dir: str) -> Dict[str, str]:
+def compute_file_checksums(root_dir: str, logger: logging.Logger) -> None:
     """
-    Computes SHA-256 checksums for all files in the output directory.
+    Compute and log checksums for all output files in the project.
     
     Args:
-        root_dir: The root directory to scan (e.g., data/results).
-        
-    Returns:
-        Dictionary mapping relative file paths to their checksums.
+        root_dir: The root directory of the project.
+        logger: Logger instance.
     """
+    logger.info("Computing checksums for output files...")
     checksums = {}
-    root_path = Path(root_dir)
-    logger = get_logger()
     
-    if not root_path.exists():
-        logger.warning(f"Checksum computation skipped: {root_dir} does not exist.")
-        return checksums
-
-    for file_path in root_path.rglob("*"):
-        if file_path.is_file():
-            checksum = calculate_checksum(str(file_path))
-            rel_path = str(file_path.relative_to(root_path))
-            checksums[rel_path] = checksum
-            logger.debug(f"Checksum computed for {rel_path}: {checksum}")
+    output_dirs = [
+        "data/raw",
+        "data/processed",
+        "data/results",
+        "data/logs"
+    ]
     
-    return checksums
+    for dir_name in output_dirs:
+        dir_path = Path(root_dir) / dir_name
+        if not dir_path.exists():
+            continue
+            
+        for file_path in dir_path.rglob("*"):
+            if file_path.is_file():
+                rel_path = file_path.relative_to(root_dir)
+                checksum = calculate_checksum(str(file_path))
+                checksums[str(rel_path)] = checksum
+                logger.debug(f"Checksum for {rel_path}: {checksum}")
+    
+    # Save checksums to a file
+    checksum_file = Path(root_dir) / "data" / "results" / "checksums.txt"
+    checksum_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(checksum_file, "w") as f:
+        for file_path, checksum in checksums.items():
+            f.write(f"{file_path}: {checksum}\n")
+    
+    logger.info(f"Checksums saved to {checksum_file}")
 
-def update_project_state(checksums: Dict[str, str], config: Dict[str, Any]) -> bool:
+def update_project_state(root_dir: str, logger: logging.Logger) -> None:
     """
-    Updates the project state file with execution metadata and checksums.
+    Update the project state file with the current status.
     
     Args:
-        checksums: Dictionary of file checksums.
-        config: Current configuration.
-        
-    Returns:
-        True if successful.
+        root_dir: The root directory of the project.
+        logger: Logger instance.
     """
-    state_dir = Path(config.get("state_dir", "data/state"))
+    logger.info("Updating project state...")
+    state_dir = Path(root_dir) / "state" / "projects"
     state_dir.mkdir(parents=True, exist_ok=True)
     
-    state_file = state_dir / "pipeline_state.json"
+    state_file = state_dir / "pipeline_state.yaml"
     
-    import json
-    state_data = {
-        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "checksums": checksums,
-        "config_summary": get_config_summary(config)
+    # Create or update state file
+    state = {
+        "pipeline_version": "1.0.0",
+        "last_run": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "status": "completed",
+        "steps_completed": [
+            "data_extraction",
+            "static_analysis",
+            "preprocessing",
+            "analysis",
+            "visualization",
+            "reporting"
+        ]
     }
     
-    try:
-        with open(state_file, "w") as f:
-            json.dump(state_data, f, indent=2)
-        get_logger().info(f"Project state updated at {state_file}")
-        return True
-    except Exception as e:
-        get_logger().error(f"Failed to update project state: {e}")
-        return False
+    # Simple YAML serialization (avoiding pyyaml dependency for now)
+    with open(state_file, "w") as f:
+        f.write("# Pipeline State File\n")
+        for key, value in state.items():
+            if isinstance(value, list):
+                f.write(f"{key}:\n")
+                for item in value:
+                    f.write(f"  - {item}\n")
+            else:
+                f.write(f"{key}: {value}\n")
+    
+    logger.info(f"Project state updated in {state_file}")
 
 def main():
     """Main entry point for the pipeline orchestrator."""
-    parser = argparse.ArgumentParser(description="Code Churn vs Technical Debt Pipeline Orchestrator")
-    parser.add_argument("--config", type=str, default="config.yaml", help="Path to configuration file")
-    parser.add_argument("--timeout", type=int, default=7200, help="Global pipeline timeout in seconds")
-    parser.add_argument("--steps", type=str, nargs="+", 
-                        choices=["extraction", "analysis", "preprocessing", "analysis", "visualization", "reporting"],
-                        default=["extraction", "static_analysis", "preprocessing", "analysis", "visualization", "reporting"],
-                        help="Specific steps to run")
+    parser = argparse.ArgumentParser(
+        description="Code Churn vs Technical Debt Pipeline Orchestrator"
+    )
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=3600,  # Default 1 hour timeout
+        help="Timeout in seconds for each pipeline step"
+    )
+    parser.add_argument(
+        "--parallel-limit",
+        type=int,
+        default=4,
+        help="Maximum number of concurrent repository processes"
+    )
+    parser.add_argument(
+        "--config",
+        type=str,
+        default=None,
+        help="Path to custom configuration file"
+    )
+    parser.add_argument(
+        "--steps",
+        type=str,
+        default="all",
+        help="Comma-separated list of steps to run (e.g., 'data_extraction,analysis')"
+    )
+    
     args = parser.parse_args()
-
+    
     # Initialize logging
-    setup_logging(level=logging.INFO)
-    logger = get_logger()
-    logger.info("Pipeline Orchestrator starting...")
-
-    # Load configuration
-    # Note: A simple config loading mechanism is assumed. 
-    # In a real scenario, this might load from a YAML/JSON file.
-    config = {
-        "timeout": args.timeout,
-        "steps": args.steps,
-        "state_dir": "data/state",
-        # Default values from config.py if needed
-    }
+    logger = setup_logging()
+    logger.info("Starting Code Churn vs Technical Debt Pipeline")
     
     # Ensure directories exist
-    ensure_directories(config)
-    pin_random_seed(42) # Determinism
-
-    start_time = time.time()
-    success = True
-
-    # Define step mapping
-    step_map = {
-        "extraction": execute_data_extraction,
-        "static_analysis": execute_static_analysis,
-        "preprocessing": execute_preprocessing,
-        "analysis": execute_analysis,
-        "visualization": execute_visualization,
-        "reporting": execute_reporting
+    ensure_directories()
+    
+    # Update parallelism config
+    update_config_with_limits(max_repos=args.parallel_limit)
+    
+    # Pin random seed for reproducibility
+    pin_random_seed(42)
+    
+    # Print config summary
+    logger.info("Configuration Summary:")
+    for key, value in get_config_summary().items():
+        logger.info(f"  {key}: {value}")
+    
+    # Define pipeline steps
+    steps = {
+        "data_extraction": (execute_data_extraction, args.timeout),
+        "static_analysis": (execute_static_analysis, args.timeout),
+        "preprocessing": (execute_preprocessing, args.timeout),
+        "analysis": (execute_analysis, args.timeout),
+        "visualization": (execute_visualization, args.timeout),
+        "reporting": (execute_reporting, args.timeout),
     }
-
-    for step_name in args.steps:
-        if step_name not in step_map:
-            logger.warning(f"Unknown step requested: {step_name}")
+    
+    # Determine which steps to run
+    if args.steps == "all":
+        steps_to_run = list(steps.keys())
+    else:
+        steps_to_run = [s.strip() for s in args.steps.split(",")]
+    
+    # Execute pipeline steps
+    success = True
+    for step_name in steps_to_run:
+        if step_name not in steps:
+            logger.error(f"Unknown step: {step_name}")
+            success = False
             continue
-        
-        if not step_map[step_name](config):
+            
+        step_func, timeout = steps[step_name]
+        if not run_pipeline_step(step_name, step_func, timeout, logger):
             logger.error(f"Pipeline failed at step: {step_name}")
             success = False
-            # Optional: Break on first failure or continue? 
-            # For a research pipeline, we often want to stop to avoid noise.
             break
-
-    total_time = time.time() - start_time
     
     if success:
-        logger.info(f"Pipeline completed successfully in {total_time:.2f}s.")
         # Compute checksums and update state
-        checksums = compute_file_checksums("data/results")
-        update_project_state(checksums, config)
+        compute_file_checksums(".", logger)
+        update_project_state(".", logger)
+        logger.info("Pipeline completed successfully!")
     else:
-        logger.error(f"Pipeline failed after {total_time:.2f}s.")
+        logger.error("Pipeline execution failed.")
         sys.exit(1)
 
 if __name__ == "__main__":

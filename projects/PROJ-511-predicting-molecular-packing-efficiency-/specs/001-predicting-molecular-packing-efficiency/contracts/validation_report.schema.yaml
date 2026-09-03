@@ -1,28 +1,22 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Validation Report Schema"
-description: "Schema for the validation report (results/validation_report.md)"
 type: "object"
 properties:
-  metrics:
-    type: "object"
-    properties:
-      mae:
-        type: "number"
-        description: "Mean Absolute Error"
-      pearson_r:
-        type: "number"
-        description: "Pearson correlation coefficient"
-      spearman_rho:
-        type: "number"
-        description: "Spearman rank correlation"
-      shapiro_wilk_p:
-        type: "number"
-        description: "Shapiro-Wilk p-value for residuals"
-    required:
-      - "mae"
-      - "pearson_r"
-      - "spearman_rho"
-      - "shapiro_wilk_p"
+  mae:
+    type: "number"
+    description: "Mean Absolute Error on the validation set."
+  pearson_r:
+    type: "number"
+    description: "Pearson correlation coefficient between predicted and observed PC_raw."
+  spearman_rho:
+    type: "number"
+    description: "Spearman rank correlation coefficient."
+  shapiro_wilk_stat:
+    type: "number"
+    description: "Shapiro-Wilk test statistic for residual normality."
+  shapiro_wilk_p:
+    type: "number"
+    description: "Shapiro-Wilk test p-value."
   permutation_test:
     type: "object"
     properties:
@@ -31,14 +25,44 @@ properties:
         const: 10000
       p_value:
         type: "number"
-        description: "Two-sided p-value"
-      corrected_p_value:
-        type: "number"
-        description: "Bonferroni corrected p-value"
+        description: "Two-sided p-value from permutation test."
+      actual_shuffles:
+        type: "integer"
+        description: "Actual number of shuffles performed (may be < 10000 if timeout occurred)."
     required:
-      - "n_shuffles"
-      - "p_value"
-      - "corrected_p_value"
+      - n_shuffles
+      - p_value
+  bonferroni_correction:
+    type: "object"
+    properties:
+      alpha_initial:
+        type: "number"
+        const: 0.05
+      n_tests:
+        type: "integer"
+        const: 3
+      alpha_corrected:
+        type: "number"
+      is_significant:
+        type: "boolean"
+    required:
+      - alpha_initial
+      - n_tests
+      - alpha_corrected
+      - is_significant
+  vif_diagnostics:
+    type: "object"
+    properties:
+      flagged_features:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of features with VIF > 5."
+      max_vif:
+        type: "number"
+    required:
+      - flagged_features
+      - max_vif
   sensitivity_analysis:
     type: "array"
     items:
@@ -46,69 +70,45 @@ properties:
       properties:
         threshold:
           type: "number"
-          enum: [0.5, 0.6, 0.7]
         pearson_r:
-          type: "number"
-        mae:
           type: "number"
         p_value:
           type: "number"
       required:
-        - "threshold"
-        - "pearson_r"
-        - "mae"
-        - "p_value"
-  vif_diagnostics:
-    type: "array"
-    items:
-      type: "object"
-      properties:
-        feature_name:
-          type: "string"
-        vif:
-          type: "number"
-        flagged:
-          type: "boolean"
-          description: "True if VIF > 5"
-      required:
-        - "feature_name"
-        - "vif"
-        - "flagged"
-  partial_correlation:
+        - threshold
+        - pearson_r
+        - p_value
+    description: "Results of the threshold sweep {0.5, 0.6, 0.7}."
+  residual_analysis:
     type: "object"
     properties:
-      adjusted_pearson_r:
+      correlation_with_composition:
         type: "number"
-        description: "Correlation controlling for atom-type composition"
-      controls:
-        type: "array"
-        items:
-          type: "string"
-        description: "List of controlled variables (e.g., atom counts)"
+        description: "Correlation of model residuals with atom-type composition."
     required:
-      - "adjusted_pearson_r"
-      - "controls"
-  incremental_signal:
+      - correlation_with_composition
+  target_distribution:
     type: "object"
     properties:
-      r_squared_baseline:
+      shapiro_stat:
         type: "number"
-        description: "R-squared of geometry-only model"
-      r_squared_full:
+      shapiro_p:
         type: "number"
-        description: "R-squared of full model (geometry + SMILES)"
-      delta_r_squared:
-        type: "number"
-        description: "Incremental R-squared (SMILES contribution)"
+      is_normal:
+        type: "boolean"
     required:
-      - "r_squared_baseline"
-      - "r_squared_full"
-      - "delta_r_squared"
+      - shapiro_stat
+      - shapiro_p
+      - is_normal
 required:
-  - "metrics"
-  - "permutation_test"
-  - "sensitivity_analysis"
-  - "vif_diagnostics"
-  - "partial_correlation"
-  - "incremental_signal"
-additionalProperties: false
+  - mae
+  - pearson_r
+  - spearman_rho
+  - shapiro_wilk_stat
+  - shapiro_wilk_p
+  - permutation_test
+  - bonferroni_correction
+  - vif_diagnostics
+  - sensitivity_analysis
+  - residual_analysis
+  - target_distribution

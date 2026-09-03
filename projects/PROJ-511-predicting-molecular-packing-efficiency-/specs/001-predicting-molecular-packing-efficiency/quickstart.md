@@ -1,82 +1,58 @@
 # Quickstart: Predicting Molecular Packing Efficiency
 
 ## Prerequisites
-
--   Python 3.11+
--   Git
--   Sufficient free disk space (for dataset and dependencies)
--   Internet access (to download datasets and models)
+*   Python 3.11+
+*   `pip`
+*   Access to the verified COD datasets (no credentials required).
 
 ## Installation
 
-1.  **Clone the repository**:
+1.  **Clone and Setup**:
     ```bash
-    git clone <repo-url>
-    cd projects/PROJ-511-predicting-molecular-packing-efficiency-/
-    ```
-
-2.  **Create a virtual environment**:
-    ```bash
+    cd projects/PROJ-511-predicting-molecular-packing-efficiency-
     python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
+    source venv/bin/activate
     pip install -r code/requirements.txt
     ```
 
+2.  **Verify Dependencies**:
+    Ensure `rdkit`, `torch`, and `transformers` are installed and importable.
+
 ## Running the Pipeline
 
-The pipeline is executed via a single entry point script.
+The pipeline is executed in three main stages.
 
-1.  **Run the full pipeline**:
-    ```bash
-    python code/run_pipeline.py
-    ```
-    This script performs the following steps in order:
-    -   Downloads and filters the COD dataset (official source).
-    -   Generates SMILES **from 2D connectivity graphs** (strictly avoiding leakage from experimental 3D coordinates).
-    -   Computes 3D descriptors **from experimental CIF coordinates**.
-    -   Trains the baseline geometry model and the full topology+geometry model.
-    -   Runs a permutation test with a sufficient number of shuffles to ensure stable p-value estimation.
-    -   Generates the HTML report.
+### Step 1: Data Acquisition & Feature Engineering
+Download COD data, generate SMILES, compute 3D descriptors, encode SMILES, and save the full feature matrix.
+```bash
+python code/download_cod.py --output data/processed/raw_cod.jsonl
+python code/generate_smiles.py --input data/processed/raw_cod.jsonl --output data/processed/with_smiles.csv
+python code/compute_descriptors.py --input data/processed/with_smiles.csv --output data/processed/with_descriptors.csv
+python code/encode_smiles.py --input data/processed/with_descriptors.csv --output data/processed/full_feature_matrix.csv
+```
 
-2.  **Output Locations**:
-    -   Raw Data: `data/raw/`
-    -   Processed Data: `data/processed/dataset.csv`
-    -   Model: `results/model.pt`
-    -   Report: `results/report.html`
-    -   Metrics: `results/validation_report.md`
+### Step 2: Model Training
+Train the 2-layer MLP on the feature matrix to predict **PC_raw**.
+```bash
+python code/train_model.py --data data/processed/full_feature_matrix.csv --output data/artifacts/model.pt
+```
+
+### Step 3: Evaluation & Reporting
+Run validation, permutation tests, sensitivity analysis, and generate the HTML report.
+```bash
+python code/evaluate_model.py --model data/artifacts/model.pt --data data/processed/full_feature_matrix.csv --output data/artifacts/validation_report.json
+python code/sensitivity_analysis.py --model data/artifacts/model.pt --data data/processed/full_feature_matrix.csv --output data/artifacts/sensitivity_results.json
+python code/report_generator.py --report data/artifacts/report.html
+```
 
 ## Verification
-
-To verify the results:
-
-1.  **Check Dataset Size**:
-    ```bash
-    wc -l data/processed/dataset.csv
-    # Should be >= 501 (including header)
-    ```
-
-2.  **Check Metrics**:
-    Open `results/validation_report.md` and verify:
-    -   Pearson $r \ge 0.4$ (or $r < 0.2$ with $p \ge 0.05$).
-    -   Permutation test with statistical significance (Bonferroni corrected).
-    -   VIF diagnostics (no values > 5, or flagged).
-    -   Incremental $R^2$ (SMILES contribution) is reported.
-    -   Partial correlation controlling for elemental composition is reported.
-
-3.  **Reproducibility**:
-    ```bash
-    # Run again to ensure identical results (due to pinned seeds)
-    python code/run_pipeline.py
-    # Compare checksums of results/model.pt and results/validation_report.md
-    ```
+*   Check `data/artifacts/validation_report.json` for `pearson_r >= 0.4` and `bonferroni_corrected_p <= 0.05`.
+*   Check `data/processed/full_feature_matrix.csv` for ≥ 500 rows.
+*   Run `pytest tests/` to ensure unit tests pass.
+*   Check `data/source_log.json` to verify the dataset source and version.
 
 ## Troubleshooting
-
--   **Runtime Error: "Not enough records"**: The COD filter returned <500 valid entries. Check `data/raw/download.log` for filtering statistics.
--   **Memory Error**: Ensure you are not loading the full COD dump. The script uses streaming. If local memory is <7 GB, reduce `MAX_RECORDS` in `code/config.py`.
--   **SMILES Generation Failed**: Check `data/processed/dataset.csv` for rows where `smiles_source` is "generated" but the SMILES string is empty. These rows are excluded.
--   **2D-Only Entries**: The pipeline excludes 2D-only entries without valid SMILES. If the dataset is too small, this may be the cause.
+*   **OOM Error**: If the transformer inference fails, reduce the batch size in `code/encode_smiles.py` or enable the GPU escape hatch (automatic).
+*   **Missing SMILES**: If many records are flagged as "generated", ensure `rdkit` is correctly parsing the CIF 3D coordinates.
+*   **No Data**: If the dataset has < 500 records, check the filter criteria in `download_cod.py` (e.g., atom count limit).
+*   **Timeout**: If the permutation test times out, check `validation_report.json` for the `actual_shuffles` field and the deviation log.

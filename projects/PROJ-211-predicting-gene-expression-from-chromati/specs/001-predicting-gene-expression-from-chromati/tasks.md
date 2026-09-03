@@ -82,7 +82,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement ENCODE data download logic in `code/download_encode.py` to fetch paired RNA-seq and DNase-seq/ATAC-seq count data for a diverse panel of cell lines. **Input**: ENCODE API endpoints. **Deliverable**: `code/download_encode.py` and `data/raw/encode_counts.csv`, `data/raw/encode_peaks.bed`. **Note**: If ENCODE API fails, fall back to synthetic data generation (T011b) for CI validation only. **Checksum**: Run `utils.checksum_file()` on outputs. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T010 [US1] Implement ENCODE data download logic in `code/download_encode.py` to fetch paired RNA-seq and DNase-seq/ATAC-seq count data for a diverse panel of cell lines. **Input**: ENCODE API endpoints. **Deliverable**: `code/download_encode.py` and `data/raw/encode_counts.csv`, `data/raw/encode_peaks.bed`. **Note**: If ENCODE API fails, fall back to synthetic data generation (T011b) for CI validation only. **Checksum**: Run `utils.checksum_file()` on outputs. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
 
 - [ ] T011 [US1] Execute `generate_data.py` to produce paired RNA-seq and DNase-seq counts for GM12878, K562, HMEC, IMR90, and HepG2 with Seed=42 for CI validation if real data is unavailable. **Deliverable**: `data/raw/synthetic_counts.csv`, `data/raw/synthetic_peaks.bed`. **Checksum**: Run `utils.checksum_file()` on outputs and record in `logs/checksums.txt`.
 
@@ -92,13 +92,13 @@
 
 - [ ] T012.5 [US1] Merge aggregated peak features with gene expression counts to form the joint matrix required for filtering. **Input**: `data/processed/tss_aggregated_features.csv`, `data/raw/encode_counts.csv` (or synthetic equivalent). **Deliverable**: `data/processed/merged_matrix.csv`. **Checksum**: Run `utils.checksum_file()` on output.
 
-- [ ] T013 [US1] Implement gene filtering in `code/preprocess.py` to filter genes with zero expression in all samples and apply a logarithmic pseudocount transformation to handle zero values. **Input**: `data/processed/merged_matrix.csv`. **Deliverable**: `data/processed/filtered_expression.csv`. **Checksum**: Run `utils.checksum_file()` on output. <!-- FAILED: unspecified -->
+- [ ] T013 [US1] Implement gene filtering in `code/preprocess.py` to filter genes with zero expression in all samples and apply a logarithmic pseudocount transformation to handle zero values. **Input**: `data/processed/merged_matrix.csv`. **Deliverable**: `data/processed/filtered_expression.csv`. **Checksum**: Run `utils.checksum_file()` on output. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 - [ ] T014 [US1] Implement missing value imputation in `code/preprocess.py` using median imputation per peak. **Input**: `data/processed/filtered_expression.csv`. **Deliverable**: `data/processed/imputed_expression.csv`. **Checksum**: Run `utils.checksum_file()` on output. <!-- FAILED: unspecified -->
 
 - [ ] T016 [US1] Define housekeeping genes in `code/preprocess.py` by calculating the coefficient of variation across all cell lines using a configurable threshold (default CV < 0.2). **Input**: `data/processed/imputed_expression.csv`. **Deliverable**: `data/processed/housekeeping_genes.csv`. **Checksum**: Run `utils.checksum_file()` on output.
 
-- [ ] T016b [US1] Define cell-type-specific genes in `code/preprocess.py` by selecting genes with high coefficient of variation (CV > 0.5) across cell lines. **Input**: `data/processed/imputed_expression.csv`. **Deliverable**: `data/processed/cell_type_specific_genes.csv`. **Checksum**: Run `utils.checksum_file()` on output.
+- [ ] T016b [US1] Define cell-type-specific genes in `code/preprocess.py` by selecting genes with high coefficient of variation (CV > 0.5) across cell lines. **Input**: `data/processed/imputed_expression.csv`. **Deliverable**: `data/processed/cell_type_specific_genes.csv`. **Checksum**: Run `utils.checksum_file()` on output. <!-- FAILED: unspecified -->
 
 - [ ] T016c [US1] Filter the feature matrix and target vector to only housekeeping genes in `code/preprocess.py` for specific metric calculation. **Input**: `data/processed/imputed_expression.csv`, `data/processed/housekeeping_genes.csv`. **Deliverable**: `data/processed/housekeeping_matrix.csv`. **Checksum**: Run `utils.checksum_file()` on output.
 
@@ -121,7 +121,7 @@
 
 - [ ] T021 [US2] Implement Elastic Net training in `code/train.py` (α=0.5, λ via internal k-fold cross-validation) for each cell line. **Input**: `data/processed/imputed_expression.csv`. **Deliverable**: `data/models/elastic_net_{cell_line}.pkl`, `data/processed/cv_scores.json`.
 
-- [ ] T023 [US2] Calculate Pearson correlation between predicted and actual expression in `code/evaluate.py`. **Deliverable**: Correlation matrix in `data/processed/correlations.csv`.
+- [~] T023 [US2] Calculate Pearson correlation between predicted and actual expression in `code/evaluate.py`. **Deliverable**: Correlation matrix in `data/processed/correlations.csv`.
 
 - [ ] T024 [US2] Apply Bonferroni correction to p-values in `code/evaluate.py` (FR-006) using `scipy.stats`. **Deliverable**: Corrected p-values in `data/processed/pvalues_corrected.csv`.
 

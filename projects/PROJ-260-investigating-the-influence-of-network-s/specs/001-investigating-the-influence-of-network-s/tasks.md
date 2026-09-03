@@ -55,7 +55,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete. All test infrastructure (T009, T010) must be ready before test-writing tasks in Phase 3.
 
-- [ ] T004 [P] Create `src/models/simulation_box.py` (Data class for atomic positions, velocities, metadata, thermal conductivity)
+- [X] T004 [P] Create `src/models/simulation_box.py` (Data class for atomic positions, velocities, metadata, thermal conductivity)
 - [ ] T005 [P] Create `src/models/bond_network.py` (Graph representation: nodes=atoms, edges=bonds, metrics)
 - [ ] T006 [P] Create `src/models/vibrational_spectrum.py` (Data class for VDOS, participation ratio, frequency bins)
 - [ ] T007 [P] Create `src/lib/utils.py` (Checksum verification, logging setup, seed management, and file validation enhancements)
@@ -113,7 +113,7 @@
  - Construct bond network based on cutoff
  - Compute local metrics (coordination number, bond angle variance)
  - **Flag "Physical Anomaly" for any atom with coordination > 6** (do not halt)
- - Validate average coordination against reference value (4.00 ± 0.05) [UNRESOLVED-CLAIM: c_a0633ebf — status=not_enough_info] and flag result
+ - Validate average coordination against reference value (4.00 ± 0.05) [UNRESOLVED-CLAIM: c_440ce963 — status=not_enough_info] and flag result
  - Output `data/derived/topology/` CSVs
 - [ ] T018 [US1] Add logging for topology extraction steps and RDF cutoff decisions (US-1 Edge Cases)
 - [ ] T019 [US1] Create `tests/integration/test_full_topology.py` to verify end-to-end extraction on a small reference file
@@ -146,11 +146,11 @@
  - Compute Velocity Autocorrelation Function (VACF)
  - Calculate VDOS via Fourier Transform
  - Compute Participation Ratio
- - Identify localized modes (high PR, low frequency) [UNRESOLVED-CLAIM: c_ecb89d6d — status=not_enough_info]
+ - Identify localized modes (high PR, low frequency)
  - Output `data/derived/vdos/` CSVs
 - [ ] T027 [US2] Implement `src/services/sensitivity_analyzer.py` (US-2)
  - Sweep under-coordination threshold (±0.5)
- - Calculate bottleneck density (coordination < 3) [UNRESOLVED-CLAIM: c_ed49b6d0 — status=not_enough_info]
+ - Calculate bottleneck density (coordination < 3)
  - Report coefficient of variation
  - Output sensitivity report
 - [ ] T028 [US2] Add validation for acoustic modes (non-zero low-freq) and high-freq peak (-15 THz) in `src/services/vdos_calculator.py` (US-2 Acceptance 1)
@@ -199,7 +199,7 @@
  - **Explicitly output the variance value** of correlation coefficients across the three system sizes
 - [ ] T043 [US3] Add "Low Power" warning logic if power < 0.8 (SC-002)
 - [ ] T047 [US3] Implement explicit reporting of statistical power value (SC-002)
- - Ensure the calculated statistical power is reported in the final summary table and report [UNRESOLVED-CLAIM: c_079fd510 — status=not_enough_info]
+ - Ensure the calculated statistical power is reported in the final summary table and report
  - Flag "Low Power" if < 0.8
 - [ ] T044 [US3] Create `tests/integration/test_full_correlation.py` to verify end-to-end statistical pipeline
 - [ ] T045 [US3] Create `src/cli/main.py` to orchestrate the full pipeline (Topology → VDOS → Reference → Correlation)

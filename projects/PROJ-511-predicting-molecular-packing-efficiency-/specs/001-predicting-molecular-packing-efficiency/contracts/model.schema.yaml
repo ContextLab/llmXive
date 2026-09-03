@@ -1,56 +1,47 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Schema"
-description: "Schema for the trained model checkpoint (results/model.pt)"
+title: "Model Checkpoint Metadata Schema"
 type: "object"
 properties:
-  architecture:
+  model_type:
     type: "string"
-    description: "Model architecture name"
-    const: "SMILES_MLP"
-  parameters:
-    type: "object"
-    properties:
-      hidden_layers:
-        type: "array"
-        items:
-          type: "integer"
-        description: "Number of units in each hidden layer"
-      input_dim:
-        type: "integer"
-      output_dim:
-        type: "integer"
-    required:
-      - "hidden_layers"
-      - "input_dim"
-      - "output_dim"
-  total_params:
+    const: "MLP_Regression"
+    description: "Type of model architecture."
+  layers:
+    type: "array"
+    items:
+      type: "integer"
+    description: "List of layer dimensions (e.g., [1024, 64, 32, 1])."
+  total_parameters:
     type: "integer"
-    description: "Total trainable parameters (must be <= 100000)"
-    maximum: 100000
+    description: "Total number of trainable parameters."
+  target_variable:
+    type: "string"
+    const: "pc_raw"
+    description: "The target variable predicted by the model."
   training_config:
     type: "object"
     properties:
       seed:
         type: "integer"
-      epochs:
-        type: "integer"
       learning_rate:
         type: "number"
-      l2_penalty:
-        type: "number"
-      dropout_rate:
+      batch_size:
+        type: "integer"
+      epochs:
+        type: "integer"
+      train_split_ratio:
         type: "number"
     required:
-      - "seed"
-      - "epochs"
-      - "learning_rate"
-  frozen_transformer:
+      - seed
+      - train_split_ratio
+  timestamp:
     type: "string"
-    description: "Name of the frozen transformer used"
+    format: "date-time"
+    description: "ISO 8601 timestamp of model creation."
 required:
-  - "architecture"
-  - "parameters"
-  - "total_params"
-  - "training_config"
-  - "frozen_transformer"
-additionalProperties: false
+  - model_type
+  - layers
+  - total_parameters
+  - target_variable
+  - training_config
+  - timestamp

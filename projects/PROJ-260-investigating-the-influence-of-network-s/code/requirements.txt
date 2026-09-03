@@ -11,3 +11,4 @@ pytest-cov
 pytest-randomly
 ruff
 black
+pre-commit

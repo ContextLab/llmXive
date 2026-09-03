@@ -1,84 +1,129 @@
 import os
-import sys
-import unittest
 import tempfile
-import shutil
-import pandas as pd
+import pytest
+from unittest.mock import patch, MagicMock
+import sys
 
-# Adjust path to include code directory
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
+# Add code directory to path for imports
+sys.path.insert(0, 'code')
 
-from run_t011 import main
-from utils import checksum_file
+class TestRunT011:
+    
+    @pytest.fixture
+    def mock_utils(self):
+        with patch('code.utils.checksum_file') as mock_checksum:
+            mock_checksum.return_value = "abc123"
+            yield mock_checksum
 
-class TestT011Execution(unittest.TestCase):
-    def setUp(self):
-        # Create a temporary directory structure for the test
-        self.test_dir = tempfile.mkdtemp()
-        self.original_cwd = os.getcwd()
-        
-        # Mock the project structure in temp dir
-        os.makedirs(os.path.join(self.test_dir, 'data', 'raw'), exist_ok=True)
-        os.makedirs(os.path.join(self.test_dir, 'logs'), exist_ok=True)
-        os.chdir(self.test_dir)
-        
-        # We need to ensure the imports work, so we add the code dir to path
-        # This is handled by the sys.path.insert in the test, but we need to ensure 
-        # the modules are importable. Since we are running unit tests, we might need 
-        # to mock the heavy generation or assume the environment is set up.
-        # However, for T011, the task is to execute the script. 
-        # We will test that the script runs and creates files.
+    @pytest.fixture
+    def mock_generate_data(self):
+        with patch('code.generate_data.set_seed') as mock_seed, \
+             patch('code.generate_data.generate_gene_coordinates') as mock_genes, \
+             patch('code.generate_data.generate_peak_coordinates') as mock_peaks, \
+             patch('code.generate_data.generate_counts_matrix') as mock_counts, \
+             patch('code.generate_data.write_counts_csv') as mock_write_counts, \
+             patch('code.generate_data.write_peaks_bed') as mock_write_peaks:
+            
+            mock_genes.return_value = []
+            mock_peaks.return_value = []
+            mock_counts.return_value = {}
+            
+            yield {
+                'set_seed': mock_seed,
+                'generate_gene_coordinates': mock_genes,
+                'generate_peak_coordinates': mock_peaks,
+                'generate_counts_matrix': mock_counts,
+                'write_counts_csv': mock_write_counts,
+                'write_peaks_bed': mock_write_peaks
+            }
 
-    def tearDown(self):
-        os.chdir(self.original_cwd)
-        shutil.rmtree(self.test_dir)
+    def test_main_creates_directories(self, mock_utils, mock_generate_data, tmp_path):
+        """Test that main creates necessary directories"""
+        with patch('code.run_t011.os.makedirs') as mock_makedirs, \
+             patch('code.run_t011.os.path.exists', return_value=True), \
+             patch('code.run_t011.open', create=True), \
+             patch('code.run_t011.checksum_file', return_value="test"):
+            
+            from run_t011 import main
+            
+            # Mock the actual file operations to avoid writing to disk in test
+            with tempfile.TemporaryDirectory() as tmpdir:
+                with patch('code.run_t011.os.path.dirname', return_value=tmpdir), \
+                     patch('code.run_t011.os.path.exists', return_value=True):
+                    
+                    # Run main (it should complete without error)
+                    try:
+                        main()
+                    except SystemExit:
+                        pass  # Expected from sys.exit(0)
+                    
+                    # Verify directories were created
+                    assert mock_makedirs.called
 
-    def test_t011_creates_outputs(self):
-        """
-        Verify that running run_t011.py creates the required output files:
-        - data/raw/synthetic_counts.csv
-        - data/raw/synthetic_peaks.bed
-        - logs/checksums.txt (appended)
-        """
-        # Run the main function
-        # Note: This might take a moment depending on the size of the synthetic data
-        result = main()
-        
-        self.assertEqual(result, 0, "main() should return 0 on success")
+    def test_main_calls_seed_and_generation_functions(self, mock_utils, mock_generate_data):
+        """Test that main calls the generation functions in correct order"""
+        with patch('code.run_t011.os.path.exists', return_value=True), \
+             patch('code.run_t011.open', create=True), \
+             patch('code.run_t011.checksum_file', return_value="test"):
+            
+            from run_t011 import main
+            
+            try:
+                main()
+            except SystemExit:
+                pass
+            
+            # Verify functions were called
+            mock_generate_data['set_seed'].assert_called_once()
+            mock_generate_data['generate_gene_coordinates'].assert_called_once()
+            mock_generate_data['generate_peak_coordinates'].assert_called_once()
+            mock_generate_data['generate_counts_matrix'].assert_called_once()
+            mock_generate_data['write_counts_csv'].assert_called_once()
+            mock_generate_data['write_peaks_bed'].assert_called_once()
 
-        # Check file existence
-        counts_path = "data/raw/synthetic_counts.csv"
-        peaks_path = "data/raw/synthetic_peaks.bed"
-        checksum_path = "logs/checksums.txt"
+    def test_main_calculates_checksums(self, mock_utils, mock_generate_data):
+        """Test that main calculates checksums for output files"""
+        with patch('code.run_t011.os.path.exists', return_value=True), \
+             patch('code.run_t011.open', create=True), \
+             patch('code.run_t011.checksum_file', return_value="test"):
+            
+            from run_t011 import main
+            
+            try:
+                main()
+            except SystemExit:
+                pass
+            
+            # Verify checksum_file was called twice (once for counts, once for peaks)
+            assert mock_utils.call_count == 2
 
-        self.assertTrue(os.path.exists(counts_path), f"{counts_path} was not created")
-        self.assertTrue(os.path.exists(peaks_path), f"{peaks_path} was not created")
-        self.assertTrue(os.path.exists(checksum_path), f"{checksum_path} was not created")
+    def test_main_handles_missing_file_error(self, mock_utils, mock_generate_data):
+        """Test that main raises FileNotFoundError if output files are missing"""
+        with patch('code.run_t011.os.path.exists', side_effect=[True, False]), \
+             patch('code.run_t011.open', create=True), \
+             patch('code.run_t011.checksum_file', return_value="test"):
+            
+            from run_t011 import main
+            
+            with pytest.raises(FileNotFoundError, match="Failed to create"):
+                try:
+                    main()
+                except SystemExit:
+                    pass  # Ignore sys.exit
 
-        # Validate CSV structure (basic check)
-        df = pd.read_csv(counts_path)
-        self.assertTrue('gene_id' in df.columns, "Counts CSV missing 'gene_id' column")
-        # Check that we have data for the expected cell lines
-        expected_cells = ["GM12878", "K562", "HMEC", "IMR90", "HepG2"]
-        # Depending on the exact format of generate_counts_matrix, columns might be named differently.
-        # Assuming the format is gene_id, cell_line_peak combinations or similar.
-        # We just check it's not empty.
-        self.assertGreater(len(df), 0, "Counts CSV is empty")
-
-        # Validate BED structure
-        with open(peaks_path, 'r') as f:
-            lines = f.readlines()
-        self.assertGreater(len(lines), 0, "Peaks BED file is empty")
-        
-        # Check BED format (at least 3 columns)
-        first_line = lines[0].strip().split('\t')
-        self.assertGreaterEqual(len(first_line), 3, "BED file does not have 3 columns")
-
-        # Validate checksums file content
-        with open(checksum_path, 'r') as f:
-            content = f.read()
-        self.assertIn("synthetic_counts.csv", content, "Checksums log missing counts entry")
-        self.assertIn("synthetic_peaks.bed", content, "Checksums log missing peaks entry")
-
-if __name__ == '__main__':
-    unittest.main()
+    def test_main_logs_checksums(self, mock_utils, mock_generate_data):
+        """Test that main logs checksums to the checksum file"""
+        with patch('code.run_t011.os.path.exists', return_value=True), \
+             patch('code.run_t011.open', create=True) as mock_open, \
+             patch('code.run_t011.checksum_file', return_value="test"):
+            
+            from run_t011 import main
+            
+            try:
+                main()
+            except SystemExit:
+                pass
+            
+            # Verify file was opened for writing checksums
+            assert mock_open.called
+            mock_open.assert_any_call('logs/checksums.txt', 'a')

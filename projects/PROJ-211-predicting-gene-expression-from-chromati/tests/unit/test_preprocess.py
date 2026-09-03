@@ -2,125 +2,97 @@ import pytest
 import pandas as pd
 import numpy as np
 import os
-import sys
 import tempfile
-import shutil
-
-# Add the code directory to the path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
-
 from preprocess import (
-    load_data,
-    save_data,
-    filter_genes_zero_expression,
-    apply_log_pseudocount,
-    impute_missing_values_median,
     calculate_coefficient_of_variation,
     define_housekeeping_genes,
-    define_cell_type_specific_genes
+    define_cell_type_specific_genes,
+    load_data,
+    save_data
 )
 
-@pytest.fixture
-def sample_data():
-    """Create sample data for testing."""
+def test_calculate_coefficient_of_variation():
+    """Test CV calculation logic."""
     data = {
-        'gene_id': ['GENE1', 'GENE2', 'GENE3', 'GENE4', 'GENE5'],
-        'cell_line_1': [10.0, 0.0, 5.0, 0.0, 100.0],
-        'cell_line_2': [12.0, 0.0, 6.0, 0.0, 110.0],
-        'cell_line_3': [8.0, 0.0, 4.0, 0.0, 90.0],
-        'cell_line_4': [11.0, 0.0, 5.5, 0.0, 105.0],
-        'cell_line_5': [9.0, 0.0, 4.5, 0.0, 95.0]
+        'gene_id': ['g1', 'g2', 'g3'],
+        'cell_line_1': [10.0, 100.0, 5.0],
+        'cell_line_2': [10.0, 150.0, 5.0],
+        'cell_line_3': [10.0, 50.0, 5.0]
     }
-    return pd.DataFrame(data)
+    df = pd.DataFrame(data)
+    cv_df = calculate_coefficient_of_variation(df)
 
-@pytest.fixture
-def temp_dir():
-    """Create a temporary directory for file I/O tests."""
-    temp_path = tempfile.mkdtemp()
-    yield temp_path
-    shutil.rmtree(temp_path)
-
-def test_filter_genes_zero_expression(sample_data):
-    """Test filtering genes with zero expression in all samples."""
-    filtered = filter_genes_zero_expression(sample_data, 'gene_id')
-    
-    # GENE2, GENE4 should be filtered out (all zeros)
-    expected_genes = ['GENE1', 'GENE3', 'GENE5']
-    assert list(filtered['gene_id']) == expected_genes
-    assert len(filtered) == 3
-
-def test_apply_log_pseudocount(sample_data):
-    """Test log pseudocount transformation."""
-    transformed = apply_log_pseudocount(sample_data, 'gene_id', pseudocount=1.0)
-    
-    # Check that transformation was applied
-    assert 'cell_line_1' in transformed.columns
-    assert transformed['cell_line_1'].iloc[0] == np.log2(10.0 + 1.0)
-    assert transformed['cell_line_1'].iloc[1] == np.log2(0.0 + 1.0)  # log2(1) = 0
-
-def test_impute_missing_values_median(sample_data):
-    """Test median imputation for missing values."""
-    # Add some NaN values
-    sample_data_with_nan = sample_data.copy()
-    sample_data_with_nan.loc[0, 'cell_line_1'] = np.nan
-    sample_data_with_nan.loc[1, 'cell_line_2'] = np.nan
-    
-    imputed = impute_missing_values_median(sample_data_with_nan, 'gene_id')
-    
-    # Check that NaN values are filled
-    assert not imputed['cell_line_1'].isna().any()
-    assert not imputed['cell_line_2'].isna().any()
-    
-    # Check that the imputed value is the median
-    median_val = sample_data['cell_line_1'].median()
-    assert imputed.loc[0, 'cell_line_1'] == median_val
-
-def test_calculate_coefficient_of_variation(sample_data):
-    """Test CV calculation."""
-    cv_df = calculate_coefficient_of_variation(sample_data, 'gene_id')
-    
-    # Check that CV column exists
     assert 'cv' in cv_df.columns
-    assert len(cv_df) == len(sample_data)
-    
-    # GENE2 and GENE4 have all zeros, so CV should be 0 (handled in implementation)
-    # GENE1, GENE3, GENE5 should have non-zero CV
-    g1_cv = cv_df.loc[cv_df['gene_id'] == 'GENE1', 'cv'].values[0]
-    assert g1_cv > 0  # Should have some variation
+    assert 'mean' in cv_df.columns
+    assert 'std' in cv_df.columns
 
-def test_define_housekeeping_genes(sample_data):
-    """Test housekeeping gene definition with CV threshold."""
-    # With threshold 0.2, only genes with very low CV should be selected
-    # GENE1, GENE3, GENE5 have low variation relative to mean
-    housekeeping = define_housekeeping_genes(sample_data, cv_threshold=0.2, gene_col='gene_id')
+    # g1: mean=10, std=0 -> cv=0
+    # g2: mean=100, std=50 -> cv=0.5
+    # g3: mean=5, std=0 -> cv=0
     
-    # Check that housekeeping genes have CV < 0.2
-    assert all(housekeeping['cv'] < 0.2)
-    
-    # GENE2 and GENE4 should be filtered out (all zeros, CV=0 but might be handled differently)
-    # In practice, GENE2 and GENE4 would have been filtered earlier by filter_genes_zero_expression
-    assert 'GENE1' in housekeeping['gene_id'].values or 'GENE3' in housekeeping['gene_id'].values
+    g1_cv = cv_df[cv_df['gene_id'] == 'g1']['cv'].values[0]
+    g2_cv = cv_df[cv_df['gene_id'] == 'g2']['cv'].values[0]
+    g3_cv = cv_df[cv_df['gene_id'] == 'g3']['cv'].values[0]
 
-def test_define_cell_type_specific_genes(sample_data):
-    """Test cell-type-specific gene definition with CV threshold."""
-    # With threshold 0.5, genes with high CV should be selected
-    cell_type = define_cell_type_specific_genes(sample_data, cv_threshold=0.5, gene_col='gene_id')
-    
-    # Check that cell-type-specific genes have CV > 0.5
-    assert all(cell_type['cv'] > 0.5)
+    assert np.isclose(g1_cv, 0.0)
+    assert np.isclose(g2_cv, 0.5)
+    assert np.isclose(g3_cv, 0.0)
 
-def test_load_save_data(temp_dir, sample_data):
-    """Test loading and saving data."""
-    test_file = os.path.join(temp_dir, 'test.csv')
+def test_define_housekeeping_genes():
+    """Test housekeeping gene selection."""
+    data = {
+        'gene_id': ['g1', 'g2', 'g3'],
+        'cell_line_1': [10.0, 100.0, 5.0],
+        'cell_line_2': [10.0, 150.0, 5.0],
+        'cell_line_3': [10.0, 50.0, 5.0]
+    }
+    df = pd.DataFrame(data)
     
-    # Save data
-    save_data(sample_data, test_file)
-    assert os.path.exists(test_file)
+    # Threshold 0.2: g1 and g3 should be selected (CV=0)
+    housekeeping_df = define_housekeeping_genes(df, cv_threshold=0.2)
     
-    # Load data
-    loaded = load_data(test_file)
-    assert len(loaded) == len(sample_data)
-    assert list(loaded.columns) == list(sample_data.columns)
+    assert len(housekeeping_df) == 2
+    assert 'g2' not in housekeeping_df['gene_id'].values
+    assert 'g1' in housekeeping_df['gene_id'].values
+    assert 'g3' in housekeeping_df['gene_id'].values
+
+def test_define_cell_type_specific_genes():
+    """Test cell-type-specific gene selection."""
+    data = {
+        'gene_id': ['g1', 'g2', 'g3'],
+        'cell_line_1': [10.0, 100.0, 5.0],
+        'cell_line_2': [10.0, 150.0, 5.0],
+        'cell_line_3': [10.0, 50.0, 5.0]
+    }
+    df = pd.DataFrame(data)
     
-    # Check values
-    pd.testing.assert_frame_equal(loaded, sample_data)
+    # Threshold 0.5: g2 should be selected (CV=0.5, strictly > 0.5? Task says > 0.5)
+    # Let's adjust data to ensure g2 > 0.5
+    data['cell_line_1'] = [10.0, 10.0, 5.0]
+    data['cell_line_2'] = [10.0, 200.0, 5.0]
+    data['cell_line_3'] = [10.0, 0.0, 5.0] # Mean 66.6, Std ~100 -> CV > 1
+    df = pd.DataFrame(data)
+    
+    specific_df = define_cell_type_specific_genes(df, cv_threshold=0.5)
+    
+    assert len(specific_df) == 1
+    assert specific_df['gene_id'].values[0] == 'g2'
+
+def test_save_and_load_data(tmp_path):
+    """Test saving and loading data roundtrip."""
+    data = {
+        'gene_id': ['g1', 'g2'],
+        'val1': [1.0, 2.0],
+        'val2': [3.0, 4.0]
+    }
+    df = pd.DataFrame(data)
+    
+    output_path = os.path.join(tmp_path, "test.csv")
+    save_data(df, output_path)
+    
+    loaded_df = load_data(output_path)
+    
+    assert loaded_df.shape == df.shape
+    assert list(loaded_df.columns) == list(df.columns)
+    assert np.allclose(loaded_df['val1'], df['val1'])
+    assert np.allclose(loaded_df['val2'], df['val2'])

@@ -130,10 +130,10 @@
 
 - [ ] T026 [P] [US3] Implement `visualization.py`: Generate scatter plots (X: `total_lines_changed`, Y: `debt_score`) with regression lines per repository <!-- FAILED: unspecified -->
 - [ ] T027 [US3] Implement `visualization.py`: Annotate plots with correlation coefficient (`r`) and p-value; save to `data/results/plots/`
-- [~] T028 [US3] Implement `reporting.py`: Generate `summary_report.txt` listing per-repo and aggregate results, flagging `|r| ≥ 0.3` as 'moderate' for raw metrics
-- [~] T029 [US3] Implement `reporting.py`: Include Meta-analysis outcome and sensitivity analysis table in the report
-- [~] T030 [US3] Implement `main.py`: Measure and log total pipeline execution time against a predefined duration threshold. (SC-003)
-- [~] T031 [US3] Implement `main.py`: Finalize pipeline by computing checksums and updating `state/projects/...yaml` (Phase 7)
+- [ ] T028 [US3] Implement `reporting.py`: Generate `summary_report.txt` listing per-repo and aggregate results, flagging `|r| ≥ 0.3` as 'moderate' for raw metrics
+- [ ] T029 [US3] Implement `reporting.py`: Include Meta-analysis outcome and sensitivity analysis table in the report
+- [ ] T030 [US3] Implement `main.py`: Measure and log total pipeline execution time against a predefined duration threshold. (SC-003)
+- [ ] T031 [US3] Implement `main.py`: Finalize pipeline by computing checksums and updating `state/projects/...yaml` (Phase 7)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -143,8 +143,8 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T032a [P] Update `quickstart.md` with installation and execution instructions
-- [~] T032b [P] Update `research.md` with methodology details and validation study citations
+- [ ] T032a [P] Update `quickstart.md` with installation and execution instructions
+- [ ] T032b [P] Update `research.md` with methodology details and validation study citations
 - [~] T033 Code cleanup and refactoring of `preprocessing.py` and `analysis.py`
 - [~] T034 Performance optimization: Ensure parallelism is limited to a constrained number of concurrent repo processes.
 - [ ] T035 [P] Additional unit tests in `tests/unit/` for metric calculation logic

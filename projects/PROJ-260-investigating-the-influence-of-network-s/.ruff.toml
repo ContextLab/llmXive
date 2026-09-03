@@ -1,0 +1,6 @@
+# Ruff configuration for linting
+# This file is redundant with pyproject.toml but provided for explicit tool usage
+line-length = 88
+target-version = "py39"
+select = ["E", "W", "F", "I", "B", "C4"]
+ignore = ["E501"]

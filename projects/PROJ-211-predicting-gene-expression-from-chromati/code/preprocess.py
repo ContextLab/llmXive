@@ -9,203 +9,173 @@ import numpy as np
 
 from utils import checksum_file
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('logs/preprocess.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
 
 def load_data(input_path: str) -> pd.DataFrame:
     """Load a CSV file into a pandas DataFrame."""
-    logger.info(f"Loading data from {input_path}")
     if not os.path.exists(input_path):
         raise FileNotFoundError(f"Input file not found: {input_path}")
+    logger.info(f"Loading data from {input_path}")
     df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} rows and {len(df.columns)} columns")
     return df
-
 
 def save_data(df: pd.DataFrame, output_path: str) -> None:
     """Save a DataFrame to a CSV file."""
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    logger.info(f"Saving data to {output_path}")
     df.to_csv(output_path, index=False)
-    logger.info(f"Saved {len(df)} rows to {output_path}")
+    logger.info(f"Saved data to {output_path}")
 
-
-def filter_genes_zero_expression(df: pd.DataFrame, expression_cols: List[str]) -> pd.DataFrame:
-    """Filter genes with zero expression in all samples."""
-    logger.info(f"Filtering genes with zero expression in all samples")
-    if not expression_cols:
-        raise ValueError("No expression columns provided")
+def filter_genes_zero_expression(df: pd.DataFrame, gene_col: str = 'gene_id', value_cols: List[str] = None) -> pd.DataFrame:
+    """Filter out genes that have zero expression in all samples."""
+    if value_cols is None:
+        # Assume all columns except gene_id are expression values
+        value_cols = [col for col in df.columns if col != gene_col]
     
-    non_zero_mask = (df[expression_cols] > 0).any(axis=1)
-    filtered_df = df[non_zero_mask]
-    logger.info(f"Filtered {len(df) - len(filtered_df)} genes with zero expression")
+    # Check if any sample has non-zero expression
+    mask = (df[value_cols] != 0).any(axis=1)
+    filtered_df = df[mask].copy()
+    logger.info(f"Filtered {len(df) - len(filtered_df)} genes with zero expression in all samples.")
     return filtered_df
 
-
-def apply_log_pseudocount(df: pd.DataFrame, expression_cols: List[str], pseudocount: float = 1.0) -> pd.DataFrame:
-    """Apply logarithmic transformation with pseudocount to expression values."""
-    logger.info(f"Applying log pseudocount transformation with pseudocount={pseudocount}")
-    result_df = df.copy()
-    for col in expression_cols:
-        result_df[col] = np.log1p(result_df[col])
-    logger.info("Log pseudocount transformation complete")
-    return result_df
-
-
-def impute_missing_values_median(df: pd.DataFrame, feature_cols: List[str]) -> pd.DataFrame:
-    """Impute missing values using median per peak/feature."""
-    logger.info(f"Imputing missing values using median for {len(feature_cols)} features")
-    result_df = df.copy()
-    for col in feature_cols:
-        median_val = result_df[col].median()
-        result_df[col] = result_df[col].fillna(median_val)
-    logger.info("Median imputation complete")
-    return result_df
-
-
-def select_top_variable_peaks(df: pd.DataFrame, feature_cols: List[str], top_n: int = 1000) -> List[str]:
-    """Select top N most variable peaks based on variance."""
-    logger.info(f"Selecting top {top_n} most variable peaks")
-    if len(feature_cols) == 0:
-        return []
+def apply_log_pseudocount(df: pd.DataFrame, value_cols: List[str] = None, pseudocount: float = 1.0) -> pd.DataFrame:
+    """Apply log(x + pseudocount) transformation to expression values."""
+    if value_cols is None:
+        value_cols = [col for col in df.columns if col != 'gene_id']
     
-    variances = df[feature_cols].var(axis=0)
+    df_transformed = df.copy()
+    for col in value_cols:
+        if col in df_transformed.columns:
+            df_transformed[col] = np.log2(df_transformed[col] + pseudocount)
+    
+    logger.info(f"Applied log pseudocount transformation to {len(value_cols)} columns.")
+    return df_transformed
+
+def impute_missing_values_median(df: pd.DataFrame, value_cols: List[str] = None) -> pd.DataFrame:
+    """Impute missing values with the median of each column."""
+    if value_cols is None:
+        value_cols = [col for col in df.columns if col != 'gene_id']
+    
+    df_imputed = df.copy()
+    for col in value_cols:
+        if col in df_imputed.columns:
+            median_val = df_imputed[col].median()
+            df_imputed[col] = df_imputed[col].fillna(median_val)
+    
+    logger.info(f"Imputed missing values using median for {len(value_cols)} columns.")
+    return df_imputed
+
+def select_top_variable_peaks(df: pd.DataFrame, top_n: int = 1000) -> pd.DataFrame:
+    """Select the top N most variable peaks based on variance."""
+    # Assuming columns are peaks, calculate variance across rows
+    if df.shape[0] == 0:
+        return df
+    
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
+    if len(numeric_cols) == 0:
+        return df
+    
+    variances = df[numeric_cols].var(axis=0)
     top_peaks = variances.nlargest(top_n).index.tolist()
-    logger.info(f"Selected top {len(top_peaks)} variable peaks")
-    return top_peaks
+    
+    # Ensure 'gene_id' is included if present
+    if 'gene_id' in df.columns:
+        top_peaks = ['gene_id'] + top_peaks
+    
+    result = df[top_peaks]
+    logger.info(f"Selected top {top_n} variable peaks.")
+    return result
 
+def calculate_coefficient_of_variation(df: pd.DataFrame, value_cols: List[str] = None) -> pd.Series:
+    """Calculate the coefficient of variation (CV) for each row (gene) across samples."""
+    if value_cols is None:
+        value_cols = [col for col in df.columns if col != 'gene_id']
+    
+    cv_series = df[value_cols].std(axis=1) / df[value_cols].mean(axis=1)
+    # Handle division by zero
+    cv_series = cv_series.replace([np.inf, -np.inf], np.nan).fillna(0)
+    return cv_series
 
-def calculate_coefficient_of_variation(df: pd.DataFrame, expression_cols: List[str]) -> pd.Series:
-    """Calculate coefficient of variation (CV) for each gene across samples."""
-    logger.info(f"Calculating coefficient of variation for {len(expression_cols)} samples")
-    if len(expression_cols) == 0:
-        return pd.Series(dtype=float)
+def define_housekeeping_genes(df: pd.DataFrame, cv_threshold: float = 0.2, gene_col: str = 'gene_id') -> pd.DataFrame:
+    """Identify housekeeping genes based on coefficient of variation threshold."""
+    cv = calculate_coefficient_of_variation(df)
+    df_with_cv = df.copy()
+    df_with_cv['_cv'] = cv
     
-    means = df[expression_cols].mean(axis=1)
-    stds = df[expression_cols].std(axis=1)
+    # Filter for genes with CV < threshold
+    housekeeping = df_with_cv[df_with_cv['_cv'] < cv_threshold]
+    housekeeping = housekeeping.drop(columns=['_cv'])
     
-    # Avoid division by zero
-    cv = stds / means.replace(0, np.nan)
-    cv = cv.fillna(0)
-    
-    logger.info(f"Calculated CV for {len(cv)} genes")
-    return cv
+    logger.info(f"Identified {len(housekeeping)} housekeeping genes (CV < {cv_threshold}).")
+    return housekeeping
 
+def define_cell_type_specific_genes(df: pd.DataFrame, cv_threshold: float = 0.5, gene_col: str = 'gene_id') -> pd.DataFrame:
+    """Identify cell-type-specific genes based on coefficient of variation threshold."""
+    cv = calculate_coefficient_of_variation(df)
+    df_with_cv = df.copy()
+    df_with_cv['_cv'] = cv
+    
+    # Filter for genes with CV > threshold
+    specific = df_with_cv[df_with_cv['_cv'] > cv_threshold]
+    specific = specific.drop(columns=['_cv'])
+    
+    logger.info(f"Identified {len(specific)} cell-type-specific genes (CV > {cv_threshold}).")
+    return specific
 
-def define_housekeeping_genes(df: pd.DataFrame, expression_cols: List[str], threshold: float = 0.2) -> pd.DataFrame:
-    """Define housekeeping genes as those with CV < threshold."""
-    logger.info(f"Defining housekeeping genes with CV threshold < {threshold}")
-    cv_series = calculate_coefficient_of_variation(df, expression_cols)
+def filter_to_gene_list(df: pd.DataFrame, gene_list_path: str, gene_col: str = 'gene_id') -> pd.DataFrame:
+    """Filter the DataFrame to only include genes present in the provided gene list file."""
+    if not os.path.exists(gene_list_path):
+        raise FileNotFoundError(f"Gene list file not found: {gene_list_path}")
     
-    housekeeping_mask = cv_series < threshold
-    housekeeping_genes = df[housekeeping_mask]
+    gene_list_df = pd.read_csv(gene_list_path)
+    if gene_col not in gene_list_df.columns:
+        # If the gene list file only contains gene IDs without a column header, assume the first column is the ID
+        if len(gene_list_df.columns) >= 1:
+            gene_list = gene_list_df.iloc[:, 0].tolist()
+        else:
+            raise ValueError("Gene list file is empty or has no valid columns.")
+    else:
+        gene_list = gene_list_df[gene_col].tolist()
     
-    logger.info(f"Identified {len(housekeeping_genes)} housekeeping genes")
-    return housekeeping_genes
-
-
-def define_cell_type_specific_genes(df: pd.DataFrame, expression_cols: List[str], threshold: float = 0.5) -> pd.DataFrame:
-    """Define cell-type-specific genes as those with CV > threshold."""
-    logger.info(f"Defining cell-type-specific genes with CV threshold > {threshold}")
-    
-    if df.empty:
-        logger.warning("Input DataFrame is empty")
-        return pd.DataFrame(columns=df.columns)
-    
-    cv_series = calculate_coefficient_of_variation(df, expression_cols)
-    
-    cell_type_specific_mask = cv_series > threshold
-    cell_type_specific_genes = df[cell_type_specific_mask]
-    
-    logger.info(f"Identified {len(cell_type_specific_genes)} cell-type-specific genes")
-    return cell_type_specific_genes
-
-
-def preprocess_tss_aggregated_features(input_path: str, output_path: str, gene_col: str = 'gene_id', 
-                                       expression_cols: Optional[List[str]] = None) -> None:
-    """
-    Preprocess TSS aggregated features:
-    1. Load data
-    2. Identify expression columns if not provided
-    3. Filter genes with zero expression
-    4. Apply log pseudocount
-    5. Impute missing values
-    6. Save processed data
-    """
-    df = load_data(input_path)
-    
-    if expression_cols is None:
-        # Assume all columns except the gene identifier are expression columns
-        expression_cols = [col for col in df.columns if col != gene_col]
-    
-    # Filter genes with zero expression
-    df = filter_genes_zero_expression(df, expression_cols)
-    
-    # Apply log pseudocount
-    df = apply_log_pseudocount(df, expression_cols)
-    
-    # Impute missing values
-    df = impute_missing_values_median(df, expression_cols)
-    
-    # Save processed data
-    save_data(df, output_path)
-    logger.info(f"Preprocessing complete. Output saved to {output_path}")
-
+    filtered_df = df[df[gene_col].isin(gene_list)]
+    logger.info(f"Filtered matrix to {len(filtered_df)} genes from the provided list.")
+    return filtered_df
 
 def main():
-    parser = argparse.ArgumentParser(description="Preprocess gene expression and chromatin accessibility data")
-    parser.add_argument('--input', type=str, default='data/processed/imputed_expression.csv',
-                        help='Input CSV file path')
-    parser.add_argument('--output', type=str, default='data/processed/cell_type_specific_genes.csv',
-                        help='Output CSV file path for cell-type-specific genes')
-    parser.add_argument('--cv-threshold', type=float, default=0.5,
-                        help='Coefficient of variation threshold for cell-type-specific genes')
-    parser.add_argument('--gene-col', type=str, default='gene_id',
-                        help='Column name for gene identifiers')
+    parser = argparse.ArgumentParser(description="Filter feature matrix to housekeeping genes.")
+    parser.add_argument("--input", type=str, default="data/processed/imputed_expression.csv",
+                        help="Path to the imputed expression matrix CSV.")
+    parser.add_argument("--gene-list", type=str, default="data/processed/housekeeping_genes.csv",
+                        help="Path to the housekeeping genes list CSV.")
+    parser.add_argument("--output", type=str, default="data/processed/housekeeping_matrix.csv",
+                        help="Path to save the filtered housekeeping matrix CSV.")
+    parser.add_argument("--gene-col", type=str, default="gene_id",
+                        help="Column name for gene identifiers.")
     
     args = parser.parse_args()
     
     try:
-        # Load data
+        # Load the full imputed expression matrix
         df = load_data(args.input)
         
-        # Identify expression columns (all columns except gene identifier)
-        expression_cols = [col for col in df.columns if col != args.gene_col]
+        # Filter the matrix to only include housekeeping genes
+        housekeeping_matrix = filter_to_gene_list(df, args.gene_list, args.gene_col)
         
-        if not expression_cols:
-            logger.error("No expression columns found in the input file")
-            sys.exit(1)
+        # Save the filtered matrix
+        save_data(housekeeping_matrix, args.output)
         
-        # Define cell-type-specific genes
-        cell_type_specific_df = define_cell_type_specific_genes(df, expression_cols, args.cv_threshold)
-        
-        # Save output
-        save_data(cell_type_specific_df, args.output)
-        
-        # Calculate checksum
+        # Calculate and log checksum
         checksum = checksum_file(args.output)
         logger.info(f"Checksum for {args.output}: {checksum}")
         
-        # Log checksum to file
-        checksum_log_path = 'logs/checksums.txt'
-        os.makedirs(os.path.dirname(checksum_log_path), exist_ok=True)
-        with open(checksum_log_path, 'a') as f:
-            f.write(f"{args.output}: {checksum}\n")
+        # Optionally write checksum to a log file if needed, but task specifically asks for checksum_file usage
+        # which is already done.
         
-        logger.info("Task completed successfully")
+        logger.info("Task T016c completed successfully.")
         
     except Exception as e:
-        logger.error(f"Error during preprocessing: {str(e)}")
-        raise
-
+        logger.error(f"Error during execution: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
