@@ -2527,3 +2527,634 @@
   source_type: external
   status: verified
   updated_at: '2026-08-12T17:54:39Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: baseline p-values between 0 and 1
+  claim_id: c_de7777d0
+  context: "Baseline analysis script is expected to output a JSON file containing\
+    \ statistical results. The verification step checks that p\u2011values lie strictly\
+    \ between 0 and 1 and that confidence intervals are finite."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify baseline analysis script produces `baseline_metrics.json` with\
+    \ valid p\u2011values (0 < p < 1) and finite CIs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:32:21Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "baseline numeric fields rounded to \u22653 decimal places"
+  claim_id: c_04499c09
+  context: After generating `baseline_metrics.json`, a test ensures the numeric values
+    have sufficient precision. This step asserts that every numeric field is represented
+    with three or more decimal digits.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Baseline_numeric_fields_rounded_to_%E2%89%A53_decimal_places
+  kind: magnitude
+  raw_text: Verify numeric fields in `baseline_metrics.json` are rounded to at least
+    three decimal places.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:33:20Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "p-value difference precision \u22653 decimal, CI width change precision\
+    \ \u22652 decimal, effect size delta, inconsistency rate"
+  claim_id: c_ef6ec0db
+  context: "The metrics comparison module generates per\u2011dataset differences between\
+    \ baseline and cleaned analyses. It reports the absolute p\u2011value change,\
+    \ the change in confidence\u2011interval width, the effect\u2011size delta, and\
+    \ how often significance status flips."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Computes |p_cleaned \u2212 p_baseline| (\u22653\u2011decimal), CI width\
+    \ change (\u22652\u2011decimal), effect\u2011size delta, and inconsistency rate\
+    \ (proportion of datasets where significance status changes)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:33:20Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "Wilcoxon power analysis power \u22650.8"
+  claim_id: c_89fa161c
+  context: For each dataset the pipeline runs a power analysis using a medium effect
+    size and a significance level of 0.05. The resulting power estimate must be at
+    least 0.8 and is documented in a text file.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform Wilcoxon\u2011based power analysis (medium effect size, \u03B1\
+    \ = 0.05, power \u2265 0.8) for each dataset; write justification to `power_analysis.txt`."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:34:12Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "synthetic benchmark FPR \u22640.05 and effect size tolerance \xB10.1"
+  claim_id: c_162ce178
+  context: "Synthetic datasets with no true effect and with a moderate effect (d =\
+    \ 0.5) are created to benchmark the pipeline. After processing, the false\u2011\
+    positive rate must not exceed 0.05 and the recovered effect size must lie within\
+    \ \xB10.1 of the true value."
+  evidence:
+    asserted: '0.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Generate synthetic null\u2011effect and d = 0.5 datasets matching the\
+    \ size distribution of real data; run the full pipeline; record FPR (\u2264 0.05)\
+    \ and effect\u2011size recovery (tolerance \xB1 0.1)."
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T15:34:12Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "Holm\u2011Bonferroni FWER \u22640.05"
+  claim_id: c_8590d0e8
+  context: "After computing p\u2011values for each cleaning variant, the pipeline\
+    \ adjusts them using Holm\u2011Bonferroni. The corrected results must keep the\
+    \ family\u2011wise error rate at or below 0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Holm\u2011Bonferroni correction across all cleaning\u2011variant\
+    \ p\u2011values within each dataset; assert family\u2011wise error rate \u2264\
+    \ 0.05 and record adjusted p\u2011values in `cleaned_metrics.json`."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:34:13Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "outcome columns numeric, non\u2011constant, no missing values"
+  claim_id: c_0f146623
+  context: During data ingestion the system extracts the outcome variable for each
+    dataset. A validation step confirms that this column is numeric, varies across
+    records, and contains no missing entries.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Outcome_columns_numeric,_non%E2%80%91constant,_no_missing_values
+  kind: entity_fact
+  raw_text: "Verify that each outcome column recorded in `dataset_metadata.json` is\
+    \ numeric, non\u2011constant, and has no missing values."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:34:37Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "each size and missingness bin contains \u22651 dataset"
+  claim_id: c_1d02bf7a
+  context: The project stratifies datasets by sample size and missingness level. The
+    requirement mandates that every defined bin must contain at least one dataset,
+    prompting additional downloads when a bin is empty.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure each size\u2011bin (n < 50, 50\u2011200, >200) and missingness\
+    \ level bin has \u2265 1 dataset; download additional data if needed."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:35:35Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "Family-wise error rate after Holm\u2011Bonferroni correction is \u2264\
+    \ 0.05"
+  claim_id: c_dab5594d
+  context: "Task T109 applies Holm\u2011Bonferroni correction across all cleaning\u2011\
+    variant p\u2011values within each dataset and checks that the family\u2011wise\
+    \ error rate is \u2264 0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "T109a asserts FWER \u2264 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:36:53Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "Power analysis for each dataset achieves power \u2265 0.8 (medium effect\
+    \ size, \u03B1 = 0.05)"
+  claim_id: c_6c7e9c3d
+  context: "Task T105 performs a Wilcoxon\u2011based power analysis (medium effect\
+    \ size, \u03B1 = 0.05) for each dataset and verifies that the power is at least\
+    \ 0.8."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "T105a checks file existence and that power \u2265 0.8 for all datasets."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:37:34Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "A priori power analysis using WilcoxonPower (medium effect size d=0.5,\
+    \ \u03B1=0.05) yields power \u2265 0.8"
+  claim_id: c_8283fffa
+  context: Task T1228 performs an A Priori Power Analysis using statsmodels WilcoxonPower
+    for medium effect size (d=0.5) and confirms that the calculated power is at least
+    0.8.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "T1228a asserts power \u2265 0.8 and file existence."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:38:15Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "Wilcoxon power analysis achieves power \u2265 0.8"
+  claim_id: c_ca97d0d8
+  context: "T006a Perform Wilcoxon\u2011based power analysis (medium effect size,\
+    \ \u03B1 = 0.05, power \u2265 0.8) for each dataset; write justification to `power_analysis.txt`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Wilcoxon\u2011based power analysis for each dataset achieves power \u2265\
+    \ 0.8 (medium effect size, \u03B1 = 0.05)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:39:21Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "Holm\u2011Bonferroni correction yields FWER \u2264 0.05"
+  claim_id: c_d7cb9524
+  context: "T007a Apply Holm\u2011Bonferroni correction across all cleaning\u2011\
+    variant p\u2011values within each dataset; T007b asserts FWER \u2264 0.05."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Holm%E2%80%91Bonferroni_correction_yields_FWER_%E2%89%A4_0.05
+  kind: causal
+  raw_text: "Holm\u2011Bonferroni correction across all cleaning\u2011variant p\u2011\
+    values within each dataset results in a family\u2011wise error rate \u2264 0.05."
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:39:23Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "Permutation FPR estimation uses 1000 permutations for datasets with\
+    \ n \u2264 200 and 500 for n > 200"
+  claim_id: c_bc6b2720
+  context: "The task defines permutation\u2011based false\u2011positive\u2011rate\
+    \ estimation and specifies the number of permutations based on dataset size."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Permutation\u2011based FPR estimation uses 1000 permutations for n \u2264\
+    \ 200, 500 for n > 200."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:41:28Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "Holm\u2011Bonferroni correction ensures family\u2011wise error rate\
+    \ \u2264 0.05 for cleaning\u2011variant p\u2011values"
+  claim_id: c_09a3b731
+  context: "The specification requires that after correction the overall false\u2011\
+    positive rate does not exceed 5\u202F%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Holm\u2011Bonferroni correction across all cleaning\u2011variant\
+    \ p\u2011values within each dataset; assert family\u2011wise error rate \u2264\
+    \ 0.05 and record adjusted p\u2011values in cleaned_metrics.json."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:41:28Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "Wilcoxon power analysis achieves power \u2265 0.8 for each dataset with\
+    \ medium effect size and \u03B1 = 0.05"
+  claim_id: c_5dfce71b
+  context: A priori power analysis is mandated for every dataset to ensure sufficient
+    statistical power.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform Wilcoxon\u2011based power analysis (medium effect size, \u03B1\
+    \ = 0.05, power \u2265 0.8) for each dataset; write justification to power_analysis.txt."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:41:28Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: Each size and missingness bin contains at least one dataset
+  claim_id: c_9f545eac
+  context: Dataset collection must cover all defined size and missingness bins.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Each_size_and_missingness_bin_contains_at_least_one_dataset
+  kind: magnitude
+  raw_text: "Ensure each size\u2011bin (n < 50, 50\u2011200, >200) and missingness\u2011\
+    level bin has \u2265 1 dataset; download additional data if needed."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:41:30Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: Bootstrap variance estimation uses at least 1000 resamples per dataset
+  claim_id: c_e32b8440
+  context: The analysis pipeline includes bootstrap variance estimation with a minimum
+    of 1000 resamples.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_variance_estimation_uses_at_least_1000_resamples_p
+  kind: magnitude
+  raw_text: "Bootstrap variance estimation with \u22651000 resamples per dataset (default\
+    \ 1000)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:41:59Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: baseline analysis script produces baseline_metrics.json with valid p-values
+    and finite confidence intervals
+  claim_id: c_e42947fe
+  context: Implementation for User Story 1 includes verification that the baseline
+    analysis script produces baseline_metrics.json with valid p-values (0 < p < 1)
+    and finite CIs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Baseline analysis script produces `baseline_metrics.json` with valid p-values
+    (0 < p < 1) and finite confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:42:44Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: baseline_metrics.json numeric fields have at least three decimal places
+  claim_id: c_def2e215
+  context: Verification steps T012b and T012c assert that baseline_metrics.json fields
+    are rounded to at least three decimal places.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Baseline_metrics.json_numeric_fields_have_at_least_three_dec
+  kind: magnitude
+  raw_text: '`baseline_metrics.json` contains numeric fields rounded to at least three
+    decimal places.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:43:12Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: cleaned_metrics.json contains required fields with at least three decimal
+    precision and cleaning metadata
+  claim_id: c_1c25a18e
+  context: "Verification T069b checks that cleaned_metrics.json contains required\
+    \ fields, \u22653\u2011decimal precision, and cleaning metadata."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cleaned_metrics.json_contains_required_fields_with_at_least
+  kind: magnitude
+  raw_text: "`cleaned_metrics.json` contains required fields with \u22653\u2011decimal\
+    \ precision and includes cleaning metadata."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:43:41Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: null_fpr_metrics.json contains FPR values with at least three decimal
+    precision
+  claim_id: c_0571da67
+  context: "Verification T074a asserts that null_fpr_metrics.json contains the correct\
+    \ FPR values with \u22653\u2011decimal precision."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Null_fpr_metrics.json_contains_FPR_values_with_at_least_thre
+  kind: magnitude
+  raw_text: "`null_fpr_metrics.json` contains FPR values with \u22653\u2011decimal\
+    \ precision."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:44:03Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: each size bin and missingness level bin has at least one dataset
+  claim_id: c_ac13159c
+  context: "Verification T005d checks bin coverage ensuring each size\u2011bin and\
+    \ missingness\u2011level bin has \u2265 1 dataset."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Each_size_bin_and_missingness_level_bin_has_at_least_one_dat
+  kind: magnitude
+  raw_text: "Each size\u2011bin (n < 50, 50\u2011200, >200) and missingness\u2011\
+    level bin has at least one dataset."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:44:56Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: Holm-Bonferroni correction yields family-wise error rate <= 0.05
+  claim_id: c_11a1aa47
+  context: "Verification T007b asserts FWER compliance after applying Holm\u2011Bonferroni\
+    \ correction."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Holm-Bonferroni_correction_yields_family-wise_error_rate_%3C=_
+  kind: causal
+  raw_text: "Holm\u2011Bonferroni correction across all cleaning\u2011variant p\u2011\
+    values within each dataset results in family\u2011wise error rate \u2264 0.05."
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:44:56Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "1000 permutations for datasets with n \u2264 200 in permutation-based\
+    \ false positive rate estimation"
+  claim_id: c_eb24c83b
+  context: "Phase 1.7: Implement permutation\u2011based FPR estimation: permute the\
+    \ outcome column on the raw dataset before any cleaning operation, using both\
+    \ MCAR and MAR missingness mechanisms. Use 1000 permutations for n \u2264 200,\
+    \ 500 for n > 200."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Permutation\u2011based FPR estimation uses 1000 permutations for n \u2264\
+    \ 200"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:47:31Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: 500 permutations for datasets with n > 200 in permutation-based false
+    positive rate estimation
+  claim_id: c_7df5c98b
+  context: "Phase 1.7: Implement permutation\u2011based FPR estimation: permute the\
+    \ outcome column on the raw dataset before any cleaning operation, using both\
+    \ MCAR and MAR missingness mechanisms. Use 1000 permutations for n \u2264 200,\
+    \ 500 for n > 200."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Permutation\u2011based FPR estimation uses 500 permutations for n > 200"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:47:31Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "\u22651000 bootstrap resamples per dataset"
+  claim_id: c_737a214c
+  context: "Phase 3: Implement bootstrap variance estimation with \u22651000 resamples\
+    \ per dataset (default 1000)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/%E2%89%A51000_bootstrap_resamples_per_dataset
+  kind: magnitude
+  raw_text: Bootstrap variance estimation uses at least 1000 resamples per dataset
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:48:03Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "\u22651 dataset per size and missingness bin"
+  claim_id: c_30c57b22
+  context: "Phase 2 tasks: Ensure each size\u2011bin and missingness\u2011level bin\
+    \ has \u2265 1 dataset; download additional data if needed."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/%E2%89%A51_dataset_per_size_and_missingness_bin
+  kind: magnitude
+  raw_text: "Each size\u2011bin (n < 50, 50\u2011200, >200) and missingness level\
+    \ bin has at least one dataset"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:48:05Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "effect size tolerance \xB10.1"
+  claim_id: c_cb88a4f0
+  context: "Phase 3: Generate synthetic benchmark datasets, run full pipeline, and\
+    \ record FPR and effect\u2011size recovery. Verification asserts effect\u2011\
+    size tolerance \xB1 0.1."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Effect\u2011size tolerance is \xB10.1"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:48:32Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "outcome column is numeric, non\u2011constant, and complete"
+  claim_id: c_ba24b47b
+  context: "Phase 1: Verify that each outcome column recorded in dataset_metadata.json\
+    \ is numeric, non\u2011constant, and has no missing values."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Outcome_column_is_numeric,_non%E2%80%91constant,_and_complete
+  kind: entity_fact
+  raw_text: "Each outcome column recorded in dataset_metadata.json is numeric, non\u2011\
+    constant, and has no missing values"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:49:29Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "Holm\u2011Bonferroni correction yields family\u2011wise error rate \u2264\
+    \ 0.05"
+  claim_id: c_e5004fbd
+  context: "T109 [P] FR\u2011007 Multiple\u2011Comparison Verification: Apply Holm\u2011\
+    Bonferroni correction across all cleaning\u2011variant p\u2011values within each\
+    \ dataset; assert family\u2011wise error rate \u2264 0.05 and record adjusted\
+    \ p\u2011values in `cleaned_metrics.json`. Verification: T109a checks FWER compliance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Holm\u2011Bonferroni correction across all cleaning\u2011variant\
+    \ p\u2011values within each dataset; assert family\u2011wise error rate \u2264\
+    \ 0.05 and record adjusted p\u2011values in `cleaned_metrics.json`."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:51:23Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "Wilcoxon power analysis achieves power \u2265 0.8 for all datasets"
+  claim_id: c_b2d0e8b5
+  context: "T105 [P] FR\u2011016 Power Analysis: Perform Wilcoxon\u2011based power\
+    \ analysis (medium effect size, \u03B1 = 0.05, power \u2265 0.8) for each dataset;\
+    \ write justification to `power_analysis.txt`. Verification: T105a checks file\
+    \ existence and that power \u2265 0.8 for all datasets."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform Wilcoxon\u2011based power analysis (medium effect size, \u03B1\
+    \ = 0.05, power \u2265 0.8) for each dataset; write justification to `power_analysis.txt`.\
+    \ Verification: T105a checks file existence and that power \u2265 0.8 for all\
+    \ datasets."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:52:54Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "A priori Wilcoxon power analysis achieves power \u2265 0.8"
+  claim_id: c_9aef72b1
+  context: "T1228 [POWER] Perform A Priori Power Analysis using `statsmodels.stats.power.WilcoxonPower`\
+    \ for medium effect size (d=0.5), \u03B1 = 0.05, power \u2265 0.8. Verification:\
+    \ T1228a asserts power \u2265 0.8 and file existence."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform A Priori Power Analysis using `statsmodels.stats.power.WilcoxonPower`\
+    \ for medium effect size (d=0.5), \u03B1 = 0.05, power \u2265 0.8. Verification:\
+    \ T1228a asserts power \u2265 0.8 and file existence."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T15:53:35Z'

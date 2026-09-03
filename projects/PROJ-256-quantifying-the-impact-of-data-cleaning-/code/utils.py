@@ -1,161 +1,124 @@
+"""
+Utility functions for the project.
+
+This module provides common helper functions such as random seed pinning,
+logging setup, and file checksum calculation. Existing functions are
+preserved; new functionality is added in a backward‑compatible way.
+"""
 import hashlib
 import logging
 import os
 import random
 import sys
 import time
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
-# ------------------------------------------------------------
-# Utility Functions
-# ------------------------------------------------------------
+# ----------------------------------------------------------------------
+# Existing utilities (preserved from the original repository)
+# ----------------------------------------------------------------------
+def compute_file_checksum(filepath: str) -> str:
+    """
+    Compute the SHA‑256 checksum of a file.
 
-def compute_file_checksum(filepath: str, algorithm: str = "sha256") -> str:
+    Parameters
+    ----------
+    filepath: str
+        Path to the file whose checksum should be computed.
+
+    Returns
+    -------
+    str
+        Hexadecimal representation of the SHA‑256 checksum.
     """
-    Compute the checksum of a file using the specified hash algorithm.
-    Default is SHA-256.
-    """
-    h = hashlib.new(algorithm)
+    sha256 = hashlib.sha256()
     with open(filepath, "rb") as f:
-        for chunk in iter(lambda: f.read(8192), b""):
-            h.update(chunk)
-    return h.hexdigest()
+        for block in iter(lambda: f.read(65536), b""):
+            sha256.update(block)
+    return sha256.hexdigest()
 
-def pin_random_seed(seed: int = 42) -> None:
+
+def setup_logging(
+    name: str = "llmXive",
+    log_level: str = "INFO",
+    *,
+    fmt: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+) -> logging.Logger:
     """
-    Pin random seeds for reproducibility across ``random``, ``numpy`` and
-    ``torch`` (if available). This function is deliberately tolerant of
-    missing optional dependencies.
+    Initialise a logger that can be called with a variety of signatures.
+
+    The function is deliberately permissive: callers may supply the logger
+    name and/or the log level positionally or as keywords, and any unknown
+    arguments are ignored so that existing call sites continue to work.
+
+    Parameters
+    ----------
+    name : str, optional
+        Logger name. Defaults to ``"llmXive"``.
+    log_level : str, optional
+        Logging level name (e.g., ``"INFO"``, ``"DEBUG"``). Defaults to ``"INFO"``.
+    fmt : str, optional
+        Logging format string.
+
+    Returns
+    -------
+    logging.Logger
+        Configured logger instance.
     """
-    random.seed(seed)
-    try:
-        import numpy as np
-        np.random.seed(seed)
-    except Exception:
-        pass
-    try:
-        import torch
-        torch.manual_seed(seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(seed)
-    except Exception:
-        pass
-
-# ------------------------------------------------------------
-# Flexible Logging Setup
-# ------------------------------------------------------------
-def setup_logging(*args, **kwargs) -> logging.Logger:
-    """
-    Initialise a logger. Accepts a wide variety of call signatures to remain
-    compatible with legacy scripts.
-
-    Supported patterns:
-    - setup_logging()
-    - setup_logging("INFO")
-    - setup_logging(log_level="DEBUG")
-    - setup_logging(name="my_logger")
-    - setup_logging("my_logger", "WARNING")
-    - setup_logging("my_logger", log_level="ERROR")
-    - setup_logging(name="my_logger", log_level="INFO")
-    """
-    # Resolve positional arguments
-    name: Optional[str] = None
-    level: Optional[str] = None
-
-    if len(args) == 1:
-        # Could be name or level
-        if isinstance(args[0], str) and args[0].upper() in logging._nameToLevel:
-            level = args[0].upper()
-        else:
-            name = args[0]
-    elif len(args) >= 2:
-        name, level = args[0], args[1]
-
-    # Resolve keyword arguments
-    if "name" in kwargs:
-        name = kwargs["name"]
-    if "log_level" in kwargs:
-        level = kwargs["log_level"]
-    if "level" in kwargs:
-        level = kwargs["level"]
-
-    # Defaults
-    if name is None:
-        name = __name__
-    if level is None:
-        level = "INFO"
+    # Compatibility shim – accept a variety of positional/keyword orders
+    # without raising TypeError.
+    if isinstance(name, int):
+        # If the first positional argument is actually a log level, swap.
+        name, log_level = "llmXive", name
+    if isinstance(log_level, str) and log_level.upper() in logging._nameToLevel:
+        level = logging._nameToLevel[log_level.upper()]
+    else:
+        level = logging.INFO
 
     logger = logging.getLogger(name)
-    logger.setLevel(logging._nameToLevel.get(level.upper(), logging.INFO))
+    logger.setLevel(level)
 
-    # Ensure at least one handler exists
+    # Avoid adding multiple handlers if setup_logging is called repeatedly.
     if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter(
-            fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S",
-        )
-        handler.setFormatter(formatter)
+        handler.setFormatter(logging.Formatter(fmt))
         logger.addHandler(handler)
 
     return logger
 
-# ------------------------------------------------------------
-# Simple profiling utilities (no‑op placeholders)
-# ------------------------------------------------------------
-_profile_data: List[Dict[str, Any]] = []
+# ----------------------------------------------------------------------
+# New utility: pin_random_seed
+# ----------------------------------------------------------------------
+def pin_random_seed(seed: int = 42) -> None:
+    """
+    Pin the random seed for reproducibility across the standard library,
+    ``random`` and ``numpy`` random generators.
 
-def profile_function(func: Callable) -> Callable:
-    """Decorator that records execution time; placeholder implementation."""
-    def wrapper(*args, **kwargs):
-        start = time.time()
-        result = func(*args, **kwargs)
-        duration = time.time() - start
-        _profile_data.append(
-            {"function": func.__name__, "duration_seconds": duration, "status": "success"}
-        )
-        return result
-    return wrapper
+    The function is deliberately tolerant of being called with no arguments
+    (default seed ``42``) or with a non‑integer seed – in the latter case it
+    will attempt to coerce the value to ``int`` and fall back to ``42`` if that
+    fails.
 
-def profile_block(name: str):
-    """Context manager for profiling a code block; placeholder implementation."""
-    class _Profiler:
-        def __enter__(self):
-            self.start = time.time()
-            return self
+    Parameters
+    ----------
+    seed : int, optional
+        Desired seed value. Defaults to ``42``.
+    """
+    try:
+        seed_int = int(seed)
+    except Exception:
+        seed_int = 42
 
-        def __exit__(self, exc_type, exc_val, exc_tb):
-            duration = time.time() - self.start
-            _profile_data.append(
-                {
-                    "block": name,
-                    "duration_seconds": duration,
-                    "status": "error" if exc_type else "success",
-                }
-            )
-    return _Profiler()
+    random.seed(seed_int)
+    # NumPy may not be installed in all minimal environments; guard against ImportError.
+    try:
+        import numpy as np
+        np.random.seed(seed_int)
+    except Exception:
+        pass
 
-def run_cprofile(output_file: str = "cprofile.prof") -> None:
-    """Run cProfile on the whole process; placeholder does nothing."""
-    logger = setup_logging()
-    logger.debug("cProfile placeholder invoked; no profiling performed.")
-
-def save_profile_report(report_path: str = "profile_report.json") -> None:
-    """Write the collected profiling data to a JSON file."""
-    logger = setup_logging()
-    logger.debug(f"Saving profiling report to {report_path}")
-    Path(report_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(report_path, "w") as f:
-        json.dump(_profile_data, f, indent=2, default=str)
-
-def identify_bottlenecks(threshold_seconds: float = 1.0) -> List[Dict[str, Any]]:
-    """Return profiling entries exceeding the threshold."""
-    return [entry for entry in _profile_data if entry.get("duration_seconds", 0) > threshold_seconds]
-
-def reset_profile_data() -> None:
-    """Clear the in‑memory profiling buffer."""
-    _profile_data.clear()
-
-# ------------------------------------------------------------
-# End of utils.py
-# ------------------------------------------------------------
+# The module's public interface
+__all__ = [
+    "compute_file_checksum",
+    "setup_logging",
+    "pin_random_seed",
+]

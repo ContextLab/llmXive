@@ -1,10 +1,3 @@
-T012:
-  c: false
-  h: bda89885221eb5e064692ca7f40803dc7da9773bf3e0ac4e801218f5a19c4bc5
-  r: "The repository contains a substantial `code/analysis.py` with t\u2011test and\
-    \ regression logic, but there is no code that writes the computed metrics to `data/processed/baseline_metrics.json`,\
-    \ and that JSON file is missing entirely. Consequently the required output artifact\
-    \ is absent, so the baseline analysis deliverable is not fulfilled."
 T015:
   c: true
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -40,50 +33,10 @@ T050b:
     \ so we cannot confirm that the \u201CLLM\u201D and \u201Cglioblastoma\u201D paragraphs\
     \ were removed and that FR\u2011006 now contains only the outlier threshold sweep\
     \ and FPR logic. The required artifact is missing."
-T099:
-  c: false
-  h: c1a5cc78def1366f7251c89b0caa56b0a9d15161aa241b15fd7bcc7b8e9f80da
-  r: The required artifacts `data/processed/baseline_metrics.json` and `data/processed/cleaned_metrics.json`
-    are missing, so the validation script has nothing to check. Additionally, the
-    provided `code/validation.py` is truncated and does not contain a complete `main()`
-    implementation. The implementer must generate the two JSON metric files with the
-    expected schema and ensure the validation script is complete and functional.
-T1100:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `spec_amendment_draft.md` file or its contents were provided; thus the required\
-    \ amendment text for SC\u2011006, FR\u2011007, and FR\u2011008 (with rationale\
-    \ and updated sections) is missing. The next implementer must create and supply\
-    \ the markdown document."
-T1102:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `spec_amendment_draft.md` file or its contents were provided, so we cannot\
-    \ verify that the proposed SC\u2011008 (stratification with \u22651 dataset per\
-    \ bin) was actually appended. The required artifact is missing."
-T1103:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `spec_amendment_draft.md` file or its contents were provided, and there is\
-    \ no evidence that a new FR\u2011008 (stratification) section was appended. The\
-    \ required artifact is missing, so the task is not satisfied."
-T1104:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `spec_amendment_draft.md` file or any appended FR\u2011007 (FWER) text is\
-    \ present in the provided artifacts; therefore the required amendment has not\
-    \ been delivered."
-T1105:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `spec_pr_description.md` file or its contents were provided; without the actual
-    document we cannot confirm that the PR description text for the spec amendments
-    has been created. The required artifact is missing.
-T2008:
-  c: false
-  h: aaa8cfa46d18eb9837329124da5864d353d2844347cecb3e3bed193d3f6376b0
-  r: "The repository lacks `data/processed/cleaned_metrics.json` entirely, and the\
-    \ provided `code/reporting.py` snippet ends abruptly (truncated) without any logic\
-    \ that \u201Cconsumes the metadata from cleaning functions\u201D or writes those\
-    \ fields to the cleaned metrics file. Both the required artifact and the necessary\
-    \ code changes are missing."
+T1223:
+  c: true
+  h: afab1c8943e47efad71adf5ae5d7a8594e3459e9d58f065327e4581e32103317
+  r: "The provided `code/data_loader.py` exists, is non\u2011empty, and contains logic\
+    \ that raises on download errors, logs checksum verification results, and explicitly\
+    \ avoids mock\u2011data fallbacks, satisfying the task\u2019s requirements (the\
+    \ alternative shell script is not needed)."

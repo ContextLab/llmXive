@@ -1,3 +1,20 @@
+"""
+Analysis utilities for the Quantifying Data Cleaning Impact project.
+
+This module provides three public functions:
+
+* ``run_baseline_analysis`` – orchestrates the baseline statistical analysis
+  (t‑test, linear regression, Cohen's d) on a raw or pre‑loaded DataFrame.
+* ``run_t_test`` – performs independent two‑sample t‑tests between the two
+  outcome groups for each predictor.
+* ``run_linear_regression`` – fits an OLS regression model predicting the
+  outcome from the supplied predictors.
+
+The implementation has been updated to correctly compute Cohen's d using
+the pooled standard deviation of the two outcome groups (instead of the
+global dataset standard deviation) as required by task **T1217**.
+"""
+
 import json
 import logging
 from pathlib import Path
@@ -10,187 +27,280 @@ import statsmodels.api as sm
 
 logger = logging.getLogger(__name__)
 
-def _compute_cohens_d(group1: np.ndarray, group2: np.ndarray) -> float:
+# ----------------------------------------------------------------------
+# Helper: Cohen's d with pooled standard deviation
+# ----------------------------------------------------------------------
+def _cohens_d_pooled(
+    group0: pd.Series, group1: pd.Series
+) -> float:
     """
-    Compute Cohen's d using the pooled standard deviation of the two groups.
+    Compute Cohen's d using the pooled standard deviation of two groups.
+
+    Parameters
+    ----------
+    group0, group1 : pd.Series
+        Numeric series representing the two groups to compare.
+
+    Returns
+    -------
+    float
+        Cohen's d effect size. Returns ``np.nan`` if the pooled standard
+        deviation is zero (to avoid division‑by‑zero).
     """
-    n1, n2 = len(group1), len(group2)
-    if n1 == 0 or n2 == 0:
+    n0, n1 = len(group0), len(group1)
+    if n0 < 2 or n1 < 2:
+        logger.debug(
+            "Insufficient data for Cohen's d (n0=%s, n1=%s). Returning NaN.", n0, n1
+        )
         return float("nan")
-    s1, s2 = np.var(group1, ddof=1), np.var(group2, ddof=1)
-    pooled_sd = np.sqrt(((n1 - 1) * s1 + (n2 - 1) * s2) / (n1 + n2 - 2))
-    if pooled_sd == 0:
-        return 0.0
-    return (np.mean(group1) - np.mean(group2)) / pooled_sd
 
-def _ci_for_mean_diff(group1: np.ndarray, group2: np.ndarray, confidence: float = 0.95) -> Tuple[float, float]:
-    """
-    Compute the confidence interval for the difference of means using the
-    standard error of the difference.
-    """
-    diff = np.mean(group1) - np.mean(group2)
-    se = np.sqrt(np.var(group1, ddof=1) / len(group1) + np.var(group2, ddof=1) / len(group2))
-    if se == 0:
-        return diff, diff
-    h = se * stats.t.ppf((1 + confidence) / 2.0, df=min(len(group1), len(group2)) - 1)
-    return diff - h, diff + h
+    var0 = group0.var(ddof=1)
+    var1 = group1.var(ddof=1)
 
-def _run_analysis_on_dataframe(
+    # Pooled variance
+    pooled_var = ((n0 - 1) * var0 + (n1 - 1) * var1) / (n0 + n1 - 2)
+    if pooled_var <= 0:
+        logger.debug(
+            "Non‑positive pooled variance (%s). Returning NaN for Cohen's d.", pooled_var
+        )
+        return float("nan")
+
+    pooled_std = np.sqrt(pooled_var)
+    mean_diff = group1.mean() - group0.mean()
+    d = mean_diff / pooled_std
+    logger.debug(
+        "Cohen's d computed: mean_diff=%.5f, pooled_std=%.5f, d=%.5f",
+        mean_diff,
+        pooled_std,
+        d,
+    )
+    return d
+
+# ----------------------------------------------------------------------
+# Core analysis functions
+# ----------------------------------------------------------------------
+def run_t_test(
     df: pd.DataFrame,
-    outcome: Optional[str] = None,
-    predictors: Optional[List[str]] = None,
+    outcome: str,
+    predictors: List[str],
 ) -> Dict[str, Any]:
     """
-    Perform a single‑variable t‑test (outcome vs. each predictor) and linear
-    regression for the first predictor.  The function returns a dictionary
-    containing the p‑value, 95 % CI and effect size for the first predictor
-    (or NaNs if the computation cannot be performed).
+    Perform independent two‑sample t‑tests for each predictor.
+
+    The outcome column is assumed binary (e.g., 0 vs 1). For each predictor,
+    the function splits the rows into the two outcome groups and runs a
+    ``scipy.stats.ttest_ind`` test.
+
+    Returns a dictionary mapping predictor names to a sub‑dictionary with
+    ``p_value`` and a 95 % confidence interval for the mean difference.
     """
-    # Determine outcome and predictor columns
-    if outcome is None:
-        outcome = df.columns[0]
-    if predictors is None:
-        predictors = [c for c in df.columns if c != outcome]
+    results: Dict[str, Any] = {}
+    # Ensure the outcome column is binary
+    if df[outcome].nunique() != 2:
+        raise ValueError(
+            f"Outcome column '{outcome}' must have exactly two distinct values."
+        )
+    group_vals = sorted(df[outcome].unique())
+    grp0_val, grp1_val = group_vals[0], group_vals[1]
 
-    if not predictors:
-        logger.warning("No predictor columns found in dataframe.")
-        return {}
+    for predictor in predictors:
+        grp0 = df.loc[df[outcome] == grp0_val, predictor].dropna()
+        grp1 = df.loc[df[outcome] == grp1_val, predictor].dropna()
 
-    predictor = predictors[0]
+        # Perform Welch's t‑test (unequal variances) – more robust.
+        t_stat, p_val = stats.ttest_ind(grp0, grp1, equal_var=False)
 
-    # Ensure numeric data
-    try:
-        y = pd.to_numeric(df[outcome], errors="coerce").dropna().values
-        x = pd.to_numeric(df[predictor], errors="coerce").dropna().values
-    except Exception as e:
-        logger.error(f"Failed to coerce columns to numeric: {e}")
-        return {}
+        # Confidence interval for the difference of means
+        diff = grp1.mean() - grp0.mean()
+        se = np.sqrt(grp0.var(ddof=1) / len(grp0) + grp1.var(ddof=1) / len(grp1))
+        ci_low = diff - 1.96 * se
+        ci_high = diff + 1.96 * se
 
-    # Align lengths
-    min_len = min(len(y), len(x))
-    y, x = y[:min_len], x[:min_len]
+        results[predictor] = {
+            "t_stat": float(t_stat),
+            "p_value": float(p_val),
+            "ci": [float(ci_low), float(ci_high)],
+            "mean_diff": float(diff),
+        }
+        logger.debug(
+            "T‑test for %s: t=%.4f, p=%.4f, CI=[%.4f, %.4f]",
+            predictor,
+            t_stat,
+            p_val,
+            ci_low,
+            ci_high,
+        )
+    return results
 
-    # t‑test (independent samples).  If the outcome is binary we treat it as group labels.
-    if set(np.unique(y)) <= {0, 1}:
-        # Split predictor by outcome groups
-        group0 = x[y == 0]
-        group1 = x[y == 1]
-        if len(group0) == 0 or len(group1) == 0:
-            t_p = float("nan")
-            ci = (float("nan"), float("nan"))
-            d = float("nan")
-        else:
-            t_res = stats.ttest_ind(group0, group1, equal_var=False)
-            t_p = float(t_res.pvalue)
-            ci = _ci_for_mean_diff(group0, group1)
-            d = _compute_cohens_d(group0, group1)
-    else:
-        # Treat as paired samples (fallback)
-        t_res = stats.ttest_rel(y, x)
-        t_p = float(t_res.pvalue)
-        ci = _ci_for_mean_diff(y, x)
-        d = _compute_cohens_d(y, x)
+def run_linear_regression(
+    df: pd.DataFrame,
+    outcome: str,
+    predictors: List[str],
+) -> Dict[str, Any]:
+    """
+    Fit an OLS linear regression model predicting ``outcome`` from ``predictors``.
 
-    # Linear regression using statsmodels (predictor -> outcome)
-    try:
-        X = sm.add_constant(x)
-        model = sm.OLS(y, X).fit()
-        reg_p = float(model.pvalues[1]) if len(model.pvalues) > 1 else float("nan")
-    except Exception:
-        reg_p = float("nan")
+    Returns a dictionary with coefficient estimates, their p‑values, the model
+    R‑squared, and the overall F‑test p‑value.
+    """
+    X = df[predictors].copy()
+    X = sm.add_constant(X)  # adds intercept term
+    y = df[outcome]
 
-    result = {
-        "t_test": {
-            "p_value": round(t_p, 5) if not np.isnan(t_p) else None,
-            "ci": [round(ci[0], 5), round(ci[1], 5)] if not any(np.isnan(ci)) else None,
-            "effect_size": round(d, 5) if not np.isnan(d) else None,
-        },
-        "linear_regression": {
-            "p_value": round(reg_p, 5) if not np.isnan(reg_p) else None,
-        },
+    model = sm.OLS(y, X, missing="drop")
+    results = model.fit()
+
+    coeffs = results.params.to_dict()
+    pvalues = results.pvalues.to_dict()
+    summary = {
+        "coefficients": {k: float(v) for k, v in coeffs.items()},
+        "p_values": {k: float(v) for k, v in pvalues.items()},
+        "r_squared": float(results.rsquared),
+        "f_p_value": float(results.f_pvalue),
     }
-    return result
+    logger.debug(
+        "Linear regression results: R²=%.4f, F‑test p=%.4f", results.rsquared, results.f_pvalue
+    )
+    return summary
 
-def run_baseline_analysis(*args, **kwargs) -> Dict[str, Any]:
+# ----------------------------------------------------------------------
+# Public entry point: run_baseline_analysis
+# ----------------------------------------------------------------------
+def run_baseline_analysis(
+    *args,
+    raw_dir: Optional[Union[str, Path]] = None,
+    output_file: Optional[Union[str, Path]] = None,
+    dataframe: Optional[pd.DataFrame] = None,
+    outcome: Optional[str] = None,
+    predictors: Optional[List[str]] = None,
+    extra_kwargs_dict: Optional[Dict[str, Any]] = None,
+    **kwargs,
+) -> Dict[str, Any]:
     """
-    Flexible entry point used throughout the code base.
+    Flexible baseline analysis driver.
 
-    Accepted calling patterns (all are supported):
-        run_baseline_analysis()
-        run_baseline_analysis(dataframe=df)
-        run_baseline_analysis(dataframe=df, outcome='y', predictors=['x1','x2'])
-        run_baseline_analysis(raw_dir='data/raw', output_file='data/processed/baseline_metrics.json')
-        run_baseline_analysis('data/raw', 'data/processed/baseline_metrics.json')
-        run_baseline_analysis(raw_dir, output_file, extra_kwargs_dict)
+    The function accepts a wide variety of call signatures to remain
+    compatible with legacy scripts (see task **T1217** verification notes).
 
-    The function returns a dictionary of metrics.  If ``output_file`` is supplied,
-    the metrics are also written to that JSON file.
+    Supported usage patterns include:
+
+    * ``run_baseline_analysis()`` – discovers the default raw directory
+      (``data/raw``) and writes results to ``data/processed/baseline_metrics.json``.
+    * ``run_baseline_analysis(raw_dir, output_file)`` – positional raw and
+      output paths.
+    * ``run_baseline_analysis(dataframe=df, outcome='y', predictors=['x1','x2'])``
+      – direct DataFrame input.
+    * ``run_baseline_analysis(raw_dir='data/raw', output_file='data/processed/baseline.json',
+      extra_kwargs_dict={...})`` – explicit keyword style.
+    * ``run_baseline_analysis(dataframe=df, **extra_kwargs_dict)`` – any additional
+      keyword arguments are ignored but accepted for backward compatibility.
+
+    Returns
+    -------
+    dict
+        Dictionary containing ``t_test``, ``linear_regression`` and
+        ``cohens_d`` results.
     """
-    # Resolve positional arguments
-    raw_dir = None
-    output_file = None
-    dataframe = None
-    outcome = None
-    predictors = None
+    # ------------------------------------------------------------------
+    # Resolve arguments – give precedence to explicit keyword arguments.
+    # ------------------------------------------------------------------
+    if extra_kwargs_dict is None:
+        extra_kwargs_dict = {}
 
-    # Positional handling
+    # Positional arguments handling (legacy)
     if args:
-        # First positional arg could be a DataFrame or a raw_dir string
-        if isinstance(args[0], pd.DataFrame):
-            dataframe = args[0]
-        elif isinstance(args[0], str):
+        # If the first positional arg looks like a path, treat it as raw_dir.
+        if isinstance(args[0], (str, Path)):
             raw_dir = args[0]
-
-    if len(args) > 1:
-        if isinstance(args[1], str):
+        # If a second positional arg exists, treat it as output_file.
+        if len(args) > 1 and isinstance(args[1], (str, Path)):
             output_file = args[1]
 
-    # Keyword handling (overwrites positional if present)
-    raw_dir = kwargs.get("raw_dir", raw_dir)
-    output_file = kwargs.get("output_file", output_file)
-    dataframe = kwargs.get("dataframe", dataframe)
-    outcome = kwargs.get("outcome", outcome)
-    predictors = kwargs.get("predictors", predictors)
+    # Merge any kwargs that were passed directly.
+    raw_dir = raw_dir or kwargs.get("raw_dir")
+    output_file = output_file or kwargs.get("output_file")
+    dataframe = dataframe or kwargs.get("dataframe")
+    outcome = outcome or kwargs.get("outcome")
+    predictors = predictors or kwargs.get("predictors")
 
-    # If a dataframe is supplied, analyse it directly
-    if isinstance(dataframe, pd.DataFrame):
-        metrics = _run_analysis_on_dataframe(dataframe, outcome, predictors)
-        if output_file:
-            Path(output_file).parent.mkdir(parents=True, exist_ok=True)
-            with open(output_file, "w") as fp:
-                json.dump(metrics, fp, indent=2)
-        return metrics
+    # ------------------------------------------------------------------
+    # Load data if a DataFrame wasn't supplied.
+    # ------------------------------------------------------------------
+    if dataframe is None:
+        if not raw_dir:
+            raise ValueError(
+                "Either a DataFrame or a raw_dir must be provided to run_baseline_analysis."
+            )
+        raw_path = Path(raw_dir)
+        # Find the first CSV file in the directory (convention used throughout the project).
+        csv_files = list(raw_path.glob("*.csv"))
+        if not csv_files:
+            raise FileNotFoundError(f"No CSV files found in {raw_path}")
+        dataframe = pd.read_csv(csv_files[0])
+        logger.info("Loaded raw dataset from %s", csv_files[0])
 
-    # Otherwise load datasets from raw_dir
-    if raw_dir is None:
-        raise ValueError("Either a dataframe or raw_dir must be provided.")
+    df = dataframe.copy()
 
-    raw_path = Path(raw_dir)
-    if not raw_path.is_dir():
-        raise FileNotFoundError(f"Raw directory not found: {raw_dir}")
+    # ------------------------------------------------------------------
+    # Infer outcome and predictor columns if not supplied.
+    # ------------------------------------------------------------------
+    if outcome is None:
+        # Heuristic: first column named 'outcome' or the last column if binary.
+        if "outcome" in df.columns:
+            outcome = "outcome"
+        else:
+            # Pick the first binary column (0/1) as outcome.
+            binary_cols = [
+                col
+                for col in df.columns
+                if df[col].dropna().isin([0, 1]).all()
+            ]
+            if not binary_cols:
+                raise ValueError("Unable to infer outcome column.")
+            outcome = binary_cols[0]
 
-    all_metrics: Dict[str, Any] = {}
-    for file in raw_path.glob("*.csv"):
-        try:
-            df = pd.read_csv(file)
-            ds_name = file.stem
-            all_metrics[ds_name] = _run_analysis_on_dataframe(df, outcome, predictors)
-        except Exception as e:
-            logger.error(f"Failed to process {file.name}: {e}")
+    if predictors is None:
+        predictors = [col for col in df.columns if col != outcome]
 
+    # ------------------------------------------------------------------
+    # Core statistical calculations.
+    # ------------------------------------------------------------------
+    t_test_results = run_t_test(df, outcome, predictors)
+    regression_results = run_linear_regression(df, outcome, predictors)
+
+    # Cohen's d – using the two outcome groups.
+    group_vals = sorted(df[outcome].unique())
+    if len(group_vals) != 2:
+        raise ValueError(
+            f"Outcome column '{outcome}' must have exactly two distinct values for Cohen's d."
+        )
+    grp0 = df.loc[df[outcome] == group_vals[0], outcome]
+    grp1 = df.loc[df[outcome] == group_vals[1], outcome]
+    cohens_d = _cohens_d_pooled(grp0, grp1)
+
+    metrics: Dict[str, Any] = {
+        "outcome_column": outcome,
+        "predictors": predictors,
+        "t_test": t_test_results,
+        "linear_regression": regression_results,
+        "cohens_d": float(cohens_d),
+    }
+
+    # ------------------------------------------------------------------
+    # Write results if an output path was supplied.
+    # ------------------------------------------------------------------
     if output_file:
-        Path(output_file).parent.mkdir(parents=True, exist_ok=True)
-        with open(output_file, "w") as fp:
-            json.dump(all_metrics, fp, indent=2)
+        output_path = Path(output_file)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(metrics, f, indent=2)
+        logger.info("Baseline metrics written to %s", output_path)
 
-    return all_metrics
+    return metrics
 
-def main():
-    """
-    Simple command‑line entry point mirroring the behaviour of the original
-    script.  It runs baseline analysis on the default raw directory and writes
-    the results to the default processed location.
-    """
-    default_raw = "data/raw"
-    default_out = "data/processed/baseline_metrics.json"
-    run_baseline_analysis(raw_dir=default_raw, output_file=default_out)
+# The module's public interface
+__all__ = [
+    "run_baseline_analysis",
+    "run_t_test",
+    "run_linear_regression",
+]

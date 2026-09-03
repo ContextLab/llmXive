@@ -1,6 +1,5 @@
 """
 Linting and formatting runner for the project.
-Moved from code/run_lint.py to scripts/ per T075.
 Executes ruff (linter) and black (formatter) on the code/ directory.
 """
 import subprocess
@@ -41,7 +40,7 @@ def main() -> int:
 def format_code() -> int:
     """Format the code using black and ruff."""
     target_dir = "code"
-    
+
     # Format with black
     black_cmd = [sys.executable, "-m", "black", target_dir]
     run_command(black_cmd)

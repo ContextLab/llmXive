@@ -1,5 +1,6 @@
 # This file has been consolidated into code/utils.py.
-# It is kept as a stub to prevent immediate import errors during transition,
-# but all logic should now be imported from utils.py.
-# TODO: Delete this file after verifying all imports are updated.
-pass
+# All functionality from this file has been moved to utils.py.
+# This file is now empty and should be deleted.
+# To prevent import errors during transition, we provide a stub that raises
+# an error if any code attempts to import from here directly.
+raise ImportError("cleanup_utils.py has been consolidated into utils.py. Please update imports.")

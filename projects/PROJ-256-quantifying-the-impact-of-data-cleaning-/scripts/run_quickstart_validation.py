@@ -1,6 +1,5 @@
 """
 Quickstart validation runner.
-Moved from code/run_quickstart_validation.py to scripts/ per T075.
 Executes the pipeline and validates artifacts.
 """
 import os
@@ -10,6 +9,7 @@ import logging
 import subprocess
 import time
 from pathlib import Path
+
 from utils import setup_logging
 
 logger = setup_logging("INFO")
@@ -52,7 +52,7 @@ def validate_artifacts(artifacts: list) -> bool:
 def main():
     """Main validation entry point."""
     logger.info("Starting quickstart validation...")
-    
+
     # Define scripts to run
     scripts = [
         "code/t012_run_baseline_analysis.py",
@@ -61,13 +61,13 @@ def main():
         "code/t030_dataset_size_sensitivity.py",
         "code/t032_permutation_null_fpr.py"
     ]
-    
+
     # Run scripts
     for script in scripts:
         if not run_script(script):
             logger.error(f"Pipeline failed at {script}")
             sys.exit(1)
-    
+
     # Define artifacts to validate
     artifacts = [
         "data/processed/baseline_metrics.json",
@@ -75,11 +75,11 @@ def main():
         "data/processed/size_sensitivity_analysis.json",
         "data/processed/null_fpr_metrics.json"
     ]
-    
+
     if not validate_artifacts(artifacts):
         logger.error("Validation failed: missing artifacts")
         sys.exit(1)
-        
+
     logger.info("Quickstart validation completed successfully")
 
 if __name__ == '__main__':
