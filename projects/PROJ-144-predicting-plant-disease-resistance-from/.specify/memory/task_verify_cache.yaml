@@ -1,18 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required root directories (`code/`, `data/`, `tests/`, `state/`,\
-    \ `results/`, `contracts/`) is provided; the implementer did not supply any artifact\
-    \ confirming their creation. The task remains unfinished until these folders are\
-    \ shown to exist and be non\u2011empty."
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listings or file system evidence were provided showing that the\
-    \ required sub\u2011directories (`data/raw`, `data/processed`, `data/intermediate`,\
-    \ `results/plots`) actually exist; without such artifacts the claim cannot be\
-    \ verified. The implementer must create the folders and supply proof (e.g., a\
-    \ directory tree screenshot or `ls` output)."
 T005:
   c: true
   h: 5e0ec366c7256f050d6360c6e12408dce8b24f775796d2f1678451e4b2167eba
@@ -43,14 +28,6 @@ T019:
     \ module it imports (`code/modeling/evaluate.py`) does not exist, so the test\
     \ cannot be executed. The required implementation file is missing, preventing\
     \ the task from being truly completed."
-T020c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, notebook, script, or output file that extracts the Random Forest\u2019\
-    s feature importances and ranks metabolites by mean decrease in impurity is present.\
-    \ The task required a concrete artifact (e.g., a CSV or figure) showing the importance\
-    \ values and the ordered list of metabolites, which is missing, so the requirement\
-    \ is not met."
 T021b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

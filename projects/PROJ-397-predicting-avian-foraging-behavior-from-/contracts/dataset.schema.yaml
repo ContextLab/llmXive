@@ -1,0 +1,86 @@
+# Dataset Schema for merged_observations.csv
+# This schema defines the required structure for the output of T013 (merge_and_buffer.py)
+# to ensure compliance with the data contract for User Story 1.
+
+name: merged_observations
+description: >-
+  Merged avian observation data with land cover proportions and foraging guild assignments.
+  Contains species-level records filtered for statistical power (>=50 observations) and
+  enriched with NLCD 2019 land cover data within a 100m buffer.
+
+columns:
+  # Core identifiers and labels
+  - name: species_id
+    type: string
+    description: Unique identifier for the bird species (eBird species code)
+    nullable: false
+    
+  - name: foraging_guild
+    type: string
+    description: Assigned foraging guild based on 'Birds of the World' source
+    nullable: false
+    
+  # Land cover proportion columns (individual columns as required by T013/T015)
+  # These must sum to approximately 1.0 for each record
+  - name: forest_prop
+    type: float
+    description: Proportion of forest land cover within buffer
+    nullable: false
+    constraints:
+      min: 0.0
+      max: 1.0
+      
+  - name: grassland_prop
+    type: float
+    description: Proportion of grassland land cover within buffer
+    nullable: false
+    constraints:
+      min: 0.0
+      max: 1.0
+      
+  - name: wetland_prop
+    type: float
+    description: Proportion of wetland land cover within buffer
+    nullable: false
+    constraints:
+      min: 0.0
+      max: 1.0
+      
+  - name: urban_prop
+    type: float
+    description: Proportion of urban land cover within buffer
+    nullable: false
+    constraints:
+      min: 0.0
+      max: 1.0
+      
+  - name: water_prop
+    type: float
+    description: Proportion of water land cover within buffer
+    nullable: false
+    constraints:
+      min: 0.0
+      max: 1.0
+      
+  - name: barren_prop
+    type: float
+    description: Proportion of barren land cover within buffer
+    nullable: false
+    constraints:
+      min: 0.0
+      max: 1.0
+      
+  - name: other_prop
+    type: float
+    description: Proportion of other land cover within buffer
+    nullable: false
+    constraints:
+      min: 0.0
+      max: 1.0
+
+# Optional metadata fields for provenance (stored as comments or separate file in practice)
+metadata:
+  source: "eBird EBD + NLCD 2019"
+  buffer_radius_m: 100
+  crs: "EPSG:3857" # Or appropriate projected CRS used for buffer calculation
+  extraction_date: "dynamic" # Will be recorded at runtime

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2301.02033",
+  "judged_at": "2026-09-03T12:35:01Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"geometry-aware representation denoising for robust multi-view 3d recon\" computer science",
+  "rationale": "The paper focuses on cardiac MRI reconstruction using physics-informed self-supervised learning, which is a distinct medical imaging domain and application from the user's question regarding geometry-aware representation denoising for multi-view 3D reconstruction (typically computer vision/graphics). While both involve \"reconstruction,\" the underlying mechanisms, data types (2D MRI slices vs. multi-view 3D geometry), and specific technical challenges do not satisfy the criteria for inclusion as ",
+  "relevant": false
+}

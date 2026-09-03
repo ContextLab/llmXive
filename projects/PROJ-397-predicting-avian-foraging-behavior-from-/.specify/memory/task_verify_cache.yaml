@@ -1,38 +1,9 @@
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that the files `README.md` and `run_pipeline.sh` actually
-    exist in `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/`; the
-    response contains only the task description without any file listings or contents.
-    The required placeholder files are therefore missing.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `utils/config.py` file or its contents were provided; without the actual module
-    defining paths, random seeds, and constants, we cannot confirm that the required
-    artifact exists or meets the specification. The implementer must add the file
-    with the appropriate definitions.
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No `run_pipeline.sh` file or its contents were presented; the required orchestration
     script in `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/` is
     missing, so the task is not satisfied.
-T010:
-  c: false
-  h: 50a21a398e323a29b5170196aff330c6afe721186bf84e39539930c27b760d85
-  r: "The provided `test_data_contract.py` does not actually load or validate the\
-    \ real `merged_observations.csv` against a schema, and the required `contracts/dataset.schema.yaml`\
-    \ file is missing entirely, so the test cannot perform the intended schema compliance\
-    \ check. The task\u2019s requirement is therefore not satisfied."
-T015:
-  c: false
-  h: 43264b7ee3bdff22a72b6ac917fb417896b0815dff54ae6915a3cda0c83de093
-  r: The file `data/merge_and_buffer.py` does not exist, so the required `validate_schema()`
-    function cannot be present. The test suite `tests/test_data_contract.py` defines
-    a different helper (`validate_schema_compliance`) and lacks a `test_validate_schema`
-    method; moreover the file is truncated and does not actually invoke the new function.
-    Both the implementation and the specific unit test are missing.
 T016:
   c: false
   h: de60c6019162df29cf714528dd74f5eaedf24406ec12a4ad8f42cbd4a2dd4f46

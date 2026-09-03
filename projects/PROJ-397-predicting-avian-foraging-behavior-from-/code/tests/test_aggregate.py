@@ -6,9 +6,10 @@ import json
 import pandas as pd
 from pathlib import Path
 
-# Add code directory to path for imports
-code_dir = Path(__file__).parent.parent
-sys.path.insert(0, str(code_dir))
+# Add project root to path if needed
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 from data.aggregate import (
     load_merged_observations,
@@ -16,108 +17,119 @@ from data.aggregate import (
     aggregate_species_profiles,
     save_species_profiles
 )
-from utils.config import get_processed_dir, get_raw_data_dir
-
 
 class TestAggregate(unittest.TestCase):
-    """Unit tests for T016 aggregate.py"""
-
+    
     def setUp(self):
-        """Set up temporary directories and mock data for testing."""
-        self.temp_dir = tempfile.TemporaryDirectory()
-        self.processed_dir = Path(self.temp_dir.name)
+        """Set up temporary directory for test files."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.input_file = os.path.join(self.temp_dir, "merged_observations.csv")
+        self.output_file = os.path.join(self.temp_dir, "species_profiles.csv")
+        self.drop_log_file = os.path.join(self.temp_dir, "drop_log.json")
         
-        # Mock the config functions to use our temp dir
-        # We will directly pass paths to functions in tests rather than relying on global config
+        # Create a sample merged observations DataFrame
+        self.sample_data = pd.DataFrame({
+            'species_id': ['A', 'A', 'B', 'B', 'C'],
+            'foraging_guild': ['G1', 'G1', 'G2', 'G2', 'G1'],
+            'observation_id': [1, 2, 3, 4, 5],
+            'forest_prop': [0.5, 0.6, 0.2, 0.3, 0.4],
+            'grassland_prop': [0.3, 0.2, 0.7, 0.6, 0.5],
+            'urban_prop': [0.2, 0.2, 0.1, 0.1, 0.1]
+        })
         
-        # Create mock merged_observations.csv
-        self.mock_merged_path = self.processed_dir / 'merged_observations.csv'
-        mock_data = {
-            'species_id': ['sp1', 'sp1', 'sp2', 'sp3', 'sp3'],
-            'foraging_guild': ['G1', 'G1', 'G2', 'G1', 'G1'],
-            'land_cover_proportions': [
-                '{"forest": 0.5, "grass": 0.5}',
-                '{"forest": 0.6, "grass": 0.4}',
-                '{"forest": 0.1, "grass": 0.9}',
-                '{"forest": 0.8, "grass": 0.2}',
-                '{"forest": 0.7, "grass": 0.3}'
-            ]
-        }
-        self.mock_df = pd.DataFrame(mock_data)
-        self.mock_df.to_csv(self.mock_merged_path, index=False)
-
+        # Save sample data
+        self.sample_data.to_csv(self.input_file, index=False)
+    
     def tearDown(self):
         """Clean up temporary directory."""
-        self.temp_dir.cleanup()
-
+        import shutil
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
+    
+    def test_load_merged_observations(self):
+        """Test loading merged observations from CSV."""
+        df = load_merged_observations(self.input_file)
+        self.assertEqual(len(df), 5)
+        self.assertIn('species_id', df.columns)
+        self.assertIn('forest_prop', df.columns)
+    
     def test_parse_land_cover_proportions(self):
-        """Test that stringified JSON land cover proportions are parsed correctly."""
-        df = self.mock_df.copy()
-        parsed_df, lc_cols = parse_land_cover_proportions(df)
+        """Test parsing land cover proportions."""
+        df = load_merged_observations(self.input_file)
+        # Add a row with NaN to test parsing
+        df.loc[5] = ['D', 'G3', 6, None, 0.5, 0.5]
         
-        self.assertIn('lc_forest', lc_cols)
-        self.assertIn('lc_grass', lc_cols)
-        self.assertEqual(len(parsed_df), 5)
-        self.assertTrue('lc_forest' in parsed_df.columns)
-        self.assertAlmostEqual(parsed_df.iloc[0]['lc_forest'], 0.5)
-
+        parsed_df = parse_land_cover_proportions(df)
+        self.assertTrue(pd.api.types.is_float_dtype(parsed_df['forest_prop']))
+        self.assertTrue(parsed_df['forest_prop'].isna().iloc[5])
+    
     def test_aggregate_species_profiles(self):
-        """Test aggregation logic: mean calculation and dropping invalid rows."""
-        df = self.mock_df.copy()
-        parsed_df, lc_cols = parse_land_cover_proportions(df)
+        """Test aggregation of species profiles."""
+        df = load_merged_observations(self.input_file)
+        profiles, stats = aggregate_species_profiles(df, self.drop_log_file)
         
-        aggregated_df, log_entry = aggregate_species_profiles(parsed_df, lc_cols)
+        # Check that we have 3 unique species
+        self.assertEqual(len(profiles), 3)
         
-        # Check aggregation
-        # sp1 should have 3 rows: (0.5+0.6+0.8)/3 = 0.6333
-        sp1_row = aggregated_df[aggregated_df['species_id'] == 'sp1'].iloc[0]
-        self.assertAlmostEqual(sp1_row['lc_forest'], 0.6333, places=3)
-        self.assertEqual(sp1_row['observation_count'], 3)
+        # Check that species A has 2 observations
+        species_a = profiles[profiles['species_id'] == 'A']
+        self.assertEqual(species_a['observation_count'].values[0], 2)
         
-        # Check log entry
-        self.assertEqual(log_entry['initial_observations'], 5)
-        self.assertEqual(log_entry['final_species_profiles'], 3) # sp1, sp2, sp3
-        self.assertEqual(log_entry['observations_dropped'], 0)
-
-    def test_aggregate_drops_missing_values(self):
-        """Test that rows with NaN in land cover columns are dropped."""
-        df = self.mock_df.copy()
-        # Insert a NaN row
-        df.loc[len(df)] = ['sp4', 'G2', '{"forest": 0.5, "grass": null}']
+        # Check that mean forest_prop for A is correct
+        expected_forest = (0.5 + 0.6) / 2
+        self.assertAlmostEqual(species_a['forest_prop'].values[0], expected_forest, places=5)
         
-        parsed_df, lc_cols = parse_land_cover_proportions(df)
-        aggregated_df, log_entry = aggregate_species_profiles(parsed_df, lc_cols)
+        # Check stats
+        self.assertEqual(stats['dropped_count'], 0)
+        self.assertEqual(stats['valid_count'], 5)
+        self.assertEqual(stats['profile_count'], 3)
+    
+    def test_aggregate_with_missing_data(self):
+        """Test aggregation with missing land cover data."""
+        # Create data with missing values
+        data_with_missing = pd.DataFrame({
+            'species_id': ['A', 'A', 'B'],
+            'foraging_guild': ['G1', 'G1', 'G2'],
+            'observation_id': [1, 2, 3],
+            'forest_prop': [0.5, None, 0.2],
+            'grassland_prop': [0.3, 0.2, 0.7],
+            'urban_prop': [0.2, 0.2, 0.1]
+        })
         
-        self.assertEqual(log_entry['observations_dropped'], 1)
-        self.assertTrue('missing land cover data' in log_entry['reasons'][0])
-        self.assertNotIn('sp4', aggregated_df['species_id'].values)
-
+        test_input = os.path.join(self.temp_dir, "test_missing.csv")
+        data_with_missing.to_csv(test_input, index=False)
+        
+        df = load_merged_observations(test_input)
+        profiles, stats = aggregate_species_profiles(df, self.drop_log_file)
+        
+        # Species A should be dropped because one row has NaN
+        # So only species B remains
+        self.assertEqual(len(profiles), 1)
+        self.assertEqual(profiles['species_id'].values[0], 'B')
+        
+        # Check drop log
+        self.assertTrue(os.path.exists(self.drop_log_file))
+        with open(self.drop_log_file, 'r') as f:
+            drop_log = json.load(f)
+        self.assertEqual(len(drop_log), 1)
+        self.assertEqual(drop_log[0]['species_id'], 'A')
+    
     def test_save_species_profiles(self):
-        """Test that output files are created correctly."""
-        df = self.mock_df.copy()
-        parsed_df, lc_cols = parse_land_cover_proportions(df)
-        aggregated_df, log_entry = aggregate_species_profiles(parsed_df, lc_cols)
+        """Test saving species profiles."""
+        df = load_merged_observations(self.input_file)
+        profiles, stats = aggregate_species_profiles(df, self.drop_log_file)
         
-        output_path = save_species_profiles(aggregated_df, log_entry)
+        save_species_profiles(profiles, self.output_file, stats)
         
-        self.assertTrue(os.path.exists(output_path))
-        self.assertTrue(os.path.exists(self.processed_dir / 'aggregate_dropped_log.json'))
+        self.assertTrue(os.path.exists(self.output_file))
+        saved_df = pd.read_csv(self.output_file)
+        self.assertEqual(len(saved_df), 3)
         
-        # Verify content
-        result_df = pd.read_csv(output_path)
-        self.assertEqual(len(result_df), 3)
-
-    def test_load_merged_observations_missing_file(self):
-        """Test that FileNotFoundError is raised if input file is missing."""
-        # Temporarily rename the file to simulate missing state
-        self.mock_merged_path.rename(self.processed_dir / 'merged_observations.csv.bak')
-        try:
-            with self.assertRaises(FileNotFoundError):
-                load_merged_observations()
-        finally:
-            # Restore
-            (self.processed_dir / 'merged_observations.csv.bak').rename(self.mock_merged_path)
-
+        # Check stats file
+        stats_file = self.output_file.replace('.csv', '_stats.json')
+        self.assertTrue(os.path.exists(stats_file))
+        with open(stats_file, 'r') as f:
+            saved_stats = json.load(f)
+        self.assertEqual(saved_stats['profile_count'], 3)
 
 if __name__ == '__main__':
     unittest.main()

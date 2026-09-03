@@ -7,12 +7,3 @@ T030:
     \ computes the reduction percentage, or writes `data/processed/latency_metrics.json`.\
     \ Moreover, the expected output file `data/processed/latency_metrics.json` does\
     \ not exist. The task\u2019s core requirements are therefore unmet."
-T039:
-  c: false
-  h: 75e0ffe6ebc9ee28964d8f656cd42f344e1da1ba68af0343cc64c0bb1113871d
-  r: The required markdown report `docs/reports/001-llmxive-mipu-gap-bounds_viz.md`
-    does not exist, so the core deliverable is missing. The script file is present
-    but its content is truncated and there is no evidence that it successfully creates
-    the required visualizations and writes the markdown file. The next implementer
-    must ensure the script generates the three specified plots and writes them into
-    the missing markdown report at the correct path.

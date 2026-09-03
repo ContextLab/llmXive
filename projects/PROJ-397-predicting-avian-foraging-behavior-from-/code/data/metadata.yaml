@@ -1,6 +1,35 @@
+project: PROJ-397-predicting-avian-foraging-behavior-from-
+version: 1.0.0
+created_at: "2023-10-27T00:00:00Z"
+external_sources:
+  ebd:
+    url: "https://ebird.org/data"
+    description: "eBird Basic Dataset"
+  nlcd:
+    url: "https://www.usgs.gov/centers/eros/science/national-land-cover-database"
+    description: "National Land Cover Database 2019"
+  birds_of_the_world:
+    url: "https://raw.githubusercontent.com/CornellLabofOrnithology/birds-of-the-world-data/main/guild_data.csv"
+    description: "Foraging guild definitions from Birds of the World"
+    # Note: In a real execution, if the above URL fails, the script will raise FileNotFoundError.
+    # This URL is a placeholder for the verified source structure.
+artifacts:
+  raw:
+    ebd_train: null
+    nlcd_2019: null
+    guild_source: null
+  processed:
+    top_species: null
+    merged_observations: null
+    species_profiles: null
+  models:
+    random_forest: null
+    evaluation_results: null
 provenance:
-  artifacts: []
-  last_updated: null
-pipeline_log:
-  steps: []
-  last_updated: null
+  pipeline_version: "1.0.0"
+  python_version: "3.9"
+config:
+  random_seed: 42
+  buffer_radius_m: 100
+  min_observations_per_species: 50
+  top_species_count: 25

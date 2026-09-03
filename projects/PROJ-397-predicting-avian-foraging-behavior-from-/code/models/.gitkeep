@@ -1,3 +1,2 @@
-# This directory is reserved for trained model artifacts (e.g., .pkl, .pt, .onnx).
-# Created by T001b during project initialization.
-.gitkeep
+# This file is a placeholder to ensure the models directory is tracked by git.
+# Do not remove or modify this file.

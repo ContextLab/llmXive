@@ -1,3 +1,11 @@
+"""
+T008b: Generate guild mapping from downloaded source.
+
+Loads the 'Birds of the World' foraging guild data downloaded by T008a
+(data/raw/guild_source.csv), extracts species_id and foraging_guild,
+and saves a processed mapping file with provenance fields to
+data/processed/guild_mapping.csv.
+"""
 import os
 import sys
 import csv
@@ -6,81 +14,114 @@ from pathlib import Path
 from datetime import datetime
 
 # Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from utils.config import get_raw_data_dir, get_processed_dir, get_metadata_file
+from utils.config import get_data_dir, get_processed_dir, get_raw_data_dir
 from utils.provenance import compute_file_hash, generate_provenance_record, save_provenance_record
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def load_metadata(metadata_path: Path) -> dict:
-    """Load the metadata YAML configuration."""
-    import yaml
-    if not metadata_path.exists():
-        logger.warning(f"Metadata file not found at {metadata_path}, creating empty structure.")
-        return {"sources": {}}
-    with open(metadata_path, 'r') as f:
-        return yaml.safe_load(f) or {"sources": {}}
+# Constants
+INPUT_FILE_NAME = "guild_source.csv"
+OUTPUT_FILE_NAME = "guild_mapping.csv"
+REQUIRED_COLUMNS = ['species_id', 'foraging_guild', 'source_citation']
 
-def save_metadata(metadata_path: Path, metadata: dict) -> None:
-    """Save the metadata YAML configuration."""
+def load_metadata():
+    """Load the metadata.yaml file to get provenance info."""
+    data_dir = get_data_dir()
+    metadata_path = data_dir / "metadata.yaml"
+    if not metadata_path.exists():
+        logger.warning(f"Metadata file not found at {metadata_path}. Provenance may be incomplete.")
+        return {}
+    
+    import yaml
+    with open(metadata_path, 'r') as f:
+        return yaml.safe_load(f) or {}
+
+def save_metadata(metadata):
+    """Save the updated metadata.yaml file."""
+    data_dir = get_data_dir()
+    metadata_path = data_dir / "metadata.yaml"
     import yaml
     with open(metadata_path, 'w') as f:
-        yaml.dump(metadata, f, default_flow_style=False, sort_keys=False)
+        yaml.dump(metadata, f, default_flow_style=False)
 
-def load_guild_source(source_path: Path) -> list:
+def load_guild_source(input_path):
     """
-    Load the guild source CSV file.
-    Expects columns: species_id, foraging_guild, and potentially source_citation.
-    """
-    if not source_path.exists():
-        raise FileNotFoundError(f"Guild source file not found at {source_path}. "
-                                "Please ensure T008a (download_guild_source.py) has run successfully.")
+    Load the guild source CSV and validate it contains required columns.
     
-    logger.info(f"Loading guild source from {source_path}")
+    Args:
+        input_path: Path to the input CSV file.
+        
+    Returns:
+        List of dictionaries representing the rows.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        ValueError: If required columns are missing.
+    """
+    if not input_path.exists():
+        raise FileNotFoundError(f"Guild source file not found: {input_path}")
+    
     rows = []
-    with open(source_path, 'r', encoding='utf-8') as f:
+    with open(input_path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
-        required_fields = {'species_id', 'foraging_guild'}
-        if not required_fields.issubset(set(reader.fieldnames or [])):
-            raise ValueError(f"Guild source file missing required columns: {required_fields}. "
-                             f"Found: {reader.fieldnames}")
+        # Validate columns
+        if reader.fieldnames is None:
+            raise ValueError("Guild source file is empty or has no header.")
+        
+        missing_cols = set(REQUIRED_COLUMNS) - set(reader.fieldnames)
+        if missing_cols:
+            raise ValueError(f"Guild source file missing required columns: {missing_cols}")
         
         for row in reader:
-            # Normalize keys if necessary (strip whitespace)
-            cleaned_row = {k.strip(): v.strip() if isinstance(v, str) else v for k, v in row.items()}
-            rows.append(cleaned_row)
+            rows.append(row)
     
-    if not rows:
-        raise ValueError("Guild source file is empty.")
-    
-    logger.info(f"Loaded {len(rows)} records from guild source.")
+    logger.info(f"Loaded {len(rows)} records from {input_path}")
     return rows
 
-def validate_schema(rows: list) -> bool:
+def validate_schema(rows):
     """
-    Validate that the loaded data conforms to the expected schema.
-    Checks for presence of species_id and foraging_guild.
+    Validate the data schema before processing.
+    
+    Args:
+        rows: List of dictionaries.
+        
+    Raises:
+        ValueError: If validation fails.
     """
+    if not rows:
+        raise ValueError("No data rows found in guild source.")
+    
     for i, row in enumerate(rows):
-        if not row.get('species_id'):
-            logger.error(f"Row {i} missing 'species_id'.")
-            return False
-        if not row.get('foraging_guild'):
-            logger.error(f"Row {i} missing 'foraging_guild'.")
-            return False
-    return True
+        species_id = row.get('species_id', '').strip()
+        guild = row.get('foraging_guild', '').strip()
+        
+        if not species_id:
+            raise ValueError(f"Row {i}: Missing or empty species_id.")
+        if not guild:
+            logger.warning(f"Row {i}: Missing or empty foraging_guild for {species_id}. Skipping.")
+            rows[i] = None  # Mark for removal
+    
+    # Remove invalid rows
+    valid_rows = [r for r in rows if r is not None]
+    if len(valid_rows) < len(rows):
+        logger.info(f"Removed {len(rows) - len(valid_rows)} invalid rows.")
+    
+    return valid_rows
 
-def save_mapping(output_path: Path, rows: list, source_citation: str, extraction_date: str) -> None:
+def save_mapping(rows, output_path):
     """
     Save the processed guild mapping to CSV.
-    Columns: species_id, foraging_guild, source_citation, extraction_date
+    
+    Args:
+        rows: List of validated row dictionaries.
+        output_path: Path to the output CSV file.
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
@@ -89,93 +130,96 @@ def save_mapping(output_path: Path, rows: list, source_citation: str, extraction
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
+        
+        now = datetime.utcnow().isoformat() + "Z"
         for row in rows:
             writer.writerow({
-                'species_id': row['species_id'],
-                'foraging_guild': row['foraging_guild'],
-                'source_citation': source_citation,
-                'extraction_date': extraction_date
+                'species_id': row['species_id'].strip(),
+                'foraging_guild': row['foraging_guild'].strip(),
+                'source_citation': row.get('source_citation', 'Birds of the World').strip(),
+                'extraction_date': now
             })
     
-    logger.info(f"Saved guild mapping to {output_path} ({len(rows)} rows).")
+    logger.info(f"Saved {len(rows)} records to {output_path}")
 
-def record_provenance_in_metadata(metadata_path: Path, source_path: Path, output_path: Path, source_citation: str):
+def record_provenance_in_metadata(input_path, output_path, metadata):
     """
-    Update data/metadata.yaml with provenance for the generated guild mapping.
+    Record provenance information in metadata.yaml.
+    
+    Args:
+        input_path: Path to input file.
+        output_path: Path to output file.
+        metadata: Existing metadata dictionary.
     """
-    metadata = load_metadata(metadata_path)
+    if 'provenance' not in metadata:
+        metadata['provenance'] = {}
     
-    if 'sources' not in metadata:
-        metadata['sources'] = {}
+    step_name = "T008b_generate_guild_mapping"
+    record = generate_provenance_record(
+        step_name=step_name,
+        input_files=[str(input_path)],
+        output_files=[str(output_path)],
+        script_path=str(Path(__file__).relative_to(PROJECT_ROOT))
+    )
     
-    artifact_name = 'guild_mapping'
-    record = {
-        'input_file': str(source_path.relative_to(project_root)),
-        'input_hash': compute_file_hash(source_path),
-        'output_file': str(output_path.relative_to(project_root)),
-        'output_hash': compute_file_hash(output_path),
-        'source_citation': source_citation,
-        'generated_at': datetime.now().isoformat(),
-        'script': 'data/generate_guild_mapping.py'
+    if step_name not in metadata['provenance']:
+        metadata['provenance'][step_name] = []
+    metadata['provenance'][step_name].append(record)
+    
+    # Also update the specific artifact record if it exists
+    if 'artifacts' not in metadata:
+        metadata['artifacts'] = {}
+    
+    artifact_key = str(output_path.relative_to(get_data_dir()))
+    metadata['artifacts'][artifact_key] = {
+        'source': str(input_path.relative_to(get_data_dir())),
+        'hash': compute_file_hash(output_path),
+        'generated_at': datetime.utcnow().isoformat() + "Z"
     }
-    
-    metadata['sources'][artifact_name] = record
-    save_metadata(metadata_path, metadata)
-    logger.info(f"Recorded provenance for {artifact_name} in metadata.yaml.")
 
 def main():
-    """
-    Main entry point for generating the guild mapping.
-    1. Load metadata to find source citation URL/ID.
-    2. Load the raw guild source CSV (T008a output).
-    3. Validate schema.
-    4. Extract species_id and foraging_guild.
-    5. Add provenance columns (source_citation, extraction_date).
-    6. Save to data/processed/guild_mapping.csv.
-    7. Update metadata.yaml.
-    """
+    """Main entry point for T008b."""
+    logger.info("Starting T008b: Generate Guild Mapping")
+    
+    # Paths
     raw_dir = get_raw_data_dir()
     processed_dir = get_processed_dir()
-    metadata_path = get_metadata_file()
+    input_path = raw_dir / INPUT_FILE_NAME
+    output_path = processed_dir / OUTPUT_FILE_NAME
     
-    input_file = raw_dir / "guild_source.csv"
-    output_file = processed_dir / "guild_mapping.csv"
+    # Load metadata
+    metadata = load_metadata()
     
-    logger.info("Starting guild mapping generation (T008b)...")
-    
-    # Load metadata to get source citation details
-    metadata = load_metadata(metadata_path)
-    source_citation = "Birds of the World" # Default fallback if not explicitly found, though T008a should ensure this
-    if 'sources' in metadata and 'guild_source' in metadata['sources']:
-        # Attempt to extract citation from the previous step's metadata if available
-        citation_data = metadata['sources']['guild_source']
-        if 'source_citation' in citation_data:
-            source_citation = citation_data['source_citation']
-        elif 'url' in citation_data:
-            source_citation = citation_data['url']
-    
-    # Load raw data
     try:
-        rows = load_guild_source(input_file)
+        # Load source
+        logger.info(f"Loading guild source from {input_path}")
+        rows = load_guild_source(input_path)
+        
+        # Validate
+        logger.info("Validating schema...")
+        valid_rows = validate_schema(rows)
+        
+        # Save
+        logger.info(f"Saving mapping to {output_path}")
+        save_mapping(valid_rows, output_path)
+        
+        # Record provenance
+        logger.info("Recording provenance...")
+        record_provenance_in_metadata(input_path, output_path, metadata)
+        save_metadata(metadata)
+        
+        logger.info("T008b completed successfully.")
+        return 0
+        
     except FileNotFoundError as e:
-        logger.error(str(e))
-        sys.exit(1)
-    
-    # Validate schema
-    if not validate_schema(rows):
-        logger.error("Schema validation failed. Aborting.")
-        sys.exit(1)
-    
-    # Generate provenance timestamp
-    extraction_date = datetime.now().strftime("%Y-%m-%d")
-    
-    # Save the mapping
-    save_mapping(output_file, rows, source_citation, extraction_date)
-    
-    # Record provenance
-    record_provenance_in_metadata(metadata_path, input_file, output_file, source_citation)
-    
-    logger.info("T008b completed successfully.")
+        logger.error(f"Input file not found: {e}")
+        return 1
+    except ValueError as e:
+        logger.error(f"Validation error: {e}")
+        return 1
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

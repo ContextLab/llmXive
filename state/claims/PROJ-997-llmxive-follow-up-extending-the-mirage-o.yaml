@@ -803,3 +803,151 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-17T18:04:16Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Use meta-llama/Llama-3-8B model in BF16 precision
+  claim_id: c_2c1da978
+  context: 'T012: Implement src/services/feature_extractor.py: Load a full-precision
+    Llama model of standard scale, specifically meta-llama/Llama-3-8B in BF16 precision.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load a full-precision Llama model of standard scale, specifically 'meta-llama/Llama-3-8B'
+    in BF16 precision.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T12:30:11Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Halt pipeline if Variance Inflation Factor exceeds 10
+  claim_id: c_56368b88
+  context: 'T019: If VIF > 10 (2005.02245, https://arxiv.org/abs/2005.02245), HALT
+    THE PIPELINE with a fatal error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 10, halt the pipeline with a fatal error.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T12:30:11Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Model achieves Pearson correlation coefficient greater than 0.8
+  claim_id: c_7aa7d297
+  context: 'Independent Test for User Story 2: The model achieves a Pearson correlation
+    coefficient (r) of > 0.8 on a held-out validation set.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_achieves_Pearson_correlation_coefficient_greater_than
+  kind: magnitude
+  raw_text: The model achieves a Pearson correlation coefficient (r) of > 0.8 on a
+    held-out validation set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T12:31:24Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Select GSM8K samples with answer token length less than or equal to 5
+  claim_id: c_b4f7ed5f
+  context: 'T026A: Edge Case Injection: Select samples from the GSM8K dataset that
+    naturally exhibit low complexity using the deterministic rule: answer_token_length
+    <= 5.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Select_GSM8K_samples_with_answer_token_length_less_than_or_e
+  kind: magnitude
+  raw_text: 'Select samples from the GSM8K dataset that naturally exhibit low complexity
+    using the deterministic rule: answer_token_length <= 5.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T12:31:58Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Ensure edge case count reaches at least 5% of 300 or minimum 30 samples
+  claim_id: c_8a03993d
+  context: 'T026A: Append these samples to the input set until the edge case count
+    reaches at least 5% of the target n=300 (or a minimum of 30 samples) to ensure
+    statistical power.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_edge_case_count_reaches_at_least_5%25_of_300_or_minimum
+  kind: magnitude
+  raw_text: Append these samples to the input set until the edge case count reaches
+    at least 5% of the target n=300 (or a minimum of 30 samples).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T12:32:53Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Accept proxy policy if predicted gap is less than 0.1
+  claim_id: c_3960cb3a
+  context: 'T028: Proxy Policy Logic: Accept if predicted gap < 0.1.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Accept_proxy_policy_if_predicted_gap_is_less_than_0.1
+  kind: magnitude
+  raw_text: Accept if predicted gap < 0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T12:33:13Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Verify absolute difference between predicted and actual is less than
+    0.1 per quantization level
+  claim_id: c_eb465dd9
+  context: 'T027B: Verify |predicted - actual| < 0.1 holds separately for INT4, INT8,
+    and FP8 levels.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_absolute_difference_between_predicted_and_actual_is_l
+  kind: magnitude
+  raw_text: Verify |predicted - actual| < 0.1 holds separately for INT4, INT8, and
+    FP8 levels.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T12:33:36Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Prioritize core artifacts if less than 15 minutes remain
+  claim_id: c_29ab8484
+  context: 'T033: Time Budget Check: At the start of execution, check the remaining
+    time budget. If less than 15 minutes remain, prioritize core artifacts.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Prioritize_core_artifacts_if_less_than_15_minutes_remain
+  kind: magnitude
+  raw_text: If less than 15 minutes remain, prioritize core artifacts and truncate
+    non-essential narrative.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T12:34:11Z'

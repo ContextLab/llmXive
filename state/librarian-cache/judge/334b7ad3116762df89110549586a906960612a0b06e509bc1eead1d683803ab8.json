@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2110.05594",
+  "judged_at": "2026-09-03T12:34:51Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"geometry-aware representation denoising for robust multi-view 3d recon\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it addresses the same core domain of multi-view 3D reconstruction and explicitly investigates the integration of geometric priors (surface normals) with neural radiance fields, which is the specific mechanism and variable focus of the user's \"Geometry-Aware Representation Denoising\" question.",
+  "relevant": true
+}

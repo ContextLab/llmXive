@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T13:46:05.742846Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-397-predicting-avian-foraging-behavior-from-
-last_run_id: caba78fe-023b-4195-8dae-58ad18bfe6fd
+last_run_id: d7d0bdf9-e516-4707-8f7f-39aacfdfa783
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from
 title: Predicting Avian Foraging Behavior from Public eBird Data and Land Cover Maps
-updated_at: '2026-08-15T14:58:20.189285Z'
+updated_at: '2026-09-03T12:51:59.343779Z'

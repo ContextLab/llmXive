@@ -1,24 +1,25 @@
-# Predicting Avian Foraging Behavior from Public eBird Data and Land Cover Maps
+# Predicting Avian Foraging Behavior from eBird and Land Cover Data
 
 ## Project Overview
-This project implements an automated pipeline to predict avian foraging guilds using public eBird data and NLCD land cover maps.
+This project implements a machine learning pipeline to predict avian foraging guilds using public eBird data and NLCD land cover maps.
 
-## Structure
+## Directory Structure
+- `code/`: Source code for the pipeline
 - `data/`: Raw and processed data artifacts
 - `models/`: Trained models and evaluation metrics
-- `viz/`: Visualization outputs and reports
+- `viz/`: Visualization scripts and outputs
 - `notebooks/`: Jupyter notebooks for analysis
-- `utils/`: Utility modules for configuration and provenance
 - `tests/`: Unit and integration tests
+- `utils/`: Utility functions and configuration
 
 ## Quick Start
 1. Install dependencies: `pip install -r requirements.txt`
 2. Run the pipeline: `bash run_pipeline.sh`
 
 ## Data Sources
-- eBird Basic Dataset (EBD)
-- NLCD Land Cover Data
-- Birds of the World Foraging Guild Data
+- eBird Basic Dataset (EBD): Bird observation records
+- NLCD 2019: National Land Cover Database
+- Birds of the World: Foraging guild classifications
 
 ## License
-MIT License
+Research use only.

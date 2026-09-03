@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T17:41:43.547188Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-960-llmxive-follow-up-extending-geometry-awa
-last_run_id: d24a96ca-d591-4496-afa2-3532307b0a06
+last_run_id: bd9b1e6c-6675-40a8-9bd4-f1be6f4e7fbd
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "Geometry-Aware Representation Denoising for
   Robust Multi-view 3D Recon"'
-updated_at: '2026-09-02T07:25:35.345539Z'
+updated_at: '2026-09-03T12:35:19.975964Z'

@@ -9,7 +9,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmxive-follow-up
   verified_at: '2026-08-12T16:41:07.807506Z'
-- artifact_hash: efb507c9659780f9f90a3e1ba7f0cf36fc1ac6e61cc65ae37ac06698a8b6c0a0
+- artifact_hash: 0478a4e87b1c5d7197c1a1a9e9e0c56bf1b20448a36f17e657296917e555b750
   artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -20,4 +20,4 @@
   value: https://arxiv.org/abs/2005.02245
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2005.02245
-  verified_at: '2026-08-20T02:16:51.677895Z'
+  verified_at: '2026-09-03T12:34:11.375408Z'

@@ -1,60 +1,44 @@
-"""
-Task T001a: Initialize the data/ directory structure.
-
-Creates the directory `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/data/`
-and places a `.gitkeep` file inside to ensure the directory is tracked by git.
-"""
 import os
 import sys
 from pathlib import Path
 
-# Define the project root relative to this script's location or use a fixed relative path
-# Based on the task description, the target path is:
-# projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/data/
-# Assuming this script runs from the root of the project structure or we construct the path explicitly.
-
-# We will construct the path relative to the current working directory to be safe,
-# or assume the project root is the parent of 'code'.
-# The task specifies the full path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/data/
-
-PROJECT_NAME = "PROJ-397-predicting-avian-foraging-behavior-from-"
-CODE_DIR = "code"
-DATA_DIR_NAME = "data"
-
-# Construct the full path
-base_path = Path("projects") / PROJECT_NAME / CODE_DIR / DATA_DIR_NAME
-
 def main():
-    print(f"Initializing data directory: {base_path}")
+    """
+    Initialize the data/ directory for the project.
+    Creates the directory structure and a .gitkeep file to ensure
+    the directory is tracked by git.
+    """
+    # Determine project root based on the task description
+    # The task specifies: projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/data/
+    # However, standard project structure implies 'code' is the root for this repo context.
+    # We will create the path relative to the current working directory or a fixed prefix
+    # if the environment dictates a specific project root.
     
-    # Create the directory (parents=True creates intermediate directories if needed)
-    try:
-        base_path.mkdir(parents=True, exist_ok=True)
-        print(f"Directory created or exists: {base_path}")
-    except PermissionError as e:
-        print(f"Error: Permission denied creating directory {base_path}: {e}")
-        sys.exit(1)
-    except Exception as e:
-        print(f"Error creating directory {base_path}: {e}")
-        sys.exit(1)
+    # Based on the API surface provided (e.g., code/setup_viz_dir.py imports from utils.config),
+    # we assume the execution context is inside the 'code' directory or the root.
+    # The task explicitly asks for: projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/data/
+    
+    # To be safe and consistent with the "whole project tree" constraint, 
+    # we will construct the path relative to the current working directory.
+    # If the runner executes this from the project root, we create the nested path.
+    
+    project_root = Path.cwd()
+    target_dir = project_root / "projects" / "PROJ-397-predicting-avian-foraging-behavior-from-" / "code" / "data"
+    
+    # If the runner is already inside the project root (e.g. 'code' directory), 
+    # we check if the path exists. If the prompt implies the project root IS the 
+    # 'projects/.../code' directory, we adjust. 
+    # Given the rejected tasks mentioned "projects/.../code/data/", we strictly follow that path.
+    
+    # Ensure the directory exists
+    target_dir.mkdir(parents=True, exist_ok=True)
     
     # Create .gitkeep file
-    gitkeep_path = base_path / ".gitkeep"
-    try:
-        # open with 'x' creates the file only if it doesn't exist, 
-        # but 'w' is safer if we just want to ensure it exists and is empty.
-        # We'll use 'a' or 'w' to ensure it exists.
-        with open(gitkeep_path, 'w') as f:
-            f.write("") # Empty file
-        print(f"Created .gitkeep file: {gitkeep_path}")
-    except PermissionError as e:
-        print(f"Error: Permission denied creating .gitkeep file {gitkeep_path}: {e}")
-        sys.exit(1)
-    except Exception as e:
-        print(f"Error creating .gitkeep file {gitkeep_path}: {e}")
-        sys.exit(1)
+    gitkeep_file = target_dir / ".gitkeep"
+    gitkeep_file.touch(exist_ok=True)
     
-    print("Task T001a completed successfully.")
+    print(f"Successfully created directory: {target_dir}")
+    print(f"Successfully created .gitkeep file: {gitkeep_file}")
 
 if __name__ == "__main__":
     main()

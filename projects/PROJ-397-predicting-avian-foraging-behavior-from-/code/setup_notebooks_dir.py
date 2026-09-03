@@ -1,28 +1,34 @@
+"""
+Setup script to initialize the notebooks directory for the project.
+Creates the directory structure and a .gitkeep file to ensure
+the directory is tracked by git even when empty.
+"""
 import os
 import sys
 from pathlib import Path
 
 def main():
     """
-    Initialize the notebooks directory for the project.
+    Initialize the notebooks directory.
     
-    Creates the directory structure:
-    projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/notebooks/
-    
-    And creates a .gitkeep file inside to ensure the directory is tracked by git.
+    Creates:
+    - projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/notebooks/
+    - .gitkeep file inside the notebooks directory
     """
-    project_root = Path(__file__).resolve().parent.parent
-    notebooks_dir = project_root / "notebooks"
+    # Define the project root and target directory
+    project_root = Path("projects/PROJ-397-predicting-avian-foraging-behavior-from-")
+    code_dir = project_root / "code"
+    notebooks_dir = code_dir / "notebooks"
     
-    # Create directory if it doesn't exist
+    # Create the directory structure
     notebooks_dir.mkdir(parents=True, exist_ok=True)
     
-    # Create .gitkeep file
-    gitkeep_file = notebooks_dir / ".gitkeep"
-    gitkeep_file.touch()
+    # Create .gitkeep file to ensure directory is tracked by git
+    gitkeep_path = notebooks_dir / ".gitkeep"
+    gitkeep_path.touch()
     
-    print(f"Created directory: {notebooks_dir}")
-    print(f"Created placeholder file: {gitkeep_file}")
+    print(f"Successfully created directory: {notebooks_dir}")
+    print(f"Created .gitkeep file: {gitkeep_path}")
     
     return 0
 

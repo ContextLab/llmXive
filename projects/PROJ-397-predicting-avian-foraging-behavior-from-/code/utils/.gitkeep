@@ -1,3 +1,1 @@
-# This directory is part of the llmXive automated science pipeline.
-# It contains utility modules for configuration, provenance, and resource validation.
-# Do not remove this file; it ensures the directory is tracked in version control.
+# Placeholder file to ensure the utils directory is tracked by Git.

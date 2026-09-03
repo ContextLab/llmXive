@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-13T12:29:07Z",
+  "fetched_at": "2026-09-03T12:35:05Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,104 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust Multi-view 3D Recon\"",
       "target_n": 5
     },
-    "duration_seconds": 50.906,
-    "ended_at": "2026-08-13T12:29:07Z",
+    "duration_seconds": 51.345,
+    "ended_at": "2026-09-03T12:35:05Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "geometry-aware multi-view 3D reconstruction"
+          "geometry-aware deep learning for 3D reconstruction"
         ],
         [
           2,
-          "robust 3D reconstruction under noise"
+          "robust multi-view 3D reconstruction with noise reduction"
         ],
         [
           3,
-          "representation denoising for 3D geometry"
+          "3D point cloud denoising using geometric priors"
         ],
         [
           4,
-          "multi-view stereo with geometric priors"
+          "view-consistent 3D representation learning"
         ],
         [
           5,
-          "deep learning based 3D denoising"
+          "geometric regularization for neural 3D reconstruction"
         ],
         [
           6,
-          "view-consistent 3D surface reconstruction"
+          "multi-view stereo with learned denoising"
         ],
         [
           7,
-          "noise-robust neural 3D reconstruction"
+          "robustness in neural radiance fields (NeRF)"
         ],
         [
           8,
-          "geometric consistency in multi-view learning"
+          "3D shape reconstruction from noisy multi-view images"
         ],
         [
           9,
-          "self-supervised 3D reconstruction denoising"
+          "geometry-guided representation learning for vision"
         ],
         [
           10,
-          "3D point cloud denoising via multi-view"
+          "noise-robust 3D scene reconstruction"
         ],
         [
           11,
-          "learning-based 3D shape regularization"
+          "self-supervised 3D geometry learning"
         ],
         [
           12,
-          "multi-view geometry refinement networks"
+          "multi-view consistency for 3D deep learning"
         ],
         [
           13,
-          "robust neural radiance fields (NeRF) reconstruction"
+          "geometric deep learning for 3D perception"
         ],
         [
           14,
-          "geometric prior integration in 3D vision"
+          "denoising autoencoders for 3D point clouds"
         ],
         [
           15,
-          "outlier rejection in multi-view 3D estimation"
+          "robust multi-view geometry estimation"
         ],
         [
           16,
-          "texture-independent 3D reconstruction methods"
+          "3D reconstruction under view noise and occlusion"
         ],
         [
           17,
-          "implicit representation denoising for 3D"
+          "geometric constraints in neural 3D generation"
         ],
         [
           18,
-          "multi-view 3D reconstruction with uncertainty"
+          "learning robust 3D representations from sparse views"
         ],
         [
           19,
-          "adversarial robustness in 3D reconstruction"
+          "3D scene reconstruction with geometric awareness"
         ],
         [
           20,
-          "geometric deep learning for noisy 3D data"
+          "noise-robust neural implicit surfaces"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "geometry-aware multi-view 3D reconstruction": 4,
+        "geometry-aware deep learning for 3D reconstruction": 4,
         "llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust Multi-view 3D Recon\" computer science": 0
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "robust multi-view 3D reconstruction geometry-aware denoising",
-      "3D Gaussian splatting neural radiance fields surface reconstruction",
-      "view consistency photometric loss 3D reconstruction robustness",
-      "multi-view stereo noise rejection geometric regularization evaluation",
-      "adversarial robustness 3D reconstruction data corruption sensitivity"
+      "view synthesis geometric consistency 3D denoising",
+      "neural radiance fields multi-view stereo photometric consistency",
+      "epipolar geometry constraint 3D reconstruction robustness",
+      "novel view synthesis PSNR SSIM reconstruction quality",
+      "geometric prior regularization multi-view 3D learning"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -115,30 +115,51 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "success_after_expansion",
+    "outcome": "exhausted",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2605.18754"
+        "2506.23863"
       ]
     },
     "per_query_hit_count": {
-      "3D Gaussian splatting neural radiance fields surface reconstruction": 3,
-      "adversarial robustness 3D reconstruction data corruption sensitivity": 2,
+      "epipolar geometry constraint 3D reconstruction robustness": 3,
+      "geometric prior regularization multi-view 3D learning": 3,
       "llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust Multi-view 3D Recon\" computer science": 3,
-      "multi-view stereo noise rejection geometric regularization evaluation": 3,
-      "robust multi-view 3D reconstruction geometry-aware denoising": 3,
-      "view consistency photometric loss 3D reconstruction robustness": 2
+      "neural radiance fields multi-view stereo photometric consistency": 3,
+      "novel view synthesis PSNR SSIM reconstruction quality": 3,
+      "view synthesis geometric consistency 3D denoising": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 0,
-      "rejections": []
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2306.11113",
+          "rationale": "The candidate paper focuses on evidential deep learning and uncertainty quantification via belief theory, which is a distinct construct from the user's specific question about \"Geometry-Aware Representation Denoising\" for multi-view 3D reconstruction. While both involve deep learning, the paper does not address the geometric mechanisms, 3D reconstruction domain, or the specific denoising methodology required by the user's follow-up research, failing to meet any of the inclusion criteria (a-f) fo",
+          "title": "Learn to Accumulate Evidence from All Training Samples: Theory and Practice"
+        },
+        {
+          "primary_pointer": "2105.04026",
+          "rationale": "The paper is a broad theoretical overview of deep learning mathematics and does not measure the specific mechanism of \"geometry-aware representation denoising,\" nor does it address the domain of \"multi-view 3D reconstruction\" or the specific \"llmXive\" follow-up context. It fails to satisfy any inclusion criteria (a-f) as it lacks the specific empirical variables, domain, or canonical methodology required for this niche research question.",
+          "title": "The Modern Mathematics of Deep Learning"
+        },
+        {
+          "primary_pointer": "2301.02033",
+          "rationale": "The paper focuses on cardiac MRI reconstruction using physics-informed self-supervised learning, which is a distinct medical imaging domain and application from the user's question regarding geometry-aware representation denoising for multi-view 3D reconstruction (typically computer vision/graphics). While both involve \"reconstruction,\" the underlying mechanisms, data types (2D MRI slices vs. multi-view 3D geometry), and specific technical challenges do not satisfy the criteria for inclusion as ",
+          "title": "Physics-informed self-supervised deep learning reconstruction for accelerated first-pass perfusion cardiac MRI"
+        },
+        {
+          "primary_pointer": "2301.00942",
+          "rationale": "The paper is a general educational resource on the theoretical connections between deep learning and computational physics, lacking any specific focus on multi-view 3D reconstruction, geometry-aware representation denoising, or the specific \"llmXive\" context mentioned in the user's question. It fails to meet criteria (a) or (b) as it does not measure the specific mechanism or variables of the user's domain, and it is not the foundational methodology paper (d) for the specific technique of geomet",
+          "title": "Deep Learning and Computational Physics (Lecture Notes)"
+        }
+      ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-08-13T12:28:16Z",
+    "started_at": "2026-09-03T12:34:13Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"geometry-aware representation denoising for robust multi-view 3d recon\" computer science",
       "raw": "llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust Multi-view 3D Recon\" computer science"
@@ -157,7 +178,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-08-13T12:28:47Z",
+        "failed_at": "2026-09-03T12:34:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -176,7 +197,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-08-13T12:28:47Z",
+        "failed_at": "2026-09-03T12:34:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -194,106 +215,40 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-08-13T12:28:47Z",
+        "failed_at": "2026-09-03T12:34:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Krylov subspace methods are considered a standard tool to solve large systems of linear algebraic equations in many scientific disciplines such as image restoration or solving partial differential equations in mechanics of continuum. In the context of computer tomography however, the mostly used algebraic reconstruction techniques are based on classical iterative schemes. In this work we present software package that implements fully 3D cone beam projection operator and uses Krylov subspace methods, namely CGLS and LSQR to solve related tomographic reconstruction problems. It also implements basic preconditioning strategies. On the example of the cone beam CT reconstruction of 3D Shepp-Logan phantom we show that the speed of convergence of the CGLS clearly outperforms PSIRT algorithm. Therefore Krylov subspace methods present an interesting option for the reconstruction of large 3D cone beam CT problems.",
+          "claimed_abstract": "We present Neural Pixel Composition (NPC), a novel approach for continuous 3D-4D view synthesis given only a discrete set of multi-view observations as input. Existing state-of-the-art approaches require dense multi-view supervision and an extensive computational budget. The proposed formulation reliably operates on sparse and wide-baseline multi-view imagery and can be trained efficiently within a few seconds to 10 minutes for hi-res (12MP) content, i.e., 200-400X faster convergence than existing methods. Crucial to our approach are two core novelties: 1) a representation of a pixel that contains color and depth information accumulated from multi-views for a particular location and time along a line of sight, and 2) a multi-layer perceptron (MLP) that enables the composition of this rich information provided for a pixel location to obtain the final color output. We experiment with a large variety of multi-view sequences, compare to existing approaches, and achieve better results in diverse and challenging settings. Finally, our approach enables dense 3D reconstruction from sparse multi-views, where COLMAP, a state-of-the-art 3D reconstruction approach, struggles.",
           "claimed_authors": [
-            "Vojtěch Kulvait",
-            "Georg Rose"
+            "Aayush Bansal",
+            "Michael Zollhoefer"
           ],
-          "claimed_title": "Software Implementation of the Krylov Methods Based Reconstruction for the 3D Cone Beam CT Operator",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2110.13526"
-        },
-        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust', candidate_title='Software Implementation of the Krylov Methods Based Reconstruction for the 3D Cone Beam CT Operator')",
-        "failed_at": "2026-08-13T12:28:48Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "View-conditioned 3D generators such as SAM 3D, TRELLIS, and Hunyuan3D produce high-quality object reconstructions from a single view, but real-world visual observation often arrives as long monocular streams. Naively applying these generators to each streaming frame independently leads to severe temporal inconsistency in the generated results. To address this problem, we propose Stream3D, the first training-free streaming mechanism that turns a frozen view-conditioned 3D generator into a streaming generator with constant cross-chunk memory. Stream3D achieves this by maintaining a compact evidential memory, which selectively caches the most informative historical frames based on a proposed evidence score mechanism. As the stream progresses, the memory dynamically updates to retain a fixed number of informative frames, preventing the memory footprint from growing linearly with sequence length. This also prevents degradation over long sequences and keeps the underlying generator completely unchanged without retraining, architectural modifications, or auxiliary losses. Evaluated on both realistic and synthetic streaming benchmarks, Stream3D outperforms latent-transport baselines, including KV-cache reuse and flow-based feature editing, across both photometric and geometric metrics. More details can be found at: https://stream-3d.github.io/stream3d.github.io/.",
-          "claimed_authors": [
-            "Kaichen Zhou",
-            "Zeyang Bai",
-            "Xinhai Chang",
-            "Mengyu Wang",
-            "Paul Liang",
-            "Fangneng Zhan"
-          ],
-          "claimed_title": "Stream3D: Sequential Multi-View 3D Generation via Evidential Memory",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2605.21472"
-        },
-        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust', candidate_title='Stream3D: Sequential Multi-View 3D Generation via Evidential Memory')",
-        "failed_at": "2026-08-13T12:28:48Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Radiance Field methods have recently revolutionized novel-view synthesis of scenes captured with multiple photos or videos. However, achieving high visual quality still requires neural networks that are costly to train and render, while recent faster methods inevitably trade off speed for quality. For unbounded and complete scenes (rather than isolated objects) and 1080p resolution rendering, no current method can achieve real-time display rates. We introduce three key elements that allow us to achieve state-of-the-art visual quality while maintaining competitive training times and importantly allow high-quality real-time (>= 30 fps) novel-view synthesis at 1080p resolution. First, starting from sparse points produced during camera calibration, we represent the scene with 3D Gaussians that preserve desirable properties of continuous volumetric radiance fields for scene optimization while avoiding unnecessary computation in empty space; Second, we perform interleaved optimization/density control of the 3D Gaussians, notably optimizing anisotropic covariance to achieve an accurate representation of the scene; Third, we develop a fast visibility-aware rendering algorithm that supports anisotropic splatting and both accelerates training and allows realtime rendering. We demonstrate state-of-the-art visual quality and real-time rendering on several established datasets.",
-          "claimed_authors": [
-            "Bernhard Kerbl",
-            "Georgios Kopanas",
-            "Thomas Leimkühler",
-            "George Drettakis"
-          ],
-          "claimed_title": "3D Gaussian Splatting for Real-Time Radiance Field Rendering",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2308.04079"
-        },
-        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust', candidate_title='3D Gaussian Splatting for Real-Time Radiance Field Rendering')",
-        "failed_at": "2026-08-13T12:28:48Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In March 2020, Neural Radiance Field (NeRF) revolutionized Computer Vision, allowing for implicit, neural network-based scene representation and novel view synthesis. NeRF models have found diverse applications in robotics, urban mapping, autonomous navigation, virtual reality/augmented reality, and more. In August 2023, Gaussian Splatting, a direct competitor to the NeRF-based framework, was proposed, gaining tremendous momentum and overtaking NeRF-based research in terms of interest as the dominant framework for novel view synthesis. We present a comprehensive survey of NeRF papers from the past five years (2020-2025). These include papers from the pre-Gaussian Splatting era, where NeRF dominated the field for novel view synthesis and 3D implicit and hybrid representation neural field learning. We also include works from the post-Gaussian Splatting era where NeRF and implicit/hybrid neural fields found more niche applications.\n  Our survey is organized into architecture and application-based taxonomies in the pre-Gaussian Splatting era, as well as a categorization of active research areas for NeRF, neural field, and implicit/hybrid neural representation methods. We provide an introduction to the theory of NeRF and its training via differentiable volume rendering. We also present a benchmark comparison of the performance and speed of classical NeRF, implicit and hybrid neural representation, and neural field models, and an overview of key datasets.",
-          "claimed_authors": [
-            "Kyle Gao",
-            "Yina Gao",
-            "Hongjie He",
-            "Dening Lu",
-            "Linlin Xu",
-            "Jonathan Li"
-          ],
-          "claimed_title": "NeRF: Neural Radiance Field in 3D Vision: A Comprehensive Review (Updated Post-Gaussian Splatting)",
+          "claimed_title": "Neural Pixel Composition: 3D-4D View Synthesis from Multi-Views",
           "claimed_venue": "arXiv",
           "claimed_year": 2022,
-          "primary_pointer": "2210.00379"
+          "primary_pointer": "2207.10663"
         },
-        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust', candidate_title='NeRF: Neural Radiance Field in 3D Vision: A Comprehensive Review (Updated Post-Gaussian Splatting)')",
-        "failed_at": "2026-08-13T12:28:48Z",
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust', candidate_title='Neural Pixel Composition: 3D-4D View Synthesis from Multi-Views')",
+        "failed_at": "2026-09-03T12:34:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Monocular 3D face reconstruction is a wide-spread topic, and existing approaches tackle the problem either through fast neural network inference or offline iterative reconstruction of face geometry. In either case carefully-designed energy functions are minimized, commonly including loss terms like a photometric loss, a landmark reprojection loss, and others. In this work we propose a new loss function for monocular face capture, inspired by how humans would perceive the quality of a 3D face reconstruction given a particular image. It is widely known that shading provides a strong indicator for 3D shape in the human visual system. As such, our new 'perceptual' shape loss aims to judge the quality of a 3D face estimate using only shading cues. Our loss is implemented as a discriminator-style neural network that takes an input face image and a shaded render of the geometry estimate, and then predicts a score that perceptually evaluates how well the shaded render matches the given image. This 'critic' network operates on the RGB image and geometry render alone, without requiring an estimate of the albedo or illumination in the scene. Furthermore, our loss operates entirely in image space and is thus agnostic to mesh topology. We show how our new perceptual shape loss can be combined with traditional energy terms for monocular 3D face optimization and deep neural network regression, improving upon current state-of-the-art results.",
+          "claimed_abstract": "High-throughput imaging workflows, such as Parallel Rapid Imaging with Spectroscopic Mapping (PRISM), generate data at rates that exceed conventional real-time processing capabilities. We present a scalable FPGA-based preprocessing pipeline for real-time denoising, implemented via High-Level Synthesis (HLS) and optimized for DRAM-backed buffering. Our architecture performs frame subtraction and averaging directly on streamed image data, minimizing latency through burst-mode AXI4 interfaces. The resulting kernel operates below the inter-frame interval, enabling inline denoising and reducing dataset size for downstream CPU/GPU analysis. Validated under PRISM-scale acquisition, this modular FPGA framework offers a practical solution for latency-sensitive imaging workflows in spectroscopy and microscopy.",
           "claimed_authors": [
-            "Christopher Otto",
-            "Prashanth Chandran",
-            "Gaspard Zoss",
-            "Markus Gross",
-            "Paulo Gotardo",
-            "Derek Bradley"
+            "Weichien Liao"
           ],
-          "claimed_title": "A Perceptual Shape Loss for Monocular 3D Face Reconstruction",
+          "claimed_title": "Scalable FPGA Framework for Real-Time Denoising in High-Throughput Imaging: A DRAM-Optimized Pipeline using High-Level Synthesis",
           "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2310.19580"
+          "claimed_year": 2025,
+          "primary_pointer": "2508.14917"
         },
-        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust', candidate_title='A Perceptual Shape Loss for Monocular 3D Face Reconstruction')",
-        "failed_at": "2026-08-13T12:28:48Z",
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust', candidate_title='Scalable FPGA Framework for Real-Time Denoising in High-Throughput Imaging: A DRAM-Optimized Pipeline using High-Level Synthesis')",
+        "failed_at": "2026-09-03T12:34:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -311,7 +266,7 @@
           "primary_pointer": "2210.11467"
         },
         "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust', candidate_title='Multi-View Guided Multi-View Stereo')",
-        "failed_at": "2026-08-13T12:28:49Z",
+        "failed_at": "2026-09-03T12:34:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -339,127 +294,167 @@
           "primary_pointer": "2501.08643"
         },
         "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust', candidate_title='MonSter++: Unified Stereo Matching, Multi-view Stereo, and Real-time Stereo with Monodepth Priors')",
-        "failed_at": "2026-08-13T12:28:49Z",
+        "failed_at": "2026-09-03T12:34:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The STEREO experiment, aiming to probe short baseline neutrino oscillations by precisely measuring reactor anti-neutrino spectrum, is currently under installation. It is located at short distance from the compact research reactor core of the Institut Laue-Langevin, Grenoble, France. Dedicated electronics, hosted in a single $μ$TCA crate, were designed for this experiment. In this article, the electronics requirements, architecture and the performances achieved are described. It is shown how intrinsic Pulse Shape Discrimination properties of the liquid scintillator are preserved and how custom adaptable logic is used to improve the muon veto efficiency.",
+          "claimed_abstract": "Krylov subspace methods are considered a standard tool to solve large systems of linear algebraic equations in many scientific disciplines such as image restoration or solving partial differential equations in mechanics of continuum. In the context of computer tomography however, the mostly used algebraic reconstruction techniques are based on classical iterative schemes. In this work we present software package that implements fully 3D cone beam projection operator and uses Krylov subspace methods, namely CGLS and LSQR to solve related tomographic reconstruction problems. It also implements basic preconditioning strategies. On the example of the cone beam CT reconstruction of 3D Shepp-Logan phantom we show that the speed of convergence of the CGLS clearly outperforms PSIRT algorithm. Therefore Krylov subspace methods present an interesting option for the reconstruction of large 3D cone beam CT problems.",
           "claimed_authors": [
-            "V. Hélaine",
-            "STEREO collaboration"
+            "Vojtěch Kulvait",
+            "Georg Rose"
           ],
-          "claimed_title": "Electronics for the STEREO experiment",
+          "claimed_title": "Software Implementation of the Krylov Methods Based Reconstruction for the 3D Cone Beam CT Operator",
           "claimed_venue": "arXiv",
-          "claimed_year": 2016,
-          "primary_pointer": "1610.00003"
+          "claimed_year": 2021,
+          "primary_pointer": "2110.13526"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust', candidate_title='Electronics for the STEREO experiment')",
-        "failed_at": "2026-08-13T12:28:49Z",
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust', candidate_title='Software Implementation of the Krylov Methods Based Reconstruction for the 3D Cone Beam CT Operator')",
+        "failed_at": "2026-09-03T12:34:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_abstract": "Existing light field representations, such as epipolar plane image (EPI) and sub-aperture images, do not consider the structural characteristics across the views, so they usually require additional disparity and spatial structure cues for follow-up tasks. Besides, they have difficulties dealing with occlusions or larger disparity scenes. To this end, this paper proposes a novel Epipolar Focus Spectrum (EFS) representation by rearranging the EPI spectrum. Different from the classical EPI representation where an EPI line corresponds to a specific depth, there is a one-to-one mapping from the EFS line to the view. Accordingly, compared to a sparsely-sampled light field, a densely-sampled one with the same field of view (FoV) leads to a more compact distribution of such linear structures in the double-cone-shaped region with the identical opening angle in its corresponding EFS. Hence the EFS representation is invariant to the scene depth. To demonstrate its effectiveness, we develop a trainable EFS-based pipeline for light field reconstruction, where a dense light field can be reconstructed by compensating the \"missing EFS lines\" given a sparse light field, yielding promising results with cross-view consistency, especially in the presence of severe occlusion and large disparity. Experimental results on both synthetic and real-world datasets demonstrate the validity and superiority of the proposed method over SOTA methods.",
           "claimed_authors": [
-            "Deepesh Data",
-            "Linqi Song",
-            "Suhas Diggavi"
+            "Yaning Li",
+            "Xue Wang",
+            "Hao Zhu",
+            "Guoqing Zhou",
+            "Qing Wang"
           ],
-          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1907.02664"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
-        "failed_at": "2026-08-13T12:28:49Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Robustness is a fundamental pillar of Machine Learning (ML) classifiers, substantially determining their reliability. Methods for assessing classifier robustness are therefore essential. In this work, we address the challenge of evaluating corruption robustness in a way that allows comparability and interpretability on a given dataset. We propose a test data augmentation method that uses a robustness distance $ε$ derived from the datasets minimal class separation distance. The resulting MSCR (minimal separation corruption robustness) metric allows a dataset-specific comparison of different classifiers with respect to their corruption robustness. The MSCR value is interpretable, as it represents the classifiers avoidable loss of accuracy due to statistical corruptions. On 2D and image data, we show that the metric reflects different levels of classifier robustness. Furthermore, we observe unexpected optima in classifiers robust accuracy through training and testing classifiers with different levels of noise. While researchers have frequently reported on a significant tradeoff on accuracy when training robust models, we strengthen the view that a tradeoff between accuracy and corruption robustness is not inherent. Our results indicate that robustness training through simple data augmentation can already slightly improve accuracy.",
-          "claimed_authors": [
-            "Georg Siedel",
-            "Silvia Vock",
-            "Andrey Morozov",
-            "Stefan Voß"
-          ],
-          "claimed_title": "Utilizing Class Separation Distance for the Evaluation of Corruption Robustness of Machine Learning Classifiers",
+          "claimed_title": "Epipolar Focus Spectrum: A Novel Light Field Representation and Application in Dense-view Reconstruction",
           "claimed_venue": "arXiv",
           "claimed_year": 2022,
-          "primary_pointer": "2206.13405"
+          "primary_pointer": "2204.00193"
         },
-        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust', candidate_title='Utilizing Class Separation Distance for the Evaluation of Corruption Robustness of Machine Learning Classifiers')",
-        "failed_at": "2026-08-13T12:28:49Z",
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust', candidate_title='Epipolar Focus Spectrum: A Novel Light Field Representation and Application in Dense-view Reconstruction')",
+        "failed_at": "2026-09-03T12:34:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose DENSER, a Depth-guided ENSemble with Staged EFA-GS Reconstruction for soccer novel view synthesis. DENSER extends EFA-GS with three key contributions: (1) camera-height-based loss weighting that prioritises ground-level broadcast views, (2) monocular depth supervision from Depth-Anything-V2 to regularise geometry in textureless regions, and (3) a three-model pixel-average ensemble whose members diverge from a shared base checkpoint by varying training length and Gaussian scale clamping. On five held-out challenge scenes we achieve a mean PSNR of 29.89 dB, SSIM of 0.791, and LPIPS of 0.366.",
+          "claimed_authors": [
+            "Parthsarthi Rawat"
+          ],
+          "claimed_title": "DENSER: Depth-Guided Ensemble with Staged EFA-GS Reconstruction for Soccer Novel View Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.01419"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust', candidate_title='DENSER: Depth-Guided Ensemble with Staged EFA-GS Reconstruction for Soccer Novel View Synthesis')",
+        "failed_at": "2026-09-03T12:34:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The use of the structural similarity index (SSIM) is widespread. For almost two decades, it has played a major role in image quality assessment in many different research disciplines. Clearly, its merits are indisputable in the research community. However, little deep scrutiny of this index has been performed. Contrary to popular belief, there are some interesting properties of SSIM that merit such scrutiny. In this paper, we analyze the mathematical factors of SSIM and show that it can generate results, in both synthetic and realistic use cases, that are unexpected, sometimes undefined, and nonintuitive. As a consequence, assessing image quality based on SSIM can lead to incorrect conclusions and using SSIM as a loss function for deep learning can guide neural network training in the wrong direction.",
+          "claimed_authors": [
+            "Jim Nilsson",
+            "Tomas Akenine-Möller"
+          ],
+          "claimed_title": "Understanding SSIM",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.13846"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust', candidate_title='Understanding SSIM')",
+        "failed_at": "2026-09-03T12:34:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce a new task, novel view synthesis for LiDAR sensors. While traditional model-based LiDAR simulators with style-transfer neural networks can be applied to render novel views, they fall short of producing accurate and realistic LiDAR patterns because the renderers rely on explicit 3D reconstruction and exploit game engines, that ignore important attributes of LiDAR points. We address this challenge by formulating, to the best of our knowledge, the first differentiable end-to-end LiDAR rendering framework, LiDAR-NeRF, leveraging a neural radiance field (NeRF) to facilitate the joint learning of geometry and the attributes of 3D points. However, simply employing NeRF cannot achieve satisfactory results, as it only focuses on learning individual pixels while ignoring local information, especially at low texture areas, resulting in poor geometry. To this end, we have taken steps to address this issue by introducing a structural regularization method to preserve local structural details. To evaluate the effectiveness of our approach, we establish an object-centric multi-view LiDAR dataset, dubbed NeRF-MVL. It contains observations of objects from 9 categories seen from 360-degree viewpoints captured with multiple LiDAR sensors. Our extensive experiments on the scene-level KITTI-360 dataset, and on our object-level NeRF-MVL show that our LiDAR-NeRF surpasses the model-based algorithms significantly.",
+          "claimed_authors": [
+            "Tang Tao",
+            "Longfei Gao",
+            "Guangrun Wang",
+            "Yixing Lao",
+            "Peng Chen",
+            "Hengshuang Zhao",
+            "Dayang Hao",
+            "Xiaodan Liang",
+            "Mathieu Salzmann",
+            "Kaicheng Yu"
+          ],
+          "claimed_title": "LiDAR-NeRF: Novel LiDAR View Synthesis via Neural Radiance Fields",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.10406"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust', candidate_title='LiDAR-NeRF: Novel LiDAR View Synthesis via Neural Radiance Fields')",
+        "failed_at": "2026-09-03T12:34:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper addresses the challenge of training a single network to jointly perform multiple dense prediction tasks, such as segmentation and depth estimation, i.e., multi-task learning (MTL). Current approaches mainly capture cross-task relations in the 2D image space, often leading to unstructured features lacking 3D-awareness. We argue that 3D-awareness is vital for modeling cross-task correlations essential for comprehensive scene understanding. We propose to address this problem by integrating correlations across views, i.e., cost volume, as geometric consistency in the MTL network. Specifically, we introduce a lightweight Cross-view Module (CvM), shared across tasks, to exchange information across views and capture cross-view correlations, integrated with a feature from MTL encoder for multi-task predictions. This module is architecture-agnostic and can be applied to both single and multi-view data. Extensive results on NYUv2 and PASCAL-Context demonstrate that our method effectively injects geometric consistency into existing MTL methods to improve performance.",
+          "claimed_authors": [
+            "Xiaoye Wang",
+            "Chen Tang",
+            "Xiangyu Yue",
+            "Wei-Hong Li"
+          ],
+          "claimed_title": "3D-Aware Multi-Task Learning with Cross-View Correlations for Dense Scene Understanding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.20646"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust', candidate_title='3D-Aware Multi-Task Learning with Cross-View Correlations for Dense Scene Understanding')",
+        "failed_at": "2026-09-03T12:34:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "View-conditioned 3D generators such as SAM 3D, TRELLIS, and Hunyuan3D produce high-quality object reconstructions from a single view, but real-world visual observation often arrives as long monocular streams. Naively applying these generators to each streaming frame independently leads to severe temporal inconsistency in the generated results. To address this problem, we propose Stream3D, the first training-free streaming mechanism that turns a frozen view-conditioned 3D generator into a streaming generator with constant cross-chunk memory. Stream3D achieves this by maintaining a compact evidential memory, which selectively caches the most informative historical frames based on a proposed evidence score mechanism. As the stream progresses, the memory dynamically updates to retain a fixed number of informative frames, preventing the memory footprint from growing linearly with sequence length. This also prevents degradation over long sequences and keeps the underlying generator completely unchanged without retraining, architectural modifications, or auxiliary losses. Evaluated on both realistic and synthetic streaming benchmarks, Stream3D outperforms latent-transport baselines, including KV-cache reuse and flow-based feature editing, across both photometric and geometric metrics. More details can be found at: https://stream-3d.github.io/stream3d.github.io/.",
+          "claimed_authors": [
+            "Kaichen Zhou",
+            "Zeyang Bai",
+            "Xinhai Chang",
+            "Mengyu Wang",
+            "Paul Liang",
+            "Fangneng Zhan"
+          ],
+          "claimed_title": "Stream3D: Sequential Multi-View 3D Generation via Evidential Memory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.21472"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust', candidate_title='Stream3D: Sequential Multi-View 3D Generation via Evidential Memory')",
+        "failed_at": "2026-09-03T12:34:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Existing multi-view learning methods based on kernel function either require the user to select and tune a single predefined kernel or have to compute and store many Gram matrices to perform multiple kernel learning. Apart from the huge consumption of manpower, computation and memory resources, most of these models seek point estimation of their parameters, and are prone to overfitting to small training data. This paper presents an adaptive kernel nonlinear max-margin multi-view learning model under the Bayesian framework. Specifically, we regularize the posterior of an efficient multi-view latent variable model by explicitly mapping the latent representations extracted from multiple data views to a random Fourier feature space where max-margin classification constraints are imposed. Assuming these random features are drawn from Dirichlet process Gaussian mixtures, we can adaptively learn shift-invariant kernels from data according to Bochners theorem. For inference, we employ the data augmentation idea for hinge loss, and design an efficient gradient-based MCMC sampler in the augmented space. Having no need to compute the Gram matrix, our algorithm scales linearly with the size of training set. Extensive experiments on real-world datasets demonstrate that our method has superior performance.",
+          "claimed_authors": [
+            "Changying Du",
+            "Jia He",
+            "Changde Du",
+            "Fuzhen Zhuang",
+            "Qing He",
+            "Guoping Long"
+          ],
+          "claimed_title": "Efficient and Adaptive Kernelization for Nonlinear Max-margin Multi-view Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.05250"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"Geometry-Aware Representation Denoising for Robust', candidate_title='Efficient and Adaptive Kernelization for Nonlinear Max-margin Multi-view Learning')",
+        "failed_at": "2026-09-03T12:34:42Z",
         "reason": "query_irrelevant"
       }
     ],
     "verified_citations": [
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Jin Hyeon Kim",
-            "Jaeeun Lee",
-            "Claire Kim",
-            "Kyoungjin Oh",
-            "Paul Hyunbin Cho",
-            "Jaewon Min",
-            "Yeji Choi",
-            "Jihye Park",
-            "Hyunhee Park",
-            "Minkyu Park",
-            "Seungryong Kim"
-          ],
-          "title": "Geometry-Aware Representation Denoising for Robust Multi-view 3D Reconstruction",
-          "venue": "arXiv",
-          "year": 2026
-        },
-        "primary_pointer": "2605.26230",
-        "summary": "Multi-view 3D reconstruction has achieved remarkable progress with the advent of feed-forward 3D reconstruction models. However, these models are typically trained and evaluated under ideal, degradation-free imaging conditions, whereas real-world observations often contain degradations that differ significantly from such settings. Improving robustness for multi-view 3D reconstruction under degraded conditions therefore remains an important challenge. We present Geometry-Aware Representation Denoising (GARD), a novel framework that performs diffusion-based multi-view restoration directly in the feature space of a feed-forward 3D reconstruction model. This design exploits the geometry-aware feature representations of the 3D reconstructor to effectively recover accurate scene geometry. Furthermore, by employing an additional RGB image decoder, the refined representations can also be used to restore high-quality RGB images, thereby enabling the simultaneous recovery of 3D scene geometry and high-quality imagery. Comprehensive experiments on the Depth Anything 3 (DA3) benchmark demonstrate the effectiveness of the proposed GARD framework.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2605.26230",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.5385,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-08-13T12:28:47Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Yimin Pan",
-            "Matthias Nießner",
-            "Tobias Kirschstein"
-          ],
-          "title": "HairGS: Hair Strand Reconstruction based on 3D Gaussian Splatting",
-          "venue": "arXiv",
-          "year": 2025
-        },
-        "primary_pointer": "2509.07774",
-        "summary": "Human hair reconstruction is a challenging problem in computer vision, with growing importance for applications in virtual reality and digital human modeling. Recent advances in 3D Gaussians Splatting (3DGS) provide efficient and explicit scene representations that naturally align with the structure of hair strands. In this work, we extend the 3DGS framework to enable strand-level hair geometry reconstruction from multi-view images. Our multi-stage pipeline first reconstructs detailed hair geometry using a differentiable Gaussian rasterizer, then merges individual Gaussian segments into coherent strands through a novel merging scheme, and finally refines and grows the strands under photometric supervision.\n  While existing methods typically evaluate reconstruction quality at the geometric level, they often neglect the connectivity and topology of hair strands. To address this, we propose a new evaluation metric that serves as a proxy for assessing topological accuracy in strand reconstruction. Extensive experiments on both synthetic and real-world datasets demonstrate that our method robustly handles a wide range of hairstyles and achieves efficient reconstruction, typically completing within one hour.\n  The project page can be found at: https://yimin-pan.github.io/hair-gs/",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2509.07774",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.3077,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-08-13T12:28:48Z"
-        }
-      },
       {
         "bibliographic_info": {
           "authors": [
@@ -478,102 +473,71 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2605.18754",
           "http_status": 200,
-          "pdf_sample_score": 0.2958,
+          "pdf_sample_score": null,
           "query_relevance_score": 0.3077,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-13T12:28:48Z"
+          "verified_at": "2026-09-03T12:34:41Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Kaichen Zhou",
-            "Zeyang Bai",
-            "Xinhai Chang",
-            "Mengyu Wang",
-            "Paul Liang",
-            "Fangneng Zhan"
+            "Berk Kaya",
+            "Suryansh Kumar",
+            "Francesco Sarno",
+            "Vittorio Ferrari",
+            "Luc Van Gool"
           ],
-          "title": "Stream3D: Sequential Multi-View 3D Generation via Evidential Memory",
-          "venue": "arXiv",
-          "year": 2026
-        },
-        "primary_pointer": "2605.21472",
-        "summary": "View-conditioned 3D generators such as SAM 3D, TRELLIS, and Hunyuan3D produce high-quality object reconstructions from a single view, but real-world visual observation often arrives as long monocular streams. Naively applying these generators to each streaming frame independently leads to severe temporal inconsistency in the generated results. To address this problem, we propose Stream3D, the first training-free streaming mechanism that turns a frozen view-conditioned 3D generator into a streaming generator with constant cross-chunk memory. Stream3D achieves this by maintaining a compact evidential memory, which selectively caches the most informative historical frames based on a proposed evidence score mechanism. As the stream progresses, the memory dynamically updates to retain a fixed number of informative frames, preventing the memory footprint from growing linearly with sequence length. This also prevents degradation over long sequences and keeps the underlying generator completely unchanged without retraining, architectural modifications, or auxiliary losses. Evaluated on both realistic and synthetic streaming benchmarks, Stream3D outperforms latent-transport baselines, including KV-cache reuse and flow-based feature editing, across both photometric and geometric metrics. More details can be found at: https://stream-3d.github.io/stream3d.github.io/.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2605.21472",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.4,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-08-13T12:28:53Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Mosam Dabhi",
-            "Chaoyang Wang",
-            "Kunal Saluja",
-            "Laszlo Jeni",
-            "Ian Fasel",
-            "Simon Lucey"
-          ],
-          "title": "High Fidelity 3D Reconstructions with Limited Physical Views",
+          "title": "Neural Radiance Fields Approach to Deep Multi-View Photometric Stereo",
           "venue": "arXiv",
           "year": 2021
         },
-        "primary_pointer": "2110.11599",
-        "summary": "Multi-view triangulation is the gold standard for 3D reconstruction from 2D correspondences given known calibration and sufficient views. However in practice, expensive multi-view setups -- involving tens sometimes hundreds of cameras -- are required in order to obtain the high fidelity 3D reconstructions necessary for many modern applications. In this paper we present a novel approach that leverages recent advances in 2D-3D lifting using neural shape priors while also enforcing multi-view equivariance. We show how our method can achieve comparable fidelity to expensive calibrated multi-view rigs using a limited (2-3) number of uncalibrated camera views.",
+        "primary_pointer": "2110.05594",
+        "summary": "We present a modern solution to the multi-view photometric stereo problem (MVPS). Our work suitably exploits the image formation model in a MVPS experimental setup to recover the dense 3D reconstruction of an object from images. We procure the surface orientation using a photometric stereo (PS) image formation model and blend it with a multi-view neural radiance field representation to recover the object's surface geometry. Contrary to the previous multi-staged framework to MVPS, where the position, iso-depth contours, or orientation measurements are estimated independently and then fused later, our method is simple to implement and realize. Our method performs neural rendering of multi-view images while utilizing surface normals estimated by a deep photometric stereo network. We render the MVPS images by considering the object's surface normals for each 3D sample point along the viewing direction rather than explicitly using the density gradient in the volume space via 3D occupancy information. We optimize the proposed neural radiance field representation for the MVPS setup efficiently using a fully connected deep network to recover the 3D geometry of an object. Extensive evaluation on the DiLiGenT-MV benchmark dataset shows that our method performs better than the approaches that perform only PS or only multi-view stereo (MVS) and provides comparable results against the state-of-the-art multi-stage fusion methods.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2110.11599",
+          "final_url": "https://arxiv.org/abs/2110.05594",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.6,
+          "query_relevance_score": 0.3077,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-13T12:28:54Z"
+          "verified_at": "2026-09-03T12:34:41Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Yi-Chuan Huang",
-            "Hao-Jen Chien",
-            "Chin-Yang Lin",
-            "Ying-Huan Chen",
-            "Yu-Lun Liu"
+            "Jiahao Ma",
+            "Lei Wang",
+            "Miaomiao liu",
+            "David Ahmedt-Aristizabal",
+            "Chuong Nguyen"
           ],
-          "title": "GaMO: Geometry-aware Multi-view Diffusion Outpainting for Sparse-View 3D Reconstruction",
+          "title": "Puzzles: Unbounded Video-Depth Augmentation for Scalable End-to-End 3D Reconstruction",
           "venue": "arXiv",
           "year": 2025
         },
-        "primary_pointer": "2512.25073",
-        "summary": "Recent 3D reconstruction methods achieve impressive results with dense multi-view imagery but struggle when only a few views are available. Various approaches, including regularization techniques, semantic priors, and geometric constraints, have been implemented to address this challenge. Recent diffusion-based approaches further improve performance by generating novel views to augment training data. Despite this progress, we identify three critical limitations in current state-of-the-art approaches: (i) inadequate coverage beyond known view peripheries, (ii) geometric inconsistencies across generated views, and (iii) computational inefficiency due to expensive pipelines. We introduce GaMO (Geometry-aware Multi-view Outpainter), a framework that reformulates sparse-view reconstruction through multi-view outpainting. Instead of generating new viewpoints, GaMO expands the field of view from existing camera poses, which inherently preserves geometric consistency while providing broader scene coverage. Our approach employs multi-view conditioning and geometry-aware denoising strategies in a zero-shot manner without training. Extensive experiments on Replica, ScanNet++, and Mip-NeRF 360 demonstrate strong reconstruction performance across sparse-view settings (3, 6, and 9 input views). Notably, our method is significantly more efficient than existing diffusion-based approaches, reducing the overall runtime to within 10 minutes. Project page: https://yichuanh.github.io/GaMO/",
+        "primary_pointer": "2506.23863",
+        "summary": "Multi-view 3D reconstruction remains a core challenge in computer vision. Recent methods, such as DUST3R and its successors, directly regress pointmaps from image pairs without relying on known scene geometry or camera parameters. However, the performance of these models is constrained by the diversity and scale of available training data. In this work, we introduce Puzzles, a data augmentation strategy that synthesizes an unbounded volume of high-quality posed video-depth data from a single image or video clip. By simulating diverse camera trajectories and realistic scene geometry through targeted image transformations, Puzzles significantly enhances data variety. Extensive experiments show that integrating Puzzles into existing video-based 3D reconstruction pipelines consistently boosts performance without modifying the underlying network architecture. Notably, models trained on only ten percent of the original data augmented with Puzzles still achieve accuracy comparable to those trained on the full dataset. Code is available at https://jiahao-ma.github.io/puzzles/.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2512.25073",
+          "final_url": "https://arxiv.org/abs/2506.23863",
           "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 1.0,
+          "pdf_sample_score": 0.2272,
+          "query_relevance_score": 0.3077,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-13T12:28:54Z"
+          "verified_at": "2026-09-03T12:34:41Z"
         }
       }
     ]
