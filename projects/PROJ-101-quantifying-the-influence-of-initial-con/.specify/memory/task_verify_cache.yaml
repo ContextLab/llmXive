@@ -1,0 +1,16 @@
+T027:
+  c: false
+  h: 325b0518c63193aece10ad85c87e00886b731c2eeeed2baa80f8016e781300f8
+  r: The `code/analysis/ftle.py` file does not contain any logic that writes exponent
+    values, window sizes, and noise levels to `data/processed/ftle_results.json`,
+    and the expected JSON output file is absent from the repository. Consequently
+    the required artifact is missing and the task is not fulfilled.
+T045:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, output files, or aggregated results were provided; the claim lacks\
+    \ any artifact showing that the FTLE algorithm was run for the required T values\
+    \ and that the results were collected into a structured format. The implementer\
+    \ must supply the execution script, the generated FTLE data for T\u202F=\u202F\
+    500,\u202F1000,\u202F5000 (or similar), and the aggregated output (e.g., CSV/JSON)\
+    \ to satisfy the task."
