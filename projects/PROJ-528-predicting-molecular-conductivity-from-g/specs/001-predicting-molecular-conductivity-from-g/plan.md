@@ -116,7 +116,7 @@ data/
 - Apply scaffold splitting (FR-002).
 
 ### Phase 5: Sensitivity Analysis (FR-007)
-- **Retrain Loop**: For each outlier threshold in {2.5σ, 3.0σ, 3.5σ}:
+- **Retrain Loop**: For each outlier threshold in a set of increasing standard deviations:
   - Filter data.
   - Retrain models.
   - Record R² scores.
