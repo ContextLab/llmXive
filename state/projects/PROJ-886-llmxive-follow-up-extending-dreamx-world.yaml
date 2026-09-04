@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-886-llmxive-follow-up-extending-dreamx-world
-last_run_id: 6134d22e-74e6-4756-b6c2-407ec54017f7
+last_run_id: 9ab06c18-d381-4eb8-a2d6-0e61f8eb4ccf
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-886-llmxive-follow-up-extending-dreamx-world/specs/001-llmxive-follow-up-extending-dreamx-world
 title: 'llmXive follow-up: extending "DreamX-World 1.0: A General-Purpose Interactive
   World Model"'
-updated_at: '2026-09-03T01:56:25.922459Z'
+updated_at: '2026-09-04T00:01:36.407406Z'

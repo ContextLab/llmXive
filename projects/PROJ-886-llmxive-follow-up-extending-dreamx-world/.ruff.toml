@@ -1,0 +1,19 @@
+# Ruff configuration file (alternative to pyproject.toml)
+# This file is provided for environments that prefer separate config files.
+# It mirrors the settings in pyproject.toml.
+
+line-length = 88
+target-version = "py310"
+
+[lint]
+select = ["E", "W", "F", "I", "C", "B"]
+ignore = ["E501", "B008", "C901"]
+
+[lint.per-file-ignores]
+"tests/*" = ["S101"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

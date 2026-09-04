@@ -99,7 +99,7 @@ projects/PROJ-886-llmxive-follow-up-extending-dreamx-world/
 
 ### Phase 1: Model Abstraction & Configuration
 1. **Load Baseline**: Load pre-trained DreamX-World 1.0 DiT.
-2. **Implement DreamX-Lite**: Replace `E-PRoPE` with `nn.Linear(16, embedding_dim)` (fixed, non-trainable).
+2. **Implement DreamX-Lite**: Replace `E-PRoPE` with `nn.Linear(input_dim, embedding_dim)` (fixed, non-trainable).
 3. **Configure Constraints**: Set identical resolution (256x256) and quantization (8-bit if needed) for *both* variants to isolate the geometric effect from resolution artifacts. **Resolution/Quantization Control**: Both Baseline and Lite variants will be run at the *exact same* resolution and quantization level. The plan explicitly states that results are valid only for this specific regime and that any performance gap is attributable to the geometric prior, not the resolution artifact.
 4. **Verify**: Check parameter count reduction and deterministic output.
 
@@ -120,10 +120,10 @@ projects/PROJ-886-llmxive-follow-up-extending-dreamx-world/
 1. **Convergence Test**: Run McNemar's test on binary `convergence` flags.
 2. **Error Test**: Run Wilcoxon signed-rank test on MAE scores *only* for `convergence=true` trajectories. **No Sentinels**: Sentinel values are excluded from the Wilcoxon test.
 3. **Censoring Analysis**: Calculate and report the 'Censoring Rate' for both models.
-4. **Sensitivity Analysis**: Sweep thresholds {0.05, 0.1} MAE and report success rates.
+4. **Sensitivity Analysis**: Sweep thresholds {, 0.1} MAE and report success rates.
 
 ### Phase 4: Sensitivity Analysis (FR-006)
-1. **Execute Sweep**: Run `code/analysis/sensitivity.py` with thresholds {0.01, 0.05, 0.1}.
+1. **Execute Sweep**: Run `code/analysis/sensitivity.py` with a range of thresholds.
 2. **Report**: Generate a table showing success rates for both models at each threshold.
 3. **Validate**: Ensure the output matches the requirements of FR-006.
 

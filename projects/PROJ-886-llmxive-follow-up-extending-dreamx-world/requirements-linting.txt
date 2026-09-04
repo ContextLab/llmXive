@@ -1,0 +1,7 @@
+# Linting and Formatting Dependencies
+# Install with: pip install -r requirements-linting.txt
+
+ruff>=0.1.0
+black>=23.0.0
+pytest>=7.4.0
+pytest-cov>=4.1.0

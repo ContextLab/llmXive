@@ -23,11 +23,11 @@
 
 ### User Story 2 - Long-Horizon Rollout & Metric Computation (Priority: P2)
 
-**Description**: As a researcher, I want to generate 10-second video rollouts for both the baseline and "DreamX-Lite" variants under identical camera prompts, recover the camera trajectory from these videos using a frozen external SfM module, and compute the Mean Absolute Error (MAE) between the recovered trajectory and ground-truth extrinsics, so that I can quantify the 3D consistency and camera control accuracy of the deterministic approach.
+**Description**: As a researcher, I want to generate short-duration video rollouts for both the baseline and "DreamX-Lite" variants under identical camera prompts., recover the camera trajectory from these videos using a frozen external SfM module, and compute the Mean Absolute Error (MAE) between the recovered trajectory and ground-truth extrinsics, so that I can quantify the 3D consistency and camera control accuracy of the deterministic approach.
 
 **Why this priority**: This provides the primary quantitative evidence for the research question. It measures the "outcome" variable (3D consistency) against the "predictor" (deterministic vs learned). It is independent of the statistical aggregation but essential for the raw data collection.
 
-**Independent Test**: Can be fully tested by running the inference pipeline on a subset of 5 trajectories, generating video files, running the SfM recovery, and verifying that the script outputs a JSON or CSV file containing the calculated MAE for position and rotation for each trajectory, without needing the full 50-trajectory dataset or statistical testing.
+**Independent Test**: Can be fully tested by running the inference pipeline on a subset of 5 trajectories, generating video files, running the SfM recovery, and verifying that the script outputs a JSON or CSV file containing the calculated MAE for position and rotation for each trajectory, without needing the full dataset or statistical testing.
 
 **Acceptance Scenarios**:
 1. **Given** a set of 5 distinct camera control prompts and their corresponding ground-truth extrinsics, **When** the inference pipeline executes on a CPU-only runner, **Then** the system generates valid video files (MP4) for both the baseline and modified models.
@@ -37,7 +37,7 @@
 
 ### User Story 3 - Statistical Significance & Sensitivity Analysis (Priority: P3)
 
-**Description**: As a researcher, I want to perform a McNemar's test on the SfM convergence rates and a Wilcoxon signed-rank test on the shape-consistency MAE scores across 50 trajectories, and sweep the consistency threshold over a defined range (e.g., MAE ∈ {0.01, 0.05, 0.1}), so that I can determine if the performance difference is statistically significant and robust to threshold selection.
+**Description**: As a researcher, I want to perform a McNemar's test on the SfM convergence rates and a Wilcoxon signed-rank test on the shape-consistency MAE scores across multiple trajectories, and sweep the consistency threshold over a defined range (e.g., MAE ∈ {low, moderate, high}), so that I can determine if the performance difference is statistically significant and robust to threshold selection.
 
 **Why this priority**: This addresses the methodological soundness requirements for multiplicity, power, and threshold justification. It transforms raw data into a defensible scientific conclusion, ensuring the results are not artifacts of a single arbitrary cutoff.
 
@@ -105,8 +105,8 @@
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: The difference in "SfM Convergence Rate" and "Scale Drift" between the baseline and "DreamX-Lite" models is measured against the ground-truth extrinsics from the rendering engine metadata (See US-2).
-- **SC-002**: The statistical significance of the performance difference is measured against the null hypothesis of no difference in convergence (McNemar) and no difference in median error (Wilcoxon) on 50 trajectories (See US-3).
-- **SC-003**: The robustness of the performance claim is measured against a sensitivity analysis sweeping the decision threshold over the set {0.01, 0.05, 0.1} MAE (See US-3).
+- **SC-002**: The statistical significance of the performance difference is measured against the null hypothesis of no difference in convergence (McNemar) and no difference in median error (Wilcoxon) on a set of trajectories. (See US-3).
+- **SC-003**: The robustness of the performance claim is measured against a sensitivity analysis sweeping the decision threshold over a set of representative low values MAE (See US-3).
 - **SC-004**: The computational efficiency (inference latency) is measured against the baseline model's runtime on the same CPU-only hardware configuration (See US-2).
 - **SC-005**: The information-theoretic sufficiency of the geometric priors is measured by the ratio of the "DreamX-Lite" success rate to the baseline success rate across the thresholds defined in SC-003 (See US-3).
 

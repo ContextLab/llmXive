@@ -1,0 +1,23 @@
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, video files, or metric output artifacts were provided; the\
+    \ claim lacks any tangible evidence of a rollout generation pipeline, generated\
+    \ MP4s for baseline and DreamX\u2011Lite, or a JSON/CSV containing MAE values.\
+    \ The required deliverables are missing, so the task is not satisfied."
+T030:
+  c: false
+  h: aab5ca4a42103e53c93f31108d5c2b6cbd0ce71e329839be280fff23585a42fa
+  r: The `stats.py` script defines functions for loading metrics and computing censoring
+    rates, but it does not contain any logic that writes or appends those results
+    to `data/derived/statistical_results.json`. Moreover, the required `statistical_results.json`
+    file is absent from the repository. Both the output artifact and the append operation
+    are missing.
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `README.md` under `projects/PROJ-886-llmxive-follow-up-extending-dreamx-world/`
+    nor any updated files in the `docs/` directory were presented. The claim only
+    contains a feature specification and test scenarios, but provides no actual documentation
+    artifacts covering the Data Fallback Protocol as required. The missing documentation
+    must be added and shown.
