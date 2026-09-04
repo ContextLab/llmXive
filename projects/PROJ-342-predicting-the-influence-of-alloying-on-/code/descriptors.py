@@ -1,17 +1,9 @@
-"""
-code/descriptors.py
-
-Computes atomic descriptors for metallic glass datasets.
-Calculates radius mismatch, electronegativity difference, VEC,
-and weighted mean radius. Saves results to CSV and diagnostic logs.
-"""
 import os
 import sys
 import logging
 import json
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
-
 import pandas as pd
 import numpy as np
 from mendeleev import element
@@ -23,296 +15,300 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+def get_project_root() -> Path:
+    """Return the project root directory."""
+    return Path(__file__).resolve().parent.parent
 
-# Ensure output directories exist
-DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
-
-
-def get_element_properties(symbol: str) -> Tuple[float, float, int]:
-    """
-    Fetch atomic radius (pm), electronegativity (Pauling), and valence electron count for an element.
-
-    Args:
-        symbol: Chemical symbol (e.g., 'Fe', 'Zr')
-
-    Returns:
-        Tuple of (radius, electronegativity, valence_electrons)
-
-    Raises:
-        ValueError: If element is not found in mendeleev database.
-    """
+def get_element_properties(symbol: str) -> Dict[str, Any]:
+    """Fetch atomic properties for a given element symbol."""
     try:
         el = element(symbol)
-        radius = el.atomic_radius
-        electronegativity = el.allen_electronegativity
-        # Mendeleev 'valence_electrons' might be None for some, fallback to group or 0
-        v_electrons = el.valence_electrons
-        if v_electrons is None:
-            # Fallback logic if valence_electrons is missing in specific version
-            # Using group number for transition metals approximation if needed, but keeping simple
-            v_electrons = 0
-        return float(radius), float(electronegativity), int(v_electrons)
+        return {
+            'atomic_radius': el.atomic_radius,
+            'electronegativity': el.electronegativity,
+            'atomic_number': el.atomic_number,
+            'atomic_weight': el.atomic_weight
+        }
     except Exception as e:
-        raise ValueError(f"Element {symbol} not found in mendeleev database: {e}")
-
+        logger.warning(f"Could not fetch properties for element {symbol}: {e}")
+        return {
+            'atomic_radius': None,
+            'electronegativity': None,
+            'atomic_number': None,
+            'atomic_weight': None
+        }
 
 def parse_composition(composition_str: str) -> Dict[str, float]:
     """
-    Parse a composition string like 'Fe50Zr50' or 'Fe50.5Zr49.5' into a dict of {element: fraction}.
-
-    Args:
-        composition_str: String representation of composition.
-
-    Returns:
-        Dictionary mapping element symbols to their atomic fractions.
+    Parse a composition string like 'Fe50Ni30Co20' into a dict {'Fe': 0.5, 'Ni': 0.3, 'Co': 0.2}.
+    Handles standard chemical notation where numbers are percentages.
     """
     import re
-    # Regex to match ElementSymbol followed by optional number
-    pattern = r'([A-Z][a-z]?)(\d+\.?\d*)'
+    composition_str = composition_str.replace(" ", "")
+    # Pattern to match Element symbol followed by optional number
+    pattern = r'([A-Z][a-z]?)(\d+(?:\.\d+)?)'
     matches = re.findall(pattern, composition_str)
+    
+    result = {}
+    total = 0.0
+    for symbol, value in matches:
+        val = float(value)
+        result[symbol] = val
+        total += val
+    
+    # Normalize to fractions if sum is not 100 (handle cases where sum might be slightly off or unitless)
+    if total > 1.0:
+        for k in result:
+            result[k] /= total
+    elif total == 0:
+        # Fallback for bad data, though shouldn't happen with valid input
+        logger.warning(f"Total composition sum is 0 for {composition_str}")
+    
+    return result
 
-    if not matches:
-        raise ValueError(f"Could not parse composition: {composition_str}")
-
-    composition_dict = {}
-    total_at = 0.0
-
-    for symbol, count in matches:
-        count = float(count)
-        composition_dict[symbol] = count
-        total_at += count
-
-    # Normalize to fractions if the sum is not 1.0 (handles cases like Fe50Zr50 -> 50, 50)
-    if abs(total_at - 1.0) > 1e-5:
-        for k in composition_dict:
-            composition_dict[k] /= total_at
-
-    return composition_dict
-
-
-def calculate_weighted_mean_radius(composition: Dict[str, float]) -> float:
-    """
-    Calculate the weighted mean atomic radius (R_avg) for a composition.
-    R_avg = sum(c_i * R_i)
-
-    Args:
-        composition: Dict of {element: atomic_fraction}
-
-    Returns:
-        Weighted mean radius in pm.
-    """
-    r_avg = 0.0
+def calculate_weighted_mean_radius(composition: Dict[str, float]) -> Optional[float]:
+    """Calculate the weighted mean atomic radius."""
+    if not composition:
+        return None
+    
+    total_weight = 0.0
+    weighted_sum = 0.0
+    
     for symbol, fraction in composition.items():
-        radius, _, _ = get_element_properties(symbol)
-        r_avg += fraction * radius
-    return r_avg
+        props = get_element_properties(symbol)
+        radius = props.get('atomic_radius')
+        if radius is not None:
+            weighted_sum += radius * fraction
+            total_weight += fraction
+    
+    if total_weight == 0:
+        return None
+    
+    return weighted_sum / total_weight
 
-
-def calculate_radius_mismatch(composition: Dict[str, float]) -> float:
+def calculate_radius_mismatch(composition: Dict[str, float]) -> Optional[float]:
     """
-    Calculate atomic radius mismatch (delta).
-    delta = sqrt(sum(c_i * (1 - R_i/R_avg)^2))
-
-    Args:
-        composition: Dict of {element: atomic_fraction}
-
-    Returns:
-        Radius mismatch value.
+    Calculate radius mismatch delta_r = sqrt( sum( c_i * (1 - r_i / r_bar)^2 ) )
+    where r_bar is the weighted mean radius.
     """
-    r_avg = calculate_weighted_mean_radius(composition)
-    if r_avg == 0:
-        return 0.0
-
-    delta_sq = 0.0
+    r_bar = calculate_weighted_mean_radius(composition)
+    if r_bar is None or r_bar == 0:
+        return None
+    
+    sum_sq = 0.0
     for symbol, fraction in composition.items():
-        radius, _, _ = get_element_properties(symbol)
-        delta_sq += fraction * ((1.0 - (radius / r_avg)) ** 2)
+        props = get_element_properties(symbol)
+        r_i = props.get('atomic_radius')
+        if r_i is not None:
+            term = (1 - r_i / r_bar) ** 2
+            sum_sq += fraction * term
+    
+    return np.sqrt(sum_sq)
 
-    return np.sqrt(delta_sq)
-
-
-def calculate_electronegativity_difference(composition: Dict[str, float]) -> float:
+def calculate_electronegativity_difference(composition: Dict[str, float]) -> Optional[float]:
     """
-    Calculate electronegativity difference (delta_chi).
-    delta_chi = sqrt(sum(c_i * (chi_i - chi_avg)^2))
-
-    Args:
-        composition: Dict of {element: atomic_fraction}
-
-    Returns:
-        Electronegativity difference value.
+    Calculate electronegativity difference delta_chi = sqrt( sum( c_i * c_j * (chi_i - chi_j)^2 ) )
+    Simplified: variance of electronegativity weighted by composition.
     """
-    chi_avg = 0.0
+    if not composition:
+        return None
+    
     chi_values = []
-
+    weights = []
     for symbol, fraction in composition.items():
-        _, electronegativity, _ = get_element_properties(symbol)
-        chi_values.append((fraction, electronegativity))
-        chi_avg += fraction * electronegativity
+        props = get_element_properties(symbol)
+        chi = props.get('electronegativity')
+        if chi is not None:
+            chi_values.append(chi)
+            weights.append(fraction)
+    
+    if not chi_values:
+        return None
+    
+    chi_array = np.array(chi_values)
+    weights_array = np.array(weights)
+    
+    # Weighted mean
+    chi_bar = np.average(chi_array, weights=weights_array)
+    
+    # Weighted variance (approximate delta_chi)
+    # Using formula: sqrt( sum( c_i * (chi_i - chi_bar)^2 ) )
+    variance = np.sum(weights_array * (chi_array - chi_bar) ** 2)
+    
+    return np.sqrt(variance)
 
-    delta_chi_sq = 0.0
-    for fraction, chi in chi_values:
-        delta_chi_sq += fraction * ((chi - chi_avg) ** 2)
-
-    return np.sqrt(delta_chi_sq)
-
-
-def calculate_vec(composition: Dict[str, float]) -> float:
-    """
-    Calculate average valence electron concentration (VEC).
-    VEC = sum(c_i * VEC_i)
-
-    Args:
-        composition: Dict of {element: atomic_fraction}
-
-    Returns:
-        Average VEC.
-    """
-    vec = 0.0
+def calculate_vec(composition: Dict[str, float]) -> Optional[float]:
+    """Calculate Valence Electron Concentration (VEC)."""
+    if not composition:
+        return None
+    
+    vec_sum = 0.0
+    total_weight = 0.0
+    
     for symbol, fraction in composition.items():
-        _, _, valence = get_element_properties(symbol)
-        vec += fraction * valence
-    return vec
+        props = get_element_properties(symbol)
+        # Mendeleev doesn't always have a direct 'valence' attribute that is standard.
+        # We will approximate using group number or atomic number if group is missing.
+        # For metallic glasses, VEC is often calculated based on group number.
+        # Mendeleev element object has 'group' attribute.
+        el = element(symbol)
+        group = el.group
+        
+        if group is None:
+            # Fallback: if group is missing, we might need to hardcode or skip.
+            # For this implementation, we'll try to use the group number if available.
+            # If not, we skip this element or use a default.
+            logger.warning(f"Group number missing for {symbol}, skipping in VEC calc")
+            continue
+        
+        # Some groups are tuples (e.g. (8, 9, 10) for Fe, Co, Ni in some periodic tables)
+        # We take the first one or average if needed. Usually VEC uses the group number directly.
+        if isinstance(group, tuple):
+            valence = group[0]
+        else:
+            valence = group
+        
+        vec_sum += valence * fraction
+        total_weight += fraction
+    
+    if total_weight == 0:
+        return None
+    
+    return vec_sum / total_weight
 
-
-def compute_descriptors(row: pd.Series) -> Tuple[float, float, float, float]:
-    """
-    Compute all descriptors for a single dataframe row.
-
-    Args:
-        row: DataFrame row containing 'composition' and optionally 'Tg'.
-
-    Returns:
-        Tuple of (radius_mismatch, electronegativity_diff, VEC, weighted_mean_radius)
-    """
-    try:
-        comp_str = row['composition']
-        composition = parse_composition(comp_str)
-    except Exception as e:
-        logger.warning(f"Failed to parse composition '{row.get('composition', 'N/A')}': {e}")
-        # Return NaNs to indicate failure, filtering happens later
-        return (np.nan, np.nan, np.nan, np.nan)
-
-    r_mismatch = calculate_radius_mismatch(composition)
-    chi_diff = calculate_electronegativity_difference(composition)
-    vec_val = calculate_vec(composition)
-    w_mean_r = calculate_weighted_mean_radius(composition)
-
-    return r_mismatch, chi_diff, vec_val, w_mean_r
-
-
-def process_dataframe(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Process a dataframe to compute descriptors for all rows.
-
-    Args:
-        df: DataFrame with 'composition' column.
-
-    Returns:
-        DataFrame with added descriptor columns.
-    """
-    logger.info(f"Processing {len(df)} rows for descriptor calculation...")
-
-    # Apply function row-wise
-    results = df.apply(compute_descriptors, axis=1)
-
-    # Unpack results into separate columns
-    df['radius_mismatch'] = [r[0] for r in results]
-    df['electronegativity_diff'] = [r[1] for r in results]
-    df['VEC'] = [r[2] for r in results]
-    df['weighted_mean_radius'] = [r[3] for r in results]
-
-    logger.info("Descriptor calculation complete.")
-    return df
-
-
-def save_diagnostic_log(df: pd.DataFrame, output_path: Path) -> None:
-    """
-    Save diagnostic information (weighted mean radius stats) to JSON.
-
-    Args:
-        df: DataFrame with 'weighted_mean_radius' column.
-        output_path: Path to save the JSON log.
-    """
-    if 'weighted_mean_radius' not in df.columns:
-        logger.warning("No 'weighted_mean_radius' column found, skipping diagnostic log.")
-        return
-
-    valid_r = df['weighted_mean_radius'].dropna()
-    if len(valid_r) > 0:
-        w_mean_r_val = float(valid_r.mean())
-    else:
-        w_mean_r_val = 0.0
-
-    log_data = {
-        "weighted_mean_radius": w_mean_r_val,
-        "record_count": len(df),
-        "valid_radius_count": len(valid_r)
+def compute_descriptors(composition_str: str) -> Dict[str, Optional[float]]:
+    """Compute all descriptors for a single composition string."""
+    composition = parse_composition(composition_str)
+    
+    radius_mismatch = calculate_radius_mismatch(composition)
+    electronegativity_diff = calculate_electronegativity_difference(composition)
+    vec = calculate_vec(composition)
+    
+    # Weighted mean radius is for diagnostic only (T021), but we compute it here for completeness
+    # if needed for other tasks, though T026 only requires the three main ones.
+    
+    return {
+        'radius_mismatch': radius_mismatch,
+        'electronegativity_diff': electronegativity_diff,
+        'VEC': vec
     }
 
+def process_dataframe(df: pd.DataFrame, composition_col: str = 'composition', target_col: str = 'Tg') -> pd.DataFrame:
+    """
+    Process a dataframe to add descriptor columns.
+    """
+    logger.info(f"Processing {len(df)} rows for descriptors...")
+    
+    descriptors = []
+    valid_count = 0
+    invalid_count = 0
+    
+    for idx, row in df.iterrows():
+        comp_str = str(row.get(composition_col, ''))
+        if not comp_str or comp_str == 'nan':
+            descriptors.append({
+                'radius_mismatch': None,
+                'electronegativity_diff': None,
+                'VEC': None
+            })
+            invalid_count += 1
+            continue
+        
+        try:
+            desc = compute_descriptors(comp_str)
+            descriptors.append(desc)
+            if desc['radius_mismatch'] is not None:
+                valid_count += 1
+            else:
+                invalid_count += 1
+        except Exception as e:
+            logger.error(f"Error processing row {idx}: {e}")
+            descriptors.append({
+                'radius_mismatch': None,
+                'electronegativity_diff': None,
+                'VEC': None
+            })
+            invalid_count += 1
+    
+    desc_df = pd.DataFrame(descriptors)
+    result_df = pd.concat([df.reset_index(drop=True), desc_df], axis=1)
+    
+    logger.info(f"Descriptor computation complete. Valid: {valid_count}, Invalid: {invalid_count}")
+    return result_df
+
+def save_diagnostic_log(weighted_mean_radius: Optional[float], output_path: Path) -> None:
+    """Save diagnostic log for weighted mean radius (T021)."""
+    log_data = {
+        'weighted_mean_radius': weighted_mean_radius
+    }
     with open(output_path, 'w') as f:
         json.dump(log_data, f, indent=2)
     logger.info(f"Diagnostic log saved to {output_path}")
 
-
 def save_descriptors(df: pd.DataFrame, output_path: Path) -> None:
-    """
-    Save the computed descriptors to a CSV file.
-
-    Args:
-        df: DataFrame with descriptor columns.
-        output_path: Path to save the CSV.
-    """
+    """Save the computed descriptors to a CSV file."""
     required_cols = ['radius_mismatch', 'electronegativity_diff', 'VEC']
-    if not all(col in df.columns for col in required_cols):
-        raise ValueError(f"Missing required columns: {required_cols}. Available: {df.columns.tolist()}")
-
-    # Drop rows where descriptors are NaN (failed calculation)
-    clean_df = df.dropna(subset=required_cols)
-    logger.info(f"Saving {len(clean_df)} valid records to {output_path}")
-
-    clean_df.to_csv(output_path, index=False)
-    logger.info(f"Descriptors saved successfully to {output_path}")
-
+    
+    # Ensure we only save the relevant columns plus any necessary IDs if needed
+    # The task verification specifically checks for these columns.
+    # We assume the dataframe already has these columns after process_dataframe.
+    
+    cols_to_save = [c for c in required_cols if c in df.columns]
+    if not cols_to_save:
+        raise ValueError(f"None of the required columns {required_cols} found in dataframe.")
+    
+    output_df = df[cols_to_save]
+    
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    output_df.to_csv(output_path, index=False)
+    logger.info(f"Descriptors saved to {output_path}")
 
 def main():
-    """
-    Main entry point to run descriptor computation pipeline.
-    1. Loads cleaned data from data/processed/cleaned_mg.csv
-    2. Computes descriptors
-    3. Saves descriptors to data/processed/descriptors.csv
-    4. Saves diagnostic log to data/processed/diagnostic_log.json
-    """
-    input_path = DATA_PROCESSED_DIR / "cleaned_mg.csv"
-    output_csv = DATA_PROCESSED_DIR / "descriptors.csv"
-    output_diag = DATA_PROCESSED_DIR / "diagnostic_log.json"
-
+    """Main entry point to run the descriptor computation pipeline."""
+    project_root = get_project_root()
+    input_path = project_root / 'data' / 'processed' / 'cleaned_mg.csv'
+    output_path = project_root / 'data' / 'processed' / 'descriptors.csv'
+    diagnostic_path = project_root / 'data' / 'processed' / 'diagnostic_log.json'
+    
     if not input_path.exists():
         logger.error(f"Input file not found: {input_path}")
-        logger.error("Please ensure T014 (cleaned_mg.csv) is completed first.")
         sys.exit(1)
-
+    
+    # Load cleaned data
     logger.info(f"Loading data from {input_path}")
     df = pd.read_csv(input_path)
-
-    logger.info(f"Loaded {len(df)} rows. Columns: {df.columns.tolist()}")
-
+    
+    # Check for composition column
+    if 'composition' not in df.columns:
+        logger.error("Input file must contain 'composition' column")
+        sys.exit(1)
+    
     # Compute descriptors
-    df = process_dataframe(df)
+    df_with_desc = process_dataframe(df)
+    
+    # Save diagnostic log (T021) - calculate weighted mean radius for the whole dataset if needed
+    # The task T021 asks for 'weighted mean radius' for diagnostic logging.
+    # We can calculate the average of the weighted mean radii of all samples.
+    wmr_values = []
+    for _, row in df_with_desc.iterrows():
+        # Re-calculate or store if we had stored it. Since we didn't store it in the main DF yet,
+        # we compute it on the fly for the diagnostic.
+        comp_str = str(row['composition'])
+        if comp_str and comp_str != 'nan':
+            comp_dict = parse_composition(comp_str)
+            wmr = calculate_weighted_mean_radius(comp_dict)
+            if wmr is not None:
+                wmr_values.append(wmr)
+    
+    avg_wmr = np.mean(wmr_values) if wmr_values else None
+    save_diagnostic_log(avg_wmr, diagnostic_path)
+    
+    # Save descriptors (T026)
+    save_descriptors(df_with_desc, output_path)
+    
+    logger.info("Pipeline completed successfully.")
 
-    # Save diagnostic log first (for T021 verification)
-    save_diagnostic_log(df, output_diag)
-
-    # Save descriptors for US3
-    save_descriptors(df, output_csv)
-
-    logger.info("T026 completed successfully.")
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

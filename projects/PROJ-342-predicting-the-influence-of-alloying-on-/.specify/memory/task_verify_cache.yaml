@@ -1,3 +1,11 @@
+T012:
+  c: false
+  h: d76e7dc3123d01a4678ef4dda7c5950ce5601ffdbbf9d941262dd887db1b4514
+  r: "The required raw CSV files (`data/raw/zenodo_10043838.csv` and `data/raw/zenodo_11023456.csv`)\
+    \ are absent, so the script cannot fetch or fall back to a dataset. The `data/ingestion_stats.json`\
+    \ file lacks the required `source_doi` entry, and there is no evidence that `retention_rate`\
+    \ is computed from null\u2011Tg/composition cleaning. The implementation does\
+    \ not satisfy the task\u2019s verification criteria."
 T014:
   c: false
   h: 5d833996433be852acadd4ef7b95351aa83387ad496c2b68d8be136f954741ff
@@ -12,18 +20,6 @@ T015:
     \ module, unit test, or log output) that demonstrates a primary\u2011DOI fallback\
     \ to a secondary DOI and a DATA_UNAVAILABLE halt when both fail. Consequently\
     \ the requirement cannot be verified as met."
-T018:
-  c: false
-  h: e328d427400522c858e48335159550eaae0c84bfaee28c7b8907951035357f95
-  r: "The required artifact `tests/unit/test_descriptors.py` does not exist on disk,\
-    \ so no unit test for the descriptor calculation logic is present. The task\u2019\
-    s core deliverable is missing."
-T024b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `artifacts/metrics/metrics.json` file was presented, and there is no evidence
-    that it contains the required keys (`R2`, `MAE`, `feature_importances`, `null_model_r2`).
-    The implementer must provide the actual JSON file with those entries.
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -31,22 +27,51 @@ T025:
     \ resource\u2011monitoring checks for runtime\u202F<\u202F6\u202Fh and RAM\u202F\
     <\u202F7\u202FGB. The required artifact (e.g., a monitoring script, CI guard,\
     \ or runtime/RAM validation step) is missing, so the task is not satisfied."
-T037:
+T026:
   c: false
-  h: 4ae767a677cbc3fd466c3635b417862e010cbc3cababa0f8c574241becc8b859
-  r: "The repository lacks `artifacts/models/best_model.pkl`, and `code/analyze.py`\
-    \ contains only descriptor loading and correlation utilities\u2014no code that\
-    \ sweeps `max_depth`, computes R\xB2 scores, or writes `artifacts/metrics/sensitivity_analysis.json`\
-    \ with the required keys. Consequently the required output file does not exist."
-T039:
+  h: c8d6dee3e845b3c3ef64c08501ca5dcbef166e3bc22d4e15b9dc4bd76308d095
+  r: "The repository contains a partially\u2011implemented `code/descriptors.py` that\
+    \ is truncated and never writes any output file. The required `data/processed/descriptors.csv`\
+    \ is missing entirely, so the file cannot be checked for existence, size, or required\
+    \ columns. The task\u2019s core deliverable \u2013 a CSV with the three descriptor\
+    \ columns \u2013 is not present."
+T033a:
   c: false
-  h: 81c5860c35582ae49eb03f18ac0e67ef4289fad74e6963896e6b43d74a493dfe
-  r: The repository contains a `code/report.py` file, but the required model artifact
-    `artifacts/models/best_model.pkl` is missing, so the script cannot load the model
-    or generate the requested visualizations. Additionally, the provided code snippet
-    is truncated and does not show any logic that incorporates the stability metrics
-    into a report, indicating the implementation is incomplete. The missing model
-    file must be added (or generated) and the script completed to satisfy the task.
+  h: 676cf3f2570cb4ef06d0547f5be0ac11c1409f0de7a2ffa3e38789478efab306
+  r: The repository lacks the required input file `data/processed/descriptors.csv`
+    and the output file `data/processed/correlation_matrix.csv`. Moreover, `code/analyze.py`
+    does not define the specified `calculate_correlations(df)` function nor does it
+    save any correlation matrix to the expected CSV location. These missing artifacts
+    and functionality mean the task requirements are not met.
+T033b:
+  c: false
+  h: ebbde078b5e71eb22b283843c564fdb28e05e9f1d6b9bbefb0cc2c909293aa8d
+  r: "The required file `data/processed/correlation_matrix.csv` does not exist, and\
+    \ `code/analyze.py` contains no logic that asserts the CSV is non\u2011empty or\
+    \ checks for expected columns. Both the artifact and the verification code are\
+    \ missing."
+T035a:
+  c: false
+  h: bd12f709b9bbc4ef8c316f9c046bb0f326b5ac9d1d1306f55260b011e891b38a
+  r: "The repository lacks the required input `data/processed/descriptors.csv` and\
+    \ the output `data/processed/vif_diagnostic_log.json`. Moreover, the provided\
+    \ `code/analyze.py` snippet does not show a `calculate_vif(df)` implementation\
+    \ that excludes \u201Cweighted mean radius\u201D, flags VIF\u202F>\u202F5, and\
+    \ writes the diagnostic log, and the file is truncated before such logic could\
+    \ appear. These essential artifacts are missing or incomplete."
+T035b:
+  c: false
+  h: b72d02343a8d20aa87fc079f778cf4e7a98b1ccaae0494ceb4079e710b462afb
+  r: The required artifact `data/processed/vif_diagnostic_log.json` does not exist,
+    so the existence check fails and the content cannot be verified for the `flagged_features`
+    key. The implementer must create the file with the appropriate JSON structure
+    containing that key.
+T036a:
+  c: false
+  h: 13cb5efa68dc81a40d3e5b12785a981ac8c2a3cd179ea8f219eb47fb305069a2
+  r: "The provided `code/analyze.py` does not contain a `bootstrap_feature_importance`\
+    \ function (or any bootstrapping logic) and the required input model file `artifacts/models/best_model.pkl`\
+    \ is absent, so the task\u2019s core requirement is not met."
 T049:
   c: false
   h: fa5075fd83104506b91e1558665639da3068572b963cf612a93645f5d7a50705

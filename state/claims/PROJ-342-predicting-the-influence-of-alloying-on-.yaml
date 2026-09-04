@@ -1500,3 +1500,59 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-01T04:55:59Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/plan.md
+  attempts: 1
+  canonical: Data fetched from Zenodo DOI 10.5281/zenodo.10043838 or 10.5281/zenodo.11023456
+  claim_id: c_889a5f96
+  context: 'FR-001: Data must be fetched from Zenodo DOI 10.5281/zenodo.10043838 (primary)
+    or 10.5281/zenodo.11023456 (fallback). If both fail, halt with DATA_UNAVAILABLE
+    error.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Data must be fetched from Zenodo DOI 10.5281/zenodo.10043838 (primary)
+    or 10.5281/zenodo.11023456 (fallback).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T04:05:08Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/plan.md
+  attempts: 1
+  canonical: Data fetched from Zenodo DOI 10.5281/zenodo.11023456
+  claim_id: c_b3e9c6a2
+  context: 'FR-001: Data must be fetched from Zenodo DOI 10.5281/zenodo.10043838 (primary)
+    or 10.5281/zenodo.11023456 (fallback). If both fail, halt with DATA_UNAVAILABLE
+    error.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Data must be fetched from Zenodo DOI 10.5281/zenodo.11023456 (fallback).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T04:05:11Z'
+- artifact_path: projects/PROJ-342-predicting-the-influence-of-alloying-on-/plan.md
+  attempts: 1
+  canonical: Bootstrap resampling n=1000 used for 95% confidence intervals
+  claim_id: c_448b88e8
+  context: 'SC-002: Bootstrap resampling (n=1000) must be used to calculate 95% confidence
+    intervals for feature importances.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling (n=1000) must be used to calculate 95% confidence
+    intervals for feature importances.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T04:06:15Z'

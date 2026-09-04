@@ -6,15 +6,27 @@ from pathlib import Path
 from typing import Optional, Dict, Any, Tuple, List
 
 import pandas as pd
+import numpy as np
 
-# Import from sibling modules as per API surface
+# Import from project modules as per API surface
 from zenodo_client import fetch_dataset, DataUnavailableError
 from config.config import get_config
+from checksums import calculate_file_checksum
 
-# Setup logging
+# --- Constants ---
+# Physically plausible range for Glass Transition Temperature (Tg) in Kelvin
+# Metallic glasses typically form between 300K and 1000K.
+# We allow a slightly wider safety margin (200K - 1200K) for outlier detection.
+MIN_TG_K = 200.0
+MAX_TG_K = 1200.0
+Tg_COLUMN = 'Tg'
+
+# --- Logging Setup ---
 def setup_logging():
+    """Configure logging for the ingestion pipeline."""
     log_dir = Path("logs")
     log_dir.mkdir(exist_ok=True)
+    
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -27,137 +39,193 @@ def setup_logging():
 
 logger = setup_logging()
 
-def fetch_from_zenodo_wrapper(primary_doi: str, fallback_doi: str) -> Tuple[str, Path]:
+# --- Helper Functions ---
+
+def validate_tg_range(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[int], Dict[str, Any]]:
     """
-    Fetches dataset from Zenodo using primary DOI, falling back to secondary if needed.
-    Returns (doi_used, file_path).
+    Validates Tg values against physically plausible bounds.
+    
+    Args:
+        df: Input dataframe containing Tg column.
+        
+    Returns:
+        Tuple of:
+            - Cleaned dataframe (rows with invalid Tg removed)
+            - List of indices flagged as outliers
+            - Stats dictionary with counts
     """
-    logger.info(f"Attempting to fetch data from primary DOI: {primary_doi}")
+    if Tg_COLUMN not in df.columns:
+        logger.warning(f"Column '{Tg_COLUMN}' not found in dataframe. Skipping Tg validation.")
+        return df, [], {"total": 0, "invalid": 0, "flagged_indices": []}
+
+    # Identify rows where Tg is outside the valid range
+    # We treat NaN/None as missing data (handled by clean_data), 
+    # but here we specifically check for values that are physically impossible.
+    invalid_mask = (df[Tg_COLUMN] < MIN_TG_K) | (df[Tg_COLUMN] > MAX_TG_K)
+    
+    # Also check for NaN in this specific context if not already handled, 
+    # though clean_data handles general missingness.
+    # We focus on the numeric range violation here.
+    
+    flagged_indices = df[invalid_mask].index.tolist()
+    count_invalid = len(flagged_indices)
+    total_count = len(df)
+    
+    stats = {
+        "total_records_checked": total_count,
+        "invalid_tg_count": count_invalid,
+        "flagged_indices": flagged_indices,
+        "min_valid_tg": float(df.loc[~invalid_mask, Tg_COLUMN].min()) if not df.loc[~invalid_mask].empty else None,
+        "max_valid_tg": float(df.loc[~invalid_mask, Tg_COLUMN].max()) if not df.loc[~invalid_mask].empty else None,
+        "threshold_min": MIN_TG_K,
+        "threshold_max": MAX_TG_K
+    }
+    
+    if count_invalid > 0:
+        logger.warning(f"Found {count_invalid} records with Tg outside [{MIN_TG_K}, {MAX_TG_K}] K. Flagging for review.")
+        # Log specific values for debugging
+        invalid_rows = df.loc[invalid_mask, [Tg_COLUMN, 'Composition']] # Assuming Composition exists for context
+        logger.debug(invalid_rows.head().to_string())
+        
+        # Remove invalid rows from the dataframe to ensure downstream physics consistency
+        df_cleaned = df[~invalid_mask].reset_index(drop=True)
+    else:
+        logger.info("All Tg values are within physically plausible range.")
+        df_cleaned = df
+
+    return df_cleaned, flagged_indices, stats
+
+def fetch_from_zenodo_wrapper(primary_doi: str, fallback_doi: str, output_dir: Path) -> Path:
+    """
+    Fetches dataset from Zenodo, trying primary then fallback DOI.
+    Returns path to the saved CSV file.
+    """
+    logger.info(f"Attempting to fetch data from Zenodo DOI: {primary_doi}")
     try:
-        file_path = fetch_dataset(primary_doi)
-        logger.info(f"Successfully fetched data from primary DOI: {primary_doi}")
-        return primary_doi, file_path
-    except DataUnavailableError as e:
-        logger.warning(f"Primary DOI {primary_doi} unavailable: {e}")
-        logger.info(f"Attempting fallback DOI: {fallback_doi}")
+        file_path = fetch_dataset(primary_doi, output_dir)
+        logger.info(f"Successfully fetched from primary DOI: {primary_doi}")
+        return file_path
+    except DataUnavailableError:
+        logger.warning(f"Primary DOI {primary_doi} unavailable. Trying fallback: {fallback_doi}")
         try:
-            file_path = fetch_dataset(fallback_doi)
-            logger.info(f"Successfully fetched data from fallback DOI: {fallback_doi}")
-            return fallback_doi, file_path
-        except DataUnavailableError as e2:
-            logger.error(f"Both primary and fallback DOIs unavailable.")
-            raise DataUnavailableError("Both primary and fallback Zenodo datasets are unreachable.") from e2
+            file_path = fetch_dataset(fallback_doi, output_dir)
+            logger.warning(f"Fallback DOI {fallback_doi} used successfully.")
+            return file_path
+        except DataUnavailableError:
+            logger.error(f"Both primary ({primary_doi}) and fallback ({fallback_doi}) DOIs are unavailable.")
+            raise DataUnavailableError("Both Zenodo DOIs failed to provide data.")
 
 def load_and_validate_data(file_path: Path) -> pd.DataFrame:
-    """
-    Loads CSV data and performs basic validation.
-    """
+    """Load CSV and perform basic schema checks."""
+    if not file_path.exists():
+        raise FileNotFoundError(f"Data file not found: {file_path}")
+    
     logger.info(f"Loading data from {file_path}")
-    try:
-        df = pd.read_csv(file_path)
-        logger.info(f"Loaded {len(df)} rows from {file_path}")
-        
-        # Basic validation: Check for required columns if they exist in the raw data
-        # Assuming standard metallic glass dataset columns based on context
-        required_cols = ['Tg', 'composition'] 
-        # Note: Actual column names might vary, but we assume 'Tg' and 'composition' based on T013 description
-        # If columns are missing, we handle it gracefully or raise error depending on strictness
-        # For now, we assume the raw data has these or similar.
-        
-        return df
-    except Exception as e:
-        logger.error(f"Failed to load or validate data: {e}")
-        raise
+    df = pd.read_csv(file_path)
+    
+    # Basic schema check: ensure Tg column exists
+    if Tg_COLUMN not in df.columns:
+        raise ValueError(f"Required column '{Tg_COLUMN}' missing in {file_path}")
+    
+    return df
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Drops records missing Tg or full composition.
+    Drop records missing Tg or full composition.
+    (Standard cleaning logic from T013)
     """
-    logger.info("Cleaning data: dropping records with missing Tg or composition")
-    original_count = len(df)
+    initial_count = len(df)
     
-    # Drop rows where Tg is NaN or missing
-    df = df.dropna(subset=['Tg'])
+    # Drop rows with missing Tg
+    df = df.dropna(subset=[Tg_COLUMN])
     
-    # Drop rows where composition is NaN or empty string
-    if 'composition' in df.columns:
-        df = df[df['composition'].notna() & (df['composition'].str.strip() != '')]
+    # Assuming 'Composition' or similar column exists; if not, we assume other logic handles it.
+    # Based on T013 description: "drop records missing Tg or full composition"
+    # We check for a 'Composition' column if it exists, otherwise just Tg.
+    if 'Composition' in df.columns:
+        df = df.dropna(subset=['Composition'])
     
-    kept_count = len(df)
-    dropped_count = original_count - kept_count
-    retention_rate = kept_count / original_count if original_count > 0 else 0.0
-
-    logger.info(f"Original count: {original_count}")
-    logger.info(f"Dropped count: {dropped_count}")
-    logger.info(f"Kept count: {kept_count}")
-    logger.info(f"Retention rate: {retention_rate:.4f}")
-
-    return df, original_count, kept_count, dropped_count, retention_rate
+    final_count = len(df)
+    logger.info(f"Cleaned data: {initial_count} -> {final_count} rows.")
+    return df
 
 def save_cleaned_data(df: pd.DataFrame, output_path: Path):
-    """
-    Saves the cleaned dataframe to CSV.
-    """
+    """Save cleaned dataframe to CSV."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)
     logger.info(f"Saved cleaned data to {output_path}")
 
 def write_ingestion_stats(stats: Dict[str, Any], output_path: Path):
-    """
-    Writes ingestion statistics to a JSON file.
-    """
+    """Write ingestion statistics to JSON."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
         json.dump(stats, f, indent=2)
-    logger.info(f"Saved ingestion stats to {output_path}")
+    logger.info(f"Wrote ingestion stats to {output_path}")
 
 def main():
+    """
+    Main entry point for the ingestion pipeline.
+    Implements T012, T013, T014, T015, T016, and T063 (Tg validation).
+    """
     config = get_config()
-    primary_doi = config.get('zenodo_primary_doi', '10.5281/zenodo.10043838')
-    fallback_doi = config.get('zenodo_fallback_doi', '10.5281/zenodo.11023456')
-    
     raw_dir = Path("data/raw")
     processed_dir = Path("data/processed")
+    stats_path = Path("data/ingestion_stats.json")
     
-    # Fetch data
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    
+    # DOIs from config or defaults
+    primary_doi = os.getenv("ZENODO_PRIMARY_DOI", "10.5281/zenodo.10043838")
+    fallback_doi = os.getenv("ZENODO_FALLBACK_DOI", "10.5281/zenodo.11023456")
+    
+    source_doi = None
+    file_path = None
+    
+    # 1. Fetch Data (T012, T015)
     try:
-        doi_used, file_path = fetch_from_zenodo_wrapper(primary_doi, fallback_doi)
+        file_path = fetch_from_zenodo_wrapper(primary_doi, fallback_doi, raw_dir)
+        source_doi = primary_doi if str(file_path).endswith(primary_doi.split('/')[-1]) else fallback_doi
     except DataUnavailableError as e:
         logger.critical(str(e))
         sys.exit(1)
-
-    # Determine input file name based on DOI used
-    input_filename = f"zenodo_{doi_used.split('.')[-1]}.csv"
-    input_path = raw_dir / input_filename
     
-    # Ensure the file exists (fetch_dataset should have saved it)
-    if not input_path.exists():
-        # Fallback to checking if fetch_dataset saved it with a different name or path
-        # The fetch_dataset function in zenodo_client.py should handle saving.
-        # We assume it saves to data/raw/zenodo_<doi>.csv
-        logger.error(f"Input file {input_path} not found after fetch.")
+    # 2. Load Data (T012)
+    try:
+        df = load_and_validate_data(file_path)
+    except (FileNotFoundError, ValueError) as e:
+        logger.error(str(e))
         sys.exit(1)
-
-    # Load and validate
-    df = load_and_validate_data(input_path)
-
-    # Clean data
-    df_clean, orig, kept, dropped, rate = clean_data(df)
-
-    # Save cleaned data
-    cleaned_output_path = processed_dir / "cleaned_mg.csv"
-    save_cleaned_data(df_clean, cleaned_output_path)
-
-    # Write stats
-    stats = {
-        "original_count": orig,
-        "kept_count": kept,
-        "dropped_count": dropped,
-        "retention_rate": float(rate)
+    
+    # 3. Tg Range Validation (T063 - NEW)
+    # This step flags and removes physically impossible Tg values BEFORE general cleaning
+    df, invalid_indices, tg_validation_stats = validate_tg_range(df)
+    
+    # 4. General Cleaning (T013)
+    df = clean_data(df)
+    
+    # 5. Save Cleaned Data (T014)
+    output_csv = processed_dir / "cleaned_mg.csv"
+    save_cleaned_data(df, output_csv)
+    
+    # 6. Calculate Retention Rate (T014, T016)
+    # We need the original count before any cleaning to calculate retention
+    # Since we didn't store original count in a variable easily accessible here, 
+    # we assume the input file row count was the starting point.
+    # Let's re-calculate based on the file we read.
+    original_count = len(pd.read_csv(file_path))
+    retention_rate = len(df) / original_count if original_count > 0 else 0.0
+    
+    # 7. Write Stats (T012, T014, T016)
+    ingestion_stats = {
+        "source_doi": source_doi,
+        "original_row_count": original_count,
+        "cleaned_row_count": len(df),
+        "retention_rate": retention_rate,
+        "tg_validation": tg_validation_stats,
+        "checksum": calculate_file_checksum(file_path)
     }
-    stats_output_path = Path("data/ingestion_stats.json")
-    write_ingestion_stats(stats, stats_output_path)
-
+    write_ingestion_stats(ingestion_stats, stats_path)
+    
     logger.info("Ingestion pipeline completed successfully.")
 
 if __name__ == "__main__":

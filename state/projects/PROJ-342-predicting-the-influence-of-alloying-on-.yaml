@@ -6,7 +6,7 @@ failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-342-predicting-the-influence-of-alloying-on-
-last_run_id: d221d4ad-8921-48de-9bd9-a5788b1b73d5
+last_run_id: 4f5daea0-0081-4a6e-93ee-7bf3177e8094
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-342-predicting-the-influence-of-alloying-on-/specs/001-predicting-the-influence-of-alloying-on
 title: Predicting the Influence of Alloying on the Glass Transition Temperature of
   Metallic Glasses
-updated_at: '2026-09-01T04:58:44.097601Z'
+updated_at: '2026-09-04T04:06:39.713831Z'
