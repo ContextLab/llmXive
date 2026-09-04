@@ -1,84 +1,72 @@
 # Data Model: Statistical Bias in Pre-Print Server Publication Trends
 
-## 1. Entity Relationship Overview
+## Overview
 
-The data model is centered around the `MatchedPaperPair` entity, which links a pre-print artifact to a journal artifact. All statistical metrics are extracted into a child structure.
+This document defines the data structures for the project, including the `MatchedPaperPair`, `StatisticalMetric`, and `AnalysisResult` entities. All data is stored in CSV or JSON format in the `data/` directory.
 
-```mermaid
-erDiagram
-    MATCHED_PAPER_PAIR ||--|{ STATISTICAL_METRIC : "contains"
-    MATCHED_PAPER_PAIR {
-        string preprint_id
-        string journal_doi
-        string title
-        string preprint_source
-        string journal_source
-        date preprint_date
-        date journal_date
-        string statistical_method
-        int sample_size_preprint
-        int sample_size_journal
-        bool methodological_shift_flag
-        bool n_increase_flag
-    }
-    STATISTICAL_METRIC {
-        string metric_type
-        float value
-        string unit
-        bool inequality_flag
-        float interval_lower
-        float interval_upper
-        string source_version
-    }
-```
+## Entity Definitions
 
-## 2. Detailed Schema Definitions
+### MatchedPaperPair
 
-### 2.1. MatchedPaperPair (Primary Dataset)
-*Table: `matched_pairs.csv`*
+Represents a single study with two artifacts: pre-print and journal versions.
 
 | Field | Type | Description | Constraints |
 |-------|------|-------------|-------------|
-| `preprint_id` | String | Unique ID for the pre-print (e.g., `arXiv:2301.12345`) | Not Null |
-| `journal_doi` | String | DOI of the peer-reviewed version | Not Null |
-| `title` | String | Paper title (normalized) | Not Null |
-| `preprint_source` | String | Source server (`arXiv`, `bioRxiv`) | Enum |
-| `journal_source` | String | Journal publisher | String |
-| `preprint_date` | Date | Publication date of pre-print | ISO 8601 |
-| `journal_date` | Date | Publication date of journal | ISO 8601 |
-| `statistical_method` | String | Primary method used (e.g., `t-test`, `ANOVA`) | Enum |
-| `sample_size_preprint` | Integer | N in pre-print | > 0 |
-| `sample_size_journal` | Integer | N in journal | > 0 |
-| `methodological_shift_flag` | Boolean | True if method changed between versions | Default: False |
-| `n_increase_flag` | Boolean | True if N increased > 20% | Default: False |
-| `exclusion_reason` | String | Reason for exclusion (if any) | Nullable |
+| `pair_id` | str | Unique identifier for the pair (e.g., `pair_0001`) | Primary key |
+| `preprint_id` | str | Pre-print ID (arXiv/bioRxiv) | Not null |
+| `journal_doi` | str | Journal DOI | Not null |
+| `title` | str | Paper title | Not null |
+| `authors` | list[str] | List of author names | Not null |
+| `preprint_date` | date | Pre-print publication date | Not null |
+| `journal_date` | date | Journal publication date | Not null |
+| `field` | str | Research field (e.g., "Quantitative Biology") | Not null |
+| `match_score` | float | Fuzzy matching score (0.0–1.0) | ≥ 0.8 |
+| `exclusion_reason` | str | Reason for exclusion (if any) | Nullable |
+| `content_hash` | str | SHA-256 hash of the pair's content for versioning | Not null |
+| `doi_verified` | bool | True if DOI verified against OpenAlex canonical source | Not null |
 
-### 2.2. StatisticalMetric (Extracted Values)
-*Table: `metrics.csv` (or embedded in `matched_pairs.csv` as JSON)*
+### StatisticalMetric
+
+Represents a single extracted statistical value.
 
 | Field | Type | Description | Constraints |
 |-------|------|-------------|-------------|
-| `pair_id` | String | Foreign key to `MatchedPaperPair` | Not Null |
-| `metric_type` | String | `p-value` or `effect-size` | Enum |
-| `value` | Float | Numeric value (or midpoint for inequalities) | Nullable |
-| `unit` | String | Unit (e.g., `Cohen's d`, `OR`) | Nullable |
-| `inequality_flag` | Boolean | True if reported as inequality (e.g., `<`) | Default: False |
-| `interval_lower` | Float | Lower bound of interval (0 for `<`) | Nullable |
-| `interval_upper` | Float | Upper bound of interval (0.05 for `<0.05`) | Nullable |
-| `source_version` | String | `preprint` or `journal` | Enum |
+| `metric_id` | str | Unique identifier for the metric | Primary key |
+| `pair_id` | str | Foreign key to `MatchedPaperPair` | Not null |
+| `version` | str | "preprint" or "journal" | Enum |
+| `metric_type` | str | "p-value", "effect_size", "sample_size" | Enum |
+| `value` | float | Numeric value | Nullable (if inequality) |
+| `inequality_flag` | bool | True if value is an inequality | False if exact |
+| `interval_lower` | float | Lower bound of interval (if inequality) | Nullable |
+| `interval_upper` | float | Upper bound of interval (if inequality) | Nullable |
+| `stat_method` | str | Statistical method (e.g., "t-test", "regression") | Not null |
+| `n_sample` | int | Sample size | > 0 |
+| `confidence_interval` | str | CI string (e.g., "95% CI [0.5, 1.2]") | Nullable |
 
-**Contract Note**: The `statistical_metric.schema.yaml` contract file validates the structure of `data/processed/metrics.csv` (or the JSON array within `matched_pairs.csv`), ensuring consistency with this entity definition.
+### AnalysisResult
 
-## 3. Data Flow & Derivation
+Represents the output of a statistical test.
 
-1.  **Raw Input**: OpenAlex Parquet files (verified URLs) + arXiv/bioRxiv API responses.
-2.  **Step 1 (Matching)**: `01_fetch_and_match.py` produces `raw_matches.parquet`.
-3.  **Step 2 (Extraction)**: `02_extract_stats.py` parses PDFs and produces `raw_metrics.json`.
-4.  **Step 3 (Cleaning)**: `03_analysis.py` filters for methodological shifts and N-increases, producing `matched_pairs.csv` (cleaned) and `metrics.csv`.
-5.  **Step 4 (Analysis)**: `03_analysis.py` computes statistics and produces `analysis_results.json`.
+| Field | Type | Description | Constraints |
+|-------|------|-------------|-------------|
+| `result_id` | str | Unique identifier for the result | Primary key |
+| `test_type` | str | "p_curve", "paired_ttest", "wilcoxon", "sensitivity", "tobit" | Enum |
+| `threshold` | float | Significance threshold (if applicable) | Nullable |
+| `statistic_value` | float | Test statistic (e.g., t-value, p-curve power) | Not null |
+| `p_value` | float | P-value of the test | 0.0–1.0 |
+| `ci_lower` | float | Lower bound of confidence interval | Nullable |
+| `ci_upper` | float | Upper bound of confidence interval | Nullable |
+| `interpretation` | str | Human-readable interpretation | Not null |
+| `threshold_context` | str | Context for sensitivity analysis | Nullable |
 
-## 4. Data Hygiene & Versioning
+## Data Flow
 
--   **Checksums**: All files in `data/raw/` and `data/processed/` are checksummed (SHA-256) and recorded in `state/.../artifact_hashes.yaml`.
--   **Immutability**: Raw data is never modified. Derivations are written to new files with timestamps (e.g., `matched_pairs_20260813.csv`).
--   **PII**: No personally identifiable information is extracted. Only aggregate statistical metrics are stored.
+1. **Raw Data**: `data/raw/openalex_metadata/`, `data/raw/arxiv_metadata/`, `data/raw/biorxiv_metadata/` (PDFs, JSON metadata).
+2. **Processed Data**: `data/processed/matched_pairs.csv`, `data/processed/extracted_metrics.csv`.
+3. **Results**: `data/results/p_curve_results.json`, `data/results/effect_size_results.json`, `data/results/sensitivity_results.json`.
+
+## Data Hygiene
+
+- **Checksums**: All files in `data/` are checksummed (SHA-256) and recorded in `state/projects/PROJ-075-statistical-bias-in-pre-print-server-pub.yaml`.
+- **Immutability**: Raw data is never modified. Derivations create new files (e.g., `matched_pairs_v1.csv`, `matched_pairs_v2.csv`).
+- **PII**: No personally identifiable information is stored. Author names are normalized and anonymized where necessary.

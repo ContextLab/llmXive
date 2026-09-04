@@ -1,0 +1,29 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`code/`, `tests/`, `data/`, `results/`,\
+    \ `specs/`) is provided; the response contains only the task description and no\
+    \ actual project\u2011structure artifacts. The implementer must create and show\
+    \ these folders (and ideally populate them) to satisfy the requirement."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., .flake8, pyproject.toml/black
+    settings, or setup.cfg) were provided in the `code/` directory, nor any evidence
+    that flake8 or black have been set up. The required artifacts are missing, so
+    the task is not satisfied.
+T004:
+  c: false
+  h: c291b249a7dc2be47964b35b01942803da1c115573b063a9505f135f5e212be5
+  r: The provided `code/reference_validator.py` is truncated (ends at `fo`) and does
+    not contain the logic that iterates over the extracted URLs, records failures,
+    halts the pipeline, or writes specific errors to `data/logs/validation_error.log`.
+    Consequently the required log file is also missing. The script must be completed
+    and the log file generated for the task to be satisfied.
+T011:
+  c: false
+  h: f5738371ad74a5914a1a2893851158c04d58ce0556398a0e8af337bbf750b880
+  r: "The provided `code/data_ingestion.py` does not contain a `filter_valid_movies()`\
+    \ implementation (the file is truncated before any such function appears), and\
+    \ the required log file `data/logs/ingestion_log.txt` is absent. Consequently\
+    \ the filtering logic, logging, and error\u2011raising requirements are not satisfied."

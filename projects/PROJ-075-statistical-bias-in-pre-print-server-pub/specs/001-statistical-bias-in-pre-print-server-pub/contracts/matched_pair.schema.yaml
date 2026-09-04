@@ -12,6 +12,8 @@ required:
   - journal_date
   - methodological_shift
   - n_increase_flag
+  - content_hash
+  - doi_verified
 properties:
   pair_id:
     type: string
@@ -46,4 +48,11 @@ properties:
   n_increase_flag:
     type: boolean
     description: "True if sample size increased by >20% between pre-print and journal."
+  content_hash:
+    type: string
+    description: "SHA-256 hash of the pair's content for versioning."
+    pattern: "^[a-f0-9]{64}$"
+  doi_verified:
+    type: boolean
+    description: "True if DOI verified against OpenAlex canonical source."
 additionalProperties: false

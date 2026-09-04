@@ -1,83 +1,53 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Matched Paper Pair Dataset"
-description: "Schema for the cleaned dataset of matched pre-print and journal paper pairs with extracted statistical metrics."
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: MatchedPaperPair Schema
+description: Schema for the matched_pairs.csv file containing pre-print/journal pairs.
+type: object
 properties:
+  pair_id:
+    type: string
+    description: "Unique identifier for the pair (e.g., pair_0001)"
   preprint_id:
-    type: "string"
-    description: "Unique identifier for the pre-print (e.g., arXiv ID)."
+    type: string
+    description: "Pre-print ID (arXiv/bioRxiv)"
   journal_doi:
-    type: "string"
-    description: "DOI of the peer-reviewed journal version."
+    type: string
+    description: "Journal DOI"
   title:
-    type: "string"
-    description: "Normalized title of the paper."
-  preprint_source:
-    type: "string"
-    enum:
-      - "arXiv"
-      - "bioRxiv"
-    description: "Source server for the pre-print."
-  journal_source:
-    type: "string"
-    description: "Publisher or journal name."
+    type: string
+    description: "Paper title"
+  authors:
+    type: array
+    items:
+      type: string
+    description: "List of author names"
   preprint_date:
-    type: "string"
-    format: "date"
-    description: "Publication date of the pre-print."
+    type: string
+    format: date
+    description: "Pre-print publication date"
   journal_date:
-    type: "string"
-    format: "date"
-    description: "Publication date of the journal version."
-  statistical_method:
-    type: "string"
-    description: "Primary statistical method used (e.g., t-test, ANOVA)."
-  sample_size_preprint:
-    type: "integer"
-    minimum: 1
-    description: "Sample size (N) in the pre-print version."
-  sample_size_journal:
-    type: "integer"
-    minimum: 1
-    description: "Sample size (N) in the journal version."
-  methodological_shift_flag:
-    type: "boolean"
-    description: "True if the statistical method changed between versions."
-  n_increase_flag:
-    type: "boolean"
-    description: "True if sample size increased by > 20% in the journal version."
+    type: string
+    format: date
+    description: "Journal publication date"
+  field:
+    type: string
+    description: "Research field (e.g., Quantitative Biology)"
+  match_score:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Fuzzy matching score"
   exclusion_reason:
-    type: ["string", "null"]
-    description: "Reason for exclusion if the pair was filtered out."
-  p_value_preprint:
-    type: ["number", "null"]
-    description: "Extracted p-value from pre-print (or midpoint for inequalities)."
-  p_value_journal:
-    type: ["number", "null"]
-    description: "Extracted p-value from journal."
-  p_value_inequality_flag:
-    type: "boolean"
-    description: "True if p-value was reported as an inequality."
-  effect_size_preprint:
-    type: ["number", "null"]
-    description: "Extracted effect size from pre-print."
-  effect_size_journal:
-    type: ["number", "null"]
-    description: "Extracted effect size from journal."
-  effect_size_type:
-    type: ["string", "null"]
-    description: "Type of effect size (e.g., Cohen's d, Odds Ratio)."
+    type: string
+    nullable: true
+    description: "Reason for exclusion (if any)"
 required:
-  - "preprint_id"
-  - "journal_doi"
-  - "title"
-  - "preprint_source"
-  - "journal_source"
-  - "preprint_date"
-  - "journal_date"
-  - "statistical_method"
-  - "sample_size_preprint"
-  - "sample_size_journal"
-  - "methodological_shift_flag"
-  - "n_increase_flag"
+  - pair_id
+  - preprint_id
+  - journal_doi
+  - title
+  - authors
+  - preprint_date
+  - journal_date
+  - field
+  - match_score
 additionalProperties: false

@@ -1,19 +1,18 @@
 status: none
-intent: OpenAlex works metadata preprint journal matching p-values effect sizes python
-  package dataset
+intent: OpenAlex works raw dump S3 plus arXiv bioRxiv metadata python package dataset
 required_fields:
 - preprint_id
+- preprint_title
+- preprint_authors
 - preprint_doi
 - journal_doi
-- title
-- authors
-- preprint_year
-- journal_year
-- preprint_pdf_url
-- journal_pdf_url
+- matched_title
+- matched_authors
 - p_value_preprint
-- p_value_preprint_inequality
 - p_value_journal
-cache_key: 0822a6790d3de5625d397fb3ec9859aeb43a79e25c0d33f6d4591a5c1a045ccb
-searched_at: '2026-08-12T13:53:58.346865+00:00'
+- effect_size_preprint
+- effect_size_journal
+- p_value_inequality_flag
+cache_key: 17880b0ea21ccad3748b8dbc0422d1e5c7471e4fe5645aed8ab9bd9837e24959
+searched_at: '2026-09-04T15:43:34.092679+00:00'
 retry_count: 1

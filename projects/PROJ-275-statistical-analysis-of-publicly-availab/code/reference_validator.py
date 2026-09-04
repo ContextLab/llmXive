@@ -13,6 +13,7 @@ import logging
 from urllib.parse import urlparse
 from urllib.request import urlopen, Request
 from urllib.error import URLError, HTTPError
+from datetime import datetime
 
 # Configuration
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -101,8 +102,9 @@ def main():
         logger.critical("Halting pipeline as per Constitution Principle II.")
         
         # Log specific failures to the error log file explicitly
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         with open(LOG_FILE, 'a') as f:
-            f.write(f"\n--- Validation Failure Report at {os.popen('date').read().strip()} ---\n")
+            f.write(f"\n--- Validation Failure Report at {timestamp} ---\n")
             for url, reason in failed_urls:
                 f.write(f"URL: {url}\nReason: {reason}\n")
             f.write("--- End Report ---\n")

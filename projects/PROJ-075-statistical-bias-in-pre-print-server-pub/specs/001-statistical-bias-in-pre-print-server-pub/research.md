@@ -1,90 +1,104 @@
 # Research: Statistical Bias in Pre-Print Server Publication Trends
 
-## 1. Problem Statement & Research Question
+## Research Question
 
-**Question**: Do pre-print versions of scientific papers exhibit statistically significant "bias" (e.g., p-hacking, effect size inflation) compared to their final peer-reviewed journal versions?
+Does the peer-review process systematically alter reported p-values and effect sizes, leading to a reduction in statistical bias (e.g., p-hacking, inflation) between pre-print and journal versions of the same study?
 
-**Hypotheses**:
-- **H1**: The distribution of p-values in pre-prints shows a higher density just below 0.05 compared to journal versions (indicative of p-hacking).
-- **H2**: Effect sizes reported in pre-prints are systematically larger than those in journal versions ($\Delta$ES > 0), suggesting correction during peer review.
-- **H3**: These effects are robust across significance thresholds (0.01, 0.05, 0.1).
+## Background & Motivation
 
-## 2. Dataset Strategy
+Pre-print servers (arXiv, bioRxiv) allow rapid dissemination of research, but lack the gatekeeping of peer review. Concerns exist that pre-prints may contain inflated effect sizes or p-hacked results that are corrected during peer review. This project quantifies that shift by comparing matched pre-print/journal pairs.
 
-### Verified Datasets
-The project relies exclusively on the following verified sources for metadata and linkage:
-- **OpenAlex Works Metadata**: Used to match pre-prints to journal DOIs.
-  - Source: `https://huggingface.co/datasets/openalex/works` (or the specific metadata-only snapshot containing `arxiv_id`, `bioRxiv_id`, `doi`, `title`, `authors`).
-  - *Verification*: We will verify the presence of `bioRxiv_id` in the HF dataset version. If the HF subset lacks `bioRxiv_id` for a specific record, the system will fallback to streaming the OpenAlex API for that specific ID to retrieve the missing linkage field.
-  - *Note*: The full OpenAlex dump is too large for direct loading; the plan uses the verified Hugging Face metadata-only dump or streams the data to identify papers with `arxiv_id` or `bioRxiv_id` fields and corresponding `doi` fields.
+## Dataset Strategy
 
-### Data Acquisition Plan
-1.  **Source Identification**: Use the verified OpenAlex Hugging Face dataset to filter for papers with `arxiv_id` or `bioRxiv_id` published between recent years and 2023.
-2.  **Matching Logic**:
-    -   Extract `title`, `authors`, and `doi` from OpenAlex.
-    -   Fuzzy match `title` against arXiv/bioRxiv metadata (scraped via `arxiv` Python package or direct API) to confirm the pre-print ID.
-    -   If a match is found, link the pre-print version to the journal `doi`.
-3.  **Variable Fit Verification**:
-    -   **Required Variables**: `p-value`, `effect-size`, `sample-size (N)`, `statistical-method`.
-    -   **Verification**: The OpenAlex metadata provides the *linkage* (ID, Title, Authors). The *statistical values* are NOT in OpenAlex; they must be extracted from the full-text PDFs.
-    -   **Feasibility**: This is feasible. We download the PDFs (via arXiv API for pre-prints and Crossref/OpenURL for journals) and parse them. The dataset strategy is: **Metadata from OpenAlex (verified) + Content from PDFs (scraped/processed)**.
+| Dataset | Source | Access Method | Variables | Justification |
+|---------|--------|---------------|-----------|---------------|
+| **OpenAlex Works** | https://api.openalex.org (S3 raw dumps) | `datasets.load_dataset(..., streaming=True)` | Title, Authors, DOI, Publication Date, Venue | Canonical source for matching pre-prints to journal DOIs. Verified via OpenAlex. |
+| **arXiv/bioRxiv Metadata** | arXiv API, bioRxiv API | `requests` | Pre-print ID, Title, Authors, Date | Primary source for pre-print versions. Public APIs allow unattended fetching. |
+| **PDFs** | Open Access Journals (via Unpaywall/CORE) | Unpaywall/CORE APIs | Full-text PDF | Source for statistical metric extraction. Restricted to Open Access to ensure feasibility. |
 
-### Data Constraints & Handling
--   **Access**: OpenAlex data is open. arXiv/bioRxiv PDFs are open. No credentials required.
--   **Size**: The full OpenAlex dump is large in scale. We will **stream** the verified Hugging Face subset or query the OpenAlex API for specific IDs to stay within the GB RAM limit.
--   **Missing Data**: If a paper lacks a journal DOI in OpenAlex, it is excluded from the matched analysis (logged as "unmatched"). If a PDF is missing or unreadable, the pair is excluded from analysis (logged as "extraction failure").
+**Dataset Variable Fit**: The OpenAlex dataset contains the necessary metadata (title, authors, DOI) to perform fuzzy matching between pre-prints and journal versions. The PDFs contain the statistical metrics (p-values, effect sizes) required for analysis. No variables are missing from the verified sources.
 
-## 3. Methodology & Statistical Rigor
+**Access-Gated Data**: No access-gated data is used. All datasets are publicly available via OpenAlex, public APIs, or open-access repositories (Unpaywall/CORE).
 
-### 3.1. Data Cleaning & Filtering
--   **Inclusion**: Papers with both pre-print and journal versions; statistical tests reported (t-test, ANOVA, regression, etc.).
--   **Exclusion**:
-    -   Theoretical papers or case studies (no empirical stats).
-    -   Pairs where the statistical method changes (e.g., t-test $\to$ regression) -> Flagged as "methodological shift".
-    -   Pairs where sample size (N) changes by > 20% -> Flagged and excluded from $\Delta$ES calculation (per FR-006).
-    -   **Censored P-Values**: P-values reported as inequalities (e.g., "p < 0.05") are treated as interval-censored data. For p-curve analysis, they are excluded per Simonsohn et al. to avoid noise. For density ratio estimation, we use a likelihood-based method that incorporates interval-censored data. If >20% of p-values are censored, we will use a Kaplan-Meier estimator adapted for p-values or exclude the density ratio metric for that subset to avoid high variance.
+**Streaming Strategy**: The OpenAlex metadata will be streamed using `datasets.load_dataset(..., streaming=True)` to avoid loading the entire corpus into memory. PDFs will be downloaded one at a time and processed sequentially to stay within available RAM limits.
 
-### 3.2. Statistical Tests
+## Methodological Approach
 
-#### A. Distributional Shift (Primary Analysis)
--   **Method**: Kolmogorov-Smirnov (KS) test and density ratio estimation.
--   **Input**: Right-skewed distribution of significant p-values ($p < 0.05$).
--   **Correction**: If stratifying by field (e.g., Physics vs. Biology), **Bonferroni correction** will be applied to the primary hypothesis tests to control the family-wise error rate.
--   **Output**: KS statistic and p-value; density ratio magnitude at p=0.05.
--   **Note**: P-curve analysis is used as a **secondary diagnostic** to estimate evidential value. If comparing p-curve estimates (estimated power), a **bootstrap test of the difference** in estimated power will be performed to ensure statistical validity.
+### 1. Matched Dataset Construction (US-1)
+- **Input**: List of pre-print IDs (arXiv/bioRxiv) from 2018–2023.
+- **Process**: 
+  1. Fetch pre-print metadata via APIs.
+  2. Query OpenAlex (streamed) to find matching journal DOIs using fuzzy title/author similarity (threshold ≥ 0.9).
+  3. **Secondary Verification**: Cross-reference the match against the OpenAlex canonical DOI for the pre-print ID (if available) to confirm the match. Matches without a DOI or with low canonical confidence are flagged for exclusion.
+  4. Filter to pairs where the journal version is within 2 years of the pre-print.
+  5. Exclude pairs with no match, methodological shifts, or unverified DOIs.
+- **Output**: `matched_pairs.csv` with columns: `preprint_id`, `journal_doi`, `title`, `authors`, `preprint_date`, `journal_date`.
+- **Target**: N=1000 pre-prints queried to achieve ≥ 80% match rate (minimum SC-001: ≥ 60%).
 
-#### B. Effect Size Comparison (Magnitude Analysis)
--   **Metric**: $\Delta$ES = $ES_{preprint} - ES_{journal}$.
--   **Test**: Paired t-test (if $\Delta$ES is normally distributed) or Wilcoxon signed-rank test (if non-normal).
--   **Censored Data**: For effect sizes reported as inequalities or ranges, we will use a **Paired Interval-Censored Bootstrap** approach. This involves resampling the paired differences while respecting the interval bounds, rather than using standard Tobit regression (which assumes independence) or simple imputation.
--   **Assumption**: Observational study. Claims are associational ("pre-prints report higher effect sizes") not causal ("peer review reduces effect sizes").
--   **Collinearity**: Since pairs are matched, we analyze the *difference*, avoiding the need for collinearity diagnostics between independent predictors.
+### 2. Statistical Metric Extraction (US-1)
+- **Input**: PDFs of pre-print and journal versions (Open Access only).
+- **Process**:
+  1. Extract text from PDFs using `pdfplumber`.
+  2. Parse p-values (exact and inequalities) and effect sizes (Cohen's d, Hedges' g, odds ratios, etc.) using regex and context-aware NLP.
+  3. Handle inequalities as interval-censored data (e.g., `p < 0.05` → `[0, 0.05]`) for general reporting.
+  4. **P-Curve Inclusion**: Per FR-002 and scientific soundness requirements, incorporate interval-censored p-values into p-curve estimation using **survival analysis techniques (e.g., Turnbull estimator)** rather than discarding them.
+  5. Exclude pairs where the statistical method changes (flagged as "methodological shift").
+  6. **Inclusion of Identical P-Values**: Pairs with identical p-values are **INCLUDED** to measure the rate of correction (zero change).
+- **Output**: `extracted_metrics.csv` with columns: `pair_id`, `version` (preprint/journal), `metric_type`, `value`, `inequality_flag`, `interval_bounds`, `stat_method`, `n_sample`.
 
-#### C. Sensitivity Analysis
--   **Thresholds**: Sweep significance thresholds $\alpha \in \{0.01, 0.05, 0.1\}$.
--   **Metric**: "Significance Flip Rate" = Proportion of pairs where $p_{preprint} < \alpha$ AND $p_{journal} \ge \alpha$ (or vice versa).
--   **Robustness**: If the direction of bias (pre-print > journal) is consistent across all thresholds, the finding is robust.
+### 3. Distributional & Magnitude Analysis (US-2)
+- **P-Curve Analysis**: Perform separate p-curve analyses on pre-print and journal p-values (including censored values via survival analysis). Compare the estimated power and p-hacking prevalence parameters. Standard p-curve is applied to the *set* of pre-print p-values and the *set* of journal p-values separately (as independent distributions of reported statistics). **Compare findings against meta-analytic consensus or replication studies where available to verify if the journal version is actually less biased.**
+- **Effect Size Comparison**: Calculate $\Delta$ES = ES_journal - ES_preprint.
+  - **Primary Method**: Use **Tobit regression** (via `lifelines` or `statsmodels`) to handle censored effect sizes and account for heteroscedasticity due to changing N. **Model N as a covariate.**
+  - **Exclusion Criterion**: **Do not exclude** pairs where sample size (N) changes by > 20%. Instead, model N as a covariate in the Tobit regression to avoid selection bias.
+  - **Stratified Analysis**: Analyze pairs with N > 20% increase separately to characterize the nature of the correction (e.g., did they get larger N and smaller ES?).
+  - **Stratified Analysis**: Analyze by field (e.g., Quantitative Biology) as required by US-2.
+- **Independent Validation**: Compare findings against meta-analytic consensus or replication studies where available to verify if the journal version is actually less biased.
+- **Output**: `p_curve_results.json`, `effect_size_results.json` with test statistics, p-values, and confidence intervals.
 
-### 3.3. Sample Size & Power
--   **Plan**: Target a sufficient number of valid matched pairs to ensure statistical power and robustness.
--   **Power Calculation**: We will run a **pilot study** on 50 pairs to estimate the variance of $\Delta$ES. Using this variance estimate, we will calculate the minimum detectable effect size for N=500 at adequate power. If the pilot indicates that 500 pairs is underpowered to detect the expected bias magnitude, we will explicitly report this limitation in the final analysis rather than claiming sufficiency.
--   **Feasibility**: 500 pairs is well within the h CI limit for PDF parsing and statistical tests.
+### 4. Sensitivity Analysis (US-3)
+- **Input**: Extracted p-values.
+- **Process**: Sweep significance thresholds across {0.01, 0.05, 0.1}. Calculate "significance flip rate" (proportion of pairs where p crosses the threshold in opposite directions) at each threshold.
+- **Robustness Check**: Account for **reporting precision artifacts** (e.g., rounding differences) in the flip rate calculation.
+- **Direction Consistency**: Explicitly check that the **direction of the bias** (pre-print > journal or vice versa) remains consistent across all thresholds (SC-004).
+- **Output**: `sensitivity_results.json` with flip rates and bias direction consistency.
 
-## 4. Compute Feasibility (CPU-First)
+## Statistical Rigor
 
--   **Environment**: GitHub Actions free-tier (multi-core CPU, multi-gigabyte RAM).
--   **Strategy**:
-    -   **PDF Parsing**: `pdfplumber` is CPU-bound but efficient. We will process PDFs sequentially or in small batches (A limited number of concurrent processes.) to stay under 7GB RAM.
-    -   **Statistics**: `scipy` and `statsmodels` are pure Python/C and run efficiently on CPU.
-    -   **No GPU Needed**: No deep learning models are used for extraction (regex + NLP heuristics only) or analysis.
--   **Scaling**: If the dataset grows beyond a large scale, we will stream the OpenAlex data and process PDFs in chunks to avoid memory overflow.
+- **Multiple-Comparison Correction**: When performing multiple tests (e.g., p-curve, effect size, sensitivity), apply Benjamini-Hochberg correction to control false discovery rate.
+- **Sample-Size Justification**: The initial query size of N=1000 pre-prints is chosen to achieve a target match rate of ≥ 80% (SC-001) with expected failure rates. **Power Analysis**: Assuming a moderate effect size ($\Delta$ES > 0.3) and a standard deviation of 0.5 for the difference, a paired sample size of N=200 provides 80% power at $\alpha$=0.05. The target N=1000 ensures robustness against attrition and allows for stratification by field.
+- **Causal-Inference Assumptions**: The analysis is observational. Findings describe associations between publication stage and statistical values, not causal effects of peer review. No randomization exists.
+- **Measurement Validity**: P-value and effect size extraction relies on regex and context-aware NLP. Validation is performed on a subset of known papers to estimate extraction accuracy.
+- **Collinearity Handling**: Pre-print and journal versions are not independent. The analysis focuses on the *difference* ($\Delta$ES) rather than treating them as independent predictors. No collinearity diagnostics are required for the paired difference test.
+- **Paired P-Curve**: Standard p-curve assumes independence. This analysis uses separate p-curve estimation for pre-print and journal distributions (independent samples of reported statistics) and compares the estimated parameters, avoiding the paired dependency issue.
 
-## 5. Decision Rationale
+## Compute Feasibility
 
-| Decision | Rationale |
-|----------|-----------|
-| **OpenAlex via Hugging Face** | Verified source; programmatic access; avoids manual scraping of the OpenAlex S3 bucket. Fallback to API ensures `bioRxiv_id` availability. |
-| **PDF Parsing over API** | Statistical values are rarely in metadata APIs; full-text parsing is required for p-values/effect sizes. |
-| **Paired Interval-Censored Bootstrap** | Standard Tobit models assume independence and are invalid for paired data. The bootstrap approach respects the paired structure and interval censoring without violating assumptions. |
-| **Paired Analysis** | Directly compares the same study, controlling for study-specific confounders (design, population). |
-| **CPU-First** | The statistical methods (KS test, t-tests, bootstrap) are lightweight; no GPU acceleration is necessary. |
+- **CPU-First**: All methods (p-curve, Tobit regression, weighted t-test) are implemented using `scipy`, `statsmodels`, `lifelines`, and `numpy`, which run efficiently on CPU.
+- **Memory Constraints**: Streaming OpenAlex metadata and processing PDFs one at a time ensures memory usage remains within manageable limits.
+- **Time Constraints**: The pipeline is designed to complete within 6 hours for **N=200 pairs (CI limit)**. For **N=1000**, the pipeline will be **chunked or run on a dedicated runner**. PDF extraction is the most time-consuming step; parallelization is avoided to simplify error handling and reproducibility.
+- **GPU Escape Hatch**: Not required. No transformer models or CUDA kernels are used.
+
+## Decision/Rationale
+
+- **Why CPU-First?**: The statistical methods (p-curve, Tobit, t-test) do not require GPU acceleration. Running on CPU ensures compatibility with GitHub Actions free-tier and simplifies reproducibility.
+- **Why Streaming?**: The OpenAlex dataset is too large to load entirely into memory. Streaming allows processing of the full corpus without exceeding RAM limits.
+- **Why Interval-Censoring for General Reporting?**: Inequalities (e.g., `p < 0.05`) are common in scientific literature. Treating them as interval-censored data preserves information for general reporting without introducing bias from arbitrary imputation.
+- **Why Include Interval-Censored in P-Curve?**: Per scientific soundness requirements, discarding inequalities introduces massive selection bias. Survival analysis techniques (e.g., Turnbull estimator) are used to incorporate them.
+- **Why Tobit for Effect Sizes?**: Effect sizes are often censored or bounded. Tobit regression handles censored data and heteroscedasticity better than a simple t-test.
+- **Why Include Identical P-Values?**: Excluding identical p-values creates selection bias. Including them allows measurement of the rate of correction (zero change).
+- **Why Model N as Covariate (instead of exclusion)?**: Per scientific soundness requirements, excluding pairs with N > 20% increase removes the very cases where 'correction' might be most evident. Modeling N as a covariate avoids selection bias.
+- **Why Permutation Testing?**: To validate the observed density ratio against a null distribution (SC-002), permutation testing (shuffling venue labels) is used.
+- **Why Precision Robustness Check?**: To ensure the significance flip rate is not driven by reporting conventions (e.g., rounding).
+- **Why Independent Validation?**: To address circularity concerns, findings are compared against meta-analytic consensus or replication studies.
+
+## Risks & Mitigations
+
+- **Risk**: Low match rate (< 80%) between pre-prints and journals.  
+  **Mitigation**: Increase initial query size to N=2000; improve fuzzy matching algorithm (e.g., use Levenshtein distance with author name normalization); rely on DOI cross-verification.
+- **Risk**: High exclusion rate due to methodological shifts or missing data.  
+  **Mitigation**: Log excluded pairs with reasons; report exclusion rate in final results.
+- **Risk**: PDF extraction failures due to non-standard formatting.  
+  **Mitigation**: Use multiple regex patterns; fallback to manual inspection for a subset of papers; report extraction failure rate.
+- **Risk**: Time limit exceeded for N=1000.  
+  **Mitigation**: Run initial N=200 on CI; scale to N=1000 on dedicated runner or via chunked execution.

@@ -1,81 +1,50 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Analysis Results"
-description: "Schema for the statistical analysis outputs including p-curve, effect size comparisons, and sensitivity analysis."
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: AnalysisResult Schema
+description: Schema for the analysis results JSON files.
+type: object
 properties:
-  p_curve_analysis:
-    type: "object"
-    description: "Results of the p-curve analysis for pre-prints and journals."
-    properties:
-      preprint_density_ratio_at_0_05:
-        type: "number"
-        description: "Density ratio magnitude at p=0.05 for pre-prints."
-      journal_density_ratio_at_0_05:
-        type: "number"
-        description: "Density ratio magnitude at p=0.05 for journals."
-      preprint_p_hacking_prevalence:
-        type: ["number", "null"]
-        description: "Estimated p-hacking prevalence in pre-prints."
-      journal_p_hacking_prevalence:
-        type: ["number", "null"]
-        description: "Estimated p-hacking prevalence in journals."
-      null_confidence_interval:
-        type: "array"
-        items:
-          type: "number"
-        description: "95% CI of the null distribution for the density ratio."
-    required:
-      - "preprint_density_ratio_at_0_05"
-      - "journal_density_ratio_at_0_05"
-      - "null_confidence_interval"
-  effect_size_comparison:
-    type: "object"
-    description: "Paired comparison of effect sizes between versions."
-    properties:
-      mean_delta_es:
-        type: "number"
-        description: "Mean difference (Preprint - Journal) in effect sizes."
-      ci_95_lower:
-        type: "number"
-        description: "Lower bound of the 95% CI for mean difference."
-      ci_95_upper:
-        type: "number"
-        description: "Upper bound of the 95% CI for mean difference."
-      p_value:
-        type: "number"
-        description: "P-value from paired t-test or Wilcoxon test."
-      test_type:
-        type: "string"
-        enum:
-          - "paired_t_test"
-          - "wilcoxon_signed_rank"
-        description: "Statistical test used."
-    required:
-      - "mean_delta_es"
-      - "ci_95_lower"
-      - "ci_95_upper"
-      - "p_value"
-      - "test_type"
-  sensitivity_analysis:
-    type: "object"
-    description: "Results of sensitivity analysis across thresholds."
-    properties:
-      thresholds:
-        type: "array"
-        items:
-          type: "number"
-        description: "List of significance thresholds tested (0.01, 0.05, 0.1)."
-      flip_rates:
-        type: "object"
-        description: "Significance flip rates for each threshold."
-        additionalProperties:
-          type: "number"
-        description: "Map of threshold to flip rate."
-    required:
-      - "thresholds"
-      - "flip_rates"
+  result_id:
+    type: string
+    description: "Unique identifier for the result"
+  test_type:
+    type: string
+    enum:
+      - p_curve
+      - paired_ttest
+      - wilcoxon
+      - sensitivity
+    description: "Type of statistical test"
+  threshold:
+    type: number
+    nullable: true
+    description: "Significance threshold (if applicable)"
+  statistic_value:
+    type: number
+    description: "Test statistic (e.g., t-value, p-curve power)"
+  p_value:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "P-value of the test"
+  ci_lower:
+    type: number
+    nullable: true
+    description: "Lower bound of confidence interval"
+  ci_upper:
+    type: number
+    nullable: true
+    description: "Upper bound of confidence interval"
+  interpretation:
+    type: string
+    description: "Human-readable interpretation"
+  threshold_context:
+    type: string
+    nullable: true
+    description: "Context for sensitivity analysis"
 required:
-  - "p_curve_analysis"
-  - "effect_size_comparison"
-  - "sensitivity_analysis"
+  - result_id
+  - test_type
+  - statistic_value
+  - p_value
+  - interpretation
 additionalProperties: false

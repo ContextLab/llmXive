@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001a` (rejected 1x): No evidence of a `code/` directory being created is provided; the only artifacts shown relate to higher‑level feature specifications, not the required filesystem change. The deliverable (a non‑empty `code/` folder) is missing.
+- `T001` (rejected 1x): No directory structure or `__init__.py` files were presented as evidence; without a listing or screenshots of the created folders (`code/`, `tests/`, `data/raw/`, etc.) and the required `__init__.py` files, we cannot confirm the task was actually performed. The implementer must provide concrete proof that these directories exist and contain the appropriate `__init__.py` files.
 
 ## Required change
 

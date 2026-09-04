@@ -1,12 +1,11 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-statistical-analysis"
+name = "llmxive-movie-sentiment-analysis"
 version = "0.1.0"
 description = "Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office Revenue"
-readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "pandas==2.0.3",
@@ -17,14 +16,13 @@ dependencies = [
     "statsmodels==0.14.0",
     "fuzzywuzzy==0.18.0",
     "pytest==7.4.0",
+    "pyyaml==6.0.1",
+    "python-Levenshtein==0.21.1",
 ]
 
-[project.optional-dependencies]
-dev = [
-    "flake8==6.1.0",
-    "black==23.7.0",
-    "isort==5.12.0",
-]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code*"]
 
 [tool.black]
 line-length = 88
@@ -33,25 +31,25 @@ include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
 [tool.isort]
 profile = "black"
 line_length = 88
-skip_gitignore = true
+known_first_party = ["code"]
+skip = [".git", "__pycache__", ".venv", "venv", "env", "build", "dist"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["code/tests"]
 python_files = ["test_*.py"]
-python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"

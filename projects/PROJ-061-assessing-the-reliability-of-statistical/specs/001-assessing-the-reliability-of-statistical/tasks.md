@@ -24,7 +24,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project directories: `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/results/`, `docs/` and create `__init__.py` in all Python packages (`code/`, `tests/`, `tests/unit/`, `tests/integration/`, `tests/contract/`). (Note: This coarse task will be atomized by the downstream runner). <!-- ATOMIZE: requested -->
+- [ ] T001 Create project directories: `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/results/`, `docs/` and create `__init__.py` in all Python packages (`code/`, `tests/`, `tests/unit/`, `tests/integration/`, `tests/contract/`). (Note: This coarse task will be atomized by the downstream runner). <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 
 ---
 

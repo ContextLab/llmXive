@@ -6,6 +6,8 @@ import os
 import sys
 import yaml
 import pytest
+import pandas as pd
+import numpy as np
 
 # Add parent directory to path to allow imports from code/
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -50,8 +52,8 @@ def validate_analysis_results(df: Any, schema: Dict[str, Any]) -> List[str]:
                 if not pd.api.types.is_numeric_dtype(df[col_name]):
                     errors.append(f"Column '{col_name}' must be numeric but is {df[col_name].dtype}")
             elif col_type == "string":
-                if not pd.api.types.is_string_dtype(df[col_name]):
-                    pass # Allow object
+                if not (pd.api.types.is_string_dtype(df[col_name]) or df[col_name].dtype == 'object'):
+                    errors.append(f"Column '{col_name}' must be string but is {df[col_name].dtype}")
             elif col_type == "integer":
                 if not pd.api.types.is_integer_dtype(df[col_name]):
                     errors.append(f"Column '{col_name}' must be integer but is {df[col_name].dtype}")
@@ -69,8 +71,8 @@ def validate_analysis_results(df: Any, schema: Dict[str, Any]) -> List[str]:
     
     if "lag_weeks" in columns:
         # Assuming lag is an integer offset
-        if not pd.api.types.is_integer_dtype(df["lag_weeks"]) and not pd.api.types.is_numeric_dtype(df["lag_weeks"]):
-             errors.append("lag_weeks should be numeric")
+        if not (pd.api.types.is_integer_dtype(df["lag_weeks"]) or pd.api.types.is_numeric_dtype(df["lag_weeks"])):
+            errors.append("lag_weeks should be numeric")
 
     return errors
 
