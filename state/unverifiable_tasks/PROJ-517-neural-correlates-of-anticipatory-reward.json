@@ -1,0 +1,48 @@
+{
+  "project_id": "PROJ-517-neural-correlates-of-anticipatory-reward",
+  "tasks": [
+    {
+      "task_key": "T000a",
+      "reject_count": 1,
+      "last_reason": "The required `state/dataset_candidates.json` file is not present, and no JSON content showing a verified OpenNeuro dataset URL, dataset ID, or the exact search query is provided. Consequently the task\u2019s core deliverable\u2014identifying and recording a reachable dataset candidate\u2014is missing.",
+      "first_seen": "2026-09-04T21:50:11.973333+00:00",
+      "last_seen": "2026-09-04T21:50:11.973333+00:00"
+    },
+    {
+      "task_key": "T000d",
+      "reject_count": 1,
+      "last_reason": "No artifact containing the required statistical strategy definition was provided\u2014there is no in\u2011memory or temporary configuration specifying the dispersion formula (deviance/df), the permutation test iteration count (\u2265\u202f1000), or the alpha level (0.05). The task therefore remains undone.",
+      "first_seen": "2026-09-04T21:50:15.863114+00:00",
+      "last_seen": "2026-09-04T21:50:15.863114+00:00"
+    },
+    {
+      "task_key": "T002b",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: projects/PROJ-517-neural-correlates-of-anticipatory-reward/requirements.txt",
+      "first_seen": "2026-09-04T21:50:15.864251+00:00",
+      "last_seen": "2026-09-04T21:50:15.864251+00:00"
+    },
+    {
+      "task_key": "T003a",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: schema.yaml",
+      "first_seen": "2026-09-04T21:50:15.865476+00:00",
+      "last_seen": "2026-09-04T21:50:15.865476+00:00"
+    },
+    {
+      "task_key": "T018",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: schema.yaml",
+      "first_seen": "2026-09-04T21:50:19.392384+00:00",
+      "last_seen": "2026-09-04T21:50:19.392384+00:00"
+    },
+    {
+      "task_key": "T009b",
+      "reject_count": 1,
+      "last_reason": "The repository lacks the required contract files `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`, so the test cannot actually validate them. Moreover, the provided `tests/contract/test_schemas.py` is truncated and does not contain a complete `test_schemas_validates` implementation. Both the artifact and its content are missing/unfinished, so the task is not genuinely completed.",
+      "first_seen": "2026-09-04T21:50:22.019698+00:00",
+      "last_seen": "2026-09-04T21:50:22.019698+00:00"
+    }
+  ],
+  "updated_at": "2026-09-04T21:50:22.019698+00:00"
+}

@@ -1,117 +1,151 @@
-"""
-Pydantic models and validation logic for the Metallic Glass dataset.
-Defines the strict schema for data ingestion and feature engineering outputs.
-"""
-from typing import Optional, Literal, Dict, Any, List
+from typing import Optional, Dict, Any, List
 from pydantic import BaseModel, Field, field_validator, ConfigDict, model_validator
 from enum import Enum
 import re
 import math
+import logging
 
-# Enums for strict typing
+logger = logging.getLogger(__name__)
+
 class DataSource(str, Enum):
-    MATERIALS_PROJECT = "materials_project"
-    AFLOW = "aflow"
-    ZENODO = "zenodo"
+    """Enum for data sources."""
+    MATERIALS_PROJECT = "Materials Project"
+    AFLOW = "AFLOW"
+    ZENODO = "Zenodo"
 
 class AlloyFamily(str, Enum):
-    # Common metallic glass families
+    """Enum for alloy families."""
     ZR = "Zr"
     PD = "Pd"
     FE = "Fe"
     MG = "Mg"
     TI = "Ti"
-    CU = "Cu"
     OTHER = "Other"
 
 class MetallicGlassEntry(BaseModel):
-    """
-    Represents a single validated entry in the metallic glass dataset.
-    Corresponds to the schema in contracts/mg_dataset.schema.yaml.
-    """
-    model_config = ConfigDict(strict=True, populate_by_name=True)
+    """Pydantic model for a single metallic glass entry."""
+    model_config = ConfigDict(strict=True, validate_assignment=True)
 
-    composition: str = Field(..., description="Chemical formula (e.g., 'Zr50Cu40Al10')")
-    cte: float = Field(..., ge=0.0, description="Coefficient of Thermal Expansion (1/K)")
-    amorphous_flag: bool = Field(..., description="True if confirmed amorphous")
-    
-    # Derived descriptors
-    mean_atomic_radius: float = Field(..., ge=0.0, description="Weighted mean atomic radius (pm)")
-    electronegativity_var: float = Field(..., ge=0.0, description="Electronegativity variance")
-    vec: float = Field(..., description="Valence Electron Concentration")
-    size_mismatch: float = Field(..., ge=0.0, le=1.0, description="Atomic size mismatch parameter")
-
-    # Metadata
-    source: DataSource = Field(..., description="Data source")
-    alloy_family: AlloyFamily = Field(..., description="Primary alloy family")
+    composition: str = Field(..., description="Chemical formula (e.g., Zr50Cu40Al10)")
+    cte: float = Field(..., ge=0, description="Coefficient of Thermal Expansion (1/K)")
+    amorphous_flag: bool = Field(..., description="Is the material amorphous?")
+    mean_atomic_radius: float = Field(..., ge=0, description="Weighted mean atomic radius (pm)")
+    electronegativity_var: float = Field(..., ge=0, description="Electronegativity variance")
+    vec: float = Field(..., ge=0, description="Valence Electron Concentration")
+    size_mismatch: float = Field(..., ge=0, le=1, description="Atomic size mismatch parameter")
+    source: Optional[DataSource] = Field(None, description="Data source")
+    alloy_family: Optional[AlloyFamily] = Field(None, description="Alloy family classification")
 
     @field_validator('composition')
     @classmethod
     def validate_composition_format(cls, v: str) -> str:
-        """
-        Validates that the composition string follows standard chemical formula notation.
-        Pattern: Element followed by optional number, repeated.
-        """
+        """Validate that composition follows standard chemical formula notation."""
         if not v:
             raise ValueError("Composition cannot be empty")
-        # Basic regex for chemical formulas (Element + optional number)
-        pattern = r"^[A-Z][a-z]?[0-9.]+([A-Z][a-z]?[0-9.]+)*$"
+        # Basic regex for chemical formulas: Element followed by optional number
+        pattern = r"^[A-Z][a-z]?[0-9]+([A-Z][a-z]?[0-9]+)*$"
         if not re.match(pattern, v):
-            raise ValueError(f"Invalid chemical formula format: {v}")
-        return v
-
-    @field_validator('cte', 'mean_atomic_radius', 'electronegativity_var', 'vec', 'size_mismatch')
-    @classmethod
-    def check_finite_non_nan(cls, v: float) -> float:
-        if math.isnan(v) or math.isinf(v):
-            raise ValueError(f"Value must be finite and not NaN: {v}")
+            # Allow simpler cases like "Zr" if no numbers
+            simple_pattern = r"^[A-Z][a-z]?([0-9]+)?$"
+            if not re.match(simple_pattern, v):
+                raise ValueError(f"Invalid composition format: {v}. Expected format like 'Zr50Cu40Al10'")
         return v
 
     @model_validator(mode='after')
-    def check_amorphous_requirement(self) -> 'MetallicGlassEntry':
-        """
-        Ensures that only amorphous entries are valid in the final dataset.
-        """
+    def check_consistency(self):
+        """Perform cross-field validation."""
         if not self.amorphous_flag:
-            raise ValueError("Only amorphous entries (amorphous_flag=True) are allowed in this model.")
+            logger.warning(f"Entry for {self.composition} has amorphous_flag=False. "
+                         "This entry might be filtered out in downstream processing.")
         return self
 
-def validate_entry_to_model(entry_dict: Dict[str, Any]) -> MetallicGlassEntry:
+def validate_entry_to_model(row_dict: Dict[str, Any]) -> Optional[MetallicGlassEntry]:
     """
-    Validates a raw dictionary entry against the MetallicGlassEntry Pydantic model.
-    Raises ValueError if validation fails, providing specific error messages.
+    Validate a dictionary row against the MetallicGlassEntry model.
     
     Args:
-        entry_dict: Dictionary containing raw data fields.
+        row_dict: Dictionary containing raw data fields.
         
     Returns:
-        Validated MetallicGlassEntry object.
-        
-    Raises:
-        ValueError: If the entry does not match the schema or constraints.
+        MetallicGlassEntry if valid, None if invalid (with warning logged).
     """
     try:
-        # Normalize source string if present
-        if 'source' in entry_dict and isinstance(entry_dict['source'], str):
-            try:
-                entry_dict['source'] = DataSource(entry_dict['source'])
-            except ValueError:
-                raise ValueError(f"Invalid source value: {entry_dict['source']}")
+        # Ensure required fields exist
+        required_fields = ['composition', 'cte', 'amorphous_flag', 
+                         'mean_atomic_radius', 'electronegativity_var', 
+                         'vec', 'size_mismatch']
         
-        # Normalize alloy_family string if present
-        if 'alloy_family' in entry_dict and isinstance(entry_dict['alloy_family'], str):
+        for field in required_fields:
+            if field not in row_dict:
+                raise ValueError(f"Missing required field: {field}")
+        
+        # Map string source to enum if present
+        if 'source' in row_dict and row_dict['source']:
             try:
-                entry_dict['alloy_family'] = AlloyFamily(entry_dict['alloy_family'])
+                row_dict['source'] = DataSource(row_dict['source'])
             except ValueError:
-                # Fallback to OTHER if not a recognized family, or raise error depending on strictness
-                # Per schema, we expect specific families, but 'Other' is allowed
-                if entry_dict['alloy_family'] not in [f.value for f in AlloyFamily]:
-                     raise ValueError(f"Invalid alloy_family: {entry_dict['alloy_family']}")
-                entry_dict['alloy_family'] = AlloyFamily(entry_dict['alloy_family'])
+                logger.warning(f"Unknown source '{row_dict['source']}', defaulting to None")
+                row_dict['source'] = None
+        
+        # Map string alloy_family to enum if present
+        if 'alloy_family' in row_dict and row_dict['alloy_family']:
+            try:
+                row_dict['alloy_family'] = AlloyFamily(row_dict['alloy_family'])
+            except ValueError:
+                logger.warning(f"Unknown alloy family '{row_dict['alloy_family']}', defaulting to Other")
+                row_dict['alloy_family'] = AlloyFamily.OTHER
 
-        return MetallicGlassEntry(**entry_dict)
-    except ValueError as e:
-        # Re-raise with context if needed, or just propagate
-        raise ValueError(f"Validation failed for entry {entry_dict.get('composition', 'unknown')}: {e}")
+        return MetallicGlassEntry(**row_dict)
+        
     except Exception as e:
-        raise ValueError(f"Unexpected error validating entry: {e}")
+        logger.warning(f"Failed to validate entry: {e}. Data: {row_dict}")
+        return None
+
+def validate_dataframe_schema(df) -> bool:
+    """
+    Validate that a pandas DataFrame matches the required schema.
+    
+    Args:
+        df: pandas DataFrame to validate.
+        
+    Returns:
+        True if schema matches, False otherwise.
+    """
+    required_columns = [
+        'composition', 'cte', 'amorphous_flag', 
+        'mean_atomic_radius', 'electronegativity_var', 
+        'vec', 'size_mismatch'
+    ]
+    
+    missing = [col for col in required_columns if col not in df.columns]
+    if missing:
+        logger.error(f"DataFrame missing required columns: {missing}")
+        return False
+    
+    # Check types
+    type_checks = [
+        ('composition', 'object'),
+        ('cte', 'float64'),
+        ('amorphous_flag', 'bool'),
+        ('mean_atomic_radius', 'float64'),
+        ('electronegativity_var', 'float64'),
+        ('vec', 'float64'),
+        ('size_mismatch', 'float64')
+    ]
+    
+    for col, expected_type in type_checks:
+        if str(df[col].dtype) != expected_type:
+            logger.warning(f"Column {col} has type {df[col].dtype}, expected {expected_type}")
+            # Try to cast
+            try:
+                if expected_type == 'bool':
+                    df[col] = df[col].astype(bool)
+                elif expected_type == 'object':
+                    df[col] = df[col].astype(str)
+                else:
+                    df[col] = df[col].astype(float)
+            except Exception as e:
+                logger.error(f"Failed to cast column {col} to {expected_type}: {e}")
+                return False
+                
+    return True

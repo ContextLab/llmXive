@@ -1,6 +1,6 @@
 """
-Verification script for T036: Save all plots to data/outputs/ and final report to results_report.md.
-Verifies the existence and non-zero size of required plot files and the report file.
+Verification module for T036: Artifact existence and integrity check.
+Verifies that the pipeline produced the required outputs based on the gate status.
 """
 from __future__ import annotations
 
@@ -10,45 +10,43 @@ import sys
 from pathlib import Path
 import logging
 
+# Add project root to path if not already present
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler(sys.stdout)]
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
 def get_project_root() -> Path:
-    """Get the project root directory."""
-    return Path(__file__).parent.parent
+    return PROJECT_ROOT
 
 def get_data_path() -> Path:
-    """Get the data directory."""
-    return get_project_root() / "data"
+    return PROJECT_ROOT / "data"
 
 def check_gate_status() -> dict:
-    """Read and return the gate status from data/gate_status.json."""
-    gate_path = get_data_path() / "gate_status.json"
-    if not gate_path.exists():
-        logger.warning(f"Gate status file not found: {gate_path}")
-        return {"status": "UNKNOWN"}
+    """Read the gate status from data/gate_status.json."""
+    gate_file = get_data_path() / "gate_status.json"
+    if not gate_file.exists():
+        logger.error(f"Gate status file not found: {gate_file}")
+        return {"status": "UNKNOWN", "reason": "File missing"}
     
     try:
-        with open(gate_path, 'r') as f:
+        with open(gate_file, 'r') as f:
             return json.load(f)
     except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse gate status JSON: {e}")
-        return {"status": "UNKNOWN"}
+        logger.error(f"Invalid JSON in gate status file: {e}")
+        return {"status": "UNKNOWN", "reason": "Invalid JSON"}
 
-def verify_plot_files(gate_passed: bool) -> bool:
+def verify_plot_files(gate_status: dict) -> bool:
     """
-    Verify the existence and non-zero size of required plot files.
-    
-    Args:
-        gate_passed: True if the data gate passed, False otherwise.
-        
-    Returns:
-        True if verification passes, False otherwise.
+    Verify plot files based on gate status.
+    - If PASS: Check that scatter_tpsa_vs_half_life.png, residuals.png, qq_plot.png exist and have size > 0.
+    - If FAIL: Check that NO plot files exist in data/outputs/.
     """
     outputs_dir = get_data_path() / "outputs"
     required_plots = [
@@ -56,112 +54,109 @@ def verify_plot_files(gate_passed: bool) -> bool:
         "residuals.png",
         "qq_plot.png"
     ]
-    
-    if gate_passed:
-        logger.info("Gate PASSED. Verifying that all required plot files exist and have non-zero size.")
-        
+
+    if gate_status.get("status") == "PASS":
+        logger.info("Gate PASSED. Verifying existence of required plot files...")
         if not outputs_dir.exists():
             logger.error(f"Outputs directory does not exist: {outputs_dir}")
             return False
-        
-        all_valid = True
+
+        all_good = True
         for plot_name in required_plots:
             plot_path = outputs_dir / plot_name
             if not plot_path.exists():
                 logger.error(f"Required plot file missing: {plot_path}")
-                all_valid = False
+                all_good = False
+            elif plot_path.stat().st_size == 0:
+                logger.error(f"Plot file is empty (0 bytes): {plot_path}")
+                all_good = False
             else:
-                size = plot_path.stat().st_size
-                if size == 0:
-                    logger.error(f"Plot file exists but is empty (0 bytes): {plot_path}")
-                    all_valid = False
-                else:
-                    logger.info(f"Plot file verified: {plot_path} ({size} bytes)")
+                logger.info(f"Verified plot: {plot_name} ({plot_path.stat().st_size} bytes)")
         
-        if all_valid:
-            logger.info("All required plot files verified successfully.")
-        else:
-            logger.error("Some plot files are missing or empty.")
-        
-        return all_valid
-    else:
-        logger.info("Gate FAILED. Verifying that no plot files were generated (as per T032/T033).")
-        
+        if all_good:
+            logger.info("All required plots verified successfully.")
+        return all_good
+
+    elif gate_status.get("status") == "FAIL":
+        logger.info("Gate FAILED. Verifying that NO plot files were generated...")
         if outputs_dir.exists():
-            # Check if any of the required plots exist (they shouldn't)
-            found_plots = []
-            for plot_name in required_plots:
-                plot_path = outputs_dir / plot_name
-                if plot_path.exists():
-                    found_plots.append(str(plot_path))
-            
-            if found_plots:
-                logger.warning(f"Plot files found despite gate failure (expected none): {found_plots}")
-                # This is a warning, not a failure, as the plots might be stale from a previous run
-                # but the task logic says "verify no plot files are generated"
-                # We'll treat this as a failure of the pipeline logic that generated them
+            existing_plots = [p for p in outputs_dir.iterdir() if p.suffix == ".png"]
+            if existing_plots:
+                logger.error(f"Plot files found in outputs directory despite Gate FAIL: {[p.name for p in existing_plots]}")
                 return False
             else:
-                logger.info("No plot files found in outputs directory (as expected for gate failure).")
+                logger.info("No plot files found in outputs directory (correct behavior for Gate FAIL).")
+                return True
         else:
-            logger.info("Outputs directory does not exist (as expected for gate failure).")
-        
+            logger.info("Outputs directory does not exist (correct behavior for Gate FAIL).")
+            return True
+
+    else:
+        logger.warning(f"Unknown gate status: {gate_status.get('status')}. Skipping plot verification.")
         return True
 
-def verify_report(gate_passed: bool) -> bool:
+def verify_report(gate_status: dict) -> bool:
     """
-    Verify the existence of the final report file.
-    
-    Args:
-        gate_passed: True if the data gate passed, False otherwise.
+    Verify the report file based on gate status.
+    - If PASS: Check that results_report.md exists and is non-empty.
+    - If FAIL: Check that data_insufficiency_report.md exists and is non-empty.
+    """
+    if gate_status.get("status") == "PASS":
+        report_path = get_project_root() / "results_report.md"
+        if not report_path.exists():
+            logger.error(f"Report file missing: {report_path}")
+            return False
+        if report_path.stat().st_size == 0:
+            logger.error(f"Report file is empty: {report_path}")
+            return False
         
-    Returns:
-        True if verification passes, False otherwise.
-    """
-    project_root = get_project_root()
-    
-    if gate_passed:
-        report_path = project_root / "results_report.md"
-        expected_name = "results_report.md"
+        # Verify content includes expected sections
+        content = report_path.read_text()
+        if "Methodology" not in content or "Results" not in content:
+            logger.warning("Report file exists but may be missing mandatory sections.")
+            # Not a hard fail for existence, but a warning
+        
+        logger.info(f"Verified report: results_report.md ({report_path.stat().st_size} bytes)")
+        return True
+
+    elif gate_status.get("status") == "FAIL":
+        report_path = get_project_root() / "data" / "data_insufficiency_report.md"
+        if not report_path.exists():
+            logger.error(f"Insufficiency report file missing: {report_path}")
+            return False
+        if report_path.stat().st_size == 0:
+            logger.error(f"Insufficiency report file is empty: {report_path}")
+            return False
+
+        content = report_path.read_text()
+        if "Insufficient" not in content and "Insufficiency" not in content:
+            logger.warning("Insufficiency report file exists but may not contain expected keywords.")
+        
+        logger.info(f"Verified insufficiency report: data_insufficiency_report.md ({report_path.stat().st_size} bytes)")
+        return True
+
     else:
-        report_path = project_root / "data" / "data_insufficiency_report.md"
-        expected_name = "data_insufficiency_report.md"
-    
-    if not report_path.exists():
-        logger.error(f"Required report file missing: {report_path}")
-        return False
-    
-    size = report_path.stat().st_size
-    if size == 0:
-        logger.error(f"Report file exists but is empty (0 bytes): {report_path}")
-        return False
-    
-    logger.info(f"Report file verified: {report_path} ({size} bytes)")
-    return True
+        logger.warning(f"Unknown gate status: {gate_status.get('status')}. Skipping report verification.")
+        return True
 
 def main():
     """Main entry point for T036 verification."""
-    logger.info("Starting T036 verification...")
+    logger.info("Starting T036 Artifact Verification...")
     
-    # Check gate status
     gate_status = check_gate_status()
-    gate_passed = gate_status.get("status", "").upper() == "PASS"
-    
-    logger.info(f"Gate status: {'PASS' if gate_passed else 'FAIL'}")
-    
-    # Verify plots
-    plots_ok = verify_plot_files(gate_passed)
-    
-    # Verify report
-    report_ok = verify_report(gate_passed)
-    
-    # Final result
-    if plots_ok and report_ok:
-        logger.info("T036 verification PASSED: All required artifacts exist and are valid.")
-        sys.exit(0)
-    else:
-        logger.error("T036 verification FAILED: Some required artifacts are missing or invalid.")
+    if gate_status.get("status") == "UNKNOWN":
+        logger.error("Cannot proceed with verification due to unknown gate status.")
         sys.exit(1)
 
-if __name__ == "__main__":
+    plots_ok = verify_plot_files(gate_status)
+    report_ok = verify_report(gate_status)
+
+    if plots_ok and report_ok:
+        logger.info("T036 Verification PASSED: All required artifacts are present and valid.")
+        sys.exit(0)
+    else:
+        logger.error("T036 Verification FAILED: Some required artifacts are missing or invalid.")
+        sys.exit(1)
+
+if __name__ == '__main__':
     main()

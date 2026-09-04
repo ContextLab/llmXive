@@ -1,77 +1,55 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "CLMM Model Output Schema"
-type: "object"
+title: "Model Output Schema"
+description: "Schema for the CLMM and robustness analysis results."
+type: object
 properties:
-  model_id:
-    type: "string"
-    description: "Unique identifier for the model run"
+  term:
+    type: string
+    description: "Name of the predictor or model parameter."
+  estimate:
+    type: number
+    description: "Coefficient estimate."
+  std_error:
+    type: number
+    description: "Standard error of the estimates."
+  z_value:
+    type: number
+    description: "Z-statistic."
+  p_value:
+    type: number
+    description: "Raw p-value."
+  p_adj:
+    type: number
+    description: "Adjusted p-value (Bonferroni or Benjamini-Hochberg)."
+  confidence_interval_lower:
+    type: number
+    description: "Lower bound of the 95% confidence interval."
+  confidence_interval_upper:
+    type: number
+    description: "Upper bound of the 95% confidence interval."
   model_type:
-    type: "string"
+    type: string
     enum:
       - "CLMM"
-      - "CLMM_Simplified"
-    description: "Type of model fitted"
-  fixed_effects:
-    type: "array"
-    items:
-      type: "object"
-      properties:
-        term:
-          type: "string"
-          description: "Name of the predictor variable"
-        estimate:
-          type: "number"
-          description: "Coefficient estimate"
-        std_error:
-          type: "number"
-          description: "Standard error of the estimate"
-        p_value:
-          type: "number"
-          description: "Raw p-value"
-        p_value_corrected:
-          type: "number"
-          description: "P-value after multiple comparison correction"
-        confidence_interval_lower:
-          type: "number"
-          description: "Lower bound of 95% CI"
-        confidence_interval_upper:
-          type: "number"
-          description: "Upper bound of 95% CI"
-      required:
-        - term
-        - estimate
-        - std_error
-        - p_value
-        - p_value_corrected
-        - confidence_interval_lower
-        - confidence_interval_upper
-  random_effects:
-    type: "object"
-    properties:
-      user_id_variance:
-        type: "number"
-        description: "Variance component for user_id random effect"
-      residual_variance:
-        type: "number"
-        description: "Residual variance (if applicable)"
-  convergence_status:
-    type: "string"
-    enum:
-      - "converged"
-      - "failed"
-    description: "Convergence status of the model"
-  correction_method:
-    type: "string"
-    enum:
-      - "bonferroni"
-      - "benjamini_hochberg"
-    description: "Method used for multiple comparison correction"
+      - "Robustness"
+      - "Subgroup"
+    description: "Type of model analysis performed."
+  subgroup:
+    type: string
+    description: "Subgroup identifier (e.g., 'All', 'Age_<30', 'Gender_Female')."
+  source_dataset:
+    type: string
+    description: "Source dataset name (e.g., 'All', 'HCI_P2')."
 required:
-  - model_id
+  - term
+  - estimate
+  - std_error
+  - z_value
+  - p_value
+  - p_adj
+  - confidence_interval_lower
+  - confidence_interval_upper
   - model_type
-  - fixed_effects
-  - random_effects
-  - convergence_status
-  - correction_method
+  - subgroup
+  - source_dataset
 additionalProperties: false
-description: "Schema for the output of the CLMM analysis, including fixed effects, random effects, and correction details."

@@ -88,7 +88,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement `fetch_data.py` in `code/ingestion/` to query Materials Project and AFLOWlib APIs using env vars. **Logic**: <!-- FAILED: unspecified -->
+- [ ] T013 [US1] Implement `fetch_data.py` in `code/ingestion/` to query Materials Project and AFLOWlib APIs using env vars. **Logic**: <!-- FAILED: unspecified -->
  1. **Materials Project**: Send GET request to `https://next-gen.materialsproject.org/materials/v2/` with `?elements=...&include=properties` filtering for `amorphous=true` or `phase_type=amorphous`. Parse JSON response for `composition` and `thermal_expansion_coefficient`.
  2. **AFLOWlib**: Send GET request to ` (or equivalent endpoint) filtering for `amorphous` structures. Parse response for `composition` and `cte`.
  3. **Error Handling**: If API returns 403 (Unauthorized) or 404 (Not Found), log warning and continue to next source.
@@ -98,7 +98,7 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T014 [US1] Implement Zenodo fallback fetcher in `code/ingestion/fetch_data.py` (Zhang et al.,) ONLY if APIs return < 50 entries OR fail; document this as a contingency, not a standard path.
 - [X] T015 [US1] Implement robust filtering logic in `code/ingestion/fetch_data.py` to exclude non-amorphous entries and missing CTE values.
 - [X] T020 [US1] Implement "Phase 0.5: No Data Termination" pipeline in `code/ingestion/fetch_data.py`: If N=0, log error "No valid metallic glass entries found", generate `results/metrics.json` with `{"status": "no_data"}`, and exit cleanly with code 0.
-- [~] T016 [US1] Implement `descriptors.py` in `code/features/` to calculate weighted mean atomic radius, electronegativity variance, VEC, and atomic size mismatch. **Formulas**:
+- [ ] T016 [US1] Implement `descriptors.py` in `code/features/` to calculate weighted mean atomic radius, electronegativity variance, VEC, and atomic size mismatch. **Formulas**:
  - `weighted_mean_atomic_radius` = Σ (atomic_fraction_i * atomic_radius_i)
  - `electronegativity_var` = Σ (atomic_fraction_i * (electronegativity_i - mean_electronegativity)^2)
  - `vec` = Σ (atomic_fraction_i * valence_electrons_i)
@@ -159,7 +159,7 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T036 [US3] Implement significance flagging logic: Flag 'Null Result' if performance does not exceed random chance (p-value > 0.05). **Output**: Write `{"sc003_match_status": "insufficient_data_for_significance"}` to `results/metrics.json` if R² <= 0.3.
 - [ ] T037 [US3] Implement feature importance extraction from Random Forest model. **Output**: Write `results/feature_importance.csv` with columns `feature`, `importance_score`, sorted by `importance_score` descending.
 - [ ] T038 [US3] Implement Pearson correlation calculation for each feature against CTE on the test split (`data/processed/test_split.parquet`). **Output**: Write `results/correlations.csv` with columns `feature`, `correlation_coefficient`, precision 4 decimals.
-- [~] T039 [US3] Implement Divergence Analysis in `code/modeling/evaluate.py` to compare feature importance ranks vs. correlation ranks. **Output Format**: Generate `results/divergence.csv` with columns `feature, importance_rank, correlation_rank, divergence_score`.
+- [ ] T039 [US3] Implement Divergence Analysis in `code/modeling/evaluate.py` to compare feature importance ranks vs. correlation ranks. **Output Format**: Generate `results/divergence.csv` with columns `feature, importance_rank, correlation_rank, divergence_score`.
 - [X] T039b [US3] Implement SC-003 Divergence Analysis: **DO NOT** enforce a "match" between top-ranked features by importance and correlation. Instead, perform a Divergence Analysis to detect non-linear effects. **Logic**: Calculate the Spearman rank correlation coefficient between the `importance_score` ranks (from RF) and `correlation_coefficient` ranks. Report the magnitude of this coefficient as the divergence metric (a value near 1.0 indicates linear agreement; a lower value indicates non-linearity). **Output**: Write `{"sc003_divergence_metric": "<spearman_rho_value>", "sc003_interpretation": "non_linear_effects_detected"}` to `results/metrics.json`. **Mandatory**: Explicitly flag `{"spec_root_cause_SC003": "linear_match_unsound_for_nonlinear_models"}` in `results/metrics.json` to acknowledge that SC-003's requirement for a match is scientifically unsound and that divergence magnitude is the valid finding per Plan Phase 3.
 - [X] T040 [US3] Generate final `results/metrics.json` with R², MAE, RMSE, p-values, significance status, divergence findings, and all Spec-Root Cause flags. **Required Keys**: `baseline_type`, `spec_deviation_FR003`, `sc003_divergence_metric`, `permutation_status`, `vif_warning`, `spec_root_cause_SC003`.
 - [X] T047 [US3] Implement efficiency measurement: Profile runtime and peak memory usage using `memory_profiler` during pipeline execution. **Output**: Write `{"runtime_seconds": X, "peak_memory_mb": Y}` to `results/metrics.json`. **Gate**: If `peak_memory_mb` > 7000 or `runtime_seconds` > 21600, raise `ResourceLimitExceeded` and exit with code 1. Verify against SC-004 limits (≤2 cores, ≤7 GB RAM, ≤6 hours).
@@ -172,11 +172,11 @@ Examples of foundational tasks (adjust based on your project):
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T042 [P] Documentation updates in `docs/` including `quickstart.md` (include API key setup, run commands, and example outputs) and `research.md` (include data sources, citations for Zhang et al., and MP/AFLOW).
+- [ ] T042 [P] Documentation updates in `docs/` including `quickstart.md` (include API key setup, run commands, and example outputs) and `research.md` (include data sources, citations for Zhang et al., and MP/AFLOW).
 - [ ] T043 Code cleanup and refactoring of `code/ingestion/` and `code/features/`: Remove unused imports, enforce line length < 88, and ensure consistent error handling.
-- [ ] T044 Performance optimization: Profile with `memory_profiler` (added to T002) to ensure peak RAM < 6GB for large datasets (if applicable). **Command**: `python -m memory_profiler code/main.py --train`.
-- [ ] T045 [P] Additional unit tests for edge cases (empty API responses, malformed formulas) in `tests/unit/`: Add `test_empty_formula`, `test_malformed_json` with specific assertions.
-- [ ] T046 Run quickstart.md validation: Execute `python code/main.py --validate`. **Success Criteria**: Exit code 0, `results/metrics.json` generated, no errors in logs.
+- [X] T044 Performance optimization: Profile with `memory_profiler` (added to T002) to ensure peak RAM < 6GB for large datasets (if applicable). **Command**: `python -m memory_profiler code/main.py --train`.
+- [~] T045 [P] Additional unit tests for edge cases (empty API responses, malformed formulas) in `tests/unit/`: Add `test_empty_formula`, `test_malformed_json` with specific assertions.
+- [X] T046 Run quickstart.md validation: Execute `python code/main.py --validate`. **Success Criteria**: Exit code 0, `results/metrics.json` generated, no errors in logs.
 
 ---
 

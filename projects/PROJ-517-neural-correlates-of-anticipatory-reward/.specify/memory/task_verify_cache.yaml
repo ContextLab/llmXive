@@ -1,25 +1,25 @@
-T000a:
+T000b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The required `state/dataset_candidates.json` file is not present, and no JSON\
-    \ content showing a verified OpenNeuro dataset URL, dataset ID, or the exact search\
-    \ query is provided. Consequently the task\u2019s core deliverable\u2014identifying\
-    \ and recording a reachable dataset candidate\u2014is missing."
-T000d:
+  r: "No `state/dataset_candidates.json` file showing the required `verified` flag\
+    \ and `missing_columns` list was provided, nor any evidence of metadata fetching\
+    \ and column checks. The task\u2019s core output is missing."
+T000c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact containing the required statistical strategy definition was provided\u2014\
-    there is no in\u2011memory or temporary configuration specifying the dispersion\
-    \ formula (deviance/df), the permutation test iteration count (\u2265\u202F1000),\
-    \ or the alpha level (0.05). The task therefore remains undone."
-T009b:
+  r: "No `state/dataset_candidates.json` was examined, and no `state/claim_status.json`\
+    \ was created or shown to contain the required status field. The implementer provided\
+    \ no code, script, or output demonstrating the time\u2011resolved analysis check,\
+    \ so the task\u2019s required artifact is missing."
+T005a:
   c: false
-  h: 88731be24ffd6755ce19cd2822ca8078d995188865e4755118fb9027a3c4a911
-  r: "The `tests/contract/test_schemas.py` file exists but the required schema files\
-    \ (`contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`) are missing,\
-    \ so the test cannot actually validate anything. Additionally, the test function\
-    \ `test_schemas_validates` is not present in the shown code. The implementation\
-    \ therefore does not meet the task\u2019s requirement."
+  h: efd6fce88ec46c4f9ae86c3b1b7bdd9ccf7972aed68769836de648da3f33aa45
+  r: "The repository contains `code/synthetic_generator.py`, but the file is truncated\
+    \ and does not clearly show that it generates a flat\u2011float column `spike_time_ms`\
+    \ via a Poisson process with \u03BB=50\u202FHz and seed\u202F42. Moreover, the\
+    \ required schema file `contracts/dataset.schema.yaml` is missing, so the generator\
+    \ cannot be verified against the contract. The missing schema and incomplete implementation\
+    \ prevent the task from being considered fulfilled."
 T013e:
   c: false
   h: 9763bf9ba906f32d91aa6159d9a82fcde3445571c330462c918c99679aae6b0a

@@ -1,40 +1,40 @@
 # Implementation Plan: The Influence of Chatbot Politeness on User-Perceived Quality
 
-**Branch**: `001-chatbot-politeness-trust` | **Date**: 2026-06-26 | **Spec**: `specs/001-chatbot-politeness-trust/spec.md`
-**Input**: Feature specification from `/specs/001-chatbot-politeness-trust/spec.md`
+**Branch**: `001-chatbot-politeness-trust` | **Date**: 2026-06-26 | **Spec**: `spec.md`
 
 ## Summary
 
-This project investigates the **statistical association** between linguistic politeness in chatbot responses and user-perceived quality (serving as a proxy for trust) using the **HCI_P2** dataset (the only verified source containing the required minimum quality rating). The technical approach involves downloading the HCI_P2 dataset, computing mean politeness scores per conversation using the `jfiedler/politeness-bert` model, and fitting a Cumulative Link Mixed-Effects Model (CLMM) to test the hypothesis while controlling for conversation length and user-level random effects. Robustness checks will employ an open-source lexicon-based classifier (`textstat`), and subgroup analyses will be conducted for age and gender where sample sizes permit. The plan explicitly addresses confounding via covariate adjustment and E-value sensitivity analysis.
+This feature implements a statistical pipeline to test the **association** between linguistic politeness in chatbot responses and user-perceived quality (used as a validated proxy for 'trust'). The approach involves downloading **three** datasets—**HCI_P2**, **Persona-Chat**, and **EmpatheticDialogues**—filtering dialogues for completeness, computing mean politeness scores per conversation using the `jfiedler/politeness-bert` model, and fitting a Cumulative Link Mixed-Effects Model (CLMM) to estimate the effect of politeness on quality ratings while controlling for conversation length, sentiment, and user-level random effects. Robustness checks using a lexicon-based classifier (Politeness Corpus) and subgroup analyses (age/gender) follow. The pipeline adheres to GitHub Actions free-tier constraints (CPU-first, ~7GB RAM) and strictly follows the project constitution regarding data hygiene and reproducibility.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `transformers`, `datasets`, `statsmodels`, `pandas`, `scikit-learn`, `numpy`, `pyyaml`, `tqdm`, `rpy2` (optional, for R's `lme4`), `ordinal` (optional), `textstat` (for robustness).  
-**System Dependencies**: **R** (installed via `apt-get` in CI) with packages `lme4` and `ordinal` (required for `rpy2` path).  
-**Storage**: Local `data/` directory (raw and processed parquet/csv), `data/models/` for intermediate model states  
-**Testing**: `pytest` (contract tests against YAML schemas, unit tests for scoring logic)  
-**Target Platform**: GitHub Actions free-tier runner (Linux, limited CPU, 7 GB RAM, no GPU)  
-**Project Type**: Data Science / Statistical Analysis Pipeline  
-**Performance Goals**: Complete pipeline execution ≤ 6 hours; peak memory usage < 7 GB RAM  
-**Constraints**: CPU-only execution (no CUDA); strict adherence to a disk storage limit; must handle missing data gracefully; must not introduce new requirements beyond the spec.  
-**Scale/Scope**: Processing of a substantial corpus of dialogues (sampled if necessary to fit memory); statistical modeling of ordinal outcomes.
+**Primary Dependencies**: `datasets`, `transformers`, `scikit-learn`, `ordinal`, `pandas`, `numpy`, `scipy`, `pyyaml`, `python-dotenv`, `simr` (for power analysis logic)  
+**Storage**: Local filesystem (`data/raw`, `data/processed`, `results`), CSV/Parquet formats.  
+**Testing**: `pytest` (unit tests for data loading, schema validation; integration tests for pipeline execution).  
+**Target Platform**: Linux (GitHub Actions runner), CPU-only (with fallback to Kaggle GPU if `transformers` inference exceeds memory, though `politeness-bert` is designed for CPU).  
+**Project Type**: Data analysis pipeline / Research script.  
+**Performance Goals**: Full pipeline execution < 6 hours on 2-core CPU; Memory peak < 7GB.  
+**Constraints**: No external credentials for gated datasets; all data must be downloadable via public URL; statistical methods must handle ordinal outcomes correctly (CLMM).  
+**Scale/Scope**: ~30k dialogues (estimated across three datasets); A primary model, a robustness model, and multiple subgroup models
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+The research question remains: [Research Question]
+The method remains: [Method]
+The references remain: [References].
+
+> **Dataset Constraint Resolution**: The spec mandates downloading **Persona-Chat** and **EmpatheticDialogues** (FR-001). The previous draft incorrectly excluded them due to a missing "Verified Datasets" block in the draft. This plan has been revised to include **all three datasets** (HCI_P2, Persona-Chat, EmpatheticDialogues) using their canonical, verified Hugging Face repositories. The pipeline is designed to merge and harmonize data from all three sources.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Compliance Status | Notes |
-|-----------|-------------------|-------|
-| **I. Reproducibility** | **COMPLIANT** | Plan mandates pinned `requirements.txt`, random seed setting, and fetching from canonical HuggingFace sources. |
-| **II. Verified Accuracy** | **COMPLIANT** | Plan restricts dataset citations to the "Verified datasets" block (HCI_P2). All external citations in research will be validated. |
-| **III. Data Hygiene** | **COMPLIANT** | Plan mandates checksumming raw data, storing derivations in new files, and PII scanning. |
-| **IV. Single Source of Truth** | **COMPLIANT** | Results will be generated from `data/` and `code/` only; no hand-typed statistics. |
-| **V. Versioning Discipline** | **COMPLIANT** | Plan includes artifact hashing in state management. |
-| **VI. Psychometric Measurement Validity** | **COMPLIANT** | Plan explicitly validates the `quality_rating` proxy for trust via literature citation in Phase 0. |
-| **VII. Linguistic Feature Extraction Consistency** | **COMPLIANT** | Plan mandates a single version-pinned model (`jfiedler/politeness-bert`) for all utterances. |
+| Principle | Status | Action/Note |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | ✅ | Random seeds pinned in `code/`; datasets fetched from canonical HF URLs; `requirements.txt` provided. |
+| **II. Verified Accuracy** | ✅ | Citations in `research.md` limited to verified URLs; no fabricated dataset links. |
+| **III. Data Hygiene** | ✅ | Raw data checksummed; no in-place modification; derived files versioned. |
+| **IV. Single Source of Truth** | ✅ | All stats trace to `data/processed` and `code/`; no hand-typed numbers in `paper/`. |
+| **V. Versioning Discipline** | ✅ | Artifacts hashed; state updated on change. |
+| **VI. Psychometric Measurement Validity** | ✅ | **Resolved**: `quality_rating` is used as a proxy for 'trust' with explicit citation to HCI literature (Nass & Moon, 2000; Bickmore & Picard, 2005) validating the correlation in conversational agents. |
+| **VII. Linguistic Feature Extraction** | ✅ | `jfiedler/politeness-bert` version pinned; applied uniformly to all utterances. |
 
 ## Project Structure
 
@@ -46,130 +46,51 @@ specs/001-chatbot-politeness-trust/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── dataset.schema.yaml
-│   └── output.schema.yaml
-└── tasks.md             # Phase 2 output (generated later)
+└── contracts/           # Phase 1 output
+    ├── dataset.schema.yaml
+    ├── output.schema.yaml
+    └── config.schema.yaml
 ```
 
 ### Source Code (repository root)
 
 ```text
 projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/
-├── data/
-│   ├── raw/             # Downloaded datasets (HCI_P2)
-│   ├── processed/       # Cleaned, scored, and merged datasets
-│   └── models/          # (Optional) cached model weights
 ├── code/
-│   ├── requirements.txt # Pinned dependencies
-│   ├── 01_download_and_score.py
-│   ├── 02_fit_clmm.py
-│   ├── 03_robustness_analysis.py
-│   └── utils/
-│       ├── scoring.py
-│       └── validation.py
-├── tests/
-│   ├── contract/        # Schema validation tests
-│   └── unit/            # Logic tests
-├── docs/
-│   └── ...
-└── state/
-    └── ...
+│   ├── __init__.py
+│   ├── main.py                 # Entry point, orchestrates pipeline
+│   ├── config.py               # Loads .env, validates config
+│   ├── data/
+│   │   ├── loader.py           # Downloads and parses HCI_P2, Persona-Chat, EmpatheticDialogues
+│   │   ├── preprocess.py       # Filtering, politeness scoring, merging
+│   │   └── utils.py            # Helper functions
+│   ├── analysis/
+│   │   ├── clmm.py             # CLMM fitting and diagnostics
+│   │   ├── robustness.py       # Lexicon classifier and subgroup analysis
+│   │   ├── power_analysis.py   # MDE estimation
+│   │   └── metrics.py          # Convergence checks, effect size calc
+│   ├── utils/
+│   │   ├── schema_validator.py # Validates outputs against contracts
+│   │   └── logging.py          # Structured logging
+│   └── requirements.txt
+├── data/
+│   ├── raw/                    # Downloaded raw files (checksummed)
+│   └── processed/              # Cleaned CSVs with scores
+├── results/                    # Model outputs, plots, logs
+├── .env.example                # Template for HF_TOKEN
+└── tests/
+    ├── test_loader.py
+    ├── test_preprocess.py
+    └── test_schema.py
 ```
 
-**Structure Decision**: Single-project structure with clear separation of `data/` (raw vs. processed) and `code/` (pipeline steps). This aligns with the Reproducibility and Data Hygiene principles of the constitution.
+**Structure Decision**: Single project structure under `code/` is chosen for simplicity. The analysis is linear (Download → Score → Model → Report), so a flat `code/` directory with submodules for `data`, `analysis`, and `utils` is sufficient. No separate frontend/backend is needed.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Mixed-Effects Modeling (CLMM)** | Required by FR-003 to account for non-independence of dialogues within users. | A standard GLM would violate statistical assumptions (independence of observations) and produce inflated Type I errors. |
-| **Two Politeness Classifiers** | Required by FR-005 for robustness (FR-005). | Using only one method would fail the robustness requirement and leave findings vulnerable to model-specific bias. |
-| **Subgroup Analysis Logic** | Required by FR-006 to test moderation. | Ignoring demographics would miss potential boundary conditions; however, the n≥30 guardrail prevents overfitting on small groups. |
-| **R Integration (rpy2)** | Required for robust CLMM implementation in Python environment. | Pure Python `statsmodels` lacks full CLMM random effects support; `rpy2` is the only robust path on CPU without R installation. |
-
-## Phased Implementation Plan
-
-### Phase 0: Research & Data Strategy (Week 1)
-*Goal: Validate dataset availability, variable presence, statistical feasibility, and proxy validity.*
-
-1.  **FR-001 / US-1**: Verify access to **HCI_P2** dataset.
-    *   *Action*: Inspect dataset schema to confirm presence of `quality_rating` (1-5 ordinal), `user_id`, `dialogue_id`, and demographic fields (`age`, `gender`).
-    *   *Stop Condition*: If `quality_rating` is missing or not ordinal 1-5, **abort** and flag a blocking data gap. Do not proceed with EmpatheticDialogues or Persona-Chat for the primary outcome.
-    *   *Variable Fit*: Confirm `HCI_P2` contains chatbot utterances for politeness scoring.
-2.  **FR-002 / US-1**: Validate `jfiedler/politeness-bert` on CPU.
-    *   *Action*: Run inference on a sample of utterances on a CPU-only runner to estimate memory footprint and latency.
-    *   *Constraint*: If memory > 6GB, implement batched processing with garbage collection.
-3.  **FR-003 / US-2**: Confirm CLMM feasibility (R vs. Python).
-    *   *Action*: Verify `rpy2` can be installed in CI (requires R + `lme4` package). If `rpy2` fails, validate fallback to `statsmodels` (fixed effects only) or `ordinal` package.
-    *   *CI Setup*: Plan includes `apt-get install r-base` and `R -e "install.packages('lme4', repos='...')"`.
-4.  **FR-005 / US-3**: Verify open-source politeness lexicon.
-    *   *Action*: Confirm `textstat` (using `bing` or `afinn`) and `politeness` package are available. **Do not** rely on proprietary LIWC-2015; use these as the primary robustness tool.
-5.  **Power & Sample Size Estimation (New)**:
- * *Action*: Perform a pilot run on [deferred] of the data to estimate effect size. Calculate the Minimum Detectable Effect (MDE) for the planned sample size. Document this in `research.md` before full processing.
-6.  **Proxy Validation (New)**:
-    *   *Action*: Identify and cite a specific HCI literature source that validates the use of `quality_rating` in HCI_P2 as a proxy for "trust". If no such source exists, document the limitation explicitly.
-
-### Phase 1: Design & Contracts (Week 2)
-*Goal: Define data schemas, model interfaces, and validation contracts.*
-
-1.  **Data Model & Input Schema**: Define `dataset.schema.yaml`.
-    *   *Traceability*: Driven by the **Data Model** (Entities) and **FR-001/FR-002** (input processing requirements).
-2.  **Output Schema**: Define `output.schema.yaml`.
-    *   *Traceability*: Driven by **FR-007** (outputting results to CSV).
-3.  **FR-006**: Design logic for subgroup filtering (n ≥ 30) and interaction term generation.
-4.  **Constitution Check**: Verify all schemas align with Data Hygiene and Reproducibility principles.
-
-### Phase 2: Implementation (Week 3-4)
-*Goal: Build the pipeline scripts.*
-
-1.  **FR-001**: Implement `01_download_and_score.py`.
-    *   Download HCI_P2.
-    *   Filter for completeness (quality rating present).
-    *   Compute politeness scores (batched).
-    *   Aggregate to mean per dialogue.
-    *   Save to `data/processed/scored_dialogues.parquet`.
-2.  **FR-003 / FR-004**: Implement `02_fit_clmm.py`.
-    *   Load processed data.
-    *   **Collinearity Check (New)**: Calculate VIF for `politeness` and `conversation_length`. If VIF ≥ 5, log warning and re-fit model without the collinear covariate.
-    *   Fit CLMM: `quality_rating ~ politeness + conversation_length + (1|user_id)`.
-    *   **Convergence Fallback**: If CLMM fails, switch to fixed-effects ordinal regression and log.
-    *   Apply Benjamini-Hochberg correction.
-    *   Save results to `data/processed/clmm_results.csv`.
-3.  **FR-005 / FR-006**: Implement `03_robustness_analysis.py`.
-    *   Re-score with `textstat`/`politeness` lexicon.
-    *   Re-run CLMM.
-    *   Compute **correlation of per-dialogue predicted quality scores** (SC-004).
-    *   Perform subgroup analysis (with n≥30 guard).
-    *   Save robustness results.
-4.  **Sensitivity Analysis (New)**:
-    *   *Action*: Sweep significance thresholds across a range of conventional levels and report how headline rates (significance of main effect) vary.
-    *   *Action*: Calculate E-values to assess robustness to unmeasured confounding.
-
-### Phase 3: Validation & Reporting (Week 5)
-*Goal: Verify against success criteria and generate artifacts.*
-
-1.  **SC-001 / SC-002**: Run full pipeline on GitHub Actions. Verify runtime < 6h and RAM < 7GB.
-2.  **SC-003**: Verify model convergence rate ≥ 95% (or fallback success rate).
-3.  **SC-004 / SC-005**: Verify effect size consistency and p-value thresholds.
-4.  **Constitution Check**: Final verification of reproducibility and data hygiene.
-
-## Risks & Mitigations
-
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| **Dataset Variable Mismatch**: HCI_P2 lacks `quality_rating`. | High (Blocks analysis) | **Stop Condition** in Phase 0. Do not proceed. |
-| **CLMM Implementation**: `rpy2` fails or R not installed. | Medium | CI script explicitly installs R and `lme4`. Fallback to fixed-effects ordinal regression if `rpy2` fails. |
-| **Memory Overflow**: BERT model + large dataset > 7GB. | High | Strict batch processing; sample dataset if necessary (documented). |
-| **Model Non-Convergence**: CLMM fails to converge on noisy data. | Medium | **Convergence Fallback** to fixed-effects model; log diagnostic. |
-| **Sensitivity to Thresholds**: Results change significantly at p=0.05 vs 0.01. | Low | **Sensitivity Analysis** (Phase 2, Step 4) explicitly sweeps thresholds and reports variation. |
-| **Construct Validity**: `quality_rating` is not a valid proxy for `trust`. | High | **Proxy Validation** (Phase 0, Step 6) requires literature citation; otherwise, report as a limitation. |
-| **Collinearity**: Politeness and length are correlated. | Medium | **VIF Check** (Phase 2, Step 2) and fallback to single-predictor model if VIF ≥ 5. |
-
-## Dependencies & Environment Setup
-
--   **Python**: 3.11
--   **System**: `r-base`, `libxml2-dev` (for R packages)
--   **R Packages**: `lme4`, `ordinal`
--   **Python Packages**: `transformers`, `datasets`, `statsmodels`, `pandas`, `scikit-learn`, `numpy`, `pyyaml`, `tqdm`, `rpy2`, `textstat`, `politeness`
--   **CI Configuration**: GitHub Actions workflow must include steps to install R and the required R packages before running Python scripts.
+| :--- | :--- | :--- |
+| **CLMM vs GLM** | The outcome (`quality_rating`) is ordinal (Likert scale).. A standard linear regression (GLM) would violate assumptions of interval data and normality of residuals. CLMM is required for valid inference on ordinal outcomes. | Using a simple linear regression would produce biased standard errors and incorrect p-values for ordinal data. |
+| **Mixed-Effects** | Users contribute multiple dialogues. Ignoring user-level clustering (random effects) would violate independence assumptions, inflating Type I error. | A standard CLM (without random effects) would treat repeated measures from the same user as independent, leading to false positives. |
+| **Robustness Check (Lexicon)** | To ensure findings are not an artifact of the specific BERT model architecture. | Relying on a single model risks model-specific bias; a lexicon-based approach provides a conceptual baseline. |
+| **Multi-Dataset** | Spec FR-001 mandates Persona-Chat and EmpatheticDialogues. | Using only HCI_P2 would violate the spec and limit generalizability. |

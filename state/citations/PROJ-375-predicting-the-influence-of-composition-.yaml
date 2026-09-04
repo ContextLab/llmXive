@@ -119,7 +119,7 @@
   verification_status: pending
   verified_against_url: https://aflow.org
   verified_at: '2026-09-03T07:38:53.582921Z'
-- artifact_hash: fbd03d8d56dc7aec9b787c3e10f090ddd67e829addbae8bf6c31aea96b829c60
+- artifact_hash: 5f1b5729e2f69b1b7dd6b6fc496556fd403947bef7fff5caeea841e6864ebf70
   artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -129,4 +129,4 @@
   value: https://next-gen.materialsproject.org/materials/v2/`
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/materials/v2/
-  verified_at: '2026-09-03T07:38:54.796196Z'
+  verified_at: '2026-09-04T21:26:37.313351Z'

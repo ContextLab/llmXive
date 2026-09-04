@@ -13,21 +13,6 @@ T012:
     \ of `code/ingest.py` does not show any implementation of the gate\u2011status\
     \ check, report generation, or the merge logic required by the task. These essential\
     \ artifacts and behaviors are missing."
-T015:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or documentation for a logging mechanism or a schema\
-    \ definition for `excluded_molecules.csv` was provided; the claim lacks any tangible\
-    \ artifact to verify that the required error\u2011handling and schema registration\
-    \ were implemented."
-T025:
-  c: false
-  h: b8ee15d95c565d375a29d21a0f88e1ae000f5a5ff15b6fcedc533f8d4c90c1e8
-  r: "The repository lacks the required `data/processed/analysis_results.json` file,\
-    \ and the shown portion of `code/analysis.py` does not contain any implementation\
-    \ of Shapiro\u2011Wilk or Breusch\u2011Pagan tests nor code that writes those\
-    \ results to the JSON file. The task\u2019s core functionality and output artifact\
-    \ are missing."
 T033:
   c: false
   h: 2b13c68f134c741fead75b43ec95ff865248c5e79992fd122d9e123d08d54d04
@@ -42,13 +27,6 @@ T035c:
     or contents of `analysis_results.json` or `data_insufficiency_report.md`, and
     both required files are absent from the repository. Consequently, the final validation
     step described in the task is not implemented.
-T036:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "I could find no evidence of the required plot files (`scatter_tpsa_vs_half_life.png`,\
-    \ `residuals.png`, `qq_plot.png`) or the `results_report.md` report in the repository;\
-    \ the claim provides only a textual description without any actual artifacts.\
-    \ The task therefore lacks the necessary non\u2011empty output files."
 T041:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,53 +1,40 @@
+"""
+Logging configuration for the project.
+"""
 import logging
 import sys
 from pathlib import Path
 from typing import Optional
 
-def setup_logging(log_level: int = logging.INFO, log_file: Optional[Path] = None) -> logging.Logger:
-    """
-    Configure root logger with console and optional file handlers.
-    
-    Args:
-        log_level: The logging level (e.g., logging.INFO, logging.DEBUG).
-        log_file: Optional path to a log file.
-    
-    Returns:
-        The root logger instance.
-    """
-    root_logger = logging.getLogger()
-    root_logger.setLevel(log_level)
-    
-    # Clear existing handlers to avoid duplicates
-    root_logger.handlers = []
-    
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(log_level)
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    console_handler.setFormatter(formatter)
-    root_logger.addHandler(console_handler)
-    
-    # File handler (optional)
-    if log_file:
-        # Ensure parent directory exists
-        log_file.parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(log_level)
-        file_handler.setFormatter(formatter)
-        root_logger.addHandler(file_handler)
-    
-    return root_logger
+# Configure root logger
+LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-def get_logger(name: str) -> logging.Logger:
+def setup_logging(level: int = logging.INFO) -> None:
     """
-    Get a logger with the specified name.
+    Setup basic logging configuration.
     
     Args:
-        name: The name of the logger.
+        level: Logging level (e.g., logging.INFO, logging.DEBUG)
+    """
+    if not logging.getLogger().handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setLevel(level)
+        formatter = logging.Formatter(LOG_FORMAT, datefmt=LOG_DATE_FORMAT)
+        handler.setFormatter(formatter)
+        
+        root_logger = logging.getLogger()
+        root_logger.setLevel(level)
+        root_logger.addHandler(handler)
+
+def get_logger(name: Optional[str] = None) -> logging.Logger:
+    """
+    Get a logger instance.
     
+    Args:
+        name: Logger name (usually __name__)
+        
     Returns:
-        A logger instance.
+        Logger instance
     """
     return logging.getLogger(name)

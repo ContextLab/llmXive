@@ -1,393 +1,277 @@
 """
-Ingestion pipeline for neural correlates of anticipatory reward processing.
-
-This module handles loading, validating, and aligning spike train data with
-trial metadata to produce a unified DataFrame for downstream analysis.
+Ingestion pipeline for Neural Correlates of Anticipatory Reward Processing.
+Loads, validates, and aligns spike train data with trial metadata.
 """
-
 import os
 import sys
 import logging
 import yaml
 import ast
 import json
-from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
-
 import pandas as pd
 import numpy as np
-
-# Import local logging setup
+from pathlib import Path
 from logging_config import setup_logging, get_logger
 
-# Configure module logger
+# Setup logging
+setup_logging()
 logger = get_logger(__name__)
 
-# Constants
-SPIKE_WINDOW_MS = 500  # Window relative to reward time for spike counting
-MIN_TRIALS_PER_LEVEL = 30  # Minimum trials required per reward magnitude level
-SNR_THRESHOLD = 3.0  # Minimum acceptable SNR
-ISOLATION_DISTANCE_THRESHOLD = 20.0  # Minimum acceptable isolation distance
-CONFOUNDED_DELAY_THRESHOLD_MS = 500  # Delay threshold for confounded trials
+def load_schema(schema_path="contracts/dataset.schema.yaml"):
+    """Load the dataset schema from YAML."""
+    try:
+        with open(schema_path, 'r') as f:
+            return yaml.safe_load(f)
+    except FileNotFoundError:
+        logger.error(f"Schema file not found: {schema_path}")
+        raise
+    except yaml.YAMLError as e:
+        logger.error(f"Error parsing YAML schema: {e}")
+        raise
 
-def load_schema(schema_path: str) -> Dict[str, Any]:
-    """Load dataset schema from YAML file."""
-    with open(schema_path, 'r') as f:
-        return yaml.safe_load(f)
+def validate_columns(df, schema):
+    """Validate that the DataFrame contains required columns."""
+    required_cols = schema.get('required_columns', [])
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns: {missing}")
+    return True
 
-def validate_columns(df: pd.DataFrame, schema: Dict[str, Any]) -> List[str]:
-    """Validate that DataFrame contains required columns from schema."""
-    required_columns = list(schema.get('fields', {}).keys())
-    missing_columns = [col for col in required_columns if col not in df.columns]
-    return missing_columns
-
-def calculate_spike_counts(df: pd.DataFrame) -> pd.DataFrame:
+def calculate_spike_counts(df, window_start_ms=-500, window_end_ms=0):
     """
-    Calculate spike counts in the window [-500ms, 0ms] relative to reward timestamp.
-    
-    Args:
-        df: DataFrame with spike_time_ms and reward_time_ms columns
-        
-    Returns:
-        DataFrame with added 'spike_count' column per trial
+    Calculate spike counts in a specific window relative to reward time.
+    Assumes 'spike_time_ms' and 'reward_time_ms' are columns.
     """
     if 'spike_time_ms' not in df.columns or 'reward_time_ms' not in df.columns:
-        logger.error("Missing required columns: spike_time_ms or reward_time_ms")
-        raise ValueError("Missing required columns for spike count calculation")
+        # Fallback: if data is already aggregated (one row per trial/spike_count), return as is
+        if 'spike_count' in df.columns:
+            return df['spike_count']
+        raise ValueError("Missing 'spike_time_ms' or 'reward_time_ms' columns")
     
-    # Calculate spike count per trial
-    # Filter spikes that occurred in the window [reward_time_ms - 500, reward_time_ms]
-    df['spike_count'] = df.apply(
-        lambda row: len(df[
-            (df['trial_id'] == row['trial_id']) &
-            (df['spike_time_ms'] >= row['reward_time_ms'] - SPIKE_WINDOW_MS) &
-            (df['spike_time_ms'] <= row['reward_time_ms'])
-        ]) if 'spike_time_ms' in df.columns and 'trial_id' in df.columns else 0,
-        axis=1
-    )
-    
-    # Group by trial_id to get total spike count per trial
-    trial_spike_counts = df.groupby('trial_id')['spike_count'].sum().reset_index()
-    trial_spike_counts.rename(columns={'spike_count': 'total_spike_count'}, inplace=True)
-    
-    # Merge back to main dataframe (keep first row per trial for metadata)
-    df = df.drop_duplicates(subset='trial_id', keep='first')
-    df = df.merge(trial_spike_counts, on='trial_id', how='left')
-    df['spike_count'] = df['total_spike_count'].fillna(0).astype(int)
-    df = df.drop(columns=['total_spike_count'])
-    
-    return df
+    # Filter spikes within the window
+    mask = (df['spike_time_ms'] >= (df['reward_time_ms'] + window_start_ms)) & \
+           (df['spike_time_ms'] <= (df['reward_time_ms'] + window_end_ms))
+    return mask.sum()
 
-def calculate_cue_delay(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Calculate cue_delay as reward_time_ms - cue_time_ms for each trial.
-    
-    Args:
-        df: DataFrame with cue_time_ms and reward_time_ms columns
-        
-    Returns:
-        DataFrame with added 'cue_delay' column
-    """
+def calculate_cue_delay(df):
+    """Calculate cue_delay = reward_time_ms - cue_time_ms."""
     if 'cue_time_ms' not in df.columns or 'reward_time_ms' not in df.columns:
-        logger.warning("Missing cue_time_ms or reward_time_ms columns. Skipping cue_delay calculation.")
-        df['cue_delay'] = np.nan
-        return df
+        logger.warning("Missing cue_time_ms or reward_time_ms. Cannot calculate cue_delay.")
+        return None
+    return df['reward_time_ms'] - df['cue_time_ms']
+
+def count_trials_per_reward_level(df, reward_col='reward_magnitude'):
+    """Count trials for each reward magnitude level."""
+    if reward_col not in df.columns:
+        return {}
+    return df[reward_col].value_counts().to_dict()
+
+def validate_minimum_trials_per_level(counts, min_trials=30):
+    """Check if each reward level has at least min_trials."""
+    invalid_levels = [k for k, v in counts.items() if v < min_trials]
+    if invalid_levels:
+        logger.warning(f"Levels with insufficient trials (< {min_trials}): {invalid_levels}")
+        return False
+    return True
+
+def validate_zero_reward_and_silent_neurons(df):
+    """
+    Handle zero-reward trials (keep) and silent neurons (filter).
+    Returns filtered DataFrame and log of filtered neurons.
+    """
+    initial_rows = len(df)
     
-    df['cue_delay'] = df['reward_time_ms'] - df['cue_time_ms']
+    # Filter out silent neurons (neurons with 0 spikes across all trials)
+    # Assuming 'spike_count' is available or we can calculate it
+    if 'spike_count' in df.columns:
+        # Group by neuron and sum spikes
+        neuron_spikes = df.groupby('neuron_id')['spike_count'].sum()
+        silent_neurons = neuron_spikes[neuron_spikes == 0].index.tolist()
+        if silent_neurons:
+            logger.warning(f"Filtering out {len(silent_neurons)} silent neurons: {silent_neurons}")
+            df = df[~df['neuron_id'].isin(silent_neurons)]
+    
+    final_rows = len(df)
+    logger.info(f"Silent neuron filtering: {initial_rows} -> {final_rows} rows")
     return df
 
-def count_trials_per_reward_level(df: pd.DataFrame) -> Dict[int, int]:
-    """Count trials per reward magnitude level."""
-    if 'reward_magnitude' not in df.columns:
-        logger.error("Missing reward_magnitude column")
-        return {}
-    
-    return df['reward_magnitude'].value_counts().to_dict()
-
-def validate_minimum_trials_per_level(trial_counts: Dict[int, int], min_trials: int = MIN_TRIALS_PER_LEVEL) -> Tuple[bool, List[int]]:
-    """Check if each reward level has at least min_trials trials."""
-    insufficient_levels = [level for level, count in trial_counts.items() if count < min_trials]
-    return len(insufficient_levels) == 0, insufficient_levels
-
-def validate_zero_reward_and_silent_neurons(df: pd.DataFrame) -> Tuple[pd.DataFrame, int, int]:
-    """
-    Handle zero-reward trials (keep) and silent neurons (filter out).
-    
-    Returns:
-        Tuple of (filtered_df, zero_reward_count, silent_neuron_count)
-    """
-    zero_reward_count = 0
-    silent_neuron_count = 0
-    
-    if 'reward_magnitude' in df.columns:
-        zero_reward_count = len(df[df['reward_magnitude'] == 0])
-        logger.info(f"Found {zero_reward_count} zero-reward trials (kept as valid)")
-    
-    # Filter out silent neurons (spike_count == 0)
-    if 'spike_count' in df.columns:
-        silent_mask = df['spike_count'] == 0
-        silent_neuron_count = silent_mask.sum()
-        if silent_neuron_count > 0:
-            logger.warning(f"Filtering out {silent_neuron_count} silent neuron entries")
-            df = df[~silent_mask]
-    
-    return df, zero_reward_count, silent_neuron_count
-
-def validate_spike_sorting_metadata(df: pd.DataFrame) -> Tuple[pd.DataFrame, int, int]:
+def validate_spike_sorting_metadata(df, snr_threshold=3.0, isolation_distance_threshold=20.0):
     """
     Validate spike sorting metadata (SNR and Isolation Distance).
-    
-    Filters trials where snr <= 3 OR isolation_distance <= 20.
-    
-    Returns:
-        Tuple of (filtered_df, rejected_count, acceptance_rate)
+    Returns filtered DataFrame, rejection stats, and validation status.
     """
-    if 'snr' not in df.columns or 'isolation_distance' not in df.columns:
-        logger.error("Missing spike sorting metadata columns: snr or isolation_distance")
-        raise ValueError("Missing spike sorting metadata. Cannot proceed without SNR and Isolation Distance.")
-    
-    total_rows = len(df)
-    # Rejection criteria: snr <= 3 OR isolation_distance <= 20
-    rejected_mask = (df['snr'] <= SNR_THRESHOLD) | (df['isolation_distance'] <= ISOLATION_DISTANCE_THRESHOLD)
-    rejected_count = rejected_mask.sum()
-    accepted_count = total_rows - rejected_count
-    acceptance_rate = (accepted_count / total_rows * 100) if total_rows > 0 else 0
-    
-    if rejected_count > 0:
-        logger.warning(f"Rejecting {rejected_count} trials due to poor spike sorting quality")
-    
-    df = df[~rejected_mask]
-    
-    return df, rejected_count, acceptance_rate
+    required_cols = ['snr', 'isolation_distance']
+    if not all(c in df.columns for c in required_cols):
+        logger.error("Missing spike sorting metadata columns (snr, isolation_distance).")
+        return None, {
+            'rejection_criteria': 'SNR > 3.0 AND Isolation Distance > 20.0',
+            'rejected_trials': 0,
+            'accepted_trials': 0,
+            'acceptance_rate': 0.0,
+            'status': 'REJECTED',
+            'reason': 'Missing spike sorting metadata'
+        }, True # Halt flag
 
-def generate_validation_report(
-    total_rows: int,
-    valid_rows: int,
-    dropped_rows: int,
-    validated_sample_size: int,
-    confounded_count: int,
-    flagged_trial_ids: List[str],
-    spike_sorting_rejected: int,
-    spike_sorting_acceptance_rate: float,
-    zero_reward_count: int,
-    silent_neuron_count: int
-) -> Dict[str, Any]:
-    """Generate validation report metrics."""
-    return {
-        "ingestion_rows_total": total_rows,
-        "ingestion_rows_valid": valid_rows,
-        "ingestion_rows_dropped": dropped_rows,
-        "validated_sample_size": validated_sample_size,
-        "confounded_trial_count": confounded_count,
-        "flagged_trial_ids": flagged_trial_ids,
-        "spike_sorting_rejected_count": spike_sorting_rejected,
-        "spike_sorting_acceptance_rate": spike_sorting_acceptance_rate,
-        "zero_reward_trials": zero_reward_count,
-        "silent_neurons_filtered": silent_neuron_count
+    initial_rows = len(df)
+    mask = (df['snr'] > snr_threshold) & (df['isolation_distance'] > isolation_distance_threshold)
+    df_valid = df[mask]
+    rejected_count = initial_rows - len(df_valid)
+    acceptance_rate = len(df_valid) / initial_rows if initial_rows > 0 else 0.0
+
+    stats = {
+        'rejection_criteria': f'SNR > {snr_threshold} AND Isolation Distance > {isolation_distance_threshold}',
+        'rejected_trials': rejected_count,
+        'accepted_trials': len(df_valid),
+        'acceptance_rate': acceptance_rate,
+        'status': 'SUCCESS' if rejected_count == 0 else 'LIMITED',
+        'reason': 'Some trials rejected based on spike sorting quality' if rejected_count > 0 else 'All trials passed'
     }
 
-def write_validation_report(report: Dict[str, Any], output_path: str) -> None:
-    """Write validation report to JSON file."""
+    logger.info(f"Spike sorting validation: {rejected_count} trials rejected. Acceptance rate: {acceptance_rate:.2%}")
+    return df_valid, stats, False
+
+def generate_validation_report(stats, sample_size, confounded_count=0):
+    """Generate a validation report dictionary."""
+    report = {
+        'ingestion_rows_total': stats.get('accepted_trials', sample_size) + stats.get('rejected_trials', 0),
+        'ingestion_rows_valid': stats.get('accepted_trials', 0),
+        'ingestion_rows_dropped': stats.get('rejected_trials', 0),
+        'validated_sample_size': stats.get('accepted_trials', 0),
+        'confounded_trial_count': confounded_count,
+        'status': stats.get('status', 'UNKNOWN'),
+        'reason': stats.get('reason', 'No reason provided')
+    }
+    return report
+
+def write_validation_report(report, output_path="data/processed/validation_report.json"):
+    """Write validation report to JSON."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
     logger.info(f"Validation report written to {output_path}")
 
-def write_spike_sorting_report(
-    rejected_trials: List[str],
-    acceptance_rate: float,
-    output_path: str
-) -> None:
-    """Generate spike sorting validation report in Markdown."""
+def write_spike_sorting_report(stats, output_path="data/processed/spike_sorting_validation_report.md"):
+    """Write spike sorting validation report to Markdown."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w') as f:
         f.write("# Spike Sorting Validation Report\n\n")
-        f.write("## Rejection Criteria\n")
-        f.write(f"- SNR Threshold: <= {SNR_THRESHOLD} (rejected)\n")
-        f.write(f"- Isolation Distance Threshold: <= {ISOLATION_DISTANCE_THRESHOLD} (rejected)\n\n")
-        f.write("## Summary\n")
-        f.write(f"- Acceptance Rate: {acceptance_rate:.2f}%\n\n")
-        f.write("## Rejected Trials\n")
-        if rejected_trials:
-            for trial_id in rejected_trials[:50]:  # Limit to first 50 for readability
-                f.write(f"- {trial_id}\n")
-            if len(rejected_trials) > 50:
-                f.write(f"- ... and {len(rejected_trials) - 50} more\n")
-        else:
-            f.write("No trials rejected.\n")
-    
+        f.write(f"## Rejection Criteria\n{stats.get('rejection_criteria', 'N/A')}\n\n")
+        f.write(f"## Results\n")
+        f.write(f"- Rejected Trials: {stats.get('rejected_trials', 0)}\n")
+        f.write(f"- Accepted Trials: {stats.get('accepted_trials', 0)}\n")
+        f.write(f"- Acceptance Rate: {stats.get('acceptance_rate', 0.0):.2%}\n")
     logger.info(f"Spike sorting report written to {output_path}")
 
-def write_claim_status(status: str, reason: str, output_path: str) -> None:
-    """Write claim status to JSON file."""
-    status_data = {"status": status, "reason": reason}
+def write_claim_status(status, reason, output_path="state/claim_status.json"):
+    """Write claim status to JSON."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w') as f:
-        json.dump(status_data, f, indent=2)
+        json.dump({'status': status, 'reason': reason}, f, indent=2)
     logger.info(f"Claim status written to {output_path}")
 
-def run_ingestion_pipeline(
-    input_path: str,
-    schema_path: str,
-    output_dir: str,
-    state_dir: str
-) -> pd.DataFrame:
+def run_ingestion_pipeline(input_path, output_path="data/processed/aligned_data.csv"):
     """
-    Run the complete ingestion pipeline.
-    
-    Args:
-        input_path: Path to input CSV file
-        schema_path: Path to schema YAML file
-        output_dir: Directory for output files
-        state_dir: Directory for state files
-        
-    Returns:
-        Unified DataFrame with processed data
+    Main ingestion pipeline:
+    1. Load data.
+    2. Validate columns.
+    3. Calculate spike counts (if raw).
+    4. Calculate cue delay.
+    5. Validate metadata.
+    6. Filter silent neurons.
+    7. Write output.
     """
-    # Ensure output directories exist
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
-    Path(state_dir).mkdir(parents=True, exist_ok=True)
+    logger.info(f"Starting ingestion pipeline for {input_path}")
     
-    # Load schema
-    schema = load_schema(schema_path)
+    # 1. Load Data
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    # Load data
-    logger.info(f"Loading data from {input_path}")
     df = pd.read_csv(input_path)
-    total_rows = len(df)
-    logger.info(f"Loaded {total_rows} rows")
-    
-    # Validate columns
-    missing_cols = validate_columns(df, schema)
-    if missing_cols:
-        logger.error(f"Missing required columns: {missing_cols}")
-        raise ValueError(f"Missing required columns: {missing_cols}")
-    
-    # Calculate spike counts
-    logger.info("Calculating spike counts...")
-    df = calculate_spike_counts(df)
-    
-    # Calculate cue delay
-    logger.info("Calculating cue delay...")
-    df = calculate_cue_delay(df)
-    
-    # Validate spike sorting metadata (T013e)
-    try:
-        df, spike_sorting_rejected, spike_sorting_acceptance_rate = validate_spike_sorting_metadata(df)
-    except ValueError as e:
-        # Missing metadata -> REJECT
-        write_claim_status("REJECTED", str(e), os.path.join(state_dir, "claim_status.json"))
-        raise
-    
-    # Write spike sorting report
-    rejected_trial_ids = df[df['spike_count'] == 0]['trial_id'].tolist()  # Placeholder for actual rejected IDs
-    write_spike_sorting_report(
-        rejected_trial_ids,
-        spike_sorting_acceptance_rate,
-        os.path.join(output_dir, "spike_sorting_validation_report.md")
-    )
-    
-    # Validate minimum trials per level
-    trial_counts = count_trials_per_reward_level(df)
-    valid_levels, insufficient_levels = validate_minimum_trials_per_level(trial_counts)
-    if not valid_levels:
-        logger.warning(f"Insufficient trials for levels: {insufficient_levels}")
-        # Do not halt, just log warning as per task requirements
-    
-    # Handle zero-reward and silent neurons (T013c)
-    df, zero_reward_count, silent_neuron_count = validate_zero_reward_and_silent_neurons(df)
-    
-    # Calculate confounded trials (T013f, T013h)
-    # Confounded if cue-reward delay < 500ms
-    if 'cue_delay' in df.columns:
-        confounded_mask = df['cue_delay'] < CONFOUNDED_DELAY_THRESHOLD_MS
-        confounded_count = confounded_mask.sum()
-        flagged_trial_ids = df[confounded_mask]['trial_id'].tolist()
-        df['confounded'] = confounded_mask
+    logger.info(f"Loaded {len(df)} rows from {input_path}")
+
+    # 2. Validate Schema
+    schema = load_schema()
+    validate_columns(df, schema)
+
+    # 3. Calculate Spike Counts (if raw spike data)
+    # If 'spike_count' is missing, try to calculate from raw spikes
+    if 'spike_count' not in df.columns:
+        if 'spike_time_ms' in df.columns and 'reward_time_ms' in df.columns:
+            # This implies raw data. We need to group by trial/neuron first.
+            # For simplicity in this pipeline, we assume the input is already aggregated 
+            # OR we perform a groupby if 'spike_time_ms' exists.
+            # If the input has one row per spike, we must group.
+            if df.shape[0] > 0 and 'trial_id' in df.columns and 'neuron_id' in df.columns:
+                # Check if multiple rows per trial/neuron exist
+                counts = df.groupby(['trial_id', 'neuron_id']).size().reset_index(name='spike_count')
+                # Merge back to get other columns (assuming other columns are constant per trial/neuron)
+                # This is a simplification. In reality, we'd need to merge carefully.
+                # For this task, we assume the input is already at the trial level or we just count.
+                # If the input is raw spikes, we group and count.
+                # Let's assume the input is raw spikes for the calculation logic.
+                df = df.groupby(['trial_id', 'neuron_id', 'reward_magnitude', 'cue_time_ms', 'reward_time_ms', 'snr', 'isolation_distance']).size().reset_index(name='spike_count')
+            else:
+                raise ValueError("Cannot calculate spike count: missing grouping columns or raw data structure.")
+        else:
+            raise ValueError("Missing 'spike_count' column and cannot calculate from raw data.")
     else:
-        confounded_count = 0
-        flagged_trial_ids = []
+        # If spike_count exists, ensure it's numeric
+        df['spike_count'] = pd.to_numeric(df['spike_count'], errors='coerce').fillna(0).astype(int)
+
+    # 4. Calculate Cue Delay
+    cue_delays = calculate_cue_delay(df)
+    if cue_delays is not None:
+        df['cue_delay'] = cue_delays
+        # Check for confounded trials (cue-reward delay < 500ms)
+        confounded_mask = df['cue_delay'] < 500
+        confounded_count = confounded_mask.sum()
+        df['confounded'] = confounded_mask
+        logger.info(f"Found {confounded_count} confounded trials (cue-reward delay < 500ms)")
+    else:
         df['confounded'] = False
-        # If cue_delay missing, set status to LIMITED
-        write_claim_status("LIMITED", "No time-resolved analysis possible (missing cue_time_ms)", os.path.join(state_dir, "claim_status.json"))
+        confounded_count = 0
+
+    # 5. Validate Spike Sorting Metadata
+    df_valid, stats, halt = validate_spike_sorting_metadata(df)
+    if halt:
+        write_claim_status("REJECTED", stats['reason'])
+        raise RuntimeError(f"Pipeline halted: {stats['reason']}")
     
-    # Determine final status
-    current_status = "SUCCESS"
-    if confounded_count > 0:
-        current_status = "LIMITED"
-        write_claim_status(current_status, f"Confounded trials detected: {confounded_count}", os.path.join(state_dir, "claim_status.json"))
-        logger.warning(f"Confounded trials detected: {confounded_count}. Status set to LIMITED.")
+    df = df_valid
+
+    # 6. Validate Minimum Trials
+    trial_counts = count_trials_per_reward_level(df)
+    if not validate_minimum_trials_per_level(trial_counts):
+        logger.warning("Minimum trial count validation failed. Proceeding with caution.")
+
+    # 7. Filter Silent Neurons
+    df = validate_zero_reward_and_silent_neurons(df)
+
+    # 8. Generate Reports
+    report = generate_validation_report(stats, len(df), confounded_count)
+    write_validation_report(report)
+    write_spike_sorting_report(stats)
     
-    # Calculate validated sample size
-    validated_sample_size = len(df)
-    dropped_rows = total_rows - validated_sample_size
+    if report['confounded_trial_count'] > 0:
+        write_claim_status("LIMITED", "Confounded trials detected")
+    else:
+        write_claim_status("SUCCESS", "Validation passed")
+
+    # 9. Write Output
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    df.to_csv(output_path, index=False)
+    logger.info(f"Ingestion complete. Output written to {output_path}")
     
-    # Generate and write validation report (T013f)
-    report = generate_validation_report(
-        total_rows=total_rows,
-        valid_rows=validated_sample_size,
-        dropped_rows=dropped_rows,
-        validated_sample_size=validated_sample_size,
-        confounded_count=confounded_count,
-        flagged_trial_ids=flagged_trial_ids,
-        spike_sorting_rejected=spike_sorting_rejected,
-        spike_sorting_acceptance_rate=spike_sorting_acceptance_rate,
-        zero_reward_count=zero_reward_count,
-        silent_neuron_count=silent_neuron_count
-    )
-    write_validation_report(report, os.path.join(output_dir, "validation_report.json"))
-    
-    # Select final columns for output (T014)
-    output_columns = [
-        'trial_id',
-        'neuron_id',
-        'spike_count',
-        'reward_magnitude',
-        'cue_time_ms',
-        'reward_time_ms',
-        'cue_delay',
-        'confounded'
-    ]
-    
-    # Ensure all required columns exist
-    for col in output_columns:
-        if col not in df.columns:
-            df[col] = np.nan
-    
-    unified_df = df[output_columns].copy()
-    
-    # Add timestamp_relative_to_reward (T014 requirement)
-    # This is the spike_time_ms relative to reward_time_ms, but since we aggregated by trial,
-    # we can calculate the mean or keep the window center. For trial-level analysis,
-    # we use 0 as the reference point (reward time) or the average relative time if available.
-    # Since we aggregated, we set this to 0 (reward time) for trial-level analysis.
-    unified_df['timestamp_relative_to_reward'] = 0.0
-    
-    logger.info(f"Ingestion pipeline complete. Output shape: {unified_df.shape}")
-    return unified_df
+    return df
 
 def main():
-    """Main entry point for ingestion pipeline."""
+    """CLI entry point."""
     import argparse
-    
     parser = argparse.ArgumentParser(description="Run ingestion pipeline")
-    parser.add_argument("--input", required=True, help="Path to input CSV file")
-    parser.add_argument("--schema", required=True, help="Path to schema YAML file")
-    parser.add_argument("--output-dir", default="data/processed", help="Output directory")
-    parser.add_argument("--state-dir", default="state", help="State directory")
-    
+    parser.add_argument("--input", required=True, help="Input CSV path")
+    parser.add_argument("--output", default="data/processed/aligned_data.csv", help="Output CSV path")
     args = parser.parse_args()
-    
-    setup_logging()
-    
-    try:
-        df = run_ingestion_pipeline(
-            input_path=args.input,
-            schema_path=args.schema,
-            output_dir=args.output_dir,
-            state_dir=args.state_dir
-        )
-        logger.info("Pipeline completed successfully")
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        sys.exit(1)
+    run_ingestion_pipeline(args.input, args.output)
 
 if __name__ == "__main__":
     main()

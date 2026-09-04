@@ -1,41 +1,133 @@
 """
-Test module for T036: Verification of output artifacts.
-This test ensures that the verify_outputs.py script correctly identifies
-missing or empty files.
+Tests for T036: Artifact Verification.
 """
+import json
 import os
 import tempfile
 from pathlib import Path
+from unittest.mock import patch, MagicMock
+
 import pytest
+
+# Adjust import path for testing
 import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-# Add code directory to path
-code_dir = Path(__file__).resolve().parent.parent / "code"
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
+from verify_outputs import (
+    check_gate_status,
+    verify_plot_files,
+    verify_report,
+    get_data_path,
+    get_project_root
+)
 
-from verify_outputs import verify_artifact
+@pytest.fixture
+def temp_dir():
+    with tempfile.TemporaryDirectory() as tmp:
+        yield Path(tmp)
 
-class TestT036Verification:
-    def test_verify_existing_non_empty_file(self, tmp_path):
-        """Test that a file that exists and has content returns True."""
-        test_file = tmp_path / "test.png"
-        test_file.write_bytes(b"fake image content")
-        
-        assert verify_artifact(test_file, "Test file") is True
+def test_check_gate_status_missing_file(temp_dir, caplog):
+    """Test behavior when gate_status.json is missing."""
+    # Mock get_data_path to return temp_dir
+    with patch('verify_outputs.get_data_path', return_value=temp_dir):
+        result = check_gate_status()
+        assert result["status"] == "UNKNOWN"
+        assert result["reason"] == "File missing"
 
-    def test_verify_missing_file(self, tmp_path):
-        """Test that a missing file returns False."""
-        test_file = tmp_path / "nonexistent.png"
-        
-        assert verify_artifact(test_file, "Missing file") is False
+def test_check_gate_status_valid_file(temp_dir):
+    """Test reading a valid gate status file."""
+    gate_file = temp_dir / "gate_status.json"
+    data = {"status": "PASS", "N": 50}
+    gate_file.write_text(json.dumps(data))
 
-    def test_verify_empty_file(self, tmp_path):
-        """Test that an empty file returns False."""
-        test_file = tmp_path / "empty.png"
-        test_file.write_bytes(b"")
-        
-        assert verify_artifact(test_file, "Empty file") is False
+    with patch('verify_outputs.get_data_path', return_value=temp_dir):
+        result = check_gate_status()
+        assert result["status"] == "PASS"
+        assert result["N"] == 50
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_verify_plots_pass(temp_dir):
+    """Test plot verification when Gate is PASS."""
+    outputs_dir = temp_dir / "outputs"
+    outputs_dir.mkdir()
+    
+    # Create dummy plot files
+    (outputs_dir / "scatter_tpsa_vs_half_life.png").write_bytes(b"fake_png_data")
+    (outputs_dir / "residuals.png").write_bytes(b"fake_png_data")
+    (outputs_dir / "qq_plot.png").write_bytes(b"fake_png_data")
+
+    gate_status = {"status": "PASS"}
+    
+    with patch('verify_outputs.get_data_path', return_value=temp_dir):
+        assert verify_plot_files(gate_status) is True
+
+def test_verify_plots_pass_missing_file(temp_dir):
+    """Test plot verification when Gate is PASS but a file is missing."""
+    outputs_dir = temp_dir / "outputs"
+    outputs_dir.mkdir()
+    
+    # Create only one plot file
+    (outputs_dir / "scatter_tpsa_vs_half_life.png").write_bytes(b"fake_png_data")
+
+    gate_status = {"status": "PASS"}
+    
+    with patch('verify_outputs.get_data_path', return_value=temp_dir):
+        assert verify_plot_files(gate_status) is False
+
+def test_verify_plots_fail_no_files(temp_dir):
+    """Test plot verification when Gate is FAIL and no files exist."""
+    outputs_dir = temp_dir / "outputs"
+    # Do not create outputs_dir or files
+    
+    gate_status = {"status": "FAIL"}
+    
+    with patch('verify_outputs.get_data_path', return_value=temp_dir):
+        assert verify_plot_files(gate_status) is True
+
+def test_verify_plots_fail_files_exist(temp_dir):
+    """Test plot verification when Gate is FAIL but files exist (error case)."""
+    outputs_dir = temp_dir / "outputs"
+    outputs_dir.mkdir()
+    (outputs_dir / "scatter_tpsa_vs_half_life.png").write_bytes(b"fake_png_data")
+
+    gate_status = {"status": "FAIL"}
+    
+    with patch('verify_outputs.get_data_path', return_value=temp_dir):
+        assert verify_plot_files(gate_status) is False
+
+def test_verify_report_pass(temp_dir):
+    """Test report verification when Gate is PASS."""
+    report_file = temp_dir / "results_report.md"
+    report_file.write_text("# Results\n\nMethodology\n\nResults")
+    
+    gate_status = {"status": "PASS"}
+    
+    with patch('verify_outputs.get_project_root', return_value=temp_dir):
+        assert verify_report(gate_status) is True
+
+def test_verify_report_pass_missing(temp_dir):
+    """Test report verification when Gate is PASS but file is missing."""
+    gate_status = {"status": "PASS"}
+    
+    with patch('verify_outputs.get_project_root', return_value=temp_dir):
+        assert verify_report(gate_status) is False
+
+def test_verify_report_fail(temp_dir):
+    """Test report verification when Gate is FAIL."""
+    report_file = temp_dir / "data"
+    report_file.mkdir()
+    insuff_file = report_file / "data_insufficiency_report.md"
+    insuff_file.write_text("# Data Insufficiency\n\nInsufficient data found.")
+    
+    gate_status = {"status": "FAIL"}
+    
+    # Mock get_project_root to return parent of data dir
+    with patch('verify_outputs.get_project_root', return_value=temp_dir):
+        assert verify_report(gate_status) is True
+
+def test_verify_report_fail_missing(temp_dir):
+    """Test report verification when Gate is FAIL but file is missing."""
+    gate_status = {"status": "FAIL"}
+    
+    with patch('verify_outputs.get_project_root', return_value=temp_dir):
+        assert verify_report(gate_status) is False

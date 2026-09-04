@@ -1,47 +1,135 @@
-# Output Schema for Analysis Results
-# Defines the expected structure of reports and figures
-schema_name: "neural_reward_output"
-version: "1.0"
-description: "Schema for validation reports, model results, and figures"
-
+description: "Schema defining the expected structure of pipeline output artifacts"
+version: "1.0.0"
 artifacts:
-  - name: validation_report.json
-    type: file
-    description: "JSON report with data validation metrics"
+  validation_report:
+    path: "data/processed/validation_report.json"
+    format: "json"
+    description: "Data quality and validation metrics"
     schema:
-      type: object
+      type: "object"
+      required:
+        - "ingestion_rows_total"
+        - "ingestion_rows_valid"
+        - "ingestion_rows_dropped"
+        - "validated_sample_size"
+        - "confounded_trial_count"
+        - "flagged_trial_ids"
       properties:
         ingestion_rows_total:
-          type: integer
+          type: "integer"
+          description: "Total rows read from source"
         ingestion_rows_valid:
-          type: integer
+          type: "integer"
+          description: "Rows passing all validation checks"
         ingestion_rows_dropped:
-          type: integer
+          type: "integer"
+          description: "Rows filtered out (e.g., low SNR, silent neurons)"
         validated_sample_size:
-          type: integer
+          type: "integer"
+          description: "Final N used for analysis"
         confounded_trial_count:
-          type: integer
+          type: "integer"
+          description: "Count of trials with cue-reward delay < 500ms"
         flagged_trial_ids:
-          type: array
+          type: "array"
           items:
-            type: string
-      required:
-        - ingestion_rows_total
-        - ingestion_rows_valid
-        - ingestion_rows_dropped
-        - validated_sample_size
-        - confounded_trial_count
-        - flagged_trial_ids
-        
-  - name: spike_sorting_validation_report.md
-    type: file
-    description: "Markdown report documenting spike sorting quality"
-    
-  - name: summary_report.txt
-    type: file
-    description: "Text summary of analysis results"
-    
-  - name: figures/*.png
-    type: file
+            type: "string"
+          description: "List of trial IDs flagged for confounding"
+        spike_sorting_rejection_rate:
+          type: "number"
+          description: "Percentage of trials dropped due to spike sorting quality"
+        data_source:
+          type: "string"
+          description: "Source of data (e.g., 'openneuro', 'synthetic', 'local')"
+        sample_details:
+          type: "object"
+          description: "Details about sampling if applicable"
+          properties:
+            method:
+              type: "string"
+            N:
+              type: "integer"
+
+  spike_sorting_validation_report:
+    path: "data/processed/spike_sorting_validation_report.md"
+    format: "markdown"
+    description: "Detailed report on spike sorting quality control"
+    structure:
+      - "Rejection Criteria"
+      - "Rejected Trials"
+      - "Acceptance Rate"
+      - "SNR Distribution Summary"
+      - "Isolation Distance Distribution Summary"
+
+  summary_report:
+    path: "data/processed/summary_report.txt"
+    format: "text"
+    description: "Human-readable summary of analysis results"
+    required_sections:
+      - "Statistical Model Coefficients"
+      - "P-values and Significance"
+      - "Minimum Detectable Effect Size (MDES)"
+      - "Cross-Validation Scores"
+      - "Data Loss Metrics"
+      - "Limitations and Confounds"
+
+  figures:
+    path: "data/figures/"
+    format: "png"
     description: "Generated visualization plots"
-    pattern: "data/figures/*.png"
+    expected_files:
+      - "firing_rate_vs_reward.png"
+        description: "Scatter plot of firing rate vs reward magnitude with regression line and 95% CI"
+      - "residuals_plot.png"
+        description: "Model residuals diagnostics"
+      - "cue_delay_distribution.png"
+        description: "Histogram of cue delays"
+
+  state_files:
+    claim_status:
+      path: "state/claim_status.json"
+      format: "json"
+      description: "Current status of the scientific claim (SUCCESS, LIMITED, REJECTED)"
+      schema:
+        type: "object"
+        required:
+          - "status"
+        properties:
+          status:
+            type: "string"
+            enum: ["SUCCESS", "LIMITED", "REJECTED"]
+          reason:
+            type: "string"
+            description: "Explanation if status is not SUCCESS"
+    data_source_status:
+      path: "state/data_source_status.json"
+      format: "json"
+      description: "Status of data loading and source verification"
+      schema:
+        type: "object"
+        required:
+          - "status"
+          - "source"
+          - "is_final"
+          - "claim_eligible"
+        properties:
+          status:
+            type: "string"
+            enum: ["success", "failure"]
+          source:
+            type: "string"
+            description: "Data source identifier"
+          is_final:
+            type: "boolean"
+            description: "Whether this data is final for claim generation"
+          claim_eligible:
+            type: "boolean"
+            description: "Whether results from this data are eligible for claim generation"
+
+constraints:
+  - "All numeric values must be rounded to 4 decimal places unless specified otherwise."
+  - "All file paths must be relative to the project root."
+  - "Timestamps in reports must be ISO 8601 format."
+  - "Validation report must be generated before summary report."
+  - "Figures must be generated before summary report."
+  - "State files must be updated at every major pipeline stage transition."

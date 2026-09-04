@@ -28,12 +28,11 @@ T001c:
     task is not verified as completed.
 T003:
   c: false
-  h: 25142b47a3d9c8b2de2c6728b6b9679bdf900ff71e7a5d8576fa77eb99e3ed39
-  r: "The repository contains the required `code/.ruff.toml` with the correct rule\
-    \ selections and line\u2011length setting, but there is no evidence that the `ruff`\
-    \ linter was installed (e.g., no `requirements.txt`, `pyproject.toml`, or lock\
-    \ file listing `ruff`). The task\u2019s installation requirement is therefore\
-    \ unmet."
+  h: 435a7289d5cb3fee6627c5475dd9a2c9decab9d53ec99c8a95e17425b15f7b77
+  r: "The `code/.ruff.toml` file exists and contains the correct linting rules and\
+    \ line\u2011length setting, but there is no evidence that the `ruff` package was\
+    \ installed (e.g., no entry in `requirements.txt`, `pyproject.toml`, or a lock\
+    \ file). The installation requirement is therefore unmet."
 T012:
   c: false
   h: 4bffe84250e2e8b508d82d03ccbabb289fec7f819a6754e50c2f3266446d9175
@@ -42,6 +41,20 @@ T012:
     \ the required schema file `contracts/mg_dataset.schema.yaml` is missing, so the\
     \ test cannot load or validate against the contract. Both the artifact and its\
     \ content fail to meet the task\u2019s requirement."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `fetch_data.py` file (or its contents) was provided in the evidence, so we
+    cannot verify that a script querying the Materials Project and AFLOWlib APIs using
+    environment variables exists or functions as required. The required artifact is
+    missing.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `code/features/descriptors.py` file or any code implementing the required
+    calculations is present in the provided evidence; therefore the weighted mean
+    atomic radius, electronegativity variance, VEC, and atomic size mismatch are not
+    actually implemented. The task remains undone.
 T017a:
   c: false
   h: 7b0ff66abdd2aff7f358cace863274147fe6fe4b355dd82c5ba4c3909b1b1797
@@ -49,9 +62,28 @@ T017a:
     \ why `size_mismatch` is kept despite a high VIF, and the required `results/metrics.json`\
     \ file does not exist at all. Both the documentation comment and the JSON flag\
     \ for VIF\u202F>\u202F5.0 are missing."
-T031:
+T039:
+  c: false
+  h: 167ff16913c6f560615a5076dc44402aab6bf93787cf522ba0028c77b0660cd5
+  r: "The repository lacks the required `results/divergence.csv` file, and the `code/modeling/evaluate.py`\
+    \ script does not contain any implementation that computes feature\u2011importance\
+    \ ranks, correlation ranks, or a divergence score nor writes them to a CSV. The\
+    \ existing code focuses on permutation testing and metric calculation, not the\
+    \ requested divergence analysis. The missing output file and absent functionality\
+    \ must be added to satisfy the task."
+T042:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No model files or metadata were found in a `models/` directory; the implementer\
-    \ provided no serialization artifacts, hyperparameter listings, or cross\u2011\
-    validation scores, so the required output is missing."
+  r: "No evidence of the required documentation files (`docs/quickstart.md` and `docs/research.md`)\
+    \ was provided, nor any content showing the mandated sections (API key setup,\
+    \ run commands, example outputs, data sources, citations for Zhang et\u202Fal.,\
+    \ and MP/AFLOW references). The implementer must add these markdown files with\
+    \ the specified information."
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code files, diff logs, lint reports, or any other evidence showing that the\
+    \ `code/ingestion/` and `code/features/` modules were cleaned up, had unused imports\
+    \ removed, line lengths limited to <\u202F88 characters, or error handling made\
+    \ consistent were provided. The implementer\u2019s claim cannot be verified without\
+    \ those artifacts."

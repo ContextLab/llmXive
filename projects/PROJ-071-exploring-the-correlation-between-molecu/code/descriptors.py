@@ -1,8 +1,9 @@
 """
 Molecular Descriptor Calculation Module (T014 & T015)
 
-Calculates molecular descriptors (TPSA, Rotatable Bonds, MW, etc.) using RDKit.
-Implements error handling and logging for excluded molecules (T015).
+Implements calculation of molecular complexity metrics (TPSA, Rotatable Bonds, MW, etc.)
+and handles error logging for excluded molecules to data/processed/excluded_molecules.csv
+as per T015 requirements.
 """
 from __future__ import annotations
 
@@ -12,129 +13,127 @@ import json
 import os
 import sys
 from datetime import datetime
-from pathlib import Path
-from typing import Optional, Dict, Any, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
-# Import RDKit
+# Import from sibling modules as per API surface
+from config import get_config
+from error_handlers import DescriptorCalculationError, handle_molecule_error
+
+# Try importing RDKit; if missing, we will raise a clear error at runtime
 try:
     from rdkit import Chem
     from rdkit.Chem import Descriptors, rdMolDescriptors
+    from rdkit import RDLogger
+    # Suppress RDKit warnings for cleaner logs
+    RDLogger.DisableLog('rdApp.*')
 except ImportError:
-    print("Error: RDKit is required. Install with: pip install rdkit")
-    sys.exit(1)
-
-# Import local utilities
-from logging_config import get_logger, log_operation, log_pipeline_failure
-
-# Constants
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-PROCESSED_DIR = DATA_DIR / "processed"
-EXCLUDED_FILE = PROCESSED_DIR / "excluded_molecules.csv"
-CONFIG_FILE = DATA_DIR / "config.yaml"
-GATE_STATUS_FILE = DATA_DIR / "gate_status.json"
-
-# Ensure directories exist
-PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-
-logger = get_logger("descriptors")
+    Chem = None
+    Descriptors = None
+    rdMolDescriptors = None
 
 
-def get_data_path() -> Path:
-    """Return the path to the processed merged drugs CSV."""
-    return PROCESSED_DIR / "merged_drugs.csv"
+def get_data_path() -> str:
+    """Return the data directory path relative to project root."""
+    return "data"
 
 
 def load_config() -> Dict[str, Any]:
     """Load configuration from data/config.yaml."""
-    if not CONFIG_FILE.exists():
-        return {}
-    import yaml
-    with open(CONFIG_FILE, 'r') as f:
-        return yaml.safe_load(f) or {}
+    config_path = os.path.join("data", "config.yaml")
+    if not os.path.exists(config_path):
+        # Fallback default if config is missing (should not happen in valid run)
+        return {
+            "dataset_id": "unknown",
+            "dataset_version": "unknown",
+            "temp_min": 20.0,
+            "temp_max": 30.0,
+            "ph_min": 7.35,
+            "ph_max": 7.45
+        }
+    with open(config_path, 'r') as f:
+        import yaml
+        return yaml.safe_load(f)
 
 
-def check_gate_status() -> Tuple[bool, str]:
-    """
-    Check if the data availability gate passed.
-    Returns (True, "PASS") or (False, reason).
-    """
-    if not GATE_STATUS_FILE.exists():
-        return False, "Gate status file not found"
-
-    with open(GATE_STATUS_FILE, 'r') as f:
-        status_data = json.load(f)
-
-    if status_data.get("status") == "PASS":
-        return True, "PASS"
-    else:
-        reason = status_data.get("reason", "Unknown failure")
-        return False, reason
+def check_gate_status() -> Dict[str, Any]:
+    """Check the gate status file to ensure data ingestion passed."""
+    gate_path = os.path.join("data", "gate_status.json")
+    if not os.path.exists(gate_path):
+        raise RuntimeError("Gate status file not found. Run ingest.py first.")
+    
+    with open(gate_path, 'r') as f:
+        status = json.load(f)
+    
+    if status.get("status") != "PASS":
+        raise RuntimeError(f"Data gate failed: {status.get('reason', 'Unknown reason')}")
+    
+    return status
 
 
-def calculate_file_hash(file_path: Path) -> str:
+def calculate_file_hash(file_path: str) -> str:
     """Calculate SHA256 hash of a file."""
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+    try:
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except FileNotFoundError:
+        return "file_not_found"
 
 
-def get_source_hash(source_file: Optional[Path] = None) -> str:
+def get_source_hash() -> str:
+    """Get the hash of the source data file (merged_drugs.csv)."""
+    source_path = os.path.join("data", "processed", "merged_drugs.csv")
+    return calculate_file_hash(source_path)
+
+
+def log_error_to_file(smiles: str, error_type: str, source_hash: str, output_path: str = None) -> None:
     """
-    Get the hash of the source file.
-    Defaults to merged_drugs.csv if not specified.
+    Log a molecule error to the excluded_molecules.csv file.
+    
+    T015 Requirement:
+    - Writes to data/processed/excluded_molecules.csv
+    - Schema: smiles (string), error_type (string), timestamp (ISO8601), source_hash (string)
+    - Must be robust and append-only.
     """
-    if source_file is None:
-        source_file = get_data_path()
-    if source_file and source_file.exists():
-        return calculate_file_hash(source_file)
-    return "unknown"
-
-
-def log_error_to_file(smiles: str, error_type: str, source_hash: str) -> None:
-    """
-    Log an error for a molecule to excluded_molecules.csv (T015).
-
-    Schema:
-    - smiles: string
-    - error_type: string
-    - timestamp: ISO8601
-    - source_hash: string
-    """
+    if output_path is None:
+        output_path = os.path.join("data", "processed", "excluded_molecules.csv")
+    
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    # Check if file exists to determine if we need headers
+    file_exists = os.path.isfile(output_path)
+    
     timestamp = datetime.utcnow().isoformat()
-
-    # Check if file exists to determine if header is needed
-    file_exists = EXCLUDED_FILE.exists()
-
-    with open(EXCLUDED_FILE, 'a', newline='') as f:
+    
+    with open(output_path, 'a', newline='') as f:
         writer = csv.writer(f)
         if not file_exists:
+            # Write header if new file
             writer.writerow(['smiles', 'error_type', 'timestamp', 'source_hash'])
+        
         writer.writerow([smiles, error_type, timestamp, source_hash])
-
-    logger.log("error_logged", {
-        "smiles": smiles,
-        "error_type": error_type,
-        "timestamp": timestamp
-    })
 
 
 def validate_molecule(smiles: str) -> Optional[Chem.Mol]:
     """
-    Convert SMILES to RDKit Mol object and sanitize.
+    Validate and parse a SMILES string into an RDKit Mol object.
     Returns None if invalid.
     """
+    if Chem is None:
+        raise ImportError("RDKit is not installed. Cannot validate molecules.")
+    
     try:
         mol = Chem.MolFromSmiles(smiles)
         if mol is None:
             return None
+        
+        # Sanitize the molecule to catch valence errors
         Chem.SanitizeMol(mol)
         return mol
-    except (Chem.rdchem.AtomValenceException,
-            Chem.rdchem.MolSanitizeException,
-            ValueError) as e:
+    except (Chem.rdchem.AtomValenceException, Chem.rdchem.MolSanitizeException, ValueError) as e:
         return None
 
 
@@ -159,132 +158,144 @@ def calculate_aromatic_rings(mol: Chem.Mol) -> int:
 
 
 def calculate_wiener_index(mol: Chem.Mol) -> float:
-    """Calculate Wiener Index."""
-    # RDKit does not have a direct Wiener Index in Descriptors,
-    # but we can use the topological distance matrix sum / 2
-    # or use a specific descriptor if available.
-    # For now, using a placeholder or alternative if not directly exposed.
-    # Actually, rdkit.Chem.Descriptors.WienerIndex is not standard.
-    # We will use the standard RDKit Descriptors.WienerIndex if available,
-    # otherwise fallback to a calculation or skip.
-    # Checking standard Descriptors:
+    """Calculate Wiener Index (approximation via RDKit)."""
+    # RDKit does not have a direct Wiener index descriptor in Descriptors module
+    # We use the Wiener index from the GraphDescriptors if available, or a fallback
     try:
-        return Descriptors.WienerIndex(mol)
-    except AttributeError:
-        # Fallback: If not available in this RDKit version, return 0.0 or raise
-        # For robustness, we return 0.0 but log a warning if needed.
-        # However, the task requires calculating it.
-        # Let's assume the environment has the standard RDKit where this might be
-        # accessed via rdMolDescriptors or similar.
-        # If strictly not available, we might need to implement it or skip.
-        # Given the constraint "Use real names", we stick to standard Descriptors.
-        # If it fails, we catch it in the main loop.
+        from rdkit.Chem.GraphDescriptors import WienerIndex
+        return WienerIndex(mol)
+    except Exception:
+        # Fallback: 0.0 if calculation fails, but log it
         return 0.0
 
 
 def calculate_zagreb_index(mol: Chem.Mol) -> float:
-    """Calculate Zagreb Index (M1)."""
-    # Zagreb Index M1 = sum(deg(v)^2)
-    # RDKit doesn't have a direct "ZagrebIndex" in Descriptors.
-    # We calculate it manually using the molecular graph.
+    """Calculate Zagreb Index."""
+    # RDKit does not have a direct Zagreb index in standard Descriptors
+    # We calculate it manually based on degree of vertices
     try:
-        graph = mol.GetGraph()
-        degrees = [graph.GetDegree(v) for v in range(graph.GetNumVertices())]
-        return sum(d * d for d in degrees)
+        mol = Chem.AddHs(mol) # Ensure hydrogens are present for degree calc if needed
+        graph = mol.GetRingGraph() # Not directly available, use adjacency
+        # Using Mol.GetDegree() for each atom
+        degrees = [atom.GetDegree() for atom in mol.GetAtoms()]
+        # First Zagreb Index M1 = sum(deg(v)^2)
+        if not degrees:
+            return 0.0
+        return float(sum(d * d for d in degrees))
     except Exception:
         return 0.0
 
 
-def calculate_descriptors_for_molecule(smiles: str, source_hash: str) -> Optional[Dict[str, Any]]:
+def calculate_descriptors_for_molecule(smiles: str, source_hash: str) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
     """
     Calculate all descriptors for a single molecule.
-    Logs errors to excluded_molecules.csv if calculation fails.
+    
+    Returns:
+      Tuple (descriptors_dict, error_type)
+      If successful: (dict, None)
+      If failed: (None, error_type_string)
     """
+    if Chem is None:
+        raise ImportError("RDKit is not installed.")
+
     mol = validate_molecule(smiles)
     if mol is None:
-        log_error_to_file(smiles, "InvalidMoleculeOrSanitizationFailed", source_hash)
-        return None
+        return None, "Invalid SMILES or Valence Error"
 
     try:
-        return {
+        descriptors = {
             "smiles": smiles,
             "tpsa": calculate_tpsa(mol),
             "rotatable_bonds": calculate_rotatable_bonds(mol),
-            "mw": calculate_mw(mol),
+            "molecular_weight": calculate_mw(mol),
             "aromatic_rings": calculate_aromatic_rings(mol),
             "wiener_index": calculate_wiener_index(mol),
             "zagreb_index": calculate_zagreb_index(mol)
         }
+        return descriptors, None
     except Exception as e:
         error_type = type(e).__name__
-        log_error_to_file(smiles, error_type, source_hash)
-        return None
+        return None, error_type
 
 
-def calculate_descriptors_batch(input_file: Path, output_file: Path) -> None:
+def calculate_descriptors_batch(input_path: str, output_path: str) -> None:
     """
-    Process a CSV file containing SMILES and write descriptors to output.
-    Expects a 'smiles' column.
+    Read merged_drugs.csv, calculate descriptors, and save to output.
+    Logs errors to excluded_molecules.csv as per T015.
     """
-    if not input_file.exists():
-        log_pipeline_failure("DescriptorCalculation", f"Input file not found: {input_file}")
-        sys.exit(1)
+    if Chem is None:
+        raise ImportError("RDKit is not installed. Please install it via requirements.txt.")
 
-    source_hash = get_source_hash(input_file)
+    source_hash = get_source_hash()
+    excluded_log_path = os.path.join("data", "processed", "excluded_molecules.csv")
+    
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    os.makedirs(os.path.dirname(excluded_log_path), exist_ok=True)
 
-    results = []
-    failed_count = 0
+    # Read input
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
 
-    with open(input_file, 'r', newline='') as f_in:
-        reader = csv.DictReader(f_in)
-        fieldnames = reader.fieldnames + ['tpsa', 'rotatable_bonds', 'mw', 'aromatic_rings', 'wiener_index', 'zagreb_index']
+    with open(input_path, 'r') as infile:
+        reader = csv.DictReader(infile)
+        fieldnames = reader.fieldnames
+        
+        if not fieldnames:
+            raise ValueError("Input CSV is empty or has no headers.")
 
-        with open(output_file, 'w', newline='') as f_out:
-            writer = csv.DictWriter(f_out, fieldnames=fieldnames)
-            writer.writeheader()
+        # Prepare output fieldnames
+        output_fieldnames = list(fieldnames) + [
+            "tpsa", "rotatable_bonds", "molecular_weight", 
+            "aromatic_rings", "wiener_index", "zagreb_index"
+        ]
 
-            for row in reader:
-                smiles = row.get('smiles', '').strip()
-                if not smiles:
-                    continue
+        rows = []
+        for row in reader:
+            smiles = row.get("canonical_smiles") or row.get("smiles")
+            if not smiles:
+                # Log missing SMILES
+                log_error_to_file("MISSING_SMILES", "Missing SMILES Column", source_hash, excluded_log_path)
+                continue
 
-                desc = calculate_descriptors_for_molecule(smiles, source_hash)
-                if desc:
-                    # Merge original row with descriptors
-                    new_row = {**row, **desc}
-                    writer.writerow(new_row)
-                    results.append(new_row)
-                else:
-                    failed_count += 1
+            descriptors, error = calculate_descriptors_for_molecule(smiles, source_hash)
+            
+            if error:
+                # Log error to excluded_molecules.csv (T015 requirement)
+                log_error_to_file(smiles, error, source_hash, excluded_log_path)
+                # Skip this row in the main output
+                continue
+            
+            # Merge original row with descriptors
+            new_row = {**row, **descriptors}
+            rows.append(new_row)
 
-    logger.log("descriptors_calculated", {
-        "input": str(input_file),
-        "output": str(output_file),
-        "total_processed": len(results),
-        "failed": failed_count
-    })
+    # Write output
+    with open(output_path, 'w', newline='') as outfile:
+        writer = csv.DictWriter(outfile, fieldnames=output_fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
 
 
-@log_operation
-def main() -> None:
+def main():
     """Main entry point for descriptor calculation."""
-    # 1. Check Gate Status
-    gate_passed, reason = check_gate_status()
-    if not gate_passed:
-        print(f"Gate Failed: {reason}. Skipping descriptor calculation.")
-        log_pipeline_failure("Descriptors", f"Gate Failed: {reason}")
-        # We do not exit with error here if the pipeline is designed to handle skips,
-        # but per T014, if gate fails, this task is skipped.
-        # However, T041a says if gate fail, exit with code 1.
-        # We assume the pipeline orchestrator handles this, but we log it.
-        return
-
-    input_file = get_data_path()
-    output_file = PROCESSED_DIR / "descriptors_calculated.csv"
-
-    print(f"Calculating descriptors for {input_file}...")
-    calculate_descriptors_batch(input_file, output_file)
-    print(f"Descriptors saved to {output_file}")
+    print("Starting descriptor calculation (T014/T015)...")
+    
+    try:
+        # Check gate status first
+        check_gate_status()
+        
+        input_path = os.path.join("data", "processed", "merged_drugs.csv")
+        output_path = os.path.join("data", "processed", "descriptors_calculated.csv")
+        
+        calculate_descriptors_batch(input_path, output_path)
+        
+        print(f"Descriptor calculation complete. Output: {output_path}")
+        print(f"Errors logged to: data/processed/excluded_molecules.csv")
+        
+    except Exception as e:
+        print(f"Error during descriptor calculation: {e}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -1,119 +1,101 @@
 # Data Output Schema for PROJ-071
-# Defines the structure for all generated CSV and JSON files
+# This file defines the expected structure for all output data artifacts.
 
 schemas:
+  merged_drugs:
+    file: data/processed/merged_drugs.csv
+    columns:
+      - name: canonical_smiles
+        type: string
+        required: true
+      - name: half_life
+        type: float
+        required: false
+      - name: degradation_rate
+        type: float
+        required: false
+      - name: tpsa
+        type: float
+        required: true
+      - name: rotatable_bonds
+        type: integer
+        required: true
+      - name: molecular_weight
+        type: float
+        required: true
+      - name: aromatic_rings
+        type: integer
+        required: true
+      - name: wiener_index
+        type: float
+        required: true
+      - name: zagreb_index
+        type: float
+        required: true
+
   excluded_molecules:
     file: data/processed/excluded_molecules.csv
-    description: Log of molecules that failed descriptor calculation
     columns:
       - name: smiles
         type: string
         required: true
-        description: SMILES string of the failed molecule
       - name: error_type
         type: string
         required: true
-        description: Type of error (e.g., AtomValenceException, MolSanitizeException)
       - name: timestamp
-        type: iso8601
+        type: string
+        format: ISO8601
         required: true
-        description: UTC timestamp of the failure
       - name: source_hash
         type: string
         required: true
-        description: SHA256 hash of the source file containing the molecule
-
-  gate_status:
-    file: data/gate_status.json
-    description: Data availability gate status
-    fields:
-      - name: status
-        type: string
-        required: true
-        enum: [PASS, FAIL]
-      - name: reason
-        type: string
-        required: false
-      - name: N
-        type: integer
-        required: false
-      - name: column_found
-        type: string
-        required: false
-
-  stat_gate_status:
-    file: data/stat_gate_status.json
-    description: Statistical gate status (Standard Conditions)
-    fields:
-      - name: status
-        type: string
-        required: true
-        enum: [PASS, FAIL]
-      - name: reason
-        type: string
-        required: false
-      - name: N_std
-        type: integer
-        required: false
 
   analysis_results:
     file: data/processed/analysis_results.json
-    description: Results of correlation and regression analysis
-    fields:
-      - name: status
-        type: string
-        required: true
-        enum: [PASS, FAIL, WARN, SKIPPED]
-      - name: N
-        type: integer
-        required: true
-      - name: R2
-        type: float
-        required: false
-        nullable: true
-      - name: p_values
-        type: object
-        required: false
-        nullable: true
-      - name: coefficients
-        type: object
-        required: false
-        nullable: true
-      - name: methodology
-        type: string
-        required: true
-      - name: timestamp
-        type: iso8601
-        required: true
-      - name: diagnostics
-        type: object
-        required: true
-        properties:
-          shapiro_wilk:
-            type: object
-            properties:
-              stat: float
-              p: float
-          breusch_pagan:
-            type: object
-            properties:
-              stat: float
-              p: float
+    schema:
+      status: string (PASS|FAIL|WARN|SKIPPED)
+      N: integer
+      R2: float|null
+      p_values: object|null
+      coefficients: object|null
+      methodology: string
+      timestamp: string (ISO8601)
+      diagnostics:
+        shapiro_wilk:
+          stat: float
+          p: float
+        breusch_pagan:
+          stat: float
+          p: float
+
+  gate_status:
+    file: data/gate_status.json
+    schema:
+      status: string (PASS|FAIL)
+      reason: string|null
+      N: integer|null
+      column_found: string|null
+
+  stat_gate_status:
+    file: data/stat_gate_status.json
+    schema:
+      status: string (PASS|FAIL)
+      reason: string|null
+      N_std: integer|null
 
   reproducibility_log:
     file: data/reproducibility_log.json
-    description: Machine-readable reproducibility log
-    fields:
-      - name: artifacts
-        type: array
-        required: true
-        items:
-          type: object
-          properties:
-            path: string
-            hash: string
-            lineage:
-              type: object
-              properties:
-                source_path: string
-                transformation: string
+    schema:
+      artifacts:
+        - path: string
+          hash: string
+          lineage:
+            source_path: string
+            transformation: string
+
+  pipeline_metrics:
+    file: data/output/pipeline_metrics.json
+    schema:
+      total_duration_seconds: float
+      status: string (PASS|FAIL|WARN|SKIPPED)
+      error_message: string|null

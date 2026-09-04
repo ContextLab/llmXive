@@ -2,63 +2,80 @@
 
 ## Prerequisites
 
--   Python 3.11+
--   Git
--   14 GB free disk space
--   8 GB RAM (recommended for smooth operation)
+- Python 3.11+
+- `pip`
+- Hugging Face CLI (optional, for authentication)
+- Sufficient disk space (for datasets and model cache)
+- Sufficient RAM recommended (for processing)
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-755-the-influence-of-chatbot-politeness-on-u
-    ```
+1. **Clone and Setup**
+   ```bash
+   cd projects/PROJ-755-the-influence-of-chatbot-politeness-on-u
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-2.  **Create and activate virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Install Dependencies**
+   ```bash
+   pip install -r code/requirements.txt
+   ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
+3. **Configure Environment**
+   - Copy `.env.example` to `.env`:
+     ```bash
+     cp .env.example .env
+     ```
+   - Edit `.env` and add your Hugging Face token (required for dataset download):
+     ```
+     HF_TOKEN=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+     ```
 
 ## Running the Pipeline
 
-### Step 1: Download and Score Data
-This step downloads the datasets, computes politeness scores, and saves the processed data.
+### 1. Download and Process Data
 ```bash
-python code/01_download_and_score.py
+python code/data/loader.py --datasets YCAI3/HCI_P2,facebook/Persona-Chat,daanelson/EmpatheticDialogues
+python code/data/preprocess.py --input data/raw/merged_dataset.zip --output data/processed/dialogues_with_scores.csv
 ```
--   **Output**: `data/processed/scored_dialogues.parquet`
--   **Time**: ~1-2 hours (depends on dataset size and CPU speed).
+*This will download all three datasets, filter incomplete dialogues, compute politeness scores, and save the processed CSV.*
 
-### Step 2: Fit CLMM Model
-This step fits the Cumulative Link Mixed-Effects Model.
+### 2. Run Power Analysis (Optional)
 ```bash
-python code/02_fit_clmm.py
+python code/analysis/power_analysis.py --input data/processed/dialogues_with_scores.csv --output results/power_analysis_report.json
 ```
--   **Output**: `data/processed/clmm_results.csv`
+*Estimates the Minimum Detectable Effect (MDE) and power for the current sample size.*
 
-### Step 3: Robustness & Subgroup Analysis
-This step runs the LIWC analysis and subgroup checks.
+### 3. Run Primary Analysis (CLMM)
 ```bash
-python code/03_robustness_analysis.py
+python code/analysis/clmm.py --input data/processed/dialogues_with_scores.csv --output results/clmm_results.csv
 ```
--   **Output**: `data/processed/robustness_results.csv`
+*Fits the Cumulative Link Mixed-Effects model and outputs coefficients, p-values, and confidence intervals.*
 
-## Verifying Results
-
-Run the contract tests to ensure data integrity:
+### 4. Run Robustness and Subgroup Analysis
 ```bash
-pytest tests/contract/
+python code/analysis/robustness.py --input data/processed/dialogues_with_scores.csv --output results/robustness_results.csv
 ```
+*Runs lexicon-based analysis and subgroup splits (age/gender) if sample sizes permit.*
+
+### 5. Validate Outputs
+```bash
+python code/utils/schema_validator.py --schema contracts/output.schema.yaml --input results/clmm_results.csv
+```
+*Validates that the output CSV matches the expected schema.*
+
+## Expected Outputs
+
+- `data/processed/dialogues_with_scores.csv`: Cleaned dataset with politeness scores.
+- `results/clmm_results.csv`: Primary model results.
+- `results/robustness_results.csv`: Secondary model results.
+- `results/power_analysis_report.json`: Power and MDE estimates.
+- `logs/pipeline.log`: Detailed execution logs, including filtering counts and convergence diagnostics.
 
 ## Troubleshooting
 
--   **Memory Error**: If you encounter OOM errors, reduce the batch size in `01_download_and_score.py` or sample the dataset.
--   **Model Convergence**: If the CLMM fails to converge, check `logs/convergence.log` for diagnostics. The script will automatically attempt a simplified model.
--   **Dataset Missing**: If Persona-Chat is missing, the script will proceed with EmpatheticDialogues and log a warning.
+- **Dataset Download Failed**: Ensure `HF_TOKEN` is set in `.env` and the token is valid.
+- **Model Convergence Failure**: Check `logs/pipeline.log` for diagnostic messages. The script will automatically attempt a simplified model (without random effects) if the full CLMM fails.
+- **Memory Error**: The pipeline uses streaming by default. If memory is still an issue, reduce the `--batch_size` in `preprocess.py`.
+- **Subgroup Analysis Skipped**: If a subgroup has < 30 samples, it will be logged and skipped (as per FR-006).

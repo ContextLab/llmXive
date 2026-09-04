@@ -24,23 +24,23 @@ description: "Task list template for feature implementation"
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 0: Research & Data Verification (Mandatory Pre-Implementation)
@@ -63,8 +63,8 @@ description: "Task list template for feature implementation"
 
 - [X] T001 [P] **Initialize Directories and Files**: Create `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/figures/`, `code/__init__.py`, `tests/__init__.py`. **Logic**: `os.makedirs(..., exist_ok=True)`. Verify all exist.
 - [ ] T002b [P] Create `projects/PROJ-517-neural-correlates-of-anticipatory-reward/requirements.txt` with pinned versions: pandas, numpy, scipy, statsmodels, scikit-learn, matplotlib, seaborn, pyyaml, pytest
-- [ ] T002c [P] **Generate Venv Script**: Create a shell script `scripts/setup_venv.sh` that runs `python -m venv .venv`, `source .venv/bin/activate`, and `pip install -r requirements.txt`. **Logic**: Ensure the script handles errors if Python version < 3.10.
-- [ ] T002d [P] **Execute Venv Script**: Run `scripts/setup_venv.sh` to initialize the virtual environment. **Logic**: If `requirements.txt` is missing, exit with code 1.
+- [X] T002c [P] **Generate Venv Script**: Create a shell script `scripts/setup_venv.sh` that runs `python -m venv.venv`, `source.venv/bin/activate`, and `pip install -r requirements.txt`. **Logic**: Ensure the script handles errors if Python version < 3.10.
+- [X] T002d [P] **Execute Venv Script**: Run `scripts/setup_venv.sh` to initialize the virtual environment. **Logic**: If `requirements.txt` is missing, exit with code 1.
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
 
 ---
@@ -99,7 +99,7 @@ description: "Task list template for feature implementation"
 
 - [X] T009 [P] [US1] Implement contract test `tests/contract/test_ingestion_schema.py::test_schema_validates_trial_id`: Assert that input CSV with valid `trial_id` passes schema validation; assert invalid `trial_id` format raises `ValidationError`
 - [ ] T009b [P] [US1] Implement general contract test `tests/contract/test_schemas.py::test_schemas_validates`: Validate `contracts/dataset.schema.yaml` (T003a) and `contracts/output.schema.yaml` (T006) against generated data (T005a-Run) and output (T014). **Dependency**: T003a, T006, T005a-Run.
-- [ ] T010 [P] [US1] Implement integration test `tests/integration/test_ingestion_pipeline.py::test_data_alignment`: Load `data/raw/synthetic_test.csv`, run `code/ingestion.py`, assert output DataFrame contains columns `['trial_id', 'neuron_id', 'spike_count', 'reward_magnitude']` and `spike_count.sum() == expected_total`. **Fix**: Ensure test explicitly calls `code/synthetic_generator.py` to create the input file if it does not exist, preventing "file missing" errors. **Dependency**: T005a-Run.
+- [X] T010 [P] [US1] Implement integration test `tests/integration/test_ingestion_pipeline.py::test_data_alignment`: Load `data/raw/synthetic_test.csv`, run `code/ingestion.py`, assert output DataFrame contains columns `['trial_id', 'neuron_id', 'spike_count', 'reward_magnitude']` and `spike_count.sum() == expected_total`. **Fix**: Ensure test explicitly calls `code/synthetic_generator.py` to create the input file if it does not exist, preventing "file missing" errors. **Dependency**: T005a-Run.
 
 ### Implementation for User Story 1
 
@@ -110,18 +110,18 @@ description: "Task list template for feature implementation"
 - [X] T013b [US1] Implement validation logic in `code/ingestion.py`: Check for >= 30 trials per reward magnitude level (FR-007); halt if any level < 30
 - [X] T013c [US1] Implement validation logic in `code/ingestion.py`: Handle zero-reward trials (keep as valid) and silent neurons (filter out with log warning)
 - [ ] T013e [US1] **Implement Validation & Reporting (Consolidated)**: Implement `code/ingestion.py` logic to:
-    1. Validate upstream spike sorting metadata (SNR/Isolation Distance). Filter trials where `snr <= 3` OR `isolation_distance <= 20`.
-    2. Generate `data/processed/spike_sorting_validation_report.md` with headers: "Rejection Criteria", "Rejected Trials", "Acceptance Rate".
-    3. Generate `data/processed/validation_report.json` containing data loss metrics (`ingestion_rows_total`, `ingestion_rows_valid`, `ingestion_rows_dropped`), `validated_sample_size`, and `confounded_trial_count`. Calculate `confounded_trial_count` as trials with cue-reward delay <500ms. Add `confounded` boolean column to output DataFrame and write `flagged_trial_ids` to report.
-    4. **State Updates**:
-        - If `snr`/`isolation_distance` missing: Set `state/claim_status.json` to `{"status": "REJECTED", "reason": "Missing spike sorting metadata"}`.
-        - If `cue_time_ms` missing: Set `status` to `{"status": "LIMITED", "reason": "No time-resolved analysis possible"}`.
-        - If `confounded_trial_count > 0`: Set `status` to `{"status": "LIMITED", "reason": "Confounded trials detected"}`. **Note**: Does not halt pipeline, but blocks 'Neural Correlates' claim generation.
-        - If Valid: Set `status` to `SUCCESS`.
-    5. **Fallback Artifacts**:
-        - If `status` is "REJECTED": Generate `data/processed/descriptive_stats_only.md` with a formal rejection note stating the claim is invalid due to missing metadata.
-        - If `status` is "LIMITED": Generate `data/processed/descriptive_stats_only.md` with a formal limitation note.
-    **Traceability**: Plan.md Phase 0 Step 2 (Metadata Check), SC-004 (Data Loss), FR-007 (Trial Count), FR-009 (Cue Delay).
+ 1. Validate upstream spike sorting metadata (SNR/Isolation Distance). Filter trials where `snr <= 3` OR `isolation_distance <= 20`.
+ 2. Generate `data/processed/spike_sorting_validation_report.md` with headers: "Rejection Criteria", "Rejected Trials", "Acceptance Rate".
+ 3. Generate `data/processed/validation_report.json` containing data loss metrics (`ingestion_rows_total`, `ingestion_rows_valid`, `ingestion_rows_dropped`), `validated_sample_size`, and `confounded_trial_count`. Calculate `confounded_trial_count` as trials with cue-reward delay <500ms. Add `confounded` boolean column to output DataFrame and write `flagged_trial_ids` to report.
+ 4. **State Updates**:
+ - If `snr`/`isolation_distance` missing: Set `state/claim_status.json` to `{"status": "REJECTED", "reason": "Missing spike sorting metadata"}`.
+ - If `cue_time_ms` missing: Set `status` to `{"status": "LIMITED", "reason": "No time-resolved analysis possible"}`.
+ - If `confounded_trial_count > 0`: Set `status` to `{"status": "LIMITED", "reason": "Confounded trials detected"}`. **Note**: Does not halt pipeline, but blocks 'Neural Correlates' claim generation.
+ - If Valid: Set `status` to `SUCCESS`.
+ 5. **Fallback Artifacts**:
+ - If `status` is "REJECTED": Generate `data/processed/descriptive_stats_only.md` with a formal rejection note stating the claim is invalid due to missing metadata.
+ - If `status` is "LIMITED": Generate `data/processed/descriptive_stats_only.md` with a formal limitation note.
+ **Traceability**: Plan.md Phase 0 Step 2 (Metadata Check), SC-004 (Data Loss), FR-007 (Trial Count), FR-009 (Cue Delay).
 - [X] T014 [US1] Implement `code/ingestion.py` output: unified Pandas DataFrame with `trial_id`, `neuron_id`, `spike_count`, `reward_magnitude`, `timestamp_relative_to_reward`, `cue_delay`, `confounded`
 - [ ] T015 [US1] Implement error handling for missing/malformed metadata files (US-1 Acceptance Scenario 2)
 - [ ] T017 [US1] Implement `code/data_loader.py` with `load_real_data()` function that fetches from OpenNeuro/Zenodo using `datasets.load_dataset()` or `hf_hub_download()` with `streaming=True` for large files. **Input**: `state/dataset_candidates.json` (fields: `dataset_id`, `url`). **Logic**: Check `os.getenv('CI') == 'true'`. If True, allow fallback to `code/synthetic_generator.py` and log a warning. **Crucial**: If `CI=true`, set `state/data_source_status.json` to `{"status": "success", "source": "synthetic", "is_final": false, "claim_eligible": false}`. If False (Production), raise `FileNotFoundError` immediately on fetch failure with message "Real data fetch failed. No synthetic fallback allowed in production. Please manually upload data to data/raw/". **Constraint**: NO synthetic fallback in production. The function MUST fail loudly. **Artifact**: Write `state/data_source_status.json` with `status` (success/failure), `source`, `is_final`, and `claim_eligible`. **Traceability**: Plan.md Phase 0 fallback strategy for missing file (REJECT status). **Note**: Metadata validation logic is handled in T013e, not T017.

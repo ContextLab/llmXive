@@ -1,7 +1,34 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Metallic Glass Dataset Schema
-description: Schema for the cleaned metallic glass dataset containing composition, CTE, and derived descriptors.
 type: object
+properties:
+  composition:
+    type: string
+    description: Chemical formula of the metallic glass (e.g., Zr50Cu40Al10)
+  cte:
+    type: number
+    description: Coefficient of Thermal Expansion (1/K)
+  weighted_mean_atomic_radius:
+    type: number
+    description: Weighted mean atomic radius in picometers
+  electronegativity_variance:
+    type: number
+    description: Variance of electronegativity based on atomic fractions
+  vec:
+    type: number
+    description: Valence Electron Concentration
+  atomic_size_mismatch:
+    type: number
+    description: Atomic size mismatch parameter (delta)
+  amorphous_state_flag:
+    type: integer
+    enum: [0, 1]
+    description: Flag indicating amorphous state (1) or crystalline (0)
+  alloy_family:
+    type: string
+    enum: ["Zr", "Pd", "Fe", "Other"]
+    description: Primary alloying element family
+  source:
+    type: string
+    description: Data source identifier (MP, AFLOW, ZENODO)
 required:
   - composition
   - cte
@@ -12,33 +39,3 @@ required:
   - amorphous_state_flag
   - alloy_family
   - source
-properties:
-  composition:
-    type: string
-    description: Chemical formula of the alloy (e.g., Zr50Cu40Al10).
-  cte:
-    type: number
-    description: Coefficient of Thermal Expansion (1/K).
-  weighted_mean_atomic_radius:
-    type: number
-    description: Weighted mean of atomic radii based on atomic fraction.
-  electronegativity_variance:
-    type: number
-    description: Variance of electronegativity weighted by atomic fraction.
-  vec:
-    type: number
-    description: Valence Electron Concentration (weighted mean).
-  atomic_size_mismatch:
-    type: number
-    description: Atomic size mismatch parameter (delta).
-  amorphous_state_flag:
-    type: integer
-    enum: [0, 1]
-    description: Flag indicating if the sample is amorphous (1) or crystalline (0).
-  alloy_family:
-    type: string
-    enum: ["Zr", "Pd", "Fe", "Other"]
-    description: Primary base metal family of the alloy.
-  source:
-    type: string
-    description: Origin of the data (e.g., "MaterialsProject", "AFLOW", "Zenodo").

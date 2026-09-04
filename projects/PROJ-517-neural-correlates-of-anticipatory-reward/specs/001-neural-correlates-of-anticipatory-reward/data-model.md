@@ -1,70 +1,87 @@
-# Data Model: Neural Correlates of Anticipatory Reward Processing in Vocal Learning
+# Data Model: Neural Correlates of Anticipatory Reward Processing
 
 ## Overview
-This document defines the data structures for the ingestion, processing, and analysis pipeline. It ensures traceability from raw spike data to final statistical reports. The model aligns with `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`.
 
-## Input Schema (contracts/dataset.schema.yaml)
-*Refer to `contracts/dataset.schema.yaml` for the formal YAML definition.*
+This document defines the data model for the project, derived from `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`. It specifies the field types, units, and constraints required for ingestion, validation, and statistical modeling of neural spike data in the context of reward processing.
 
-The pipeline ingests data in a flat-row format to support streaming and efficient processing.
+## Input Data Model (Raw)
 
-### Fields
+### Entity: Spike Event
+
+Represents a single detected spike from a neuron during a trial. This entity is the fundamental unit of analysis for calculating firing rates and temporal correlations.
+
 | Field | Type | Unit | Description | Constraints |
 |:--- |:--- |:--- |:--- |:--- |
-| `trial_id` | string | - | Unique identifier for each trial. | Non-empty, unique per session. |
-| `neuron_id` | string | - | Identifier for the recorded neuron. | Non-empty. |
-| `spike_time_ms` | float | ms | Timestamp of a single spike event. | Sorted ascending within a trial/neuron context. |
-| `cue_time_ms` | float | ms | Timestamp of cue presentation. | Must be < `reward_time_ms`. |
-| `reward_time_ms` | float | ms | Timestamp of reward delivery. | Reference point (t=0) for analysis windows. |
-| `reward_magnitude` | float | arbitrary units | Magnitude of reward delivered. | >= 0. |
-| `snr` | float | dB | Signal-to-Noise Ratio from spike sorting. | >= 0. Rejection threshold: <= 3. |
-| `isolation_distance` | float | dimensionless | Isolation distance metric from spike sorting. | >= 0. Rejection threshold: <= 20. |
+| `trial_id` | string | - | Unique trial identifier | Pattern: `trial_XXXX` (e.g., `trial_0001`) |
+| `neuron_id` | string | - | Unique neuron identifier | Pattern: `neuron_XX` (e.g., `neuron_01`) |
+| `spike_time_ms` | float | ms | Timestamp of spike relative to trial start | >= 0.0; Must be a flat float for streaming compatibility |
+| `cue_time_ms` | float | ms | Timestamp of cue stimulus onset | >= 0.0; Required for `cue_delay` calculation |
+| `reward_time_ms` | float | ms | Timestamp of reward delivery | >= 0.0; Required for spike windowing |
+| `reward_magnitude` | float | units | Magnitude of reward delivered | Discrete levels (e.g., 0.1, 0.5, 1.0) |
+| `snr` | float | ratio | Signal-to-Noise Ratio from spike sorting | > 3.0 (valid); <= 3.0 triggers rejection |
+| `isolation_distance` | float | ratio | Spike sorting isolation metric | > 20.0 (valid); <= 20.0 triggers rejection |
 
-## Derived Fields (Ingestion Stage)
-These fields are calculated during the `code/ingestion.py` phase (T012, T012b) and appended to the unified dataset.
+## Derived Fields (Processed)
 
-| Field | Type | Unit | Description | Calculation Logic |
+These fields are calculated during the ingestion phase (Task T012, T012b) and used in modeling.
+
+| Field | Type | Unit | Derivation Logic | Constraints |
 |:--- |:--- |:--- |:--- |:--- |
-| `spike_count` | int | count | Number of spikes in the anticipatory window. | Count where `reward_time_ms - 500 <= spike_time_ms <= reward_time_ms`. |
-| `cue_delay` | float | ms | Time difference between cue and reward. | `reward_time_ms - cue_time_ms`. |
-| `firing_rate` | float | spikes/sec | Normalized firing rate in the window. | `spike_count / 0.5` (window is 500ms). |
-| `confounded` | bool | - | Flag for short cue-reward delays. | `True` if `cue_delay < 500`. |
-| `valid_spike_sorting` | bool | - | Flag for quality control. | `True` if `snr > 3` AND `isolation_distance > 20`. |
+| `spike_count` | integer | count | Count of `spike_time_ms` in window `[-500ms, 0ms]` relative to `reward_time_ms` | >= 0 |
+| `cue_delay` | float | ms | `reward_time_ms` - `cue_time_ms` | > 0.0; < 500ms flags as `confounded` |
+| `firing_rate` | float | spikes/sec | `spike_count` / 0.5 | >= 0.0 |
+| `confounded` | boolean | - | `True` if `cue_delay` < 500ms | N/A |
 
-## Output Schema (contracts/output.schema.yaml)
-*Refer to `contracts/output.schema.yaml` for the formal YAML definition.*
+## Output Data Model (Validation & Reporting)
 
-The final unified DataFrame (T014) contains the following columns for modeling:
+### Entity: Validation Report
+
+Aggregated metrics regarding data quality and filtering.
 
 | Field | Type | Description |
 |:--- |:--- |:--- |
-| `trial_id` | string | Original trial ID. |
-| `neuron_id` | string | Original neuron ID. |
-| `spike_count` | int | Count of spikes in [-500ms, 0ms] window. |
-| `reward_magnitude` | float | Normalized reward magnitude. |
-| `cue_delay` | float | Time difference (cue to reward) in ms. |
-| `firing_rate` | float | Calculated firing rate (spikes/sec). |
-| `confounded` | bool | Flag for short delays. |
-| `valid_spike_sorting` | bool | Quality control flag. |
+| `ingestion_rows_total` | integer | Total rows read from input source |
+| `ingestion_rows_valid` | integer | Rows passing quality checks (SNR, Isolation) |
+| `ingestion_rows_dropped` | integer | Rows filtered out due to quality or missing data |
+| `validated_sample_size` | integer | Final N (trials) available for analysis |
+| `confounded_trial_count` | integer | Count of trials with `cue_delay` < 500ms |
+| `confounded_trial_ids` | list[string] | List of `trial_id`s flagged as confounded |
+| `status` | string | Overall pipeline status: `SUCCESS`, `LIMITED`, or `REJECTED` |
 
-### Reports
-1. **Validation Report (JSON)**: `data/processed/validation_report.json`
- * Contains ingestion metrics: `ingestion_rows_total`, `ingestion_rows_valid`, `ingestion_rows_dropped`, `validated_sample_size`, `confounded_trial_count`, `flagged_trial_ids`.
-2. **Spike Sorting Report (Markdown)**: `data/processed/spike_sorting_validation_report.md`
- * Contains counts of neurons passing/failing SNR/isolation thresholds.
-3. **Summary Statistics (Text)**: `data/processed/summary_report.txt`
- * Contains GLM coefficients, p-values, MDES, CV scores.
+### Entity: Model Results
 
-## Data Flow
+Statistical outputs from the Generalized Linear Model (GLM).
 
-1. **Raw Ingestion**: `data/raw/*.csv` -> `ingestion.py` -> `data/processed/unified_data.csv`.
-2. **Validation**: `ingestion.py` checks `snr`/`isolation_distance` -> `spike_sorting_validation_report.md`.
-3. **Modeling**: `modeling.py` reads `unified_data.csv` -> `data/processed/model_results.json`.
-4. **Visualization**: `visualization.py` reads `model_results.json` -> `data/figures/*.png`.
+| Field | Type | Description |
+|:--- |:--- |:--- |
+| `coefficient` | float | GLM coefficient for `reward_magnitude` |
+| `std_err` | float | Standard error of the coefficient |
+| `p_value` | float | Significance of the coefficient (two-tailed) |
+| `dispersion` | float | Estimated dispersion parameter (for NB model) |
+| `mdes` | float | Minimum Detectable Effect Size at 80% power |
+| `cv_score_mean` | float | Cross-validation R² mean |
+| `cv_score_std` | float | Cross-validation R² std |
+| `formula` | string | Final model formula used (e.g., `firing_rate ~ reward_magnitude + cue_delay`) |
 
-## Constraints & Assumptions
-* **Time Units**: All timestamps and delays in milliseconds (ms).
-* **Spike Sorting**: Metadata fields (`snr`, `isolation_distance`) are mandatory. If missing, `state/claim_status.json` is set to `REJECTED`.
-* **Missing Data**: Rows with missing `spike_time_ms`, `cue_time_ms`, or `reward_time_ms` are dropped.
-* **Zero-Reward Trials**: Included in analysis but handled explicitly in validation.
-* **Streaming**: The flat-row format (one spike per row) is designed for `datasets.load_dataset(..., streaming=True)` to handle large neurophysiology datasets without loading full arrays into RAM.
+## Relationships
+
+- **Spike Event** -> **Trial**: Many-to-One (Multiple spikes per trial)
+- **Spike Event** -> **Neuron**: Many-to-One (Multiple spikes per neuron)
+- **Validation Report** -> **Model Results**: One-to-One (Derived from validated data)
+
+## Constraints & Rules
+
+1. **Streaming Compatibility**: All timestamp fields (`spike_time_ms`, `cue_time_ms`, `reward_time_ms`) are stored as flat floats, not arrays, to enable chunked processing of large datasets via `streaming=True`.
+2. **Quality Thresholds**:
+ - `snr` must be > 3.0.
+ - `isolation_distance` must be > 20.0.
+ - Rows failing these checks are dropped and logged.
+3. **Temporal Validity**:
+ - `cue_time_ms` and `reward_time_ms` must be >= 0.0.
+ - `cue_delay` < 500ms indicates a confounded trial (cue and reward overlap too closely).
+4. **Statistical Power**:
+ - Minimum 30 trials per reward magnitude level required (FR-007).
+ - If `validated_sample_size` is insufficient, MDES will be high, limiting interpretability.
+5. **Data Integrity**:
+ - Synthetic data is only allowed in CI environments (`CI=true`).
+ - Production runs must use real data from verified sources (OpenNeuro/Zenodo) or fail loudly.

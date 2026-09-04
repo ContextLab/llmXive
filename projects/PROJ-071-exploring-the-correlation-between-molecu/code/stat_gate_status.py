@@ -1,60 +1,97 @@
 """
-Helper script to ensure stat_gate_status.json is created/updated based on standardization results.
-This addresses the "missing deliverable" issue for data/stat_gate_status.json.
+Module to handle statistical gate status.
+Writes data/stat_gate_status.json based on standard subset filtering.
 """
+from __future__ import annotations
+
 import json
 import os
 import sys
 from pathlib import Path
+from typing import Any, Dict
 
-def get_data_path() -> Path:
-    return Path(__file__).parent.parent / "data"
+import pandas as pd
 
-def load_gate_status() -> dict:
-    path = get_data_path() / "gate_status.json"
-    if path.exists():
-        with open(path, "r") as f:
-            return json.load(f)
-    return {"status": "FAIL", "reason": "No gate_status.json found"}
+from config import get_config
 
-def load_standard_subset() -> int:
-    """Returns count of standard_subset.csv if exists, else 0."""
-    path = get_data_path() / "processed" / "standard_subset.csv"
-    if path.exists():
-        # Simple count without loading full DF to be safe
-        with open(path, "r") as f:
-            return len(f.readlines()) - 1 # subtract header
-    return 0
+def get_data_path() -> str:
+    """Return the project data directory."""
+    return os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data')
 
-def save_stat_gate_status(status: str, reason: str, n_std: int = 0) -> None:
-    path = get_data_path() / "stat_gate_status.json"
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w") as f:
-        json.dump({
-            "status": status,
-            "reason": reason,
-            "N_std": n_std
-        }, f, indent=2)
+def load_gate_status() -> Dict[str, Any]:
+    """Load main gate status."""
+    gate_path = os.path.join(get_data_path(), 'gate_status.json')
+    if not os.path.exists(gate_path):
+        return {"status": "FAIL", "reason": "Main gate file not found"}
+    with open(gate_path, 'r') as f:
+        return json.load(f)
 
-def main():
+def load_standard_subset() -> pd.DataFrame:
+    """Load the standard subset dataset."""
+    subset_path = os.path.join(get_data_path(), 'processed', 'standard_subset.csv')
+    if not os.path.exists(subset_path):
+        raise FileNotFoundError(f"Standard subset file not found: {subset_path}")
+    return pd.read_csv(subset_path)
+
+def save_stat_gate_status(status: Dict[str, Any]) -> None:
+    """Save statistical gate status to data/stat_gate_status.json."""
+    output_path = os.path.join(get_data_path(), 'stat_gate_status.json')
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(status, f, indent=2)
+    print(f"Statistical gate status saved to {output_path}")
+
+def main() -> None:
     """
-    Checks the standard subset count and updates stat_gate_status.json.
-    This script is intended to be run after standardize.py.
+    Main entry point to compute and save statistical gate status.
+    This script is invoked by the pipeline to ensure stat_gate_status.json exists.
     """
-    gate = load_gate_status()
-    if gate.get("status") != "PASS":
-        save_stat_gate_status("FAIL", "Primary gate failed", 0)
-        return
+    print("Computing statistical gate status...")
 
-    n_std = load_standard_subset()
-    
+    # Check main gate
+    gate_status = load_gate_status()
+    if gate_status.get('status') != 'PASS':
+        print("Main gate failed. Skipping statistical gate check.")
+        save_stat_gate_status({
+            "status": "FAIL",
+            "reason": "Main gate failed",
+            "N_std": 0
+        })
+        sys.exit(1)
+
+    # Load standard subset
+    try:
+        df = load_standard_subset()
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        save_stat_gate_status({
+            "status": "FAIL",
+            "reason": "Standard subset not found",
+            "N_std": 0
+        })
+        sys.exit(1)
+
+    # Count valid records
+    n_std = len(df)
+
+    # Gate logic: N_std >= 30
     if n_std < 30:
-        save_stat_gate_status("FAIL", f"N_std < 30 (found {n_std})", n_std)
-        print(f"Statistical Gate Failed: Only {n_std} samples in standard subset.")
-        # Do not exit 1 here, just report status so analysis can skip gracefully
+        status = {
+            "status": "FAIL",
+            "reason": "N_std < 30",
+            "N_std": n_std
+        }
+        save_stat_gate_status(status)
+        print(f"Statistical gate FAILED: N_std = {n_std} (< 30)")
+        sys.exit(1)
     else:
-        save_stat_gate_status("PASS", "Sufficient standard samples", n_std)
-        print(f"Statistical Gate Passed: {n_std} samples in standard subset.")
+        status = {
+            "status": "PASS",
+            "reason": "Sufficient data",
+            "N_std": n_std
+        }
+        save_stat_gate_status(status)
+        print(f"Statistical gate PASSED: N_std = {n_std}")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
